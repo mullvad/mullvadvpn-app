@@ -1,4 +1,4 @@
-use crate::{logging::windows::log_sink, winnet};
+use crate::winnet;
 use futures::channel::mpsc::UnboundedSender;
 use parking_lot::Mutex;
 use std::{
@@ -11,6 +11,7 @@ use std::{
     thread,
     time::Duration,
 };
+use talpid_types::ErrorExt;
 use winapi::{
     shared::{
         basetsd::LONG_PTR,
@@ -41,14 +42,15 @@ pub enum Error {
     #[error(display = "Unable to create listener thread")]
     ThreadCreationError(#[error(source)] io::Error),
     #[error(display = "Failed to start connectivity monitor")]
-    ConnectivityMonitorError,
+    ConnectivityMonitorError(#[error(source)] winnet::DefaultRouteCallbackError),
 }
 
 
 pub struct BroadcastListener {
     thread_handle: RawHandle,
     thread_id: DWORD,
-    _system_state: Arc<Mutex<SystemState>>,
+    system_state: Arc<Mutex<SystemState>>,
+    _callback_handle: winnet::WinNetCallbackHandle,
     _notify_tx: Arc<UnboundedSender<bool>>,
 }
 
@@ -57,8 +59,10 @@ unsafe impl Send for BroadcastListener {}
 impl BroadcastListener {
     pub fn start(notify_tx: UnboundedSender<bool>) -> Result<Self, Error> {
         let notify_tx = Arc::new(notify_tx);
-        let mut system_state = Arc::new(Mutex::new(SystemState {
-            network_connectivity: None,
+        let (v4_connectivity, v6_connectivity) = Self::check_initial_connectivity();
+        let system_state = Arc::new(Mutex::new(SystemState {
+            v4_connectivity,
+            v6_connectivity,
             suspended: false,
             notify_tx: Arc::downgrade(&notify_tx),
         }));
@@ -91,14 +95,42 @@ impl BroadcastListener {
 
         let real_handle = join_handle.into_raw_handle();
 
-        unsafe { Self::setup_network_connectivity_listener(&mut system_state)? };
+        let callback_handle =
+            unsafe { Self::setup_network_connectivity_listener(system_state.clone())? };
 
         Ok(BroadcastListener {
             thread_handle: real_handle,
             thread_id: unsafe { GetThreadId(real_handle) },
-            _system_state: system_state,
+            system_state,
+            _callback_handle: callback_handle,
             _notify_tx: notify_tx,
         })
+    }
+
+    fn check_initial_connectivity() -> (bool, bool) {
+        let v4_connectivity = winnet::get_best_default_route(winnet::WinNetAddrFamily::IPV4)
+            .map(|route| route.is_some())
+            .unwrap_or_else(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to check initial IPv4 connectivity")
+                );
+                true
+            });
+        let v6_connectivity = winnet::get_best_default_route(winnet::WinNetAddrFamily::IPV6)
+            .map(|route| route.is_some())
+            .unwrap_or_else(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to check initial IPv6 connectivity")
+                );
+                true
+            });
+
+        let is_online = v4_connectivity || v6_connectivity;
+        log::info!("Initial connectivity: {}", is_offline_str(!is_online));
+
+        (v4_connectivity, v6_connectivity)
     }
 
     unsafe fn message_pump<F>(client_callback: F)
@@ -186,29 +218,37 @@ impl BroadcastListener {
     /// The caller must make sure the `system_state` reference is valid
     /// until after `WinNet_DeactivateConnectivityMonitor` has been called.
     unsafe fn setup_network_connectivity_listener(
-        system_state: &Mutex<SystemState>,
-    ) -> Result<(), Error> {
-        let callback_context = system_state as *const _ as *mut libc::c_void;
-        if !winnet::WinNet_ActivateConnectivityMonitor(
+        system_state: Arc<Mutex<SystemState>>,
+    ) -> Result<winnet::WinNetCallbackHandle, Error> {
+        let change_handle = winnet::add_default_route_change_callback(
             Some(Self::connectivity_callback),
-            callback_context,
-            Some(log_sink),
-            b"Connectivity monitor\0".as_ptr(),
-        ) {
-            return Err(Error::ConnectivityMonitorError);
-        }
-        Ok(())
+            system_state,
+        )?;
+        Ok(change_handle)
     }
 
-    unsafe extern "system" fn connectivity_callback(connectivity: bool, context: *mut c_void) {
-        let state_lock: &mut Mutex<SystemState> = &mut *(context as *mut _);
+    unsafe extern "system" fn connectivity_callback(
+        event_type: winnet::WinNetDefaultRouteChangeEventType,
+        family: winnet::WinNetAddrFamily,
+        _default_route: winnet::WinNetDefaultRoute,
+        ctx: *mut c_void,
+    ) {
+        let state_lock: &mut Arc<Mutex<SystemState>> = &mut *(ctx as *mut _);
+        let connectivity = match event_type {
+            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => true,
+            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteRemoved => false,
+        };
+        let change = match family {
+            winnet::WinNetAddrFamily::IPV4 => StateChange::NetworkV4Connectivity(connectivity),
+            winnet::WinNetAddrFamily::IPV6 => StateChange::NetworkV6Connectivity(connectivity),
+        };
         let mut state = state_lock.lock();
-        state.apply_change(StateChange::NetworkConnectivity(connectivity));
+        state.apply_change(change);
     }
 
     pub async fn is_offline(&self) -> bool {
-        let state = self._system_state.lock();
-        state.is_offline_currently().unwrap_or(false)
+        let state = self.system_state.lock();
+        state.is_offline_currently()
     }
 }
 
@@ -218,19 +258,20 @@ impl Drop for BroadcastListener {
             PostThreadMessageW(self.thread_id, REQUEST_THREAD_SHUTDOWN, 0, 0);
             WaitForSingleObject(self.thread_handle, INFINITE);
             CloseHandle(self.thread_handle);
-            winnet::WinNet_DeactivateConnectivityMonitor();
         }
     }
 }
 
 #[derive(Debug)]
 enum StateChange {
-    NetworkConnectivity(bool),
+    NetworkV4Connectivity(bool),
+    NetworkV6Connectivity(bool),
     Suspended(bool),
 }
 
 struct SystemState {
-    network_connectivity: Option<bool>,
+    v4_connectivity: bool,
+    v6_connectivity: bool,
     suspended: bool,
     notify_tx: Weak<UnboundedSender<bool>>,
 }
@@ -239,8 +280,12 @@ impl SystemState {
     fn apply_change(&mut self, change: StateChange) {
         let old_state = self.is_offline_currently();
         match change {
-            StateChange::NetworkConnectivity(connectivity) => {
-                self.network_connectivity = Some(connectivity);
+            StateChange::NetworkV4Connectivity(connectivity) => {
+                self.v4_connectivity = connectivity;
+            }
+
+            StateChange::NetworkV6Connectivity(connectivity) => {
+                self.v6_connectivity = connectivity;
             }
 
             StateChange::Suspended(suspended) => {
@@ -250,16 +295,26 @@ impl SystemState {
 
         let new_state = self.is_offline_currently();
         if old_state != new_state {
+            log::info!("Connectivity changed: {}", is_offline_str(new_state));
             if let Some(notify_tx) = self.notify_tx.upgrade() {
-                if let Err(e) = notify_tx.unbounded_send(new_state.unwrap_or(false)) {
+                if let Err(e) = notify_tx.unbounded_send(new_state) {
                     log::error!("Failed to send new offline state to daemon: {}", e);
                 }
             }
         }
     }
 
-    fn is_offline_currently(&self) -> Option<bool> {
-        Some(!self.network_connectivity? || self.suspended)
+    fn is_offline_currently(&self) -> bool {
+        (!self.v4_connectivity && !self.v6_connectivity) || self.suspended
+    }
+}
+
+// If `offline` is true, return "Offline". Otherwise, return "Connected".
+fn is_offline_str(offline: bool) -> &'static str {
+    if offline {
+        "Offline"
+    } else {
+        "Connected"
     }
 }
 
