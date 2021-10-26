@@ -389,6 +389,7 @@ pub struct DevicesProxy {
 struct DeviceResponse {
     id: DeviceId,
     name: DeviceName,
+    pubkey: wireguard::PublicKey,
     ipv4_address: ipnetwork::Ipv4Network,
     ipv6_address: ipnetwork::Ipv6Network,
 }
@@ -433,13 +434,14 @@ impl DevicesProxy {
             let DeviceResponse {
                 id,
                 name,
+                pubkey,
                 ipv4_address,
                 ipv6_address,
                 ..
             } = response;
 
             Ok((
-                Device { id, name },
+                Device { id, name, pubkey },
                 mullvad_types::wireguard::AssociatedAddresses {
                     ipv4_address,
                     ipv6_address,

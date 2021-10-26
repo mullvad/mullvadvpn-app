@@ -341,6 +341,8 @@ pub(crate) enum InternalDaemonEvent {
     NewAppVersionInfo(AppVersionInfo),
     /// Sent when a device key is rotated.
     DeviceKeyEvent(device::DeviceKeyEvent),
+    /// Handles updates from versions without devices.
+    DeviceMigrationEvent(DeviceData),
     /// The split tunnel paths or state were updated.
     #[cfg(target_os = "windows")]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
@@ -595,22 +597,6 @@ where
 
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
 
-        if let Err(error) = migrations::migrate_all(&cache_dir, &settings_dir).await {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to migrate settings or cache")
-            );
-        }
-        let mut settings = SettingsPersister::load(&settings_dir).await;
-
-        if version::is_beta_version() {
-            let _ = settings.set_show_beta_releases(true).await;
-        }
-
-        let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
-            tx: internal_event_tx.clone(),
-        };
-
         let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
             Some(&resource_dir),
             &cache_dir,
@@ -625,6 +611,30 @@ where
         api_availability.suspend();
 
         let rpc_handle = rpc_runtime.mullvad_rest_handle();
+
+        if let Err(error) = migrations::migrate_all(
+            &cache_dir,
+            &settings_dir,
+            runtime.clone(),
+            rpc_handle.clone(),
+            internal_event_tx.clone(),
+        )
+        .await
+        {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to migrate settings or cache")
+            );
+        }
+        let mut settings = SettingsPersister::load(&settings_dir).await;
+
+        if version::is_beta_version() {
+            let _ = settings.set_show_beta_releases(true).await;
+        }
+
+        let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
+            tx: internal_event_tx.clone(),
+        };
 
         let mut account_manager = device::AccountManager::new(
             runtime.clone(),
@@ -939,6 +949,7 @@ where
                 self.handle_new_app_version_info(app_version_info)
             }
             DeviceKeyEvent(event) => self.handle_device_key_event(event).await,
+            DeviceMigrationEvent(event) => self.handle_device_migration_event(event).await,
             #[cfg(windows)]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
         }
@@ -1326,6 +1337,18 @@ where
         }
         self.event_listener
             .notify_device_event(DeviceEvent(Some(Device::from(event.0))));
+    }
+
+    async fn handle_device_migration_event(&mut self, data: DeviceData) {
+        if self.account_manager.get().is_some() {
+            // Discard stale device
+            return;
+        }
+        let device = data.device.clone();
+        self.account_manager.set(data);
+        self.reconnect_tunnel();
+        self.event_listener
+            .notify_device_event(DeviceEvent(Some(device)));
     }
 
     #[cfg(windows)]
