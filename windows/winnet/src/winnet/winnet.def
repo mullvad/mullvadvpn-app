@@ -1,8 +1,6 @@
 LIBRARY winnet
 EXPORTS
 	WinNet_EnsureBestMetric
-	WinNet_ActivateConnectivityMonitor
-	WinNet_DeactivateConnectivityMonitor
 	WinNet_ActivateRouteManager
 	WinNet_DeactivateRouteManager
 	WinNet_AddDeviceIpAddresses

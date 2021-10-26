@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "winnet.h"
 #include "NetworkInterfaces.h"
-#include "offlinemonitor.h"
 #include "routing/routemanager.h"
 #include "converters.h"
 #include <libshared/logging/logsinkadapter.h>
@@ -23,8 +22,6 @@ using namespace shared::network;
 
 namespace
 {
-
-OfflineMonitor *g_OfflineMonitor = nullptr;
 
 std::mutex g_RouteManagerLock;
 RouteManager *g_RouteManager = nullptr;
@@ -179,68 +176,6 @@ WinNet_InterfaceLuidToIpAddress(
 	catch (...)
 	{
 		return WINNET_STATUS_FAILURE;
-	}
-}
-
-extern "C"
-WINNET_LINKAGE
-bool
-WINNET_API
-WinNet_ActivateConnectivityMonitor(
-	WinNetConnectivityMonitorCallback callback,
-	void *callbackContext,
-	MullvadLogSink logSink,
-	void *logSinkContext
-)
-{
-	try
-	{
-		if (nullptr != g_OfflineMonitor)
-		{
-			THROW_ERROR("Cannot activate connectivity monitor twice");
-		}
-
-		if (nullptr == callback)
-		{
-			THROW_ERROR("Invalid argument: callback");
-		}
-
-		auto forwarder = [callback, callbackContext](bool connected)
-		{
-			callback(connected, callbackContext);
-		};
-
-		auto logger = std::make_shared<shared::logging::LogSinkAdapter>(logSink, logSinkContext);
-
-		g_OfflineMonitor = new OfflineMonitor(logger, forwarder);
-
-		return true;
-	}
-	catch (const std::exception &err)
-	{
-		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
-		return false;
-	}
-	catch (...)
-	{
-		return false;
-	}
-}
-
-extern "C"
-WINNET_LINKAGE
-void
-WINNET_API
-WinNet_DeactivateConnectivityMonitor(
-)
-{
-	try
-	{
-		delete g_OfflineMonitor;
-		g_OfflineMonitor = nullptr;
-	}
-	catch (...)
-	{
 	}
 }
 

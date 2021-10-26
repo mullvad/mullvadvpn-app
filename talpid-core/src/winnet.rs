@@ -1,5 +1,4 @@
 use self::api::*;
-pub use self::api::{WinNet_ActivateConnectivityMonitor, WinNet_DeactivateConnectivityMonitor};
 use crate::{logging::windows::log_sink, routing::Node};
 use ipnetwork::IpNetwork;
 use libc::c_void;
@@ -48,10 +47,6 @@ pub enum Error {
     /// Failed to read IPv6 status on the TAP network interface.
     #[error(display = "Failed to read IPv6 status on the TAP network interface")]
     GetIpv6Status,
-
-    /// Can't establish whether host is connected to a non-virtual network
-    #[error(display = "Network connectivity undecideable")]
-    ConnectivityUnkown,
 }
 
 fn logging_context() -> *const u8 {
@@ -424,9 +419,7 @@ pub fn add_device_ip_addresses(iface: &String, addresses: &Vec<IpAddr>) -> bool 
 mod api {
     use super::DefaultRouteChangedCallback;
     use crate::logging::windows::LogSink;
-    use libc::{c_void, wchar_t};
-
-    pub type ConnectivityCallback = unsafe extern "system" fn(is_connected: bool, ctx: *mut c_void);
+    use libc::wchar_t;
 
     #[allow(dead_code)]
     #[repr(u32)]
@@ -495,14 +488,6 @@ mod api {
             sink_context: *const u8,
         ) -> WinNetStatus;
 
-        #[link_name = "WinNet_ActivateConnectivityMonitor"]
-        pub fn WinNet_ActivateConnectivityMonitor(
-            callback: Option<ConnectivityCallback>,
-            callbackContext: *mut libc::c_void,
-            sink: Option<LogSink>,
-            sink_context: *const u8,
-        ) -> bool;
-
         #[link_name = "WinNet_RegisterDefaultRouteChangedCallback"]
         pub fn WinNet_RegisterDefaultRouteChangedCallback(
             callback: Option<DefaultRouteChangedCallback>,
@@ -512,9 +497,6 @@ mod api {
 
         #[link_name = "WinNet_UnregisterDefaultRouteChangedCallback"]
         pub fn WinNet_UnregisterDefaultRouteChangedCallback(registrationHandle: *mut libc::c_void);
-
-        #[link_name = "WinNet_DeactivateConnectivityMonitor"]
-        pub fn WinNet_DeactivateConnectivityMonitor();
 
         #[link_name = "WinNet_AddDeviceIpAddresses"]
         pub fn WinNet_AddDeviceIpAddresses(

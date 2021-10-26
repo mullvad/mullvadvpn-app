@@ -6,8 +6,6 @@
     <ClCompile Include="winnet.cpp" />
     <ClCompile Include="NetworkInterfaces.cpp" />
     <ClCompile Include="InterfacePair.cpp" />
-    <ClCompile Include="networkadaptermonitor.cpp" />
-    <ClCompile Include="offlinemonitor.cpp" />
     <ClCompile Include="routing\types.cpp">
       <Filter>routing</Filter>
     </ClCompile>
@@ -28,8 +26,6 @@
     <ClInclude Include="winnet.h" />
     <ClInclude Include="NetworkInterfaces.h" />
     <ClInclude Include="InterfacePair.h" />
-    <ClInclude Include="networkadaptermonitor.h" />
-    <ClInclude Include="offlinemonitor.h" />
     <ClInclude Include="routing\types.h">
       <Filter>routing</Filter>
     </ClInclude>

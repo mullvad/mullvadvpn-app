@@ -33,26 +33,6 @@ WinNet_EnsureBestMetric(
 	void *logSinkContext
 );
 
-typedef void (WINNET_API *WinNetConnectivityMonitorCallback)(bool connected, void *context);
-
-extern "C"
-WINNET_LINKAGE
-bool
-WINNET_API
-WinNet_ActivateConnectivityMonitor(
-	WinNetConnectivityMonitorCallback callback,
-	void *callbackContext,
-	MullvadLogSink logSink,
-	void *logSinkContext
-);
-
-extern "C"
-WINNET_LINKAGE
-void
-WINNET_API
-WinNet_DeactivateConnectivityMonitor(
-);
-
 enum WINNET_ADDR_FAMILY
 {
 	WINNET_ADDR_FAMILY_IPV4 = 0,
