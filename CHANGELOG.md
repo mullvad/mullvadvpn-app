@@ -48,6 +48,7 @@ Line wrap the file at 100 chars.                                              Th
   out the default route.
 - Fix bug in split tunneling code that could make the kernel driver and mullvad-daemon out of
   sync around which programs should be excluded when the driver took longer to respond.
+- Improve repositioning of app window after connecting/disconnecting external monitor.
 
 #### Android
 - Fix reconnect on app resume. Don't reconnect the tunnel every time the app is opened.
@@ -55,6 +56,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Prevent app from showing when dragging tray icon on macOS.
+- Move window after dragging tray icon to new position.
 
 
 ## [2021.5] - 2021-10-25
