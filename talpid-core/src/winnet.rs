@@ -311,6 +311,7 @@ impl Drop for WinNetCallbackHandle {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
 #[allow(dead_code)]
 #[repr(u16)]
 pub enum WinNetDefaultRouteChangeEventType {
