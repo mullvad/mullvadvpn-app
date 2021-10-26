@@ -1,6 +1,7 @@
 import { BrowserWindow, Display, screen, Tray, WebContents } from 'electron';
 import { IpcMainEventChannel } from './ipc-event-channel';
 import { IWindowShapeParameters } from '../shared/ipc-types';
+import { Scheduler } from '../shared/scheduler';
 
 interface IPosition {
   x: number;
@@ -134,6 +135,8 @@ export default class WindowController {
   private webContentsValue: WebContents;
   private windowPositioning: IWindowPositioning;
 
+  private windowPositioningScheduler = new Scheduler();
+
   get window(): BrowserWindow | undefined {
     return this.windowValue.isDestroyed() ? undefined : this.windowValue;
   }
@@ -194,6 +197,10 @@ export default class WindowController {
     return this.window?.isVisible() ?? false;
   }
 
+  public dispose() {
+    this.windowPositioningScheduler.cancel();
+  }
+
   private showImmediately() {
     const window = this.window;
 
@@ -251,8 +258,8 @@ export default class WindowController {
     changedMetrics: string[],
   ) => {
     if (changedMetrics.includes('workArea') && this.window?.isVisible()) {
-      this.updatePosition();
-      this.notifyUpdateWindowShape();
+      this.onWorkAreaSizeChange();
+      this.windowPositioningScheduler.schedule(() => this.onWorkAreaSizeChange(), 500);
     }
 
     // On linux, the window won't be properly rescaled back to it's original
@@ -262,6 +269,11 @@ export default class WindowController {
       this.forceResizeWindow();
     }
   };
+
+  private onWorkAreaSizeChange() {
+    this.updatePosition();
+    this.notifyUpdateWindowShape();
+  }
 
   private forceResizeWindow() {
     this.window?.setSize(this.width, this.height);
