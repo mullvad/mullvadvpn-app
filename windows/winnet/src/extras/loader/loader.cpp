@@ -3,11 +3,6 @@
 #include <libshared/logging/stdoutlogger.h>
 #include <iostream>
 
-void __stdcall ConnectivityChanged(bool connected, void *)
-{
-	std::wcout << (0 != connected? L"Connected" : L"NOT connected") << std::endl;
-}
-
 int main()
 {
 	//wchar_t *alias = nullptr;
@@ -27,13 +22,6 @@ int main()
 	//		WinNet_ReleaseString(alias);
 	//	}
 	//};
-
-	const auto status = WinNet_ActivateConnectivityMonitor(
-		ConnectivityChanged,
-		nullptr,
-		shared::logging::StdoutLogger,
-		nullptr
-	);
 
 	_getwch();
 
