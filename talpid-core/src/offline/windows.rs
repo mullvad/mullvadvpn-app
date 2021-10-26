@@ -3,7 +3,7 @@ use futures::channel::mpsc::UnboundedSender;
 use parking_lot::Mutex;
 use std::{
     ffi::c_void,
-    io,
+    fmt, io,
     mem::zeroed,
     os::windows::io::{IntoRawHandle, RawHandle},
     ptr,
@@ -45,6 +45,35 @@ pub enum Error {
     ConnectivityMonitorError(#[error(source)] winnet::DefaultRouteCallbackError),
 }
 
+enum ConnectivityStatus {
+    Online,
+    Offline,
+}
+
+impl ConnectivityStatus {
+    fn new(connected: bool) -> Self {
+        if connected {
+            ConnectivityStatus::Online
+        } else {
+            ConnectivityStatus::Offline
+        }
+    }
+    fn online(connected: bool) -> Self {
+        Self::new(connected)
+    }
+    fn offline(disconnected: bool) -> Self {
+        Self::new(!disconnected)
+    }
+}
+
+impl fmt::Display for ConnectivityStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            ConnectivityStatus::Online => f.write_str("Online"),
+            ConnectivityStatus::Offline => f.write_str("Offline"),
+        }
+    }
+}
 
 pub struct BroadcastListener {
     thread_handle: RawHandle,
@@ -127,8 +156,8 @@ impl BroadcastListener {
                 true
             });
 
-        let is_online = v4_connectivity || v6_connectivity;
-        log::info!("Initial connectivity: {}", connectivity_str(!is_online));
+        let status = ConnectivityStatus::online(v4_connectivity || v6_connectivity);
+        log::info!("Initial connectivity: {}", status);
 
         (v4_connectivity, v6_connectivity)
     }
@@ -295,7 +324,10 @@ impl SystemState {
 
         let new_state = self.is_offline_currently();
         if old_state != new_state {
-            log::info!("Connectivity changed: {}", connectivity_str(new_state));
+            log::info!(
+                "Connectivity changed: {}",
+                ConnectivityStatus::offline(new_state)
+            );
             if let Some(notify_tx) = self.notify_tx.upgrade() {
                 if let Err(e) = notify_tx.unbounded_send(new_state) {
                     log::error!("Failed to send new offline state to daemon: {}", e);
@@ -306,14 +338,6 @@ impl SystemState {
 
     fn is_offline_currently(&self) -> bool {
         (!self.v4_connectivity && !self.v6_connectivity) || self.suspended
-    }
-}
-
-fn connectivity_str(offline: bool) -> &'static str {
-    if offline {
-        "Offline"
-    } else {
-        "Connected"
     }
 }
 
