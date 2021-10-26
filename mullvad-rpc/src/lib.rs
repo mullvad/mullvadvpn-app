@@ -46,10 +46,38 @@ pub const INVALID_ACCOUNT: &str = "INVALID_ACCOUNT";
 /// Error code returned by the Mullvad API if the account token is missing or invalid.
 pub const INVALID_AUTH: &str = "INVALID_AUTH";
 
-const API_HOST: &str = "api.mullvad.net";
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
-const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
-const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
+const API_HOST_DEFAULT: &str = "api.mullvad.net";
+const API_IP_DEFAULT: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
+const API_PORT_DEFAULT: u16 = 443;
+
+// Override the hostname and IP used to reach the API.
+#[cfg(feature = "api-override")]
+lazy_static::lazy_static! {
+    static ref API_HOST: String = std::env::var("MULLVAD_API_HOST")
+        .ok()
+        .map(|host| {
+            log::debug!("Overriding API hostname: {}", host);
+            host
+        })
+        .unwrap_or(API_HOST_DEFAULT.to_string());
+    static ref API_ADDRESS: SocketAddr = std::env::var("MULLVAD_API_ADDRESS")
+        .ok()
+        .and_then(|addr| {
+            let addr = addr.parse().ok();
+            if let Some(addr) = &addr {
+                log::debug!("Overriding API address: {}", addr);
+            }
+            addr
+        })
+        .unwrap_or(SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT));
+    static ref DISABLE_ADDRESS_ROTATION: bool = std::env::var("MULLVAD_API_ADDRESS").ok().is_some();
+}
+#[cfg(not(feature = "api-override"))]
+lazy_static::lazy_static! {
+    static ref API_HOST: String = API_HOST_DEFAULT.to_string();
+    static ref API_ADDRESS: SocketAddr = SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT);
+}
 
 
 /// A type that helps with the creation of RPC connections.
@@ -76,16 +104,27 @@ pub enum Error {
 impl MullvadRpcRuntime {
     /// Create a new `MullvadRpcRuntime`.
     pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
+        Self::new_inner(
+            handle,
+            #[cfg(target_os = "android")]
+            None,
+        )
+    }
+
+    fn new_inner(
+        handle: tokio::runtime::Handle,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+    ) -> Result<Self, Error> {
         Ok(MullvadRpcRuntime {
             handle,
             address_cache: AddressCache::new(
-                vec![API_ADDRESS.into()],
+                vec![API_ADDRESS.clone()],
                 None,
                 Arc::new(Box::new(|_| Ok(()))),
             )?,
             api_availability: ApiAvailability::new(availability::State::default()),
             #[cfg(target_os = "android")]
-            socket_bypass_tx: None,
+            socket_bypass_tx,
         })
     }
 
@@ -100,6 +139,15 @@ impl MullvadRpcRuntime {
         address_change_listener: impl Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
+        #[cfg(feature = "api-override")]
+        if *DISABLE_ADDRESS_ROTATION {
+            return Self::new_inner(
+                handle,
+                #[cfg(target_os = "android")]
+                socket_bypass_tx,
+            );
+        }
+
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
         let write_file = if write_changes {
             Some(cache_file.clone().into_boxed_path())
@@ -177,9 +225,9 @@ impl MullvadRpcRuntime {
 
     /// Returns a request factory initialized to create requests for the master API
     pub fn mullvad_rest_handle(&mut self) -> rest::MullvadRestHandle {
-        let service = self.new_request_service(Some(API_HOST.to_owned()));
+        let service = self.new_request_service(Some(API_HOST.clone()));
         let factory = rest::RequestFactory::new(
-            API_HOST.to_owned(),
+            API_HOST.clone(),
             Box::new(self.address_cache.clone()),
             Some("app".to_owned()),
         );
