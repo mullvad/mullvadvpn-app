@@ -583,7 +583,7 @@ pub async fn handle_error_response<T>(response: Response) -> Result<T> {
 pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
-    availability: ApiAvailabilityHandle,
+    pub availability: ApiAvailabilityHandle,
     pub token_store: AccessTokenProxy,
 }
 

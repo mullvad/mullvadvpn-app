@@ -313,7 +313,7 @@ pub struct DeviceService {
 }
 
 impl DeviceService {
-    fn new(handle: rest::MullvadRestHandle, api_availability: ApiAvailabilityHandle) -> Self {
+    pub fn new(handle: rest::MullvadRestHandle, api_availability: ApiAvailabilityHandle) -> Self {
         Self {
             proxy: DevicesProxy::new(handle),
             api_availability,
@@ -507,6 +507,36 @@ impl DeviceService {
             move |result| should_retry(result, &api_handle),
             constant_interval(RETRY_ACTION_INTERVAL),
             RETRY_ACTION_MAX_RETRIES,
+        )
+        .await
+        .map_err(Error::RestError)
+    }
+
+    pub async fn list_devices_with_backoff(
+        &self,
+        token: AccountToken,
+    ) -> Result<Vec<Device>, Error> {
+        let proxy = self.proxy.clone();
+        let api_handle = self.api_availability.clone();
+
+        let retry_strategy = Jittered::jitter(
+            ExponentialBackoff::new(
+                RETRY_BACKOFF_INTERVAL_INITIAL,
+                RETRY_BACKOFF_INTERVAL_FACTOR,
+            )
+            .max_delay(RETRY_BACKOFF_INTERVAL_MAX),
+        );
+        retry_future(
+            move || {
+                let wait_online = api_handle.wait_online();
+                let fut = proxy.list(token.clone());
+                async move {
+                    let _ = wait_online.await;
+                    fut.await
+                }
+            },
+            should_retry_backoff,
+            retry_strategy,
         )
         .await
         .map_err(Error::RestError)
