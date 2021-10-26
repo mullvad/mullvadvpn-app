@@ -127,8 +127,8 @@ impl BroadcastListener {
                 true
             });
 
-        let is_offline = !v4_connectivity && !v6_connectivity;
-        log::info!("Initial connectivity: {}", connectivity_str(is_offline));
+        let is_online = v4_connectivity || v6_connectivity;
+        log::info!("Initial connectivity: {}", connectivity_str(!is_online));
 
         (v4_connectivity, v6_connectivity)
     }
@@ -234,8 +234,10 @@ impl BroadcastListener {
         ctx: *mut c_void,
     ) {
         let state_lock: &mut Arc<Mutex<SystemState>> = &mut *(ctx as *mut _);
-        let connectivity =
-            event_type == winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged;
+        let connectivity = match event_type {
+            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => true,
+            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteRemoved => false,
+        };
         let change = match family {
             winnet::WinNetAddrFamily::IPV4 => StateChange::NetworkV4Connectivity(connectivity),
             winnet::WinNetAddrFamily::IPV6 => StateChange::NetworkV6Connectivity(connectivity),
@@ -307,8 +309,8 @@ impl SystemState {
     }
 }
 
-fn connectivity_str(state: bool) -> &'static str {
-    if state {
+fn connectivity_str(offline: bool) -> &'static str {
+    if offline {
         "Offline"
     } else {
         "Connected"
