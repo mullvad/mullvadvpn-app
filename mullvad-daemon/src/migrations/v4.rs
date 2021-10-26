@@ -1,5 +1,8 @@
-use super::{Error, Result, SettingsVersion};
-use crate::relay_constraints::{Constraint, TransportPort};
+use super::{Error, Result};
+use mullvad_types::{
+    relay_constraints::{Constraint, TransportPort},
+    settings::SettingsVersion,
+};
 use talpid_types::net::TransportProtocol;
 
 

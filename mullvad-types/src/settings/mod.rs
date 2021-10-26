@@ -8,28 +8,48 @@ use crate::{
 #[cfg(target_os = "android")]
 use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use log::{debug, info};
-use serde::{Deserialize, Serialize};
-use serde_json;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::net::IpAddr;
 #[cfg(target_os = "windows")]
 use std::{collections::HashSet, path::PathBuf};
 use talpid_types::net::{self, openvpn, GenericTunnelOptions};
 
-mod migrations;
+pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V5;
 
-pub type Result<T> = std::result::Result<T, Error>;
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+#[repr(u32)]
+pub enum SettingsVersion {
+    V2 = 2,
+    V3 = 3,
+    V4 = 4,
+    V5 = 5,
+}
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
-pub enum Error {
-    #[error(display = "Malformed settings")]
-    ParseError(#[error(source)] serde_json::Error),
+impl<'de> Deserialize<'de> for SettingsVersion {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        match <u32>::deserialize(deserializer)? {
+            v if v == SettingsVersion::V2 as u32 => Ok(SettingsVersion::V2),
+            v if v == SettingsVersion::V3 as u32 => Ok(SettingsVersion::V3),
+            v if v == SettingsVersion::V4 as u32 => Ok(SettingsVersion::V4),
+            v if v == SettingsVersion::V5 as u32 => Ok(SettingsVersion::V5),
+            v => Err(serde::de::Error::custom(format!(
+                "{} is not a valid SettingsVersion",
+                v
+            ))),
+        }
+    }
+}
 
-    #[error(display = "Settings version mismatch")]
-    VersionMismatch,
-
-    #[error(display = "Unable to read any version of the settings")]
-    NoMatchingVersion,
+impl Serialize for SettingsVersion {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_u32(*self as u32)
+    }
 }
 
 
@@ -65,7 +85,7 @@ pub struct Settings {
     pub split_tunnel: SplitTunnelSettings,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
-    settings_version: migrations::SettingsVersion,
+    settings_version: SettingsVersion,
 }
 
 #[cfg(windows)]
@@ -95,24 +115,12 @@ impl Default for Settings {
             show_beta_releases: false,
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),
-            settings_version: migrations::CURRENT_SETTINGS_VERSION,
+            settings_version: CURRENT_SETTINGS_VERSION,
         }
     }
 }
 
 impl Settings {
-    pub fn load_from_bytes(bytes: &[u8]) -> Result<Self> {
-        let settings: Self = serde_json::from_slice(bytes).map_err(Error::ParseError)?;
-        if settings.settings_version < migrations::CURRENT_SETTINGS_VERSION {
-            return Err(Error::VersionMismatch);
-        }
-        Ok(settings)
-    }
-
-    pub fn migrate_from_bytes(bytes: &[u8]) -> Result<Self> {
-        migrations::try_migrate_settings(&bytes)
-    }
-
     pub fn get_account_token(&self) -> Option<String> {
         self.account_token.clone()
     }
@@ -189,6 +197,10 @@ impl Settings {
         } else {
             false
         }
+    }
+
+    pub fn get_settings_version(&self) -> SettingsVersion {
+        self.settings_version
     }
 }
 
@@ -304,62 +316,5 @@ impl Default for TunnelOptions {
             },
             dns_options: DnsOptions::default(),
         }
-    }
-}
-
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_deserialization() {
-        let settings = br#"{
-              "account_token": "0000000000000000",
-              "relay_settings": {
-                "normal": {
-                  "location": {
-                    "only": {
-                      "country": "gb"
-                    }
-                  },
-                  "tunnel_protocol": {
-                    "only": "wireguard"
-                  },
-                  "wireguard_constraints": {
-                    "port": "any"
-                  },
-                  "openvpn_constraints": {
-                    "port": "any",
-                    "protocol": "any"
-                  }
-                }
-              },
-              "bridge_settings": {
-                "normal": {
-                  "location": "any"
-                }
-              },
-              "bridge_state": "auto",
-              "allow_lan": true,
-              "block_when_disconnected": false,
-              "auto_connect": true,
-              "tunnel_options": {
-                "openvpn": {
-                  "mssfix": null
-                },
-                "wireguard": {
-                  "mtu": null,
-                  "rotation_interval": null
-                },
-                "generic": {
-                  "enable_ipv6": true
-                }
-              },
-              "settings_version": 5,
-              "show_beta_releases": false
-        }"#;
-
-        let _ = Settings::load_from_bytes(settings).unwrap();
     }
 }
