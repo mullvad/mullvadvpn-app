@@ -370,8 +370,6 @@ pub fn deactivate_routing_manager() {
     unsafe { WinNet_DeactivateRouteManager() }
 }
 
-// TODO: Remove attribute once this is in use.
-#[allow(dead_code)]
 pub fn get_best_default_route(
     family: WinNetAddrFamily,
 ) -> Result<Option<WinNetDefaultRoute>, Error> {
@@ -480,8 +478,6 @@ mod api {
             sink_context: *const u8,
         ) -> u32;
 
-        // TODO: Remove "allow(dead_code)" this is in use.
-        #[allow(dead_code)]
         #[link_name = "WinNet_GetBestDefaultRoute"]
         pub fn WinNet_GetBestDefaultRoute(
             family: super::WinNetAddrFamily,
@@ -490,8 +486,6 @@ mod api {
             sink_context: *const u8,
         ) -> WinNetStatus;
 
-        // TODO: Remove "allow(dead_code)" this is in use.
-        #[allow(dead_code)]
         #[link_name = "WinNet_InterfaceLuidToIpAddress"]
         pub fn WinNet_InterfaceLuidToIpAddress(
             family: super::WinNetAddrFamily,
