@@ -603,10 +603,10 @@ where
         );
 
 
-        if let Err(error) = migrations::migrate_all(&settings_dir).await {
+        if let Err(error) = migrations::migrate_all(&cache_dir, &settings_dir).await {
             log::error!(
                 "{}",
-                error.display_chain_with_msg("Failed to migrate settings")
+                error.display_chain_with_msg("Failed to migrate settings or cache")
             );
         }
         let mut settings = SettingsPersister::load(&settings_dir).await;
@@ -626,7 +626,7 @@ where
         );
         tokio::spawn(version_updater.run());
         let account_history =
-            account_history::AccountHistory::new(&cache_dir, &settings_dir, &mut settings)
+            account_history::AccountHistory::new(&settings_dir, settings.get_account_token())
                 .await
                 .map_err(Error::LoadAccountHistory)?;
 

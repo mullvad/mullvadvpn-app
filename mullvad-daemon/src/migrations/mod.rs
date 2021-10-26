@@ -1,10 +1,10 @@
-use mullvad_types::settings::{Settings, CURRENT_SETTINGS_VERSION};
 use std::path::Path;
 use tokio::{
     fs,
     io::{self, AsyncWriteExt},
 };
 
+mod account_history;
 mod v1;
 mod v2;
 mod v3;
@@ -30,6 +30,15 @@ pub enum Error {
     #[error(display = "Unable to write new settings")]
     WriteError(#[error(source)] io::Error),
 
+    #[error(display = "Failed to read the account history")]
+    ReadHistoryError(#[error(source)] io::Error),
+
+    #[error(display = "Failed to write new account history")]
+    WriteHistoryError(#[error(source)] io::Error),
+
+    #[error(display = "Failed to parse account history")]
+    ParseHistoryError,
+
     #[cfg(windows)]
     #[error(display = "Failed to restore Windows update backup")]
     WinMigrationError(#[error(source)] windows::Error),
@@ -38,12 +47,7 @@ pub enum Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 
-trait SettingsMigration {
-    fn version_matches(&self, settings: &mut serde_json::Value) -> bool;
-    fn migrate(&self, settings: &mut serde_json::Value) -> Result<()>;
-}
-
-pub async fn migrate_all(settings_dir: &Path) -> Result<()> {
+pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
         .await
@@ -64,27 +68,13 @@ pub async fn migrate_all(settings_dir: &Path) -> Result<()> {
         return Err(Error::NoMatchingVersion);
     }
 
-    {
-        let settings: Settings =
-            serde_json::from_slice(&settings_bytes[..]).map_err(Error::ParseError)?;
-        if settings.get_settings_version() == CURRENT_SETTINGS_VERSION {
-            return Ok(());
-        }
-    }
+    v1::migrate(&mut settings)?;
+    v2::migrate(&mut settings)?;
+    v3::migrate(&mut settings)?;
+    v4::migrate(&mut settings)?;
 
-    let migrations: Vec<Box<dyn SettingsMigration>> = vec![
-        Box::new(v1::Migration),
-        Box::new(v2::Migration),
-        Box::new(v3::Migration),
-        Box::new(v4::Migration),
-    ];
-
-    for migration in &migrations {
-        if !migration.version_matches(&mut settings) {
-            continue;
-        }
-        migration.migrate(&mut settings)?;
-    }
+    account_history::migrate_location(cache_dir, settings_dir).await;
+    account_history::migrate_formats(settings_dir, &mut settings).await?;
 
     let buffer = serde_json::to_string_pretty(&settings).map_err(Error::SerializeError)?;
 
@@ -103,7 +93,6 @@ pub async fn migrate_all(settings_dir: &Path) -> Result<()> {
     file.write_all(&buffer.into_bytes())
         .await
         .map_err(Error::WriteError)?;
-
     Ok(())
 }
 
