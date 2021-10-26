@@ -1731,7 +1731,6 @@ class ApplicationMain {
       fullscreenable: false,
       show: false,
       frame: this.guiSettings.unpinnedWindow,
-      transparent: !this.guiSettings.unpinnedWindow,
       webPreferences: {
         preload: path.join(__dirname, '../renderer/preloadBundle.js'),
         nodeIntegration: false,
@@ -1752,6 +1751,7 @@ class ApplicationMain {
           titleBarStyle: this.guiSettings.unpinnedWindow ? 'default' : 'customButtonsOnHover',
           minimizable: this.guiSettings.unpinnedWindow,
           closable: this.guiSettings.unpinnedWindow,
+          transparent: !this.guiSettings.unpinnedWindow,
         });
 
         // make the window visible on all workspaces and prevent the icon from showing in the dock
@@ -1775,6 +1775,9 @@ class ApplicationMain {
           // https://github.com/electron/electron/issues/25915
           alwaysOnTop: !this.guiSettings.unpinnedWindow,
           skipTaskbar: !this.guiSettings.unpinnedWindow,
+          // Workaround for sub-pixel anti-aliasing
+          // https://github.com/electron/electron/blob/main/docs/faq.md#the-font-looks-blurry-what-is-this-and-what-can-i-do
+          backgroundColor: '#fff',
         });
 
         appWindow.removeMenu();
