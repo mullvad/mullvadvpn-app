@@ -41,6 +41,11 @@ export interface ISetMacOsScrollbarVisibility {
   visibility: MacOsScrollbarVisibility;
 }
 
+export interface ISetConnectedToDaemon {
+  type: 'SET_CONNECTED_TO_DAEMON';
+  connectedToDaemon: boolean;
+}
+
 export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
@@ -49,7 +54,8 @@ export type UserInterfaceAction =
   | ISetWindowFocusedAction
   | IAddScrollPosition
   | IRemoveScrollPosition
-  | ISetMacOsScrollbarVisibility;
+  | ISetMacOsScrollbarVisibility
+  | ISetConnectedToDaemon;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
   return {
@@ -109,6 +115,13 @@ function setMacOsScrollbarVisibility(
   };
 }
 
+function setConnectedToDaemon(connectedToDaemon: boolean): ISetConnectedToDaemon {
+  return {
+    type: 'SET_CONNECTED_TO_DAEMON',
+    connectedToDaemon,
+  };
+}
+
 export default {
   updateLocale,
   updateWindowArrowPosition,
@@ -118,4 +131,5 @@ export default {
   addScrollPosition,
   removeScrollPosition,
   setMacOsScrollbarVisibility,
+  setConnectedToDaemon,
 };

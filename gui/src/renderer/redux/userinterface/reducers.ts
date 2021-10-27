@@ -14,6 +14,7 @@ export interface IUserInterfaceReduxState {
   windowFocused: boolean;
   scrollPosition: Record<string, [number, number]>;
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
+  connectedToDaemon: boolean;
 }
 
 const initialState: IUserInterfaceReduxState = {
@@ -23,6 +24,7 @@ const initialState: IUserInterfaceReduxState = {
   windowFocused: false,
   scrollPosition: {},
   macOsScrollbarVisibility: undefined,
+  connectedToDaemon: false,
 };
 
 export default function (
@@ -59,6 +61,9 @@ export default function (
 
     case 'SET_MACOS_SCROLLBAR_VISIBILITY':
       return { ...state, macOsScrollbarVisibility: action.visibility };
+
+    case 'SET_CONNECTED_TO_DAEMON':
+      return { ...state, connectedToDaemon: action.connectedToDaemon };
 
     default:
       return state;

@@ -664,11 +664,13 @@ export default class AppRenderer {
 
   private onDaemonConnected() {
     this.connectedToDaemon = true;
+    this.reduxActions.userInterface.setConnectedToDaemon(true);
     this.resetNavigation();
   }
 
   private onDaemonDisconnected() {
     this.connectedToDaemon = false;
+    this.reduxActions.userInterface.setConnectedToDaemon(false);
     this.resetNavigation();
   }
 

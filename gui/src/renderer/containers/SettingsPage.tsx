@@ -10,6 +10,7 @@ const mapStateToProps = (state: IReduxState, props: IAppContext) => ({
     state.settings.guiSettings.preferredLocale,
   ),
   loginState: state.account.status,
+  connectedToDaemon: state.userInterface.connectedToDaemon,
   accountExpiry: state.account.expiry,
   appVersion: state.version.current,
   consistentVersion: state.version.consistent,
