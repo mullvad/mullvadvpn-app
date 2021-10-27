@@ -29,6 +29,7 @@ import { LoginState } from '../redux/account/reducers';
 export interface IProps {
   preferredLocaleDisplayName: string;
   loginState: LoginState;
+  connectedToDaemon: boolean;
   accountExpiry?: string;
   appVersion: string;
   consistentVersion: boolean;
@@ -108,7 +109,7 @@ export default class Settings extends React.Component<IProps> {
 
   private renderTopButtons() {
     const isLoggedIn = this.props.loginState.type === 'ok';
-    if (!isLoggedIn) {
+    if (!isLoggedIn || !this.props.connectedToDaemon) {
       return null;
     }
 
