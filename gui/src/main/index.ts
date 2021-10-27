@@ -422,7 +422,6 @@ class ApplicationMain {
     }
 
     this.trayIconController?.dispose();
-    this.windowController?.dispose();
   }
 
   private detectLocale(): string {
