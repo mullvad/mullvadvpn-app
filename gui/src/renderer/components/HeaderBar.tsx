@@ -73,10 +73,13 @@ const BrandContainer = styled.div({
 
 const Title = styled.span({
   ...sourceSansPro,
-  fontSize: '26px',
+  fontSize: '27px',
   lineHeight: '30px',
   color: colors.white80,
-  marginLeft: '9px',
+  marginLeft: '7px',
+  letterSpacing: '0.015em',
+  position: 'relative',
+  top: '-1px',
 });
 
 const Logo = styled(ImageView)({
