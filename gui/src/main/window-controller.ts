@@ -1,6 +1,7 @@
 import { BrowserWindow, Display, screen, Tray, WebContents } from 'electron';
 import { IpcMainEventChannel } from './ipc-event-channel';
 import { IWindowShapeParameters } from '../shared/ipc-types';
+import { Scheduler } from '../shared/scheduler';
 
 interface IPosition {
   x: number;
@@ -134,6 +135,8 @@ export default class WindowController {
   private webContentsValue: WebContents;
   private windowPositioning: IWindowPositioning;
 
+  private windowPositioningScheduler = new Scheduler();
+
   get window(): BrowserWindow | undefined {
     return this.windowValue.isDestroyed() ? undefined : this.windowValue;
   }
@@ -153,21 +156,25 @@ export default class WindowController {
       : new AttachedToTrayWindowPositioning(tray);
 
     this.installDisplayMetricsHandler();
+    this.installHideHandler();
   }
 
-  public replaceWindow(window: BrowserWindow, unpinnedWindow: boolean) {
-    this.window?.removeAllListeners();
+  public replaceWindow(windowValue: BrowserWindow, unpinnedWindow: boolean) {
     this.window?.destroy();
 
-    this.windowValue = window;
-    this.webContentsValue = window.webContents;
+    const [width, height] = windowValue.getSize();
+    this.width = width;
+    this.height = height;
+    this.windowValue = windowValue;
+    this.webContentsValue = windowValue.webContents;
 
     this.windowPositioning = unpinnedWindow
       ? new StandaloneWindowPositioning()
       : new AttachedToTrayWindowPositioning(this.tray);
 
+    this.installDisplayMetricsHandler();
+    this.installHideHandler();
     this.updatePosition();
-    this.notifyUpdateWindowShape();
   }
 
   public show(whenReady = true) {
@@ -194,6 +201,20 @@ export default class WindowController {
     return this.window?.isVisible() ?? false;
   }
 
+  public updatePosition() {
+    if (this.window) {
+      const { x, y } = this.windowPositioning.getPosition(this.window);
+      this.window.setPosition(x, y, false);
+    }
+
+    this.notifyUpdateWindowShape();
+  }
+
+  private installHideHandler() {
+    this.window?.addListener('hide', () => this.windowPositioningScheduler.cancel());
+    this.window?.addListener('closed', () => this.windowPositioningScheduler.cancel());
+  }
+
   private showImmediately() {
     const window = this.window;
 
@@ -209,20 +230,11 @@ export default class WindowController {
       window?.focus();
 
       this.updatePosition();
-      this.notifyUpdateWindowShape();
     } else {
       this.updatePosition();
-      this.notifyUpdateWindowShape();
 
       window?.show();
       window?.focus();
-    }
-  }
-
-  private updatePosition() {
-    if (this.window) {
-      const { x, y } = this.windowPositioning.getPosition(this.window);
-      this.window.setPosition(x, y, false);
     }
   }
 
@@ -251,8 +263,10 @@ export default class WindowController {
     changedMetrics: string[],
   ) => {
     if (changedMetrics.includes('workArea') && this.window?.isVisible()) {
-      this.updatePosition();
-      this.notifyUpdateWindowShape();
+      this.onWorkAreaSizeChange();
+      if (process.platform === 'win32') {
+        this.windowPositioningScheduler.schedule(() => this.onWorkAreaSizeChange(), 500);
+      }
     }
 
     // On linux, the window won't be properly rescaled back to it's original
@@ -262,6 +276,10 @@ export default class WindowController {
       this.forceResizeWindow();
     }
   };
+
+  private onWorkAreaSizeChange() {
+    this.updatePosition();
+  }
 
   private forceResizeWindow() {
     this.window?.setSize(this.width, this.height);
