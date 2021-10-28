@@ -229,7 +229,7 @@ impl KeyManager {
         let availability_handle = self.availability_handle.clone();
 
         let future_generator = move || {
-            let wait_available = availability_handle.wait_available();
+            let wait_available = availability_handle.wait_background();
             let fut = inner_future_generator();
             let error_tx = error_tx.clone();
             let error_account = error_account.clone();
@@ -381,7 +381,7 @@ impl KeyManager {
 
         let rotate_key_for_account =
             move |old_key: &PublicKey| -> Pin<Box<dyn Future<Output = Result<PublicKey>> + Send>> {
-                let wait_available = availability_handle.wait_available();
+                let wait_available = availability_handle.wait_background();
                 let rotate = Self::rotate_key(
                     daemon_tx.clone(),
                     http_handle.clone(),

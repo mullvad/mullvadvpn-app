@@ -86,7 +86,7 @@ impl AccountHandle {
         .await;
         if result.is_ok() {
             self.initial_check_abort_handle.abort();
-            self.api_availability.resume();
+            self.api_availability.resume_background();
         }
         result
     }
@@ -107,7 +107,7 @@ impl Account {
         api_availability: ApiAvailabilityHandle,
     ) -> AccountHandle {
         let accounts_proxy = AccountsProxy::new(rpc_handle);
-        api_availability.pause();
+        api_availability.pause_background();
 
         let api_availability_copy = api_availability.clone();
         let accounts_proxy_copy = accounts_proxy.clone();
@@ -116,7 +116,7 @@ impl Account {
             let token = if let Some(token) = token {
                 token
             } else {
-                api_availability.pause();
+                api_availability.pause_background();
                 return;
             };
 
@@ -155,16 +155,16 @@ fn handle_expiry_result_inner(
 ) -> bool {
     match result {
         Ok(_expiry) if *_expiry >= chrono::Utc::now() => {
-            api_availability.resume();
+            api_availability.resume_background();
             true
         }
         Ok(_expiry) => {
-            api_availability.pause();
+            api_availability.pause_background();
             true
         }
         Err(mullvad_rpc::rest::Error::ApiError(_status, code)) => {
             if code == mullvad_rpc::INVALID_ACCOUNT || code == mullvad_rpc::INVALID_AUTH {
-                api_availability.pause();
+                api_availability.pause_background();
                 return true;
             }
             false

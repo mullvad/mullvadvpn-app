@@ -233,7 +233,7 @@ impl VersionUpdater {
         let version_proxy = self.version_proxy.clone();
         let platform_version = self.platform_version.clone();
         let download_future_factory = move || {
-            let when_available = api_handle.wait_available();
+            let when_available = api_handle.wait_background();
             let request = version_proxy.version_check(
                 PRODUCT_VERSION.to_owned(),
                 PLATFORM,

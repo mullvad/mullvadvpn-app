@@ -646,7 +646,7 @@ impl MullvadRestHandle {
             loop {
                 interval.tick().await;
                 if next_check < Instant::now() {
-                    if let Err(error) = availability.wait_available().await {
+                    if let Err(error) = availability.wait_background().await {
                         log::error!("Failed while waiting for API: {}", error);
                         next_check = next_error_check();
                         continue;
