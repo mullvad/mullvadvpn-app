@@ -111,11 +111,10 @@ impl AddressCache {
 
     pub async fn select_new_address(&self) {
         {
-            let mut inner = self.inner.lock().unwrap();
-            let mut transaction = AddressCacheTransaction::new(&mut inner);
+            let mut transaction = AddressCacheTransaction::new(self.inner.clone());
 
-            transaction.choice = transaction.current.choice.wrapping_add(1);
-            if transaction.choice == transaction.current.choice {
+            transaction.choice = transaction.previous_cache.choice.wrapping_add(1);
+            if transaction.choice == transaction.previous_cache.choice {
                 return;
             }
             transaction.tried_current = false;
@@ -138,13 +137,11 @@ impl AddressCache {
     /// the entire list.
     pub async fn randomize(&self) -> Result<(), Error> {
         {
-            let mut inner = self.inner.lock().unwrap();
-
-            let mut transaction = AddressCacheTransaction::new(&mut inner);
+            let mut transaction = AddressCacheTransaction::new(self.inner.clone());
             transaction.shuffle();
             transaction.choice = 0;
 
-            let current_address = Self::get_address_inner(&transaction.current);
+            let current_address = Self::get_address_inner(&transaction.previous_cache);
             let new_address = Self::get_address_inner(&transaction);
 
             tokio::task::block_in_place(move || {
@@ -164,8 +161,7 @@ impl AddressCache {
 
     pub async fn set_addresses(&self, mut addresses: Vec<SocketAddr>) -> io::Result<()> {
         let should_update = {
-            let mut inner = self.inner.lock().unwrap();
-            let mut transaction = AddressCacheTransaction::new(&mut inner);
+            let mut transaction = AddressCacheTransaction::new(self.inner.clone());
 
             addresses.sort();
 
@@ -290,25 +286,28 @@ impl AddressCacheInner {
     }
 }
 
-struct AddressCacheTransaction<'a> {
-    current: &'a mut AddressCacheInner,
+struct AddressCacheTransaction {
+    cache: Arc<Mutex<AddressCacheInner>>,
     working_cache: AddressCacheInner,
+    previous_cache: AddressCacheInner,
 }
 
-impl<'a> AddressCacheTransaction<'a> {
-    fn new(cache: &'a mut AddressCacheInner) -> Self {
+impl AddressCacheTransaction {
+    fn new(cache: Arc<Mutex<AddressCacheInner>>) -> Self {
+        let current = { cache.lock().unwrap().clone() };
         Self {
-            working_cache: cache.clone(),
-            current: cache,
+            working_cache: current.clone(),
+            previous_cache: current,
+            cache,
         }
     }
 
     fn commit(self) {
-        *self.current = self.working_cache;
+        *self.cache.lock().unwrap() = self.working_cache;
     }
 }
 
-impl<'a> Deref for AddressCacheTransaction<'a> {
+impl Deref for AddressCacheTransaction {
     type Target = AddressCacheInner;
 
     fn deref(&self) -> &Self::Target {
@@ -316,7 +315,7 @@ impl<'a> Deref for AddressCacheTransaction<'a> {
     }
 }
 
-impl<'a> DerefMut for AddressCacheTransaction<'a> {
+impl DerefMut for AddressCacheTransaction {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.working_cache
     }
