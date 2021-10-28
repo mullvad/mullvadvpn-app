@@ -178,7 +178,6 @@ async fn remove_wireguard_key() -> Result<(), Error> {
                 None,
                 &cache_path,
                 false,
-                |_| Ok(()),
             )
             .await
             .map_err(Error::RpcInitializationError)?;

@@ -117,11 +117,7 @@ impl MullvadRpcRuntime {
     ) -> Result<Self, Error> {
         Ok(MullvadRpcRuntime {
             handle,
-            address_cache: AddressCache::new(
-                vec![API_ADDRESS.clone()],
-                None,
-                Arc::new(Box::new(|_| Ok(()))),
-            )?,
+            address_cache: AddressCache::new(vec![API_ADDRESS.clone()], None)?,
             api_availability: ApiAvailability::new(availability::State::default()),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
@@ -136,7 +132,6 @@ impl MullvadRpcRuntime {
         resource_dir: Option<&Path>,
         cache_dir: &Path,
         write_changes: bool,
-        address_change_listener: impl Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
         #[cfg(feature = "api-override")]
@@ -155,16 +150,7 @@ impl MullvadRpcRuntime {
             None
         };
 
-        let address_change_listener =
-            Arc::<Box<CurrentAddressChangeListener>>::new(Box::new(address_change_listener));
-
-        let address_cache = match AddressCache::from_file(
-            &cache_file,
-            write_file.clone(),
-            address_change_listener.clone(),
-        )
-        .await
-        {
+        let address_cache = match AddressCache::from_file(&cache_file, write_file.clone()).await {
             Ok(cache) => cache,
             Err(error) => {
                 let cache_exists = cache_file.exists();
@@ -181,12 +167,8 @@ impl MullvadRpcRuntime {
                 match resource_dir {
                     Some(resource_dir) => {
                         let read_file = resource_dir.join(API_IP_CACHE_FILENAME);
-                        let empty_listener =
-                            Arc::<Box<CurrentAddressChangeListener>>::new(Box::new(|_| Ok(())));
-                        let mut cache =
-                            AddressCache::from_file(&read_file, write_file, empty_listener).await?;
+                        let cache = AddressCache::from_file(&read_file, write_file).await?;
                         cache.randomize().await?;
-                        cache.set_change_listener(address_change_listener);
                         cache
                     }
                     None => return Err(Error::AddressCacheError(error)),
@@ -201,6 +183,14 @@ impl MullvadRpcRuntime {
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
+    }
+
+    pub fn set_address_change_listener(
+        &mut self,
+        address_change_listener: impl Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static,
+    ) {
+        self.address_cache
+            .set_change_listener(Arc::new(Box::new(address_change_listener)));
     }
 
     /// Creates a new request service and returns a handle to it.

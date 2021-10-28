@@ -44,11 +44,7 @@ pub struct AddressCache {
 
 impl AddressCache {
     /// Initialize cache using the given list, and write changes to `write_path`.
-    pub fn new(
-        addresses: Vec<SocketAddr>,
-        write_path: Option<Box<Path>>,
-        change_listener: Arc<Box<CurrentAddressChangeListener>>,
-    ) -> Result<Self, Error> {
+    pub fn new(addresses: Vec<SocketAddr>, write_path: Option<Box<Path>>) -> Result<Self, Error> {
         let mut cache = AddressCacheInner::from_addresses(addresses)?;
         cache.shuffle_tail();
         log::trace!("API address cache: {:?}", cache.addresses);
@@ -57,23 +53,15 @@ impl AddressCache {
         let address_cache = Self {
             inner: Arc::new(Mutex::new(cache)),
             write_path: write_path.map(|cache| Arc::from(cache)),
-            change_listener,
+            change_listener: Arc::new(Box::new(|_| Ok(()))),
         };
         Ok(address_cache)
     }
 
     /// Initialize cache using `read_path`, and write changes to `write_path`.
-    pub async fn from_file(
-        read_path: &Path,
-        write_path: Option<Box<Path>>,
-        change_listener: Arc<Box<CurrentAddressChangeListener>>,
-    ) -> Result<Self, Error> {
+    pub async fn from_file(read_path: &Path, write_path: Option<Box<Path>>) -> Result<Self, Error> {
         log::debug!("Loading API addresses from {:?}", read_path);
-        Self::new(
-            read_address_file(read_path).await?,
-            write_path,
-            change_listener,
-        )
+        Self::new(read_address_file(read_path).await?, write_path)
     }
 
     pub fn set_change_listener(&mut self, change_listener: Arc<Box<CurrentAddressChangeListener>>) {

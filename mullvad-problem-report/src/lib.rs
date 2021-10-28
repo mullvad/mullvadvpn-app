@@ -283,7 +283,6 @@ pub fn send_problem_report(
             None,
             cache_dir,
             false,
-            |_| Ok(()),
             #[cfg(target_os = "android")]
             None,
         ))
