@@ -142,11 +142,16 @@ impl RequestService {
                 let hyper_request = request.into_request();
                 let host_addr = get_request_socket_addr(&hyper_request);
 
-                let (request_future, abort_handle) =
-                    abortable(self.client.request(hyper_request).map_err(Error::from));
+                let api_availability = self.api_availability.clone();
+                let suspend_fut = api_availability.wait_for_unsuspend();
+                let request_fut = self.client.request(hyper_request).map_err(Error::from);
+
+                let (request_future, abort_handle) = abortable(async move {
+                    let _ = suspend_fut.await;
+                    request_fut.await
+                });
                 let address_cache = self.address_cache.clone();
                 let handle = self.handle.clone();
-                let api_availability = self.api_availability.clone();
 
                 let future = async move {
                     let response =

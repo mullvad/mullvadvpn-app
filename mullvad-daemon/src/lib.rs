@@ -588,6 +588,7 @@ where
         .map_err(Error::InitRpcFactory)?;
         let rpc_handle = rpc_runtime.mullvad_rest_handle();
         let api_availability = rpc_runtime.availability_handle();
+        api_availability.suspend();
 
         let relay_list_listener = event_listener.clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
@@ -717,6 +718,8 @@ where
         )
         .await
         .map_err(Error::TunnelError)?;
+
+        api_availability.unsuspend();
 
         Self::forward_offline_state(&runtime, api_availability.clone(), offline_state_rx).await;
 
