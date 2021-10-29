@@ -71,26 +71,17 @@ const BrandContainer = styled.div({
   alignItems: 'center',
 });
 
-const Title = styled.span({
+const Title = styled(ImageView)({
   ...sourceSansPro,
-  fontSize: '27px',
-  lineHeight: '30px',
-  color: colors.white80,
-  marginLeft: '7px',
-  letterSpacing: '0.015em',
-  position: 'relative',
-  top: '-1px',
-});
-
-const Logo = styled(ImageView)({
-  margin: '4px 0 3px',
+  opacity: 0.8,
+  marginLeft: '9px',
 });
 
 export function Brand(props: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <BrandContainer {...props}>
-      <Logo width={44} height={44} source="logo-icon" />
-      <Title>MULLVAD VPN</Title>
+      <ImageView width={44} height={44} source="logo-icon" />
+      <Title height={18} source="logo-text" />
     </BrandContainer>
   );
 }
