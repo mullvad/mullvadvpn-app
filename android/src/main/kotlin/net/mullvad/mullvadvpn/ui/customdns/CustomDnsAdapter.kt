@@ -60,6 +60,10 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     init {
         customDns.apply {
             onDnsServersChanged.subscribe(this) { dnsServers ->
+                if (dnsServers.isEmpty()) {
+                    customDns.disable()
+                }
+
                 jobTracker.newUiJob("updateDnsServers") {
                     customDnsServersLock.withLock {
                         activeCustomDnsServers = dnsServers
@@ -136,6 +140,9 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     }
 
     fun onDestroy() {
+        if (cachedCustomDnsServers.isEmpty()) {
+            customDns.disable()
+        }
         customDns.apply {
             onDnsServersChanged.unsubscribe(this)
             onEnabledChanged.unsubscribe(this)
@@ -188,6 +195,10 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
 
     fun stopEditing() {
         jobTracker.newUiJob("stopEditing") {
+            if (cachedCustomDnsServers.isEmpty()) {
+                customDns.disable()
+            }
+
             customDnsServersLock.withLock {
                 if (enabled) {
                     editDnsServerAt(null)
@@ -215,11 +226,15 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             customDnsServersLock.withLock {
                 val position = jobTracker.runOnBackground {
                     val index = cachedCustomDnsServers.indexOf(address)
-
                     cachedCustomDnsServers.removeAt(index)
                     customDns.removeDnsServer(address)
-
                     index
+                }
+
+                // Immediately disable custom dns in the ui when the last server in the list has
+                // been removed to avoid glitches with the ADD_SERVER view.
+                if (cachedCustomDnsServers.size == 0) {
+                    enabled = false
                 }
 
                 notifyItemRemoved(position)
