@@ -1310,6 +1310,10 @@ where
                 let _ = tx.send(Ok(new_token));
             }
             Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Handling new account failed")
+                );
                 let _ = tx.send(Err(error));
             }
         };
@@ -1574,7 +1578,10 @@ where
                 }
                 Self::oneshot_send(tx, Ok(()), "login_account response");
             }
-            Err(error) => Self::oneshot_send(tx, Err(error), "login_account response"),
+            Err(error) => {
+                log::error!("{}", error.display_chain_with_msg("Login failed"));
+                Self::oneshot_send(tx, Err(error), "login_account response");
+            }
         }
     }
 
@@ -1587,7 +1594,10 @@ where
                 }
                 Self::oneshot_send(tx, Ok(()), "logout_account response");
             }
-            Err(error) => Self::oneshot_send(tx, Err(error), "logout_account response"),
+            Err(error) => {
+                log::error!("{}", error.display_chain_with_msg("Logout failed"));
+                Self::oneshot_send(tx, Err(error), "logout_account response");
+            }
         }
     }
 
