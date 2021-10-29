@@ -1,6 +1,9 @@
 use crate::{new_rpc_client, Command, Error, Result};
 use itertools::Itertools;
-use mullvad_management_interface::{types::Timestamp, Code};
+use mullvad_management_interface::{
+    types::{self, Timestamp},
+    Code,
+};
 use mullvad_types::account::AccountToken;
 use std::io::{self, Write};
 
@@ -29,6 +32,29 @@ impl Command for Account {
                 clap::App::new("get").about("Display information about the current account"),
             )
             .subcommand(
+                clap::App::new("list-devices")
+                    .about("List devices associated with an account")
+                    .arg(
+                        clap::Arg::new("token")
+                            .help("Mullvad account number")
+                            .required(true),
+                    ),
+            )
+            .subcommand(
+                clap::App::new("revoke-device")
+                    .about("Revoke a device associated with an account")
+                    .arg(
+                        clap::Arg::new("token")
+                            .help("Mullvad account number")
+                            .required(true),
+                    )
+                    .arg(
+                        clap::Arg::new("device")
+                            .help("ID of the device to revoke")
+                            .required(true),
+                    ),
+            )
+            .subcommand(
                 clap::App::new("redeem").about("Redeems a voucher").arg(
                     clap::Arg::new("voucher")
                         .help("The Mullvad voucher code to be submitted")
@@ -41,26 +67,16 @@ impl Command for Account {
         if let Some(_matches) = matches.subcommand_matches("create") {
             self.create().await
         } else if let Some(set_matches) = matches.subcommand_matches("login") {
-            let mut token = match set_matches.value_of("token") {
-                Some(token) => token.to_string(),
-                None => {
-                    let mut token = String::new();
-                    io::stdout()
-                        .write_all(b"Enter account token: ")
-                        .expect("Failed to write to STDOUT");
-                    let _ = io::stdout().flush();
-                    io::stdin()
-                        .read_line(&mut token)
-                        .expect("Failed to read from STDIN");
-                    token
-                }
-            };
-            token = token.split_whitespace().join("").to_string();
-            self.login(token).await
+            self.login(parse_token(set_matches)).await
         } else if let Some(_matches) = matches.subcommand_matches("logout") {
             self.logout().await
         } else if let Some(_matches) = matches.subcommand_matches("get") {
             self.get().await
+        } else if let Some(set_matches) = matches.subcommand_matches("list-devices") {
+            self.list_devices(parse_token(set_matches)).await
+        } else if let Some(set_matches) = matches.subcommand_matches("revoke-device") {
+            self.revoke_device(parse_token(set_matches), parse_device_id(set_matches))
+                .await
         } else if let Some(matches) = matches.subcommand_matches("redeem") {
             let voucher = matches.value_of_t_or_exit("voucher");
             self.redeem_voucher(voucher).await
@@ -113,6 +129,26 @@ impl Account {
         Ok(())
     }
 
+    async fn list_devices(&self, token: String) -> Result<()> {
+        let mut rpc = new_rpc_client().await?;
+        let devices = rpc.list_devices(token).await?.into_inner();
+
+        println!("{:?}", devices);
+
+        Ok(())
+    }
+
+    async fn revoke_device(&self, token: String, device_id: String) -> Result<()> {
+        let mut rpc = new_rpc_client().await?;
+        rpc.remove_device(types::DeviceRemoval {
+            account_token: token,
+            device_id,
+        })
+        .await?;
+        println!("Removed device");
+        Ok(())
+    }
+
     async fn redeem_voucher(&self, mut voucher: String) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         voucher.retain(|c| c.is_alphanumeric());
@@ -160,4 +196,34 @@ impl Account {
         let utc = chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc);
         utc.with_timezone(&chrono::Local).to_string()
     }
+}
+
+fn parse_token(matches: &clap::ArgMatches) -> String {
+    parse_from_match_else_stdin("Enter account token: ", "token", matches)
+}
+
+fn parse_device_id(matches: &clap::ArgMatches) -> String {
+    parse_from_match_else_stdin("Enter device id: ", "device", matches)
+}
+
+fn parse_from_match_else_stdin(
+    prompt_str: &'static str,
+    key: &'static str,
+    matches: &clap::ArgMatches,
+) -> String {
+    let val = match matches.value_of(key) {
+        Some(device) => device.to_string(),
+        None => {
+            let mut val = String::new();
+            io::stdout()
+                .write_all(prompt_str.as_bytes())
+                .expect("Failed to write to STDOUT");
+            let _ = io::stdout().flush();
+            io::stdin()
+                .read_line(&mut val)
+                .expect("Failed to read from STDIN");
+            val
+        }
+    };
+    val.split_whitespace().join("").to_string()
 }
