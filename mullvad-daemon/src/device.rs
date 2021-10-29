@@ -295,14 +295,24 @@ impl AccountManager {
             abort_handle.abort();
         }
     }
+
+    /// Consumes the object and completes when there is nothing left to write to
+    /// the cache file.
+    pub fn finalize(mut self) -> impl Future<Output = ()> {
+        let join_handle = self.cache_task_join_handle.take();
+        drop(self);
+
+        async move {
+            if let Some(join_handle) = join_handle {
+                let _ = join_handle.await;
+            }
+        }
+    }
 }
 
 impl Drop for AccountManager {
     fn drop(&mut self) {
         self.stop_key_rotation();
-        if let Some(cache_task_join_handle) = self.cache_task_join_handle.take() {
-            let _ = self.runtime.block_on(cache_task_join_handle);
-        }
     }
 }
 
