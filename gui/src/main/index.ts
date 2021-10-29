@@ -1585,7 +1585,13 @@ class ApplicationMain {
       this.tray.removeAllListeners();
 
       const window = await this.createWindow();
-      this.windowController.replaceWindow(window, unpinnedWindow);
+
+      this.windowController.destroy();
+      this.windowController = new WindowController(
+        window,
+        this.tray,
+        this.guiSettings.unpinnedWindow,
+      );
 
       await this.initializeWindow();
       this.windowController.show();

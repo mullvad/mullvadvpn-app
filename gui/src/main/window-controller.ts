@@ -151,7 +151,7 @@ export default class WindowController {
     return this.webContentsValue.isDestroyed() ? undefined : this.webContentsValue;
   }
 
-  constructor(windowValue: BrowserWindow, private tray: Tray, unpinnedWindow: boolean) {
+  constructor(windowValue: BrowserWindow, tray: Tray, unpinnedWindow: boolean) {
     const [width, height] = windowValue.getSize();
     this.width = width;
     this.height = height;
@@ -163,24 +163,6 @@ export default class WindowController {
 
     this.installDisplayMetricsHandler();
     this.installHideHandler();
-  }
-
-  public replaceWindow(windowValue: BrowserWindow, unpinnedWindow: boolean) {
-    this.window?.destroy();
-
-    const [width, height] = windowValue.getSize();
-    this.width = width;
-    this.height = height;
-    this.windowValue = windowValue;
-    this.webContentsValue = windowValue.webContents;
-
-    this.windowPositioning = unpinnedWindow
-      ? new StandaloneWindowPositioning()
-      : new AttachedToTrayWindowPositioning(this.tray);
-
-    this.installDisplayMetricsHandler();
-    this.installHideHandler();
-    this.updatePosition();
   }
 
   public show(whenReady = true) {
@@ -214,6 +196,12 @@ export default class WindowController {
     }
 
     this.notifyUpdateWindowShape();
+  }
+
+  public destroy() {
+    if (this.window && !this.window.isDestroyed()) {
+      this.window.destroy();
+    }
   }
 
   private installHideHandler() {
