@@ -914,6 +914,7 @@ where
         let Daemon {
             event_listener,
             mut shutdown_tasks,
+            account_manager,
             rpc_runtime,
             tunnel_state_machine_shutdown_signal,
             target_state,
@@ -921,6 +922,7 @@ where
         } = self;
 
         shutdown_tasks.push(Box::pin(target_state.finalize()));
+        shutdown_tasks.insert(0, Box::pin(account_manager.finalize()));
 
         (
             event_listener,
