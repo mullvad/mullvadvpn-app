@@ -17,7 +17,7 @@ while true; do
       continue
     fi
 
-    version=$(echo $f | sed -Ee 's/MullvadVPN-(.*)(\.exe|\.pkg|_amd64\.deb|_x86_64\.rpm|\.apk|\.aab)/\1/g')
+    version=$(echo "$f" | sed -Ee 's/MullvadVPN-(.*)(\.exe|\.pkg|_amd64\.deb|_x86_64\.rpm|\.apk|\.aab)/\1/g')
     if [[ $version == *"-dev-"* ]]; then
         upload_path="builds"
     else
