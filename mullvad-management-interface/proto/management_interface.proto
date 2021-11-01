@@ -427,16 +427,6 @@ message PublicKey {
 	google.protobuf.Timestamp created = 2;
 }
 
-message KeygenEvent {
-	enum KeygenEvent {
-		NEW_KEY = 0;
-		TOO_MANY_KEYS = 1;
-		GENERATION_FAILURE = 2;
-	}
-	KeygenEvent event = 1;
-	PublicKey new_key = 2;
-}
-
 message AppVersionInfo {
     bool supported = 1;
     string latest_stable = 2;

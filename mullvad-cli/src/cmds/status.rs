@@ -1,4 +1,4 @@
-use crate::{format, format::print_keygen_event, new_rpc_client, Command, Error, Result};
+use crate::{format, new_rpc_client, Command, Error, Result};
 use mullvad_management_interface::{
     types::daemon_event::Event as EventType, ManagementServiceClient,
 };

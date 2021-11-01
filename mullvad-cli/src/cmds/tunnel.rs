@@ -1,4 +1,4 @@
-use crate::{format::print_keygen_event, new_rpc_client, Command, Error, Result};
+use crate::{new_rpc_client, Command, Error, Result};
 use mullvad_management_interface::types::{self, Timestamp, TunnelOptions};
 use mullvad_types::wireguard::DEFAULT_ROTATION_INTERVAL;
 use std::{convert::TryFrom, time::Duration};
@@ -251,7 +251,7 @@ impl Tunnel {
 
     async fn process_wireguard_key_generate() -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        let keygen_event = rpc.rotate_wireguard_key(()).await?;
+        rpc.rotate_wireguard_key(()).await?;
         println!("Rotated WireGuard key");
         Ok(())
     }

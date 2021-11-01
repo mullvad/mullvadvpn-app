@@ -145,24 +145,3 @@ pub struct AssociatedAddresses {
     pub ipv4_address: ipnetwork::Ipv4Network,
     pub ipv6_address: ipnetwork::Ipv6Network,
 }
-
-/// Event that is emitted when the daemon has finished generating a key.
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-pub enum KeygenEvent {
-    NewKey(PublicKey),
-    TooManyKeys,
-    GenerationFailure,
-}
-
-impl fmt::Display for KeygenEvent {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self {
-            KeygenEvent::NewKey(new_key) => write!(f, "New wireguard key {}", new_key.key),
-            KeygenEvent::TooManyKeys => write!(f, "Account has too many keys already"),
-            KeygenEvent::GenerationFailure => write!(f, "Failed to generate new wireguard key"),
-        }
-    }
-}
