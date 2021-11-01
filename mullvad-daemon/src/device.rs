@@ -167,7 +167,15 @@ impl AccountManager {
     /// Log out without waiting for the result.
     pub fn logout(&mut self) {
         let fut = self.logout_inner(true);
-        self.runtime.spawn(fut);
+        self.runtime.spawn(async move {
+            let result = fut.await;
+            if let Err(error) = result {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to remove a previous device")
+                );
+            }
+        });
     }
 
     /// Log out, and wait until the API has removed the device.
