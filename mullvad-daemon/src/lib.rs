@@ -47,7 +47,7 @@ use mullvad_types::{
     settings::{DnsOptions, DnsState, Settings},
     states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
-    wireguard::{KeygenEvent, PublicKey, RotationInterval},
+    wireguard::{PublicKey, RotationInterval},
 };
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]

@@ -5,29 +5,10 @@ use mullvad_management_interface::types::{
     },
     tunnel_state,
     tunnel_state::State::*,
-    ErrorState, KeygenEvent, ProxyType, TransportProtocol, TunnelEndpoint, TunnelState, TunnelType,
+    ErrorState, ProxyType, TransportProtocol, TunnelEndpoint, TunnelState, TunnelType,
 };
 use mullvad_types::auth_failed::AuthFailed;
 use std::fmt::Write;
-
-pub fn print_keygen_event(key_event: &KeygenEvent) {
-    use mullvad_management_interface::types::keygen_event::KeygenEvent as EventType;
-
-    match EventType::from_i32(key_event.event).unwrap() {
-        EventType::NewKey => {
-            println!(
-                "New WireGuard key: {}",
-                base64::encode(&key_event.new_key.as_ref().unwrap().key)
-            );
-        }
-        EventType::TooManyKeys => {
-            println!("Account has too many keys already");
-        }
-        EventType::GenerationFailure => {
-            println!("Failed to generate new WireGuard key");
-        }
-    }
-}
 
 pub fn print_state(state: &TunnelState) {
     print!("Tunnel status: ");
