@@ -1046,10 +1046,12 @@ impl RelayListUpdater {
     }
 
     async fn run(mut self, mut cmd_rx: mpsc::Receiver<bool>) {
-        let mut check_interval = tokio_stream::wrappers::IntervalStream::new(
-            tokio::time::interval(UPDATE_CHECK_INTERVAL),
-        )
-        .fuse();
+        let mut check_interval =
+            tokio_stream::wrappers::IntervalStream::new(tokio::time::interval_at(
+                (Instant::now() + UPDATE_CHECK_INTERVAL).into(),
+                UPDATE_CHECK_INTERVAL,
+            ))
+            .fuse();
         let mut download_future = Box::pin(Fuse::terminated());
         loop {
             futures::select! {
@@ -1129,7 +1131,7 @@ impl RelayListUpdater {
         tag: Option<String>,
     ) -> impl Future<Output = Result<Option<RelayList>, mullvad_rpc::Error>> + 'static {
         let download_futures = move || {
-            let available = api_handle.wait_available();
+            let available = api_handle.wait_background();
             let req = rpc_handle.relay_list(tag.clone());
             async move {
                 available.await?;

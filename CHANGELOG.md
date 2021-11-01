@@ -40,6 +40,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix desktop app showing a future date for when WireGuard key was generated.
 - Fix desktop app split tunneling view to not overflow on very long application names.
+- Prevent API requests from being made prior to the tunnel state machine being set up.
+  Rarely, failed requests could result in a deadlock.
 
 #### Windows
 - Fix detection of Windows 11. Problem reports will now correctly report Windows 11 instead

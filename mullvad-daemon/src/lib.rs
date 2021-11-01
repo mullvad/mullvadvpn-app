@@ -24,7 +24,7 @@ mod version_check;
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Future},
-    SinkExt, StreamExt,
+    StreamExt,
 };
 use log::{debug, error, info, warn};
 use mullvad_rpc::availability::ApiAvailabilityHandle;
@@ -559,49 +559,6 @@ where
         let runtime = tokio::runtime::Handle::current();
 
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
-        let (address_change_tx, mut address_change_rx) = mpsc::channel(0);
-        let address_change_tx = std::sync::Mutex::new(address_change_tx);
-        let address_change_runtime = runtime.clone();
-
-        let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
-            runtime.clone(),
-            Some(&resource_dir),
-            &cache_dir,
-            true,
-            move |address| {
-                let (result_tx, result_rx) = oneshot::channel();
-
-                let mut tx = address_change_tx.lock().unwrap().clone();
-                address_change_runtime.block_on(async move {
-                    let tunnel_command = TunnelCommand::AllowEndpoint(
-                        Endpoint::from_socket_address(address, TransportProtocol::Tcp),
-                        result_tx,
-                    );
-                    let _ = tx.send(tunnel_command).await;
-                    result_rx.await.map_err(|_| ())
-                })
-            },
-            #[cfg(target_os = "android")]
-            Self::create_bypass_tx(&internal_event_tx),
-        )
-        .await
-        .map_err(Error::InitRpcFactory)?;
-        let rpc_handle = rpc_runtime.mullvad_rest_handle();
-        let api_availability = rpc_runtime.availability_handle();
-
-        let relay_list_listener = event_listener.clone();
-        let on_relay_list_update = move |relay_list: &RelayList| {
-            relay_list_listener.notify_relay_list(relay_list.clone());
-        };
-
-        let relay_selector = relays::RelaySelector::new(
-            rpc_handle.clone(),
-            on_relay_list_update,
-            &resource_dir,
-            &cache_dir,
-            api_availability.clone(),
-        );
-
 
         if let Err(error) = migrations::migrate_all(&cache_dir, &settings_dir).await {
             log::error!(
@@ -614,21 +571,6 @@ where
         if version::is_beta_version() {
             let _ = settings.set_show_beta_releases(true).await;
         }
-
-        let app_version_info = version_check::load_cache(&cache_dir).await;
-        let (version_updater, version_updater_handle) = version_check::VersionUpdater::new(
-            rpc_handle.clone(),
-            api_availability.clone(),
-            cache_dir.clone(),
-            internal_event_tx.to_specialized_sender(),
-            app_version_info.clone(),
-            settings.show_beta_releases,
-        );
-        tokio::spawn(version_updater.run());
-        let account_history =
-            account_history::AccountHistory::new(&settings_dir, settings.get_account_token())
-                .await
-                .map_err(Error::LoadAccountHistory)?;
 
         // Restore the tunnel to a previous state
         let target_cache = cache_dir.join(TARGET_START_STATE_FILE);
@@ -676,10 +618,6 @@ where
         };
         Self::cache_target_state(&cache_dir, initial_target_state).await;
 
-        let initial_api_endpoint = Endpoint::from_socket_address(
-            rpc_runtime.address_cache.peek_address(),
-            TransportProtocol::Tcp,
-        );
         #[cfg(windows)]
         let exclude_paths = if settings.split_tunnel.enable_exclusions {
             settings
@@ -692,8 +630,26 @@ where
             vec![]
         };
 
-        let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
+        let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
+            runtime.clone(),
+            Some(&resource_dir),
+            &cache_dir,
+            true,
+            #[cfg(target_os = "android")]
+            Self::create_bypass_tx(&internal_event_tx),
+        )
+        .await
+        .map_err(Error::InitRpcFactory)?;
 
+        let api_availability = rpc_runtime.availability_handle();
+        api_availability.suspend();
+
+        let initial_api_endpoint = Endpoint::from_socket_address(
+            rpc_runtime.address_cache.peek_address(),
+            TransportProtocol::Tcp,
+        );
+
+        let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         let tunnel_command_tx = tunnel_state_machine::spawn(
             runtime.clone(),
             tunnel_state_machine::InitialTunnelState {
@@ -707,7 +663,7 @@ where
             },
             tunnel_parameters_generator,
             log_dir,
-            resource_dir,
+            resource_dir.clone(),
             cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             offline_state_tx,
@@ -718,18 +674,55 @@ where
         .await
         .map_err(Error::TunnelError)?;
 
+        let address_change_runtime = runtime.clone();
+        let tunnel_cmd_weak_tx = Arc::downgrade(&tunnel_command_tx);
+        rpc_runtime.set_address_change_listener(move |address| {
+            let (result_tx, result_rx) = oneshot::channel();
+            let tx = tunnel_cmd_weak_tx.clone();
+            address_change_runtime.block_on(async move {
+                if let Some(tx) = tx.upgrade() {
+                    let _ = tx.unbounded_send(TunnelCommand::AllowEndpoint(
+                        Endpoint::from_socket_address(address, TransportProtocol::Tcp),
+                        result_tx,
+                    ));
+                    result_rx.await.map_err(|_| ())
+                } else {
+                    Err(())
+                }
+            })
+        });
+
+        let rpc_handle = rpc_runtime.mullvad_rest_handle();
+
         Self::forward_offline_state(&runtime, api_availability.clone(), offline_state_rx).await;
 
-        let tsm_api_address_change_tx = Arc::downgrade(&tunnel_command_tx);
-        tokio::spawn(async move {
-            while let Some(address_change) = address_change_rx.next().await {
-                if let Some(tx) = tsm_api_address_change_tx.upgrade() {
-                    let _ = tx.unbounded_send(address_change);
-                } else {
-                    return;
-                }
-            }
-        });
+        let relay_list_listener = event_listener.clone();
+        let on_relay_list_update = move |relay_list: &RelayList| {
+            relay_list_listener.notify_relay_list(relay_list.clone());
+        };
+
+        let relay_selector = relays::RelaySelector::new(
+            rpc_handle.clone(),
+            on_relay_list_update,
+            &resource_dir,
+            &cache_dir,
+            api_availability.clone(),
+        );
+
+        let app_version_info = version_check::load_cache(&cache_dir).await;
+        let (version_updater, version_updater_handle) = version_check::VersionUpdater::new(
+            rpc_handle.clone(),
+            api_availability.clone(),
+            cache_dir.clone(),
+            internal_event_tx.to_specialized_sender(),
+            app_version_info.clone(),
+            settings.show_beta_releases,
+        );
+        tokio::spawn(version_updater.run());
+        let account_history =
+            account_history::AccountHistory::new(&settings_dir, settings.get_account_token())
+                .await
+                .map_err(Error::LoadAccountHistory)?;
 
         let wireguard_key_manager = wireguard::KeyManager::new(
             internal_event_tx.clone(),
@@ -780,6 +773,8 @@ where
         };
 
         daemon.ensure_wireguard_keys_for_current_account().await;
+
+        api_availability.unsuspend();
 
         Ok(daemon)
     }

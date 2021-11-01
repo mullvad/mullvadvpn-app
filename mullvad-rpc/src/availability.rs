@@ -18,21 +18,22 @@ pub enum Error {
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Default)]
 pub struct State {
-    pause_automatic: bool,
+    suspended: bool,
+    pause_background: bool,
     offline: bool,
 }
 
 impl State {
-    pub fn is_paused(&self) -> bool {
-        self.pause_automatic
+    pub fn is_suspended(&self) -> bool {
+        self.suspended
+    }
+
+    pub fn is_background_paused(&self) -> bool {
+        self.offline || self.pause_background || self.suspended
     }
 
     pub fn is_offline(&self) -> bool {
         self.offline
-    }
-
-    pub fn is_available(&self) -> bool {
-        !self.is_paused() && !self.is_offline()
     }
 }
 
@@ -67,18 +68,34 @@ pub struct ApiAvailabilityHandle {
 }
 
 impl ApiAvailabilityHandle {
-    pub fn pause(&self) {
+    pub fn suspend(&self) {
         let mut state = self.state.lock().unwrap();
-        if !state.pause_automatic {
-            state.pause_automatic = true;
+        if !state.suspended {
+            state.suspended = true;
             let _ = self.tx.send(*state);
         }
     }
 
-    pub fn resume(&self) {
+    pub fn unsuspend(&self) {
         let mut state = self.state.lock().unwrap();
-        if state.pause_automatic {
-            state.pause_automatic = false;
+        if state.suspended {
+            state.suspended = false;
+            let _ = self.tx.send(*state);
+        }
+    }
+
+    pub fn pause_background(&self) {
+        let mut state = self.state.lock().unwrap();
+        if !state.pause_background {
+            state.pause_background = true;
+            let _ = self.tx.send(*state);
+        }
+    }
+
+    pub fn resume_background(&self) {
+        let mut state = self.state.lock().unwrap();
+        if state.pause_background {
+            state.pause_background = false;
             let _ = self.tx.send(*state);
         }
     }
@@ -95,8 +112,12 @@ impl ApiAvailabilityHandle {
         *self.state.lock().unwrap()
     }
 
-    pub fn wait_available(&self) -> impl Future<Output = Result<(), Error>> {
-        self.wait_for_state(|state| state.is_available())
+    pub fn wait_for_unsuspend(&self) -> impl Future<Output = Result<(), Error>> {
+        self.wait_for_state(|state| !state.is_suspended())
+    }
+
+    pub fn wait_background(&self) -> impl Future<Output = Result<(), Error>> {
+        self.wait_for_state(|state| !state.is_background_paused())
     }
 
     pub fn wait_online(&self) -> impl Future<Output = Result<(), Error>> {
