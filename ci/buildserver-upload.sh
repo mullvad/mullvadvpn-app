@@ -24,16 +24,15 @@ while true; do
         upload_path="releases"
     fi
 
-    ssh build.mullvad.net mkdir -p "app/$version" || continue
-    scp -pB "$f" build.mullvad.net:app/$version/ || continue
     rsync -av --rsh='ssh -p 1122' "$f" "build@releases.mullvad.net:$upload_path/$version/" || continue
 
     rm -f "$f.asc"
     gpg -u A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF --pinentry-mode loopback --sign --armor --detach-sign "$f"
-    scp -pB "$f.asc" build.mullvad.net:app/$version/ || true
     rsync -av --rsh='ssh -p 1122' "$f.asc" "build@releases.mullvad.net:$upload_path/$version/" || continue
     yes | rm "$f" "$f_checksum" "$f.asc"
   done
+
+  # Upload PDB files (Windows debugging info)
   for f_checksum in pdb-*.sha256; do
     sleep 1
     f="${f_checksum/.sha256/}"
@@ -42,9 +41,7 @@ while true; do
       continue
     fi
 
-    ssh build.mullvad.net mkdir -p app/pdb || continue
-    scp -pB "$f" build.mullvad.net:app/pdb/ || continue
-
+    rsync -av --rsh='ssh -p 1122' "$f" "build@releases.mullvad.net:builds/pdb/" || continue
     yes | rm "$f" "$f_checksum"
   done
 done
