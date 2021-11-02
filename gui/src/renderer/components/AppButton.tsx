@@ -3,7 +3,12 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
 import { useMounted } from '../lib/utilityHooks';
-import { StyledButtonContent, StyledLabel, StyledLabelContainer } from './AppButtonStyles';
+import {
+  StyledButtonContent,
+  StyledLabel,
+  StyledLabelContainer,
+  transparentButton,
+} from './AppButtonStyles';
 import ImageView from './ImageView';
 
 interface IButtonContext {
@@ -178,14 +183,14 @@ export const BlueButton = styled(BaseButton)({
   },
 });
 
-export const TransparentButton = styled(BaseButton)({
+export const TransparentButton = styled(BaseButton)(transparentButton, {
   backgroundColor: colors.white20,
   ':not(:disabled):hover': {
     backgroundColor: colors.white40,
   },
 });
 
-export const RedTransparentButton = styled(BaseButton)({
+export const RedTransparentButton = styled(BaseButton)(transparentButton, {
   backgroundColor: colors.red60,
   ':not(:disabled):hover': {
     backgroundColor: colors.red80,

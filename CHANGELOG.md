@@ -29,6 +29,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Update Electron from 11.4.9 to 15.0.0.
+- Revamp main view with lower resolution maps, blurred background behind semi-transparent buttons
+  and switch to correct font for logo.
 
 #### Android
 - Drop support for Android 7/7.1 (Android 8/API level 26 or later is now required).

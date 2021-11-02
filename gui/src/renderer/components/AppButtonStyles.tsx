@@ -21,3 +21,7 @@ export const StyledButtonContent = styled.div({
   justifyContent: 'center',
   padding: '9px',
 });
+
+export const transparentButton = {
+  backdropFilter: 'blur(4px)',
+};
