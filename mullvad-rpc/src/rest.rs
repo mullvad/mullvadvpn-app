@@ -1,6 +1,7 @@
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
+    access::AccessTokenProxy,
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
@@ -327,11 +328,11 @@ impl RestRequest {
         })
     }
 
-    /// Set the auth header with the following format: `Token $auth`.
+    /// Set the auth header with the following format: `Bearer $auth`.
     pub fn set_auth(&mut self, auth: Option<String>) -> Result<()> {
         let header = match auth {
             Some(auth) => Some(
-                HeaderValue::from_str(&format!("Token {}", auth))
+                HeaderValue::from_str(&format!("Bearer {}", auth))
                     .map_err(Error::InvalidHeaderError)?,
             ),
             None => None,
@@ -631,6 +632,7 @@ pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
     pub availability: ApiAvailabilityHandle,
+    pub token_store: AccessTokenProxy,
 }
 
 impl MullvadRestHandle {
@@ -640,10 +642,13 @@ impl MullvadRestHandle {
         address_cache: AddressCache,
         availability: ApiAvailabilityHandle,
     ) -> Self {
+        let token_store = AccessTokenProxy::new(service.clone(), factory.clone());
+
         let handle = Self {
             service,
             factory,
             availability,
+            token_store,
         };
         if !super::API.disable_address_cache {
             handle.spawn_api_address_fetcher(address_cache);

@@ -3,8 +3,11 @@ use chrono::{offset::Utc, DateTime};
 use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 
-/// Identifier used to authenticate or identify a Mullvad account.
+/// Identifier used to identify a Mullvad account.
 pub type AccountToken = String;
+
+/// Identifier used to authenticate a Mullvad account.
+pub type AccessToken = String;
 
 /// Account expiration info returned by the API via `/v1/me`.
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
@@ -18,7 +21,7 @@ pub struct AccountData {
 impl AccountData {
     /// Return true if the account has no time left.
     pub fn is_expired(&self) -> bool {
-        self.expiry >= Utc::now()
+        Utc::now() >= self.expiry
     }
 }
 
@@ -34,4 +37,18 @@ pub struct VoucherSubmission {
     /// Updated expiry time
     #[cfg_attr(target_os = "android", jnix(map = "|expiry| expiry.to_string()"))]
     pub new_expiry: DateTime<Utc>,
+}
+
+/// Token used for authentication in the API.
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct AccessTokenData {
+    pub access_token: AccessToken,
+    pub expiry: DateTime<Utc>,
+}
+
+impl AccessTokenData {
+    /// Return true if the token is no longer valid.
+    pub fn is_expired(&self) -> bool {
+        Utc::now() >= self.expiry
+    }
 }
