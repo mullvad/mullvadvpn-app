@@ -543,5 +543,5 @@ message DeviceRemoval {
 }
 
 message DeviceEvent {
-	Device device = 1;
+	DeviceConfig device = 1;
 }

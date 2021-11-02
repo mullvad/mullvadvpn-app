@@ -1383,7 +1383,7 @@ where
             self.schedule_reconnect(WG_RECONNECT_DELAY).await;
         }
         self.event_listener
-            .notify_device_event(DeviceEvent(Some(Device::from(event.0))));
+            .notify_device_event(DeviceEvent::from(event.0));
     }
 
     async fn handle_device_migration_event(&mut self, data: DeviceData) {
@@ -1391,11 +1391,10 @@ where
             // Discard stale device
             return;
         }
-        let device = data.device.clone();
+        let event = DeviceEvent::from(data.clone());
         self.account_manager.set(data);
         self.reconnect_tunnel();
-        self.event_listener
-            .notify_device_event(DeviceEvent(Some(device)));
+        self.event_listener.notify_device_event(event);
     }
 
     #[cfg(windows)]
@@ -1658,7 +1657,7 @@ where
                     .await
                     .map_err(Error::LoginError)?;
                 self.event_listener
-                    .notify_device_event(DeviceEvent(Some(Device::from(device_data))));
+                    .notify_device_event(DeviceEvent::from(device_data));
             }
             None => {
                 self.account_manager.logout();
@@ -2302,9 +2301,8 @@ where
     async fn on_rotate_wireguard_key(&mut self, tx: ResponseTx<(), Error>) {
         let result = self.account_manager.rotate_key().await;
         if let Ok(ref _wg_data) = result {
-            let device = self.account_manager.get().map(Device::from);
-            self.event_listener
-                .notify_device_event(DeviceEvent(device.clone()));
+            let device = DeviceEvent::from(self.account_manager.get());
+            self.event_listener.notify_device_event(device);
         }
         let _ = tx.send(result.map(|_| ()).map_err(Error::KeyRotationError));
     }
