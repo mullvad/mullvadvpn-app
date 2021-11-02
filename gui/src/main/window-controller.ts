@@ -1,7 +1,8 @@
 import { BrowserWindow, Display, screen, Tray, WebContents } from 'electron';
-import { IpcMainEventChannel } from './ipc-event-channel';
+import os from 'os';
 import { IWindowShapeParameters } from '../shared/ipc-types';
 import { Scheduler } from '../shared/scheduler';
+import { IpcMainEventChannel } from './ipc-event-channel';
 
 interface IPosition {
   x: number;
@@ -12,6 +13,11 @@ interface IWindowPositioning {
   getPosition(window: BrowserWindow): IPosition;
   getWindowShapeParameters(window: BrowserWindow): IWindowShapeParameters;
 }
+
+// Tray applications are positioned aproximately 10px from the tray in Windows 11. Windows 11 has
+// the internal version 10.0.22000+.
+const MARGIN =
+  process.platform === 'win32' && parseInt(os.release().split('.').at(-1)!) >= 22000 ? 10 : 0;
 
 class StandaloneWindowPositioning implements IWindowPositioning {
   public getPosition(window: BrowserWindow): IPosition {
@@ -59,21 +65,21 @@ class AttachedToTrayWindowPositioning implements IWindowPositioning {
     switch (placement) {
       case 'top':
         x = trayBounds.x + (trayBounds.width - windowBounds.width) * 0.5;
-        y = workArea.y;
+        y = workArea.y + MARGIN;
         break;
 
       case 'bottom':
         x = trayBounds.x + (trayBounds.width - windowBounds.width) * 0.5;
-        y = workArea.y + workArea.height - windowBounds.height;
+        y = workArea.y + workArea.height - windowBounds.height - MARGIN;
         break;
 
       case 'left':
-        x = workArea.x;
+        x = workArea.x + MARGIN;
         y = trayBounds.y + (trayBounds.height - windowBounds.height) * 0.5;
         break;
 
       case 'right':
-        x = workArea.width - windowBounds.width;
+        x = workArea.width - windowBounds.width - MARGIN;
         y = trayBounds.y + (trayBounds.height - windowBounds.height) * 0.5;
         break;
 
