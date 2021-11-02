@@ -255,8 +255,12 @@ export class DaemonRpc {
     return response.getValue();
   }
 
-  public async setAccount(accountToken?: AccountToken): Promise<void> {
-    await this.callString(this.client.setAccount, accountToken);
+  public async loginAccount(accountToken: AccountToken): Promise<void> {
+    await this.callString(this.client.loginAccount, accountToken);
+  }
+
+  public async logoutAccount(): Promise<void> {
+    await this.callEmpty(this.client.logoutAccount);
   }
 
   // TODO: Custom tunnel configurations are not supported by the GUI.

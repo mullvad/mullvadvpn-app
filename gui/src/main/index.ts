@@ -1436,7 +1436,7 @@ class ApplicationMain {
         log.warn(`Failed to get account data, logging in anyway: ${verification.error.message}`);
       }
 
-      await this.daemonRpc.setAccount(accountToken);
+      await this.daemonRpc.loginAccount(accountToken);
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to login: ${error.message}`);
@@ -1475,7 +1475,7 @@ class ApplicationMain {
 
   private async logout(): Promise<void> {
     try {
-      await this.daemonRpc.setAccount();
+      await this.daemonRpc.logoutAccount();
 
       this.accountExpiryNotificationScheduler.cancel();
     } catch (e) {
