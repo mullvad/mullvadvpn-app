@@ -1,6 +1,5 @@
 mod network_manager;
 mod resolvconf;
-mod routing;
 mod static_resolv_conf;
 pub(self) mod systemd_resolved;
 
@@ -65,8 +64,10 @@ impl super::DnsMonitorT for DnsMonitor {
         self.reset()?;
         // Creating a new DNS monitor for each set, in case the system changed how it manages DNS.
         let mut inner = DnsMonitorHolder::new()?;
-        inner.set(&self.handle, &self.route_manager, interface, servers)?;
-        self.inner = Some(inner);
+        if !servers.is_empty() {
+            inner.set(&self.handle, &self.route_manager, interface, servers)?;
+            self.inner = Some(inner);
+        }
         Ok(())
     }
 

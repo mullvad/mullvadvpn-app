@@ -65,6 +65,10 @@ Line wrap the file at 100 chars.                                              Th
 - Prevent app from showing when dragging tray icon on macOS.
 - Move window after dragging tray icon to new position.
 
+#### Linux
+- Greatly simplify behavior around custom DNS when using systemd-resolved, by not setting DNS config on interfaces other
+  than our tunnel interface.
+
 
 ## [2021.5] - 2021-10-25
 This release is for desktop only.
