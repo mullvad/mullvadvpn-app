@@ -36,8 +36,6 @@ import {
   TunnelType,
   IProxyEndpoint,
   ProxyType,
-  KeygenEvent,
-  IWireguardPublicKey,
   ISettings,
   ConnectionConfig,
   DaemonEvent,
@@ -438,19 +436,6 @@ export class DaemonRpc {
     return response.getValue();
   }
 
-  public async generateWireguardKey(): Promise<KeygenEvent> {
-    const response = await this.callEmpty<grpcTypes.KeygenEvent>(this.client.generateWireguardKey);
-    return convertFromKeygenEvent(response);
-  }
-
-  public async getWireguardKey(): Promise<IWireguardPublicKey> {
-    const response = await this.callEmpty<grpcTypes.PublicKey>(this.client.getWireguardKey);
-    return {
-      created: response.getCreated()!.toDate().toISOString(),
-      key: convertFromWireguardKey(response.getKey()),
-    };
-  }
-
   public async setDnsOptions(dns: IDnsOptions): Promise<void> {
     const dnsOptions = new grpcTypes.DnsOptions();
 
@@ -471,11 +456,6 @@ export class DaemonRpc {
     }
 
     await this.call<grpcTypes.DnsOptions, Empty>(this.client.setDnsOptions, dnsOptions);
-  }
-
-  public async verifyWireguardKey(): Promise<boolean> {
-    const response = await this.callEmpty<BoolValue>(this.client.verifyWireguardKey);
-    return response.getValue();
   }
 
   public async getVersionInfo(): Promise<IAppVersionInfo> {
@@ -1123,36 +1103,9 @@ function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
     };
   }
 
-  const keygenEvent = data.getKeyEvent();
-  if (keygenEvent !== undefined) {
-    return {
-      wireguardKey: convertFromKeygenEvent(keygenEvent),
-    };
-  }
-
   return {
     appVersionInfo: data.getVersionInfo()!.toObject(),
   };
-}
-
-function convertFromKeygenEvent(data: grpcTypes.KeygenEvent): KeygenEvent {
-  switch (data.getEvent()) {
-    case grpcTypes.KeygenEvent.KeygenEvent.TOO_MANY_KEYS:
-      return 'too_many_keys';
-    case grpcTypes.KeygenEvent.KeygenEvent.NEW_KEY: {
-      const newKey = data.getNewKey();
-      return newKey
-        ? {
-            newKey: {
-              created: newKey.getCreated()!.toDate().toISOString(),
-              key: convertFromWireguardKey(newKey.getKey()),
-            },
-          }
-        : 'generation_failure';
-    }
-    case grpcTypes.KeygenEvent.KeygenEvent.GENERATION_FAILURE:
-      return 'generation_failure';
-  }
 }
 
 function convertFromOpenVpnConstraints(

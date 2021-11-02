@@ -1,12 +1,7 @@
-import {
-  BridgeState,
-  IDnsOptions,
-  IWireguardPublicKey,
-  KeygenEvent,
-} from '../../../shared/daemon-rpc-types';
+import { BridgeState, IDnsOptions } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { IApplication } from '../../../shared/application-types';
-import { BridgeSettingsRedux, IRelayLocationRedux, IWgKey, RelaySettingsRedux } from './reducers';
+import { BridgeSettingsRedux, IRelayLocationRedux, RelaySettingsRedux } from './reducers';
 
 export interface IUpdateGuiSettingsAction {
   type: 'UPDATE_GUI_SETTINGS';
@@ -73,36 +68,6 @@ export interface IUpdateAutoStartAction {
   autoStart: boolean;
 }
 
-// Used to set wireguard key when accounts are changed.
-export interface IWireguardSetKey {
-  type: 'SET_WIREGUARD_KEY';
-  key?: IWgKey;
-}
-
-export interface IWireguardGenerateKey {
-  type: 'GENERATE_WIREGUARD_KEY';
-}
-
-export interface IWireguardReplaceKey {
-  type: 'REPLACE_WIREGUARD_KEY';
-  oldKey: IWgKey;
-}
-
-export interface IWireguardVerifyKey {
-  type: 'VERIFY_WIREGUARD_KEY';
-  key: IWgKey;
-}
-
-export interface IWireguardKeygenEvent {
-  type: 'WIREGUARD_KEYGEN_EVENT';
-  event: KeygenEvent;
-}
-
-export interface IWireguardKeyVerifiedAction {
-  type: 'WIREGUARD_KEY_VERIFICATION_COMPLETE';
-  verified?: boolean;
-}
-
 export interface IUpdateDnsOptionsAction {
   type: 'UPDATE_DNS_OPTIONS';
   dns: IDnsOptions;
@@ -132,12 +97,6 @@ export type SettingsAction =
   | IUpdateOpenVpnMssfixAction
   | IUpdateWireguardMtuAction
   | IUpdateAutoStartAction
-  | IWireguardSetKey
-  | IWireguardVerifyKey
-  | IWireguardGenerateKey
-  | IWireguardReplaceKey
-  | IWireguardKeygenEvent
-  | IWireguardKeyVerifiedAction
   | IUpdateDnsOptionsAction
   | IUpdateSplitTunnelingStateAction
   | ISetSplitTunnelingApplicationsAction;
@@ -237,54 +196,6 @@ function updateAutoStart(autoStart: boolean): IUpdateAutoStartAction {
   };
 }
 
-function setWireguardKey(publicKey?: IWireguardPublicKey): IWireguardSetKey {
-  const key = publicKey
-    ? {
-        publicKey: publicKey.key,
-        created: publicKey.created,
-        valid: undefined,
-      }
-    : undefined;
-  return {
-    type: 'SET_WIREGUARD_KEY',
-    key,
-  };
-}
-
-function setWireguardKeygenEvent(event: KeygenEvent): IWireguardKeygenEvent {
-  return {
-    type: 'WIREGUARD_KEYGEN_EVENT',
-    event,
-  };
-}
-
-function generateWireguardKey(): IWireguardGenerateKey {
-  return {
-    type: 'GENERATE_WIREGUARD_KEY',
-  };
-}
-
-function replaceWireguardKey(oldKey: IWgKey): IWireguardReplaceKey {
-  return {
-    type: 'REPLACE_WIREGUARD_KEY',
-    oldKey,
-  };
-}
-
-function verifyWireguardKey(key: IWgKey): IWireguardVerifyKey {
-  return {
-    type: 'VERIFY_WIREGUARD_KEY',
-    key,
-  };
-}
-
-function completeWireguardKeyVerification(verified?: boolean): IWireguardKeyVerifiedAction {
-  return {
-    type: 'WIREGUARD_KEY_VERIFICATION_COMPLETE',
-    verified,
-  };
-}
-
 function updateDnsOptions(dns: IDnsOptions): IUpdateDnsOptionsAction {
   return {
     type: 'UPDATE_DNS_OPTIONS',
@@ -322,12 +233,6 @@ export default {
   updateOpenVpnMssfix,
   updateWireguardMtu,
   updateAutoStart,
-  setWireguardKey,
-  setWireguardKeygenEvent,
-  generateWireguardKey,
-  replaceWireguardKey,
-  verifyWireguardKey,
-  completeWireguardKeyVerification,
   updateDnsOptions,
   updateSplitTunnelingState,
   setSplitTunnelingApplications,

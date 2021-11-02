@@ -10,8 +10,6 @@ import {
   ILocation,
   IRelayList,
   ISettings,
-  IWireguardPublicKey,
-  KeygenEvent,
   RelaySettingsUpdate,
   TunnelState,
   VoucherResponse,
@@ -56,7 +54,6 @@ export interface IAppStateSnapshot {
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppVersionInfo;
   guiSettings: IGuiSettingsState;
-  wireguardPublicKey?: IWireguardPublicKey;
   translations: ITranslations;
   windowsSplitTunnelingApplications?: IApplication[];
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
@@ -180,12 +177,6 @@ export const ipcSchema = {
   autoStart: {
     '': notifyRenderer<boolean>(),
     set: invoke<boolean, void>(),
-  },
-  wireguardKeys: {
-    publicKey: notifyRenderer<IWireguardPublicKey | undefined>(),
-    keygenEvent: notifyRenderer<KeygenEvent>(),
-    generateKey: invoke<void, KeygenEvent>(),
-    verifyKey: invoke<void, boolean>(),
   },
   problemReport: {
     collectLogs: invoke<string | undefined, string>(),

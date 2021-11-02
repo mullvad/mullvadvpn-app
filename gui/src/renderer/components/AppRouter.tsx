@@ -16,7 +16,6 @@ import SelectLanguagePage from '../containers/SelectLanguagePage';
 import SelectLocationPage from '../containers/SelectLocationPage';
 import SettingsPage from '../containers/SettingsPage';
 import SupportPage from '../containers/SupportPage';
-import WireguardKeysPage from '../containers/WireguardKeysPage';
 import WireguardSettingsPage from '../containers/WireguardSettingsPage';
 import { IHistoryProps, ITransitionSpecification, transitions, withHistory } from '../lib/history';
 import {
@@ -92,7 +91,6 @@ class AppRouter extends React.Component<IHistoryProps, IAppRoutesState> {
                 <Route exact path={RoutePath.preferences} component={PreferencesPage} />
                 <Route exact path={RoutePath.advancedSettings} component={AdvancedSettingsPage} />
                 <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsPage} />
-                <Route exact path={RoutePath.wireguardKeys} component={WireguardKeysPage} />
                 <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettingsPage} />
                 <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
                 <Route exact path={RoutePath.support} component={SupportPage} />

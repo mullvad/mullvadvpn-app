@@ -30,8 +30,6 @@ import {
   IDnsOptions,
   IRelayList,
   ISettings,
-  IWireguardPublicKey,
-  KeygenEvent,
   liftConstraint,
   RelaySettings,
   RelaySettingsUpdate,
@@ -87,8 +85,6 @@ const windowsSplitTunneling = process.platform === 'win32' && require('./windows
 
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
-
-const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 
 const GUI_VERSION = app.getVersion().replace('.0', '');
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
@@ -221,8 +217,6 @@ class ApplicationMain {
   // The UI locale which is set once from onReady handler
   private locale = 'en';
 
-  private wireguardPublicKey?: IWireguardPublicKey;
-
   private accountExpiryNotificationScheduler = new Scheduler();
 
   private accountDataCache = new AccountDataCache(
@@ -239,9 +233,6 @@ class ApplicationMain {
       this.handleAccountExpiry();
     },
   );
-
-  private autoConnectOnWireguardKeyEvent = false;
-  private autoConnectFallbackScheduler = new Scheduler();
 
   private blurNavigationResetScheduler = new Scheduler();
   private backgroundThrottleScheduler = new Scheduler();
@@ -722,7 +713,6 @@ class ApplicationMain {
     this.daemonEventListener = undefined;
 
     this.tunnelStateFallback = undefined;
-    this.autoConnectFallbackScheduler.cancel();
 
     if (wasConnected) {
       this.connectedToDaemon = false;
@@ -775,8 +765,6 @@ class ApplicationMain {
             this.settings.relaySettings,
             this.settings.bridgeState,
           );
-        } else if ('wireguardKey' in daemonEvent) {
-          this.handleWireguardKeygenEvent(daemonEvent.wireguardKey);
         } else if ('appVersionInfo' in daemonEvent) {
           this.setLatestVersion(daemonEvent.appVersionInfo);
         }
@@ -823,37 +811,6 @@ class ApplicationMain {
     if (this.windowController) {
       IpcMainEventChannel.accountHistory.notify(this.windowController.webContents, accountHistory);
     }
-  }
-
-  private setWireguardKey(wireguardKey?: IWireguardPublicKey) {
-    this.wireguardPublicKey = wireguardKey;
-    if (this.windowController) {
-      IpcMainEventChannel.wireguardKeys.notifyPublicKey(
-        this.windowController.webContents,
-        wireguardKey,
-      );
-    }
-
-    if (wireguardKey) {
-      this.wireguardKeygenEventAutoConnect();
-    }
-  }
-
-  private handleWireguardKeygenEvent(event: KeygenEvent) {
-    switch (event) {
-      case 'too_many_keys':
-      case 'generation_failure':
-        this.wireguardPublicKey = undefined;
-        break;
-      default:
-        this.wireguardPublicKey = event.newKey;
-    }
-
-    if (this.windowController) {
-      IpcMainEventChannel.wireguardKeys.notifyKeygenEvent(this.windowController.webContents, event);
-    }
-
-    this.wireguardKeygenEventAutoConnect();
   }
 
   // This function sets a new tunnel state as an assumed next state and saves the current state as
@@ -929,7 +886,6 @@ class ApplicationMain {
 
     if (oldSettings.accountToken !== newSettings.accountToken) {
       void this.updateAccountHistory();
-      void this.fetchWireguardKey();
     }
 
     if (oldSettings.showBetaReleases !== newSettings.showBetaReleases) {
@@ -1223,7 +1179,6 @@ class ApplicationMain {
       currentVersion: this.currentVersion,
       upgradeVersion: this.upgradeVersion,
       guiSettings: this.guiSettings.state,
-      wireguardPublicKey: this.wireguardPublicKey,
       translations: this.translations,
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
@@ -1321,15 +1276,6 @@ class ApplicationMain {
       await this.daemonRpc.clearAccountHistory();
       void this.updateAccountHistory();
     });
-
-    IpcMainEventChannel.wireguardKeys.handleGenerateKey(async () => {
-      try {
-        return await this.daemonRpc.generateWireguardKey();
-      } catch {
-        return 'generation_failure';
-      }
-    });
-    IpcMainEventChannel.wireguardKeys.handleVerifyKey(() => this.daemonRpc.verifyWireguardKey());
 
     IpcMainEventChannel.linuxSplitTunneling.handleGetApplications(() => {
       if (linuxSplitTunneling) {
@@ -1490,35 +1436,16 @@ class ApplicationMain {
         log.warn(`Failed to get account data, logging in anyway: ${verification.error.message}`);
       }
 
-      this.autoConnectOnWireguardKeyEvent = this.guiSettings.autoConnect;
       await this.daemonRpc.setAccount(accountToken);
-
-      // Fallback if daemon doesn't send event.
-      if (this.autoConnectOnWireguardKeyEvent) {
-        this.autoConnectFallbackScheduler.schedule(
-          () => this.wireguardKeygenEventAutoConnect(),
-          AUTO_CONNECT_FALLBACK_DELAY,
-        );
-      }
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to login: ${error.message}`);
-
-      this.autoConnectOnWireguardKeyEvent = false;
 
       if (error instanceof InvalidAccountError) {
         throw Error(messages.gettext('Invalid account number'));
       } else {
         throw error;
       }
-    }
-  }
-
-  private wireguardKeygenEventAutoConnect() {
-    if (this.autoConnectOnWireguardKeyEvent) {
-      this.autoConnectOnWireguardKeyEvent = false;
-      this.autoConnectFallbackScheduler.cancel();
-      void this.autoConnect();
     }
   }
 
@@ -1550,7 +1477,6 @@ class ApplicationMain {
     try {
       await this.daemonRpc.setAccount();
 
-      this.autoConnectFallbackScheduler.cancel();
       this.accountExpiryNotificationScheduler.cancel();
     } catch (e) {
       const error = e as Error;
@@ -1638,15 +1564,6 @@ class ApplicationMain {
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch the account history: ${error.message}`);
-    }
-  }
-
-  private async fetchWireguardKey(): Promise<void> {
-    try {
-      this.setWireguardKey(await this.daemonRpc.getWireguardKey());
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to fetch wireguard key: ${error.message}`);
     }
   }
 
