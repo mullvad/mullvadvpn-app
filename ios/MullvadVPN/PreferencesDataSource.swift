@@ -88,16 +88,28 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         guard isEditing != editing else { return }
 
         let oldSnapshot = snapshot
+        let oldDNSDomains = viewModel.customDNSDomains
 
         isEditing = editing
 
         if editing {
             viewModelBeforeEditing = viewModel
         } else {
-            viewModel.endEditing()
+            viewModel.sanitizeCustomDNSEntries()
         }
 
         updateSnapshot()
+
+        // Reconfigure cells for items with corresponding DNS entries that were changed during sanitization.
+        let itemsToReload: [Item] = oldDNSDomains.filter { oldDNSEntry in
+            guard let newDNSEntry = viewModel.dnsEntry(entryIdentifier: oldDNSEntry.identifier) else { return false }
+
+            return newDNSEntry.address != oldDNSEntry.address
+        }.map { dnsEntry in
+            return .dnsServer(dnsEntry.identifier)
+        }
+
+        snapshot.reconfigureItems(itemsToReload)
 
         if animated {
             let diffResult = oldSnapshot.difference(snapshot)

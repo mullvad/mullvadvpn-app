@@ -105,7 +105,7 @@ struct PreferencesViewModel: Equatable {
     }
 
     /// Sanitize custom DNS entries.
-    mutating func endEditing() {
+    mutating func sanitizeCustomDNSEntries() {
         // Santize DNS domains, drop invalid entries.
         customDNSDomains = customDNSDomains.compactMap { entry in
             if let canonicalAddress = AnyIPAddress(entry.address) {
