@@ -34,4 +34,19 @@ impl From<DeviceData> for Device {
 
 /// Emitted when logging in or out of an account, or when the device changes.
 #[derive(Clone, Debug)]
-pub struct DeviceEvent(pub Option<Device>);
+pub struct DeviceEvent(pub Option<(AccountToken, Device)>);
+
+impl From<DeviceData> for DeviceEvent {
+    fn from(data: DeviceData) -> DeviceEvent {
+        DeviceEvent(Some((data.token, data.device)))
+    }
+}
+
+impl From<Option<DeviceData>> for DeviceEvent {
+    fn from(data: Option<DeviceData>) -> DeviceEvent {
+        match data {
+            Some(data) => DeviceEvent::from(data),
+            None => DeviceEvent(None),
+        }
+    }
+}

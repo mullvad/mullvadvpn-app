@@ -209,7 +209,10 @@ impl From<mullvad_types::device::Device> for Device {
 impl From<mullvad_types::device::DeviceEvent> for DeviceEvent {
     fn from(event: mullvad_types::device::DeviceEvent) -> Self {
         DeviceEvent {
-            device: event.0.map(|device| Device::from(device)),
+            device: event.0.map(|(account_token, device)| DeviceConfig {
+                account_token,
+                device: Some(Device::from(device)),
+            }),
         }
     }
 }
