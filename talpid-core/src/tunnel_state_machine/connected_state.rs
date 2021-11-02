@@ -86,7 +86,18 @@ impl ConnectedState {
     fn get_dns_servers(&self, shared_values: &SharedTunnelStateValues) -> Vec<IpAddr> {
         #[cfg(not(target_os = "android"))]
         if let Some(ref servers) = shared_values.dns_servers {
-            servers.clone()
+            #[cfg(not(target_os = "linux"))]
+            {
+                servers.clone()
+            }
+            #[cfg(target_os = "linux")]
+            {
+                servers
+                    .iter()
+                    .cloned()
+                    .filter(|ip| !crate::firewall::is_local_address(ip))
+                    .collect()
+            }
         } else {
             let mut dns_ips = vec![];
             dns_ips.push(self.metadata.ipv4_gateway.into());
