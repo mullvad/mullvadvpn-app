@@ -4,6 +4,7 @@
               android:background="@color/white"
               android:orientation="horizontal">
     <EditText android:id="@+id/input"
+              android:digits="0123456789."
               android:layout_width="0dp"
               android:layout_height="match_parent"
               android:layout_weight="1"
@@ -13,6 +14,7 @@
               android:background="@android:color/transparent"
               android:singleLine="true"
               android:imeOptions="flagNoPersonalizedLearning"
+              android:inputType="number"
               android:textCursorDrawable="@drawable/text_input_cursor"
               android:textColorHint="@color/blue60"
               android:textColor="@color/blue"
