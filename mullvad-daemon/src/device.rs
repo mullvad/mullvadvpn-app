@@ -791,7 +791,6 @@ fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
             if let RestError::ApiError(status, code) = error {
                 *status != rest::StatusCode::NOT_FOUND
                     && code != mullvad_rpc::INVALID_ACCOUNT
-                    && code != mullvad_rpc::KEY_LIMIT_REACHED
                     && code != mullvad_rpc::MAX_DEVICES_REACHED
                     && code != mullvad_rpc::PUBKEY_IN_USE
             } else {
