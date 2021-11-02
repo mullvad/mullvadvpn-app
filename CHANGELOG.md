@@ -44,6 +44,10 @@ Line wrap the file at 100 chars.                                              Th
 - Prevent app from showing when dragging tray icon on macOS.
 - Fix issue with getting PF status due to an ABI change on macOS 12 Beta 9.
 
+#### Linux
+- Greatly simplify behavior around custom DNS when using systemd-resolved, by not setting DNS config on interfaces other
+  than our tunnel interface.
+
 
 ## [2021.5-beta1] - 2021-10-12
 ### Added

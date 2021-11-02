@@ -1,6 +1,5 @@
 mod network_manager;
 mod resolvconf;
-mod routing;
 mod static_resolv_conf;
 pub(self) mod systemd_resolved;
 
