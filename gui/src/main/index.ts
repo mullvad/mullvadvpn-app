@@ -410,7 +410,9 @@ class ApplicationMain {
       this.windowController.window.closable = true;
     }
 
-    this.daemonRpc.disconnect();
+    if (this.connectedToDaemon) {
+      this.daemonRpc.disconnect();
+    }
 
     for (const logger of [log, this.rendererLog]) {
       try {
