@@ -488,7 +488,7 @@ private extension TunnelState {
             return NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTED",
                 tableName: "Main",
-                value: "Unsecure connection",
+                value: "Unsecured connection",
                 comment: ""
             )
         }
