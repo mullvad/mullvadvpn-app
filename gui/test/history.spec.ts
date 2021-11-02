@@ -7,7 +7,7 @@ const BASE_PATH = RoutePath.launch;
 const FIRST_PATH = RoutePath.main;
 const SECOND_PATH = RoutePath.settings;
 const THIRD_PATH = RoutePath.advancedSettings;
-const FOURTH_PATH = RoutePath.wireguardKeys;
+const FOURTH_PATH = RoutePath.preferences;
 const FIFTH_PATH = RoutePath.splitTunneling;
 
 describe('History', () => {

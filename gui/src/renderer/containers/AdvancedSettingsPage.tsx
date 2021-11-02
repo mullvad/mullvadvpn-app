@@ -16,7 +16,6 @@ const mapStateToProps = (state: IReduxState) => {
   return {
     enableIpv6: state.settings.enableIpv6,
     blockWhenDisconnected: state.settings.blockWhenDisconnected,
-    wireguardKeyState: state.settings.wireguardKeyState,
     tunnelProtocol,
   };
 };

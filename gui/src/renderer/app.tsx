@@ -11,7 +11,6 @@ import { AppContext } from './context';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
-import { IWgKey } from './redux/settings/reducers';
 import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
@@ -35,8 +34,6 @@ import {
   IDnsOptions,
   ILocation,
   ISettings,
-  IWireguardPublicKey,
-  KeygenEvent,
   liftConstraint,
   RelaySettings,
   RelaySettingsUpdate,
@@ -160,14 +157,6 @@ export default class AppRenderer {
       this.storeAutoStart(autoStart);
     });
 
-    IpcRendererEventChannel.wireguardKeys.listenPublicKey((publicKey?: IWireguardPublicKey) => {
-      this.setWireguardPublicKey(publicKey);
-    });
-
-    IpcRendererEventChannel.wireguardKeys.listenKeygenEvent((event: KeygenEvent) => {
-      this.reduxActions.settings.setWireguardKeygenEvent(event);
-    });
-
     IpcRendererEventChannel.windowsSplitTunneling.listen((applications: IApplication[]) => {
       this.reduxActions.settings.setSplitTunnelingApplications(applications);
     });
@@ -211,7 +200,6 @@ export default class AppRenderer {
     this.setUpgradeVersion(initialState.upgradeVersion);
     this.setGuiSettings(initialState.guiSettings);
     this.storeAutoStart(initialState.autoStart);
-    this.setWireguardPublicKey(initialState.wireguardPublicKey);
     this.setChangelog(initialState.changelog);
 
     if (initialState.macOsScrollbarVisibility !== undefined) {
@@ -423,33 +411,6 @@ export default class AppRenderer {
 
   public setUnpinnedWindow(unpinnedWindow: boolean) {
     IpcRendererEventChannel.guiSettings.setUnpinnedWindow(unpinnedWindow);
-  }
-
-  public async verifyWireguardKey(publicKey: IWgKey) {
-    const actions = this.reduxActions;
-    actions.settings.verifyWireguardKey(publicKey);
-    try {
-      const valid = await IpcRendererEventChannel.wireguardKeys.verifyKey();
-      actions.settings.completeWireguardKeyVerification(valid);
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to verify WireGuard key - ${error.message}`);
-      actions.settings.completeWireguardKeyVerification(undefined);
-    }
-  }
-
-  public async generateWireguardKey() {
-    const actions = this.reduxActions;
-    actions.settings.generateWireguardKey();
-    const keygenEvent = await IpcRendererEventChannel.wireguardKeys.generateKey();
-    actions.settings.setWireguardKeygenEvent(keygenEvent);
-  }
-
-  public async replaceWireguardKey(oldKey: IWgKey) {
-    const actions = this.reduxActions;
-    actions.settings.replaceWireguardKey(oldKey);
-    const keygenEvent = await IpcRendererEventChannel.wireguardKeys.generateKey();
-    actions.settings.setWireguardKeygenEvent(keygenEvent);
   }
 
   public getLinuxSplitTunnelingApplications() {
@@ -837,10 +798,6 @@ export default class AppRenderer {
 
   private storeAutoStart(autoStart: boolean) {
     this.reduxActions.settings.updateAutoStart(autoStart);
-  }
-
-  private setWireguardPublicKey(publicKey?: IWireguardPublicKey) {
-    this.reduxActions.settings.setWireguardKey(publicKey);
   }
 
   private setChangelog(changelog: IChangelog) {

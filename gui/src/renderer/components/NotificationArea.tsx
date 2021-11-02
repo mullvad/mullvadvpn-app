@@ -9,7 +9,6 @@ import {
   InAppNotificationProvider,
   InconsistentVersionNotificationProvider,
   NotificationAction,
-  NoValidKeyNotificationProvider,
   ReconnectingNotificationProvider,
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
@@ -38,12 +37,6 @@ export default function NotificationArea(props: IProps) {
   const blockWhenDisconnected = useSelector(
     (state: IReduxState) => state.settings.blockWhenDisconnected,
   );
-  const tunnelProtocol = useSelector((state: IReduxState) =>
-    'normal' in state.settings.relaySettings
-      ? state.settings.relaySettings.normal.tunnelProtocol
-      : undefined,
-  );
-  const wireGuardKey = useSelector((state: IReduxState) => state.settings.wireguardKeyState);
   const hasExcludedApps = useSelector(
     (state: IReduxState) =>
       state.settings.splitTunneling && state.settings.splitTunnelingApplications.length > 0,
@@ -58,7 +51,6 @@ export default function NotificationArea(props: IProps) {
       hasExcludedApps,
     }),
     new ErrorNotificationProvider({ tunnelState, accountExpiry, hasExcludedApps }),
-    new NoValidKeyNotificationProvider({ tunnelProtocol, wireGuardKey }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),
   ];

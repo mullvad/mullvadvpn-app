@@ -41,7 +41,6 @@ export * from './connected';
 export * from './connecting';
 export * from './disconnected';
 export * from './error';
-export * from './no-valid-key';
 export * from './inconsistent-version';
 export * from './reconnecting';
 export * from './unsupported-version';

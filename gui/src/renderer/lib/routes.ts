@@ -16,7 +16,6 @@ export enum RoutePath {
   preferences = '/settings/preferences',
   advancedSettings = '/settings/advanced',
   wireguardSettings = '/settings/advanced/wireguard',
-  wireguardKeys = '/settings/advanced/wireguard/keys',
   openVpnSettings = '/settings/advanced/openvpn',
   splitTunneling = '/settings/advanced/split-tunneling',
   support = '/settings/support',

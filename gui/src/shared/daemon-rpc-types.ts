@@ -104,7 +104,6 @@ export type DaemonEvent =
   | { tunnelState: TunnelState }
   | { settings: ISettings }
   | { relayList: IRelayList }
-  | { wireguardKey: KeygenEvent }
   | { appVersionInfo: IAppVersionInfo };
 
 export interface ITunnelStateRelayInfo {
@@ -332,18 +331,6 @@ export interface ISettings {
   bridgeSettings: BridgeSettings;
   bridgeState: BridgeState;
   splitTunnel: SplitTunnelSettings;
-}
-
-export type KeygenEvent = INewWireguardKey | KeygenFailure;
-export type KeygenFailure = 'too_many_keys' | 'generation_failure';
-
-export interface INewWireguardKey {
-  newKey: IWireguardPublicKey;
-}
-
-export interface IWireguardPublicKey {
-  key: string;
-  created: string;
 }
 
 export type BridgeState = 'auto' | 'on' | 'off';
