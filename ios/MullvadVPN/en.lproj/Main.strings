@@ -29,7 +29,7 @@
 "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL" = "Creating secure connection";
 
 /* No comment provided by engineer. */
-"TUNNEL_STATE_DISCONNECTED" = "Unsecure connection";
+"TUNNEL_STATE_DISCONNECTED" = "Unsecured connection";
 
 /* No comment provided by engineer. */
 "TUNNEL_STATE_DISCONNECTED_ACCESSIBILITY_LABEL" = "Unsecured connection";
