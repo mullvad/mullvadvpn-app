@@ -693,7 +693,9 @@ class ApplicationMain {
   };
 
   private connectToDaemon() {
-    void this.daemonRpc.connect();
+    void this.daemonRpc
+      .connect()
+      .catch((error) => log.error(`Unable to connect to daemon: ${error.message}`));
   }
 
   private recoverFromBootstrapError(_error?: Error) {
