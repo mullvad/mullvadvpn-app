@@ -871,6 +871,15 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
             ))),
         })
     }
+
+    fn notify_remove_device_event(&self, remove_event: mullvad_types::device::RemoveDeviceEvent) {
+        log::debug!("Broadcasting remove device event");
+        self.notify(types::DaemonEvent {
+            event: Some(daemon_event::Event::RemoveDevice(
+                types::RemoveDeviceEvent::from(remove_event),
+            )),
+        })
+    }
 }
 
 impl ManagementInterfaceEventBroadcaster {

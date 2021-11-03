@@ -79,6 +79,11 @@ impl Command for Status {
                             println!("Device event: {:#?}", device);
                         }
                     }
+                    EventType::RemoveDevice(device) => {
+                        if verbose {
+                            println!("Remove device event: {:#?}", device);
+                        }
+                    }
                 }
             }
         }

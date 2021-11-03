@@ -516,6 +516,7 @@ message DaemonEvent {
 		RelayList relay_list = 3;
 		AppVersionInfo version_info = 4;
 		DeviceEvent device = 5;
+		RemoveDeviceEvent remove_device = 6;
 	}
 }
 
@@ -544,4 +545,10 @@ message DeviceRemoval {
 
 message DeviceEvent {
 	DeviceConfig device = 1;
+}
+
+message RemoveDeviceEvent {
+	string account_token = 1;
+	Device removed_device = 2;
+	repeated Device new_device_list = 3;
 }
