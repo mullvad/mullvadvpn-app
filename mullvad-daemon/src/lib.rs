@@ -89,6 +89,9 @@ use tokio::io;
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
 
+/// Validate the current device once for every `WG_DEVICE_CHECK_THRESHOLD` attempts.
+const WG_DEVICE_CHECK_THRESHOLD: usize = 3;
+
 /// When we want to block certain contents with the help of DNS server side,
 /// we compute the resolver IP to use based on these constants. The last
 /// byte can be ORed together to combine multiple block lists.
@@ -567,6 +570,8 @@ pub struct Daemon<L: EventListener> {
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
     account_manager: device::AccountManager,
+    wg_retry_attempt: usize,
+    wg_check_validity: bool,
     rpc_runtime: mullvad_rpc::MullvadRpcRuntime,
     rpc_handle: mullvad_rpc::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -765,6 +770,8 @@ where
             settings,
             account_history,
             account_manager,
+            wg_retry_attempt: 0,
+            wg_check_validity: false,
             rpc_runtime,
             rpc_handle,
             version_updater_handle,
@@ -1076,6 +1083,10 @@ where
         let tunnel_options = self.settings.tunnel_options.clone();
         let location = relay.location.as_ref().expect("Relay has no location set");
         self.last_generated_bridge_relay = None;
+        if retry_attempt == 0 {
+            self.wg_retry_attempt = 0;
+            self.wg_check_validity = true;
+        }
         match endpoint {
             MullvadEndpoint::OpenVpn(endpoint) => {
                 let proxy_settings = match &self.settings.bridge_settings {
@@ -1140,6 +1151,36 @@ where
                 .into())
             }
             MullvadEndpoint::Wireguard(endpoint) => {
+                self.wg_retry_attempt += 1;
+                if self.wg_check_validity && self.wg_retry_attempt % WG_DEVICE_CHECK_THRESHOLD == 0
+                {
+                    match self.account_manager.validate_device().await {
+                        Ok(status) => {
+                            match status {
+                                device::ValidationResult::Valid => (),
+                                device::ValidationResult::Removed => {
+                                    self.event_listener.notify_device_event(DeviceEvent(None));
+                                }
+                                device::ValidationResult::RotatedKey(_) => {
+                                    self.event_listener.notify_device_event(DeviceEvent::from(
+                                        self.account_manager.get(),
+                                    ));
+                                }
+                            }
+                            self.wg_check_validity = false;
+                        }
+                        Err(error) => {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg("Failed to check device validity")
+                            );
+                            if !error.is_network_error() {
+                                self.wg_check_validity = false;
+                            }
+                        }
+                    }
+                }
+
                 let wg_data = self
                     .account_manager
                     .get()
