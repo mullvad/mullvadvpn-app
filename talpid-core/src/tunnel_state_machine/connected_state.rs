@@ -123,6 +123,17 @@ impl ConnectedState {
 
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
         let dns_ips = self.get_dns_servers(shared_values);
+
+        #[cfg(target_os = "linux")]
+        let dns_ips = &dns_ips
+            .into_iter()
+            .filter(|ip| {
+                !crate::firewall::is_local_address(ip)
+                    || IpAddr::V4(self.metadata.ipv4_gateway) == *ip
+                    || self.metadata.ipv6_gateway.map(IpAddr::V6) == Some(*ip)
+            })
+            .collect::<Vec<_>>();
+
         shared_values
             .dns_monitor
             .set(&self.metadata.interface, &dns_ips)
