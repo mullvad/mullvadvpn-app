@@ -65,6 +65,25 @@ pub enum Error {
     OtherRestError(#[error(source)] rest::Error),
 }
 
+impl Error {
+    pub fn is_network_error(&self) -> bool {
+        if let Error::OtherRestError(error) = self {
+            error.is_network_error()
+        } else {
+            false
+        }
+    }
+}
+
+pub enum ValidationResult {
+    /// The device and key were valid.
+    Valid,
+    /// The device was valid but the key had to be replaced.
+    RotatedKey(WireguardData),
+    /// The device was not found remotely and was removed from the cache.
+    Removed,
+}
+
 pub(crate) struct AccountManager {
     runtime: tokio::runtime::Handle,
     account_service: AccountService,
@@ -218,6 +237,7 @@ impl AccountManager {
             .await;
         if let Ok(ref wg_data) = result {
             data.wg_data = wg_data.clone();
+            data.device.pubkey = wg_data.private_key.public_key();
             let mut inner = self.inner.lock().unwrap();
             inner.data.replace(data.clone());
             let _ = self.cache_update_tx.unbounded_send(Some(data));
@@ -243,6 +263,36 @@ impl AccountManager {
         };
         if restart_rotation {
             self.start_key_rotation();
+        }
+    }
+
+    /// Check if the device is valid for the account, and yank it if it no longer exists.
+    pub async fn validate_device(&mut self) -> Result<ValidationResult, Error> {
+        let data = {
+            let inner = self.inner.lock().unwrap();
+            inner.data.as_ref().ok_or(Error::NoDevice)?.clone()
+        };
+
+        match self.device_service.get(data.token, data.device.id).await {
+            Ok(device) => {
+                if device.pubkey == data.device.pubkey {
+                    log::debug!("The current device is still valid");
+                    Ok(ValidationResult::Valid)
+                } else {
+                    log::debug!("Rotating invalid WireGuard key");
+                    Ok(ValidationResult::RotatedKey(self.rotate_key().await?))
+                }
+            }
+            Err(Error::InvalidAccount) | Err(Error::InvalidDevice) => {
+                log::debug!("The current device is no longer valid for this account");
+                self.stop_key_rotation();
+                {
+                    self.inner.lock().unwrap().data.take();
+                    let _ = self.cache_update_tx.unbounded_send(None);
+                }
+                Ok(ValidationResult::Removed)
+            }
+            Err(error) => Err(error),
         }
     }
 
@@ -280,6 +330,7 @@ impl AccountManager {
                     .await
                 {
                     Ok(wg_data) => {
+                        state.device.pubkey = wg_data.private_key.public_key();
                         state.wg_data = wg_data;
                         {
                             let mut inner = inner.lock().unwrap();
@@ -561,6 +612,19 @@ impl DeviceService {
             },
             should_retry_backoff,
             retry_strategy,
+        )
+        .await
+        .map_err(map_rest_error)
+    }
+
+    pub async fn get(&self, token: AccountToken, device: DeviceId) -> Result<Device, Error> {
+        let proxy = self.proxy.clone();
+        let api_handle = self.api_availability.clone();
+        retry_future_n(
+            move || proxy.get(token.clone(), device.clone()),
+            move |result| should_retry(result, &api_handle),
+            constant_interval(RETRY_ACTION_INTERVAL),
+            RETRY_ACTION_MAX_RETRIES,
         )
         .await
         .map_err(map_rest_error)
