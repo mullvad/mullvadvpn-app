@@ -50,3 +50,12 @@ impl From<Option<DeviceData>> for DeviceEvent {
         }
     }
 }
+
+/// Emitted when a device is removed using the `RemoveDevice` RPC.
+/// This is not sent by a normal logout or when it is revoked remotely.
+#[derive(Clone, Debug)]
+pub struct RemoveDeviceEvent {
+    pub account_token: AccountToken,
+    pub removed_device: Device,
+    pub new_devices: Vec<Device>,
+}

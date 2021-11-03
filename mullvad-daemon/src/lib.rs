@@ -36,7 +36,7 @@ use mullvad_rpc::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    device::{Device, DeviceData, DeviceEvent, DeviceId},
+    device::{Device, DeviceData, DeviceEvent, DeviceId, RemoveDeviceEvent},
     endpoint::MullvadEndpoint,
     location::{Coordinates, GeoIpLocation},
     relay_constraints::{
@@ -554,6 +554,9 @@ pub trait EventListener {
 
     /// Notify that device changed (login, logout, or key rotation).
     fn notify_device_event(&self, event: DeviceEvent);
+
+    /// Notify that a device was revoked using `RemoveDevice`.
+    fn notify_remove_device_event(&self, event: RemoveDeviceEvent);
 }
 
 pub struct Daemon<L: EventListener> {
@@ -1740,15 +1743,47 @@ where
         token: AccountToken,
         device_id: DeviceId,
     ) {
-        Self::oneshot_send(
-            tx,
-            self.account_manager
-                .device_service()
-                .remove_device(token, device_id)
+        let device_service = self.account_manager.device_service();
+        let event_listener = self.event_listener.clone();
+
+        tokio::spawn(async move {
+            let mut devices = match device_service
+                .list_devices(token.clone())
                 .await
-                .map_err(Error::RemoveDeviceError),
-            "remove_device response",
-        );
+                .map_err(Error::ListDevicesError)
+            {
+                Ok(devices) => devices,
+                Err(error) => {
+                    Self::oneshot_send(tx, Err(error), "remove_device response");
+                    return;
+                }
+            };
+            if let Err(error) = device_service
+                .remove_device(token.clone(), device_id.clone())
+                .await
+                .map_err(Error::RemoveDeviceError)
+            {
+                Self::oneshot_send(tx, Err(error), "remove_device response");
+                return;
+            };
+            let removed_device =
+                if let Some(index) = devices.iter().position(|device| device.id == device_id) {
+                    devices.swap_remove(index)
+                } else {
+                    log::error!("List did not contain the revoked device");
+                    Device {
+                        id: device_id,
+                        name: "unknown device".to_string(),
+                        pubkey: talpid_types::net::wireguard::PublicKey::from([0u8; 32]),
+                    }
+                };
+            event_listener.notify_remove_device_event(RemoveDeviceEvent {
+                account_token: token,
+                removed_device,
+                new_devices: devices,
+            });
+            Self::oneshot_send(tx, Ok(()), "remove_device response");
+        });
     }
 
     fn on_get_account_history(&mut self, tx: oneshot::Sender<Option<AccountToken>>) {
