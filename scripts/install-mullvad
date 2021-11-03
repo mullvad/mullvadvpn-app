@@ -10,7 +10,7 @@ if [[ $# != 1 ]]; then
     exit 1
 fi
 
-URL_BASE="https://build.mullvad.net/"
+URL_BASE="https://releases.mullvad.net"
 
 # Pass Mullvad VPN app version as first and only argument
 version=$1
@@ -40,18 +40,26 @@ else
 fi
 echo ">>> Detected $pkg_manager as package manager"
 
+# Compute URL to download from
+if [[ $version == *"-dev-"* ]]; then
+    server_dir="builds"
+else
+    server_dir="releases"
+fi
+installer_url="$URL_BASE/$server_dir/$version/$pkg_filename"
+
 # Download any missing installer/signature
 if [[ ! -f "$pkg_filename" ]]; then
-    url="$URL_BASE/$version/$pkg_filename"
-    echo ">>> Downloading installer from $url"
-    curl -O --fail "$url"
+    echo ">>> Downloading installer from $installer_url"
+    curl -O --fail "$installer_url"
 fi
 if [[ ! -f "$pkg_filename.asc" ]]; then
-    url="$URL_BASE/$version/$pkg_filename.asc"
-    echo ">>> Downloading GPG signature from $url"
-    curl -O --fail "$url"
+    signature_url="$installer_url.asc"
+    echo ">>> Downloading GPG signature from $signature_url"
+    curl -O --fail "$signature_url"
 fi
 
+# Verify the integrity of the files
 echo ""
 echo ">>> Verifying integrity of $pkg_filename"
 if ! $gpg_cmd --verify "$pkg_filename.asc" "$pkg_filename"; then
@@ -61,6 +69,7 @@ if ! $gpg_cmd --verify "$pkg_filename.asc" "$pkg_filename"; then
     exit 1
 fi
 
+# Install the app
 echo ""
 echo ">>> Installing $pkg_filename with $pkg_manager"
 if [[ "$pkg_manager" == "macOS" ]]; then
