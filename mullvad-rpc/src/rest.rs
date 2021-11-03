@@ -528,20 +528,30 @@ pub fn send_json_request<B: serde::Serialize>(
     }
 }
 
-pub async fn deserialize_body<T: serde::de::DeserializeOwned>(mut response: Response) -> Result<T> {
-    let body_length: usize = response
-        .headers()
-        .get(header::CONTENT_LENGTH)
-        .and_then(|header_value| header_value.to_str().ok())
-        .and_then(|length| length.parse::<usize>().ok())
-        .unwrap_or(0);
+pub async fn deserialize_body<T: serde::de::DeserializeOwned>(response: Response) -> Result<T> {
+    let body_length = get_body_length(&response);
+    deserialize_body_inner(response, body_length).await
+}
 
+async fn deserialize_body_inner<T: serde::de::DeserializeOwned>(
+    mut response: Response,
+    body_length: usize,
+) -> Result<T> {
     let mut body: Vec<u8> = Vec::with_capacity(body_length);
     while let Some(chunk) = response.body_mut().next().await {
         body.extend(&chunk?);
     }
 
     serde_json::from_slice(&body).map_err(Error::DeserializeError)
+}
+
+fn get_body_length(response: &Response) -> usize {
+    response
+        .headers()
+        .get(header::CONTENT_LENGTH)
+        .and_then(|header_value| header_value.to_str().ok())
+        .and_then(|length| length.parse::<usize>().ok())
+        .unwrap_or(0)
 }
 
 pub async fn parse_rest_response(
@@ -567,16 +577,19 @@ pub async fn parse_rest_response(
 }
 
 pub async fn handle_error_response<T>(response: Response) -> Result<T> {
-    let error_message = match response.status() {
+    let status = response.status();
+    let error_message = match status {
         hyper::StatusCode::NOT_FOUND => "Not found",
         hyper::StatusCode::METHOD_NOT_ALLOWED => "Method not allowed",
-        status => {
-            let err: ErrorResponse = deserialize_body(response).await?;
-
-            return Err(Error::ApiError(status, err.code));
-        }
+        status => match get_body_length(&response) {
+            0 => status.canonical_reason().unwrap_or("Unexpected error"),
+            body_length => {
+                let err: ErrorResponse = deserialize_body_inner(response, body_length).await?;
+                return Err(Error::ApiError(status, err.code));
+            }
+        },
     };
-    Err(Error::ApiError(response.status(), error_message.to_owned()))
+    Err(Error::ApiError(status, error_message.to_owned()))
 }
 
 #[derive(Clone)]
