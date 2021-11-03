@@ -29,8 +29,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Update Electron from 11.4.9 to 15.0.0.
-- Revamp main view with blurred background behind semi-transparent buttons
-  and switch to correct font for logo.
+- Revamp main view with blurred background behind semi-transparent buttons and switch to
+  correct font for logo. Also a slightly less bold font in other parts of the app.
 
 #### Android
 - Drop support for Android 7/7.1 (Android 8/API level 26 or later is now required).
@@ -44,7 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix desktop app split tunneling view to not overflow on very long application names.
 - Prevent API requests from being made prior to the tunnel state machine being set up.
   Rarely, failed requests could result in a deadlock.
-- Fix segmentation fault when closing app.
+- Fix segmentation fault when closing app (the GUI).
 
 #### Windows
 - Fix detection of Windows 11. Problem reports will now correctly report Windows 11 instead
