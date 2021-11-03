@@ -23,6 +23,16 @@ class CustomSwitchContainer: UIView {
 
     let control = CustomSwitch()
 
+    var isEnabled: Bool {
+        get {
+            return control.isEnabled
+        }
+        set {
+            control.isEnabled = newValue
+            updateBorderOpacity()
+        }
+    }
+
     override var intrinsicContentSize: CGSize {
         return controlSize()
     }
@@ -42,6 +52,8 @@ class CustomSwitchContainer: UIView {
 
         borderShape.cornerRadius = self.bounds.height * 0.5
         borderShape.frame = self.bounds
+
+        updateBorderOpacity()
     }
 
     required init?(coder: NSCoder) {
@@ -61,6 +73,15 @@ class CustomSwitchContainer: UIView {
         size.width += Self.borderEdgeInsets.left + Self.borderEdgeInsets.right
         size.height += Self.borderEdgeInsets.top + Self.borderEdgeInsets.bottom
         return size
+    }
+
+    private func updateBorderOpacity() {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+
+        borderShape.opacity = control.isEnabled ? 1 : 0.2
+
+        CATransaction.commit()
     }
 
 }

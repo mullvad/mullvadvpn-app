@@ -205,12 +205,12 @@ class TunnelManager {
             .mapError { error in
                 return .loadAllVPNConfigurations(error)
             }.mapThen { tunnels in
-                return Result.Promise { resolver in
-                    self.initializeManager(accountToken: accountToken, tunnels: tunnels) { result in
+                return self.initializeManager(accountToken: accountToken, tunnels: tunnels)
+                    .then { result -> Result<(), TunnelManager.Error> in
                         self.updatePrivateKeyRotationTimer()
-                        resolver.resolve(value: result)
+
+                        return result
                     }
-                }
             }
             .schedule(on: stateQueue)
             .run(on: operationQueue, categories: [OperationCategory.manageTunnelProvider, OperationCategory.changeTunnelSettings])
@@ -531,15 +531,14 @@ class TunnelManager {
         }
     }
 
-    private func initializeManager(accountToken: String?, tunnels: [TunnelProviderManagerType]?, completionHandler: @escaping (Result<(), Error>) -> Void) {
+    private func initializeManager(accountToken: String?, tunnels: [TunnelProviderManagerType]?) -> Result<(), TunnelManager.Error>.Promise {
         // Migrate the tunnel settings if needed
         let migrationResult = accountToken.map { self.migrateTunnelSettings(accountToken: $0) }
         switch migrationResult {
         case .success, .none:
             break
         case .failure(let migrationError):
-            completionHandler(.failure(migrationError))
-            return
+            return .failure(migrationError)
         }
 
         switch (tunnels?.first, accountToken) {
@@ -555,7 +554,7 @@ class TunnelManager {
                 self.tunnelInfo = TunnelInfo(token: accountToken, tunnelSettings: keychainEntry.tunnelSettings)
                 self.setTunnelProvider(tunnelProvider: tunnelProvider)
 
-                completionHandler(.success(()))
+                return .success(())
 
             // Remove the tunnel when failed to verify it but successfuly loaded the tunnel
             // settings.
@@ -568,7 +567,7 @@ class TunnelManager {
             // Remove the tunnel with corrupt configuration.
             // It will be re-created upon the first attempt to connect the tunnel.
             case (.success(false), .success(let keychainEntry)):
-                tunnelProvider.removeFromPreferences()
+                return tunnelProvider.removeFromPreferences()
                     .receive(on: self.stateQueue)
                     .mapError { error in
                         return .removeInconsistentVPNConfiguration(error)
@@ -576,50 +575,41 @@ class TunnelManager {
                     .onSuccess { _ in
                         self.tunnelInfo = TunnelInfo(token: accountToken, tunnelSettings: keychainEntry.tunnelSettings)
                     }
-                    .observe { completion in
-                        completionHandler(completion.unwrappedValue!)
-                    }
 
             // Remove the tunnel when failed to verify the tunnel and load tunnel settings.
             case (.failure(let verificationError), .failure(_)):
                 self.logger.error(chainedError: verificationError, message: "Failed to verify the tunnel and load tunnel settings. Removing the tunnel.")
 
-                tunnelProvider.removeFromPreferences()
+                return tunnelProvider.removeFromPreferences()
+                    .receive(on: self.stateQueue)
                     .mapError { error in
                         return .removeInconsistentVPNConfiguration(error)
                     }
                     .flatMap { _ in
                         return .failure(verificationError)
                     }
-                    .observe { completion in
-                        completionHandler(completion.unwrappedValue!)
-                    }
 
             // Remove the tunnel when the app is not able to read tunnel settings
             case (.success(_), .failure(let settingsReadError)):
                 self.logger.error(chainedError: settingsReadError, message: "Failed to load tunnel settings. Removing the tunnel.")
 
-                tunnelProvider.removeFromPreferences()
+                return tunnelProvider.removeFromPreferences()
+                    .receive(on: self.stateQueue)
                     .mapError { error in
                         return .removeInconsistentVPNConfiguration(error)
                     }
                     .flatMap { _ in
                         return .failure(settingsReadError)
                     }
-                    .observe { completion in
-                        completionHandler(completion.unwrappedValue!)
-                    }
             }
 
         // Case 2: tunnel exists but account token is unset.
         // Remove the orphaned tunnel.
         case (.some(let tunnelProvider), .none):
-            tunnelProvider.removeFromPreferences()
+            return tunnelProvider.removeFromPreferences()
+                .receive(on: self.stateQueue)
                 .mapError { error in
                     return .removeInconsistentVPNConfiguration(error)
-                }
-                .observe { completion in
-                    completionHandler(completion.unwrappedValue!)
                 }
 
         // Case 3: tunnel does not exist but the account token is set.
@@ -629,15 +619,15 @@ class TunnelManager {
             case .success(let keychainEntry):
                 self.tunnelInfo = TunnelInfo(token: accountToken, tunnelSettings: keychainEntry.tunnelSettings)
 
-                completionHandler(.success(()))
+                return .success(())
 
             case .failure(let error):
-                completionHandler(.failure(error))
+                return .failure(error)
             }
 
         // Case 4: no tunnels exist and account token is unset.
         case (.none, .none):
-            completionHandler(.success(()))
+            return .success(())
         }
     }
 

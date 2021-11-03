@@ -8,23 +8,23 @@
 
 import UIKit
 
-class SettingsCell: BasicTableViewCell {
+class SettingsCell: UITableViewCell {
 
     let titleLabel = UILabel()
     let detailTitleLabel = UILabel()
 
-    private let preferredMargins = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 12)
-    private var appDidBecomeActiveObserver: NSObjectProtocol?
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        tintColor = .white
+        backgroundView = UIView()
         backgroundView?.backgroundColor = UIColor.Cell.backgroundColor
+
+        selectedBackgroundView = UIView()
         selectedBackgroundView?.backgroundColor = UIColor.Cell.selectedAltBackgroundColor
 
-        contentView.layoutMargins = preferredMargins
         separatorInset = .zero
+        backgroundColor = .clear
+        contentView.backgroundColor = .clear
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = UIFont.systemFont(ofSize: 17)
@@ -43,6 +43,8 @@ class SettingsCell: BasicTableViewCell {
         contentView.addSubview(titleLabel)
         contentView.addSubview(detailTitleLabel)
 
+        setLayoutMargins()
+
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
             titleLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
@@ -54,46 +56,95 @@ class SettingsCell: BasicTableViewCell {
             detailTitleLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
             detailTitleLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
         ])
-
-        enableDisclosureViewTintColorFix()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        setLayoutMargins()
+    }
+
     override func didAddSubview(_ subview: UIView) {
         super.didAddSubview(subview)
 
         if let button = subview as? UIButton {
-            updateDisclosureButtonBackgroundImageRenderingMode(button)
+            updateDisclosureIndicatorTintColor(button)
         }
     }
 
-    /// `UITableViewCell` resets the disclosure view image when the app goes in background
-    /// This fix ensures that the image is tinted when the app becomes active again.
-    private func enableDisclosureViewTintColorFix() {
-        appDidBecomeActiveObserver = NotificationCenter.default.addObserver(
-            forName: UIApplication.didBecomeActiveNotification,
-            object: nil,
-            queue: nil) { [weak self] (note) in
-                self?.updateDisclosureViewTintColor()
-        }
+    override func layoutSubviews() {
+        super.layoutSubviews()
 
-        updateDisclosureViewTintColor()
-    }
-
-    /// For some reason the `tintColor` is not applied to standard accessory views.
-    /// Fix this by looking for the accessory button and changing the image rendering mode
-    private func updateDisclosureViewTintColor() {
-        for case let button as UIButton in subviews {
-            updateDisclosureButtonBackgroundImageRenderingMode(button)
+        if #available(iOS 13, *) {
+            // no-op
+        } else {
+            layoutSubviewsiOS12()
         }
     }
 
-    private func updateDisclosureButtonBackgroundImageRenderingMode(_ button: UIButton) {
-        if let image = button.backgroundImage(for: .normal)?.withRenderingMode(.alwaysTemplate) {
-            button.setBackgroundImage(image, for: .normal)
+    private func setLayoutMargins() {
+        // Set layout margins for standard acceessories added into the cell (reorder control, etc..)
+        layoutMargins = UIMetrics.settingsCellLayoutMargins
+
+        // Set layout margins for cell content
+        contentView.layoutMargins = UIMetrics.settingsCellLayoutMargins
+    }
+
+    /// Standard disclosure views do not provide customization of a tint color.
+    /// This method adjusts a disclosure tint color by replacing the button image rendering mode on iOS 12 and by
+    /// switching graphics on iOS 13 or newer.
+    private func updateDisclosureIndicatorTintColor(_ button: UIButton) {
+        guard accessoryType == .disclosureIndicator else { return }
+
+        if #available(iOS 13, *) {
+            let configuration = UIImage.SymbolConfiguration(pointSize: 11, weight: .bold)
+            let chevron = UIImage(systemName: "chevron.right", withConfiguration: configuration)?
+                .withTintColor(.white, renderingMode: .alwaysOriginal)
+
+            button.setImage(chevron, for: .normal)
+        } else {
+            if let image = button.backgroundImage(for: .normal)?.withRenderingMode(.alwaysTemplate) {
+                button.setBackgroundImage(image, for: .normal)
+                button.tintColor = .white
+            }
         }
+    }
+
+    /// On iOS 12, standard edit and reorder controls do not respect layout margins.
+    /// This method does layout adjustments to fix that.
+    private func layoutSubviewsiOS12() {
+        guard isEditing || showsReorderControl else { return }
+
+        var leftOffset: CGFloat = 0
+        var rightOffset: CGFloat = 0
+
+        for subview in subviews {
+            // Detect the edit control and move it, so that the nested image view is aligned along the left edge of the
+            // layout margins.
+            if subview.description.starts(with: "<UITableViewCellEditControl"), let imageView = subview.subviews.first {
+                let imageOffset = imageView.frame.minX
+                var pos = subview.frame.origin
+                pos.x = layoutMargins.left - imageOffset
+                subview.frame.origin = pos
+                leftOffset = pos.x
+            }
+
+            // Detect the reorder control and move it, so that its right edge is aligned along the right edge of the
+            // layout margins.
+            if subview.description.starts(with: "<UITableViewCellReorderControl") {
+                var pos = subview.frame.origin
+                pos.x -= layoutMargins.right
+                subview.frame.origin = pos
+                rightOffset = layoutMargins.right
+            }
+        }
+
+        // Adjust the content view to account for the adjustments to the edit and reorder controls.
+        let contentInset = UIEdgeInsets(top: 0, left: leftOffset, bottom: 0, right: rightOffset)
+        contentView.frame = contentView.frame.inset(by: contentInset)
     }
 }
