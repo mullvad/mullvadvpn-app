@@ -9,6 +9,7 @@ import {
   AccountRowLabel,
   AccountRows,
   AccountRowValue,
+  DeviceRowValue,
   StyledBuyCreditButton,
   StyledContainer,
   StyledRedeemVoucherButton,
@@ -23,6 +24,7 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import { AccountToken } from '../../shared/daemon-rpc-types';
 
 interface IProps {
+  deviceName?: string;
   accountToken?: AccountToken;
   accountExpiry?: string;
   expiryLocale: string;
@@ -60,6 +62,13 @@ export default class Account extends React.Component<IProps> {
             </SettingsHeader>
 
             <AccountRows>
+              <AccountRow>
+                <AccountRowLabel>
+                  {messages.pgettext('account-view', 'Device name')}
+                </AccountRowLabel>
+                <DeviceRowValue>{this.props.deviceName}</DeviceRowValue>
+              </AccountRow>
+
               <AccountRow>
                 <AccountRowLabel>
                   {messages.pgettext('account-view', 'Account number')}
