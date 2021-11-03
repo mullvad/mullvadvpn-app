@@ -5,7 +5,7 @@ type LoginMethod = 'existing_account' | 'new_account';
 export type LoginState =
   | { type: 'none' }
   | { type: 'logging in' | 'ok'; method: LoginMethod }
-  | { type: 'failed'; method: LoginMethod; error: Error };
+  | { type: 'failed' | 'too many devices'; method: LoginMethod; error: Error };
 export interface IAccountReduxState {
   accountToken?: AccountToken;
   deviceName?: string;
@@ -45,6 +45,11 @@ export default function (
         ...state,
         status: { type: 'failed', method: 'existing_account', error: action.error },
         accountToken: undefined,
+      };
+    case 'TOO_MANY_DEVICES':
+      return {
+        ...state,
+        status: { type: 'too many devices', method: 'existing_account', error: action.error },
       };
     case 'LOGGED_OUT':
       return {

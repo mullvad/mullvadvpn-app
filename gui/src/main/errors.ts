@@ -15,3 +15,9 @@ export class CommunicationError extends Error {
     super('api.mullvad.net is blocked, please check your firewall');
   }
 }
+
+export class TooManyDevicesError extends Error {
+  constructor() {
+    super('Too many devices');
+  }
+}
