@@ -105,7 +105,7 @@ export type DaemonEvent =
   | { settings: ISettings }
   | { relayList: IRelayList }
   | { appVersionInfo: IAppVersionInfo }
-  | { deviceConfig: IDeviceConfig };
+  | { deviceConfig: DeviceConfig };
 
 export interface ITunnelStateRelayInfo {
   endpoint: ITunnelEndpoint;
@@ -321,14 +321,21 @@ export interface IAppVersionInfo {
   suggestedIsBeta?: boolean;
 }
 
-export interface IDeviceConfig {
-  accountToken?: AccountToken;
-  device?: IDevice;
-}
+export type DeviceConfig =
+  | undefined
+  | {
+      accountToken: AccountToken;
+      device?: IDevice;
+    };
 
 export interface IDevice {
   id: string;
   name: string;
+}
+
+export interface IDeviceRemoval {
+  accountToken: string;
+  deviceId: string;
 }
 
 export interface ISettings {

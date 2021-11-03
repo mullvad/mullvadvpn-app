@@ -1,4 +1,4 @@
-import { AccountToken, IDeviceConfig } from '../../../shared/daemon-rpc-types';
+import { AccountToken, DeviceConfig } from '../../../shared/daemon-rpc-types';
 
 interface IStartLoginAction {
   type: 'START_LOGIN';
@@ -8,7 +8,7 @@ interface IStartLoginAction {
 interface ILoggedInAction {
   type: 'LOGGED_IN';
   accountToken: AccountToken;
-  deviceName: string;
+  deviceName?: string;
 }
 
 interface ILoginFailedAction {
@@ -36,7 +36,7 @@ interface ICreateAccountFailed {
 interface IAccountCreated {
   type: 'ACCOUNT_CREATED';
   accountToken: AccountToken;
-  deviceName: string;
+  deviceName?: string;
   expiry: string;
 }
 
@@ -80,11 +80,11 @@ function startLogin(accountToken: AccountToken): IStartLoginAction {
   };
 }
 
-function loggedIn(deviceConfig: Required<IDeviceConfig>): ILoggedInAction {
+function loggedIn(deviceConfig: NonNullable<DeviceConfig>): ILoggedInAction {
   return {
     type: 'LOGGED_IN',
     accountToken: deviceConfig.accountToken,
-    deviceName: deviceConfig.device.name,
+    deviceName: deviceConfig.device?.name,
   };
 }
 
@@ -120,11 +120,11 @@ function createAccountFailed(error: Error): ICreateAccountFailed {
   };
 }
 
-function accountCreated(deviceConfig: Required<IDeviceConfig>, expiry: string): IAccountCreated {
+function accountCreated(deviceConfig: NonNullable<DeviceConfig>, expiry: string): IAccountCreated {
   return {
     type: 'ACCOUNT_CREATED',
     accountToken: deviceConfig.accountToken,
-    deviceName: deviceConfig.device.name,
+    deviceName: deviceConfig.device?.name,
     expiry,
   };
 }
