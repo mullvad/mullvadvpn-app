@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2021.6-beta1] - 2021-11-03
 ### Added
 #### Windows
 - Add black monochromatic tray icon for Windows when using light color for tray.
