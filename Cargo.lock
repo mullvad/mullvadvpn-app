@@ -1254,7 +1254,6 @@ dependencies = [
  "talpid-types",
  "tokio",
  "tokio-stream",
- "triggered",
  "uuid",
  "winapi 0.3.9",
  "windows-service",
@@ -1312,7 +1311,6 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
- "triggered",
 ]
 
 [[package]]

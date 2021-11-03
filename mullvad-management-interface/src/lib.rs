@@ -1,9 +1,11 @@
 pub mod types;
 
+use futures::channel::oneshot;
 use parity_tokio_ipc::Endpoint as IpcEndpoint;
 #[cfg(unix)]
 use std::{env, fs, os::unix::fs::PermissionsExt};
 use std::{
+    future::Future,
     io,
     pin::Pin,
     task::{Context, Poll},
@@ -66,10 +68,10 @@ pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
     Ok(ManagementServiceClient::new(channel))
 }
 
-pub async fn spawn_rpc_server<T: ManagementService>(
+pub async fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()>>(
     service: T,
-    server_start_tx: std::sync::mpsc::Sender<()>,
-    abort_rx: triggered::Listener,
+    server_start_tx: oneshot::Sender<()>,
+    abort_rx: F,
 ) -> std::result::Result<(), Error> {
     use futures::stream::TryStreamExt;
     use parity_tokio_ipc::SecurityAttributes;
