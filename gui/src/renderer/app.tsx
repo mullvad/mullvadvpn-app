@@ -271,7 +271,11 @@ export default class AppRenderer {
       this.redirectToConnect();
     } catch (e) {
       const error = e as Error;
-      actions.account.loginFailed(error);
+      if (error.message === 'Too many devices') {
+        actions.account.loginTooManyDevices(error);
+      } else {
+        actions.account.loginFailed(error);
+      }
     }
   }
 

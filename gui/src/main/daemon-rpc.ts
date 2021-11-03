@@ -54,7 +54,7 @@ import log from '../shared/logging';
 
 import { ManagementServiceClient } from './management_interface/management_interface_grpc_pb';
 import * as grpcTypes from './management_interface/management_interface_pb';
-import { CommunicationError, InvalidAccountError } from './errors';
+import { CommunicationError, InvalidAccountError, TooManyDevicesError } from './errors';
 
 const NETWORK_CALL_TIMEOUT = 10000;
 const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;
@@ -259,7 +259,16 @@ export class DaemonRpc {
   }
 
   public async loginAccount(accountToken: AccountToken): Promise<void> {
-    await this.callString(this.client.loginAccount, accountToken);
+    try {
+      await this.callString(this.client.loginAccount, accountToken);
+    } catch (e) {
+      const error = e as grpc.ServiceError;
+      if (error.code == grpc.status.RESOURCE_EXHAUSTED) {
+        throw new TooManyDevicesError();
+      } else {
+        throw error;
+      }
+    }
   }
 
   public async logoutAccount(): Promise<void> {

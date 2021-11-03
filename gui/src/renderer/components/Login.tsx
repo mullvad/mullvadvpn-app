@@ -151,6 +151,7 @@ export default class Login extends React.Component<IProps, IState> {
   private formTitle() {
     switch (this.props.loginState.type) {
       case 'logging in':
+      case 'too many devices':
         return this.props.loginState.method === 'existing_account'
           ? messages.pgettext('login-view', 'Logging in...')
           : messages.pgettext('login-view', 'Creating account...');
@@ -173,6 +174,8 @@ export default class Login extends React.Component<IProps, IState> {
         return this.props.loginState.method === 'existing_account'
           ? this.props.loginState.error.message || messages.pgettext('login-view', 'Unknown error')
           : messages.pgettext('login-view', 'Failed to create account');
+      case 'too many devices':
+        return messages.pgettext('login-view', 'Too many devices');
       case 'logging in':
         return this.props.loginState.method === 'existing_account'
           ? messages.pgettext('login-view', 'Checking account number')
@@ -209,7 +212,11 @@ export default class Login extends React.Component<IProps, IState> {
   }
 
   private allowInteraction() {
-    return this.props.loginState.type !== 'logging in' && this.props.loginState.type !== 'ok';
+    return (
+      this.props.loginState.type !== 'logging in' &&
+      this.props.loginState.type !== 'ok' &&
+      this.props.loginState.type !== 'too many devices'
+    );
   }
 
   private allowCreateAccount() {

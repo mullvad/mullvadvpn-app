@@ -16,6 +16,11 @@ interface ILoginFailedAction {
   error: Error;
 }
 
+interface ILoginTooManyDevicesAction {
+  type: 'TOO_MANY_DEVICES';
+  error: Error;
+}
+
 interface ILoggedOutAction {
   type: 'LOGGED_OUT';
 }
@@ -63,6 +68,7 @@ export type AccountAction =
   | IStartLoginAction
   | ILoggedInAction
   | ILoginFailedAction
+  | ILoginTooManyDevicesAction
   | ILoggedOutAction
   | IResetLoginErrorAction
   | IStartCreateAccount
@@ -91,6 +97,13 @@ function loggedIn(deviceConfig: NonNullable<DeviceConfig>): ILoggedInAction {
 function loginFailed(error: Error): ILoginFailedAction {
   return {
     type: 'LOGIN_FAILED',
+    error,
+  };
+}
+
+function loginTooManyDevices(error: Error): ILoginTooManyDevicesAction {
+  return {
+    type: 'TOO_MANY_DEVICES',
     error,
   };
 }
@@ -158,6 +171,7 @@ export default {
   startLogin,
   loggedIn,
   loginFailed,
+  loginTooManyDevices,
   loggedOut,
   resetLoginError,
   startCreateAccount,
