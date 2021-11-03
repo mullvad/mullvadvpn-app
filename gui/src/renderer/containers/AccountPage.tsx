@@ -7,6 +7,7 @@ import { IHistoryProps, withHistory } from '../lib/history';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => ({
+  deviceName: state.account.deviceName,
   accountToken: state.account.accountToken,
   accountExpiry: state.account.expiry,
   expiryLocale: state.userInterface.locale,
