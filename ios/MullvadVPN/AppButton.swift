@@ -145,17 +145,6 @@ class AppButton: CustomButton {
         }
     }
 
-    var interfaceBuilderStyle: Int {
-        get {
-            return self.style.rawValue
-        }
-        set {
-            if let style = Style(rawValue: newValue) {
-                self.style = style
-            }
-        }
-    }
-
     var overrideContentEdgeInsets = false
 
     init(style: Style) {
@@ -170,10 +159,8 @@ class AppButton: CustomButton {
         commonInit()
     }
 
-    required init?(coder aDecoder: NSCoder) {
-        style = .default
-        super.init(coder: aDecoder)
-        commonInit()
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     private func commonInit() {
