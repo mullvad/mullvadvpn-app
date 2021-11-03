@@ -4,6 +4,7 @@ use parity_tokio_ipc::Endpoint as IpcEndpoint;
 #[cfg(unix)]
 use std::{env, fs, os::unix::fs::PermissionsExt};
 use std::{
+    future::Future,
     io,
     pin::Pin,
     task::{Context, Poll},
@@ -66,11 +67,12 @@ pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
     Ok(ManagementServiceClient::new(channel))
 }
 
-pub async fn spawn_rpc_server<T: ManagementService>(
+pub type ServerJoinHandle = tokio::task::JoinHandle<Result<(), Error>>;
+
+pub async fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 'static>(
     service: T,
-    server_start_tx: std::sync::mpsc::Sender<()>,
-    abort_rx: triggered::Listener,
-) -> std::result::Result<(), Error> {
+    abort_rx: F,
+) -> std::result::Result<ServerJoinHandle, Error> {
     use futures::stream::TryStreamExt;
     use parity_tokio_ipc::SecurityAttributes;
 
@@ -95,13 +97,13 @@ pub async fn spawn_rpc_server<T: ManagementService>(
             .map_err(Error::PermissionsError)?;
     }
 
-    let _ = server_start_tx.send(());
-
-    Server::builder()
-        .add_service(ManagementServiceServer::new(service))
-        .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
-        .await
-        .map_err(Error::GrpcTransportError)
+    Ok(tokio::spawn(async move {
+        Server::builder()
+            .add_service(ManagementServiceServer::new(service))
+            .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
+            .await
+            .map_err(Error::GrpcTransportError)
+    }))
 }
 
 #[derive(Debug)]
