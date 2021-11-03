@@ -6,6 +6,7 @@ import {
   BridgeState,
   IAccountData,
   IAppVersionInfo,
+  IDeviceConfig,
   IDnsOptions,
   ILocation,
   IRelayList,
@@ -50,6 +51,7 @@ export interface IAppStateSnapshot {
   accountHistory?: AccountToken;
   tunnelState: TunnelState;
   settings: ISettings;
+  deviceConfig: IDeviceConfig;
   relayListPair: IRelayListPair;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppVersionInfo;
@@ -163,6 +165,7 @@ export const ipcSchema = {
   },
   account: {
     '': notifyRenderer<IAccountData | undefined>(),
+    device: notifyRenderer<IDeviceConfig>(),
     create: invoke<void, string>(),
     login: invoke<AccountToken, void>(),
     logout: invoke<void, void>(),

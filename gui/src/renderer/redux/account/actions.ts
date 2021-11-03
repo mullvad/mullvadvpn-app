@@ -1,4 +1,4 @@
-import { AccountToken } from '../../../shared/daemon-rpc-types';
+import { AccountToken, IDeviceConfig } from '../../../shared/daemon-rpc-types';
 
 interface IStartLoginAction {
   type: 'START_LOGIN';
@@ -7,6 +7,8 @@ interface IStartLoginAction {
 
 interface ILoggedInAction {
   type: 'LOGGED_IN';
+  accountToken: AccountToken;
+  deviceName: string;
 }
 
 interface ILoginFailedAction {
@@ -33,13 +35,18 @@ interface ICreateAccountFailed {
 
 interface IAccountCreated {
   type: 'ACCOUNT_CREATED';
-  token: AccountToken;
+  accountToken: AccountToken;
+  deviceName: string;
   expiry: string;
+}
+
+interface IAccountSetupFinished {
+  type: 'ACCOUNT_SETUP_FINISHED';
 }
 
 interface IUpdateAccountTokenAction {
   type: 'UPDATE_ACCOUNT_TOKEN';
-  token: AccountToken;
+  accountToken: AccountToken;
 }
 
 interface IUpdateAccountHistoryAction {
@@ -61,6 +68,7 @@ export type AccountAction =
   | IStartCreateAccount
   | ICreateAccountFailed
   | IAccountCreated
+  | IAccountSetupFinished
   | IUpdateAccountTokenAction
   | IUpdateAccountHistoryAction
   | IUpdateAccountExpiryAction;
@@ -72,9 +80,11 @@ function startLogin(accountToken: AccountToken): IStartLoginAction {
   };
 }
 
-function loggedIn(): ILoggedInAction {
+function loggedIn(deviceConfig: Required<IDeviceConfig>): ILoggedInAction {
   return {
     type: 'LOGGED_IN',
+    accountToken: deviceConfig.accountToken,
+    deviceName: deviceConfig.device.name,
   };
 }
 
@@ -110,18 +120,23 @@ function createAccountFailed(error: Error): ICreateAccountFailed {
   };
 }
 
-function accountCreated(token: AccountToken, expiry: string): IAccountCreated {
+function accountCreated(deviceConfig: Required<IDeviceConfig>, expiry: string): IAccountCreated {
   return {
     type: 'ACCOUNT_CREATED',
-    token,
+    accountToken: deviceConfig.accountToken,
+    deviceName: deviceConfig.device.name,
     expiry,
   };
 }
 
-function updateAccountToken(token: AccountToken): IUpdateAccountTokenAction {
+function accountSetupFinished(): IAccountSetupFinished {
+  return { type: 'ACCOUNT_SETUP_FINISHED' };
+}
+
+function updateAccountToken(accountToken: AccountToken): IUpdateAccountTokenAction {
   return {
     type: 'UPDATE_ACCOUNT_TOKEN',
-    token,
+    accountToken,
   };
 }
 
@@ -148,6 +163,7 @@ export default {
   startCreateAccount,
   createAccountFailed,
   accountCreated,
+  accountSetupFinished,
   updateAccountToken,
   updateAccountHistory,
   updateAccountExpiry,

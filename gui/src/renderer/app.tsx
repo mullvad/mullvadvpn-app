@@ -31,6 +31,7 @@ import {
   BridgeState,
   IAccountData,
   IAppVersionInfo,
+  IDeviceConfig,
   IDnsOptions,
   ILocation,
   ISettings,
@@ -92,8 +93,9 @@ export default class AppRenderer {
   private relayListPair!: IRelayListPair;
   private tunnelState!: TunnelState;
   private settings!: ISettings;
+  private deviceConfig!: IDeviceConfig;
   private guiSettings!: IGuiSettingsState;
-  private doingLogin = false;
+  private loginState: 'none' | 'logging in' | 'creating account' = 'none';
   private loginScheduler = new Scheduler();
   private connectedToDaemon = false;
   private getLocationPromise?: Promise<ILocation>;
@@ -120,6 +122,12 @@ export default class AppRenderer {
       this.setAccountExpiry(newAccountData?.expiry);
     });
 
+    IpcRendererEventChannel.account.listenDevice((deviceConfig: IDeviceConfig) => {
+      const oldDeviceConfig = this.deviceConfig;
+      this.deviceConfig = deviceConfig;
+      this.handleAccountChange(deviceConfig, oldDeviceConfig.accountToken);
+    });
+
     IpcRendererEventChannel.accountHistory.listen((newAccountHistory?: AccountToken) => {
       this.setAccountHistory(newAccountHistory);
     });
@@ -130,10 +138,7 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
-      const oldSettings = this.settings;
-
       this.setSettings(newSettings);
-      this.handleAccountChange(oldSettings.accountToken, newSettings.accountToken);
       this.updateBlockedState(this.tunnelState, newSettings.blockWhenDisconnected);
     });
 
@@ -190,7 +195,7 @@ export default class AppRenderer {
 
     this.setAccountExpiry(initialState.accountData?.expiry);
     this.setSettings(initialState.settings);
-    this.handleAccountChange(undefined, initialState.settings.accountToken);
+    this.handleAccountChange(initialState.deviceConfig, undefined);
     this.setAccountHistory(initialState.accountHistory);
     this.setTunnelState(initialState.tunnelState);
     this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
@@ -227,7 +232,7 @@ export default class AppRenderer {
 
     const navigationBase = this.getNavigationBase(
       initialState.isConnected,
-      initialState.settings.accountToken,
+      initialState.deviceConfig.accountToken,
     );
     this.history = new History(navigationBase);
   }
@@ -258,12 +263,10 @@ export default class AppRenderer {
 
     log.info('Logging in');
 
-    this.doingLogin = true;
+    this.loginState = 'logging in';
 
     try {
       await IpcRendererEventChannel.account.login(accountToken);
-      actions.account.updateAccountToken(accountToken);
-      actions.account.loggedIn();
       this.redirectToConnect();
     } catch (e) {
       const error = e as Error;
@@ -285,12 +288,10 @@ export default class AppRenderer {
 
     const actions = this.reduxActions;
     actions.account.startCreateAccount();
-    this.doingLogin = true;
+    this.loginState = 'creating account';
 
     try {
-      const accountToken = await IpcRendererEventChannel.account.create();
-      const accountExpiry = new Date().toISOString();
-      actions.account.accountCreated(accountToken, accountExpiry);
+      await IpcRendererEventChannel.account.create();
       this.redirectToConnect();
     } catch (e) {
       const error = e as Error;
@@ -612,7 +613,10 @@ export default class AppRenderer {
   private resetNavigation() {
     if (this.history) {
       const pathname = this.history.location.pathname;
-      const nextPath = this.getNavigationBase(this.connectedToDaemon, this.settings.accountToken);
+      const nextPath = this.getNavigationBase(
+        this.connectedToDaemon,
+        this.deviceConfig.accountToken,
+      );
 
       // First level contains the possible next locations and the second level contains the possible
       // current locations.
@@ -733,22 +737,44 @@ export default class AppRenderer {
     }
   }
 
-  private handleAccountChange(oldAccount?: string, newAccount?: string) {
+  private handleAccountChange(newDeviceConfig: IDeviceConfig, oldAccount?: string) {
     const reduxAccount = this.reduxActions.account;
+
+    const newAccount = newDeviceConfig.accountToken;
 
     if (oldAccount && !newAccount) {
       this.loginScheduler.cancel();
       reduxAccount.loggedOut();
 
       this.resetNavigation();
-    } else if (newAccount && oldAccount !== newAccount && !this.doingLogin) {
-      reduxAccount.updateAccountToken(newAccount);
-      reduxAccount.loggedIn();
+    } else if (
+      newDeviceConfig.accountToken !== undefined &&
+      newDeviceConfig.device !== undefined &&
+      oldAccount !== newAccount
+    ) {
+      switch (this.loginState) {
+        case 'none':
+        case 'logging in':
+          reduxAccount.loggedIn({
+            accountToken: newDeviceConfig.accountToken,
+            device: newDeviceConfig.device,
+          });
+          break;
+        case 'creating account':
+          reduxAccount.accountCreated(
+            {
+              accountToken: newDeviceConfig.accountToken,
+              device: newDeviceConfig.device,
+            },
+            new Date().toISOString(),
+          );
+          break;
+      }
 
       this.resetNavigation();
     }
 
-    this.doingLogin = false;
+    this.loginState = 'none';
   }
 
   private setLocation(location: Partial<ILocation>) {

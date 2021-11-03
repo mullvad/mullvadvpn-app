@@ -46,6 +46,7 @@ import {
   VoucherResponse,
   TunnelProtocol,
   IDnsOptions,
+  IDeviceConfig,
 } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
 
@@ -1116,6 +1117,11 @@ function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
     };
   }
 
+  const deviceConfig = data.getDevice();
+  if (deviceConfig !== undefined) {
+    return { deviceConfig: convertFromDeviceConfig(deviceConfig) };
+  }
+
   return {
     appVersionInfo: data.getVersionInfo()!.toObject(),
   };
@@ -1314,6 +1320,14 @@ function convertToTransportProtocol(protocol: RelayProtocol): grpcTypes.Transpor
     case 'tcp':
       return grpcTypes.TransportProtocol.TCP;
   }
+}
+
+function convertFromDeviceConfig(deviceEvent: grpcTypes.DeviceEvent): IDeviceConfig {
+  const deviceConfig = deviceEvent.getDevice();
+  return {
+    accountToken: deviceConfig?.getAccountToken(),
+    device: deviceConfig?.getDevice()?.toObject(),
+  };
 }
 
 function ensureExists<T>(value: T | undefined, errorMessage: string): T {
