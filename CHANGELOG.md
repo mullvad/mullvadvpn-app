@@ -63,6 +63,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix reconnect on app resume. Don't reconnect the tunnel every time the app is opened.
 - Fix invalid URLs. Rely on browser locale rather than app/system language.
+- Automatically disable custom DNS when no servers have been added.
 
 #### macOS
 - Prevent app from showing when dragging tray icon on macOS.
