@@ -41,7 +41,7 @@ LOCALE_MAPPING = {
 
 
 def extract_geometry():
-  input_path = get_shape_path("ne_110m_admin_0_countries")
+  input_path = get_shape_path("ne_50m_admin_0_countries")
   output_path = path.join(OUT_DIR, "geometry.json")
 
   features = []
@@ -69,7 +69,7 @@ def extract_geometry():
 
 
 def extract_provinces_and_states_lines():
-  input_path = get_shape_path("ne_110m_admin_1_states_provinces_lines")
+  input_path = get_shape_path("ne_50m_admin_1_states_provinces_lines")
   output_path = path.join(OUT_DIR, "states-provinces-lines.json")
 
   features = []
@@ -342,7 +342,7 @@ class CountryTranslator:
     Private helper to build the index for the geo dataset, that can be used to speed up the
     translations lookup.
     """
-    shape_path = get_shape_path("ne_110m_admin_0_countries")
+    shape_path = get_shape_path("ne_50m_admin_0_countries")
     dataset = dict()
 
     # build a hash map of the entire datasource in memory
