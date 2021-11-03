@@ -104,7 +104,8 @@ export type DaemonEvent =
   | { tunnelState: TunnelState }
   | { settings: ISettings }
   | { relayList: IRelayList }
-  | { appVersionInfo: IAppVersionInfo };
+  | { appVersionInfo: IAppVersionInfo }
+  | { deviceConfig: IDeviceConfig };
 
 export interface ITunnelStateRelayInfo {
   endpoint: ITunnelEndpoint;
@@ -320,8 +321,17 @@ export interface IAppVersionInfo {
   suggestedIsBeta?: boolean;
 }
 
-export interface ISettings {
+export interface IDeviceConfig {
   accountToken?: AccountToken;
+  device?: IDevice;
+}
+
+export interface IDevice {
+  id: string;
+  name: string;
+}
+
+export interface ISettings {
   allowLan: boolean;
   autoConnect: boolean;
   blockWhenDisconnected: boolean;
