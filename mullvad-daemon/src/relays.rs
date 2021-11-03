@@ -224,18 +224,10 @@ impl RelaySelector {
     }
 
     /// Download the newest relay list.
-    pub fn update(&mut self) -> impl Future<Output = ()> {
-        let mut updater = self.updater.as_ref().unwrap().clone();
-        async move {
-            updater
-                .update_relay_list()
-                .await
-                .expect("Relay list updated thread has stopped unexpectedly");
+    pub async fn update(&self) {
+        if let Some(mut updater) = self.updater.clone() {
+            let _ = updater.update_relay_list().await;
         }
-    }
-
-    pub fn updater_handle(&self) -> RelayListUpdaterHandle {
-        self.updater.as_ref().unwrap().clone()
     }
 
     /// Returns all countries and cities. The cities in the object returned does not have any
@@ -992,20 +984,13 @@ impl RelaySelector {
 
 #[derive(Clone)]
 pub struct RelayListUpdaterHandle {
-    tx: mpsc::Sender<bool>,
+    tx: mpsc::Sender<()>,
 }
 
 impl RelayListUpdaterHandle {
     pub async fn update_relay_list(&mut self) -> Result<(), Error> {
         self.tx
-            .send(false)
-            .await
-            .map_err(|_| Error::DownloaderShutDown)
-    }
-
-    pub async fn update_relay_list_deferred(&mut self) -> Result<(), Error> {
-        self.tx
-            .send(true)
+            .send(())
             .await
             .map_err(|_| Error::DownloaderShutDown)
     }
@@ -1045,7 +1030,7 @@ impl RelayListUpdater {
         RelayListUpdaterHandle { tx }
     }
 
-    async fn run(mut self, mut cmd_rx: mpsc::Receiver<bool>) {
+    async fn run(mut self, mut cmd_rx: mpsc::Receiver<()>) {
         let mut check_interval =
             tokio_stream::wrappers::IntervalStream::new(tokio::time::interval_at(
                 (Instant::now() + UPDATE_CHECK_INTERVAL).into(),
@@ -1070,17 +1055,12 @@ impl RelayListUpdater {
 
                 cmd = cmd_rx.next() => {
                     match cmd {
-                        Some(defer) => {
+                        Some(()) => {
                             let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
-                            if defer {
-                                let download_future = Self::download_relay_list(self.api_availability.clone(), self.rpc_client.clone(), tag);
-                                self.consume_new_relay_list(download_future.await).await;
-                            } else {
-                                self.consume_new_relay_list(self.rpc_client.relay_list(tag).await.map_err(mullvad_rpc::Error::from)).await;
-                            }
+                            download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.rpc_client.clone(), tag).fuse());
                         },
                         None => {
-                            log::error!("Relay list updater shutting down");
+                            log::trace!("Relay list updater shutting down");
                             return;
                         }
                     }
