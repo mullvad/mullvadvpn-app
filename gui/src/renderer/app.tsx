@@ -258,7 +258,7 @@ export default class AppRenderer {
     );
   }
 
-  public async login(accountToken: AccountToken) {
+  public login = async (accountToken: AccountToken) => {
     const actions = this.reduxActions;
     actions.account.startLogin(accountToken);
 
@@ -273,11 +273,17 @@ export default class AppRenderer {
       const error = e as Error;
       if (error.message === 'Too many devices') {
         actions.account.loginTooManyDevices(error);
+        this.history.push(RoutePath.tooManyDevices);
       } else {
         actions.account.loginFailed(error);
       }
     }
-  }
+  };
+
+  public cancelLogin = (): void => {
+    const reduxAccount = this.reduxActions.account;
+    reduxAccount.loggedOut();
+  };
 
   public async logout() {
     try {
