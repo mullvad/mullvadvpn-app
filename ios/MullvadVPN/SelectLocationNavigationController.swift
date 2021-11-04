@@ -11,12 +11,18 @@ import UIKit
 
 class SelectLocationNavigationController: UINavigationController {
 
+    override var childForStatusBarStyle: UIViewController? {
+        return topViewController
+    }
+
+    override var childForStatusBarHidden: UIViewController? {
+        return topViewController
+    }
+
     init(contentController: SelectLocationViewController) {
         super.init(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
 
         viewControllers = [contentController]
-        navigationBar.barStyle = .black
-        navigationBar.tintColor = .white
     }
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {

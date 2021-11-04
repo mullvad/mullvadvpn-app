@@ -59,6 +59,7 @@ class CustomNavigationBar: UINavigationBar {
     }
 
     private func setupNavigationBarAppearance() {
+        tintColor = .white
         backgroundColor = .secondaryColor
         isTranslucent = false
 
