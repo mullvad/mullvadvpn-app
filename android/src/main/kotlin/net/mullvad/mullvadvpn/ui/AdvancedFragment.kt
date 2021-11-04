@@ -152,10 +152,8 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         parentActivity.backButtonHandler = {
             if (customDnsAdapter.isEditing) {
                 customDnsAdapter.stopEditing()
-                true
-            } else {
-                false
             }
+            false
         }
     }
 
