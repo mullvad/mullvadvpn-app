@@ -11,11 +11,7 @@ use winreg::{
     RegKey, RegValue,
 };
 
-mod system_state;
-use self::system_state::SystemStateWriter;
 
-
-const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
 const DNS_CACHE_POLICY_GUID: &str = "{d57d2750-f971-408e-8e55-cfddb37e60ae}";
 
 lazy_static! {
@@ -50,16 +46,8 @@ pub struct DnsMonitor {}
 impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
-    fn new(_handle: tokio::runtime::Handle, cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
+    fn new(_handle: tokio::runtime::Handle, _cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
         unsafe { WinDns_Initialize(Some(log_sink), b"WinDns\0".as_ptr()).into_result()? };
-
-        let backup_writer = SystemStateWriter::new(
-            cache_dir
-                .as_ref()
-                .join(DNS_STATE_FILENAME)
-                .into_boxed_path(),
-        );
-        let _ = backup_writer.remove_backup();
 
         let mut monitor = DnsMonitor {};
         monitor.reset()?;
