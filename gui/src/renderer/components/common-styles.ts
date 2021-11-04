@@ -6,7 +6,7 @@ export const openSans: React.CSSProperties = {
 };
 
 export const sourceSansPro: React.CSSProperties = {
-  fontFamily: '"Source Sans Pro", "Noto Sans Myanmar", "Noto Sans Thai"',
+  fontFamily: '"Source Sans Pro", "Noto Sans Myanmar", "Noto Sans Thai", sans-serif',
   fontWeight: 'bold',
 };
 
