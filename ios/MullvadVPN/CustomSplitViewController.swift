@@ -32,6 +32,11 @@ class CustomSplitViewController: UISplitViewController, RootContainment {
         }
     }
 
+    override var shouldAutomaticallyForwardAppearanceMethods: Bool {
+        // iOS 12: force split view controller to forward appearance events.
+        return true
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
