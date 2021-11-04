@@ -13,23 +13,11 @@ protocol SettingsViewControllerDelegate: AnyObject {
     func settingsViewControllerDidFinish(_ controller: SettingsViewController)
 }
 
-class SettingsViewController: UITableViewController, AccountObserver {
+class SettingsViewController: UITableViewController, SettingsDataSourceDelegate {
 
     weak var delegate: SettingsViewControllerDelegate?
 
-    private enum CellIdentifier: String {
-        case accountCell = "AccountCell"
-        case basicCell = "BasicCell"
-    }
-
-    private let staticDataSource = SettingsTableViewDataSource()
-
-    private weak var accountRow: StaticTableViewRow?
-    private var accountExpiryObserver: NSObjectProtocol?
-
-    private var settingsNavigationController: SettingsNavigationController? {
-        return self.navigationController as? SettingsNavigationController
-    }
+    private let dataSource = SettingsDataSource()
 
     init() {
         super.init(style: .grouped)
@@ -42,42 +30,17 @@ class SettingsViewController: UITableViewController, AccountObserver {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView.backgroundColor = .secondaryColor
-        tableView.separatorColor = .secondaryColor
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 60
-        tableView.sectionHeaderHeight = UIMetrics.sectionSpacing
-        tableView.sectionFooterHeight = 0
-
-        tableView.dataSource = staticDataSource
-        tableView.delegate = staticDataSource
-
-        tableView.register(SettingsAccountCell.self, forCellReuseIdentifier: CellIdentifier.accountCell.rawValue)
-        tableView.register(SettingsCell.self, forCellReuseIdentifier: CellIdentifier.basicCell.rawValue)
-        tableView.register(EmptyTableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: EmptyTableViewHeaderFooterView.reuseIdentifier)
-
         navigationItem.title = NSLocalizedString("NAVIGATION_TITLE", tableName: "Settings", comment: "Navigation title")
         navigationItem.largeTitleDisplayMode = .always
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handleDismiss))
 
-        Account.shared.addObserver(self)
-        setupDataSource()
-    }
+        tableView.backgroundColor = .secondaryColor
+        tableView.separatorColor = .secondaryColor
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 60
 
-    // MARK: - AccountObserver
-
-    func account(_ account: Account, didUpdateExpiry expiry: Date) {
-        guard let accountRow = accountRow else { return }
-
-        staticDataSource.reloadRows([accountRow], with: .none)
-    }
-
-    func account(_ account: Account, didLoginWithToken token: String, expiry: Date) {
-        // no-op
-    }
-
-    func accountDidLogout(_ account: Account) {
-        // no-op
+        dataSource.tableView = tableView
+        dataSource.delegate = self
     }
 
     // MARK: - IBActions
@@ -86,88 +49,31 @@ class SettingsViewController: UITableViewController, AccountObserver {
         delegate?.settingsViewControllerDidFinish(self)
     }
 
-    // MARK: - Private
+    // MARK: - SettingsDataSourceDelegate
 
-    private func setupDataSource() {
-        if Account.shared.isLoggedIn {
-            let topSection = StaticTableViewSection()
-            let accountRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.accountCell.rawValue) { (_, cell) in
-                let cell = cell as! SettingsAccountCell
+    func settingsDataSource(_ dataSource: SettingsDataSource, didSelectItem item: SettingsDataSource.Item) {
+        guard let route = item.navigationRoute else { return }
 
-                cell.titleLabel.text = NSLocalizedString("ACCOUNT_CELL_LABEL", tableName: "Settings", comment: "")
-                cell.accountExpiryDate = Account.shared.expiry
-                cell.accessibilityIdentifier = "AccountCell"
-                cell.accessoryType = .disclosureIndicator
-            }
+        let settingsNavigationController = navigationController as? SettingsNavigationController
 
-            accountRow.actionBlock = { [weak self] (indexPath) in
-                self?.settingsNavigationController?.navigate(to: .account, animated: true)
-            }
-
-            let preferencesRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
-                let cell = cell as! SettingsCell
-                cell.titleLabel.text = NSLocalizedString("PREFERENCES_CELL_LABEL", tableName: "Settings", comment: "")
-                cell.accessoryType = .disclosureIndicator
-            }
-
-            preferencesRow.actionBlock = { [weak self] (indexPath) in
-                self?.settingsNavigationController?.navigate(to: .preferences, animated: true)
-            }
-
-            let wireguardKeyRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
-                let cell = cell as! SettingsCell
-
-                cell.titleLabel.text = NSLocalizedString("WIREGUARD_KEY_CELL_LABEL", tableName: "Settings", comment: "")
-                cell.accessibilityIdentifier = "WireGuardKeyCell"
-                cell.accessoryType = .disclosureIndicator
-            }
-
-            wireguardKeyRow.actionBlock = { [weak self] (indexPath) in
-                self?.settingsNavigationController?.navigate(to: .wireguardKeys, animated: true)
-            }
-
-            self.accountRow = accountRow
-
-            topSection.addRows([accountRow, preferencesRow, wireguardKeyRow])
-            staticDataSource.addSections([topSection])
-        }
-
-        let middleSection = StaticTableViewSection()
-        let versionRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
-            let cell = cell as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString("APP_VERSION_CELL_LABEL", tableName: "Settings", comment: "")
-            cell.detailTitleLabel.text = Bundle.main.productVersion
-        }
-        versionRow.isSelectable = false
-
-        middleSection.addRows([versionRow])
-        staticDataSource.addSections([middleSection])
-
-        let bottomSection = StaticTableViewSection()
-
-        let problemReportRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (indexPath, cell) in
-            let cell = cell as! SettingsCell
-
-            cell.titleLabel.text = NSLocalizedString("REPORT_PROBLEM_CELL_LABEL", tableName: "Settings", comment: "")
-            cell.accessoryType = .disclosureIndicator
-        }
-
-        problemReportRow.actionBlock = { [weak self] (indexPath) in
-            self?.settingsNavigationController?.navigate(to: .problemReport, animated: true)
-        }
-
-        bottomSection.addRows([problemReportRow])
-        staticDataSource.addSections([bottomSection])
+        settingsNavigationController?.navigate(to: route, animated: true)
     }
 
 }
 
-class SettingsTableViewDataSource: StaticTableViewDataSource {
-
-    // MARK: - UITableViewDelegate
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return tableView.dequeueReusableHeaderFooterView(withIdentifier: EmptyTableViewHeaderFooterView.reuseIdentifier)
+extension SettingsDataSource.Item {
+    var navigationRoute: SettingsNavigationRoute? {
+        switch self {
+        case .account:
+            return .account
+        case .preferences:
+            return .preferences
+        case .wireguardKey:
+            return .wireguardKeys
+        case .version:
+            return nil
+        case .problemReport:
+            return .problemReport
+        }
     }
-
 }
