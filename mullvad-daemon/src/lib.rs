@@ -50,7 +50,7 @@ use std::{collections::HashSet, ffi::OsString};
 use std::{
     marker::PhantomData,
     mem,
-    net::IpAddr,
+    net::{IpAddr, Ipv4Addr},
     path::{Path, PathBuf},
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Weak},
@@ -84,11 +84,9 @@ const FIRST_KEY_PUSH_TIMEOUT: Duration = Duration::from_secs(5);
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
 
-lazy_static::lazy_static! {
-    static ref DNS_AD_BLOCKING_SERVERS: [IpAddr; 1] = ["100.64.0.1".parse().unwrap()];
-    static ref DNS_TRACKER_BLOCKING_SERVERS: [IpAddr; 1] = ["100.64.0.2".parse().unwrap()];
-    static ref DNS_AD_TRACKER_BLOCKING_SERVERS: [IpAddr; 1] = ["100.64.0.3".parse().unwrap()];
-}
+const DNS_AD_BLOCKING_SERVERS: [IpAddr; 1] = [IpAddr::V4(Ipv4Addr::new(100, 64, 0, 1))];
+const DNS_TRACKER_BLOCKING_SERVERS: [IpAddr; 1] = [IpAddr::V4(Ipv4Addr::new(100, 64, 0, 2))];
+const DNS_AD_TRACKER_BLOCKING_SERVERS: [IpAddr; 1] = [IpAddr::V4(Ipv4Addr::new(100, 64, 0, 3))];
 
 pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
 
