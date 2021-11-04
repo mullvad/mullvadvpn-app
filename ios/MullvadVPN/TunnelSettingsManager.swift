@@ -34,6 +34,9 @@ extension TunnelSettingsManager {
 
         /// A failure to query the entry in Keychain
         case lookupEntry(Keychain.Error)
+
+        /// Missing attributes required to perform an operation.
+        case missingRequiredAttributes
     }
 
     typealias Result<T> = Swift.Result<T, Error>
@@ -75,13 +78,13 @@ extension TunnelSettingsManager {
         return Keychain.findFirst(query: query)
             .mapError { .lookupEntry($0) }
             .flatMap { (attributes) in
-                let attributes = attributes!
-                let account = attributes.account!
-                let data = attributes.valueData!
+                guard let account = attributes?.account, let data = attributes?.valueData else {
+                    return .failure(.missingRequiredAttributes)
+                }
 
                 return Self.decode(data: data)
                     .map { KeychainEntry(accountToken: account, tunnelSettings: $0) }
-        }
+            }
     }
 
     static func add(configuration: TunnelSettings, account: String) -> Result<()> {
@@ -121,14 +124,12 @@ extension TunnelSettingsManager {
 
         return Keychain.findFirst(query: queryAttributes)
             .mapError { .lookupEntry($0) }
-            .flatMap { (itemAttributes) -> Result<Bool> in
-                let itemAttributes = itemAttributes!
-
+            .flatMap { itemAttributes -> Result<Bool> in
                 let searchAttributes = searchTerm.makeKeychainAttributes()
                 var updateAttributes = Keychain.Attributes()
 
                 // Fix the accessibility permission for the Keychain entry
-                if itemAttributes.accessible != Self.keychainAccessibleLevel {
+                if itemAttributes?.accessible != Self.keychainAccessibleLevel {
                     updateAttributes.accessible = Self.keychainAccessibleLevel
                 }
 
@@ -156,10 +157,9 @@ extension TunnelSettingsManager {
 
         let result = Keychain.findFirst(query: searchQuery)
             .mapError { .lookupEntry($0) }
-            .flatMap { (itemAttributes) -> Result<TunnelSettings> in
-                let itemAttributes = itemAttributes!
-                let serializedData = itemAttributes.valueData!
-                let account = itemAttributes.account!
+            .flatMap { itemAttributes -> Result<TunnelSettings> in
+                guard let serializedData = itemAttributes?.valueData,
+                      let account = itemAttributes?.account else { return .failure(.missingRequiredAttributes) }
 
                 return Self.decode(data: serializedData)
                     .flatMap { (tunnelConfig) -> Result<TunnelSettings> in
@@ -201,8 +201,11 @@ extension TunnelSettingsManager {
 
         return Keychain.findFirst(query: query)
             .mapError { .lookupEntry($0) }
-            .map { (attributes) -> Data in
-                return attributes!.valuePersistentReference!
+            .flatMap { attributes -> Result<Data> in
+                guard let persistentReference = attributes?.valuePersistentReference else {
+                    return .failure(.missingRequiredAttributes)
+                }
+                return .success(persistentReference)
         }
     }
 
