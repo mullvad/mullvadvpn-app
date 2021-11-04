@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.service
 
 import android.content.Intent
 import android.graphics.drawable.Icon
-import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import kotlin.properties.Delegates.observable
@@ -56,11 +55,7 @@ class MullvadTileService : TileService() {
             intent.action = MullvadVpnService.KEY_CONNECT_ACTION
         }
 
-        if (Build.VERSION.SDK_INT >= 26) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
+        startForegroundService(intent)
     }
 
     override fun onStopListening() {

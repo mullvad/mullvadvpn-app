@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
@@ -109,11 +108,7 @@ class TunnelStateNotification(val context: Context) {
         val intent = Intent(action.key).setPackage("net.mullvad.mullvadvpn")
         val flags = PendingIntent.FLAG_UPDATE_CURRENT
 
-        val pendingIntent = if (Build.VERSION.SDK_INT >= 26) {
-            PendingIntent.getForegroundService(context, 1, intent, flags)
-        } else {
-            PendingIntent.getService(context, 1, intent, flags)
-        }
+        val pendingIntent = PendingIntent.getForegroundService(context, 1, intent, flags)
 
         return NotificationCompat.Action(action.icon, label, pendingIntent)
     }
@@ -121,11 +116,6 @@ class TunnelStateNotification(val context: Context) {
     private fun buildDeleteIntent(): PendingIntent {
         val intent = Intent(MullvadVpnService.KEY_QUIT_ACTION).setPackage("net.mullvad.mullvadvpn")
         val flags = PendingIntent.FLAG_UPDATE_CURRENT
-
-        if (Build.VERSION.SDK_INT >= 26) {
-            return PendingIntent.getForegroundService(context, 1, intent, flags)
-        } else {
-            return PendingIntent.getService(context, 1, intent, flags)
-        }
+        return PendingIntent.getForegroundService(context, 1, intent, flags)
     }
 }

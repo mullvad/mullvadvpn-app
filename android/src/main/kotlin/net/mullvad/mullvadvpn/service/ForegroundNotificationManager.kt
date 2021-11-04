@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -138,12 +137,7 @@ class ForegroundNotificationManager(
             if (shouldBeOnForeground) {
                 showOnForeground()
             } else {
-                if (Build.VERSION.SDK_INT >= 24) {
-                    service.stopForeground(Service.STOP_FOREGROUND_DETACH)
-                } else {
-                    service.stopForeground(false)
-                }
-
+                service.stopForeground(Service.STOP_FOREGROUND_DETACH)
                 onForeground = false
             }
         }
