@@ -29,6 +29,14 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
 
     weak var settingsDelegate: SettingsNavigationControllerDelegate?
 
+    override var childForStatusBarStyle: UIViewController? {
+        return topViewController
+    }
+
+    override var childForStatusBarHidden: UIViewController? {
+        return topViewController
+    }
+
     init() {
         super.init(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
 
@@ -51,8 +59,6 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationBar.barStyle = .black
-        navigationBar.tintColor = .white
         navigationBar.prefersLargeTitles = true
 
         // Update account expiry

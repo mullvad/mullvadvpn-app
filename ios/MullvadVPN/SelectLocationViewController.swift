@@ -36,6 +36,10 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         }
     }
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+
     weak var delegate: SelectLocationViewControllerDelegate?
     var scrollToSelectedRelayOnViewWillAppear = true
 

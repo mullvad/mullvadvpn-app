@@ -59,6 +59,7 @@ class CustomNavigationBar: UINavigationBar {
     }
 
     private func setupNavigationBarAppearance() {
+        tintColor = .white
         backgroundColor = .secondaryColor
         isTranslucent = false
 
@@ -69,7 +70,10 @@ class CustomNavigationBar: UINavigationBar {
             backIndicatorImage = customBackIndicatorImage
             backIndicatorTransitionMaskImage = customBackIndicatorTransitionMask
             barTintColor = .secondaryColor
-            titleTextAttributes = [.foregroundColor: UIColor.white]
+
+            let titleAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.white]
+            titleTextAttributes = titleAttributes
+            largeTitleTextAttributes = titleAttributes
             shadowImage = UIImage()
         }
     }

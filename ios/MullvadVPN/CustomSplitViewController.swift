@@ -32,6 +32,27 @@ class CustomSplitViewController: UISplitViewController, RootContainment {
         }
     }
 
+    override var childForStatusBarStyle: UIViewController? {
+        if #available(iOS 13, *) {
+            return super.childForStatusBarStyle
+        } else {
+            return viewControllers.last
+        }
+    }
+
+    override var childForStatusBarHidden: UIViewController? {
+        if #available(iOS 13, *) {
+            return super.childForStatusBarHidden
+        } else {
+            return viewControllers.last
+        }
+    }
+
+    override var shouldAutomaticallyForwardAppearanceMethods: Bool {
+        // iOS 12: force split view controller to forward appearance events.
+        return true
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
