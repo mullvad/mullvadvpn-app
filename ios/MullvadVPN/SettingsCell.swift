@@ -104,6 +104,7 @@ class SettingsCell: UITableViewCell {
             let configuration = UIImage.SymbolConfiguration(pointSize: 11, weight: .bold)
             let chevron = UIImage(systemName: "chevron.right", withConfiguration: configuration)?
                 .withTintColor(.white, renderingMode: .alwaysOriginal)
+                .imageFlippedForRightToLeftLayoutDirection()
 
             button.setImage(chevron, for: .normal)
         } else {

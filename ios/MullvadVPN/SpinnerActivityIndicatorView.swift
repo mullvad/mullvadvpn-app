@@ -11,7 +11,7 @@ import UIKit
 private let kRotationAnimationKey = "rotation"
 private let kAnimationDuration = 0.6
 
-@IBDesignable class SpinnerActivityIndicatorView: UIView {
+class SpinnerActivityIndicatorView: UIView {
 
     enum Style {
         case small, medium, large
@@ -38,7 +38,7 @@ private let kAnimationDuration = 0.6
     }
 
     /// Thickness of the front and back circles
-    @IBInspectable var thickness: CGFloat = 6 {
+    var thickness: CGFloat = 6 {
         didSet {
             setLayersThickness()
         }
@@ -82,9 +82,8 @@ private let kAnimationDuration = 0.6
         commonInit()
     }
 
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        commonInit()
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     deinit {

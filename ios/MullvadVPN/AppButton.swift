@@ -50,7 +50,7 @@ private extension UIControl.State {
 }
 
 /// A subclass that implements the button that visually look like URL links on the web
-@IBDesignable class LinkButton: CustomButton {
+class LinkButton: CustomButton {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -97,7 +97,7 @@ private extension UIControl.State {
 }
 
 /// A subclass that implements action buttons used across the app
-@IBDesignable class AppButton: CustomButton {
+class AppButton: CustomButton {
 
     var defaultContentInsets: UIEdgeInsets {
         switch traitCollection.userInterfaceIdiom {
@@ -132,9 +132,9 @@ private extension UIControl.State {
             case .translucentNeutral:
                 return UIImage(named: "TranslucentNeutralButton")
             case .translucentDangerSplitLeft:
-                return UIImage(named: "TranslucentDangerSplitLeftButton")
+                return UIImage(named: "TranslucentDangerSplitLeftButton")?.imageFlippedForRightToLeftLayoutDirection()
             case .translucentDangerSplitRight:
-                return UIImage(named: "TranslucentDangerSplitRightButton")
+                return UIImage(named: "TranslucentDangerSplitRightButton")?.imageFlippedForRightToLeftLayoutDirection()
             }
         }
     }
@@ -142,17 +142,6 @@ private extension UIControl.State {
     var style: Style {
         didSet {
             updateButtonBackground()
-        }
-    }
-
-    @IBInspectable var interfaceBuilderStyle: Int {
-        get {
-            return self.style.rawValue
-        }
-        set {
-            if let style = Style(rawValue: newValue) {
-                self.style = style
-            }
         }
     }
 
@@ -170,10 +159,8 @@ private extension UIControl.State {
         commonInit()
     }
 
-    required init?(coder aDecoder: NSCoder) {
-        style = .default
-        super.init(coder: aDecoder)
-        commonInit()
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     private func commonInit() {
@@ -228,7 +215,7 @@ private extension UIControl.State {
 }
 
 /// A custom `UIButton` subclass that implements additional layouts for the image
-@IBDesignable class CustomButton: UIButton {
+class CustomButton: UIButton {
 
     var imageAlignment: ButtonImageAlignment = .leading {
         didSet {
@@ -352,6 +339,20 @@ private extension UIControl.State {
         case (.center, .right):
             titleRect.origin.x = contentRect.midX - titleRect.width * 0.5
             imageRect.origin.x = titleRect.maxX + inlineImageSpacing
+
+        case (.right, .left):
+            titleRect.origin.x = contentRect.maxX - titleRect.width
+            imageRect.origin.x = titleRect.minX - imageRect.width - inlineImageSpacing
+
+        case (.right, .leftFixed):
+            imageRect.origin.x = contentRect.minX
+            titleRect.origin.x = contentRect.maxX - titleRect.width
+
+        case (.right, .rightFixed):
+            imageRect.origin.x = contentRect.maxX - imageRect.width
+            titleRect.origin.x = imageRect.width > 0
+                ? imageRect.minX - inlineImageSpacing - titleRect.width
+                : contentRect.maxX - titleRect.width
 
         default:
             fatalError()

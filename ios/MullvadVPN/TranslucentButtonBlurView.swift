@@ -28,7 +28,7 @@ class TranslucentButtonBlurView: UIVisualEffectView {
         ])
 
         layer.cornerRadius = kButtonCornerRadius
-        layer.maskedCorners = button.style.cornerMask
+        layer.maskedCorners = button.style.cornerMask(effectiveUserInterfaceLayoutDirection)
         layer.masksToBounds = true
     }
 
@@ -38,11 +38,11 @@ class TranslucentButtonBlurView: UIVisualEffectView {
 }
 
 private extension AppButton.Style {
-    var cornerMask: CACornerMask {
-        switch self {
-        case .translucentDangerSplitLeft:
+    func cornerMask(_ userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection) -> CACornerMask {
+        switch (self, userInterfaceLayoutDirection) {
+        case (.translucentDangerSplitLeft, .leftToRight), (.translucentDangerSplitRight, .rightToLeft):
             return [.layerMinXMinYCorner, .layerMinXMaxYCorner]
-        case .translucentDangerSplitRight:
+        case (.translucentDangerSplitRight, .leftToRight), (.translucentDangerSplitLeft, .rightToLeft):
             return [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
         default:
             return [
