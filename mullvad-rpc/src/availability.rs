@@ -122,8 +122,24 @@ impl ApiAvailabilityHandle {
         self.wait_for_state(|state| !state.is_suspended())
     }
 
+    pub fn when_bg_resumes<F: Future<Output = O>, O>(&self, task: F) -> impl Future<Output = O> {
+        let wait_task = self.wait_for_state(|state| !state.is_background_paused());
+        async move {
+            let _ = wait_task.await;
+            task.await
+        }
+    }
+
     pub fn wait_background(&self) -> impl Future<Output = Result<(), Error>> {
         self.wait_for_state(|state| !state.is_background_paused())
+    }
+
+    pub fn when_online<F: Future<Output = O>, O>(&self, task: F) -> impl Future<Output = O> {
+        let wait_task = self.wait_for_state(|state| !state.is_offline());
+        async move {
+            let _ = wait_task.await;
+            task.await
+        }
     }
 
     pub fn wait_online(&self) -> impl Future<Output = Result<(), Error>> {
