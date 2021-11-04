@@ -31,6 +31,15 @@ erase_simulator(true)
 # Disable concurrent simulators to prevent too many WireGuard public keys error
 concurrent_simulators(false)
 
+# Hide simulator window
+headless(true)
+
+# Disable xcodebuild output to console
+suppress_xcode_output(true)
+
+# Prevent opening HTML summary
+skip_open_summary(true)
+
 # Clean the device statusbar
 override_status_bar(true)
 
