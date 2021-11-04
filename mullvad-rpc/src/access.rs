@@ -46,23 +46,35 @@ impl AccessTokenProxy {
         self.request_new_token(account.clone()).await
     }
 
+    /// Remove an access token if the API response calls for it.
+    pub fn check_response<T>(&self, account: &AccessToken, response: &Result<T, rest::Error>) {
+        if let Err(rest::Error::ApiError(_status, code)) = response {
+            if code == crate::INVALID_ACCESS_TOKEN {
+                log::debug!("Dropping invalid access token");
+                self.remove_token(account);
+            }
+        }
+    }
+
+    /// Removes a stored access token.
+    fn remove_token(&self, account: &AccountToken) -> Option<AccessToken> {
+        self.access_from_account
+            .lock()
+            .unwrap()
+            .remove(account)
+            .map(|v| v.access_token)
+    }
+
     async fn request_new_token(&self, account: AccountToken) -> Result<AccessToken, rest::Error> {
         log::debug!("Fetching access token for an account");
         let access_token = self
             .fetch_access_token(account.clone())
             .await
             .map_err(|error| {
-                match &error {
-                    rest::Error::ApiError(status, _code) if status == &StatusCode::BAD_REQUEST => {
-                        log::error!("Failed to obtain access token: Invalid account");
-                    }
-                    error => {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg("Failed to obtain access token")
-                        );
-                    }
-                }
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to obtain access token")
+                );
                 error
             })?;
         self.access_from_account

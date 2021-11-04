@@ -831,7 +831,7 @@ fn handle_expiry_result_inner(
             true
         }
         Err(mullvad_rpc::rest::Error::ApiError(_status, code)) => {
-            if code == mullvad_rpc::INVALID_ACCOUNT || code == mullvad_rpc::INVALID_AUTH {
+            if code == mullvad_rpc::INVALID_ACCOUNT {
                 api_availability.pause_background();
                 return true;
             }
