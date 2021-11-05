@@ -49,11 +49,7 @@ pub struct DnsMonitor {
 impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
-    fn new(
-        handle: tokio::runtime::Handle,
-        _cache_dir: impl AsRef<Path>,
-        route_manager: RouteManagerHandle,
-    ) -> Result<Self> {
+    fn new(handle: tokio::runtime::Handle, route_manager: RouteManagerHandle) -> Result<Self> {
         Ok(DnsMonitor {
             route_manager,
             handle,
