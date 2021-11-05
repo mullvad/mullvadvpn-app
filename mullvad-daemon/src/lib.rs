@@ -664,7 +664,6 @@ where
             tunnel_parameters_generator,
             log_dir,
             resource_dir.clone(),
-            cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             offline_state_tx,
             tunnel_state_machine_shutdown_tx,
