@@ -732,32 +732,21 @@ impl ManagementInterfaceServer {
             .to_string();
 
         let (server_abort_tx, server_abort_rx) = oneshot::channel();
-        let (start_tx, start_rx) = oneshot::channel();
         let server = ManagementServiceImpl {
             daemon_tx: tunnel_tx,
             subscriptions: subscriptions.clone(),
         };
-        let server_join_handle = tokio::spawn(async move {
-            let result = mullvad_management_interface::spawn_rpc_server(
-                server,
-                start_tx,
-                server_abort_rx.map(|_| ()),
-            )
-            .await;
-            if let Err(error) = &result {
-                log::error!("Management server panic: {:?}", error);
+        let join_handle =
+            mullvad_management_interface::spawn_rpc_server(server, server_abort_rx.map(|_| ()))
+                .await
+                .map_err(Error::SetupError)?;
+
+        tokio::spawn(async move {
+            if let Err(error) = join_handle.await {
+                log::error!("Management server panic: {}", error);
             }
             log::info!("Management interface shut down");
-            result
         });
-
-        if let Err(_) = start_rx.await {
-            return Err(server_join_handle
-                .await
-                .expect("Failed to resolve quit handle future")
-                .map_err(Error::SetupError)
-                .unwrap_err());
-        }
 
         Ok((
             socket_path,
