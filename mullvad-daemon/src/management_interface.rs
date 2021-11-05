@@ -1,5 +1,8 @@
 use crate::{account_history, settings, DaemonCommand, DaemonCommandSender, EventListener};
-use futures::{channel::oneshot, FutureExt};
+use futures::{
+    channel::{mpsc, oneshot},
+    StreamExt,
+};
 use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, Status,
@@ -731,15 +734,16 @@ impl ManagementInterfaceServer {
             .to_string_lossy()
             .to_string();
 
-        let (server_abort_tx, server_abort_rx) = oneshot::channel();
+        let (server_abort_tx, server_abort_rx) = mpsc::channel(0);
         let server = ManagementServiceImpl {
             daemon_tx: tunnel_tx,
             subscriptions: subscriptions.clone(),
         };
-        let join_handle =
-            mullvad_management_interface::spawn_rpc_server(server, server_abort_rx.map(|_| ()))
-                .await
-                .map_err(Error::SetupError)?;
+        let join_handle = mullvad_management_interface::spawn_rpc_server(server, async move {
+            server_abort_rx.into_future().await;
+        })
+        .await
+        .map_err(Error::SetupError)?;
 
         tokio::spawn(async move {
             if let Err(error) = join_handle.await {
@@ -752,7 +756,7 @@ impl ManagementInterfaceServer {
             socket_path,
             ManagementInterfaceEventBroadcaster {
                 subscriptions,
-                _close_handle: Arc::new(server_abort_tx),
+                _close_handle: server_abort_tx,
             },
         ))
     }
@@ -762,7 +766,7 @@ impl ManagementInterfaceServer {
 #[derive(Clone)]
 pub struct ManagementInterfaceEventBroadcaster {
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
-    _close_handle: Arc<oneshot::Sender<()>>,
+    _close_handle: mpsc::Sender<()>,
 }
 
 impl EventListener for ManagementInterfaceEventBroadcaster {
