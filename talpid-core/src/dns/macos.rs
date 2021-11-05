@@ -4,7 +4,6 @@ use std::{
     collections::HashMap,
     fmt,
     net::IpAddr,
-    path::Path,
     sync::{mpsc, Arc},
     thread,
 };
@@ -140,7 +139,7 @@ impl super::DnsMonitorT for DnsMonitor {
     /// DNS settings for all network interfaces. If any changes occur it will instantly reset
     /// the DNS settings for that interface back to the last server list set to this instance
     /// with `set_dns`.
-    fn new(_handle: tokio::runtime::Handle, _cache_dir: impl AsRef<Path>) -> Result<Self> {
+    fn new() -> Result<Self> {
         let state = Arc::new(Mutex::new(None));
         Self::spawn(state.clone())?;
         Ok(DnsMonitor {
