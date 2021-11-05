@@ -23,7 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-
+### Fixed
+#### Windows
+- Fix app size after changing display scale.
 
 ## [2021.6-beta1] - 2021-11-03
 ### Added
