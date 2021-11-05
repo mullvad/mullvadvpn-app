@@ -263,7 +263,7 @@ export default class WindowController {
       }
     }
 
-    // On linux, the window won't be properly rescaled back to it's original
+    // On Linux and Windows, the window won't be properly rescaled back to it's original
     // size if the DPI scaling factor is changed.
     // https://github.com/electron/electron/issues/11050
     if (process.platform === 'linux' && changedMetrics.includes('scaleFactor')) {
