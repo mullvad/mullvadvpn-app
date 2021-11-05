@@ -46,7 +46,7 @@ pub struct DnsMonitor {}
 impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
-    fn new(_handle: tokio::runtime::Handle, _cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
+    fn new() -> Result<Self, Error> {
         unsafe { WinDns_Initialize(Some(log_sink), b"WinDns\0".as_ptr()).into_result()? };
 
         let mut monitor = DnsMonitor {};

@@ -8,7 +8,7 @@ use self::{
     systemd_resolved::SystemdResolved,
 };
 use crate::routing::RouteManagerHandle;
-use std::{env, fmt, net::IpAddr, path::Path};
+use std::{env, fmt, net::IpAddr};
 
 
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
@@ -48,11 +48,7 @@ pub struct DnsMonitor {
 impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
-    fn new(
-        handle: tokio::runtime::Handle,
-        _cache_dir: impl AsRef<Path>,
-        route_manager: RouteManagerHandle,
-    ) -> Result<Self> {
+    fn new(handle: tokio::runtime::Handle, route_manager: RouteManagerHandle) -> Result<Self> {
         Ok(DnsMonitor {
             route_manager,
             handle,

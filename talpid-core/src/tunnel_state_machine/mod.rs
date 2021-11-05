@@ -34,7 +34,7 @@ use std::{
     collections::HashSet,
     io,
     net::IpAddr,
-    path::{Path, PathBuf},
+    path::PathBuf,
     sync::{mpsc as sync_mpsc, Arc},
 };
 #[cfg(target_os = "android")]
@@ -102,7 +102,6 @@ pub async fn spawn(
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
-    cache_dir: impl AsRef<Path> + Send + 'static,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     offline_state_listener: mpsc::UnboundedSender<bool>,
     shutdown_tx: oneshot::Sender<()>,
@@ -134,7 +133,6 @@ pub async fn spawn(
             tun_provider,
             log_dir,
             resource_dir,
-            cache_dir,
             command_rx,
             #[cfg(target_os = "android")]
             android_context,
@@ -223,7 +221,6 @@ impl TunnelStateMachine {
         tun_provider: TunProvider,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
-        cache_dir: impl AsRef<Path>,
         commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
@@ -242,8 +239,8 @@ impl TunnelStateMachine {
             .await
             .map_err(Error::InitRouteManagerError)?;
         let dns_monitor = DnsMonitor::new(
+            #[cfg(target_os = "linux")]
             runtime.clone(),
-            cache_dir,
             #[cfg(target_os = "linux")]
             route_manager
                 .handle()
