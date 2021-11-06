@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# Script for detecting suspicious code points in source code and text.
+# It assumes UTF-8 encoding.
+
+set -u
+
+export LC_ALL=en_US.UTF-8
+
+CODEPOINT_REGEX=$( printf "\u202a\|\u202b\|\u202c\|\u202d\|\u202e\|\u2066\|\u2067\|\u2068\|\u2069" )
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+#FILES=( $( find -type f -regex '.*\.\(rs\|cpp\|c\|cc\|h\|kt\|swift\|toml\)' ) )
+# Scan all non-binary files
+old_ifs=$IFS
+IFS=$'\n'
+FILES=( $( find . -type f -not -path "./$(basename "${BASH_SOURCE[0]}")" -exec grep -Il . {} + ) )
+IFS=$old_ifs
+
+################################################################################
+# Sanity check.
+################################################################################
+
+UNSAFE_STR="nonsense ‪"
+SAFE_STR="nonsense x"
+
+echo "$UNSAFE_STR" | grep -q "${CODEPOINT_REGEX}"
+if [ "$?" -ne 0 ]; then
+    echo "Failed to detect code point in test string"
+    exit 1
+fi
+
+if echo "$SAFE_STR" | grep -q "${CODEPOINT_REGEX}"; then
+    echo "Incorrectly detected code point in test string"
+    exit 1
+fi
+
+################################################################################
+# Scan all files for the malicious code points.
+################################################################################
+
+matched=0
+
+echo "Scanning files: ${FILES[@]}"
+
+for file in "${FILES[@]}"; do
+    if grep -q "${CODEPOINT_REGEX}" "$file"; then
+        echo "Found code points in $file"
+        matched=1
+    fi
+done
+
+exit $matched
