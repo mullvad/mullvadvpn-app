@@ -1,0 +1,17 @@
+name: Bidirectional Unicode scan
+on:
+    push:
+    # Request manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    build-linux:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Checkout submodules
+              run: git submodule update --init
+
+            - name: Scan for code points
+              run: ./ci/check-trojan-source.sh
