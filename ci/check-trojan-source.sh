@@ -9,12 +9,12 @@ export LC_ALL=en_US.UTF-8
 
 CODEPOINT_REGEX=$( printf "\u202a\|\u202b\|\u202c\|\u202d\|\u202e\|\u2066\|\u2067\|\u2068\|\u2069" )
 
-cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
+SCRIPT_RELPATH="./$(realpath --relative-to="$(dirname "${BASH_SOURCE[0]}")/.." "${BASH_SOURCE[0]}")"
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 
-#FILES=( $( find -type f -regex '.*\.\(rs\|cpp\|c\|cc\|h\|kt\|swift\|toml\)' ) )
-# Scan all non-binary files
+# List all non-binary files
 FILES=()
-while IFS='' read -r line; do FILES+=("$line"); done < <( find . -type f -not -path "./$(basename "${BASH_SOURCE[0]}")" -exec grep -Il . {} + )
+while IFS='' read -r line; do FILES+=("$line"); done < <( find . -type f -not -path "$SCRIPT_RELPATH" -exec grep -Il . {} + )
 
 ################################################################################
 # Sanity check.
