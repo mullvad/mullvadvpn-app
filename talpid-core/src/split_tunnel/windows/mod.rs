@@ -153,6 +153,9 @@ impl SplitTunnel {
         let event_thread = std::thread::spawn(move || {
             use driver::{EventBody, EventId};
 
+            // Take ownership of the entire struct (Rust 2021 edition change)
+            let _ = &event_context;
+
             let mut data_buffer = Vec::with_capacity(DRIVER_EVENT_BUFFER_SIZE);
             let mut returned_bytes = 0u32;
 
