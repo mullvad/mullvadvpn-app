@@ -2,7 +2,7 @@
 name = "talpid-dbus"
 version = "0.1.0"
 authors = ["Mullvad VPN"]
-edition = "2018"
+edition = "2021"
 publish = false
 
 [target.'cfg(target_os = "linux")'.dependencies]
