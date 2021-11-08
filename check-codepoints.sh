@@ -9,14 +9,12 @@ export LC_ALL=en_US.UTF-8
 
 CODEPOINT_REGEX=$( printf "\u202a\|\u202b\|\u202c\|\u202d\|\u202e\|\u2066\|\u2067\|\u2068\|\u2069" )
 
-cd "$(dirname "${BASH_SOURCE[0]}")"
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 
 #FILES=( $( find -type f -regex '.*\.\(rs\|cpp\|c\|cc\|h\|kt\|swift\|toml\)' ) )
 # Scan all non-binary files
-old_ifs=$IFS
-IFS=$'\n'
-FILES=( $( find . -type f -not -path "./$(basename "${BASH_SOURCE[0]}")" -exec grep -Il . {} + ) )
-IFS=$old_ifs
+FILES=()
+while IFS='' read -r line; do FILES+=("$line"); done < <( find . -type f -not -path "./$(basename "${BASH_SOURCE[0]}")" -exec grep -Il . {} + )
 
 ################################################################################
 # Sanity check.
@@ -25,8 +23,7 @@ IFS=$old_ifs
 UNSAFE_STR="nonsense ‪"
 SAFE_STR="nonsense x"
 
-echo "$UNSAFE_STR" | grep -q "${CODEPOINT_REGEX}"
-if [ "$?" -ne 0 ]; then
+if ! echo "$UNSAFE_STR" | grep -q "${CODEPOINT_REGEX}"; then
     echo "Failed to detect code point in test string"
     exit 1
 fi
@@ -42,7 +39,7 @@ fi
 
 matched=0
 
-echo "Scanning files: ${FILES[@]}"
+echo "Scanning files: ${FILES[*]}"
 
 for file in "${FILES[@]}"; do
     if grep -q "${CODEPOINT_REGEX}" "$file"; then
