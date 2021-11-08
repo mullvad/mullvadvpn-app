@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-# Script for detecting suspicious code points in source code and text.
-# It assumes UTF-8 encoding.
+# This script scans text and source code for bidirectional Unicode characters.
+# See CVE-2021-42574. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-42574
+# UTF-8 encoding is assumed.
 
 set -u
 
@@ -9,7 +10,7 @@ export LC_ALL=en_US.UTF-8
 
 CODEPOINT_REGEX=$( printf "\u202a\|\u202b\|\u202c\|\u202d\|\u202e\|\u2066\|\u2067\|\u2068\|\u2069" )
 
-SCRIPT_RELPATH="./$(realpath --relative-to="$(dirname "${BASH_SOURCE[0]}")/.." "${BASH_SOURCE[0]}")"
+SCRIPT_RELPATH="./$(basename "$(pwd)")/$(basename "${BASH_SOURCE[0]}")"
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 
 # List all non-binary files
