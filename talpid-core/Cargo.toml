@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Mullvad VPN"]
 description = "Privacy preserving and secure VPN client library"
 license = "GPL-3.0"
-edition = "2018"
+edition = "2021"
 publish = false
 
 [dependencies]

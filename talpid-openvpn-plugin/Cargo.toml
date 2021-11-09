@@ -4,7 +4,7 @@ version = "2021.6.0-beta1"
 authors = ["Mullvad VPN"]
 description = "OpenVPN shared library plugin for relaying OpenVPN events to talpid_core"
 license = "GPL-3.0"
-edition = "2018"
+edition = "2021"
 publish = false
 
 [lib]
