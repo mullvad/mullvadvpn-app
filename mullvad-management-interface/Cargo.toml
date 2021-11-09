@@ -19,7 +19,6 @@ prost-types = "0.8"
 parity-tokio-ipc = "0.9"
 futures = "0.3"
 tokio = { version = "1.8", features =  [ "rt" ] }
-triggered = "0.1.1"
 log = "0.4"
 
 [target.'cfg(unix)'.dependencies]

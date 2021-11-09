@@ -735,11 +735,7 @@ where
         );
 
         // Attempt to download a fresh relay list
-        let mut relay_handle = relay_selector.updater_handle();
-        relay_handle
-            .update_relay_list_deferred()
-            .await
-            .expect("Relay list updated thread has stopped unexpectedly");
+        relay_selector.update().await;
 
         let mut daemon = Daemon {
             tunnel_command_tx,

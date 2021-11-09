@@ -1,5 +1,8 @@
 use crate::{account_history, settings, DaemonCommand, DaemonCommandSender, EventListener};
-use futures::channel::oneshot;
+use futures::{
+    channel::{mpsc, oneshot},
+    StreamExt,
+};
 use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, Status,
@@ -23,7 +26,7 @@ use std::path::PathBuf;
 use std::{
     cmp,
     convert::{TryFrom, TryInto},
-    sync::{mpsc, Arc},
+    sync::Arc,
     time::Duration,
 };
 use talpid_types::ErrorExt;
@@ -719,70 +722,43 @@ impl ManagementServiceImpl {
     }
 }
 
-pub struct ManagementInterfaceServer {
-    subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
-    socket_path: String,
-    server_abort_tx: triggered::Trigger,
-    server_join_handle: Option<
-        tokio::task::JoinHandle<std::result::Result<(), mullvad_management_interface::Error>>,
-    >,
-}
+pub struct ManagementInterfaceServer(());
 
 impl ManagementInterfaceServer {
-    pub async fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, Error> {
+    pub async fn start(
+        tunnel_tx: DaemonCommandSender,
+    ) -> Result<(String, ManagementInterfaceEventBroadcaster), Error> {
         let subscriptions = Arc::<RwLock<Vec<EventsListenerSender>>>::default();
 
         let socket_path = mullvad_paths::get_rpc_socket_path()
             .to_string_lossy()
             .to_string();
 
-        let (server_abort_tx, server_abort_rx) = triggered::trigger();
-        let (start_tx, start_rx) = mpsc::channel();
+        let (server_abort_tx, server_abort_rx) = mpsc::channel(0);
         let server = ManagementServiceImpl {
             daemon_tx: tunnel_tx,
             subscriptions: subscriptions.clone(),
         };
-        let server_join_handle = tokio::spawn(mullvad_management_interface::spawn_rpc_server(
-            server,
-            start_tx,
-            server_abort_rx,
-        ));
-
-        if let Err(_) = start_rx.recv() {
-            return Err(server_join_handle
-                .await
-                .expect("Failed to resolve quit handle future")
-                .map_err(Error::SetupError)
-                .unwrap_err());
-        }
-
-        Ok(ManagementInterfaceServer {
-            subscriptions,
-            socket_path,
-            server_abort_tx,
-            server_join_handle: Some(server_join_handle),
+        let join_handle = mullvad_management_interface::spawn_rpc_server(server, async move {
+            server_abort_rx.into_future().await;
         })
-    }
+        .await
+        .map_err(Error::SetupError)?;
 
-    pub fn socket_path(&self) -> &str {
-        &self.socket_path
-    }
-
-    pub fn event_broadcaster(&self) -> ManagementInterfaceEventBroadcaster {
-        ManagementInterfaceEventBroadcaster {
-            subscriptions: self.subscriptions.clone(),
-            close_handle: self.server_abort_tx.clone(),
-        }
-    }
-
-    /// Consumes the server and waits for it to finish.
-    pub async fn run(self) {
-        if let Some(server_join_handle) = self.server_join_handle {
-            if let Err(error) = server_join_handle.await {
-                log::error!("Management server panic: {:?}", error);
+        tokio::spawn(async move {
+            if let Err(error) = join_handle.await {
+                log::error!("Management server panic: {}", error);
             }
             log::info!("Management interface shut down");
-        }
+        });
+
+        Ok((
+            socket_path,
+            ManagementInterfaceEventBroadcaster {
+                subscriptions,
+                _close_handle: server_abort_tx,
+            },
+        ))
     }
 }
 
@@ -790,7 +766,7 @@ impl ManagementInterfaceServer {
 #[derive(Clone)]
 pub struct ManagementInterfaceEventBroadcaster {
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
-    close_handle: triggered::Trigger,
+    _close_handle: mpsc::Sender<()>,
 }
 
 impl EventListener for ManagementInterfaceEventBroadcaster {
@@ -854,12 +830,6 @@ impl ManagementInterfaceEventBroadcaster {
         let mut subscriptions = self.subscriptions.write();
         // TODO: using write-lock everywhere. use a mutex instead?
         subscriptions.retain(|tx| tx.send(Ok(value.clone())).is_ok());
-    }
-}
-
-impl Drop for ManagementInterfaceEventBroadcaster {
-    fn drop(&mut self) {
-        self.close_handle.trigger();
     }
 }
 

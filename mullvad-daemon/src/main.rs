@@ -157,15 +157,13 @@ async fn create_daemon(
 async fn spawn_management_interface(
     command_sender: DaemonCommandSender,
 ) -> Result<ManagementInterfaceEventBroadcaster, String> {
-    let server = ManagementInterfaceServer::start(command_sender)
+    let (socket_path, event_broadcaster) = ManagementInterfaceServer::start(command_sender)
         .await
         .map_err(|error| {
-            error.display_chain_with_msg("Unable to start management interface server")
-        })?;
-    let event_broadcaster = server.event_broadcaster();
+        error.display_chain_with_msg("Unable to start management interface server")
+    })?;
 
-    info!("Management interface listening on {}", server.socket_path());
-    tokio::spawn(server.run());
+    info!("Management interface listening on {}", socket_path);
 
     Ok(event_broadcaster)
 }
