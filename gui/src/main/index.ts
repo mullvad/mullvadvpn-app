@@ -351,14 +351,14 @@ class ApplicationMain {
     }
   };
 
-  private onBeforeQuit = async (event: Electron.Event) => {
+  private onBeforeQuit = async (event?: Electron.Event, disconnectTunnel = true) => {
     switch (this.quitStage) {
       case AppQuitStage.unready:
         // postpone the app shutdown
-        event.preventDefault();
+        event?.preventDefault();
 
         this.quitStage = AppQuitStage.initiated;
-        await this.prepareToQuit();
+        await this.prepareToQuit(disconnectTunnel);
 
         // terminate the app
         this.quitStage = AppQuitStage.ready;
@@ -367,7 +367,7 @@ class ApplicationMain {
 
       case AppQuitStage.initiated:
         // prevent immediate exit, the app will quit after running the shutdown routine
-        event.preventDefault();
+        event?.preventDefault();
         return;
 
       case AppQuitStage.ready:
@@ -376,17 +376,21 @@ class ApplicationMain {
     }
   };
 
-  private async prepareToQuit() {
-    if (this.connectedToDaemon) {
-      try {
-        await this.daemonRpc.disconnectTunnel();
-        log.info('Disconnected the tunnel');
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to disconnect the tunnel: ${error.message}`);
+  private async prepareToQuit(disconnectTunnel: boolean) {
+    if (disconnectTunnel) {
+      if (this.connectedToDaemon) {
+        try {
+          await this.daemonRpc.disconnectTunnel();
+          log.info('Disconnected the tunnel');
+        } catch (e) {
+          const error = e as Error;
+          log.error(`Failed to disconnect the tunnel: ${error.message}`);
+        }
+      } else {
+        log.info('Cannot close the tunnel because there is no active connection to daemon.');
       }
     } else {
-      log.info('Cannot close the tunnel because there is no active connection to daemon.');
+      log.info('Not disconnecting tunnel on quit');
     }
 
     // Unsubscribe the event handler
