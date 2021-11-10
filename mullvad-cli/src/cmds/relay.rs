@@ -8,7 +8,7 @@ use std::{
     str::FromStr,
 };
 
-use mullvad_management_interface::types;
+use mullvad_management_interface::{types, ManagementServiceClient};
 use mullvad_types::relay_constraints::{Constraint, RelaySettings};
 use talpid_types::net::all_of_the_internet;
 
@@ -143,14 +143,14 @@ impl Command for Relay {
                                         clap::Arg::with_name("port")
                                             .help("Port to use. Either 'any' or a specific port")
                                             .long("port")
-                                            .default_value("any"),
+                                            .takes_value(true),
                                     )
                                     .arg(
                                         clap::Arg::with_name("transport protocol")
                                             .help("Transport protocol")
                                             .long("protocol")
                                             .possible_values(&["any", "udp", "tcp"])
-                                            .default_value("any"),
+                                            .takes_value(true),
                                     )
                             )
                             .subcommand(
@@ -160,7 +160,7 @@ impl Command for Relay {
                                         clap::Arg::with_name("port")
                                             .help("Port to use. Either 'any' or a specific port")
                                             .long("port")
-                                            .default_value("any"),
+                                            .takes_value(true),
                                     )
                                     .arg(
                                         clap::Arg::with_name("transport protocol")
@@ -168,22 +168,20 @@ impl Command for Relay {
                                                    sent over TCP using a udp-over-tcp proxy")
                                             .long("protocol")
                                             .possible_values(&["any", "udp", "tcp"])
-                                            .default_value("any"),
+                                            .takes_value(true),
                                     )
                                     .arg(
                                         clap::Arg::with_name("ip version")
                                             .long("ipv")
-                                            .default_value("any")
-                                            .possible_values(&["any", "4", "6"]),
+                                            .possible_values(&["any", "4", "6"])
+                                            .takes_value(true),
                                     )
                                     .arg(
                                         clap::Arg::with_name("entry location")
                                             .help("Entry endpoint to use. This can be 'any', 'none', or \
                                                    any location that is valid with 'set location', \
                                                    such as 'se got'.")
-                                            .default_value("none")
                                             .long("entry-location")
-                                            .multiple(true)
                                             .min_values(1)
                                             .max_values(3),
                                     )
@@ -514,11 +512,16 @@ impl Relay {
     }
 
     async fn set_openvpn_constraints(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let port = parse_transport_port(matches)?;
+        let mut openvpn_constraints = {
+            let mut rpc = new_rpc_client().await?;
+            self.get_openvpn_constraints(&mut rpc).await?
+        };
+        openvpn_constraints.port = parse_transport_port(matches, &mut openvpn_constraints.port)?;
+
         self.update_constraints(types::RelaySettingsUpdate {
             r#type: Some(types::relay_settings_update::Type::Normal(
                 types::NormalRelaySettingsUpdate {
-                    openvpn_constraints: Some(types::OpenvpnConstraints { port }),
+                    openvpn_constraints: Some(openvpn_constraints),
                     ..Default::default()
                 },
             )),
@@ -526,29 +529,80 @@ impl Relay {
         .await
     }
 
+    async fn get_openvpn_constraints(
+        &self,
+        rpc: &mut ManagementServiceClient,
+    ) -> Result<types::OpenvpnConstraints> {
+        match rpc
+            .get_settings(())
+            .await?
+            .into_inner()
+            .relay_settings
+            .unwrap()
+            .endpoint
+            .unwrap()
+        {
+            types::relay_settings::Endpoint::Normal(settings) => {
+                Ok(settings.openvpn_constraints.unwrap())
+            }
+            types::relay_settings::Endpoint::Custom(_settings) => {
+                println!("Clearing custom tunnel constraints");
+                Ok(types::OpenvpnConstraints::default())
+            }
+        }
+    }
+
     async fn set_wireguard_constraints(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let port = parse_transport_port(matches)?;
-        let ip_version = parse_ip_version_constraint(matches.value_of("ip version").unwrap());
-        let entry_location =
-            parse_entry_location_constraint(matches.values_of("entry location").unwrap());
+        let mut rpc = new_rpc_client().await?;
+        let mut wireguard_constraints = self.get_wireguard_constraints(&mut rpc).await?;
+
+        wireguard_constraints.port =
+            parse_transport_port(matches, &mut wireguard_constraints.port)?;
+
+        if let Some(ipv) = matches.value_of("ip version") {
+            wireguard_constraints.ip_version =
+                parse_ip_version_constraint(ipv).option().map(|protocol| {
+                    types::IpVersionConstraint {
+                        protocol: protocol as i32,
+                    }
+                });
+        }
+        if let Some(entry) = matches.values_of("entry location") {
+            wireguard_constraints.entry_location = parse_entry_location_constraint(entry);
+        }
 
         self.update_constraints(types::RelaySettingsUpdate {
             r#type: Some(types::relay_settings_update::Type::Normal(
                 types::NormalRelaySettingsUpdate {
-                    wireguard_constraints: Some(types::WireguardConstraints {
-                        port,
-                        ip_version: ip_version.option().map(|protocol| {
-                            types::IpVersionConstraint {
-                                protocol: protocol as i32,
-                            }
-                        }),
-                        entry_location,
-                    }),
+                    wireguard_constraints: Some(wireguard_constraints),
                     ..Default::default()
                 },
             )),
         })
         .await
+    }
+
+    async fn get_wireguard_constraints(
+        &self,
+        rpc: &mut ManagementServiceClient,
+    ) -> Result<types::WireguardConstraints> {
+        match rpc
+            .get_settings(())
+            .await?
+            .into_inner()
+            .relay_settings
+            .unwrap()
+            .endpoint
+            .unwrap()
+        {
+            types::relay_settings::Endpoint::Normal(settings) => {
+                Ok(settings.wireguard_constraints.unwrap())
+            }
+            types::relay_settings::Endpoint::Custom(_settings) => {
+                println!("Clearing custom tunnel constraints");
+                Ok(types::WireguardConstraints::default())
+            }
+        }
     }
 
     async fn set_tunnel_protocol(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
@@ -720,13 +774,37 @@ fn parse_entry_location_constraint<'a, T: Iterator<Item = &'a str>>(
     ))
 }
 
-fn parse_transport_port(matches: &clap::ArgMatches<'_>) -> Result<Option<types::TransportPort>> {
-    let port = parse_port_constraint(matches.value_of("port").unwrap())?;
-    let protocol = parse_protocol(matches.value_of("transport protocol").unwrap());
+fn parse_transport_port(
+    matches: &clap::ArgMatches<'_>,
+    current_constraint: &mut Option<types::TransportPort>,
+) -> Result<Option<types::TransportPort>> {
+    let protocol = match matches.value_of("transport protocol") {
+        Some(protocol) => parse_protocol(protocol),
+        None => {
+            if let Some(ref transport_port) = current_constraint {
+                Constraint::Only(
+                    types::TransportProtocol::from_i32(transport_port.protocol).unwrap(),
+                )
+            } else {
+                Constraint::Any
+            }
+        }
+    };
+    let port = match matches.value_of("port") {
+        Some(port) => parse_port_constraint(port)?,
+        None => {
+            if let Some(ref transport_port) = current_constraint {
+                Constraint::Only(transport_port.port as u16)
+            } else {
+                Constraint::Any
+            }
+        }
+    };
     match (port, protocol) {
         (Constraint::Any, Constraint::Any) => Ok(None),
         (Constraint::Any, Constraint::Only(protocol)) => Ok(Some(types::TransportPort {
             protocol: protocol as i32,
+            // If no port was specified, set it to "any"
             ..types::TransportPort::default()
         })),
         (Constraint::Only(port), Constraint::Only(protocol)) => Ok(Some(types::TransportPort {
