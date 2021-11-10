@@ -34,6 +34,6 @@ export const buttonText = {
 export const bigText = {
   ...sourceSansPro,
   fontSize: '32px',
-  lineHeight: '34px',
+  lineHeight: '35px',
   color: colors.white,
 };
