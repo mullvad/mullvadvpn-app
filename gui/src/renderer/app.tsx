@@ -562,12 +562,6 @@ export default class AppRenderer {
     // load translations for new locale
     loadTranslations(messages, translations.locale, translations.messages);
     loadTranslations(relayLocations, translations.locale, translations.relayLocations);
-
-    // refresh the relay list pair with the new translations
-    this.propagateRelayListPairToRedux();
-
-    // refresh the location with the new translations
-    this.propagateLocationToRedux();
   }
 
   public getPreferredLocaleDisplayName(localeCode: string): string {
@@ -837,37 +831,19 @@ export default class AppRenderer {
 
   private propagateLocationToRedux() {
     if (this.location) {
-      this.reduxActions.connection.newLocation(this.translateLocation(this.location));
+      this.reduxActions.connection.newLocation(this.location);
     }
-  }
-
-  private translateLocation(inputLocation: Partial<ILocation>): Partial<ILocation> {
-    const location = { ...inputLocation };
-
-    if (location.city) {
-      const city = location.city;
-
-      location.city = relayLocations.gettext(city) || city;
-    }
-
-    if (location.country) {
-      const country = location.country;
-
-      location.country = relayLocations.gettext(country) || country;
-    }
-
-    return location;
   }
 
   private convertRelayListToLocationList(relayList: IRelayList): IRelayLocationRedux[] {
     return relayList.countries
       .map((country) => ({
-        name: relayLocations.gettext(country.name) || country.name,
+        name: country.name,
         code: country.code,
         hasActiveRelays: country.cities.some((city) => city.relays.some((relay) => relay.active)),
         cities: country.cities
           .map((city) => ({
-            name: relayLocations.gettext(city.name) || city.name,
+            name: city.name,
             code: city.code,
             latitude: city.latitude,
             longitude: city.longitude,

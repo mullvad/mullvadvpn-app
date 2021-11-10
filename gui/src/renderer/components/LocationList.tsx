@@ -7,6 +7,7 @@ import {
   RelayLocation,
   relayLocationComponents,
 } from '../../shared/daemon-rpc-types';
+import { relayLocations } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import * as Cell from './cell';
 import LocationRow from './LocationRow';
@@ -283,7 +284,7 @@ export class RelayLocations extends React.PureComponent<IRelayLocationsProps> {
           return (
             <LocationRow
               key={getLocationKey(countryLocation)}
-              name={relayCountry.name}
+              name={relayLocations.gettext(relayCountry.name)}
               active={relayCountry.hasActiveRelays}
               expanded={this.isExpanded(countryLocation)}
               onSelect={this.handleSelection}
@@ -299,7 +300,7 @@ export class RelayLocations extends React.PureComponent<IRelayLocationsProps> {
                 return (
                   <LocationRow
                     key={getLocationKey(cityLocation)}
-                    name={relayCity.name}
+                    name={relayLocations.gettext(relayCity.name)}
                     active={relayCity.hasActiveRelays}
                     expanded={this.isExpanded(cityLocation)}
                     onSelect={this.handleSelection}
