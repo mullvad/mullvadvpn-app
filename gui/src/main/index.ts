@@ -104,6 +104,16 @@ enum AppQuitStage {
   ready,
 }
 
+enum SecondInstanceActions {
+  quitWithoutDisconnect = '--quit-without-disconnect',
+}
+
+enum InstanceType {
+  primaryInstance,
+  secondInstance,
+  actionInstance,
+}
+
 type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
 
 class ApplicationMain {
@@ -254,7 +264,7 @@ class ApplicationMain {
 
     this.overrideAppPaths();
 
-    if (this.ensureSingleInstance()) {
+    if (this.handleMultipleInstances() !== InstanceType.primaryInstance) {
       return;
     }
 
@@ -287,17 +297,31 @@ class ApplicationMain {
     app.on('before-quit', this.onBeforeQuit);
   }
 
-  private ensureSingleInstance() {
+  // This method both ensures that only one instance is running at the same time, but also handles
+  // flags passed to the second instance that should trigger actions on the running one.
+  private handleMultipleInstances(): InstanceType {
     if (app.requestSingleInstanceLock()) {
-      app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
-        if (this.windowController) {
-          this.windowController.show();
-        }
-      });
-      return false;
+      // Quit if this instance is called with arguments that should be passed to a running one when
+      // there is none.
+      if (Object.values(SecondInstanceActions).some((action) => process.argv.includes(action))) {
+        app.quit();
+        return InstanceType.actionInstance;
+      } else {
+        // Listen for new instances
+        app.on('second-instance', (_event, argv, _workingDirectory) => {
+          if (argv.includes(SecondInstanceActions.quitWithoutDisconnect)) {
+            void this.onBeforeQuit(undefined, false);
+          } else if (this.windowController) {
+            // If no action was provided to the new instance the window is opened.
+            this.windowController.show();
+          }
+        });
+        return InstanceType.primaryInstance;
+      }
     } else {
+      // Quit if there's already an instance running.
       app.quit();
-      return true;
+      return InstanceType.secondInstance;
     }
   }
 
