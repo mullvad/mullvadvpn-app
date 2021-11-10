@@ -914,26 +914,25 @@
 
 	# This must be done here for compatibility with <= 2021.2,
 	# since those versions do not kill the GUI in the uninstaller.
-	# This is fine as long as /f is used.
+	Var /GLOBAL OldVersion
+	ReadRegStr $OldVersion HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}" "DisplayVersion"
+	StrCpy $R0 $OldVersion 4 # Major version
+	StrCpy $R1 $OldVersion 1 5 # Minor version
+	${If} $R0 > 2021
+		Goto skip_kill
+	${OrIf} $R0 == 2021
+		${If} $R1 > 2
+			Goto skip_kill
+		${EndIf}
+	${EndIf}
 
-	${KillGui}
-
-!macroend
-
-#
-# KillGui
-#
-# Kill "Mullvad VPN.exe" if it is running. Killing without /f may cause the daemon to disconnect.
-#
-!macro KillGui
-
+	# Killing without /f will likely cause the daemon to disconnect.
 	nsExec::Exec `taskkill /f /t /im "${APP_EXECUTABLE_FILENAME}"` $R0
-
 	Sleep 500
 
-!macroend
+	skip_kill:
 
-!define KillGui '!insertmacro "KillGui"'
+!macroend
 
 #
 # customInstall
@@ -1231,6 +1230,9 @@
 
 	Pop $FullUninstall
 
+	nsExec::Exec '"$INSTDIR\Mullvad VPN.exe" --quit-without-disconnect' $R1
+	Sleep 500
+
 	${If} $FullUninstall == 0
 		# Save the target tunnel state if we're upgrading
 		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" prepare-restart'
@@ -1250,8 +1252,6 @@
 	${If} $R0 != 0
 		Goto customRemoveFiles_abort
 	${EndIf}
-
-	${KillGui}
 
 	# Remove application files
 	log::Log "Deleting $INSTDIR"
