@@ -57,6 +57,7 @@ class ServiceEndpoint(
     val relayListListener = RelayListListener(this)
     val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
     val voucherRedeemer = VoucherRedeemer(this)
+    val foregroundRequestHandler = ForegroundRequestHandler(this)
 
     init {
         dispatcher.apply {
