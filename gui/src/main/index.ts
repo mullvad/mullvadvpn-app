@@ -98,6 +98,8 @@ const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
 
 const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 
+const QUIT_WITHOUT_DISCONNECT_FLAG = '--quit-without-disconnect';
+
 enum AppQuitStage {
   unready,
   initiated,
@@ -245,6 +247,8 @@ class ApplicationMain {
 
   private macOsScrollbarVisibility?: MacOsScrollbarVisibility;
 
+  private quitWithoutDisconnect = false;
+
   public run() {
     // Remove window animations to combat window flickering when opening window. Can be removed when
     // this issue has been resolved: https://github.com/electron/electron/issues/12130
@@ -254,9 +258,15 @@ class ApplicationMain {
 
     this.overrideAppPaths();
 
-    if (this.ensureSingleInstance()) {
+    // This ensures that only a single instance is running at the same time, but also exits if
+    // there's no already running instance when the quit without disconnect flag is supplied.
+    if (!app.requestSingleInstanceLock() || process.argv.includes(QUIT_WITHOUT_DISCONNECT_FLAG)) {
+      this.quitWithoutDisconnect = true;
+      app.quit();
       return;
     }
+
+    this.addSecondInstanceEventHandler();
 
     this.initLogging();
 
@@ -287,18 +297,17 @@ class ApplicationMain {
     app.on('before-quit', this.onBeforeQuit);
   }
 
-  private ensureSingleInstance() {
-    if (app.requestSingleInstanceLock()) {
-      app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
-        if (this.windowController) {
-          this.windowController.show();
-        }
-      });
-      return false;
-    } else {
-      app.quit();
-      return true;
-    }
+  private addSecondInstanceEventHandler() {
+    app.on('second-instance', (_event, argv, _workingDirectory) => {
+      if (argv.includes(QUIT_WITHOUT_DISCONNECT_FLAG)) {
+        // Quit if another instance is started with the quit without disconnect flag.
+        this.quitWithoutDisconnect = true;
+        app.quit();
+      } else if (this.windowController) {
+        // If no action was provided to the new instance the window is opened.
+        this.windowController.show();
+      }
+    });
   }
 
   private overrideAppPaths() {
@@ -377,16 +386,20 @@ class ApplicationMain {
   };
 
   private async prepareToQuit() {
-    if (this.connectedToDaemon) {
-      try {
-        await this.daemonRpc.disconnectTunnel();
-        log.info('Disconnected the tunnel');
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to disconnect the tunnel: ${error.message}`);
-      }
+    if (this.quitWithoutDisconnect) {
+      log.info('Not disconnecting tunnel on quit');
     } else {
-      log.info('Cannot close the tunnel because there is no active connection to daemon.');
+      if (this.connectedToDaemon) {
+        try {
+          await this.daemonRpc.disconnectTunnel();
+          log.info('Disconnected the tunnel');
+        } catch (e) {
+          const error = e as Error;
+          log.error(`Failed to disconnect the tunnel: ${error.message}`);
+        }
+      } else {
+        log.info('Cannot close the tunnel because there is no active connection to daemon.');
+      }
     }
 
     // Unsubscribe the event handler
