@@ -41,6 +41,7 @@ class ServiceConnection(
     val splitTunneling = get<SplitTunneling>(parameters = { parametersOf(connection, dispatcher) })
     val voucherRedeemer = VoucherRedeemer(connection, dispatcher)
     val vpnPermission = VpnPermission(connection, dispatcher)
+    val foregroundController = ForegroundController(connection)
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(connection, settingsListener)

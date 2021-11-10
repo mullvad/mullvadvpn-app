@@ -9,18 +9,23 @@ import android.content.IntentFilter
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.endpoint.ConnectionProxy
+import net.mullvad.mullvadvpn.service.endpoint.ForegroundRequestHandler
 import net.mullvad.mullvadvpn.service.notifications.TunnelStateNotification
 import net.mullvad.talpid.util.autoSubscribable
 
 class ForegroundNotificationManager(
     val service: MullvadVpnService,
     val connectionProxy: ConnectionProxy,
-    val keyguardManager: KeyguardManager
+    val keyguardManager: KeyguardManager,
+    val foregroundRequestHandler: ForegroundRequestHandler,
 ) {
     private sealed class UpdaterMessage {
         class UpdateNotification : UpdaterMessage()
@@ -63,9 +68,11 @@ class ForegroundNotificationManager(
     var onForeground = false
         private set
 
-    var lockedToForeground by observable(false) { _, _, _ ->
+    private var lockedToForeground by observable(false) { _, _, _ ->
         updater.sendBlocking(UpdaterMessage.UpdateNotification())
     }
+
+    var forcedForegroundRequestJob: Job
 
     init {
         connectionProxy.onStateChange.subscribe(this) { newState ->
@@ -83,6 +90,12 @@ class ForegroundNotificationManager(
         }
 
         updater.sendBlocking(UpdaterMessage.UpdateNotification())
+
+        forcedForegroundRequestJob = GlobalScope.launch(Dispatchers.Main) {
+            foregroundRequestHandler.foregroundRequests().collect {
+                lockedToForeground = it
+            }
+        }
     }
 
     fun onDestroy() {
@@ -94,6 +107,8 @@ class ForegroundNotificationManager(
         updater.close()
 
         tunnelStateNotification.visible = false
+
+        forcedForegroundRequestJob.cancel()
     }
 
     fun acknowledgeStartForegroundService() {

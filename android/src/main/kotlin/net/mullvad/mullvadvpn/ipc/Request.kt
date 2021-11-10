@@ -101,6 +101,9 @@ sealed class Request : Message.RequestMessage() {
     @Parcelize
     object WireGuardVerifyKey : Request()
 
+    @Parcelize
+    data class SetForcedForeground(val doForceForeground: Boolean) : Request()
+
     companion object {
         private const val MESSAGE_KEY = "request"
 

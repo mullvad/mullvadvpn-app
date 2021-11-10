@@ -26,7 +26,12 @@ open class MainActivity : FragmentActivity() {
     val problemReport = MullvadProblemReport()
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
-    private var isUiVisible = false
+    private var isUiVisible: Boolean by observable(false) { _, wasVisible, isVisible ->
+        if (isVisible != wasVisible) {
+            serviceConnection?.foregroundController?.requestForcedForeground(isVisible)
+        }
+    }
+
     private var visibleSecureScreens = HashSet<Fragment>()
 
     private val deviceIsTv by lazy {
@@ -53,7 +58,12 @@ open class MainActivity : FragmentActivity() {
     private val serviceConnectionManager = object : android.content.ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             android.util.Log.d("mullvad", "UI successfully connected to the service")
-            serviceConnection = ServiceConnection(Messenger(binder), ::handleNewServiceConnection)
+            serviceConnection = ServiceConnection(
+                Messenger(binder),
+                ::handleNewServiceConnection
+            ).apply {
+                foregroundController.requestForcedForeground(isUiVisible)
+            }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
@@ -109,7 +119,9 @@ open class MainActivity : FragmentActivity() {
 
     override fun onStop() {
         android.util.Log.d("mullvad", "Stoping main activity")
+
         isUiVisible = false
+
         unbindService(serviceConnectionManager)
 
         super.onStop()
