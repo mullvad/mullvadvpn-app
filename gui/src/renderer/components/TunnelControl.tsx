@@ -2,7 +2,7 @@ import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 import { TunnelState } from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
+import { messages, relayLocations } from '../../shared/gettext';
 import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
 import { bigText } from './common-styles';
@@ -197,11 +197,14 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
   }
 
   private renderCity() {
-    return <StyledMarquee>{this.props.city}</StyledMarquee>;
+    const city = this.props.city === undefined ? '' : relayLocations.gettext(this.props.city);
+    return <StyledMarquee>{city}</StyledMarquee>;
   }
 
   private renderCountry() {
-    return <StyledMarquee>{this.props.country}</StyledMarquee>;
+    const country =
+      this.props.country === undefined ? '' : relayLocations.gettext(this.props.country);
+    return <StyledMarquee>{country}</StyledMarquee>;
   }
 
   private switchLocationButton() {
