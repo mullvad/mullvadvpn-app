@@ -18,7 +18,7 @@ jnix = { version = "0.4", features = ["derive"] }
 lazy_static = "1"
 log = "0.4"
 log-panics = "2"
-nix = "0.22.2"
+nix = "0.23"
 rand = "0.7"
 tokio = "1.8"
 
