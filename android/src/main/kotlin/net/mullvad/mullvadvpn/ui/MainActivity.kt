@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.net.VpnService
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.Messenger
@@ -92,12 +91,7 @@ open class MainActivity : FragmentActivity() {
 
         val intent = Intent(this, MullvadVpnService::class.java)
 
-        if (Build.VERSION.SDK_INT >= 26) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
-
+        startForegroundService(intent)
         bindService(intent, serviceConnectionManager, 0)
     }
 
