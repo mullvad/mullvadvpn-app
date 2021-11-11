@@ -25,7 +25,6 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         --dev-build)
             BUILD_MODE="dev"
-            CARGO_ARGS+=(--features api-override)
             ;;
         --target)
             TARGET=("$2")
@@ -93,6 +92,7 @@ if [[ "$BUILD_MODE" == "dev" || $product_version_commit_hash != "$current_head_c
 
     echo "Disabling Apple notarization (macOS only) of installer in this dev build"
     NPM_PACK_ARGS+=(--no-apple-notarization)
+    CARGO_ARGS+=(--features api-override)
 else
     echo "Removing old Rust build artifacts"
     cargo +stable clean
