@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 #### Windows
 - Fix app size after changing display scale.
+- Remove tray icon of current running app version when upgrading.
 
 
 ## [2021.6-beta1] - 2021-11-03
