@@ -1155,9 +1155,15 @@ function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
     return { deviceConfig: convertFromDeviceEvent(deviceConfig) };
   }
 
-  return {
-    appVersionInfo: data.getVersionInfo()!.toObject(),
-  };
+  const versionInfo = data.getVersionInfo();
+  if (versionInfo !== undefined) {
+    return { appVersionInfo: versionInfo.toObject() };
+  }
+
+  const keys = Object.entries(data.toObject())
+    .filter(([, value]) => value !== undefined)
+    .map(([key]) => key);
+  throw new Error(`Unknown daemon event received containing ${keys}`);
 }
 
 function convertFromOpenVpnConstraints(

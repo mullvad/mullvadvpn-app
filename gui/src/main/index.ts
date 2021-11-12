@@ -785,7 +785,6 @@ class ApplicationMain {
       },
       (error: Error) => {
         log.error(`Cannot deserialize the daemon event: ${error.message}`);
-        log.error(error.stack);
       },
     );
 
