@@ -5,7 +5,8 @@ import { colors } from '../../config.json';
 import { IDevice } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { useHistory } from '../lib/history';
+import { transitions, useHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
@@ -109,8 +110,8 @@ export default function TooManyDevices() {
   const continueLogin = useCallback(() => login(accountToken), [login, accountToken]);
   const cancel = useCallback(() => {
     cancelLogin();
-    history.pop();
-  }, [history.pop, cancelLogin]);
+    history.reset(RoutePath.login, transitions.pop);
+  }, [history.reset, cancelLogin]);
 
   useEffect(() => void fetchDevices(), []);
 
