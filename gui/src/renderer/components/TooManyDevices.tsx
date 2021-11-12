@@ -146,7 +146,7 @@ export default function TooManyDevices() {
                   <AppButton.GreenButton onClick={continueLogin} disabled={devices.length === 5}>
                     {
                       // TRANSLATORS: Button for continuing login process.
-                      messages.pgettext('too-many-devices-view', 'Continue with login')
+                      messages.pgettext('device-management', 'Continue with login')
                     }
                   </AppButton.GreenButton>
                   <AppButton.BlueButton onClick={cancel}>
@@ -225,7 +225,7 @@ function Device(props: IDeviceProps) {
             <AppButton.RedButton key="remove" onClick={onRemove} disabled={deleting}>
               {
                 // TRANSLATORS: Confirmation button when logging out other device.
-                messages.pgettext('too-many-devices-view', 'Yes, log out device')
+                messages.pgettext('device-management', 'Yes, log out device')
               }
             </AppButton.RedButton>,
             <AppButton.BlueButton key="back" onClick={hideConfirmation} disabled={deleting}>
@@ -241,7 +241,7 @@ function Device(props: IDeviceProps) {
                 {sprintf(
                   // TRANSLATORS: Text displayed above button which logs out another device.
                   messages.pgettext(
-                    'too-many-devices-view',
+                    'device-management',
                     'Are you sure you want to log out of %(deviceName)s?',
                   ),
                   { deviceName: props.device.name },
@@ -251,7 +251,7 @@ function Device(props: IDeviceProps) {
                 {
                   // TRANSLATORS: Further information about consequences of logging out device.
                   messages.pgettext(
-                    'too-many-devices-view',
+                    'device-management',
                     'This will delete all forwarded ports. Local settings will be saved.',
                   )
                 }
@@ -281,11 +281,11 @@ function getTitle(devices?: Array<IDevice>): string | undefined {
     if (devices.length === 5) {
       // TRANSLATORS: Page title informing user that the login failed due to too many registered
       // TRANSLATORS: devices on account.
-      return messages.pgettext('too-many-devices-view', 'Too many devices');
+      return messages.pgettext('device-management', 'Too many devices');
     } else {
       // TRANSLATORS: Page title informing user that enough devices has been removed to continue
       // TRANSLATORS: login process.
-      return messages.pgettext('too-many-devices-view', 'Super!');
+      return messages.pgettext('device-management', 'Super!');
     }
   } else {
     return undefined;
@@ -296,12 +296,12 @@ function getSubtitle(devices?: Array<IDevice>): string | undefined {
   if (devices) {
     if (devices.length === 5) {
       return messages.pgettext(
-        'too-many-devices-view',
+        'device-management',
         'You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device’s Account settings.',
       );
     } else {
       return messages.pgettext(
-        'too-many-devices-view',
+        'device-management',
         'You can now continue logging in on this device.',
       );
     }
