@@ -279,7 +279,7 @@ export default class AppRenderer {
       if (error.message === 'Too many devices') {
         actions.account.loginTooManyDevices(error);
         this.loginState = 'too many devices';
-        this.history.push(RoutePath.tooManyDevices);
+        this.history.reset(RoutePath.tooManyDevices, transitions.push);
       } else {
         actions.account.loginFailed(error);
       }
@@ -638,36 +638,37 @@ export default class AppRenderer {
 
   private resetNavigation() {
     if (this.history) {
-      const pathname = this.history.location.pathname;
+      const pathname = this.history.location.pathname as RoutePath;
       const nextPath = this.getNavigationBase(
         this.connectedToDaemon,
         this.deviceConfig?.accountToken,
-      );
+      ) as RoutePath;
 
       // First level contains the possible next locations and the second level contains the possible
       // current locations.
-      const navigationTransitions: {
-        [from: string]: { [to: string]: ITransitionSpecification };
-      } = {
-        '/': {
-          '/login': transitions.pop,
-          '/main': transitions.pop,
+      const navigationTransitions: Partial<
+        Record<RoutePath, Partial<Record<RoutePath | '*', ITransitionSpecification>>>
+      > = {
+        [RoutePath.launch]: {
+          [RoutePath.login]: transitions.pop,
+          [RoutePath.main]: transitions.pop,
           '*': transitions.dismiss,
         },
-        '/login': {
-          '/': transitions.push,
-          '/main': transitions.pop,
+        [RoutePath.login]: {
+          [RoutePath.launch]: transitions.push,
+          [RoutePath.main]: transitions.pop,
           '*': transitions.none,
         },
-        '/main': {
-          '/': transitions.push,
-          '/login': transitions.push,
+        [RoutePath.main]: {
+          [RoutePath.launch]: transitions.push,
+          [RoutePath.login]: transitions.push,
+          [RoutePath.tooManyDevices]: transitions.push,
           '*': transitions.dismiss,
         },
       };
 
       const transition =
-        navigationTransitions[nextPath][pathname] ?? navigationTransitions[nextPath]['*'];
+        navigationTransitions[nextPath]?.[pathname] ?? navigationTransitions[nextPath]?.['*'];
       this.history.reset(nextPath, transition);
     }
   }
