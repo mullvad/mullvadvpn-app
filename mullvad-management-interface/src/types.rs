@@ -227,8 +227,8 @@ impl From<mullvad_types::device::RemoveDeviceEvent> for RemoveDeviceEvent {
     }
 }
 
-impl From<mullvad_types::device::DeviceData> for DeviceConfig {
-    fn from(device: mullvad_types::device::DeviceData) -> Self {
+impl From<mullvad_types::device::DeviceConfig> for DeviceConfig {
+    fn from(device: mullvad_types::device::DeviceConfig) -> Self {
         DeviceConfig {
             account_token: device.token,
             device: Some(Device::from(device.device)),
@@ -239,10 +239,7 @@ impl From<mullvad_types::device::DeviceData> for DeviceConfig {
 impl From<Vec<mullvad_types::device::Device>> for DeviceList {
     fn from(devices: Vec<mullvad_types::device::Device>) -> Self {
         DeviceList {
-            devices: devices
-                .into_iter()
-                .map(|device| Device::from(device))
-                .collect(),
+            devices: devices.into_iter().map(Device::from).collect(),
         }
     }
 }
