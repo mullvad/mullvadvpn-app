@@ -32,6 +32,22 @@ impl From<DeviceData> for Device {
     }
 }
 
+/// [`DeviceData`] excluding the private key.
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct DeviceConfig {
+    pub token: AccountToken,
+    pub device: Device,
+}
+
+impl From<DeviceData> for DeviceConfig {
+    fn from(data: DeviceData) -> DeviceConfig {
+        DeviceConfig {
+            token: data.token,
+            device: data.device,
+        }
+    }
+}
+
 /// Emitted when logging in or out of an account, or when the device changes.
 #[derive(Clone, Debug)]
 pub struct DeviceEvent(pub Option<(AccountToken, Device)>);

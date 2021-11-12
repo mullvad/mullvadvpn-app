@@ -36,7 +36,7 @@ use mullvad_rpc::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    device::{Device, DeviceData, DeviceEvent, DeviceId, RemoveDeviceEvent},
+    device::{Device, DeviceConfig, DeviceData, DeviceEvent, DeviceId, RemoveDeviceEvent},
     endpoint::MullvadEndpoint,
     location::{Coordinates, GeoIpLocation},
     relay_constraints::{
@@ -245,7 +245,7 @@ pub enum DaemonCommand {
     /// Log out of the current account and remove the device, if they exist.
     LogoutAccount(ResponseTx<(), Error>),
     /// Return the current device configuration, if there is one.
-    GetDevice(ResponseTx<Option<DeviceData>, Error>),
+    GetDevice(ResponseTx<Option<DeviceConfig>, Error>),
     /// Return all the devices for a given account token.
     ListDevices(ResponseTx<Vec<Device>, Error>, AccountToken),
     /// Remove device from a given account.
@@ -1721,8 +1721,12 @@ where
         Ok(true)
     }
 
-    async fn on_get_device(&mut self, tx: ResponseTx<Option<DeviceData>, Error>) {
-        Self::oneshot_send(tx, Ok(self.account_manager.get()), "get_device response");
+    async fn on_get_device(&mut self, tx: ResponseTx<Option<DeviceConfig>, Error>) {
+        Self::oneshot_send(
+            tx,
+            Ok(self.account_manager.get().map(DeviceConfig::from)),
+            "get_device response",
+        );
     }
 
     async fn on_list_devices(&mut self, tx: ResponseTx<Vec<Device>, Error>, token: AccountToken) {
