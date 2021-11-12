@@ -2,7 +2,7 @@ export type LocalizationContexts =
   | 'changelog'
   | 'accessibility'
   | 'login-view'
-  | 'too-many-devices-view'
+  | 'device-management'
   | 'auth-failure'
   | 'launch-view'
   | 'error-boundary-view'
