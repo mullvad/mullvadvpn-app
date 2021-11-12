@@ -168,6 +168,7 @@ export const ipcSchema = {
   account: {
     '': notifyRenderer<IAccountData | undefined>(),
     device: notifyRenderer<DeviceConfig>(),
+    devices: notifyRenderer<Array<IDevice>>(),
     create: invoke<void, string>(),
     login: invoke<AccountToken, void>(),
     logout: invoke<void, void>(),

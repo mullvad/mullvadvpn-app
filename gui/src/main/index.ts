@@ -781,6 +781,13 @@ class ApplicationMain {
           this.setLatestVersion(daemonEvent.appVersionInfo);
         } else if ('deviceConfig' in daemonEvent) {
           this.setDeviceConfig(daemonEvent.deviceConfig);
+        } else if ('deviceRemoval' in daemonEvent) {
+          if (this.windowController) {
+            IpcMainEventChannel.account.notifyDevices(
+              this.windowController.webContents,
+              daemonEvent.deviceRemoval,
+            );
+          }
         }
       },
       (error: Error) => {
