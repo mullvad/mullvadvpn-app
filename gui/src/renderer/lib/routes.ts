@@ -24,6 +24,17 @@ export enum RoutePath {
   filterByProvider = '/select-location/filter-by-provider',
 }
 
+export const disableDismissForRoutes = [
+  RoutePath.launch,
+  RoutePath.login,
+  RoutePath.tooManyDevices,
+  RoutePath.main,
+  RoutePath.redeemVoucher,
+  RoutePath.voucherSuccess,
+  RoutePath.timeAdded,
+  RoutePath.setupFinished,
+];
+
 export function generateRoutePath(
   routePath: RoutePath,
   parameters: Parameters<typeof generatePath>[1],
