@@ -1164,11 +1164,17 @@ function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
     return { deviceConfig: convertFromDeviceEvent(deviceConfig) };
   }
 
+  const deviceRemoval = data.getRemoveDevice();
+  if (deviceRemoval !== undefined) {
+    return { deviceRemoval: convertFromDeviceRemoval(deviceRemoval) };
+  }
+
   const versionInfo = data.getVersionInfo();
   if (versionInfo !== undefined) {
     return { appVersionInfo: versionInfo.toObject() };
   }
 
+  // Handle unknown daemon events
   const keys = Object.entries(data.toObject())
     .filter(([, value]) => value !== undefined)
     .map(([key]) => key);
@@ -1381,6 +1387,10 @@ function convertFromDeviceConfig(deviceConfig?: grpcTypes.DeviceConfig): DeviceC
       device: deviceConfig.getDevice()?.toObject(),
     }
   );
+}
+
+function convertFromDeviceRemoval(deviceRemoval: grpcTypes.RemoveDeviceEvent): IDevice[] {
+  return deviceRemoval.getNewDeviceListList().map((device) => device.toObject());
 }
 
 function ensureExists<T>(value: T | undefined, errorMessage: string): T {

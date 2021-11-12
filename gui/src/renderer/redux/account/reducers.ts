@@ -1,4 +1,4 @@
-import { AccountToken } from '../../../shared/daemon-rpc-types';
+import { AccountToken, IDevice } from '../../../shared/daemon-rpc-types';
 import { ReduxAction } from '../store';
 
 type LoginMethod = 'existing_account' | 'new_account';
@@ -9,6 +9,7 @@ export type LoginState =
 export interface IAccountReduxState {
   accountToken?: AccountToken;
   deviceName?: string;
+  devices: Array<IDevice>;
   accountHistory?: AccountToken;
   expiry?: string; // ISO8601
   status: LoginState;
@@ -17,6 +18,7 @@ export interface IAccountReduxState {
 const initialState: IAccountReduxState = {
   accountToken: undefined,
   deviceName: undefined,
+  devices: [],
   accountHistory: undefined,
   expiry: undefined,
   status: { type: 'none' },
@@ -83,6 +85,7 @@ export default function (
       };
     case 'ACCOUNT_SETUP_FINISHED':
       return {
+        ...state,
         status: { type: 'ok', method: 'existing_account' },
       };
     case 'UPDATE_ACCOUNT_TOKEN':
@@ -99,6 +102,11 @@ export default function (
       return {
         ...state,
         expiry: action.expiry,
+      };
+    case 'UPDATE_DEVICES':
+      return {
+        ...state,
+        devices: action.devices,
       };
   }
 

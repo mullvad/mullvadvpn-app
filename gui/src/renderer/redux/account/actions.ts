@@ -1,4 +1,4 @@
-import { AccountToken, DeviceConfig } from '../../../shared/daemon-rpc-types';
+import { AccountToken, DeviceConfig, IDevice } from '../../../shared/daemon-rpc-types';
 
 interface IStartLoginAction {
   type: 'START_LOGIN';
@@ -64,6 +64,11 @@ interface IUpdateAccountExpiryAction {
   expiry?: string;
 }
 
+interface IUpdateDevicesAction {
+  type: 'UPDATE_DEVICES';
+  devices: Array<IDevice>;
+}
+
 export type AccountAction =
   | IStartLoginAction
   | ILoggedInAction
@@ -77,7 +82,8 @@ export type AccountAction =
   | IAccountSetupFinished
   | IUpdateAccountTokenAction
   | IUpdateAccountHistoryAction
-  | IUpdateAccountExpiryAction;
+  | IUpdateAccountExpiryAction
+  | IUpdateDevicesAction;
 
 function startLogin(accountToken: AccountToken): IStartLoginAction {
   return {
@@ -167,6 +173,13 @@ function updateAccountExpiry(expiry?: string): IUpdateAccountExpiryAction {
   };
 }
 
+function updateDevices(devices: Array<IDevice>): IUpdateDevicesAction {
+  return {
+    type: 'UPDATE_DEVICES',
+    devices: devices.sort((a, b) => a.name.localeCompare(b.name)),
+  };
+}
+
 export default {
   startLogin,
   loggedIn,
@@ -181,4 +194,5 @@ export default {
   updateAccountToken,
   updateAccountHistory,
   updateAccountExpiry,
+  updateDevices,
 };
