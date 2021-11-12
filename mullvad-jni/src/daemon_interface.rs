@@ -1,14 +1,15 @@
 use futures::{channel::oneshot, executor::block_on};
-use mullvad_daemon::{DaemonCommand, DaemonCommandSender};
+use mullvad_daemon::{device, DaemonCommand, DaemonCommandSender};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
+    device::{Device, DeviceConfig},
     location::GeoIpLocation,
     relay_constraints::RelaySettingsUpdate,
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
     version::AppVersionInfo,
-    wireguard::{self, KeygenEvent},
+    wireguard,
 };
 
 #[derive(Debug, err_derive::Error)]
@@ -37,6 +38,12 @@ impl From<mullvad_daemon::Error> for Error {
     fn from(error: mullvad_daemon::Error) -> Error {
         match error {
             mullvad_daemon::Error::RestError(error) => Error::RpcError(error),
+            mullvad_daemon::Error::LoginError(device::Error::OtherRestError(error)) => {
+                Error::RpcError(error)
+            }
+            mullvad_daemon::Error::ListDevicesError(device::Error::OtherRestError(error)) => {
+                Error::RpcError(error)
+            }
             error => Error::OtherError(error),
         }
     }
@@ -77,16 +84,6 @@ impl DaemonInterface {
         self.send_command(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))?;
 
         block_on(rx).map(|_| ()).map_err(|_| Error::NoResponse)
-    }
-
-    pub fn generate_wireguard_key(&self) -> Result<KeygenEvent> {
-        let (tx, rx) = oneshot::channel();
-
-        self.send_command(DaemonCommand::GenerateWireguardKey(tx))?;
-
-        block_on(rx)
-            .map_err(|_| Error::NoResponse)?
-            .map_err(Error::from)
     }
 
     pub fn get_account_data(&self, account_token: String) -> Result<AccountData> {
@@ -195,23 +192,54 @@ impl DaemonInterface {
             .map_err(Error::from)
     }
 
-    pub fn verify_wireguard_key(&self) -> Result<bool> {
+    pub fn login_account(&self, account_token: String) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(DaemonCommand::VerifyWireguardKey(tx))?;
+        self.send_command(DaemonCommand::LoginAccount(tx, account_token))?;
+
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
             .map_err(Error::from)
     }
 
-    pub fn set_account(&self, account_token: Option<String>) -> Result<()> {
+    pub fn logout_account(&self) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(DaemonCommand::SetAccount(tx, account_token))?;
+        self.send_command(DaemonCommand::LogoutAccount(tx))?;
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .map_err(|_| Error::SettingsError)
+            .map_err(Error::from)
+    }
+
+    pub fn get_device(&self) -> Result<Option<DeviceConfig>> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::GetDevice(tx))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
+    }
+
+    pub fn list_devices(&self, account_token: String) -> Result<Vec<Device>> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::ListDevices(tx, account_token))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
+    }
+
+    pub fn remove_device(&self, account_token: String, device_id: String) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::RemoveDevice(tx, account_token, device_id))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
     }
 
     pub fn set_allow_lan(&self, allow_lan: bool) -> Result<()> {
