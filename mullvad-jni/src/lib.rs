@@ -19,7 +19,8 @@ use jnix::{
     FromJava, IntoJava, JnixEnv,
 };
 use mullvad_daemon::{
-    exception_logging, logging, runtime::new_runtime_builder, version, Daemon, DaemonCommandChannel,
+    device, exception_logging, logging, runtime::new_runtime_builder, version, Daemon,
+    DaemonCommandChannel,
 };
 use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::{
@@ -85,6 +86,36 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
                 }
                 daemon_interface::Error::RpcError(_) => GetAccountDataResult::RpcError,
                 _ => GetAccountDataResult::OtherError,
+            },
+        }
+    }
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum LoginResult {
+    Ok,
+    InvalidAccount,
+    MaxDevicesReached,
+    RpcError,
+    OtherError,
+}
+
+impl From<Result<(), daemon_interface::Error>> for LoginResult {
+    fn from(result: Result<(), daemon_interface::Error>) -> Self {
+        match result {
+            Ok(()) => LoginResult::Ok,
+            Err(error) => match error {
+                daemon_interface::Error::OtherError(mullvad_daemon::Error::LoginError(error)) => {
+                    match error {
+                        device::Error::InvalidAccount => LoginResult::InvalidAccount,
+                        device::Error::MaxDevicesReached => LoginResult::MaxDevicesReached,
+                        device::Error::OtherRestError(_) => LoginResult::RpcError,
+                        _ => LoginResult::OtherError,
+                    }
+                }
+                daemon_interface::Error::RpcError(_) => LoginResult::RpcError,
+                _ => LoginResult::OtherError,
             },
         }
     }
@@ -439,66 +470,6 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_disconn
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_generateWireguardKey<
-    'env,
->(
-    env: JNIEnv<'env>,
-    _: JObject<'_>,
-    daemon_interface_address: jlong,
-) -> JObject<'env> {
-    let env = JnixEnv::from(env);
-
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
-        match daemon_interface.generate_wireguard_key() {
-            Ok(keygen_event) => keygen_event.into_java(&env).forget(),
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to request to generate wireguard key")
-                );
-                JObject::null()
-            }
-        }
-    } else {
-        JObject::null()
-    }
-}
-
-#[no_mangle]
-#[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_verifyWireguardKey<
-    'env,
->(
-    env: JNIEnv<'env>,
-    _: JObject<'_>,
-    daemon_interface_address: jlong,
-) -> JObject<'env> {
-    let env = JnixEnv::from(env);
-
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
-        match daemon_interface.verify_wireguard_key() {
-            Ok(key_is_valid) => env
-                .new_object(
-                    &env.get_class("java/lang/Boolean"),
-                    "(Z)V",
-                    &[JValue::Bool(key_is_valid as jboolean)],
-                )
-                .expect("Failed to create Boolean Java object"),
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to verify wireguard key")
-                );
-                JObject::null()
-            }
-        }
-    } else {
-        JObject::null()
-    }
-}
-
-#[no_mangle]
-#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAccountHistory<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
@@ -768,19 +739,38 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_clearAc
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAccount(
-    env: JNIEnv<'_>,
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_loginAccount<'env>(
+    env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
     accountToken: JString<'_>,
-) {
+) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
     if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
-        let account = Option::from_java(&env, accountToken);
+        let account = String::from_java(&env, accountToken);
+        let result = daemon_interface.login_account(account);
 
-        if let Err(error) = daemon_interface.set_account(account) {
-            log::error!("{}", error.display_chain_with_msg("Failed to set account"));
+        if let Err(ref error) = &result {
+            log_request_error("login account", error);
+        }
+
+        LoginResult::from(result).into_java(&env).forget()
+    } else {
+        LoginResult::OtherError.into_java(&env).forget()
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_logoutAccount(
+    _: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+) {
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        if let Err(error) = daemon_interface.logout_account() {
+            log::error!("{}", error.display_chain_with_msg("Failed to log out"));
         }
     }
 }
