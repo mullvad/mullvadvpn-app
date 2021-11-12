@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
@@ -91,18 +91,13 @@ const StyledRemoveDeviceButton = styled.button({
 
 export default function TooManyDevices() {
   const history = useHistory();
-  const { listDevices, removeDevice, login, cancelLogin } = useAppContext();
+  const { fetchDevices, removeDevice, login, cancelLogin } = useAppContext();
   const accountToken = useSelector((state) => state.account.accountToken)!;
-  const [devices, setDevices] = useState<Array<IDevice>>();
-
-  const fetchDevices = useCallback(async () => {
-    setDevices(await listDevices(accountToken));
-  }, [listDevices, accountToken]);
+  const devices = useSelector((state) => state.account.devices);
 
   const onRemoveDevice = useCallback(
     async (deviceId: string) => {
       await removeDevice({ accountToken, deviceId });
-      await fetchDevices();
     },
     [removeDevice, accountToken],
   );
@@ -113,7 +108,7 @@ export default function TooManyDevices() {
     history.reset(RoutePath.login, transitions.pop);
   }, [history.reset, cancelLogin]);
 
-  useEffect(() => void fetchDevices(), []);
+  useEffect(() => void fetchDevices(accountToken), []);
 
   const iconSource = getIconSource(devices);
   const title = getTitle(devices);

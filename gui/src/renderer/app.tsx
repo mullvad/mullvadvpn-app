@@ -129,6 +129,10 @@ export default class AppRenderer {
       this.handleAccountChange(deviceConfig, oldDeviceConfig?.accountToken);
     });
 
+    IpcRendererEventChannel.account.listenDevices((devices) => {
+      this.reduxActions.account.updateDevices(devices);
+    });
+
     IpcRendererEventChannel.accountHistory.listen((newAccountHistory?: AccountToken) => {
       this.setAccountHistory(newAccountHistory);
     });
@@ -325,9 +329,11 @@ export default class AppRenderer {
     IpcRendererEventChannel.account.updateData();
   }
 
-  public listDevices(accountToken: AccountToken): Promise<Array<IDevice>> {
-    return IpcRendererEventChannel.account.listDevices(accountToken);
-  }
+  public fetchDevices = async (accountToken: AccountToken): Promise<Array<IDevice>> => {
+    const devices = await IpcRendererEventChannel.account.listDevices(accountToken);
+    this.reduxActions.account.updateDevices(devices);
+    return devices;
+  };
 
   public removeDevice(deviceRemoval: IDeviceRemoval): Promise<void> {
     return IpcRendererEventChannel.account.removeDevice(deviceRemoval);
