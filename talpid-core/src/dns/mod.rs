@@ -1,5 +1,7 @@
 #[cfg(target_os = "linux")]
 use crate::routing::RouteManagerHandle;
+#[cfg(target_os = "macos")]
+use std::collections::HashMap;
 use std::net::IpAddr;
 
 #[cfg(target_os = "macos")]
@@ -33,6 +35,9 @@ impl DnsMonitor {
     pub fn new(
         #[cfg(target_os = "linux")] handle: tokio::runtime::Handle,
         #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
+        #[cfg(target_os = "macos")] command_tx: std::sync::Weak<
+            futures::channel::mpsc::UnboundedSender<crate::tunnel_state_machine::TunnelCommand>,
+        >,
     ) -> Result<Self, Error> {
         Ok(DnsMonitor {
             inner: imp::DnsMonitor::new(
@@ -40,8 +45,17 @@ impl DnsMonitor {
                 handle,
                 #[cfg(target_os = "linux")]
                 route_manager,
+                #[cfg(target_os = "macos")]
+                command_tx,
             )?,
         })
+    }
+
+    /// Returns a map of interfaces and respective list of resolvers that don't contain our
+    /// changes.
+    #[cfg(target_os = "macos")]
+    pub fn get_system_config(&self) -> Result<HashMap<String, Vec<IpAddr>>, Error> {
+        self.inner.get_system_config()
     }
 
     /// Set DNS to the given servers. And start monitoring the system for changes.
@@ -75,7 +89,11 @@ trait DnsMonitorT: Sized {
     ) -> Result<Self, Self::Error>;
 
     #[cfg(not(target_os = "linux"))]
-    fn new() -> Result<Self, Self::Error>;
+    fn new(
+        #[cfg(target_os = "macos")] command_tx: std::sync::Weak<
+            futures::channel::mpsc::UnboundedSender<crate::tunnel_state_machine::TunnelCommand>,
+        >,
+    ) -> Result<Self, Self::Error>;
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Self::Error>;
 
