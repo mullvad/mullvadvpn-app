@@ -9,7 +9,6 @@ pub mod account_history;
 pub mod exception_logging;
 #[cfg(target_os = "macos")]
 pub mod exclusion_gid;
->>>>>>> 51cc8287d (Fix daemon code for GID exclusion)
 mod geoip;
 pub mod logging;
 #[cfg(not(target_os = "android"))]
@@ -671,6 +670,10 @@ where
             internal_event_tx.to_specialized_sender(),
             offline_state_tx,
             tunnel_state_machine_shutdown_tx,
+            #[cfg(target_os = "macos")]
+            exclusion_gid::get_exclusion_gid(),
+            #[cfg(target_os = "macos")]
+            true,
             #[cfg(target_os = "android")]
             android_context,
         )
