@@ -160,6 +160,8 @@ async fn reset_firewall() -> Result<(), Error> {
     let mut firewall = Firewall::new(FirewallArguments {
         initial_state: InitialFirewallState::None,
         allow_lan: true,
+        #[cfg(target_os = "macos")]
+        exclusion_gid: None,
     })
     .map_err(Error::FirewallError)?;
 
