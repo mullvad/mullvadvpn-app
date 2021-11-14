@@ -28,7 +28,6 @@ use super::connecting_state::TunnelCloseEvent;
 pub(crate) type TunnelEventsReceiver =
     Fuse<mpsc::UnboundedReceiver<(TunnelEvent, oneshot::Sender<()>)>>;
 
-
 pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,
     pub tunnel_events: TunnelEventsReceiver,
@@ -186,6 +185,17 @@ impl ConnectedState {
         use self::EventConsequence::*;
 
         match command {
+            Some(TunnelCommand::AddAllowedIps(_allowed_ips, done_tx)) => {
+                let _ = done_tx.send(());
+                SameState(self.into())
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
+                let _ = done_tx.send(shared_values.toggle_custom_resolver(enable));
+                SameState(self.into())
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::HostDnsConfig(_new_config)) => SameState(self.into()),
             Some(TunnelCommand::AllowLan(allow_lan)) => {
                 if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
                     self.disconnect(shared_values, AfterDisconnect::Block(error_cause))

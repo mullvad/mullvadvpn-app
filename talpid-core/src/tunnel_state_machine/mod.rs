@@ -31,9 +31,9 @@ use futures::{
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
 use std::{
-    collections::HashSet,
+    collections::{BTreeSet, HashMap, HashSet},
     io,
-    net::IpAddr,
+    net::{IpAddr, Ipv4Addr},
     path::PathBuf,
     sync::{mpsc as sync_mpsc, Arc},
 };
@@ -42,6 +42,7 @@ use talpid_types::{android::AndroidContext, ErrorExt};
 use talpid_types::{
     net::{Endpoint, TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
+    ErrorExt,
 };
 
 /// Errors that can happen when setting up or using the state machine.
@@ -68,6 +69,11 @@ pub enum Error {
     #[error(display = "Failed to initialize the route manager")]
     InitRouteManagerError(#[error(source)] crate::routing::Error),
 
+    /// Failed to initialize custom resolver
+    #[cfg(target_os = "macos")]
+    #[error(display = "Failed to initialize custom resolver")]
+    InitCustomResolver(#[error(source)] crate::resolver::Error),
+
     /// Failed to initialize tunnel state machine event loop executor
     #[error(display = "Failed to initialize tunnel state machine event loop executor")]
     ReactorError(#[error(source)] io::Error),
@@ -75,6 +81,10 @@ pub enum Error {
     /// Failed to send state change event to listener
     #[error(display = "Failed to send state change event to listener")]
     SendStateChange,
+
+    /// Failed to initialize custom resolver
+    #[error(display = "Failed to initialize custom resolver")]
+    CustomResolverError,
 }
 
 /// Settings used to initialize the tunnel state machine.
@@ -105,6 +115,8 @@ pub async fn spawn(
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     offline_state_listener: mpsc::UnboundedSender<bool>,
     shutdown_tx: oneshot::Sender<()>,
+    #[cfg(target_os = "macos")] exclusion_gid: Option<u32>,
+    #[cfg(target_os = "macos")] enable_resolver: bool,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
@@ -134,6 +146,10 @@ pub async fn spawn(
             log_dir,
             resource_dir,
             command_rx,
+            #[cfg(target_os = "macos")]
+            exclusion_gid,
+            #[cfg(target_os = "macos")]
+            enable_resolver,
             #[cfg(target_os = "android")]
             android_context,
         ));
@@ -189,6 +205,15 @@ pub enum TunnelCommand {
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<OsString>,
     ),
+    /// Sets IP addresses which should be allowed to pass through the firewall.
+    #[cfg(target_os = "macos")]
+    AddAllowedIps(BTreeSet<IpAddr>, oneshot::Sender<()>),
+    /// Toggles custom resolver
+    #[cfg(target_os = "macos")]
+    SetCustomResolver(bool, oneshot::Sender<Result<(), crate::resolver::Error>>),
+    /// Receive up-to-date system DNS config. It should never contain our changes to the DNS.
+    #[cfg(target_os = "macos")]
+    HostDnsConfig(HashMap<String, Vec<IpAddr>>),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
@@ -222,16 +247,21 @@ impl TunnelStateMachine {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
+        #[cfg(target_os = "macos")] exclusion_gid: Option<u32>,
+        #[cfg(target_os = "macos")] enable_resolver: bool,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(windows)]
         let split_tunnel = split_tunnel::SplitTunnel::new(runtime.clone(), command_tx.clone())
             .map_err(Error::InitSplitTunneling)?;
 
+        log::error!("AYY EXCLUSION GID IS {:?}", exclusion_gid);
         let args = FirewallArguments {
             initialize_blocked: settings.block_when_disconnected || !settings.reset_firewall,
             allow_lan: settings.allow_lan,
             allowed_endpoint: Some(settings.allowed_endpoint),
+            #[cfg(target_os = "macos")]
+            exclusion_gid,
         };
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
@@ -245,8 +275,13 @@ impl TunnelStateMachine {
             route_manager
                 .handle()
                 .map_err(Error::InitRouteManagerError)?,
+            #[cfg(target_os = "macos")]
+            command_tx.clone(),
         )
         .map_err(Error::InitDnsMonitorError)?;
+
+        let custom_resolver =
+            crate::resolver::start_resolver(command_tx.clone(), exclusion_gid).await?;
 
         let (offline_tx, mut offline_rx) = mpsc::unbounded();
         let initial_offline_state_tx = offline_state_tx.clone();
@@ -279,6 +314,7 @@ impl TunnelStateMachine {
             .set_paths_sync(&settings.exclude_paths)
             .map_err(Error::InitSplitTunneling)?;
 
+
         let mut shared_values = SharedTunnelStateValues {
             #[cfg(windows)]
             split_tunnel,
@@ -298,6 +334,10 @@ impl TunnelStateMachine {
             resource_dir,
             #[cfg(target_os = "linux")]
             connectivity_check_was_enabled: None,
+            #[cfg(target_os = "macos")]
+            custom_resolver,
+            #[cfg(target_os = "macos")]
+            enable_custom_resolver: enable_resolver,
         };
 
         let (initial_state, _) =
@@ -385,6 +425,13 @@ struct SharedTunnelStateValues {
     /// NetworkManager's connecitivity check state.
     #[cfg(target_os = "linux")]
     connectivity_check_was_enabled: Option<bool>,
+
+    /// Custom resolver handle
+    #[cfg(target_os = "macos")]
+    custom_resolver: crate::resolver::ResolverHandle,
+    /// Whether custom resolver is active and enabled
+    #[cfg(target_os = "macos")]
+    enable_custom_resolver: bool,
 }
 
 impl SharedTunnelStateValues {
@@ -407,6 +454,28 @@ impl SharedTunnelStateValues {
             }
         }
 
+        Ok(())
+    }
+
+    pub fn toggle_custom_resolver(
+        &mut self,
+        enable_resolver: bool,
+    ) -> Result<(), crate::resolver::Error> {
+        if enable_resolver {
+            self.runtime.block_on(self.custom_resolver.set_inactive())?;
+        } else {
+            self.runtime.block_on(self.custom_resolver.shutdown())?;
+        }
+        self.enable_custom_resolver = enable_resolver;
+        Ok(())
+    }
+
+    pub fn disable_custom_resolver(&mut self) -> Result<(), crate::resolver::Error> {
+        if self.enable_custom_resolver {
+            self.runtime.block_on(self.custom_resolver.set_inactive())?;
+        } else {
+            self.runtime.block_on(self.custom_resolver.shutdown())?;
+        }
         Ok(())
     }
 
@@ -482,6 +551,54 @@ impl SharedTunnelStateValues {
             log::error!("Failed to bypass socket {}", err);
         }
         let _ = tx.send(());
+    }
+
+    #[cfg(target_os = "macos")]
+    pub fn start_custom_resolver(
+        &mut self,
+    ) -> (
+        Option<crate::resolver::ResolverStateToggleResult>,
+        BTreeSet<IpAddr>,
+    ) {
+        if self.enable_custom_resolver {
+            // TODO: enable custom resolver
+            match self.dns_monitor.get_system_config() {
+                Ok(system_resolvers) => {
+                    match self
+                        .runtime
+                        .block_on(self.custom_resolver.set_active(system_resolvers))
+                    {
+                        Ok(result) => {
+                            if let Err(err) =
+                                self.dns_monitor.set("lo", &[Ipv4Addr::LOCALHOST.into()])
+                            {
+                                log::error!(
+                                    "{}",
+                                    err.display_chain_with_msg(
+                                        "Failed to configure system to use custom resolver"
+                                    )
+                                );
+                            }
+                            let allowed_resolvers = result.currently_used_resolvers.clone();
+                            (Some(result), allowed_resolvers)
+                        }
+                        Err(err) => {
+                            log::error!("Failed to get DNS {}", err);
+                            (None, BTreeSet::new())
+                        }
+                    }
+                }
+                Err(err) => {
+                    log::error!(
+                        "{}",
+                        err.display_chain_with_msg("Failed to obtain system DNS config")
+                    );
+                    (None, BTreeSet::new())
+                }
+            }
+        } else {
+            (None, BTreeSet::new())
+        }
     }
 }
 

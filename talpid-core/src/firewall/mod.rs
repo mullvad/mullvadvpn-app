@@ -2,15 +2,14 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(unix)]
 use lazy_static::lazy_static;
-use std::fmt;
-#[cfg(not(target_os = "android"))]
-use std::net::IpAddr;
+#[cfg(target_os = "macos")]
+use std::collections::BTreeSet;
 #[cfg(unix)]
 use std::net::{Ipv4Addr, Ipv6Addr};
 #[cfg(windows)]
 use std::path::PathBuf;
+use std::{fmt, net::IpAddr};
 use talpid_types::net::Endpoint;
-
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -82,7 +81,6 @@ const DHCPV6_SERVER_PORT: u16 = 547;
 #[cfg(all(unix, not(target_os = "android")))]
 const DHCPV6_CLIENT_PORT: u16 = 546;
 
-
 #[cfg(all(unix, not(target_os = "android")))]
 /// Returns whether an address belongs to a private subnet.
 pub fn is_local_address(address: &IpAddr) -> bool {
@@ -138,6 +136,12 @@ pub enum FirewallPolicy {
         allow_lan: bool,
         /// Host that should be reachable while in the blocked state.
         allowed_endpoint: Endpoint,
+        /// A list of IPs that can be reached outside the tunnel.
+        #[cfg(target_os = "macos")]
+        allowed_ips: BTreeSet<IpAddr>,
+        /// A list of resolver IPs that should be reachable on port 53.
+        #[cfg(target_os = "macos")]
+        allowed_resolvers: BTreeSet<IpAddr>,
     },
 }
 
@@ -198,6 +202,7 @@ impl fmt::Display for FirewallPolicy {
             FirewallPolicy::Blocked {
                 allow_lan,
                 allowed_endpoint,
+                ..
             } => write!(
                 f,
                 "Blocked. {} LAN. Allowing endpoint {}",
@@ -222,6 +227,10 @@ pub struct FirewallArguments {
     pub allow_lan: bool,
     /// This argument is required for the blocked state to configure the firewall correctly.
     pub allowed_endpoint: Option<Endpoint>,
+    #[cfg(target_os = "macos")]
+    /// This argument is required on macOS to know which group's traffic should be excluded, if at
+    /// all.
+    pub exclusion_gid: Option<u32>,
 }
 
 impl Firewall {
