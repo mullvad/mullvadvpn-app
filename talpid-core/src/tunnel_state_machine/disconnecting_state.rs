@@ -28,6 +28,18 @@ impl DisconnectingState {
 
         self.after_disconnect = match after_disconnect {
             AfterDisconnect::Nothing => match command {
+                #[cfg(target_os = "macos")]
+                Some(TunnelCommand::AddAllowedIps(_, done_tx)) => {
+                    let _ = done_tx.send(());
+                    AfterDisconnect::Nothing
+                }
+                #[cfg(target_os = "macos")]
+                Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
+                    let _ = done_tx.send(shared_values.toggle_custom_resolver(enable));
+                    AfterDisconnect::Nothing
+                }
+                #[cfg(target_os = "macos")]
+                Some(TunnelCommand::HostDnsConfig(_new_config)) => AfterDisconnect::Nothing,
                 Some(TunnelCommand::AllowLan(allow_lan)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Nothing
@@ -66,6 +78,20 @@ impl DisconnectingState {
                 }
             },
             AfterDisconnect::Block(reason) => match command {
+                #[cfg(target_os = "macos")]
+                Some(TunnelCommand::AddAllowedIps(_, done_tx)) => {
+                    let _ = done_tx.send(());
+                    AfterDisconnect::Block(reason)
+                }
+
+                #[cfg(target_os = "macos")]
+                Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
+                    let _ = done_tx.send(shared_values.toggle_custom_resolver(enable));
+                    AfterDisconnect::Block(reason)
+                }
+                #[cfg(target_os = "macos")]
+                Some(TunnelCommand::HostDnsConfig(_new_config)) => AfterDisconnect::Block(reason),
+
                 Some(TunnelCommand::AllowLan(allow_lan)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Block(reason)
@@ -111,6 +137,19 @@ impl DisconnectingState {
             AfterDisconnect::Reconnect(retry_attempt) => match command {
                 Some(TunnelCommand::AllowLan(allow_lan)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
+                    AfterDisconnect::Reconnect(retry_attempt)
+                }
+                Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
+                    let _ = done_tx.send(shared_values.toggle_custom_resolver(enable));
+                    AfterDisconnect::Reconnect(retry_attempt)
+                }
+                #[cfg(target_os = "macos")]
+                Some(TunnelCommand::HostDnsConfig(_new_config)) => {
+                    AfterDisconnect::Reconnect(retry_attempt)
+                }
+
+                Some(TunnelCommand::AddAllowedIps(_allowed_ips, done_tx)) => {
+                    let _ = done_tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {

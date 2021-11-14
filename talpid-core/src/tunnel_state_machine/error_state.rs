@@ -2,8 +2,12 @@ use super::{
     ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use crate::firewall::FirewallPolicy;
+use crate::{firewall::FirewallPolicy, resolver};
 use futures::StreamExt;
+use std::{
+    collections::BTreeSet,
+    net::{IpAddr, Ipv4Addr},
+};
 use talpid_types::{
     tunnel::{self as talpid_tunnel, ErrorStateCause, FirewallPolicyError},
     ErrorExt,
@@ -11,17 +15,39 @@ use talpid_types::{
 
 /// No tunnel is running and all network connections are blocked.
 pub struct ErrorState {
+    #[cfg(target_os = "macos")]
+    allowed_ips: BTreeSet<IpAddr>,
+    #[cfg(target_os = "macos")]
+    allowed_resolvers: BTreeSet<IpAddr>,
     block_reason: ErrorStateCause,
 }
 
 impl ErrorState {
-    /// Returns true if firewall policy was applied successfully
+    fn set_firewall(
+        &self,
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> Result<(), FirewallPolicyError> {
+        Self::set_firewall_policy(
+            shared_values,
+            #[cfg(target_os = "macos")]
+            self.allowed_ips.clone(),
+            #[cfg(target_os = "macos")]
+            self.allowed_resolvers.clone(),
+        )
+    }
+
     fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
+        allowed_ips: BTreeSet<IpAddr>,
+        allowed_resolvers: BTreeSet<IpAddr>,
     ) -> Result<(), FirewallPolicyError> {
         let policy = FirewallPolicy::Blocked {
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
+            #[cfg(target_os = "macos")]
+            allowed_ips,
+            #[cfg(target_os = "macos")]
+            allowed_resolvers,
         };
 
         #[cfg(target_os = "linux")]
@@ -61,6 +87,12 @@ impl ErrorState {
             }
         }
     }
+
+    fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
+        if let Err(error) = shared_values.dns_monitor.reset() {
+            log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
+        }
+    }
 }
 
 impl TunnelState for ErrorState {
@@ -80,8 +112,22 @@ impl TunnelState for ErrorState {
             );
         }
 
+        #[cfg(target_os = "macos")]
+        let (resolver_unblocker, allowed_resolvers) = shared_values.start_custom_resolver();
+
         #[cfg(not(target_os = "android"))]
-        let block_failure = Self::set_firewall_policy(shared_values).err();
+        let block_failure = Self::set_firewall_policy(
+            shared_values,
+            #[cfg(target_os = "macos")]
+            BTreeSet::new(),
+            #[cfg(target_os = "macos")]
+            allowed_resolvers.clone(),
+        )
+        .err();
+        #[cfg(target_os = "macos")]
+        if let Some(resolver_result) = resolver_unblocker {
+            resolver_result.unblock();
+        }
         #[cfg(target_os = "android")]
         let block_failure = if !Self::create_blocking_tun(shared_values) {
             Some(FirewallPolicyError::Generic)
@@ -91,6 +137,10 @@ impl TunnelState for ErrorState {
         (
             TunnelStateWrapper::from(ErrorState {
                 block_reason: block_reason.clone(),
+                #[cfg(target_os = "macos")]
+                allowed_ips: BTreeSet::new(),
+                #[cfg(target_os = "macos")]
+                allowed_resolvers,
             }),
             TunnelStateTransition::Error(talpid_tunnel::ErrorState::new(
                 block_reason,
@@ -100,7 +150,7 @@ impl TunnelState for ErrorState {
     }
 
     fn handle_event(
-        self,
+        mut self,
         runtime: &tokio::runtime::Handle,
         commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
@@ -108,17 +158,116 @@ impl TunnelState for ErrorState {
         use self::EventConsequence::*;
 
         match runtime.block_on(commands.next()) {
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::AddAllowedIps(allowed_ips, done_tx)) => {
+                let new_addresses = allowed_ips.iter().any(|ip| self.allowed_ips.insert(*ip));
+                if new_addresses {
+                    if let Err(err) = self.set_firewall(shared_values) {
+                        return NewState(Self::enter(
+                            shared_values,
+                            ErrorStateCause::SetFirewallPolicyError(err),
+                        ));
+                    }
+                }
+                let _ = done_tx.send(());
+                SameState(self.into())
+            }
+
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
+                if let Err(err) = shared_values.toggle_custom_resolver(enable) {
+                    let _ = done_tx.send(Err(err));
+                    return SameState(self.into());
+                };
+                if enable {
+                    // TODO: enable custom resolver
+                    match shared_values.dns_monitor.get_system_config() {
+                        Ok(system_resolvers) => {
+                            match shared_values.runtime.block_on(
+                                shared_values.custom_resolver.set_active(system_resolvers),
+                            ) {
+                                Ok(result) => {
+                                    self.allowed_resolvers =
+                                        result.currently_used_resolvers.clone();
+                                    let _ = self.set_firewall(shared_values);
+                                    result.unblock();
+                                    if let Err(err) = shared_values
+                                        .dns_monitor
+                                        .set("lo0", &[Ipv4Addr::LOCALHOST.into()])
+                                    {
+                                        log::error!("failed to set custom DNS servers: {}", err);
+                                    }
+                                    if let Err(err) = shared_values
+                                        .dns_monitor
+                                        .set("lo", &[Ipv4Addr::LOCALHOST.into()])
+                                    {
+                                        log::error!(
+                                            "{}",
+                                            err.display_chain_with_msg(
+                                                "Failed to configure system to use custom resolver"
+                                            )
+                                        );
+                                        return NewState(ErrorState::enter(
+                                            shared_values,
+                                            ErrorStateCause::SetDnsError,
+                                        ));
+                                    }
+                                }
+                                Err(err) => {
+                                    let _ = done_tx.send(Err(err));
+                                }
+                            }
+                        }
+                        Err(err) => {
+                            log::error!(
+                                "{}",
+                                err.display_chain_with_msg("Failed to obtain system DNS config")
+                            );
+
+                            let _ = done_tx.send(Err(resolver::Error::NoSystemResolvers));
+                        }
+                    }
+                }
+                SameState(self.into())
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::HostDnsConfig(config)) => {
+                if shared_values.enable_custom_resolver {
+                    match shared_values
+                        .runtime
+                        .block_on(shared_values.custom_resolver.set_active(config))
+                    {
+                        Ok(toggle_result) => {
+                            self.allowed_resolvers = toggle_result.currently_used_resolvers.clone();
+                            let _ = self.set_firewall(shared_values);
+                            toggle_result.unblock();
+                        }
+
+                        Err(err) => {
+                            log::error!(
+                                "failed to set apply new DNS config to custom resolver: {}",
+                                err
+                            );
+                            return NewState(Self::enter(
+                                shared_values,
+                                ErrorStateCause::CustomResolverError,
+                            ));
+                        }
+                    }
+                }
+                SameState(self.into())
+            }
             Some(TunnelCommand::AllowLan(allow_lan)) => {
                 if let Err(error_state_cause) = shared_values.set_allow_lan(allow_lan) {
                     NewState(Self::enter(shared_values, error_state_cause))
                 } else {
-                    let _ = Self::set_firewall_policy(shared_values);
+                    let _ = self.set_firewall(shared_values);
                     SameState(self.into())
                 }
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 if shared_values.set_allowed_endpoint(endpoint) {
-                    let _ = Self::set_firewall_policy(shared_values);
+                    let _ = self.set_firewall(shared_values);
 
                     #[cfg(target_os = "android")]
                     if !Self::create_blocking_tun(shared_values) {
@@ -147,15 +296,28 @@ impl TunnelState for ErrorState {
             Some(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
                 if !is_offline && self.block_reason == ErrorStateCause::IsOffline {
+                    Self::reset_dns(shared_values);
                     NewState(ConnectingState::enter(shared_values, 0))
                 } else {
                     SameState(self.into())
                 }
             }
-            Some(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
+            Some(TunnelCommand::Connect) => {
+                if let Err(err) = shared_values.disable_custom_resolver() {
+                    log::error!("Failed to disable custom resolver: {}", err);
+                }
+                Self::reset_dns(shared_values);
+                NewState(ConnectingState::enter(shared_values, 0))
+            }
             Some(TunnelCommand::Disconnect) | None => {
                 #[cfg(target_os = "linux")]
                 shared_values.reset_connectivity_check();
+                if !shared_values.block_when_disconnected {
+                    if let Err(err) = shared_values.disable_custom_resolver() {
+                        log::error!("Failed to disable custom resolver: {}", err);
+                    }
+                }
+                Self::reset_dns(shared_values);
                 NewState(DisconnectedState::enter(shared_values, true))
             }
             Some(TunnelCommand::Block(reason)) => {
