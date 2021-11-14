@@ -149,6 +149,10 @@ impl From<mullvad_types::states::TunnelState> for TunnelState {
                             talpid_tunnel::ErrorStateCause::SplitTunnelError => {
                                 i32::from(Cause::SplitTunnelError)
                             }
+                            #[cfg(target_os = "macos")]
+                            talpid_tunnel::ErrorStateCause::CustomResolverError => {
+                                i32::from(Cause::CustomResolverError)
+                            }
                         },
                         blocking_error: error_state.block_failure().map(map_firewall_error),
                         auth_fail_reason: if let talpid_tunnel::ErrorStateCause::AuthFailed(

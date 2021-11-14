@@ -1,9 +1,8 @@
-/// name of the group that should be excluded
-const EXCLUSION_GROUP: &[u8] = b"mullvad-exclusion\0";
+use std::ffi::CStr;
 
 /// Returns the GID of `mullvad-exclusion` group if it exists.
-pub fn get_exclusion_gid() -> Option<u32> {
-    let group = unsafe { libc::getgrnam(EXCLUSION_GROUP.as_ptr() as *const _) };
+pub fn get_group_id(group_name: &CStr) -> Option<u32> {
+    let group = unsafe { libc::getgrnam(group_name.as_ptr() as *const _) };
     if group.is_null() {
         return None;
     }
