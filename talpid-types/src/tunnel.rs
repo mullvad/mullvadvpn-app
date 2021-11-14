@@ -106,6 +106,9 @@ pub enum ErrorStateCause {
     /// Error reported by split tunnel module.
     #[cfg(target_os = "windows")]
     SplitTunnelError,
+    /// Failed to set set custom resolver
+    #[cfg(target_os = "macos")]
+    CustomResolverError,
 }
 
 /// Errors that can occur when generating tunnel parameters.
@@ -198,6 +201,8 @@ impl fmt::Display for ErrorStateCause {
             VpnPermissionDenied => "The Android VPN permission was denied when creating the tunnel",
             #[cfg(target_os = "windows")]
             SplitTunnelError => "The split tunneling module reported an error",
+            #[cfg(target_os = "macos")]
+            CustomResolverError => "Failed to set up custom resolver",
         };
 
         write!(f, "{}", description)
