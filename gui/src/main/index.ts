@@ -36,6 +36,7 @@ import {
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
+  IDeviceEvent,
 } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
@@ -643,7 +644,7 @@ class ApplicationMain {
 
     // fetch device
     try {
-      this.setDeviceConfig(await this.daemonRpc.getDevice());
+      this.setDeviceConfig({ deviceConfig: await this.daemonRpc.getDevice() });
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch device: ${error.message}`);
@@ -779,8 +780,8 @@ class ApplicationMain {
           );
         } else if ('appVersionInfo' in daemonEvent) {
           this.setLatestVersion(daemonEvent.appVersionInfo);
-        } else if ('deviceConfig' in daemonEvent) {
-          this.setDeviceConfig(daemonEvent.deviceConfig);
+        } else if ('device' in daemonEvent) {
+          this.setDeviceConfig(daemonEvent.device);
         } else if ('deviceRemoval' in daemonEvent) {
           if (this.windowController) {
             IpcMainEventChannel.account.notifyDevices(
@@ -1112,20 +1113,20 @@ class ApplicationMain {
     }
   }
 
-  private setDeviceConfig(deviceConfig: DeviceConfig) {
+  private setDeviceConfig(deviceEvent: IDeviceEvent) {
     const oldDeviceConfig = this.deviceConfig;
-    this.deviceConfig = deviceConfig;
+    this.deviceConfig = deviceEvent.deviceConfig;
 
     // make sure to invalidate the account data cache when account tokens change
     this.updateAccountDataOnAccountChange(
       oldDeviceConfig?.accountToken,
-      deviceConfig?.accountToken,
+      deviceEvent.deviceConfig?.accountToken,
     );
 
     void this.updateAccountHistory();
 
     if (this.windowController) {
-      IpcMainEventChannel.account.notifyDevice(this.windowController.webContents, deviceConfig);
+      IpcMainEventChannel.account.notifyDevice(this.windowController.webContents, deviceEvent);
     }
   }
 

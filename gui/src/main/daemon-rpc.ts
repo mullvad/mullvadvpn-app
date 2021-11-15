@@ -49,6 +49,7 @@ import {
   DeviceConfig,
   IDevice,
   IDeviceRemoval,
+  IDeviceEvent,
 } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
 
@@ -1152,7 +1153,7 @@ function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
 
   const deviceConfig = data.getDevice();
   if (deviceConfig !== undefined) {
-    return { deviceConfig: convertFromDeviceEvent(deviceConfig) };
+    return { device: convertFromDeviceEvent(deviceConfig) };
   }
 
   const deviceRemoval = data.getRemoveDevice();
@@ -1367,8 +1368,11 @@ function convertToTransportProtocol(protocol: RelayProtocol): grpcTypes.Transpor
   }
 }
 
-function convertFromDeviceEvent(deviceEvent: grpcTypes.DeviceEvent): DeviceConfig {
-  return convertFromDeviceConfig(deviceEvent.getDevice());
+function convertFromDeviceEvent(deviceEvent: grpcTypes.DeviceEvent): IDeviceEvent {
+  return {
+    deviceConfig: convertFromDeviceConfig(deviceEvent.getDevice()),
+    remote: deviceEvent.getRemote(),
+  };
 }
 
 function convertFromDeviceConfig(deviceConfig?: grpcTypes.DeviceConfig): DeviceConfig {

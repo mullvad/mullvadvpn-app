@@ -42,6 +42,7 @@ import {
   RelaySettingsUpdate,
   TunnelState,
   VoucherResponse,
+  IDeviceEvent,
 } from '../shared/daemon-rpc-types';
 import { LogLevel } from '../shared/logging-types';
 import IpcOutput from './lib/logging';
@@ -124,9 +125,9 @@ export default class AppRenderer {
       this.setAccountExpiry(newAccountData?.expiry);
     });
 
-    IpcRendererEventChannel.account.listenDevice((deviceConfig: DeviceConfig) => {
+    IpcRendererEventChannel.account.listenDevice((deviceEvent) => {
       const oldDeviceConfig = this.deviceConfig;
-      this.handleAccountChange(deviceConfig, oldDeviceConfig?.accountToken);
+      this.handleAccountChange(deviceEvent, oldDeviceConfig?.accountToken);
     });
 
     IpcRendererEventChannel.account.listenDevices((devices) => {
@@ -200,7 +201,7 @@ export default class AppRenderer {
 
     this.setAccountExpiry(initialState.accountData?.expiry);
     this.setSettings(initialState.settings);
-    this.handleAccountChange(initialState.deviceConfig, undefined);
+    this.handleAccountChange({ deviceConfig: initialState.deviceConfig }, undefined);
     this.setAccountHistory(initialState.accountHistory);
     this.setTunnelState(initialState.tunnelState);
     this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
@@ -235,10 +236,7 @@ export default class AppRenderer {
 
     void this.updateLocation();
 
-    const navigationBase = this.getNavigationBase(
-      initialState.isConnected,
-      initialState.deviceConfig?.accountToken,
-    );
+    const navigationBase = this.getNavigationBase();
     this.history = new History(navigationBase);
   }
 
@@ -304,6 +302,13 @@ export default class AppRenderer {
       log.info('Failed to logout: ', error.message);
     }
   }
+
+  public leaveRevokedDevice = async () => {
+    const reduxAccount = this.reduxActions.account;
+    reduxAccount.loggedOut();
+    this.resetNavigation();
+    await this.disconnectTunnel();
+  };
 
   public async createNewAccount() {
     log.info('Creating account');
@@ -645,13 +650,10 @@ export default class AppRenderer {
   private resetNavigation() {
     if (this.history) {
       const pathname = this.history.location.pathname as RoutePath;
-      const nextPath = this.getNavigationBase(
-        this.connectedToDaemon,
-        this.deviceConfig?.accountToken,
-      ) as RoutePath;
+      const nextPath = this.getNavigationBase() as RoutePath;
 
-      // First level contains the possible next locations and the second level contains the possible
-      // current locations.
+      // First level contains the possible next locations and the second level contains the
+      // possible current locations.
       const navigationTransitions: Partial<
         Record<RoutePath, Partial<Record<RoutePath | '*', ITransitionSpecification>>>
       > = {
@@ -679,9 +681,11 @@ export default class AppRenderer {
     }
   }
 
-  private getNavigationBase(connectedToDaemon: boolean, accountToken?: string): RoutePath {
-    if (connectedToDaemon) {
-      return accountToken ? RoutePath.main : RoutePath.login;
+  private getNavigationBase(): RoutePath {
+    if (this.connectedToDaemon) {
+      const loginState = this.reduxStore.getState().account.status;
+      const deviceRevoked = loginState.type === 'none' && loginState.deviceRevoked;
+      return this.deviceConfig?.accountToken || deviceRevoked ? RoutePath.main : RoutePath.login;
     } else {
       return RoutePath.launch;
     }
@@ -770,36 +774,31 @@ export default class AppRenderer {
     }
   }
 
-  private handleAccountChange(newDeviceConfig: DeviceConfig, oldAccount?: string) {
+  private handleAccountChange(newDeviceEvent: IDeviceEvent, oldAccount?: string) {
     const reduxAccount = this.reduxActions.account;
 
-    this.deviceConfig = newDeviceConfig;
-    const newAccount = newDeviceConfig?.accountToken;
+    this.deviceConfig = newDeviceEvent.deviceConfig;
+    const newAccount = newDeviceEvent.deviceConfig?.accountToken;
+    const newDevice = newDeviceEvent.deviceConfig?.device;
 
     if (oldAccount && !newAccount) {
       this.loginScheduler.cancel();
-      reduxAccount.loggedOut();
+      if (newDeviceEvent.remote) {
+        reduxAccount.deviceRevoked();
+      } else {
+        reduxAccount.loggedOut();
+      }
 
       this.resetNavigation();
-    } else if (
-      newDeviceConfig?.accountToken !== undefined &&
-      newDeviceConfig?.device !== undefined &&
-      oldAccount !== newAccount
-    ) {
+    } else if (newAccount !== undefined && newDevice !== undefined && oldAccount !== newAccount) {
       switch (this.loginState) {
         case 'none':
         case 'logging in':
-          reduxAccount.loggedIn({
-            accountToken: newDeviceConfig.accountToken,
-            device: newDeviceConfig.device,
-          });
+          reduxAccount.loggedIn({ accountToken: newAccount, device: newDevice });
           break;
         case 'creating account':
           reduxAccount.accountCreated(
-            {
-              accountToken: newDeviceConfig.accountToken,
-              device: newDeviceConfig.device,
-            },
+            { accountToken: newAccount, device: newDevice },
             new Date().toISOString(),
           );
           break;

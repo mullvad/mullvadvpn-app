@@ -105,7 +105,7 @@ export type DaemonEvent =
   | { settings: ISettings }
   | { relayList: IRelayList }
   | { appVersionInfo: IAppVersionInfo }
-  | { deviceConfig: DeviceConfig }
+  | { device: IDeviceEvent }
   | { deviceRemoval: Array<IDevice> };
 
 export interface ITunnelStateRelayInfo {
@@ -320,6 +320,11 @@ export interface IAppVersionInfo {
   supported: boolean;
   suggestedUpgrade?: string;
   suggestedIsBeta?: boolean;
+}
+
+export interface IDeviceEvent {
+  deviceConfig: DeviceConfig;
+  remote?: boolean;
 }
 
 export type DeviceConfig =

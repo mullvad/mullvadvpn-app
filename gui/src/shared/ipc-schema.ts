@@ -16,6 +16,7 @@ import {
   RelaySettingsUpdate,
   TunnelState,
   VoucherResponse,
+  IDeviceEvent,
 } from './daemon-rpc-types';
 import { IGuiSettingsState } from './gui-settings-state';
 import { LogLevel } from './logging-types';
@@ -167,7 +168,7 @@ export const ipcSchema = {
   },
   account: {
     '': notifyRenderer<IAccountData | undefined>(),
-    device: notifyRenderer<DeviceConfig>(),
+    device: notifyRenderer<IDeviceEvent>(),
     devices: notifyRenderer<Array<IDevice>>(),
     create: invoke<void, string>(),
     login: invoke<AccountToken, void>(),
