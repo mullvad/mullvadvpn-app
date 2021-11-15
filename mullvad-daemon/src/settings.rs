@@ -238,6 +238,18 @@ impl SettingsPersister {
         self.update(should_save).await
     }
 
+    #[cfg(target_os = "macos")]
+    pub async fn set_custom_resolver(
+        &mut self,
+        enable_custom_resolver: bool,
+    ) -> Result<bool, Error> {
+        let should_save = Self::update_field(
+            &mut self.settings.enable_custom_resolver,
+            enable_custom_resolver,
+        );
+        self.update(should_save).await
+    }
+
     pub async fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<bool, Error> {
         let should_save =
             Self::update_field(&mut self.settings.tunnel_options.wireguard.options.mtu, mtu);

@@ -79,6 +79,9 @@ pub struct Settings {
     pub tunnel_options: TunnelOptions,
     /// Whether to notify users of beta updates.
     pub show_beta_releases: bool,
+    #[cfg(target_os = "macos")]
+    /// Enable custom resolver
+    pub enable_custom_resolver: bool,
     /// Split tunneling settings
     #[cfg(windows)]
     pub split_tunnel: SplitTunnelSettings,
@@ -112,6 +115,8 @@ impl Default for Settings {
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
             show_beta_releases: false,
+            #[cfg(target_os = "macos")]
+            enable_custom_resolver: false,
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,

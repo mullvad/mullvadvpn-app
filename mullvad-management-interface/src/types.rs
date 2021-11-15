@@ -390,6 +390,11 @@ impl From<&mullvad_types::settings::Settings> for Settings {
         #[cfg(not(windows))]
         let split_tunnel = None;
 
+        #[cfg(not(target_os = "macos"))]
+        let enable_custom_resolver = false;
+        #[cfg(target_os = "macos")]
+        let enable_custom_resolver = settings.enable_custom_resolver;
+
         Self {
             account_token: settings.get_account_token().unwrap_or_default(),
             relay_settings: Some(RelaySettings::from(settings.get_relay_settings())),
@@ -401,6 +406,7 @@ impl From<&mullvad_types::settings::Settings> for Settings {
             tunnel_options: Some(TunnelOptions::from(&settings.tunnel_options)),
             show_beta_releases: settings.show_beta_releases,
             split_tunnel,
+            enable_custom_resolver,
         }
     }
 }
