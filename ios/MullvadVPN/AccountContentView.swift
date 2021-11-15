@@ -31,6 +31,7 @@ class AccountContentView: UIView {
     let logoutButton: AppButton = {
         let button = AppButton(style: .danger)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.accessibilityIdentifier = "LogoutButton"
         button.setTitle(NSLocalizedString(
             "LOGOUT_BUTTON_TITLE",
             tableName: "Account",

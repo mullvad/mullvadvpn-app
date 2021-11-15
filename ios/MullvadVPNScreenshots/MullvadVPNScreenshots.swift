@@ -51,14 +51,14 @@ class MullvadVPNScreenshots: XCTestCase {
             textField.typeText("\n")
         }
 
-        // Select Australia, Melbourne in Select location controller
+        // Select Sweden, Gothenburg in Select location controller
         if case .phone = UIDevice.current.userInterfaceIdiom {
             _ = app.buttons["SelectLocationButton"].waitForExistence(timeout: 10)
             app.buttons["SelectLocationButton"].tap()
         }
 
-        let countryCell = app.cells["au"]
-        let cityCell = app.cells["au-mel"]
+        let countryCell = app.cells["se"]
+        let cityCell = app.cells["se-got"]
 
         _ = countryCell.waitForExistence(timeout: 2)
 
