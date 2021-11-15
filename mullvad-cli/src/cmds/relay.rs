@@ -139,7 +139,7 @@ impl Command for Relay {
                             .subcommand(
                                 clap::SubCommand::with_name("openvpn")
                                     .about("Set OpenVPN-specific constraints")
-                                    .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+                                    .setting(clap::AppSettings::ArgRequiredElseHelp)
                                     .arg(
                                         clap::Arg::with_name("port")
                                             .help("Port to use. Either 'any' or a specific port")
@@ -157,7 +157,7 @@ impl Command for Relay {
                             .subcommand(
                                 clap::SubCommand::with_name("wireguard")
                                     .about("Set WireGuard-specific constraints")
-                                    .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+                                    .setting(clap::AppSettings::ArgRequiredElseHelp)
                                     .arg(
                                         clap::Arg::with_name("port")
                                             .help("Port to use. Either 'any' or a specific port")
