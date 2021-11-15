@@ -12,43 +12,55 @@ impl Command for Dns {
     }
 
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
+        let set_subcommand = clap::SubCommand::with_name("set")
+            .about("Set DNS servers to use")
+            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+            .subcommand(
+                clap::SubCommand::with_name("default")
+                    .about("Use default DNS servers")
+                    .arg(
+                        clap::Arg::with_name("block ads")
+                            .long("block-ads")
+                            .takes_value(false)
+                            .help("Block domain names used for ads"),
+                    )
+                    .arg(
+                        clap::Arg::with_name("block trackers")
+                            .long("block-trackers")
+                            .takes_value(false)
+                            .help("Block domain names used for tracking"),
+                    ),
+            )
+            .subcommand(
+                clap::SubCommand::with_name("custom")
+                    .about("Set a list of custom DNS servers")
+                    .arg(
+                        clap::Arg::with_name("servers")
+                            .multiple(true)
+                            .help("One or more IP addresses pointing to DNS resolvers.")
+                            .required(true),
+                    ),
+            );
+        #[cfg(target_os = "macos")]
+        let set_subcommand = set_subcommand.subcommand(
+            clap::SubCommand::with_name("custom-resolver")
+                .about("Toggle custom resolver")
+                .arg(
+                    clap::Arg::with_name("state")
+                        .help("Whether to turn on custom resolver to aid macOS's captive portal check")
+                        .takes_value(true)
+                        .possible_values(&["on", "off"])
+                        .required(true),
+                ),
+        );
+
         clap::SubCommand::with_name(self.name())
             .about("Configure DNS servers to use when connected")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
                 clap::SubCommand::with_name("get").about("Display the current DNS settings"),
             )
-            .subcommand(
-                clap::SubCommand::with_name("set")
-                    .about("Set DNS servers to use")
-                    .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-                    .subcommand(
-                        clap::SubCommand::with_name("default")
-                            .about("Use default DNS servers")
-                            .arg(
-                                clap::Arg::with_name("block ads")
-                                    .long("block-ads")
-                                    .takes_value(false)
-                                    .help("Block domain names used for ads"),
-                            )
-                            .arg(
-                                clap::Arg::with_name("block trackers")
-                                    .long("block-trackers")
-                                    .takes_value(false)
-                                    .help("Block domain names used for tracking"),
-                            ),
-                    )
-                    .subcommand(
-                        clap::SubCommand::with_name("custom")
-                            .about("Set a list of custom DNS servers")
-                            .arg(
-                                clap::Arg::with_name("servers")
-                                    .multiple(true)
-                                    .help("One or more IP addresses pointing to DNS resolvers.")
-                                    .required(true),
-                            ),
-                    ),
-            )
+            .subcommand(set_subcommand)
     }
 
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
@@ -63,6 +75,11 @@ impl Command for Dns {
                 }
                 ("custom", Some(matches)) => {
                     self.set_custom(matches.values_of_lossy("servers")).await
+                }
+                #[cfg(target_os = "macos")]
+                ("custom-resolver", Some(matches)) => {
+                    self.set_custom_resolver(matches.value_of("state") == Some("on"))
+                        .await
                 }
                 _ => unreachable!("No custom-dns server command given"),
             },
@@ -104,12 +121,26 @@ impl Dns {
         Ok(())
     }
 
+    #[cfg(target_os = "macos")]
+    async fn set_custom_resolver(&self, enable: bool) -> Result<()> {
+        let mut rpc = new_rpc_client().await?;
+        let result = rpc.set_custom_resolver(enable).await;
+        let action = if enable { "enabled" } else { "disabled" };
+        match result {
+            Ok(_) => {
+                println!("Successfully {} custom resolver", action);
+            }
+            Err(err) => {
+                println!("Failed to {} custom resolver: {}", action, err);
+            }
+        }
+        Ok(())
+    }
+
     async fn get(&self) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        let options: DnsOptions = rpc
-            .get_settings(())
-            .await?
-            .into_inner()
+        let settings = rpc.get_settings(()).await?.into_inner();
+        let options: DnsOptions = settings
             .tunnel_options
             .unwrap()
             .dns_options
@@ -129,6 +160,11 @@ impl Dns {
                     println!("{}", server);
                 }
             }
+        }
+
+        #[cfg(target_os = "macos")]
+        {
+            println!("Custom resolver: {}", settings.enable_custom_resolver);
         }
 
         Ok(())
