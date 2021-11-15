@@ -3,7 +3,7 @@ import { ReduxAction } from '../store';
 
 type LoginMethod = 'existing_account' | 'new_account';
 export type LoginState =
-  | { type: 'none' }
+  | { type: 'none'; deviceRevoked: boolean }
   | { type: 'logging in' | 'ok'; method: LoginMethod }
   | { type: 'failed' | 'too many devices'; method: LoginMethod; error: Error };
 export interface IAccountReduxState {
@@ -21,7 +21,7 @@ const initialState: IAccountReduxState = {
   devices: [],
   accountHistory: undefined,
   expiry: undefined,
-  status: { type: 'none' },
+  status: { type: 'none', deviceRevoked: false },
 };
 
 export default function (
@@ -56,14 +56,19 @@ export default function (
     case 'LOGGED_OUT':
       return {
         ...state,
-        status: { type: 'none' },
+        status: { type: 'none', deviceRevoked: false },
         accountToken: undefined,
         expiry: undefined,
       };
     case 'RESET_LOGIN_ERROR':
       return {
         ...state,
-        status: { type: 'none' },
+        status: { type: 'none', deviceRevoked: false },
+      };
+    case 'DEVICE_REVOKED':
+      return {
+        ...state,
+        status: { type: 'none', deviceRevoked: true },
       };
     case 'START_CREATE_ACCOUNT':
       return {

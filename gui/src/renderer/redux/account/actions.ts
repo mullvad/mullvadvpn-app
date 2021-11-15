@@ -29,6 +29,10 @@ interface IResetLoginErrorAction {
   type: 'RESET_LOGIN_ERROR';
 }
 
+interface IDeviceRevokedAction {
+  type: 'DEVICE_REVOKED';
+}
+
 interface IStartCreateAccount {
   type: 'START_CREATE_ACCOUNT';
 }
@@ -76,6 +80,7 @@ export type AccountAction =
   | ILoginTooManyDevicesAction
   | ILoggedOutAction
   | IResetLoginErrorAction
+  | IDeviceRevokedAction
   | IStartCreateAccount
   | ICreateAccountFailed
   | IAccountCreated
@@ -123,6 +128,12 @@ function loggedOut(): ILoggedOutAction {
 function resetLoginError(): IResetLoginErrorAction {
   return {
     type: 'RESET_LOGIN_ERROR',
+  };
+}
+
+function deviceRevoked(): IDeviceRevokedAction {
+  return {
+    type: 'DEVICE_REVOKED',
   };
 }
 
@@ -187,6 +198,7 @@ export default {
   loginTooManyDevices,
   loggedOut,
   resetLoginError,
+  deviceRevoked,
   startCreateAccount,
   createAccountFailed,
   accountCreated,
