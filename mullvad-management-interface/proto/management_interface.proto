@@ -41,6 +41,7 @@ service ManagementService {
 	rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 	rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
+	rpc SetCustomResolver(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 
 	// Account management
 	rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
@@ -273,6 +274,7 @@ message Settings {
 	TunnelOptions tunnel_options = 8;
 	bool show_beta_releases = 9;
 	SplitTunnelSettings split_tunnel = 10;
+	bool enable_custom_resolver = 11;
 }
 
 message SplitTunnelSettings {
