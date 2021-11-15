@@ -28,9 +28,10 @@ class HeaderBarView: UIView {
 
     let settingsButton = makeSettingsButton()
 
-    class func makeSettingsButton() -> UIButton {
-        let settingsButton = UIButton(type: .custom)
-        settingsButton.setImage(UIImage(named: "IconSettings"), for: .normal)
+    class func makeSettingsButton() -> HeaderBarButton {
+        let settingsImage = UIImage(named: "IconSettings")?.withRenderingMode(.alwaysOriginal)
+        let settingsButton = HeaderBarButton(type: .system)
+        settingsButton.setImage(settingsImage, for: .normal)
         settingsButton.translatesAutoresizingMaskIntoConstraints = false
         settingsButton.accessibilityIdentifier = "SettingsButton"
         settingsButton.accessibilityLabel = NSLocalizedString(
