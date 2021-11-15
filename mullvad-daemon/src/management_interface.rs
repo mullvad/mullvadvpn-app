@@ -1,4 +1,6 @@
 use crate::{account_history, settings, DaemonCommand, DaemonCommandSender, EventListener};
+#[cfg(target_os = "macos")]
+use either::Either;
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
@@ -360,8 +362,32 @@ impl ManagementService for ManagementServiceImpl {
             .map(Response::new)
             .map_err(map_settings_error)
     }
+
     #[cfg(target_os = "android")]
     async fn set_dns_options(&self, _: Request<types::DnsOptions>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
+    #[cfg(target_os = "macos")]
+    async fn set_custom_resolver(&self, request: Request<bool>) -> ServiceResult<()> {
+        let enable_custom_resolver = request.into_inner();
+        log::debug!("set_custom_resolver({:?})", enable_custom_resolver);
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetCustomResolver(tx, enable_custom_resolver))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(|err| match err {
+                Either::Right(resolver_error) => {
+                    Status::new(Code::Internal, resolver_error.to_string())
+                }
+                Either::Left(settings_error) => map_settings_error(settings_error),
+            })
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    async fn set_custom_resolver(&self, _: Request<bool>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
