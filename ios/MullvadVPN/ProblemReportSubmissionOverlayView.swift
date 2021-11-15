@@ -77,7 +77,7 @@ class ProblemReportSubmissionOverlayView: UIView {
                         format: NSLocalizedString(
                             "CONTACT_BACK_EMAIL_MESSAGE_FORMAT",
                             tableName: "ProblemReport",
-                            value: "If needed we will contact you on %@",
+                            value: "If needed we will contact you at %@",
                             comment: ""
                         ), email)
                     let emailAttributedString = NSMutableAttributedString(string: emailText)
