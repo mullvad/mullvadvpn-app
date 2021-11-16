@@ -10,20 +10,20 @@ import Foundation
 import UIKit
 
 class HeaderBarView: UIView {
+    private let brandNameImage = UIImage(named: "LogoText")!
+
     let logoImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "LogoIcon"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
 
-    lazy var titleLabel: UILabel = {
-        let titleLabel = UILabel()
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.text = "MULLVAD VPN"
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 24)
-        titleLabel.textColor = UIColor.white.withAlphaComponent(0.8)
-        titleLabel.accessibilityTraits.insert(.header)
-        return titleLabel
+    lazy var brandNameImageView: UIImageView = {
+        let imageView = UIImageView(image: brandNameImage)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.alpha = 0.6
+        return imageView
     }()
 
     let settingsButton = makeSettingsButton()
@@ -73,22 +73,27 @@ class HeaderBarView: UIView {
             accessibilityContainerType = .semanticGroup
         }
 
+        let imageSize = brandNameImage.size
+        let brandNameAspectRatio = imageSize.width / max(imageSize.height, 1)
+
         let constraints = [
             logoImageView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            logoImageView.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            logoImageView.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor),
             logoImageView.widthAnchor.constraint(equalToConstant: 44),
             logoImageView.heightAnchor.constraint(equalTo: logoImageView.widthAnchor, multiplier: 1),
 
-            titleLabel.leadingAnchor.constraint(equalTo: logoImageView.trailingAnchor, constant: 8),
-            titleLabel.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor, constant: 22),
-            layoutMarginsGuide.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 22),
+            brandNameImageView.leadingAnchor.constraint(equalTo: logoImageView.trailingAnchor, constant: 8),
+            brandNameImageView.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor, constant: 22),
+            brandNameImageView.widthAnchor.constraint(equalTo: brandNameImageView.heightAnchor, multiplier: brandNameAspectRatio),
+            brandNameImageView.heightAnchor.constraint(equalToConstant: 18),
+            layoutMarginsGuide.bottomAnchor.constraint(equalTo: brandNameImageView.bottomAnchor, constant: 22),
 
-            settingsButton.leadingAnchor.constraint(greaterThanOrEqualTo: titleLabel.trailingAnchor, constant: 8),
+            settingsButton.leadingAnchor.constraint(greaterThanOrEqualTo: brandNameImageView.trailingAnchor, constant: 8),
             settingsButton.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            settingsButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor)
+            settingsButton.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
         ]
 
-        [logoImageView, titleLabel, settingsButton].forEach { addSubview($0) }
+        [logoImageView, brandNameImageView, settingsButton].forEach { addSubview($0) }
 
         NSLayoutConstraint.activate(constraints)
     }
