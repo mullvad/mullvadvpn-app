@@ -41,6 +41,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Update wireguard-nt to 0.10.1.
 
+#### Windows
+- Make wireguard-nt the default driver for WireGuard. This is used instead of wireguard-go and
+  Wintun.
+
 ### Fixed
 - Always kill `sslocal` if the tunnel monitor fails to start when using bridges.
 - Show relay location constraint correctly in the CLI when it is set to `any`.
