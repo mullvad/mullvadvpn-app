@@ -991,6 +991,10 @@ class ApplicationMain {
       return;
     }
 
+    if (process.platform === 'win32' && parseInt(os.release().split('.')[0]) < 10) {
+      latestVersionInfo.suggestedUpgrade = undefined;
+    }
+
     const suggestedIsBeta =
       latestVersionInfo.suggestedUpgrade !== undefined &&
       IS_BETA.test(latestVersionInfo.suggestedUpgrade);
