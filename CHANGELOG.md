@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - Keep unspecified constraints unchanged in the CLI when providing specific tunnel constraints
   instead of setting them to default values.
 
+#### Windows
+- Make wireguard-nt the default driver for WireGuard.
+
 
 ## [2021.6-beta1] - 2021-11-03
 ### Added
