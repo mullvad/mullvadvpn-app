@@ -1,5 +1,5 @@
 /* No comment provided by engineer. */
-"CONTACT_BACK_EMAIL_MESSAGE_FORMAT" = "If needed we will contact you on %@";
+"CONTACT_BACK_EMAIL_MESSAGE_FORMAT" = "If needed we will contact you at %@";
 
 /* Placeholder for description text view. */
 "DESCRIPTION_TEXTVIEW_PLACEHOLDER" = "Please describe your problem in English or Swedish";
