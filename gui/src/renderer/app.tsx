@@ -224,7 +224,10 @@ export default class AppRenderer {
       void this.onDaemonConnected();
     }
 
-    this.checkContentHeight();
+    this.checkContentHeight(false);
+    window.addEventListener('resize', () => {
+      this.checkContentHeight(true);
+    });
 
     if (initialState.windowsSplitTunnelingApplications) {
       this.reduxActions.settings.setSplitTunnelingApplications(
@@ -577,7 +580,7 @@ export default class AppRenderer {
   // purposes since there's a bug in Electron that causes the app height to be another value than
   // the one we have set.
   // https://github.com/electron/electron/issues/28777
-  private checkContentHeight(): void {
+  private checkContentHeight(resize: boolean): void {
     let expectedContentHeight = 568;
 
     // The app content is 12px taller on macOS to fit the top arrow.
@@ -587,7 +590,10 @@ export default class AppRenderer {
 
     const contentHeight = window.innerHeight;
     if (contentHeight !== expectedContentHeight) {
-      log.error(`Wrong content height ${contentHeight}, expected ${expectedContentHeight}`);
+      log.debug(
+        resize ? 'Resize:' : 'Initial:',
+        `Wrong content height: ${contentHeight}, expected ${expectedContentHeight}`,
+      );
     }
   }
 

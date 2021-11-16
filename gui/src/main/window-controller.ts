@@ -135,8 +135,6 @@ class AttachedToTrayWindowPositioning implements IWindowPositioning {
 }
 
 export default class WindowController {
-  private width: number;
-  private height: number;
   private windowValue: BrowserWindow;
   private webContentsValue: WebContents;
   private windowPositioning: IWindowPositioning;
@@ -151,10 +149,7 @@ export default class WindowController {
     return this.webContentsValue.isDestroyed() ? undefined : this.webContentsValue;
   }
 
-  constructor(windowValue: BrowserWindow, tray: Tray, unpinnedWindow: boolean) {
-    const [width, height] = windowValue.getSize();
-    this.width = width;
-    this.height = height;
+  constructor(windowValue: BrowserWindow, tray: Tray, private unpinnedWindow: boolean) {
     this.windowValue = windowValue;
     this.webContentsValue = windowValue.webContents;
     this.windowPositioning = unpinnedWindow
@@ -202,6 +197,13 @@ export default class WindowController {
     if (this.window && !this.window.isDestroyed()) {
       this.window.destroy();
     }
+  }
+
+  public static getContentSize(unpinnedWindow: boolean): { width: number; height: number } {
+    return {
+      width: 320,
+      height: WindowController.getContentHeight(unpinnedWindow),
+    };
   }
 
   private installHideHandler() {
@@ -263,10 +265,13 @@ export default class WindowController {
       }
     }
 
-    // On linux, the window won't be properly rescaled back to it's original
+    // On Linux and Windows, the window won't be properly rescaled back to it's original
     // size if the DPI scaling factor is changed.
     // https://github.com/electron/electron/issues/11050
-    if (process.platform === 'linux' && changedMetrics.includes('scaleFactor')) {
+    if (
+      changedMetrics.includes('scaleFactor') &&
+      (process.platform === 'win32' || process.platform === 'linux')
+    ) {
       this.forceResizeWindow();
     }
   };
@@ -276,7 +281,8 @@ export default class WindowController {
   }
 
   private forceResizeWindow() {
-    this.window?.setSize(this.width, this.height);
+    const { width, height } = WindowController.getContentSize(this.unpinnedWindow);
+    this.window?.setContentSize(width, height);
   }
 
   private executeWhenWindowIsReady(closure: () => void) {
@@ -286,6 +292,31 @@ export default class WindowController {
       this.webContents?.once('did-stop-loading', () => {
         closure();
       });
+    }
+  }
+
+  // On both Linux and Windows the app height is applied incorrectly:
+  // https://github.com/electron/electron/issues/28777
+  private static getContentHeight(unpinnedWindow: boolean): number {
+    // The height we want to achieve.
+    const contentHeight = 568;
+
+    switch (process.platform) {
+      case 'darwin': {
+        // The size of transparent area around arrow on macOS.
+        const headerBarArrowHeight = 12;
+
+        return unpinnedWindow ? contentHeight : contentHeight + headerBarArrowHeight;
+      }
+      case 'win32':
+        // On Windows the app height ends up slightly lower than we set it to if running in unpinned
+        // mode and the app becomes a tiny bit taller when pinned to task bar.
+        return unpinnedWindow ? contentHeight + 19 : contentHeight - 1;
+      case 'linux':
+        // On Linux the app ends up slightly lower than we set it to.
+        return contentHeight - 25;
+      default:
+        return contentHeight;
     }
   }
 }
