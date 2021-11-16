@@ -561,6 +561,8 @@ where
         command_channel: DaemonCommandChannel,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
+        #[cfg(target_os = "macos")]
+        talpid_core::macos::bump_filehandle_limit();
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
         let runtime = tokio::runtime::Handle::current();
