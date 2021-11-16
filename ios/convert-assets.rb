@@ -84,6 +84,12 @@ ADDITIONAL_ASSETS = [
   "IconBackTransitionMask.svg"
 ]
 
+# SVG convertion tool environment variables. 
+SVG_CONVERT_ENVIRONMENT_VARIABLES = {
+  # Fix PDF "CreationDate" for reproducible output 
+  "SOURCE_DATE_EPOCH" => "1596022781"
+}
+
 # Functions
 
 def generate_graphical_assets()
@@ -100,7 +106,7 @@ def generate_graphical_assets()
     output_file = File.join(output_dir, "#{image_name}.pdf")
 
     puts "Convert #{svg_file} -> #{output_file}"
-    system("rsvg-convert", "--format=pdf", svg_file, "--output", output_file)
+    system(SVG_CONVERT_ENVIRONMENT_VARIABLES, "rsvg-convert", "--format=pdf", svg_file, "--output", output_file)
   end
 end
 
@@ -118,9 +124,6 @@ def genereate_app_icon()
 end
 
 def generate_additional_assets()
-  # Fix PDF "CreationDate" for reproducible output
-  environment_variables = { "SOURCE_DATE_EPOCH" => "1596022781" }
-
   for asset_name in ADDITIONAL_ASSETS do
     svg_file = File.join(ADDITIONAL_ASSETS_DIR, asset_name)
     image_name = File.basename(svg_file, ".svg")
@@ -133,7 +136,7 @@ def generate_additional_assets()
     end
 
     puts "Generate #{image_name} -> #{output_file}"
-    system(environment_variables, "rsvg-convert", "-f", "pdf", "-o", output_file, svg_file)
+    system(SVG_CONVERT_ENVIRONMENT_VARIABLES, "rsvg-convert", "--format=pdf", svg_file, "--output", output_file)
   end
 end
 
