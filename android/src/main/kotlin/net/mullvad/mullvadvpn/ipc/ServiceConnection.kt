@@ -55,7 +55,9 @@ class ServiceConnection(context: Context, scope: CoroutineScope) {
     }
 
     private suspend fun connect(context: Context) {
-        val intent = Intent(context, MullvadVpnService::class.java)
+        val intent = Intent(context, MullvadVpnService::class.java).also {
+            it.putExtra("ui-flag", true)
+        }
 
         context.bindServiceFlow(intent).collect { binder ->
             activeListeners.value = null

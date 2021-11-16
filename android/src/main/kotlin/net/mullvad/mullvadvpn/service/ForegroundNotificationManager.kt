@@ -68,7 +68,7 @@ class ForegroundNotificationManager(
     var onForeground = false
         private set
 
-    private var lockedToForeground by observable(false) { _, _, _ ->
+    var lockedToForeground by observable(false) { _, _, _ ->
         updater.sendBlocking(UpdaterMessage.UpdateNotification())
     }
 

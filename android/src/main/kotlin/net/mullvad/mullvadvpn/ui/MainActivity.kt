@@ -99,7 +99,9 @@ open class MainActivity : FragmentActivity() {
 
         isUiVisible = true
 
-        val intent = Intent(this, MullvadVpnService::class.java)
+        val intent = Intent(this, MullvadVpnService::class.java).also {
+            it.putExtra("ui-flag", true)
+        }
 
         startForegroundService(intent)
         bindService(intent, serviceConnectionManager, 0)

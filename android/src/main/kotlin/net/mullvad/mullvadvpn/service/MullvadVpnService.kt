@@ -158,6 +158,14 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onUnbind(intent: Intent): Boolean {
         Log.d(TAG, "Closed all connections to service")
+
+        // The intent extras 'ui-flag' is used to distinguish unbinds of the ut (app/tile) from
+        // unbinds of the system. It's expected that the service is already in background once
+        // the ui (app/tile) unbinds, so this is a safeguard in case the app crashes etc.
+        if (notificationManager.lockedToForeground && intent.hasExtra("ui-flag")) {
+            notificationManager.lockedToForeground = false
+        }
+
         if (state != State.Running) {
             stop()
         }
