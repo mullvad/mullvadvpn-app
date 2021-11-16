@@ -15,7 +15,7 @@ GRAPHICAL_ASSETS_DIR = File.join(ROOT_DIR, "gui/assets/images")
 ADDITIONAL_ASSETS_DIR = File.join(SCRIPT_DIR, "AdditionalAssets")
 
 # graphical assets to import
-GRAPHICAL_ASSETS=[
+GRAPHICAL_ASSETS = [
   "icon-alert.svg",
   "icon-arrow.svg",
   "icon-back.svg",
@@ -40,7 +40,7 @@ GRAPHICAL_ASSETS=[
 ]
 
 # App icon sizes
-APP_ICON_SIZES=[
+APP_ICON_SIZES = [
   # iphone-notification 20pt at 2x, 3x
   ["AppIconPhoneNotification", 20, 2, 3],
 
