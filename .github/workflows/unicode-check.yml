@@ -14,4 +14,4 @@ jobs:
               run: git submodule update --init
 
             - name: Scan for code points
-              run: ./ci/check-trojan-source.sh
+              run: ./ci/check-trojan-source.sh .
