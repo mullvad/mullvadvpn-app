@@ -568,6 +568,7 @@ where
         #[cfg(target_os = "macos")]
         {
             exclusion_gid::set_exclusion_gid();
+            talpid_core::macos::bump_filehandle_limit();
         };
 
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
