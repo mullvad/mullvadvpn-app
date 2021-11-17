@@ -84,6 +84,8 @@ extension UIColor {
         static let unsecuredBackgroundColor = dangerColor
         static let securedBackgroundColor = successColor
         static let dividerColor = secondaryColor
+        static let brandNameColor = UIColor(white: 1.0, alpha: 0.8)
+        static let buttonColor = UIColor(white: 1.0, alpha: 0.8)
     }
 
     enum InAppNotificationBanner {
