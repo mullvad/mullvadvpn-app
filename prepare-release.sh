@@ -5,7 +5,6 @@
 
 set -eu
 
-PRODUCT_VERSION=""
 ANDROID="false"
 DESKTOP="false"
 VERSION_METADATA_ARGS=""
@@ -30,7 +29,7 @@ for argument in "$@"; do
     esac
 done
 
-if [ -z "$PRODUCT_VERSION" ]; then
+if [[ -z ${PRODUCT_VERSION+x} ]]; then
     echo "Please give the release version as an argument to this script."
     echo "For example: '2018.1-beta3' for a beta release, or '2018.6' for a stable one."
     exit 1
