@@ -105,6 +105,9 @@ extension UIColor {
         static let errorIndicatorColor = dangerColor
         static let successIndicatorColor = successColor
         static let warningIndicatorColor = warningColor
+
+        static let titleColor = UIColor.white
+        static let bodyColor = UIColor(white: 1.0, alpha: 0.6)
     }
 
     // Common colors

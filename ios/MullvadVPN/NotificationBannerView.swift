@@ -38,7 +38,7 @@ class NotificationBannerView: UIView {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.font = UIFont.systemFont(ofSize: 17, weight: .bold)
-        textLabel.textColor = .white
+        textLabel.textColor = UIColor.InAppNotificationBanner.titleColor
         textLabel.numberOfLines = 0
         textLabel.lineBreakMode = .byWordWrapping
         return textLabel
@@ -48,7 +48,7 @@ class NotificationBannerView: UIView {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.font = UIFont.systemFont(ofSize: 17)
-        textLabel.textColor = UIColor(white: 1, alpha: 0.6)
+        textLabel.textColor = UIColor.InAppNotificationBanner.bodyColor
         textLabel.numberOfLines = 0
         textLabel.lineBreakMode = .byWordWrapping
         return textLabel
