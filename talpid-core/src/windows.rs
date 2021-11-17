@@ -1,9 +1,12 @@
 use socket2::SockAddr;
 use std::{
-    ffi::OsStr,
+    ffi::{OsStr, OsString},
     fmt, io, mem,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
-    os::windows::{ffi::OsStrExt, io::RawHandle},
+    os::windows::{
+        ffi::{OsStrExt, OsStringExt},
+        io::RawHandle,
+    },
     sync::Mutex,
     time::{Duration, Instant},
 };
@@ -12,12 +15,13 @@ use winapi::shared::{
     in6addr::IN6_ADDR,
     inaddr::IN_ADDR,
     netioapi::{
-        CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, FreeMibTable, GetIpInterfaceEntry,
-        GetUnicastIpAddressEntry, GetUnicastIpAddressTable, MibAddInstance,
-        NotifyIpInterfaceChange, SetIpInterfaceEntry, MIB_IPINTERFACE_ROW,
+        CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
+        FreeMibTable, GetIpInterfaceEntry, GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
+        MibAddInstance, NotifyIpInterfaceChange, SetIpInterfaceEntry, MIB_IPINTERFACE_ROW,
         MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE,
     },
     nldef::{IpDadStatePreferred, IpDadStateTentative, NL_DAD_STATE},
+    ntddndis::NDIS_IF_MAX_STRING_SIZE,
     ntdef::FALSE,
     winerror::{ERROR_NOT_FOUND, NO_ERROR},
     ws2def::{
@@ -357,6 +361,18 @@ pub fn luid_from_alias<T: AsRef<OsStr>>(alias: T) -> io::Result<NET_LUID> {
         return Err(io::Error::from_raw_os_error(status as i32));
     }
     Ok(luid)
+}
+
+/// Returns the alias of an interface given its LUID.
+pub fn alias_from_luid(luid: &NET_LUID) -> io::Result<OsString> {
+    let mut buffer = [0u16; NDIS_IF_MAX_STRING_SIZE + 1];
+    let status =
+        unsafe { ConvertInterfaceLuidToAlias(luid, &mut buffer[0] as *mut _, buffer.len()) };
+    if status != NO_ERROR {
+        return Err(io::Error::from_raw_os_error(status as i32));
+    }
+    let nul = buffer.iter().position(|&c| c == 0u16).unwrap();
+    Ok(OsString::from_wide(&buffer[0..nul]))
 }
 
 fn af_family_from_family(family: Option<AddressFamily>) -> u16 {
