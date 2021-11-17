@@ -41,11 +41,11 @@ class SettingsAccountCell: SettingsCell {
                 } else {
                     detailTitleLabel.text = ""
                 }
-                detailTitleLabel.textColor = .white
+                detailTitleLabel.textColor = UIColor.Cell.detailTextColor
             }
         } else {
             detailTitleLabel.text = ""
-            detailTitleLabel.textColor = .white
+            detailTitleLabel.textColor = UIColor.Cell.detailTextColor
         }
     }
 

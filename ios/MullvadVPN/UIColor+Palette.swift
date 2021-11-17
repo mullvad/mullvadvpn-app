@@ -77,7 +77,11 @@ extension UIColor {
         static let disabledSelectedBackgroundColor = selectedBackgroundColor.darkened(by: 0.3)!
 
         static let selectedAltBackgroundColor = backgroundColor.darkened(by: 0.2)!
-        static let disclosureIndicatorColor = UIColor(white: 1.0, alpha: 0.6)
+
+        static let titleTextColor = UIColor.white
+        static let detailTextColor = UIColor(white: 1.0, alpha: 0.8)
+
+        static let disclosureIndicatorColor = UIColor(white: 1.0, alpha: 0.8)
     }
 
     enum SubCell {

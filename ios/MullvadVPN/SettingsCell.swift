@@ -36,11 +36,11 @@ class SettingsCell: UITableViewCell {
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = UIFont.systemFont(ofSize: 17)
-        titleLabel.textColor = .white
+        titleLabel.textColor = UIColor.Cell.titleTextColor
 
         detailTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         detailTitleLabel.font = UIFont.systemFont(ofSize: 13)
-        detailTitleLabel.textColor = .white
+        detailTitleLabel.textColor = UIColor.Cell.detailTextColor
 
         titleLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         detailTitleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
