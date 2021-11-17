@@ -410,7 +410,9 @@ class ApplicationMain {
       this.windowController.window.closable = true;
     }
 
-    this.daemonRpc.disconnect();
+    if (this.connectedToDaemon) {
+      this.daemonRpc.disconnect();
+    }
 
     for (const logger of [log, this.rendererLog]) {
       try {
@@ -566,7 +568,7 @@ class ApplicationMain {
       const error = e as Error;
       log.error(`Failed to subscribe: ${error.message}`);
 
-      return this.recoverFromBootstrapError(error);
+      return this.handleBootstrapError(error);
     }
 
     // fetch account history
@@ -576,7 +578,7 @@ class ApplicationMain {
       const error = e as Error;
       log.error(`Failed to fetch the account history: ${error.message}`);
 
-      return this.recoverFromBootstrapError(error);
+      return this.handleBootstrapError(error);
     }
 
     // fetch the tunnel state
@@ -586,7 +588,7 @@ class ApplicationMain {
       const error = e as Error;
       log.error(`Failed to fetch the tunnel state: ${error.message}`);
 
-      return this.recoverFromBootstrapError(error);
+      return this.handleBootstrapError(error);
     }
 
     // fetch settings
@@ -596,7 +598,7 @@ class ApplicationMain {
       const error = e as Error;
       log.error(`Failed to fetch settings: ${error.message}`);
 
-      return this.recoverFromBootstrapError(error);
+      return this.handleBootstrapError(error);
     }
 
     if (this.tunnelStateExpectation) {
@@ -614,7 +616,7 @@ class ApplicationMain {
       const error = e as Error;
       log.error(`Failed to fetch relay locations: ${error.message}`);
 
-      return this.recoverFromBootstrapError(error);
+      return this.handleBootstrapError(error);
     }
 
     // fetch the daemon's version
@@ -624,7 +626,7 @@ class ApplicationMain {
       const error = e as Error;
       log.error(`Failed to fetch the daemon's version: ${error.message}`);
 
-      return this.recoverFromBootstrapError(error);
+      return this.handleBootstrapError(error);
     }
 
     // fetch the latest version info in background
@@ -691,12 +693,13 @@ class ApplicationMain {
   };
 
   private connectToDaemon() {
-    void this.daemonRpc.connect();
+    void this.daemonRpc
+      .connect()
+      .catch((error) => log.error(`Unable to connect to daemon: ${error.message}`));
   }
 
-  private recoverFromBootstrapError(_error?: Error) {
-    // Attempt to reconnect to daemon if the program fails to fetch settings, tunnel state or
-    // subscribe for RPC events.
+  private handleBootstrapError(_error?: Error) {
+    // Unsubscribe from daemon events when encountering errors during initial data retrieval.
     if (this.daemonEventListener) {
       this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
     }
