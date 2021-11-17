@@ -15,6 +15,10 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
     private let dataSource = PreferencesDataSource()
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+
     init() {
         super.init(style: .grouped)
     }

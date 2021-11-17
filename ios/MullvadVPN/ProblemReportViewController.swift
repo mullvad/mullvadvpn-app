@@ -183,6 +183,10 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
     // MARK: - View lifecycle
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+
     override var disablesAutomaticKeyboardDismissal: Bool {
         // Allow dismissing the keyboard in .formSheet presentation style
         return false
