@@ -84,7 +84,7 @@ class HeaderBarView: UIView {
             logoImageView.widthAnchor.constraint(equalToConstant: 44),
             logoImageView.heightAnchor.constraint(equalTo: logoImageView.widthAnchor, multiplier: 1),
 
-            brandNameImageView.leadingAnchor.constraint(equalTo: logoImageView.trailingAnchor, constant: 8),
+            brandNameImageView.leadingAnchor.constraint(equalTo: logoImageView.trailingAnchor, constant: 9),
             brandNameImageView.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor, constant: 22),
             brandNameImageView.widthAnchor.constraint(equalTo: brandNameImageView.heightAnchor, multiplier: brandNameAspectRatio),
             brandNameImageView.heightAnchor.constraint(equalToConstant: 18),
