@@ -1,58 +1,104 @@
-import * as React from 'react';
+import { useCallback } from 'react';
 import styled from 'styled-components';
+import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
-import { Scheduler } from '../../shared/scheduler';
+import { useScheduler } from '../../shared/scheduler';
+import { useBoolean } from '../lib/utilityHooks';
+import ImageView from './ImageView';
+
+const COPIED_ICON_DURATION = 2000;
 
 interface IProps {
   value: string;
   displayValue?: string;
-  delay: number;
+  obscureValue?: boolean;
   message?: string;
   className?: string;
 }
 
-interface IState {
-  showsMessage: boolean;
-}
-
-const Label = styled.span({
-  cursor: 'pointer',
+const StyledLabelContainer = styled.div({
+  display: 'flex',
+  flex: 1,
+  height: '19px',
+  alignItems: 'center',
 });
 
-export default class ClipboardLabel extends React.Component<IProps, IState> {
-  public static defaultProps: Partial<IProps> = {
-    delay: 3000,
-  };
+const StyledLabel = styled.span({
+  flex: 1,
+});
 
-  public state: IState = {
-    showsMessage: false,
-  };
+const StyledButton = styled.button({
+  cursor: 'default',
+  padding: 0,
+  marginLeft: '20px',
+  backgroundColor: 'transparent',
+  border: 'none',
+});
 
-  private scheduler = new Scheduler();
+const StyledCopyButton = styled(StyledButton)({
+  width: '24px',
+});
 
-  public componentWillUnmount() {
-    this.scheduler.cancel();
-  }
+export default function ClipboardLabel(props: IProps) {
+  const [obscured, , , toggleObscured] = useBoolean(props.obscureValue ?? true);
+  const [justCopied, setJustCopied, resetJustCopied] = useBoolean(false);
 
-  public render() {
-    const message = this.props.message ?? messages.gettext('COPIED TO CLIPBOARD!');
-    const displayValue = this.props.displayValue ?? this.props.value;
-    return (
-      <Label className={this.props.className} onClick={this.handlePress}>
-        {this.state.showsMessage ? message : displayValue}
-      </Label>
-    );
-  }
+  const copiedScheduler = useScheduler();
 
-  private handlePress = async () => {
+  const onCopy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(this.props.value);
-      this.scheduler.schedule(() => this.setState({ showsMessage: false }), this.props.delay);
-      this.setState({ showsMessage: true });
+      await navigator.clipboard.writeText(props.value);
+      copiedScheduler.schedule(resetJustCopied, COPIED_ICON_DURATION);
+      setJustCopied();
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to copy to clipboard: ${error.message}`);
     }
-  };
+  }, [props.value, copiedScheduler, setJustCopied, resetJustCopied]);
+
+  const value = props.displayValue ?? props.value;
+  return (
+    <StyledLabelContainer>
+      <StyledLabel className={props.className} aria-hidden={obscured}>
+        {obscured ? '●●●● ●●●● ●●●● ●●●●' : value}
+      </StyledLabel>
+      {props.obscureValue !== false && (
+        <StyledButton
+          onClick={toggleObscured}
+          aria-label={
+            obscured
+              ? // This line is here to prevent the following one to be moved up here by prettier
+                // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe
+                // TRANSLATORS: the button which unobscures the account number.
+                messages.pgettext('accessibility', 'Show account number')
+              : // This line is here to prevent the following one to be moved up here by prettier
+                // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe
+                // TRANSLATORS: the button which obscures the account number.
+                messages.pgettext('accessibility', 'Hide account number')
+          }>
+          <ImageView
+            source={obscured ? 'icon-unobscure' : 'icon-obscure'}
+            tintColor={colors.white}
+            tintHoverColor={colors.white80}
+            width={24}
+          />
+        </StyledButton>
+      )}
+      <StyledCopyButton
+        onClick={onCopy}
+        aria-label={
+          // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe a button
+          // TRANSLATORS: which copies the account number to the clipboard.
+          messages.pgettext('accessibility', 'Copy account number')
+        }>
+        <ImageView
+          source={justCopied ? 'icon-tick' : 'icon-copy'}
+          tintColor={justCopied ? colors.green : colors.white}
+          tintHoverColor={justCopied ? colors.green : colors.white80}
+          width={justCopied ? 22 : 24}
+        />
+      </StyledCopyButton>
+    </StyledLabelContainer>
+  );
 }
