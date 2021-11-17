@@ -283,22 +283,18 @@ ReturnCode CommandWireGuardNtCleanup(const std::vector<std::wstring> &args)
 {
 	ArgumentContext argsContext(args);
 
-	argsContext.ensureExactArgumentCount(1);
-
-	const auto poolName = argsContext.next();
+	argsContext.ensureExactArgumentCount(0);
 
 	WireGuardNtDll wgNt;
 
-	BOOL rebootRequired;
-
-	if (FALSE == wgNt.deletePoolDriver(poolName.c_str(), &rebootRequired))
+	if (FALSE == wgNt.deleteDriver())
 	{
-		throw std::runtime_error("Failed to delete WireGuardNT pool");
+		throw std::runtime_error("Failed to delete WireGuardNT driver");
 	}
 
 	std::wstringstream ss;
 
-	ss << L"Successfully deleted WireGuardNT pool. Reboot required: " << rebootRequired;
+	ss << L"Successfully deleted WireGuardNT driver";
 
 	Log(ss.str());
 
