@@ -112,7 +112,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[error(no_from)]
 pub enum Error {
     /// Failed to load WireGuardNT
-    #[error(display = "Failed to load wireguard.dll")]
+    #[error(display = "Failed to load mullvad-wireguard.dll")]
     DllError(#[error(source)] io::Error),
 
     /// Failed to create tunnel interface
@@ -603,7 +603,8 @@ unsafe impl Sync for WgNtDll {}
 
 impl WgNtDll {
     pub fn new(resource_dir: &Path) -> io::Result<Self> {
-        let wg_nt_dll = U16CString::from_os_str_truncate(resource_dir.join("wireguard.dll"));
+        let wg_nt_dll =
+            U16CString::from_os_str_truncate(resource_dir.join("mullvad-wireguard.dll"));
 
         let handle = unsafe {
             LoadLibraryExW(
