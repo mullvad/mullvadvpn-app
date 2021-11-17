@@ -80,11 +80,11 @@ extension UIColor {
     }
 
     enum SubCell {
-        static let backgroundColor = namedColor("SubCell")
+        static let backgroundColor = UIColor(red: 0.15, green: 0.23, blue: 0.33, alpha: 1.0)
     }
 
     enum SubSubCell {
-        static let backgroundColor = namedColor("SubSubCell")
+        static let backgroundColor = UIColor(red: 0.13, green: 0.20, blue: 0.30, alpha: 1.0)
     }
 
     enum HeaderBar {
@@ -103,16 +103,9 @@ extension UIColor {
     }
 
     // Common colors
-    static let primaryColor = namedColor("Primary")
-    static let secondaryColor = namedColor("Secondary")
-    static let dangerColor = namedColor("Danger")
-    static let warningColor = namedColor("Warning")
-    static let successColor = namedColor("Success")
-}
-
-/// This is a helper function to access named colors from the main bundle and circumvent storyboard
-/// crash.
-/// See: https://openradar.appspot.com/47113341
-private func namedColor(_ name: StringLiteralType) -> UIColor {
-    UIColor(named: name, in: Bundle(for: AppDelegate.self), compatibleWith: nil)!
+    static let primaryColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.0)
+    static let secondaryColor = UIColor(red: 0.10, green: 0.18, blue: 0.27, alpha: 1.0)
+    static let dangerColor = UIColor(red: 0.89, green: 0.25, blue: 0.22, alpha: 1.0)
+    static let warningColor = UIColor(red: 1.0, green: 0.84, blue: 0.14, alpha: 1.0)
+    static let successColor = UIColor(red: 0.27, green: 0.68, blue: 0.30, alpha: 1.0)
 }
