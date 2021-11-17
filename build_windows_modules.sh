@@ -70,12 +70,8 @@ function get_solution_output_path {
     local build_mode=$3
 
     case $build_target in
-        "x86")
-            echo "$solution_root/bin/Win32-$build_mode"
-            ;;
-        "x64")
-            echo "$solution_root/bin/x64-$build_mode"
-            ;;
+        "x86") echo "$solution_root/bin/Win32-$build_mode";;
+        "x64") echo "$solution_root/bin/x64-$build_mode";;
         *)
             echo Unkown build target $build_target
             exit 1
@@ -125,15 +121,9 @@ function arch_from_build_target {
     local build_target=$1
 
     case    $build_target in
-        "x86")
-            echo "i686"
-            ;;
-        "x64")
-            echo "x86_64"
-            ;;
-        *)
-            echo $build_target
-            ;;
+        "x86") echo "i686";;
+        "x64") echo "x86_64";;
+        *) echo $build_target;;
     esac
 }
 
