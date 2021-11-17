@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 set -eu
 
 # List of solution configurations to build.
