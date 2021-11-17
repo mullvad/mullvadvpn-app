@@ -184,7 +184,7 @@ function build() {
     ################################################################################
 
     if [[ "$(uname -s)" == "MINGW"* ]]; then
-        CPP_BUILD_MODES="Release" ./build_windows_modules.sh "$@"
+        CPP_BUILD_MODES="Release" ./build-windows-modules.sh "$@"
     fi
 
     ################################################################################
