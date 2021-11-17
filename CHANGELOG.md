@@ -25,6 +25,12 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2021.6] - 2021-11-17
+### Fixed
+- Fix the font for Russian. Issue introduced in 2021.6-beta1.
+  Bundle a version of Source Sans Pro containing Cyrillic.
+
+
 ## [2021.6-beta1] - 2021-11-03
 ### Added
 #### Windows
