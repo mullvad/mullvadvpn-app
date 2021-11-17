@@ -16,18 +16,13 @@ ADDITIONAL_ASSETS_DIR = File.join(SCRIPT_DIR, "AdditionalAssets")
 
 # graphical assets to import
 GRAPHICAL_ASSETS = [
-  "icon-alert.svg",
   "icon-arrow.svg",
   "icon-back.svg",
   "icon-chevron-down.svg",
   "icon-chevron-up.svg",
   "icon-chevron.svg",
-  "icon-close-sml.svg",
-  "icon-close.svg",
   "icon-extLink.svg",
   "icon-fail.svg",
-  "icon-fastest.svg",
-  "icon-nearest.svg",
   "icon-reload.svg",
   "icon-settings.svg",
   "icon-spinner.svg",
