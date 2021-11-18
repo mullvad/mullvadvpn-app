@@ -10,7 +10,7 @@ use std::{
     fmt, io,
     path::{Path, PathBuf},
 };
-use talpid_types::net;
+use talpid_types::{net, ErrorExt};
 
 static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--client"],
@@ -453,6 +453,25 @@ impl StoppableProcess for OpenVpnProcHandle {
             Ok(None) => Ok(false),
             Ok(Some(_)) => Ok(true),
             Err(e) => Err(e),
+        }
+    }
+}
+
+impl Drop for OpenVpnProcHandle {
+    fn drop(&mut self) {
+        let result = match self.has_stopped() {
+            Ok(false) => self.kill(),
+            Err(e) => {
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Failed to check if OpenVPN is running")
+                );
+                self.kill()
+            }
+            _ => Ok(()),
+        };
+        if let Err(error) = result {
+            log::error!("{}", error.display_chain_with_msg("Failed to kill OpenVPN"));
         }
     }
 }
