@@ -114,7 +114,7 @@ impl fmt::Display for ShadowsocksCommand {
 }
 
 pub struct ShadowsocksProxyMonitor {
-    subproc: Arc<duct::Handle>,
+    subproc: Arc<ProcessHandle>,
     closed: Arc<AtomicBool>,
     port: u16,
 }
@@ -124,6 +124,24 @@ const SHADOWSOCKS_LOG_FILENAME: &str = "shadowsocks.log";
 const SHADOWSOCKS_BIN_FILENAME: &str = "sslocal";
 #[cfg(windows)]
 const SHADOWSOCKS_BIN_FILENAME: &str = "sslocal.exe";
+
+struct ProcessHandle {
+    subproc: duct::Handle,
+}
+
+impl Drop for ProcessHandle {
+    fn drop(&mut self) {
+        let _ = self.subproc.kill();
+    }
+}
+
+impl std::ops::Deref for ProcessHandle {
+    type Target = duct::Handle;
+
+    fn deref(&self) -> &Self::Target {
+        &self.subproc
+    }
+}
 
 impl ShadowsocksProxyMonitor {
     pub fn start(
@@ -183,7 +201,7 @@ impl ShadowsocksProxyMonitor {
 
         match Self::get_bound_port(File::open(&logfile)?, &subproc) {
             Ok(port) => Ok(Self {
-                subproc: Arc::new(subproc),
+                subproc: Arc::new(ProcessHandle { subproc }),
                 closed: Arc::new(AtomicBool::new(false)),
                 port,
             }),
@@ -272,7 +290,7 @@ impl ProxyMonitor for ShadowsocksProxyMonitor {
 }
 
 pub struct ShadowsocksProxyMonitorCloseHandle {
-    subproc: Arc<duct::Handle>,
+    subproc: Arc<ProcessHandle>,
     closed: Arc<AtomicBool>,
 }
 
