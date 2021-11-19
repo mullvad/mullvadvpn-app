@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
@@ -14,6 +14,7 @@ import * as Cell from './cell';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
+import List from './List';
 import { ModalContainer, ModalAlert, ModalAlertType } from './Modal';
 import {
   BackBarItem,
@@ -32,8 +33,6 @@ import {
   StyledIcon,
   StyledCellLabel,
   StyledIconPlaceholder,
-  StyledApplicationListContent,
-  StyledApplicationListAnimation,
   StyledSpinnerRow,
   StyledBrowseButton,
   StyledSearchInput,
@@ -47,6 +46,7 @@ import {
   StyledDisabledWarning,
   StyledActionIcon,
   StyledCellWarningIcon,
+  StyledListContainer,
 } from './SplitTunnelingSettingsStyles';
 
 export default function SplitTunneling() {
@@ -475,34 +475,32 @@ interface IApplicationListProps<T extends IApplication> {
 }
 
 function ApplicationList<T extends IApplication>(props: IApplicationListProps<T>) {
-  const [applicationListHeight, setApplicationListHeight] = useState<number>();
-  const applicationListRef = useRef() as React.RefObject<HTMLDivElement>;
-
-  useLayoutEffect(() => {
-    const height = applicationListRef.current?.getBoundingClientRect().height;
-    setApplicationListHeight(height);
-  }, [applicationListRef, props.applications]);
-
-  return (
-    <StyledApplicationListAnimation height={applicationListHeight}>
-      <StyledApplicationListContent ref={applicationListRef}>
-        {props.applications === undefined ? (
-          <StyledSpinnerRow>
-            <ImageView source="icon-spinner" height={60} width={60} />
-          </StyledSpinnerRow>
-        ) : (
-          props.applications.map((application) => (
+  if (props.applications === undefined) {
+    return (
+      <StyledSpinnerRow>
+        <ImageView source="icon-spinner" height={60} width={60} />
+      </StyledSpinnerRow>
+    );
+  } else {
+    return (
+      <StyledListContainer>
+        <List items={props.applications} getKey={applicationGetKey}>
+          {(application) => (
             <props.rowComponent
               key={application.absolutepath}
               application={application}
               onSelect={props.onSelect}
               onRemove={props.onRemove}
             />
-          ))
-        )}
-      </StyledApplicationListContent>
-    </StyledApplicationListAnimation>
-  );
+          )}
+        </List>
+      </StyledListContainer>
+    );
+  }
+}
+
+function applicationGetKey<T extends IApplication>(application: T): string {
+  return application.absolutepath;
 }
 
 interface IApplicationRowProps<T extends IApplication> {
