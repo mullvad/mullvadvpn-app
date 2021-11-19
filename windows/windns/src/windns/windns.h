@@ -56,7 +56,7 @@ WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Set(
-	const wchar_t *interfaceAlias,
+	const NET_LUID *interfaceLuid,
 	const wchar_t **ipv4Servers,
 	uint32_t numIpv4Servers,
 	const wchar_t **ipv6Servers,
