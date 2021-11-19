@@ -328,6 +328,10 @@ impl DeviceHandle {
             }
         }
 
+        if device_paths.is_empty() {
+            return self.clear_config();
+        }
+
         log::debug!("Excluded device paths:");
         for path in &device_paths {
             log::debug!("    {:?}", path);
