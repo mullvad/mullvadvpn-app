@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 #### Windows
 - Fix app size after changing display scale.
+- Fix daemon not starting if all excluded app paths reside on non-existent/unmounted volumes.
 
 
 ## [2021.6] - 2021-11-17
