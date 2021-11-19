@@ -1,7 +1,5 @@
 #[cfg(target_os = "linux")]
 use crate::routing::RouteManagerHandle;
-#[cfg(target_os = "macos")]
-use std::collections::HashMap;
 use std::net::IpAddr;
 
 #[cfg(target_os = "macos")]
@@ -54,7 +52,7 @@ impl DnsMonitor {
     /// Returns a map of interfaces and respective list of resolvers that don't contain our
     /// changes.
     #[cfg(target_os = "macos")]
-    pub fn get_system_config(&self) -> Result<HashMap<String, Vec<IpAddr>>, Error> {
+    pub fn get_system_config(&self) -> Result<Option<(String, Vec<IpAddr>)>, Error> {
         self.inner.get_system_config()
     }
 
