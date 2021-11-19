@@ -8,8 +8,6 @@ CPP_BUILD_MODES=${CPP_BUILD_MODES:-"Debug"}
 # List of target platforms to build for.
 # Common platforms include "x86" and "x64".
 CPP_BUILD_TARGETS=${CPP_BUILD_TARGETS:-"x64"}
-# Override this to set a different cargo target directory
-CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"./target/"}
 
 if [[ "${1:-""}" == "--dev-build" ]]; then
     DEV_BUILD=true
@@ -79,68 +77,6 @@ function get_solution_output_path {
     esac
 }
 
-# builds an appropriate cargo target path for the specified build target and
-# build mode
-function get_cargo_target_dir {
-    local build_target="$1"
-    local build_mode="$2"
-
-    local host_arch
-    host_arch=$(rustc_host_arch)
-    local host_target_arch
-    host_target_arch=$(arch_from_build_target "$host_arch")
-    local build_target_arch
-    build_target_arch=$(arch_from_build_target "$build_target")
-
-    # if the target is the same as the host, cargo omits the platform triplet
-    if [ "$host_target_arch" == "$build_target_arch" ]; then
-        platform_triplet=""
-    # otherwise, the cargo target path is build with the platform triplet
-    else
-        platform_triplet="$build_target_arch-pc-windows-msvc"
-    fi
-
-    echo "$CARGO_TARGET_DIR/$platform_triplet/${build_mode,,}"
-}
-
-function copy_outputs {
-    local solution_path="$1"
-    local artifacts="$2"
-
-    for mode in $CPP_BUILD_MODES; do
-        for target in $CPP_BUILD_TARGETS; do
-            local dll_path
-            dll_path=$(get_solution_output_path "$solution_path" "$target" "$mode")
-            local cargo_target
-            cargo_target=$(get_cargo_target_dir "$target" "$mode")
-
-            mkdir -p "$cargo_target"
-            for artifact in $artifacts; do
-                cp "$dll_path/$artifact" "$cargo_target"
-            done
-        done
-    done
-}
-
-# Since Microsoft likes to name their architectures differently from Rust, this
-# function tries to match microsoft names to Rust names.
-function arch_from_build_target {
-    local build_target="$1"
-
-    case $build_target in
-        "x86") echo "i686";;
-        "x64") echo "x86_64";;
-        *) echo "$build_target";;
-    esac
-}
-
-function rustc_host_arch {
-    rustc.exe --print cfg \
-     | grep '^target_arch=' \
-     | cut -d'=' -f2 \
-     | tr -d '"'
-}
-
 function build_nsis_plugins {
     local nsis_root_path=${CPP_ROOT_PATH:-"./windows/nsis-plugins"}
 
@@ -156,10 +92,6 @@ function main {
     build_solution "$winfw_root_path" "winfw.sln"
     build_solution "$windns_root_path" "windns.sln"
     build_solution "$winnet_root_path" "winnet.sln"
-
-    copy_outputs "$winfw_root_path" "winfw.dll"
-    copy_outputs "$windns_root_path" "windns.dll"
-    copy_outputs "$winnet_root_path" "winnet.dll"
 
     local driverlogic_root_path=${CPP_ROOT_PATH:-"./windows/driverlogic"}
     build_solution "$driverlogic_root_path" "driverlogic.sln"
