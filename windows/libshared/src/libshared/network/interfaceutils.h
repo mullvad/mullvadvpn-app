@@ -16,8 +16,6 @@
 #include <netioapi.h>
 // end
 
-#include <libcommon/network/nci.h>
-
 namespace shared::network
 {
 
@@ -49,7 +47,6 @@ public:
 	private:
 
 		NetworkAdapter(
-			const common::network::Nci &nci,
 			const std::shared_ptr<std::vector<uint8_t>> addressesBuffer,
 			const IP_ADAPTER_ADDRESSES &entry
 		);

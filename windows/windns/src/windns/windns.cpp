@@ -96,8 +96,6 @@ AdapterDnsAddresses GetAdapterDnsAddresses(const std::wstring &adapterAlias)
 
 	for (const auto adapter : adapters)
 	{
-		const auto guidObj = common::Guid::FromString(adapter.guid());
-
 		if (0 != _wcsicmp(adapter.alias().c_str(), adapterAlias.c_str()))
 		{
 			continue;
