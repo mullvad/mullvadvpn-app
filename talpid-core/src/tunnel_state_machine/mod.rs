@@ -31,7 +31,7 @@ use futures::{
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
 use std::{
-    collections::{BTreeSet, HashMap, HashSet},
+    collections::{BTreeSet, HashSet},
     io,
     net::{IpAddr, Ipv4Addr},
     path::PathBuf,
@@ -213,7 +213,7 @@ pub enum TunnelCommand {
     SetCustomResolver(bool, oneshot::Sender<Result<(), crate::resolver::Error>>),
     /// Receive up-to-date system DNS config. It should never contain our changes to the DNS.
     #[cfg(target_os = "macos")]
-    HostDnsConfig(HashMap<String, Vec<IpAddr>>),
+    HostDnsConfig(Option<(String, Vec<IpAddr>)>),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
