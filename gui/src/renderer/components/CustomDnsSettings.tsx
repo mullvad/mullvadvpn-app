@@ -1,10 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { IpAddress } from '../lib/ip';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean, useMounted } from '../lib/utilityHooks';
 import { formatMarkdown } from '../markdown-formatter';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
@@ -29,6 +29,7 @@ import {
   StyledRemoveButton,
   StyledRemoveIcon,
 } from './CustomDnsSettingsStyles';
+import List, { stringValueAsKey } from './List';
 import { ModalAlert, ModalAlertType } from './Modal';
 
 export default function CustomDnsSettings() {
@@ -38,6 +39,7 @@ export default function CustomDnsSettings() {
   const [inputVisible, showInput, hideInput] = useBoolean(false);
   const [invalid, setInvalid, setValid] = useBoolean(false);
   const [confirmAction, setConfirmAction] = useState<() => Promise<void>>();
+  const [savingEdit, setSavingEdit] = useState(false);
   const willShowConfirmationDialog = useRef(false);
 
   const featureAvailable = useMemo(
@@ -135,6 +137,8 @@ export default function CustomDnsSettings() {
       }
 
       const edit = async () => {
+        setSavingEdit(true);
+
         const addresses = dns.customOptions.addresses.map((address) =>
           oldAddress === address ? newAddress : address,
         );
@@ -177,6 +181,8 @@ export default function CustomDnsSettings() {
     [dns, setDnsOptions],
   );
 
+  useEffect(() => setSavingEdit(false), [dns.customOptions.addresses]);
+
   return (
     <>
       <StyledCustomDnsSwitchContainer disabled={!featureAvailable}>
@@ -197,17 +203,20 @@ export default function CustomDnsSettings() {
       </StyledCustomDnsSwitchContainer>
       <Accordion expanded={featureAvailable && (dns.state === 'custom' || inputVisible)}>
         <Cell.Section role="listbox">
-          {dns.customOptions.addresses.map((item, i) => {
-            return (
+          <List
+            items={dns.customOptions.addresses}
+            getKey={stringValueAsKey}
+            skipAddTransition={true}
+            skipRemoveTransition={savingEdit}>
+            {(item) => (
               <CellListItem
-                key={i}
                 onRemove={onRemove}
                 onChange={onEdit}
                 willShowConfirmationDialog={willShowConfirmationDialog}>
                 {item}
               </CellListItem>
-            );
-          })}
+            )}
+          </List>
         </Cell.Section>
 
         {inputVisible && (
@@ -294,6 +303,7 @@ interface ICellListItemProps {
 function CellListItem(props: ICellListItemProps) {
   const [editing, startEditing, stopEditing] = useBoolean(false);
   const [invalid, setInvalid, setValid] = useBoolean(false);
+  const isMounted = useMounted();
 
   const inputContainerRef = useRef() as React.RefObject<HTMLDivElement>;
 
@@ -309,7 +319,9 @@ function CellListItem(props: ICellListItemProps) {
       } else {
         try {
           await props.onChange(props.children, value);
-          stopEditing();
+          if (isMounted()) {
+            stopEditing();
+          }
         } catch {
           setInvalid();
         }
