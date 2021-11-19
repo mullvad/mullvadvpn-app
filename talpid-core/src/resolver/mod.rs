@@ -1,7 +1,7 @@
 use socket2::{Domain, Socket, Type};
 
 use std::{
-    collections::{BTreeSet, HashMap},
+    collections::BTreeSet,
     ffi::CString,
     future::Future,
     io,
@@ -151,7 +151,7 @@ type ExcludedUpstreamResolver = AsyncResolver<GenericConnection, OurConnectionPr
 
 #[derive(Debug, PartialEq, Clone)]
 pub(crate) enum ResolverState {
-    Active(HashMap<String, Vec<IpAddr>>),
+    Active(Option<(String, Vec<IpAddr>)>),
     Inactive,
     Shutdown,
 }
@@ -208,7 +208,7 @@ impl ResolverHandle {
     /// Enable the resolver
     pub async fn set_active(
         &self,
-        config: HashMap<String, Vec<IpAddr>>,
+        config: Option<(String, Vec<IpAddr>)>,
     ) -> Result<ResolverStateToggleResult, Error> {
         self.set_state(ResolverState::Active(config)).await
     }
@@ -373,15 +373,13 @@ impl FilteringResolver {
 
     fn get_resolver_config(&self) -> (&str, &[IpAddr]) {
         match &self.resolver_state {
-            ResolverState::Active(resolvers) => {
+            ResolverState::Active(ref resolvers) => {
                 // TODO: actually pick the best resolver
                 resolvers
-                    .iter()
-                    // ignore anay config with loopback addresses
+                    .as_ref()
                     .filter(|(_, addresses)| {
                         !addresses.iter().any(|ip| ip.is_loopback())
                     })
-                    .next()
                     .map(|(interface_name, addresses)| (interface_name.as_str(), addresses.as_slice()))
                     .unwrap_or(("", &[]))
             }
@@ -658,7 +656,7 @@ impl LookupObject for ForwardLookup {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::{fs, net::UdpSocket};
+    use std::{fs, net::UdpSocket, process::Command};
     use subslice::SubsliceExt;
 
     fn random_port() -> u16 {
@@ -668,7 +666,7 @@ mod test {
 
     const NAMESERVER: &[u8] = b"nameserver";
 
-    fn read_resolvconf() -> HashMap<String, Vec<IpAddr>> {
+    fn read_resolvconf() -> Option<(String, Vec<IpAddr>)> {
         let contents = fs::read("/etc/resolv.conf").unwrap();
         let nameserver_index = contents
             .find(NAMESERVER)
@@ -681,9 +679,23 @@ mod test {
 
         let resolver_ip =
             IpAddr::from_str(std::str::from_utf8(ip_addr_subslice).unwrap().trim()).unwrap();
-        let mut map = HashMap::new();
-        map.insert("".to_string(), vec![resolver_ip]);
-        map
+        let route_output = String::from_utf8(
+            Command::new("route")
+                .arg("get")
+                .arg(resolver_ip.to_string())
+                .output()
+                .expect("Failed to run 'route get'")
+                .stdout,
+        )
+        .unwrap();
+
+        let mut output_parts = route_output.split_whitespace();
+        while let Some(part) = output_parts.next() {
+            if part.trim() == "interface:" {
+                return Some((output_parts.next().unwrap().to_string(), vec![resolver_ip]));
+            }
+        }
+        panic!("Couldn't deduce interface")
     }
 
     async fn start_resolver() -> (

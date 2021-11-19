@@ -72,7 +72,9 @@ impl State {
         if let Some(tunnel_tx) = self.tunnel_tx.upgrade() {
             match parse_sc_config(&self.backup) {
                 Ok(config) => {
-                    let _ = tunnel_tx.unbounded_send(TunnelCommand::HostDnsConfig(config));
+                    // TODO: do better filtering to get the best resolver
+                    let _ = tunnel_tx
+                        .unbounded_send(TunnelCommand::HostDnsConfig(config.into_iter().next()));
                 }
                 Err(err) => {
                     log::error!("Failed to parse host's DNS config: {}", err);
@@ -319,7 +321,7 @@ impl DnsMonitor {
         result_rx.recv().unwrap()
     }
     /// Get the system config without our changes
-    pub fn get_system_config(&self) -> Result<HashMap<String, Vec<IpAddr>>> {
+    pub fn get_system_config(&self) -> Result<Option<(String, Vec<IpAddr>)>> {
         self.state
             .lock()
             .as_ref()
@@ -330,7 +332,7 @@ impl DnsMonitor {
 
 fn parse_sc_config(
     config: &HashMap<String, Option<DnsSettings>>,
-) -> Result<HashMap<String, Vec<IpAddr>>> {
+) -> Result<Option<(String, Vec<IpAddr>)>> {
     config
         .iter()
         .filter_map(|(path, maybe_config)| {
@@ -344,7 +346,8 @@ fn parse_sc_config(
             let addresses = settings.interface_config(path.as_str())?;
             Ok((settings.name.clone(), addresses))
         })
-        .collect::<Result<_>>()
+        .next()
+        .transpose()
 }
 
 /// Creates a `SCDynamicStore` that watches all network interfaces for changes to the DNS settings.
