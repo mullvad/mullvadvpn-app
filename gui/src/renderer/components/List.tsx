@@ -12,12 +12,12 @@ interface ListProps<T> {
   skipRemoveTransition?: boolean;
 }
 
-interface RowData<T> {
+export interface RowData<T> {
   key: string;
   data: T;
 }
 
-interface RowDisplayData<T> extends RowData<T> {
+export interface RowDisplayData<T> extends RowData<T> {
   removing: boolean;
 }
 
