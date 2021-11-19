@@ -350,6 +350,7 @@ impl FilteringResolver {
     }
 
     async fn reset_resolver(&mut self) -> Result<Vec<IpAddr>, Error> {
+        log::trace!("Resetting custom resolver");
         let (best_interface, resolver_addresses) = self.get_resolver_config();
         self.runtime_provider.update_best_interface(best_interface);
         let resolver_config = ResolverConfig::from_parts(
@@ -398,6 +399,8 @@ impl FilteringResolver {
             let _ = tx.send(empty_response);
             return Either::Left(async {});
         }
+
+        log::trace!("Looking up {}", query.name());
 
         let unblock_tx = self.tunnel_tx.clone();
         let lookup: Box<dyn Future<Output = Result<Lookup, ResolveError>> + Unpin + Send> =
