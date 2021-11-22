@@ -796,7 +796,11 @@ fn parse_transport_port(
         Some(port) => parse_port_constraint(port)?,
         None => {
             if let Some(ref transport_port) = current_constraint {
-                Constraint::Only(transport_port.port as u16)
+                if transport_port.port != 0 {
+                    Constraint::Only(transport_port.port as u16)
+                } else {
+                    Constraint::Any
+                }
             } else {
                 Constraint::Any
             }
