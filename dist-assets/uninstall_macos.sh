@@ -38,6 +38,9 @@ echo "Removing app from /Applications ..."
 sudo rm -rf /Applications/Mullvad\ VPN.app
 sudo pkgutil --forget net.mullvad.vpn || true
 
+echo "Removing login item ..."
+osascript -e 'tell application "System Events" to delete login item "Mullvad VPN"' 2>/dev/null || true
+
 read -p "Do you want to delete the log and cache files the app has created? (y/n) "
 if [[ "$REPLY" =~ [Yy]$ ]]; then
     sudo rm -rf /var/log/mullvad-vpn /var/root/Library/Caches/mullvad-vpn /Library/Caches/mullvad-vpn
