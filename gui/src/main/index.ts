@@ -13,7 +13,6 @@ import {
   systemPreferences,
   Tray,
 } from 'electron';
-import os from 'os';
 import * as path from 'path';
 import { sprintf } from 'sprintf-js';
 import util from 'util';
@@ -71,6 +70,7 @@ import {
 } from './logging';
 import { loadTranslations } from './load-translations';
 import NotificationController from './notification-controller';
+import { isMacOs11OrNewer } from './platform-version';
 import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
@@ -1947,8 +1947,7 @@ class ApplicationMain {
           if (event.metaKey) {
             setImmediate(() => this.windowController?.updatePosition());
           } else {
-            const isBigSurOrNewer = parseInt(os.release(), 10) >= 20;
-            if (isBigSurOrNewer && !this.windowController?.isVisible()) {
+            if (isMacOs11OrNewer() && !this.windowController?.isVisible()) {
               // This is a workaround for this Electron issue, when it's resolved
               // `this.windowController?.toggle()` should do the trick on all platforms:
               // https://github.com/electron/electron/issues/28776

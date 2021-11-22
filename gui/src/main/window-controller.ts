@@ -1,8 +1,8 @@
 import { BrowserWindow, Display, screen, Tray, WebContents } from 'electron';
-import os from 'os';
 import { IWindowShapeParameters } from '../shared/ipc-types';
 import { Scheduler } from '../shared/scheduler';
 import { IpcMainEventChannel } from './ipc-event-channel';
+import { isWindows11OrNewer } from './platform-version';
 
 interface IPosition {
   x: number;
@@ -14,10 +14,8 @@ interface IWindowPositioning {
   getWindowShapeParameters(window: BrowserWindow): IWindowShapeParameters;
 }
 
-// Tray applications are positioned aproximately 10px from the tray in Windows 11. Windows 11 has
-// the internal version 10.0.22000+.
-const MARGIN =
-  process.platform === 'win32' && parseInt(os.release().split('.').at(-1)!) >= 22000 ? 10 : 0;
+// Tray applications are positioned aproximately 10px from the tray in Windows 11.
+const MARGIN = isWindows11OrNewer() ? 10 : 0;
 
 class StandaloneWindowPositioning implements IWindowPositioning {
   public getPosition(window: BrowserWindow): IPosition {
