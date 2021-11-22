@@ -115,6 +115,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             let diffResult = oldSnapshot.difference(snapshot)
             if let tableView = tableView {
                 diffResult.apply(to: tableView, animateDifferences: animated)
+                reloadCustomDNSFooter()
             }
         } else {
             tableView?.reloadData()
@@ -373,27 +374,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
                 self?.setEnableCustomDNS(isOn)
             }
 
-            switch viewModel.customDNSPrecondition {
-            case .satisfied:
-                cell.accessibilityHint = nil
-
-            case .emptyDNSDomains:
-                cell.accessibilityHint = NSLocalizedString(
-                    "CUSTOM_DNS_NO_DNS_ENTRIES_ACCESSIBILITY_HINT",
-                    tableName: "Preferences",
-                    value: "Please add at least one DNS domain to activate this setting.",
-                    comment: ""
-                )
-
-            case .conflictsWithOtherSettings:
-                cell.accessibilityHint = NSLocalizedString(
-                    "CUSTOM_DNS_DISABLE_ADTRACKER_BLOCKING_ACCESSIBILITY_HINT",
-                    tableName: "Preferences",
-                    value: "Disable Block Ads and Block trackers to activate this setting.",
-                    comment: ""
-                )
-            }
-
+            cell.accessibilityHint = viewModel.customDNSPrecondition.localizedDescription(isEditing: isEditing)
 
             return cell
 
@@ -565,30 +546,10 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
     }
 
     private func configureFooterView(_ reusableView: SettingsStaticTextFooterView) {
-        let footerText: String?
-
-        switch viewModel.customDNSPrecondition {
-        case .satisfied:
-            footerText = nil
-
-        case .emptyDNSDomains:
-            footerText = NSLocalizedString(
-                "CUSTOM_DNS_NO_DNS_ENTRIES_FOOTNOTE",
-                tableName: "Preferences",
-                value: "Please add at least one DNS domain to activate this setting.",
-                comment: ""
-            )
-
-        case .conflictsWithOtherSettings:
-            footerText = NSLocalizedString(
-                "CUSTOM_DNS_DISABLE_ADTRACKER_BLOCKING_FOOTNOTE",
-                tableName: "Preferences",
-                value: "Disable Block Ads and Block trackers to activate this setting.",
-                comment: ""
-            )
-        }
-
-        reusableView.titleLabel.text = footerText
+        let font = reusableView.titleLabel.font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
+        
+        reusableView.titleLabel.attributedText = viewModel.customDNSPrecondition
+            .attributedLocalizedDescription(isEditing: isEditing, preferredFont: font)
     }
 
 }
