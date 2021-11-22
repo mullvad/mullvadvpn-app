@@ -35,7 +35,7 @@ impl DisconnectingState {
                 }
                 #[cfg(target_os = "macos")]
                 Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
-                    let _ = done_tx.send(shared_values.toggle_custom_resolver(enable));
+                    let _ = done_tx.send(shared_values.deactivate_custom_resolver(enable));
                     AfterDisconnect::Nothing
                 }
                 #[cfg(target_os = "macos")]
@@ -86,7 +86,7 @@ impl DisconnectingState {
 
                 #[cfg(target_os = "macos")]
                 Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
-                    let _ = done_tx.send(shared_values.toggle_custom_resolver(enable));
+                    let _ = done_tx.send(shared_values.deactivate_custom_resolver(enable));
                     AfterDisconnect::Block(reason)
                 }
                 #[cfg(target_os = "macos")]
@@ -139,8 +139,9 @@ impl DisconnectingState {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
+                #[cfg(target_os = "macos")]
                 Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
-                    let _ = done_tx.send(shared_values.toggle_custom_resolver(enable));
+                    let _ = done_tx.send(shared_values.deactivate_custom_resolver(enable));
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 #[cfg(target_os = "macos")]
@@ -148,6 +149,7 @@ impl DisconnectingState {
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
 
+                #[cfg(target_os = "macos")]
                 Some(TunnelCommand::AddAllowedIps(_allowed_ips, done_tx)) => {
                     let _ = done_tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)

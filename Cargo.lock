@@ -1021,7 +1021,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7e2f18aece9709094573a9f24f483c4f65caa4298e2f7ae1b71cc65d853fad7"
 dependencies = [
  "socket2 0.3.19",
- "widestring",
+ "widestring 0.4.3",
  "winapi 0.3.9",
  "winreg 0.6.2",
 ]
@@ -2620,6 +2620,7 @@ dependencies = [
  "cfg-if 1.0.0",
  "chrono",
  "duct",
+ "either",
  "err-derive",
  "futures",
  "hex",

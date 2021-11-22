@@ -268,13 +268,14 @@ impl ConnectingState {
         use self::EventConsequence::*;
 
         match command {
+            #[cfg(target_os = "macos")]
             Some(TunnelCommand::AddAllowedIps(_, done_tx)) => {
                 let _ = done_tx.send(());
                 SameState(self.into())
             }
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
-                let _ = done_tx.send(shared_values.toggle_custom_resolver(enable));
+                let _ = done_tx.send(shared_values.deactivate_custom_resolver(enable));
                 SameState(self.into())
             }
             #[cfg(target_os = "macos")]
@@ -491,6 +492,13 @@ impl TunnelState for ConnectingState {
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         if shared_values.is_offline {
             return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
+        }
+        #[cfg(target_os = "macos")]
+        if let Err(err) = shared_values.disable_custom_resolver() {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to disable custom resolver")
+            );
         }
         match shared_values
             .tunnel_parameters_generator

@@ -406,6 +406,7 @@ fn dns_change_callback_internal(
     changed_keys: CFArray<CFString>,
     state: &mut State,
 ) {
+    state.send_new_config();
     for path in &changed_keys {
         let should_set_dns = match DnsSettings::load(&store, path.clone()).ok() {
             None => {
@@ -424,7 +425,6 @@ fn dns_change_callback_internal(
                 }
             }
         };
-        state.send_new_config();
         if should_set_dns {
             if let Err(e) = state.dns_settings.save(&store, path.clone()) {
                 log::error!("Failed changing DNS for {}: {}", *path, e);
