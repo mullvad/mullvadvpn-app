@@ -112,6 +112,7 @@ message ErrorState {
 		VPN_PERMISSION_DENIED = 7;
 		SPLIT_TUNNEL_ERROR = 8;
 		CUSTOM_RESOLVER_ERROR = 9;
+		READ_SYSTEM_DNS_CONFIG = 10;
 	}
 
 	enum GenerationError {
