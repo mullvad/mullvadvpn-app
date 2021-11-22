@@ -712,25 +712,25 @@
 !define FirewallWarningCheck '!insertmacro "FirewallWarningCheck"'
 
 #
-# RemoveWireGuardKey
+# RemoveCurrentDevice
 #
-# Remove the WireGuard key from the account, if there is one
+# Remove the device from the account, if there is one
 #
-!macro RemoveWireGuardKey
+!macro RemoveCurrentDevice
 
-	log::Log "RemoveWireGuardKey()"
+	log::Log "RemoveCurrentDevice()"
 
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" remove-wireguard-key'
+	nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" remove-device'
 	Pop $0
 	Pop $1
 
 	${If} $0 != ${MVSETUP_OK}
-		log::LogWithDetails "RemoveWireGuardKey() failed" $1
+		log::LogWithDetails "RemoveCurrentDevice() failed" $1
 	${Else}
-		log::Log "RemoveWireGuardKey() completed successfully"
+		log::Log "RemoveCurrentDevice() completed successfully"
 	${EndIf}
 
 	Pop $1
@@ -738,7 +738,7 @@
 
 !macroend
 
-!define RemoveWireGuardKey '!insertmacro "RemoveWireGuardKey"'
+!define RemoveCurrentDevice '!insertmacro "RemoveCurrentDevice"'
 
 
 #
@@ -1170,7 +1170,7 @@
 
 	${If} $FullUninstall == 1
 		${ClearFirewallRules}
-		${RemoveWireGuardKey}
+		${RemoveCurrentDevice}
 
 		${ExtractWireGuard}
 		${RemoveWintun}

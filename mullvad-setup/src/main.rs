@@ -17,7 +17,7 @@ lazy_static::lazy_static! {
 }
 
 const KEY_RETRY_INTERVAL: Duration = Duration::ZERO;
-const KEY_RETRY_MAX_RETRIES: usize = 2;
+const KEY_RETRY_MAX_RETRIES: usize = 4;
 
 #[repr(i32)]
 enum ExitStatus {
@@ -63,8 +63,8 @@ pub enum Error {
     #[error(display = "Failed to initialize mullvad RPC runtime")]
     RpcInitializationError(#[error(source)] mullvad_rpc::Error),
 
-    #[error(display = "Failed to remove WireGuard key for account")]
-    RemoveKeyError(#[error(source)] mullvad_rpc::rest::Error),
+    #[error(display = "Failed to remove device from account")]
+    RemoveDeviceError(#[error(source)] mullvad_rpc::rest::Error),
 
     #[error(display = "Failed to obtain settings directory path")]
     SettingsPathError(#[error(source)] SettingsPathErrorType),
@@ -90,7 +90,7 @@ async fn main() {
         App::new("prepare-restart")
             .about("Move a running daemon into a blocking state and save its target state"),
         App::new("reset-firewall").about("Remove any firewall rules introduced by the daemon"),
-        App::new("remove-wireguard-key").about("Removes the WireGuard key from the active account"),
+        App::new("remove-device").about("Remove the current device from the active account"),
         App::new("is-older-version")
             .about("Checks whether the given version is older than the current version")
             .arg(
@@ -113,7 +113,7 @@ async fn main() {
     let result = match matches.subcommand() {
         Some(("prepare-restart", _)) => prepare_restart().await,
         Some(("reset-firewall", _)) => reset_firewall().await,
-        Some(("remove-wireguard-key", _)) => remove_wireguard_key().await,
+        Some(("remove-device", _)) => remove_device().await,
         Some(("is-older-version", sub_matches)) => {
             let old_version = sub_matches.value_of("OLDVERSION").unwrap();
             match is_older_version(old_version).await {
@@ -162,7 +162,7 @@ async fn reset_firewall() -> Result<(), Error> {
         .map_err(Error::FirewallError)
 }
 
-async fn remove_wireguard_key() -> Result<(), Error> {
+async fn remove_device() -> Result<(), Error> {
     let (cache_path, settings_path) = get_paths()?;
     let (mut cacher, data) = mullvad_daemon::device::DeviceCacher::new(&settings_path)
         .await
@@ -192,7 +192,7 @@ async fn remove_wireguard_key() -> Result<(), Error> {
             KEY_RETRY_MAX_RETRIES,
         )
         .await
-        .map_err(Error::RemoveKeyError)?;
+        .map_err(Error::RemoveDeviceError)?;
 
         cacher
             .write(None)
