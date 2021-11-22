@@ -31,6 +31,8 @@ pub use hyper::StatusCode;
 pub type Request = hyper::Request<hyper::Body>;
 pub type Response = hyper::Response<hyper::Body>;
 
+const USER_AGENT: &str = "mullvad-app";
+
 const TIMER_CHECK_INTERVAL: Duration = Duration::from_secs(60);
 const API_IP_CHECK_DELAY: Duration = Duration::from_secs(15 * 60);
 const API_IP_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
@@ -287,6 +289,7 @@ impl RestRequest {
 
         let mut builder = http::request::Builder::new()
             .method(Method::GET)
+            .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
             .header(header::ACCEPT, HeaderValue::from_static("application/json"));
         if let Some(host) = uri.host() {
             builder = builder.header(header::HOST, HeaderValue::from_str(&host)?);
@@ -440,6 +443,7 @@ impl RequestFactory {
         let request = http::request::Builder::new()
             .method(method)
             .uri(uri)
+            .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
             .header(header::ACCEPT, HeaderValue::from_static("application/json"))
             .header(header::HOST, self.hostname.clone());
 
