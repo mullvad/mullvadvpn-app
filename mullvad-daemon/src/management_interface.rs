@@ -370,6 +370,7 @@ impl ManagementService for ManagementServiceImpl {
     //
 
     async fn create_new_account(&self, _: Request<()>) -> ServiceResult<String> {
+        log::debug!("create_new_account");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::CreateNewAccount(tx))?;
         self.wait_for_result(rx)
