@@ -28,6 +28,8 @@ Line wrap the file at 100 chars.                                              Th
   instead of setting them to default values.
 
 ### Fixed
+- Always kill `sslocal` if the tunnel monitor fails to start when using bridges.
+
 #### Windows
 - Fix app size after changing display scale.
 - Fix daemon not starting if all excluded app paths reside on non-existent/unmounted volumes.
