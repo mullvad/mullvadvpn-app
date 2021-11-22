@@ -23,6 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### macOS
+- Add custom DNS resolver to allow macOS connectivity check reach `captive.apple.com` when the
+  firewall would otherwise block such traffic. This resolves issues with the app blocking internet
+  connectivity after sleep or when connecting to new wireless networks.
+
 ### Changed
 - Keep unspecified constraints unchanged in the CLI when providing specific tunnel constraints
   instead of setting them to default values.
@@ -30,7 +36,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Avoid running in foreground when not connected.
 - Avoid removing notification when service is stopped.
-- Change so that swiping the notification no longer kills the service since that isn't a common way of handling the 
+- Change so that swiping the notification no longer kills the service since that isn't a common way of handling the
   lifecycle in Android. Instead rely on the following mechanisms to kill the service:
   * Swiping to remove from the Recents/Overview screen.
   * Android Background Execution Limits.
