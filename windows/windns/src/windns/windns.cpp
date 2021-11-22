@@ -94,11 +94,17 @@ AdapterDnsAddresses GetAdapterDnsAddresses(const std::wstring &adapterAlias)
 		GAA_FLAG_SKIP_UNICAST | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST
 	);
 
+	NET_LUID luid;
+	if (NO_ERROR != ConvertInterfaceAliasToLuid(adapterAlias.c_str(), &luid))
+	{
+		const auto err = std::wstring(L"Could not resolve LUID of interface: \"")
+			.append(adapterAlias).append(L"\"");
+		THROW_ERROR(common::string::ToAnsi(err).c_str());
+	}
+
 	for (const auto adapter : adapters)
 	{
-		const auto guidObj = common::Guid::FromString(adapter.guid());
-
-		if (0 != _wcsicmp(adapter.alias().c_str(), adapterAlias.c_str()))
+		if (luid.Value != adapter.raw().Luid.Value)
 		{
 			continue;
 		}

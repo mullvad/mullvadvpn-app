@@ -9,7 +9,6 @@ namespace shared::network
 {
 
 InterfaceUtils::NetworkAdapter::NetworkAdapter(
-	const common::network::Nci &nci,
 	const std::shared_ptr<std::vector<uint8_t>> addressesBuffer,
 	const IP_ADAPTER_ADDRESSES &entry
 )
@@ -17,38 +16,7 @@ InterfaceUtils::NetworkAdapter::NetworkAdapter(
 	, m_entry(entry)
 {
 	m_guid = common::string::ToWide(entry.AdapterName);
-
-	try
-	{
-		//
-		// FIXME:
-		// Work around incorrect alias sometimes
-		// being returned on Windows 8.
-		//
-		// Steps to reproduce:
-		// 1. Install NDIS 6 TAP driver v9.00.00.21.
-		// 2. Update driver to v9.24.2.601.
-		// 3. Rename TAP adapter.
-		//
-		// GetAdaptersAddresses() returns a generic name
-		// for the *first* adapter instead of the correct
-		// one, whereas ConvertInterfaceAliasToLuid() and
-		// ConvertInterfaceLuidToAlias() yield correct values.
-		//
-
-		IID guidObj = { 0 };
-		if (S_OK != IIDFromString(&m_guid[0], &guidObj))
-		{
-			THROW_ERROR("IIDFromString() failed");
-		}
-
-		m_alias = nci.getConnectionName(guidObj);
-	}
-	catch (const std::exception &)
-	{
-		m_alias = entry.FriendlyName;
-	}
-
+	m_alias = entry.FriendlyName;
 	m_name = entry.Description;
 }
 
@@ -79,11 +47,9 @@ std::set<InterfaceUtils::NetworkAdapter> InterfaceUtils::GetAllAdapters(ULONG fa
 
 	std::set<NetworkAdapter> adapters;
 
-	common::network::Nci nci;
-
 	for (auto it = addresses; nullptr != it; it = it->Next)
 	{
-		adapters.emplace(NetworkAdapter(nci, buffer, *it));
+		adapters.emplace(NetworkAdapter(buffer, *it));
 	}
 
 	return adapters;
