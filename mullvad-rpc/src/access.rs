@@ -92,9 +92,11 @@ impl AccessTokenProxy {
     ) -> Result<AccessTokenData, rest::Error> {
         #[derive(serde::Serialize)]
         struct AccessTokenRequest {
-            account_token: String,
+            account_number: String,
         }
-        let request = AccessTokenRequest { account_token };
+        let request = AccessTokenRequest {
+            account_number: account_token,
+        };
 
         let service = self.service.clone();
 
