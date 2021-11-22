@@ -9,17 +9,27 @@
 import UIKit
 
 class CustomNavigationBar: UINavigationBar {
+    private static let titleTextAttributes: [NSAttributedString.Key: Any] = [
+        .foregroundColor: UIColor.NavigationBar.titleColor
+    ]
+
+    private static let backButtonTitlePositionOffset = UIOffset(horizontal: 4, vertical: 0)
+    private static let backButtonTitleTextAttributes: [NSAttributedString.Key: Any] = [
+        .foregroundColor: UIColor.NavigationBar.backButtonTitleColor
+    ]
 
     private static let setupAppearanceForIOS12Once: Void = {
         if #available(iOS 13, *) {
             // no-op
         } else {
             let buttonAppearance = UIBarButtonItem.appearance(whenContainedInInstancesOf: [CustomNavigationBar.self])
-            buttonAppearance.setBackButtonTitlePositionAdjustment(UIOffset(horizontal: 4, vertical: 0), for: .default)
+            buttonAppearance.setBackButtonTitlePositionAdjustment(CustomNavigationBar.backButtonTitlePositionOffset, for: .default)
+            buttonAppearance.setTitleTextAttributes(CustomNavigationBar.titleTextAttributes, for: .normal)
         }
     }()
 
-    private let customBackIndicatorImage = UIImage(named: "IconBack")
+    private let customBackIndicatorImage = UIImage(named: "IconBack")?
+        .backport_withTintColor(UIColor.NavigationBar.backButtonIndicatorColor, renderingMode: .alwaysOriginal)
     private let customBackIndicatorTransitionMask = UIImage(named: "IconBackTransitionMask")
 
     // Returns the distance from the title label to the bottom of navigation bar
@@ -59,8 +69,8 @@ class CustomNavigationBar: UINavigationBar {
     }
 
     private func setupNavigationBarAppearance() {
-        tintColor = .white
-        backgroundColor = .secondaryColor
+        tintColor = UIColor.NavigationBar.titleColor
+        backgroundColor = UIColor.NavigationBar.backgroundColor
         isTranslucent = false
 
         if #available(iOS 13, *) {
@@ -69,33 +79,30 @@ class CustomNavigationBar: UINavigationBar {
         } else {
             backIndicatorImage = customBackIndicatorImage
             backIndicatorTransitionMaskImage = customBackIndicatorTransitionMask
-            barTintColor = .secondaryColor
+            barTintColor = UIColor.NavigationBar.backgroundColor
 
-            let titleAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.white]
-            titleTextAttributes = titleAttributes
-            largeTitleTextAttributes = titleAttributes
+            titleTextAttributes = Self.titleTextAttributes
+            largeTitleTextAttributes = Self.titleTextAttributes
             shadowImage = UIImage()
         }
     }
 
     @available(iOS 13, *)
     private func makeNavigationBarAppearance() -> UINavigationBarAppearance {
-        let textAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.white]
-
         let navigationBarAppearance = UINavigationBarAppearance()
         navigationBarAppearance.configureWithTransparentBackground()
-        navigationBarAppearance.titleTextAttributes = textAttributes
-        navigationBarAppearance.largeTitleTextAttributes = textAttributes
+        navigationBarAppearance.titleTextAttributes = Self.titleTextAttributes
+        navigationBarAppearance.largeTitleTextAttributes = Self.titleTextAttributes
 
         let plainBarButtonAppearance = UIBarButtonItemAppearance(style: .plain)
-        plainBarButtonAppearance.normal.titleTextAttributes = textAttributes
+        plainBarButtonAppearance.normal.titleTextAttributes = Self.titleTextAttributes
 
         let doneBarButtonAppearance = UIBarButtonItemAppearance(style: .done)
-        doneBarButtonAppearance.normal.titleTextAttributes = textAttributes
+        doneBarButtonAppearance.normal.titleTextAttributes = Self.titleTextAttributes
 
         let backButtonAppearance = UIBarButtonItemAppearance(style: .plain)
-        backButtonAppearance.normal.titleTextAttributes = textAttributes
-        backButtonAppearance.normal.titlePositionAdjustment = UIOffset(horizontal: 4, vertical: 0)
+        backButtonAppearance.normal.titlePositionAdjustment = Self.backButtonTitlePositionOffset
+        backButtonAppearance.normal.titleTextAttributes = Self.backButtonTitleTextAttributes
 
         navigationBarAppearance.buttonAppearance = plainBarButtonAppearance
         navigationBarAppearance.doneButtonAppearance = doneBarButtonAppearance

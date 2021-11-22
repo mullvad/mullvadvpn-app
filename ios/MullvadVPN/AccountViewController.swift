@@ -51,6 +51,10 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
     // MARK: - View lifecycle
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 

@@ -13,6 +13,14 @@ class SettingsCell: UITableViewCell {
     let titleLabel = UILabel()
     let detailTitleLabel = UILabel()
 
+    lazy var customDisclosureIndicator: UIImageView = {
+        let disclosureImage = UIImage(named: "IconChevron")?
+            .backport_withTintColor(UIColor.Cell.disclosureIndicatorColor, renderingMode: .alwaysOriginal)
+
+        return UIImageView(image: disclosureImage)
+    }()
+
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -28,11 +36,11 @@ class SettingsCell: UITableViewCell {
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = UIFont.systemFont(ofSize: 17)
-        titleLabel.textColor = .white
+        titleLabel.textColor = UIColor.Cell.titleTextColor
 
         detailTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         detailTitleLabel.font = UIFont.systemFont(ofSize: 13)
-        detailTitleLabel.textColor = .white
+        detailTitleLabel.textColor = UIColor.Cell.detailTextColor
 
         titleLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         detailTitleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -68,21 +76,13 @@ class SettingsCell: UITableViewCell {
         setLayoutMargins()
     }
 
-    override func didAddSubview(_ subview: UIView) {
-        super.didAddSubview(subview)
-
-        if let button = subview as? UIButton {
-            updateDisclosureIndicatorTintColor(button)
-        }
-    }
-
     override func layoutSubviews() {
         super.layoutSubviews()
 
         if #available(iOS 13, *) {
             // no-op
         } else {
-            layoutSubviewsiOS12()
+            layoutSubviews_iOS12()
         }
     }
 
@@ -94,30 +94,19 @@ class SettingsCell: UITableViewCell {
         contentView.layoutMargins = UIMetrics.settingsCellLayoutMargins
     }
 
-    /// Standard disclosure views do not provide customization of a tint color.
-    /// This method adjusts a disclosure tint color by replacing the button image rendering mode on iOS 12 and by
-    /// switching graphics on iOS 13 or newer.
-    private func updateDisclosureIndicatorTintColor(_ button: UIButton) {
-        guard accessoryType == .disclosureIndicator else { return }
+    func setCustomDisclosureIndicator() {
+        accessoryType = .none
+        accessoryView = customDisclosureIndicator
+    }
 
-        if #available(iOS 13, *) {
-            let configuration = UIImage.SymbolConfiguration(pointSize: 11, weight: .bold)
-            let chevron = UIImage(systemName: "chevron.right", withConfiguration: configuration)?
-                .withTintColor(.white, renderingMode: .alwaysOriginal)
-                .imageFlippedForRightToLeftLayoutDirection()
-
-            button.setImage(chevron, for: .normal)
-        } else {
-            if let image = button.backgroundImage(for: .normal)?.withRenderingMode(.alwaysTemplate) {
-                button.setBackgroundImage(image, for: .normal)
-                button.tintColor = .white
-            }
-        }
+    func unsetCustomDisclosureIndicator() {
+        accessoryView = nil
+        accessoryType = .none
     }
 
     /// On iOS 12, standard edit and reorder controls do not respect layout margins.
     /// This method does layout adjustments to fix that.
-    private func layoutSubviewsiOS12() {
+    private func layoutSubviews_iOS12() {
         guard isEditing || showsReorderControl else { return }
 
         var leftOffset: CGFloat = 0

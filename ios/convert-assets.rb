@@ -15,19 +15,14 @@ GRAPHICAL_ASSETS_DIR = File.join(ROOT_DIR, "gui/assets/images")
 ADDITIONAL_ASSETS_DIR = File.join(SCRIPT_DIR, "AdditionalAssets")
 
 # graphical assets to import
-GRAPHICAL_ASSETS=[
-  "icon-alert.svg",
+GRAPHICAL_ASSETS = [
   "icon-arrow.svg",
   "icon-back.svg",
   "icon-chevron-down.svg",
   "icon-chevron-up.svg",
   "icon-chevron.svg",
-  "icon-close-sml.svg",
-  "icon-close.svg",
   "icon-extLink.svg",
   "icon-fail.svg",
-  "icon-fastest.svg",
-  "icon-nearest.svg",
   "icon-reload.svg",
   "icon-settings.svg",
   "icon-spinner.svg",
@@ -35,11 +30,12 @@ GRAPHICAL_ASSETS=[
   "icon-tick.svg",
   "location-marker-secure.svg",
   "location-marker-unsecure.svg",
-  "logo-icon.svg"
+  "logo-icon.svg",
+  "logo-text.svg"
 ]
 
 # App icon sizes
-APP_ICON_SIZES=[
+APP_ICON_SIZES = [
   # iphone-notification 20pt at 2x, 3x
   ["AppIconPhoneNotification", 20, 2, 3],
 
@@ -83,6 +79,12 @@ ADDITIONAL_ASSETS = [
   "IconBackTransitionMask.svg"
 ]
 
+# SVG convertion tool environment variables. 
+SVG_CONVERT_ENVIRONMENT_VARIABLES = {
+  # Fix PDF "CreationDate" for reproducible output 
+  "SOURCE_DATE_EPOCH" => "1596022781"
+}
+
 # Functions
 
 def generate_graphical_assets()
@@ -99,7 +101,7 @@ def generate_graphical_assets()
     output_file = File.join(output_dir, "#{image_name}.pdf")
 
     puts "Convert #{svg_file} -> #{output_file}"
-    system("rsvg-convert", "--format=pdf", svg_file, "--output", output_file)
+    system(SVG_CONVERT_ENVIRONMENT_VARIABLES, "rsvg-convert", "--format=pdf", svg_file, "--output", output_file)
   end
 end
 
@@ -117,9 +119,6 @@ def genereate_app_icon()
 end
 
 def generate_additional_assets()
-  # Fix PDF "CreationDate" for reproducible output
-  environment_variables = { "SOURCE_DATE_EPOCH" => "1596022781" }
-
   for asset_name in ADDITIONAL_ASSETS do
     svg_file = File.join(ADDITIONAL_ASSETS_DIR, asset_name)
     image_name = File.basename(svg_file, ".svg")
@@ -132,7 +131,7 @@ def generate_additional_assets()
     end
 
     puts "Generate #{image_name} -> #{output_file}"
-    system(environment_variables, "rsvg-convert", "-f", "pdf", "-o", output_file, svg_file)
+    system(SVG_CONVERT_ENVIRONMENT_VARIABLES, "rsvg-convert", "--format=pdf", svg_file, "--output", output_file)
   end
 end
 

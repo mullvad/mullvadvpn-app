@@ -17,6 +17,10 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
 
     weak var delegate: SettingsViewControllerDelegate?
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+
     private let dataSource = SettingsDataSource()
 
     init() {
