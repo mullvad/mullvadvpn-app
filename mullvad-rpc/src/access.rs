@@ -90,15 +90,17 @@ impl AccessTokenProxy {
     ) -> Result<AccessTokenData, rest::Error> {
         #[derive(serde::Serialize)]
         struct AccessTokenRequest {
-            account_token: String,
+            account_number: String,
         }
-        let request = AccessTokenRequest { account_token };
+        let request = AccessTokenRequest {
+            account_number: account_token,
+        };
 
         let service = self.service.clone();
         let response = rest::send_json_request(
             &self.factory,
             service,
-            "auth/token",
+            "auth/v1-alpha/token",
             Method::POST,
             &request,
             None,

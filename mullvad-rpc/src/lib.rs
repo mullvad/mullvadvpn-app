@@ -280,7 +280,7 @@ pub struct AccountsProxy {
 
 #[derive(serde::Deserialize)]
 struct AccountResponse {
-    token: AccountToken,
+    number: AccountToken,
     expiry: DateTime<Utc>,
 }
 
@@ -327,7 +327,7 @@ impl AccountsProxy {
 
         async move {
             let account: AccountResponse = rest::deserialize_body(response.await?).await?;
-            Ok(account.token)
+            Ok(account.number)
         }
     }
 
