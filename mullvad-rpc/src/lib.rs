@@ -439,14 +439,9 @@ impl DevicesProxy {
         #[derive(serde::Serialize)]
         struct DeviceSubmission {
             pubkey: wireguard::PublicKey,
-            kind: String,
         }
 
-        let submission = DeviceSubmission {
-            pubkey,
-            // TODO: constant
-            kind: "App".to_string(),
-        };
+        let submission = DeviceSubmission { pubkey };
 
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
