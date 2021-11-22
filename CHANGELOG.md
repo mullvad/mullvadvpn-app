@@ -23,6 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### macOS
+- Add custom resolver to allow macOS connectivity check reach `captive.apple.com` when the firewall would otherwise block
+  such traffic. This resolves issues with the app blocking internet connectivity after sleep or when connecting to new
+  wireless networks.
+
 ### Changed
 - Keep unspecified constraints unchanged in the CLI when providing specific tunnel constraints
   instead of setting them to default values.
