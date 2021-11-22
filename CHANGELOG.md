@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### macOS
+- Add an opt-in feature to leak macOS network check traffic in blocked states to resolve issues with
+  the app blocking internet connectivity after sleep or when connecting to new wireless networks.
+
 ### Changed
 - Keep unspecified constraints unchanged in the CLI when providing specific tunnel constraints
   instead of setting them to default values.
