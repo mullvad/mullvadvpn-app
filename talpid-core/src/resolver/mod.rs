@@ -130,9 +130,9 @@ pub enum Error {
     #[error(display = "Resolver is already shut down")]
     ResolverShutdown,
 
-    /// Failed to obtain system resolvers
-    #[error(display = "Failed to obtain system resolvers")]
-    NoSystemResolvers,
+    /// System DNS error
+    #[error(display = "System DNS error")]
+    SystemDnsError(crate::dns::Error),
 }
 
 struct FilteringResolver {
@@ -167,32 +167,7 @@ impl ResolverState {
 
 pub(crate) enum ResolverMessage {
     Request(LowerQuery, oneshot::Sender<Box<dyn LookupObject>>),
-    SetResolverState(
-        ResolverState,
-        oneshot::Sender<Result<ResolverStateToggleResult, Error>>,
-    ),
-}
-
-pub(crate) struct ResolverStateToggleResult {
-    pub currently_used_resolvers: BTreeSet<IpAddr>,
-    unblock_tx: oneshot::Sender<()>,
-}
-
-impl ResolverStateToggleResult {
-    fn new(resolvers: &[IpAddr]) -> (Self, oneshot::Receiver<()>) {
-        let (unblock_tx, rx) = oneshot::channel();
-        (
-            Self {
-                currently_used_resolvers: resolvers.iter().cloned().collect(),
-                unblock_tx,
-            },
-            rx,
-        )
-    }
-
-    pub fn unblock(self) {
-        let _ = self.unblock_tx.send(());
-    }
+    SetResolverState(ResolverState, oneshot::Sender<Result<(), Error>>),
 }
 
 #[derive(Clone)]
@@ -206,22 +181,19 @@ impl ResolverHandle {
     }
 
     /// Enable the resolver
-    pub async fn set_active(
-        &self,
-        config: Option<(String, Vec<IpAddr>)>,
-    ) -> Result<ResolverStateToggleResult, Error> {
+    pub async fn set_active(&self, config: Option<(String, Vec<IpAddr>)>) -> Result<(), Error> {
         self.set_state(ResolverState::Active(config)).await
     }
 
-    pub async fn set_inactive(&self) -> Result<ResolverStateToggleResult, Error> {
+    pub async fn set_inactive(&self) -> Result<(), Error> {
         self.set_state(ResolverState::Inactive).await
     }
 
-    pub async fn shutdown(&self) -> Result<ResolverStateToggleResult, Error> {
+    pub async fn shutdown(&self) -> Result<(), Error> {
         self.set_state(ResolverState::Shutdown).await
     }
 
-    async fn set_state(&self, state: ResolverState) -> Result<ResolverStateToggleResult, Error> {
+    async fn set_state(&self, state: ResolverState) -> Result<(), Error> {
         let (done_tx, done_rx) = oneshot::channel();
         let tx: &mpsc::Sender<ResolverMessage> = &*self.tx;
         let mut tx = tx.clone();
@@ -295,11 +267,8 @@ impl FilteringResolver {
                         }
                     }
                     match self.reset_resolver().await {
-                        Ok(new_resolvers) => {
-                            let (result, unblock_rx) =
-                                ResolverStateToggleResult::new(&new_resolvers);
-                            let _ = tx.send(Ok(result));
-                            let _ = unblock_rx.await;
+                        Ok(_) => {
+                            let _ = tx.send(Ok(()));
                         }
                         Err(err) => {
                             let _ = tx.send(Err(err));
@@ -349,7 +318,7 @@ impl FilteringResolver {
         }
     }
 
-    async fn reset_resolver(&mut self) -> Result<Vec<IpAddr>, Error> {
+    async fn reset_resolver(&mut self) -> Result<(), Error> {
         log::trace!("Resetting custom resolver");
         let (best_interface, resolver_addresses) = self.get_resolver_config();
         self.runtime_provider.update_best_interface(best_interface);
@@ -366,9 +335,8 @@ impl FilteringResolver {
             self.runtime_provider.clone(),
         )
         .map_err(Error::LaunchResolver)?;
-        let resolver_addresses = resolver_addresses.to_vec();
         self.excluded_resolver = resolver;
-        Ok(resolver_addresses)
+        Ok(())
     }
 
     fn get_resolver_config(&self) -> (&str, &[IpAddr]) {
@@ -377,10 +345,10 @@ impl FilteringResolver {
                 // TODO: actually pick the best resolver
                 resolvers
                     .as_ref()
-                    .filter(|(_, addresses)| {
-                        !addresses.iter().any(|ip| ip.is_loopback())
+                    .filter(|(_, addresses)| !addresses.iter().any(|ip| ip.is_loopback()))
+                    .map(|(interface_name, addresses)| {
+                        (interface_name.as_str(), addresses.as_slice())
                     })
-                    .map(|(interface_name, addresses)| (interface_name.as_str(), addresses.as_slice()))
                     .unwrap_or(("", &[]))
             }
             _ => ("", &[]),
@@ -734,13 +702,8 @@ mod test {
         let (handle, port, mut cmd_rx, _txx) = rt.block_on(start_resolver());
         let test_resolver = rt.block_on(get_test_resolver(port));
         let resolver_config = read_resolvconf();
-        rt.block_on(async {
-            let unblocker = handle
-                .set_active(resolver_config)
-                .await
-                .expect("failed to make resovler active");
-            unblocker.unblock();
-        });
+        rt.block_on(async { handle.set_active(resolver_config).await })
+            .expect("failed to make resovler active");
 
         let captive_portal_domain = LowerName::from(Name::from_str(CAPTIVE_PORTAL_DOMAIN).unwrap());
         let resolver_result = rt.block_on(async move {
@@ -770,13 +733,8 @@ mod test {
         let test_resolver = rt.block_on(get_test_resolver(port));
 
         let resolver_config = read_resolvconf();
-        rt.block_on(async {
-            let unblocker = handle
-                .set_active(resolver_config)
-                .await
-                .expect("failed to make resovler active");
-            unblocker.unblock();
-        });
+        rt.block_on(async { handle.set_active(resolver_config).await })
+            .expect("failed to make resovler active");
 
         let captive_portal_domain = LowerName::from(Name::from_str("apple.com").unwrap());
         let resolver_result = rt.block_on(async move {
@@ -807,13 +765,8 @@ mod test {
         let (handle, port, mut cmd_rx, _tx) = rt.block_on(start_resolver());
         let test_resolver = rt.block_on(get_test_resolver(port));
 
-        rt.block_on(async {
-            let unblocker = handle
-                .set_inactive()
-                .await
-                .expect("failed to make resovler active");
-            unblocker.unblock();
-        });
+        rt.block_on(async { handle.set_inactive().await })
+            .expect("failed to make resovler active");
 
         let captive_portal_domain = LowerName::from(Name::from_str("apple.com").unwrap());
         let resolver_result = rt.block_on(async move {
@@ -848,23 +801,13 @@ mod test {
         let _ = UdpSocket::bind(server_sockaddr)
             .expect("Failed to bind to resolver socket addr when it should be unbound");
 
-        rt.block_on(async {
-            let unblocker = handle
-                .set_inactive()
-                .await
-                .expect("failed to make resovler active");
-            unblocker.unblock();
-        });
+        rt.block_on(async { handle.set_inactive().await })
+            .expect("failed to make resovler active");
 
         assert!(UdpSocket::bind(server_sockaddr).is_err());
 
-        rt.block_on(async {
-            let unblocker = handle
-                .shutdown()
-                .await
-                .expect("failed to make resovler active");
-            unblocker.unblock();
-        });
+        rt.block_on(async { handle.shutdown().await })
+            .expect("failed to make resovler active");
 
         UdpSocket::bind(server_sockaddr)
             .expect("Failed to bind to resolver socket addr when it should be unbound");

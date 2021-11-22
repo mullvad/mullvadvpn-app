@@ -268,13 +268,14 @@ impl ConnectingState {
         use self::EventConsequence::*;
 
         match command {
+            #[cfg(target_os = "macos")]
             Some(TunnelCommand::AddAllowedIps(_, done_tx)) => {
                 let _ = done_tx.send(());
                 SameState(self.into())
             }
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
-                let _ = done_tx.send(shared_values.toggle_custom_resolver(enable));
+                let _ = done_tx.send(shared_values.deactivate_custom_resolver(enable));
                 SameState(self.into())
             }
             #[cfg(target_os = "macos")]
