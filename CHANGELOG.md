@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix app size after changing display scale.
 - Fix daemon not starting if all excluded app paths reside on non-existent/unmounted volumes.
+- Remove tray icon of current running app version when upgrading.
 
 
 ## [2021.6] - 2021-11-17
