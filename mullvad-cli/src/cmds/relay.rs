@@ -638,7 +638,7 @@ impl Relay {
             .relay_settings
             .unwrap();
 
-        print!(
+        println!(
             "Current constraints: {}",
             RelaySettings::try_from(relay_settings).unwrap()
         );
