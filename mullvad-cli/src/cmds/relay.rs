@@ -638,7 +638,7 @@ impl Relay {
             .relay_settings
             .unwrap();
 
-        print!(
+        println!(
             "Current constraints: {}",
             RelaySettings::try_from(relay_settings).unwrap()
         );
@@ -792,16 +792,25 @@ fn parse_transport_port(
             }
         }
     };
-    let port = match matches.value_of("port") {
+    let mut port = match matches.value_of("port") {
         Some(port) => parse_port_constraint(port)?,
         None => {
             if let Some(ref transport_port) = current_constraint {
-                Constraint::Only(transport_port.port as u16)
+                if transport_port.port != 0 {
+                    Constraint::Only(transport_port.port as u16)
+                } else {
+                    Constraint::Any
+                }
             } else {
                 Constraint::Any
             }
         }
     };
+    if port.is_only() && protocol.is_any() && !matches.is_present("port") {
+        // Reset the port if the transport protocol is set to any.
+        println!("The port constraint was set to 'any'");
+        port = Constraint::Any;
+    }
     match (port, protocol) {
         (Constraint::Any, Constraint::Any) => Ok(None),
         (Constraint::Any, Constraint::Only(protocol)) => Ok(Some(types::TransportPort {
