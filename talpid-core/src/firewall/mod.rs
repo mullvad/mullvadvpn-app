@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 #[cfg(target_os = "macos")]
 use std::collections::BTreeSet;
 use std::fmt;
-#[cfg(not(target_os = "macos"))]
+#[cfg(not(target_os = "android"))]
 use std::net::IpAddr;
 #[cfg(unix)]
 use std::net::{Ipv4Addr, Ipv6Addr};

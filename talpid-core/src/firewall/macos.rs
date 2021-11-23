@@ -159,13 +159,12 @@ impl Firewall {
 
                 rules.extend(self.get_exclusion_rules(&allowed_ips)?);
                 rules.extend(self.get_allow_excluded_dns_rules(allowed_resolvers)?);
+                rules.append(&mut self.get_allow_ips_rules(&allowed_ips)?);
 
                 if allow_lan {
                     // Important to block DNS before allow LAN (so DNS does not leak to the LAN)
-
                     rules.append(&mut self.get_block_dns_rules()?);
                     rules.append(&mut self.get_allow_lan_rules()?);
-                    rules.append(&mut self.get_allow_ips_rules(&allowed_ips)?);
                 }
                 Ok(rules)
             }
@@ -197,10 +196,16 @@ impl Firewall {
                             .to(pfctl::Endpoint::new(*addr, 53))
                             .group(exclusion_gid)
                             .build(),
+                        self.create_rule_builder(FilterRuleAction::Pass)
+                            .direction(pfctl::Direction::In)
+                            .quick(true)
+                            .proto(pfctl::Proto::Udp)
+                            .from(pfctl::Endpoint::new(*addr, 53))
+                            .group(exclusion_gid)
+                            .build(),
                     ])
                 })
                 .collect::<Result<Vec<_>>>();
-
 
             allow_upstream_rules.and_then(|mut rules| {
                 if !rules.is_empty() {
