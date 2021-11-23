@@ -376,11 +376,8 @@ impl TunnelState for ErrorState {
                 }
             }
             Some(TunnelCommand::Connect) => {
-                #[cfg(target_os = "macos")]
-                if let Err(err) = shared_values.disable_custom_resolver() {
-                    log::error!("Failed to disable custom resolver: {}", err);
-                }
                 Self::reset_dns(shared_values);
+
                 NewState(ConnectingState::enter(shared_values, 0))
             }
             Some(TunnelCommand::Disconnect) | None => {

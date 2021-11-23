@@ -493,6 +493,12 @@ impl TunnelState for ConnectingState {
         if shared_values.is_offline {
             return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
         }
+        if let Err(err) = shared_values.disable_custom_resolver() {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to disable custom resolver")
+            );
+        }
         match shared_values
             .tunnel_parameters_generator
             .generate(retry_attempt)

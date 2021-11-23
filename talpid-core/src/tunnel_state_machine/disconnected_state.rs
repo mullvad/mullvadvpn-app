@@ -107,7 +107,6 @@ impl DisconnectedState {
         }
     }
 
-    #[cfg(target_os = "macos")]
     fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
         if let Err(error) = shared_values.dns_monitor.reset() {
             log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
@@ -138,6 +137,13 @@ impl TunnelState for DisconnectedState {
                 log::error!(
                     "{}",
                     err.display_chain_with_msg("Failed to configure system to use custom resolver")
+                );
+            }
+        } else {
+            if let Err(error) = shared_values.disable_custom_resolver() {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Unable to disable custom resolver")
                 );
             }
         }
@@ -216,7 +222,6 @@ impl TunnelState for DisconnectedState {
             }
             Some(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
             Some(TunnelCommand::Block(reason)) => {
-                #[cfg(target_os = "macos")]
                 Self::reset_dns(shared_values);
                 NewState(ErrorState::enter(shared_values, reason))
             }
@@ -314,7 +319,6 @@ impl TunnelState for DisconnectedState {
             }
 
             None => {
-                #[cfg(target_os = "macos")]
                 Self::reset_dns(shared_values);
                 Finished
             }
