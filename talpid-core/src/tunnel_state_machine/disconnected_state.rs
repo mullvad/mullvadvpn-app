@@ -98,6 +98,7 @@ impl DisconnectedState {
         }
     }
 
+    #[cfg(target_os = "macos")]
     fn set_dns(shared_values: &mut SharedTunnelStateValues) {
         if let Some(ref dns_servers) = shared_values.dns_servers {
             if let Err(err) = shared_values.dns_monitor.set("lo0", &dns_servers) {
@@ -106,6 +107,7 @@ impl DisconnectedState {
         }
     }
 
+    #[cfg(target_os = "macos")]
     fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
         if let Err(error) = shared_values.dns_monitor.reset() {
             log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
@@ -198,6 +200,7 @@ impl TunnelState for DisconnectedState {
                     shared_values.block_when_disconnected = block_when_disconnected;
                     #[cfg(windows)]
                     Self::register_split_tunnel_addresses(shared_values, true);
+                    #[cfg(target_os = "macos")]
                     if block_when_disconnected {
                         Self::set_dns(shared_values);
                     } else {
@@ -213,6 +216,7 @@ impl TunnelState for DisconnectedState {
             }
             Some(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
             Some(TunnelCommand::Block(reason)) => {
+                #[cfg(target_os = "macos")]
                 Self::reset_dns(shared_values);
                 NewState(ErrorState::enter(shared_values, reason))
             }
@@ -310,6 +314,7 @@ impl TunnelState for DisconnectedState {
             }
 
             None => {
+                #[cfg(target_os = "macos")]
                 Self::reset_dns(shared_values);
                 Finished
             }
