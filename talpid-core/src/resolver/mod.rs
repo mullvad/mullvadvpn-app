@@ -85,14 +85,10 @@ fn run_resolver(
     builder.max_blocking_threads(1);
     builder.on_thread_start(move || {
         #[cfg(target_os = "macos")]
-        if let Some(gid) = exclusion_gid.clone() {
-            let ret = unsafe { libc::setgid(gid) };
-            if ret != 0 {
+        if let Some(gid) = exclusion_gid {
+            if unsafe { libc::setgid(gid) } != 0 {
                 log::error!("Failed to set group ID");
-                return;
             }
-        } else {
-            return;
         }
     });
     let rt = builder.build().expect("failed to initialize tokio runtime");
