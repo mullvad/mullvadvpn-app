@@ -4,11 +4,13 @@ use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use lazy_static::lazy_static;
 #[cfg(target_os = "macos")]
 use std::collections::BTreeSet;
+use std::fmt;
+#[cfg(not(target_os = "macos"))]
+use std::net::IpAddr;
 #[cfg(unix)]
 use std::net::{Ipv4Addr, Ipv6Addr};
 #[cfg(windows)]
 use std::path::PathBuf;
-use std::{fmt, net::IpAddr};
 use talpid_types::net::Endpoint;
 
 #[cfg(target_os = "macos")]
