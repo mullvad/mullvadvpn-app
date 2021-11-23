@@ -94,31 +94,35 @@ export default function CustomDnsSettings() {
 
   const onAdd = useCallback(
     async (address: string) => {
-      const add = async () => {
-        await setDnsOptions({
-          ...dns,
-          state: dns.state === 'custom' || inputVisible ? 'custom' : 'default',
-          customOptions: {
-            addresses: [...dns.customOptions.addresses, address],
-          },
-        });
-
-        hideInput();
-      };
-
-      try {
-        const ipAddress = IpAddress.fromString(address);
-        if (ipAddress.isLocal()) {
-          await add();
-        } else {
-          willShowConfirmationDialog.current = true;
-          setConfirmAction(() => async () => {
-            willShowConfirmationDialog.current = false;
-            await add();
-          });
-        }
-      } catch {
+      if (dns.customOptions.addresses.includes(address)) {
         setInvalid();
+      } else {
+        const add = async () => {
+          await setDnsOptions({
+            ...dns,
+            state: dns.state === 'custom' || inputVisible ? 'custom' : 'default',
+            customOptions: {
+              addresses: [...dns.customOptions.addresses, address],
+            },
+          });
+
+          hideInput();
+        };
+
+        try {
+          const ipAddress = IpAddress.fromString(address);
+          if (ipAddress.isLocal()) {
+            await add();
+          } else {
+            willShowConfirmationDialog.current = true;
+            setConfirmAction(() => async () => {
+              willShowConfirmationDialog.current = false;
+              await add();
+            });
+          }
+        } catch {
+          setInvalid();
+        }
       }
     },
     [inputVisible, dns, setDnsOptions],
@@ -126,6 +130,10 @@ export default function CustomDnsSettings() {
 
   const onEdit = useCallback(
     (oldAddress: string, newAddress: string) => {
+      if (oldAddress !== newAddress && dns.customOptions.addresses.includes(newAddress)) {
+        throw new Error('Duplicate address');
+      }
+
       const edit = async () => {
         const addresses = dns.customOptions.addresses.map((address) =>
           oldAddress === address ? newAddress : address,
