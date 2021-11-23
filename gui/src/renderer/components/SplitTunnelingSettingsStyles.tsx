@@ -68,23 +68,19 @@ export const StyledIconPlaceholder = styled.div({
   marginRight: '12px',
 });
 
-export const StyledApplicationListContent = styled.div({
+export const StyledSpinnerRow = styled(Cell.CellButton)({
   display: 'flex',
-  flexDirection: 'column',
-});
-
-export const StyledApplicationListAnimation = styled.div({}, (props: { height?: number }) => ({
-  overflow: 'hidden',
-  height: props.height ? `${props.height}px` : 'auto',
-  transition: 'height 500ms ease-in-out',
-  marginBottom: '20px',
-}));
-
-export const StyledSpinnerRow = styled.div({
-  display: 'flex',
+  alignItems: 'center',
   justifyContent: 'center',
   padding: '8px 0',
+  marginBottom: '20px',
   background: colors.blue40,
+});
+
+export const StyledListContainer = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  marginBottom: '20px',
 });
 
 export const StyledBrowseButton = styled(AppButton.BlueButton)({

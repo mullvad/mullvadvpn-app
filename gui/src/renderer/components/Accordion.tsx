@@ -104,11 +104,13 @@ export default class Accordion extends React.Component<IProps, IState> {
     }
   }
 
-  private onTransitionEnd = () => {
-    this.props.onTransitionEnd?.();
-    if (this.props.expanded) {
-      // Height auto enables the container to grow if the content changes size
-      this.setState({ containerHeight: 'auto' });
+  private onTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
+    if (event.target === this.containerRef.current) {
+      this.props.onTransitionEnd?.();
+      if (this.props.expanded) {
+        // Height auto enables the container to grow if the content changes size
+        this.setState({ containerHeight: 'auto' });
+      }
     }
   };
 }
