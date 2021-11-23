@@ -66,6 +66,7 @@ const Location = styled.div({
 
 const StyledMarquee = styled(Marquee)({
   ...bigText,
+  lineHeight: '36px',
   overflow: 'hidden',
 });
 
