@@ -256,12 +256,6 @@ impl RouteManager {
             Err(Error::RouteManagerDown)
         }
     }
-
-    /// Exposes runtime handle
-    #[cfg(target_os = "linux")]
-    pub fn runtime_handle(&self) -> tokio::runtime::Handle {
-        self.runtime.clone()
-    }
 }
 
 impl Drop for RouteManager {
