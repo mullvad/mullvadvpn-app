@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
   Background fetch is used as fallback on iOS 12.
 - Request background execution time from the system when performing critical tasks.
 - Increase hit area of settings (cog) button.
+- Update launch screen.
 
 ### Fixed
 - Drop leading replacement characters (`\u{FFFD}`) when decoding UTF-8 from a part of log file.
