@@ -26,7 +26,6 @@ open class MainActivity : FragmentActivity() {
     val problemReport = MullvadProblemReport()
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
-    private var isUiVisible = false
     private var visibleSecureScreens = HashSet<Fragment>()
 
     private val deviceIsTv by lazy {
@@ -87,11 +86,9 @@ open class MainActivity : FragmentActivity() {
         android.util.Log.d("mullvad", "Starting main activity")
         super.onStart()
 
-        isUiVisible = true
-
         val intent = Intent(this, MullvadVpnService::class.java)
 
-        startForegroundService(intent)
+        startService(intent)
         bindService(intent, serviceConnectionManager, 0)
     }
 
@@ -109,7 +106,6 @@ open class MainActivity : FragmentActivity() {
 
     override fun onStop() {
         android.util.Log.d("mullvad", "Stoping main activity")
-        isUiVisible = false
         unbindService(serviceConnectionManager)
 
         super.onStop()
