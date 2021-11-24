@@ -33,6 +33,12 @@ extension UIMetrics {
     /// Spacing used between distinct sections of views
     static var sectionSpacing: CGFloat = 24
 
+    /// Text field margins
+    static let textFieldMargins = UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14)
+
+    /// Corner radius used for controls such as buttons and text fields
+    static let controlCornerRadius: CGFloat = 4
+
     /// Maximum width of the split view content container on iPad
     static var maximumSplitViewContentContainerWidth: CGFloat = 810 * 0.7
 

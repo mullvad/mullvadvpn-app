@@ -8,8 +8,6 @@
 
 import UIKit
 
-private let kButtonCornerRadius = CGFloat(4)
-
 class TranslucentButtonBlurView: UIVisualEffectView {
     init(button: AppButton) {
         let effect = UIBlurEffect(style: button.style.blurEffectStyle)
@@ -27,7 +25,7 @@ class TranslucentButtonBlurView: UIVisualEffectView {
             button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
 
-        layer.cornerRadius = kButtonCornerRadius
+        layer.cornerRadius = UIMetrics.controlCornerRadius
         layer.maskedCorners = button.style.cornerMask(effectiveUserInterfaceLayoutDirection)
         layer.masksToBounds = true
     }
