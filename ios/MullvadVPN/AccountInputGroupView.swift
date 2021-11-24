@@ -128,6 +128,9 @@ class AccountInputGroupView: UIView {
         contentView.addSubview(privateTextField)
         contentView.addSubview(sendButton)
 
+        privateTextField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        sendButton.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+
         NSLayoutConstraint.activate([
             contentView.topAnchor.constraint(equalTo: topAnchor),
             contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
