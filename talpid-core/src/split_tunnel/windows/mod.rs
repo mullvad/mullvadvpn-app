@@ -105,6 +105,7 @@ pub struct SplitTunnel {
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     async_path_update_in_progress: Arc<AtomicBool>,
 }
+unsafe impl Send for SplitTunnel {}
 
 enum Request {
     SetPaths(Vec<OsString>),
