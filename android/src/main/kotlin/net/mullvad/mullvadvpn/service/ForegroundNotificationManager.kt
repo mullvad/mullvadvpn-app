@@ -92,7 +92,6 @@ class ForegroundNotificationManager(
         service.unregisterReceiver(deviceLockListener)
 
         updater.close()
-        tunnelStateNotification.visible = false
     }
 
     private fun runUpdater() = GlobalScope.actor<UpdaterMessage>(
