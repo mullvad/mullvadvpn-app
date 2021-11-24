@@ -91,7 +91,7 @@ open class MainActivity : FragmentActivity() {
 
         val intent = Intent(this, MullvadVpnService::class.java)
 
-        startForegroundService(intent)
+        startService(intent)
         bindService(intent, serviceConnectionManager, 0)
     }
 
