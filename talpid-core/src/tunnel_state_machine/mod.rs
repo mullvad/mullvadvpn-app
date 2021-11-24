@@ -106,8 +106,6 @@ pub async fn spawn(
     shutdown_tx: oneshot::Sender<()>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
-    let runtime = tokio::runtime::Handle::current();
-
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
 
@@ -124,6 +122,7 @@ pub async fn spawn(
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
     let weak_command_tx = Arc::downgrade(&command_tx);
+    let runtime = tokio::runtime::Handle::current();
     std::thread::spawn(move || {
         let state_machine = runtime.block_on(TunnelStateMachine::new(
             initial_settings,

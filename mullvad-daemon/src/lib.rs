@@ -633,7 +633,7 @@ where
             &cache_dir,
             true,
             #[cfg(target_os = "android")]
-            Self::create_bypass_tx(runtime.clone(), &internal_event_tx),
+            Self::create_bypass_tx(&internal_event_tx),
         )
         .await
         .map_err(Error::InitRpcFactory)?;
@@ -2421,12 +2421,11 @@ where
 
     #[cfg(target_os = "android")]
     fn create_bypass_tx(
-        runtime: tokio::runtime::Handle,
         event_sender: &DaemonEventSender,
     ) -> Option<mpsc::Sender<mullvad_rpc::SocketBypassRequest>> {
         let (bypass_tx, mut bypass_rx) = mpsc::channel(1);
         let daemon_tx = event_sender.to_specialized_sender();
-        runtime.spawn(async move {
+        tokio::runtime::Handle::current().spawn(async move {
             while let Some((raw_fd, done_tx)) = bypass_rx.next().await {
                 if let Err(_) = daemon_tx.send(DaemonCommand::BypassSocket(raw_fd, done_tx)) {
                     log::error!("Can't send socket bypass request to daemon");
