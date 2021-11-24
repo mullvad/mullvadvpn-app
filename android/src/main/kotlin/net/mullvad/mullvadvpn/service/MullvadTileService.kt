@@ -51,11 +51,11 @@ class MullvadTileService : TileService() {
 
         if (secured) {
             intent.action = MullvadVpnService.KEY_DISCONNECT_ACTION
+            startService(intent)
         } else {
             intent.action = MullvadVpnService.KEY_CONNECT_ACTION
+            startForegroundService(intent)
         }
-
-        startForegroundService(intent)
     }
 
     override fun onStopListening() {

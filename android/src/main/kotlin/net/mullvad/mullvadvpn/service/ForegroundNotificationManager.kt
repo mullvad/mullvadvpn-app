@@ -92,19 +92,7 @@ class ForegroundNotificationManager(
         service.unregisterReceiver(deviceLockListener)
 
         updater.close()
-
         tunnelStateNotification.visible = false
-    }
-
-    fun acknowledgeStartForegroundService() {
-        // When sending start commands to the service, it is necessary to request the service to be
-        // on the foreground. With such request, when the service is started it must be placed on
-        // the foreground with a call to startForeground before a timeout expires, otherwise Android
-        // kills the app.
-        showOnForeground()
-
-        // Restore the notification to its correct state.
-        updateNotification()
     }
 
     private fun runUpdater() = GlobalScope.actor<UpdaterMessage>(
@@ -132,7 +120,7 @@ class ForegroundNotificationManager(
         onForeground = true
     }
 
-    private fun updateNotification() {
+    fun updateNotification() {
         if (shouldBeOnForeground != onForeground) {
             if (shouldBeOnForeground) {
                 showOnForeground()
