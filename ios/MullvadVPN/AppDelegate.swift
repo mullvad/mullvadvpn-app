@@ -76,9 +76,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window = UIWindow(frame: UIScreen.main.bounds)
 
         // Set an empty view controller while loading tunnels
-        let launchController = UIViewController()
-        launchController.view.backgroundColor = .primaryColor
-        self.window?.rootViewController = launchController
+        self.window?.rootViewController = LaunchViewController()
 
         // Add relay cache observer
         RelayCache.Tracker.shared.addObserver(self)
