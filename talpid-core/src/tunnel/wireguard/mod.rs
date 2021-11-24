@@ -184,8 +184,14 @@ impl WireguardMonitor {
             }
         }
 
-        let tunnel =
-            Self::open_tunnel(&config, log_path, resource_dir, tun_provider, route_manager)?;
+        let tunnel = Self::open_tunnel(
+            runtime.clone(),
+            &config,
+            log_path,
+            resource_dir,
+            tun_provider,
+            route_manager,
+        )?;
         let iface_name = tunnel.get_interface_name().to_string();
         #[cfg(windows)]
         let iface_luid = tunnel.get_interface_luid();
@@ -310,6 +316,7 @@ impl WireguardMonitor {
 
     #[allow(unused_variables)]
     fn open_tunnel(
+        runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
         resource_dir: &Path,
@@ -319,10 +326,7 @@ impl WireguardMonitor {
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
             if crate::dns::will_use_nm() {
-                match wireguard_kernel::NetworkManagerTunnel::new(
-                    route_manager.runtime_handle(),
-                    config,
-                ) {
+                match wireguard_kernel::NetworkManagerTunnel::new(runtime, config) {
                     Ok(tunnel) => {
                         log::debug!("Using NetworkManager to use kernel WireGuard implementation");
                         return Ok(Box::new(tunnel));
@@ -337,7 +341,7 @@ impl WireguardMonitor {
                     }
                 };
             } else {
-                match wireguard_kernel::NetlinkTunnel::new(route_manager.runtime_handle(), config) {
+                match wireguard_kernel::NetlinkTunnel::new(runtime, config) {
                     Ok(tunnel) => {
                         log::debug!("Using kernel WireGuard implementation");
                         return Ok(Box::new(tunnel));
