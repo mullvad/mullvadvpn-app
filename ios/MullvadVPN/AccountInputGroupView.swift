@@ -47,9 +47,8 @@ class AccountInputGroupView: UIView {
         let textField = AccountTextField()
         textField.font = UIFont.systemFont(ofSize: 20)
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "0000 0000 0000 0000",
-            attributes: [.foregroundColor: UIColor.lightGray])
+        textField.placeholder = "0000 0000 0000 0000"
+        textField.placeholderTextColor = .lightGray
         textField.textContentType = .username
         textField.clearButtonMode = .never
         textField.autocapitalizationType = .none

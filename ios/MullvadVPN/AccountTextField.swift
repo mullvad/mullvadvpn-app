@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AccountTextField: UITextField, UITextFieldDelegate {
+class AccountTextField: CustomTextField, UITextFieldDelegate {
 
     private let input = AccountTokenInput()
 
@@ -17,7 +17,8 @@ class AccountTextField: UITextField, UITextFieldDelegate {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = UIColor.clear
+        backgroundColor = .clear
+        cornerRadius = 0
 
         delegate = self
         pasteDelegate = input
@@ -52,14 +53,6 @@ class AccountTextField: UITextField, UITextFieldDelegate {
         didSet {
             updateKeyboardReturnKey()
         }
-    }
-
-    override func textRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.insetBy(dx: 14, dy: 12)
-    }
-
-    override func editingRect(forBounds bounds: CGRect) -> CGRect {
-        return textRect(forBounds: bounds)
     }
 
     // MARK: - UITextFieldDelegate
