@@ -128,12 +128,12 @@ impl MullvadRpcRuntime {
     /// Try to use the cache directory first, and fall back on the resource directory
     /// if it fails.
     pub async fn with_cache(
-        handle: tokio::runtime::Handle,
         resource_dir: Option<&Path>,
         cache_dir: &Path,
         write_changes: bool,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
+        let handle = tokio::runtime::Handle::current();
         #[cfg(feature = "api-override")]
         if *DISABLE_ADDRESS_ROTATION {
             return Self::new_inner(

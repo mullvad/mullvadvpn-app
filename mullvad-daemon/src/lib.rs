@@ -629,7 +629,6 @@ where
         };
 
         let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
-            runtime.clone(),
             Some(&resource_dir),
             &cache_dir,
             true,
@@ -649,7 +648,6 @@ where
 
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         let tunnel_command_tx = tunnel_state_machine::spawn(
-            runtime.clone(),
             tunnel_state_machine::InitialTunnelState {
                 allow_lan: settings.allow_lan,
                 block_when_disconnected: settings.block_when_disconnected,
@@ -691,7 +689,7 @@ where
 
         let rpc_handle = rpc_runtime.mullvad_rest_handle();
 
-        Self::forward_offline_state(&runtime, api_availability.clone(), offline_state_rx).await;
+        Self::forward_offline_state(api_availability.clone(), offline_state_rx).await;
 
         let relay_list_listener = event_listener.clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
@@ -2427,7 +2425,7 @@ where
     ) -> Option<mpsc::Sender<mullvad_rpc::SocketBypassRequest>> {
         let (bypass_tx, mut bypass_rx) = mpsc::channel(1);
         let daemon_tx = event_sender.to_specialized_sender();
-        tokio::runtime::Handle::current().spawn(async move {
+        tokio::spawn(async move {
             while let Some((raw_fd, done_tx)) = bypass_rx.next().await {
                 if let Err(_) = daemon_tx.send(DaemonCommand::BypassSocket(raw_fd, done_tx)) {
                     log::error!("Can't send socket bypass request to daemon");
@@ -2439,7 +2437,6 @@ where
     }
 
     async fn forward_offline_state(
-        runtime: &tokio::runtime::Handle,
         api_availability: ApiAvailabilityHandle,
         mut offline_state_rx: mpsc::UnboundedReceiver<bool>,
     ) {
@@ -2448,7 +2445,7 @@ where
             .await
             .expect("missing initial offline state");
         api_availability.set_offline(initial_state);
-        runtime.spawn(async move {
+        tokio::spawn(async move {
             while let Some(is_offline) = offline_state_rx.next().await {
                 api_availability.set_offline(is_offline);
             }
