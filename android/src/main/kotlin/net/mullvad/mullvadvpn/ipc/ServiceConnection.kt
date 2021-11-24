@@ -7,21 +7,30 @@ import android.os.Looper
 import android.os.Messenger
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.model.ServiceResult
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.mullvadvpn.util.DispatchingFlow
 import net.mullvad.mullvadvpn.util.bindServiceFlow
 import net.mullvad.mullvadvpn.util.dispatchTo
 
+@FlowPreview
 class ServiceConnection(context: Context, scope: CoroutineScope) {
     private val activeListeners = MutableStateFlow<Pair<Messenger, Int>?>(null)
     private val handler = HandlerFlow(Looper.getMainLooper(), Event::fromMessage)
@@ -30,8 +39,11 @@ class ServiceConnection(context: Context, scope: CoroutineScope) {
 
     private lateinit var listenerRegistrations: StateFlow<Pair<Messenger, Int>?>
 
-    lateinit var tunnelState: StateFlow<TunnelState>
+    lateinit var tunnelState: Flow<Pair<TunnelState, ServiceResult.ConnectionState>>
         private set
+
+    private val serviceConnectionStateChannel =
+        Channel<ServiceResult.ConnectionState>(Channel.RENDEZVOUS)
 
     init {
         val dispatcher = handler
@@ -41,11 +53,18 @@ class ServiceConnection(context: Context, scope: CoroutineScope) {
                     Pair(connection, listenerId)
                 }
 
-                tunnelState = subscribeToState(
+                val tunnelStateEvents = subscribeToState(
                     Event.TunnelStateChange::class,
                     scope,
                     TunnelState.Disconnected
                 ) { tunnelState }
+
+                tunnelState = tunnelStateEvents
+                    .combine(
+                        serviceConnectionStateChannel.consumeAsFlow()
+                    ) { tunnelState, serviceConnectionState ->
+                        tunnelState to serviceConnectionState
+                    }
             }
 
         scope.launch { connect(context) }
@@ -57,10 +76,14 @@ class ServiceConnection(context: Context, scope: CoroutineScope) {
     private suspend fun connect(context: Context) {
         val intent = Intent(context, MullvadVpnService::class.java)
 
-        context.bindServiceFlow(intent).collect { binder ->
-            activeListeners.value = null
-            binder?.let(::registerListener)
-        }
+        context
+            .bindServiceFlow(intent)
+            .onStart { emit(ServiceResult.NOT_CONNECTED) }
+            .onEach { result -> serviceConnectionStateChannel.send(result.connectionState) }
+            .collect { result ->
+                activeListeners.value = null
+                result.binder?.let(::registerListener)
+            }
     }
 
     private fun registerListener(binder: IBinder) {

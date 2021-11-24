@@ -14,14 +14,13 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ipc.ServiceConnection
+import net.mullvad.mullvadvpn.model.ServiceResult
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class MullvadTileService : TileService() {
-    private var secured by observable(false) { _, wasSecured, isSecured ->
-        if (wasSecured != isSecured) {
-            updateTileState()
-        }
+    private var secured by observable(false) { _, _, _ ->
+        updateTileState()
     }
 
     private lateinit var scope: CoroutineScope
@@ -68,18 +67,25 @@ class MullvadTileService : TileService() {
         ServiceConnection(this@MullvadTileService, scope)
             .tunnelState
             .debounce(300L)
-            .collect(::updateTunnelState)
+            .collect { updateTunnelState(it.first, it.second) }
     }
 
-    private fun updateTunnelState(tunnelState: TunnelState) {
-        secured = when (tunnelState) {
-            is TunnelState.Disconnected -> false
-            is TunnelState.Connecting -> true
-            is TunnelState.Connected -> true
-            is TunnelState.Disconnecting -> {
-                tunnelState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect
+    private fun updateTunnelState(
+        tunnelState: TunnelState,
+        connectionState: ServiceResult.ConnectionState
+    ) {
+        secured = if (connectionState == ServiceResult.ConnectionState.CONNECTED) {
+            when (tunnelState) {
+                is TunnelState.Disconnected -> false
+                is TunnelState.Connecting -> true
+                is TunnelState.Connected -> true
+                is TunnelState.Disconnecting -> {
+                    tunnelState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect
+                }
+                is TunnelState.Error -> tunnelState.errorState.isBlocking
             }
-            is TunnelState.Error -> tunnelState.errorState.isBlocking
+        } else {
+            false
         }
     }
 
