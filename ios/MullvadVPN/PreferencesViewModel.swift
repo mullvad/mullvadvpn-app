@@ -6,7 +6,7 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 enum CustomDNSPrecondition {
     /// Custom DNS can be enabled
@@ -17,6 +17,47 @@ enum CustomDNSPrecondition {
 
     /// No valid DNS server entries.
     case emptyDNSDomains
+
+    /// Returns localized description explaining how to enable Custom DNS.
+    func localizedDescription(isEditing: Bool) -> String? {
+        return attributedLocalizedDescription(
+            isEditing: isEditing,
+            preferredFont: UIFont.systemFont(ofSize: UIFont.systemFontSize)
+        )?.string
+    }
+
+    /// Returns attributed localized description explaining how to enable Custom DNS.
+    func attributedLocalizedDescription(isEditing: Bool, preferredFont: UIFont) -> NSAttributedString? {
+        switch self {
+        case .satisfied:
+            return nil
+
+        case .emptyDNSDomains:
+            if isEditing {
+                return NSAttributedString(markdownString: NSLocalizedString(
+                    "CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_ON_FOOTNOTE",
+                    tableName: "Preferences",
+                    value: "To enable this setting, add at least one server.",
+                    comment: "Foot note displayed if there are no DNS entries and table view is in editing mode."
+                ), font: preferredFont)
+            } else {
+                return NSAttributedString(markdownString: NSLocalizedString(
+                    "CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_OFF_FOOTNOTE",
+                    tableName: "Preferences",
+                    value: "Tap **Edit** to add at least one DNS server.",
+                    comment: "Foot note displayed if there are no DNS entries, but table view is not in editing mode."
+                ), font: preferredFont)
+            }
+
+        case .conflictsWithOtherSettings:
+            return NSAttributedString(markdownString: NSLocalizedString(
+                "CUSTOM_DNS_DISABLE_ADTRACKER_BLOCKING_FOOTNOTE",
+                tableName: "Preferences",
+                value: "Disable **Block ads** and **Block trackers** to activate this setting.",
+                comment: "Foot note displayed when custom DNS cannot be enabled, because ad/tracker blockers features should be disabled first."
+            ), font: preferredFont)
+        }
+    }
 }
 
 struct DNSServerEntry: Equatable, Hashable {

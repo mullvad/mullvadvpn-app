@@ -10,17 +10,14 @@
 /* No comment provided by engineer. */
 "CUSTOM_DNS_CELL_LABEL" = "Use custom DNS";
 
-/* No comment provided by engineer. */
-"CUSTOM_DNS_DISABLE_ADTRACKER_BLOCKING_ACCESSIBILITY_HINT" = "Disable Block Ads and Block trackers to activate this setting.";
+/* Foot note displayed when custom DNS cannot be enabled, because ad/tracker blockers features should be disabled first. */
+"CUSTOM_DNS_DISABLE_ADTRACKER_BLOCKING_FOOTNOTE" = "Disable **Block ads** and **Block trackers** to activate this setting.";
 
-/* No comment provided by engineer. */
-"CUSTOM_DNS_DISABLE_ADTRACKER_BLOCKING_FOOTNOTE" = "Disable Block Ads and Block trackers to activate this setting.";
+/* Foot note displayed if there are no DNS entries, but table view is not in editing mode. */
+"CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_OFF_FOOTNOTE" = "Tap **Edit** to add at least one DNS server.";
 
-/* No comment provided by engineer. */
-"CUSTOM_DNS_NO_DNS_ENTRIES_ACCESSIBILITY_HINT" = "Please add at least one DNS domain to activate this setting.";
-
-/* No comment provided by engineer. */
-"CUSTOM_DNS_NO_DNS_ENTRIES_FOOTNOTE" = "Please add at least one DNS domain to activate this setting.";
+/* Foot note displayed if there are no DNS entries and table view is in editing mode. */
+"CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_ON_FOOTNOTE" = "To enable this setting, add at least one server.";
 
 /* Navigation title */
 "NAVIGATION_TITLE" = "Preferences";
