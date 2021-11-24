@@ -36,7 +36,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 /// Manages routes by calling into WinNet
 pub struct RouteManager {
-    runtime: tokio::runtime::Handle,
     manage_tx: Option<UnboundedSender<RouteManagerCommand>>,
 }
 
@@ -66,19 +65,15 @@ pub enum RouteManagerCommand {
 impl RouteManager {
     /// Creates a new route manager that will apply the provided routes and ensure they exist until
     /// it's stopped.
-    pub async fn new(
-        runtime: tokio::runtime::Handle,
-        required_routes: HashSet<RequiredRoute>,
-    ) -> Result<Self> {
+    pub async fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
         if !winnet::activate_routing_manager() {
             return Err(Error::FailedToStartManager);
         }
         let (manage_tx, manage_rx) = mpsc::unbounded();
         let manager = Self {
-            runtime: runtime.clone(),
             manage_tx: Some(manage_tx),
         };
-        runtime.spawn(RouteManager::listen(manage_rx));
+        tokio::spawn(RouteManager::listen(manage_rx));
         manager.add_routes(required_routes).await?;
 
         Ok(manager)
@@ -91,11 +86,6 @@ impl RouteManager {
         } else {
             Err(Error::RouteManagerDown)
         }
-    }
-
-    /// Retrieve handle for the tokio runtime.
-    pub fn runtime_handle(&self) -> tokio::runtime::Handle {
-        self.runtime.clone()
     }
 
     async fn listen(mut manage_rx: UnboundedReceiver<RouteManagerCommand>) {

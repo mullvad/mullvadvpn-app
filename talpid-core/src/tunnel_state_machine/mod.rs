@@ -97,7 +97,6 @@ pub struct InitialTunnelState {
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
 pub async fn spawn(
-    runtime: tokio::runtime::Handle,
     initial_settings: InitialTunnelState,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
@@ -107,6 +106,8 @@ pub async fn spawn(
     shutdown_tx: oneshot::Sender<()>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
+    let runtime = tokio::runtime::Handle::current();
+
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
 
@@ -125,7 +126,6 @@ pub async fn spawn(
     let weak_command_tx = Arc::downgrade(&command_tx);
     std::thread::spawn(move || {
         let state_machine = runtime.block_on(TunnelStateMachine::new(
-            runtime.clone(),
             initial_settings,
             weak_command_tx,
             offline_state_listener,
@@ -213,7 +213,6 @@ struct TunnelStateMachine {
 
 impl TunnelStateMachine {
     async fn new(
-        runtime: tokio::runtime::Handle,
         settings: InitialTunnelState,
         command_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>,
         offline_state_tx: mpsc::UnboundedSender<bool>,
@@ -224,6 +223,8 @@ impl TunnelStateMachine {
         commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
+        let runtime = tokio::runtime::Handle::current();
+
         #[cfg(windows)]
         let split_tunnel = split_tunnel::SplitTunnel::new(runtime.clone(), command_tx.clone())
             .map_err(Error::InitSplitTunneling)?;
@@ -235,7 +236,7 @@ impl TunnelStateMachine {
         };
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
-        let route_manager = RouteManager::new(runtime.clone(), HashSet::new())
+        let route_manager = RouteManager::new(HashSet::new())
             .await
             .map_err(Error::InitRouteManagerError)?;
         let dns_monitor = DnsMonitor::new(
