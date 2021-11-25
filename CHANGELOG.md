@@ -27,6 +27,15 @@ Line wrap the file at 100 chars.                                              Th
 - Keep unspecified constraints unchanged in the CLI when providing specific tunnel constraints
   instead of setting them to default values.
 
+#### Android
+- Avoid running in foreground when not connected.
+- Avoid removing notification when service is stopped.
+- Change so that swiping the notification no longer kills the service since that isn't a common way of handling the 
+  lifecycle in Android. Instead rely on the following mechanisms to kill the service:
+  * Swiping to remove from the Recents/Overview screen.
+  * Android Background Execution Limits.
+  * The System Settings way of killing apps ("Force Stop").
+
 ### Fixed
 - Always kill `sslocal` if the tunnel monitor fails to start when using bridges.
 
@@ -35,6 +44,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix daemon not starting if all excluded app paths reside on non-existent/unmounted volumes.
 - Remove tray icon of current running app version when upgrading.
 
+#### Android
+- Fix Quick Settings tile showing wrong state in certain scenarios.
 
 ## [2021.6] - 2021-11-17
 ### Fixed
