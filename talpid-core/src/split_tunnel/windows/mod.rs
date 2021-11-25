@@ -100,12 +100,35 @@ pub struct SplitTunnel {
     runtime: tokio::runtime::Handle,
     request_tx: RequestTx,
     event_thread: Option<std::thread::JoinHandle<()>>,
-    quit_event: RawHandle,
+    quit_event: Arc<QuitEvent>,
     _route_change_callback: Option<WinNetCallbackHandle>,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     async_path_update_in_progress: Arc<AtomicBool>,
 }
-unsafe impl Send for SplitTunnel {}
+
+struct QuitEvent(RawHandle);
+
+unsafe impl Send for QuitEvent {}
+unsafe impl Sync for QuitEvent {}
+
+impl QuitEvent {
+    fn new() -> Self {
+        Self(unsafe { CreateEventW(ptr::null_mut(), TRUE, FALSE, ptr::null()) })
+    }
+
+    fn set_event(&self) -> io::Result<()> {
+        if unsafe { SetEvent(self.0) } == 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+}
+
+impl Drop for QuitEvent {
+    fn drop(&mut self) {
+        unsafe { CloseHandle(self.0) };
+    }
+}
 
 enum Request {
     SetPaths(Vec<OsString>),
@@ -124,7 +147,7 @@ const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 struct EventThreadContext {
     handle: Arc<driver::DeviceHandle>,
     event_overlapped: OVERLAPPED,
-    quit_event: RawHandle,
+    quit_event: Arc<QuitEvent>,
 }
 unsafe impl Send for EventThreadContext {}
 
@@ -143,12 +166,12 @@ impl SplitTunnel {
             return Err(Error::EventThreadError(io::Error::last_os_error()));
         }
 
-        let quit_event = unsafe { CreateEventW(ptr::null_mut(), TRUE, FALSE, ptr::null()) };
+        let quit_event = Arc::new(QuitEvent::new());
 
         let event_context = EventThreadContext {
             handle: handle.clone(),
             event_overlapped,
-            quit_event,
+            quit_event: quit_event.clone(),
         };
 
         let event_thread = std::thread::spawn(move || {
@@ -162,11 +185,11 @@ impl SplitTunnel {
 
             let event_objects = [
                 event_context.event_overlapped.hEvent,
-                event_context.quit_event,
+                event_context.quit_event.0,
             ];
 
             loop {
-                if unsafe { WaitForSingleObject(event_context.quit_event, 0) == WAIT_OBJECT_0 } {
+                if unsafe { WaitForSingleObject(event_context.quit_event.0, 0) == WAIT_OBJECT_0 } {
                     // Quit event was signaled
                     break;
                 }
@@ -214,7 +237,7 @@ impl SplitTunnel {
                     continue;
                 };
 
-                if event_context.quit_event == event_objects[signaled_index as usize] {
+                if event_context.quit_event.0 == event_objects[signaled_index as usize] {
                     // Quit event was signaled
                     break;
                 }
@@ -289,7 +312,6 @@ impl SplitTunnel {
             log::debug!("Stopping split tunnel event thread");
 
             unsafe { CloseHandle(event_context.event_overlapped.hEvent) };
-            unsafe { CloseHandle(event_context.quit_event) };
         });
 
         Ok(SplitTunnel {
@@ -521,8 +543,7 @@ impl SplitTunnel {
 impl Drop for SplitTunnel {
     fn drop(&mut self) {
         if let Some(_event_thread) = self.event_thread.take() {
-            if unsafe { SetEvent(self.quit_event) } == 0 {
-                let error = io::Error::last_os_error();
+            if let Err(error) = self.quit_event.set_event() {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to close ST event thread")
