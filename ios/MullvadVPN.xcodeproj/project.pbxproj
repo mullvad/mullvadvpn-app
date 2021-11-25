@@ -32,6 +32,13 @@
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
 		5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2C1243203D000F5FF30 /* StringTests.swift */; };
 		5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
+		58095C4B2760B4F200890776 /* AddressCacheStoreError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C4A2760B4F200890776 /* AddressCacheStoreError.swift */; };
+		58095C4F2760BA9100890776 /* AddressCacheStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C4E2760BA9100890776 /* AddressCacheStore.swift */; };
+		58095C512760BBB500890776 /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C502760BBB400890776 /* AddressCacheTracker.swift */; };
+		58095C532760EEC700890776 /* RESTNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C522760EEC700890776 /* RESTNetworkOperation.swift */; };
+		58095C552760F02500890776 /* UpdateAddressCacheOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C542760F02500890776 /* UpdateAddressCacheOperation.swift */; };
+		58095C572760F47900890776 /* api-ip-address.json in Resources */ = {isa = PBXBuildFile; fileRef = 58095C562760F47900890776 /* api-ip-address.json */; };
+		58095C592762155700890776 /* RESTRetryStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C582762155700890776 /* RESTRetryStrategy.swift */; };
 		580EE20624B3222200F9D8A1 /* ExclusivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE20524B3222200F9D8A1 /* ExclusivityController.swift */; };
 		580EE22424B3243100F9D8A1 /* AsyncBlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */; };
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
@@ -187,6 +194,7 @@
 		58871D2325D535D2002297FA /* IPAddressRange+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */; };
 		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
 		5888AD87227B17950051EB06 /* SelectLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationViewController.swift */; };
+		588CD8BB275A0A0B00CF902E /* RESTRequestAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588CD8BA275A0A0B00CF902E /* RESTRequestAdapter.swift */; };
 		588D2FE3248AC27F00E313F7 /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E973DD24850EB600096F90 /* AsyncOperation.swift */; };
 		588DD76B26FCB49E006F6233 /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588DD76A26FCB49E006F6233 /* Cancellable.swift */; };
 		588DD76C26FCB49E006F6233 /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588DD76A26FCB49E006F6233 /* Cancellable.swift */; };
@@ -308,6 +316,7 @@
 		58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BF12424F7D700112C88 /* UserInterfaceInteractionRestriction.swift */; };
 		58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */; };
+		58FEAFB92750DA2F003C1625 /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEAFB82750DA2F003C1625 /* AddressCache.swift */; };
 		58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB45260A028D00A621A8 /* GeoJSON.swift */; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 /* End PBXBuildFile section */
@@ -360,6 +369,13 @@
 /* Begin PBXFileReference section */
 		5807E2BF2432038B00F5FF30 /* String+Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Split.swift"; sourceTree = "<group>"; };
 		5807E2C1243203D000F5FF30 /* StringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringTests.swift; sourceTree = "<group>"; };
+		58095C4A2760B4F200890776 /* AddressCacheStoreError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheStoreError.swift; sourceTree = "<group>"; };
+		58095C4E2760BA9100890776 /* AddressCacheStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheStore.swift; sourceTree = "<group>"; };
+		58095C502760BBB400890776 /* AddressCacheTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheTracker.swift; sourceTree = "<group>"; };
+		58095C522760EEC700890776 /* RESTNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTNetworkOperation.swift; sourceTree = "<group>"; };
+		58095C542760F02500890776 /* UpdateAddressCacheOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateAddressCacheOperation.swift; sourceTree = "<group>"; };
+		58095C562760F47900890776 /* api-ip-address.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "api-ip-address.json"; sourceTree = "<group>"; };
+		58095C582762155700890776 /* RESTRetryStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTRetryStrategy.swift; sourceTree = "<group>"; };
 		580EE20524B3222200F9D8A1 /* ExclusivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExclusivityController.swift; sourceTree = "<group>"; };
 		580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncBlockOperation.swift; sourceTree = "<group>"; };
 		5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEVPNStatus+Debug.swift"; sourceTree = "<group>"; };
@@ -465,6 +481,7 @@
 		587EB6732714520600123C75 /* PreferencesDataSourceDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesDataSourceDelegate.swift; sourceTree = "<group>"; };
 		5888AD82227B11080051EB06 /* SelectLocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationCell.swift; sourceTree = "<group>"; };
 		5888AD86227B17950051EB06 /* SelectLocationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationViewController.swift; sourceTree = "<group>"; };
+		588CD8BA275A0A0B00CF902E /* RESTRequestAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTRequestAdapter.swift; sourceTree = "<group>"; };
 		588DD76A26FCB49E006F6233 /* Cancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
 		58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEProviderStopReason+Debug.swift"; sourceTree = "<group>"; };
 		58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisconnectSplitButton.swift; sourceTree = "<group>"; };
@@ -572,6 +589,7 @@
 		58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Formatting.swift"; sourceTree = "<group>"; };
 		58FD5BF12424F7D700112C88 /* UserInterfaceInteractionRestriction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInterfaceInteractionRestriction.swift; sourceTree = "<group>"; };
 		58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseButton.swift; sourceTree = "<group>"; };
+		58FEAFB82750DA2F003C1625 /* AddressCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCache.swift; sourceTree = "<group>"; };
 		58FEEB45260A028D00A621A8 /* GeoJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoJSON.swift; sourceTree = "<group>"; };
 		58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyboardResponder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -619,6 +637,18 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		58095C49275FA24800890776 /* AddressCache */ = {
+			isa = PBXGroup;
+			children = (
+				58FEAFB82750DA2F003C1625 /* AddressCache.swift */,
+				58095C4E2760BA9100890776 /* AddressCacheStore.swift */,
+				58095C4A2760B4F200890776 /* AddressCacheStoreError.swift */,
+				58095C502760BBB400890776 /* AddressCacheTracker.swift */,
+				58095C542760F02500890776 /* UpdateAddressCacheOperation.swift */,
+			);
+			path = AddressCache;
 			sourceTree = "<group>";
 		};
 		580EE1FF24B3218800F9D8A1 /* Operations */ = {
@@ -726,6 +756,9 @@
 				58CB0EDF24B86751001EF0D8 /* RESTClient.swift */,
 				585DA88926B027A300B8C587 /* RESTCoding.swift */,
 				585DA88626B0277200B8C587 /* RESTError.swift */,
+				58095C522760EEC700890776 /* RESTNetworkOperation.swift */,
+				588CD8BA275A0A0B00CF902E /* RESTRequestAdapter.swift */,
+				58095C582762155700890776 /* RESTRetryStrategy.swift */,
 				585DA88326B0270700B8C587 /* ServerRelaysResponse.swift */,
 				584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */,
 			);
@@ -814,6 +847,7 @@
 				58CCA01D2242787B004F3011 /* AccountTextField.swift */,
 				582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */,
 				58CCA01722426713004F3011 /* AccountViewController.swift */,
+				58095C49275FA24800890776 /* AddressCache */,
 				58B9EB122488ED2100095626 /* AlertPresenter.swift */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				5868585424054096000B8131 /* AppButton.swift */,
@@ -978,6 +1012,7 @@
 		58F3C0A824A50C0E003E76BE /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				58095C562760F47900890776 /* api-ip-address.json */,
 				584789B7264D4A2A000E45FB /* le_root_cert.cer */,
 				58F3C0A524A50155003E76BE /* relays.json */,
 			);
@@ -1191,6 +1226,7 @@
 				58F5590F2697002100F630D0 /* ConnectionPanel.strings in Resources */,
 				58F558FA2696EB1C00F630D0 /* TunnelManager.strings in Resources */,
 				58F558E02695BD3E00F630D0 /* Login.strings in Resources */,
+				58095C572760F47900890776 /* api-ip-address.json in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 				58F558E92695D20F00F630D0 /* SelectLocation.strings in Resources */,
 				5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */,
@@ -1299,6 +1335,7 @@
 				5820675B26E6576800655B05 /* RelayCache.swift in Sources */,
 				5846226526E0D9630035F7C2 /* ProductsRequestOperation.swift in Sources */,
 				587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */,
+				58095C512760BBB500890776 /* AddressCacheTracker.swift in Sources */,
 				584D26C6270C8741004EA533 /* SettingsDNSTextCell.swift in Sources */,
 				585DA87D26B0254000B8C587 /* RelayCacheIO.swift in Sources */,
 				58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */,
@@ -1309,6 +1346,7 @@
 				58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */,
 				5806767427048E7400C858CB /* Promise+Optional.swift in Sources */,
 				58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */,
+				588CD8BB275A0A0B00CF902E /* RESTRequestAdapter.swift in Sources */,
 				582BB1B52295780F0055B6EF /* AccountExpiry.swift in Sources */,
 				582BB1B3229574F40055B6EF /* SettingsAccountCell.swift in Sources */,
 				585DA88426B0270700B8C587 /* ServerRelaysResponse.swift in Sources */,
@@ -1339,6 +1377,7 @@
 				5856D13727450A8A00DFD627 /* UIImage+TintColor.swift in Sources */,
 				58CB0EE024B86751001EF0D8 /* RESTClient.swift in Sources */,
 				5846226A26E0E6FA0035F7C2 /* ReceiptRefreshOperation.swift in Sources */,
+				58095C532760EEC700890776 /* RESTNetworkOperation.swift in Sources */,
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
 				582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */,
 				5806767827048E7E00C858CB /* Promise+Result.swift in Sources */,
@@ -1356,17 +1395,20 @@
 				58A99ED3240014A0006599E9 /* ConsentViewController.swift in Sources */,
 				58FAEE0124533A9C00CB0F5B /* KeychainClass.swift in Sources */,
 				58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */,
+				58095C4F2760BA9100890776 /* AddressCacheStore.swift in Sources */,
 				58AEEF6B2344A46200C9BBD5 /* TunnelSettingsManager.swift in Sources */,
 				587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */,
 				5806767927048E8800C858CB /* Keychain.swift in Sources */,
 				5846227526E22A350035F7C2 /* AnyAppStorePaymentObserver.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
+				58095C592762155700890776 /* RESTRetryStrategy.swift in Sources */,
 				5840250422B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */,
 				58CC40EF24A601900019D96E /* ObserverList.swift in Sources */,
 				58CCA01822426713004F3011 /* AccountViewController.swift in Sources */,
 				5820674E26E6510200655B05 /* REST.swift in Sources */,
 				5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */,
 				58F7CA882692E34000FC59FD /* WireguardKeysContentView.swift in Sources */,
+				58095C4B2760B4F200890776 /* AddressCacheStoreError.swift in Sources */,
 				5868585524054096000B8131 /* AppButton.swift in Sources */,
 				58781CC922AE7CA8009B9D8E /* RelayConstraints.swift in Sources */,
 				584E96BC240FD4DA00D3334F /* Location.swift in Sources */,
@@ -1376,6 +1418,7 @@
 				585B4B8726D9098900555C4C /* TunnelErrorNotificationProvider.swift in Sources */,
 				5846226726E0DF960035F7C2 /* Promise+OperationQueue.swift in Sources */,
 				5850368C25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */,
+				58FEAFB92750DA2F003C1625 /* AddressCache.swift in Sources */,
 				58B67B482602079E008EF58E /* RelaySelector.swift in Sources */,
 				58DF28A52417CB4B00E836B0 /* AppStorePaymentManager.swift in Sources */,
 				583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */,
@@ -1406,6 +1449,7 @@
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
 				58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */,
 				5815039724D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
+				58095C552760F02500890776 /* UpdateAddressCacheOperation.swift in Sources */,
 				5820675E26E6839900655B05 /* PresentAlertOperation.swift in Sources */,
 				5815039D24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,

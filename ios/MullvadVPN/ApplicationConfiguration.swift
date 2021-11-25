@@ -7,11 +7,11 @@
 //
 
 import Foundation
+import struct Network.IPv4Address
 
 enum ApplicationConfiguration {}
 
 extension ApplicationConfiguration {
-
     /// The application group identifier used for sharing application preferences between processes
     static let securityGroupIdentifier = "group.net.mullvad.MullvadVPN"
 
@@ -38,6 +38,9 @@ extension ApplicationConfiguration {
         return [mainApplicationLogFileURL, packetTunnelLogFileURL].compactMap { $0 }
     }
 
+    /// Default API endpoint
+    static let defaultAPIEndpoint = AnyIPEndpoint(string: "193.138.218.78:443")!
+
     /// Background fetch minimum interval
     static let minimumBackgroundFetchInterval: TimeInterval = 3600
 
@@ -46,4 +49,7 @@ extension ApplicationConfiguration {
 
     /// Key rotation background task identifier
     static let privateKeyRotationTaskIdentifier = "net.mullvad.MullvadVPN.PrivateKeyRotation"
+
+    /// API address background task identifier
+    static let addressCacheUpdateTaskIdentifier = "net.mullvad.MullvadVPN.AddressCacheUpdate"
 }
