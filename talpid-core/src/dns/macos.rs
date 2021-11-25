@@ -132,6 +132,10 @@ pub struct DnsMonitor {
     state: Arc<Mutex<Option<State>>>,
 }
 
+/// SAFETY: The `SCDynamicStore` can be sent to other threads since it doesn't share mutable state
+/// with anything else.
+unsafe impl Send for DnsMonitor {}
+
 impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
