@@ -4,6 +4,7 @@
 
 ## Generated assets
 Assets/relays.json
+Assets/api-ip-address.json
 
 ## Build generated
 build/
