@@ -110,6 +110,7 @@ class Account {
 
     func loginWithNewAccount() -> Result<REST.AccountResponse, Account.Error>.Promise {
         return REST.Client.shared.createAccount()
+            .execute()
             .mapError { error in
                 return Error.createAccount(error)
             }
@@ -131,6 +132,7 @@ class Account {
     /// application preferences.
     func login(with accountToken: String) -> Result<REST.AccountResponse, Account.Error>.Promise {
         return REST.Client.shared.getAccountExpiry(token: accountToken)
+            .execute(retryStrategy: .default)
             .mapError { error in
                 return Account.Error.verifyAccount(error)
             }
@@ -183,6 +185,7 @@ class Account {
         Promise<String?>.deferred { self.token }
             .mapThen(defaultValue: nil) { token in
                 return REST.Client.shared.getAccountExpiry(token: token)
+                    .execute(retryStrategy: .default)
                     .onFailure { error in
                         self.logger.error(chainedError: error, message: "Failed to update account expiry")
                     }
