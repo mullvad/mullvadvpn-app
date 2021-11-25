@@ -23,6 +23,21 @@ extension Result where Success == TunnelManager.KeyRotationResult {
     }
 }
 
+extension AddressCache.CacheUpdateResult {
+    var backgroundFetchResult: UIBackgroundFetchResult {
+        switch self {
+        case .failure:
+            return .failed
+        case .throttled:
+            return .noData
+        case .success:
+            return .newData
+        case .cancelled:
+            return .noData
+        }
+    }
+}
+
 extension Result where Success == RelayCache.FetchResult {
     var backgroundFetchResult: UIBackgroundFetchResult {
         switch self.asConcreteType() {
@@ -49,6 +64,12 @@ extension UIBackgroundFetchResult: CustomStringConvertible {
             return "failed"
         @unknown default:
             return "unknown (rawValue: \(self.rawValue)"
+        }
+    }
+
+    func combine(with others: [UIBackgroundFetchResult]) -> UIBackgroundFetchResult {
+        return others.reduce(self) { partialResult, other in
+            return partialResult.combine(with: other)
         }
     }
 
