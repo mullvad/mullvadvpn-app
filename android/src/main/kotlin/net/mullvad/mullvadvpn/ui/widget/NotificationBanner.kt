@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.notification.InAppNotification
 import net.mullvad.mullvadvpn.ui.notification.InAppNotificationController
@@ -158,19 +159,15 @@ class NotificationBanner : FrameLayout {
 
     private fun animateChange() {
         val notification = notifications.current
+        val hasOngoingHideAnimation = animation.isRunning && reversedAnimation
 
-        if (notification != null && visibility == View.INVISIBLE) {
-            // Banner is not currently shown but must be shown
+        if (isVisible.not() && notification != null) {
             reversedAnimation = false
             update(notification)
             animation.start()
-        } else if (visibility == View.VISIBLE && (!animation.isRunning() || !reversedAnimation)) {
-            // Either the banner is shown or it is in the process of being shown, but the
-            // notification must be hidden or replaced
+        } else if (hasOngoingHideAnimation.not()) {
             reversedAnimation = true
             animation.reverse()
         }
-        // If the banner is animating to be hidden, it will automatically start showing when the
-        // hide animation ends
     }
 }
