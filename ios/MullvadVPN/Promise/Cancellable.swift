@@ -11,3 +11,19 @@ import Foundation
 protocol Cancellable {
     func cancel()
 }
+
+class AnyCancellable: Cancellable {
+    private var closure: (() -> Void)?
+    private let lock = NSLock()
+
+    init(_ block: @escaping () -> Void) {
+        self.closure = block
+    }
+
+    func cancel() {
+        lock.withCriticalBlock {
+            self.closure?()
+            self.closure = nil
+        }
+    }
+}

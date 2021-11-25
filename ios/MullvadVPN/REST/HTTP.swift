@@ -51,6 +51,7 @@ struct HTTPStatus: RawRepresentable, Equatable {
 
 /// HTTP headers
 enum HTTPHeader {
+    static let host = "Host"
     static let authorization = "Authorization"
     static let contentType = "Content-Type"
     static let etag = "ETag"
