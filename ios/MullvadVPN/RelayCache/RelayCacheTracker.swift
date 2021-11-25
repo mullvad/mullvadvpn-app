@@ -145,6 +145,7 @@ extension RelayCache {
 
         private func downloadRelays(previouslyCachedRelays: CachedRelays?) -> Result<RelayCache.FetchResult, RelayCache.Error>.Promise {
             return REST.Client.shared.getRelays(etag: previouslyCachedRelays?.etag)
+                .execute()
                 .receive(on: stateQueue)
                 .mapError { error in
                     self.logger.error(chainedError: error, message: "Failed to download relays")
@@ -298,18 +299,23 @@ extension RelayCache.Tracker {
         self.updateRelays()
             .storeCancellationToken(in: &cancellationToken)
             .observe { completion in
+                let isTaskCompleted: Bool
+
                 switch completion {
                 case .finished(.success(let fetchResult)):
                     self.logger.debug("Finished updating relays in app refresh task: \(fetchResult)")
+                    isTaskCompleted = true
 
                 case .finished(.failure(let error)):
                     self.logger.error(chainedError: error, message: "Failed to update relays in app refresh task")
+                    isTaskCompleted = false
 
                 case .cancelled:
                     self.logger.debug("App refresh task was cancelled")
+                    isTaskCompleted = false
                 }
 
-                task.setTaskCompleted(success: !completion.isCancelled)
+                task.setTaskCompleted(success: isTaskCompleted)
             }
 
         task.expirationHandler = {
