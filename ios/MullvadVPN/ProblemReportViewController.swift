@@ -598,6 +598,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         willSendProblemReport()
 
         REST.Client.shared.sendProblemReport(request)
+            .execute(retryStrategy: .default)
             .receive(on: .main)
             .observe { completion in
                 self.didSendProblemReport(viewModel: viewModel, result: completion.unwrappedValue!)

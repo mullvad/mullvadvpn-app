@@ -12,10 +12,13 @@ import Logging
 
 class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
 
+    private let sslHostname: String
     private let trustedRootCertificates: [SecCertificate]
+
     private let logger = Logger(label: "SSLPinningURLSessionDelegate")
 
-    init(trustedRootCertificates: [SecCertificate]) {
+    init(sslHostname: String, trustedRootCertificates: [SecCertificate]) {
+        self.sslHostname = sslHostname
         self.trustedRootCertificates = trustedRootCertificates
     }
 
@@ -34,8 +37,18 @@ class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
     // MARK: - Private
 
     private func verifyServerTrust(_ serverTrust: SecTrust) -> Bool {
+        var secResult: OSStatus
+
+        // Set SSL policy
+        let sslPolicy = SecPolicyCreateSSL(true, sslHostname as CFString)
+        secResult = SecTrustSetPolicies(serverTrust, sslPolicy)
+        guard secResult == errSecSuccess else {
+            logger.error("SecTrustSetPolicies failure: \(self.formatErrorMessage(code: secResult))")
+            return false
+        }
+
         // Set trusted root certificates
-        var secResult = SecTrustSetAnchorCertificates(serverTrust, trustedRootCertificates as CFArray)
+        secResult = SecTrustSetAnchorCertificates(serverTrust, trustedRootCertificates as CFArray)
         guard secResult == errSecSuccess else {
             self.logger.error("SecTrustSetAnchorCertificates failure: \(self.formatErrorMessage(code: secResult))")
             return false
