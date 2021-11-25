@@ -36,6 +36,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var connectController: ConnectViewController?
     private weak var settingsNavController: SettingsNavigationController?
 
+    private lazy var addressCacheTracker: AddressCache.Tracker = {
+        return AddressCache.Tracker(
+            restClient: REST.Client.shared,
+            store: AddressCache.Store.shared
+        )
+    }()
+
     private var cachedRelays: RelayCache.CachedRelays? {
         didSet {
             if let cachedRelays = cachedRelays {
@@ -64,6 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // Register background tasks on iOS 13
             RelayCache.Tracker.shared.registerAppRefreshTask()
             TunnelManager.shared.registerBackgroundTask()
+            addressCacheTracker.registerBackgroundTask()
         } else {
             // Set background refresh interval on iOS 12
             application.setMinimumBackgroundFetchInterval(ApplicationConfiguration.minimumBackgroundFetchInterval)
@@ -138,6 +146,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Start periodic private key rotation
         TunnelManager.shared.startPeriodicPrivateKeyRotation()
 
+        // Start periodic API address list updates
+        addressCacheTracker.startPeriodicUpdates()
+
         // Reveal application content
         occlusionWindow.isHidden = true
         window?.makeKeyAndVisible()
@@ -149,6 +160,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Stop periodic private key rotation
         TunnelManager.shared.stopPeriodicPrivateKeyRotation()
+
+        // Stop periodic API address list updates
+        addressCacheTracker.stopPeriodicUpdates()
 
         // Hide application content
         occlusionWindow.makeKeyAndVisible()
@@ -163,39 +177,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         logger?.info("Start background refresh")
 
-        RelayCache.Tracker.shared.updateRelays()
-            .then { fetchRelaysResult -> Promise<UIBackgroundFetchResult> in
-                switch fetchRelaysResult {
-                case .success(let result):
-                    self.logger?.debug("Finished updating relays: \(result)")
-                case .failure(let error):
-                    self.logger?.error(chainedError: error, message: "Failed to update relays")
-                }
-
-                return TunnelManager.shared.rotatePrivateKey()
-                    .then { rotationResult -> UIBackgroundFetchResult in
-                        switch rotationResult {
-                        case .success(let result):
-                            self.logger?.debug("Finished rotating the key: \(result)")
-                        case .failure(let error):
-                            self.logger?.error(chainedError: error, message: "Failed to rotate the key")
-                        }
-
-                        return fetchRelaysResult.backgroundFetchResult.combine(with: rotationResult.backgroundFetchResult)
+        _ = addressCacheTracker.updateEndpoints { addressCacheUpdateResult in
+            RelayCache.Tracker.shared.updateRelays()
+                .then { fetchRelaysResult -> Promise<UIBackgroundFetchResult> in
+                    switch fetchRelaysResult {
+                    case .success(let result):
+                        self.logger?.debug("Finished updating relays: \(result)")
+                    case .failure(let error):
+                        self.logger?.error(chainedError: error, message: "Failed to update relays")
                     }
-            }
-            .receive(on: .main)
-            .observe { completion in
-                switch completion {
-                case .finished(let backgroundFetchResult):
-                    self.logger?.info("Finish background refresh with \(backgroundFetchResult)")
-                    completionHandler(backgroundFetchResult)
 
-                case .cancelled:
-                    self.logger?.info("Finish background refresh with cancelled promise")
-                    completionHandler(.failed)
+                    return TunnelManager.shared.rotatePrivateKey()
+                        .then { rotationResult -> UIBackgroundFetchResult in
+                            switch rotationResult {
+                            case .success(let result):
+                                self.logger?.debug("Finished rotating the key: \(result)")
+                            case .failure(let error):
+                                self.logger?.error(chainedError: error, message: "Failed to rotate the key")
+                            }
+
+                            return addressCacheUpdateResult.backgroundFetchResult
+                                .combine(with: [fetchRelaysResult.backgroundFetchResult, rotationResult.backgroundFetchResult])
+                        }
                 }
-            }
+                .receive(on: .main)
+                .observe { completion in
+                    switch completion {
+                    case .finished(let backgroundFetchResult):
+                        self.logger?.info("Finish background refresh with \(backgroundFetchResult)")
+                        completionHandler(backgroundFetchResult)
+
+                    case .cancelled:
+                        self.logger?.info("Finish background refresh with cancelled promise")
+                        completionHandler(.failed)
+                    }
+                }
+        }
     }
 
     // MARK: - Private
@@ -218,6 +235,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             case .failure(let error):
                 self.logger?.error(chainedError: error, message: "Could not schedule private key rotation task")
             }
+        }
+
+        do {
+            try addressCacheTracker.scheduleBackgroundTask()
+
+            self.logger?.debug("Scheduled address cache update task")
+        } catch {
+            self.logger?.error(chainedError: AnyChainedError(error), message: "Could not schedule address cache update task")
         }
     }
 

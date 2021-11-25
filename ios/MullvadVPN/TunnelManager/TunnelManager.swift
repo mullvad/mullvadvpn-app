@@ -692,6 +692,7 @@ class TunnelManager {
 
     private func pushWireguardKeyAndUpdateSettings(accountToken: String, publicKey: PublicKey) -> Result<TunnelSettings, Error>.Promise {
         return REST.Client.shared.pushWireguardKey(token: accountToken, publicKey: publicKey)
+            .execute()
             .mapError { error in
                 return .pushWireguardKey(error)
             }
@@ -708,6 +709,7 @@ class TunnelManager {
 
     private func removeWireguardKeyFromServer(accountToken: String, publicKey: PublicKey) -> Result<Bool, Error>.Promise {
         return REST.Client.shared.deleteWireguardKey(token: accountToken, publicKey: publicKey)
+            .execute(retryStrategy: .default)
             .map { _ in
                 return true
             }
@@ -727,6 +729,7 @@ class TunnelManager {
     ) -> Result<TunnelSettings, Error>.Promise
     {
         return REST.Client.shared.replaceWireguardKey(token: accountToken, oldPublicKey: oldPublicKey.publicKey, newPublicKey: newPrivateKey.publicKey)
+            .execute()
             .mapError { error in
                 return .replaceWireguardKey(error)
             }
@@ -1106,7 +1109,7 @@ extension TunnelManager {
                 }
 
                 // Complete current task
-                task.setTaskCompleted(success: !completion.isCancelled)
+                task.setTaskCompleted(success: Self.isTaskCompleted(completion: completion))
             }
 
         task.expirationHandler = {
@@ -1116,6 +1119,16 @@ extension TunnelManager {
 }
 
 extension TunnelManager {
+    fileprivate static func isTaskCompleted(completion: PromiseCompletion<Result<KeyRotationResult, TunnelManager.Error>>) -> Bool {
+        switch completion {
+        case .cancelled:
+            return false
+        case .finished(.success):
+            return true
+        case .finished(.failure):
+            return false
+        }
+    }
     fileprivate func handlePrivateKeyRotationCompletion(completion: PromiseCompletion<Result<KeyRotationResult, TunnelManager.Error>>) -> Date? {
         switch completion {
         case .finished(.success(let result)):

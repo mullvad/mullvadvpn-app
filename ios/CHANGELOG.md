@@ -32,6 +32,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Increase hit area of settings (cog) button.
 - Update launch screen.
+- Never use DNS to talk to Mullvad API. Instead use the list of IP addresses bundled with the app 
+  and update it periodically.
 
 
 ## [2021.4] - 2021-11-30

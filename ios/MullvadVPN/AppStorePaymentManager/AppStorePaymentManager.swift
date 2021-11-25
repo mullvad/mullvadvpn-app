@@ -162,6 +162,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
             }
             .mapThen { receiptData in
                 return REST.Client.shared.createApplePayment(token: accountToken, receiptString: receiptData)
+                    .execute()
                     .mapError { error in
                         self.logger.error(chainedError: error, message: "Failed to upload the AppStore receipt")
 
