@@ -46,7 +46,7 @@ pub fn bump_filehandle_limit() {
 
     limits.rlim_cur = INCREASED_FILEHANDLE_LIMIT;
     // SAFETY: `&limits` is a valid pointer parameter for the getrlimit syscall
-    let status = unsafe { libc::setrlimit(libc::RLIMIT_NOFILE, &limits as *const _) };
+    let status = unsafe { libc::setrlimit(libc::RLIMIT_NOFILE, &limits) };
     if status != 0 {
         log::error!(
             "Failed to set file handle limit to {}: {}-{}",
@@ -63,5 +63,4 @@ fn test_unknown_group() {
     let unknown_group = CStr::from_bytes_with_nul(b"asdunknown\0").unwrap();
     let group_err = get_group_id(unknown_group).unwrap_err();
     assert!(group_err.kind() == io::ErrorKind::NotFound)
-
 }
