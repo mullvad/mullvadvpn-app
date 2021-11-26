@@ -281,8 +281,7 @@ impl TunnelStateMachine {
         .map_err(Error::InitDnsMonitorError)?;
 
         #[cfg(target_os = "macos")]
-        let custom_resolver =
-            crate::resolver::start_resolver(command_tx.clone(), exclusion_gid).await?;
+        let custom_resolver = crate::resolver::start_resolver(command_tx.clone()).await?;
 
         let (offline_tx, mut offline_rx) = mpsc::unbounded();
         let initial_offline_state_tx = offline_state_tx.clone();

@@ -8,6 +8,17 @@ pub fn get_exclusion_gid() -> Option<u32> {
     talpid_core::macos::get_group_id(exclusion_group_name)
 }
 
+/// Attempts to set the GID of the current process to `mullvad-exclusion`.
+#[cfg(target_os = "macos")]
+pub fn set_exclusion_gid() {
+    if let Some(gid) = get_exclusion_gid() {
+        if let Err(err) = talpid_core::macos::set_gid(gid) {
+            log::error!("Failed to set group ID: {}", err);
+        }
+    } else {
+        log::error!("No exclusion ID available");
+    }
+}
 
 #[cfg(test)]
 mod test {

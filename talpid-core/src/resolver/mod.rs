@@ -56,41 +56,29 @@ const CAPTIVE_PORTAL_DOMAIN: &str = "captive.apple.com";
 
 type TunnelCommandSender = Weak<mpsc::UnboundedSender<TunnelCommand>>;
 
-pub(crate) async fn start_resolver(
-    sender: TunnelCommandSender,
-    exclusion_gid: Option<u32>,
-) -> Result<ResolverHandle, Error> {
-    start_resolver_inner(sender, exclusion_gid, 53).await
+pub(crate) async fn start_resolver(sender: TunnelCommandSender) -> Result<ResolverHandle, Error> {
+    start_resolver_inner(sender, 53).await
 }
 
 async fn start_resolver_inner(
     sender: TunnelCommandSender,
-    exclusion_gid: Option<u32>,
     port: u16,
 ) -> Result<ResolverHandle, Error> {
     let (tx, rx) = oneshot::channel();
-    std::thread::spawn(move || run_resolver(sender, tx, exclusion_gid, port));
+    std::thread::spawn(move || run_resolver(sender, tx, port));
     rx.await.map_err(|_| Error::LauncherThreadPanic)?
 }
 
-fn run_resolver(
+async fn run_resolver(
     tunnel_tx: TunnelCommandSender,
     done_tx: oneshot::Sender<Result<ResolverHandle, Error>>,
-    exclusion_gid: Option<u32>,
     port: u16,
 ) {
     let mut builder = tokio::runtime::Builder::new_multi_thread();
     builder.enable_all();
     builder.worker_threads(2);
     builder.max_blocking_threads(1);
-    builder.on_thread_start(move || {
-        #[cfg(target_os = "macos")]
-        if let Some(gid) = exclusion_gid {
-            if unsafe { libc::setgid(gid) } != 0 {
-                log::error!("Failed to set group ID");
-            }
-        }
-    });
+
     let rt = builder.build().expect("failed to initialize tokio runtime");
     match rt.block_on(FilteringResolver::new(tunnel_tx, port)) {
         Ok((resolver, resolver_handle)) => {
@@ -672,7 +660,7 @@ mod test {
         let tx = Arc::new(tx);
         let port = random_port();
 
-        let resolver_handle = super::start_resolver_inner(Arc::downgrade(&tx), None, port)
+        let resolver_handle = super::start_resolver_inner(Arc::downgrade(&tx), port)
             .await
             .unwrap();
         (resolver_handle, port, rx, tx)

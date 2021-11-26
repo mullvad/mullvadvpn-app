@@ -8,7 +8,7 @@ mod account;
 pub mod account_history;
 pub mod exception_logging;
 #[cfg(target_os = "macos")]
-mod exclusion_gid;
+pub mod exclusion_gid;
 mod geoip;
 pub mod logging;
 #[cfg(not(target_os = "android"))]
@@ -562,7 +562,11 @@ where
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
-        talpid_core::macos::bump_filehandle_limit();
+        {
+            talpid_core::macos::bump_filehandle_limit();
+            exclusion_gid::set_exclusion_gid();
+        };
+
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
         let runtime = tokio::runtime::Handle::current();
