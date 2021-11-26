@@ -109,7 +109,7 @@ pub async fn spawn(
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     offline_state_listener: mpsc::UnboundedSender<bool>,
     shutdown_tx: oneshot::Sender<()>,
-    #[cfg(target_os = "macos")] exclusion_gid: Option<u32>,
+    #[cfg(target_os = "macos")] exclusion_gid: u32,
     #[cfg(target_os = "macos")] enable_resolver: bool,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
@@ -225,7 +225,7 @@ impl TunnelStateMachine {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
-        #[cfg(target_os = "macos")] exclusion_gid: Option<u32>,
+        #[cfg(target_os = "macos")] exclusion_gid: u32,
         #[cfg(target_os = "macos")] enable_resolver: bool,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
