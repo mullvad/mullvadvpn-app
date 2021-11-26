@@ -1,4 +1,5 @@
 use clap::{crate_authors, crate_description, crate_name, SubCommand};
+use mullvad_daemon::exclusion_gid;
 use mullvad_management_interface::new_rpc_client;
 use mullvad_rpc::MullvadRpcRuntime;
 use mullvad_types::version::ParsedAppVersion;
@@ -110,6 +111,9 @@ async fn main() {
         ])
         .subcommands(subcommands);
 
+    if let Err(err) = exclusion_gid::set_exclusion_gid() {
+        eprintln!("Failed to set exclusion GID: {}", err);
+    }
     let matches = app.get_matches();
     let result = match matches.subcommand() {
         ("prepare-restart", _) => prepare_restart().await,
@@ -162,7 +166,7 @@ async fn reset_firewall() -> Result<(), Error> {
         allow_lan: true,
         allowed_endpoint: None,
         #[cfg(target_os = "macos")]
-        exclusion_gid: None,
+        exclusion_gid: 0,
     })
     .map_err(Error::FirewallError)?;
 

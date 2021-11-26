@@ -24,7 +24,7 @@ pub struct Firewall {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
     rule_logging: RuleLogging,
-    exclusion_gid: Option<u32>,
+    exclusion_gid: u32,
 }
 
 impl FirewallT for Firewall {
@@ -176,57 +176,53 @@ impl Firewall {
         &self,
         servers: BTreeSet<IpAddr>,
     ) -> Result<Vec<pfctl::FilterRule>> {
-        if let Some(exclusion_gid) = self.exclusion_gid {
-            let allow_upstream_rules = servers
-                .iter()
-                .flat_map(|addr| {
-                    std::array::IntoIter::new([
-                        self.create_rule_builder(FilterRuleAction::Pass)
-                            .direction(pfctl::Direction::Out)
-                            .quick(true)
-                            .proto(pfctl::Proto::Tcp)
-                            .keep_state(pfctl::StatePolicy::Keep)
-                            .tcp_flags(Self::get_tcp_flags())
-                            .to(pfctl::Endpoint::new(*addr, 53))
-                            .group(exclusion_gid)
-                            .build(),
-                        self.create_rule_builder(FilterRuleAction::Pass)
-                            .direction(pfctl::Direction::Out)
-                            .quick(true)
-                            .proto(pfctl::Proto::Udp)
-                            .keep_state(pfctl::StatePolicy::Keep)
-                            .to(pfctl::Endpoint::new(*addr, 53))
-                            .group(exclusion_gid)
-                            .build(),
-                    ])
-                })
-                .collect::<Result<Vec<_>>>();
-
-            allow_upstream_rules.and_then(|mut rules| {
-                if !rules.is_empty() {
-                    rules.push(
-                        self.create_rule_builder(FilterRuleAction::Pass)
-                            .quick(true)
-                            .proto(pfctl::Proto::Udp)
-                            .to(pfctl::Endpoint::new(Ipv4Addr::LOCALHOST, 53))
-                            .build()?,
-                    );
-                    rules.push(
-                        self.create_rule_builder(FilterRuleAction::Pass)
-                            .quick(true)
-                            .proto(pfctl::Proto::Tcp)
-                            .keep_state(pfctl::StatePolicy::Keep)
-                            .tcp_flags(Self::get_tcp_flags())
-                            .to(pfctl::Endpoint::new(Ipv4Addr::LOCALHOST, 53))
-                            .build()?,
-                    );
-                }
-
-                Ok(rules)
+        let allow_upstream_rules = servers
+            .iter()
+            .flat_map(|addr| {
+                std::array::IntoIter::new([
+                    self.create_rule_builder(FilterRuleAction::Pass)
+                        .direction(pfctl::Direction::Out)
+                        .quick(true)
+                        .proto(pfctl::Proto::Tcp)
+                        .keep_state(pfctl::StatePolicy::Keep)
+                        .tcp_flags(Self::get_tcp_flags())
+                        .to(pfctl::Endpoint::new(*addr, 53))
+                        .group(self.exclusion_gid)
+                        .build(),
+                    self.create_rule_builder(FilterRuleAction::Pass)
+                        .direction(pfctl::Direction::Out)
+                        .quick(true)
+                        .proto(pfctl::Proto::Udp)
+                        .keep_state(pfctl::StatePolicy::Keep)
+                        .to(pfctl::Endpoint::new(*addr, 53))
+                        .group(self.exclusion_gid)
+                        .build(),
+                ])
             })
-        } else {
-            Ok(vec![])
-        }
+            .collect::<Result<Vec<_>>>();
+
+        allow_upstream_rules.and_then(|mut rules| {
+            if !rules.is_empty() {
+                rules.push(
+                    self.create_rule_builder(FilterRuleAction::Pass)
+                        .quick(true)
+                        .proto(pfctl::Proto::Udp)
+                        .to(pfctl::Endpoint::new(Ipv4Addr::LOCALHOST, 53))
+                        .build()?,
+                );
+                rules.push(
+                    self.create_rule_builder(FilterRuleAction::Pass)
+                        .quick(true)
+                        .proto(pfctl::Proto::Tcp)
+                        .keep_state(pfctl::StatePolicy::Keep)
+                        .tcp_flags(Self::get_tcp_flags())
+                        .to(pfctl::Endpoint::new(Ipv4Addr::LOCALHOST, 53))
+                        .build()?,
+                );
+            }
+
+            Ok(rules)
+        })
     }
 
     fn get_allow_dns_rules_when_connected(

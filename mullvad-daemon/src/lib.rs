@@ -187,6 +187,10 @@ pub enum Error {
 
     #[error(display = "Failed to open cached target tunnel state")]
     OpenCachedTargetState(#[error(source)] io::Error),
+
+    #[cfg(target_os = "macos")]
+    #[error(display = "Failed to set exclusion group")]
+    GroupIdError(#[error(source)] io::Error),
 }
 
 /// Enum representing commands that can be sent to the daemon.
@@ -562,9 +566,9 @@ where
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
-        {
+        let exclusion_gid = {
             talpid_core::macos::bump_filehandle_limit();
-            exclusion_gid::set_exclusion_gid();
+            exclusion_gid::set_exclusion_gid().map_err(Error::GroupIdError)?
         };
 
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
@@ -680,7 +684,7 @@ where
             offline_state_tx,
             tunnel_state_machine_shutdown_tx,
             #[cfg(target_os = "macos")]
-            exclusion_gid::get_exclusion_gid(),
+            exclusion_gid,
             #[cfg(target_os = "macos")]
             settings.enable_custom_resolver,
             #[cfg(target_os = "android")]
