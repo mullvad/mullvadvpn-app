@@ -2,7 +2,7 @@ pub use prost_types::{Duration, Timestamp};
 
 use mullvad_types::relay_constraints::Constraint;
 use std::convert::TryFrom;
-use talpid_types::ErrorExt;
+use talpid_types::{net::wireguard, ErrorExt};
 
 tonic::include_proto!("mullvad_daemon.management_interface");
 
@@ -716,6 +716,18 @@ pub enum FromProtobufTypeError {
     InvalidArgument(&'static str),
 }
 
+impl TryFrom<Device> for mullvad_types::device::Device {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(device: Device) -> Result<Self, Self::Error> {
+        Ok(mullvad_types::device::Device {
+            id: device.id,
+            name: device.name,
+            pubkey: bytes_to_pubkey(&device.pubkey)?,
+        })
+    }
+}
+
 impl TryFrom<&WireguardConstraints> for mullvad_types::relay_constraints::WireguardConstraints {
     type Error = FromProtobufTypeError;
 
@@ -956,7 +968,7 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
     type Error = FromProtobufTypeError;
 
     fn try_from(config: ConnectionConfig) -> Result<mullvad_types::ConnectionConfig, Self::Error> {
-        use talpid_types::net::{self, openvpn, wireguard};
+        use talpid_types::net::{self, openvpn};
 
         let config = config.config.ok_or(FromProtobufTypeError::InvalidArgument(
             "missing connection config",
@@ -1001,14 +1013,7 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
                     "missing peer config",
                 ))?;
 
-                // Copy the public key to an array
-                if peer.public_key.len() != 32 {
-                    return Err(FromProtobufTypeError::InvalidArgument("invalid public key"));
-                }
-
-                let mut public_key = [0; 32];
-                let buffer = &peer.public_key[..public_key.len()];
-                public_key.copy_from_slice(buffer);
+                let public_key = bytes_to_pubkey(&peer.public_key)?;
 
                 let ipv4_gateway = match config.ipv4_gateway.parse() {
                     Ok(address) => address,
@@ -1064,7 +1069,7 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
                             addresses: tunnel_addresses,
                         },
                         peer: wireguard::PeerConfig {
-                            public_key: wireguard::PublicKey::from(public_key),
+                            public_key,
                             allowed_ips,
                             endpoint,
                             protocol: try_transport_protocol_from_i32(peer.protocol)?,
@@ -1077,6 +1082,15 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
             }
         }
     }
+}
+
+fn bytes_to_pubkey(bytes: &[u8]) -> Result<wireguard::PublicKey, FromProtobufTypeError> {
+    if bytes.len() != 32 {
+        return Err(FromProtobufTypeError::InvalidArgument("invalid public key"));
+    }
+    let mut public_key = [0; 32];
+    public_key.copy_from_slice(&bytes[..32]);
+    Ok(wireguard::PublicKey::from(public_key))
 }
 
 impl From<RelayLocation> for Constraint<mullvad_types::relay_constraints::LocationConstraint> {
