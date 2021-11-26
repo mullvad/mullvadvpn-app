@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix daemon not starting if all excluded app paths reside on non-existent/unmounted volumes.
 - Remove tray icon of current running app version when upgrading.
 
+#### Android
+- Fix banner sometimes incorrectly showing (e.g. "BLOCKING INTERNET").
 
 ## [2021.6] - 2021-11-17
 ### Fixed
