@@ -4,7 +4,7 @@ use mullvad_management_interface::{
     types::{self, Timestamp},
     Code, ManagementServiceClient,
 };
-use mullvad_types::account::AccountToken;
+use mullvad_types::{account::AccountToken, device::Device};
 use std::io::{self, Write};
 
 pub struct Account;
@@ -39,6 +39,12 @@ impl Command for Account {
                             .help("Mullvad account number")
                             .long("account")
                             .takes_value(true),
+                    )
+                    .arg(
+                        clap::Arg::new("verbose")
+                            .long("verbose")
+                            .short('v')
+                            .help("Enables verbose output"),
                     ),
             )
             .subcommand(
@@ -133,9 +139,22 @@ impl Account {
     async fn list_devices(&self, matches: &clap::ArgMatches) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let token = self.parse_account_else_current(&mut rpc, matches).await?;
-        let devices = rpc.list_devices(token).await?.into_inner();
+        let device_list = rpc.list_devices(token).await?.into_inner();
 
-        println!("{:?}", devices);
+        let verbose = matches.is_present("verbose");
+
+        println!("Devices on the account:");
+        for device in device_list.devices {
+            let device = Device::try_from(device.clone()).unwrap();
+            if verbose {
+                println!();
+                println!("Name      : {}", device.name);
+                println!("Id        : {}", device.id);
+                println!("Public key: {}", device.pubkey);
+            } else {
+                println!("{}", device.name);
+            }
+        }
 
         Ok(())
     }
