@@ -63,10 +63,6 @@ mod mktemp;
 #[cfg(target_os = "linux")]
 mod linux;
 
-/// Misc utilities for the macOS platform.
-#[cfg(target_os = "macos")]
-pub mod macos;
-
 /// A pair of functions to monitor and establish connectivity with ICMP
 pub mod ping_monitor;
 
