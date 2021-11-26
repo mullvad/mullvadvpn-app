@@ -334,6 +334,10 @@ export default class AppRenderer {
     IpcRendererEventChannel.account.updateData();
   }
 
+  public getDevice = (): Promise<IDevice | undefined> => {
+    return IpcRendererEventChannel.account.getDevice();
+  };
+
   public fetchDevices = async (accountToken: AccountToken): Promise<Array<IDevice>> => {
     const devices = await IpcRendererEventChannel.account.listDevices(accountToken);
     this.reduxActions.account.updateDevices(devices);
@@ -783,7 +787,7 @@ export default class AppRenderer {
 
     if (oldAccount && !newAccount) {
       this.loginScheduler.cancel();
-      if (newDeviceEvent.remote) {
+      if (!this.reduxStore.getState().account.loggingOut && newDeviceEvent.remote) {
         reduxAccount.deviceRevoked();
       } else {
         reduxAccount.loggedOut();

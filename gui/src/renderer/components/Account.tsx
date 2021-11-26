@@ -10,6 +10,7 @@ import {
   AccountRows,
   AccountRowValue,
   DeviceRowValue,
+  StyledSpinnerContainer,
   StyledBuyCreditButton,
   StyledContainer,
   StyledRedeemVoucherButton,
@@ -18,10 +19,12 @@ import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { Layout } from './Layout';
+import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import { BackBarItem, NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
-import { AccountToken } from '../../shared/daemon-rpc-types';
+import { AccountToken, IDevice } from '../../shared/daemon-rpc-types';
+import ImageView from './ImageView';
 
 interface IProps {
   deviceName?: string;
@@ -29,13 +32,22 @@ interface IProps {
   accountExpiry?: string;
   expiryLocale: string;
   isOffline: boolean;
+  prepareLogout: () => void;
+  cancelLogout: () => void;
   onLogout: () => void;
   onClose: () => void;
   onBuyMore: () => Promise<void>;
   updateAccountData: () => void;
+  getDevice: () => Promise<IDevice | undefined>;
 }
 
-export default class Account extends React.Component<IProps> {
+interface IState {
+  logoutDialogState: 'hidden' | 'checking-ports' | 'confirm';
+}
+
+export default class Account extends React.Component<IProps, IState> {
+  public state: IState = { logoutDialogState: 'hidden' };
+
   public componentDidMount() {
     this.props.updateAccountData();
   }
@@ -64,7 +76,7 @@ export default class Account extends React.Component<IProps> {
             <AccountRows>
               <AccountRow>
                 <AccountRowLabel>
-                  {messages.pgettext('account-view', 'Device name')}
+                  {messages.pgettext('device-management', 'Device name')}
                 </AccountRowLabel>
                 <DeviceRowValue>{this.props.deviceName}</DeviceRowValue>
               </AccountRow>
@@ -111,15 +123,87 @@ export default class Account extends React.Component<IProps> {
 
               <StyledRedeemVoucherButton />
 
-              <AppButton.RedButton onClick={this.props.onLogout}>
+              <AppButton.RedButton onClick={this.onTryLogoout}>
                 {messages.pgettext('account-view', 'Log out')}
               </AppButton.RedButton>
             </AccountFooter>
           </AccountContainer>
         </StyledContainer>
+
+        {this.renderLoguotDialog()}
       </Layout>
     );
   }
+
+  private renderLoguotDialog() {
+    const modalType =
+      this.state.logoutDialogState === 'checking-ports' ? undefined : ModalAlertType.warning;
+
+    const message =
+      this.state.logoutDialogState === 'checking-ports' ? (
+        <StyledSpinnerContainer>
+          <ImageView source="icon-spinner" width={60} height={60} />
+        </StyledSpinnerContainer>
+      ) : (
+        <ModalMessage>
+          {
+            // TRANSLATORS: This is is a further explanation of what happens when logging out.
+            messages.pgettext(
+              'device-management',
+              'The ports forwarded to this device will be deleted if you log out.',
+            )
+          }
+        </ModalMessage>
+      );
+
+    const buttons =
+      this.state.logoutDialogState === 'checking-ports'
+        ? []
+        : [
+            <AppButton.RedButton key="logout" onClick={this.props.onLogout}>
+              {
+                // TRANSLATORS: Confirmation button when logging out
+                messages.pgettext('device-management', 'Log out anyway')
+              }
+            </AppButton.RedButton>,
+            <AppButton.BlueButton key="back" onClick={this.cancelLogout}>
+              {messages.gettext('Back')}
+            </AppButton.BlueButton>,
+          ];
+
+    return (
+      <ModalAlert
+        isOpen={this.state.logoutDialogState !== 'hidden'}
+        type={modalType}
+        buttons={buttons}>
+        {message}
+      </ModalAlert>
+    );
+  }
+
+  private onTryLogoout = async () => {
+    this.setState({ logoutDialogState: 'checking-ports' });
+    this.props.prepareLogout();
+
+    const device = await this.props.getDevice();
+    if (device === undefined) {
+      this.onHideLogoutConfirmationDialog();
+    } else if (device.ports !== undefined && device.ports.length > 0) {
+      this.setState({ logoutDialogState: 'confirm' });
+    } else {
+      this.props.onLogout();
+      this.onHideLogoutConfirmationDialog();
+    }
+  };
+
+  private cancelLogout = () => {
+    this.props.cancelLogout();
+    this.onHideLogoutConfirmationDialog();
+  };
+
+  private onHideLogoutConfirmationDialog = () => {
+    this.setState({ logoutDialogState: 'hidden' });
+  };
 }
 
 function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {

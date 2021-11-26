@@ -1311,6 +1311,10 @@ class ApplicationMain {
     });
     IpcMainEventChannel.account.handleUpdateData(() => this.updateAccountData());
 
+    IpcMainEventChannel.account.handleGetDevice(async () => {
+      const deviceConfig = await this.daemonRpc.getDevice();
+      return deviceConfig?.device;
+    });
     IpcMainEventChannel.account.handleListDevices((accountToken: AccountToken) => {
       return this.daemonRpc.listDevices(accountToken);
     });

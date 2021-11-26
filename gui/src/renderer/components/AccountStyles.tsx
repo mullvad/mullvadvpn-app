@@ -52,6 +52,13 @@ export const AccountOutOfTime = styled(AccountRowValue)({
   color: colors.red,
 });
 
+export const StyledSpinnerContainer = styled.div({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '8px 0',
+});
+
 export const AccountFooter = styled.div({
   display: 'flex',
   flexDirection: 'column',
