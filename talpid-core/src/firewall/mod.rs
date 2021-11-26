@@ -232,7 +232,7 @@ pub struct FirewallArguments {
     #[cfg(target_os = "macos")]
     /// This argument is required on macOS to know which group's traffic should be excluded, if at
     /// all.
-    pub exclusion_gid: Option<u32>,
+    pub exclusion_gid: u32,
 }
 
 impl Firewall {
