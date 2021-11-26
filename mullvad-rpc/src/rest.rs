@@ -629,6 +629,10 @@ impl MullvadRestHandle {
             factory,
             availability,
         };
+        #[cfg(feature = "api-override")]
+        if *super::DISABLE_ADDRESS_ROTATION {
+            return handle;
+        }
         handle.spawn_api_address_fetcher(address_cache);
 
         handle
