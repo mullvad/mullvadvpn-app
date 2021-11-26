@@ -532,6 +532,7 @@ message DeviceConfig {
 message Device {
 	string id = 1;
 	string name = 2;
+	bytes pubkey = 3;
 }
 
 message DeviceList {
