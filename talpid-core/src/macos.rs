@@ -1,15 +1,15 @@
 use std::{ffi::CStr, io};
 
 /// Returns the GID of the specified group name
-pub fn get_group_id(group_name: &CStr) -> Option<u32> {
+pub fn get_group_id(group_name: &CStr) -> io::Result<u32> {
     // SAFETY: group_name is a valid CString
     let group = unsafe { libc::getgrnam(group_name.as_ptr() as *const _) };
     if group.is_null() {
-        return None;
+        return Err(io::Error::from(io::ErrorKind::NotFound));
     }
     // SAFETY: group is not null
     let gid = unsafe { (*group).gr_gid };
-    Some(gid)
+    Ok(gid)
 }
 
 /// Sets group ID for the current process
@@ -56,4 +56,11 @@ pub fn bump_filehandle_limit() {
             status
         );
     }
+}
+
+#[cfg(test)]
+#[test]
+fn test_unknown_group() {
+    let unknown_group = CStr::from_bytes_with_nul(b"asdunknown\0").unwrap();
+    get_group_id(unknown_group).unwrap_err();
 }
