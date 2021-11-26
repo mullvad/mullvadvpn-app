@@ -61,14 +61,6 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    private var isBound: Boolean by observable(false) { _, _, isBound ->
-        notificationManager.lockedToForeground = isUiVisible or isBound
-    }
-
-    private var isUiVisible: Boolean by observable(false) { _, _, isUiVisible ->
-        notificationManager.lockedToForeground = isUiVisible or isBound
-    }
-
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Initializing service")
@@ -91,7 +83,6 @@ class MullvadVpnService : TalpidVpnService() {
 
         notificationManager =
             ForegroundNotificationManager(this, connectionProxy, keyguardManager).apply {
-                acknowledgeStartForegroundService()
                 accountNumberEvents = endpoint.settingsListener.accountNumberNotifier
             }
 
@@ -121,7 +112,7 @@ class MullvadVpnService : TalpidVpnService() {
         val startResult = super.onStartCommand(intent, flags, startId)
         var quitCommand = false
 
-        notificationManager.acknowledgeStartForegroundService()
+        notificationManager.updateNotification()
 
         if (!keyguardManager.isDeviceLocked) {
             val action = intent?.action
@@ -145,15 +136,11 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onBind(intent: Intent): IBinder {
         Log.d(TAG, "New connection to service")
-        isBound = true
-
         return super.onBind(intent) ?: endpoint.messenger.binder
     }
 
     override fun onRebind(intent: Intent) {
         Log.d(TAG, "Connection to service restored")
-        isBound = true
-
         if (state == State.Stopping) {
             restart()
         }
@@ -165,7 +152,6 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onUnbind(intent: Intent): Boolean {
         Log.d(TAG, "Closed all connections to service")
-        isBound = false
 
         if (state != State.Running) {
             stop()

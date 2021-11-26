@@ -13,6 +13,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.take
+import net.mullvad.mullvadvpn.model.ServiceResult
 
 fun <T> SendChannel<T>.safeOffer(element: T): Boolean {
     return runCatching { offer(element) }.getOrDefault(false)
@@ -32,21 +33,22 @@ fun Animation.transitionFinished(): Flow<Unit> = callbackFlow<Unit> {
     }
 }.take(1)
 
-fun Context.bindServiceFlow(intent: Intent, flags: Int = 0): Flow<IBinder?> = callbackFlow {
+fun Context.bindServiceFlow(intent: Intent, flags: Int = 0): Flow<ServiceResult> = callbackFlow {
     val connectionCallback = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
-            safeOffer(binder)
+            safeOffer(ServiceResult(binder))
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
-            safeOffer(null)
+            safeOffer(ServiceResult.NOT_CONNECTED)
+            bindService(intent, this, flags)
         }
     }
 
     bindService(intent, connectionCallback, flags)
 
     awaitClose {
-        safeOffer(null)
+        safeOffer(ServiceResult.NOT_CONNECTED)
 
         Dispatchers.Default.dispatch(EmptyCoroutineContext) {
             unbindService(connectionCallback)
