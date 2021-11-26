@@ -1,24 +1,23 @@
 use std::{ffi::CStr, io};
 
 /// Returns the GID of the specified group name
-pub fn get_group_id(group_name: &CStr) -> Option<u32> {
+pub fn get_group_id(group_name: &CStr) -> io::Result<u32> {
     // SAFETY: group_name is a valid CString
     let group = unsafe { libc::getgrnam(group_name.as_ptr() as *const _) };
     if group.is_null() {
-        return None;
+        return Err(io::Error::from(io::ErrorKind::NotFound));
     }
     // SAFETY: group is not null
     let gid = unsafe { (*group).gr_gid };
-    Some(gid)
+    Ok(gid)
 }
 
 /// Sets group ID for the current process
 pub fn set_gid(gid: u32) -> io::Result<()> {
-    let result = unsafe { libc::setgid(gid) };
-    if result == 0 {
+    if unsafe { libc::setgid(gid) } == 0 {
         Ok(())
     } else {
-        Err(io::Error::from_raw_os_error(result))
+        Err(io::Error::last_os_error())
     }
 }
 
@@ -30,7 +29,7 @@ pub fn bump_filehandle_limit() {
         rlim_max: 0,
     };
     // SAFETY: `&mut limits` is a valid pointer parameter for the getrlimit syscall
-    let status = unsafe { libc::getrlimit(libc::RLIMIT_NOFILE, &mut limits as *mut _) };
+    let status = unsafe { libc::getrlimit(libc::RLIMIT_NOFILE, &mut limits) };
     if status != 0 {
         log::error!(
             "Failed to get file handle limits: {}-{}",
@@ -56,4 +55,13 @@ pub fn bump_filehandle_limit() {
             status
         );
     }
+}
+
+#[cfg(test)]
+#[test]
+fn test_unknown_group() {
+    let unknown_group = CStr::from_bytes_with_nul(b"asdunknown\0").unwrap();
+    let group_err = get_group_id(unknown_group).unwrap_err();
+    assert!(group_err.kind() == io::ErrorKind::NotFound)
+
 }
