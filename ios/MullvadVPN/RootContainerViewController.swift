@@ -163,20 +163,6 @@ class RootContainerViewController: UIViewController {
         return interfaceOrientationMask ?? super.supportedInterfaceOrientations
     }
 
-    // MARK: - Storyboard segue handling
-
-    override func unwind(for unwindSegue: UIStoryboardSegue, towards subsequentVC: UIViewController) {
-        // Make sure there is no attempt to unwind to the top view controller
-        guard subsequentVC != topViewController else { return }
-
-        let index = viewControllers.firstIndex(of: subsequentVC)!
-        let newViewControllers = Array(viewControllers.prefix(through: index))
-
-        let animated = UIView.areAnimationsEnabled
-
-        setViewControllersInternal(newViewControllers, isUnwinding: true, animated: animated)
-    }
-
     // MARK: - Public
 
     func setViewControllers(_ newViewControllers: [UIViewController],
@@ -560,15 +546,6 @@ class RootContainerViewController: UIViewController {
         UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 
-}
-
-class RootContainerPushSegue: UIStoryboardSegue {
-    override func perform() {
-        let container = source.rootContainerController!
-        let animated = UIView.areAnimationsEnabled
-
-        container.pushViewController(destination, animated: animated)
-    }
 }
 
 /// A UIViewController extension that gives view controllers an access to root container

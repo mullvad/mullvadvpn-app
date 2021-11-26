@@ -260,6 +260,7 @@
 		58E1336D26D2BE7500CC316B /* AnyResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E1336C26D2BE7500CC316B /* AnyResult.swift */; };
 		58E1336E26D2BE7500CC316B /* AnyResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E1336C26D2BE7500CC316B /* AnyResult.swift */; };
 		58E1336F26D2BE7500CC316B /* AnyResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E1336C26D2BE7500CC316B /* AnyResult.swift */; };
+		58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E20770274672CA00DE5D77 /* LaunchViewController.swift */; };
 		58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E6771E24ADFE7800AA26E7 /* SettingsNavigationController.swift */; };
 		58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE2E38272FF814003BFF93 /* SettingsDataSource.swift */; };
 		58EE2E3B272FF814003BFF93 /* SettingsDataSourceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE2E39272FF814003BFF93 /* SettingsDataSourceDelegate.swift */; };
@@ -526,6 +527,7 @@
 		58E1337426D2BEC400CC316B /* Promise+Optional.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Promise+Optional.swift"; sourceTree = "<group>"; };
 		58E1337826D2BEDD00CC316B /* Promise+ReceiveOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Promise+ReceiveOn.swift"; sourceTree = "<group>"; };
 		58E1338026D2BF5C00CC316B /* Promise+Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Promise+Result.swift"; sourceTree = "<group>"; };
+		58E20770274672CA00DE5D77 /* LaunchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchViewController.swift; sourceTree = "<group>"; };
 		58E6771E24ADFE7800AA26E7 /* SettingsNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsNavigationController.swift; sourceTree = "<group>"; };
 		58E973DD24850EB600096F90 /* AsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOperation.swift; sourceTree = "<group>"; };
 		58ECD29123F178FD004298B6 /* Screenshots.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Screenshots.xcconfig; sourceTree = "<group>"; };
@@ -852,6 +854,7 @@
 				58561C98239A5D1500BD6B5E /* IPEndpoint.swift */,
 				58FB865626E8C06800F188BC /* Keychain */,
 				58727282265D173C00F315B2 /* LaunchScreen.storyboard */,
+				58E20770274672CA00DE5D77 /* LaunchViewController.swift */,
 				58A1AA8623F43901009F7EA6 /* Location.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
 				58BA692D23E99EFF009DC256 /* Locking.swift */,
@@ -1437,6 +1440,7 @@
 				585DA89626B0328000B8C587 /* TunnelIPCResponse.swift in Sources */,
 				587AD7C623421D7000E93A53 /* TunnelSettings.swift in Sources */,
 				581503A324D6F1EC00C9C50E /* ChainedError+Logger.swift in Sources */,
+				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
 				584D26C4270C855B004EA533 /* PreferencesDataSource.swift in Sources */,
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58B43C1925F77DB60002C8C3 /* ConnectMainContentView.swift in Sources */,
