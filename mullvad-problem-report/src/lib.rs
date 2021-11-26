@@ -268,49 +268,61 @@ pub fn send_problem_report(
             }
         })?,
     );
-    let metadata =
-        ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
 
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(2)
         .enable_all()
         .build()
         .map_err(Error::CreateRuntime)?;
+    runtime.block_on(send_problem_report_inner(
+        user_email,
+        user_message,
+        &report_content,
+        cache_dir,
+    ))
+}
 
-    let mut rpc_manager = runtime
-        .block_on(mullvad_rpc::MullvadRpcRuntime::with_cache(
-            None,
-            cache_dir,
-            false,
-            #[cfg(target_os = "android")]
-            None,
-        ))
-        .map_err(Error::CreateRpcClientError)?;
+async fn send_problem_report_inner(
+    user_email: &str,
+    user_message: &str,
+    report_content: &str,
+    cache_dir: &Path,
+) -> Result<(), Error> {
+    let metadata =
+        ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
+
+    let mut rpc_manager = mullvad_rpc::MullvadRpcRuntime::with_cache(
+        None,
+        cache_dir,
+        false,
+        #[cfg(target_os = "android")]
+        None,
+    )
+    .await
+    .map_err(Error::CreateRpcClientError)?;
     let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());
 
-    runtime.block_on(async move {
-        for _attempt in 0..MAX_SEND_ATTEMPTS {
-            match rpc_client
-                .problem_report(user_email, user_message, &report_content, &metadata)
-                .await
-            {
-                Ok(()) => {
-                    println!("Problem report sent.");
-                    return Ok(());
-                }
-                Err(error) => {
-                    eprintln!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to send problem report")
-                    );
-                    if !error.is_network_error() {
-                        break;
-                    }
+    for _attempt in 0..MAX_SEND_ATTEMPTS {
+        match rpc_client
+            .problem_report(user_email, user_message, report_content, &metadata)
+            .await
+        {
+            Ok(()) => {
+                println!("Problem report sent.");
+                return Ok(());
+            }
+            Err(error) => {
+                eprintln!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to send problem report")
+                );
+                if !error.is_network_error() {
+                    break;
                 }
             }
         }
-        Err(Error::SendProblemReportError)
-    })
+    }
+    Err(Error::SendProblemReportError)
 }
 
 fn write_problem_report(path: &Path, problem_report: &ProblemReport) -> io::Result<()> {

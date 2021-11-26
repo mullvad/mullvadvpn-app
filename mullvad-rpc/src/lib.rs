@@ -82,7 +82,6 @@ lazy_static::lazy_static! {
 
 /// A type that helps with the creation of RPC connections.
 pub struct MullvadRpcRuntime {
-    handle: tokio::runtime::Handle,
     pub address_cache: AddressCache,
     api_availability: availability::ApiAvailability,
     #[cfg(target_os = "android")]
@@ -103,20 +102,17 @@ pub enum Error {
 
 impl MullvadRpcRuntime {
     /// Create a new `MullvadRpcRuntime`.
-    pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
+    pub fn new() -> Result<Self, Error> {
         Self::new_inner(
-            handle,
             #[cfg(target_os = "android")]
             None,
         )
     }
 
     fn new_inner(
-        handle: tokio::runtime::Handle,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
         Ok(MullvadRpcRuntime {
-            handle,
             address_cache: AddressCache::new(vec![API_ADDRESS.clone()], None)?,
             api_availability: ApiAvailability::new(availability::State::default()),
             #[cfg(target_os = "android")]
@@ -133,11 +129,9 @@ impl MullvadRpcRuntime {
         write_changes: bool,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
-        let handle = tokio::runtime::Handle::current();
         #[cfg(feature = "api-override")]
         if *DISABLE_ADDRESS_ROTATION {
             return Self::new_inner(
-                handle,
                 #[cfg(target_os = "android")]
                 socket_bypass_tx,
             );
@@ -177,7 +171,6 @@ impl MullvadRpcRuntime {
         };
 
         Ok(MullvadRpcRuntime {
-            handle,
             address_cache,
             api_availability: ApiAvailability::new(availability::State::default()),
             #[cfg(target_os = "android")]
@@ -196,7 +189,6 @@ impl MullvadRpcRuntime {
     /// Creates a new request service and returns a handle to it.
     fn new_request_service(&mut self, sni_hostname: Option<String>) -> rest::RequestServiceHandle {
         let https_connector = HttpsConnectorWithSni::new(
-            self.handle.clone(),
             sni_hostname,
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
@@ -204,12 +196,11 @@ impl MullvadRpcRuntime {
 
         let service = rest::RequestService::new(
             https_connector,
-            self.handle.clone(),
             self.api_availability.handle(),
             self.address_cache.clone(),
         );
         let handle = service.handle();
-        self.handle.spawn(service.into_future());
+        tokio::spawn(service.into_future());
         handle
     }
 
@@ -233,10 +224,6 @@ impl MullvadRpcRuntime {
     /// Returns a new request service handle
     pub fn rest_handle(&mut self) -> rest::RequestServiceHandle {
         self.new_request_service(None)
-    }
-
-    pub fn handle(&mut self) -> &mut tokio::runtime::Handle {
-        &mut self.handle
     }
 
     pub fn availability_handle(&self) -> ApiAvailabilityHandle {

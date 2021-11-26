@@ -23,7 +23,6 @@ use std::{
     time::{Duration, Instant},
 };
 use talpid_types::ErrorExt;
-use tokio::runtime::Handle;
 
 pub use hyper::StatusCode;
 
@@ -91,7 +90,6 @@ pub(crate) struct RequestService {
     command_rx: mpsc::Receiver<RequestCommand>,
     sockets: BTreeMap<usize, TcpStreamHandle>,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
-    handle: Handle,
     next_id: u64,
     in_flight_requests: BTreeMap<u64, AbortHandle>,
     api_availability: ApiAvailabilityHandle,
@@ -102,7 +100,6 @@ impl RequestService {
     /// Constructs a new request service.
     pub fn new(
         mut connector: HttpsConnectorWithSni,
-        handle: Handle,
         api_availability: ApiAvailabilityHandle,
         address_cache: AddressCache,
     ) -> RequestService {
@@ -118,7 +115,6 @@ impl RequestService {
             client,
             in_flight_requests: BTreeMap::new(),
             next_id: 0,
-            handle,
             api_availability,
             address_cache,
         }
@@ -128,7 +124,6 @@ impl RequestService {
     pub fn handle(&self) -> RequestServiceHandle {
         RequestServiceHandle {
             tx: self.command_tx.clone(),
-            handle: self.handle.clone(),
         }
     }
 
@@ -151,7 +146,6 @@ impl RequestService {
                     request_fut.await
                 });
                 let address_cache = self.address_cache.clone();
-                let handle = self.handle.clone();
 
                 let future = async move {
                     let response =
@@ -172,7 +166,7 @@ impl RequestService {
                                     if current_address == host_addr
                                         && address_cache.has_tried_current_address()
                                     {
-                                        handle.spawn(async move {
+                                        tokio::spawn(async move {
                                             address_cache.select_new_address().await;
                                             let new_address = address_cache.peek_address();
                                             log::error!(
@@ -197,7 +191,7 @@ impl RequestService {
                 };
 
 
-                self.handle.spawn(future);
+                tokio::spawn(future);
                 self.in_flight_requests.insert(id, abort_handle);
             }
 
@@ -263,7 +257,6 @@ fn get_request_socket_addr(request: &Request) -> Option<SocketAddr> {
 /// A handle to interact with a spawned `RequestService`.
 pub struct RequestServiceHandle {
     tx: mpsc::Sender<RequestCommand>,
-    handle: Handle,
 }
 
 impl RequestServiceHandle {
@@ -290,7 +283,7 @@ impl RequestServiceHandle {
 
     /// Spawns a future on the RPC runtime.
     pub fn spawn<T: Send + 'static>(&self, future: impl Future<Output = T> + Send + 'static) {
-        let _ = self.handle.spawn(future);
+        let _ = tokio::spawn(future);
     }
 }
 

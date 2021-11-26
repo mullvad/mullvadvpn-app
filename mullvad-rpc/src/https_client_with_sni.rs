@@ -26,7 +26,7 @@ use std::{
 #[cfg(target_os = "android")]
 use tokio::net::TcpSocket;
 
-use tokio::{net::TcpStream as TokioTcpStream, runtime::Handle, time::timeout};
+use tokio::{net::TcpStream as TokioTcpStream, time::timeout};
 use tokio_rustls::rustls::{self, ProtocolVersion};
 use webpki::DNSNameRef;
 
@@ -39,7 +39,6 @@ const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 #[derive(Clone)]
 pub struct HttpsConnectorWithSni {
     next_socket_id: usize,
-    handle: Handle,
     sni_hostname: Option<String>,
     service_tx: Option<mpsc::Sender<RequestCommand>>,
     #[cfg(target_os = "android")]
@@ -58,7 +57,6 @@ impl HttpsConnectorWithSni {
     /// This uses hyper's default `HttpConnector`, and default `TlsConnector`.
     /// If you wish to use something besides the defaults, use `From::from`.
     pub fn new(
-        handle: Handle,
         sni_hostname: Option<String>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Self {
@@ -69,7 +67,6 @@ impl HttpsConnectorWithSni {
 
         HttpsConnectorWithSni {
             next_socket_id: 0,
-            handle,
             sni_hostname,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
@@ -188,7 +185,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
         let service_tx = self.service_tx.clone();
 
         let socket_id = self.next_id();
-        let handle = self.handle.clone();
         #[cfg(target_os = "android")]
         let socket_bypass_tx = self.socket_bypass_tx.clone();
 
@@ -225,7 +221,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                 {
                     log::error!("Failed to submit new socket to request service");
                 }
-                handle.spawn(async move {
+                tokio::spawn(async move {
                     let _ = socket_shutdown_rx.await;
                     if service_tx
                         .send(RequestCommand::SocketClosed(socket_id))
