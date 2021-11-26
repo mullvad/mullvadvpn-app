@@ -291,6 +291,17 @@ class ApplicationMain {
 
     this.guiSettings.load();
 
+    app.on('render-process-gone', (_event, _webContents, details) => {
+      log.error(
+        `Render process exited with exit code ${details.exitCode} due to ${details.reason}`,
+      );
+    });
+    app.on('child-process-gone', (_event, details) => {
+      log.error(
+        `Child process of type ${details.type} exited with exit code ${details.exitCode} due to ${details.reason}`,
+      );
+    });
+
     app.on('activate', this.onActivate);
     app.on('ready', this.onReady);
     app.on('window-all-closed', () => app.quit());
@@ -367,6 +378,9 @@ class ApplicationMain {
         event.preventDefault();
 
         this.quitStage = AppQuitStage.initiated;
+
+        log.info('Quit initiated');
+
         await this.prepareToQuit();
 
         // terminate the app
