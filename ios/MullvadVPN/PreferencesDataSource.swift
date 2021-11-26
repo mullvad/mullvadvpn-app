@@ -547,7 +547,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
 
     private func configureFooterView(_ reusableView: SettingsStaticTextFooterView) {
         let font = reusableView.titleLabel.font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
-        
+
         reusableView.titleLabel.attributedText = viewModel.customDNSPrecondition
             .attributedLocalizedDescription(isEditing: isEditing, preferredFont: font)
     }
