@@ -14,7 +14,6 @@ use talpid_types::net::{
     wireguard, Endpoint, TransportProtocol,
 };
 
-
 /// Stores a list of relays for each country obtained from the API using
 /// `mullvad_rpc::RelayListProxy`. This can also be passed to frontends.
 #[derive(Debug, Clone, Deserialize, Serialize)]

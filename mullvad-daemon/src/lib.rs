@@ -4,7 +4,6 @@
 #[macro_use]
 extern crate serde;
 
-
 mod account;
 pub mod account_history;
 pub mod exception_logging;
@@ -602,7 +601,6 @@ where
             tx: internal_event_tx.clone(),
         };
 
-
         let initial_target_state = if settings.get_account_token().is_some() {
             if settings.auto_connect {
                 // Note: Auto-connect overrides the cached target state
@@ -891,7 +889,6 @@ where
         )
     }
 
-
     async fn handle_event(&mut self, event: InternalDaemonEvent) {
         use self::InternalDaemonEvent::*;
         match event {
@@ -937,7 +934,6 @@ where
             }
             TunnelStateTransition::Error(error_state) => TunnelState::Error(error_state),
         };
-
 
         self.unschedule_reconnect();
 
@@ -1176,7 +1172,6 @@ where
             job.abort();
         }
     }
-
 
     async fn handle_command(&mut self, command: DaemonCommand) {
         use self::DaemonCommand::*;
@@ -2165,7 +2160,6 @@ where
         Self::oneshot_send(tx, result, "on_set_bridge_state response");
     }
 
-
     async fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {
         let save_result = self.settings.set_enable_ipv6(enable_ipv6).await;
         match save_result {
@@ -2594,7 +2588,6 @@ where
             result
         }
     }
-
 
     pub fn shutdown_handle(&self) -> DaemonShutdownHandle {
         DaemonShutdownHandle {

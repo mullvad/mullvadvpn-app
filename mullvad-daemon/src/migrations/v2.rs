@@ -3,7 +3,6 @@ use crate::wireguard::{MAX_ROTATION_INTERVAL, MIN_ROTATION_INTERVAL};
 use mullvad_types::settings::SettingsVersion;
 use std::time::Duration;
 
-
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
         return Ok(());
@@ -169,7 +168,6 @@ mod test {
   "settings_version": 3
 }
 "#;
-
 
     #[test]
     fn test_v2_migration() {

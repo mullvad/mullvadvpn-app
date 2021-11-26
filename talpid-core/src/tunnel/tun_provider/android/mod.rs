@@ -19,7 +19,6 @@ use std::{
 };
 use talpid_types::{android::AndroidContext, ErrorExt};
 
-
 /// Errors that occur while setting up VpnService tunnel.
 #[derive(Debug, err_derive::Error)]
 #[error(no_from)]

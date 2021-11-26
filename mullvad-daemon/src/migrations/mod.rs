@@ -46,7 +46,6 @@ pub enum Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-
 pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)

@@ -37,7 +37,6 @@ impl TcpStreamHandle {
     }
 }
 
-
 pub struct TcpStream {
     inner: Arc<Mutex<Option<StreamInner>>>,
 }
@@ -80,7 +79,6 @@ impl Drop for TcpStream {
         }
     }
 }
-
 
 impl AsyncWrite for TcpStream {
     fn poll_write(

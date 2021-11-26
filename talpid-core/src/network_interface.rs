@@ -46,7 +46,6 @@ pub trait NetworkInterface: Sized {
     fn get_name(&self) -> &str;
 }
 
-
 trait WireguardLink: AsRawFd + IntoRawFd {}
 
 fn apply_async_flags(fd: RawFd) -> Result<(), nix::Error> {

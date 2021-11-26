@@ -265,7 +265,6 @@ impl<'a> PolicyBatch<'a> {
         batch.add(&in_chain, nftnl::MsgType::Add);
         batch.add(&forward_chain, nftnl::MsgType::Add);
 
-
         Self::flush_table(&mut batch, &tables.mangle_v4);
         Self::flush_table(&mut batch, &tables.mangle_v6);
 

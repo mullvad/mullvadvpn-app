@@ -20,7 +20,6 @@ impl fmt::Display for ProxyType {
     }
 }
 
-
 /// Bridge endpoint, broadcast as part of a [`crate::net::TunnelEndpoint`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ProxyEndpoint {

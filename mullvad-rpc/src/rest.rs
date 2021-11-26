@@ -35,7 +35,6 @@ const API_IP_CHECK_DELAY: Duration = Duration::from_secs(15 * 60);
 const API_IP_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
 const API_IP_CHECK_ERROR_INTERVAL: Duration = Duration::from_secs(15 * 60);
 
-
 pub type Result<T> = std::result::Result<T, Error>;
 const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 
@@ -187,7 +186,6 @@ impl RequestService {
                         }
                     }
 
-
                     if completion_tx.send(response).is_err() {
                         log::trace!(
                             "Failed to send response to caller, caller channel is shut down"
@@ -195,7 +193,6 @@ impl RequestService {
                     }
                     let _ = tx.send(RequestCommand::RequestFinished(id)).await;
                 };
-
 
                 self.handle.spawn(future);
                 self.in_flight_requests.insert(id, abort_handle);
@@ -258,7 +255,6 @@ fn get_request_socket_addr(request: &Request) -> Option<SocketAddr> {
     Some(SocketAddr::new(host_addr, port))
 }
 
-
 #[derive(Clone)]
 /// A handle to interact with a spawned `RequestService`.
 pub struct RequestServiceHandle {
@@ -284,7 +280,6 @@ impl RequestServiceHandle {
             .await
             .map_err(|_| Error::SendError)?;
 
-
         completion_rx.await.map_err(|_| Error::ReceiveError)?
     }
 
@@ -305,7 +300,6 @@ pub(crate) enum RequestCommand {
     SocketClosed(usize),
     Reset(oneshot::Sender<()>),
 }
-
 
 /// A REST request that is sent to the RequestService to be executed.
 #[derive(Debug)]
@@ -331,7 +325,6 @@ impl RestRequest {
             .uri(uri)
             .body(hyper::Body::empty())
             .map_err(Error::HttpError)?;
-
 
         Ok(RestRequest {
             timeout: DEFAULT_TIMEOUT,
@@ -409,7 +402,6 @@ pub struct RequestFactory {
     path_prefix: Option<String>,
     pub timeout: Duration,
 }
-
 
 impl RequestFactory {
     pub fn new(
@@ -515,7 +507,6 @@ impl AddressProvider for IpAddr {
     }
 }
 
-
 pub fn get_request<T: serde::de::DeserializeOwned>(
     factory: &RequestFactory,
     service: RequestServiceHandle,
@@ -567,7 +558,6 @@ pub fn post_request_with_json<B: serde::Serialize>(
     }
 }
 
-
 pub async fn deserialize_body<T: serde::de::DeserializeOwned>(mut response: Response) -> Result<T> {
     let body_length: usize = response
         .headers()
@@ -595,7 +585,6 @@ pub async fn parse_rest_response(
 
     Ok(response)
 }
-
 
 pub async fn handle_error_response<T>(response: Response) -> Result<T> {
     let error_message = match response.status() {

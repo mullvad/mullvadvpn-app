@@ -66,7 +66,6 @@ fn create_bridge_set_subcommand() -> clap::App<'static, 'static> {
         ))
 }
 
-
 fn create_set_custom_settings_subcommand() -> clap::App<'static, 'static> {
     #[allow(unused_mut)]
     let mut local_subcommand = clap::SubCommand::with_name("local")

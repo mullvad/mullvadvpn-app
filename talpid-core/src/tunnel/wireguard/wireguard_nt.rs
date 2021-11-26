@@ -38,7 +38,6 @@ use winapi::{
     },
 };
 
-
 lazy_static! {
     static ref WG_NT_DLL: Mutex<Option<Arc<WgNtDll>>> = Mutex::new(None);
     static ref ADAPTER_POOL: U16CString = U16CString::from_str("Mullvad").unwrap();
@@ -426,7 +425,6 @@ enum WgAdapterState {
     Up = 1,
 }
 
-
 impl WgNtTunnel {
     pub fn start_tunnel(
         config: &Config,
@@ -564,7 +562,6 @@ impl Drop for LoggerHandle {
         logging::clean_up_logging(self.context);
     }
 }
-
 
 struct WgNtAdapter {
     dll_handle: Arc<WgNtDll>,

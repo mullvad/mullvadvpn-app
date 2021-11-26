@@ -10,7 +10,6 @@ pub mod tunnel;
 #[cfg(target_os = "linux")]
 pub mod cgroup;
 
-
 /// Used to generate string representations of error chains.
 pub trait ErrorExt {
     /// Creates a string representation of the entire error chain.

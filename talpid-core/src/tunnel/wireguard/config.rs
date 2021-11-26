@@ -163,7 +163,6 @@ impl<'a> From<&'a [u8]> for ConfValue<'a> {
     }
 }
 
-
 impl<'a> ConfValue<'a> {
     fn to_bytes(&self) -> Cow<'a, [u8]> {
         match self {

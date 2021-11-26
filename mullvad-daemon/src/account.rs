@@ -18,7 +18,6 @@ const RETRY_EXPIRY_CHECK_INTERVAL_INITIAL: Duration = Duration::from_secs(4);
 const RETRY_EXPIRY_CHECK_INTERVAL_FACTOR: u32 = 5;
 const RETRY_EXPIRY_CHECK_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
 
-
 pub struct Account(());
 
 #[derive(Clone)]

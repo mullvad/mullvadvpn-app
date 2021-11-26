@@ -71,7 +71,6 @@ impl RelayListProxy {
     }
 }
 
-
 #[derive(Debug, serde::Deserialize)]
 struct ServerRelayList {
     locations: BTreeMap<String, Location>,
@@ -106,7 +105,6 @@ impl ServerRelayList {
                 }
             }
         }
-
 
         Self::add_openvpn_relays(&mut countries, openvpn);
         Self::add_wireguard_relays(&mut countries, wireguard);
@@ -275,7 +273,6 @@ impl ServerRelayList {
         }
     }
 }
-
 
 /// Splits a location code into a country code and a city code. The input is expected to be in a
 /// format like `se-mma`, with `se` being the country code, `mma` being the city code.

@@ -87,7 +87,6 @@ impl PidManager {
         )
         .map_err(Error::InitNetClsCGroup)?;
 
-
         Ok(net_cls_dir)
     }
 

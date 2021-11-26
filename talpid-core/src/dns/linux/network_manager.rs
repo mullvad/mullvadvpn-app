@@ -4,13 +4,11 @@ use talpid_dbus::network_manager::{self, DeviceConfig, NetworkManager as DBus};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-
 pub struct NetworkManager {
     pub connection: DBus,
     device: Option<String>,
     settings_backup: Option<DeviceConfig>,
 }
-
 
 impl NetworkManager {
     pub fn new() -> Result<Self> {

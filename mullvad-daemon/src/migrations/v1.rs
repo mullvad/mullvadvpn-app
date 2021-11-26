@@ -2,7 +2,6 @@ use super::Result;
 use mullvad_types::{relay_constraints::Constraint, settings::SettingsVersion};
 use talpid_types::net::TunnelType;
 
-
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
         return Ok(());

@@ -6,7 +6,6 @@ pub fn version() -> String {
     format!("macOS {}", version)
 }
 
-
 pub fn short_version() -> String {
     let version = run_sw_vers()
         .and_then(parse_short_version_output)

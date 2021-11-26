@@ -75,7 +75,6 @@ enum WintunLoggerLevel {
     Err,
 }
 
-
 pub struct WintunDll {
     handle: HINSTANCE,
     func_open: WintunOpenAdapterFn,

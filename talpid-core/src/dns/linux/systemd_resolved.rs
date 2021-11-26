@@ -24,7 +24,6 @@ pub struct SystemdResolved {
     tunnel_index: u32,
 }
 
-
 impl SystemdResolved {
     pub fn new() -> Result<Self> {
         let dbus_interface = DbusInterface::new()?.async_handle();
@@ -65,7 +64,6 @@ impl SystemdResolved {
 
         Ok(())
     }
-
 
     pub async fn reset(&mut self) -> Result<()> {
         if let Err(error) = self

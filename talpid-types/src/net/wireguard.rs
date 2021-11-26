@@ -10,7 +10,6 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
-
 /// Tunnel parameters required to start a `WireguardMonitor`.
 /// See [`crate::net::TunnelParameters`].
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
@@ -188,7 +187,6 @@ impl PublicKey {
         Ok(From::from(key))
     }
 }
-
 
 impl<'a> From<&'a x25519_dalek::StaticSecret> for PublicKey {
     fn from(private_key: &'a x25519_dalek::StaticSecret) -> PublicKey {

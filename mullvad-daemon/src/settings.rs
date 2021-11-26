@@ -17,9 +17,7 @@ use tokio::{
     io::{self, AsyncWriteExt},
 };
 
-
 const SETTINGS_FILE: &str = "settings.json";
-
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -43,7 +41,6 @@ pub enum Error {
     #[error(display = "Unable to set settings file permissions")]
     SetPermissions(#[error(source)] io::Error),
 }
-
 
 #[derive(Debug)]
 pub struct SettingsPersister {

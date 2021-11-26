@@ -34,7 +34,6 @@ pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
     std::iter::empty()
 }
 
-
 pub struct WindowsVersion {
     inner: RTL_OSVERSIONINFOW,
 }
@@ -46,7 +45,6 @@ impl WindowsVersion {
             .encode_wide()
             .chain(iter::once(0u16))
             .collect();
-
 
         let ntdll = unsafe { GetModuleHandleW(module_name.as_ptr()) };
         if ntdll == ptr::null_mut() {

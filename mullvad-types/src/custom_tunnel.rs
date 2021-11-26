@@ -8,7 +8,6 @@ use std::{
 };
 use talpid_types::net::{openvpn, wireguard, Endpoint, TunnelParameters};
 
-
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Invalid host/domain: {}", _0)]
@@ -17,7 +16,6 @@ pub enum Error {
     #[error(display = "Host has no IPv4 address: {}", _0)]
     HostHasNoIpv4(String),
 }
-
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 // TODO: Remove this Java conversion once `jnix` supports skipping fields in enum tuple variants.
@@ -87,7 +85,6 @@ impl fmt::Display for CustomTunnelEndpoint {
         }
     }
 }
-
 
 /// Does a DNS lookup if the host isn't an IP.
 /// Returns the first IPv4 address if one exists, otherwise the first IPv6 address.

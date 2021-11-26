@@ -67,7 +67,6 @@ type PrivateKey = [u8; 32];
 type PublicKey = [u8; 32];
 type PresharedKey = [u8; 32];
 
-
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct DeviceMessage {
     pub nlas: Vec<DeviceNla>,
@@ -98,7 +97,6 @@ impl DeviceMessage {
             DeviceNla::Flags(WGDEVICE_F_REPLACE_PEERS),
             DeviceNla::Peers(peers),
         ];
-
 
         Self {
             nlas,
@@ -495,7 +493,6 @@ impl<'a, T: AsRef<[u8]> + 'a + ?Sized> Parseable<NlaBuffer<&'a T>> for AllowedIp
     }
 }
 
-
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum AllowedIpNla {
     AddressFamily(u16),
@@ -591,7 +588,6 @@ mod test {
     use super::*;
     use nix::sys::time::TimeValLike;
     use std::net::Ipv4Addr;
-
 
     #[test]
     fn deserialize_netlink_message() {
@@ -864,7 +860,6 @@ mod test {
         }
     }
 
-
     #[test]
     fn serialize_netlink_message() {
         let expected_payload: &[u8] = &[
@@ -891,7 +886,6 @@ mod test {
 
         let mut message = sample_set_message();
         message.command = WG_CMD_SET_DEVICE;
-
 
         let mut payload_buffer = vec![0u8; message.buffer_len()];
         message.serialize(&mut payload_buffer);

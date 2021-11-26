@@ -8,13 +8,11 @@ use tokio::{
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
 };
 
-
 const ACCOUNT_HISTORY_FILE: &str = "account-history.json";
 
 lazy_static::lazy_static! {
     static ref ACCOUNT_REGEX: Regex = Regex::new(r"^[0-9]+$").unwrap();
 }
-
 
 pub async fn migrate_location(old_dir: &Path, new_dir: &Path) {
     let old_path = old_dir.join(ACCOUNT_HISTORY_FILE);
@@ -312,7 +310,6 @@ mod test {
   "settings_version": 5
 }
 "#;
-
 
     // Test whether the current format is parsed correctly
     #[test]

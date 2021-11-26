@@ -35,7 +35,6 @@ pub fn get_mullvad_daemon_settings_path() -> io::Result<PathBuf> {
         .map(|settings| settings.join(mullvad_paths::PRODUCT_NAME))
 }
 
-
 /// Get local AppData path for the system service user. Requires elevated privileges to work.
 /// Useful for deducing the config path for the daemon on Windows when running as a user that
 /// isn't the system service.
@@ -216,7 +215,6 @@ fn get_running_process_id_from_name(target_name: &Path) -> io::Result<DWORD> {
     num_procs = bytes_written / (mem::size_of::<DWORD>() as u32);
     pid_buffer.resize(num_procs as usize, 0);
 
-
     for process in pid_buffer {
         let process_handle = unsafe { OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, process) };
         if process_handle.is_null() {
@@ -227,7 +225,6 @@ fn get_running_process_id_from_name(target_name: &Path) -> io::Result<DWORD> {
             );
             continue;
         }
-
 
         let mut process_name = vec![0u16; 512];
         let mut process_name_size = process_name.len() as u32;
@@ -247,7 +244,6 @@ fn get_running_process_id_from_name(target_name: &Path) -> io::Result<DWORD> {
         };
 
         process_name.resize(process_name_size as usize, 0u16);
-
 
         let process_path = PathBuf::from(OsString::from_wide(&process_name));
         let canonical_process_path = process_path.canonicalize().unwrap_or(process_path);

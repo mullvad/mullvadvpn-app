@@ -1,7 +1,6 @@
 #[cfg(target_os = "linux")]
 use super::wireguard_kernel::wg_message::{DeviceMessage, DeviceNla, PeerNla};
 
-
 #[derive(err_derive::Error, Debug, PartialEq)]
 pub enum Error {
     #[error(display = "Failed to parse peer pubkey from string \"_0\"")]
@@ -121,7 +120,6 @@ impl Stats {
         map
     }
 }
-
 
 #[cfg(test)]
 mod test {

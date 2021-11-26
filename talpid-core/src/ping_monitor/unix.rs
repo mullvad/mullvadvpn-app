@@ -29,7 +29,6 @@ impl Pinger {
         })
     }
 
-
     fn try_deplete_process_list(&mut self) {
         self.processes.retain(|child| {
             match child.try_wait() {
@@ -77,7 +76,6 @@ impl Drop for Pinger {
         }
     }
 }
-
 
 fn ping_cmd(ip: Ipv4Addr, timeout_secs: u16, interface: &str) -> duct::Expression {
     let mut args = vec!["-n", "-i", "1"];

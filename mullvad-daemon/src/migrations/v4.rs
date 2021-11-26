@@ -5,10 +5,8 @@ use mullvad_types::{
 };
 use talpid_types::net::TransportProtocol;
 
-
 const WIREGUARD_TCP_PORTS: [u16; 3] = [80, 443, 5001];
 const OPENVPN_TCP_PORTS: [u16; 2] = [80, 443];
-
 
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
@@ -265,7 +263,6 @@ mod test {
   "settings_version": 5
 }
 "#;
-
 
     #[test]
     fn test_v4_migration() {

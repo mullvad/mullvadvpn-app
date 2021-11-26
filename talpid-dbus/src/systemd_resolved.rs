@@ -13,7 +13,6 @@ use std::{fs, io, net::IpAddr, path::Path, sync::Arc, time::Duration};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -220,7 +219,6 @@ impl SystemdResolved {
             Ok(false)
         }
     }
-
 
     fn as_manager_object(&self) -> Proxy<'_, &SyncConnection> {
         Proxy::new(

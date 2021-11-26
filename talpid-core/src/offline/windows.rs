@@ -36,7 +36,6 @@ use winapi::{
 const CLASS_NAME: &[u8] = b"S\0T\0A\0T\0I\0C\0\0\0";
 const REQUEST_THREAD_SHUTDOWN: UINT = WM_USER + 1;
 
-
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Unable to create listener thread")]
@@ -44,7 +43,6 @@ pub enum Error {
     #[error(display = "Failed to start connectivity monitor")]
     ConnectivityMonitorError(#[error(source)] winnet::DefaultRouteCallbackError),
 }
-
 
 pub struct BroadcastListener {
     thread_handle: RawHandle,

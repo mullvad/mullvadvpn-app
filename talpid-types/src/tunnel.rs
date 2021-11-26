@@ -76,7 +76,6 @@ impl ErrorState {
     }
 }
 
-
 /// Reason for the tunnel state machine entering an [`ErrorState`].
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

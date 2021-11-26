@@ -476,7 +476,6 @@ impl Drop for OpenVpnProcHandle {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::OpenVpnCommand;

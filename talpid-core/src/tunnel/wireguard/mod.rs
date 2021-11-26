@@ -72,7 +72,6 @@ pub enum Error {
     SetIpAddressesError,
 }
 
-
 /// Spawns and monitors a wireguard tunnel
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
@@ -479,7 +478,6 @@ impl WireguardMonitor {
             }
         })
     }
-
 
     /// On linux, there is no need
     #[cfg(target_os = "linux")]

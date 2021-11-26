@@ -11,7 +11,6 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 use std::path::PathBuf;
 use talpid_types::net::Endpoint;
 
-
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
 mod imp;
@@ -81,7 +80,6 @@ const DHCPV4_CLIENT_PORT: u16 = 68;
 const DHCPV6_SERVER_PORT: u16 = 547;
 #[cfg(all(unix, not(target_os = "android")))]
 const DHCPV6_CLIENT_PORT: u16 = 546;
-
 
 #[cfg(all(unix, not(target_os = "android")))]
 /// Returns whether an address belongs to a private subnet.
