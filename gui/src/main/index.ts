@@ -107,8 +107,6 @@ enum AppQuitStage {
   ready,
 }
 
-type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
-
 class ApplicationMain {
   private notificationController = new NotificationController({
     openApp: () => this.windowController?.show(),
@@ -1481,12 +1479,6 @@ class ApplicationMain {
 
   private async login(accountToken: AccountToken): Promise<void> {
     try {
-      const verification = await this.verifyAccount(accountToken);
-
-      if (verification.status === 'deferred') {
-        log.warn(`Failed to get account data, logging in anyway: ${verification.error.message}`);
-      }
-
       await this.daemonRpc.loginAccount(accountToken);
     } catch (e) {
       const error = e as Error;
@@ -1532,22 +1524,6 @@ class ApplicationMain {
 
       throw error;
     }
-  }
-
-  private verifyAccount(accountToken: AccountToken): Promise<AccountVerification> {
-    return new Promise((resolve, reject) => {
-      this.accountDataCache.invalidate();
-      this.accountDataCache.fetch(accountToken, {
-        onFinish: () => resolve({ status: 'verified' }),
-        onError: (error) => {
-          if (error instanceof InvalidAccountError) {
-            reject(error);
-          } else {
-            resolve({ status: 'deferred', error });
-          }
-        },
-      });
-    });
   }
 
   private updateAccountDataOnAccountChange(oldAccount?: string, newAccount?: string) {

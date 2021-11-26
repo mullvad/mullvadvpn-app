@@ -264,10 +264,13 @@ export class DaemonRpc {
       await this.callString(this.client.loginAccount, accountToken);
     } catch (e) {
       const error = e as grpc.ServiceError;
-      if (error.code == grpc.status.RESOURCE_EXHAUSTED) {
-        throw new TooManyDevicesError();
-      } else {
-        throw error;
+      switch (error.code) {
+        case grpc.status.RESOURCE_EXHAUSTED:
+          throw new TooManyDevicesError();
+        case grpc.status.UNAUTHENTICATED:
+          throw new InvalidAccountError();
+        default:
+          throw new CommunicationError();
       }
     }
   }
