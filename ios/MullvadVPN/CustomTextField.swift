@@ -11,13 +11,13 @@ import UIKit
 
 class CustomTextField: UITextField {
 
-    var cornerRadius: CGFloat = 4 {
+    var cornerRadius: CGFloat = UIMetrics.controlCornerRadius {
         didSet {
             layer.cornerRadius = cornerRadius
         }
     }
 
-    var textMargins = UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14) {
+    var textMargins = UIMetrics.textFieldMargins {
         didSet {
             setNeedsLayout()
         }
