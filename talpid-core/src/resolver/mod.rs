@@ -61,35 +61,14 @@ pub(crate) async fn start_resolver(sender: TunnelCommandSender) -> Result<Resolv
 }
 
 async fn start_resolver_inner(
-    sender: TunnelCommandSender,
+    tunnel_tx: TunnelCommandSender,
     port: u16,
 ) -> Result<ResolverHandle, Error> {
-    let (tx, rx) = oneshot::channel();
-    std::thread::spawn(move || run_resolver(sender, tx, port));
-    rx.await.map_err(|_| Error::LauncherThreadPanic)?
+    let (resolver, resolver_handle) = FilteringResolver::new(tunnel_tx, port).await?;
+    tokio::spawn(resolver.run());
+    Ok(resolver_handle)
 }
 
-async fn run_resolver(
-    tunnel_tx: TunnelCommandSender,
-    done_tx: oneshot::Sender<Result<ResolverHandle, Error>>,
-    port: u16,
-) {
-    let mut builder = tokio::runtime::Builder::new_multi_thread();
-    builder.enable_all();
-    builder.worker_threads(2);
-    builder.max_blocking_threads(1);
-
-    let rt = builder.build().expect("failed to initialize tokio runtime");
-    match rt.block_on(FilteringResolver::new(tunnel_tx, port)) {
-        Ok((resolver, resolver_handle)) => {
-            let _ = done_tx.send(Ok(resolver_handle));
-            rt.block_on(resolver.run());
-        }
-        Err(err) => {
-            let _ = done_tx.send(Err(err));
-        }
-    }
-}
 /// Resolver errors
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -244,6 +223,7 @@ impl FilteringResolver {
                     match resolver_state {
                         ResolverState::Shutdown => {
                             self.stop_server().await;
+                            self.resolver_state = ResolverState::Shutdown;
                         }
                         running_state => {
                             if self.dns_server.is_none() {
@@ -799,6 +779,8 @@ mod test {
         rt.block_on(async { handle.shutdown().await })
             .expect("failed to make resovler active");
 
+        // macOS takes it sweet time reaping the socket
+        std::thread::sleep(std::time::Duration::from_millis(300));
         UdpSocket::bind(server_sockaddr)
             .expect("Failed to bind to resolver socket addr when it should be unbound");
     }

@@ -161,7 +161,7 @@ async fn reset_firewall() -> Result<(), Error> {
         initial_state: InitialFirewallState::None,
         allow_lan: true,
         #[cfg(target_os = "macos")]
-        exclusion_gid: None,
+        exclusion_gid: 0,
     })
     .map_err(Error::FirewallError)?;
 
