@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add ability to specify custom DNS servers.
+- Show privacy overlay when entering app switcher.
 
 ### Changed
 - Attach log backup from previous application run to problem report.
