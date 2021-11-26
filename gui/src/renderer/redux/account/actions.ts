@@ -21,6 +21,14 @@ interface ILoginTooManyDevicesAction {
   error: Error;
 }
 
+interface IPrepareLogoutAction {
+  type: 'PREPARE_LOG_OUT';
+}
+
+interface ICancelLogoutAction {
+  type: 'CANCEL_LOGOUT';
+}
+
 interface ILoggedOutAction {
   type: 'LOGGED_OUT';
 }
@@ -78,6 +86,8 @@ export type AccountAction =
   | ILoggedInAction
   | ILoginFailedAction
   | ILoginTooManyDevicesAction
+  | IPrepareLogoutAction
+  | ICancelLogoutAction
   | ILoggedOutAction
   | IResetLoginErrorAction
   | IDeviceRevokedAction
@@ -116,6 +126,18 @@ function loginTooManyDevices(error: Error): ILoginTooManyDevicesAction {
   return {
     type: 'TOO_MANY_DEVICES',
     error,
+  };
+}
+
+function prepareLogout(): IPrepareLogoutAction {
+  return {
+    type: 'PREPARE_LOG_OUT',
+  };
+}
+
+function cancelLogout(): ICancelLogoutAction {
+  return {
+    type: 'CANCEL_LOGOUT',
   };
 }
 
@@ -196,6 +218,8 @@ export default {
   loggedIn,
   loginFailed,
   loginTooManyDevices,
+  prepareLogout,
+  cancelLogout,
   loggedOut,
   resetLoginError,
   deviceRevoked,

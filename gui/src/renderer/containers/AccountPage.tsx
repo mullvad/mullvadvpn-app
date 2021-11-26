@@ -1,10 +1,12 @@
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { links } from '../../config.json';
 import Account from '../components/Account';
 
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
 import { IReduxState, ReduxDispatch } from '../redux/store';
+import accountActions from '../redux/account/actions';
 
 const mapStateToProps = (state: IReduxState) => ({
   deviceName: state.account.deviceName,
@@ -13,8 +15,12 @@ const mapStateToProps = (state: IReduxState) => ({
   expiryLocale: state.userInterface.locale,
   isOffline: state.connection.isBlocked,
 });
-const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
+  const account = bindActionCreators(accountActions, dispatch);
+
   return {
+    prepareLogout: () => account.prepareLogout(),
+    cancelLogout: () => account.cancelLogout(),
     onLogout: () => {
       void props.app.logout();
     },
@@ -23,6 +29,7 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
     },
     onBuyMore: () => props.app.openLinkWithAuth(links.purchase),
     updateAccountData: () => props.app.updateAccountData(),
+    getDevice: () => props.app.getDevice(),
   };
 };
 

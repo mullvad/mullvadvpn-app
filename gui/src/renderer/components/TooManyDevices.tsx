@@ -4,10 +4,12 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { IDevice } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utilityHooks';
+import { formatMarkdown } from '../markdown-formatter';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
@@ -192,6 +194,8 @@ function Device(props: IDeviceProps) {
     setDeleting();
   }, [props.onRemove, props.device.id, hideConfirmation, setDeleting]);
 
+  const capitalizedDeviceName = capitalizeEveryWord(props.device.name);
+
   return (
     <>
       <StyledCellContainer>
@@ -234,24 +238,31 @@ function Device(props: IDeviceProps) {
           ) : (
             <>
               <ModalMessage>
-                {sprintf(
-                  // TRANSLATORS: Text displayed above button which logs out another device.
-                  messages.pgettext(
-                    'device-management',
-                    'Are you sure you want to log out of %(deviceName)s?',
+                {formatMarkdown(
+                  sprintf(
+                    // TRANSLATORS: Text displayed above button which logs out another device.
+                    // TRANSLATORS: The text enclosed in "**" will appear bold.
+                    // TRANSLATORS: Available placeholders:
+                    // TRANSLATORS: %(deviceName)s - The name of the device to log out.
+                    messages.pgettext(
+                      'device-management',
+                      'Are you sure you want to log out of **%(deviceName)s**?',
+                    ),
+                    { deviceName: capitalizedDeviceName },
                   ),
-                  { deviceName: props.device.name },
                 )}
               </ModalMessage>
-              <ModalMessage>
-                {
-                  // TRANSLATORS: Further information about consequences of logging out device.
-                  messages.pgettext(
-                    'device-management',
-                    'This will delete all forwarded ports. Local settings will be saved.',
-                  )
-                }
-              </ModalMessage>
+              {props.device.ports && props.device.ports.length > 0 && (
+                <ModalMessage>
+                  {
+                    // TRANSLATORS: Further information about consequences of logging out device.
+                    messages.pgettext(
+                      'device-management',
+                      'This will delete all forwarded ports. Local settings will be saved.',
+                    )
+                  }
+                </ModalMessage>
+              )}
             </>
           )}
         </ModalAlert>
