@@ -149,6 +149,9 @@ pub enum Error {
     #[error(display = "Split tunneling error")]
     SplitTunnelError(#[error(source)] split_tunnel::Error),
 
+    #[error(display = "An account is already set")]
+    AlreadyLoggedIn,
+
     #[error(display = "No wireguard private key available")]
     NoKeyAvailable,
 
@@ -1572,6 +1575,10 @@ where
     }
 
     async fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
+        if self.account_manager.is_some() {
+            let _ = tx.send(Err(Error::AlreadyLoggedIn));
+            return;
+        }
         let daemon_tx = self.tx.clone();
         let future = self.account_manager.account_service().create_account();
         tokio::spawn(async move {
