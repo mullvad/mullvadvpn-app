@@ -30,13 +30,7 @@ use futures::{
 };
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
-use std::{
-    collections::HashSet,
-    io,
-    net::IpAddr,
-    path::PathBuf,
-    sync::{mpsc as sync_mpsc, Arc},
-};
+use std::{collections::HashSet, io, net::IpAddr, path::PathBuf, sync::Arc};
 #[cfg(target_os = "android")]
 use talpid_types::{android::AndroidContext, ErrorExt};
 use talpid_types::{
@@ -97,7 +91,6 @@ pub struct InitialTunnelState {
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
 pub async fn spawn(
-    runtime: tokio::runtime::Handle,
     initial_settings: InitialTunnelState,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
@@ -121,43 +114,28 @@ pub async fn spawn(
         initial_settings.dns_servers.clone(),
     );
 
-    let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
     let weak_command_tx = Arc::downgrade(&command_tx);
-    std::thread::spawn(move || {
-        let state_machine = runtime.block_on(TunnelStateMachine::new(
-            runtime.clone(),
-            initial_settings,
-            weak_command_tx,
-            offline_state_listener,
-            tunnel_parameters_generator,
-            tun_provider,
-            log_dir,
-            resource_dir,
-            command_rx,
-            #[cfg(target_os = "android")]
-            android_context,
-        ));
-        let state_machine = match state_machine {
-            Ok(state_machine) => {
-                startup_result_tx.send(Ok(())).unwrap();
-                state_machine
-            }
-            Err(error) => {
-                startup_result_tx.send(Err(error)).unwrap();
-                return;
-            }
-        };
+    let state_machine = TunnelStateMachine::new(
+        initial_settings,
+        weak_command_tx,
+        offline_state_listener,
+        tunnel_parameters_generator,
+        tun_provider,
+        log_dir,
+        resource_dir,
+        command_rx,
+        #[cfg(target_os = "android")]
+        android_context,
+    )
+    .await?;
 
+    tokio::task::spawn_blocking(move || {
         state_machine.run(state_change_listener);
-
         if shutdown_tx.send(()).is_err() {
             log::error!("Can't send shutdown completion to daemon");
         }
     });
 
-    startup_result_rx
-        .recv()
-        .expect("Failed to start tunnel state machine thread")?;
     Ok(command_tx)
 }
 
@@ -213,7 +191,6 @@ struct TunnelStateMachine {
 
 impl TunnelStateMachine {
     async fn new(
-        runtime: tokio::runtime::Handle,
         settings: InitialTunnelState,
         command_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>,
         offline_state_tx: mpsc::UnboundedSender<bool>,
@@ -224,6 +201,8 @@ impl TunnelStateMachine {
         commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
+        let runtime = tokio::runtime::Handle::current();
+
         #[cfg(windows)]
         let split_tunnel = split_tunnel::SplitTunnel::new(runtime.clone(), command_tx.clone())
             .map_err(Error::InitSplitTunneling)?;
@@ -235,7 +214,7 @@ impl TunnelStateMachine {
         };
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
-        let route_manager = RouteManager::new(runtime.clone(), HashSet::new())
+        let route_manager = RouteManager::new(HashSet::new())
             .await
             .map_err(Error::InitRouteManagerError)?;
         let dns_monitor = DnsMonitor::new(

@@ -173,16 +173,13 @@ impl RouteManager {
     /// Constructs a RouteManager and applies the required routes.
     /// Takes a set of network destinations and network nodes as an argument, and applies said
     /// routes.
-    pub async fn new(
-        runtime: tokio::runtime::Handle,
-        required_routes: HashSet<RequiredRoute>,
-    ) -> Result<Self, Error> {
+    pub async fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self, Error> {
         let (manage_tx, manage_rx) = mpsc::unbounded();
         let manager = imp::RouteManagerImpl::new(required_routes).await?;
-        runtime.spawn(manager.run(manage_rx));
+        tokio::spawn(manager.run(manage_rx));
 
         Ok(Self {
-            runtime,
+            runtime: tokio::runtime::Handle::current(),
             manage_tx: Some(manage_tx),
         })
     }
@@ -258,12 +255,6 @@ impl RouteManager {
         } else {
             Err(Error::RouteManagerDown)
         }
-    }
-
-    /// Exposes runtime handle
-    #[cfg(target_os = "linux")]
-    pub fn runtime_handle(&self) -> tokio::runtime::Handle {
-        self.runtime.clone()
     }
 }
 
