@@ -190,6 +190,10 @@ pub enum Error {
 
     #[error(display = "Failed to open cached target tunnel state")]
     OpenCachedTargetState(#[error(source)] io::Error),
+
+    #[cfg(target_os = "macos")]
+    #[error(display = "Failed to set exclusion group")]
+    GroupIdError(#[error(source)] io::Error),
 }
 
 /// Enum representing commands that can be sent to the daemon.
@@ -566,9 +570,9 @@ where
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
-        {
-            exclusion_gid::set_exclusion_gid();
-            talpid_core::macos::bump_filehandle_limit();
+        let exclusion_gid = {
+            bump_filehandle_limit();
+            exclusion_gid::set_exclusion_gid().map_err(Error::GroupIdError)?
         };
 
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
@@ -680,7 +684,7 @@ where
             offline_state_tx,
             tunnel_state_machine_shutdown_tx,
             #[cfg(target_os = "macos")]
-            exclusion_gid::get_exclusion_gid(),
+            exclusion_gid,
             #[cfg(target_os = "macos")]
             settings.enable_custom_resolver,
             #[cfg(target_os = "android")]
@@ -2733,5 +2737,41 @@ impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
                 Err(ParameterGenerationError::NoMatchingRelay)
             }
         }
+    }
+}
+
+const INCREASED_FILEHANDLE_LIMIT: u64 = 1024;
+/// Bump filehandle limit
+pub fn bump_filehandle_limit() {
+    let mut limits = libc::rlimit {
+        rlim_cur: 0,
+        rlim_max: 0,
+    };
+    // SAFETY: `&mut limits` is a valid pointer parameter for the getrlimit syscall
+    let status = unsafe { libc::getrlimit(libc::RLIMIT_NOFILE, &mut limits) };
+    if status != 0 {
+        log::error!(
+            "Failed to get file handle limits: {}-{}",
+            io::Error::from_raw_os_error(status),
+            status
+        );
+        return;
+    }
+
+    // if file handle limit is already big enough, there's no reason to decrease it.
+    if limits.rlim_cur >= INCREASED_FILEHANDLE_LIMIT {
+        return;
+    }
+
+    limits.rlim_cur = INCREASED_FILEHANDLE_LIMIT;
+    // SAFETY: `&limits` is a valid pointer parameter for the getrlimit syscall
+    let status = unsafe { libc::setrlimit(libc::RLIMIT_NOFILE, &limits) };
+    if status != 0 {
+        log::error!(
+            "Failed to set file handle limit to {}: {}-{}",
+            INCREASED_FILEHANDLE_LIMIT,
+            io::Error::from_raw_os_error(status),
+            status
+        );
     }
 }
