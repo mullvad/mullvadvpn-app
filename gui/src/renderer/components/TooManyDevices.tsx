@@ -4,10 +4,12 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { IDevice } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utilityHooks';
+import { formatMarkdown } from '../markdown-formatter';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
@@ -192,6 +194,8 @@ function Device(props: IDeviceProps) {
     setDeleting();
   }, [props.onRemove, props.device.id, hideConfirmation, setDeleting]);
 
+  const capitalizedDeviceName = capitalizeEveryWord(props.device.name);
+
   return (
     <>
       <StyledCellContainer>
@@ -213,36 +217,42 @@ function Device(props: IDeviceProps) {
           />
         </StyledRemoveDeviceButton>
       </StyledCellContainer>
-      {confirmationVisible && (
-        <ModalAlert
-          type={ModalAlertType.warning}
-          iconColor={colors.red}
-          buttons={[
-            <AppButton.RedButton key="remove" onClick={onRemove} disabled={deleting}>
-              {
-                // TRANSLATORS: Confirmation button when logging out other device.
-                messages.pgettext('device-management', 'Yes, log out device')
-              }
-            </AppButton.RedButton>,
-            <AppButton.BlueButton key="back" onClick={hideConfirmation} disabled={deleting}>
-              {messages.gettext('Back')}
-            </AppButton.BlueButton>,
-          ]}
-          close={hideConfirmation}>
-          {deleting ? (
-            <ImageView source="icon-spinner" />
-          ) : (
-            <>
-              <ModalMessage>
-                {sprintf(
+      <ModalAlert
+        isOpen={confirmationVisible}
+        type={ModalAlertType.warning}
+        iconColor={colors.red}
+        buttons={[
+          <AppButton.RedButton key="remove" onClick={onRemove} disabled={deleting}>
+            {
+              // TRANSLATORS: Confirmation button when logging out other device.
+              messages.pgettext('device-management', 'Yes, log out device')
+            }
+          </AppButton.RedButton>,
+          <AppButton.BlueButton key="back" onClick={hideConfirmation} disabled={deleting}>
+            {messages.gettext('Back')}
+          </AppButton.BlueButton>,
+        ]}
+        close={hideConfirmation}>
+        {deleting ? (
+          <ImageView source="icon-spinner" />
+        ) : (
+          <>
+            <ModalMessage>
+              {formatMarkdown(
+                sprintf(
                   // TRANSLATORS: Text displayed above button which logs out another device.
+                  // TRANSLATORS: The text enclosed in "**" will appear bold.
+                  // TRANSLATORS: Available placeholders:
+                  // TRANSLATORS: %(deviceName)s - The name of the device to log out.
                   messages.pgettext(
                     'device-management',
-                    'Are you sure you want to log out of %(deviceName)s?',
+                    'Are you sure you want to log out of **%(deviceName)s**?',
                   ),
-                  { deviceName: props.device.name },
-                )}
-              </ModalMessage>
+                  { deviceName: capitalizedDeviceName },
+                ),
+              )}
+            </ModalMessage>
+            {props.device.ports && props.device.ports.length > 0 && (
               <ModalMessage>
                 {
                   // TRANSLATORS: Further information about consequences of logging out device.
@@ -252,10 +262,10 @@ function Device(props: IDeviceProps) {
                   )
                 }
               </ModalMessage>
-            </>
-          )}
-        </ModalAlert>
-      )}
+            )}
+          </>
+        )}
+      </ModalAlert>
     </>
   );
 }

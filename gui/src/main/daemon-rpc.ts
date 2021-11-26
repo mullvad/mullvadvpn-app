@@ -516,7 +516,7 @@ export class DaemonRpc {
       accountToken,
     );
 
-    return response.toObject().devicesList;
+    return response.getDevicesList().map(convertFromDevice);
   }
 
   public async removeDevice(deviceRemoval: IDeviceRemoval): Promise<void> {
@@ -1376,16 +1376,26 @@ function convertFromDeviceEvent(deviceEvent: grpcTypes.DeviceEvent): IDeviceEven
 }
 
 function convertFromDeviceConfig(deviceConfig?: grpcTypes.DeviceConfig): DeviceConfig {
+  const device = deviceConfig?.getDevice();
   return (
     deviceConfig && {
       accountToken: deviceConfig.getAccountToken(),
-      device: deviceConfig.getDevice()?.toObject(),
+      device: device ? convertFromDevice(device) : undefined,
     }
   );
 }
 
 function convertFromDeviceRemoval(deviceRemoval: grpcTypes.RemoveDeviceEvent): Array<IDevice> {
-  return deviceRemoval.getNewDeviceListList().map((device) => device.toObject());
+  return deviceRemoval.getNewDeviceListList().map(convertFromDevice);
+}
+
+function convertFromDevice(device: grpcTypes.Device): IDevice {
+  const asObject = device.toObject();
+
+  return {
+    ...asObject,
+    ports: asObject.portsList.map((port) => port.id),
+  };
 }
 
 function ensureExists<T>(value: T | undefined, errorMessage: string): T {

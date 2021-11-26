@@ -337,6 +337,7 @@ export type DeviceConfig =
 export interface IDevice {
   id: string;
   name: string;
+  ports?: Array<string>;
 }
 
 export interface IDeviceRemoval {
