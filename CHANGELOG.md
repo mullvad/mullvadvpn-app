@@ -46,6 +46,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Fix Quick Settings tile showing wrong state in certain scenarios.
+- Fix banner sometimes incorrectly showing (e.g. "BLOCKING INTERNET").
 
 ## [2021.6] - 2021-11-17
 ### Fixed
