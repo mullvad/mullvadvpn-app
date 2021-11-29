@@ -250,6 +250,26 @@ The above holds during the [connected] state. In the [disconnected]
 state the app does nothing with DNS, meaning the default one is used, probably from the ISP.
 In the other states DNS is simply blocked.
 
+### macOS custom DNS resolver
+
+macOS needs to do a connectivity check before the daemon is able to connect to a tunnel, but the
+connectivity check will fail in the blocked state imposing a hefty timeout before a tunnel can be
+connected. The connectivity check requires a working DNS resolver and access to `captive.apple.com`.
+
+To work around the issue, when the app is in the error state or disconnected with _always require
+VPN_ enabled, DNS traffic coming from a mullvad specific group will optionally be allowed to bypass
+the firewall. To allow macOS to perform its connectivity check, two different types of firewall
+rules need to be added - a rule that allows upstream DNS traffic from the daemon and a rule that
+allows resolved IP addresses to be reached by the rest of the system.  This allows the app to
+configure itself as a DNS resolver and only allow the most necessary DNS requests to pass through.
+This allows for just enough traffic to have the connectivity check pass.
+
+In summary, the app will add firewall rules to allow traffic to a specific set of resolver IP
+addresses on port 53 over UDP and TCP coming from processes with a mullvad specific group ID, and
+add rules to allow traffic to resolved IP addresses from any process on the system except for port
+53. The resolved IP addresses are only allowed through the firewall until the tunnel states moves
+away from the error or disconnected state.
+
 ## Desktop system service
 
 On all desktop platforms the VPN tunnel and the device security is handled by a system
