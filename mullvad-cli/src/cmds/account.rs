@@ -128,10 +128,9 @@ impl Account {
         let device = rpc.get_device(()).await?.into_inner();
         if !device.account_token.is_empty() {
             println!("Mullvad account: {}", device.account_token);
-            let inner_device = device.device.unwrap();
-            println!("Device name    : {}", inner_device.name);
+            let inner_device = Device::try_from(device.device.unwrap()).unwrap();
+            println!("Device name    : {}", inner_device.pretty_name());
             if verbose {
-                let inner_device = Device::try_from(inner_device).unwrap();
                 println!("Device id      : {}", inner_device.id);
                 println!("Device pubkey  : {}", inner_device.pubkey);
             }
@@ -162,11 +161,11 @@ impl Account {
             let device = Device::try_from(device.clone()).unwrap();
             if verbose {
                 println!();
-                println!("Name      : {}", device.name);
+                println!("Name      : {}", device.pretty_name());
                 println!("Id        : {}", device.id);
                 println!("Public key: {}", device.pubkey);
             } else {
-                println!("{}", device.name);
+                println!("{}", device.pretty_name());
             }
         }
 

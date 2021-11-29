@@ -18,6 +18,23 @@ pub struct Device {
 
 impl Eq for Device {}
 
+impl Device {
+    /// Return name with each word capitalized: "Happy Seagull" instead of "happy seagull"
+    pub fn pretty_name(&self) -> String {
+        self.name
+            .split_whitespace()
+            .map(|word| {
+                let mut chars = word.chars();
+                match chars.next() {
+                    None => String::new(),
+                    Some(c) => c.to_uppercase().chain(chars).collect(),
+                }
+            })
+            .collect::<Vec<String>>()
+            .join(" ")
+    }
+}
+
 /// A complete device configuration.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct DeviceData {
