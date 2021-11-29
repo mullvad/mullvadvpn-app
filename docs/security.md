@@ -216,7 +216,8 @@ If the tunnel were to come down and your operating system tries to route packets
 normal network rather than through the VPN, these rules would block them from leaving.
 So rather than failing open, meaning if the tunnel fails your traffic leaves in other ways,
 we fail closed, meaning if the packets don't leave encrypted in the way the app intends,
-then they can't leave at all.
+then they can't leave at all. However, to help the app get a working connection, an exclusion rule
+for reaching Mullvad's server - this
 
 Essentially, one can say that the app's "kill switch" is the fact that the [connecting],
 [disconnecting] and [error] states prevent leaks via firewall rules.
@@ -249,6 +250,21 @@ address range (such as 192.168.0.0/16) or a loopback address.
 The above holds during the [connected] state. In the [disconnected]
 state the app does nothing with DNS, meaning the default one is used, probably from the ISP.
 In the other states DNS is simply blocked.
+
+## macOS custom resolver
+Due to macOS relying on working DNS to do connectivity checking, and the connectivity check being a
+dependency for publishing default routes, when the app is in the error state or disconnected with
+_always require VPN_ enabled, DNS traffic coming from a mullvad specific group will optionally be
+allowed to bypass the firewall. To allow macOS to perform it's connectivity check, two different
+types of firewall rules need to be added - a rule that allows upstream DNS traffic from the daemon
+and a rule that allows resolved IP addresses to be reached by the rest of the system.
+This allows the app to configure itself as a DNS resolver and only allow the most necessary DNS
+requests to pass through.  This allows for just enough traffic to have the connectivity check pass.
+In summary, the app will add firewall rules to allow traffic to a specific set of resolver IP
+addresses on port 53 over UDP and TCP coming from processes with a mullvad specific group ID, and
+add rules to allow traffic to resolved IP addresses from any process on the system except for port
+53. The resolved IP addresses are only allowed through the firewall until the tunnel states moves
+away from the error or disconnected state.
 
 ## Desktop system service
 
