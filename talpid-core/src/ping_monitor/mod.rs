@@ -2,7 +2,6 @@
 #[path = "unix.rs"]
 mod imp;
 
-
 #[cfg(any(target_os = "windows", target_os = "linux"))]
 #[path = "icmp.rs"]
 mod imp;

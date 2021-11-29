@@ -246,7 +246,6 @@ impl crate::rest::AddressProvider for AddressCache {
     }
 }
 
-
 #[derive(Clone, PartialEq, Eq)]
 struct AddressCacheInner {
     addresses: Vec<SocketAddr>,

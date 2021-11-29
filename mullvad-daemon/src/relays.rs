@@ -62,7 +62,6 @@ const WIREGUARD_EXIT_CONSTRAINTS: WireguardConstraints = WireguardConstraints {
 };
 const WIREGUARD_TCP_PORTS: [(u16, u16); 3] = [(80, 80), (443, 443), (5001, 5001)];
 
-
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -214,7 +213,6 @@ impl RelaySelector {
             Box::new(on_update),
             api_availability,
         );
-
 
         RelaySelector {
             parsed_relays,
@@ -376,7 +374,6 @@ impl RelaySelector {
             } else {
                 (Constraint::Any, TransportProtocol::Tcp, TunnelType::OpenVpn)
             };
-
 
         let mut relay_constraints = original_constraints.clone();
         relay_constraints.openvpn_constraints = Default::default();
@@ -625,7 +622,6 @@ impl RelaySelector {
         }
     }
 
-
     /// Returns a random relay endpoint if any is matching the given constraints.
     fn get_tunnel_endpoint_internal(
         &mut self,
@@ -722,7 +718,6 @@ impl RelaySelector {
                 relay
             }
         };
-
 
         let relay_matches = match constraints.tunnel_protocol {
             Constraint::Any => {
@@ -1166,7 +1161,6 @@ impl RelayListUpdater {
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -1442,7 +1436,6 @@ mod test {
             .map_err(|error| error.to_string())?;
 
         assert_ne!(exit_relay.hostname, specific_hostname);
-
 
         relay_constraints.location = Constraint::Only(location_specific);
         relay_constraints.wireguard_constraints.entry_location =

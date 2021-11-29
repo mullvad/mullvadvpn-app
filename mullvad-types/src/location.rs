@@ -53,7 +53,6 @@ fn haversine_dist_rad(lat: f64, lon: f64, other_lat: f64, other_lon: f64) -> f64
     haversine.sqrt().asin() * 2.0 * RAIDUS_OF_EARTH
 }
 
-
 /// The response from the am.i.mullvad.net location service.
 #[derive(Debug, Deserialize)]
 pub struct AmIMullvad {

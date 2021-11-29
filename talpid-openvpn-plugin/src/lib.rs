@@ -7,7 +7,6 @@ use talpid_types::ErrorExt;
 mod processing;
 use crate::processing::EventProcessor;
 
-
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -32,7 +31,6 @@ pub enum Error {
     #[error(display = "Unhandled event type: {:?}", _0)]
     UnhandledEvent(openvpn_plugin::EventType),
 }
-
 
 /// All the OpenVPN events this plugin will register for listening to. Edit this variable to change
 /// events.
@@ -81,7 +79,6 @@ fn parse_args(args: &[CString]) -> Result<Arguments, Error> {
 
     Ok(Arguments { ipc_socket_path })
 }
-
 
 fn openvpn_close(_handle: Mutex<Option<EventProcessor>>) {
     log::info!("Unloading plugin");

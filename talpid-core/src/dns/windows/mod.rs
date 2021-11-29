@@ -11,7 +11,6 @@ use winreg::{
     RegKey, RegValue,
 };
 
-
 const DNS_CACHE_POLICY_GUID: &str = "{d57d2750-f971-408e-8e55-cfddb37e60ae}";
 
 lazy_static! {
@@ -219,7 +218,6 @@ fn is_minimum_windows10() -> bool {
 ffi_error!(InitializationResult, Error::Initialization);
 ffi_error!(DeinitializationResult, Error::Deinitialization);
 ffi_error!(SettingResult, Error::Setting);
-
 
 #[allow(non_snake_case)]
 extern "stdcall" {

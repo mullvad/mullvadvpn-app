@@ -96,7 +96,6 @@ fn create_wireguard_keys_rotation_interval_subcommand() -> clap::App<'static, 's
         )
 }
 
-
 fn create_openvpn_subcommand() -> clap::App<'static, 'static> {
     clap::SubCommand::with_name("openvpn")
         .about("Manage options for OpenVPN tunnels")

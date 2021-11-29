@@ -53,7 +53,6 @@ pub enum ProxySettings {
     Shadowsocks(ShadowsocksProxySettings),
 }
 
-
 impl ProxySettings {
     pub fn get_endpoint(&self) -> ProxyEndpoint {
         match self {

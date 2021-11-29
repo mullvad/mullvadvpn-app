@@ -15,7 +15,6 @@ use std::{
 use tokio::{io::AsyncBufReadExt, process::Command};
 use tokio_stream::wrappers::LinesStream;
 
-
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen in the macOS routing integration.
@@ -62,7 +61,6 @@ pub struct RouteManagerImpl {
     connectivity_change:
         Option<Box<dyn FusedStream<Item = std::io::Result<()>> + Unpin + Send + Sync>>,
 }
-
 
 impl RouteManagerImpl {
     pub async fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
@@ -231,7 +229,6 @@ impl RouteManagerImpl {
         cmd.status().await.map_err(Error::FailedToRemoveRoute)
     }
 
-
     async fn add_route(route: &Route) -> Result<ExitStatus> {
         let mut cmd = Command::new("route");
         cmd.arg("-q")
@@ -289,7 +286,6 @@ impl RouteManagerImpl {
     }
 }
 
-
 fn ip_vers(prefix: IpNetwork) -> &'static str {
     if prefix.is_ipv4() {
         "-inet"
@@ -297,7 +293,6 @@ fn ip_vers(prefix: IpNetwork) -> &'static str {
         "-inet6"
     }
 }
-
 
 /// Returns a stream that produces an item whenever a default route is either added or deleted from
 /// the routing table.
@@ -309,7 +304,6 @@ async fn listen_for_default_route_changes() -> Result<impl Stream<Item = std::io
         .stderr(Stdio::null())
         .stdout(Stdio::piped())
         .stdin(Stdio::null());
-
 
     let mut process = cmd.spawn().map_err(Error::FailedToMonitorRoutes)?;
     let reader = tokio::io::BufReader::new(process.stdout.take().unwrap());
@@ -350,7 +344,6 @@ async fn listen_for_default_route_changes() -> Result<impl Stream<Item = std::io
         }
         future::ready(Ok(None))
     });
-
 
     Ok(monitor)
 }

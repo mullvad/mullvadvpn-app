@@ -10,7 +10,6 @@ use netlink_packet_utils::{
 };
 use std::{ffi::CString, io::Write, mem};
 
-
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Family name too long")]
@@ -36,7 +35,6 @@ impl NetlinkControlMessage {
         })
     }
 }
-
 
 impl NetlinkSerializable<NetlinkControlMessage> for NetlinkControlMessage {
     fn message_type(&self) -> u16 {

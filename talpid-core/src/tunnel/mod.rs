@@ -62,7 +62,6 @@ pub enum Error {
     WireguardTunnelMonitoringError(#[error(source)] wireguard::Error),
 }
 
-
 /// Possible events from the VPN tunnel and the child process managing it.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum TunnelEvent {
@@ -273,7 +272,6 @@ impl TunnelMonitor {
     }
 }
 
-
 /// A handle to a `TunnelMonitor`
 pub enum CloseHandle {
     #[cfg(not(target_os = "android"))]
@@ -322,7 +320,6 @@ impl InternalTunnelMonitor {
         Ok(())
     }
 }
-
 
 #[cfg(target_os = "windows")]
 fn is_ipv6_enabled_in_os() -> bool {

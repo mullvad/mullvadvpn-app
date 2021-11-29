@@ -4,9 +4,7 @@ use std::{
 };
 use tokio::sync::broadcast;
 
-
 const CHANNEL_CAPACITY: usize = 100;
-
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -14,7 +12,6 @@ pub enum Error {
     #[error(display = "API availability instance was dropped")]
     Interrupted(#[error(source)] broadcast::error::RecvError),
 }
-
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Default)]
 pub struct State {

@@ -23,7 +23,6 @@ use system_configuration::{
     },
 };
 
-
 const PRIMARY_INTERFACE_KEY: &str = "State:/Network/Global/IPv4";
 
 #[derive(err_derive::Error, Debug)]
@@ -76,7 +75,6 @@ pub async fn spawn_monitor(notify_tx: UnboundedSender<bool>) -> Result<MonitorHa
             is_offline: Arc::new(AtomicBool::new(is_currently_offline)),
         };
 
-
         let result = || -> Result<SCDynamicStore, Error> {
             let dynamic_store = create_dynamic_store(context.clone())?;
             CFRunLoop::get_current().add_source(&dynamic_store.create_run_loop_source(), unsafe {
@@ -92,10 +90,8 @@ pub async fn spawn_monitor(notify_tx: UnboundedSender<bool>) -> Result<MonitorHa
                 kCFRunLoopCommonModes
             })?;
 
-
             Ok(dynamic_store)
         };
-
 
         match result() {
             Ok(_dynamic_store) => {

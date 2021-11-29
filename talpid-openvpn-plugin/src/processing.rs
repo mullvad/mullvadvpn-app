@@ -10,7 +10,6 @@ use tonic::{
 
 use tokio::runtime::{self, Runtime};
 
-
 mod proto {
     tonic::include_proto!("talpid_openvpn_plugin");
 }

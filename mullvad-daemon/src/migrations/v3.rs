@@ -3,7 +3,6 @@ use mullvad_types::settings::{
     CustomDnsOptions, DefaultDnsOptions, DnsOptions, DnsState, SettingsVersion,
 };
 
-
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
         return Ok(());
@@ -179,7 +178,6 @@ mod test {
   "settings_version": 4
 }
 "#;
-
 
     #[test]
     fn test_v3_migration() {

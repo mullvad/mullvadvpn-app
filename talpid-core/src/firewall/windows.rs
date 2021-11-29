@@ -10,7 +10,6 @@ use std::os::windows::ffi::OsStrExt;
 use talpid_types::{net::Endpoint, tunnel::FirewallPolicyError};
 use widestring::WideCString;
 
-
 /// Errors that can happen when configuring the Windows firewall.
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]

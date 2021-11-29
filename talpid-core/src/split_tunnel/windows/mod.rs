@@ -516,7 +516,6 @@ impl SplitTunnel {
             ),
         ));
 
-
         self._route_change_callback = None;
         let mut context = context_mutex.lock().unwrap();
         let callback = winnet::add_default_route_change_callback(

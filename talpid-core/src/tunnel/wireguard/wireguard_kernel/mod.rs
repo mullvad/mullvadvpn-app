@@ -29,7 +29,6 @@ pub use netlink_tunnel::NetlinkTunnel;
 pub mod nm_tunnel;
 pub use nm_tunnel::NetworkManagerTunnel;
 
-
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -95,7 +94,6 @@ pub struct Handle {
     route_abort_handle: AbortHandle,
 }
 
-
 impl Handle {
     pub async fn connect() -> Result<Self, Error> {
         let message_type = Self::get_wireguard_message_type().await?;
@@ -111,7 +109,6 @@ impl Handle {
             rtnetlink::new_connection().map_err(Error::NetlinkSocketError)?;
         let (abortable_connection, route_abort_handle) = abortable(conn);
         tokio::spawn(abortable_connection);
-
 
         Ok(Self {
             wg_handle,
@@ -200,7 +197,6 @@ impl Handle {
             }
         }
 
-
         Err(Error::NoDevice)
     }
 
@@ -208,7 +204,6 @@ impl Handle {
         let address_message = add_ip_addr_message(index, addr);
         let mut request = NetlinkMessage::from(RtnlMessage::NewAddress(address_message));
         request.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
-
 
         let mut response = self
             .route_handle
@@ -312,7 +307,6 @@ impl WireguardConnection {
         Ok(())
     }
 }
-
 
 fn consume_netlink_error<
     T,

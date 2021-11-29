@@ -17,7 +17,6 @@ use std::{
 };
 use talpid_types::{net::wireguard, ErrorExt};
 
-
 pub mod availability;
 use availability::{ApiAvailability, ApiAvailabilityHandle};
 pub mod rest;
@@ -78,7 +77,6 @@ lazy_static::lazy_static! {
     static ref API_HOST: String = API_HOST_DEFAULT.to_string();
     static ref API_ADDRESS: SocketAddr = SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT);
 }
-
 
 /// A type that helps with the creation of RPC connections.
 pub struct MullvadRpcRuntime {
@@ -437,14 +435,12 @@ impl AppVersionProxy {
     }
 }
 
-
 /// Error code for when an account has too many keys. Returned when trying to push a new key.
 pub const KEY_LIMIT_REACHED: &str = "KEY_LIMIT_REACHED";
 #[derive(Clone)]
 pub struct WireguardKeyProxy {
     handle: rest::MullvadRestHandle,
 }
-
 
 impl WireguardKeyProxy {
     pub fn new(handle: rest::MullvadRestHandle) -> Self {

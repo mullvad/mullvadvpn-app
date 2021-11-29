@@ -40,7 +40,6 @@ use winapi::shared::{guiddef::GUID, ifdef::NET_LUID};
 #[cfg(windows)]
 mod wintun;
 
-
 #[cfg(windows)]
 lazy_static! {
     static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
@@ -54,7 +53,6 @@ const ADAPTER_GUID: GUID = GUID {
     Data3: 0x4EBB,
     Data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
 };
-
 
 /// Results from fallible operations on the OpenVPN tunnel.
 pub type Result<T> = std::result::Result<T, Error>;
@@ -155,12 +153,10 @@ pub enum Error {
     ParseRemoteHost(#[error(source)] std::net::AddrParseError),
 }
 
-
 #[cfg(unix)]
 static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(4);
 #[cfg(windows)]
 static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(30);
-
 
 #[cfg(target_os = "macos")]
 const OPENVPN_PLUGIN_FILENAME: &str = "libtalpid_openvpn_plugin.dylib";
@@ -249,7 +245,6 @@ impl WintunContext for WintunContextImpl {
         self.adapter.adapter().try_disable_unused_features();
     }
 }
-
 
 impl OpenVpnMonitor<OpenVpnCommand> {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
@@ -645,7 +640,6 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         Ok(temp_file)
     }
 
-
     #[cfg(unix)]
     fn set_user_pass_file_permissions(file: &fs::File) -> io::Result<()> {
         use std::os::unix::fs::PermissionsExt;
@@ -810,7 +804,6 @@ impl ProcessHandle for OpenVpnProcHandle {
         self.nice_kill(OPENVPN_DIE_TIMEOUT)
     }
 }
-
 
 mod event_server {
     use crate::tunnel::TunnelMetadata;
@@ -1109,7 +1102,6 @@ mod event_server {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {

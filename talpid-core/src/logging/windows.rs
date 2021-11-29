@@ -5,7 +5,6 @@ use winapi::um::{stringapiset::MultiByteToWideChar, winnls::CP_ACP};
 /// Logging callback type.
 pub type LogSink = extern "system" fn(level: log::Level, msg: *const c_char, context: *mut c_void);
 
-
 /// Logging callback implementation.
 pub extern "system" fn log_sink(level: log::Level, msg: *const c_char, context: *mut c_void) {
     if msg.is_null() {

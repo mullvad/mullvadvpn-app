@@ -52,7 +52,6 @@ impl Serialize for SettingsVersion {
     }
 }
 
-
 /// Mullvad daemon settings.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]

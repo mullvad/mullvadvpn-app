@@ -83,7 +83,6 @@ pub async fn spawn_monitor(
     Ok(monitor_handle)
 }
 
-
 async fn public_ip_unreachable(handle: &RouteManagerHandle) -> Result<bool> {
     Ok(handle
         .get_destination_route(PUBLIC_INTERNET_ADDRESS_V4, true)

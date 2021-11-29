@@ -36,7 +36,6 @@ lazy_static::lazy_static! {
     static ref ACCOUNT_REGEX: Regex = Regex::new(r"^[0-9]+$").unwrap();
 }
 
-
 impl AccountHistory {
     pub async fn new(
         settings_dir: &Path,

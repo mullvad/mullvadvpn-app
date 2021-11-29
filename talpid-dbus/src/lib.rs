@@ -10,7 +10,6 @@ lazy_static::lazy_static! {
     static ref DBUS_CONNECTION: Mutex<Option<Arc<SyncConnection>>> = Mutex::new(None);
 }
 
-
 /// Reuse or create a system DBus connection.
 pub fn get_connection() -> Result<Arc<SyncConnection>, dbus::Error> {
     let mut connection = DBUS_CONNECTION.lock().expect("DBus lock poisoned");

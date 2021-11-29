@@ -197,7 +197,6 @@ fn start_event_monitor(
     })
 }
 
-
 /// Service status helper with persistent checkpoint counter.
 #[derive(Debug, Clone)]
 struct PersistentServiceStatus {

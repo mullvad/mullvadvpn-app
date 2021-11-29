@@ -10,7 +10,6 @@ lazy_static::lazy_static! {
     static ref DEV_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)(\.\d+)?(-beta(\d+))?-dev-(\w+)$").unwrap();
 }
 
-
 /// AppVersionInfo represents the current stable and the current latest release versions of the
 /// Mullvad VPN app.
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
@@ -36,7 +35,6 @@ pub struct AppVersionInfo {
 }
 
 pub type AppVersion = String;
-
 
 /// Parses a version string into a type that can be used for comparisons.
 #[derive(Eq, PartialEq, Debug, Clone)]

@@ -50,7 +50,6 @@ const PLATFORM: &str = "windows";
 #[cfg(target_os = "android")]
 const PLATFORM: &str = "android";
 
-
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 struct CachedAppVersionInfo {
     #[serde(flatten)]
@@ -97,7 +96,6 @@ pub enum Error {
     #[error(display = "Version cache update was aborted")]
     UpdateAborted,
 }
-
 
 pub(crate) struct VersionUpdater {
     version_proxy: AppVersionProxy,

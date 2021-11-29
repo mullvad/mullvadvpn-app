@@ -51,7 +51,6 @@ const CSTR_EQUAL: i32 = 2;
 const ANYSIZE_ARRAY: usize = 1;
 const SYMLINK_FLAG_RELATIVE: u32 = 0x00000001;
 
-
 // See https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/c3a420cb-8a72-4adf-87e8-eee95379d78f.
 #[repr(C)]
 struct ReparseData {

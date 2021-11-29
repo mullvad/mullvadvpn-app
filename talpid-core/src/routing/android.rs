@@ -11,7 +11,6 @@ pub struct Error;
 /// Stub route manager for Android
 pub struct RouteManagerImpl {}
 
-
 impl RouteManagerImpl {
     pub async fn new(_required_routes: HashSet<RequiredRoute>) -> Result<Self, Error> {
         Ok(RouteManagerImpl {})

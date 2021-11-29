@@ -515,7 +515,6 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAcco
     }
 }
 
-
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAccountData<'env>(

@@ -15,7 +15,6 @@ const DELAY_ON_INITIAL_SETUP: Duration = Duration::from_millis(50);
 /// Sleep time used when checking if an established connection is still working.
 const REGULAR_LOOP_SLEEP: Duration = Duration::from_secs(1);
 
-
 /// Timeout for waiting on receiving traffic after sending outgoing traffic.  Once this timeout is
 /// hit, a ping will be sent every `SECONDS_PER_PING` until `PING_TIMEOUT` is reached, or traffic
 /// is received.
@@ -40,7 +39,6 @@ pub enum Error {
     #[error(display = "Ping monitor failed")]
     PingError(#[error(source)] crate::ping_monitor::Error),
 }
-
 
 /// Verifies if a connection to a tunnel is working.
 /// The connectivity monitor is biased to receiving traffic - it is expected that all outgoing
@@ -72,7 +70,6 @@ pub struct ConnectivityMonitor {
     pinger: Box<dyn Pinger>,
     close_receiver: mpsc::Receiver<()>,
 }
-
 
 impl ConnectivityMonitor {
     pub(super) fn new(
@@ -602,7 +599,6 @@ mod test {
             stats,
         }
     }
-
 
     #[test]
     /// Verify that `check_connectivity()` returns `false` if the tunnel is connected and traffic is

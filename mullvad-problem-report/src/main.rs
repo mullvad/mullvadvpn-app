@@ -5,7 +5,6 @@ use mullvad_problem_report::{collect_report, metadata, send_problem_report, Erro
 use std::{env, path::Path, process};
 use talpid_types::ErrorExt;
 
-
 fn main() {
     process::exit(match run() {
         Ok(()) => 0,
