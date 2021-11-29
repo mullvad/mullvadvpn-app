@@ -28,8 +28,7 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
         Initialized,
         Active,
         Stopped,
-        LostConnection,
-        WaitingForReconnection,
+        LostConnection
     }
 
     private var state = State.Uninitialized
@@ -81,7 +80,6 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
         synchronized(this) {
             when (state) {
                 State.Uninitialized -> state = State.Initialized
-                State.WaitingForReconnection -> state = State.Stopped
                 State.Active -> {
                     onSafelyStop()
                     onSafelyStart()
@@ -102,7 +100,6 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
                     state = State.LostConnection
                     leaveFragment()
                 }
-                State.Stopped -> state = State.WaitingForReconnection
                 else -> {}
             }
         }
@@ -118,7 +115,7 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
                 State.Initialized, State.Active, State.Stopped -> {
                     onSafelyCreateView(inflater, container, savedInstanceState)
                 }
-                State.Uninitialized, State.LostConnection, State.WaitingForReconnection -> {
+                State.Uninitialized, State.LostConnection -> {
                     inflater.inflate(R.layout.missing_service, container, false)
                 }
             }
@@ -133,10 +130,6 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
                 State.Initialized, State.Stopped -> {
                     state = State.Active
                     onSafelyStart()
-                }
-                State.WaitingForReconnection -> {
-                    state = State.LostConnection
-                    leaveFragment()
                 }
                 else -> {}
             }
