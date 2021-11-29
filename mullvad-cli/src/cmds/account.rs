@@ -58,7 +58,7 @@ impl Command for Account {
                     )
                     .arg(
                         clap::Arg::new("device")
-                            .help("Name of the device to revoke")
+                            .help("Name or ID of the device to revoke")
                             .required(true),
                     ),
             )
@@ -163,12 +163,14 @@ impl Account {
         let mut rpc = new_rpc_client().await?;
 
         let token = self.parse_account_else_current(&mut rpc, matches).await?;
-        let device_name = parse_device_name(matches);
+        let device_to_revoke = parse_device_name(matches);
 
         let device_list = rpc.list_devices(token.clone()).await?.into_inner();
         let mut device_id = None;
         for device in device_list.devices {
-            if device.name.eq_ignore_ascii_case(&device_name) {
+            if device.name.eq_ignore_ascii_case(&device_to_revoke)
+                || device.id.eq_ignore_ascii_case(&device_to_revoke)
+            {
                 device_id = Some(device.id);
                 break;
             }
