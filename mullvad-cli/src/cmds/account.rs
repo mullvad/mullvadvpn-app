@@ -29,7 +29,14 @@ impl Command for Account {
             )
             .subcommand(clap::App::new("logout").about("Log out of the current account"))
             .subcommand(
-                clap::App::new("get").about("Display information about the current account"),
+                clap::App::new("get")
+                    .about("Display information about the current account")
+                    .arg(
+                        clap::Arg::new("verbose")
+                            .long("verbose")
+                            .short('v')
+                            .help("Enables verbose output"),
+                    ),
             )
             .subcommand(
                 clap::App::new("list-devices")
@@ -78,8 +85,9 @@ impl Command for Account {
             self.login(parse_token_else_stdin(set_matches)).await
         } else if let Some(_matches) = matches.subcommand_matches("logout") {
             self.logout().await
-        } else if let Some(_matches) = matches.subcommand_matches("get") {
-            self.get().await
+        } else if let Some(set_matches) = matches.subcommand_matches("get") {
+            let verbose = set_matches.is_present("verbose");
+            self.get(verbose).await
         } else if let Some(set_matches) = matches.subcommand_matches("list-devices") {
             self.list_devices(set_matches).await
         } else if let Some(set_matches) = matches.subcommand_matches("revoke-device") {
@@ -98,7 +106,7 @@ impl Account {
         let mut rpc = new_rpc_client().await?;
         rpc.create_new_account(()).await?;
         println!("New account created!");
-        self.get().await
+        self.get(false).await
     }
 
     async fn login(&self, token: AccountToken) -> Result<()> {
@@ -115,12 +123,18 @@ impl Account {
         Ok(())
     }
 
-    async fn get(&self) -> Result<()> {
+    async fn get(&self, verbose: bool) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let device = rpc.get_device(()).await?.into_inner();
         if !device.account_token.is_empty() {
             println!("Mullvad account: {}", device.account_token);
-            println!("Device name    : {}", device.device.unwrap().name);
+            let inner_device = device.device.unwrap();
+            println!("Device name    : {}", inner_device.name);
+            if verbose {
+                let inner_device = Device::try_from(inner_device).unwrap();
+                println!("Device id      : {}", inner_device.id);
+                println!("Device pubkey  : {}", inner_device.pubkey);
+            }
             let expiry = rpc
                 .get_account_data(device.account_token)
                 .await
