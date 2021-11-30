@@ -152,77 +152,42 @@ impl Firewall {
                 allow_lan,
                 allowed_endpoint,
                 allowed_ips,
-                allowed_resolvers,
+                allow_custom_resolver,
             } => {
                 let mut rules = Vec::new();
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.endpoint)?);
 
-                rules.extend(self.get_exclusion_rules(&allowed_ips)?);
-                rules.extend(self.get_allow_excluded_dns_rules(allowed_resolvers)?);
-
+                if allow_custom_resolver {
+                    rules.extend(self.get_allow_excluded_dns_rules()?);
+                    rules.extend(self.get_exclusion_rules(&allowed_ips)?);
+                }
                 if allow_lan {
                     // Important to block DNS before allow LAN (so DNS does not leak to the LAN)
                     rules.append(&mut self.get_block_dns_rules()?);
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
 
-                rules.append(&mut self.get_allow_ips_rules(&allowed_ips)?);
                 Ok(rules)
             }
         }
     }
 
-    fn get_allow_excluded_dns_rules(
-        &self,
-        servers: BTreeSet<IpAddr>,
-    ) -> Result<Vec<pfctl::FilterRule>> {
-        let allow_upstream_rules = servers
-            .iter()
-            .flat_map(|addr| {
-                std::array::IntoIter::new([
-                    self.create_rule_builder(FilterRuleAction::Pass)
-                        .direction(pfctl::Direction::Out)
-                        .quick(true)
-                        .proto(pfctl::Proto::Tcp)
-                        .keep_state(pfctl::StatePolicy::Keep)
-                        .tcp_flags(Self::get_tcp_flags())
-                        .to(pfctl::Endpoint::new(*addr, 53))
-                        .group(self.exclusion_gid)
-                        .build(),
-                    self.create_rule_builder(FilterRuleAction::Pass)
-                        .direction(pfctl::Direction::Out)
-                        .quick(true)
-                        .proto(pfctl::Proto::Udp)
-                        .keep_state(pfctl::StatePolicy::Keep)
-                        .to(pfctl::Endpoint::new(*addr, 53))
-                        .group(self.exclusion_gid)
-                        .build(),
-                ])
-            })
-            .collect::<Result<Vec<_>>>();
+    fn get_allow_excluded_dns_rules(&self) -> Result<[pfctl::FilterRule; 2]> {
+        let mut builder = self.create_rule_builder(FilterRuleAction::Pass);
 
-        allow_upstream_rules.and_then(|mut rules| {
-            if !rules.is_empty() {
-                rules.push(
-                    self.create_rule_builder(FilterRuleAction::Pass)
-                        .quick(true)
-                        .proto(pfctl::Proto::Udp)
-                        .to(pfctl::Endpoint::new(Ipv4Addr::LOCALHOST, 53))
-                        .build()?,
-                );
-                rules.push(
-                    self.create_rule_builder(FilterRuleAction::Pass)
-                        .quick(true)
-                        .proto(pfctl::Proto::Tcp)
-                        .keep_state(pfctl::StatePolicy::Keep)
-                        .tcp_flags(Self::get_tcp_flags())
-                        .to(pfctl::Endpoint::new(Ipv4Addr::LOCALHOST, 53))
-                        .build()?,
-                );
-            }
+        builder.direction(pfctl::Direction::Out);
+        builder.quick(true);
+        builder.keep_state(pfctl::StatePolicy::Keep);
+        builder.to(pfctl::Port::from(53));
+        builder.group(self.exclusion_gid);
 
-            Ok(rules)
-        })
+        Ok([
+            builder.proto(pfctl::Proto::Udp).build()?,
+            builder
+                .proto(pfctl::Proto::Tcp)
+                .tcp_flags(Self::get_tcp_flags())
+                .build()?,
+        ])
     }
 
     fn get_allow_dns_rules_when_connected(
@@ -448,31 +413,6 @@ impl Firewall {
         rules.push(dhcpv4_out);
         rules.push(dhcpv4_in);
 
-        Ok(rules)
-    }
-
-    fn get_allow_ips_rules(
-        &self,
-        allowed_ips: &BTreeSet<IpAddr>,
-    ) -> Result<Vec<pfctl::FilterRule>> {
-        let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
-        rule_builder.quick(true);
-        let mut rules = Vec::with_capacity(allowed_ips.len() * 2);
-        for addr in allowed_ips.iter() {
-            let allow_out = rule_builder
-                .direction(pfctl::Direction::Out)
-                .from(pfctl::Ip::Any)
-                .to(pfctl::Ip::from(*addr))
-                .build()?;
-            rules.push(allow_out);
-
-            let allow_in = rule_builder
-                .direction(pfctl::Direction::In)
-                .from(pfctl::Ip::from(*addr))
-                .to(pfctl::Ip::Any)
-                .build()?;
-            rules.push(allow_in);
-        }
         Ok(rules)
     }
 
