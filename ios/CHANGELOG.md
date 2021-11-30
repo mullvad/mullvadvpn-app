@@ -24,16 +24,22 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add ability to specify custom DNS servers.
 - Show privacy overlay when entering app switcher.
+
+### Changed
+- Increase hit area of settings (cog) button.
+- Update launch screen.
+
+
+## [2021.4] - 2021-11-30
+### Added
+- Add ability to specify custom DNS servers.
 
 ### Changed
 - Attach log backup from previous application run to problem report.
 - Use background tasks to periodically update relays and rotate the private key on iOS 13 or newer.
   Background fetch is used as fallback on iOS 12.
 - Request background execution time from the system when performing critical tasks.
-- Increase hit area of settings (cog) button.
-- Update launch screen.
 
 ### Fixed
 - Drop leading replacement characters (`\u{FFFD}`) when decoding UTF-8 from a part of log file.
@@ -41,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Security
 - Move REST API networking from the packet tunnel process to the main process to prevent leaking 
   traffic outside of the tunnel.
+
 
 ## [2021.3] - 2021-08-10
 ### Added
@@ -51,6 +58,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Update WireGuardKit to the latest. Fixes iOS 15 support.
 - Improve accessibility support.
+
 
 ## [2021.2] - 2021-06-03
 ### Added
