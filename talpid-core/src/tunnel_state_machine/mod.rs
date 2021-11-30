@@ -321,14 +321,18 @@ impl TunnelStateMachine {
             enable_custom_resolver: enable_resolver,
         };
 
-        let (initial_state, _) =
-            DisconnectedState::enter(&mut shared_values, settings.reset_firewall);
+        tokio::task::spawn_blocking(move || {
+            let (initial_state, _) =
+                DisconnectedState::enter(&mut shared_values, settings.reset_firewall);
 
-        Ok(TunnelStateMachine {
-            current_state: Some(initial_state),
-            commands: commands_rx.fuse(),
-            shared_values,
+            Ok(TunnelStateMachine {
+                current_state: Some(initial_state),
+                commands: commands_rx.fuse(),
+                shared_values,
+            })
         })
+        .await
+        .unwrap()
     }
 
     fn run(mut self, change_listener: impl Sender<TunnelStateTransition> + Send + 'static) {
