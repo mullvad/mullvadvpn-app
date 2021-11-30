@@ -620,6 +620,10 @@ msgctxt "navigation-bar"
 msgid "Settings"
 msgstr ""
 
+msgctxt "notifications"
+msgid " Unable to activate macOS network check module. Close any programs that might be using port 53, or disable \"Allow macOS network check\"."
+msgstr ""
+
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
@@ -675,6 +679,10 @@ msgstr ""
 
 msgctxt "notifications"
 msgid "Disconnected and unsecure"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Failed to read system DNS configuration."
 msgstr ""
 
 msgctxt "notifications"
