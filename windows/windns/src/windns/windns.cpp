@@ -45,26 +45,16 @@ std::vector<std::wstring> MakeStringArray(const wchar_t **strings, uint32_t numS
 	return v;
 }
 
-uint32_t ConvertInterfaceAliasToIndex(const std::wstring &interfaceAlias)
+uint32_t ConvertInterfaceLuidToIndex(const NET_LUID &luid)
 {
-	NET_LUID luid;
-
-	if (NO_ERROR != ConvertInterfaceAliasToLuid(interfaceAlias.c_str(), &luid))
-	{
-		const auto err = std::wstring(L"Could not resolve LUID of interface: \"")
-			.append(interfaceAlias).append(L"\"");
-
-		THROW_ERROR(common::string::ToAnsi(err).c_str());
-	}
-
 	NET_IFINDEX index;
 
 	if (NO_ERROR != ConvertInterfaceLuidToIndex(&luid, &index))
 	{
 		std::wstringstream ss;
 
-		ss << L"Could not resolve index of interface: \"" << interfaceAlias << L"\""
-			<< L"with LUID: 0x" << std::hex << luid.Value;
+		ss << L"Could not resolve index of interface with LUID: 0x"
+			<< std::hex << luid.Value;
 
 		THROW_ERROR(common::string::ToAnsi(ss.str()).c_str());
 	}
@@ -79,13 +69,12 @@ struct AdapterDnsAddresses
 };
 
 //
-// Use name when finding the adapter to be more resilient over time.
 // The adapter structure that is returned has two fields for interface index.
 // If IPv4 is enabled, 'IfIndex' will be set. Otherwise set to 0.
 // If IPv6 is enabled, 'Ipv6IfIndex' will be set. Otherwise set to 0.
 // If both IPv4 and IPv6 is enabled, then both fields will be set, and have the same value.
 //
-AdapterDnsAddresses GetAdapterDnsAddresses(const std::wstring &adapterAlias)
+AdapterDnsAddresses GetAdapterDnsAddresses(const NET_LUID &adapterLuid)
 {
 	using shared::network::InterfaceUtils;
 
@@ -94,17 +83,9 @@ AdapterDnsAddresses GetAdapterDnsAddresses(const std::wstring &adapterAlias)
 		GAA_FLAG_SKIP_UNICAST | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST
 	);
 
-	NET_LUID luid;
-	if (NO_ERROR != ConvertInterfaceAliasToLuid(adapterAlias.c_str(), &luid))
-	{
-		const auto err = std::wstring(L"Could not resolve LUID of interface: \"")
-			.append(adapterAlias).append(L"\"");
-		THROW_ERROR(common::string::ToAnsi(err).c_str());
-	}
-
 	for (const auto adapter : adapters)
 	{
-		if (luid.Value != adapter.raw().Luid.Value)
+		if (adapterLuid.Value != adapter.raw().Luid.Value)
 		{
 			continue;
 		}
@@ -126,10 +107,9 @@ AdapterDnsAddresses GetAdapterDnsAddresses(const std::wstring &adapterAlias)
 		return out;
 	}
 
-	const auto msg = std::string("Could not find interface with alias: ")
-		.append(common::string::ToAnsi(adapterAlias));
-
-	THROW_ERROR(msg.c_str());
+	std::stringstream ss;
+	ss << "Could not find interface with LUID: 0x" << std::hex << adapterLuid.Value;
+	THROW_ERROR(ss.str().c_str());
 }
 
 AdapterDnsAddresses ConvertAddresses(
@@ -249,7 +229,7 @@ WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Set(
-	const wchar_t *interfaceAlias,
+	const NET_LUID *interfaceLuid,
 	const wchar_t **ipv4Servers,
 	uint32_t numIpv4Servers,
 	const wchar_t **ipv6Servers,
@@ -261,9 +241,9 @@ WinDns_Set(
 		return false;
 	}
 
-	if (nullptr == interfaceAlias)
+	if (nullptr == interfaceLuid)
 	{
-		g_LogSink->error("Invalid argument: interfaceAlias");
+		g_LogSink->error("Invalid argument: interfaceLuid");
 		return false;
 	}
 
@@ -271,18 +251,16 @@ WinDns_Set(
 	// Check the settings on the adapter.
 	// If it already has the exact same settings we need, we're done.
 	//
-
 	try
 	{
-		const auto activeSettings = GetAdapterDnsAddresses(interfaceAlias);
+		const auto activeSettings = GetAdapterDnsAddresses(*interfaceLuid);
 		const auto wantedSetting = ConvertAddresses(ipv4Servers, numIpv4Servers, ipv6Servers, numIpv6Servers);
 
 		if (Equal(activeSettings, wantedSetting))
 		{
 			std::stringstream ss;
 
-			ss << "DNS settings on adapter with alias \"" << common::string::ToAnsi(interfaceAlias)
-				<< "\" are up-to-date";
+			ss << "DNS settings on adapter with LUID 0x" << std::hex << interfaceLuid->Value << " are up-to-date";
 
 			g_LogSink->info(ss.str().c_str());
 
@@ -293,8 +271,8 @@ WinDns_Set(
 	{
 		std::stringstream ss;
 
-		ss << "Failed to evaluate DNS settings on adapter with alias \""
-			<< common::string::ToAnsi(interfaceAlias) << "\": " << err.what();
+		ss << "Failed to evaluate DNS settings on adapter with LUID 0x"
+			<< std::hex << interfaceLuid->Value << ": " << err.what();
 
 		g_LogSink->info(ss.str().c_str());
 	}
@@ -302,8 +280,8 @@ WinDns_Set(
 	{
 		std::stringstream ss;
 
-		ss << "Failed to evaluate DNS settings on adapter with alias \""
-			<< common::string::ToAnsi(interfaceAlias) << "\": Unspecified failure";
+		ss << "Failed to evaluate DNS settings on adapter with LUID 0x"
+			<< std::hex << interfaceLuid->Value << ": Unspecified failure";
 
 		g_LogSink->info(ss.str().c_str());
 	}
@@ -312,12 +290,13 @@ WinDns_Set(
 	// Apply specified settings.
 	//
 
-	const auto operation = std::string("Apply DNS settings on adapter with alias \"")
-		.append(common::string::ToAnsi(interfaceAlias)).append("\"");
+	std::stringstream operation;
+	operation << "Apply DNS settings on adapter with LUID 0x"
+		<< std::hex << interfaceLuid->Value;
 
-	return ConfineOperation(operation.c_str(), g_LogSink, [&]()
+	return ConfineOperation(operation.str().c_str(), g_LogSink, [&]()
 	{
-		const auto interfaceIndex = ConvertInterfaceAliasToIndex(interfaceAlias);
+		const auto interfaceIndex = ConvertInterfaceLuidToIndex(*interfaceLuid);
 
 		if (nullptr != ipv4Servers && 0 != numIpv4Servers)
 		{
