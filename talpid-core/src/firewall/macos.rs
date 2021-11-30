@@ -175,24 +175,20 @@ impl Firewall {
     }
 
     fn get_allow_excluded_dns_rules(&self) -> Result<[pfctl::FilterRule; 2]> {
+        let mut builder = self.create_rule_builder(FilterRuleAction::Pass);
+
+        builder.direction(pfctl::Direction::Out);
+        builder.quick(true);
+        builder.keep_state(pfctl::StatePolicy::Keep);
+        builder.to(pfctl::Port::from(53));
+        builder.group(self.exclusion_gid);
+
         Ok([
-            self.create_rule_builder(FilterRuleAction::Pass)
-                .direction(pfctl::Direction::Out)
-                .quick(true)
+            builder
                 .proto(pfctl::Proto::Tcp)
-                .keep_state(pfctl::StatePolicy::Keep)
                 .tcp_flags(Self::get_tcp_flags())
-                .to(pfctl::Port::from(53))
-                .group(self.exclusion_gid)
                 .build()?,
-            self.create_rule_builder(FilterRuleAction::Pass)
-                .direction(pfctl::Direction::Out)
-                .quick(true)
-                .proto(pfctl::Proto::Udp)
-                .keep_state(pfctl::StatePolicy::Keep)
-                .to(pfctl::Port::from(53))
-                .group(self.exclusion_gid)
-                .build()?,
+            builder.proto(pfctl::Proto::Udp).build()?,
         ])
     }
 
