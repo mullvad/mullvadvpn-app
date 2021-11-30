@@ -138,6 +138,16 @@ function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
           'notifications',
           "Your device is offline. Try connecting when it's back online.",
         );
+      case 'custom_resolver_error':
+        // TODO: Figure out a better error message to show to users
+        return messages.pgettext(
+          'notifications',
+          "Failed to start custom resolver, check if there's a service running on port 53.",
+        );
+      case 'read_system_dns_config':
+        // TODO: Figure out a better error message to show to users
+        return messages.pgettext('notifications', 'Failed to read system DNS configuration.');
+
       case 'split_tunnel_error':
         return messages.pgettext(
           'notifications',

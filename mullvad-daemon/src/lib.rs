@@ -2740,8 +2740,8 @@ impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
     }
 }
 
-const INCREASED_FILEHANDLE_LIMIT: u64 = 1024;
 /// Bump filehandle limit
+#[cfg(target_os = "macos")]
 pub fn bump_filehandle_limit() {
     let mut limits = libc::rlimit {
         rlim_cur: 0,
@@ -2758,6 +2758,7 @@ pub fn bump_filehandle_limit() {
         return;
     }
 
+    const INCREASED_FILEHANDLE_LIMIT: u64 = 1024;
     // if file handle limit is already big enough, there's no reason to decrease it.
     if limits.rlim_cur >= INCREASED_FILEHANDLE_LIMIT {
         return;
