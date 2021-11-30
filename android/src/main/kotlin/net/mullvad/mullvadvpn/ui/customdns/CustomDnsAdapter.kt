@@ -8,11 +8,15 @@ import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.ui.serviceconnection.CustomDns
 import net.mullvad.mullvadvpn.util.JobTracker
 import org.apache.commons.validator.routines.InetAddressValidator
 
-class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>() {
+class CustomDnsAdapter(
+    val onSetCustomDnsEnabled: (Boolean) -> Unit,
+    val onAddServer: (InetAddress) -> Boolean,
+    val onRemoveDnsServer: (InetAddress) -> Unit,
+    val onReplaceDnsServer: (InetAddress, InetAddress) -> Boolean
+) : Adapter<CustomDnsItemHolder>() {
     private enum class ViewTypes {
         ADD_SERVER,
         EDIT_SERVER,
@@ -42,7 +46,10 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
                 notifyItemRangeInserted(0, cachedCustomDnsServers.size + 1)
 
                 if (cachedCustomDnsServers.isEmpty()) {
-                    editingPosition = 0
+                    // TODO: The state and list are not in sync. The result is that we will get the
+                    //  state change before the updated server list, meaning that the first element
+                    //  automatically will be put into edit mode.
+                    // editingPosition = 0
                 }
             } else {
                 notifyItemRangeRemoved(0, cachedCustomDnsServers.size + 1)
@@ -57,28 +64,24 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     // By default, refuse the address so that the dialog can be recreated by the user if needed
     var confirmAddAddress: suspend (InetAddress) -> Boolean = { false }
 
-    init {
-        customDns.apply {
-            onDnsServersChanged.subscribe(this) { dnsServers ->
-                jobTracker.newBackgroundJob("toggleCustomDns") {
-                    if (dnsServers.isEmpty()) {
-                        customDns.disable()
-                    }
-                }
-
-                jobTracker.newUiJob("updateDnsServers") {
-                    customDnsServersLock.withLock {
-                        activeCustomDnsServers = dnsServers
-                    }
-                }
+    fun updateServers(servers: List<InetAddress>) {
+        jobTracker.newBackgroundJob("toggleCustomDns") {
+            if (servers.isEmpty()) {
+                onSetCustomDnsEnabled(false)
             }
+        }
 
-            onEnabledChanged.subscribe(this) { value ->
-                jobTracker.newUiJob("updateEnabled") {
-                    customDnsServersLock.withLock {
-                        enabled = value
-                    }
-                }
+        jobTracker.newUiJob("updateDnsServers") {
+            customDnsServersLock.withLock {
+                activeCustomDnsServers = servers
+            }
+        }
+    }
+
+    fun updateState(isEnabled: Boolean) {
+        jobTracker.newUiJob("updateEnabled") {
+            customDnsServersLock.withLock {
+                enabled = isEnabled
             }
         }
     }
@@ -108,7 +111,6 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
 
     override fun onCreateViewHolder(parentView: ViewGroup, type: Int): CustomDnsItemHolder {
         val inflater = LayoutInflater.from(parentView.context)
-
         when (ViewTypes.values()[type]) {
             ViewTypes.FOOTER -> {
                 val view = inflater.inflate(R.layout.custom_dns_footer, parentView, false)
@@ -144,12 +146,8 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     fun onDestroy() {
         jobTracker.newBackgroundJob("toggleCustomDns") {
             if (cachedCustomDnsServers.isEmpty()) {
-                customDns.disable()
+                onSetCustomDnsEnabled(false)
             }
-        }
-        customDns.apply {
-            onDnsServersChanged.unsubscribe(this)
-            onEnabledChanged.unsubscribe(this)
         }
     }
 
@@ -227,7 +225,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
                 val position = jobTracker.runOnBackground {
                     val index = cachedCustomDnsServers.indexOf(address)
                     cachedCustomDnsServers.removeAt(index)
-                    customDns.removeDnsServer(address)
+                    onRemoveDnsServer(address)
                     index
                 }
 
@@ -246,7 +244,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         var added = false
 
         withValidAddress(addressText) { address ->
-            if (customDns.addDnsServer(address)) {
+            if (onAddServer(address)) {
                 cachedCustomDnsServers.add(address)
                 added = true
             }
@@ -270,7 +268,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         withValidAddress(address) { newAddress ->
             val oldAddress = cachedCustomDnsServers[position]
 
-            if (customDns.replaceDnsServer(oldAddress, newAddress)) {
+            if (onReplaceDnsServer(oldAddress, newAddress)) {
                 cachedCustomDnsServers[position] = newAddress
                 replaced = true
             }
