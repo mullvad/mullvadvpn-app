@@ -663,6 +663,14 @@ msgid "Disconnected and unsecure"
 msgstr ""
 
 msgctxt "notifications"
+msgid "Failed to read system DNS configuration."
+msgstr ""
+
+msgctxt "notifications"
+msgid "Failed to start custom resolver, check if there's a service running on port 53."
+msgstr ""
+
+msgctxt "notifications"
 msgid "Reconnecting"
 msgstr ""
 
