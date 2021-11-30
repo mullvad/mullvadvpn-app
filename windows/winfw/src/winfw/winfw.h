@@ -45,6 +45,18 @@ typedef struct tag_WinFwEndpoint
 }
 WinFwEndpoint;
 
+typedef struct tag_WinFwAllowedEndpoint
+{
+	uint32_t numClients;
+
+	// A list of paths that are allowed to reach the given endpoint,
+	// even when traffic would otherwise be blocked.
+	const wchar_t **clients;
+
+	WinFwEndpoint endpoint;
+}
+WinFwAllowedEndpoint;
+
 #pragma pack(pop)
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,7 +100,7 @@ WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
 	const WinFwSettings *settings,
-	const WinFwEndpoint *allowedEndpoint,
+	const WinFwAllowedEndpoint *allowedEndpoint,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );
@@ -142,7 +154,7 @@ WinFw_ApplyPolicyConnecting(
 	const WinFwEndpoint *relay,
 	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
-	const WinFwEndpoint *allowedEndpoint
+	const WinFwAllowedEndpoint *allowedEndpoint
 );
 
 //
@@ -189,7 +201,7 @@ WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyBlocked(
 	const WinFwSettings *settings,
-	const WinFwEndpoint *allowedEndpoint
+	const WinFwAllowedEndpoint *allowedEndpoint
 );
 
 //
