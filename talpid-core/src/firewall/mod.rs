@@ -143,7 +143,7 @@ pub enum FirewallPolicy {
         allowed_ips: BTreeSet<IpAddr>,
         /// A list of resolver IPs that should be reachable on port 53.
         #[cfg(target_os = "macos")]
-        allowed_resolvers: BTreeSet<IpAddr>,
+        allow_custom_resolver: bool,
     },
 }
 

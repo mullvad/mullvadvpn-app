@@ -2283,25 +2283,24 @@ where
         &mut self,
         enable_custom_resolver: bool,
     ) -> Result<(), Either<settings::Error, talpid_core::resolver::Error>> {
+        let _ = self
+            .settings
+            .set_custom_resolver(enable_custom_resolver)
+            .await
+            .map_err(Either::Left)?;
+
         let (start_tx, start_rx) = oneshot::channel();
         self.send_tunnel_command(TunnelCommand::SetCustomResolver(
             enable_custom_resolver,
             start_tx,
         ));
         match start_rx.await {
-            Ok(Ok(())) => (),
-            Ok(Err(err)) => return Err(Either::Right(err)),
+            Ok(result) => result.map_err(Either::Right),
             Err(_) => {
                 log::error!("Tunnel state machine has exited");
+                Ok(())
             }
         }
-
-        let _ = self
-            .settings
-            .set_custom_resolver(enable_custom_resolver)
-            .await
-            .map_err(Either::Left)?;
-        Ok(())
     }
 
     async fn on_set_wireguard_mtu(

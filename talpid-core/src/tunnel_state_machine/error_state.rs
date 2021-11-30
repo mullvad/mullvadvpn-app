@@ -20,8 +20,6 @@ use talpid_types::{
 pub struct ErrorState {
     #[cfg(target_os = "macos")]
     allowed_ips: BTreeSet<IpAddr>,
-    #[cfg(target_os = "macos")]
-    allowed_resolvers: BTreeSet<IpAddr>,
     block_reason: ErrorStateCause,
 }
 
@@ -35,28 +33,14 @@ impl ErrorState {
             #[cfg(target_os = "macos")]
             self.allowed_ips.clone(),
             #[cfg(target_os = "macos")]
-            self.allowed_resolvers.clone(),
+            shared_values.enable_custom_resolver,
         )
-    }
-
-    #[cfg(target_os = "macos")]
-    fn reset_allowed_resolvers(
-        &mut self,
-        resolver_config: &Option<(String, Vec<IpAddr>)>,
-        shared_values: &mut SharedTunnelStateValues,
-    ) -> Result<(), FirewallPolicyError> {
-        if let Some((_interface, resolver_ips)) = &resolver_config {
-            self.allowed_resolvers = resolver_ips.iter().cloned().collect();
-        } else {
-            self.allowed_resolvers = BTreeSet::new();
-        }
-        self.set_firewall(shared_values)
     }
 
     fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
         #[cfg(target_os = "macos")] allowed_ips: BTreeSet<IpAddr>,
-        #[cfg(target_os = "macos")] allowed_resolvers: BTreeSet<IpAddr>,
+        #[cfg(target_os = "macos")] allow_custom_resolver: bool,
     ) -> Result<(), FirewallPolicyError> {
         let policy = FirewallPolicy::Blocked {
             allow_lan: shared_values.allow_lan,
@@ -64,7 +48,7 @@ impl ErrorState {
             #[cfg(target_os = "macos")]
             allowed_ips,
             #[cfg(target_os = "macos")]
-            allowed_resolvers,
+            allow_custom_resolver,
         };
 
         #[cfg(target_os = "linux")]
@@ -156,19 +140,13 @@ impl TunnelState for ErrorState {
                 None
             };
 
-        #[cfg(target_os = "macos")]
-        let allowed_resolvers = host_config
-            .as_ref()
-            .map(|(_interface, resolvers)| resolvers.iter().cloned().collect())
-            .unwrap_or(BTreeSet::new());
-
         #[cfg(not(target_os = "android"))]
         let block_failure = Self::set_firewall_policy(
             shared_values,
             #[cfg(target_os = "macos")]
             BTreeSet::new(),
             #[cfg(target_os = "macos")]
-            allowed_resolvers.clone(),
+            shared_values.enable_custom_resolver,
         )
         .err();
 
@@ -197,8 +175,6 @@ impl TunnelState for ErrorState {
                 block_reason: block_reason.clone(),
                 #[cfg(target_os = "macos")]
                 allowed_ips: BTreeSet::new(),
-                #[cfg(target_os = "macos")]
-                allowed_resolvers,
             }),
             TunnelStateTransition::Error(talpid_tunnel::ErrorState::new(
                 block_reason,
@@ -234,19 +210,17 @@ impl TunnelState for ErrorState {
 
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
-                if enable && !shared_values.enable_custom_resolver {
+                let result = if enable && !shared_values.enable_custom_resolver {
                     shared_values.enable_custom_resolver = enable;
+                    if let Err(err) = self.set_firewall(shared_values) {
+                        return NewState(ErrorState::enter(
+                            shared_values,
+                            ErrorStateCause::SetFirewallPolicyError(err),
+                        ));
+                    }
 
                     match shared_values.dns_monitor.get_system_config() {
                         Ok(current_system_config) => {
-                            if let Err(err) =
-                                self.reset_allowed_resolvers(&current_system_config, shared_values)
-                            {
-                                return NewState(ErrorState::enter(
-                                    shared_values,
-                                    ErrorStateCause::SetFirewallPolicyError(err),
-                                ));
-                            }
                             match shared_values.runtime.block_on(
                                 shared_values
                                     .custom_resolver
@@ -270,8 +244,7 @@ impl TunnelState for ErrorState {
                                             ErrorStateCause::SetDnsError,
                                         ));
                                     }
-
-                                    let _ = done_tx.send(Ok(()));
+                                    Ok(())
                                 }
 
                                 Err(err) => {
@@ -281,7 +254,7 @@ impl TunnelState for ErrorState {
                                             "Failed to start custom resolver"
                                         )
                                     );
-                                    let _ = done_tx.send(Err(err));
+                                    Err(err)
                                 }
                             }
                         }
@@ -299,21 +272,15 @@ impl TunnelState for ErrorState {
                         }
                     }
                 } else {
-                    if let Err(err) = shared_values.deactivate_custom_resolver(enable) {
-                        let _ = done_tx.send(Err(err));
-                    };
-                }
+                    shared_values.deactivate_custom_resolver(enable)
+                };
+                let _ = done_tx.send(result);
                 SameState(self.into())
             }
+
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::HostDnsConfig(host_config)) => {
                 if shared_values.enable_custom_resolver {
-                    if let Err(err) = self.reset_allowed_resolvers(&host_config, shared_values) {
-                        return NewState(ErrorState::enter(
-                            shared_values,
-                            ErrorStateCause::SetFirewallPolicyError(err),
-                        ));
-                    }
                     if let Err(err) = shared_values
                         .runtime
                         .block_on(shared_values.custom_resolver.set_active(host_config))
