@@ -48,10 +48,12 @@ std::unique_ptr<ConditionProtocol> CreateProtocolCondition(WinFwProtocol protoco
 PermitEndpoint::PermitEndpoint
 (
 	const wfp::IpAddress &address,
+	const std::vector<std::wstring> &clients,
 	uint16_t port,
 	WinFwProtocol protocol
 )
 	: m_address(address)
+	, m_clients(clients)
 	, m_port(port)
 	, m_protocol(protocol)
 {
@@ -80,6 +82,10 @@ bool PermitEndpoint::apply(IObjectInstaller &objectInstaller)
 	conditionBuilder.add_condition(ConditionIp::Remote(m_address));
 	conditionBuilder.add_condition(ConditionPort::Remote(m_port));
 	conditionBuilder.add_condition(CreateProtocolCondition(m_protocol));
+
+	for (const auto client : m_clients) {
+		conditionBuilder.add_condition(std::make_unique<ConditionApplication>(client));
+	}
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }

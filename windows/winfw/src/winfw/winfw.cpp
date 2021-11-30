@@ -118,7 +118,7 @@ WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
 	const WinFwSettings *settings,
-	const WinFwEndpoint *allowedEndpoint,
+	const WinFwAllowedEndpoint *allowedEndpoint,
 	MullvadLogSink logSink,
 	void *logSinkContext
 )
@@ -233,7 +233,7 @@ WinFw_ApplyPolicyConnecting(
 	const WinFwEndpoint *relay,
 	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
-	const WinFwEndpoint *allowedEndpoint
+	const WinFwAllowedEndpoint *allowedEndpoint
 )
 {
 	if (nullptr == g_fwContext)
@@ -433,7 +433,7 @@ WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyBlocked(
 	const WinFwSettings *settings,
-	const WinFwEndpoint *allowedEndpoint
+	const WinFwAllowedEndpoint *allowedEndpoint
 )
 {
 	if (nullptr == g_fwContext)
