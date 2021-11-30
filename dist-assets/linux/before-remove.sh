@@ -23,5 +23,7 @@ elif /sbin/init --version | grep upstart &> /dev/null; then
     rm -f /etc/init/mullvad-daemon.conf
 fi
 
+pkill -x "mullvad-gui" || true
+
 /opt/Mullvad\ VPN/resources/mullvad-setup reset-firewall || echo "Failed to reset firewall"
 /opt/Mullvad\ VPN/resources/mullvad-setup remove-wireguard-key || echo "Failed to remove leftover WireGuard key"
