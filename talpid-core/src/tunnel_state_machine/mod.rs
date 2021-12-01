@@ -34,7 +34,7 @@ use std::{collections::HashSet, io, net::IpAddr, path::PathBuf, sync::Arc};
 #[cfg(target_os = "android")]
 use talpid_types::{android::AndroidContext, ErrorExt};
 use talpid_types::{
-    net::{Endpoint, TunnelParameters},
+    net::{AllowedEndpoint, TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
 
@@ -81,7 +81,7 @@ pub struct InitialTunnelState {
     pub dns_servers: Option<Vec<IpAddr>>,
     /// A single endpoint that is allowed to communicate outside the tunnel, i.e.
     /// in any of the blocking states.
-    pub allowed_endpoint: Endpoint,
+    pub allowed_endpoint: AllowedEndpoint,
     /// Whether to reset any existing firewall rules when initializing the disconnected state.
     pub reset_firewall: bool,
     /// Programs to exclude from the tunnel using the split tunnel driver.
@@ -109,7 +109,7 @@ pub async fn spawn(
         #[cfg(target_os = "android")]
         initial_settings.allow_lan,
         #[cfg(target_os = "android")]
-        initial_settings.allowed_endpoint.address.ip(),
+        initial_settings.allowed_endpoint.endpoint.address.ip(),
         #[cfg(target_os = "android")]
         initial_settings.dns_servers.clone(),
     );
@@ -145,7 +145,7 @@ pub enum TunnelCommand {
     AllowLan(bool),
     /// Endpoint that should never be blocked.
     /// If an error occurs, the sender is dropped.
-    AllowEndpoint(Endpoint, oneshot::Sender<()>),
+    AllowEndpoint(AllowedEndpoint, oneshot::Sender<()>),
     /// Set DNS servers to use.
     Dns(Option<Vec<IpAddr>>),
     /// Enable or disable the block_when_disconnected feature.
@@ -209,9 +209,7 @@ impl TunnelStateMachine {
 
         let args = FirewallArguments {
             initial_state: if settings.block_when_disconnected || !settings.reset_firewall {
-                InitialFirewallState::Blocked {
-                    allowed_endpoint: settings.allowed_endpoint,
-                }
+                InitialFirewallState::Blocked(settings.allowed_endpoint.clone())
             } else {
                 InitialFirewallState::None
             },
@@ -356,7 +354,7 @@ struct SharedTunnelStateValues {
     /// DNS servers to use (overriding default).
     dns_servers: Option<Vec<IpAddr>>,
     /// Endpoint that should not be blocked by the firewall.
-    allowed_endpoint: Endpoint,
+    allowed_endpoint: AllowedEndpoint,
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
     /// The provider of tunnel devices.
@@ -394,13 +392,13 @@ impl SharedTunnelStateValues {
         Ok(())
     }
 
-    pub fn set_allowed_endpoint(&mut self, endpoint: Endpoint) -> bool {
+    pub fn set_allowed_endpoint(&mut self, endpoint: AllowedEndpoint) -> bool {
         if self.allowed_endpoint != endpoint {
-            self.allowed_endpoint = endpoint;
-
             #[cfg(target_os = "android")]
             self.tun_provider
-                .set_allowed_endpoint(endpoint.address.ip());
+                .set_allowed_endpoint(endpoint.endpoint.address.ip());
+
+            self.allowed_endpoint = endpoint;
 
             true
         } else {

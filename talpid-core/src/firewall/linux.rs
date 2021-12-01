@@ -560,7 +560,7 @@ impl<'a> PolicyBatch<'a> {
                 allowed_endpoint,
             } => {
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint);
-                self.add_allow_endpoint_rules(allowed_endpoint);
+                self.add_allow_endpoint_rules(&allowed_endpoint.endpoint);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
                 // over port 53) but before allow LAN (so DNS does not leak to the LAN)
@@ -596,7 +596,7 @@ impl<'a> PolicyBatch<'a> {
                 allow_lan,
                 allowed_endpoint,
             } => {
-                self.add_allow_endpoint_rules(allowed_endpoint);
+                self.add_allow_endpoint_rules(&allowed_endpoint.endpoint);
 
                 // Important to drop DNS before allowing LAN (to stop DNS leaking to the LAN)
                 self.add_drop_dns_rule();
