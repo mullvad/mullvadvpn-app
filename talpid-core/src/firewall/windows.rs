@@ -282,6 +282,13 @@ mod winfw {
     use talpid_types::net::TransportProtocol;
 
     #[repr(C)]
+    pub struct WinFwAllowedEndpoint {
+        pub num_clients: u32,
+        pub clients: *const *const libc::wchar_t,
+        pub endpoint: WinFwEndpoint,
+    }
+
+    #[repr(C)]
     pub struct WinFwEndpoint {
         pub ip: *const libc::wchar_t,
         pub port: u16,
@@ -370,7 +377,7 @@ mod winfw {
         pub fn WinFw_InitializeBlocked(
             timeout: libc::c_uint,
             settings: &WinFwSettings,
-            allowed_endpoint: *const WinFwEndpoint,
+            allowed_endpoint: *const WinFwAllowedEndpoint,
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> InitializationResult;
@@ -384,7 +391,7 @@ mod winfw {
             relay: &WinFwEndpoint,
             relayClient: *const libc::wchar_t,
             tunnelIfaceAlias: *const libc::wchar_t,
-            allowed_endpoint: *const WinFwEndpoint,
+            allowed_endpoint: *const WinFwAllowedEndpoint,
         ) -> WinFwPolicyStatus;
 
         #[link_name = "WinFw_ApplyPolicyConnected"]
@@ -402,7 +409,7 @@ mod winfw {
         #[link_name = "WinFw_ApplyPolicyBlocked"]
         pub fn WinFw_ApplyPolicyBlocked(
             settings: &WinFwSettings,
-            allowed_endpoint: *const WinFwEndpoint,
+            allowed_endpoint: *const WinFwAllowedEndpoint,
         ) -> WinFwPolicyStatus;
 
         #[link_name = "WinFw_Reset"]
