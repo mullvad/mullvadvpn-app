@@ -15,7 +15,7 @@ use self::{
 use crate::split_tunnel;
 use crate::{
     dns::DnsMonitor,
-    firewall::{Firewall, FirewallArguments},
+    firewall::{Firewall, FirewallArguments, InitialFirewallState},
     mpsc::Sender,
     offline,
     routing::RouteManager,
@@ -208,9 +208,14 @@ impl TunnelStateMachine {
             .map_err(Error::InitSplitTunneling)?;
 
         let args = FirewallArguments {
-            initialize_blocked: settings.block_when_disconnected || !settings.reset_firewall,
+            initial_state: if settings.block_when_disconnected || !settings.reset_firewall {
+                InitialFirewallState::Blocked {
+                    allowed_endpoint: settings.allowed_endpoint,
+                }
+            } else {
+                InitialFirewallState::None
+            },
             allow_lan: settings.allow_lan,
-            allowed_endpoint: Some(settings.allowed_endpoint),
         };
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
