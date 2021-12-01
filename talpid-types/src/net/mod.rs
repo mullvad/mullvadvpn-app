@@ -1,6 +1,8 @@
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
+#[cfg(windows)]
+use std::path::PathBuf;
 use std::{
     fmt,
     net::{IpAddr, SocketAddr},
@@ -171,6 +173,38 @@ impl Endpoint {
 impl fmt::Display for Endpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{} over {}", self.address, self.protocol)
+    }
+}
+
+/// Host that should be reachable in any tunnel state.
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct AllowedEndpoint {
+    /// Paths that should be allowed to communicate with `endpoint`.
+    #[cfg(windows)]
+    pub clients: Vec<PathBuf>,
+    pub endpoint: Endpoint,
+}
+
+impl fmt::Display for AllowedEndpoint {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        #[cfg(not(windows))]
+        write!(f, "{}", self.endpoint)?;
+        #[cfg(windows)]
+        {
+            write!(f, "{} for", self.endpoint)?;
+            #[cfg(windows)]
+            for client in &self.clients {
+                write!(
+                    f,
+                    " {}",
+                    client
+                        .file_name()
+                        .map(|s| s.to_string_lossy())
+                        .unwrap_or(std::borrow::Cow::Borrowed("<UNKNOWN>"))
+                )?;
+            }
+        }
+        Ok(())
     }
 }
 
