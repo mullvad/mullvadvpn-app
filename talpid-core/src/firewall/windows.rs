@@ -3,7 +3,7 @@ use crate::{logging::windows::log_sink, tunnel::TunnelMetadata};
 use std::{ffi::OsString, iter, net::IpAddr, path::Path, ptr};
 
 use self::winfw::*;
-use super::{FirewallArguments, FirewallPolicy, FirewallT};
+use super::{FirewallArguments, FirewallPolicy, FirewallT, InitialFirewallState};
 use crate::winnet;
 use log::{debug, error, trace};
 use std::os::windows::ffi::OsStrExt;
@@ -54,24 +54,19 @@ impl FirewallT for Firewall {
     fn new(args: FirewallArguments) -> Result<Self, Self::Error> {
         let logging_context = b"WinFw\0".as_ptr();
 
-        if args.initialize_blocked {
+        if let InitialFirewallState::Blocked { allowed_endpoint } = args.initial_state {
             let cfg = &WinFwSettings::new(args.allow_lan);
-            let allowed_endpoint_ip = args
-                .allowed_endpoint
-                .map(|endpoint| (endpoint, widestring_ip(endpoint.address.ip())));
-            let allowed_endpoint =
-                allowed_endpoint_ip
-                    .as_ref()
-                    .map(|(endpoint, ip)| WinFwEndpoint {
-                        ip: ip.as_ptr(),
-                        port: endpoint.address.port(),
-                        protocol: WinFwProt::from(endpoint.protocol),
-                    });
+            let allowed_endpoint_ip = widestring_ip(allowed_endpoint.address.ip());
+            let winfw_allowed_endpoint = WinFwEndpoint {
+                ip: allowed_endpoint_ip.as_ptr(),
+                port: allowed_endpoint.address.port(),
+                protocol: WinFwProt::from(allowed_endpoint.protocol),
+            };
             unsafe {
                 WinFw_InitializeBlocked(
                     WINFW_TIMEOUT_SECONDS,
                     &cfg,
-                    allowed_endpoint.as_ptr(),
+                    &winfw_allowed_endpoint,
                     Some(log_sink),
                     logging_context,
                 )
@@ -167,11 +162,11 @@ impl Firewall {
         relay_client.push(0u16);
 
         let allowed_endpoint_ip = widestring_ip(allowed_endpoint.address.ip());
-        let winfw_allowed_endpoint = Some(WinFwEndpoint {
+        let winfw_allowed_endpoint = WinFwEndpoint {
             ip: allowed_endpoint_ip.as_ptr(),
             port: allowed_endpoint.address.port(),
             protocol: WinFwProt::from(allowed_endpoint.protocol),
-        });
+        };
 
         let interface_wstr = tunnel_metadata.as_ref().map(|metadata| {
             WideCString::new(metadata.interface.encode_utf16().collect::<Vec<_>>()).unwrap()
@@ -188,7 +183,7 @@ impl Firewall {
                 &winfw_relay,
                 relay_client.as_ptr(),
                 interface_wstr_ptr,
-                winfw_allowed_endpoint.as_ptr(),
+                &winfw_allowed_endpoint,
             )
             .into_result()
             .map_err(Error::ApplyingConnectingPolicy)
@@ -273,29 +268,16 @@ impl Firewall {
         trace!("Applying 'blocked' firewall policy");
 
         let allowed_endpoint_ip = widestring_ip(allowed_endpoint.address.ip());
-        let winfw_allowed_endpoint = Some(WinFwEndpoint {
+        let winfw_allowed_endpoint = WinFwEndpoint {
             ip: allowed_endpoint_ip.as_ptr(),
             port: allowed_endpoint.address.port(),
             protocol: WinFwProt::from(allowed_endpoint.protocol),
-        });
+        };
 
         unsafe {
-            WinFw_ApplyPolicyBlocked(winfw_settings, winfw_allowed_endpoint.as_ptr())
+            WinFw_ApplyPolicyBlocked(winfw_settings, &winfw_allowed_endpoint)
                 .into_result()
                 .map_err(Error::ApplyingBlockedPolicy)
-        }
-    }
-}
-
-trait NullablePointer<T> {
-    fn as_ptr(&self) -> *const T;
-}
-
-impl<T> NullablePointer<T> for Option<T> {
-    fn as_ptr(&self) -> *const T {
-        match self {
-            Some(ref value) => value,
-            None => ptr::null(),
         }
     }
 }

@@ -4,7 +4,7 @@ use mullvad_rpc::MullvadRpcRuntime;
 use mullvad_types::version::ParsedAppVersion;
 use std::{path::PathBuf, process, time::Duration};
 use talpid_core::{
-    firewall::{self, Firewall, FirewallArguments},
+    firewall::{self, Firewall, FirewallArguments, InitialFirewallState},
     future_retry::{constant_interval, retry_future_n},
 };
 use talpid_types::ErrorExt;
@@ -158,9 +158,8 @@ async fn reset_firewall() -> Result<(), Error> {
     }
 
     let mut firewall = Firewall::new(FirewallArguments {
-        initialize_blocked: false,
+        initial_state: InitialFirewallState::None,
         allow_lan: true,
-        allowed_endpoint: None,
     })
     .map_err(Error::FirewallError)?;
 
