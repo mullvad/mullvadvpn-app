@@ -9,7 +9,7 @@ use std::net::IpAddr;
 use std::net::{Ipv4Addr, Ipv6Addr};
 #[cfg(windows)]
 use std::path::PathBuf;
-use talpid_types::net::Endpoint;
+use talpid_types::net::{AllowedEndpoint, Endpoint};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -107,8 +107,8 @@ pub enum FirewallPolicy {
         tunnel: Option<crate::tunnel::TunnelMetadata>,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
-        /// Host that should be reachable by the tunnel client while connecting.
-        allowed_endpoint: Endpoint,
+        /// Host that should be reachable while connecting.
+        allowed_endpoint: AllowedEndpoint,
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]
         relay_client: PathBuf,
@@ -135,7 +135,7 @@ pub enum FirewallPolicy {
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
         /// Host that should be reachable while in the blocked state.
-        allowed_endpoint: Endpoint,
+        allowed_endpoint: AllowedEndpoint,
     },
 }
 
@@ -225,10 +225,7 @@ pub enum InitialFirewallState {
     /// Do not set any policy.
     None,
     /// Atomically enter the blocked state.
-    Blocked {
-        /// Host that should be reachable while in the blocked state.
-        allowed_endpoint: Endpoint,
-    },
+    Blocked(AllowedEndpoint),
 }
 
 impl Firewall {

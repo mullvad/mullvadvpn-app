@@ -6,7 +6,10 @@ use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, FirewallT, InitialFirewallState};
 use crate::winnet;
 use log::{debug, error, trace};
-use talpid_types::{net::Endpoint, tunnel::FirewallPolicyError};
+use talpid_types::{
+    net::{AllowedEndpoint, Endpoint},
+    tunnel::FirewallPolicyError,
+};
 use widestring::WideCString;
 
 /// Errors that can happen when configuring the Windows firewall.
@@ -53,19 +56,14 @@ impl FirewallT for Firewall {
     fn new(args: FirewallArguments) -> Result<Self, Self::Error> {
         let logging_context = b"WinFw\0".as_ptr();
 
-        if let InitialFirewallState::Blocked { allowed_endpoint } = args.initial_state {
+        if let InitialFirewallState::Blocked(allowed_endpoint) = args.initial_state {
             let cfg = &WinFwSettings::new(args.allow_lan);
-            let allowed_endpoint_ip = widestring_ip(allowed_endpoint.address.ip());
-            let winfw_allowed_endpoint = WinFwEndpoint {
-                ip: allowed_endpoint_ip.as_ptr(),
-                port: allowed_endpoint.address.port(),
-                protocol: WinFwProt::from(allowed_endpoint.protocol),
-            };
+            let allowed_endpoint = WinFwAllowedEndpoint::from(allowed_endpoint);
             unsafe {
                 WinFw_InitializeBlocked(
                     WINFW_TIMEOUT_SECONDS,
                     &cfg,
-                    &winfw_allowed_endpoint,
+                    &allowed_endpoint,
                     Some(log_sink),
                     logging_context,
                 )
@@ -92,11 +90,12 @@ impl FirewallT for Firewall {
                 relay_client,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
+
                 self.set_connecting_state(
                     &peer_endpoint,
                     &cfg,
                     &tunnel,
-                    &allowed_endpoint,
+                    WinFwAllowedEndpoint::from(allowed_endpoint),
                     &relay_client,
                 )
             }
@@ -115,7 +114,7 @@ impl FirewallT for Firewall {
                 allowed_endpoint,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                self.set_blocked_state(&cfg, &allowed_endpoint)
+                self.set_blocked_state(&cfg, WinFwAllowedEndpoint::from(allowed_endpoint))
             }
         }
     }
@@ -146,7 +145,7 @@ impl Firewall {
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
         tunnel_metadata: &Option<TunnelMetadata>,
-        allowed_endpoint: &Endpoint,
+        allowed_endpoint: WinFwAllowedEndpoint,
         relay_client: &Path,
     ) -> Result<(), Error> {
         trace!("Applying 'connecting' firewall policy");
@@ -158,13 +157,6 @@ impl Firewall {
         };
 
         let relay_client = WideCString::from_os_str_truncate(relay_client);
-
-        let allowed_endpoint_ip = widestring_ip(allowed_endpoint.address.ip());
-        let winfw_allowed_endpoint = WinFwEndpoint {
-            ip: allowed_endpoint_ip.as_ptr(),
-            port: allowed_endpoint.address.port(),
-            protocol: WinFwProt::from(allowed_endpoint.protocol),
-        };
 
         let interface_wstr = tunnel_metadata
             .as_ref()
@@ -181,7 +173,7 @@ impl Firewall {
                 &winfw_relay,
                 relay_client.as_ptr(),
                 interface_wstr_ptr,
-                &winfw_allowed_endpoint,
+                &allowed_endpoint,
             )
             .into_result()
             .map_err(Error::ApplyingConnectingPolicy)
@@ -251,19 +243,11 @@ impl Firewall {
     fn set_blocked_state(
         &mut self,
         winfw_settings: &WinFwSettings,
-        allowed_endpoint: &Endpoint,
+        allowed_endpoint: WinFwAllowedEndpoint,
     ) -> Result<(), Error> {
         trace!("Applying 'blocked' firewall policy");
-
-        let allowed_endpoint_ip = widestring_ip(allowed_endpoint.address.ip());
-        let winfw_allowed_endpoint = WinFwEndpoint {
-            ip: allowed_endpoint_ip.as_ptr(),
-            port: allowed_endpoint.address.port(),
-            protocol: WinFwProt::from(allowed_endpoint.protocol),
-        };
-
         unsafe {
-            WinFw_ApplyPolicyBlocked(winfw_settings, &winfw_allowed_endpoint)
+            WinFw_ApplyPolicyBlocked(winfw_settings, &allowed_endpoint)
                 .into_result()
                 .map_err(Error::ApplyingBlockedPolicy)
         }
@@ -276,16 +260,68 @@ fn widestring_ip(ip: IpAddr) -> WideCString {
 
 #[allow(non_snake_case)]
 mod winfw {
-    use super::Error;
+    use super::{widestring_ip, AllowedEndpoint, Error, WideCString};
     use crate::logging::windows::LogSink;
     use libc;
     use talpid_types::net::TransportProtocol;
 
     #[repr(C)]
     pub struct WinFwAllowedEndpoint {
-        pub num_clients: u32,
-        pub clients: *const *const libc::wchar_t,
-        pub endpoint: WinFwEndpoint,
+        num_clients: u32,
+        clients: *const *const libc::wchar_t,
+        endpoint: WinFwEndpoint,
+    }
+
+    impl From<AllowedEndpoint> for WinFwAllowedEndpoint {
+        fn from(endpoint: AllowedEndpoint) -> Self {
+            let allowed_endpoint_ip = widestring_ip(endpoint.endpoint.address.ip());
+
+            let clients = endpoint
+                .clients
+                .iter()
+                .map(|client| WideCString::from_os_str_truncate(client).into_raw() as *const _)
+                .collect::<Vec<_>>();
+
+            let (clients, num_clients) = vec_into_raw_parts(clients);
+
+            WinFwAllowedEndpoint {
+                num_clients: num_clients as u32,
+                clients,
+                endpoint: WinFwEndpoint {
+                    ip: allowed_endpoint_ip.into_raw(),
+                    port: endpoint.endpoint.address.port(),
+                    protocol: WinFwProt::from(endpoint.endpoint.protocol),
+                },
+            }
+        }
+    }
+
+    impl Drop for WinFwAllowedEndpoint {
+        fn drop(&mut self) {
+            // Drop paths
+            let clients: Vec<*mut u16> =
+                unsafe { vec_from_raw_parts(self.clients as *mut _, self.num_clients as usize) };
+            for client in clients {
+                unsafe { WideCString::from_raw(client) };
+            }
+
+            // Drop address
+            unsafe { WideCString::from_raw(self.endpoint.ip as *mut _) };
+        }
+    }
+
+    /// Deconstructs a vec into raw parts without capacity.
+    fn vec_into_raw_parts<T>(v: Vec<T>) -> (*mut T, usize) {
+        let mut raw = v.into_boxed_slice();
+        let ptr = raw.as_mut_ptr();
+        let len = raw.len();
+        std::mem::forget(raw);
+        (ptr, len)
+    }
+
+    /// Constructs a vec from raw parts without capacity.
+    unsafe fn vec_from_raw_parts<T>(v: *mut T, len: usize) -> Vec<T> {
+        Box::from_raw(std::slice::from_raw_parts_mut(v, len)).into_vec()
     }
 
     #[repr(C)]
