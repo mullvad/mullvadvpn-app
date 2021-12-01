@@ -120,7 +120,7 @@ impl super::DnsMonitorT for DnsMonitor {
 }
 
 fn ip_to_widestring(ip: &IpAddr) -> WideCString {
-    WideCString::new(ip.to_string().encode_utf16().collect::<Vec<_>>()).unwrap()
+    WideCString::from_str_truncate(ip.to_string())
 }
 
 impl Drop for DnsMonitor {
