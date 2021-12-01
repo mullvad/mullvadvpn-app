@@ -30,7 +30,7 @@ talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3.6", features = [ "securitybaseapi", "impl-default", "impl-debug", "handleapi", "psapi" ]}
-widestring = "0.4"
+widestring = "0.5"
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
