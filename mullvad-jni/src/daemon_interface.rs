@@ -41,6 +41,9 @@ impl From<mullvad_daemon::Error> for Error {
             mullvad_daemon::Error::LoginError(device::Error::OtherRestError(error)) => {
                 Error::RpcError(error)
             }
+            mullvad_daemon::Error::ListDevicesError(device::Error::OtherRestError(error)) => {
+                Error::RpcError(error)
+            }
             error => Error::OtherError(error),
         }
     }
@@ -81,16 +84,6 @@ impl DaemonInterface {
         self.send_command(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))?;
 
         block_on(rx).map(|_| ()).map_err(|_| Error::NoResponse)
-    }
-
-    pub fn rotate_wireguard_key(&self) -> Result<()> {
-        let (tx, rx) = oneshot::channel();
-
-        self.send_command(DaemonCommand::RotateWireguardKey(tx))?;
-
-        block_on(rx)
-            .map_err(|_| Error::NoResponse)?
-            .map_err(Error::from)
     }
 
     pub fn get_account_data(&self, account_token: String) -> Result<AccountData> {

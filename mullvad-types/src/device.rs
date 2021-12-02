@@ -1,4 +1,6 @@
 use crate::{account::AccountToken, wireguard};
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard::PublicKey;
 
@@ -10,9 +12,12 @@ pub type DeviceName = String;
 
 /// Contains data for a device returned by the API.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct Device {
     pub id: DeviceId,
     pub name: DeviceName,
+    #[cfg_attr(target_os = "android", jnix(map = "|key| *key.as_bytes()"))]
     pub pubkey: PublicKey,
 }
 
@@ -51,6 +56,8 @@ impl From<DeviceData> for Device {
 
 /// [`DeviceData`] excluding the private key.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct DeviceConfig {
     pub token: AccountToken,
     pub device: Device,
@@ -67,9 +74,11 @@ impl From<DeviceData> for DeviceConfig {
 
 /// Emitted when logging in or out of an account, or when the device changes.
 #[derive(Clone, Debug)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct DeviceEvent {
     /// Device that was affected.
-    pub device: Option<(AccountToken, Device)>,
+    pub device: Option<DeviceConfig>,
     /// Indicates whether the change was initiated remotely or by the daemon.
     pub remote: bool,
 }
@@ -77,14 +86,17 @@ pub struct DeviceEvent {
 impl DeviceEvent {
     pub fn new(data: Option<DeviceData>, remote: bool) -> DeviceEvent {
         DeviceEvent {
-            device: data.map(|data| (data.token, data.device)),
+            device: data.map(DeviceConfig::from),
             remote,
         }
     }
 
     pub fn from_device(data: DeviceData, remote: bool) -> DeviceEvent {
         DeviceEvent {
-            device: Some((data.token, data.device)),
+            device: Some(DeviceConfig {
+                token: data.token,
+                device: data.device,
+            }),
             remote,
         }
     }
@@ -100,6 +112,8 @@ impl DeviceEvent {
 /// Emitted when a device is removed using the `RemoveDevice` RPC.
 /// This is not sent by a normal logout or when it is revoked remotely.
 #[derive(Clone, Debug)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RemoveDeviceEvent {
     pub account_token: AccountToken,
     pub removed_device: Device,

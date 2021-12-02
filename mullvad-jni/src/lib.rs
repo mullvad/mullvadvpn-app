@@ -123,6 +123,35 @@ impl From<Result<(), daemon_interface::Error>> for LoginResult {
 
 #[derive(IntoJava)]
 #[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum RemoveDeviceResult {
+    Ok,
+    NotFound,
+    RpcError,
+    OtherError,
+}
+
+impl From<Result<(), daemon_interface::Error>> for RemoveDeviceResult {
+    fn from(result: Result<(), daemon_interface::Error>) -> Self {
+        match result {
+            Ok(()) => RemoveDeviceResult::Ok,
+            Err(error) => match error {
+                daemon_interface::Error::OtherError(mullvad_daemon::Error::LoginError(error)) => {
+                    match error {
+                        device::Error::InvalidAccount => RemoveDeviceResult::RpcError,
+                        device::Error::InvalidDevice => RemoveDeviceResult::NotFound,
+                        device::Error::OtherRestError(_) => RemoveDeviceResult::RpcError,
+                        _ => RemoveDeviceResult::OtherError,
+                    }
+                }
+                daemon_interface::Error::RpcError(_) => RemoveDeviceResult::RpcError,
+                _ => RemoveDeviceResult::OtherError,
+            },
+        }
+    }
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
 pub enum VoucherSubmissionResult {
     Ok(VoucherSubmission),
     Error(VoucherSubmissionError),
@@ -773,6 +802,80 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_logoutA
             log::error!("{}", error.display_chain_with_msg("Failed to log out"));
         }
     }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getDevice<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.get_device() {
+            Ok(key) => key.into_java(&env).forget(),
+            Err(error) => {
+                log::error!("{}", error.display_chain_with_msg("Failed to get device"));
+                JObject::null()
+            }
+        }
+    } else {
+        JObject::null()
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_listDevices<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    account_token: JString<'_>,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let token = String::from_java(&env, account_token);
+        match daemon_interface.list_devices(token) {
+            Ok(key) => key.into_java(&env).forget(),
+            Err(error) => {
+                log::error!("{}", error.display_chain_with_msg("Failed to list devices"));
+                JObject::null()
+            }
+        }
+    } else {
+        JObject::null()
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_removeDevice<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    account_token: JString<'_>,
+    device_id: JString<'_>,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    let result = if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let token = String::from_java(&env, account_token);
+        let device_id = String::from_java(&env, device_id);
+        let raw_result = daemon_interface.remove_device(token, device_id);
+
+        if let Err(ref error) = &raw_result {
+            log_request_error("remove device", error);
+        }
+
+        RemoveDeviceResult::from(raw_result)
+    } else {
+        RemoveDeviceResult::OtherError
+    };
+
+    result.into_java(&env).forget()
 }
 
 #[no_mangle]

@@ -203,6 +203,43 @@ impl<'env> JniEventHandler<'env> {
         }
     }
 
+    fn handle_device_event(&self, device_event: DeviceEvent) {
+        let java_event = device_event.into_java(&self.env);
+
+        let result = self.env.call_method_unchecked(
+            self.mullvad_ipc_client,
+            self.notify_device_event,
+            JavaType::Primitive(Primitive::Void),
+            &[JValue::Object(java_event.as_obj())],
+        );
+
+        if let Err(error) = result {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to call MullvadDaemon.notifyDeviceEvent")
+            );
+        }
+    }
+
+    fn handle_remove_device_event(&self, remove_event: RemoveDeviceEvent) {
+        let java_event = remove_event.into_java(&self.env);
+
+        let result = self.env.call_method_unchecked(
+            self.mullvad_ipc_client,
+            self.notify_remove_device_event,
+            JavaType::Primitive(Primitive::Void),
+            &[JValue::Object(java_event.as_obj())],
+        );
+
+        if let Err(error) = result {
+            log::error!(
+                "{}",
+                error
+                    .display_chain_with_msg("Failed to call MullvadDaemon.notifyRemoveDeviceEvent")
+            );
+        }
+    }
+
     fn handle_relay_list_event(&self, relay_list: RelayList) {
         let java_relay_list = relay_list.into_java(&self.env);
 

@@ -45,7 +45,8 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     }
 
     fun generateWireguardKey(): KeygenEvent? {
-        return generateWireguardKey(daemonInterfaceAddress)
+        // TODO: remove
+        return null
     }
 
     fun getAccountData(accountToken: String): GetAccountDataResult {
@@ -85,6 +86,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     }
 
     fun getWireguardKey(): PublicKey? {
+        // TODO: no longer needed
         return getWireguardKey(daemonInterfaceAddress)
     }
 
@@ -97,7 +99,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     }
 
     fun setAccount(accountToken: String?) {
-        setAccount(daemonInterfaceAddress, accountToken)
+        // TODO: replace with login+logout
     }
 
     fun setAllowLan(allowLan: Boolean) {
@@ -154,7 +156,6 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     private external fun connect(daemonInterfaceAddress: Long)
     private external fun createNewAccount(daemonInterfaceAddress: Long): String?
     private external fun disconnect(daemonInterfaceAddress: Long)
-    private external fun generateWireguardKey(daemonInterfaceAddress: Long): KeygenEvent?
     private external fun getAccountData(
         daemonInterfaceAddress: Long,
         accountToken: String
@@ -170,7 +171,8 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     private external fun getWireguardKey(daemonInterfaceAddress: Long): PublicKey?
     private external fun reconnect(daemonInterfaceAddress: Long)
     private external fun clearAccountHistory(daemonInterfaceAddress: Long)
-    private external fun setAccount(daemonInterfaceAddress: Long, accountToken: String?)
+    private external fun loginAccount(daemonInterfaceAddress: Long, accountToken: String?)
+    private external fun logoutAccount(daemonInterfaceAddress: Long)
     private external fun setAllowLan(daemonInterfaceAddress: Long, allowLan: Boolean)
     private external fun setAutoConnect(daemonInterfaceAddress: Long, alwaysOn: Boolean)
     private external fun setDnsOptions(daemonInterfaceAddress: Long, dnsOptions: DnsOptions)
@@ -188,10 +190,6 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
 
     private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo) {
         onAppVersionInfoChange?.invoke(appVersionInfo)
-    }
-
-    private fun notifyKeygenEvent(event: KeygenEvent) {
-        onKeygenEvent?.invoke(event)
     }
 
     private fun notifyRelayListEvent(relayList: RelayList) {
