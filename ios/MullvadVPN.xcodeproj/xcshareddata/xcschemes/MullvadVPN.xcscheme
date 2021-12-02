@@ -10,7 +10,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "exec &gt; $PROJECT_DIR/prebuild.log 2&gt;&amp;1&#10;&#10;$PROJECT_DIR/update-relays.sh&#10;">
+               scriptText = "exec &gt; $PROJECT_DIR/prebuild.log 2&gt;&amp;1&#10;&#10;$PROJECT_DIR/prebuild.sh&#10;">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"
