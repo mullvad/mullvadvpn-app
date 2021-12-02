@@ -10,10 +10,10 @@ use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
-    fmt, io, iter, mem,
+    fmt, io, mem,
     mem::MaybeUninit,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
-    os::windows::{ffi::OsStrExt, io::RawHandle},
+    os::windows::io::RawHandle,
     path::Path,
     ptr,
     sync::{Arc, Mutex},
@@ -662,12 +662,7 @@ unsafe impl Sync for WgNtDll {}
 
 impl WgNtDll {
     pub fn new(resource_dir: &Path) -> io::Result<Self> {
-        let wg_nt_dll: Vec<u16> = resource_dir
-            .join("wireguard.dll")
-            .as_os_str()
-            .encode_wide()
-            .chain(iter::once(0u16))
-            .collect();
+        let wg_nt_dll = U16CString::from_os_str_truncate(resource_dir.join("wireguard.dll"));
 
         let handle = unsafe {
             LoadLibraryExW(
@@ -812,8 +807,7 @@ impl WgNtDll {
         if result == 0 {
             return Err(io::Error::last_os_error());
         }
-        Ok(U16CString::from_vec_with_nul(alias_buffer)
-            .map_err(|_| io::Error::new(io::ErrorKind::Other, "missing null terminator"))?)
+        Ok(U16CString::from_vec_truncate(alias_buffer))
     }
 
     pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID {

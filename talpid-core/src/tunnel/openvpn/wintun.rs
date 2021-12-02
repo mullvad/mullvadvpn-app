@@ -2,8 +2,8 @@ use crate::windows::{get_ip_interface_entry, set_ip_interface_entry, AddressFami
 use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
-    fmt, io, iter, mem,
-    os::windows::{ffi::OsStrExt, io::RawHandle},
+    fmt, io, mem,
+    os::windows::io::RawHandle,
     path::Path,
     ptr,
     sync::{Arc, Mutex},
@@ -295,12 +295,7 @@ impl WintunDll {
     }
 
     fn new(resource_dir: &Path) -> io::Result<Self> {
-        let wintun_dll: Vec<u16> = resource_dir
-            .join("wintun.dll")
-            .as_os_str()
-            .encode_wide()
-            .chain(iter::once(0u16))
-            .collect();
+        let wintun_dll = U16CString::from_os_str_truncate(resource_dir.join("wintun.dll"));
 
         let handle = unsafe {
             LoadLibraryExW(
@@ -426,8 +421,7 @@ impl WintunDll {
         if result == 0 {
             return Err(io::Error::last_os_error());
         }
-        Ok(U16CString::from_vec_with_nul(alias_buffer)
-            .map_err(|_| io::Error::new(io::ErrorKind::Other, "missing null terminator"))?)
+        Ok(U16CString::from_vec_truncate(alias_buffer))
     }
 
     pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID {

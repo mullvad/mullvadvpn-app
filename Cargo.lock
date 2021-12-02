@@ -1387,7 +1387,7 @@ dependencies = [
  "talpid-core",
  "talpid-types",
  "tokio",
- "widestring",
+ "widestring 0.5.1",
  "winapi 0.3.9",
  "winres",
 ]
@@ -2512,7 +2512,7 @@ dependencies = [
  "udp-over-tcp",
  "uuid",
  "which",
- "widestring",
+ "widestring 0.5.1",
  "winapi 0.3.9",
  "winreg",
  "zeroize",
@@ -3089,6 +3089,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c168940144dd21fd8046987c16a46a33d5fc84eec29ef9dcddc2ac9e31526b7c"
 
 [[package]]
+name = "widestring"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "17882f045410753661207383517a6f62ec3dbeb6a4ed2acce01f0728238d1983"
+
+[[package]]
 name = "winapi"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3139,7 +3145,7 @@ checksum = "0c643e10139d127d30d6d753398c8a6f0a43532e8370f6c9d29ebbff29b984ab"
 dependencies = [
  "bitflags",
  "err-derive",
- "widestring",
+ "widestring 0.4.3",
  "winapi 0.3.9",
 ]
 
