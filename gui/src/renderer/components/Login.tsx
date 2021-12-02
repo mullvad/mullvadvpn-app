@@ -201,6 +201,11 @@ export default class Login extends React.Component<IProps, IState> {
     return this.props.loginState.type !== 'logging in' && this.props.loginState.type !== 'ok';
   }
 
+  private allowCreateAccount() {
+    const { accountToken } = this.props;
+    return this.allowInteraction() && (accountToken === undefined || accountToken.length === 0);
+  }
+
   private accountTokenValid(): boolean {
     const { accountToken } = this.props;
     return accountToken !== undefined && accountToken.length >= MIN_ACCOUNT_TOKEN_LENGTH;
@@ -251,7 +256,7 @@ export default class Login extends React.Component<IProps, IState> {
               groupLength={4}
               placeholder="0000 0000 0000 0000"
               value={this.props.accountToken || ''}
-              disabled={!this.allowInteraction()}
+              disabled={!allowInteraction}
               onFocus={this.onFocus}
               onBlur={this.onBlur}
               handleChange={this.onInputChange}
@@ -298,7 +303,7 @@ export default class Login extends React.Component<IProps, IState> {
         </StyledLoginFooterPrompt>
         <AppButton.BlueButton
           onClick={this.props.createNewAccount}
-          disabled={!this.allowInteraction()}>
+          disabled={!this.allowCreateAccount()}>
           {messages.pgettext('login-view', 'Create account')}
         </AppButton.BlueButton>
       </>
