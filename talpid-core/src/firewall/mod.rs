@@ -214,12 +214,21 @@ pub struct Firewall {
 
 /// Arguments required when first initializing the firewall.
 pub struct FirewallArguments {
-    /// Determines whether the firewall should atomically enter the blocked state during init.
-    pub initialize_blocked: bool,
+    /// Initial firewall state to enter during init.
+    pub initial_state: InitialFirewallState,
     /// This argument is required for the blocked state to configure the firewall correctly.
     pub allow_lan: bool,
-    /// This argument is required for the blocked state to configure the firewall correctly.
-    pub allowed_endpoint: Option<Endpoint>,
+}
+
+/// State to enter during firewall init.
+pub enum InitialFirewallState {
+    /// Do not set any policy.
+    None,
+    /// Atomically enter the blocked state.
+    Blocked {
+        /// Host that should be reachable while in the blocked state.
+        allowed_endpoint: Endpoint,
+    },
 }
 
 impl Firewall {
