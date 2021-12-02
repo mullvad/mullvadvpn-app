@@ -773,14 +773,10 @@ impl TryFrom<RelaySettings> for mullvad_types::relay_constraints::RelaySettings 
             }
 
             relay_settings::Endpoint::Normal(settings) => {
-                let location =
-                    Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from(
-                        settings
-                            .location
-                            .ok_or(FromProtobufTypeError::InvalidArgument(
-                                "missing relay location",
-                            ))?,
-                    );
+                let location = settings
+                    .location
+                    .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from)
+                    .unwrap_or(Constraint::Any);
                 let providers = try_providers_constraint_from_proto(&settings.providers)?;
                 let tunnel_protocol = settings
                     .tunnel_type
