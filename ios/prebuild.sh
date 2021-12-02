@@ -32,6 +32,6 @@ if [ ! -f "$RELAYS_FILE" ]; then
 fi
 
 if [ ! -f "$API_IP_ADDRESS_LIST_FILE" ]; then
-  echo "Download API address list file"
+  echo "Download API address list"
   curl https://api.mullvad.net/app/v1/api-addrs -s -o "$API_IP_ADDRESS_LIST_FILE"
 fi
