@@ -242,7 +242,7 @@ impl RelaySelector {
         bridge_state: BridgeState,
         retry_attempt: u32,
         wg_key_exists: bool,
-    ) -> Result<(Relay, MullvadEndpoint), Error> {
+    ) -> Result<(Relay, Option<Relay>, MullvadEndpoint), Error> {
         let mut exit_relay_constraints = relay_constraints.clone();
         let wg_entry_is_subset = if let Some(entry_location) =
             exit_relay_constraints.wireguard_constraints.entry_location
@@ -307,7 +307,7 @@ impl RelaySelector {
                     "Selected entry relay {} at {}",
                     entry_relay.hostname, addr_in
                 );
-                return Ok((exit_relay, entry_endpoint));
+                return Ok((exit_relay, Some(entry_relay), entry_endpoint));
             } else if relay_constraints
                 .wireguard_constraints
                 .entry_location
@@ -317,7 +317,7 @@ impl RelaySelector {
             }
         }
 
-        Ok((exit_relay, endpoint))
+        Ok((exit_relay, None, endpoint))
     }
 
     fn get_tunnel_exit_endpoint(
@@ -1431,7 +1431,7 @@ mod test {
             Some(Constraint::Only(location_specific.clone()));
 
         // The exit must not equal the entry
-        let (exit_relay, _exit_endpoint) = relay_selector
+        let (exit_relay, _entry_relay, _exit_endpoint) = relay_selector
             .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, true)
             .map_err(|error| error.to_string())?;
 
@@ -1442,7 +1442,7 @@ mod test {
             Some(Constraint::Only(location_general));
 
         // The entry must not equal the exit
-        let (exit_relay, exit_endpoint) = relay_selector
+        let (exit_relay, _entry_relay, exit_endpoint) = relay_selector
             .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, true)
             .map_err(|error| error.to_string())?;
 
