@@ -82,6 +82,8 @@ pub struct GeoIpLocation {
     pub hostname: Option<String>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_hostname: Option<String>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub entry_hostname: Option<String>,
 }
 
 impl From<AmIMullvad> for GeoIpLocation {
@@ -101,6 +103,7 @@ impl From<AmIMullvad> for GeoIpLocation {
             mullvad_exit_ip: location.mullvad_exit_ip,
             hostname: None,
             bridge_hostname: None,
+            entry_hostname: None,
         }
     }
 }
