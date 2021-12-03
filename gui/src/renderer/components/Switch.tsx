@@ -12,6 +12,7 @@ interface IProps {
   className?: string;
   disabled?: boolean;
   forwardedRef?: React.Ref<HTMLDivElement>;
+  confirmation?: (value: boolean) => Promise<boolean>;
 }
 
 interface IState {
@@ -114,13 +115,19 @@ export default class Switch extends React.PureComponent<IProps, IState> {
     }
   };
 
-  private handleClick = () => {
+  private handleClick = async () => {
     if (this.props.disabled) {
       return;
     }
 
     if (!this.changedDuringPan) {
-      this.setState((state) => ({ isOn: !state.isOn, notifyOnTransitionEnd: true }));
+      const newIsOn = !this.state.isOn;
+
+      if (this.props.confirmation !== undefined && !(await this.props.confirmation(newIsOn))) {
+        return;
+      }
+
+      this.setState({ isOn: newIsOn, notifyOnTransitionEnd: true });
     }
 
     // Needs to be reset to allow clicks on container after panning.
@@ -140,7 +147,7 @@ export default class Switch extends React.PureComponent<IProps, IState> {
     document.addEventListener('mousemove', this.handleMouseMove);
   };
 
-  private handleMouseUp = (event: MouseEvent) => {
+  private handleMouseUp = async (event: MouseEvent) => {
     if (this.props.disabled) {
       return;
     }
@@ -156,7 +163,14 @@ export default class Switch extends React.PureComponent<IProps, IState> {
     }
 
     if (this.props.isOn !== this.state.isOn) {
-      this.notify();
+      if (
+        this.props.confirmation === undefined ||
+        (await this.props.confirmation(this.state.isOn))
+      ) {
+        this.notify();
+      } else {
+        this.setState({ isOn: !this.state.isOn });
+      }
     }
   };
 
