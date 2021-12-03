@@ -51,6 +51,8 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
     showConfirmBlockWhenDisconnectedAlert: false,
   };
 
+  private blockWhenDisconnectingConfirm?: (confirm: boolean) => void;
+
   public render() {
     const hasWireguardKey = this.props.wireguardKeyState.type === 'key-set';
 
@@ -119,7 +121,8 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                     <AriaInput>
                       <Cell.Switch
                         isOn={this.props.blockWhenDisconnected}
-                        onChange={this.setBlockWhenDisconnected}
+                        onChange={this.props.setBlockWhenDisconnected}
+                        confirmation={this.blockWhenDisconnectedConfirmation}
                       />
                     </AriaInput>
                   </Cell.Container>
@@ -255,23 +258,25 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
     );
   };
 
-  private setBlockWhenDisconnected = (newValue: boolean) => {
+  private blockWhenDisconnectedConfirmation = (newValue: boolean) => {
     if (newValue) {
-      this.props.setBlockWhenDisconnected(true);
       this.setState({ showConfirmBlockWhenDisconnectedAlert: true });
-    } else {
-      this.props.setBlockWhenDisconnected(false);
+      return new Promise<boolean>((resolve) => {
+        this.blockWhenDisconnectingConfirm = resolve;
+      });
     }
+
+    return Promise.resolve(true);
   };
 
   private hideConfirmBlockWhenDisconnectedAlert = () => {
-    this.props.setBlockWhenDisconnected(false);
     this.setState({ showConfirmBlockWhenDisconnectedAlert: false });
+    this.blockWhenDisconnectingConfirm?.(false);
   };
 
   private confirmEnableBlockWhenDisconnected = () => {
-    this.props.setBlockWhenDisconnected(true);
     this.setState({ showConfirmBlockWhenDisconnectedAlert: false });
+    this.blockWhenDisconnectingConfirm?.(true);
   };
 
   private onSelectTunnelProtocol = (protocol?: TunnelProtocol) => {
