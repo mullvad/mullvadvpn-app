@@ -12,6 +12,7 @@ interface IProps {
   className?: string;
   disabled?: boolean;
   forwardedRef?: React.Ref<HTMLDivElement>;
+  confirmation?: (value: boolean) => Promise<boolean>;
 }
 
 interface IState {
@@ -68,6 +69,8 @@ export default class Switch extends React.PureComponent<IProps, IState> {
   private startPos = 0;
   private changedDuringPan = false;
 
+  private awaitingConfirmation = false;
+
   public componentDidUpdate(prevProps: IProps, _prevState: IState) {
     if (
       this.props.isOn !== prevProps.isOn &&
@@ -114,13 +117,23 @@ export default class Switch extends React.PureComponent<IProps, IState> {
     }
   };
 
-  private handleClick = () => {
-    if (this.props.disabled) {
+  private handleClick = async () => {
+    if (this.props.disabled || this.awaitingConfirmation) {
       return;
     }
 
     if (!this.changedDuringPan) {
-      this.setState((state) => ({ isOn: !state.isOn, notifyOnTransitionEnd: true }));
+      const newIsOn = !this.state.isOn;
+
+      this.awaitingConfirmation = true;
+      const confirmation = await this.props.confirmation?.(newIsOn);
+      this.awaitingConfirmation = false;
+
+      if (confirmation === false) {
+        return;
+      }
+
+      this.setState({ isOn: newIsOn, notifyOnTransitionEnd: true });
     }
 
     // Needs to be reset to allow clicks on container after panning.
@@ -128,7 +141,7 @@ export default class Switch extends React.PureComponent<IProps, IState> {
   };
 
   private handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (this.props.disabled) {
+    if (this.props.disabled || this.awaitingConfirmation) {
       return;
     }
 
@@ -140,7 +153,7 @@ export default class Switch extends React.PureComponent<IProps, IState> {
     document.addEventListener('mousemove', this.handleMouseMove);
   };
 
-  private handleMouseUp = (event: MouseEvent) => {
+  private handleMouseUp = async (event: MouseEvent) => {
     if (this.props.disabled) {
       return;
     }
@@ -156,7 +169,15 @@ export default class Switch extends React.PureComponent<IProps, IState> {
     }
 
     if (this.props.isOn !== this.state.isOn) {
-      this.notify();
+      this.awaitingConfirmation = true;
+      const confirmation = await this.props.confirmation?.(this.state.isOn);
+      this.awaitingConfirmation = false;
+
+      if (confirmation === false) {
+        this.setState({ isOn: this.props.isOn });
+      } else {
+        this.notify();
+      }
     }
   };
 
