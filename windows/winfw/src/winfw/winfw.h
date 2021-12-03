@@ -19,8 +19,6 @@
 // Structures
 ///////////////////////////////////////////////////////////////////////////////
 
-#pragma pack(push, 1)
-
 typedef struct tag_WinFwSettings
 {
 	// Permit outbound DHCP requests and inbound DHCP responses on all interfaces.
@@ -56,8 +54,6 @@ typedef struct tag_WinFwAllowedEndpoint
 	WinFwEndpoint endpoint;
 }
 WinFwAllowedEndpoint;
-
-#pragma pack(pop)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Functions
