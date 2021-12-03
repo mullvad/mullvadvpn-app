@@ -93,9 +93,6 @@ msgstr ""
 msgid "Connect"
 msgstr ""
 
-msgid "COPIED TO CLIPBOARD!"
-msgstr ""
-
 msgid "CREATING SECURE CONNECTION"
 msgstr ""
 
@@ -176,12 +173,24 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr ""
 
+#. Provided to accessibility tools such as screenreaders to describe a button
+#. which copies the account number to the clipboard.
+msgctxt "accessibility"
+msgid "Copy account number"
+msgstr ""
+
 msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr ""
 
 msgctxt "accessibility"
 msgid "Forget %(accountToken)s"
+msgstr ""
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which obscures the account number.
+msgctxt "accessibility"
+msgid "Hide account number"
 msgstr ""
 
 #. This is used by screenreaders to communicate the login button.
@@ -199,6 +208,12 @@ msgstr ""
 
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
+msgstr ""
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which unobscures the account number.
+msgctxt "accessibility"
+msgid "Show account number"
 msgstr ""
 
 #. Title label in navigation bar

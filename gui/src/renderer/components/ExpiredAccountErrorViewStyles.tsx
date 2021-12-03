@@ -14,8 +14,8 @@ export const StyledHeader = styled(DefaultHeaderBar)({
 
 export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
   fontFamily: 'Open Sans',
-  lineHeight: '24px',
-  fontSize: '24px',
+  lineHeight: '20px',
+  fontSize: '20px',
   fontWeight: 800,
   color: colors.white,
 });
@@ -80,6 +80,6 @@ export const StyledStatusIcon = styled.div({
 
 export const StyledAccountTokenContainer = styled.div({
   display: 'flex',
-  height: '68px',
+  height: '50px',
   alignItems: 'center',
 });

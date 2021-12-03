@@ -127,7 +127,10 @@ export default class ExpiredAccountErrorView extends React.Component<
         <StyledAccountTokenMessage>
           {messages.pgettext('connect-view', 'Here’s your account number. Save it!')}
           <StyledAccountTokenContainer>
-            <StyledAccountTokenLabel accountToken={this.props.accountToken || ''} />
+            <StyledAccountTokenLabel
+              accountToken={this.props.accountToken || ''}
+              obscureValue={false}
+            />
           </StyledAccountTokenContainer>
         </StyledAccountTokenMessage>
 

@@ -26,6 +26,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Keep unspecified constraints unchanged in the CLI when providing specific tunnel constraints
   instead of setting them to default values.
+- Obscure account number in account view and add button for copying instead of copying when text is
+  pressed.
 
 #### Android
 - Avoid running in foreground when not connected.

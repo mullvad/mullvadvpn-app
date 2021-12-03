@@ -3,6 +3,7 @@ import ClipboardLabel from './ClipboardLabel';
 
 interface IAccountTokenLabelProps {
   accountToken: string;
+  obscureValue?: boolean;
   className?: string;
 }
 
@@ -11,6 +12,7 @@ export default function AccountTokenLabel(props: IAccountTokenLabelProps) {
     <ClipboardLabel
       value={props.accountToken}
       displayValue={formatAccountToken(props.accountToken)}
+      obscureValue={props.obscureValue}
       className={props.className}
     />
   );

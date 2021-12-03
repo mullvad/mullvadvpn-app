@@ -242,7 +242,11 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
         const publicKey = this.props.keyState.key.publicKey;
         return (
           <StyledRowValue title={this.props.keyState.key.publicKey}>
-            <ClipboardLabel value={publicKey} displayValue={publicKey.substring(0, 20) + '...'} />
+            <ClipboardLabel
+              value={publicKey}
+              displayValue={publicKey.substring(0, 20) + '...'}
+              obscureValue={false}
+            />
           </StyledRowValue>
         );
       }
