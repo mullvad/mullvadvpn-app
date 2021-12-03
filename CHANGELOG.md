@@ -38,6 +38,9 @@ Line wrap the file at 100 chars.                                              Th
   * Android Background Execution Limits.
   * The System Settings way of killing apps ("Force Stop").
 
+#### Windows
+- Update wireguard-nt to 0.10.1.
+
 ### Fixed
 - Always kill `sslocal` if the tunnel monitor fails to start when using bridges.
 - Show relay location constraint correctly in the CLI when it is set to `any`.
@@ -46,6 +49,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix app size after changing display scale.
 - Fix daemon not starting if all excluded app paths reside on non-existent/unmounted volumes.
 - Remove tray icon of current running app version when upgrading.
+- Allow Mullvad wireguard-nt tunnels to work simultaneously with other wg-nt tunnels.
 
 #### Android
 - Fix Quick Settings tile showing wrong state in certain scenarios.
