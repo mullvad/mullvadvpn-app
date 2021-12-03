@@ -63,8 +63,8 @@ impl ApiEndpoint {
     ///
     /// # Panics
     ///
-    /// Panics if `MULLVAD_API_ADDRESS` has invalid contents or if only one of
-    /// `MULLVAD_API_ADDRESS` or `MULLVAD_API_HOST` has been set but not the other.
+    /// Panics if `MULLVAD_API_ADDR` has invalid contents or if only one of
+    /// `MULLVAD_API_ADDR` or `MULLVAD_API_HOST` has been set but not the other.
     fn get() -> ApiEndpoint {
         const API_HOST_DEFAULT: &str = "api.mullvad.net";
         const API_IP_DEFAULT: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
@@ -80,7 +80,7 @@ impl ApiEndpoint {
         }
 
         let host_var = read_var("MULLVAD_API_HOST");
-        let address_var = read_var("MULLVAD_API_ADDRESS");
+        let address_var = read_var("MULLVAD_API_ADDR");
 
         let mut api = ApiEndpoint {
             host: API_HOST_DEFAULT.to_owned(),
@@ -91,13 +91,13 @@ impl ApiEndpoint {
         if cfg!(feature = "api-override") {
             match (host_var, address_var) {
                 (None, None) => (),
-                (Some(_), None) => panic!("MULLVAD_API_HOST is set, but not MULLVAD_API_ADDRESS"),
-                (None, Some(_)) => panic!("MULLVAD_API_ADDRESS is set, but not MULLVAD_API_HOST"),
+                (Some(_), None) => panic!("MULLVAD_API_HOST is set, but not MULLVAD_API_ADDR"),
+                (None, Some(_)) => panic!("MULLVAD_API_ADDR is set, but not MULLVAD_API_HOST"),
                 (Some(user_host), Some(user_addr)) => {
                     api.host = user_host;
                     api.addr = user_addr
                         .parse()
-                        .expect("MULLVAD_API_ADDRESS is not a valid socketaddr");
+                        .expect("MULLVAD_API_ADDR is not a valid socketaddr");
                     api.disable_address_rotation = true;
                     log::debug!("Overriding API. Using {} at {}", api.host, api.addr);
                 }
@@ -105,7 +105,7 @@ impl ApiEndpoint {
         } else {
             if host_var.is_some() || address_var.is_some() {
                 log::warn!(
-                    "MULLVAD_API_HOST and MULLVAD_API_ADDRESS are ignored in production builds"
+                    "MULLVAD_API_HOST and MULLVAD_API_ADDR are ignored in production builds"
                 );
             }
         }
