@@ -52,7 +52,7 @@ pub const PUBKEY_IN_USE: &str = "PUBKEY_IN_USE";
 
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 
-const ACCOUNTS_URL_PREFIX: &str = "accounts/v1-alpha";
+const ACCOUNTS_URL_PREFIX: &str = "accounts/v1-beta1";
 const APP_URL_PREFIX: &str = "app/v1";
 
 lazy_static::lazy_static! {
@@ -322,7 +322,7 @@ impl AccountsProxy {
         let response = rest::send_request(
             &self.handle.factory,
             service,
-            &format!("{}/accounts/accounts", ACCOUNTS_URL_PREFIX),
+            &format!("{}/accounts", ACCOUNTS_URL_PREFIX),
             Method::POST,
             None,
             &[StatusCode::CREATED],
