@@ -247,9 +247,9 @@ pub enum DaemonCommand {
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
-    /// Toggle custom resolver
+    /// Toggle macOS network check leak
     #[cfg(target_os = "macos")]
-    SetCustomResolver(
+    SetAllowMacosNetworkCheck(
         ResponseTx<(), Either<settings::Error, talpid_core::resolver::Error>>,
         bool,
     ),
@@ -686,7 +686,7 @@ where
             #[cfg(target_os = "macos")]
             exclusion_gid,
             #[cfg(target_os = "macos")]
-            settings.enable_custom_resolver,
+            settings.allow_macos_network_check,
             #[cfg(target_os = "android")]
             android_context,
         )
@@ -1259,8 +1259,8 @@ where
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers).await,
             #[cfg(target_os = "macos")]
-            SetCustomResolver(tx, enable_custom_resolver) => {
-                self.on_set_custom_resolver(tx, enable_custom_resolver)
+            SetAllowMacosNetworkCheck(tx, enable_custom_resolver) => {
+                self.on_set_allow_macos_network_check(tx, enable_custom_resolver)
                     .await
             }
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu).await,
@@ -2263,35 +2263,35 @@ where
     }
 
     #[cfg(target_os = "macos")]
-    async fn on_set_custom_resolver(
+    async fn on_set_allow_macos_network_check(
         &mut self,
         tx: ResponseTx<(), Either<settings::Error, talpid_core::resolver::Error>>,
         enable_custom_resolver: bool,
     ) {
-        let result = if self.settings.enable_custom_resolver != enable_custom_resolver {
+        let result = if self.settings.allow_macos_network_check != enable_custom_resolver {
             self.on_set_custom_resolver_inner(enable_custom_resolver)
                 .await
         } else {
             Ok(())
         };
 
-        Self::oneshot_send(tx, result, "on_set_custom_resolver resposne");
+        Self::oneshot_send(tx, result, "on_set_allow_macos_network_check resposne");
     }
 
     #[cfg(target_os = "macos")]
     async fn on_set_custom_resolver_inner(
         &mut self,
-        enable_custom_resolver: bool,
+        allow_macos_network_check: bool,
     ) -> Result<(), Either<settings::Error, talpid_core::resolver::Error>> {
         let _ = self
             .settings
-            .set_custom_resolver(enable_custom_resolver)
+            .set_allow_macos_network_check(allow_macos_network_check)
             .await
             .map_err(Either::Left)?;
 
         let (start_tx, start_rx) = oneshot::channel();
-        self.send_tunnel_command(TunnelCommand::SetCustomResolver(
-            enable_custom_resolver,
+        self.send_tunnel_command(TunnelCommand::AllowMacosNetworkCheck(
+            allow_macos_network_check,
             start_tx,
         ));
         match start_rx.await {

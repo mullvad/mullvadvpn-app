@@ -64,10 +64,10 @@ pub enum Error {
     #[error(display = "Failed to initialize the route manager")]
     InitRouteManagerError(#[error(source)] crate::routing::Error),
 
-    /// Failed to initialize custom resolver
+    /// Failed to initialize filtering resolver
     #[cfg(target_os = "macos")]
-    #[error(display = "Failed to initialize custom resolver")]
-    InitCustomResolver(#[error(source)] crate::resolver::Error),
+    #[error(display = "Failed to initialize filtering resolver")]
+    InitFilteringResolver(#[error(source)] crate::resolver::Error),
 
     /// Failed to initialize tunnel state machine event loop executor
     #[error(display = "Failed to initialize tunnel state machine event loop executor")]
@@ -76,10 +76,6 @@ pub enum Error {
     /// Failed to send state change event to listener
     #[error(display = "Failed to send state change event to listener")]
     SendStateChange,
-
-    /// Failed to initialize custom resolver
-    #[error(display = "Failed to initialize custom resolver")]
-    CustomResolverError,
 }
 
 /// Settings used to initialize the tunnel state machine.
@@ -187,9 +183,9 @@ pub enum TunnelCommand {
     /// Sets IP addresses which should be allowed to pass through the firewall.
     #[cfg(target_os = "macos")]
     AddAllowedIps(BTreeSet<IpAddr>, oneshot::Sender<()>),
-    /// Toggles custom resolver
+    /// Toggles filtering resolver
     #[cfg(target_os = "macos")]
-    SetCustomResolver(bool, oneshot::Sender<Result<(), crate::resolver::Error>>),
+    AllowMacosNetworkCheck(bool, oneshot::Sender<Result<(), crate::resolver::Error>>),
     /// Receive up-to-date system DNS config. It should never contain our changes to the DNS.
     #[cfg(target_os = "macos")]
     HostDnsConfig(Option<(String, Vec<IpAddr>)>),
@@ -263,7 +259,7 @@ impl TunnelStateMachine {
         .map_err(Error::InitDnsMonitorError)?;
 
         #[cfg(target_os = "macos")]
-        let custom_resolver = crate::resolver::start_resolver(command_tx.clone()).await?;
+        let filtering_resolver = crate::resolver::start_resolver(command_tx.clone()).await?;
 
         let (offline_tx, mut offline_rx) = mpsc::unbounded();
         let initial_offline_state_tx = offline_state_tx.clone();
@@ -316,9 +312,9 @@ impl TunnelStateMachine {
             #[cfg(target_os = "linux")]
             connectivity_check_was_enabled: None,
             #[cfg(target_os = "macos")]
-            custom_resolver,
+            filtering_resolver,
             #[cfg(target_os = "macos")]
-            enable_custom_resolver: enable_resolver,
+            enable_filtering_resolver: enable_resolver,
         };
 
         tokio::task::spawn_blocking(move || {
@@ -411,12 +407,12 @@ struct SharedTunnelStateValues {
     #[cfg(target_os = "linux")]
     connectivity_check_was_enabled: Option<bool>,
 
-    /// Custom resolver handle
+    /// Filtering resolver handle
     #[cfg(target_os = "macos")]
-    custom_resolver: crate::resolver::ResolverHandle,
-    /// Whether custom resolver is active and enabled
+    filtering_resolver: crate::resolver::ResolverHandle,
+    /// Whether filtering resolver should be enabled
     #[cfg(target_os = "macos")]
-    enable_custom_resolver: bool,
+    enable_filtering_resolver: bool,
 }
 
 impl SharedTunnelStateValues {
@@ -443,24 +439,23 @@ impl SharedTunnelStateValues {
     }
 
     #[cfg(target_os = "macos")]
-    pub fn deactivate_custom_resolver(
+    pub fn deactivate_filtering_resolver(
         &mut self,
         enable_resolver: bool,
     ) -> Result<(), crate::resolver::Error> {
-        self.enable_custom_resolver = enable_resolver;
-        self.disable_custom_resolver()
+        self.enable_filtering_resolver = enable_resolver;
+        self.disable_filtering_resolver()
     }
 
     #[cfg(target_os = "macos")]
-    pub fn disable_custom_resolver(&mut self) -> Result<(), crate::resolver::Error> {
-        if self.enable_custom_resolver {
-            self.runtime.block_on(self.custom_resolver.set_inactive())?;
+    pub fn disable_filtering_resolver(&mut self) -> Result<(), crate::resolver::Error> {
+        if self.enable_filtering_resolver {
+            self.runtime
+                .block_on(self.filtering_resolver.set_inactive())?;
         } else {
-            self.runtime.block_on(self.custom_resolver.shutdown())?;
+            self.runtime.block_on(self.filtering_resolver.shutdown())?;
         }
-        self.dns_monitor
-            .reset()
-            .map_err(crate::resolver::Error::SystemDnsError)
+        Ok(())
     }
 
     pub fn set_allowed_endpoint(&mut self, endpoint: AllowedEndpoint) -> bool {
@@ -538,10 +533,10 @@ impl SharedTunnelStateValues {
     }
 
     #[cfg(target_os = "macos")]
-    pub fn get_custom_resolver_config(
+    pub fn get_filtering_resolver_config(
         &mut self,
     ) -> Result<Option<(String, Vec<IpAddr>)>, crate::dns::Error> {
-        if self.enable_custom_resolver {
+        if self.enable_filtering_resolver {
             self.dns_monitor.get_system_config()
         } else {
             Ok(None)
