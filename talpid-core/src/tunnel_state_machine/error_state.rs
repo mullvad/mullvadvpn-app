@@ -33,14 +33,14 @@ impl ErrorState {
             #[cfg(target_os = "macos")]
             self.allowed_ips.clone(),
             #[cfg(target_os = "macos")]
-            shared_values.enable_custom_resolver,
+            shared_values.enable_filtering_resolver,
         )
     }
 
     fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
         #[cfg(target_os = "macos")] allowed_ips: BTreeSet<IpAddr>,
-        #[cfg(target_os = "macos")] allow_custom_resolver: bool,
+        #[cfg(target_os = "macos")] allow_gid_exclusion_traffic: bool,
     ) -> Result<(), FirewallPolicyError> {
         let policy = FirewallPolicy::Blocked {
             allow_lan: shared_values.allow_lan,
@@ -48,7 +48,7 @@ impl ErrorState {
             #[cfg(target_os = "macos")]
             allowed_ips,
             #[cfg(target_os = "macos")]
-            allow_custom_resolver,
+            allow_gid_exclusion_traffic,
         };
 
         #[cfg(target_os = "linux")]
@@ -114,31 +114,34 @@ impl TunnelState for ErrorState {
         }
 
         #[cfg(target_os = "macos")]
-        let host_config =
-            if shared_values.enable_custom_resolver && !block_reason.prevents_custom_resolver() {
-                if let Err(err) = shared_values
-                    .dns_monitor
-                    .set("lo", &[Ipv4Addr::LOCALHOST.into()])
-                {
+        let host_config = if shared_values.enable_filtering_resolver
+            && !block_reason.prevents_filtering_resolver()
+        {
+            if let Err(err) = shared_values
+                .dns_monitor
+                .set("lo", &[Ipv4Addr::LOCALHOST.into()])
+            {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg(
+                        "Failed to configure system to use filtering resolver"
+                    )
+                );
+                return Self::enter(shared_values, ErrorStateCause::SetDnsError);
+            }
+            match shared_values.get_filtering_resolver_config() {
+                Ok(host_config) => host_config,
+                Err(err) => {
                     log::error!(
                         "{}",
-                        err.display_chain_with_msg("Failed to configure custom resolver")
+                        err.display_chain_with_msg("Failed to start filtering resolver")
                     );
-                    return Self::enter(shared_values, ErrorStateCause::SetDnsError);
+                    return Self::enter(shared_values, ErrorStateCause::FilteringResolverError);
                 }
-                match shared_values.get_custom_resolver_config() {
-                    Ok(host_config) => host_config,
-                    Err(err) => {
-                        log::error!(
-                            "{}",
-                            err.display_chain_with_msg("Failed to start custom resolver")
-                        );
-                        return Self::enter(shared_values, ErrorStateCause::CustomResolverError);
-                    }
-                }
-            } else {
-                None
-            };
+            }
+        } else {
+            None
+        };
 
         #[cfg(not(target_os = "android"))]
         let block_failure = Self::set_firewall_policy(
@@ -146,21 +149,22 @@ impl TunnelState for ErrorState {
             #[cfg(target_os = "macos")]
             BTreeSet::new(),
             #[cfg(target_os = "macos")]
-            shared_values.enable_custom_resolver,
+            shared_values.enable_filtering_resolver,
         )
         .err();
 
         #[cfg(target_os = "macos")]
         if let Some(dns_config) = host_config {
-            if let Err(err) = shared_values
-                .runtime
-                .block_on(shared_values.custom_resolver.set_active(Some(dns_config)))
-            {
+            if let Err(err) = shared_values.runtime.block_on(
+                shared_values
+                    .filtering_resolver
+                    .set_active(Some(dns_config)),
+            ) {
                 log::error!(
                     "{}",
-                    err.display_chain_with_msg("Failed to activate custom resolver")
+                    err.display_chain_with_msg("Failed to activate filtering resolver")
                 );
-                return Self::enter(shared_values, ErrorStateCause::CustomResolverError);
+                return Self::enter(shared_values, ErrorStateCause::FilteringResolverError);
             }
         }
 
@@ -209,9 +213,9 @@ impl TunnelState for ErrorState {
             }
 
             #[cfg(target_os = "macos")]
-            Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
-                let result = if enable && !shared_values.enable_custom_resolver {
-                    shared_values.enable_custom_resolver = enable;
+            Some(TunnelCommand::AllowMacosNetworkCheck(enable, done_tx)) => {
+                let result = if enable && !shared_values.enable_filtering_resolver {
+                    shared_values.enable_filtering_resolver = enable;
                     if let Err(err) = self.set_firewall(shared_values) {
                         return NewState(ErrorState::enter(
                             shared_values,
@@ -223,7 +227,7 @@ impl TunnelState for ErrorState {
                         Ok(current_system_config) => {
                             match shared_values.runtime.block_on(
                                 shared_values
-                                    .custom_resolver
+                                    .filtering_resolver
                                     .set_active(current_system_config),
                             ) {
                                 Ok(_) => {
@@ -234,7 +238,7 @@ impl TunnelState for ErrorState {
                                         log::error!(
                                             "{}",
                                             err.display_chain_with_msg(
-                                                "Failed to configure system to use custom resolver"
+                                                "Failed to configure system to use filtering resolver"
                                             )
                                         );
                                         let _ =
@@ -251,7 +255,7 @@ impl TunnelState for ErrorState {
                                     log::error!(
                                         "{}",
                                         err.display_chain_with_msg(
-                                            "Failed to start custom resolver"
+                                            "Failed to start filtering resolver"
                                         )
                                     );
                                     Err(err)
@@ -272,7 +276,13 @@ impl TunnelState for ErrorState {
                         }
                     }
                 } else {
-                    shared_values.deactivate_custom_resolver(enable)
+                    if let Err(err) = shared_values.dns_monitor.reset() {
+                        log::error!(
+                            "{}",
+                            err.display_chain_with_msg("Failed to reset DNS config")
+                        );
+                    }
+                    shared_values.deactivate_filtering_resolver(enable)
                 };
                 let _ = done_tx.send(result);
                 SameState(self.into())
@@ -280,18 +290,18 @@ impl TunnelState for ErrorState {
 
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::HostDnsConfig(host_config)) => {
-                if shared_values.enable_custom_resolver {
+                if shared_values.enable_filtering_resolver {
                     if let Err(err) = shared_values
                         .runtime
-                        .block_on(shared_values.custom_resolver.set_active(host_config))
+                        .block_on(shared_values.filtering_resolver.set_active(host_config))
                     {
                         log::error!(
-                            "Failed to set apply new DNS config to custom resolver: {}",
+                            "Failed to set apply new DNS config to filtering resolver: {}",
                             err
                         );
                         return NewState(Self::enter(
                             shared_values,
-                            ErrorStateCause::CustomResolverError,
+                            ErrorStateCause::FilteringResolverError,
                         ));
                     }
                 }
@@ -352,8 +362,8 @@ impl TunnelState for ErrorState {
                 shared_values.reset_connectivity_check();
                 #[cfg(target_os = "macos")]
                 if !shared_values.block_when_disconnected {
-                    if let Err(err) = shared_values.disable_custom_resolver() {
-                        log::error!("Failed to disable custom resolver: {}", err);
+                    if let Err(err) = shared_values.disable_filtering_resolver() {
+                        log::error!("Failed to disable filtering resolver: {}", err);
                     }
                 }
                 Self::reset_dns(shared_values);

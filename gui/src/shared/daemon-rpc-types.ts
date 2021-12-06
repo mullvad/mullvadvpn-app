@@ -40,7 +40,7 @@ export type ErrorStateCause =
         | 'set_dns_error'
         | 'start_tunnel_error'
         | 'is_offline'
-        | 'custom_resolver_error'
+        | 'filtering_resolver_error'
         | 'read_system_dns_config'
         | 'split_tunnel_error';
     }

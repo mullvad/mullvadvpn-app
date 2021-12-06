@@ -274,8 +274,8 @@ impl ConnectingState {
                 SameState(self.into())
             }
             #[cfg(target_os = "macos")]
-            Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
-                let _ = done_tx.send(shared_values.deactivate_custom_resolver(enable));
+            Some(TunnelCommand::AllowMacosNetworkCheck(enable, done_tx)) => {
+                let _ = done_tx.send(shared_values.deactivate_filtering_resolver(enable));
                 SameState(self.into())
             }
             #[cfg(target_os = "macos")]
@@ -494,7 +494,7 @@ impl TunnelState for ConnectingState {
             return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
         }
         #[cfg(target_os = "macos")]
-        if let Err(err) = shared_values.disable_custom_resolver() {
+        if let Err(err) = shared_values.disable_filtering_resolver() {
             log::error!(
                 "{}",
                 err.display_chain_with_msg("Failed to disable custom resolver")

@@ -289,7 +289,7 @@ impl FilteringResolver {
     }
 
     async fn reset_resolver(&mut self) -> Result<(), Error> {
-        log::trace!("Resetting custom resolver");
+        log::trace!("Resetting filtering resolver");
         let (best_interface, resolver_addresses) = self.get_resolver_config();
         self.runtime_provider.update_best_interface(best_interface);
         let resolver_config = ResolverConfig::from_parts(

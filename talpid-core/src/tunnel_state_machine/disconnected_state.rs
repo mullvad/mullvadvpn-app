@@ -34,7 +34,7 @@ impl DisconnectedState {
                 #[cfg(target_os = "macos")]
                 allowed_ips: self.allowed_ips.clone(),
                 #[cfg(target_os = "macos")]
-                allow_custom_resolver: shared_values.enable_custom_resolver,
+                allow_gid_exclusion_traffic: shared_values.enable_filtering_resolver,
             };
 
             let firewall_result = shared_values.firewall.apply_policy(policy).map_err(|e| {
@@ -89,7 +89,7 @@ impl DisconnectedState {
     }
 
     #[cfg(target_os = "macos")]
-    fn start_custom_resolver(
+    fn start_filtering_resolver(
         &mut self,
         shared_values: &mut SharedTunnelStateValues,
     ) -> Result<(), either::Either<resolver::Error, dns::Error>> {
@@ -101,7 +101,7 @@ impl DisconnectedState {
 
         shared_values
             .runtime
-            .block_on(shared_values.custom_resolver.set_active(system_config))
+            .block_on(shared_values.filtering_resolver.set_active(system_config))
             .map_err(Either::Left)?;
         shared_values
             .dns_monitor
@@ -124,18 +124,18 @@ impl TunnelState for DisconnectedState {
         };
 
         #[cfg(target_os = "macos")]
-        if shared_values.enable_custom_resolver {
-            if let Err(err) = disconnected_state.start_custom_resolver(shared_values) {
+        if shared_values.enable_filtering_resolver {
+            if let Err(err) = disconnected_state.start_filtering_resolver(shared_values) {
                 log::error!(
                     "{}",
-                    err.display_chain_with_msg("Failed to start custom resolver:")
+                    err.display_chain_with_msg("Failed to start filtering resolver:")
                 );
             }
         } else {
-            if let Err(error) = shared_values.disable_custom_resolver() {
+            if let Err(error) = shared_values.disable_filtering_resolver() {
                 log::error!(
                     "{}",
-                    error.display_chain_with_msg("Unable to disable custom resolver")
+                    error.display_chain_with_msg("Unable to disable filtering resolver")
                 );
             }
         }
@@ -200,8 +200,8 @@ impl TunnelState for DisconnectedState {
                     Self::register_split_tunnel_addresses(shared_values, true);
                     #[cfg(target_os = "macos")]
                     if block_when_disconnected {
-                        if let Err(err) = self.start_custom_resolver(shared_values) {
-                            let block_reason = map_custom_resolver_start(&err);
+                        if let Err(err) = self.start_filtering_resolver(shared_values) {
+                            let block_reason = map_filtering_resolver_start(&err);
                             return NewState(ErrorState::enter(shared_values, block_reason));
                         }
                     } else {
@@ -230,27 +230,33 @@ impl TunnelState for DisconnectedState {
                 SameState(self.into())
             }
             #[cfg(target_os = "macos")]
-            Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
+            Some(TunnelCommand::AllowMacosNetworkCheck(enable, done_tx)) => {
                 if !enable {
-                    if let Err(err) = shared_values.deactivate_custom_resolver(enable) {
+                    if let Err(err) = shared_values.dns_monitor.reset() {
+                        log::error!(
+                            "{}",
+                            err.display_chain_with_msg("Failed to reset DNS config")
+                        );
+                    }
+                    if let Err(err) = shared_values.deactivate_filtering_resolver(enable) {
                         let _ = done_tx.send(Err(err));
-                        if shared_values.enable_custom_resolver {
+                        if shared_values.enable_filtering_resolver {
                             self.set_firewall_policy(shared_values, false);
                         }
                         return SameState(self.into());
                     };
                 }
-                if shared_values.enable_custom_resolver != enable {
-                    shared_values.enable_custom_resolver = enable;
+                if shared_values.enable_filtering_resolver != enable {
+                    shared_values.enable_filtering_resolver = enable;
                     self.set_firewall_policy(shared_values, false);
                     if shared_values.block_when_disconnected && enable {
-                        if let Err(err) = self.start_custom_resolver(shared_values) {
+                        if let Err(err) = self.start_filtering_resolver(shared_values) {
                             log::error!(
                                 "{}",
-                                err.display_chain_with_msg("Failed to start custom resolver:")
+                                err.display_chain_with_msg("Failed to start filtering resolver:")
                             );
 
-                            let error_cause = map_custom_resolver_start(&err);
+                            let error_cause = map_filtering_resolver_start(&err);
                             let _ = done_tx.send(Err(err.left_or_else(resolver::Error::from)));
                             return NewState(ErrorState::enter(shared_values, error_cause));
                         }
@@ -261,18 +267,19 @@ impl TunnelState for DisconnectedState {
             }
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::HostDnsConfig(host_config)) => {
-                if shared_values.block_when_disconnected && shared_values.enable_custom_resolver {
+                if shared_values.block_when_disconnected && shared_values.enable_filtering_resolver
+                {
                     if let Err(err) = shared_values
                         .runtime
-                        .block_on(shared_values.custom_resolver.set_active(host_config))
+                        .block_on(shared_values.filtering_resolver.set_active(host_config))
                     {
                         log::error!(
                             "{}",
-                            err.display_chain_with_msg("Failed to activate custom resolver")
+                            err.display_chain_with_msg("Failed to activate filtering resolver")
                         );
                         return NewState(ErrorState::enter(
                             shared_values,
-                            ErrorStateCause::CustomResolverError,
+                            ErrorStateCause::FilteringResolverError,
                         ));
                     }
                 }
@@ -299,12 +306,14 @@ impl TunnelState for DisconnectedState {
 }
 
 #[cfg(target_os = "macos")]
-fn map_custom_resolver_start(err: &either::Either<resolver::Error, dns::Error>) -> ErrorStateCause {
+fn map_filtering_resolver_start(
+    err: &either::Either<resolver::Error, dns::Error>,
+) -> ErrorStateCause {
     match err {
         either::Either::Right(_dns_err) => ErrorStateCause::SetDnsError,
         either::Either::Left(resolver::Error::SystemDnsError(_)) => {
             ErrorStateCause::ReadSystemDnsConfig
         }
-        either::Either::Left(_other_err) => ErrorStateCause::CustomResolverError,
+        either::Either::Left(_other_err) => ErrorStateCause::FilteringResolverError,
     }
 }

@@ -150,8 +150,8 @@ impl From<mullvad_types::states::TunnelState> for TunnelState {
                                 i32::from(Cause::SplitTunnelError)
                             }
                             #[cfg(target_os = "macos")]
-                            talpid_tunnel::ErrorStateCause::CustomResolverError => {
-                                i32::from(Cause::CustomResolverError)
+                            talpid_tunnel::ErrorStateCause::FilteringResolverError => {
+                                i32::from(Cause::FilteringResolverError)
                             }
                             #[cfg(target_os = "macos")]
                             talpid_tunnel::ErrorStateCause::ReadSystemDnsConfig => {
@@ -395,9 +395,9 @@ impl From<&mullvad_types::settings::Settings> for Settings {
         let split_tunnel = None;
 
         #[cfg(not(target_os = "macos"))]
-        let enable_custom_resolver = false;
+        let allow_macos_network_check = false;
         #[cfg(target_os = "macos")]
-        let enable_custom_resolver = settings.enable_custom_resolver;
+        let allow_macos_network_check = settings.allow_macos_network_check;
 
         Self {
             account_token: settings.get_account_token().unwrap_or_default(),
@@ -410,7 +410,7 @@ impl From<&mullvad_types::settings::Settings> for Settings {
             tunnel_options: Some(TunnelOptions::from(&settings.tunnel_options)),
             show_beta_releases: settings.show_beta_releases,
             split_tunnel,
-            enable_custom_resolver,
+            allow_macos_network_check,
         }
     }
 }

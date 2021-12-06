@@ -239,13 +239,13 @@ impl SettingsPersister {
     }
 
     #[cfg(target_os = "macos")]
-    pub async fn set_custom_resolver(
+    pub async fn set_allow_macos_network_check(
         &mut self,
-        enable_custom_resolver: bool,
+        allow_macos_network_check: bool,
     ) -> Result<bool, Error> {
         let should_save = Self::update_field(
-            &mut self.settings.enable_custom_resolver,
-            enable_custom_resolver,
+            &mut self.settings.allow_macos_network_check,
+            allow_macos_network_check,
         );
         self.update(should_save).await
     }
