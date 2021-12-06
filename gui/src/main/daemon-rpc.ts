@@ -862,6 +862,9 @@ function convertFromTunnelStateRelayInfo(
         tunnelType: convertFromTunnelType(state.tunnelEndpoint.tunnelType),
         protocol: convertFromTransportProtocol(state.tunnelEndpoint.protocol),
         proxy: state.tunnelEndpoint.proxy && convertFromProxyEndpoint(state.tunnelEndpoint.proxy),
+        entryEndpoint:
+          state.tunnelEndpoint.entryEndpoint &&
+          convertFromEntryEndpoint(state.tunnelEndpoint.entryEndpoint),
       },
     };
   }
@@ -887,6 +890,13 @@ function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObjec
     ...proxyEndpoint,
     protocol: convertFromTransportProtocol(proxyEndpoint.protocol),
     proxyType: proxyTypeMap[proxyEndpoint.proxyType],
+  };
+}
+
+function convertFromEntryEndpoint(entryEndpoint: grpcTypes.Endpoint.AsObject) {
+  return {
+    address: entryEndpoint.address,
+    transportProtocol: convertFromTransportProtocol(entryEndpoint.protocol),
   };
 }
 
@@ -1172,7 +1182,12 @@ function convertFromOpenVpnConstraints(
 function convertFromWireguardConstraints(
   constraints: grpcTypes.WireguardConstraints,
 ): IWireguardConstraints {
-  const result: IWireguardConstraints = { port: 'any', ipVersion: 'any' };
+  const result: IWireguardConstraints = {
+    port: 'any',
+    ipVersion: 'any',
+    useMultihop: constraints.getUseMultihop(),
+    entryLocation: 'any',
+  };
 
   const port = constraints.getPort()?.getPort();
   if (port) {
@@ -1187,6 +1202,11 @@ function convertFromWireguardConstraints(
     case grpcTypes.IpVersion.V6:
       result.ipVersion = { only: 'ipv6' };
       break;
+  }
+
+  const entryLocation = constraints.getEntryLocation();
+  if (entryLocation) {
+    result.entryLocation = { only: convertFromLocation(entryLocation.toObject()) };
   }
 
   return result;
@@ -1308,6 +1328,16 @@ function convertToWireguardConstraints(
       const ipVersionConstraints = new grpcTypes.IpVersionConstraint();
       ipVersionConstraints.setProtocol(ipVersionProtocol);
       wireguardConstraints.setIpVersion(ipVersionConstraints);
+    }
+
+    if (constraint.useMultihop) {
+      wireguardConstraints.setUseMultihop(constraint.useMultihop);
+    }
+
+    const entryLocation = liftConstraint(constraint.entryLocation);
+    if (entryLocation) {
+      const entryLocationConstraint = convertToLocation(entryLocation);
+      wireguardConstraints.setEntryLocation(entryLocationConstraint);
     }
 
     return wireguardConstraints;
