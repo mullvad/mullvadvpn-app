@@ -22,21 +22,14 @@ class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
     // MARK: - URLSessionDelegate
 
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        let evaluation: (disposition: URLSession.AuthChallengeDisposition, credential: URLCredential?)
-
-        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
-            if let serverTrust = challenge.protectionSpace.serverTrust, self.verifyServerTrust(serverTrust) {
-                evaluation = (.useCredential, URLCredential(trust: serverTrust))
-            } else {
-                evaluation = (.cancelAuthenticationChallenge, nil)
-            }
+        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
+           let serverTrust = challenge.protectionSpace.serverTrust,
+           verifyServerTrust(serverTrust) {
+            completionHandler(.useCredential, URLCredential(trust: serverTrust))
         } else {
-            evaluation = (.rejectProtectionSpace, nil)
+            completionHandler(.rejectProtectionSpace, nil)
         }
-
-        completionHandler(evaluation.disposition, evaluation.credential)
     }
-
 
     // MARK: - Private
 
