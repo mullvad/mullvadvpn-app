@@ -1,5 +1,4 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
-import { LocationScope } from './reducers';
 
 export interface IUpdateLocaleAction {
   type: 'UPDATE_LOCALE';
@@ -13,11 +12,6 @@ export interface IUpdateWindowArrowPositionAction {
 
 export interface IUpdateConnectionInfoOpenAction {
   type: 'TOGGLE_CONNECTION_PANEL';
-}
-
-export interface ISetLocationScopeAction {
-  type: 'SET_LOCATION_SCOPE';
-  scope: LocationScope;
 }
 
 export interface ISetWindowFocusedAction {
@@ -50,7 +44,6 @@ export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
   | IUpdateConnectionInfoOpenAction
-  | ISetLocationScopeAction
   | ISetWindowFocusedAction
   | IAddScrollPosition
   | IRemoveScrollPosition
@@ -74,13 +67,6 @@ function updateWindowArrowPosition(arrowPosition: number): IUpdateWindowArrowPos
 function toggleConnectionPanel(): IUpdateConnectionInfoOpenAction {
   return {
     type: 'TOGGLE_CONNECTION_PANEL',
-  };
-}
-
-function setLocationScope(scope: LocationScope): ISetLocationScopeAction {
-  return {
-    type: 'SET_LOCATION_SCOPE',
-    scope,
   };
 }
 
@@ -126,7 +112,6 @@ export default {
   updateLocale,
   updateWindowArrowPosition,
   toggleConnectionPanel,
-  setLocationScope,
   setWindowFocused,
   addScrollPosition,
   removeScrollPosition,
