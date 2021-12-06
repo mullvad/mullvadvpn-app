@@ -138,11 +138,11 @@ function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
           'notifications',
           "Your device is offline. Try connecting when it's back online.",
         );
-      case 'custom_resolver_error':
+      case 'filtering_resolver_error':
         // TODO: Figure out a better error message to show to users
         return messages.pgettext(
           'notifications',
-          "Failed to start custom resolver, check if there's a service running on port 53.",
+          ' Unable to activate macOS network check module. Close any programs that might be using port 53, or disable "Allow macOS network check".',
         );
       case 'read_system_dns_config':
         // TODO: Figure out a better error message to show to users
