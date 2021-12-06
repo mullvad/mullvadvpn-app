@@ -1,16 +1,10 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
 import { ReduxAction } from '../store';
 
-export enum LocationScope {
-  bridge = 0,
-  relay,
-}
-
 export interface IUserInterfaceReduxState {
   locale: string;
   arrowPosition?: number;
   connectionPanelVisible: boolean;
-  locationScope: LocationScope;
   windowFocused: boolean;
   scrollPosition: Record<string, [number, number]>;
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
@@ -20,7 +14,6 @@ export interface IUserInterfaceReduxState {
 const initialState: IUserInterfaceReduxState = {
   locale: 'en',
   connectionPanelVisible: false,
-  locationScope: LocationScope.relay,
   windowFocused: false,
   scrollPosition: {},
   macOsScrollbarVisibility: undefined,
@@ -40,9 +33,6 @@ export default function (
 
     case 'TOGGLE_CONNECTION_PANEL':
       return { ...state, connectionPanelVisible: !state.connectionPanelVisible };
-
-    case 'SET_LOCATION_SCOPE':
-      return { ...state, locationScope: action.scope };
 
     case 'SET_WINDOW_FOCUSED':
       return { ...state, windowFocused: action.focused };
