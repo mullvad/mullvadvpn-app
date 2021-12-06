@@ -141,9 +141,9 @@ pub enum FirewallPolicy {
         /// A list of IPs that can be reached outside the tunnel.
         #[cfg(target_os = "macos")]
         allowed_ips: BTreeSet<IpAddr>,
-        /// A list of resolver IPs that should be reachable on port 53.
+        /// Enables specific GID exclusion traffic
         #[cfg(target_os = "macos")]
-        allow_custom_resolver: bool,
+        allow_gid_exclusion_traffic: bool,
     },
 }
 

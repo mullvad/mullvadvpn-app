@@ -191,8 +191,8 @@ impl ConnectedState {
                 SameState(self.into())
             }
             #[cfg(target_os = "macos")]
-            Some(TunnelCommand::SetCustomResolver(enable, done_tx)) => {
-                let _ = done_tx.send(shared_values.deactivate_custom_resolver(enable));
+            Some(TunnelCommand::AllowMacosNetworkCheck(enable, done_tx)) => {
+                let _ = done_tx.send(shared_values.deactivate_filtering_resolver(enable));
                 SameState(self.into())
             }
             #[cfg(target_os = "macos")]
