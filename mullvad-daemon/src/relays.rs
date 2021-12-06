@@ -1432,8 +1432,7 @@ mod test {
         assert_ne!(exit_relay.hostname, specific_hostname);
 
         relay_constraints.location = Constraint::Only(location_specific);
-        relay_constraints.wireguard_constraints.entry_location =
-            Constraint::Only(location_general);
+        relay_constraints.wireguard_constraints.entry_location = Constraint::Only(location_general);
 
         // The entry must not equal the exit
         let (exit_relay, _entry_relay, exit_endpoint) = relay_selector
