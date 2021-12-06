@@ -558,7 +558,9 @@ impl Firewall {
     }
 
     fn is_enabled(&self) -> bool {
-        let cmd = duct::cmd!("/sbin/pfctl", "-s", "info");
+        let cmd = duct::cmd!("/sbin/pfctl", "-s", "info")
+            .stderr_null()
+            .stdout_capture();
         const EXPECTED_OUTPUT: &'static [u8] = b"Status: Enabled";
         match cmd.run() {
             Ok(output) => output.stdout.as_slice().find(&EXPECTED_OUTPUT).is_some(),
