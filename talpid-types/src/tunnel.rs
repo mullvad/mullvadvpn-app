@@ -106,9 +106,9 @@ pub enum ErrorStateCause {
     /// Error reported by split tunnel module.
     #[cfg(target_os = "windows")]
     SplitTunnelError,
-    /// Failed to set set custom resolver
+    /// Failed to start filtering resolver
     #[cfg(target_os = "macos")]
-    CustomResolverError,
+    FilteringResolverError,
     /// Failed read system DNS config
     #[cfg(target_os = "macos")]
     ReadSystemDnsConfig,
@@ -116,9 +116,9 @@ pub enum ErrorStateCause {
 
 impl ErrorStateCause {
     #[cfg(target_os = "macos")]
-    pub fn prevents_custom_resolver(&self) -> bool {
+    pub fn prevents_filtering_resolver(&self) -> bool {
         match self {
-            Self::CustomResolverError | Self::ReadSystemDnsConfig | Self::SetDnsError => true,
+            Self::FilteringResolverError | Self::ReadSystemDnsConfig | Self::SetDnsError => true,
             _ => false,
         }
     }
@@ -215,7 +215,7 @@ impl fmt::Display for ErrorStateCause {
             #[cfg(target_os = "windows")]
             SplitTunnelError => "The split tunneling module reported an error",
             #[cfg(target_os = "macos")]
-            CustomResolverError => "Failed to set up custom resolver",
+            FilteringResolverError => "Failed to set up custom resolver",
             #[cfg(target_os = "macos")]
             ReadSystemDnsConfig => "Failed to read system DNS config",
         };

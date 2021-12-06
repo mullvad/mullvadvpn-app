@@ -80,8 +80,8 @@ pub struct Settings {
     /// Whether to notify users of beta updates.
     pub show_beta_releases: bool,
     #[cfg(target_os = "macos")]
-    /// Enable custom resolver
-    pub enable_custom_resolver: bool,
+    /// Allow leaking some traffic for macOS network check
+    pub allow_macos_network_check: bool,
     /// Split tunneling settings
     #[cfg(windows)]
     pub split_tunnel: SplitTunnelSettings,
@@ -116,7 +116,7 @@ impl Default for Settings {
             tunnel_options: TunnelOptions::default(),
             show_beta_releases: false,
             #[cfg(target_os = "macos")]
-            enable_custom_resolver: false,
+            allow_macos_network_check: false,
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,

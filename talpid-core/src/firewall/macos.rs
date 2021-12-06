@@ -152,12 +152,12 @@ impl Firewall {
                 allow_lan,
                 allowed_endpoint,
                 allowed_ips,
-                allow_custom_resolver,
+                allow_gid_exclusion_traffic,
             } => {
                 let mut rules = Vec::new();
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.endpoint)?);
 
-                if allow_custom_resolver {
+                if allow_gid_exclusion_traffic {
                     rules.extend(self.get_allow_excluded_dns_rules()?);
                     rules.extend(self.get_exclusion_rules(&allowed_ips)?);
                 }

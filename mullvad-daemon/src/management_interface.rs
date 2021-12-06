@@ -369,12 +369,18 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(target_os = "macos")]
-    async fn set_custom_resolver(&self, request: Request<bool>) -> ServiceResult<()> {
-        let enable_custom_resolver = request.into_inner();
-        log::debug!("set_custom_resolver({:?})", enable_custom_resolver);
+    async fn set_allow_macos_network_check(&self, request: Request<bool>) -> ServiceResult<()> {
+        let allow_macos_network_check = request.into_inner();
+        log::debug!(
+            "set_allow_macos_network_check({:?})",
+            allow_macos_network_check
+        );
 
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetCustomResolver(tx, enable_custom_resolver))?;
+        self.send_command_to_daemon(DaemonCommand::SetAllowMacosNetworkCheck(
+            tx,
+            allow_macos_network_check,
+        ))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
@@ -387,7 +393,7 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(not(target_os = "macos"))]
-    async fn set_custom_resolver(&self, _: Request<bool>) -> ServiceResult<()> {
+    async fn set_allow_macos_network_check(&self, _: Request<bool>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
