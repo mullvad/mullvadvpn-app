@@ -10,6 +10,8 @@ use std::{
 };
 use talpid_types::ErrorExt;
 
+pub const AUTH_URL_PREFIX: &str = "auth/v1-alpha";
+
 #[derive(Clone)]
 pub struct AccessTokenProxy {
     service: RequestServiceHandle,
@@ -100,7 +102,7 @@ impl AccessTokenProxy {
         let response = rest::send_json_request(
             &self.factory,
             service,
-            "auth/v1-alpha/token",
+            &format!("{}/token", AUTH_URL_PREFIX),
             Method::POST,
             &request,
             None,
