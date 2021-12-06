@@ -7,7 +7,7 @@ import LocationList, {
   RelayLocations,
 } from './LocationList';
 
-interface IExitLocationsProps {
+interface ILocationsProps {
   source: IRelayLocationRedux[];
   defaultExpandedLocations?: RelayLocation[];
   selectedValue?: RelayLocation;
@@ -17,10 +17,7 @@ interface IExitLocationsProps {
   onTransitionEnd?: () => void;
 }
 
-const ExitLocations = React.forwardRef(function ExitLocationsT(
-  props: IExitLocationsProps,
-  ref: React.Ref<LocationList<never>>,
-) {
+function Locations(props: ILocationsProps, ref: React.Ref<LocationList<never>>) {
   const selectedValue: LocationSelection<never> | undefined = props.selectedValue
     ? { type: LocationSelectionType.relay, value: props.selectedValue }
     : undefined;
@@ -39,6 +36,7 @@ const ExitLocations = React.forwardRef(function ExitLocationsT(
       />
     </LocationList>
   );
-});
+}
 
-export default ExitLocations;
+export const ExitLocations = React.forwardRef(Locations);
+export const EntryLocations = React.forwardRef(Locations);
