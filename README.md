@@ -459,7 +459,7 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
 
 * `MULLVAD_API_HOST` - Set the hostname to use in API requests. E.g. `api.mullvad.net`.
 
-* `MULLVAD_API_ADDRESS` - Set the IP address and port to use in API requests. E.g. `10.10.1.2:443`.
+* `MULLVAD_API_ADDR` - Set the IP address and port to use in API requests. E.g. `10.10.1.2:443`.
 
 #### Setting environment variable
 - On Windows, one can use `setx` from an elevated shell, like so

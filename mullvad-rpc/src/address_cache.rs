@@ -1,4 +1,4 @@
-use super::API_ADDRESS;
+use super::API;
 use rand::seq::SliceRandom;
 use std::{
     io,
@@ -84,12 +84,12 @@ impl AddressCache {
 
     fn get_address_inner(inner: &AddressCacheInner) -> SocketAddr {
         if inner.addresses.is_empty() {
-            return *API_ADDRESS;
+            return API.addr;
         }
         *inner
             .addresses
             .get(inner.choice % inner.addresses.len())
-            .unwrap_or(&API_ADDRESS)
+            .unwrap_or(&API.addr)
     }
 
     pub fn has_tried_current_address(&self) -> bool {

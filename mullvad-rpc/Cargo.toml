@@ -8,7 +8,7 @@ edition = "2021"
 publish = false
 
 [features]
-# Allow the API server to use to be configured via MULLVAD_API_HOST and MULLVAD_API_ADDRESS.
+# Allow the API server to use to be configured via MULLVAD_API_HOST and MULLVAD_API_ADDR.
 api-override = []
 
 [dependencies]
