@@ -1390,14 +1390,15 @@ mod test {
             ..RelayConstraints::default()
         };
 
-        relay_constraints.wireguard_constraints.entry_location = Some(Constraint::Only(location1));
+        relay_constraints.wireguard_constraints.multihop_state = MultihopState::On;
+        relay_constraints.wireguard_constraints.entry_location = Constraint::Only(location1);
 
         // The same host cannot be used for entry and exit
         assert!(relay_selector
             .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, true)
             .is_err());
 
-        relay_constraints.wireguard_constraints.entry_location = Some(Constraint::Only(location2));
+        relay_constraints.wireguard_constraints.entry_location = Constraint::Only(location2);
 
         // If the entry and exit differ, this should succeed
         assert!(relay_selector
@@ -1424,8 +1425,9 @@ mod test {
             ..RelayConstraints::default()
         };
 
+        relay_constraints.wireguard_constraints.multihop_state = MultihopState::On;
         relay_constraints.wireguard_constraints.entry_location =
-            Some(Constraint::Only(location_specific.clone()));
+            Constraint::Only(location_specific.clone());
 
         // The exit must not equal the entry
         let (exit_relay, _exit_endpoint) = relay_selector
@@ -1435,8 +1437,7 @@ mod test {
         assert_ne!(exit_relay.hostname, specific_hostname);
 
         relay_constraints.location = Constraint::Only(location_specific);
-        relay_constraints.wireguard_constraints.entry_location =
-            Some(Constraint::Only(location_general));
+        relay_constraints.wireguard_constraints.entry_location = Constraint::Only(location_general);
 
         // The entry must not equal the exit
         let (exit_relay, exit_endpoint) = relay_selector

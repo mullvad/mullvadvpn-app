@@ -9,6 +9,7 @@ mod v1;
 mod v2;
 mod v3;
 mod v4;
+mod v5;
 
 const SETTINGS_FILE: &str = "settings.json";
 
@@ -71,6 +72,7 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
     v2::migrate(&mut settings)?;
     v3::migrate(&mut settings)?;
     v4::migrate(&mut settings)?;
+    v5::migrate(&mut settings)?;
 
     account_history::migrate_location(cache_dir, settings_dir).await;
     account_history::migrate_formats(settings_dir, &mut settings).await?;
