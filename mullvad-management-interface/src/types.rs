@@ -312,6 +312,19 @@ impl From<IpVersion> for IpVersionConstraint {
     }
 }
 
+impl From<mullvad_types::relay_constraints::MultihopState>
+    for wireguard_constraints::MultihopState
+{
+    fn from(state: mullvad_types::relay_constraints::MultihopState) -> Self {
+        use mullvad_types::relay_constraints::MultihopState as MullvadMultihopState;
+        use wireguard_constraints::MultihopState;
+        match state {
+            MullvadMultihopState::On => MultihopState::On,
+            MullvadMultihopState::Off => MultihopState::Off,
+        }
+    }
+}
+
 impl From<mullvad_types::relay_constraints::TransportPort> for TransportPort {
     fn from(port: mullvad_types::relay_constraints::TransportPort) -> Self {
         TransportPort {
@@ -504,9 +517,13 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
                             .option()
                             .map(IpVersion::from)
                             .map(IpVersionConstraint::from),
+                        multihop_state: i32::from(wireguard_constraints::MultihopState::from(
+                            constraints.wireguard_constraints.multihop_state,
+                        )),
                         entry_location: constraints
                             .wireguard_constraints
                             .entry_location
+                            .option()
                             .map(RelayLocation::from),
                     }),
 
@@ -710,14 +727,30 @@ impl TryFrom<&WireguardConstraints> for mullvad_types::relay_constraints::Wiregu
             },
             None => None,
         };
+        let multihop_state =
+            match wireguard_constraints::MultihopState::from_i32(constraints.multihop_state) {
+                Some(wireguard_constraints::MultihopState::On) => {
+                    mullvad_constraints::MultihopState::On
+                }
+                Some(wireguard_constraints::MultihopState::Off) => {
+                    mullvad_constraints::MultihopState::Off
+                }
+                None => {
+                    return Err(FromProtobufTypeError::InvalidArgument(
+                        "invalid multihop state",
+                    ))
+                }
+            };
 
         Ok(mullvad_constraints::WireguardConstraints {
             port: Constraint::from(wireguard_transport_port),
             ip_version: Constraint::from(ip_version),
+            multihop_state,
             entry_location: constraints
                 .entry_location
                 .clone()
-                .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from),
+                .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from)
+                .unwrap_or(Constraint::Any),
         })
     }
 }

@@ -15,7 +15,8 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
-        OpenVpnConstraints, Providers, RelayConstraints, Set, TransportPort, WireguardConstraints,
+        MultihopState, OpenVpnConstraints, Providers, RelayConstraints, Set, TransportPort,
+        WireguardConstraints,
     },
     relay_list::{OpenVpnEndpointData, Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
@@ -58,7 +59,8 @@ const WIREGUARD_EXIT_CONSTRAINTS: WireguardConstraints = WireguardConstraints {
         port: Constraint::Only(DEFAULT_WIREGUARD_PORT),
     }),
     ip_version: Constraint::Only(IpVersion::V4),
-    entry_location: None,
+    multihop_state: MultihopState::Off,
+    entry_location: Constraint::Any,
 };
 const WIREGUARD_TCP_PORTS: [(u16, u16); 3] = [(80, 80), (443, 443), (5001, 5001)];
 
@@ -244,12 +246,17 @@ impl RelaySelector {
         wg_key_exists: bool,
     ) -> Result<(Relay, MullvadEndpoint), Error> {
         let mut exit_relay_constraints = relay_constraints.clone();
-        let wg_entry_is_subset = if let Some(entry_location) =
-            exit_relay_constraints.wireguard_constraints.entry_location
+        let wg_entry_is_subset = if exit_relay_constraints
+            .wireguard_constraints
+            .multihop_state
+            .on()
         {
+            let multihop_state = exit_relay_constraints.wireguard_constraints.multihop_state;
+            let entry_location = exit_relay_constraints.wireguard_constraints.entry_location;
             let is_subset = entry_location.is_subset(&exit_relay_constraints.location);
             exit_relay_constraints.wireguard_constraints = WireguardConstraints {
-                entry_location: Some(entry_location),
+                multihop_state,
+                entry_location,
                 ..WIREGUARD_EXIT_CONSTRAINTS
             };
             is_subset
@@ -257,16 +264,12 @@ impl RelaySelector {
             false
         };
 
-        let entry_endpoint = if wg_entry_is_subset
-            && relay_constraints
-                .wireguard_constraints
-                .entry_location
-                .is_some()
-        {
-            self.select_entry_endpoint(None, &relay_constraints, retry_attempt)
-        } else {
-            None
-        };
+        let entry_endpoint =
+            if wg_entry_is_subset && relay_constraints.wireguard_constraints.multihop_state.on() {
+                self.select_entry_endpoint(None, &relay_constraints, retry_attempt)
+            } else {
+                None
+            };
 
         let (exit_relay, mut endpoint) = self.get_tunnel_exit_endpoint(
             &exit_relay_constraints,
@@ -283,12 +286,7 @@ impl RelaySelector {
         )?;
 
         let mut entry_endpoint = entry_endpoint.or_else(|| {
-            if !wg_entry_is_subset
-                && relay_constraints
-                    .wireguard_constraints
-                    .entry_location
-                    .is_some()
-            {
+            if !wg_entry_is_subset && relay_constraints.wireguard_constraints.multihop_state.on() {
                 if let MullvadEndpoint::Wireguard { peer, .. } = &endpoint {
                     self.select_entry_endpoint(Some(peer), &relay_constraints, retry_attempt)
                 } else {
@@ -308,11 +306,7 @@ impl RelaySelector {
                     entry_relay.hostname, addr_in
                 );
                 return Ok((exit_relay, entry_endpoint));
-            } else if relay_constraints
-                .wireguard_constraints
-                .entry_location
-                .is_some()
-            {
+            } else if relay_constraints.wireguard_constraints.multihop_state.on() {
                 return Err(Error::NoRelay);
             }
         }
@@ -450,10 +444,13 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         retry_attempt: u32,
     ) -> Option<(Relay, MullvadEndpoint)> {
+        if relay_constraints.wireguard_constraints.multihop_state.off() {
+            return None;
+        }
         let entry_location = relay_constraints
             .wireguard_constraints
             .entry_location
-            .clone()?;
+            .clone();
         let entry_constraints = RelayConstraints {
             location: entry_location,
             tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
