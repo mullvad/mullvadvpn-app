@@ -17,6 +17,7 @@ import {
 } from './NavigationBar';
 import Selector, { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import { formatMarkdown } from '../markdown-formatter';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
@@ -43,7 +44,12 @@ export const StyledInputFrame = styled(Cell.InputFrame)({
   flex: 0,
 });
 
+export const StyledSelectorForFooter = (styled(Selector)({
+  marginBottom: 0,
+}) as unknown) as new <T>() => Selector<T>;
+
 interface IProps {
+  tunnelProtocolIsOpenVpn: boolean;
   openvpn: {
     protocol?: RelayProtocol;
     port?: number;
@@ -59,7 +65,6 @@ interface IProps {
 export default class OpenVpnSettings extends React.Component<IProps> {
   private portItems: { [key in RelayProtocol]: Array<ISelectorItem<OptionalPort>> };
   private protocolItems: Array<ISelectorItem<OptionalRelayProtocol>>;
-  private bridgeStateItems: Array<ISelectorItem<BridgeState>>;
 
   constructor(props: IProps) {
     super(props);
@@ -86,21 +91,6 @@ export default class OpenVpnSettings extends React.Component<IProps> {
       {
         label: messages.gettext('UDP'),
         value: 'udp',
-      },
-    ];
-
-    this.bridgeStateItems = [
-      {
-        label: messages.gettext('Automatic'),
-        value: 'auto',
-      },
-      {
-        label: messages.gettext('On'),
-        value: 'on',
-      },
-      {
-        label: messages.gettext('Off'),
-        value: 'off',
       },
     ];
   }
@@ -164,15 +154,40 @@ export default class OpenVpnSettings extends React.Component<IProps> {
                 </AriaInputGroup>
 
                 <AriaInputGroup>
-                  <Selector
-                    title={
-                      // TRANSLATORS: The title for the shadowsocks bridge selector section.
-                      messages.pgettext('openvpn-settings-view', 'Bridge mode')
-                    }
-                    values={this.bridgeStateItems}
-                    value={this.props.bridgeState}
-                    onSelect={this.onSelectBridgeState}
-                  />
+                  <StyledSelectorContainer>
+                    <StyledSelectorForFooter
+                      title={
+                        // TRANSLATORS: The title for the shadowsocks bridge selector section.
+                        messages.pgettext('openvpn-settings-view', 'Bridge mode')
+                      }
+                      values={this.bridgeStateItems(this.props.tunnelProtocolIsOpenVpn)}
+                      value={this.props.bridgeState}
+                      onSelect={this.onSelectBridgeState}
+                    />
+                  </StyledSelectorContainer>
+                  <Cell.Footer>
+                    <AriaDescription>
+                      <Cell.FooterText>
+                        {this.props.tunnelProtocolIsOpenVpn
+                          ? // This line is here to prevent prettier from moving up the next line.
+                            // TRANSLATORS: This is used as a description for the bridge mode
+                            // TRANSLATORS: setting.
+                            messages.pgettext(
+                              'openvpn-settings-view',
+                              'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder.',
+                            )
+                          : // This line is here to prevent prettier from moving up the next line.
+                            // TRANSLATORS: This is used to instruct users how to make the bridge
+                            // TRANSLATORS: mode setting available.
+                            formatMarkdown(
+                              messages.pgettext(
+                                'wireguard-settings-view',
+                                'To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**.',
+                              ),
+                            )}
+                      </Cell.FooterText>
+                    </AriaDescription>
+                  </Cell.Footer>
                 </AriaInputGroup>
 
                 <AriaInputGroup>
@@ -224,6 +239,24 @@ export default class OpenVpnSettings extends React.Component<IProps> {
         </Layout>
       </ModalContainer>
     );
+  }
+
+  private bridgeStateItems(onAvailable: boolean): Array<ISelectorItem<BridgeState>> {
+    return [
+      {
+        label: messages.gettext('Automatic'),
+        value: 'auto',
+      },
+      {
+        label: messages.gettext('On'),
+        value: 'on',
+        disabled: !onAvailable,
+      },
+      {
+        label: messages.gettext('Off'),
+        value: 'off',
+      },
+    ];
   }
 
   private onSelectOpenvpnProtocol = (protocol?: RelayProtocol) => {

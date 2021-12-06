@@ -13,10 +13,24 @@ const mapStateToProps = (state: IReduxState) => {
   const protocolAndPort = mapRelaySettingsToProtocolAndPort(state.settings.relaySettings);
 
   return {
+    tunnelProtocolIsOpenVpn: mapRelaySettingsToProtocol(state.settings.relaySettings) === 'openvpn',
     mssfix: state.settings.openVpn.mssfix,
     bridgeState: state.settings.bridgeState,
     ...protocolAndPort,
   };
+};
+
+const mapRelaySettingsToProtocol = (relaySettings: RelaySettingsRedux) => {
+  if ('normal' in relaySettings) {
+    const { tunnelProtocol } = relaySettings.normal;
+    return tunnelProtocol === 'any' ? undefined : tunnelProtocol;
+    // since the GUI doesn't display custom settings, just display the default ones.
+    // If the user sets any settings, then those will be applied.
+  } else if ('customTunnelEndpoint' in relaySettings) {
+    return undefined;
+  } else {
+    throw new Error('Unknown type of relay settings.');
+  }
 };
 
 const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) => {
