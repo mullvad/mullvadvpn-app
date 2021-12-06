@@ -55,7 +55,7 @@ lazy_static::lazy_static! {
 struct ApiEndpoint {
     host: String,
     addr: SocketAddr,
-    disable_address_rotation: bool,
+    disable_address_cache: bool,
 }
 
 impl ApiEndpoint {
@@ -85,7 +85,7 @@ impl ApiEndpoint {
         let mut api = ApiEndpoint {
             host: API_HOST_DEFAULT.to_owned(),
             addr: SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT),
-            disable_address_rotation: false,
+            disable_address_cache: false,
         };
 
         if cfg!(feature = "api-override") {
@@ -98,7 +98,7 @@ impl ApiEndpoint {
                     api.addr = user_addr
                         .parse()
                         .expect("MULLVAD_API_ADDR is not a valid socketaddr");
-                    api.disable_address_rotation = true;
+                    api.disable_address_cache = true;
                     log::debug!("Overriding API. Using {} at {}", api.host, api.addr);
                 }
             }
@@ -167,7 +167,7 @@ impl MullvadRpcRuntime {
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
         let handle = tokio::runtime::Handle::current();
-        if API.disable_address_rotation {
+        if API.disable_address_cache {
             return Self::new_inner(
                 handle,
                 #[cfg(target_os = "android")]
