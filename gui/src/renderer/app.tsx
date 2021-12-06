@@ -624,6 +624,8 @@ export default class AppRenderer {
           wireguard: {
             port: liftConstraint(wireguardConstraints.port),
             ipVersion: liftConstraint(wireguardConstraints.ipVersion),
+            useMultihop: wireguardConstraints.useMultihop,
+            entryLocation: liftConstraint(wireguardConstraints.entryLocation),
           },
           tunnelProtocol: liftConstraint(tunnelProtocol),
         },
