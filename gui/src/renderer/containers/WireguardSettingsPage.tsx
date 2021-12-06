@@ -1,21 +1,75 @@
 import { connect } from 'react-redux';
 import { IpVersion } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
-import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import WireguardSettings from '../components/WireguardSettings';
 
 import withAppContext, { IAppContext } from '../context';
+import { createWireguardRelayUpdater } from '../lib/constraint-updater';
 import { IHistoryProps, withHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
-const mapStateToProps = (state: IReduxState) => {
+const mapStateToProps = (state: IReduxState, props: IAppContext) => {
   const protocolAndPort = mapRelaySettingsToProtocolAndPort(state.settings.relaySettings);
+
+  let wireguardMultihop = false;
+  if ('normal' in state.settings.relaySettings) {
+    wireguardMultihop = state.settings.relaySettings.normal.wireguard.useMultihop;
+  }
 
   return {
     wireguardMtu: state.settings.wireguard.mtu,
+    wireguardMultihop,
     ...protocolAndPort,
+
+    setWireguardPort: async (port?: number) => {
+      const relayUpdate = createWireguardRelayUpdater(state.settings.relaySettings)
+        .tunnel.wireguard((wireguard) => {
+          if (port) {
+            wireguard.port.exact(port);
+          } else {
+            wireguard.port.any();
+          }
+        })
+        .build();
+      try {
+        await props.app.updateRelaySettings(relayUpdate);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to update relay settings', error.message);
+      }
+    },
+
+    setWireguardIpVersion: async (ipVersion?: IpVersion) => {
+      const relayUpdate = createWireguardRelayUpdater(state.settings.relaySettings)
+        .tunnel.wireguard((wireguard) => {
+          if (ipVersion) {
+            wireguard.ipVersion.exact(ipVersion);
+          } else {
+            wireguard.ipVersion.any();
+          }
+        })
+        .build();
+      try {
+        await props.app.updateRelaySettings(relayUpdate);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to update relay settings', error.message);
+      }
+    },
+
+    setWireguardMultihop: async (enabled: boolean) => {
+      const relayUpdate = createWireguardRelayUpdater(state.settings.relaySettings)
+        .tunnel.wireguard((wireguard) => wireguard.useMultihop(enabled))
+        .build();
+      try {
+        await props.app.updateRelaySettings(relayUpdate);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to update WireGuard multihop settings', error.message);
+      }
+    },
   };
 };
 
@@ -44,30 +98,6 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
   return {
     onClose: () => {
       props.history.pop();
-    },
-
-    setWireguardRelayPortAndIpVersion: async (port?: number, ipVersion?: IpVersion) => {
-      const relayUpdate = RelaySettingsBuilder.normal()
-        .tunnel.wireguard((wireguard) => {
-          if (port) {
-            wireguard.port.exact(port);
-          } else {
-            wireguard.port.any();
-          }
-
-          if (ipVersion) {
-            wireguard.ipVersion.exact(ipVersion);
-          } else {
-            wireguard.ipVersion.any();
-          }
-        })
-        .build();
-      try {
-        await props.app.updateRelaySettings(relayUpdate);
-      } catch (e) {
-        const error = e as Error;
-        log.error('Failed to update relay settings', error.message);
-      }
     },
 
     setWireguardMtu: async (mtu?: number) => {

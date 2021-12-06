@@ -236,7 +236,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
         type={ModalAlertType.caution}
         buttons={[
           <AppButton.RedButton key="confirm" onClick={this.confirmEnableBlockWhenDisconnected}>
-            {messages.pgettext('advanced-settings-view', 'Enable anyway')}
+            {messages.gettext('Enable anyway')}
           </AppButton.RedButton>,
           <AppButton.BlueButton key="back" onClick={this.hideConfirmBlockWhenDisconnectedAlert}>
             {messages.gettext('Back')}
