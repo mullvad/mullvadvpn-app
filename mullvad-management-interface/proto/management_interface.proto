@@ -336,7 +336,8 @@ message IpVersionConstraint {
 message WireguardConstraints {
 	TransportPort port = 1;
 	IpVersionConstraint ip_version = 2;
-	RelayLocation entry_location = 3;
+	bool use_multihop = 3;
+	RelayLocation entry_location = 4;
 }
 
 message CustomRelaySettings {

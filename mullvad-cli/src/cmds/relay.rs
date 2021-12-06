@@ -571,6 +571,7 @@ impl Relay {
         }
         if let Some(entry) = matches.values_of("entry location") {
             wireguard_constraints.entry_location = parse_entry_location_constraint(entry);
+            wireguard_constraints.use_multihop = wireguard_constraints.entry_location.is_some();
         }
 
         self.update_constraints(types::RelaySettingsUpdate {
