@@ -40,6 +40,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Always kill `sslocal` if the tunnel monitor fails to start when using bridges.
+- Show relay location constraint correctly in the CLI when it is set to `any`.
 
 #### Windows
 - Fix app size after changing display scale.
