@@ -36,6 +36,7 @@ interface IProps {
   hostname?: string;
   bridgeHostname?: string;
   inAddress?: IInAddress;
+  entryLocationInAddress?: IInAddress;
   bridgeInfo?: IBridgeData;
   outAddress?: IOutAddress;
   onToggle: () => void;
@@ -72,8 +73,8 @@ const Header = styled.div({
 
 export default class ConnectionPanel extends React.Component<IProps> {
   public render() {
-    const { inAddress, outAddress, bridgeInfo } = this.props;
-    const entryPoint = bridgeInfo && inAddress ? bridgeInfo : inAddress;
+    const { outAddress } = this.props;
+    const entryPoint = this.getEntryPoint();
 
     return (
       <div className={this.props.className}>
@@ -115,6 +116,18 @@ export default class ConnectionPanel extends React.Component<IProps> {
         )}
       </div>
     );
+  }
+
+  private getEntryPoint() {
+    const { inAddress, entryLocationInAddress, bridgeInfo } = this.props;
+
+    if (entryLocationInAddress && inAddress) {
+      return entryLocationInAddress;
+    } else if (bridgeInfo && inAddress) {
+      return bridgeInfo;
+    } else {
+      return inAddress;
+    }
   }
 
   private hostnameLine() {
