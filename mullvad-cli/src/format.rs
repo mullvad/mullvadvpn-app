@@ -162,10 +162,6 @@ fn error_state_to_string(error_state: &ErrorState) -> String {
         VpnPermissionDenied => "The Android VPN permission was denied when creating the tunnel",
         #[cfg(target_os = "windows")]
         SplitTunnelError => "The split tunneling module reported an error",
-        #[cfg(target_os = "macos")]
-        CustomResolverError => "Failed to start custom resolver",
-        #[cfg(target_os = "macos")]
-        ReadSystemDnsConfig => "Failed to read system DNS config",
         #[cfg(not(target_os = "android"))]
         _ => unreachable!("unknown error cause"),
     };
