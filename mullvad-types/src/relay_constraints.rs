@@ -494,7 +494,27 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 pub struct WireguardConstraints {
     pub port: Constraint<TransportPort>,
     pub ip_version: Constraint<IpVersion>,
-    pub entry_location: Option<Constraint<LocationConstraint>>,
+    pub multihop_state: MultihopState,
+    pub entry_location: Constraint<LocationConstraint>,
+}
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum MultihopState {
+    On,
+    Off,
+}
+
+impl MultihopState {
+    pub fn is_on(&self) -> bool {
+        *self == MultihopState::On
+    }
+}
+
+impl Default for MultihopState {
+    fn default() -> Self {
+        MultihopState::Off
+    }
 }
 
 impl fmt::Display for WireguardConstraints {
@@ -514,8 +534,11 @@ impl fmt::Display for WireguardConstraints {
             Constraint::Any => write!(f, "IPv4 or IPv6")?,
             Constraint::Only(protocol) => write!(f, "{}", protocol)?,
         }
-        if let Some(Constraint::Only(ref entry)) = self.entry_location {
-            write!(f, " (via {})", entry)
+        if self.multihop_state.is_on() {
+            match &self.entry_location {
+                Constraint::Any => write!(f, " (via any location)"),
+                Constraint::Only(location) => write!(f, " (via {})", location),
+            }
         } else {
             Ok(())
         }
