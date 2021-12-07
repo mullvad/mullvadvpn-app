@@ -355,6 +355,7 @@ impl Firewall {
                     .direction(pfctl::Direction::Out)
                     .to(*ip)
                     .quick(true)
+                    .user(Uid::from(ROOT_UID))
                     .keep_state(pfctl::StatePolicy::Keep)
                     .build()?,
             );
