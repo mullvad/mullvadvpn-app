@@ -13,7 +13,6 @@
 #
 
 !define WINTUN_POOL "Mullvad"
-!define WG_NT_POOL "Mullvad"
 
 # "sc" exit code
 !define SERVICE_STARTED 0
@@ -68,7 +67,7 @@
 
 	SetOutPath "$TEMP"
 	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wintun\wintun.dll"
-	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wireguard-nt\wireguard.dll"
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wireguard-nt\mullvad-wireguard.dll"
 	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
 
 !macroend
@@ -234,7 +233,7 @@
 
 	log::Log "RemoveWireGuardNt()"
 
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wg-nt-cleanup ${WG_NT_POOL}'
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wg-nt-cleanup'
 	Pop $0
 	Pop $1
 

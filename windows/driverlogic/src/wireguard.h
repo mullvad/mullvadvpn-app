@@ -10,7 +10,7 @@ public:
 
 	WireGuardNtDll() : dllHandle(nullptr)
 	{
-		auto path = GetProcessModulePath().replace_filename(L"wireguard.dll");
+		auto path = GetProcessModulePath().replace_filename(L"mullvad-wireguard.dll");
 		dllHandle = LoadLibraryExW(path.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 
 		if (nullptr == dllHandle)
@@ -20,7 +20,7 @@ public:
 
 		try
 		{
-			deletePoolDriver = getProcAddressOrThrow<WIREGUARD_DELETE_POOL_DRIVER_FUNC*>("WireGuardDeletePoolDriver");
+			deleteDriver = getProcAddressOrThrow<WIREGUARD_DELETE_DRIVER_FUNC*>("WireGuardDeleteDriver");
 		}
 		catch (...)
 		{
@@ -37,7 +37,7 @@ public:
 		}
 	}
 
-	WIREGUARD_DELETE_POOL_DRIVER_FUNC *deletePoolDriver;
+	WIREGUARD_DELETE_DRIVER_FUNC *deleteDriver;
 
 private:
 
