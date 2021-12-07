@@ -1,5 +1,5 @@
 use super::{Error, Result};
-use mullvad_types::{relay_constraints::MultihopState, settings::SettingsVersion};
+use mullvad_types::settings::SettingsVersion;
 
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
@@ -14,7 +14,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     }();
     if let Some(constraints) = wireguard_constraints {
         if let Some(location) = constraints.get("entry_location") {
-            if constraints.get("multihop_state").is_none() {
+            if constraints.get("use_multihop").is_none() {
                 if location.is_null() {
                     // "Null" is no longer valid. It is not an option.
                     settings["relay_settings"]["normal"]["wireguard_constraints"]
@@ -22,8 +22,8 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
                         .ok_or(Error::NoMatchingVersion)?
                         .remove("entry_location");
                 } else {
-                    settings["relay_settings"]["normal"]["wireguard_constraints"]
-                        ["multihop_state"] = serde_json::json!(MultihopState::On);
+                    settings["relay_settings"]["normal"]["wireguard_constraints"]["use_multihop"] =
+                        serde_json::json!(true);
                 }
             }
         }
@@ -129,7 +129,7 @@ mod test {
       "wireguard_constraints": {
         "port": "any",
         "ip_version": "any",
-        "multihop_state": "on",
+        "use_multihop": true,
         "entry_location": "any"
       },
       "openvpn_constraints": {
