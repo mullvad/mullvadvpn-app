@@ -25,6 +25,7 @@ import {
 } from './NavigationBar';
 import { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import Switch from './Switch';
 
 type OptionalTunnelProtocol = TunnelProtocol | undefined;
 
@@ -50,6 +51,8 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
   public state = {
     showConfirmBlockWhenDisconnectedAlert: false,
   };
+
+  private blockWhenDisconnectedRef = React.createRef<Switch>();
 
   public render() {
     const hasWireguardKey = this.props.wireguardKeyState.type === 'key-set';
@@ -118,6 +121,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                     </AriaLabel>
                     <AriaInput>
                       <Cell.Switch
+                        ref={this.blockWhenDisconnectedRef}
                         isOn={this.props.blockWhenDisconnected}
                         onChange={this.setBlockWhenDisconnected}
                       />
@@ -257,7 +261,6 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
 
   private setBlockWhenDisconnected = (newValue: boolean) => {
     if (newValue) {
-      this.props.setBlockWhenDisconnected(true);
       this.setState({ showConfirmBlockWhenDisconnectedAlert: true });
     } else {
       this.props.setBlockWhenDisconnected(false);
@@ -265,13 +268,13 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
   };
 
   private hideConfirmBlockWhenDisconnectedAlert = () => {
-    this.props.setBlockWhenDisconnected(false);
     this.setState({ showConfirmBlockWhenDisconnectedAlert: false });
+    this.blockWhenDisconnectedRef.current?.setOn(this.props.blockWhenDisconnected);
   };
 
   private confirmEnableBlockWhenDisconnected = () => {
-    this.props.setBlockWhenDisconnected(true);
     this.setState({ showConfirmBlockWhenDisconnectedAlert: false });
+    this.props.setBlockWhenDisconnected(true);
   };
 
   private onSelectTunnelProtocol = (protocol?: TunnelProtocol) => {

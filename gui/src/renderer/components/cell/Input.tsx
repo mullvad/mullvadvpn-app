@@ -8,10 +8,10 @@ import ImageView from '../ImageView';
 
 export const Switch = React.forwardRef(function SwitchT(
   props: StandaloneSwitch['props'],
-  ref: React.Ref<HTMLDivElement>,
+  ref: React.Ref<StandaloneSwitch>,
 ) {
   const disabled = useContext(CellDisabledContext);
-  return <StandaloneSwitch forwardedRef={ref} disabled={disabled} {...props} />;
+  return <StandaloneSwitch ref={ref} disabled={disabled} {...props} />;
 });
 
 export const InputFrame = styled.div({

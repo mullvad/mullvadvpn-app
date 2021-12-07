@@ -11,7 +11,7 @@ interface IProps {
   onChange?: (isOn: boolean) => void;
   className?: string;
   disabled?: boolean;
-  forwardedRef?: React.Ref<HTMLDivElement>;
+  innerRef?: React.Ref<HTMLDivElement>;
 }
 
 interface IState {
@@ -103,9 +103,13 @@ export default class Switch extends React.PureComponent<IProps, IState> {
     );
   }
 
+  public setOn(isOn: boolean) {
+    this.setState({ isOn });
+  }
+
   private refCallback = (element: HTMLDivElement | null) => {
     assignToRef(element, this.containerRef);
-    assignToRef(element, this.props.forwardedRef);
+    assignToRef(element, this.props.innerRef);
   };
 
   private onTransitionEnd = (event: React.TransitionEvent) => {

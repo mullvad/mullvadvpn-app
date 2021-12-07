@@ -194,7 +194,7 @@ export default function CustomDnsSettings() {
           </AriaLabel>
           <AriaInput>
             <Cell.Switch
-              ref={switchRef}
+              innerRef={switchRef}
               isOn={dns.state === 'custom' || inputVisible}
               onChange={setCustomDnsEnabled}
             />
