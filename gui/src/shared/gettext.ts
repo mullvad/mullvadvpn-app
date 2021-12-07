@@ -5,9 +5,14 @@ import log from './logging';
 const SOURCE_LANGUAGE = 'en';
 
 function setErrorHandler(catalogue: Gettext) {
-  catalogue.on('error', (error) => {
-    log.warn(`Gettext error: ${error}`);
-  });
+  if (
+    (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') ||
+    (typeof window !== 'undefined' && window.env.development)
+  ) {
+    catalogue.on('error', (error) => {
+      log.info(`Gettext error: ${error.message}`);
+    });
+  }
 }
 
 const gettextOptions = { sourceLocale: SOURCE_LANGUAGE };
