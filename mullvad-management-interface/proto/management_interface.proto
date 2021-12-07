@@ -333,13 +333,9 @@ message IpVersionConstraint {
 }
 
 message WireguardConstraints {
-	enum MultihopState {
-		On = 0;
-		Off = 1;
-	}
 	TransportPort port = 1;
 	IpVersionConstraint ip_version = 2;
-	MultihopState multihop_state = 3;
+	bool use_multihop = 3;
 	RelayLocation entry_location = 4;
 }
 
