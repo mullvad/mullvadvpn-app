@@ -1165,11 +1165,13 @@ where
                             match status {
                                 device::ValidationResult::Valid => (),
                                 device::ValidationResult::Removed => {
-                                    self.event_listener.notify_device_event(DeviceEvent(None));
+                                    self.event_listener
+                                        .notify_device_event(DeviceEvent::revoke(true));
                                 }
                                 device::ValidationResult::RotatedKey(_) => {
-                                    self.event_listener.notify_device_event(DeviceEvent::from(
+                                    self.event_listener.notify_device_event(DeviceEvent::new(
                                         self.account_manager.get(),
+                                        true,
                                     ));
                                 }
                             }
@@ -1430,7 +1432,7 @@ where
             self.schedule_reconnect(WG_RECONNECT_DELAY).await;
         }
         self.event_listener
-            .notify_device_event(DeviceEvent::from(event.0));
+            .notify_device_event(DeviceEvent::from_device(event.0, false));
     }
 
     async fn handle_device_migration_event(&mut self, data: DeviceData) {
@@ -1438,7 +1440,7 @@ where
             // Discard stale device
             return;
         }
-        let event = DeviceEvent::from(data.clone());
+        let event = DeviceEvent::from_device(data.clone(), false);
         self.account_manager.set(data);
         self.reconnect_tunnel();
         self.event_listener.notify_device_event(event);
@@ -1708,11 +1710,12 @@ where
                     .await
                     .map_err(Error::LoginError)?;
                 self.event_listener
-                    .notify_device_event(DeviceEvent::from(device_data));
+                    .notify_device_event(DeviceEvent::from_device(device_data, false));
             }
             None => {
                 self.account_manager.logout();
-                self.event_listener.notify_device_event(DeviceEvent(None));
+                self.event_listener
+                    .notify_device_event(DeviceEvent::revoke(false));
             }
         }
 
@@ -2388,7 +2391,7 @@ where
     async fn on_rotate_wireguard_key(&mut self, tx: ResponseTx<(), Error>) {
         let result = self.account_manager.rotate_key().await;
         if let Ok(ref _wg_data) = result {
-            let device = DeviceEvent::from(self.account_manager.get());
+            let device = DeviceEvent::new(self.account_manager.get(), false);
             self.event_listener.notify_device_event(device);
         }
         let _ = tx.send(result.map(|_| ()).map_err(Error::KeyRotationError));
