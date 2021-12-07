@@ -54,6 +54,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix Quick Settings tile showing wrong state in certain scenarios.
 - Fix banner sometimes incorrectly showing (e.g. "BLOCKING INTERNET").
+- Fix issue with the user getting kicked out of certain views in settings when the app is brought to the foreground.
 
 ## [2021.6] - 2021-11-17
 ### Fixed
