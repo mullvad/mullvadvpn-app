@@ -39,6 +39,7 @@ export default function CustomDnsSettings() {
   const [inputVisible, showInput, hideInput] = useBoolean(false);
   const [invalid, setInvalid, setValid] = useBoolean(false);
   const [confirmAction, setConfirmAction] = useState<() => Promise<void>>();
+  const [savingAdd, setSavingAdd] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
   const willShowConfirmationDialog = useRef(false);
 
@@ -108,6 +109,7 @@ export default function CustomDnsSettings() {
             },
           });
 
+          setSavingAdd(true);
           hideInput();
         };
 
@@ -182,6 +184,9 @@ export default function CustomDnsSettings() {
   );
 
   useEffect(() => setSavingEdit(false), [dns.customOptions.addresses]);
+  useEffect(() => setSavingAdd(false), [dns.customOptions.addresses]);
+
+  const listExpanded = featureAvailable && (dns.state === 'custom' || inputVisible || savingAdd);
 
   return (
     <>
@@ -201,7 +206,7 @@ export default function CustomDnsSettings() {
           </AriaInput>
         </AriaInputGroup>
       </StyledCustomDnsSwitchContainer>
-      <Accordion expanded={featureAvailable && (dns.state === 'custom' || inputVisible)}>
+      <Accordion expanded={listExpanded}>
         <Cell.Section role="listbox">
           <List
             items={dns.customOptions.addresses}
