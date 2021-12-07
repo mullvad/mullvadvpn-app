@@ -67,7 +67,16 @@ export default class Accordion extends React.Component<IProps, IState> {
     // Make sure the children are mounted first before expanding the accordion
     this.mountChildren(() => {
       this.onWillExpand();
-      this.setState({ containerHeight: this.getContentHeightWithUnit() });
+
+      const contentHeight = this.getContentHeight();
+      const containerHeight = this.containerRef.current?.offsetHeight;
+      if (containerHeight === contentHeight) {
+        // If the height new height is the same as the current then we want to change the height to
+        // auto immediately since no transition is needed.
+        this.setState({ containerHeight: 'auto' });
+      } else {
+        this.setState({ containerHeight: contentHeight + 'px' });
+      }
     });
   }
 
@@ -81,7 +90,7 @@ export default class Accordion extends React.Component<IProps, IState> {
 
   private collapse() {
     // First change height to height in px since it's not possible to transition to/from auto
-    this.setState({ containerHeight: this.getContentHeightWithUnit() }, () => {
+    this.setState({ containerHeight: this.getContentHeight() + 'px' }, () => {
       // Make sure new height has been applied
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this.containerRef.current?.offsetHeight;
@@ -89,12 +98,8 @@ export default class Accordion extends React.Component<IProps, IState> {
     });
   }
 
-  private getContentHeightWithUnit(): string {
-    return (this.getContentHeight() ?? 0) + 'px';
-  }
-
-  private getContentHeight(): number | undefined {
-    return this.contentRef.current?.offsetHeight;
+  private getContentHeight(): number {
+    return this.contentRef.current?.offsetHeight ?? 0;
   }
 
   private onWillExpand() {
