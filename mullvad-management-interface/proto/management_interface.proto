@@ -546,6 +546,7 @@ message DeviceRemoval {
 
 message DeviceEvent {
 	DeviceConfig device = 1;
+	bool remote = 2;
 }
 
 message RemoveDeviceEvent {

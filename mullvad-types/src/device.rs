@@ -67,19 +67,32 @@ impl From<DeviceData> for DeviceConfig {
 
 /// Emitted when logging in or out of an account, or when the device changes.
 #[derive(Clone, Debug)]
-pub struct DeviceEvent(pub Option<(AccountToken, Device)>);
-
-impl From<DeviceData> for DeviceEvent {
-    fn from(data: DeviceData) -> DeviceEvent {
-        DeviceEvent(Some((data.token, data.device)))
-    }
+pub struct DeviceEvent {
+    /// Device that was affected.
+    pub device: Option<(AccountToken, Device)>,
+    /// Indicates whether the change was initiated remotely or by the daemon.
+    pub remote: bool,
 }
 
-impl From<Option<DeviceData>> for DeviceEvent {
-    fn from(data: Option<DeviceData>) -> DeviceEvent {
-        match data {
-            Some(data) => DeviceEvent::from(data),
-            None => DeviceEvent(None),
+impl DeviceEvent {
+    pub fn new(data: Option<DeviceData>, remote: bool) -> DeviceEvent {
+        DeviceEvent {
+            device: data.map(|data| (data.token, data.device)),
+            remote,
+        }
+    }
+
+    pub fn from_device(data: DeviceData, remote: bool) -> DeviceEvent {
+        DeviceEvent {
+            device: Some((data.token, data.device)),
+            remote,
+        }
+    }
+
+    pub fn revoke(remote: bool) -> Self {
+        Self {
+            device: None,
+            remote,
         }
     }
 }
