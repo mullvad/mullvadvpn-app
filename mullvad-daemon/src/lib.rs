@@ -1400,7 +1400,12 @@ where
             return;
         }
         let event = DeviceEvent::from_device(data.clone(), false);
-        self.account_manager.set(data);
+        if let Err(error) = self.account_manager.set(data).await {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to move over account from old settings")
+            );
+        }
         self.reconnect_tunnel();
         self.event_listener.notify_device_event(event);
     }

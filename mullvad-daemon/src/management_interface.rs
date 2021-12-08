@@ -983,6 +983,9 @@ fn map_device_error(error: device::Error) -> Status {
         device::Error::InvalidDevice | device::Error::NoDevice => {
             Status::new(Code::NotFound, error.to_string())
         }
+        device::Error::DeviceIoError(ref _error) => {
+            Status::new(Code::Unavailable, error.to_string())
+        }
         device::Error::OtherRestError(error) => map_rest_error(error),
         _ => Status::new(Code::Unknown, error.to_string()),
     }
