@@ -72,7 +72,7 @@ pub struct TunnelConfig {
 }
 
 /// Options in [`TunnelParameters`] that apply to any WireGuard connection.
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(
     target_os = "android",
@@ -87,8 +87,24 @@ pub struct TunnelOptions {
     pub mtu: Option<u16>,
     /// Temporary switch for wireguard-nt
     #[cfg(windows)]
-    #[serde(default)]
+    #[serde(default = "default_wgnt_setting")]
+    #[serde(rename = "wireguard_nt")]
     pub use_wireguard_nt: bool,
+}
+
+#[cfg(windows)]
+fn default_wgnt_setting() -> bool {
+    true
+}
+
+impl Default for TunnelOptions {
+    fn default() -> Self {
+        Self {
+            mtu: None,
+            #[cfg(windows)]
+            use_wireguard_nt: default_wgnt_setting(),
+        }
+    }
 }
 
 /// Wireguard x25519 private key
