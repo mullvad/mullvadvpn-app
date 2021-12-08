@@ -6,7 +6,7 @@ const SOURCE_LANGUAGE = 'en';
 
 function setErrorHandler(catalogue: Gettext) {
   catalogue.on('error', (error) => {
-    log.warn(`Gettext error: ${error}`);
+    log.debug(`Gettext error: ${error}`);
   });
 }
 
