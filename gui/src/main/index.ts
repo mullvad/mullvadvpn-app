@@ -354,8 +354,8 @@ class ApplicationMain {
         backupLogFile(mainLogPath);
         backupLogFile(rendererLogPath);
 
-        log.addOutput(new FileOutput(LogLevel.debug, mainLogPath));
-        this.rendererLog.addOutput(new FileOutput(LogLevel.debug, rendererLogPath));
+        log.addOutput(new FileOutput(LogLevel.verbose, mainLogPath));
+        this.rendererLog.addOutput(new FileOutput(LogLevel.verbose, rendererLogPath));
       } catch (e) {
         const error = e as Error;
         console.error('Failed to initialize logging:', error);
