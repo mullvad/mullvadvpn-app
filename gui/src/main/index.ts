@@ -270,7 +270,7 @@ class ApplicationMain {
 
     this.initLogging();
 
-    log.debug(`Chromium sandbox is ${SANDBOX_DISABLED ? 'disabled' : 'enabled'}`);
+    log.verbose(`Chromium sandbox is ${SANDBOX_DISABLED ? 'disabled' : 'enabled'}`);
     if (!SANDBOX_DISABLED) {
       app.enableSandbox();
     }
@@ -1351,7 +1351,7 @@ class ApplicationMain {
             );
             reject(error.message);
           } else {
-            log.debug(`Problem report was written to ${reportPath}`);
+            log.verbose(`Problem report was written to ${reportPath}`);
             resolve(id);
           }
         });
