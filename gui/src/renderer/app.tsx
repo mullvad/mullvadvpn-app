@@ -656,32 +656,34 @@ export default class AppRenderer {
       const pathname = this.history.location.pathname as RoutePath;
       const nextPath = this.getNavigationBase() as RoutePath;
 
-      // First level contains the possible next locations and the second level contains the
-      // possible current locations.
-      const navigationTransitions: Partial<
-        Record<RoutePath, Partial<Record<RoutePath | '*', ITransitionSpecification>>>
-      > = {
-        [RoutePath.launch]: {
-          [RoutePath.login]: transitions.pop,
-          [RoutePath.main]: transitions.pop,
-          '*': transitions.dismiss,
-        },
-        [RoutePath.login]: {
-          [RoutePath.launch]: transitions.push,
-          [RoutePath.main]: transitions.pop,
-          '*': transitions.none,
-        },
-        [RoutePath.main]: {
-          [RoutePath.launch]: transitions.push,
-          [RoutePath.login]: transitions.push,
-          [RoutePath.tooManyDevices]: transitions.push,
-          '*': transitions.dismiss,
-        },
-      };
+      if (pathname !== nextPath) {
+        // First level contains the possible next locations and the second level contains the
+        // possible current locations.
+        const navigationTransitions: Partial<
+          Record<RoutePath, Partial<Record<RoutePath | '*', ITransitionSpecification>>>
+        > = {
+          [RoutePath.launch]: {
+            [RoutePath.login]: transitions.pop,
+            [RoutePath.main]: transitions.pop,
+            '*': transitions.dismiss,
+          },
+          [RoutePath.login]: {
+            [RoutePath.launch]: transitions.push,
+            [RoutePath.main]: transitions.pop,
+            '*': transitions.none,
+          },
+          [RoutePath.main]: {
+            [RoutePath.launch]: transitions.push,
+            [RoutePath.login]: transitions.push,
+            [RoutePath.tooManyDevices]: transitions.push,
+            '*': transitions.dismiss,
+          },
+        };
 
-      const transition =
-        navigationTransitions[nextPath]?.[pathname] ?? navigationTransitions[nextPath]?.['*'];
-      this.history.reset(nextPath, transition);
+        const transition =
+          navigationTransitions[nextPath]?.[pathname] ?? navigationTransitions[nextPath]?.['*'];
+        this.history.reset(nextPath, transition);
+      }
     }
   }
 
