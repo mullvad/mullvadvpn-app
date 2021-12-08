@@ -56,6 +56,8 @@ const CAPTIVE_PORTAL_DOMAIN: &str = "captive.apple.com";
 
 type TunnelCommandSender = Weak<mpsc::UnboundedSender<TunnelCommand>>;
 
+/// Starts a resolver. Returns a cloneable handle, which can activate, deactivate and shut down the
+/// resolver. When all instances of a handle are dropped, the server will stop.
 pub(crate) async fn start_resolver(sender: TunnelCommandSender) -> Result<ResolverHandle, Error> {
     start_resolver_inner(sender, 53).await
 }
@@ -104,6 +106,9 @@ impl From<crate::dns::Error> for Error {
     }
 }
 
+/// A filtering resolver. Listens on a specified port for DNS queries and responds queries for
+/// `catpive.apple.com`. Can be toggled to unbind, be bound but not respond or bound and responding
+/// to some queries.
 struct FilteringResolver {
     excluded_resolver: ExcludedUpstreamResolver,
     rx: mpsc::Receiver<ResolverMessage>,
@@ -118,10 +123,16 @@ struct FilteringResolver {
 type OurConnectionProvider = GenericConnectionProvider<RuntimeProvider>;
 type ExcludedUpstreamResolver = AsyncResolver<GenericConnection, OurConnectionProvider>;
 
+/// Resolver state
 #[derive(Debug, PartialEq, Clone)]
-pub(crate) enum ResolverState {
+enum ResolverState {
+    /// When in an active state, the resolver needs a set of upstream resolvers and the name of the
+    /// interface it should bind to.
     Active(Option<(String, Vec<IpAddr>)>),
+    /// In the inactive state, the resolver is still listening for DNS queries but it won't be
+    /// responding to any of them
     Inactive,
+    /// In the shutdown state the resolver is unbound and not listening to queries.
     Shutdown,
 }
 
@@ -134,11 +145,16 @@ impl ResolverState {
     }
 }
 
-pub(crate) enum ResolverMessage {
+/// The `FilteringResolver` is an actor responding to 2 types of messages: either it's a new DNS
+/// query or it's a message to toggle it's state.
+enum ResolverMessage {
+    /// A new DNS query coming in from listener.
     Request(LowerQuery, oneshot::Sender<Box<dyn LookupObject>>),
+    /// Set the resolver's state.
     SetResolverState(ResolverState, oneshot::Sender<Result<(), Error>>),
 }
 
+/// A handle to control a filtering resolver
 #[derive(Clone)]
 pub(crate) struct ResolverHandle {
     tx: Arc<mpsc::Sender<ResolverMessage>>,
@@ -149,15 +165,17 @@ impl ResolverHandle {
         Self { tx }
     }
 
-    /// Enable the resolver
+    /// Activate the resolver to have it respond to allowed DNS queries.
     pub async fn set_active(&self, config: Option<(String, Vec<IpAddr>)>) -> Result<(), Error> {
         self.set_state(ResolverState::Active(config)).await
     }
 
+    /// De-activate the resolver to have it ignore all DNS queries.
     pub async fn set_inactive(&self) -> Result<(), Error> {
         self.set_state(ResolverState::Inactive).await
     }
 
+    /// Shut down the resolver so that it no longer listens on port 53.
     pub async fn shutdown(&self) -> Result<(), Error> {
         self.set_state(ResolverState::Shutdown).await
     }
@@ -175,6 +193,7 @@ impl ResolverHandle {
 }
 
 impl FilteringResolver {
+    /// Constructs a new filtering resolver and it's handle.
     async fn new(
         tunnel_tx: TunnelCommandSender,
         port: u16,
@@ -210,6 +229,8 @@ impl FilteringResolver {
         Ok((resolver, ResolverHandle::new(command_tx)))
     }
 
+    /// Runs the filtering resolver as an actor, listening for new [ResolverMessage] instances.
+    /// When all related [ResolverHandle] instances are dropped, this function will return.
     async fn run(mut self) {
         use ResolverMessage::*;
         while let Some(message) = self.rx.next().await {
@@ -251,6 +272,8 @@ impl FilteringResolver {
         std::mem::drop(self);
     }
 
+    /// Spawns a new [trust_dns_server::server::ServerFuture], used whenever moving away from the
+    /// [ResolverState::Shutdown] state.
     async fn spawn_new_server(&mut self) -> Result<(), Error> {
         self.stop_server().await;
         if let Some(tx) = self.command_sender.upgrade() {
@@ -279,6 +302,7 @@ impl FilteringResolver {
         Ok(())
     }
 
+    /// Tries to stop the server future as best as it can.
     async fn stop_server(&mut self) {
         if let Some((old_server, done_rx)) = self.dns_server.take() {
             old_server.abort();
@@ -288,6 +312,7 @@ impl FilteringResolver {
         }
     }
 
+    /// Resets the current upstream resolver to clear it's config.
     async fn reset_resolver(&mut self) -> Result<(), Error> {
         log::trace!("Resetting filtering resolver");
         let (best_interface, resolver_addresses) = self.get_resolver_config();
@@ -309,22 +334,21 @@ impl FilteringResolver {
         Ok(())
     }
 
+    /// Gets the best interface to use and a list of upstream resolver addresses to use when
+    /// resolving domains. Returns an empty config if the current resolver state isn't
+    /// [ResolverState::Active].
     fn get_resolver_config(&self) -> (&str, &[IpAddr]) {
         match &self.resolver_state {
-            ResolverState::Active(ref resolvers) => {
-                // TODO: actually pick the best resolver
-                resolvers
-                    .as_ref()
-                    .filter(|(_, addresses)| !addresses.iter().any(|ip| ip.is_loopback()))
-                    .map(|(interface_name, addresses)| {
-                        (interface_name.as_str(), addresses.as_slice())
-                    })
-                    .unwrap_or(("", &[]))
-            }
+            ResolverState::Active(ref resolvers) => resolvers
+                .as_ref()
+                .filter(|(_, addresses)| !addresses.iter().any(|ip| ip.is_loopback()))
+                .map(|(interface_name, addresses)| (interface_name.as_str(), addresses.as_slice()))
+                .unwrap_or(("", &[])),
             _ => ("", &[]),
         }
     }
 
+    /// Constructs a lookup future for a given DNS query.
     fn resolve(
         &mut self,
         query: LowerQuery,
@@ -376,6 +400,10 @@ impl FilteringResolver {
         })
     }
 
+    /// Unblocks a set of addresses in the firewall by sending a message to the tunnel state
+    /// machine and waiting for completion. Be careful not to call this from the context of
+    /// [FilteringResolver::run] and instead call it in a different task, as otherwise a deadlock
+    /// will occur.
     async fn unblock_ips(maybe_tx: TunnelCommandSender, addresses: BTreeSet<IpAddr>) {
         let (done_tx, done_rx) = oneshot::channel();
         if maybe_tx
@@ -392,10 +420,14 @@ impl FilteringResolver {
         }
     }
 
+    /// Determines whether a query should be responded to given the current state of the resolver
+    /// and if the query is valid.
     fn should_service_request(&self, query: &LowerQuery) -> bool {
         self.resolver_state.is_running() && self.allow_query(query)
     }
 
+    /// Determines whether a DNS query is allowable. Currently, this implies that the query is
+    /// either a `A`, `AAAA` or a `CNAME` query for `captive.apple.com`.
     fn allow_query(&self, query: &LowerQuery) -> bool {
         let captive_apple_com: LowerName =
             LowerName::from(Name::from_str(CAPTIVE_PORTAL_DOMAIN).unwrap());
@@ -403,6 +435,8 @@ impl FilteringResolver {
     }
 }
 
+/// An implementation of [trust_dns_server::server::RequestHandler] that forwards queries to
+/// `FilteringResolver` as `ResolverMessage::Request` messages.
 struct ResolverImpl {
     tx: Arc<mpsc::Sender<ResolverMessage>>,
 }
@@ -474,6 +508,7 @@ impl RequestHandler for ResolverImpl {
     }
 }
 
+/// RuntimeProvider is used to construct sockets to reach the upstream resolver.
 #[derive(Clone)]
 struct RuntimeProvider {
     best_interface: Arc<Mutex<Option<NonZeroU32>>>,
