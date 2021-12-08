@@ -1,4 +1,5 @@
 # Issues with macOS getting stuck in the offline state for too long
+
 When macOS is coming back from sleep or connecting to a new WiFi network, it may try to send various
 requests over the internet before it publishes a default route to the routing table. Since our
 daemon relies on the routing table to obtain a default route to route traffic to relays and bridges,
@@ -16,6 +17,7 @@ layer, so only the request for `captive.apple.com` is leaked, and before the res
 the firewall rules are updated to allow the resolved addresses from the response to be reachable.
 
 # Leaking macOS network-check traffic
+
 To allow macOS's network-check to function, _some_ DNS queries need to leaked during a blocked
 state. This can be done via using a resolver that is selectively reacts to some DNS queries and is
 able to reach upstream resolvers when the app is in a blocking state. For now, this is achieved by
@@ -26,6 +28,7 @@ network check. When receiving upstream responses, the DNS server in question sho
 firewall be reconfigured such that the resolved IP addresses are reachable.
 
 ## Requirements from the daemon
+
 To enable the custom resolver, certain conditions in the rest of the daemon need to be met:
 - The firewall must allow traffic coming from our resolver (identified via GID) to the configured
   upstream resolvers.  The firewall must have a list of IPs for which traffic will be
@@ -36,14 +39,15 @@ To enable the custom resolver, certain conditions in the rest of the daemon need
   allowed queries. For now, only queries for `captive.apple.com` are allowed.
 
 ## Filtering resolver's behavior
+
 The functionality of this feature is strongly tied to the states of the app when it's blocking
 traffic. These blocking states include the app when it's in the disconnected mode with _always
 require vpn_ turned on or in an error state with a blocking reason that isn't related to setting DNS
 or starting the filtering resolver. In all other tunnel states, the filtering resolver and firewall
 rules shouldn't be affected by this feature.
 
-
 ### State to keep track of
+
 - List of allowed IP addresses as a result of being responses to issues DNS requests, which should
     be cleared when leaving the blocking state.
 - The daemon should keep track of *if* the user has enabled the filtering resolver. If the user enables
@@ -51,15 +55,15 @@ rules shouldn't be affected by this feature.
   back to the front-ends. The user needs to know that the filtering resolver failed to run.
 
 ### When the network-check leak is toggled on
+
 - When in a blocking state:
   1. Exclude the local resolver's traffic from the firewall.
   1. Configure the filtering resolver to bind to port 53.
   1. Read the system's current DNS config and configure the filtering resolver to use it.
   1. Configure the host to use our local resolver
-  If any of the above steps fail, the app should report the failure to the frontend that toggled the
-  setting.
-
-- In all other states, the filtering resolver should bind to port 53 .
+- In all other states, the filtering resolver should bind to port 53.
+If any of the above steps fail, the app should report the failure to the frontend that toggled the
+setting.
 
 ### When the network-check leak is toggled off
 - When in a blocking state:
@@ -68,10 +72,8 @@ rules shouldn't be affected by this feature.
   1. The filtering resolver should be shut down, unbinding from port 53.
 - In all other states, the filtering resolver should be shut down, to leave port 53 free.
 
-
 ### When the network-check leak is enabled
 #### Behavior when the daemon enters a blocking state
-When entering a blocking state, the system's current DNS config should be replaced w
 To enable the filtering resolver when entering the error state the daemon should do the following:
 1. Exclude the local resolver's traffic from the firewall.
 1. Read the system's current DNS config and configure the filtering resolver to use it.
@@ -91,3 +93,4 @@ transition to an error state and not attempt to start the filtering resolver aga
 #### When the daemon leaves a blocking state:
 - The host's DNS configuration is reverted to no longer use the filtering resolver.
 - The list of IP addresses that are allowed to pass through our firewall are cleared.
+
