@@ -3,10 +3,11 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import { Layout, SettingsContainer } from './Layout';
-import { ModalContainer } from './Modal';
+import { ModalAlert, ModalAlertType, ModalContainer } from './Modal';
 import {
   BackBarItem,
   NavigationBar,
@@ -62,7 +63,13 @@ interface IProps {
   onClose: () => void;
 }
 
-export default class OpenVpnSettings extends React.Component<IProps> {
+interface IState {
+  showBridgeStateConfirmationDialog: boolean;
+}
+
+export default class OpenVpnSettings extends React.Component<IProps, IState> {
+  public state = { showBridgeStateConfirmationDialog: false };
+
   private portItems: { [key in RelayProtocol]: Array<ISelectorItem<OptionalPort>> };
   private protocolItems: Array<ISelectorItem<OptionalRelayProtocol>>;
 
@@ -181,7 +188,7 @@ export default class OpenVpnSettings extends React.Component<IProps> {
                             // TRANSLATORS: mode setting available.
                             formatMarkdown(
                               messages.pgettext(
-                                'wireguard-settings-view',
+                                'openvpn-settings-view',
                                 'To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**.',
                               ),
                             )}
@@ -237,6 +244,8 @@ export default class OpenVpnSettings extends React.Component<IProps> {
             </NavigationContainer>
           </SettingsContainer>
         </Layout>
+
+        {this.state.showBridgeStateConfirmationDialog && this.renderBridgeStateConfirmation()}
       </ModalContainer>
     );
   }
@@ -267,10 +276,6 @@ export default class OpenVpnSettings extends React.Component<IProps> {
     this.props.setOpenVpnRelayProtocolAndPort(this.props.openvpn.protocol, port);
   };
 
-  private onSelectBridgeState = (bridgeState: BridgeState) => {
-    this.props.setBridgeState(bridgeState);
-  };
-
   private onMssfixSubmit = (value: string) => {
     const parsedValue = value === '' ? undefined : parseInt(value, 10);
     if (OpenVpnSettings.mssfixIsValid(value)) {
@@ -289,4 +294,38 @@ export default class OpenVpnSettings extends React.Component<IProps> {
       (parsedMssFix >= MIN_MSSFIX_VALUE && parsedMssFix <= MAX_MSSFIX_VALUE)
     );
   }
+
+  private renderBridgeStateConfirmation = () => {
+    return (
+      <ModalAlert
+        type={ModalAlertType.info}
+        message={messages.gettext('This setting increases latency. Use only if needed.')}
+        buttons={[
+          <AppButton.RedButton key="confirm" onClick={this.confirmBridgeState}>
+            {messages.gettext('Enable anyway')}
+          </AppButton.RedButton>,
+          <AppButton.BlueButton key="back" onClick={this.hideBridgeStateConfirmationDialog}>
+            {messages.gettext('Back')}
+          </AppButton.BlueButton>,
+        ]}
+        close={this.hideBridgeStateConfirmationDialog}></ModalAlert>
+    );
+  };
+
+  private onSelectBridgeState = (newValue: BridgeState) => {
+    if (newValue === 'on') {
+      this.setState({ showBridgeStateConfirmationDialog: true });
+    } else {
+      this.props.setBridgeState(newValue);
+    }
+  };
+
+  private hideBridgeStateConfirmationDialog = () => {
+    this.setState({ showBridgeStateConfirmationDialog: false });
+  };
+
+  private confirmBridgeState = () => {
+    this.setState({ showBridgeStateConfirmationDialog: false });
+    this.props.setBridgeState('on');
+  };
 }
