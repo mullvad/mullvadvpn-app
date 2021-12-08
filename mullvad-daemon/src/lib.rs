@@ -2268,12 +2268,9 @@ where
         tx: ResponseTx<(), Either<settings::Error, talpid_core::resolver::Error>>,
         enable_custom_resolver: bool,
     ) {
-        let result = if self.settings.allow_macos_network_check != enable_custom_resolver {
-            self.on_set_custom_resolver_inner(enable_custom_resolver)
-                .await
-        } else {
-            Ok(())
-        };
+        let result = self
+            .on_set_custom_resolver_inner(enable_custom_resolver)
+            .await;
 
         Self::oneshot_send(tx, result, "on_set_allow_macos_network_check resposne");
     }
@@ -2283,24 +2280,30 @@ where
         &mut self,
         allow_macos_network_check: bool,
     ) -> Result<(), Either<settings::Error, talpid_core::resolver::Error>> {
-        let _ = self
-            .settings
-            .set_allow_macos_network_check(allow_macos_network_check)
-            .await
-            .map_err(Either::Left)?;
-
         let (start_tx, start_rx) = oneshot::channel();
         self.send_tunnel_command(TunnelCommand::AllowMacosNetworkCheck(
             allow_macos_network_check,
             start_tx,
         ));
         match start_rx.await {
-            Ok(result) => result.map_err(Either::Right),
+            Ok(result) => {
+                result.map_err(Either::Right)?;
+            }
             Err(_) => {
                 log::error!("Tunnel state machine has exited");
-                Ok(())
+                return Ok(());
             }
+        };
+        let settings_changed = self
+            .settings
+            .set_allow_macos_network_check(allow_macos_network_check)
+            .await
+            .map_err(Either::Left)?;
+        if settings_changed {
+            self.event_listener
+                .notify_settings(self.settings.to_settings());
         }
+        Ok(())
     }
 
     async fn on_set_wireguard_mtu(
