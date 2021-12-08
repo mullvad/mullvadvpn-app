@@ -27,16 +27,20 @@ and the resolved IP addresses should only be in effect if the app has been confi
 network check. When receiving upstream responses, the DNS server in question should first have the
 firewall be reconfigured such that the resolved IP addresses are reachable.
 
-## Requirements from the daemon
+## Filtering resolver's dependencies
 
 To enable the custom resolver, certain conditions in the rest of the daemon need to be met:
 - The firewall must allow traffic coming from our resolver (identified via GID) to the configured
   upstream resolvers.  The firewall must have a list of IPs for which traffic will be
-  allowed to pass. The list will be populated by the resolved A and AAAA records, and reset when the
-  tunnel state machine moves away from the error state.
+  allowed to pass. The list will be populated by the resolved A and AAAA records, and reset when the tunnel state
+  machine moves away from the error state. This list will be cleared when moving to any other tunnel state.
 - The daemon must configure the system to use the filtering resolver.
 - The resolver must only reply to queries when it's in an active state and it must only reply to
   allowed queries. For now, only queries for `captive.apple.com` are allowed.
+- The daemon should keep track of *if* the user has enabled the filtering resolver. If the user enables
+  the custom resolver but something is already listening on port 53, then this should be reported
+  back to the front-ends. The user needs to know that the filtering resolver failed to run.
+
 
 ## Filtering resolver's behavior
 
@@ -45,14 +49,6 @@ traffic. These blocking states include the app when it's in the disconnected mod
 require vpn_ turned on or in an error state with a blocking reason that isn't related to setting DNS
 or starting the filtering resolver. In all other tunnel states, the filtering resolver and firewall
 rules shouldn't be affected by this feature.
-
-### State to keep track of
-
-- List of allowed IP addresses as a result of being responses to issues DNS requests, which should
-    be cleared when leaving the blocking state.
-- The daemon should keep track of *if* the user has enabled the filtering resolver. If the user enables
-  the custom resolver but something is already listening on port 53, then this should be reported
-  back to the front-ends. The user needs to know that the filtering resolver failed to run.
 
 ### When the network-check leak is toggled on
 
