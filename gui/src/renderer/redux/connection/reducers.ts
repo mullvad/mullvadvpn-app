@@ -8,6 +8,7 @@ export interface IConnectionReduxState {
   ipv6?: Ip;
   hostname?: string;
   bridgeHostname?: string;
+  entryHostname?: string;
   latitude?: number;
   longitude?: number;
   country?: string;
@@ -21,6 +22,7 @@ const initialState: IConnectionReduxState = {
   ipv6: undefined,
   hostname: undefined,
   bridgeHostname: undefined,
+  entryHostname: undefined,
   latitude: undefined,
   longitude: undefined,
   country: undefined,
@@ -43,6 +45,7 @@ export default function (
         longitude: action.newLocation.longitude,
         hostname: action.newLocation.hostname,
         bridgeHostname: action.newLocation.bridgeHostname,
+        entryHostname: action.newLocation.entryHostname,
       };
 
     case 'UPDATE_BLOCK_STATE':
