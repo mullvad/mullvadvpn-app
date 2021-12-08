@@ -214,7 +214,7 @@ impl TunnelState for ErrorState {
 
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::AllowMacosNetworkCheck(enable, done_tx)) => {
-                let result = if enable && !shared_values.enable_filtering_resolver {
+                let result = if enable {
                     shared_values.enable_filtering_resolver = enable;
                     if let Err(err) = self.set_firewall(shared_values) {
                         return NewState(ErrorState::enter(
