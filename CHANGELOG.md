@@ -32,8 +32,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Avoid running in foreground when not connected.
 - Avoid removing notification when service is stopped.
-- Change so that swiping the notification no longer kills the service since that isn't a common way of handling the 
-  lifecycle in Android. Instead rely on the following mechanisms to kill the service:
+- Change so that swiping the notification no longer kills the service since that isn't a common way
+  of handling the lifecycle in Android. Instead rely on the following mechanisms to kill the
+  service:
   * Swiping to remove from the Recents/Overview screen.
   * Android Background Execution Limits.
   * The System Settings way of killing apps ("Force Stop").
