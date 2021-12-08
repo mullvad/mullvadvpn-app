@@ -124,7 +124,7 @@ impl TunnelState for DisconnectedState {
         };
 
         #[cfg(target_os = "macos")]
-        if shared_values.enable_filtering_resolver {
+        if shared_values.enable_filtering_resolver && shared_values.block_when_disconnected {
             if let Err(err) = disconnected_state.start_filtering_resolver(shared_values) {
                 log::error!(
                     "{}",
@@ -199,7 +199,7 @@ impl TunnelState for DisconnectedState {
                     #[cfg(windows)]
                     Self::register_split_tunnel_addresses(shared_values, true);
                     #[cfg(target_os = "macos")]
-                    if block_when_disconnected {
+                    if block_when_disconnected && shared_values.enable_filtering_resolver {
                         if let Err(err) = self.start_filtering_resolver(shared_values) {
                             let block_reason = map_filtering_resolver_start(&err);
                             return NewState(ErrorState::enter(shared_values, block_reason));
@@ -246,20 +246,18 @@ impl TunnelState for DisconnectedState {
                         return SameState(self.into());
                     };
                 }
-                if shared_values.enable_filtering_resolver != enable {
-                    shared_values.enable_filtering_resolver = enable;
-                    self.set_firewall_policy(shared_values, false);
-                    if shared_values.block_when_disconnected && enable {
-                        if let Err(err) = self.start_filtering_resolver(shared_values) {
-                            log::error!(
-                                "{}",
-                                err.display_chain_with_msg("Failed to start filtering resolver:")
-                            );
+                shared_values.enable_filtering_resolver = enable;
+                self.set_firewall_policy(shared_values, false);
+                if shared_values.block_when_disconnected && enable {
+                    if let Err(err) = self.start_filtering_resolver(shared_values) {
+                        log::error!(
+                            "{}",
+                            err.display_chain_with_msg("Failed to start filtering resolver:")
+                        );
 
-                            let error_cause = map_filtering_resolver_start(&err);
-                            let _ = done_tx.send(Err(err.left_or_else(resolver::Error::from)));
-                            return NewState(ErrorState::enter(shared_values, error_cause));
-                        }
+                        let error_cause = map_filtering_resolver_start(&err);
+                        let _ = done_tx.send(Err(err.left_or_else(resolver::Error::from)));
+                        return NewState(ErrorState::enter(shared_values, error_cause));
                     }
                 }
                 let _ = done_tx.send(Ok(()));
