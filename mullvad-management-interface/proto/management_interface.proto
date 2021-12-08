@@ -211,6 +211,7 @@ message GeoIpLocation {
 	bool mullvad_exit_ip = 7;
 	string hostname = 8;
 	string bridge_hostname = 9;
+	string entry_hostname = 10;
 }
 
 message BridgeSettings {

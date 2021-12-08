@@ -531,6 +531,7 @@ pub struct Daemon<L: EventListener> {
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
+    last_generated_entry_relay: Option<Relay>,
     app_version_info: Option<AppVersionInfo>,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
@@ -755,6 +756,7 @@ where
             relay_selector,
             last_generated_relay: None,
             last_generated_bridge_relay: None,
+            last_generated_entry_relay: None,
             app_version_info,
             shutdown_tasks: vec![],
             tunnel_state_machine_shutdown_signal,
@@ -988,6 +990,7 @@ where
             let result = match self.settings.get_relay_settings() {
                 RelaySettings::CustomTunnelEndpoint(custom_relay) => {
                     self.last_generated_relay = None;
+                    self.last_generated_entry_relay = None;
                     custom_relay
                         // TODO(emilsp): generate proxy settings for custom tunnels
                         .to_tunnel_parameters(self.settings.tunnel_options.clone(), None)
@@ -1006,7 +1009,7 @@ where
                             self.settings.get_wireguard().is_some(),
                         )
                         .ok();
-                    if let Some((relay, endpoint)) = endpoint {
+                    if let Some((relay, entry_relay, endpoint)) = endpoint {
                         let result = self
                             .create_tunnel_parameters(
                                 &relay,
@@ -1016,6 +1019,7 @@ where
                             )
                             .await;
                         self.last_generated_relay = Some(relay);
+                        self.last_generated_entry_relay = entry_relay;
                         match result {
                             Ok(result) => Ok(result),
                             Err(Error::NoKeyAvailable) => {
@@ -1459,6 +1463,10 @@ where
             .last_generated_bridge_relay
             .as_ref()
             .map(|bridge| bridge.hostname.clone());
+        let entry_hostname = self
+            .last_generated_entry_relay
+            .as_ref()
+            .map(|entry| entry.hostname.clone());
         let location = relay.location.as_ref().cloned().unwrap();
         let hostname = relay.hostname.clone();
 
@@ -1472,6 +1480,7 @@ where
             mullvad_exit_ip: true,
             hostname: Some(hostname),
             bridge_hostname,
+            entry_hostname,
         })
     }
 
