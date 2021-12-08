@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { sprintf } from 'sprintf-js';
-import { messages } from '../../shared/gettext';
+import { messages, relayLocations } from '../../shared/gettext';
 import log from '../../shared/logging';
 import Connect from '../components/Connect';
 import withAppContext, { IAppContext } from '../context';
@@ -9,32 +9,29 @@ import { RoutePath } from '../lib/routes';
 import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
-function getRelayName(
-  relaySettings: RelaySettingsRedux,
-  relayLocations: IRelayLocationRedux[],
-): string {
+function getRelayName(relaySettings: RelaySettingsRedux, locations: IRelayLocationRedux[]): string {
   if ('normal' in relaySettings) {
     const location = relaySettings.normal.location;
 
     if (location === 'any') {
       return 'Automatic';
     } else if ('country' in location) {
-      const country = relayLocations.find(({ code }) => code === location.country);
+      const country = locations.find(({ code }) => code === location.country);
       if (country) {
-        return country.name;
+        return relayLocations.gettext(country.name);
       }
     } else if ('city' in location) {
       const [countryCode, cityCode] = location.city;
-      const country = relayLocations.find(({ code }) => code === countryCode);
+      const country = locations.find(({ code }) => code === countryCode);
       if (country) {
         const city = country.cities.find(({ code }) => code === cityCode);
         if (city) {
-          return city.name;
+          return relayLocations.gettext(city.name);
         }
       }
     } else if ('hostname' in location) {
       const [countryCode, cityCode, hostname] = location.hostname;
-      const country = relayLocations.find(({ code }) => code === countryCode);
+      const country = locations.find(({ code }) => code === countryCode);
       if (country) {
         const city = country.cities.find(({ code }) => code === cityCode);
         if (city) {
@@ -46,7 +43,7 @@ function getRelayName(
             // TRANSLATORS: %(hostname)s - a hostname
             messages.pgettext('connect-container', '%(city)s (%(hostname)s)'),
             {
-              city: city.name,
+              city: relayLocations.gettext(city.name),
               hostname,
             },
           );
