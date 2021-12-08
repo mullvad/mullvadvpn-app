@@ -104,13 +104,20 @@ void AppendRelayRules
 void AppendAllowedEndpointRules
 (
 	FwContext::Ruleset &ruleset,
-	const WinFwEndpoint &endpoint
+	const WinFwAllowedEndpoint &endpoint
 )
 {
+	std::vector<std::wstring> clients;
+	clients.reserve(endpoint.numClients);
+	for (uint32_t i = 0; i < endpoint.numClients; i++) {
+		clients.push_back(endpoint.clients[i]);
+	}
+
 	ruleset.emplace_back(std::make_unique<baseline::PermitEndpoint>(
-		wfp::IpAddress(endpoint.ip),
-		endpoint.port,
-		endpoint.protocol
+		wfp::IpAddress(endpoint.endpoint.ip),
+		clients,
+		endpoint.endpoint.port,
+		endpoint.endpoint.protocol
 	));
 }
 
@@ -149,7 +156,7 @@ FwContext::FwContext
 (
 	uint32_t timeout,
 	const WinFwSettings &settings,
-	const std::optional<WinFwEndpoint> &allowedEndpoint
+	const std::optional<WinFwAllowedEndpoint> &allowedEndpoint
 )
 	: m_baseline(0)
 	, m_activePolicy(Policy::None)
@@ -178,7 +185,7 @@ bool FwContext::applyPolicyConnecting
 	const WinFwEndpoint &relay,
 	const std::wstring &relayClient,
 	const std::optional<std::wstring> &tunnelInterfaceAlias,
-	const std::optional<WinFwEndpoint> &allowedEndpoint
+	const std::optional<WinFwAllowedEndpoint> &allowedEndpoint
 )
 {
 	Ruleset ruleset;
@@ -260,7 +267,7 @@ bool FwContext::applyPolicyConnected
 	return status;
 }
 
-bool FwContext::applyPolicyBlocked(const WinFwSettings &settings, const std::optional<WinFwEndpoint> &allowedEndpoint)
+bool FwContext::applyPolicyBlocked(const WinFwSettings &settings, const std::optional<WinFwAllowedEndpoint> &allowedEndpoint)
 {
 	const auto status = applyRuleset(composePolicyBlocked(settings, allowedEndpoint));
 
@@ -292,7 +299,7 @@ FwContext::Policy FwContext::activePolicy() const
 	return m_activePolicy;
 }
 
-FwContext::Ruleset FwContext::composePolicyBlocked(const WinFwSettings &settings, const std::optional<WinFwEndpoint> &allowedEndpoint)
+FwContext::Ruleset FwContext::composePolicyBlocked(const WinFwSettings &settings, const std::optional<WinFwAllowedEndpoint> &allowedEndpoint)
 {
 	Ruleset ruleset;
 
@@ -315,7 +322,7 @@ bool FwContext::applyBaseConfiguration()
 	});
 }
 
-bool FwContext::applyBlockedBaseConfiguration(const WinFwSettings &settings, const std::optional<WinFwEndpoint> &allowedEndpoint, uint32_t &checkpoint)
+bool FwContext::applyBlockedBaseConfiguration(const WinFwSettings &settings, const std::optional<WinFwAllowedEndpoint> &allowedEndpoint, uint32_t &checkpoint)
 {
 	return m_sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
 	{

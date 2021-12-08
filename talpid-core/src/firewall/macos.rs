@@ -104,7 +104,7 @@ impl Firewall {
                 allowed_endpoint,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
-                rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
+                rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.endpoint)?);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
                 // over port 53) but before allow LAN (so DNS does not leak to the LAN)
@@ -150,7 +150,7 @@ impl Firewall {
                 allowed_endpoint,
             } => {
                 let mut rules = Vec::new();
-                rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
+                rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.endpoint)?);
                 if allow_lan {
                     // Important to block DNS before allow LAN (so DNS does not leak to the LAN)
                     rules.append(&mut self.get_block_dns_rules()?);

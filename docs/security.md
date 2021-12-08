@@ -99,6 +99,13 @@ The following network traffic is allowed or blocked independent of state:
 On Linux, any situation that permits incoming or outgoing traffic also allows that traffic to be
 forwarded. All other forward traffic is rejected.
 
+#### Mullvad API
+
+The firewall allows traffic for the API regardless of tunnel state, to allow for updating keys,
+fetching account data, etc. In the [Connected] state, this is only allowed inside the tunnel.
+For the other states, it is allowed regardless. On Windows, only the Mullvad service and problem
+report tool are able to communicate with the API in any of the blocking states.
+
 ### Disconnected
 
 This is the default state that the `mullvad-daemon` starts in when the device boots, unless
@@ -184,7 +191,6 @@ disconnect/quit is explicitly requested by the user. At the same time there migh
 when the app can't establish a tunnel for the device. This includes, but is not limited to:
 * Account runs out of time
 * The computer is offline
-* the TAP adapter driver has an error or the adapter can't be found (Windows)
 * Some internal error parsing or modifying system routing table, DNS settings etc.
 
 In the above cases the app gives up trying to create a tunnel, but it can't go to the

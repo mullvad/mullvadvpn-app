@@ -56,6 +56,12 @@ Line wrap the file at 100 chars.                                              Th
 - Fix banner sometimes incorrectly showing (e.g. "BLOCKING INTERNET").
 - Fix issue with the user getting kicked out of certain views in settings when the app is brought to the foreground.
 
+### Security
+#### Windows
+- Restrict which applications are allowed to communicate with the API while in a blocking state.
+  This prevents malicious scripts on websites from trying to do so.
+
+
 ## [2021.6] - 2021-11-17
 ### Fixed
 - Fix the font for Russian. Issue introduced in 2021.6-beta1.

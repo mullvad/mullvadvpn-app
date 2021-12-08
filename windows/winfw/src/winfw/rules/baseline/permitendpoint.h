@@ -3,6 +3,7 @@
 #include <winfw/rules/ifirewallrule.h>
 #include <winfw/winfw.h>
 #include <libwfp/ipaddress.h>
+#include <vector>
 #include <string>
 
 namespace rules::baseline
@@ -15,6 +16,7 @@ public:
 	PermitEndpoint
 	(
 		const wfp::IpAddress &address,
+		const std::vector<std::wstring> &clients,
 		uint16_t port,
 		WinFwProtocol protocol
 	);
@@ -24,6 +26,7 @@ public:
 private:
 
 	const wfp::IpAddress m_address;
+	const std::vector<std::wstring> m_clients;
 	const uint16_t m_port;
 	const WinFwProtocol m_protocol;
 };

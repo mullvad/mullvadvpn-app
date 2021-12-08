@@ -64,7 +64,10 @@ use talpid_core::{
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 use talpid_types::{
-    net::{openvpn, Endpoint, TransportProtocol, TunnelEndpoint, TunnelParameters, TunnelType},
+    net::{
+        openvpn, AllowedEndpoint, Endpoint, TransportProtocol, TunnelEndpoint, TunnelParameters,
+        TunnelType,
+    },
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
@@ -640,10 +643,8 @@ where
         let api_availability = rpc_runtime.availability_handle();
         api_availability.suspend();
 
-        let initial_api_endpoint = Endpoint::from_socket_address(
-            rpc_runtime.address_cache.peek_address(),
-            TransportProtocol::Tcp,
-        );
+        let initial_api_endpoint =
+            Self::get_allowed_endpoint(rpc_runtime.address_cache.peek_address());
 
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         let tunnel_command_tx = tunnel_state_machine::spawn(
@@ -676,7 +677,7 @@ where
             address_change_runtime.block_on(async move {
                 if let Some(tx) = tx.upgrade() {
                     let _ = tx.unbounded_send(TunnelCommand::AllowEndpoint(
-                        Endpoint::from_socket_address(address, TransportProtocol::Tcp),
+                        Self::get_allowed_endpoint(address),
                         result_tx,
                     ));
                     result_rx.await.map_err(|_| ())
@@ -768,6 +769,27 @@ where
         api_availability.unsuspend();
 
         Ok(daemon)
+    }
+
+    fn get_allowed_endpoint(api_address: std::net::SocketAddr) -> AllowedEndpoint {
+        let endpoint = Endpoint::from_socket_address(api_address, TransportProtocol::Tcp);
+
+        #[cfg(windows)]
+        let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
+        #[cfg(windows)]
+        let clients = vec![
+            daemon_exe
+                .parent()
+                .expect("missing executable parent directory")
+                .join("mullvad-problem-report.exe"),
+            daemon_exe,
+        ];
+
+        AllowedEndpoint {
+            #[cfg(windows)]
+            clients,
+            endpoint,
+        }
     }
 
     fn get_dns_resolvers(options: &DnsOptions) -> Option<Vec<IpAddr>> {
