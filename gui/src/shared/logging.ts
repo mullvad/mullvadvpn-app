@@ -84,7 +84,7 @@ export class ConsoleOutput implements ILogOutput {
         console.log(message);
         break;
       case LogLevel.debug:
-        console.debug(message);
+        console.log(message);
         break;
     }
   }
