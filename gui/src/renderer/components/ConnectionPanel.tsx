@@ -35,6 +35,7 @@ interface IProps {
   isOpen: boolean;
   hostname?: string;
   bridgeHostname?: string;
+  entryHostname?: string;
   inAddress?: IInAddress;
   entryLocationInAddress?: IInAddress;
   bridgeInfo?: IBridgeData;
@@ -132,15 +133,20 @@ export default class ConnectionPanel extends React.Component<IProps> {
 
   private hostnameLine() {
     if (this.props.hostname && this.props.bridgeHostname) {
+      return sprintf(messages.pgettext('connection-info', '%(relay)s via %(entry)s'), {
+        relay: this.props.hostname,
+        entry: this.props.bridgeHostname,
+      });
+    } else if (this.props.hostname && this.props.entryHostname) {
       return sprintf(
         // TRANSLATORS: The hostname line displayed below the country on the main screen
         // TRANSLATORS: Available placeholders:
         // TRANSLATORS: %(relay)s - the relay hostname
-        // TRANSLATORS: %(bridge)s - the bridge hostname
-        messages.pgettext('connection-info', '%(relay)s via %(bridge)s'),
+        // TRANSLATORS: %(entry)s - the entry relay hostname
+        messages.pgettext('connection-info', '%(relay)s via %(entry)s'),
         {
           relay: this.props.hostname,
-          bridge: this.props.bridgeHostname,
+          entry: this.props.entryHostname,
         },
       );
     } else {

@@ -76,6 +76,7 @@ const mapStateToProps = (state: IReduxState) => {
     isOpen: state.userInterface.connectionPanelVisible,
     hostname: state.connection.hostname,
     bridgeHostname: state.connection.bridgeHostname,
+    entryHostname: state.connection.entryHostname,
     inAddress,
     entryLocationInAddress,
     bridgeInfo,

@@ -14,6 +14,7 @@ export interface ILocation {
   mullvadExitIp: boolean;
   hostname?: string;
   bridgeHostname?: string;
+  entryHostname?: string;
   provider?: string;
 }
 
