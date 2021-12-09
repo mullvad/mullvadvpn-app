@@ -67,9 +67,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix issue with the user getting kicked out of certain views in settings when the app is brought to the foreground.
 
 ### Security
-#### Windows
 - Restrict which applications are allowed to communicate with the API while in a blocking state.
-  This prevents malicious scripts on websites from trying to do so.
+  This prevents malicious scripts on websites from trying to do so. On Windows, only
+  `mullvad-problem-report.exe` and `mullvad-daemon.exe` executables are allowed to reach the API,
+  whereas on Linux and macOS only root processes are able to reach the API.
 
 
 ## [2021.6] - 2021-11-17
