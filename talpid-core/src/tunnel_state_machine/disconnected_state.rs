@@ -88,6 +88,7 @@ impl DisconnectedState {
         }
     }
 
+    /// Starts the filtering resolver and configures host to use it.
     #[cfg(target_os = "macos")]
     fn start_filtering_resolver(
         &mut self,
@@ -303,6 +304,8 @@ impl TunnelState for DisconnectedState {
     }
 }
 
+/// Maps a DNS or a resovler error to an [ErrorStateCause] to be used when failing to start a
+/// filtering resolver.
 #[cfg(target_os = "macos")]
 fn map_filtering_resolver_start(
     err: &either::Either<resolver::Error, dns::Error>,
