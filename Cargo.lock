@@ -1349,7 +1349,6 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "err-derive",
- "filetime",
  "futures",
  "http",
  "hyper",
@@ -1363,7 +1362,6 @@ dependencies = [
  "serde",
  "serde_json",
  "talpid-types",
- "tempfile",
  "tokio",
  "tokio-rustls",
  "tokio-stream",
@@ -1404,7 +1402,6 @@ dependencies = [
  "log",
  "regex",
  "serde",
- "serde_json",
  "talpid-types",
 ]
 
