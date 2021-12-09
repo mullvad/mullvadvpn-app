@@ -438,6 +438,8 @@ impl SharedTunnelStateValues {
         Ok(())
     }
 
+    /// Sets the filtering resolver setting and toggles it's state to either inactive or shutdown
+    /// state.
     #[cfg(target_os = "macos")]
     pub fn deactivate_filtering_resolver(
         &mut self,
@@ -447,6 +449,7 @@ impl SharedTunnelStateValues {
         self.disable_filtering_resolver()
     }
 
+    /// Toggles filtering resolver state to either inactive or shutdown.
     #[cfg(target_os = "macos")]
     pub fn disable_filtering_resolver(&mut self) -> Result<(), crate::resolver::Error> {
         if self.enable_filtering_resolver {
@@ -530,17 +533,6 @@ impl SharedTunnelStateValues {
             log::error!("Failed to bypass socket {}", err);
         }
         let _ = tx.send(());
-    }
-
-    #[cfg(target_os = "macos")]
-    pub fn get_filtering_resolver_config(
-        &mut self,
-    ) -> Result<Option<(String, Vec<IpAddr>)>, crate::dns::Error> {
-        if self.enable_filtering_resolver {
-            self.dns_monitor.get_system_config()
-        } else {
-            Ok(None)
-        }
     }
 }
 

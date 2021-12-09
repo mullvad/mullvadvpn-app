@@ -172,6 +172,8 @@ impl Firewall {
         }
     }
 
+    /// Constructs rules that allow DNS traffic coming from processes that belong to the excluded
+    /// group ID to leak.
     fn get_allow_excluded_dns_rules(&self) -> Result<[pfctl::FilterRule; 2]> {
         let mut builder = self.create_rule_builder(FilterRuleAction::Pass);
 
@@ -344,6 +346,8 @@ impl Firewall {
         Ok(vec![lo0_rule])
     }
 
+    /// Constructs firewall rules that allow traffic to a set of allowed IP addresses coming from
+    /// UID 0 processes to leak.
     fn get_exclusion_rules(
         &self,
         allowed_ips: &BTreeSet<IpAddr>,

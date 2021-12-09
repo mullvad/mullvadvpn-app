@@ -129,13 +129,21 @@ impl TunnelState for ErrorState {
                 );
                 return Self::enter(shared_values, ErrorStateCause::SetDnsError);
             }
-            match shared_values.get_filtering_resolver_config() {
+            match shared_values.dns_monitor.get_system_config() {
                 Ok(host_config) => host_config,
                 Err(err) => {
                     log::error!(
                         "{}",
                         err.display_chain_with_msg("Failed to start filtering resolver")
                     );
+                    if let Err(err) = shared_values.dns_monitor.reset() {
+                        log::error!(
+                            "{}",
+                            err.display_chain_with_msg(
+                                "Faield to reset DNS after failing to obtain host config"
+                            )
+                        );
+                    }
                     return Self::enter(shared_values, ErrorStateCause::FilteringResolverError);
                 }
             }
