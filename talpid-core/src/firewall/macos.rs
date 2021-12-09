@@ -17,9 +17,6 @@ type Result<T> = std::result::Result<T, Error>;
 /// replaced by allowing the anchor name to be configured from the public API of this crate.
 const ANCHOR_NAME: &'static str = "mullvad";
 
-const ROOT_UID: u32 = 0;
-
-/// The macOS firewall and DNS implementation.
 pub struct Firewall {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
@@ -286,11 +283,13 @@ impl Firewall {
             .proto(pfctl_proto)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
-            .user(Uid::from(ROOT_UID))
+            .user(Uid::from(super::ROOT_UID))
             .quick(true)
             .build()?)
     }
 
+    /// Produces a rule that allows traffic to flow to the API. Allows the app to reach the API in
+    /// blocked states.
     fn get_allowed_endpoint_rule(
         &self,
         allowed_endpoint: net::Endpoint,
@@ -303,6 +302,7 @@ impl Firewall {
             .to(allowed_endpoint.address)
             .proto(pfctl_proto)
             .keep_state(pfctl::StatePolicy::Keep)
+            .user(Uid::from(super::ROOT_UID))
             .quick(true)
             .build()?)
     }
@@ -359,7 +359,7 @@ impl Firewall {
                     .direction(pfctl::Direction::Out)
                     .to(*ip)
                     .quick(true)
-                    .user(Uid::from(ROOT_UID))
+                    .user(Uid::from(super::ROOT_UID))
                     .keep_state(pfctl::StatePolicy::Keep)
                     .build()?,
             );
