@@ -62,3 +62,26 @@ export default function ImageView(props: IImageViewProps) {
     );
   }
 }
+
+const StyledButton = styled.button({
+  cursor: 'default',
+  padding: 0,
+  backgroundColor: 'transparent',
+  border: 'none',
+});
+
+interface IImageViewButtonProps extends IImageViewProps {
+  'aria-label': string;
+  onClick: () => void;
+  className?: string;
+}
+
+export function ImageViewButton(props: IImageViewButtonProps) {
+  const { 'aria-label': ariaLabel, className, onClick, ...otherProps } = props;
+
+  return (
+    <StyledButton aria-label={ariaLabel} className={className} onClick={onClick}>
+      <ImageView {...otherProps} />
+    </StyledButton>
+  );
+}
