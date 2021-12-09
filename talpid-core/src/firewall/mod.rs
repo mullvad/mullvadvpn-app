@@ -82,6 +82,8 @@ const DHCPV4_CLIENT_PORT: u16 = 68;
 const DHCPV6_SERVER_PORT: u16 = 547;
 #[cfg(all(unix, not(target_os = "android")))]
 const DHCPV6_CLIENT_PORT: u16 = 546;
+#[cfg(all(unix, not(target_os = "android")))]
+const ROOT_UID: u32 = 0;
 
 #[cfg(all(unix, not(target_os = "android")))]
 /// Returns whether an address belongs to a private subnet.
