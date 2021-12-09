@@ -653,6 +653,8 @@ impl<'a> PolicyBatch<'a> {
         self.batch.add(&out_rule, nftnl::MsgType::Add);
     }
 
+    /// Adds firewall rules allow traffic to flow to the API. Allows the app to reach the API in
+    /// blocked states.
     fn add_allow_endpoint_rules(&mut self, endpoint: &Endpoint) {
         let mut in_rule = Rule::new(&self.in_chain);
         check_endpoint(&mut in_rule, End::Src, endpoint);
@@ -662,6 +664,8 @@ impl<'a> PolicyBatch<'a> {
 
         let mut out_rule = Rule::new(&self.out_chain);
         check_endpoint(&mut out_rule, End::Dst, endpoint);
+        out_rule.add_expr(&nft_expr!(meta skuid));
+        out_rule.add_expr(&nft_expr!(cmp == super::ROOT_UID));
         add_verdict(&mut out_rule, &Verdict::Accept);
 
         self.batch.add(&out_rule, nftnl::MsgType::Add);

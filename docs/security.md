@@ -104,7 +104,8 @@ forwarded. All other forward traffic is rejected.
 The firewall allows traffic for the API regardless of tunnel state, to allow for updating keys,
 fetching account data, etc. In the [Connected] state, this is only allowed inside the tunnel.
 For the other states, it is allowed regardless. On Windows, only the Mullvad service and problem
-report tool are able to communicate with the API in any of the blocking states.
+report tool are able to communicate with the API in any of the blocking states. On macOS and Linux
+all applications runnning as root are able to reach the API in blocking states.
 
 ### Disconnected
 
