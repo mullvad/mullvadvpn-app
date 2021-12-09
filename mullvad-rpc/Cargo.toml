@@ -33,9 +33,5 @@ lazy_static = "1.1.0"
 mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
 
-[dev-dependencies]
-filetime = "0.2"
-tempfile = "3.0"
-
 [target.'cfg(target_os="macos")'.dependencies]
 tokio-stream = { version = "0.1", features = ["io-util"] }
