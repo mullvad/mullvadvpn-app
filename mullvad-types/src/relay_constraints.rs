@@ -494,7 +494,8 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 pub struct WireguardConstraints {
     pub port: Constraint<TransportPort>,
     pub ip_version: Constraint<IpVersion>,
-    pub entry_location: Option<Constraint<LocationConstraint>>,
+    pub use_multihop: bool,
+    pub entry_location: Constraint<LocationConstraint>,
 }
 
 impl fmt::Display for WireguardConstraints {
@@ -514,8 +515,11 @@ impl fmt::Display for WireguardConstraints {
             Constraint::Any => write!(f, "IPv4 or IPv6")?,
             Constraint::Only(protocol) => write!(f, "{}", protocol)?,
         }
-        if let Some(Constraint::Only(ref entry)) = self.entry_location {
-            write!(f, " (via {})", entry)
+        if self.use_multihop {
+            match &self.entry_location {
+                Constraint::Any => write!(f, " (via any location)"),
+                Constraint::Only(location) => write!(f, " (via {})", location),
+            }
         } else {
             Ok(())
         }

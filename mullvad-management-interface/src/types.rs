@@ -505,9 +505,11 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
                             .option()
                             .map(IpVersion::from)
                             .map(IpVersionConstraint::from),
+                        use_multihop: constraints.wireguard_constraints.use_multihop,
                         entry_location: constraints
                             .wireguard_constraints
                             .entry_location
+                            .option()
                             .map(RelayLocation::from),
                     }),
 
@@ -715,10 +717,12 @@ impl TryFrom<&WireguardConstraints> for mullvad_types::relay_constraints::Wiregu
         Ok(mullvad_constraints::WireguardConstraints {
             port: Constraint::from(wireguard_transport_port),
             ip_version: Constraint::from(ip_version),
+            use_multihop: constraints.use_multihop,
             entry_location: constraints
                 .entry_location
                 .clone()
-                .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from),
+                .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from)
+                .unwrap_or(Constraint::Any),
         })
     }
 }
