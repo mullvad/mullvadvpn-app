@@ -28,6 +28,8 @@ Line wrap the file at 100 chars.                                              Th
   instead of setting them to default values.
 - Obscure account number in account view and add button for copying instead of copying when text is
   pressed.
+- Disable logging of translation errors in production. This will among other things prevent error
+  messages from translating the country in the disconnected state.
 
 #### Android
 - Avoid running in foreground when not connected.

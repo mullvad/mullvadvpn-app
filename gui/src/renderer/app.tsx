@@ -584,7 +584,7 @@ export default class AppRenderer {
 
     const contentHeight = window.innerHeight;
     if (contentHeight !== expectedContentHeight) {
-      log.debug(
+      log.verbose(
         resize ? 'Resize:' : 'Initial:',
         `Wrong content height: ${contentHeight}, expected ${expectedContentHeight}`,
       );
@@ -722,7 +722,7 @@ export default class AppRenderer {
   private setTunnelState(tunnelState: TunnelState) {
     const actions = this.reduxActions;
 
-    log.debug(`Tunnel state: ${tunnelState.state}`);
+    log.verbose(`Tunnel state: ${tunnelState.state}`);
 
     this.tunnelState = tunnelState;
     // The main process doesn't notify the tunnel state while waiting for a new one (unless it times

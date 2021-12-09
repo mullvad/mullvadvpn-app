@@ -590,7 +590,7 @@ export class DaemonRpc {
   private connectivityChangeCallback(timeoutErr?: Error) {
     const channel = this.client.getChannel();
     const currentState = channel?.getConnectivityState(true);
-    log.debug(`GRPC Channel connectivity state changed to ${currentState}`);
+    log.verbose(`GRPC Channel connectivity state changed to ${currentState}`);
     if (channel) {
       if (timeoutErr) {
         this.setChannelCallback(currentState);

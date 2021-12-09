@@ -270,7 +270,7 @@ class ApplicationMain {
 
     this.initLogging();
 
-    log.debug(`Chromium sandbox is ${SANDBOX_DISABLED ? 'disabled' : 'enabled'}`);
+    log.verbose(`Chromium sandbox is ${SANDBOX_DISABLED ? 'disabled' : 'enabled'}`);
     if (!SANDBOX_DISABLED) {
       app.enableSandbox();
     }
@@ -354,8 +354,8 @@ class ApplicationMain {
         backupLogFile(mainLogPath);
         backupLogFile(rendererLogPath);
 
-        log.addOutput(new FileOutput(LogLevel.debug, mainLogPath));
-        this.rendererLog.addOutput(new FileOutput(LogLevel.debug, rendererLogPath));
+        log.addOutput(new FileOutput(LogLevel.verbose, mainLogPath));
+        this.rendererLog.addOutput(new FileOutput(LogLevel.verbose, rendererLogPath));
       } catch (e) {
         const error = e as Error;
         console.error('Failed to initialize logging:', error);
@@ -1351,7 +1351,7 @@ class ApplicationMain {
             );
             reject(error.message);
           } else {
-            log.debug(`Problem report was written to ${reportPath}`);
+            log.verbose(`Problem report was written to ${reportPath}`);
             resolve(id);
           }
         });
