@@ -345,7 +345,7 @@ impl NetworkManager {
     /// previous state. Returns true only if the connectivity check was enabled and is now
     /// disabled. Disabling the connectivity check should be done before a firewall is applied
     /// due to the fact that blocking DNS requests can make it hang:
-    /// https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/404
+    /// <https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/404>
     pub fn disable_connectivity_check(&self) -> Option<bool> {
         let nm_manager = self.nm_manager();
         match nm_manager.get(NM_MANAGER, CONNECTIVITY_CHECK_KEY) {

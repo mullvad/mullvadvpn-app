@@ -55,7 +55,7 @@ pub struct PeerConfig {
     /// IP address of the WireGuard server.
     pub endpoint: SocketAddr,
     /// Transport protocol. WireGuard only supports UDP directly.
-    /// If this is set to TCP, then traffic is proxied using [`udp_to_tcp::Udp2Tcp`].
+    /// If this is set to TCP, then traffic is proxied using [udp_over_tcp](https://github.com/mullvad/udp-over-tcp).
     #[serde(default = "default_peer_transport")]
     pub protocol: TransportProtocol,
 }

@@ -86,7 +86,7 @@ impl RouteManagerHandle {
             .map_err(Error::PlatformError)
     }
 
-    /// Remove any routing rules created by [`create_routing_rules`].
+    /// Remove any routing rules created by [Self::create_routing_rules].
     #[cfg(target_os = "linux")]
     pub async fn clear_routing_rules(&self) -> Result<(), Error> {
         let (response_tx, response_rx) = oneshot::channel();
@@ -242,7 +242,7 @@ impl RouteManager {
         self.handle()?.create_routing_rules(enable_ipv6).await
     }
 
-    /// Remove any routing rules created by [`create_routing_rules`].
+    /// Remove any routing rules created by [Self::create_routing_rules].
     #[cfg(target_os = "linux")]
     pub async fn clear_routing_rules(&mut self) -> Result<(), Error> {
         self.handle()?.clear_routing_rules().await

@@ -12,7 +12,7 @@ use std::{
     time::Duration,
 };
 
-/// Fetches relay list from https://api.mullvad.net/v1/relays
+/// Fetches relay list from <https://api.mullvad.net/v1/relays>
 #[derive(Clone)]
 pub struct RelayListProxy {
     handle: rest::MullvadRestHandle,
