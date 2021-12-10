@@ -898,6 +898,7 @@ fn map_daemon_error(error: crate::Error) -> Status {
     match error {
         DaemonError::RestError(error) => map_rest_error(error),
         DaemonError::SettingsError(error) => map_settings_error(error),
+        DaemonError::AlreadyLoggedIn => Status::already_exists(error.to_string()),
         DaemonError::LoginError(error) => map_device_error(error),
         DaemonError::LogoutError(error) => map_device_error(error),
         DaemonError::KeyRotationError(error) => map_device_error(error),

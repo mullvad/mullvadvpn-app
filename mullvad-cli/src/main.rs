@@ -49,6 +49,9 @@ pub enum Error {
     //#[cfg(all(unix, not(target_os = "android"))
     #[error(display = "Failed to generate shell completions")]
     CompletionsError(#[error(source, no_from)] io::Error),
+
+    #[error(display = "{}", _0)]
+    Other(&'static str),
 }
 
 #[tokio::main]
