@@ -238,6 +238,28 @@ impl ConnectingState {
         ))
     }
 
+    fn reset_firewall(self, shared_values: &mut SharedTunnelStateValues) -> EventConsequence {
+        match Self::set_firewall_policy(
+            shared_values,
+            &self.tunnel_parameters,
+            &self.tunnel_metadata,
+        ) {
+            Ok(()) => {
+                cfg_if! {
+                    if #[cfg(target_os = "android")] {
+                        self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
+                    } else {
+                        EventConsequence::SameState(self.into())
+                    }
+                }
+            }
+            Err(error) => self.disconnect(
+                shared_values,
+                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
+            ),
+        }
+    }
+
     fn handle_commands(
         self,
         command: Option<TunnelCommand>,
@@ -246,29 +268,24 @@ impl ConnectingState {
         use self::EventConsequence::*;
 
         match command {
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::AddAllowedIps(_, done_tx)) => {
+                let _ = done_tx.send(());
+                SameState(self.into())
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::AllowMacosNetworkCheck(enable, done_tx)) => {
+                let _ = done_tx.send(shared_values.deactivate_filtering_resolver(enable));
+                SameState(self.into())
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::HostDnsConfig(_new_config)) => SameState(self.into()),
             Some(TunnelCommand::AllowLan(allow_lan)) => {
                 if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
                     self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
                 } else {
-                    match Self::set_firewall_policy(
-                        shared_values,
-                        &self.tunnel_parameters,
-                        &self.tunnel_metadata,
-                    ) {
-                        Ok(()) => {
-                            cfg_if! {
-                                if #[cfg(target_os = "android")] {
-                                    self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
-                                } else {
-                                    SameState(self.into())
-                                }
-                            }
-                        }
-                        Err(error) => self.disconnect(
-                            shared_values,
-                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
-                        ),
-                    }
+                    let next_state = self.reset_firewall(shared_values);
+                    return next_state;
                 }
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
@@ -283,6 +300,9 @@ impl ConnectingState {
                             AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
                         );
                     }
+                    let next_state = self.reset_firewall(shared_values);
+                    let _ = tx.send(());
+                    return next_state;
                 }
                 if let Err(_) = tx.send(()) {
                     log::error!("The AllowEndpoint receiver was dropped");
@@ -472,6 +492,13 @@ impl TunnelState for ConnectingState {
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         if shared_values.is_offline {
             return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
+        }
+        #[cfg(target_os = "macos")]
+        if let Err(err) = shared_values.disable_filtering_resolver() {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to disable custom resolver")
+            );
         }
         match shared_values
             .tunnel_parameters_generator

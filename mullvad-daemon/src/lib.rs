@@ -7,6 +7,8 @@ extern crate serde;
 mod account;
 pub mod account_history;
 pub mod exception_logging;
+#[cfg(target_os = "macos")]
+pub mod exclusion_gid;
 mod geoip;
 pub mod logging;
 #[cfg(not(target_os = "android"))]
@@ -20,6 +22,8 @@ pub mod settings;
 pub mod version;
 mod version_check;
 
+#[cfg(target_os = "macos")]
+use either::Either;
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Future},
@@ -186,6 +190,10 @@ pub enum Error {
 
     #[error(display = "Failed to open cached target tunnel state")]
     OpenCachedTargetState(#[error(source)] io::Error),
+
+    #[cfg(target_os = "macos")]
+    #[error(display = "Failed to set exclusion group")]
+    GroupIdError(#[error(source)] io::Error),
 }
 
 /// Enum representing commands that can be sent to the daemon.
@@ -239,6 +247,12 @@ pub enum DaemonCommand {
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
+    /// Toggle macOS network check leak
+    #[cfg(target_os = "macos")]
+    SetAllowMacosNetworkCheck(
+        ResponseTx<(), Either<settings::Error, talpid_core::resolver::Error>>,
+        bool,
+    ),
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(ResponseTx<(), settings::Error>, Option<u16>),
     /// Set automatic key rotation interval for wireguard tunnels
@@ -555,6 +569,12 @@ where
         command_channel: DaemonCommandChannel,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
+        #[cfg(target_os = "macos")]
+        let exclusion_gid = {
+            bump_filehandle_limit();
+            exclusion_gid::set_exclusion_gid().map_err(Error::GroupIdError)?
+        };
+
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
         let runtime = tokio::runtime::Handle::current();
@@ -663,6 +683,10 @@ where
             internal_event_tx.to_specialized_sender(),
             offline_state_tx,
             tunnel_state_machine_shutdown_tx,
+            #[cfg(target_os = "macos")]
+            exclusion_gid,
+            #[cfg(target_os = "macos")]
+            settings.allow_macos_network_check,
             #[cfg(target_os = "android")]
             android_context,
         )
@@ -1234,6 +1258,11 @@ where
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state).await,
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers).await,
+            #[cfg(target_os = "macos")]
+            SetAllowMacosNetworkCheck(tx, enable_custom_resolver) => {
+                self.on_set_allow_macos_network_check(tx, enable_custom_resolver)
+                    .await
+            }
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu).await,
             SetWireguardRotationInterval(tx, interval) => {
                 self.on_set_wireguard_rotation_interval(tx, interval).await
@@ -2233,6 +2262,50 @@ where
         }
     }
 
+    #[cfg(target_os = "macos")]
+    async fn on_set_allow_macos_network_check(
+        &mut self,
+        tx: ResponseTx<(), Either<settings::Error, talpid_core::resolver::Error>>,
+        enable_custom_resolver: bool,
+    ) {
+        let result = self
+            .on_set_custom_resolver_inner(enable_custom_resolver)
+            .await;
+
+        Self::oneshot_send(tx, result, "on_set_allow_macos_network_check resposne");
+    }
+
+    #[cfg(target_os = "macos")]
+    async fn on_set_custom_resolver_inner(
+        &mut self,
+        allow_macos_network_check: bool,
+    ) -> Result<(), Either<settings::Error, talpid_core::resolver::Error>> {
+        let (start_tx, start_rx) = oneshot::channel();
+        self.send_tunnel_command(TunnelCommand::AllowMacosNetworkCheck(
+            allow_macos_network_check,
+            start_tx,
+        ));
+        match start_rx.await {
+            Ok(result) => {
+                result.map_err(Either::Right)?;
+            }
+            Err(_) => {
+                log::error!("Tunnel state machine has exited");
+                return Ok(());
+            }
+        };
+        let settings_changed = self
+            .settings
+            .set_allow_macos_network_check(allow_macos_network_check)
+            .await
+            .map_err(Either::Left)?;
+        if settings_changed {
+            self.event_listener
+                .notify_settings(self.settings.to_settings());
+        }
+        Ok(())
+    }
+
     async fn on_set_wireguard_mtu(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
@@ -2666,5 +2739,42 @@ impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
                 Err(ParameterGenerationError::NoMatchingRelay)
             }
         }
+    }
+}
+
+/// Bump filehandle limit
+#[cfg(target_os = "macos")]
+pub fn bump_filehandle_limit() {
+    let mut limits = libc::rlimit {
+        rlim_cur: 0,
+        rlim_max: 0,
+    };
+    // SAFETY: `&mut limits` is a valid pointer parameter for the getrlimit syscall
+    let status = unsafe { libc::getrlimit(libc::RLIMIT_NOFILE, &mut limits) };
+    if status != 0 {
+        log::error!(
+            "Failed to get file handle limits: {}-{}",
+            io::Error::from_raw_os_error(status),
+            status
+        );
+        return;
+    }
+
+    const INCREASED_FILEHANDLE_LIMIT: u64 = 1024;
+    // if file handle limit is already big enough, there's no reason to decrease it.
+    if limits.rlim_cur >= INCREASED_FILEHANDLE_LIMIT {
+        return;
+    }
+
+    limits.rlim_cur = INCREASED_FILEHANDLE_LIMIT;
+    // SAFETY: `&limits` is a valid pointer parameter for the getrlimit syscall
+    let status = unsafe { libc::setrlimit(libc::RLIMIT_NOFILE, &limits) };
+    if status != 0 {
+        log::error!(
+            "Failed to set file handle limit to {}: {}-{}",
+            INCREASED_FILEHANDLE_LIMIT,
+            io::Error::from_raw_os_error(status),
+            status
+        );
     }
 }

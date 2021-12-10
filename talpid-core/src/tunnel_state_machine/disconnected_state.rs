@@ -3,14 +3,27 @@ use super::{
     TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::firewall::FirewallPolicy;
+#[cfg(target_os = "macos")]
+use crate::{dns, resolver};
 use futures::StreamExt;
+#[cfg(target_os = "macos")]
+use std::{
+    collections::BTreeSet,
+    net::{IpAddr, Ipv4Addr},
+};
+#[cfg(target_os = "macos")]
+use talpid_types::tunnel::ErrorStateCause;
 use talpid_types::ErrorExt;
 
 /// No tunnel is running.
-pub struct DisconnectedState;
+pub struct DisconnectedState {
+    #[cfg(target_os = "macos")]
+    allowed_ips: BTreeSet<IpAddr>,
+}
 
 impl DisconnectedState {
     fn set_firewall_policy(
+        &mut self,
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: bool,
     ) {
@@ -18,12 +31,19 @@ impl DisconnectedState {
             let policy = FirewallPolicy::Blocked {
                 allow_lan: shared_values.allow_lan,
                 allowed_endpoint: shared_values.allowed_endpoint.clone(),
+                #[cfg(target_os = "macos")]
+                allowed_ips: self.allowed_ips.clone(),
+                #[cfg(target_os = "macos")]
+                allow_gid_exclusion_traffic: shared_values.enable_filtering_resolver,
             };
-            shared_values.firewall.apply_policy(policy).map_err(|e| {
+
+            let firewall_result = shared_values.firewall.apply_policy(policy).map_err(|e| {
                 e.display_chain_with_msg(
                     "Failed to apply blocking firewall policy for disconnected state",
                 )
-            })
+            });
+
+            firewall_result
         } else if should_reset_firewall {
             shared_values
                 .firewall
@@ -61,6 +81,35 @@ impl DisconnectedState {
             }
         }
     }
+
+    fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
+        if let Err(error) = shared_values.dns_monitor.reset() {
+            log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
+        }
+    }
+
+    /// Starts the filtering resolver and configures host to use it.
+    #[cfg(target_os = "macos")]
+    fn start_filtering_resolver(
+        &mut self,
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> Result<(), either::Either<resolver::Error, dns::Error>> {
+        use either::Either;
+        let system_config = shared_values
+            .dns_monitor
+            .get_system_config()
+            .map_err(Either::Right)?;
+
+        shared_values
+            .runtime
+            .block_on(shared_values.filtering_resolver.set_active(system_config))
+            .map_err(Either::Left)?;
+        shared_values
+            .dns_monitor
+            .set("lo", &[Ipv4Addr::LOCALHOST.into()])
+            .map_err(resolver::Error::SystemDnsError)
+            .map_err(Either::Left)
+    }
 }
 
 impl TunnelState for DisconnectedState {
@@ -70,22 +119,44 @@ impl TunnelState for DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
+        let mut disconnected_state = DisconnectedState {
+            #[cfg(target_os = "macos")]
+            allowed_ips: BTreeSet::new(),
+        };
+
+        #[cfg(target_os = "macos")]
+        if shared_values.enable_filtering_resolver && shared_values.block_when_disconnected {
+            if let Err(err) = disconnected_state.start_filtering_resolver(shared_values) {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to start filtering resolver:")
+                );
+            }
+        } else {
+            if let Err(error) = shared_values.disable_filtering_resolver() {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Unable to disable filtering resolver")
+                );
+            }
+        }
+
         #[cfg(windows)]
         Self::register_split_tunnel_addresses(shared_values, should_reset_firewall);
-        Self::set_firewall_policy(shared_values, should_reset_firewall);
+        disconnected_state.set_firewall_policy(shared_values, should_reset_firewall);
         #[cfg(target_os = "linux")]
         shared_values.reset_connectivity_check();
         #[cfg(target_os = "android")]
         shared_values.tun_provider.close_tun();
 
         (
-            TunnelStateWrapper::from(DisconnectedState),
+            TunnelStateWrapper::from(disconnected_state),
             TunnelStateTransition::Disconnected,
         )
     }
 
     fn handle_event(
-        self,
+        mut self,
         runtime: &tokio::runtime::Handle,
         commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
@@ -101,13 +172,13 @@ impl TunnelState for DisconnectedState {
                         .set_allow_lan(allow_lan)
                         .expect("Failed to set allow LAN parameter");
 
-                    Self::set_firewall_policy(shared_values, true);
+                    self.set_firewall_policy(shared_values, true);
                 }
                 SameState(self.into())
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 if shared_values.set_allowed_endpoint(endpoint) {
-                    Self::set_firewall_policy(shared_values, true);
+                    self.set_firewall_policy(shared_values, true);
                 }
                 if let Err(_) = tx.send(()) {
                     log::error!("The AllowEndpoint receiver was dropped");
@@ -125,9 +196,18 @@ impl TunnelState for DisconnectedState {
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 if shared_values.block_when_disconnected != block_when_disconnected {
                     shared_values.block_when_disconnected = block_when_disconnected;
+                    self.set_firewall_policy(shared_values, true);
                     #[cfg(windows)]
                     Self::register_split_tunnel_addresses(shared_values, true);
-                    Self::set_firewall_policy(shared_values, true);
+                    #[cfg(target_os = "macos")]
+                    if block_when_disconnected && shared_values.enable_filtering_resolver {
+                        if let Err(err) = self.start_filtering_resolver(shared_values) {
+                            let block_reason = map_filtering_resolver_start(&err);
+                            return NewState(ErrorState::enter(shared_values, block_reason));
+                        }
+                    } else {
+                        Self::reset_dns(shared_values);
+                    }
                 }
                 SameState(self.into())
             }
@@ -137,6 +217,7 @@ impl TunnelState for DisconnectedState {
             }
             Some(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
             Some(TunnelCommand::Block(reason)) => {
+                Self::reset_dns(shared_values);
                 NewState(ErrorState::enter(shared_values, reason))
             }
             #[cfg(target_os = "android")]
@@ -149,8 +230,91 @@ impl TunnelState for DisconnectedState {
                 shared_values.split_tunnel.set_paths(&paths, result_tx);
                 SameState(self.into())
             }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::AllowMacosNetworkCheck(enable, done_tx)) => {
+                if !enable {
+                    if let Err(err) = shared_values.dns_monitor.reset() {
+                        log::error!(
+                            "{}",
+                            err.display_chain_with_msg("Failed to reset DNS config")
+                        );
+                    }
+                    if let Err(err) = shared_values.deactivate_filtering_resolver(enable) {
+                        let _ = done_tx.send(Err(err));
+                        if shared_values.enable_filtering_resolver {
+                            self.set_firewall_policy(shared_values, false);
+                        }
+                        return SameState(self.into());
+                    };
+                }
+                shared_values.enable_filtering_resolver = enable;
+                self.set_firewall_policy(shared_values, false);
+                if shared_values.block_when_disconnected && enable {
+                    if let Err(err) = self.start_filtering_resolver(shared_values) {
+                        log::error!(
+                            "{}",
+                            err.display_chain_with_msg("Failed to start filtering resolver:")
+                        );
+
+                        let error_cause = map_filtering_resolver_start(&err);
+                        let _ = done_tx.send(Err(err.left_or_else(resolver::Error::from)));
+                        return NewState(ErrorState::enter(shared_values, error_cause));
+                    }
+                }
+                let _ = done_tx.send(Ok(()));
+                SameState(self.into())
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::HostDnsConfig(host_config)) => {
+                if shared_values.block_when_disconnected && shared_values.enable_filtering_resolver
+                {
+                    if let Err(err) = shared_values
+                        .runtime
+                        .block_on(shared_values.filtering_resolver.set_active(host_config))
+                    {
+                        log::error!(
+                            "{}",
+                            err.display_chain_with_msg("Failed to activate filtering resolver")
+                        );
+                        return NewState(ErrorState::enter(
+                            shared_values,
+                            ErrorStateCause::FilteringResolverError,
+                        ));
+                    }
+                }
+                SameState(self.into())
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::AddAllowedIps(allowed_ips, done_tx)) => {
+                let new_addresses = allowed_ips.iter().any(|ip| self.allowed_ips.insert(*ip));
+                if new_addresses {
+                    let _ = self.set_firewall_policy(shared_values, false);
+                }
+                let _ = done_tx.send(());
+
+                SameState(self.into())
+            }
+
+            None => {
+                Self::reset_dns(shared_values);
+                Finished
+            }
             Some(_) => SameState(self.into()),
-            None => Finished,
         }
+    }
+}
+
+/// Maps a DNS or a resovler error to an [ErrorStateCause] to be used when failing to start a
+/// filtering resolver.
+#[cfg(target_os = "macos")]
+fn map_filtering_resolver_start(
+    err: &either::Either<resolver::Error, dns::Error>,
+) -> ErrorStateCause {
+    match err {
+        either::Either::Right(_dns_err) => ErrorStateCause::SetDnsError,
+        either::Either::Left(resolver::Error::SystemDnsError(_)) => {
+            ErrorStateCause::ReadSystemDnsConfig
+        }
+        either::Either::Left(_other_err) => ErrorStateCause::FilteringResolverError,
     }
 }

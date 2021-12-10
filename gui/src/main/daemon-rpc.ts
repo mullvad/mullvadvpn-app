@@ -827,6 +827,10 @@ function convertFromTunnelStateErrorCause(
     }
     case grpcTypes.ErrorState.Cause.SPLIT_TUNNEL_ERROR:
       return { reason: 'split_tunnel_error' };
+    case grpcTypes.ErrorState.Cause.FILTERING_RESOLVER_ERROR:
+      return { reason: 'filtering_resolver_error' };
+    case grpcTypes.ErrorState.Cause.READ_SYSTEM_DNS_CONFIG:
+      return { reason: 'read_system_dns_config' };
     case grpcTypes.ErrorState.Cause.VPN_PERMISSION_DENIED:
       // VPN_PERMISSION_DENIED is only ever created on Android
       throw invalidErrorStateCause;

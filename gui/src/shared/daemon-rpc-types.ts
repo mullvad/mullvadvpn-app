@@ -40,6 +40,8 @@ export type ErrorStateCause =
         | 'set_dns_error'
         | 'start_tunnel_error'
         | 'is_offline'
+        | 'filtering_resolver_error'
+        | 'read_system_dns_config'
         | 'split_tunnel_error';
     }
   | { reason: 'set_firewall_policy_error'; details: FirewallPolicyError }

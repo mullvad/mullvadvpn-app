@@ -2,6 +2,7 @@ use super::{FirewallArguments, FirewallPolicy, FirewallT};
 use ipnetwork::IpNetwork;
 use pfctl::{DropAction, FilterRuleAction, Uid};
 use std::{
+    collections::BTreeSet,
     env,
     net::{IpAddr, Ipv4Addr},
 };
@@ -23,12 +24,13 @@ pub struct Firewall {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
     rule_logging: RuleLogging,
+    exclusion_gid: u32,
 }
 
 impl FirewallT for Firewall {
     type Error = Error;
 
-    fn new(_args: FirewallArguments) -> Result<Self> {
+    fn new(args: FirewallArguments) -> Result<Self> {
         // Allows controlling whether firewall rules should log to pflog0. Useful for debugging the
         // rules.
         let firewall_debugging = env::var("TALPID_FIREWALL_DEBUG");
@@ -44,6 +46,7 @@ impl FirewallT for Firewall {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
             rule_logging,
+            exclusion_gid: args.exclusion_gid,
         })
     }
 
@@ -128,7 +131,7 @@ impl Firewall {
                 let mut rules = vec![];
 
                 for server in &dns_servers {
-                    rules.append(&mut self.get_allow_dns_rules(&tunnel, *server)?);
+                    rules.append(&mut self.get_allow_dns_rules_when_connected(&tunnel, *server)?);
                 }
 
                 rules.push(self.get_allow_relay_rule(peer_endpoint)?);
@@ -148,20 +151,48 @@ impl Firewall {
             FirewallPolicy::Blocked {
                 allow_lan,
                 allowed_endpoint,
+                allowed_ips,
+                allow_gid_exclusion_traffic,
             } => {
                 let mut rules = Vec::new();
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.endpoint)?);
+
+                if allow_gid_exclusion_traffic {
+                    rules.extend(self.get_allow_excluded_dns_rules()?);
+                    rules.extend(self.get_exclusion_rules(&allowed_ips)?);
+                }
                 if allow_lan {
                     // Important to block DNS before allow LAN (so DNS does not leak to the LAN)
                     rules.append(&mut self.get_block_dns_rules()?);
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
+
                 Ok(rules)
             }
         }
     }
 
-    fn get_allow_dns_rules(
+    /// Constructs rules that allow DNS traffic coming from processes that belong to the excluded
+    /// group ID to leak.
+    fn get_allow_excluded_dns_rules(&self) -> Result<[pfctl::FilterRule; 2]> {
+        let mut builder = self.create_rule_builder(FilterRuleAction::Pass);
+
+        builder.direction(pfctl::Direction::Out);
+        builder.quick(true);
+        builder.keep_state(pfctl::StatePolicy::Keep);
+        builder.to(pfctl::Port::from(53));
+        builder.group(self.exclusion_gid);
+
+        Ok([
+            builder.proto(pfctl::Proto::Udp).build()?,
+            builder
+                .proto(pfctl::Proto::Tcp)
+                .tcp_flags(Self::get_tcp_flags())
+                .build()?,
+        ])
+    }
+
+    fn get_allow_dns_rules_when_connected(
         &self,
         tunnel: &crate::tunnel::TunnelMetadata,
         server: IpAddr,
@@ -313,6 +344,27 @@ impl Firewall {
             .keep_state(pfctl::StatePolicy::Keep)
             .build()?;
         Ok(vec![lo0_rule])
+    }
+
+    /// Constructs firewall rules that allow traffic to a set of allowed IP addresses coming from
+    /// UID 0 processes to leak.
+    fn get_exclusion_rules(
+        &self,
+        allowed_ips: &BTreeSet<IpAddr>,
+    ) -> Result<Vec<pfctl::FilterRule>> {
+        let mut vec = Vec::with_capacity(allowed_ips.len());
+        for ip in allowed_ips.iter() {
+            vec.push(
+                self.create_rule_builder(FilterRuleAction::Pass)
+                    .direction(pfctl::Direction::Out)
+                    .to(*ip)
+                    .quick(true)
+                    .user(Uid::from(ROOT_UID))
+                    .keep_state(pfctl::StatePolicy::Keep)
+                    .build()?,
+            );
+        }
+        Ok(vec)
     }
 
     fn get_allow_lan_rules(&self) -> Result<Vec<pfctl::FilterRule>> {

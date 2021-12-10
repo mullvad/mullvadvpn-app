@@ -149,6 +149,14 @@ impl From<mullvad_types::states::TunnelState> for TunnelState {
                             talpid_tunnel::ErrorStateCause::SplitTunnelError => {
                                 i32::from(Cause::SplitTunnelError)
                             }
+                            #[cfg(target_os = "macos")]
+                            talpid_tunnel::ErrorStateCause::FilteringResolverError => {
+                                i32::from(Cause::FilteringResolverError)
+                            }
+                            #[cfg(target_os = "macos")]
+                            talpid_tunnel::ErrorStateCause::ReadSystemDnsConfig => {
+                                i32::from(Cause::ReadSystemDnsConfig)
+                            }
                         },
                         blocking_error: error_state.block_failure().map(map_firewall_error),
                         auth_fail_reason: if let talpid_tunnel::ErrorStateCause::AuthFailed(
@@ -386,6 +394,11 @@ impl From<&mullvad_types::settings::Settings> for Settings {
         #[cfg(not(windows))]
         let split_tunnel = None;
 
+        #[cfg(not(target_os = "macos"))]
+        let allow_macos_network_check = false;
+        #[cfg(target_os = "macos")]
+        let allow_macos_network_check = settings.allow_macos_network_check;
+
         Self {
             account_token: settings.get_account_token().unwrap_or_default(),
             relay_settings: Some(RelaySettings::from(settings.get_relay_settings())),
@@ -397,6 +410,7 @@ impl From<&mullvad_types::settings::Settings> for Settings {
             tunnel_options: Some(TunnelOptions::from(&settings.tunnel_options)),
             show_beta_releases: settings.show_beta_releases,
             split_tunnel,
+            allow_macos_network_check,
         }
     }
 }

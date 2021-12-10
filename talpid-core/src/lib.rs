@@ -65,3 +65,7 @@ mod linux;
 
 /// A pair of functions to monitor and establish connectivity with ICMP
 pub mod ping_monitor;
+
+/// A resolver that's controlled by the tunnel state machine
+#[cfg(target_os = "macos")]
+pub mod resolver;

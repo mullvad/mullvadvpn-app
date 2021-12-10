@@ -29,10 +29,11 @@ uuid = { version = "0.8", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4"
 tokio = { version = "1.8", features = [ "process", "rt-multi-thread", "fs" ] }
-tokio-stream = "0.1"
+tokio-stream = { version = "0.1", features =  [ "io-util" ] }
 rand = "0.7"
 udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "1e27324362ed123b61fa2062b1599e5f9d569796" }
-
+trust-dns-server = {  git = "https://github.com/mullvad/trust-dns", rev = "c782de0645335d1893a854337b965dd07790c068", features = [ "trust-dns-resolver" ] }
+socket2 = { git = "https://github.com/rust-lang/socket2", rev = "f7023b4c810eb7b0fedf23a1752461c41765c797", features = [ "all" ] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 parity-tokio-ipc = "0.9"
@@ -63,11 +64,12 @@ mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
 tun = "0.5.1"
 talpid-dbus = { path = "../talpid-dbus" }
-socket2 = { version = "0.4", features = ["all"] }
+# socket2 = { version = "0.4", features = ["all"] }
 internet-checksum = "0.2"
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
+either = "1"
 pfctl = "0.4.4"
 system-configuration = "0.4"
 tun = "0.5.1"
@@ -80,7 +82,7 @@ internet-checksum = "0.2"
 widestring = "0.5"
 winreg = { version = "0.7", features = ["transactions"] }
 winapi = { version = "0.3.6", features = ["combaseapi", "handleapi", "ifdef", "libloaderapi", "netioapi", "psapi", "stringapiset", "synchapi", "tlhelp32", "winbase", "winioctl", "winuser"] }
-socket2 = { version = "0.4", features = ["all"] }
+# socket2 = { version = "0.4", features = ["all"] }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 memoffset = "0.6"
 
