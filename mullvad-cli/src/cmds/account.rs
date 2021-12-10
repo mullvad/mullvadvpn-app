@@ -2,10 +2,18 @@ use crate::{new_rpc_client, Command, Error, Result};
 use itertools::Itertools;
 use mullvad_management_interface::{
     types::{self, Timestamp},
-    Code, ManagementServiceClient,
+    Code, ManagementServiceClient, Status,
 };
 use mullvad_types::{account::AccountToken, device::Device};
 use std::io::{self, Write};
+
+const NOT_LOGGED_IN_ERROR: &str = "Not logged in to any account";
+const DEVICE_NOT_FOUND_ERROR: &str = "There is no such device";
+const INVALID_ACCOUNT_ERROR: &str = "The account does not exist";
+const TOO_MANY_DEVICES_ERROR: &str =
+    "There are too many devices on this account. Revoke one to log in";
+const ALREADY_LOGGED_IN_ERROR: &str =
+    "You are already logged in. Please log out before creating a new account";
 
 pub struct Account;
 
@@ -104,14 +112,16 @@ impl Command for Account {
 impl Account {
     async fn create(&self) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        rpc.create_new_account(()).await?;
+        rpc.create_new_account(()).await.map_err(map_device_error)?;
         println!("New account created!");
         self.get(false).await
     }
 
     async fn login(&self, token: AccountToken) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        rpc.login_account(token.clone()).await?;
+        rpc.login_account(token.clone())
+            .await
+            .map_err(map_device_error)?;
         println!("Mullvad account \"{}\" set", token);
         Ok(())
     }
@@ -125,7 +135,14 @@ impl Account {
 
     async fn get(&self, verbose: bool) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        let device = rpc.get_device(()).await?.into_inner();
+        let device = rpc
+            .get_device(())
+            .await
+            .map_err(|error| match error.code() {
+                Code::NotFound => Error::Other(NOT_LOGGED_IN_ERROR),
+                _other => map_device_error(error),
+            })?
+            .into_inner();
         if !device.account_token.is_empty() {
             println!("Mullvad account: {}", device.account_token);
             let inner_device = Device::try_from(device.device.unwrap()).unwrap();
@@ -152,7 +169,11 @@ impl Account {
     async fn list_devices(&self, matches: &clap::ArgMatches) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let token = self.parse_account_else_current(&mut rpc, matches).await?;
-        let device_list = rpc.list_devices(token).await?.into_inner();
+        let device_list = rpc
+            .list_devices(token)
+            .await
+            .map_err(map_device_error)?
+            .into_inner();
 
         let verbose = matches.is_present("verbose");
 
@@ -179,7 +200,11 @@ impl Account {
         let token = self.parse_account_else_current(&mut rpc, matches).await?;
         let device_to_revoke = parse_device_name(matches);
 
-        let device_list = rpc.list_devices(token.clone()).await?.into_inner();
+        let device_list = rpc
+            .list_devices(token.clone())
+            .await
+            .map_err(map_device_error)?
+            .into_inner();
         let device_id = device_list
             .devices
             .into_iter()
@@ -188,13 +213,14 @@ impl Account {
                     || dev.id.eq_ignore_ascii_case(&device_to_revoke)
             })
             .map(|dev| dev.id)
-            .ok_or_else(|| Error::CommandFailed("Device not found"))?;
+            .ok_or_else(|| Error::Other(DEVICE_NOT_FOUND_ERROR))?;
 
         rpc.remove_device(types::DeviceRemoval {
             account_token: token,
             device_id,
         })
-        .await?;
+        .await
+        .map_err(map_device_error)?;
         println!("Removed device");
         Ok(())
     }
@@ -212,7 +238,7 @@ impl Account {
                     .await
                     .map_err(|error| match error.code() {
                         mullvad_management_interface::Code::NotFound => {
-                            Error::CommandFailed("Log in or specify an account")
+                            Error::Other("Log in or specify an account")
                         }
                         _ => Error::RpcFailedExt("Failed to obtain device", error),
                     })?
@@ -268,6 +294,16 @@ impl Account {
         let ndt = chrono::NaiveDateTime::from_timestamp(expiry.seconds, expiry.nanos as u32);
         let utc = chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc);
         utc.with_timezone(&chrono::Local).to_string()
+    }
+}
+
+fn map_device_error(error: Status) -> Error {
+    match error.code() {
+        Code::ResourceExhausted => Error::Other(TOO_MANY_DEVICES_ERROR),
+        Code::Unauthenticated => Error::Other(INVALID_ACCOUNT_ERROR),
+        Code::AlreadyExists => Error::Other(ALREADY_LOGGED_IN_ERROR),
+        Code::NotFound => Error::Other(DEVICE_NOT_FOUND_ERROR),
+        _other => Error::RpcFailed(error),
     }
 }
 
