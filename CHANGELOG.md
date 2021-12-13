@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add information about the always on kill switch in the desktop app.
+
 #### macOS
 - Add an opt-in feature to leak macOS network check traffic in blocked states to resolve issues with
   the app blocking internet connectivity after sleep or when connecting to new wireless networks.
