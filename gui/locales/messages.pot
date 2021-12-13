@@ -857,6 +857,10 @@ msgid "Enable to move the app around as a free-standing window."
 msgstr ""
 
 msgctxt "preferences-view"
+msgid "Kill switch"
+msgstr ""
+
+msgctxt "preferences-view"
 msgid "Launch app on start-up"
 msgstr ""
 
@@ -882,6 +886,10 @@ msgstr ""
 
 msgctxt "preferences-view"
 msgid "Start minimized"
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
 msgstr ""
 
 msgctxt "preferences-view"
