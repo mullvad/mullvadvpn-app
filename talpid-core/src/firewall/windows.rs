@@ -45,7 +45,8 @@ pub enum Error {
     SetTunMetric(#[error(source)] crate::winnet::Error),
 }
 
-const WINFW_TIMEOUT_SECONDS: u32 = 2;
+/// Timeout for acquiring the WFP transaction lock
+const WINFW_TIMEOUT_SECONDS: u32 = 5;
 
 /// The Windows implementation for the firewall and DNS.
 pub struct Firewall(());
