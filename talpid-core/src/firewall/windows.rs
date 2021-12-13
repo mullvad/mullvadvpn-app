@@ -1,6 +1,6 @@
 use crate::{logging::windows::log_sink, tunnel::TunnelMetadata};
 
-use std::{net::IpAddr, path::Path, ptr};
+use std::{net::IpAddr, path::Path, ptr, time::Duration};
 
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, FirewallT, InitialFirewallState};
@@ -45,7 +45,8 @@ pub enum Error {
     SetTunMetric(#[error(source)] crate::winnet::Error),
 }
 
-const WINFW_TIMEOUT_SECONDS: u32 = 2;
+/// Timeout for WFP transactions
+const WINFW_TXN_TIMEOUT: Duration = Duration::from_secs(6);
 
 /// The Windows implementation for the firewall and DNS.
 pub struct Firewall(());
@@ -56,12 +57,13 @@ impl FirewallT for Firewall {
     fn new(args: FirewallArguments) -> Result<Self, Self::Error> {
         let logging_context = b"WinFw\0".as_ptr();
 
+        let timeout_secs = u32::try_from(WINFW_TXN_TIMEOUT.as_secs()).unwrap();
         if let InitialFirewallState::Blocked(allowed_endpoint) = args.initial_state {
             let cfg = &WinFwSettings::new(args.allow_lan);
             let allowed_endpoint = WinFwAllowedEndpointContainer::from(allowed_endpoint);
             unsafe {
                 WinFw_InitializeBlocked(
-                    WINFW_TIMEOUT_SECONDS,
+                    timeout_secs,
                     &cfg,
                     &allowed_endpoint.as_endpoint(),
                     Some(log_sink),
@@ -71,8 +73,7 @@ impl FirewallT for Firewall {
             };
         } else {
             unsafe {
-                WinFw_Initialize(WINFW_TIMEOUT_SECONDS, Some(log_sink), logging_context)
-                    .into_result()?
+                WinFw_Initialize(timeout_secs, Some(log_sink), logging_context).into_result()?
             };
         }
 
