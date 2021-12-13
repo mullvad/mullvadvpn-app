@@ -138,6 +138,7 @@ const config = {
 
   deb: {
     fpm: [
+      '--no-depends',
       '--version',
       getDebVersion(),
       '--before-install',
@@ -159,7 +160,6 @@ const config = {
     ],
     afterInstall: distAssets('linux/after-install.sh'),
     afterRemove: distAssets('linux/after-remove.sh'),
-    depends: ['iputils-ping'],
   },
 
   rpm: {
