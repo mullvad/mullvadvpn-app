@@ -2488,15 +2488,6 @@ dependencies = [
 
 [[package]]
 name = "socket2"
-version = "0.4.0"
-source = "git+https://github.com/rust-lang/socket2?rev=f7023b4c810eb7b0fedf23a1752461c41765c797#f7023b4c810eb7b0fedf23a1752461c41765c797"
-dependencies = [
- "libc",
- "winapi 0.3.9",
-]
-
-[[package]]
-name = "socket2"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5dc90fe6c7be1a323296982db1836d1ea9e47b6839496dde9a541bc496df3516"
@@ -2649,7 +2640,7 @@ dependencies = [
  "resolv-conf",
  "rtnetlink",
  "shell-escape",
- "socket2 0.4.0",
+ "socket2 0.4.2",
  "subslice",
  "system-configuration",
  "talpid-dbus",
