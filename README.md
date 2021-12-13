@@ -577,13 +577,6 @@ the version of the app you are going to release. For example `2018.3-beta1` or `
     Please pay attention to the output at the end of the script and make sure the version it says
     it built matches what you want to release.
 
-## Running Integration Tests
-
-The integration tests are located in the `mullvad-tests` crate. It uses a mock OpenVPN binary to
-test the `mullvad-daemon`. To run the tests, the `mullvad-daemon` binary must be built first.
-Afterwards, the tests should be executed with the `integration-tests` feature enabled. To simplify
-this procedure, the `integration-tests.sh` script can be used to run all integration tests.
-
 
 ## Command line tools for Electron GUI app development
 
