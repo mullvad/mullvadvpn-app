@@ -105,13 +105,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         // Load tunnels
-        TunnelManager.shared.loadTunnel(accountToken: Account.shared.token)
-            .receive(on: .main)
-            .onSuccess { _ in
-                self.relayConstraints = TunnelManager.shared.tunnelInfo?.tunnelSettings.relayConstraints
-                self.didFinishInitialization()
-            }
-            .onFailure { error in
+        TunnelManager.shared.loadTunnel(accountToken: Account.shared.token) { error in
+            dispatchPrecondition(condition: .onQueue(.main))
+
+            if let error = error {
                 self.logger?.error(chainedError: error, message: "Failed to load tunnels")
 
                 switch error {
@@ -130,8 +127,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 default:
                     fatalError("Unexpected error coming from loadTunnel()")
                 }
+            } else {
+                self.relayConstraints = TunnelManager.shared.tunnelInfo?.tunnelSettings.relayConstraints
+                self.didFinishInitialization()
             }
-            .observe { _ in }
+        }
 
         // Show the window
         self.window?.makeKeyAndVisible()
@@ -177,42 +177,88 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         logger?.info("Start background refresh")
 
-        _ = addressCacheTracker.updateEndpoints { addressCacheUpdateResult in
+        var addressCacheFetchResult: UIBackgroundFetchResult?
+        var relaysFetchResult: UIBackgroundFetchResult?
+        var rotatePrivateKeyFetchResult: UIBackgroundFetchResult?
+
+        let operationQueue = OperationQueue()
+
+        let updateAddressCacheOperation = AsyncBlockOperation { operation in
+            _ = self.addressCacheTracker.updateEndpoints { result in
+                addressCacheFetchResult = result.backgroundFetchResult
+                operation.finish()
+            }
+        }
+
+        let updateRelaysOperation = AsyncBlockOperation { operation in
             RelayCache.Tracker.shared.updateRelays()
-                .then { fetchRelaysResult -> Promise<UIBackgroundFetchResult> in
-                    switch fetchRelaysResult {
+                .observe { completion in
+                    switch completion.unwrappedValue {
                     case .success(let result):
                         self.logger?.debug("Finished updating relays: \(result)")
                     case .failure(let error):
                         self.logger?.error(chainedError: error, message: "Failed to update relays")
+                    case .none:
+                        break
                     }
 
-                    return TunnelManager.shared.rotatePrivateKey()
-                        .then { rotationResult -> UIBackgroundFetchResult in
-                            switch rotationResult {
-                            case .success(let result):
-                                self.logger?.debug("Finished rotating the key: \(result)")
-                            case .failure(let error):
-                                self.logger?.error(chainedError: error, message: "Failed to rotate the key")
-                            }
+                    relaysFetchResult = completion.unwrappedValue?.backgroundFetchResult
 
-                            return addressCacheUpdateResult.backgroundFetchResult
-                                .combine(with: [fetchRelaysResult.backgroundFetchResult, rotationResult.backgroundFetchResult])
-                        }
-                }
-                .receive(on: .main)
-                .observe { completion in
-                    switch completion {
-                    case .finished(let backgroundFetchResult):
-                        self.logger?.info("Finish background refresh with \(backgroundFetchResult)")
-                        completionHandler(backgroundFetchResult)
-
-                    case .cancelled:
-                        self.logger?.info("Finish background refresh with cancelled promise")
-                        completionHandler(.failed)
-                    }
+                    operation.finish()
                 }
         }
+
+        let rotatePrivateKeyOperation = AsyncBlockOperation { operation in
+            guard !operation.isCancelled else {
+                operation.finish()
+                return
+            }
+
+            TunnelManager.shared.rotatePrivateKey { rotationResult, error in
+                if let error = error {
+                    self.logger?.error(chainedError: error, message: "Failed to rotate the key")
+
+                    rotatePrivateKeyFetchResult = .failed
+                } else if let rotationResult = rotationResult {
+                    self.logger?.debug("Finished rotating the key: \(rotationResult)")
+
+                    switch rotationResult {
+                    case .throttled:
+                        rotatePrivateKeyFetchResult = .noData
+
+                    case .finished:
+                        rotatePrivateKeyFetchResult = .newData
+                    }
+                }
+
+                operation.finish()
+            }
+        }
+
+        rotatePrivateKeyOperation.addDependency(updateRelaysOperation)
+        rotatePrivateKeyOperation.addDependency(updateAddressCacheOperation)
+
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "AppDelegate.performFetch") {
+            operationQueue.cancelAllOperations()
+        }
+
+        rotatePrivateKeyOperation.completionBlock = {
+            DispatchQueue.main.async {
+                let operationResults = [addressCacheFetchResult, relaysFetchResult, rotatePrivateKeyFetchResult].compactMap { $0 }
+                let initialResult = operationResults.first ?? .failed
+                let backgroundFetchResult = operationResults.reduce(initialResult) { partialResult, other in
+                    return partialResult.combine(with: other)
+                }
+
+                self.logger?.info("Finish background refresh with \(backgroundFetchResult)")
+
+                completionHandler(backgroundFetchResult)
+
+                UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
+            }
+        }
+
+        operationQueue.addOperations([updateAddressCacheOperation, updateRelaysOperation, rotatePrivateKeyOperation], waitUntilFinished: false)
     }
 
     // MARK: - Private
@@ -228,13 +274,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        if case .finished(let result) = TunnelManager.shared.scheduleBackgroundTask().await() {
-            switch result {
-            case .success:
-                self.logger?.debug("Scheduled private key rotation task")
-            case .failure(let error):
-                self.logger?.error(chainedError: error, message: "Could not schedule private key rotation task")
-            }
+        switch TunnelManager.shared.scheduleBackgroundTask() {
+        case .success:
+            self.logger?.debug("Scheduled private key rotation task")
+        case .failure(let error):
+            self.logger?.error(chainedError: error, message: "Could not schedule private key rotation task")
         }
 
         do {
@@ -244,6 +288,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch {
             self.logger?.error(chainedError: AnyChainedError(error), message: "Could not schedule address cache update task")
         }
+
     }
 
     private func didFinishInitialization() {
@@ -497,7 +542,7 @@ extension AppDelegate: RootContainerViewControllerDelegate {
 
         switch TunnelManager.shared.tunnelState {
         case .connected, .connecting, .reconnecting:
-            TunnelManager.shared.reconnectTunnel()
+            TunnelManager.shared.reconnectTunnel(completionHandler: nil)
         case .disconnecting, .disconnected:
             TunnelManager.shared.startTunnel()
         case .pendingReconnect:
@@ -658,22 +703,16 @@ extension AppDelegate: SelectLocationViewControllerDelegate {
     private func selectLocationControllerDidSelectRelayLocation(_ relayLocation: RelayLocation) {
         let relayConstraints = RelayConstraints(location: .only(relayLocation))
 
-        TunnelManager.shared.setRelayConstraints(relayConstraints)
-            .receive(on: .main)
-            .observe { completion in
-                guard let result = completion.unwrappedValue else { return }
+        TunnelManager.shared.setRelayConstraints(relayConstraints) { error in
+            self.relayConstraints = relayConstraints
 
-                self.relayConstraints = relayConstraints
-
-                switch result {
-                case .success:
-                    self.logger?.debug("Updated relay constraints: \(relayConstraints)")
-                    TunnelManager.shared.startTunnel()
-
-                case .failure(let error):
-                    self.logger?.error(chainedError: error, message: "Failed to update relay constraints")
-                }
+            if let error = error {
+                self.logger?.error(chainedError: error, message: "Failed to update relay constraints")
+            } else {
+                self.logger?.debug("Updated relay constraints: \(relayConstraints)")
+                TunnelManager.shared.startTunnel()
             }
+        }
     }
 }
 

@@ -18,19 +18,15 @@ extension TunnelIPC {
             tunnelProviderSession = tunnelProvider.connection as! VPNTunnelProviderSessionProtocol
         }
 
-        func reloadTunnelSettings() -> Result<(), Error>.Promise {
-            return Result<(), Error>.Promise { resolver in
-                self.send(message: .reloadTunnelSettings) { result in
-                    resolver.resolve(value: result)
-                }
+        func reloadTunnelSettings(completionHandler: @escaping (TunnelIPC.Error?) -> Void) {
+            send(message: .reloadTunnelSettings) { result in
+                completionHandler(result.error)
             }
         }
 
-        func getTunnelConnectionInfo() -> Result<TunnelConnectionInfo?, Error>.Promise {
-            return Result<TunnelConnectionInfo?, Error>.Promise { resolver in
-                self.send(message: .tunnelConnectionInfo) { result in
-                    resolver.resolve(value: result)
-                }
+        func getTunnelConnectionInfo(completionHandler: @escaping (Result<TunnelConnectionInfo?, Error>) -> Void) {
+            send(message: .tunnelConnectionInfo) { result in
+                completionHandler(result)
             }
         }
 

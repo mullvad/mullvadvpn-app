@@ -68,11 +68,11 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     func preferencesDataSource(_ dataSource: PreferencesDataSource, didChangeViewModel dataModel: PreferencesViewModel) {
         let dnsSettings = dataModel.asDNSSettings()
 
-        TunnelManager.shared.setDNSSettings(dnsSettings)
-            .onFailure { [weak self] error in
+        TunnelManager.shared.setDNSSettings(dnsSettings) { [weak self] error in
+            if let error = error {
                 self?.logger.error(chainedError: error, message: "Failed to save DNS settings")
             }
-            .observe { _ in }
+        }
     }
 
     // MARK: - TunnelObserver

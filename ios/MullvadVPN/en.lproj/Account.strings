@@ -40,12 +40,6 @@
 /* Title for confirmation button in logout dialog */
 "LOGOUT_CONFIRMATION_ALERT_YES_ACTION" = "Log out";
 
-/* Message for logout failure alert */
-"LOGOUT_FAILURE_ALERT_OK_ACTION" = "OK";
-
-/* Title for logout failure alert */
-"LOGOUT_FAILURE_ALERT_TITLE" = "Failed to log out";
-
 /* Navigation title */
 "NAVIGATION_TITLE" = "Account";
 

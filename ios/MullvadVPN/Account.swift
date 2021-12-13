@@ -150,20 +150,23 @@ class Account {
     }
 
     /// Perform the logout by erasing the account token and expiry from the application preferences.
-    func logout() -> Result<(), Account.Error>.Promise {
-        return TunnelManager.shared.unsetAccount()
-            .mapError { error in
-                return Account.Error.tunnelConfiguration(error)
+    func logout() -> Promise<Void> {
+        return Promise { resolver in
+            TunnelManager.shared.unsetAccount {
+                resolver.resolve(value: ())
             }
-            .receive(on: .main)
-            .onSuccess { _ in
-                self.removeFromPreferences()
-                self.observerList.forEach { (observer) in
-                    observer.accountDidLogout(self)
-                }
+        }
+        .receive(on: .main)
+        .then { _ -> () in
+            self.removeFromPreferences()
+            self.observerList.forEach { (observer) in
+                observer.accountDidLogout(self)
             }
-            .block(on: dispatchQueue)
-            .receive(on: .main)
+
+            return ()
+        }
+        .block(on: dispatchQueue)
+        .receive(on: .main)
     }
 
     /// Forget that user was logged in, but do not attempt to unset account in `TunnelManager`.
@@ -206,16 +209,21 @@ class Account {
             }
     }
 
-    private func setupTunnel(accountToken: String, expiry: Date) -> Result<(), Error>.Promise {
-        return TunnelManager.shared.setAccount(accountToken: accountToken)
-            .receive(on: .main)
-            .mapError { error in
-                return Error.tunnelConfiguration(error)
+    private func setupTunnel(accountToken: String, expiry: Date) -> Result<(), Account.Error>.Promise {
+        return Promise { resolver in
+            TunnelManager.shared.setAccount(accountToken: accountToken) { error in
+                dispatchPrecondition(condition: .onQueue(.main))
+
+                if let error = error {
+                    resolver.resolve(value: .failure(Account.Error.tunnelConfiguration(error)))
+                } else {
+                    self.token = accountToken
+                    self.expiry = expiry
+
+                    resolver.resolve(value: .success(()))
+                }
             }
-            .onSuccess { _ in
-                self.token = accountToken
-                self.expiry = expiry
-            }
+        }
     }
 
     private func removeFromPreferences() {

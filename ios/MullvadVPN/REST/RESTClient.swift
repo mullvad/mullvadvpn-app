@@ -209,7 +209,6 @@ extension REST {
             }
         }
 
-
         func replaceWireguardKey(token: String, oldPublicKey: PublicKey, newPublicKey: PublicKey) -> REST.RequestAdapter<WireguardAddressesResponse> {
             return makeAdapter { endpoint, completionHandler in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "replace-wireguard-key")

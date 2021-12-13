@@ -37,8 +37,6 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     private var verifyKeyCancellationToken: PromiseCancellationToken?
 
     private let alertPresenter = AlertPresenter()
-    private let logger = Logger(label: "WireguardKeys")
-
     private var state: WireguardKeysViewState = .default {
         didSet {
             updateViewState(state)
@@ -239,18 +237,14 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     private func regeneratePrivateKey() {
         self.updateViewState(.regeneratingKey)
 
-        TunnelManager.shared.regeneratePrivateKey()
-            .receive(on: .main)
-            .onSuccess { [weak self] _ in
-                self?.updateViewState(.regeneratedKey(true))
-            }
-            .onFailure { [weak self] error in
-                self?.logger.error(chainedError: error, message: "Failed to regenerate the private key")
-
+        TunnelManager.shared.regeneratePrivateKey { [weak self] error in
+            if let error = error {
                 self?.showKeyRegenerationFailureAlert(error)
                 self?.updateViewState(.regeneratedKey(false))
+            } else {
+                self?.updateViewState(.regeneratedKey(true))
             }
-            .observe { _ in }
+        }
     }
 
     private func showKeyVerificationFailureAlert(_ error: REST.Error) {

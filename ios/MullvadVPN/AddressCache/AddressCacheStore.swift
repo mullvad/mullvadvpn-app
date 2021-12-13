@@ -170,7 +170,7 @@ extension AddressCache {
                         newEndpoints.remove(at: index)
                         newEndpoints.insert(currentEndpoint, at: 0)
                     }
-                    
+
                     self.cachedAddresses = CachedAddresses(
                         updatedAt: Date(),
                         endpoints: newEndpoints
