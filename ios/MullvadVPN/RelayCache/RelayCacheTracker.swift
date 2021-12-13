@@ -122,6 +122,17 @@ extension RelayCache {
             .requestBackgroundTime(taskName: "RelayCacheTracker.updateRelays")
         }
 
+        func read(completionHandler: @escaping (Result<CachedRelays, RelayCache.Error>) -> Void) {
+            stateQueue.async {
+                let result = RelayCache.IO.readWithFallback(
+                    cacheFileURL: self.cacheFileURL,
+                    preBundledRelaysFileURL: self.prebundledRelaysFileURL
+                )
+
+                completionHandler(result)
+            }
+        }
+
         func read() -> Result<CachedRelays, RelayCache.Error>.Promise {
             return Promise.deferred {
                 return RelayCache.IO.readWithFallback(
