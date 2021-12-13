@@ -50,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
 - Update wireguard-nt to 0.10.1.
 - Make wireguard-nt the default driver for WireGuard. This is used instead of wireguard-go and
   Wintun.
+- Increase firewall transaction timeout from 2 to 5 seconds.
 
 ### Fixed
 - Always kill `sslocal` if the tunnel monitor fails to start when using bridges.
