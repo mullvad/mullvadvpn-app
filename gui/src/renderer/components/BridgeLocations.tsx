@@ -17,6 +17,7 @@ export enum SpecialBridgeLocationType {
 
 interface IBridgeLocationsProps {
   source: IRelayLocationRedux[];
+  locale: string;
   defaultExpandedLocations?: RelayLocation[];
   selectedValue?: LiftedConstraint<RelayLocation>;
   selectedElementRef?: React.Ref<React.ReactInstance>;
@@ -53,6 +54,7 @@ const BridgeLocations = React.forwardRef(function BridgeLocationsT(
       </SpecialLocations>
       <RelayLocations
         source={props.source}
+        locale={props.locale}
         onWillExpand={props.onWillExpand}
         onTransitionEnd={props.onTransitionEnd}
       />

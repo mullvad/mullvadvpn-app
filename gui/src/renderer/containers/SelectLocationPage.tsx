@@ -45,6 +45,7 @@ const mapStateToProps = (state: IReduxState, props: IHistoryProps & IAppContext)
   const providers = 'normal' in relaySettings ? relaySettings.normal.providers : [];
 
   return {
+    locale: state.userInterface.locale,
     selectedExitLocation,
     selectedEntryLocation,
     selectedBridgeLocation,

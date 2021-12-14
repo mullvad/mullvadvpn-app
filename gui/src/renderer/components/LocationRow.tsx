@@ -67,6 +67,7 @@ const Label = styled(Cell.Label)({
 interface IProps {
   name: string;
   active: boolean;
+  disabled: boolean;
   location: RelayLocation;
   selected: boolean;
   expanded?: boolean;
@@ -105,13 +106,13 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
       <Container
         ref={ref}
         selected={props.selected}
-        disabled={!props.active}
+        disabled={props.disabled}
         location={props.location}>
         <Button
           ref={buttonRef}
           onClick={handleClick}
           location={props.location}
-          disabled={!props.active}>
+          disabled={props.disabled}>
           <RelayStatusIndicator active={props.active} selected={props.selected} />
           <Label>{props.name}</Label>
         </Button>
@@ -149,6 +150,7 @@ function compareProps(oldProps: IProps, nextProps: IProps): boolean {
     React.Children.count(oldProps.children) === React.Children.count(nextProps.children) &&
     oldProps.name === nextProps.name &&
     oldProps.active === nextProps.active &&
+    oldProps.disabled === nextProps.disabled &&
     oldProps.selected === nextProps.selected &&
     oldProps.expanded === nextProps.expanded &&
     oldProps.onSelect === nextProps.onSelect &&
