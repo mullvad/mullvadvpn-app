@@ -185,18 +185,6 @@ impl ConnectedState {
         use self::EventConsequence::*;
 
         match command {
-            #[cfg(target_os = "macos")]
-            Some(TunnelCommand::AddAllowedIps(_allowed_ips, done_tx)) => {
-                let _ = done_tx.send(());
-                SameState(self.into())
-            }
-            #[cfg(target_os = "macos")]
-            Some(TunnelCommand::AllowMacosNetworkCheck(enable, done_tx)) => {
-                let _ = done_tx.send(shared_values.deactivate_filtering_resolver(enable));
-                SameState(self.into())
-            }
-            #[cfg(target_os = "macos")]
-            Some(TunnelCommand::HostDnsConfig(_new_config)) => SameState(self.into()),
             Some(TunnelCommand::AllowLan(allow_lan)) => {
                 if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
                     self.disconnect(shared_values, AfterDisconnect::Block(error_cause))

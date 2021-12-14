@@ -22,8 +22,6 @@ pub mod settings;
 pub mod version;
 mod version_check;
 
-#[cfg(target_os = "macos")]
-use either::Either;
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Future},
@@ -251,11 +249,6 @@ pub enum DaemonCommand {
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Toggle macOS network check leak
-    #[cfg(target_os = "macos")]
-    SetAllowMacosNetworkCheck(
-        ResponseTx<(), Either<settings::Error, talpid_core::resolver::Error>>,
-        bool,
-    ),
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(ResponseTx<(), settings::Error>, Option<u16>),
     /// Set automatic key rotation interval for wireguard tunnels
@@ -688,8 +681,6 @@ where
             tunnel_state_machine_shutdown_tx,
             #[cfg(target_os = "macos")]
             exclusion_gid,
-            #[cfg(target_os = "macos")]
-            settings.allow_macos_network_check,
             #[cfg(target_os = "android")]
             android_context,
         )
@@ -1273,11 +1264,6 @@ where
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state).await,
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers).await,
-            #[cfg(target_os = "macos")]
-            SetAllowMacosNetworkCheck(tx, enable_custom_resolver) => {
-                self.on_set_allow_macos_network_check(tx, enable_custom_resolver)
-                    .await
-            }
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu).await,
             SetWireguardRotationInterval(tx, interval) => {
                 self.on_set_wireguard_rotation_interval(tx, interval).await
@@ -2277,50 +2263,6 @@ where
                 Self::oneshot_send(tx, Err(e), "set_dns_options response");
             }
         }
-    }
-
-    #[cfg(target_os = "macos")]
-    async fn on_set_allow_macos_network_check(
-        &mut self,
-        tx: ResponseTx<(), Either<settings::Error, talpid_core::resolver::Error>>,
-        enable_custom_resolver: bool,
-    ) {
-        let result = self
-            .on_set_custom_resolver_inner(enable_custom_resolver)
-            .await;
-
-        Self::oneshot_send(tx, result, "on_set_allow_macos_network_check resposne");
-    }
-
-    #[cfg(target_os = "macos")]
-    async fn on_set_custom_resolver_inner(
-        &mut self,
-        allow_macos_network_check: bool,
-    ) -> Result<(), Either<settings::Error, talpid_core::resolver::Error>> {
-        let (start_tx, start_rx) = oneshot::channel();
-        self.send_tunnel_command(TunnelCommand::AllowMacosNetworkCheck(
-            allow_macos_network_check,
-            start_tx,
-        ));
-        match start_rx.await {
-            Ok(result) => {
-                result.map_err(Either::Right)?;
-            }
-            Err(_) => {
-                log::error!("Tunnel state machine has exited");
-                return Ok(());
-            }
-        };
-        let settings_changed = self
-            .settings
-            .set_allow_macos_network_check(allow_macos_network_check)
-            .await
-            .map_err(Either::Left)?;
-        if settings_changed {
-            self.event_listener
-                .notify_settings(self.settings.to_settings());
-        }
-        Ok(())
     }
 
     async fn on_set_wireguard_mtu(
