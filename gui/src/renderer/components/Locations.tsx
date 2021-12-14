@@ -2,6 +2,7 @@ import * as React from 'react';
 import { RelayLocation } from '../../shared/daemon-rpc-types';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import LocationList, {
+  DisabledReason,
   LocationSelection,
   LocationSelectionType,
   RelayLocations,
@@ -9,8 +10,10 @@ import LocationList, {
 
 interface ILocationsProps {
   source: IRelayLocationRedux[];
+  locale: string;
   defaultExpandedLocations?: RelayLocation[];
   selectedValue?: RelayLocation;
+  disabledLocation?: { location: RelayLocation; reason: DisabledReason };
   selectedElementRef?: React.Ref<React.ReactInstance>;
   onSelect?: (value: LocationSelection<never>) => void;
   onWillExpand?: (locationRect: DOMRect, expandedContentHeight: number) => void;
@@ -31,6 +34,8 @@ function Locations(props: ILocationsProps, ref: React.Ref<LocationList<never>>) 
       onSelect={props.onSelect}>
       <RelayLocations
         source={props.source}
+        locale={props.locale}
+        disabledLocation={props.disabledLocation}
         onWillExpand={props.onWillExpand}
         onTransitionEnd={props.onTransitionEnd}
       />

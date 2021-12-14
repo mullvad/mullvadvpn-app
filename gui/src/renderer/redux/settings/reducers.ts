@@ -64,14 +64,12 @@ export interface IRelayLocationCityRedux {
   code: string;
   latitude: number;
   longitude: number;
-  hasActiveRelays: boolean;
   relays: IRelayLocationRelayRedux[];
 }
 
 export interface IRelayLocationRedux {
   name: string;
   code: string;
-  hasActiveRelays: boolean;
   cities: IRelayLocationCityRedux[];
 }
 
