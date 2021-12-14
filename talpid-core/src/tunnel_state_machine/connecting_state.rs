@@ -118,6 +118,7 @@ impl ConnectingState {
             on_tunnel_event,
             tun_provider,
             route_manager,
+            retry_attempt,
         )?;
         let close_handle = Some(monitor.close_handle());
         let tunnel_close_event =
