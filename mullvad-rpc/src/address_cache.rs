@@ -76,7 +76,7 @@ impl AddressCache {
     }
 
     /// Returns the current address without registering it as "tried"
-    /// in [`has_tried_current_address`].
+    /// in [Self::has_tried_current_address].
     pub fn peek_address(&self) -> SocketAddr {
         let inner = self.inner.lock().unwrap();
         Self::get_address_inner(&inner)

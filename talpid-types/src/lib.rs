@@ -15,7 +15,7 @@ pub trait ErrorExt {
     /// Creates a string representation of the entire error chain.
     fn display_chain(&self) -> String;
 
-    /// Like [`display_chain`] but with an extra message at the start of the chain
+    /// Like [Self::display_chain] but with an extra message at the start of the chain
     fn display_chain_with_msg(&self, msg: &str) -> String;
 }
 
