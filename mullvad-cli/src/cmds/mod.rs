@@ -28,11 +28,6 @@ pub use self::dns::Dns;
 mod lan;
 pub use self::lan::Lan;
 
-#[cfg(target_os = "macos")]
-mod network_check;
-#[cfg(target_os = "macos")]
-pub use self::network_check::NetworkCheck;
-
 mod reconnect;
 pub use self::reconnect::Reconnect;
 
@@ -69,8 +64,6 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(Dns),
         Box::new(Reconnect),
         Box::new(Lan),
-        #[cfg(any(target_os = "macos"))]
-        Box::new(NetworkCheck),
         Box::new(Relay),
         Box::new(Reset),
         #[cfg(any(target_os = "linux", windows))]

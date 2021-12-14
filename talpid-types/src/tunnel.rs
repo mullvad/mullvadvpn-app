@@ -106,19 +106,13 @@ pub enum ErrorStateCause {
     /// Error reported by split tunnel module.
     #[cfg(target_os = "windows")]
     SplitTunnelError,
-    /// Failed to start filtering resolver
-    #[cfg(target_os = "macos")]
-    FilteringResolverError,
-    /// Failed read system DNS config
-    #[cfg(target_os = "macos")]
-    ReadSystemDnsConfig,
 }
 
 impl ErrorStateCause {
     #[cfg(target_os = "macos")]
     pub fn prevents_filtering_resolver(&self) -> bool {
         match self {
-            Self::FilteringResolverError | Self::ReadSystemDnsConfig | Self::SetDnsError => true,
+            Self::SetDnsError => true,
             _ => false,
         }
     }
@@ -214,10 +208,6 @@ impl fmt::Display for ErrorStateCause {
             VpnPermissionDenied => "The Android VPN permission was denied when creating the tunnel",
             #[cfg(target_os = "windows")]
             SplitTunnelError => "The split tunneling module reported an error",
-            #[cfg(target_os = "macos")]
-            FilteringResolverError => "Failed to set up custom resolver",
-            #[cfg(target_os = "macos")]
-            ReadSystemDnsConfig => "Failed to read system DNS config",
         };
 
         write!(f, "{}", description)

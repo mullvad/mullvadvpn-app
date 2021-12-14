@@ -2,8 +2,6 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(unix)]
 use lazy_static::lazy_static;
-#[cfg(target_os = "macos")]
-use std::collections::BTreeSet;
 use std::fmt;
 #[cfg(not(target_os = "android"))]
 use std::net::IpAddr;
@@ -140,12 +138,6 @@ pub enum FirewallPolicy {
         allow_lan: bool,
         /// Host that should be reachable while in the blocked state.
         allowed_endpoint: AllowedEndpoint,
-        /// A list of IPs that can be reached outside the tunnel.
-        #[cfg(target_os = "macos")]
-        allowed_ips: BTreeSet<IpAddr>,
-        /// Enables specific GID exclusion traffic
-        #[cfg(target_os = "macos")]
-        allow_gid_exclusion_traffic: bool,
     },
 }
 
@@ -233,6 +225,9 @@ pub struct FirewallArguments {
     /// This argument is required on macOS to know which group's traffic should be excluded, if at
     /// all.
     pub exclusion_gid: u32,
+    #[cfg(target_os = "macos")]
+    /// DNS redirect port. DNS traffic in blocking states will be redirected to this port
+    pub dns_redirect_port: Option<u16>,
 }
 
 /// State to enter during firewall init.

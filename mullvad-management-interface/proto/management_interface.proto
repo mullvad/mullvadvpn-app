@@ -41,7 +41,6 @@ service ManagementService {
 	rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 	rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
-	rpc SetAllowMacosNetworkCheck(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 
 	// Account management
 	rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
@@ -111,8 +110,6 @@ message ErrorState {
 		IS_OFFLINE = 6;
 		VPN_PERMISSION_DENIED = 7;
 		SPLIT_TUNNEL_ERROR = 8;
-		FILTERING_RESOLVER_ERROR = 9;
-		READ_SYSTEM_DNS_CONFIG = 10;
 	}
 
 	enum GenerationError {
@@ -275,7 +272,6 @@ message Settings {
 	TunnelOptions tunnel_options = 8;
 	bool show_beta_releases = 9;
 	SplitTunnelSettings split_tunnel = 10;
-	bool allow_macos_network_check = 11;
 }
 
 message SplitTunnelSettings {

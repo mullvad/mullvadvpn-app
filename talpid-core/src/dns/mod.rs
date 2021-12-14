@@ -33,9 +33,6 @@ impl DnsMonitor {
     pub fn new(
         #[cfg(target_os = "linux")] handle: tokio::runtime::Handle,
         #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
-        #[cfg(target_os = "macos")] command_tx: std::sync::Weak<
-            futures::channel::mpsc::UnboundedSender<crate::tunnel_state_machine::TunnelCommand>,
-        >,
     ) -> Result<Self, Error> {
         Ok(DnsMonitor {
             inner: imp::DnsMonitor::new(
@@ -43,8 +40,6 @@ impl DnsMonitor {
                 handle,
                 #[cfg(target_os = "linux")]
                 route_manager,
-                #[cfg(target_os = "macos")]
-                command_tx,
             )?,
         })
     }
@@ -87,11 +82,7 @@ trait DnsMonitorT: Sized {
     ) -> Result<Self, Self::Error>;
 
     #[cfg(not(target_os = "linux"))]
-    fn new(
-        #[cfg(target_os = "macos")] command_tx: std::sync::Weak<
-            futures::channel::mpsc::UnboundedSender<crate::tunnel_state_machine::TunnelCommand>,
-        >,
-    ) -> Result<Self, Self::Error>;
+    fn new() -> Result<Self, Self::Error>;
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Self::Error>;
 
