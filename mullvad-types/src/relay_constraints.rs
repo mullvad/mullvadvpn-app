@@ -627,9 +627,7 @@ impl RelaySettingsUpdate {
                 endpoint.endpoint().protocol == TransportProtocol::Tcp
             }
             RelaySettingsUpdate::Normal(update) => {
-                if let Some(Constraint::Only(TunnelType::Wireguard)) = &update.tunnel_protocol {
-                    false
-                } else if let Some(constraints) = &update.openvpn_constraints {
+                if let Some(constraints) = &update.openvpn_constraints {
                     if let Constraint::Only(TransportPort {
                         protocol: TransportProtocol::Udp,
                         ..
