@@ -1,5 +1,3 @@
-use crate::tunnel_state_machine::TunnelCommand;
-use futures::channel::mpsc;
 use parking_lot::Mutex;
 use std::{
     collections::HashMap,
@@ -62,25 +60,6 @@ struct State {
     dns_settings: DnsSettings,
     /// The backup of all DNS settings. These are being applied back on reset.
     backup: HashMap<ServicePath, Option<DnsSettings>>,
-    /// Tunnel command sender for reporting updates to the system DNS config
-    tunnel_tx: std::sync::Weak<mpsc::UnboundedSender<crate::tunnel_state_machine::TunnelCommand>>,
-}
-
-impl State {
-    fn send_new_config(&self) {
-        if let Some(tunnel_tx) = self.tunnel_tx.upgrade() {
-            match parse_sc_config(&self.backup) {
-                Ok(config) => {
-                    // TODO: do better filtering to get the best resolver
-                    let _ = tunnel_tx
-                        .unbounded_send(TunnelCommand::HostDnsConfig(config.into_iter().next()));
-                }
-                Err(err) => {
-                    log::error!("Failed to parse host's DNS config: {}", err);
-                }
-            };
-        }
-    }
 }
 
 /// Holds the configuration for one service.
@@ -223,8 +202,6 @@ pub struct DnsMonitor {
     /// When it's `Some(state)` we are actively making sure `state.dns_settings` is configured
     /// on all network interfaces.
     state: Arc<Mutex<Option<State>>>,
-
-    tunnel_tx: std::sync::Weak<mpsc::UnboundedSender<crate::tunnel_state_machine::TunnelCommand>>,
 }
 
 /// SAFETY: The `SCDynamicStore` can be sent to other threads since it doesn't share mutable state
@@ -238,13 +215,12 @@ impl super::DnsMonitorT for DnsMonitor {
     /// DNS settings for all network interfaces. If any changes occur it will instantly reset
     /// the DNS settings for that interface back to the last server list set to this instance
     /// with `set_dns`.
-    fn new(tunnel_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>) -> Result<Self> {
+    fn new() -> Result<Self> {
         let state = Arc::new(Mutex::new(None));
         Self::spawn(state.clone())?;
         Ok(DnsMonitor {
             store: SCDynamicStoreBuilder::new("mullvad-dns").build(),
             state,
-            tunnel_tx,
         })
     }
 
@@ -262,7 +238,6 @@ impl super::DnsMonitorT for DnsMonitor {
                 State {
                     dns_settings: settings,
                     backup,
-                    tunnel_tx: self.tunnel_tx.clone(),
                 }
             }
             Some(state) => {
@@ -273,7 +248,6 @@ impl super::DnsMonitorT for DnsMonitor {
                     State {
                         dns_settings: settings,
                         backup: state.backup,
-                        tunnel_tx: self.tunnel_tx.clone(),
                     }
                 } else {
                     log::debug!("No change, new DNS same as the one already set");
@@ -405,7 +379,6 @@ fn dns_change_callback_internal(
     changed_keys: CFArray<CFString>,
     state: &mut State,
 ) {
-    state.send_new_config();
     for path in &changed_keys {
         let should_set_dns = match DnsSettings::load(&store, path.clone()).ok() {
             None => {

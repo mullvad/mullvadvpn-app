@@ -1,6 +1,4 @@
 use crate::{account_history, settings, DaemonCommand, DaemonCommandSender, EventListener};
-#[cfg(target_os = "macos")]
-use either::Either;
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
@@ -365,35 +363,6 @@ impl ManagementService for ManagementServiceImpl {
 
     #[cfg(target_os = "android")]
     async fn set_dns_options(&self, _: Request<types::DnsOptions>) -> ServiceResult<()> {
-        Ok(Response::new(()))
-    }
-
-    #[cfg(target_os = "macos")]
-    async fn set_allow_macos_network_check(&self, request: Request<bool>) -> ServiceResult<()> {
-        let allow_macos_network_check = request.into_inner();
-        log::debug!(
-            "set_allow_macos_network_check({:?})",
-            allow_macos_network_check
-        );
-
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetAllowMacosNetworkCheck(
-            tx,
-            allow_macos_network_check,
-        ))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(|err| match err {
-                Either::Right(resolver_error) => {
-                    Status::new(Code::Internal, resolver_error.to_string())
-                }
-                Either::Left(settings_error) => map_settings_error(settings_error),
-            })
-    }
-
-    #[cfg(not(target_os = "macos"))]
-    async fn set_allow_macos_network_check(&self, _: Request<bool>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
