@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
   pressed.
 - Disable logging of translation errors in production. This will among other things prevent error
   messages from translating the country in the disconnected state.
+- Gradually increase the WireGuard connectivity check timeout, lowering the timeout for the first
+  few attempts.
 
 #### Android
 - Avoid running in foreground when not connected.
