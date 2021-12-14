@@ -10,7 +10,7 @@ import { AppContext } from './context';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
-import { IRelayLocationRedux, IWgKey } from './redux/settings/reducers';
+import { IWgKey } from './redux/settings/reducers';
 import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
@@ -33,7 +33,6 @@ import {
   IAppVersionInfo,
   IDnsOptions,
   ILocation,
-  IRelayList,
   ISettings,
   IWireguardPublicKey,
   KeygenEvent,
@@ -88,7 +87,6 @@ export default class AppRenderer {
     userInterface: bindActionCreators(userInterfaceActions, this.reduxStore.dispatch),
   };
 
-  private locale = 'en';
   private location?: Partial<ILocation>;
   private lastDisconnectedLocation?: Partial<ILocation>;
   private relayListPair!: IRelayListPair;
@@ -597,7 +595,6 @@ export default class AppRenderer {
   }
 
   private setLocale(locale: string) {
-    this.locale = locale;
     this.reduxActions.userInterface.updateLocale(locale);
   }
 
@@ -837,36 +834,14 @@ export default class AppRenderer {
     }
   }
 
-  private convertRelayListToLocationList(relayList: IRelayList): IRelayLocationRedux[] {
-    return relayList.countries
-      .map((country) => ({
-        name: country.name,
-        code: country.code,
-        hasActiveRelays: country.cities.some((city) => city.relays.some((relay) => relay.active)),
-        cities: country.cities
-          .map((city) => ({
-            name: city.name,
-            code: city.code,
-            latitude: city.latitude,
-            longitude: city.longitude,
-            hasActiveRelays: city.relays.some((relay) => relay.active),
-            relays: city.relays.sort((relayA, relayB) =>
-              relayA.hostname.localeCompare(relayB.hostname, this.locale, { numeric: true }),
-            ),
-          }))
-          .sort((cityA, cityB) => cityA.name.localeCompare(cityB.name, this.locale)),
-      }))
-      .sort((countryA, countryB) => countryA.name.localeCompare(countryB.name, this.locale));
-  }
-
   private setRelayListPair(relayListPair: IRelayListPair) {
     this.relayListPair = relayListPair;
     this.propagateRelayListPairToRedux();
   }
 
   private propagateRelayListPairToRedux() {
-    const relays = this.convertRelayListToLocationList(this.relayListPair.relays);
-    const bridges = this.convertRelayListToLocationList(this.relayListPair.bridges);
+    const relays = this.relayListPair.relays.countries;
+    const bridges = this.relayListPair.bridges.countries;
 
     this.reduxActions.settings.updateRelayLocations(relays);
     this.reduxActions.settings.updateBridgeLocations(bridges);

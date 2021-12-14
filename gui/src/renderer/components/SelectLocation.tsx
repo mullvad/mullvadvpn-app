@@ -9,7 +9,11 @@ import { CustomScrollbarsRef } from './CustomScrollbars';
 import { EntryLocations, ExitLocations } from './Locations';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
-import LocationList, { LocationSelection, LocationSelectionType } from './LocationList';
+import LocationList, {
+  DisabledReason,
+  LocationSelection,
+  LocationSelectionType,
+} from './LocationList';
 import {
   CloseBarItem,
   NavigationBar,
@@ -36,6 +40,7 @@ import {
 import { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
 interface IProps {
+  locale: string;
   selectedExitLocation?: RelayLocation;
   selectedEntryLocation?: RelayLocation;
   selectedBridgeLocation?: LiftedConstraint<RelayLocation>;
@@ -283,26 +288,42 @@ export default class SelectLocation extends React.Component<IProps, IState> {
 
   private renderLocationList() {
     if (this.state.locationScope === LocationScope.exit) {
+      const disabledLocation = this.props.selectedEntryLocation
+        ? {
+            location: this.props.selectedEntryLocation,
+            reason: DisabledReason.entry,
+          }
+        : undefined;
       return (
         <ExitLocations
           ref={this.exitLocationList}
           source={this.props.relayLocations}
+          locale={this.props.locale}
           defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
           selectedValue={this.props.selectedExitLocation}
           selectedElementRef={this.selectedExitLocationRef}
+          disabledLocation={disabledLocation}
           onSelect={this.onSelectExitLocation}
           onWillExpand={this.onWillExpand}
           onTransitionEnd={this.resetHeight}
         />
       );
     } else if (this.props.tunnelProtocol === 'any' || this.props.tunnelProtocol === 'wireguard') {
+      const disabledLocation = this.props.selectedExitLocation
+        ? {
+            location: this.props.selectedExitLocation,
+            reason: DisabledReason.exit,
+          }
+        : undefined;
       return (
         <EntryLocations
           ref={this.entryLocationList}
           source={this.props.relayLocations}
+          locale={this.props.locale}
           defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
           selectedValue={this.props.selectedEntryLocation}
           selectedElementRef={this.selectedEntryLocationRef}
+          disabledLocation={disabledLocation}
           onSelect={this.onSelectEntryLocation}
           onWillExpand={this.onWillExpand}
           onTransitionEnd={this.resetHeight}
@@ -313,6 +334,7 @@ export default class SelectLocation extends React.Component<IProps, IState> {
         <BridgeLocations
           ref={this.bridgeLocationList}
           source={this.props.bridgeLocations}
+          locale={this.props.locale}
           defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
           selectedValue={this.props.selectedBridgeLocation}
           selectedElementRef={this.selectedBridgeLocationRef}

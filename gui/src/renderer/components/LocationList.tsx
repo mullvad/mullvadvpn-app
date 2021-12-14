@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import {
@@ -7,8 +8,12 @@ import {
   RelayLocation,
   relayLocationComponents,
 } from '../../shared/daemon-rpc-types';
-import { relayLocations } from '../../shared/gettext';
-import { IRelayLocationRedux } from '../redux/settings/reducers';
+import { messages, relayLocations } from '../../shared/gettext';
+import {
+  IRelayLocationRedux,
+  IRelayLocationCityRedux,
+  IRelayLocationRelayRedux,
+} from '../redux/settings/reducers';
 import * as Cell from './cell';
 import LocationRow from './LocationRow';
 
@@ -257,11 +262,19 @@ export class SpecialLocation<T> extends React.Component<ISpecialLocationProps<T>
   };
 }
 
+export enum DisabledReason {
+  entry,
+  exit,
+  inactive,
+}
+
 interface IRelayLocationsProps {
   source: IRelayLocationRedux[];
+  locale: string;
   selectedLocation?: RelayLocation;
   selectedElementRef?: React.Ref<React.ReactInstance>;
   expandedItems?: RelayLocation[];
+  disabledLocation?: { location: RelayLocation; reason: DisabledReason };
   onSelect?: (location: RelayLocation) => void;
   onExpand?: (location: RelayLocation, expand: boolean) => void;
   onWillExpand?: (locationRect: DOMRect, expandedContentHeight: number) => void;
@@ -278,14 +291,15 @@ export class RelayLocations extends React.PureComponent<IRelayLocationsProps> {
   public render() {
     return (
       <>
-        {this.props.source.map((relayCountry) => {
+        {this.prepareRelaysForPresentation(this.props.source).map((relayCountry) => {
           const countryLocation: RelayLocation = { country: relayCountry.code };
 
           return (
             <LocationRow
               key={getLocationKey(countryLocation)}
-              name={relayLocations.gettext(relayCountry.name)}
-              active={relayCountry.hasActiveRelays}
+              name={relayCountry.label}
+              active={relayCountry.active}
+              disabled={relayCountry.disabled}
               expanded={this.isExpanded(countryLocation)}
               onSelect={this.handleSelection}
               onExpand={this.handleExpand}
@@ -300,8 +314,9 @@ export class RelayLocations extends React.PureComponent<IRelayLocationsProps> {
                 return (
                   <LocationRow
                     key={getLocationKey(cityLocation)}
-                    name={relayLocations.gettext(relayCity.name)}
-                    active={relayCity.hasActiveRelays}
+                    name={relayCity.label}
+                    active={relayCity.active}
+                    disabled={relayCity.disabled}
                     expanded={this.isExpanded(cityLocation)}
                     onSelect={this.handleSelection}
                     onExpand={this.handleExpand}
@@ -316,8 +331,9 @@ export class RelayLocations extends React.PureComponent<IRelayLocationsProps> {
                       return (
                         <LocationRow
                           key={getLocationKey(relayLocation)}
-                          name={relay.hostname}
+                          name={relay.label}
                           active={relay.active}
+                          disabled={relay.disabled}
                           onSelect={this.handleSelection}
                           {...this.getCommonCellProps(relayLocation)}
                         />
@@ -331,6 +347,166 @@ export class RelayLocations extends React.PureComponent<IRelayLocationsProps> {
         })}
       </>
     );
+  }
+
+  private prepareRelaysForPresentation(relayList: IRelayLocationRedux[]) {
+    return relayList
+      .map((country) => {
+        const countryDisabled = this.isCountryDisabled(country, country.code);
+        const countryLocation = { country: country.code };
+
+        return {
+          ...country,
+          label: this.formatRowName(country.name, countryLocation, countryDisabled),
+          active: countryDisabled !== DisabledReason.inactive,
+          disabled: countryDisabled !== undefined,
+          cities: country.cities
+            .map((city) => {
+              const cityDisabled =
+                countryDisabled ?? this.isCityDisabled(city, [country.code, city.code]);
+              const cityLocation: RelayLocation = { city: [country.code, city.code] };
+
+              return {
+                ...city,
+                label: this.formatRowName(city.name, cityLocation, cityDisabled),
+                active: cityDisabled !== DisabledReason.inactive,
+                disabled: cityDisabled !== undefined,
+                relays: city.relays
+                  .map((relay) => {
+                    const relayDisabled =
+                      countryDisabled ??
+                      cityDisabled ??
+                      this.isRelayDisabled(relay, [country.code, city.code, relay.hostname]);
+                    const relayLocation: RelayLocation = {
+                      hostname: [country.code, city.code, relay.hostname],
+                    };
+
+                    return {
+                      ...relay,
+                      label: this.formatRowName(relay.hostname, relayLocation, relayDisabled),
+                      disabled: relayDisabled !== undefined,
+                    };
+                  })
+                  .sort((a, b) =>
+                    a.hostname.localeCompare(b.hostname, this.props.locale, { numeric: true }),
+                  ),
+              };
+            })
+            .sort((a, b) => a.name.localeCompare(b.name, this.props.locale)),
+        };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, this.props.locale));
+  }
+
+  private formatRowName(
+    name: string,
+    location: RelayLocation,
+    disabledReason?: DisabledReason,
+  ): string {
+    const translatedName = 'hostname' in location ? name : relayLocations.gettext(name);
+    const disabledLocation = this.props.disabledLocation;
+    const matchDisabledLocation = compareRelayLocationLoose(location, disabledLocation?.location);
+
+    let info: string | undefined;
+    if (
+      disabledReason === DisabledReason.entry ||
+      (matchDisabledLocation && disabledLocation?.reason === DisabledReason.entry)
+    ) {
+      info = messages.pgettext('select-location-view', 'Entry');
+    } else if (
+      disabledReason === DisabledReason.exit ||
+      (matchDisabledLocation && disabledLocation?.reason === DisabledReason.exit)
+    ) {
+      info = messages.pgettext('select-location-view', 'Exit');
+    }
+
+    return info !== undefined
+      ? sprintf(messages.pgettext('select-location-view', '%(location)s (%(info)s)'), {
+          location: translatedName,
+          info,
+        })
+      : translatedName;
+  }
+
+  private isRelayDisabled(
+    relay: IRelayLocationRelayRedux,
+    location: [string, string, string],
+  ): DisabledReason | undefined {
+    if (!relay.active) {
+      return DisabledReason.inactive;
+    } else if (
+      this.props.disabledLocation &&
+      compareRelayLocation({ hostname: location }, this.props.disabledLocation.location)
+    ) {
+      return this.props.disabledLocation.reason;
+    } else {
+      return undefined;
+    }
+  }
+
+  private isCityDisabled(
+    city: IRelayLocationCityRedux,
+    location: [string, string],
+  ): DisabledReason | undefined {
+    const relaysDisabled = city.relays.map((relay) =>
+      this.isRelayDisabled(relay, [...location, relay.hostname]),
+    );
+    if (relaysDisabled.every((status) => status === DisabledReason.inactive)) {
+      return DisabledReason.inactive;
+    }
+
+    const disabledDueToSelection = relaysDisabled.find(
+      (status) => status === DisabledReason.entry || status === DisabledReason.exit,
+    );
+
+    if (
+      relaysDisabled.every((status) => status !== undefined) &&
+      disabledDueToSelection !== undefined
+    ) {
+      return disabledDueToSelection;
+    }
+
+    if (
+      this.props.disabledLocation &&
+      compareRelayLocation({ city: location }, this.props.disabledLocation.location) &&
+      city.relays.filter((relay) => relay.active).length <= 1
+    ) {
+      return this.props.disabledLocation.reason;
+    }
+
+    return undefined;
+  }
+
+  private isCountryDisabled(
+    country: IRelayLocationRedux,
+    location: string,
+  ): DisabledReason | undefined {
+    const citiesDisabled = country.cities.map((city) =>
+      this.isCityDisabled(city, [location, city.code]),
+    );
+    if (citiesDisabled.every((status) => status === DisabledReason.inactive)) {
+      return DisabledReason.inactive;
+    }
+
+    const disabledDueToSelection = citiesDisabled.find(
+      (status) => status === DisabledReason.entry || status === DisabledReason.exit,
+    );
+    if (
+      citiesDisabled.every((status) => status !== undefined) &&
+      disabledDueToSelection !== undefined
+    ) {
+      return disabledDueToSelection;
+    }
+
+    if (
+      this.props.disabledLocation &&
+      compareRelayLocation({ country: location }, this.props.disabledLocation.location) &&
+      country.cities.flatMap((city) => city.relays).filter((relay) => relay.active).length <= 1
+    ) {
+      return this.props.disabledLocation.reason;
+    }
+
+    return undefined;
   }
 
   private isExpanded(relayLocation: RelayLocation) {
