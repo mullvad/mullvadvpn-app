@@ -754,6 +754,11 @@
 
 	Push $0
 
+	${IfNot} ${AtLeastWin10}
+		MessageBox MB_ICONSTOP|MB_TOPMOST|MB_OK "Windows versions below 10 are unsupported. The last version to support Windows 7 and 8/8.1 is 2021.6."
+		Abort
+	${EndIf}
+
 	# Application settings key
 	# Migrate 2018.(x<6) to current
 	registry::MoveKey "HKLM\SOFTWARE\8fa2c331-e09e-5709-bc74-c59df61f0c7e" "HKLM\SOFTWARE\${PRODUCT_NAME}"
