@@ -172,30 +172,6 @@ impl RelaySettings {
             }),
         }
     }
-
-    pub(crate) fn ensure_bridge_compatibility(&mut self) {
-        match self {
-            RelaySettings::Normal(ref mut constraints) => {
-                if constraints.tunnel_protocol == Constraint::Only(TunnelType::Wireguard) {
-                    constraints.tunnel_protocol = Constraint::Any;
-                }
-                if let Constraint::Only(TransportPort {
-                    protocol: TransportProtocol::Udp,
-                    ..
-                }) = constraints.openvpn_constraints.port
-                {
-                    constraints.openvpn_constraints.port = Constraint::Any;
-                }
-            }
-            RelaySettings::CustomTunnelEndpoint(config) => {
-                if config.endpoint().protocol == TransportProtocol::Udp {
-                    log::warn!(
-                        "Using custom tunnel endpoint with UDP, bridges will likely not work"
-                    );
-                }
-            }
-        }
-    }
 }
 
 /// Limits the set of [`crate::relay_list::Relay`]s that a `RelaySelector` may select.
