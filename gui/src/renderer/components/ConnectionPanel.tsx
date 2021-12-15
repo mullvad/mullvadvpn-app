@@ -11,6 +11,7 @@ import {
 } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { default as ConnectionPanelDisclosure } from '../components/ConnectionPanelDisclosure';
+import Marquee from './Marquee';
 
 export interface IEndpoint {
   ip: string;
@@ -82,7 +83,7 @@ export default class ConnectionPanel extends React.Component<IProps> {
         {this.props.hostname && (
           <Header>
             <ConnectionPanelDisclosure pointsUp={this.props.isOpen} onToggle={this.props.onToggle}>
-              {this.hostnameLine()}
+              <Marquee>{this.hostnameLine()}</Marquee>
             </ConnectionPanelDisclosure>
           </Header>
         )}
