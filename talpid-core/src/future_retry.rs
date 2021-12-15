@@ -81,8 +81,8 @@ impl ExponentialBackoff {
         }
     }
 
-    /// Set the maximum delay. By default, there is no maximum value set, but the practical limit
-    /// is `std::u64::MAX`.
+    /// Set the maximum delay. By default, there is no maximum value set. The limit is
+    /// `Duration::MAX`.
     pub fn max_delay(mut self, duration: Duration) -> ExponentialBackoff {
         self.max_delay = Some(duration);
         self
@@ -98,10 +98,7 @@ impl ExponentialBackoff {
             }
         }
 
-        // TODO: Use Duration::MAX when it is available
-        self.next = next
-            .checked_mul(self.factor)
-            .unwrap_or(Duration::from_secs(u64::MAX));
+        self.next = next.saturating_mul(self.factor);
 
         next
     }
@@ -161,7 +158,7 @@ mod test {
 
     #[test]
     fn test_at_maximum_value() {
-        let max = Duration::from_secs(u64::MAX);
+        let max = Duration::MAX;
         let mu = Duration::from_micros(1);
         let mut backoff = ExponentialBackoff::new(max - mu, 2);
 
