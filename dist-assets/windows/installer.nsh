@@ -92,14 +92,7 @@
 !macro ExtractSplitTunnelDriver
 
 	SetOutPath "$TEMP\mullvad-split-tunnel"
-
-	${If} ${AtLeastWin10}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\win10\*"
-	${Else}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\legacy\*"
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\meta\mullvad-ev.cer"
-	${EndIf}
-
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\win10\*"
 	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
 
 !macroend
@@ -286,30 +279,6 @@
 !define InstallService '!insertmacro "InstallService"'
 
 #
-# InstallSplitTunnelDriverCert
-#
-# Install driver certificate in trusted publishers store
-#
-!macro InstallSplitTunnelDriverCert
-
-	${IfNot} ${AtLeastWin10}
-		log::Log "Adding Split Tunnel driver certificate to certificate store"
-
-		nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\mullvad-split-tunnel\mullvad-ev.cer"'
-		Pop $0
-		Pop $1
-
-		${If} $0 != 0
-			StrCpy $R0 "Failed to add trusted publisher certificate: error $0"
-			log::LogWithDetails $R0 $1
-		${EndIf}
-	${EndIf}
-
-!macroend
-
-!define InstallSplitTunnelDriverCert '!insertmacro "InstallSplitTunnelDriverCert"'
-
-#
 # InstallSplitTunnelDriver
 #
 # Install split tunnel driver
@@ -349,8 +318,6 @@
 	${EndIf}
 
 	InstallSplitTunnelDriver_new_install:
-	
-	${InstallSplitTunnelDriverCert}
 	
 	log::Log "Installing Split Tunneling driver"
 	nsExec::ExecToStack '"$TEMP\mullvad-split-tunnel\driverlogic.exe" st-new-install "$TEMP\mullvad-split-tunnel\mullvad-split-tunnel.inf"'
