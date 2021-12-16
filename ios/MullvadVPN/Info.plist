@@ -6,6 +6,7 @@
 	<array>
 		<string>net.mullvad.MullvadVPN.AppRefresh</string>
 		<string>net.mullvad.MullvadVPN.PrivateKeyRotation</string>
+		<string>net.mullvad.MullvadVPN.AddressCacheUpdate</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>

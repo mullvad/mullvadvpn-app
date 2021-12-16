@@ -12,37 +12,43 @@ import Logging
 
 class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
 
+    private let sslHostname: String
     private let trustedRootCertificates: [SecCertificate]
+
     private let logger = Logger(label: "SSLPinningURLSessionDelegate")
 
-    init(trustedRootCertificates: [SecCertificate]) {
+    init(sslHostname: String, trustedRootCertificates: [SecCertificate]) {
+        self.sslHostname = sslHostname
         self.trustedRootCertificates = trustedRootCertificates
     }
 
     // MARK: - URLSessionDelegate
 
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        let evaluation: (disposition: URLSession.AuthChallengeDisposition, credential: URLCredential?)
-
-        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
-            if let serverTrust = challenge.protectionSpace.serverTrust, self.verifyServerTrust(serverTrust) {
-                evaluation = (.useCredential, URLCredential(trust: serverTrust))
-            } else {
-                evaluation = (.cancelAuthenticationChallenge, nil)
-            }
+        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
+           let serverTrust = challenge.protectionSpace.serverTrust,
+           verifyServerTrust(serverTrust) {
+            completionHandler(.useCredential, URLCredential(trust: serverTrust))
         } else {
-            evaluation = (.rejectProtectionSpace, nil)
+            completionHandler(.rejectProtectionSpace, nil)
         }
-
-        completionHandler(evaluation.disposition, evaluation.credential)
     }
-
 
     // MARK: - Private
 
     private func verifyServerTrust(_ serverTrust: SecTrust) -> Bool {
+        var secResult: OSStatus
+
+        // Set SSL policy
+        let sslPolicy = SecPolicyCreateSSL(true, sslHostname as CFString)
+        secResult = SecTrustSetPolicies(serverTrust, sslPolicy)
+        guard secResult == errSecSuccess else {
+            logger.error("SecTrustSetPolicies failure: \(self.formatErrorMessage(code: secResult))")
+            return false
+        }
+
         // Set trusted root certificates
-        var secResult = SecTrustSetAnchorCertificates(serverTrust, trustedRootCertificates as CFArray)
+        secResult = SecTrustSetAnchorCertificates(serverTrust, trustedRootCertificates as CFArray)
         guard secResult == errSecSuccess else {
             self.logger.error("SecTrustSetAnchorCertificates failure: \(self.formatErrorMessage(code: secResult))")
             return false

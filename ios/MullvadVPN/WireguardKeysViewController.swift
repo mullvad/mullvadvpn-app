@@ -213,6 +213,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         self.updateViewState(.verifyingKey)
 
         REST.Client.shared.getWireguardKey(token: tunnelInfo.token, publicKey: tunnelInfo.tunnelSettings.interface.publicKey)
+            .execute(retryStrategy: .default)
             .map { _ in
                 return true
             }

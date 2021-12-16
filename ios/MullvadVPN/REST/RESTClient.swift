@@ -14,16 +14,30 @@ import struct WireGuardKit.IPAddressRange
 extension REST {
 
     class Client {
-        static let shared = Client()
+        static let shared: Client = {
+            return Client(addressCacheStore: AddressCache.Store.shared)
+        }()
 
+        /// URL session
         private let session: URLSession
+
+        /// URL session delegate
         private let sessionDelegate: SSLPinningURLSessionDelegate
 
-        /// REST API v1 base URL
-        private let baseURL = URL(string: "https://api.mullvad.net/app/v1")!
+        /// REST API hostname
+        private let apiHostname = "api.mullvad.net"
+
+        /// REST API base path
+        private let apiBasePath = "/app/v1"
 
         /// Network request timeout in seconds
         private let networkTimeout: TimeInterval = 10
+
+        /// Address cache store
+        private let addressCacheStore: AddressCache.Store
+
+        /// Operation queue used for running network requests
+        private let operationQueue = OperationQueue()
 
         /// Returns array of trusted root certificates
         private static var trustedRootCertificates: [SecCertificate] {
@@ -35,208 +49,292 @@ extension REST {
             }
         }
 
-        private init() {
-            sessionDelegate = SSLPinningURLSessionDelegate(trustedRootCertificates: Self.trustedRootCertificates)
+        init(addressCacheStore: AddressCache.Store) {
+            sessionDelegate = SSLPinningURLSessionDelegate(sslHostname: apiHostname, trustedRootCertificates: Self.trustedRootCertificates)
             session = URLSession(configuration: .ephemeral, delegate: sessionDelegate, delegateQueue: nil)
+            self.addressCacheStore = addressCacheStore
         }
 
         // MARK: - Public
 
-        func createAccount() -> Result<AccountResponse, REST.Error>.Promise {
-            let request = createURLRequest(method: .post, path: "accounts")
+        func createAccount() -> REST.RequestAdapter<AccountResponse> {
+            return makeAdapter { endpoint, completionHandler in
+                let request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "accounts")
 
-            return dataTaskPromise(request: request)
-                .mapError(self.mapNetworkError)
-                .flatMap { httpResponse, data in
-                    if httpResponse.statusCode == HTTPStatus.created {
-                        return Self.decodeSuccessResponse(AccountResponse.self, from: data)
-                    } else {
-                        return Self.decodeErrorResponseAndMapToServerError(from: data)
-                    }
-                }
-        }
-
-        func getRelays(etag: String?) -> Result<ServerRelaysCacheResponse, REST.Error>.Promise {
-            var request = createURLRequest(method: .get, path: "relays")
-            if let etag = etag {
-                setETagHeader(etag: etag, request: &request)
-            }
-
-            return dataTaskPromise(request: request)
-                .mapError(self.mapNetworkError)
-                .flatMap { httpResponse, data in
-                    switch httpResponse.statusCode {
-                    case .ok:
-                        return Self.decodeSuccessResponse(ServerRelaysResponse.self, from: data)
-                            .map { serverRelays in
-                                let newEtag = httpResponse.value(forCaseInsensitiveHTTPHeaderField: HTTPHeader.etag)
-                                return .newContent(newEtag, serverRelays)
+                let dataTask = self.dataTask(request: request) { responseResult in
+                    let restResult = responseResult
+                        .mapError(self.mapNetworkError)
+                        .flatMap { httpResponse, data -> Result<AccountResponse, REST.Error> in
+                            if httpResponse.statusCode == HTTPStatus.created {
+                                return Self.decodeSuccessResponse(AccountResponse.self, from: data)
+                            } else {
+                                return Self.decodeErrorResponseAndMapToServerError(from: data)
                             }
+                        }
 
-                    case .notModified where etag != nil:
-                        return .success(.notModified)
-
-                    default:
-                        return Self.decodeErrorResponseAndMapToServerError(from: data)
-                    }
+                    completionHandler(restResult)
                 }
-        }
 
-        func getAccountExpiry(token: String) -> Result<AccountResponse, REST.Error>.Promise {
-            var request = createURLRequest(method: .get, path: "me")
-
-            setAuthenticationToken(token: token, request: &request)
-
-            return dataTaskPromise(request: request)
-                .mapError(self.mapNetworkError)
-                .flatMap { httpResponse, data in
-                    if httpResponse.statusCode == HTTPStatus.ok {
-                        return Self.decodeSuccessResponse(AccountResponse.self, from: data)
-                    } else {
-                        return Self.decodeErrorResponseAndMapToServerError(from: data)
-                    }
-                }
-        }
-
-        func getWireguardKey(token: String, publicKey: PublicKey) -> Result<WireguardAddressesResponse, REST.Error>.Promise {
-            let urlEncodedPublicKey = publicKey.base64Key
-                .addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
-
-            let path = "wireguard-keys/".appending(urlEncodedPublicKey)
-            var request = createURLRequest(method: .get, path: path)
-
-            setAuthenticationToken(token: token, request: &request)
-
-            return dataTaskPromise(request: request)
-                .mapError(self.mapNetworkError)
-                .flatMap { httpResponse, data in
-                    if httpResponse.statusCode == HTTPStatus.ok {
-                        return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
-                    } else {
-                        return Self.decodeErrorResponseAndMapToServerError(from: data)
-                    }
-                }
-        }
-
-        func pushWireguardKey(token: String, publicKey: PublicKey) -> Result<WireguardAddressesResponse, REST.Error>.Promise {
-            var request = createURLRequest(method: .post, path: "wireguard-keys")
-            let body = PushWireguardKeyRequest(pubkey: publicKey.rawValue)
-
-            setAuthenticationToken(token: token, request: &request)
-
-            do {
-                try setHTTPBody(value: body, request: &request)
-            } catch {
-                return .failure(.encodePayload(error))
+                return .success(dataTask)
             }
-
-            return dataTaskPromise(request: request)
-                .mapError(self.mapNetworkError)
-                .flatMap { httpResponse, data in
-                    switch httpResponse.statusCode {
-                    case .created, .ok:
-                        return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
-                    default:
-                        return Self.decodeErrorResponseAndMapToServerError(from: data)
-                    }
-                }
         }
 
-        func replaceWireguardKey(token: String, oldPublicKey: PublicKey, newPublicKey: PublicKey) -> Result<WireguardAddressesResponse, REST.Error>.Promise {
-            var request = createURLRequest(method: .post, path: "replace-wireguard-key")
-            let body = ReplaceWireguardKeyRequest(old: oldPublicKey.rawValue, new: newPublicKey.rawValue)
+        func getAddressList() -> REST.RequestAdapter<[AnyIPEndpoint]> {
+            return makeAdapter { endpoint, completionHandler in
+                let request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .get, path: "api-addrs")
 
-            setAuthenticationToken(token: token, request: &request)
-
-            do {
-                try setHTTPBody(value: body, request: &request)
-            } catch {
-                return .failure(.encodePayload(error))
-            }
-
-            return dataTaskPromise(request: request)
-                .mapError(self.mapNetworkError)
-                .flatMap { httpResponse, data in
-                    if httpResponse.statusCode == HTTPStatus.created {
-                        return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
-                    } else {
-                        return Self.decodeErrorResponseAndMapToServerError(from: data)
-                    }
-                }
-        }
-
-        func deleteWireguardKey(token: String, publicKey: PublicKey) -> Result<(), REST.Error>.Promise {
-            let urlEncodedPublicKey = publicKey.base64Key
-                .addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
-
-            let path = "wireguard-keys/".appending(urlEncodedPublicKey)
-            var request = createURLRequest(method: .delete, path: path)
-
-            setAuthenticationToken(token: token, request: &request)
-
-            return dataTaskPromise(request: request)
-                .mapError(self.mapNetworkError)
-                .flatMap { httpResponse, data in
-                    if httpResponse.statusCode == HTTPStatus.noContent {
-                        return .success(())
-                    } else {
-                        return Self.decodeErrorResponseAndMapToServerError(from: data)
-                    }
-                }
-        }
-
-        func createApplePayment(token: String, receiptString: Data) -> Result<CreateApplePaymentResponse, REST.Error>.Promise {
-            var request = createURLRequest(method: .post, path: "create-apple-payment")
-            let body = CreateApplePaymentRequest(receiptString: receiptString)
-
-            setAuthenticationToken(token: token, request: &request)
-
-            do {
-                try setHTTPBody(value: body, request: &request)
-            } catch {
-                return .failure(.encodePayload(error))
-            }
-
-            return dataTaskPromise(request: request)
-                .mapError(self.mapNetworkError)
-                .flatMap { httpResponse, data in
-                    switch httpResponse.statusCode {
-                    case HTTPStatus.ok:
-                        return REST.Client.decodeSuccessResponse(CreateApplePaymentRawResponse.self, from: data)
-                            .map { (response) in
-                                return .noTimeAdded(response.newExpiry)
+                let dataTask = self.dataTask(request: request) { responseResult in
+                    let restResult = responseResult.mapError(self.mapNetworkError)
+                        .flatMap { httpResponse, data -> Result<[AnyIPEndpoint], REST.Error> in
+                            if httpResponse.statusCode == HTTPStatus.ok {
+                                return Self.decodeSuccessResponse([AnyIPEndpoint].self, from: data)
+                            } else {
+                                return Self.decodeErrorResponseAndMapToServerError(from: data)
                             }
+                        }
 
-                    case HTTPStatus.created:
-                        return REST.Client.decodeSuccessResponse(CreateApplePaymentRawResponse.self, from: data)
-                            .map { (response) in
-                                return .timeAdded(response.timeAdded, response.newExpiry)
-                            }
-
-                    default:
-                        return Self.decodeErrorResponseAndMapToServerError(from: data)
-                    }
+                    completionHandler(restResult)
                 }
+
+                return .success(dataTask)
+            }
         }
 
-        func sendProblemReport(_ body: ProblemReportRequest) -> Result<(), REST.Error>.Promise {
-            var request = createURLRequest(method: .post, path: "problem-report")
-
-            do {
-                try setHTTPBody(value: body, request: &request)
-            } catch {
-                return .failure(.encodePayload(error))
-            }
-
-            return dataTaskPromise(request: request)
-                .mapError(self.mapNetworkError)
-                .flatMap { httpResponse, data in
-                    if httpResponse.statusCode == HTTPStatus.noContent {
-                        return .success(())
-                    } else {
-                        return Self.decodeErrorResponseAndMapToServerError(from: data)
-                    }
+        func getRelays(etag: String?) -> REST.RequestAdapter<ServerRelaysCacheResponse> {
+            return makeAdapter { endpoint, completionHandler in
+                var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .get, path: "relays")
+                if let etag = etag {
+                    Self.setETagHeader(etag: etag, request: &request)
                 }
+
+                let dataTask = self.dataTask(request: request) { restResponse in
+                    let restResult = restResponse.mapError(self.mapNetworkError)
+                        .flatMap { httpResponse, data -> Result<ServerRelaysCacheResponse, REST.Error> in
+                            switch httpResponse.statusCode {
+                            case .ok:
+                                return Self.decodeSuccessResponse(ServerRelaysResponse.self, from: data)
+                                    .map { serverRelays in
+                                        let newEtag = httpResponse.value(forCaseInsensitiveHTTPHeaderField: HTTPHeader.etag)
+                                        return .newContent(newEtag, serverRelays)
+                                    }
+
+                            case .notModified where etag != nil:
+                                return .success(.notModified)
+
+                            default:
+                                return Self.decodeErrorResponseAndMapToServerError(from: data)
+                            }
+                        }
+
+                    completionHandler(restResult)
+                }
+
+                return .success(dataTask)
+            }
+        }
+
+        func getAccountExpiry(token: String) -> REST.RequestAdapter<AccountResponse> {
+            return makeAdapter { endpoint, completionHandler in
+                var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .get, path: "me")
+
+                Self.setAuthenticationToken(token: token, request: &request)
+
+                let dataTask = self.dataTask(request: request) { restResponse in
+                    let restResult = restResponse.mapError(self.mapNetworkError)
+                        .flatMap { httpResponse, data -> Result<AccountResponse, REST.Error> in
+                            if httpResponse.statusCode == HTTPStatus.ok {
+                                return Self.decodeSuccessResponse(AccountResponse.self, from: data)
+                            } else {
+                                return Self.decodeErrorResponseAndMapToServerError(from: data)
+                            }
+                        }
+
+                    completionHandler(restResult)
+                }
+
+                return .success(dataTask)
+            }
+        }
+
+        func getWireguardKey(token: String, publicKey: PublicKey) -> REST.RequestAdapter<WireguardAddressesResponse> {
+            return makeAdapter { endpoint, completionHandler in
+                let urlEncodedPublicKey = publicKey.base64Key
+                    .addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
+
+                let path = "wireguard-keys/".appending(urlEncodedPublicKey)
+                var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .get, path: path)
+
+                Self.setAuthenticationToken(token: token, request: &request)
+
+                let dataTask = self.dataTask(request: request) { restResponse in
+                    let restResult = restResponse.mapError(self.mapNetworkError)
+                        .flatMap { httpResponse, data -> Result<WireguardAddressesResponse, REST.Error> in
+                            if httpResponse.statusCode == HTTPStatus.ok {
+                                return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
+                            } else {
+                                return Self.decodeErrorResponseAndMapToServerError(from: data)
+                            }
+                        }
+                    completionHandler(restResult)
+                }
+
+                return .success(dataTask)
+            }
+        }
+
+        func pushWireguardKey(token: String, publicKey: PublicKey) -> REST.RequestAdapter<WireguardAddressesResponse> {
+            return makeAdapter { endpoint, completionHandler in
+                var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "wireguard-keys")
+                let body = PushWireguardKeyRequest(pubkey: publicKey.rawValue)
+
+                Self.setAuthenticationToken(token: token, request: &request)
+
+                do {
+                    try Self.setHTTPBody(value: body, request: &request)
+                } catch {
+                    return .failure(.encodePayload(error))
+                }
+
+                let dataTask = self.dataTask(request: request) { restResponse in
+                    let restResult = restResponse.mapError(self.mapNetworkError)
+                        .flatMap { httpResponse, data -> Result<WireguardAddressesResponse, REST.Error> in
+                            switch httpResponse.statusCode {
+                            case .created, .ok:
+                                return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
+                            default:
+                                return Self.decodeErrorResponseAndMapToServerError(from: data)
+                            }
+                        }
+
+                    completionHandler(restResult)
+                }
+
+                return .success(dataTask)
+            }
+        }
+
+
+        func replaceWireguardKey(token: String, oldPublicKey: PublicKey, newPublicKey: PublicKey) -> REST.RequestAdapter<WireguardAddressesResponse> {
+            return makeAdapter { endpoint, completionHandler in
+                var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "replace-wireguard-key")
+                let body = ReplaceWireguardKeyRequest(old: oldPublicKey.rawValue, new: newPublicKey.rawValue)
+
+                Self.setAuthenticationToken(token: token, request: &request)
+
+                do {
+                    try Self.setHTTPBody(value: body, request: &request)
+                } catch {
+                    return .failure(.encodePayload(error))
+                }
+
+                let dataTask = self.dataTask(request: request) { restResponse in
+                    let restResult = restResponse.mapError(self.mapNetworkError)
+                        .flatMap { httpResponse, data -> Result<WireguardAddressesResponse, REST.Error> in
+                            if httpResponse.statusCode == HTTPStatus.created {
+                                return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
+                            } else {
+                                return Self.decodeErrorResponseAndMapToServerError(from: data)
+                            }
+                        }
+
+                    completionHandler(restResult)
+                }
+
+                return .success(dataTask)
+            }
+        }
+
+        func deleteWireguardKey(token: String, publicKey: PublicKey) -> REST.RequestAdapter<()> {
+            return makeAdapter { endpoint, completionHandler in
+                let urlEncodedPublicKey = publicKey.base64Key
+                    .addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
+
+                let path = "wireguard-keys/".appending(urlEncodedPublicKey)
+                var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .delete, path: path)
+
+                Self.setAuthenticationToken(token: token, request: &request)
+
+                let dataTask = self.dataTask(request: request) { restResponse in
+                    let restResult = restResponse.mapError(self.mapNetworkError)
+                        .flatMap { httpResponse, data -> Result<(), REST.Error> in
+                            if httpResponse.statusCode == HTTPStatus.noContent {
+                                return .success(())
+                            } else {
+                                return Self.decodeErrorResponseAndMapToServerError(from: data)
+                            }
+                        }
+
+                    completionHandler(restResult)
+                }
+
+                return .success(dataTask)
+            }
+        }
+
+        func createApplePayment(token: String, receiptString: Data) -> REST.RequestAdapter<CreateApplePaymentResponse> {
+            return makeAdapter { endpoint, completionHandler in
+                var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "create-apple-payment")
+                let body = CreateApplePaymentRequest(receiptString: receiptString)
+
+                Self.setAuthenticationToken(token: token, request: &request)
+
+                do {
+                    try Self.setHTTPBody(value: body, request: &request)
+                } catch {
+                    return .failure(.encodePayload(error))
+                }
+
+                let dataTask = self.dataTask(request: request) { restResponse in
+                    let restResult = restResponse.mapError(self.mapNetworkError)
+                        .flatMap { httpResponse, data -> Result<CreateApplePaymentResponse, REST.Error> in
+                            switch httpResponse.statusCode {
+                            case HTTPStatus.ok:
+                                return REST.Client.decodeSuccessResponse(CreateApplePaymentRawResponse.self, from: data)
+                                    .map { (response) in
+                                        return .noTimeAdded(response.newExpiry)
+                                    }
+
+                            case HTTPStatus.created:
+                                return REST.Client.decodeSuccessResponse(CreateApplePaymentRawResponse.self, from: data)
+                                    .map { (response) in
+                                        return .timeAdded(response.timeAdded, response.newExpiry)
+                                    }
+
+                            default:
+                                return Self.decodeErrorResponseAndMapToServerError(from: data)
+                            }
+                        }
+                    completionHandler(restResult)
+                }
+
+                return .success(dataTask)
+            }
+        }
+
+        func sendProblemReport(_ body: ProblemReportRequest) -> REST.RequestAdapter<()> {
+            return makeAdapter { endpoint, completionHandler in
+                var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "problem-report")
+
+                do {
+                    try Self.setHTTPBody(value: body, request: &request)
+                } catch {
+                    return .failure(.encodePayload(error))
+                }
+
+                let dataTask = self.dataTask(request: request) { restResponse in
+                    let restResult = restResponse.mapError(self.mapNetworkError)
+                        .flatMap { httpResponse, data -> Result<(), REST.Error> in
+                            if httpResponse.statusCode == HTTPStatus.noContent {
+                                return .success(())
+                            } else {
+                                return Self.decodeErrorResponseAndMapToServerError(from: data)
+                            }
+                        }
+                    completionHandler(restResult)
+                }
+
+                return .success(dataTask)
+            }
         }
 
         // MARK: - Private
@@ -288,25 +386,11 @@ extension REST {
             }
         }
 
-        private func dataTaskPromise(request: URLRequest) -> Result<(HTTPURLResponse, Data), URLError>.Promise {
-            return Result<(HTTPURLResponse, Data), URLError>.Promise { resolver in
-                let task = self.dataTask(request: request) { result in
-                    resolver.resolve(value: result)
-                }
-
-                resolver.setCancelHandler {
-                    task.cancel()
-                }
-
-                task.resume()
-            }
-        }
-
-        private func setHTTPBody<T: Encodable>(value: T, request: inout URLRequest) throws {
+        private static func setHTTPBody<T: Encodable>(value: T, request: inout URLRequest) throws {
             request.httpBody = try REST.Coding.makeJSONEncoder().encode(value)
         }
 
-        private func setETagHeader(etag: String, request: inout URLRequest) {
+        private static func setETagHeader(etag: String, request: inout URLRequest) {
             var etag = etag
             // Enforce weak validator to account for some backend caching quirks.
             if etag.starts(with: "\"") {
@@ -315,21 +399,48 @@ extension REST {
             request.setValue(etag, forHTTPHeaderField: HTTPHeader.ifNoneMatch)
         }
 
-        private func setAuthenticationToken(token: String, request: inout URLRequest) {
+        private static func setAuthenticationToken(token: String, request: inout URLRequest) {
             request.addValue("Token \(token)", forHTTPHeaderField: HTTPHeader.authorization)
         }
 
-        private func createURLRequest(method: HTTPMethod, path: String) -> URLRequest {
+        private func createURLRequestWithEndpoint(endpoint: AnyIPEndpoint, method: HTTPMethod, path: String) -> URLRequest {
+            var urlComponents = URLComponents()
+            urlComponents.scheme = "https"
+            urlComponents.path = apiBasePath
+            urlComponents.host = "\(endpoint.ip)"
+            urlComponents.port = Int(endpoint.port)
+
+            let requestURL = urlComponents.url!.appendingPathComponent(path)
+
             var request = URLRequest(
-                url: baseURL.appendingPathComponent(path),
+                url: requestURL,
                 cachePolicy: .useProtocolCachePolicy,
                 timeoutInterval: networkTimeout
             )
             request.httpShouldHandleCookies = false
+            request.addValue(apiHostname, forHTTPHeaderField: HTTPHeader.host)
             request.addValue("application/json", forHTTPHeaderField: HTTPHeader.contentType)
             request.httpMethod = method.rawValue
             return request
         }
+
+        private func makeAdapter<T>(_ networkTaskGenerator: @escaping NetworkOperation<T>.Generator) -> REST.RequestAdapter<T> {
+            return REST.RequestAdapter { retryStrategy, completionHandler in
+                let operation = NetworkOperation(
+                    networkTaskGenerator: networkTaskGenerator,
+                    addressCacheStore: self.addressCacheStore,
+                    retryStrategy: retryStrategy,
+                    completionHandler: completionHandler
+                )
+
+                self.operationQueue.addOperation(operation)
+
+                return AnyCancellable {
+                    operation.cancel()
+                }
+            }
+        }
+
     }
 
     // MARK: - Response types
