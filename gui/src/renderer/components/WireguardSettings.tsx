@@ -158,7 +158,10 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
                   <Cell.Container>
                     <AriaLabel>
                       <Cell.InputLabel>
-                        {messages.pgettext('advanced-settings-view', 'Enable multihop')}
+                        {
+                          // TRANSLATORS: The label next to the multihop settings toggle.
+                          messages.pgettext('advanced-settings-view', 'Enable multihop')
+                        }
                       </Cell.InputLabel>
                     </AriaLabel>
                     <AriaInput>
@@ -172,10 +175,13 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
                   <Cell.Footer>
                     <AriaDescription>
                       <Cell.FooterText>
-                        {messages.pgettext(
-                          'advanced-settings-view',
-                          'Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace.',
-                        )}
+                        {
+                          // TRANSLATORS: Description for multihop settings toggle.
+                          messages.pgettext(
+                            'advanced-settings-view',
+                            'Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace.',
+                          )
+                        }
                       </Cell.FooterText>
                     </AriaDescription>
                   </Cell.Footer>
@@ -291,7 +297,10 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
     return (
       <ModalAlert
         type={ModalAlertType.info}
-        message={messages.gettext('This setting increases latency. Use only if needed.')}
+        message={
+          // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
+          messages.gettext('This setting increases latency. Use only if needed.')
+        }
         buttons={[
           <AppButton.RedButton key="confirm" onClick={this.confirmWireguardMultihop}>
             {messages.gettext('Enable anyway')}
