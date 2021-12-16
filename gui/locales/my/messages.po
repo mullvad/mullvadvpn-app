@@ -250,7 +250,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "သတိပြုရန်- ၎င်းကို ဖွင့်ခြင်းဖြင့် အင်တာနက် သုံးရန်အတွက် Mullvad VPN ချိတ်ဆက်မှုကို အမြဲ လိုအပ်ပါမည်။"
 
-msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "မည်သို့ပင်ဖြစ်စေ ဖွင့်ရန်"
 
@@ -426,10 +425,10 @@ msgstr "အားလုံး သတ်မှတ်ပြီးပါပြီ�
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
 #. %(relay)s - the relay hostname
-#. %(bridge)s - the bridge hostname
+#. %(entry)s - the entry relay hostname
 msgctxt "connection-info"
-msgid "%(relay)s via %(bridge)s"
-msgstr "%(bridge)s မှတစ်ဆင့် %(relay)s"
+msgid "%(relay)s via %(entry)s"
+msgstr "%(entry)s မှတစ်ဆင့် %(relay)s"
 
 #. The tunnel type line displayed below the hostname line on the main screen
 #. Available placeholders:
@@ -913,11 +912,11 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "ဘာသာစကား ရွေးရန်"
 
-msgctxt "select-location-nav"
+msgctxt "select-location-view"
 msgid "Entry"
 msgstr "အဝင်"
 
-msgctxt "select-location-nav"
+msgctxt "select-location-view"
 msgid "Exit"
 msgstr "အထွက်"
 
