@@ -250,7 +250,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "주의: 이 기능을 사용하려면 인터넷 연결을 위해 항상 Mullvad VPN 연결이 필요합니다."
 
-msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "그래도 사용"
 
@@ -426,10 +425,10 @@ msgstr "준비가 완료되었습니다!"
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
 #. %(relay)s - the relay hostname
-#. %(bridge)s - the bridge hostname
+#. %(entry)s - the entry relay hostname
 msgctxt "connection-info"
-msgid "%(relay)s via %(bridge)s"
-msgstr "%(bridge)s을(를) 통한 %(relay)s"
+msgid "%(relay)s via %(entry)s"
+msgstr "%(entry)s을(를) 통한 %(relay)s"
 
 #. The tunnel type line displayed below the hostname line on the main screen
 #. Available placeholders:
@@ -913,11 +912,11 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "언어 선택"
 
-msgctxt "select-location-nav"
+msgctxt "select-location-view"
 msgid "Entry"
 msgstr "시작"
 
-msgctxt "select-location-nav"
+msgctxt "select-location-view"
 msgid "Exit"
 msgstr "종료"
 
