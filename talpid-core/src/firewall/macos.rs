@@ -54,14 +54,12 @@ impl FirewallT for Firewall {
     }
 
     fn reset_policy(&mut self) -> Result<()> {
-        vec![
-            self.remove_rules(),
-            self.remove_anchor(),
-            self.restore_state(),
-        ]
-        .into_iter()
-        .collect::<Result<Vec<_>>>()
-        .map(|_| ())
+        // Implemented this way to not early return on an error.
+        // We always want all three methods to run, and then return
+        // the first error it encounterd, if any.
+        self.remove_rules()
+            .and(self.remove_anchor())
+            .and(self.restore_state())
     }
 }
 
