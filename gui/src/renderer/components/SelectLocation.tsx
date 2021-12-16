@@ -212,10 +212,10 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                       defaultSelectedIndex={this.state.locationScope}
                       onChange={this.onChangeLocationScope}>
                       <ScopeBarItem>
-                        {messages.pgettext('select-location-nav', 'Entry')}
+                        {messages.pgettext('select-location-view', 'Entry')}
                       </ScopeBarItem>
                       <ScopeBarItem>
-                        {messages.pgettext('select-location-nav', 'Exit')}
+                        {messages.pgettext('select-location-view', 'Exit')}
                       </ScopeBarItem>
                     </StyledScopeBar>
                   )}
