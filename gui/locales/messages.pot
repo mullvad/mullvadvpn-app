@@ -105,6 +105,9 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
+msgid "Enable anyway"
+msgstr ""
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr ""
 
@@ -157,6 +160,10 @@ msgid "System default"
 msgstr ""
 
 msgid "TCP"
+msgstr ""
+
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgid "This setting increases latency. Use only if needed."
 msgstr ""
 
 msgid "UDP"
@@ -267,15 +274,16 @@ msgid "Attention: enabling this will always require a Mullvad VPN connection in 
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "Enable anyway"
-msgstr ""
-
-msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
+msgstr ""
+
+#. The label next to the multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Enable multihop"
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -288,6 +296,11 @@ msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
+msgstr ""
+
+#. Description for multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -442,9 +455,9 @@ msgstr ""
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
 #. %(relay)s - the relay hostname
-#. %(bridge)s - the bridge hostname
+#. %(entry)s - the entry relay hostname
 msgctxt "connection-info"
-msgid "%(relay)s via %(bridge)s"
+msgid "%(relay)s via %(entry)s"
 msgstr ""
 
 #. The tunnel type line displayed below the hostname line on the main screen
@@ -775,6 +788,12 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr ""
 
+#. This is used as a description for the bridge mode
+#. setting.
+msgctxt "openvpn-settings-view"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
+msgstr ""
+
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr ""
@@ -789,6 +808,12 @@ msgstr ""
 #. %(min)d - the minimum possible mssfix value
 msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr ""
+
+#. This is used to instruct users how to make the bridge
+#. mode setting available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
 msgstr ""
 
 msgctxt "openvpn-settings-view"
@@ -945,21 +970,30 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr ""
 
-msgctxt "select-location-nav"
-msgid "Entry"
-msgstr ""
-
-msgctxt "select-location-nav"
-msgid "Exit"
-msgstr ""
-
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr ""
 
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "select-location-view"
+msgid "%(location)s (%(info)s)"
+msgstr ""
+
 msgctxt "select-location-view"
 msgid "Closest to exit server"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Entry"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Exit"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -981,6 +1015,10 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr ""
 
 #. Navigation button to the 'Account' view
