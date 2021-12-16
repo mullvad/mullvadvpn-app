@@ -54,14 +54,10 @@ impl FirewallT for Firewall {
     }
 
     fn reset_policy(&mut self) -> Result<()> {
-        vec![
-            self.remove_rules(),
-            self.remove_anchor(),
-            self.restore_state(),
-        ]
-        .into_iter()
-        .collect::<Result<Vec<_>>>()
-        .map(|_| ())
+        self.remove_rules()?;
+        self.remove_anchor()?;
+        self.restore_state()?;
+        Ok(())
     }
 }
 
