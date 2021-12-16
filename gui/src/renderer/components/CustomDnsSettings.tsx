@@ -54,7 +54,7 @@ export default function CustomDnsSettings() {
   const inputContainerRef = useRef() as React.RefObject<HTMLDivElement>;
 
   const confirm = useCallback(() => {
-    confirmAction?.();
+    void confirmAction?.();
     setConfirmAction(undefined);
   }, [confirmAction]);
   const abortConfirmation = useCallback(() => {
