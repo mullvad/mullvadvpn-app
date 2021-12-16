@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 
-PRODUCT_VERSION="$(sed -n -e 's/^ *versionName "\([^"]*\)"$/\1/p' android/build.gradle)"
+PRODUCT_VERSION="$(sed -n -e 's/^ *versionName "\([^"]*\)"$/\1/p' android/app/build.gradle)"
 BUILD_TYPE="release"
 GRADLE_BUILD_TYPE="release"
 GRADLE_TASK="assembleRelease"
@@ -76,7 +76,7 @@ else
 fi
 
 $GRADLE_CMD --console plain clean
-mkdir -p "build/extraJni"
+mkdir -p "app/build/extraJni"
 popd
 
 function restore_metadata_backups() {
@@ -120,7 +120,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     cargo +stable build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
 
     STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/${LLVM_TRIPLE}-strip"
-    STRIPPED_LIB_PATH="$SCRIPT_DIR/android/build/extraJni/$ABI/libmullvad_jni.so"
+    STRIPPED_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
     UNSTRIPPED_LIB_PATH="$SCRIPT_DIR/target/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
 
     $STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
@@ -133,13 +133,13 @@ cd "$SCRIPT_DIR/android"
 $GRADLE_CMD --console plain "$GRADLE_TASK"
 
 mkdir -p "$SCRIPT_DIR/dist"
-cp  "$SCRIPT_DIR/android/build/outputs/apk/$GRADLE_BUILD_TYPE/android${BUILT_APK_SUFFIX}.apk" \
+cp  "$SCRIPT_DIR/android/app/build/outputs/apk/$GRADLE_BUILD_TYPE/app${BUILT_APK_SUFFIX}.apk" \
     "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.apk"
 
 if [[ "$BUILD_BUNDLE" == "yes" ]]; then
     $GRADLE_CMD --console plain "$BUNDLE_TASK"
 
-    cp  "$SCRIPT_DIR/android/build/outputs/bundle/$GRADLE_BUILD_TYPE/android${BUILT_APK_SUFFIX}.aab" \
+    cp  "$SCRIPT_DIR/android/app/build/outputs/bundle/$GRADLE_BUILD_TYPE/app${BUILT_APK_SUFFIX}.aab" \
         "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.aab"
 fi
 
