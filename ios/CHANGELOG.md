@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Show privacy overlay when entering app switcher.
 
+### Fixed
+- Fix crash occurring after completing in-app purchase.
+
 ### Changed
 - Increase hit area of settings (cog) button.
 - Update launch screen.
