@@ -183,10 +183,9 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
                               'openvpn-settings-view',
                               'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder.',
                             )
-                          : // This line is here to prevent prettier from moving up the next line.
-                            // TRANSLATORS: This is used to instruct users how to make the bridge
-                            // TRANSLATORS: mode setting available.
-                            formatMarkdown(
+                          : formatMarkdown(
+                              // TRANSLATORS: This is used to instruct users how to make the bridge
+                              // TRANSLATORS: mode setting available.
                               messages.pgettext(
                                 'openvpn-settings-view',
                                 'To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**.',

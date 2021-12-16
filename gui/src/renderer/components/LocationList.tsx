@@ -421,10 +421,18 @@ export class RelayLocations extends React.PureComponent<IRelayLocationsProps> {
     }
 
     return info !== undefined
-      ? sprintf(messages.pgettext('select-location-view', '%(location)s (%(info)s)'), {
-          location: translatedName,
-          info,
-        })
+      ? sprintf(
+          // TRANSLATORS: This is used for appending information about a location.
+          // TRANSLATORS: E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+          // TRANSLATORS: Available placeholders:
+          // TRANSLATORS: %(location)s - Translated location name
+          // TRANSLATORS: %(info)s - Information about the location
+          messages.pgettext('select-location-view', '%(location)s (%(info)s)'),
+          {
+            location: translatedName,
+            info,
+          },
+        )
       : translatedName;
   }
 
