@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.service
 
 import android.content.Intent
 import android.graphics.drawable.Icon
+import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import kotlin.properties.Delegates.observable
@@ -94,9 +95,17 @@ class MullvadTileService : TileService() {
             if (secured) {
                 state = Tile.STATE_ACTIVE
                 icon = securedIcon
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    subtitle = resources.getText(R.string.secured)
+                }
             } else {
                 state = Tile.STATE_INACTIVE
                 icon = unsecuredIcon
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    subtitle = resources.getText(R.string.unsecured)
+                }
             }
 
             updateTile()

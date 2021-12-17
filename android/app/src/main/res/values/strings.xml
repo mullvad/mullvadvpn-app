@@ -172,4 +172,5 @@
     <string name="all_applications">All applications</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="show_system_apps">Show system apps</string>
+    <string name="toggle_vpn">Toggle VPN</string>
 </resources>

@@ -1408,6 +1408,9 @@ msgstr ""
 msgid "This device is offline, no tunnels can be established"
 msgstr ""
 
+msgid "Toggle VPN"
+msgstr ""
+
 msgid "Too many WireGuard keys registered to account"
 msgstr ""
 
