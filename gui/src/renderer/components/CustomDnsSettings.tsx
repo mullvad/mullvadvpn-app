@@ -392,7 +392,7 @@ interface IConfirmationDialogProps {
 function ConfirmationDialog(props: IConfirmationDialogProps) {
   return (
     <ModalAlert
-      type={ModalAlertType.info}
+      type={ModalAlertType.caution}
       buttons={[
         <AppButton.RedButton key="confirm" onClick={props.confirm}>
           {messages.pgettext('advanced-settings-view', 'Add anyway')}
