@@ -3,7 +3,7 @@ use mullvad_daemon::{runtime::new_runtime_builder, DaemonShutdownHandle};
 use std::{
     env,
     ffi::{OsStr, OsString},
-    ptr, slice,
+    mem, ptr, slice,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
         mpsc, Arc,
@@ -14,11 +14,7 @@ use std::{
 use talpid_types::ErrorExt;
 use winapi::{
     ctypes::c_void,
-    shared::{
-        minwindef::ULONG,
-        ntdef::{LUID, PVOID},
-        ntstatus::STATUS_SUCCESS,
-    },
+    shared::{minwindef::ULONG, ntdef::LUID, ntstatus::STATUS_SUCCESS},
     um::ntlsa::{
         LsaEnumerateLogonSessions, LsaFreeReturnBuffer, LsaGetLogonSessionData,
         SECURITY_LOGON_SESSION_DATA,
@@ -455,38 +451,44 @@ impl HibernationDetector {
     /// Register a session logoff.
     /// The logoff event is discarded unless the session was/is interactive.
     fn register_logoff(&mut self, session_id: u32) {
-        if unsafe { Self::interactive_session(session_id) } {
+        if Self::is_interactive_session(session_id) {
             self.logoff_time = Some(Instant::now());
         }
     }
 
-    unsafe fn interactive_session(session_id: u32) -> bool {
+    fn is_interactive_session(session_id: u32) -> bool {
         let mut logon_session_count: ULONG = 0;
         let mut logon_session_list: *mut LUID = ptr::null_mut();
-        let status = LsaEnumerateLogonSessions(&mut logon_session_count, &mut logon_session_list);
+        let status =
+            unsafe { LsaEnumerateLogonSessions(&mut logon_session_count, &mut logon_session_list) };
         if status != STATUS_SUCCESS {
             log::warn!("LsaEnumerateLogonSessions() failed, error code: {}", status);
             return false;
         }
-        let logons = slice::from_raw_parts(logon_session_list, logon_session_count as usize);
+        // SAFETY: `logon_session_list` is not mutated before being freed.
+        let logons =
+            unsafe { slice::from_raw_parts(logon_session_list, logon_session_count as usize) };
         let mut interactive = false;
         for logon in logons {
             let mut session_data: *mut SECURITY_LOGON_SESSION_DATA = ptr::null_mut();
-            let status = LsaGetLogonSessionData(logon as *const _ as *mut LUID, &mut session_data);
+            // SAFETY: `LsaGetLogonSessionData` does not mutate `logon`
+            let status =
+                unsafe { LsaGetLogonSessionData(logon as *const _ as *mut _, &mut session_data) };
             if status != STATUS_SUCCESS {
                 log::warn!("LsaGetLogonSessionData() failed, error code: {}", status);
                 continue;
             }
-            let candidate_correct_session = (*session_data).Session == session_id;
+            let candidate_correct_session = unsafe { *session_data }.Session == session_id;
             let candidate_interactive =
-                (*session_data).LogonType == SECURITY_LOGON_TYPE_INTERACTIVE;
-            LsaFreeReturnBuffer(session_data as *mut c_void as PVOID);
+                unsafe { *session_data }.LogonType == SECURITY_LOGON_TYPE_INTERACTIVE;
+            unsafe { LsaFreeReturnBuffer(session_data as *mut c_void) };
             if candidate_correct_session {
                 interactive = candidate_interactive;
                 break;
             }
         }
-        LsaFreeReturnBuffer(logon_session_list as *mut c_void as PVOID);
+        mem::drop(logons);
+        unsafe { LsaFreeReturnBuffer(logon_session_list as *mut c_void) };
         interactive
     }
 
