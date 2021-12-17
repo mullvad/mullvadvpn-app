@@ -463,6 +463,13 @@ class ApplicationMain {
   }
 
   private onReady = async () => {
+    // Disable built-in DNS resolver.
+    app.configureHostResolver({
+      enableBuiltInResolver: false,
+      secureDnsMode: 'off',
+      secureDnsServers: [],
+    });
+
     // There's no option that prevents Electron from fetching spellcheck dictionaries from
     // Chromium's CDN and passing a non-resolving URL is the only known way to prevent it from
     // fetching.  https://github.com/electron/electron/issues/22995

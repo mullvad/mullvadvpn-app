@@ -55,6 +55,10 @@ Line wrap the file at 100 chars.                                              Th
 - Always kill `sslocal` if the tunnel monitor fails to start when using bridges.
 - Show relay location constraint correctly in the CLI when it is set to `any`.
 
+#### macOS
+- Disable built-in DNS resolver in Electron. Prevents Electron from establishing connections to
+  DNS servers set in system network preferences.
+
 #### Windows
 - Fix app size after changing display scale.
 - Fix daemon not starting if all excluded app paths reside on non-existent/unmounted volumes.
