@@ -1,0 +1,15 @@
+name: Android audit
+on:
+    push:
+        paths:
+            - .github/workflows/android-audit.yml
+            - android/**
+    workflow_dispatch:
+jobs:
+    owasp-dependency-check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - run: |
+                cd android
+                ./gradlew dependencyCheckAnalyze
