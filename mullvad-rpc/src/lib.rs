@@ -304,7 +304,7 @@ impl AccountsProxy {
             "/v1/me",
             Method::GET,
             Some(account),
-            StatusCode::OK,
+            &[StatusCode::OK],
         );
         async move {
             let account: AccountResponse = rest::deserialize_body(response.await?).await?;
@@ -320,7 +320,7 @@ impl AccountsProxy {
             "/v1/accounts",
             Method::POST,
             None,
-            StatusCode::CREATED,
+            &[StatusCode::CREATED],
         );
 
         async move {
@@ -348,7 +348,7 @@ impl AccountsProxy {
             "/v1/submit-voucher",
             &submission,
             Some(account_token),
-            StatusCode::OK,
+            &[StatusCode::OK],
         );
 
         async move { rest::deserialize_body(response.await?).await }
@@ -370,7 +370,7 @@ impl AccountsProxy {
             "/v1/www-auth-token",
             Method::POST,
             Some(account),
-            StatusCode::OK,
+            &[StatusCode::OK],
         );
 
         async move {
@@ -419,7 +419,7 @@ impl ProblemReportProxy {
             "/v1/problem-report",
             &report,
             None,
-            StatusCode::NO_CONTENT,
+            &[StatusCode::NO_CONTENT],
         );
 
         async move {
@@ -463,7 +463,7 @@ impl AppVersionProxy {
             request.add_header("M-Platform-Version", &platform_version)?;
 
             let response = service.request(request).await?;
-            let parsed_response = rest::parse_rest_response(response, StatusCode::OK).await?;
+            let parsed_response = rest::parse_rest_response(response, &[StatusCode::OK]).await?;
             rest::deserialize_body(parsed_response).await
         }
     }
@@ -504,8 +504,10 @@ impl WireguardKeyProxy {
             }
             request.set_auth(Some(account_token))?;
             let response = service.request(request).await?;
-            rest::deserialize_body(rest::parse_rest_response(response, StatusCode::CREATED).await?)
-                .await
+            rest::deserialize_body(
+                rest::parse_rest_response(response, &[StatusCode::CREATED]).await?,
+            )
+            .await
         }
     }
 
@@ -530,7 +532,7 @@ impl WireguardKeyProxy {
             &"/v1/replace-wireguard-key",
             &body,
             Some(account_token),
-            StatusCode::CREATED,
+            [StatusCode::CREATED, StatusCode::OK].as_slice(),
         )
         .await?;
 
@@ -553,7 +555,7 @@ impl WireguardKeyProxy {
             ),
             Method::GET,
             Some(account_token),
-            StatusCode::OK,
+            &[StatusCode::OK],
         )
         .await?;
 
@@ -575,7 +577,7 @@ impl WireguardKeyProxy {
             ),
             Method::DELETE,
             Some(account_token),
-            StatusCode::NO_CONTENT,
+            &[StatusCode::NO_CONTENT],
         );
         async move {
             let _ = future.await?;
@@ -603,7 +605,7 @@ impl ApiProxy {
             "/v1/api-addrs",
             Method::GET,
             None,
-            StatusCode::OK,
+            &[StatusCode::OK],
         )
         .await?;
 
