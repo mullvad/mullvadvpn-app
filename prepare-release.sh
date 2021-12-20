@@ -76,7 +76,7 @@ git commit -S -m "Updating version in package files" \
     mullvad-exclude/Cargo.toml \
     talpid-openvpn-plugin/Cargo.toml \
     Cargo.lock \
-    android/app/build.gradle \
+    android/app/build.gradle.kts \
     dist-assets/windows/version.h
 
 echo "Tagging current git commit with release tag $PRODUCT_VERSION..."

@@ -1,3 +1,8 @@
+
+import java.io.FileInputStream
+import java.util.Properties
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("com.android.application")
     id("com.github.triplet.play")
@@ -5,15 +10,15 @@ plugins {
     id("kotlin-parcelize")
 }
 
-def repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
-def extraAssetsDirectory = "$project.buildDir/extraAssets"
-def extraJniDirectory = "$project.buildDir/extraJni"
+val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
+val extraAssetsDirectory = "${project.buildDir}/extraAssets"
+val extraJniDirectory = "${project.buildDir}/extraJni"
 
-def keystorePropertiesFile = file("$rootProject.projectDir/keystore.properties")
-def keystoreProperties = new Properties()
+val keystorePropertiesFile = file("$rootProject.projectDir/keystore.properties")
+val keystoreProperties = Properties()
 
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -31,55 +36,43 @@ android {
 
     if (keystorePropertiesFile.exists()) {
         signingConfigs {
-            release {
-                keyAlias = keystoreProperties["keyAlias"]
-                keyPassword = keystoreProperties["keyPassword"]
-                storeFile = file(keystoreProperties["storeFile"])
-                storePassword = keystoreProperties["storePassword"]
+            getByName("release") {
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
             }
         }
 
         buildTypes {
-            release {
-                minifyEnabled = false
-                signingConfig(signingConfigs.release)
+            getByName("release") {
+                isMinifyEnabled = false
+                signingConfig = signingConfigs.getByName("release")
             }
         }
     }
 
     buildTypes {
-        fdroid {
-            initWith(release)
-            minifyEnabled = false
+        create("fdroid") {
+            initWith(buildTypes.getByName("release"))
+            isMinifyEnabled = false
             signingConfig = null
         }
     }
 
     sourceSets {
-        main {
-            assets {
-                srcDirs = files(extraAssetsDirectory)
-            }
-
-            jniLibs {
-                srcDirs = files(extraJniDirectory)
-            }
-
-            java {
-                srcDirs += "src/main/kotlin/"
-            }
+        getByName("main") {
+            assets.srcDirs(extraAssetsDirectory)
+            jniLibs.srcDirs(extraJniDirectory)
+            java.srcDirs("src/main/kotlin/")
         }
 
-        test {
-            java {
-                srcDirs += "src/test/kotlin/"
-            }
+        getByName("test") {
+            java.srcDirs("src/test/kotlin/")
         }
 
-        androidTest {
-            java {
-                srcDirs += "src/androidTest/kotlin/"
-            }
+        getByName("androidTest") {
+            java.srcDirs("src/androidTest/kotlin/")
         }
     }
 
@@ -94,16 +87,16 @@ android {
         // Opt-in option for Koin annotation of KoinComponent.
     }
 
-    applicationVariants.all { variant ->
-        variant.mergeAssetsProvider.configure {
-            dependsOn(copyExtraAssets)
+    applicationVariants.forEach { variant ->
+        variant.mergeAssetsProvider.configure{
+            dependsOn(task("copyExtraAssets"))
         }
     }
 
     testOptions {
-        unitTests.all {
-            testLogging {
-                outputs.upToDateWhen { false }
+        unitTests.all { test ->
+            test.testLogging {
+                test.outputs.upToDateWhen { false }
                 events("passed", "skipped", "failed", "standardOut", "standardError")
                 showCauses = true
                 showExceptions = true
@@ -112,26 +105,26 @@ android {
     }
 }
 
-dependencyCheck {
+configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
     // Skip the lintClassPath configuration, which relies on many dependencies that has been flagged
     // to have CVEs, as it's related to the lint tooling rather than the project's compilation class
     // path. The alternative would be to suppress specific CVEs, however that could potentially
     // result in suppressed CVEs in project compilation class path.
-    skipConfigurations += 'lintClassPath'
+    skipConfigurations = listOf("lintClassPath")
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+tasks.withType<KotlinCompile>().all {
     kotlinOptions {
         allWarningsAsErrors = false
 
-        kotlinOptions.freeCompilerArgs += [
-                "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi",
-        ]
+        kotlinOptions.freeCompilerArgs = listOf(
+            "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"
+        )
     }
 }
 
-task copyExtraAssets(type: Copy) {
+tasks.register("copyExtraAssets", Copy::class) {
     from("$repoRootPath/dist-assets")
     include("relays.json")
     include("api-ip-address.txt")
@@ -143,6 +136,12 @@ play {
 }
 
 dependencies {
+    val espressoVersion: String by rootProject.extra
+    val fragmentVersion: String by rootProject.extra
+    val koinVersion: String by rootProject.extra
+    val kotlinVersion: String by rootProject.extra
+    val mockkVersion: String by rootProject.extra
+
     implementation("androidx.appcompat:appcompat:1.3.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.0")
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.1.0")
