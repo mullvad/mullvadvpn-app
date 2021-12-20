@@ -200,7 +200,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                     }
                     .onFailure { error in
                         self.tunnelConnectionInfo = oldTunnelConnectionInfo
-                        self.providerLogger.error(chainedError: error, message: "Failed to update WireGuard configuration")
+                        self.providerLogger.error(chainedError: error)
                     }
             }
     }
