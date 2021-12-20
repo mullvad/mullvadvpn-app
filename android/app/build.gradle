@@ -1,7 +1,9 @@
-apply plugin: "com.android.application"
-apply plugin: "com.github.triplet.play"
-apply plugin: "kotlin-android"
-apply plugin: "kotlin-parcelize"
+plugins {
+    id("com.android.application")
+    id("com.github.triplet.play")
+    id("kotlin-android")
+    id("kotlin-parcelize")
+}
 
 def repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 def extraAssetsDirectory = "$project.buildDir/extraAssets"
