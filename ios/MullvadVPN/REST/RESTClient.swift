@@ -65,7 +65,7 @@ extension REST {
                     let restResult = responseResult
                         .mapError(self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<AccountResponse, REST.Error> in
-                            if httpResponse.statusCode == HTTPStatus.created {
+                            if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(AccountResponse.self, from: data)
                             } else {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
@@ -86,7 +86,7 @@ extension REST {
                 let dataTask = self.dataTask(request: request) { responseResult in
                     let restResult = responseResult.mapError(self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<[AnyIPEndpoint], REST.Error> in
-                            if httpResponse.statusCode == HTTPStatus.ok {
+                            if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse([AnyIPEndpoint].self, from: data)
                             } else {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
@@ -110,18 +110,15 @@ extension REST {
                 let dataTask = self.dataTask(request: request) { restResponse in
                     let restResult = restResponse.mapError(self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<ServerRelaysCacheResponse, REST.Error> in
-                            switch httpResponse.statusCode {
-                            case .ok:
+                            if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(ServerRelaysResponse.self, from: data)
                                     .map { serverRelays in
                                         let newEtag = httpResponse.value(forCaseInsensitiveHTTPHeaderField: HTTPHeader.etag)
                                         return .newContent(newEtag, serverRelays)
                                     }
-
-                            case .notModified where etag != nil:
+                            } else if httpResponse.statusCode == HTTPStatus.notModified && etag != nil {
                                 return .success(.notModified)
-
-                            default:
+                            } else {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
                             }
                         }
@@ -142,7 +139,7 @@ extension REST {
                 let dataTask = self.dataTask(request: request) { restResponse in
                     let restResult = restResponse.mapError(self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<AccountResponse, REST.Error> in
-                            if httpResponse.statusCode == HTTPStatus.ok {
+                            if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(AccountResponse.self, from: data)
                             } else {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
@@ -169,7 +166,7 @@ extension REST {
                 let dataTask = self.dataTask(request: request) { restResponse in
                     let restResult = restResponse.mapError(self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<WireguardAddressesResponse, REST.Error> in
-                            if httpResponse.statusCode == HTTPStatus.ok {
+                            if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
                             } else {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
@@ -198,10 +195,9 @@ extension REST {
                 let dataTask = self.dataTask(request: request) { restResponse in
                     let restResult = restResponse.mapError(self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<WireguardAddressesResponse, REST.Error> in
-                            switch httpResponse.statusCode {
-                            case .created, .ok:
+                            if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
-                            default:
+                            } else {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
                             }
                         }
@@ -230,7 +226,7 @@ extension REST {
                 let dataTask = self.dataTask(request: request) { restResponse in
                     let restResult = restResponse.mapError(self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<WireguardAddressesResponse, REST.Error> in
-                            if httpResponse.statusCode == HTTPStatus.created {
+                            if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
                             } else {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
@@ -257,7 +253,7 @@ extension REST {
                 let dataTask = self.dataTask(request: request) { restResponse in
                     let restResult = restResponse.mapError(self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<(), REST.Error> in
-                            if httpResponse.statusCode == HTTPStatus.noContent {
+                            if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return .success(())
                             } else {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
@@ -287,20 +283,16 @@ extension REST {
                 let dataTask = self.dataTask(request: request) { restResponse in
                     let restResult = restResponse.mapError(self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<CreateApplePaymentResponse, REST.Error> in
-                            switch httpResponse.statusCode {
-                            case HTTPStatus.ok:
+                            if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return REST.Client.decodeSuccessResponse(CreateApplePaymentRawResponse.self, from: data)
                                     .map { (response) in
-                                        return .noTimeAdded(response.newExpiry)
+                                        if response.timeAdded > 0 {
+                                            return .timeAdded(response.timeAdded, response.newExpiry)
+                                        } else {
+                                            return .noTimeAdded(response.newExpiry)
+                                        }
                                     }
-
-                            case HTTPStatus.created:
-                                return REST.Client.decodeSuccessResponse(CreateApplePaymentRawResponse.self, from: data)
-                                    .map { (response) in
-                                        return .timeAdded(response.timeAdded, response.newExpiry)
-                                    }
-
-                            default:
+                            } else {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
                             }
                         }
@@ -324,7 +316,7 @@ extension REST {
                 let dataTask = self.dataTask(request: request) { restResponse in
                     let restResult = restResponse.mapError(self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<(), REST.Error> in
-                            if httpResponse.statusCode == HTTPStatus.noContent {
+                            if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return .success(())
                             } else {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
