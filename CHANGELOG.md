@@ -45,6 +45,8 @@ Line wrap the file at 100 chars.                                              Th
   * Swiping to remove from the Recents/Overview screen.
   * Android Background Execution Limits.
   * The System Settings way of killing apps ("Force Stop").
+- Change Quick Settings tile label to reflect the action of clicking the tile. Also add a subtitle 
+  on supported Android versions (Q and above) to reflect the state.
 
 #### Windows
 - Update wireguard-nt to 0.10.1.
