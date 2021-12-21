@@ -164,12 +164,9 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
 
             self.rotatePrivateKey { rotationResult, error in
                 self.stateQueue.async {
-                    // Do not reschedule timer on cancellation
-                    if rotationResult == nil && error == nil {
-                        return
-                    }
-
                     if let scheduleDate = self.handlePrivateKeyRotationCompletion(result: rotationResult, error: error) {
+                        guard self.isRunningPeriodicPrivateKeyRotation else { return }
+
                         self.schedulePrivateKeyRotationTimer(scheduleDate)
                     }
                 }
