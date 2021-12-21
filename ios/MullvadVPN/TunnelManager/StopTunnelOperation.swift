@@ -12,30 +12,28 @@ protocol StopTunnelOperationDelegate {
     func operationDidRequestTunnelState(_ operation: Operation) -> TunnelState
     func operation(_ operation: Operation, didSetTunnelState newTunnelState: TunnelState)
     func operationDidRequestTunnelProvider(_ operation: Operation) -> TunnelProviderManagerType?
+    func operation(_ operation: Operation, didFailToStopTunnelWithError error: TunnelManager.Error)
 }
 
 class StopTunnelOperation: AsyncOperation {
-    typealias CompletionHandler = (TunnelManager.Error?) -> Void
-
     private let queue: DispatchQueue
     private let delegate: StopTunnelOperationDelegate
-    private var completionHandler: CompletionHandler?
 
-    init(queue: DispatchQueue, delegate: StopTunnelOperationDelegate, completionHandler: @escaping CompletionHandler) {
+    init(queue: DispatchQueue, delegate: StopTunnelOperationDelegate) {
         self.queue = queue
         self.delegate = delegate
-        self.completionHandler = completionHandler
     }
 
     override func main() {
         queue.async {
             guard !self.isCancelled else {
-                self.finish(error: nil)
+                self.finish()
                 return
             }
 
             guard let tunnelProvider = self.delegate.operationDidRequestTunnelProvider(self) else {
-                self.finish(error: .missingAccount)
+                self.delegate.operation(self, didFailToStopTunnelWithError: .missingAccount)
+                self.finish()
                 return
             }
 
@@ -44,7 +42,7 @@ class StopTunnelOperation: AsyncOperation {
             switch tunnelState {
             case .disconnecting(.reconnect):
                 self.delegate.operation(self, didSetTunnelState: .disconnecting(.nothing))
-                self.finish(error: nil)
+                self.finish()
 
             case .connected, .connecting:
                 // Disable on-demand when stopping the tunnel to prevent it from coming back up
@@ -53,24 +51,18 @@ class StopTunnelOperation: AsyncOperation {
                 tunnelProvider.saveToPreferences { error in
                     self.queue.async {
                         if let error = error {
-                            self.finish(error: .saveVPNConfiguration(error))
+                            self.delegate.operation(self, didFailToStopTunnelWithError: .saveVPNConfiguration(error))
+                            self.finish()
                         } else {
                             tunnelProvider.connection.stopVPNTunnel()
-                            self.finish(error: nil)
+                            self.finish()
                         }
                     }
                 }
 
             default:
-                self.finish(error: nil)
+                self.finish()
             }
         }
-    }
-
-    private func finish(error: TunnelManager.Error?) {
-        completionHandler?(error)
-        completionHandler = nil
-
-        finish()
     }
 }

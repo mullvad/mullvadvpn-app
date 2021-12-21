@@ -225,13 +225,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
     }
 
     func startTunnel() {
-        let operation = StartTunnelOperation(queue: stateQueue, delegate: self) { error in
-            if let error = error {
-                self.logger.error(chainedError: error, message: "Start tunnel operation failed")
-            } else {
-                self.logger.debug("Start tunnel operation finished")
-            }
-        }
+        let operation = StartTunnelOperation(queue: stateQueue, delegate: self)
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Start tunnel") {
             operation.cancel()
@@ -247,15 +241,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
     }
 
     func stopTunnel() {
-        let operation = StopTunnelOperation(queue: stateQueue, delegate: self) { error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    self.observerList.forEach { observer in
-                        observer.tunnelManager(self, didFailWithError: error)
-                    }
-                }
-            }
-        }
+        let operation = StopTunnelOperation(queue: stateQueue, delegate: self)
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Stop tunnel") {
             operation.cancel()
@@ -536,6 +522,17 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
         dispatchPrecondition(condition: .onQueue(stateQueue))
 
         return tunnelProvider
+    }
+
+    func operation(_ operation: Operation, didFailToStopTunnelWithError error: TunnelManager.Error) {
+        dispatchPrecondition(condition: .onQueue(stateQueue))
+
+        // Pass tunnel failure to observers
+        DispatchQueue.main.async {
+            self.observerList.forEach { observer in
+                observer.tunnelManager(self, didFailWithError: error)
+            }
+        }
     }
 
     // MARK: - MapConnectionStatusOperationDelegate

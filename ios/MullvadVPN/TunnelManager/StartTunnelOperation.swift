@@ -18,29 +18,29 @@ protocol StartTunnelOperationDelegate {
 }
 
 class StartTunnelOperation: AsyncOperation {
-    typealias CompletionHandler = (TunnelManager.Error?) -> Void
-
     private let queue: DispatchQueue
     private let delegate: StartTunnelOperationDelegate
-    private var completionHandler: CompletionHandler?
 
     private let logger = Logger(label: "TunnelManager.StartTunnelOperation")
 
-    init(queue: DispatchQueue, delegate: StartTunnelOperationDelegate, completionHandler: CompletionHandler) {
+    init(queue: DispatchQueue, delegate: StartTunnelOperationDelegate) {
         self.queue = queue
         self.delegate = delegate
-        self.completionHandler = completionHandler
     }
 
     override func main() {
         queue.async {
             guard !self.isCancelled else {
-                self.finish(error: nil)
+                self.logger.debug("Cancelled")
+                self.finish()
                 return
             }
 
             guard let tunnelInfo = self.delegate.operationDidRequestTunnelInfo(self) else {
-                self.finish(error: .missingAccount)
+                let tunnelManagerError = TunnelManager.Error.missingAccount
+                self.logger.error(chainedError: tunnelManagerError)
+
+                self.finish()
                 return
             }
 
@@ -49,8 +49,7 @@ class StartTunnelOperation: AsyncOperation {
             switch tunnelState {
             case .disconnecting(.nothing):
                 self.delegate.operation(self, didSetTunnelState: .disconnecting(.reconnect))
-
-                self.finish(error: nil)
+                self.finish()
 
             case .disconnected, .pendingReconnect:
                 RelayCache.Tracker.shared.read { readResult in
@@ -58,18 +57,23 @@ class StartTunnelOperation: AsyncOperation {
                         switch readResult {
                         case .success(let cachedRelays):
                             self.didReceiveRelays(tunnelInfo: tunnelInfo, cachedRelays: cachedRelays) { error in
-                                self.finish(error: error)
+                                if let error = error {
+                                    self.logger.error(chainedError: error)
+                                }
+                                self.finish()
                             }
 
                         case .failure(let error):
-                            self.finish(error: .readRelays(error))
+                            let tunnelManagerError = TunnelManager.Error.readRelays(error)
+                            self.logger.error(chainedError: tunnelManagerError)
+                            self.finish()
                         }
                     }
                 }
 
             default:
                 // Do not attempt to start the tunnel in all other cases.
-                self.finish(error: nil)
+                self.finish()
             }
         }
     }
@@ -184,11 +188,5 @@ class StartTunnelOperation: AsyncOperation {
 
                 return tunnelProvider
             }
-    }
-
-    private func finish(error: TunnelManager.Error?) {
-        completionHandler?(error)
-        completionHandler = nil
-        finish()
     }
 }
