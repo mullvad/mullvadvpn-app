@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
   pressed.
 - Disable logging of translation errors in production. This will among other things prevent error
   messages from translating the country in the disconnected state.
+- Update Electron from 15.0.0 to 16.0.4.
 
 #### Android
 - Avoid running in foreground when not connected.
