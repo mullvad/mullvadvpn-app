@@ -10,13 +10,14 @@ import Foundation
 import Logging
 import NetworkExtension
 
-protocol ReloadTunnelOperationDelegate {
+protocol ReloadTunnelOperationDelegate: AnyObject {
     func operationDidRequestTunnelProvider(_ operation: Operation) -> TunnelProviderManagerType?
+    func operation(_ operation: Operation, didFailToReloadTunnelWithError error: TunnelIPC.Error)
 }
 
 class ReloadTunnelOperation: AsyncOperation {
     private let queue: DispatchQueue
-    private let delegate: ReloadTunnelOperationDelegate
+    private weak var delegate: ReloadTunnelOperationDelegate?
     private var statusObserver: NSObjectProtocol?
 
     private let logger = Logger(label: "TunnelManager.ReloadTunnelOperation")
@@ -33,7 +34,7 @@ class ReloadTunnelOperation: AsyncOperation {
                 return
             }
 
-            guard let tunnelProvider = self.delegate.operationDidRequestTunnelProvider(self) else {
+            guard let tunnelProvider = self.delegate?.operationDidRequestTunnelProvider(self) else {
                 self.finish()
                 return
             }
@@ -84,7 +85,7 @@ class ReloadTunnelOperation: AsyncOperation {
                 guard let self = self else { return }
 
                 if let error = error {
-                    self.logger.error(chainedError: error, message: "Failed to send IPC request to reload tunnel settings")
+                    self.delegate?.operation(self, didFailToReloadTunnelWithError: error)
                 }
 
                 self.finish()

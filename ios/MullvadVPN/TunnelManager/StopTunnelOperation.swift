@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol StopTunnelOperationDelegate {
+protocol StopTunnelOperationDelegate: AnyObject {
     func operationDidRequestTunnelState(_ operation: Operation) -> TunnelState
     func operation(_ operation: Operation, didSetTunnelState newTunnelState: TunnelState)
     func operationDidRequestTunnelProvider(_ operation: Operation) -> TunnelProviderManagerType?
@@ -17,7 +17,7 @@ protocol StopTunnelOperationDelegate {
 
 class StopTunnelOperation: AsyncOperation {
     private let queue: DispatchQueue
-    private let delegate: StopTunnelOperationDelegate
+    private weak var delegate: StopTunnelOperationDelegate?
 
     init(queue: DispatchQueue, delegate: StopTunnelOperationDelegate) {
         self.queue = queue
@@ -31,17 +31,17 @@ class StopTunnelOperation: AsyncOperation {
                 return
             }
 
-            guard let tunnelProvider = self.delegate.operationDidRequestTunnelProvider(self) else {
-                self.delegate.operation(self, didFailToStopTunnelWithError: .missingAccount)
+            guard let tunnelProvider = self.delegate?.operationDidRequestTunnelProvider(self) else {
+                self.delegate?.operation(self, didFailToStopTunnelWithError: .missingAccount)
                 self.finish()
                 return
             }
 
-            let tunnelState = self.delegate.operationDidRequestTunnelState(self)
+            let tunnelState = self.delegate?.operationDidRequestTunnelState(self)
 
             switch tunnelState {
             case .disconnecting(.reconnect):
-                self.delegate.operation(self, didSetTunnelState: .disconnecting(.nothing))
+                self.delegate?.operation(self, didSetTunnelState: .disconnecting(.nothing))
                 self.finish()
 
             case .connected, .connecting:
@@ -51,12 +51,11 @@ class StopTunnelOperation: AsyncOperation {
                 tunnelProvider.saveToPreferences { error in
                     self.queue.async {
                         if let error = error {
-                            self.delegate.operation(self, didFailToStopTunnelWithError: .saveVPNConfiguration(error))
-                            self.finish()
+                            self.delegate?.operation(self, didFailToStopTunnelWithError: .saveVPNConfiguration(error))
                         } else {
                             tunnelProvider.connection.stopVPNTunnel()
-                            self.finish()
                         }
+                        self.finish()
                     }
                 }
 

@@ -22,7 +22,7 @@ class MapConnectionStatusOperation: AsyncOperation {
     private let connectionStatus: NEVPNStatus
     private weak var delegate: MapConnectionStatusOperationDelegate?
 
-    private let logger = Logger(label: "TunnelManager.UpdateTunnelStateOperation")
+    private let logger = Logger(label: "TunnelManager.MapConnectionStatusOperation")
 
     init(queue: DispatchQueue, connectionStatus: NEVPNStatus, delegate: MapConnectionStatusOperationDelegate) {
         self.queue = queue
@@ -58,7 +58,6 @@ class MapConnectionStatusOperation: AsyncOperation {
             default:
                 delegate?.operation(self, didSetTunnelState: .connecting(nil))
             }
-            completionHandler()
 
         case .reasserting:
             let ipcSession = TunnelIPC.Session(from: tunnelProvider)
@@ -72,6 +71,8 @@ class MapConnectionStatusOperation: AsyncOperation {
                 }
             }
 
+            return
+
         case .connected:
             let ipcSession = TunnelIPC.Session(from: tunnelProvider)
 
@@ -83,6 +84,8 @@ class MapConnectionStatusOperation: AsyncOperation {
                     completionHandler()
                 }
             }
+
+            return
 
         case .disconnected:
             switch tunnelState {
@@ -97,7 +100,6 @@ class MapConnectionStatusOperation: AsyncOperation {
             default:
                 delegate?.operation(self, didSetTunnelState: .disconnected)
             }
-            completionHandler()
 
         case .disconnecting:
             switch tunnelState {
@@ -106,15 +108,14 @@ class MapConnectionStatusOperation: AsyncOperation {
             default:
                 delegate?.operation(self, didSetTunnelState: .disconnecting(.nothing))
             }
-            completionHandler()
 
         case .invalid:
             delegate?.operation(self, didSetTunnelState: .disconnected)
-            completionHandler()
 
         @unknown default:
             logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")
-            completionHandler()
         }
+
+        completionHandler()
     }
 }

@@ -516,6 +516,14 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
         updateTunnelState()
     }
 
+    func operation(_ operation: Operation, didFailToStartTunnelWithError error: TunnelManager.Error) {
+        logger.error(chainedError: error)
+    }
+
+    func operation(_ operation: Operation, didFailToEncodeTunnelOptions error: Swift.Error) {
+        logger.error(chainedError: AnyChainedError(error), message: "Failed to encode tunnel options")
+    }
+
     // MARK: - StopTunnelOperationDelegate
 
     func operationDidRequestTunnelProvider(_ operation: Operation) -> TunnelProviderManagerType? {
@@ -533,6 +541,12 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
                 observer.tunnelManager(self, didFailWithError: error)
             }
         }
+    }
+
+    // MARK: - ReloadTunnelOperationDelegate
+
+    func operation(_ operation: Operation, didFailToReloadTunnelWithError error: TunnelIPC.Error) {
+        logger.error(chainedError: error, message: "Failed to send IPC request to reload tunnel settings")
     }
 
     // MARK: - MapConnectionStatusOperationDelegate

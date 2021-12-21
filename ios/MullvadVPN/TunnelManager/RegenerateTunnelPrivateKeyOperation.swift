@@ -21,6 +21,7 @@ class RenegeratePrivateKeyOperation: AsyncOperation {
     private let restClient: REST.Client
     private var completionHandler: CompletionHandler?
     private weak var delegate: RenegeratePrivateKeyOperationDelegate?
+    private var restCancellable: Cancellable?
 
     init(queue: DispatchQueue,
          restClient: REST.Client,
@@ -48,41 +49,52 @@ class RenegeratePrivateKeyOperation: AsyncOperation {
             let newPrivateKey = PrivateKeyWithMetadata()
             let oldPublicKey = tunnelInfo.tunnelSettings.interface.publicKey
 
-            _ = self.restClient.replaceWireguardKey(
+            let restRequest = self.restClient.replaceWireguardKey(
                 token: tunnelInfo.token,
                 oldPublicKey: oldPublicKey,
                 newPublicKey: newPrivateKey.publicKey
-            ).execute { result in
+            )
+
+            self.restCancellable = restRequest.execute { restResult in
                 self.queue.async {
-                    switch result {
-                    case .success(let associatedAddresses):
-                        let saveResult = TunnelSettingsManager.update(searchTerm: .accountToken(tunnelInfo.token)) { newTunnelSettings in
-                            newTunnelSettings.interface.privateKey = newPrivateKey
-                            newTunnelSettings.interface.addresses = [
-                                associatedAddresses.ipv4Address,
-                                associatedAddresses.ipv6Address
-                            ]
-                        }
+                    let saveResult = Self.handleResponse(token: tunnelInfo.token, newPrivateKey: newPrivateKey, result: restResult)
 
-                        switch saveResult {
-                        case .success(let newTunnelSettings):
-                            self.delegate?.operation(self, didFinishRegeneratingPrivateKeyWithNewTunnelSettings: newTunnelSettings)
-                            self.finish(error: nil)
-
-                        case .failure(let error):
-                            let tunnelManagerError = TunnelManager.Error.updateTunnelSettings(error)
-
-                            self.delegate?.operation(self, didFailToReplacePrivateKeyWithError: tunnelManagerError)
-                            self.finish(error: tunnelManagerError)
-                        }
+                    switch saveResult {
+                    case .success(let tunnelSettings):
+                        self.delegate?.operation(self, didFinishRegeneratingPrivateKeyWithNewTunnelSettings: tunnelSettings)
+                        self.finish(error: nil)
 
                     case .failure(let error):
-                        let tunnelManagerError = TunnelManager.Error.replaceWireguardKey(error)
-
-                        self.delegate?.operation(self, didFailToReplacePrivateKeyWithError: tunnelManagerError)
-                        self.finish(error: tunnelManagerError)
+                        self.delegate?.operation(self, didFailToReplacePrivateKeyWithError: error)
+                        self.finish(error: error)
                     }
                 }
+            }
+        }
+    }
+
+    override func cancel() {
+        super.cancel()
+
+        queue.async {
+            self.restCancellable?.cancel()
+        }
+    }
+
+    private class func handleResponse(token: String, newPrivateKey: PrivateKeyWithMetadata, result: Result<REST.WireguardAddressesResponse, REST.Error>) -> Result<TunnelSettings, TunnelManager.Error> {
+
+        return result.flatMapError { restError in
+            return .failure(.replaceWireguardKey(restError))
+        }
+        .flatMap { associatedAddresses in
+            return TunnelSettingsManager.update(searchTerm: .accountToken(token)) { newTunnelSettings in
+                newTunnelSettings.interface.privateKey = newPrivateKey
+                newTunnelSettings.interface.addresses = [
+                    associatedAddresses.ipv4Address,
+                    associatedAddresses.ipv6Address
+                ]
+            }.mapError { error -> TunnelManager.Error in
+                return .updateTunnelSettings(error)
             }
         }
     }

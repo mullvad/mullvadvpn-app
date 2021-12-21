@@ -10,18 +10,18 @@ import Foundation
 import NetworkExtension
 import Logging
 
-protocol StartTunnelOperationDelegate {
+protocol StartTunnelOperationDelegate: AnyObject {
     func operationDidRequestTunnelInfo(_ operation: Operation) -> TunnelInfo?
     func operationDidRequestTunnelState(_ operation: Operation) -> TunnelState
     func operation(_ operation: Operation, didSetTunnelState newTunnelState: TunnelState)
     func operation(_ operation: Operation, didSetTunnelProvider newTunnelProvider: TunnelProviderManagerType)
+    func operation(_ operation: Operation, didFailToStartTunnelWithError error: TunnelManager.Error)
+    func operation(_ operation: Operation, didFailToEncodeTunnelOptions error: Error)
 }
 
 class StartTunnelOperation: AsyncOperation {
     private let queue: DispatchQueue
-    private let delegate: StartTunnelOperationDelegate
-
-    private let logger = Logger(label: "TunnelManager.StartTunnelOperation")
+    private weak var delegate: StartTunnelOperationDelegate?
 
     init(queue: DispatchQueue, delegate: StartTunnelOperationDelegate) {
         self.queue = queue
@@ -31,24 +31,21 @@ class StartTunnelOperation: AsyncOperation {
     override func main() {
         queue.async {
             guard !self.isCancelled else {
-                self.logger.debug("Cancelled")
                 self.finish()
                 return
             }
 
-            guard let tunnelInfo = self.delegate.operationDidRequestTunnelInfo(self) else {
-                let tunnelManagerError = TunnelManager.Error.missingAccount
-                self.logger.error(chainedError: tunnelManagerError)
-
+            guard let tunnelInfo = self.delegate?.operationDidRequestTunnelInfo(self) else {
+                self.delegate?.operation(self, didFailToStartTunnelWithError: .missingAccount)
                 self.finish()
                 return
             }
 
-            let tunnelState = self.delegate.operationDidRequestTunnelState(self)
+            let tunnelState = self.delegate?.operationDidRequestTunnelState(self)
 
             switch tunnelState {
             case .disconnecting(.nothing):
-                self.delegate.operation(self, didSetTunnelState: .disconnecting(.reconnect))
+                self.delegate?.operation(self, didSetTunnelState: .disconnecting(.reconnect))
                 self.finish()
 
             case .disconnected, .pendingReconnect:
@@ -58,14 +55,13 @@ class StartTunnelOperation: AsyncOperation {
                         case .success(let cachedRelays):
                             self.didReceiveRelays(tunnelInfo: tunnelInfo, cachedRelays: cachedRelays) { error in
                                 if let error = error {
-                                    self.logger.error(chainedError: error)
+                                    self.delegate?.operation(self, didFailToStartTunnelWithError: error)
                                 }
                                 self.finish()
                             }
 
                         case .failure(let error):
-                            let tunnelManagerError = TunnelManager.Error.readRelays(error)
-                            self.logger.error(chainedError: tunnelManagerError)
+                            self.delegate?.operation(self, didFailToStartTunnelWithError: .readRelays(error))
                             self.finish()
                         }
                     }
@@ -113,11 +109,11 @@ class StartTunnelOperation: AsyncOperation {
         do {
             try tunnelOptions.setSelectorResult(selectorResult)
         } catch {
-            self.logger.error(chainedError: AnyChainedError(error), message: "Failed to encode relay selector result.")
+            delegate?.operation(self, didFailToEncodeTunnelOptions: error)
         }
 
-        delegate.operation(self, didSetTunnelProvider: tunnelProvider)
-        delegate.operation(self, didSetTunnelState: .connecting(selectorResult.tunnelConnectionInfo))
+        delegate?.operation(self, didSetTunnelProvider: tunnelProvider)
+        delegate?.operation(self, didSetTunnelState: .connecting(selectorResult.tunnelConnectionInfo))
 
         try tunnelProvider.connection.startVPNTunnel(options: tunnelOptions.rawOptions())
     }
