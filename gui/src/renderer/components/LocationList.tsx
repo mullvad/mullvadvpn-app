@@ -281,17 +281,55 @@ interface IRelayLocationsProps {
   onTransitionEnd?: () => void;
 }
 
+interface Relay extends IRelayLocationRelayRedux {
+  label: string;
+  disabled: boolean;
+}
+
+interface City extends Omit<IRelayLocationCityRedux, 'relays'> {
+  label: string;
+  active: boolean;
+  disabled: boolean;
+  relays: Array<Relay>;
+}
+
+interface Country extends Omit<IRelayLocationRedux, 'cities'> {
+  label: string;
+  active: boolean;
+  disabled: boolean;
+  cities: Array<City>;
+}
+
+type CountryList = Array<Country>;
+
+interface IRelayLocationsState {
+  countries: CountryList;
+}
+
 interface ICommonCellProps {
   location: RelayLocation;
   selected: boolean;
   ref?: React.Ref<HTMLDivElement>;
 }
 
-export class RelayLocations extends React.PureComponent<IRelayLocationsProps> {
+export class RelayLocations extends React.PureComponent<
+  IRelayLocationsProps,
+  IRelayLocationsState
+> {
+  public state = {
+    countries: this.prepareRelaysForPresentation(this.props.source),
+  };
+
+  public componentDidUpdate(prevProps: IRelayLocationsProps) {
+    if (this.props.source !== prevProps.source) {
+      this.setState({ countries: this.prepareRelaysForPresentation(this.props.source) });
+    }
+  }
+
   public render() {
     return (
       <>
-        {this.prepareRelaysForPresentation(this.props.source).map((relayCountry) => {
+        {this.state.countries.map((relayCountry) => {
           const countryLocation: RelayLocation = { country: relayCountry.code };
 
           return (
@@ -349,7 +387,7 @@ export class RelayLocations extends React.PureComponent<IRelayLocationsProps> {
     );
   }
 
-  private prepareRelaysForPresentation(relayList: IRelayLocationRedux[]) {
+  private prepareRelaysForPresentation(relayList: IRelayLocationRedux[]): CountryList {
     return relayList
       .map((country) => {
         const countryDisabled = this.isCountryDisabled(country, country.code);
