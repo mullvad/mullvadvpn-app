@@ -349,45 +349,37 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
     }
 
     func setRelayConstraints(_ newConstraints: RelayConstraints, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
-        let operation = SetTunnelSettingsOperation(
-            queue: stateQueue,
-            delegate: self,
+        scheduleTunnelSettingsUpdate(
+            taskName: "Set relay constraints",
             modificationBlock: { tunnelSettings in
                 tunnelSettings.relayConstraints = newConstraints
             },
-            completionHandler: { error in
-                DispatchQueue.main.async {
-                    completionHandler(error)
-                }
-            })
-
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Set relay constraints") {
-            operation.cancel()
-        }
-
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
-
-        operationQueue.addOperation(operation)
+            completionHandler: completionHandler
+        )
     }
 
     func setDNSSettings(_ newDNSSettings: DNSSettings, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
-        let operation = SetTunnelSettingsOperation(
-            queue: stateQueue,
-            delegate: self,
+        scheduleTunnelSettingsUpdate(
+            taskName: "Set DNS settings",
             modificationBlock: { tunnelSettings in
                 tunnelSettings.interface.dnsSettings = newDNSSettings
             },
+            completionHandler: completionHandler
+        )
+    }
+
+    private func scheduleTunnelSettingsUpdate(taskName: String, modificationBlock: @escaping (inout TunnelSettings) -> Void, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
+        let operation = SetTunnelSettingsOperation(
+            queue: stateQueue,
+            delegate: self,
+            modificationBlock: modificationBlock,
             completionHandler: { error in
                 DispatchQueue.main.async {
                     completionHandler(error)
                 }
             })
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Set DNS settings") {
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: taskName) {
             operation.cancel()
         }
 
