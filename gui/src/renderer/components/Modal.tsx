@@ -88,6 +88,7 @@ export function ModalContainer(props: IModalContainerProps) {
 
 export enum ModalAlertType {
   info = 1,
+  caution,
   warning,
 }
 
@@ -196,6 +197,10 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
     let color = '';
     switch (type) {
       case ModalAlertType.info:
+        source = 'icon-info';
+        color = colors.white;
+        break;
+      case ModalAlertType.caution:
         source = 'icon-alert';
         color = colors.white;
         break;
