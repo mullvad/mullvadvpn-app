@@ -211,7 +211,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
             }
         }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "TunnelManager.loadTunnel") {
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Load tunnel") {
             operation.cancel()
         }
 
@@ -233,7 +233,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
             }
         }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "TunnelManager.startTunnel") {
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Start tunnel") {
             operation.cancel()
         }
 
@@ -257,7 +257,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
             }
         }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "TunnelManager.stopTunnel") {
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Stop tunnel") {
             operation.cancel()
         }
 
@@ -273,7 +273,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
     func reconnectTunnel(completionHandler: (() -> Void)?) {
         let operation = ReloadTunnelOperation(queue: stateQueue, delegate: self)
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "TunnelManager.reconnectTunnel") {
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Reconnect tunnel") {
             operation.cancel()
         }
 
@@ -297,7 +297,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
             }
         }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "TunnelManager.setAccount") {
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Set tunnel account") {
             operation.cancel()
         }
 
@@ -314,7 +314,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
     func unsetAccount(completionHandler: @escaping () -> Void) {
         let operation = UnsetAccountOperation(queue: stateQueue, restClient: restClient, delegate: self)
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "TunnelManager.unsetAccount") {
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Unset tunnel account") {
             operation.cancel()
         }
 
@@ -341,7 +341,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
                 }
             }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "TunnelManager.regeneratePrivateKey") {
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Regenerate private key") {
             operation.cancel()
         }
 
@@ -361,7 +361,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
             }
         }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "TunnelManager.rotatePrivateKey") {
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Rotate private key") {
             operation.cancel()
         }
 
@@ -387,7 +387,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
                 }
             })
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "TunnelManager.setRelayConstraints") {
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Set relay constraints") {
             operation.cancel()
         }
 
@@ -413,7 +413,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
                 }
             })
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "TunnelManager.setDNSSettings") {
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Set DNS settings") {
             operation.cancel()
         }
 
