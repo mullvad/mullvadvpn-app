@@ -20,32 +20,11 @@ struct HTTPMethod: RawRepresentable {
     }
 }
 
-// HTTP status codes
-struct HTTPStatus: RawRepresentable, Equatable {
-    static let ok = HTTPStatus(rawValue: 200)
-    static let created = HTTPStatus(rawValue: 201)
-    static let noContent = HTTPStatus(rawValue: 204)
-    static let notModified = HTTPStatus(rawValue: 304)
+enum HTTPStatus {
+    static let notModified = 304
 
-    let rawValue: Int
-    init(rawValue value: Int) {
-        rawValue = value
-    }
-
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        return lhs.rawValue == rhs.rawValue
-    }
-
-    static func == (lhs: Self, rhs: Int) -> Bool {
-        return lhs.rawValue == rhs
-    }
-
-    static func == (lhs: Int, rhs: Self) -> Bool {
-        return lhs == rhs.rawValue
-    }
-
-    static func ~= (lhs: Self, rhs: Int) -> Bool {
-        return lhs.rawValue == rhs
+    static func isSuccess(_ code: Int) -> Bool {
+        return (200..<300).contains(code)
     }
 }
 
