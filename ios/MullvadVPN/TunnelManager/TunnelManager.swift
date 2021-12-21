@@ -83,15 +83,9 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
             stateLock.withCriticalBlock {
                 guard _tunnelState != newValue else { return }
 
-                logger.info("Set tunnel state: \(newValue)")
-
                 _tunnelState = newValue
 
-                DispatchQueue.main.async {
-                    self.observerList.forEach { (observer) in
-                        observer.tunnelManager(self, didUpdateTunnelState: newValue)
-                    }
-                }
+                tunnelStateDidChange(newValue)
             }
         }
         get {
@@ -426,10 +420,19 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
     // MARK: - Private methods
 
     private func tunnelInfoDidChange(_ newTunnelInfo: TunnelInfo?) {
-        // Notify observers
         DispatchQueue.main.async {
             self.observerList.forEach { (observer) in
                 observer.tunnelManager(self, didUpdateTunnelSettings: newTunnelInfo)
+            }
+        }
+    }
+
+    private func tunnelStateDidChange(_ newTunnelState: TunnelState) {
+        logger.info("Set tunnel state: \(newTunnelState)")
+
+        DispatchQueue.main.async {
+            self.observerList.forEach { (observer) in
+                observer.tunnelManager(self, didUpdateTunnelState: newTunnelState)
             }
         }
     }
