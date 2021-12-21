@@ -61,9 +61,6 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
     private let stateLock = NSLock()
     private let observerList = ObserverList<AnyTunnelObserver>()
 
-    /// A VPN connection status observer
-    private var connectionStatusObserver: NSObjectProtocol?
-
     private(set) var tunnelInfo: TunnelInfo? {
         set {
             stateLock.withCriticalBlock {
@@ -437,10 +434,23 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
         }
     }
 
-    private func unregisterConnectionObserver() {
-        if let connectionStatusObserver = connectionStatusObserver {
-            NotificationCenter.default.removeObserver(connectionStatusObserver)
-            self.connectionStatusObserver = nil
+    private func subscribeVPNStatusObserver(for tunnelProvider: TunnelProviderManagerType) {
+        unsubscribeVPNStatusObserver()
+
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(didReceiveVPNStatusChange(_:)),
+            name: .NEVPNStatusDidChange,
+            object: tunnelProvider.connection
+        )
+    }
+
+    private func unsubscribeVPNStatusObserver() {
+        NotificationCenter.default.removeObserver(self, name: .NEVPNStatusDidChange, object: nil)
+    }
+
+    @objc private func didReceiveVPNStatusChange(_ notification: Notification) {
+        stateQueue.async {
+            self.updateTunnelState()
         }
     }
 
@@ -457,6 +467,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
 
         exclusivityController.addOperation(operation, categories: [OperationCategory.tunnelStateUpdate])
 
+        // Cancel last VPN status mapping operation
         lastMapConnectionStatusOperation?.cancel()
         lastMapConnectionStatusOperation = operation
 
@@ -501,16 +512,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
         tunnelProvider = newTunnelProvider
 
         // Register for tunnel connection status changes
-        unregisterConnectionObserver()
-        connectionStatusObserver = NotificationCenter.default
-            .addObserver(forName: .NEVPNStatusDidChange, object: newTunnelProvider.connection, queue: nil) {
-                [weak self] (notification) in
-                guard let self = self else { return }
-
-                self.stateQueue.async {
-                    self.updateTunnelState()
-                }
-        }
+        subscribeVPNStatusObserver(for: newTunnelProvider)
 
         // Update the existing state
         updateTunnelState()
@@ -628,9 +630,9 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
         dispatchPrecondition(condition: .onQueue(stateQueue))
 
         // Unregister from receiving VPN connection status changes
-        unregisterConnectionObserver()
+        unsubscribeVPNStatusObserver()
 
-        // Cancel last operation mapping VPN connection status to `TunnelState`
+        // Cancel last VPN status mapping operation
         lastMapConnectionStatusOperation?.cancel()
         lastMapConnectionStatusOperation = nil
 
