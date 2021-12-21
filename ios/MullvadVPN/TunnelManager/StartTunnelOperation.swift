@@ -29,6 +29,7 @@ class StartTunnelOperation: AsyncOperation {
     init(queue: DispatchQueue, delegate: StartTunnelOperationDelegate, completionHandler: CompletionHandler) {
         self.queue = queue
         self.delegate = delegate
+        self.completionHandler = completionHandler
     }
 
     override func main() {
