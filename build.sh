@@ -42,7 +42,7 @@ function log_info {
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
-RUSTC_VERSION=$(rustc +stable --version)
+RUSTC_VERSION=$(rustc --version)
 PRODUCT_VERSION=$(node -p "require('./gui/package.json').version" | sed -Ee 's/\.0//g')
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 
@@ -121,7 +121,7 @@ if [[ "$BUILD_MODE" == "dev" || $product_version_commit_hash != "$current_head_c
     CARGO_ARGS+=(--features api-override)
 else
     log_info "Removing old Rust build artifacts..."
-    cargo +stable clean
+    cargo clean
     CARGO_ARGS+=(--locked)
 fi
 
@@ -226,7 +226,7 @@ function build {
         CARGO_TARGET_ARG+=(--target="$current_target")
     fi
 
-    cargo +stable build "${CARGO_TARGET_ARG[@]}" "${CARGO_ARGS[@]}" --release
+    cargo build "${CARGO_TARGET_ARG[@]}" "${CARGO_ARGS[@]}" --release
 
     ################################################################################
     # Move binaries to correct locations in dist-assets
@@ -266,7 +266,7 @@ if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "Linux" ]]; then
     mkdir -p "dist-assets/shell-completions"
     for sh in bash zsh fish; do
         log_info "Generating shell completion script for $sh..."
-        cargo +stable run --bin mullvad "${CARGO_ARGS[@]}" --release -- shell-completions "$sh" \
+        cargo run --bin mullvad "${CARGO_ARGS[@]}" --release -- shell-completions "$sh" \
             "dist-assets/shell-completions/"
     done
 fi

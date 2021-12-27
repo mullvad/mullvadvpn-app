@@ -56,7 +56,7 @@ if [[ "$BUILD_TYPE" == "debug" || $product_version_commit_hash != $current_head_
     echo "Modifying product version to $PRODUCT_VERSION"
 else
     echo "Removing old Rust build artifacts"
-    cargo +stable clean
+    cargo clean
     CARGO_ARGS+=" --locked"
 fi
 
@@ -117,7 +117,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     esac
 
     echo "Building mullvad-daemon for $TARGET"
-    cargo +stable build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
+    cargo build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
 
     STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/${LLVM_TRIPLE}-strip"
     STRIPPED_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"

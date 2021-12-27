@@ -59,7 +59,7 @@ echo "Syncing Cargo.lock with new version numbers"
 source env.sh ""
 # If cargo exits with a non zero exit status and it's not a timeout (exit code 124) it's an error
 set +e
-timeout 5s cargo +stable build
+timeout 5s cargo build
 if [[ $? != 0 && $? != 124 ]]; then
     exit 1
 fi
