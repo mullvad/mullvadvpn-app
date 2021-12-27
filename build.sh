@@ -130,7 +130,7 @@ elif [[ ("$(uname -s)" == "MINGW"*) ]]; then
     )
 fi
 
-function restore_metadata_backups() {
+function restore_metadata_backups {
     pushd "$SCRIPT_DIR"
     echo "Restoring version metadata files..."
     ./version-metadata.sh restore-backup --desktop
@@ -143,7 +143,7 @@ echo "Updating version in metadata files..."
 cp Cargo.lock Cargo.lock.bak
 ./version-metadata.sh inject "$PRODUCT_VERSION" --desktop
 
-function sign_win() {
+function sign_win {
     local NUM_RETRIES=3
 
     for binary in "$@"; do
@@ -170,7 +170,7 @@ function sign_win() {
     return 0
 }
 
-function build() {
+function build {
     local current_target=${1:-""}
     local for_target_string=""
     if [[ -n $current_target ]]; then
@@ -238,7 +238,7 @@ function build() {
     done
 }
 
-function buildTargets() {
+function buildTargets {
     if [[ -n ${TARGET:-""} ]]; then
         for t in ${TARGET[*]}; do
             source env.sh "$t"
