@@ -194,6 +194,8 @@ function sign_win {
     return 0
 }
 
+# Build the daemon and other Rust/C++ binaries, optionally
+# sign them, strip them of debug symbols and copy to `dist-assets/`.
 function build {
     local current_target=${1:-""}
     local for_target_string=""
