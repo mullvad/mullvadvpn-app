@@ -8,7 +8,6 @@ const { version } = require('../package.json');
 const compression = process.argv.includes('--no-compression') ? 'store' : 'normal';
 const noAppleNotarization = process.argv.includes('--no-apple-notarization');
 
-const arm64 = process.argv.includes('--arm64');
 const universal = process.argv.includes('--universal');
 
 const config = {
@@ -299,8 +298,6 @@ function root(relativePath) {
 function getMacArch() {
   if (universal) {
     return 'universal';
-  } else if (arm64) {
-    return 'arm64';
   } else {
     // Not specifying an arch makes Electron builder build for the arch it's running on.
     return undefined;

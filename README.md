@@ -310,8 +310,8 @@ Building this requires at least 1GB of memory.
 
 #### macOS
 
-By default a universal app is built on macOS. To build specifically for x86_64 or ARM64 add
-`--target x86_64-apple-darwin` or `--target aarch64-apple-darwin`.
+By default, `build.sh` produces a pkg for your current architecture only. To build a universal
+app that works on both Intel and Apple Silicon macs, build with `--universal`.
 
 ##### Apple ARM64 (aka Apple Silicon)
 

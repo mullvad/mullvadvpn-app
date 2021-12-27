@@ -26,9 +26,14 @@ while [[ "$#" -gt 0 ]]; do
         --dev-build)
             BUILD_MODE="dev"
             ;;
-        --target)
-            TARGET=("$2")
-            shift
+        --universal)
+            if [[ "$(uname -s)" == "Darwin" ]]; then
+                TARGETS=(x86_64-apple-darwin aarch64-apple-darwin)
+                NPM_PACK_ARGS+=(--universal)
+            else
+                echo "--universal only works on macOS"
+                exit 1
+            fi
             ;;
         *)
             echo "Unknown parameter: $1"
@@ -37,12 +42,6 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
 done
-
-if [[ "$(uname -s)" == "Darwin" && -z ${TARGET:-""} ]]; then
-    echo "Defaulting to universal macOS target since no target was provided"
-    TARGET=(x86_64-apple-darwin aarch64-apple-darwin)
-    NPM_PACK_ARGS+=(--universal)
-fi
 
 if [[ "$BUILD_MODE" == "release" ]]; then
     if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
@@ -97,10 +96,6 @@ else
     echo "Removing old Rust build artifacts"
     cargo +stable clean
     CARGO_ARGS+=(--locked)
-fi
-
-if [[ "${TARGET:-""}" == "aarch64-apple-darwin" ]]; then
-    NPM_PACK_ARGS+=(--arm64)
 fi
 
 if [[ ("$(uname -s)" == "Darwin") ]]; then
@@ -251,8 +246,8 @@ fi
 ./update-api-address.sh
 
 # Compile for all defined targets, or the current architecture if unspecified.
-if [[ -n ${TARGET:-""} ]]; then
-    for t in ${TARGET[*]}; do
+if [[ -n ${TARGETS:-""} ]]; then
+    for t in ${TARGETS[*]}; do
         source env.sh "$t"
         build "$t"
     done
