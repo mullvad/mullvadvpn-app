@@ -134,8 +134,8 @@ class ApplicationMain {
   private accountHistory?: AccountToken = undefined;
   private tunnelState: TunnelState = { state: 'disconnected' };
   private lastIgnoredTunnelState?: TunnelState;
-  private ignoreTunnelStatesUntil?: TunnelState['state'];
-  private ignoreTunnelStateFallbackScheduler = new Scheduler();
+  private optimisticTunnelState?: TunnelState['state'];
+  private optimisticTunnelStateFallbackScheduler = new Scheduler();
   private settings: ISettings = {
     accountToken: undefined,
     allowLan: false,
@@ -505,7 +505,11 @@ class ApplicationMain {
     this.tunnelStateExpectation = new Expectation(async () => {
       this.trayIconController = new TrayIconController(
         tray,
-        this.trayIconType(this.tunnelState, this.settings.blockWhenDisconnected),
+        this.trayIconType(
+          this.tunnelState.state,
+          this.tunnelState.state === 'error' && this.tunnelState.details.blockFailure !== undefined,
+          this.settings.blockWhenDisconnected,
+        ),
         this.guiSettings.monochromaticIcon,
       );
       await this.trayIconController.updateTheme();
@@ -700,7 +704,7 @@ class ApplicationMain {
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
 
-    this.ignoreTunnelStatesUntil = undefined;
+    this.optimisticTunnelState = undefined;
     this.lastIgnoredTunnelState = undefined;
     this.autoConnectFallbackScheduler.cancel();
 
@@ -708,7 +712,7 @@ class ApplicationMain {
       this.connectedToDaemon = false;
 
       // update the tray icon to indicate that the computer is not secure anymore
-      this.updateTrayIcon({ state: 'disconnected' }, false);
+      this.updateTrayIcon('disconnected', false, false);
 
       // notify renderer process
       if (this.windowController) {
@@ -810,11 +814,13 @@ class ApplicationMain {
     this.wireguardKeygenEventAutoConnect();
   }
 
-  private setIgnoreTunnelStatesUntil(state: TunnelState['state']) {
-    this.ignoreTunnelStatesUntil = state;
-    this.ignoreTunnelStateFallbackScheduler.schedule(() => {
+  private setOptimisticTunnelState(state: TunnelState['state']) {
+    this.updateTrayIcon(state, false, this.settings.blockWhenDisconnected);
+
+    this.optimisticTunnelState = state;
+    this.optimisticTunnelStateFallbackScheduler.schedule(() => {
       if (this.lastIgnoredTunnelState) {
-        this.ignoreTunnelStatesUntil = undefined;
+        this.optimisticTunnelState = undefined;
         this.setTunnelState(this.lastIgnoredTunnelState);
         this.lastIgnoredTunnelState = undefined;
       }
@@ -822,9 +828,10 @@ class ApplicationMain {
   }
 
   private setTunnelState(newState: TunnelState) {
-    if (this.ignoreTunnelStatesUntil) {
-      if (this.ignoreTunnelStatesUntil === newState.state) {
-        this.ignoreTunnelStatesUntil = undefined;
+    if (this.optimisticTunnelState) {
+      if (this.optimisticTunnelState === newState.state) {
+        this.optimisticTunnelStateFallbackScheduler.cancel();
+        this.optimisticTunnelState = undefined;
         this.lastIgnoredTunnelState = undefined;
       } else {
         this.lastIgnoredTunnelState = newState;
@@ -833,7 +840,11 @@ class ApplicationMain {
     }
 
     this.tunnelState = newState;
-    this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
+    this.updateTrayIcon(
+      newState.state,
+      newState.state === 'error' && newState.details.blockFailure !== undefined,
+      this.settings.blockWhenDisconnected,
+    );
 
     if (process.platform === 'linux') {
       this.tray?.setContextMenu(this.createTrayContextMenu());
@@ -859,7 +870,11 @@ class ApplicationMain {
     const oldSettings = this.settings;
     this.settings = newSettings;
 
-    this.updateTrayIcon(this.tunnelState, newSettings.blockWhenDisconnected);
+    this.updateTrayIcon(
+      this.tunnelState.state,
+      this.tunnelState.state === 'error' && this.tunnelState.details.blockFailure !== undefined,
+      newSettings.blockWhenDisconnected,
+    );
 
     // make sure to invalidate the account data cache when account tokens change
     this.updateAccountDataOnAccountChange(oldSettings.accountToken, newSettings.accountToken);
@@ -1072,8 +1087,12 @@ class ApplicationMain {
     }
   }
 
-  private trayIconType(tunnelState: TunnelState, blockWhenDisconnected: boolean): TrayIconType {
-    switch (tunnelState.state) {
+  private trayIconType(
+    state: TunnelState['state'],
+    blockFailure: boolean,
+    blockWhenDisconnected: boolean,
+  ): TrayIconType {
+    switch (state) {
       case 'connected':
         return 'secured';
 
@@ -1081,7 +1100,7 @@ class ApplicationMain {
         return 'securing';
 
       case 'error':
-        if (!tunnelState.details.blockFailure) {
+        if (!blockFailure) {
           return 'securing';
         } else {
           return 'unsecured';
@@ -1098,8 +1117,12 @@ class ApplicationMain {
     }
   }
 
-  private updateTrayIcon(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
-    const type = this.trayIconType(tunnelState, blockWhenDisconnected);
+  private updateTrayIcon(
+    state: TunnelState['state'],
+    blockFailure: boolean,
+    blockWhenDisconnected: boolean,
+  ) {
+    const type = this.trayIconType(state, blockFailure, blockWhenDisconnected);
 
     if (this.trayIconController) {
       this.trayIconController.animateToIcon(type);
@@ -1204,15 +1227,15 @@ class ApplicationMain {
     IpcMainEventChannel.location.handleGet(() => this.daemonRpc.getLocation());
 
     IpcMainEventChannel.tunnel.handleConnect(() => {
-      this.setIgnoreTunnelStatesUntil('connecting');
+      this.setOptimisticTunnelState('connecting');
       return this.daemonRpc.connectTunnel();
     });
     IpcMainEventChannel.tunnel.handleDisconnect(() => {
-      this.setIgnoreTunnelStatesUntil('disconnecting');
+      this.setOptimisticTunnelState('disconnecting');
       return this.daemonRpc.disconnectTunnel();
     });
     IpcMainEventChannel.tunnel.handleReconnect(() => {
-      this.setIgnoreTunnelStatesUntil('connecting');
+      this.setOptimisticTunnelState('connecting');
       return this.daemonRpc.reconnectTunnel();
     });
 
