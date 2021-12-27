@@ -172,7 +172,9 @@ function build {
         for_target_string=" for $current_target"
     fi
 
+    echo ""
     echo "Building Mullvad VPN $PRODUCT_VERSION$for_target_string"
+    echo ""
 
     ################################################################################
     # Compile and link all binaries.
@@ -190,6 +192,7 @@ function build {
 
     export MULLVAD_ADD_MANIFEST="1"
 
+    echo ""
     echo "Building Rust code in release mode using $RUSTC_VERSION$for_target_string..."
 
     CARGO_TARGET_ARG=()
@@ -236,6 +239,7 @@ function build {
 if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "Linux" ]]; then
     mkdir -p "dist-assets/shell-completions"
     for sh in bash zsh fish; do
+        echo ""
         echo "Generating shell completion script for $sh..."
         cargo +stable run --bin mullvad "${CARGO_ARGS[@]}" --release -- shell-completions "$sh" \
             "dist-assets/shell-completions/"
