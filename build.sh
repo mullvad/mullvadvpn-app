@@ -238,18 +238,6 @@ function build {
     done
 }
 
-function buildTargets {
-    if [[ -n ${TARGET:-""} ]]; then
-        for t in ${TARGET[*]}; do
-            source env.sh "$t"
-            build "$t"
-        done
-    else
-        source env.sh ""
-        build
-    fi
-}
-
 if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "Linux" ]]; then
     mkdir -p "dist-assets/shell-completions"
     for sh in bash zsh fish; do
@@ -262,7 +250,16 @@ fi
 ./update-relays.sh
 ./update-api-address.sh
 
-buildTargets
+# Compile for all defined targets, or the current architecture if unspecified.
+if [[ -n ${TARGET:-""} ]]; then
+    for t in ${TARGET[*]}; do
+        source env.sh "$t"
+        build "$t"
+    done
+else
+    source env.sh ""
+    build
+fi
 
 if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
     signdep=(
