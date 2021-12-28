@@ -179,7 +179,7 @@ export default class WindowController {
   }
 
   public isVisible(): boolean {
-    return this.window?.isVisible() ?? false;
+    return this.window !== undefined && this.window.isVisible() && !this.window.isMinimized();
   }
 
   public updatePosition() {
