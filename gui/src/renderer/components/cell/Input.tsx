@@ -205,7 +205,6 @@ const StyledInputWrapper = styled.div({}, (props: { marginLeft: number }) => ({
   flex: 1,
   width: '171px',
   marginLeft: props.marginLeft + 'px',
-  marginRight: '25px',
   lineHeight: '24px',
   minHeight: '24px',
   fontFamily: 'Open Sans',
@@ -229,7 +228,7 @@ const StyledTextArea = styled.textarea({}, (props: { invalid?: boolean }) => ({
   fontWeight: 'normal',
   fontSize: '16px',
   resize: 'none',
-  padding: '14px 0',
+  padding: '14px 25px 14px 0',
   color: props.invalid ? colors.red : 'auto',
 }));
 
@@ -238,6 +237,7 @@ const StyledInputFiller = styled.div({
   overflowWrap: 'break-word',
   minHeight: '24px',
   color: 'transparent',
+  marginRight: '25px',
 });
 
 interface IRowInputProps {
