@@ -71,6 +71,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix daemon not starting if all excluded app paths reside on non-existent/unmounted volumes.
 - Remove tray icon of current running app version when upgrading.
 - Allow Mullvad wireguard-nt tunnels to work simultaneously with other wg-nt tunnels.
+- Fix notifications on Windows not showing if window is unpinned and hidden.
 
 #### Android
 - Fix Quick Settings tile showing wrong state in certain scenarios.
