@@ -382,7 +382,7 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
 
 1. On Windows, make sure to start bash first (e.g., Git BASH). Then build the C++ libraries:
    ```bash
-    ./build-windows-modules.sh --dev-build
+    ./build-windows-modules.sh
    ```
 
 1. Build the system daemon plus the other Rust tools and programs:
@@ -628,8 +628,7 @@ If you're using GNOME, try installing one of these GNOME Shell extensions:
 
 ### Building, testing and misc
 - **build-windows-modules.sh** - Compiles the C++ libraries needed on Windows
-- **build.sh** - Sanity checks the working directory state and then builds release artifacts for
-  the app
+- **build.sh** - Sanity checks the working directory state and then builds installers for the app
 
 ### Mullvad Daemon
 
