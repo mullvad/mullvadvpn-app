@@ -328,10 +328,10 @@ export function RowInput(props: IRowInputProps) {
       </StyledInputWrapper>
       <StyledSubmitButton onClick={submit}>
         <ImageView
-          source="icon-tick"
+          source="icon-check"
           height={22}
-          tintColor={colors.green}
-          tintHoverColor={colors.green90}
+          tintColor={value === '' ? colors.blue60 : colors.blue}
+          tintHoverColor={value === '' ? colors.blue60 : colors.blue80}
         />
       </StyledSubmitButton>
     </StyledCellInputRowContainer>
