@@ -7,6 +7,25 @@
 
 set -eu
 
+function log {
+    local NO_COLOR="0m"
+    local msg=$1
+    local color=${2:-"$NO_COLOR"}
+    echo -e "\033[$color$msg\033[$NO_COLOR"
+}
+
+function log_header {
+    local YELLOW="33m"
+    echo ""
+    log "### $1 ###" $YELLOW
+    echo ""
+}
+
+function log_error {
+    local RED="31m"
+    log "!! $1" $RED
+}
+
 ################################################################################
 # Verify and configure environment.
 ################################################################################
@@ -31,12 +50,12 @@ while [[ "$#" -gt 0 ]]; do
                 TARGETS=(x86_64-apple-darwin aarch64-apple-darwin)
                 NPM_PACK_ARGS+=(--universal)
             else
-                echo "--universal only works on macOS"
+                log_error "--universal only works on macOS"
                 exit 1
             fi
             ;;
         *)
-            echo "Unknown parameter: $1"
+            log_error "Unknown parameter: $1"
             exit 1
             ;;
     esac
@@ -45,17 +64,16 @@ done
 
 if [[ "$BUILD_MODE" == "release" ]]; then
     if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
-        echo "Dirty working directory!"
-        echo "You should only build releases in clean working directories in order to make it"
-        echo "easier to reproduce the same build."
+        log_error "Dirty working directory!"
+        log_error "Will only build a signed app in a clean working directory"
         exit 1
     fi
 
     if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "MINGW"* ]]; then
         echo "Configuring environment for signing of binaries"
         if [[ -z ${CSC_LINK-} ]]; then
-            echo "The variable CSC_LINK is not set. It needs to point to a file containing the"
-            echo "private key used for signing of binaries."
+            log_error "The variable CSC_LINK is not set. It needs to point to a file containing the"
+            log_error "private key used for signing of binaries."
             exit 1
         fi
         if [[ -z ${CSC_KEY_PASSWORD-} ]]; then
@@ -97,6 +115,8 @@ else
     cargo +stable clean
     CARGO_ARGS+=(--locked)
 fi
+
+log_header "Building Mullvad VPN $PRODUCT_VERSION"
 
 if [[ ("$(uname -s)" == "Darwin") ]]; then
     BINARIES=(
@@ -174,10 +194,6 @@ function build {
         for_target_string=" for $current_target"
     fi
 
-    echo ""
-    echo "Building Mullvad VPN $PRODUCT_VERSION$for_target_string"
-    echo ""
-
     ################################################################################
     # Compile and link all binaries.
     ################################################################################
@@ -194,8 +210,7 @@ function build {
 
     export MULLVAD_ADD_MANIFEST="1"
 
-    echo ""
-    echo "Building Rust code in release mode using $RUSTC_VERSION$for_target_string..."
+    log_header "Building Rust code in release mode using $RUSTC_VERSION$for_target_string"
 
     CARGO_TARGET_ARG=()
     if [[ -n $current_target ]]; then
@@ -274,17 +289,17 @@ if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
     sign_win "${signdep[@]}"
 fi
 
+
+log_header "Installing JavaScript dependencies"
+
 pushd gui
-
-echo "Installing JavaScript dependencies..."
-
 npm ci
 
 ################################################################################
 # Package release.
 ################################################################################
 
-echo "Packing final release artifact..."
+log_header "Packing final release artifact(s)"
 
 case "$(uname -s)" in
     Linux*)     npm run pack:linux -- "${NPM_PACK_ARGS[@]}";;
@@ -307,11 +322,12 @@ for semver_path in dist/*"$SEMVER_VERSION"*; do
     fi
 done
 
-echo "**********************************"
-echo ""
-echo " The build finished successfully! "
-echo " You have built:"
-echo ""
-echo " $PRODUCT_VERSION"
-echo ""
-echo "**********************************"
+GREEN="32m"
+log "**********************************"    $GREEN
+log ""                                      $GREEN
+log " The build finished successfully! "    $GREEN
+log " You have built:"                      $GREEN
+log ""                                      $GREEN
+log " $PRODUCT_VERSION"                     $GREEN
+log ""                                      $GREEN
+log "**********************************"    $GREEN
