@@ -107,7 +107,12 @@ build_ref() {
       nvm install --latest-npm
   fi
 
-  ./build.sh || return 0
+  BUILD_ARGS=()
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    BUILD_ARGS+=(--universal)
+  fi
+  ./build.sh "${BUILD_ARGS[@]}" || return 0
+
   case "$(uname -s)" in
     MINGW*|MSYS_NT*)
       echo "Packaging all PDB files..."
