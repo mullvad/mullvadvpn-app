@@ -254,6 +254,7 @@ function build {
     # Move binaries to correct locations in dist-assets
     ################################################################################
 
+    # All the binaries produced by cargo that we want to include in the app
     if [[ ("$(uname -s)" == "Darwin") ]]; then
         BINARIES=(
             mullvad-daemon
@@ -282,30 +283,30 @@ function build {
     fi
 
     if [[ -n $current_target ]]; then
-        local src_dir="$CARGO_TARGET_DIR/$current_target/$RUST_BUILD_MODE"
+        local cargo_output_dir="$CARGO_TARGET_DIR/$current_target/$RUST_BUILD_MODE"
         # To make it easier to package universal builds on macOS the binaries are located in a
         # directory with the name of the target triple.
-        local dst_dir="dist-assets/$current_target"
-        mkdir -p "$dst_dir"
+        local destination_dir="dist-assets/$current_target"
+        mkdir -p "$destination_dir"
     else
-        local src_dir="$CARGO_TARGET_DIR/$RUST_BUILD_MODE"
-        local dst_dir="dist-assets"
+        local cargo_output_dir="$CARGO_TARGET_DIR/$RUST_BUILD_MODE"
+        local destination_dir="dist-assets"
     fi
 
     for binary in ${BINARIES[*]}; do
-        local src="$src_dir/$binary"
-        local dst="$dst_dir/$binary"
+        local source="$cargo_output_dir/$binary"
+        local destination="$destination_dir/$binary"
 
         if [[ "$(uname -s)" == "MINGW"* || "$binary" == *.dylib ]]; then
-            log_info "Copying $src => $dst"
-            cp "$src" "$dst"
+            log_info "Copying $source => $destination"
+            cp "$source" "$destination"
         else
-            log_info "Stripping $src => $dst"
-            strip "$src" -o "$dst"
+            log_info "Stripping $source => $destination"
+            strip "$source" -o "$destination"
         fi
 
         if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
-            sign_win "$dst"
+            sign_win "$destination"
         fi
     done
 }
