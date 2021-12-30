@@ -300,9 +300,10 @@ storePassword = keystore-password
 ### Desktop
 
 The simplest way to build the entire app and generate an installer is to just run the build script.
-`--dev-build` is added to skip some release checks and signing of the binaries:
+`--optimize` can be added to enable compiler optimizations. This will take longer to build but will
+produce a smaller installer and installed binaries:
 ```bash
-./build.sh --dev-build
+./build.sh [--optimize]
 ```
 This should produce an installer exe, pkg or rpm+deb file in the `dist/` directory.
 
