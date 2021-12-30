@@ -98,13 +98,15 @@ if [[ "$UNIVERSAL" == "true" ]]; then
     NPM_PACK_ARGS+=(--universal)
 fi
 
+# C++ is currently hardcoded to build in release mode since distribution.js is hardcoded
+# to use the DLLs from those paths. If we find value in being able to build apps with C++
+# in debug mode, we can fix this.
+CPP_BUILD_MODE="Release"
 if [[ "$OPTIMIZE" == "true" ]]; then
     CARGO_ARGS+=(--release)
     RUST_BUILD_MODE="release"
-    CPP_BUILD_MODE="Release"
 else
     RUST_BUILD_MODE="debug"
-    CPP_BUILD_MODE="Debug"
     NPM_PACK_ARGS+=(--no-compression)
 fi
 
