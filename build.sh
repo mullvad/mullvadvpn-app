@@ -200,6 +200,7 @@ function sign_win {
         # Try multiple times in case the timestamp server cannot
         # be contacted.
         for i in $(seq 0 ${NUM_RETRIES}); do
+            log_info "Signing $binary..."
             if signtool sign \
                 -tr http://timestamp.digicert.com -td sha256 \
                 -fd sha256 -d "Mullvad VPN" \
