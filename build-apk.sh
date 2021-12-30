@@ -126,8 +126,10 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     $STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 done
 
-./update-relays.sh
-./update-api-address.sh
+echo "Updating relays.json..."
+cargo run --bin relay_list $CARGO_ARGS > dist-assets/relays.json
+echo "Updating api-ip-address..."
+cargo run --bin address_cache $CARGO_ARGS > dist-assets/api-ip-address.txt
 
 cd "$SCRIPT_DIR/android"
 $GRADLE_CMD --console plain "$GRADLE_TASK"
