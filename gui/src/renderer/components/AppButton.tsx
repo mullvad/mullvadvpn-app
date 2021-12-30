@@ -1,36 +1,26 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
 import { useMounted } from '../lib/utilityHooks';
 import {
   StyledButtonContent,
+  StyledHiddenSide,
   StyledLabel,
-  StyledLabelContainer,
+  StyledLeft,
+  StyledRight,
+  StyledVisibleSide,
   transparentButton,
 } from './AppButtonStyles';
 import ImageView from './ImageView';
 
-interface IButtonContext {
-  textAdjustment: number;
-  textRef?: React.Ref<HTMLDivElement>;
-}
-
-const ButtonContext = React.createContext<IButtonContext>({
-  textAdjustment: 0,
-});
-
 interface ILabelProps {
-  children?: React.ReactText;
+  textOffset?: number;
+  children?: React.ReactNode;
 }
 
 export function Label(props: ILabelProps) {
-  const { textAdjustment, textRef } = useContext(ButtonContext);
-  return (
-    <StyledLabelContainer ref={textRef} textAdjustment={textAdjustment}>
-      <StyledLabel>{props.children}</StyledLabel>
-    </StyledLabelContainer>
-  );
+  return <StyledLabel textOffset={props.textOffset ?? 0}>{props.children}</StyledLabel>;
 }
 
 interface IIconProps {
@@ -51,55 +41,52 @@ export interface IProps extends React.HTMLAttributes<HTMLButtonElement> {
   textOffset?: number;
 }
 
+type ChildrenGroups = { left: React.ReactNode[]; label: React.ReactNode; right: React.ReactNode[] };
+
 const BaseButton = React.memo(function BaseButtonT(props: IProps) {
   const { children, textOffset, ...otherProps } = props;
 
-  const [textAdjustment, setTextAdjustment] = useState(0);
-  const buttonRef = useRef() as React.RefObject<HTMLButtonElement>;
-  const textRef = useRef() as React.RefObject<HTMLDivElement>;
-
-  const contextValue = useMemo(() => ({ textAdjustment, textRef }), [textAdjustment, textRef]);
-
-  useEffect(() => {
-    const buttonRect = buttonRef.current?.getBoundingClientRect();
-    const textRect = textRef.current?.getBoundingClientRect();
-
-    if (buttonRect && textRect) {
-      const leftDiff = textRect.left - buttonRect.left;
-
-      // calculate the remaining space at the right hand side
-      const trailingSpace = buttonRect.width - (leftDiff + textRect.width);
-
-      // calculate text adjustment
-      const textAdjustment = leftDiff - trailingSpace - (textOffset ?? 0);
-
-      // re-render the view with the new text adjustment if it changed
-      setTextAdjustment(textAdjustment);
-    }
-  });
+  const groupedChildren = useMemo(() => {
+    return React.Children.toArray(children).reduce(
+      (groups: ChildrenGroups, child) => {
+        if (groups.label === undefined && typeof child === 'string') {
+          return { ...groups, label: <Label textOffset={textOffset}>{child}</Label> };
+        } else if (React.isValidElement(child) && child.type === Label) {
+          return { ...groups, label: React.cloneElement(child, { textOffset }) };
+        } else if (groups.label === undefined) {
+          return { ...groups, left: [...groups.left, child] };
+        } else {
+          return { ...groups, right: [...groups.right, child] };
+        }
+      },
+      { left: [], label: undefined, right: [] },
+    );
+  }, [children, textOffset]);
 
   return (
-    <ButtonContext.Provider value={contextValue}>
-      <StyledSimpleButton ref={buttonRef} {...otherProps}>
-        <StyledButtonContent>
-          {React.Children.map(children, (child) =>
-            typeof child === 'string' ? <Label>{child as string}</Label> : child,
-          )}
-        </StyledButtonContent>
-      </StyledSimpleButton>
-    </ButtonContext.Provider>
+    <StyledSimpleButton {...otherProps}>
+      <StyledButtonContent>
+        <StyledLeft>
+          <StyledVisibleSide>{groupedChildren.left}</StyledVisibleSide>
+          <StyledHiddenSide>{groupedChildren.right}</StyledHiddenSide>
+        </StyledLeft>
+
+        {groupedChildren.label ?? <Label />}
+
+        <StyledRight>
+          <StyledVisibleSide>{groupedChildren.right}</StyledVisibleSide>
+          <StyledHiddenSide>{groupedChildren.left}</StyledHiddenSide>
+        </StyledRight>
+      </StyledButtonContent>
+    </StyledSimpleButton>
   );
 });
 
-function SimpleButtonT(
-  props: React.ButtonHTMLAttributes<HTMLButtonElement>,
-  ref: React.Ref<HTMLButtonElement>,
-) {
+function SimpleButtonT(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const blockingContext = useContext(BlockingContext);
 
   return (
     <button
-      ref={ref}
       {...props}
       disabled={props.disabled || blockingContext.disabled}
       onClick={blockingContext.onClick ?? props.onClick}>
@@ -108,7 +95,7 @@ function SimpleButtonT(
   );
 }
 
-export const SimpleButton = React.memo(React.forwardRef(SimpleButtonT));
+export const SimpleButton = React.memo(SimpleButtonT);
 
 const StyledSimpleButton = styled(SimpleButton)({
   display: 'flex',
