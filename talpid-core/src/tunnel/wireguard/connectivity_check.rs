@@ -3,6 +3,7 @@ use crate::{
     tunnel::wireguard::stats::StatsMap,
 };
 use std::{
+    cmp,
     net::Ipv4Addr,
     sync::{mpsc, Mutex, Weak},
     time::{Duration, Instant},
@@ -25,6 +26,12 @@ const TRAFFIC_TIMEOUT: Duration = Duration::from_secs(120);
 /// Timeout for waiting on receiving traffic after sending the first ICMP packet.  Once this
 /// timeout is reached, it is assumed that the connection is lost.
 const PING_TIMEOUT: Duration = Duration::from_secs(15);
+/// Timeout for receiving traffic when establishing a connection.
+const ESTABLISH_TIMEOUT: Duration = Duration::from_secs(4);
+/// `ESTABLISH_TIMEOUT` is multiplied by this after each failed connection attempt.
+const ESTABLISH_TIMEOUT_MULTIPLIER: u32 = 2;
+/// Maximum timeout for establishing a connection.
+const MAX_ESTABLISH_TIMEOUT: Duration = PING_TIMEOUT;
 /// Number of seconds to wait between sending ICMP packets
 const SECONDS_PER_PING: Duration = Duration::from_secs(3);
 
@@ -99,14 +106,34 @@ impl ConnectivityMonitor {
 
     // checks if the tunnel has ever worked. Intended to check if a connection to a tunnel is
     // successfull at the start of a connection.
-    pub(super) fn establish_connectivity(&mut self) -> Result<bool, Error> {
+    pub(super) fn establish_connectivity(&mut self, retry_attempt: u32) -> Result<bool, Error> {
+        self.establish_connectivity_inner(
+            retry_attempt,
+            ESTABLISH_TIMEOUT,
+            ESTABLISH_TIMEOUT_MULTIPLIER,
+            MAX_ESTABLISH_TIMEOUT,
+        )
+    }
+
+    fn establish_connectivity_inner(
+        &mut self,
+        retry_attempt: u32,
+        timeout_initial: Duration,
+        timeout_multiplier: u32,
+        max_timeout: Duration,
+    ) -> Result<bool, Error> {
         if self.conn_state.connected() {
             return Ok(true);
         }
 
+        let check_timeout = cmp::min(
+            max_timeout,
+            timeout_initial.saturating_mul(timeout_multiplier.saturating_pow(retry_attempt)),
+        );
+
         let start = Instant::now();
-        while start.elapsed() < PING_TIMEOUT {
-            if self.check_connectivity(Instant::now())? {
+        while start.elapsed() < check_timeout {
+            if self.check_connectivity_interval(Instant::now(), check_timeout)? {
                 return Ok(true);
             }
             if self.should_shut_down(DELAY_ON_INITIAL_SETUP) {
@@ -155,6 +182,15 @@ impl ConnectivityMonitor {
 
     /// Returns true if connection is established
     fn check_connectivity(&mut self, now: Instant) -> Result<bool, Error> {
+        self.check_connectivity_interval(now, PING_TIMEOUT)
+    }
+
+    /// Returns true if connection is established
+    fn check_connectivity_interval(
+        &mut self,
+        now: Instant,
+        timeout: Duration,
+    ) -> Result<bool, Error> {
         match self.get_stats() {
             None => Ok(false),
             Some(new_stats) => {
@@ -166,7 +202,7 @@ impl ConnectivityMonitor {
                 }
 
                 self.maybe_send_ping(now)?;
-                Ok(!self.ping_timed_out() && self.conn_state.connected())
+                Ok(!self.ping_timed_out(timeout) && self.conn_state.connected())
             }
         }
     }
@@ -203,9 +239,9 @@ impl ConnectivityMonitor {
         Ok(())
     }
 
-    fn ping_timed_out(&self) -> bool {
+    fn ping_timed_out(&self, timeout: Duration) -> bool {
         self.initial_ping_timestamp
-            .map(|initial_ping_timestamp| initial_ping_timestamp.elapsed() > PING_TIMEOUT)
+            .map(|initial_ping_timestamp| initial_ping_timestamp.elapsed() > timeout)
             .unwrap_or(false)
     }
 
@@ -662,7 +698,7 @@ mod test {
             let start = now - Duration::from_secs(1);
             let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, stop_rx);
 
-            let start_result = monitor.establish_connectivity();
+            let start_result = monitor.establish_connectivity(0);
             result_tx.send(start_result).unwrap();
 
             let result = monitor.run().map(|_| true);
@@ -715,7 +751,7 @@ mod test {
             let now = Instant::now();
             let start = now - Duration::from_secs(1);
             let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, stop_rx);
-            let start_result = monitor.establish_connectivity();
+            let start_result = monitor.establish_connectivity(0);
             result_tx.send(start_result).unwrap();
             let end_result = monitor.run().map(|_| true);
             result_tx.send(end_result).expect("Failed to send result");
@@ -729,5 +765,63 @@ mod test {
             .recv_timeout(BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(2))
             .unwrap()
             .is_ok());
+    }
+
+    #[test]
+    /// Verify that the timeout for setting up a tunnel works as expected.
+    fn test_establish_timeout() {
+        let mut tunnel_stats = stats::StatsMap::new();
+        tunnel_stats.insert(
+            [0u8; 32],
+            stats::Stats {
+                tx_bytes: 0,
+                rx_bytes: 0,
+            },
+        );
+
+        let pinger = MockPinger::default();
+        let (_tunnel_anchor, tunnel) =
+            MockTunnel::new(move || Ok(tunnel_stats.clone())).into_locked();
+
+        let (result_tx, result_rx) = mpsc::channel();
+
+        let (_stop_tx, stop_rx) = mpsc::channel();
+        std::thread::spawn(move || {
+            let now = Instant::now();
+            let start = now - Duration::from_secs(1);
+            let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, stop_rx);
+
+            const ESTABLISH_TIMEOUT_MULTIPLIER: u32 = 2;
+            const ESTABLISH_TIMEOUT: Duration = Duration::from_millis(500);
+            const MAX_ESTABLISH_TIMEOUT: Duration = Duration::from_secs(2);
+
+            for attempt in 0..4 {
+                result_tx
+                    .send(monitor.establish_connectivity_inner(
+                        attempt,
+                        ESTABLISH_TIMEOUT,
+                        ESTABLISH_TIMEOUT_MULTIPLIER,
+                        MAX_ESTABLISH_TIMEOUT,
+                    ))
+                    .unwrap();
+            }
+        });
+        let err = DELAY_ON_INITIAL_SETUP + Duration::from_millis(100);
+        assert!(!result_rx
+            .recv_timeout(Duration::from_millis(500) + err)
+            .unwrap()
+            .unwrap());
+        assert!(!result_rx
+            .recv_timeout(Duration::from_secs(1) + err)
+            .unwrap()
+            .unwrap());
+        assert!(!result_rx
+            .recv_timeout(Duration::from_secs(2) + err)
+            .unwrap()
+            .unwrap());
+        assert!(!result_rx
+            .recv_timeout(Duration::from_secs(2) + err)
+            .unwrap()
+            .unwrap());
     }
 }

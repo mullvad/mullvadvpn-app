@@ -106,6 +106,7 @@ impl TunnelMonitor {
         on_event: L,
         tun_provider: &mut TunProvider,
         route_manager: &mut RouteManager,
+        retry_attempt: u32,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -133,6 +134,7 @@ impl TunnelMonitor {
                 on_event,
                 tun_provider,
                 route_manager,
+                retry_attempt,
             ),
         }
     }
@@ -165,6 +167,7 @@ impl TunnelMonitor {
         on_event: L,
         tun_provider: &mut TunProvider,
         route_manager: &mut RouteManager,
+        retry_attempt: u32,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -182,6 +185,7 @@ impl TunnelMonitor {
             on_event,
             tun_provider,
             route_manager,
+            retry_attempt,
         )?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),

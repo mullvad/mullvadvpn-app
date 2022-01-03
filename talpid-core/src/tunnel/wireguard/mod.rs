@@ -168,6 +168,7 @@ impl WireguardMonitor {
         on_event: F,
         tun_provider: &mut TunProvider,
         route_manager: &mut routing::RouteManager,
+        retry_attempt: u32,
     ) -> Result<WireguardMonitor> {
         let mut tcp_proxies = vec![];
         let mut endpoint_addrs = vec![];
@@ -287,7 +288,7 @@ impl WireguardMonitor {
                 return;
             }
 
-            match connectivity_monitor.establish_connectivity() {
+            match connectivity_monitor.establish_connectivity(retry_attempt) {
                 Ok(true) => {
                     runtime.block_on((on_event)(TunnelEvent::Up(metadata)));
 
