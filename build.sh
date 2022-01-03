@@ -117,9 +117,6 @@ if [[ "$SIGN" == "true" ]]; then
         exit 1
     fi
 
-    # Will not allow an outdated lockfile when signing the build
-    CARGO_ARGS+=(--locked)
-
     if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "MINGW"* ]]; then
         log_info "Configuring environment for signing of binaries"
         if [[ -z ${CSC_LINK-} ]]; then
@@ -154,6 +151,9 @@ fi
 if [[ "$IS_RELEASE" == "true" ]]; then
     log_info "Removing old Rust build artifacts..."
     cargo clean
+
+    # Will not allow an outdated lockfile in releases
+    CARGO_ARGS+=(--locked)
 else
     PRODUCT_VERSION="$PRODUCT_VERSION-dev-${current_head_commit_hash:0:6}"
 
