@@ -92,11 +92,14 @@ export default class TransitionContainer extends React.Component<IProps, IState>
     const candidate = props.children;
 
     if (candidate && state.currentItem) {
-      // synchronize updates to the last added child.
+      // Synchronize updates to the last added child. Although the queue doesn't change, the child
+      // itself might need to change. That's why the queue-/next item is replaced by it again after
+      // calling `makeItem`.
       const itemQueueCount = state.itemQueue.length;
       const lastItemInQueue = itemQueueCount > 0 ? state.itemQueue[itemQueueCount - 1] : undefined;
 
       if (lastItemInQueue && lastItemInQueue.view.props.viewId === candidate.props.viewId) {
+        // Child is last item in queue. No change to the queue needed.
         return {
           itemQueue: [...state.itemQueue.slice(0, -1), TransitionContainer.makeItem(props)],
         };
@@ -105,18 +108,21 @@ export default class TransitionContainer extends React.Component<IProps, IState>
         state.nextItem &&
         state.nextItem.view.props.viewId === candidate.props.viewId
       ) {
+        // Child is next item, no change to the queue needed.
         return { nextItem: TransitionContainer.makeItem(props) };
       } else if (
         itemQueueCount === 0 &&
         !state.nextItem &&
         state.currentItem.view.props.viewId === candidate.props.viewId
       ) {
+        // Child is current item and there's no new child, no change to the queue needed.
         return { currentItem: TransitionContainer.makeItem(props) };
       } else {
-        // add new item
+        // Child is a new item and is added to the queue.
         return { itemQueue: [...state.itemQueue, TransitionContainer.makeItem(props)] };
       }
     } else if (candidate && !state.currentItem) {
+      // Child is set as current item if there's no item already.
       return { currentItem: TransitionContainer.makeItem(props) };
     } else {
       return null;
@@ -130,6 +136,11 @@ export default class TransitionContainer extends React.Component<IProps, IState>
       this.state.nextItemStyle &&
       this.state.nextItemTransition
     ) {
+      // Force browser reflow before starting transition. Without this animations won't run since
+      // the next view content hasn't been painted yet. It will just appear without a transition.
+      void this.nextContentRef.current?.offsetHeight;
+
+      // Start transition
       this.setState((state) => ({
         currentItemStyle: Object.assign({}, state.currentItemStyle, state.currentItemTransition),
         nextItemStyle: Object.assign({}, state.nextItemStyle, state.nextItemTransition),
