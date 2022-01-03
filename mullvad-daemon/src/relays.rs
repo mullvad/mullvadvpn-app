@@ -352,17 +352,13 @@ impl RelaySelector {
         retry_attempt: u32,
         wg_key_exists: bool,
     ) -> RelayConstraints {
-        let (preferred_port, preferred_protocol, preferred_tunnel) =
-            if bridge_state != BridgeState::On {
-                self.preferred_tunnel_constraints(
-                    retry_attempt,
-                    &original_constraints.location,
-                    &original_constraints.providers,
-                    wg_key_exists,
-                )
-            } else {
-                (Constraint::Any, TransportProtocol::Tcp, TunnelType::OpenVpn)
-            };
+        let (preferred_port, preferred_protocol, preferred_tunnel) = self
+            .preferred_tunnel_constraints(
+                retry_attempt,
+                &original_constraints.location,
+                &original_constraints.providers,
+                wg_key_exists,
+            );
 
         let mut relay_constraints = original_constraints.clone();
         relay_constraints.openvpn_constraints = Default::default();
@@ -372,9 +368,14 @@ impl RelaySelector {
         match original_constraints.tunnel_protocol {
             // If no tunnel protocol is selected, use preferred constraints
             Constraint::Any => {
-                if original_constraints.openvpn_constraints.port.is_any()
-                    || bridge_state == BridgeState::On
-                {
+                if bridge_state == BridgeState::On {
+                    relay_constraints.openvpn_constraints = OpenVpnConstraints {
+                        port: Constraint::Only(TransportPort {
+                            protocol: TransportProtocol::Tcp,
+                            port: Constraint::Any,
+                        }),
+                    };
+                } else if original_constraints.openvpn_constraints.port.is_any() {
                     relay_constraints.openvpn_constraints = OpenVpnConstraints {
                         port: Constraint::Only(TransportPort {
                             protocol: preferred_protocol,
@@ -400,7 +401,6 @@ impl RelaySelector {
                 let openvpn_constraints = &mut relay_constraints.openvpn_constraints;
                 *openvpn_constraints = original_constraints.openvpn_constraints;
                 if bridge_state == BridgeState::On && openvpn_constraints.port.is_any() {
-                    // FIXME: This is temporary while talpid-core only supports TCP proxies
                     openvpn_constraints.port = Constraint::Only(TransportPort {
                         protocol: TransportProtocol::Tcp,
                         port: Constraint::Any,
@@ -1449,6 +1449,94 @@ mod test {
                 assert_ne!(exit_relay.ipv4_addr_in, peer.endpoint.ip());
             }
         }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_bridge_constraints() -> Result<(), String> {
+        let relay_selector = new_relay_selector();
+
+        let location = LocationConstraint::Hostname(
+            "se".to_string(),
+            "got".to_string(),
+            "se-got-001".to_string(),
+        );
+        let mut relay_constraints = RelayConstraints {
+            location: Constraint::Only(location.clone()),
+            tunnel_protocol: Constraint::Any,
+            ..RelayConstraints::default()
+        };
+        relay_constraints.openvpn_constraints.port = Constraint::Only(TransportPort {
+            protocol: TransportProtocol::Udp,
+            port: Constraint::Any,
+        });
+
+        let preferred =
+            relay_selector.preferred_constraints(&relay_constraints, BridgeState::On, 0, true);
+        assert_eq!(
+            preferred.tunnel_protocol,
+            Constraint::Only(TunnelType::OpenVpn)
+        );
+        // NOTE: TCP is preferred for bridges
+        assert_eq!(
+            preferred.openvpn_constraints.port,
+            Constraint::Only(TransportPort {
+                protocol: TransportProtocol::Tcp,
+                port: Constraint::Any,
+            })
+        );
+
+        // Ignore bridge state where WireGuard is used
+        let location = LocationConstraint::Hostname(
+            "se".to_string(),
+            "got".to_string(),
+            "se10-wireguard".to_string(),
+        );
+        let relay_constraints = RelayConstraints {
+            location: Constraint::Only(location),
+            tunnel_protocol: Constraint::Any,
+            ..RelayConstraints::default()
+        };
+        let preferred =
+            relay_selector.preferred_constraints(&relay_constraints, BridgeState::On, 0, true);
+        assert_eq!(
+            preferred.tunnel_protocol,
+            Constraint::Only(TunnelType::Wireguard)
+        );
+
+        // Handle bridge setting when falling back on OpenVPN
+        let mut relay_constraints = RelayConstraints {
+            location: Constraint::Any,
+            tunnel_protocol: Constraint::Any,
+            ..RelayConstraints::default()
+        };
+        relay_constraints.openvpn_constraints.port = Constraint::Only(TransportPort {
+            protocol: TransportProtocol::Udp,
+            port: Constraint::Any,
+        });
+        #[cfg(all(unix, not(target_os = "android")))]
+        {
+            let preferred =
+                relay_selector.preferred_constraints(&relay_constraints, BridgeState::On, 0, true);
+            assert_eq!(
+                preferred.tunnel_protocol,
+                Constraint::Only(TunnelType::Wireguard)
+            );
+        }
+        let preferred =
+            relay_selector.preferred_constraints(&relay_constraints, BridgeState::On, 2, true);
+        assert_eq!(
+            preferred.tunnel_protocol,
+            Constraint::Only(TunnelType::OpenVpn)
+        );
+        assert_eq!(
+            preferred.openvpn_constraints.port,
+            Constraint::Only(TransportPort {
+                protocol: TransportProtocol::Tcp,
+                port: Constraint::Any,
+            })
+        );
 
         Ok(())
     }

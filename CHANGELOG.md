@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 - Update Electron from 15.0.0 to 16.0.4.
 - Gradually increase the WireGuard connectivity check timeout, lowering the timeout for the first
   few attempts.
+- Stop preferring OpenVPN when bridge mode is enabled.
 
 #### Android
 - Avoid running in foreground when not connected.
