@@ -9,18 +9,16 @@ CPP_BUILD_MODES=${CPP_BUILD_MODES:-"Debug"}
 # Common platforms include "x86" and "x64".
 CPP_BUILD_TARGETS=${CPP_BUILD_TARGETS:-"x64"}
 
-if [[ "${1:-""}" == "--dev-build" ]]; then
-    DEV_BUILD=true
-fi
+IS_RELEASE=${IS_RELEASE:-"false"}
 
 function clean_solution {
     local path="$1"
 
-    if [[ -z ${DEV_BUILD+x} ]]; then
+    if [[ "$IS_RELEASE" == "true" ]]; then
         # Clean all intermediate and output files
         rm -r "${path:?}/bin/"* || true
     else
-        echo "Will NOT clean intermediate files in $path/bin/"
+        echo "Will NOT clean intermediate files in $path/bin/ in dev builds"
     fi
 }
 

@@ -29,8 +29,6 @@ on:
             - integration-tests.sh
             - prepare-release.sh
             - rustfmt.toml
-            - update-api-address.sh
-            - update-relays.sh
             - version-metadata.sh
     # Build if requested manually from the Actions tab
     workflow_dispatch:

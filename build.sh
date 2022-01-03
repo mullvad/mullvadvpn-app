@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-# This script is used to build, and sign a release artifact. See `README.md` for further
-# instructions.
-#
-# Invoke the script with --dev-build in order to skip checks, cleaning and signing.
+# This script is used to build, and optionally sign the app.
+# See `README.md` for further instructions.
 
 set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
 
 function log {
     local NO_COLOR="0m"
@@ -36,33 +37,34 @@ function log_info {
     log "$1" $BOLD
 }
 
+
 ################################################################################
-# Verify and configure environment.
+# Analyze environment and parse arguments
 ################################################################################
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR"
-RUSTC_VERSION=$(rustc +stable --version)
-PRODUCT_VERSION=$(node -p "require('./gui/package.json').version" | sed -Ee 's/\.0//g')
+RUSTC_VERSION=$(rustc --version)
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 
-CARGO_ARGS=()
-NPM_PACK_ARGS=()
+PRODUCT_VERSION=$(node -p "require('./gui/package.json').version" | sed -Ee 's/\.0//g')
 
-BUILD_MODE="release"
+# If compiler optimization and artifact compression should be turned on or not
+OPTIMIZE="false"
+# If the produced binaries should be signed (Windows + macOS only)
+SIGN="false"
+# If a macOS build should create an installer artifact working on both
+# Intel and Apple Silicon Macs
+UNIVERSAL="false"
+
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --dev-build)
-            BUILD_MODE="dev"
-            ;;
+        --optimize) OPTIMIZE="true";;
+        --sign)     SIGN="true";;
         --universal)
-            if [[ "$(uname -s)" == "Darwin" ]]; then
-                TARGETS=(x86_64-apple-darwin aarch64-apple-darwin)
-                NPM_PACK_ARGS+=(--universal)
-            else
+            if [[ "$(uname -s)" != "Darwin" ]]; then
                 log_error "--universal only works on macOS"
                 exit 1
             fi
+            UNIVERSAL="true"
             ;;
         *)
             log_error "Unknown parameter: $1"
@@ -72,7 +74,43 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-if [[ "$BUILD_MODE" == "release" ]]; then
+# Check if we are a building a release. Meaning we are configured to build with optimizations,
+# sign the artifacts, AND we are currently building on a release git tag.
+# Everything that is not a release build is called a "dev build" and has "-dev-{commit hash}"
+# appended to the version name.
+IS_RELEASE="false"
+product_version_commit_hash=$(git rev-parse "$PRODUCT_VERSION^{commit}" || echo "")
+current_head_commit_hash=$(git rev-parse "HEAD^{commit}")
+if [[ "$SIGN" == "true" && "$OPTIMIZE" == "true" && \
+      $product_version_commit_hash == "$current_head_commit_hash" ]]; then
+    IS_RELEASE="true"
+fi
+
+################################################################################
+# Configure build
+################################################################################
+
+CARGO_ARGS=()
+NPM_PACK_ARGS=()
+
+if [[ "$UNIVERSAL" == "true" ]]; then
+    TARGETS=(x86_64-apple-darwin aarch64-apple-darwin)
+    NPM_PACK_ARGS+=(--universal)
+fi
+
+# C++ is currently hardcoded to build in release mode since distribution.js is hardcoded
+# to use the DLLs from those paths. If we find value in being able to build apps with C++
+# in debug mode, we can fix this.
+CPP_BUILD_MODE="Release"
+if [[ "$OPTIMIZE" == "true" ]]; then
+    CARGO_ARGS+=(--release)
+    RUST_BUILD_MODE="release"
+else
+    RUST_BUILD_MODE="debug"
+    NPM_PACK_ARGS+=(--no-compression)
+fi
+
+if [[ "$SIGN" == "true" ]]; then
     if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
         log_error "Dirty working directory!"
         log_error "Will only build a signed app in a clean working directory"
@@ -105,61 +143,47 @@ if [[ "$BUILD_MODE" == "release" ]]; then
         export CSC_IDENTITY_AUTO_DISCOVERY=false
     fi
 else
-    NPM_PACK_ARGS+=(--no-compression)
-    log_info "!! Development build. Not for general distribution !!"
+    log_info "!! Unsigned build. Not for general distribution !!"
     unset CSC_LINK CSC_KEY_PASSWORD
     export CSC_IDENTITY_AUTO_DISCOVERY=false
 fi
 
-product_version_commit_hash=$(git rev-parse "$PRODUCT_VERSION^{commit}" || echo "")
-current_head_commit_hash=$(git rev-parse "HEAD^{commit}")
-if [[ "$BUILD_MODE" == "dev" || $product_version_commit_hash != "$current_head_commit_hash" ]]; then
+if [[ "$IS_RELEASE" == "true" ]]; then
+    log_info "Removing old Rust build artifacts..."
+    cargo clean
+
+    # Will not allow an outdated lockfile in releases
+    CARGO_ARGS+=(--locked)
+else
     PRODUCT_VERSION="$PRODUCT_VERSION-dev-${current_head_commit_hash:0:6}"
 
-    log_info "Disabling Apple notarization (macOS only) of installer in this dev build"
-    NPM_PACK_ARGS+=(--no-apple-notarization)
+    # Allow dev builds to override which API server to use at runtime.
     CARGO_ARGS+=(--features api-override)
-else
-    log_info "Removing old Rust build artifacts..."
-    cargo +stable clean
-    CARGO_ARGS+=(--locked)
+
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        log_info "Disabling Apple notarization of installer in dev build"
+        NPM_PACK_ARGS+=(--no-apple-notarization)
+    fi
 fi
+
+# Make Windows builds include a manifest in the daemon binary declaring it must
+# be run as admin.
+if [[ "$(uname -s)" == "MINGW"* ]]; then
+    export MULLVAD_ADD_MANIFEST="1"
+fi
+
+################################################################################
+# Compile and build
+################################################################################
 
 log_header "Building Mullvad VPN $PRODUCT_VERSION"
 
-if [[ ("$(uname -s)" == "Darwin") ]]; then
-    BINARIES=(
-        mullvad-daemon
-        mullvad
-        mullvad-problem-report
-        libtalpid_openvpn_plugin.dylib
-        mullvad-setup
-    )
-elif [[ ("$(uname -s)" == "Linux") ]]; then
-    BINARIES=(
-        mullvad-daemon
-        mullvad
-        mullvad-problem-report
-        libtalpid_openvpn_plugin.so
-        mullvad-setup
-        mullvad-exclude
-    )
-elif [[ ("$(uname -s)" == "MINGW"*) ]]; then
-    BINARIES=(
-        mullvad-daemon.exe
-        mullvad.exe
-        mullvad-problem-report.exe
-        talpid_openvpn_plugin.dll
-        mullvad-setup.exe
-    )
-fi
-
 function restore_metadata_backups {
-    pushd "$SCRIPT_DIR"
+    pushd "$SCRIPT_DIR" > /dev/null
     log_info "Restoring version metadata files..."
     ./version-metadata.sh restore-backup --desktop
     mv Cargo.lock.bak Cargo.lock || true
-    popd
+    popd > /dev/null
 }
 trap 'restore_metadata_backups' EXIT
 
@@ -167,6 +191,8 @@ log_info "Updating version in metadata files..."
 cp Cargo.lock Cargo.lock.bak
 ./version-metadata.sh inject "$PRODUCT_VERSION" --desktop
 
+
+# Sign all binaries passed as arguments to this function
 function sign_win {
     local NUM_RETRIES=3
 
@@ -174,6 +200,7 @@ function sign_win {
         # Try multiple times in case the timestamp server cannot
         # be contacted.
         for i in $(seq 0 ${NUM_RETRIES}); do
+            log_info "Signing $binary..."
             if signtool sign \
                 -tr http://timestamp.digicert.com -td sha256 \
                 -fd sha256 -d "Mullvad VPN" \
@@ -207,72 +234,99 @@ function build {
     # Compile and link all binaries.
     ################################################################################
 
-    if [[ "$(uname -s)" == "MINGW"* ]]; then
-        CPP_BUILD_MODES="Release" ./build-windows-modules.sh "$@"
-    fi
-
-    ################################################################################
-    # Compile wireguard-go
-    ################################################################################
+    log_header "Building wireguard-go$for_target_string"
 
     ./wireguard/build-wireguard-go.sh "$current_target"
-
-    export MULLVAD_ADD_MANIFEST="1"
-
-    log_header "Building Rust code in release mode using $RUSTC_VERSION$for_target_string"
-
-    CARGO_TARGET_ARG=()
-    if [[ -n $current_target ]]; then
-        CARGO_TARGET_ARG+=(--target="$current_target")
+    if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
+        # Windows can only be built for this one target anyway, so it can be hardcoded.
+        sign_win "build/lib/x86_64-pc-windows-msvc/libwg.dll"
     fi
 
-    cargo +stable build "${CARGO_TARGET_ARG[@]}" "${CARGO_ARGS[@]}" --release
+    log_header "Building Rust code in $RUST_BUILD_MODE mode using $RUSTC_VERSION$for_target_string"
+
+    local cargo_target_arg=()
+    if [[ -n $current_target ]]; then
+        cargo_target_arg+=(--target="$current_target")
+    fi
+    cargo build "${cargo_target_arg[@]}" "${CARGO_ARGS[@]}"
 
     ################################################################################
     # Move binaries to correct locations in dist-assets
     ################################################################################
 
-    for binary in ${BINARIES[*]}; do
-        if [[ -n $current_target ]]; then
-            SRC="$CARGO_TARGET_DIR/$current_target/release/$binary"
-        else
-            SRC="$CARGO_TARGET_DIR/release/$binary"
-        fi
-        if [[ "$(uname -s)" == "Darwin" ]]; then
-            # To make it easier to package universal builds on macOS the binaries are located in a
-            # directory with the name of the target triple.
-            DST_DIR="dist-assets/$current_target"
-            DST="$DST_DIR/$binary"
-            mkdir -p "$DST_DIR"
-        else
-            DST="dist-assets/$binary"
-        fi
+    # All the binaries produced by cargo that we want to include in the app
+    if [[ ("$(uname -s)" == "Darwin") ]]; then
+        BINARIES=(
+            mullvad-daemon
+            mullvad
+            mullvad-problem-report
+            libtalpid_openvpn_plugin.dylib
+            mullvad-setup
+        )
+    elif [[ ("$(uname -s)" == "Linux") ]]; then
+        BINARIES=(
+            mullvad-daemon
+            mullvad
+            mullvad-problem-report
+            libtalpid_openvpn_plugin.so
+            mullvad-setup
+            mullvad-exclude
+        )
+    elif [[ ("$(uname -s)" == "MINGW"*) ]]; then
+        BINARIES=(
+            mullvad-daemon.exe
+            mullvad.exe
+            mullvad-problem-report.exe
+            talpid_openvpn_plugin.dll
+            mullvad-setup.exe
+        )
+    fi
 
-        if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
-            sign_win "$SRC"
-        fi
+    if [[ -n $current_target ]]; then
+        local cargo_output_dir="$CARGO_TARGET_DIR/$current_target/$RUST_BUILD_MODE"
+        # To make it easier to package universal builds on macOS the binaries are located in a
+        # directory with the name of the target triple.
+        local destination_dir="dist-assets/$current_target"
+        mkdir -p "$destination_dir"
+    else
+        local cargo_output_dir="$CARGO_TARGET_DIR/$RUST_BUILD_MODE"
+        local destination_dir="dist-assets"
+    fi
+
+    for binary in ${BINARIES[*]}; do
+        local source="$cargo_output_dir/$binary"
+        local destination="$destination_dir/$binary"
 
         if [[ "$(uname -s)" == "MINGW"* || "$binary" == *.dylib ]]; then
-            log_info "Copying $SRC => $DST"
-            cp "$SRC" "$DST"
+            log_info "Copying $source => $destination"
+            cp "$source" "$destination"
         else
-            log_info "Stripping $SRC => $DST"
-            strip "$SRC" -o "$DST"
+            log_info "Stripping $source => $destination"
+            strip "$source" -o "$destination"
+        fi
+
+        if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
+            sign_win "$destination"
         fi
     done
 }
 
-if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "Linux" ]]; then
-    mkdir -p "dist-assets/shell-completions"
-    for sh in bash zsh fish; do
-        log_info "Generating shell completion script for $sh..."
-        cargo +stable run --bin mullvad "${CARGO_ARGS[@]}" --release -- shell-completions "$sh" \
-            "dist-assets/shell-completions/"
-    done
-fi
+if [[ "$(uname -s)" == "MINGW"* ]]; then
+    log_header "Building C++ code in $CPP_BUILD_MODE mode"
+    CPP_BUILD_MODES=$CPP_BUILD_MODE IS_RELEASE=$IS_RELEASE ./build-windows-modules.sh
 
-./update-relays.sh
-./update-api-address.sh
+    if [[ "$SIGN" == "true" ]]; then
+        signdep=(
+            windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll
+            windows/windns/bin/x64-$CPP_BUILD_MODE/windns.dll
+            windows/winnet/bin/x64-$CPP_BUILD_MODE/winnet.dll
+            windows/driverlogic/bin/x64-$CPP_BUILD_MODE/driverlogic.exe
+            # The nsis plugin is always built in 32 bit release mode
+            windows/nsis-plugins/bin/Win32-Release/*.dll
+        )
+        sign_win "${signdep[@]}"
+    fi
+fi
 
 # Compile for all defined targets, or the current architecture if unspecified.
 if [[ -n ${TARGETS:-""} ]]; then
@@ -285,17 +339,25 @@ else
     build
 fi
 
-if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
-    signdep=(
-        windows/winfw/bin/x64-Release/winfw.dll
-        windows/windns/bin/x64-Release/windns.dll
-        windows/winnet/bin/x64-Release/winnet.dll
-        windows/driverlogic/bin/x64-Release/driverlogic.exe
-        windows/nsis-plugins/bin/Win32-Release/*.dll
-        build/lib/x86_64-pc-windows-msvc/libwg.dll
-    )
-    sign_win "${signdep[@]}"
+################################################################################
+# Package app.
+################################################################################
+
+log_header "Preparing for packaging Mullvad VPN $PRODUCT_VERSION"
+
+if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "Linux" ]]; then
+    mkdir -p "dist-assets/shell-completions"
+    for sh in bash zsh fish; do
+        log_info "Generating shell completion script for $sh..."
+        cargo run --bin mullvad "${CARGO_ARGS[@]}" -- shell-completions "$sh" \
+            "dist-assets/shell-completions/"
+    done
 fi
+
+log_info "Updating relays.json..."
+cargo run --bin relay_list "${CARGO_ARGS[@]}" > dist-assets/relays.json
+log_info "Updating api-ip-address..."
+cargo run --bin address_cache "${CARGO_ARGS[@]}" > dist-assets/api-ip-address.txt
 
 
 log_header "Installing JavaScript dependencies"
@@ -303,11 +365,7 @@ log_header "Installing JavaScript dependencies"
 pushd gui
 npm ci
 
-################################################################################
-# Package release.
-################################################################################
-
-log_header "Packing final release artifact(s)"
+log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
 
 case "$(uname -s)" in
     Linux*)     npm run pack:linux -- "${NPM_PACK_ARGS[@]}";;
@@ -323,13 +381,11 @@ for semver_path in dist/*"$SEMVER_VERSION"*; do
     log_info "Moving $semver_path -> $product_path"
     mv "$semver_path" "$product_path"
 
-    if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* && "$product_path" == *.exe ]]
-    then
+    if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* && "$product_path" == *.exe ]]; then
         # sign installer
         sign_win "$product_path"
     fi
 done
-
 
 log_success "**********************************"
 log_success ""

@@ -107,7 +107,7 @@ build_ref() {
       nvm install --latest-npm
   fi
 
-  BUILD_ARGS=()
+  BUILD_ARGS=(--optimize --sign)
   if [[ "$(uname -s)" == "Darwin" ]]; then
     BUILD_ARGS+=(--universal)
   fi

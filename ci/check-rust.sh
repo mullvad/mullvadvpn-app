@@ -10,7 +10,7 @@ export RUSTFLAGS="--deny warnings"
 # Build Windows modules
 case "$(uname -s)" in
   MINGW*|MSYS_NT*)
-    time ./build-windows-modules.sh --dev-build
+    time ./build-windows-modules.sh
     ;;
 esac
 

@@ -56,7 +56,7 @@ if [[ "$BUILD_TYPE" == "debug" || $product_version_commit_hash != $current_head_
     echo "Modifying product version to $PRODUCT_VERSION"
 else
     echo "Removing old Rust build artifacts"
-    cargo +stable clean
+    cargo clean
     CARGO_ARGS+=" --locked"
 fi
 
@@ -117,7 +117,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     esac
 
     echo "Building mullvad-daemon for $TARGET"
-    cargo +stable build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
+    cargo build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
 
     STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/${LLVM_TRIPLE}-strip"
     STRIPPED_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
@@ -126,8 +126,10 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     $STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 done
 
-./update-relays.sh
-./update-api-address.sh
+echo "Updating relays.json..."
+cargo run --bin relay_list $CARGO_ARGS > dist-assets/relays.json
+echo "Updating api-ip-address..."
+cargo run --bin address_cache $CARGO_ARGS > dist-assets/api-ip-address.txt
 
 cd "$SCRIPT_DIR/android"
 $GRADLE_CMD --console plain "$GRADLE_TASK"
