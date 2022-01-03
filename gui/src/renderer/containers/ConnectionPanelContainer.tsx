@@ -19,6 +19,22 @@ function tunnelEndpointToRelayInAddress(tunnelEndpoint: ITunnelEndpoint): IInAdd
   };
 }
 
+function tunnelEndpointToEntryLocationInAddress(
+  tunnelEndpoint: ITunnelEndpoint,
+): IInAddress | undefined {
+  if (!tunnelEndpoint.entryEndpoint) {
+    return undefined;
+  }
+
+  const socketAddr = parseSocketAddress(tunnelEndpoint.entryEndpoint.address);
+  return {
+    ip: socketAddr.host,
+    port: socketAddr.port,
+    protocol: tunnelEndpoint.entryEndpoint.transportProtocol,
+    tunnelType: tunnelEndpoint.tunnelType,
+  };
+}
+
 function tunnelEndpointToBridgeData(endpoint: ITunnelEndpoint): IBridgeData | undefined {
   if (!endpoint.proxy) {
     return undefined;
@@ -46,6 +62,11 @@ const mapStateToProps = (state: IReduxState) => {
       ? tunnelEndpointToRelayInAddress(status.details.endpoint)
       : undefined;
 
+  const entryLocationInAddress: IInAddress | undefined =
+    (status.state === 'connecting' || status.state === 'connected') && status.details
+      ? tunnelEndpointToEntryLocationInAddress(status.details.endpoint)
+      : undefined;
+
   const bridgeInfo: IBridgeData | undefined =
     (status.state === 'connecting' || status.state === 'connected') && status.details
       ? tunnelEndpointToBridgeData(status.details.endpoint)
@@ -55,7 +76,9 @@ const mapStateToProps = (state: IReduxState) => {
     isOpen: state.userInterface.connectionPanelVisible,
     hostname: state.connection.hostname,
     bridgeHostname: state.connection.bridgeHostname,
+    entryHostname: state.connection.entryHostname,
     inAddress,
+    entryLocationInAddress,
     bridgeInfo,
     outAddress,
   };

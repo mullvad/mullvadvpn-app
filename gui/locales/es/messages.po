@@ -261,7 +261,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Atención: Si activa esta opción, se exigirá siempre el uso de una conexión de Mullvad VPN para conectarse a Internet."
 
-msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "Habilitar de todos modos"
 
@@ -437,10 +436,10 @@ msgstr "¡Ya está!"
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
 #. %(relay)s - the relay hostname
-#. %(bridge)s - the bridge hostname
+#. %(entry)s - the entry relay hostname
 msgctxt "connection-info"
-msgid "%(relay)s via %(bridge)s"
-msgstr "%(relay)s a través de %(bridge)s"
+msgid "%(relay)s via %(entry)s"
+msgstr "%(relay)s a través de %(entry)s"
 
 #. The tunnel type line displayed below the hostname line on the main screen
 #. Available placeholders:
@@ -924,11 +923,11 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "Seleccionar idioma"
 
-msgctxt "select-location-nav"
+msgctxt "select-location-view"
 msgid "Entry"
 msgstr "Entrada"
 
-msgctxt "select-location-nav"
+msgctxt "select-location-view"
 msgid "Exit"
 msgstr "Salida"
 

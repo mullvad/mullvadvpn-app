@@ -3,6 +3,7 @@ import {
   IOpenVpnConstraints,
   IpVersion,
   IWireguardConstraints,
+  RelayLocation,
   RelayProtocol,
   RelaySettingsNormalUpdate,
   RelaySettingsUpdate,
@@ -23,6 +24,8 @@ interface IOpenVPNConfigurator {
 interface IWireguardConfigurator {
   port: IExactOrAny<number, IWireguardConfigurator>;
   ipVersion: IExactOrAny<IpVersion, IWireguardConfigurator>;
+  useMultihop: (value: boolean) => IWireguardConfigurator;
+  entryLocation: IExactOrAny<RelayLocation, IWireguardConfigurator>;
 }
 
 interface ITunnelProtocolConfigurator {
@@ -134,6 +137,22 @@ class NormalRelaySettingsBuilder {
             };
             return {
               exact: (value: IpVersion) => apply({ only: value }),
+              any: () => apply('any'),
+            };
+          },
+          get useMultihop() {
+            return (useMultihop: boolean) => {
+              updateWireguard({ useMultihop });
+              return this;
+            };
+          },
+          get entryLocation() {
+            const apply = (entryLocation: Constraint<RelayLocation> | undefined) => {
+              updateWireguard({ entryLocation });
+              return this;
+            };
+            return {
+              exact: (entryLocation: RelayLocation) => apply({ only: entryLocation }),
               any: () => apply('any'),
             };
           },

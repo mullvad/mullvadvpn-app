@@ -11,6 +11,7 @@ import {
 } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { default as ConnectionPanelDisclosure } from '../components/ConnectionPanelDisclosure';
+import Marquee from './Marquee';
 
 export interface IEndpoint {
   ip: string;
@@ -35,7 +36,9 @@ interface IProps {
   isOpen: boolean;
   hostname?: string;
   bridgeHostname?: string;
+  entryHostname?: string;
   inAddress?: IInAddress;
+  entryLocationInAddress?: IInAddress;
   bridgeInfo?: IBridgeData;
   outAddress?: IOutAddress;
   onToggle: () => void;
@@ -72,15 +75,15 @@ const Header = styled.div({
 
 export default class ConnectionPanel extends React.Component<IProps> {
   public render() {
-    const { inAddress, outAddress, bridgeInfo } = this.props;
-    const entryPoint = bridgeInfo && inAddress ? bridgeInfo : inAddress;
+    const { outAddress } = this.props;
+    const entryPoint = this.getEntryPoint();
 
     return (
       <div className={this.props.className}>
         {this.props.hostname && (
           <Header>
             <ConnectionPanelDisclosure pointsUp={this.props.isOpen} onToggle={this.props.onToggle}>
-              {this.hostnameLine()}
+              <Marquee>{this.hostnameLine()}</Marquee>
             </ConnectionPanelDisclosure>
           </Header>
         )}
@@ -117,17 +120,34 @@ export default class ConnectionPanel extends React.Component<IProps> {
     );
   }
 
+  private getEntryPoint() {
+    const { inAddress, entryLocationInAddress, bridgeInfo } = this.props;
+
+    if (entryLocationInAddress && inAddress) {
+      return entryLocationInAddress;
+    } else if (bridgeInfo && inAddress) {
+      return bridgeInfo;
+    } else {
+      return inAddress;
+    }
+  }
+
   private hostnameLine() {
     if (this.props.hostname && this.props.bridgeHostname) {
+      return sprintf(messages.pgettext('connection-info', '%(relay)s via %(entry)s'), {
+        relay: this.props.hostname,
+        entry: this.props.bridgeHostname,
+      });
+    } else if (this.props.hostname && this.props.entryHostname) {
       return sprintf(
         // TRANSLATORS: The hostname line displayed below the country on the main screen
         // TRANSLATORS: Available placeholders:
         // TRANSLATORS: %(relay)s - the relay hostname
-        // TRANSLATORS: %(bridge)s - the bridge hostname
-        messages.pgettext('connection-info', '%(relay)s via %(bridge)s'),
+        // TRANSLATORS: %(entry)s - the entry relay hostname
+        messages.pgettext('connection-info', '%(relay)s via %(entry)s'),
         {
           relay: this.props.hostname,
-          bridge: this.props.bridgeHostname,
+          entry: this.props.entryHostname,
         },
       );
     } else {

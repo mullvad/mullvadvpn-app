@@ -6,13 +6,15 @@ import ImageView from './ImageView';
 const Container = styled.div({
   display: 'flex',
   alignItems: 'center',
+  width: '100%',
 });
 
-const Caption = styled.span((props: { open: boolean }) => ({
+const Caption = styled.span({}, (props: { open: boolean }) => ({
   fontFamily: 'Open Sans',
   fontSize: '15px',
   fontWeight: 600,
   lineHeight: '20px',
+  minWidth: '0px',
   color: props.open ? colors.white : colors.white40,
   [Container + ':hover &']: {
     color: colors.white,
@@ -28,7 +30,7 @@ const Chevron = styled(ImageView)({
 interface IProps {
   pointsUp: boolean;
   onToggle?: () => void;
-  children: React.ReactText;
+  children: React.ReactNode;
   className?: string;
 }
 

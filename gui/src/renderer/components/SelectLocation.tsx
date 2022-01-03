@@ -1,16 +1,19 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
-import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
+import { LiftedConstraint, RelayLocation, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
-import { LocationScope } from '../redux/userinterface/reducers';
 import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
 import { CustomScrollbarsRef } from './CustomScrollbars';
-import ExitLocations from './ExitLocations';
+import { EntryLocations, ExitLocations } from './Locations';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
-import LocationList, { LocationSelection, LocationSelectionType } from './LocationList';
+import LocationList, {
+  DisabledReason,
+  LocationSelection,
+  LocationSelectionType,
+} from './LocationList';
 import {
   CloseBarItem,
   NavigationBar,
@@ -37,25 +40,33 @@ import {
 import { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
 interface IProps {
-  locationScope: LocationScope;
+  locale: string;
   selectedExitLocation?: RelayLocation;
+  selectedEntryLocation?: RelayLocation;
   selectedBridgeLocation?: LiftedConstraint<RelayLocation>;
   relayLocations: IRelayLocationRedux[];
   bridgeLocations: IRelayLocationRedux[];
-  allowBridgeSelection: boolean;
+  allowEntrySelection: boolean;
+  tunnelProtocol: LiftedConstraint<TunnelProtocol>;
   providers: string[];
   onClose: () => void;
   onViewFilterByProvider: () => void;
-  onChangeLocationScope: (location: LocationScope) => void;
   onSelectExitLocation: (location: RelayLocation) => void;
+  onSelectEntryLocation: (location: RelayLocation) => void;
   onSelectBridgeLocation: (location: RelayLocation) => void;
   onSelectClosestToExit: () => void;
   onClearProviders: () => void;
 }
 
+enum LocationScope {
+  entry = 0,
+  exit,
+}
+
 interface IState {
   showFilterMenu: boolean;
   headingHeight: number;
+  locationScope: LocationScope;
 }
 
 interface ISelectLocationSnapshot {
@@ -64,17 +75,19 @@ interface ISelectLocationSnapshot {
 }
 
 export default class SelectLocation extends React.Component<IProps, IState> {
-  public state = { showFilterMenu: false, headingHeight: 0 };
+  public state = { showFilterMenu: false, headingHeight: 0, locationScope: LocationScope.exit };
 
   private scrollView = React.createRef<CustomScrollbarsRef>();
   private spacePreAllocationViewRef = React.createRef<SpacePreAllocationView>();
   private selectedExitLocationRef = React.createRef<React.ReactInstance>();
+  private selectedEntryLocationRef = React.createRef<React.ReactInstance>();
   private selectedBridgeLocationRef = React.createRef<React.ReactInstance>();
 
   private exitLocationList = React.createRef<LocationList<never>>();
+  private entryLocationList = React.createRef<LocationList<never>>();
   private bridgeLocationList = React.createRef<LocationList<SpecialBridgeLocationType>>();
 
-  private snapshotByScope: { [index: number]: ISelectLocationSnapshot } = {};
+  private snapshotByScope: Partial<Record<LocationScope, ISelectLocationSnapshot>> = {};
 
   private filterButtonRef = React.createRef<HTMLDivElement>();
   private headerRef = React.createRef<HTMLHeadingElement>();
@@ -87,25 +100,25 @@ export default class SelectLocation extends React.Component<IProps, IState> {
   }
 
   public componentDidUpdate(
-    prevProps: IProps,
-    _prevState: unknown,
+    _prevProps: IProps,
+    prevState: IState,
     snapshot?: ISelectLocationSnapshot,
   ) {
-    if (this.props.locationScope !== prevProps.locationScope) {
-      this.restoreScrollPosition(this.props.locationScope);
+    if (this.state.locationScope !== prevState.locationScope) {
+      this.restoreScrollPosition(this.state.locationScope);
 
       if (snapshot) {
-        this.snapshotByScope[prevProps.locationScope] = snapshot;
+        this.snapshotByScope[prevState.locationScope] = snapshot;
       }
     }
   }
 
-  public getSnapshotBeforeUpdate(prevProps: IProps): ISelectLocationSnapshot | undefined {
+  public getSnapshotBeforeUpdate(
+    prevProps: IProps,
+    prevState: IState,
+  ): ISelectLocationSnapshot | undefined {
     const scrollView = this.scrollView.current;
-    const locationList =
-      prevProps.locationScope === LocationScope.relay
-        ? this.exitLocationList.current
-        : this.bridgeLocationList.current;
+    const locationList = this.getLocationListRef(prevProps, prevState);
 
     if (scrollView && locationList) {
       return {
@@ -164,13 +177,7 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                         messages.pgettext('select-location-view', 'Select location')
                       }
                     </HeaderTitle>
-                    <HeaderSubTitle>
-                      {this.props.allowBridgeSelection &&
-                        messages.pgettext(
-                          'select-location-view',
-                          'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
-                        )}
-                    </HeaderSubTitle>
+                    {this.renderHeaderSubtitle()}
                   </StyledSettingsHeader>
 
                   {this.props.providers.length > 0 && (
@@ -200,45 +207,21 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                       </StyledProvidersCount>
                     </StyledProviderCountRow>
                   )}
-                  {this.props.allowBridgeSelection && (
+                  {this.props.allowEntrySelection && (
                     <StyledScopeBar
-                      defaultSelectedIndex={this.props.locationScope}
-                      onChange={this.props.onChangeLocationScope}>
+                      defaultSelectedIndex={this.state.locationScope}
+                      onChange={this.onChangeLocationScope}>
                       <ScopeBarItem>
-                        {messages.pgettext('select-location-nav', 'Entry')}
+                        {messages.pgettext('select-location-view', 'Entry')}
                       </ScopeBarItem>
                       <ScopeBarItem>
-                        {messages.pgettext('select-location-nav', 'Exit')}
+                        {messages.pgettext('select-location-view', 'Exit')}
                       </ScopeBarItem>
                     </StyledScopeBar>
                   )}
                 </StyledNavigationBarAttachment>
 
-                <StyledContent>
-                  {this.props.locationScope === LocationScope.relay ? (
-                    <ExitLocations
-                      ref={this.exitLocationList}
-                      source={this.props.relayLocations}
-                      defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
-                      selectedValue={this.props.selectedExitLocation}
-                      selectedElementRef={this.selectedExitLocationRef}
-                      onSelect={this.onSelectExitLocation}
-                      onWillExpand={this.onWillExpand}
-                      onTransitionEnd={this.resetHeight}
-                    />
-                  ) : (
-                    <BridgeLocations
-                      ref={this.bridgeLocationList}
-                      source={this.props.bridgeLocations}
-                      defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
-                      selectedValue={this.props.selectedBridgeLocation}
-                      selectedElementRef={this.selectedBridgeLocationRef}
-                      onSelect={this.onSelectBridgeLocation}
-                      onWillExpand={this.onWillExpand}
-                      onTransitionEnd={this.resetHeight}
-                    />
-                  )}
-                </StyledContent>
+                <StyledContent>{this.renderLocationList()}</StyledContent>
               </SpacePreAllocationView>
             </NavigationScrollbars>
           </NavigationContainer>
@@ -257,12 +240,118 @@ export default class SelectLocation extends React.Component<IProps, IState> {
     }
   }
 
+  private getLocationListRef(prevProps: IProps, prevState: IState) {
+    if (prevState.locationScope === LocationScope.exit) {
+      return this.exitLocationList.current;
+    } else if (prevProps.tunnelProtocol === 'wireguard') {
+      return this.entryLocationList.current;
+    } else {
+      return this.bridgeLocationList.current;
+    }
+  }
+
+  private getSelectedLocationRef() {
+    if (this.state.locationScope === LocationScope.exit) {
+      return this.selectedExitLocationRef.current;
+    } else if (this.props.tunnelProtocol === 'wireguard') {
+      return this.selectedEntryLocationRef.current;
+    } else {
+      return this.selectedBridgeLocationRef.current;
+    }
+  }
+
+  private renderHeaderSubtitle() {
+    if (this.props.allowEntrySelection) {
+      if (this.props.tunnelProtocol === 'openvpn') {
+        return (
+          <HeaderSubTitle>
+            {messages.pgettext(
+              'select-location-view',
+              'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
+            )}
+          </HeaderSubTitle>
+        );
+      } else {
+        return (
+          <HeaderSubTitle>
+            {messages.pgettext(
+              'select-location-view',
+              'While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers).',
+            )}
+          </HeaderSubTitle>
+        );
+      }
+    } else {
+      return null;
+    }
+  }
+
+  private renderLocationList() {
+    if (this.state.locationScope === LocationScope.exit) {
+      const disabledLocation = this.props.selectedEntryLocation
+        ? {
+            location: this.props.selectedEntryLocation,
+            reason: DisabledReason.entry,
+          }
+        : undefined;
+      return (
+        <ExitLocations
+          ref={this.exitLocationList}
+          source={this.props.relayLocations}
+          locale={this.props.locale}
+          defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
+          selectedValue={this.props.selectedExitLocation}
+          selectedElementRef={this.selectedExitLocationRef}
+          disabledLocation={disabledLocation}
+          onSelect={this.onSelectExitLocation}
+          onWillExpand={this.onWillExpand}
+          onTransitionEnd={this.resetHeight}
+        />
+      );
+    } else if (this.props.tunnelProtocol === 'any' || this.props.tunnelProtocol === 'wireguard') {
+      const disabledLocation = this.props.selectedExitLocation
+        ? {
+            location: this.props.selectedExitLocation,
+            reason: DisabledReason.exit,
+          }
+        : undefined;
+      return (
+        <EntryLocations
+          ref={this.entryLocationList}
+          source={this.props.relayLocations}
+          locale={this.props.locale}
+          defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
+          selectedValue={this.props.selectedEntryLocation}
+          selectedElementRef={this.selectedEntryLocationRef}
+          disabledLocation={disabledLocation}
+          onSelect={this.onSelectEntryLocation}
+          onWillExpand={this.onWillExpand}
+          onTransitionEnd={this.resetHeight}
+        />
+      );
+    } else {
+      return (
+        <BridgeLocations
+          ref={this.bridgeLocationList}
+          source={this.props.bridgeLocations}
+          locale={this.props.locale}
+          defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
+          selectedValue={this.props.selectedBridgeLocation}
+          selectedElementRef={this.selectedBridgeLocationRef}
+          onSelect={this.onSelectBridgeLocation}
+          onWillExpand={this.onWillExpand}
+          onTransitionEnd={this.resetHeight}
+        />
+      );
+    }
+  }
+
   private resetHeight = () => {
     this.spacePreAllocationViewRef.current?.reset();
   };
 
   private getExpandedLocationsFromSnapshot(): RelayLocation[] | undefined {
-    const snapshot = this.snapshotByScope[this.props.locationScope];
+    const snapshot = this.snapshotByScope[this.state.locationScope];
     if (snapshot) {
       return snapshot.expandedLocations;
     } else {
@@ -278,10 +367,7 @@ export default class SelectLocation extends React.Component<IProps, IState> {
   }
 
   private scrollToSelectedCell() {
-    const ref =
-      this.props.locationScope === LocationScope.relay
-        ? this.selectedExitLocationRef.current
-        : this.selectedBridgeLocationRef.current;
+    const ref = this.getSelectedLocationRef();
     const scrollView = this.scrollView.current;
 
     if (scrollView) {
@@ -295,10 +381,18 @@ export default class SelectLocation extends React.Component<IProps, IState> {
     }
   }
 
+  private onChangeLocationScope = (locationScope: LocationScope) => {
+    this.setState({ locationScope });
+  };
+
   private onSelectExitLocation = (location: LocationSelection<never>) => {
     if (location.type === LocationSelectionType.relay) {
       this.props.onSelectExitLocation(location.value);
     }
+  };
+
+  private onSelectEntryLocation = (location: LocationSelection<never>) => {
+    this.props.onSelectEntryLocation(location.value);
   };
 
   private onSelectBridgeLocation = (location: LocationSelection<SpecialBridgeLocationType>) => {

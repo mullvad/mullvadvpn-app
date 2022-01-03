@@ -27,6 +27,8 @@ export type RelaySettingsRedux =
         wireguard: {
           port: LiftedConstraint<number>;
           ipVersion: LiftedConstraint<IpVersion>;
+          useMultihop: boolean;
+          entryLocation: LiftedConstraint<RelayLocation>;
         };
       };
     }
@@ -62,14 +64,12 @@ export interface IRelayLocationCityRedux {
   code: string;
   latitude: number;
   longitude: number;
-  hasActiveRelays: boolean;
   relays: IRelayLocationRelayRedux[];
 }
 
 export interface IRelayLocationRedux {
   name: string;
   code: string;
-  hasActiveRelays: boolean;
   cities: IRelayLocationCityRedux[];
 }
 
@@ -161,7 +161,7 @@ const initialState: ISettingsReduxState = {
       location: 'any',
       tunnelProtocol: 'any',
       providers: [],
-      wireguard: { port: 'any', ipVersion: 'any' },
+      wireguard: { port: 'any', ipVersion: 'any', useMultihop: false, entryLocation: 'any' },
       openvpn: {
         port: 'any',
         protocol: 'any',

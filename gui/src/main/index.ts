@@ -158,6 +158,8 @@ class ApplicationMain {
         wireguardConstraints: {
           port: 'any',
           ipVersion: 'any',
+          useMultihop: false,
+          entryLocation: 'any',
         },
       },
     },
@@ -905,11 +907,7 @@ class ApplicationMain {
   ) {
     this.relays = newRelayList;
 
-    const filteredRelays = this.processRelaysForPresentation(
-      newRelayList,
-      relaySettings,
-      bridgeState,
-    );
+    const filteredRelays = this.processRelaysForPresentation(newRelayList, relaySettings);
     const filteredBridges = this.processBridgesForPresentation(newRelayList, bridgeState);
 
     if (this.windowController) {
@@ -923,7 +921,6 @@ class ApplicationMain {
   private processRelaysForPresentation(
     relayList: IRelayList,
     relaySettings: RelaySettings,
-    bridgeState: BridgeState,
   ): IRelayList {
     const tunnelProtocol =
       'normal' in relaySettings ? liftConstraint(relaySettings.normal.tunnelProtocol) : undefined;
@@ -943,14 +940,16 @@ class ApplicationMain {
                   case 'wireguard':
                     return relay.tunnels.wireguard.length > 0;
 
-                  case 'any':
-                    // TODO: Drop win32 check when Wireguard becomes default on Windows
-                    if (process.platform === 'win32' || bridgeState === 'on') {
-                      return relay.tunnels.openvpn.length > 0;
+                  case 'any': {
+                    const useMultihop =
+                      'normal' in relaySettings &&
+                      relaySettings.normal.wireguardConstraints.useMultihop;
+                    if (useMultihop) {
+                      return relay.tunnels.wireguard.length > 0;
                     } else {
                       return relay.tunnels.openvpn.length > 0 || relay.tunnels.wireguard.length > 0;
                     }
-
+                  }
                   default:
                     return false;
                 }
@@ -1151,11 +1150,7 @@ class ApplicationMain {
       tunnelState: this.tunnelState,
       settings: this.settings,
       relayListPair: {
-        relays: this.processRelaysForPresentation(
-          this.relays,
-          this.settings.relaySettings,
-          this.settings.bridgeState,
-        ),
+        relays: this.processRelaysForPresentation(this.relays, this.settings.relaySettings),
         bridges: this.processBridgesForPresentation(this.relays, this.settings.bridgeState),
       },
       currentVersion: this.currentVersion,

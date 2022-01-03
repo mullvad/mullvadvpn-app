@@ -14,6 +14,7 @@ export interface ILocation {
   mullvadExitIp: boolean;
   hostname?: string;
   bridgeHostname?: string;
+  entryHostname?: string;
   provider?: string;
 }
 
@@ -88,6 +89,12 @@ export interface ITunnelEndpoint {
   protocol: RelayProtocol;
   tunnelType: TunnelType;
   proxy?: IProxyEndpoint;
+  entryEndpoint?: IEndpoint;
+}
+
+export interface IEndpoint {
+  address: string;
+  transportProtocol: RelayProtocol;
 }
 
 export interface IProxyEndpoint {
@@ -133,6 +140,8 @@ export interface IOpenVpnConstraints {
 export interface IWireguardConstraints {
   port: Constraint<number>;
   ipVersion: Constraint<IpVersion>;
+  useMultihop: boolean;
+  entryLocation: Constraint<RelayLocation>;
 }
 
 export type TunnelProtocol = 'wireguard' | 'openvpn';

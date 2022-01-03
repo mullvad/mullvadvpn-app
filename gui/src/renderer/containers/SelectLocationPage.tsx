@@ -1,21 +1,21 @@
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import SelectLocation from '../components/SelectLocation';
 import withAppContext, { IAppContext } from '../context';
+import { createWireguardRelayUpdater } from '../lib/constraint-updater';
 import { IHistoryProps, withHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
-import userInterfaceActions from '../redux/userinterface/actions';
-import { LocationScope } from '../redux/userinterface/reducers';
 
-const mapStateToProps = (state: IReduxState) => {
+const mapStateToProps = (state: IReduxState, props: IHistoryProps & IAppContext) => {
   let selectedExitLocation: RelayLocation | undefined;
+  let selectedEntryLocation: RelayLocation | undefined;
   let selectedBridgeLocation: LiftedConstraint<RelayLocation> | undefined;
+  let multihopEnabled = false;
 
   if ('normal' in state.settings.relaySettings) {
     const exitLocation = state.settings.relaySettings.normal.location;
@@ -24,37 +24,58 @@ const mapStateToProps = (state: IReduxState) => {
     }
   }
 
-  if ('normal' in state.settings.bridgeSettings) {
+  const relaySettings = state.settings.relaySettings;
+  const tunnelProtocol = 'normal' in relaySettings ? relaySettings.normal.tunnelProtocol : 'any';
+
+  if (tunnelProtocol === 'openvpn' && 'normal' in state.settings.bridgeSettings) {
     selectedBridgeLocation = state.settings.bridgeSettings.normal.location;
+  } else if ('normal' in relaySettings) {
+    const entryLocation = relaySettings.normal.wireguard.entryLocation;
+    if (entryLocation !== 'any') {
+      selectedEntryLocation = entryLocation;
+    }
+
+    multihopEnabled = relaySettings.normal.wireguard.useMultihop;
   }
 
-  const allowBridgeSelection = state.settings.bridgeState === 'on';
-  const locationScope = allowBridgeSelection
-    ? state.userInterface.locationScope
-    : LocationScope.relay;
+  const allowEntrySelection =
+    (tunnelProtocol === 'openvpn' && state.settings.bridgeState === 'on') ||
+    ((tunnelProtocol === 'any' || tunnelProtocol === 'wireguard') && multihopEnabled);
 
-  const relaySettings = state.settings.relaySettings;
   const providers = 'normal' in relaySettings ? relaySettings.normal.providers : [];
 
   return {
+    locale: state.userInterface.locale,
     selectedExitLocation,
+    selectedEntryLocation,
     selectedBridgeLocation,
     relayLocations: filterLocationsByProvider(state.settings.relayLocations, providers),
     bridgeLocations: filterLocationsByProvider(state.settings.bridgeLocations, providers),
-    locationScope,
-    allowBridgeSelection,
+    allowEntrySelection,
+    tunnelProtocol,
     providers,
+
+    onSelectEntryLocation: async (entryLocation: RelayLocation) => {
+      // dismiss the view first
+      props.history.dismiss();
+
+      const relayUpdate = createWireguardRelayUpdater(state.settings.relaySettings)
+        .tunnel.wireguard((wireguard) => wireguard.entryLocation.exact(entryLocation))
+        .build();
+
+      try {
+        await props.app.updateRelaySettings(relayUpdate);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to select the entry location', error.message);
+      }
+    },
   };
 };
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
-  const userInterface = bindActionCreators(userInterfaceActions, dispatch);
-
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
     onClose: () => props.history.dismiss(),
     onViewFilterByProvider: () => props.history.push(RoutePath.filterByProvider),
-    onChangeLocationScope: (scope: LocationScope) => {
-      userInterface.setLocationScope(scope);
-    },
     onSelectExitLocation: async (relayLocation: RelayLocation) => {
       // dismiss the view first
       props.history.dismiss();
