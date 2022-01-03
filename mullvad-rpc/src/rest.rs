@@ -512,14 +512,14 @@ pub fn get_request<T: serde::de::DeserializeOwned>(
     service: RequestServiceHandle,
     uri: &str,
     auth: Option<String>,
-    expected_status: hyper::StatusCode,
-) -> impl Future<Output = Result<Response>> {
+    expected_statuses: &'static [hyper::StatusCode],
+) -> impl Future<Output = Result<Response>> + 'static {
     let request = factory.get(uri);
     async move {
         let mut request = request?;
         request.set_auth(auth)?;
         let response = service.request(request).await?;
-        parse_rest_response(response, expected_status).await
+        parse_rest_response(response, expected_statuses).await
     }
 }
 
@@ -529,7 +529,7 @@ pub fn send_request(
     uri: &str,
     method: Method,
     auth: Option<String>,
-    expected_status: hyper::StatusCode,
+    expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.request(uri, method);
 
@@ -537,7 +537,7 @@ pub fn send_request(
         let mut request = request?;
         request.set_auth(auth)?;
         let response = service.request(request).await?;
-        parse_rest_response(response, expected_status).await
+        parse_rest_response(response, expected_statuses).await
     }
 }
 
@@ -547,14 +547,14 @@ pub fn post_request_with_json<B: serde::Serialize>(
     uri: &str,
     body: &B,
     auth: Option<String>,
-    expected_status: hyper::StatusCode,
+    expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.post_json(uri, body);
     async move {
         let mut request = request?;
         request.set_auth(auth)?;
         let response = service.request(request).await?;
-        parse_rest_response(response, expected_status).await
+        parse_rest_response(response, expected_statuses).await
     }
 }
 
@@ -576,11 +576,21 @@ pub async fn deserialize_body<T: serde::de::DeserializeOwned>(mut response: Resp
 
 pub async fn parse_rest_response(
     response: Response,
-    expected_status: hyper::StatusCode,
+    expected_statuses: &'static [hyper::StatusCode],
 ) -> Result<Response> {
-    let status = response.status();
-    if status != expected_status {
-        return handle_error_response(response).await;
+    if !expected_statuses.contains(&response.status()) {
+        log::error!(
+            "Unexpected HTTP status code {}, expected codes [{}]",
+            response.status(),
+            expected_statuses
+                .iter()
+                .map(ToString::to_string)
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+        if !response.status().is_success() {
+            return handle_error_response(response).await;
+        }
     }
 
     Ok(response)
