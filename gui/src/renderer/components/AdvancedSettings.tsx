@@ -269,7 +269,6 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
 
   private hideConfirmBlockWhenDisconnectedAlert = () => {
     this.setState({ showConfirmBlockWhenDisconnectedAlert: false });
-    this.blockWhenDisconnectedRef.current?.setOn(this.props.blockWhenDisconnected);
   };
 
   private confirmEnableBlockWhenDisconnected = () => {

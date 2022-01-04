@@ -323,7 +323,6 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
 
   private hideWireguardMultihopConfirmationDialog = () => {
     this.setState({ showMultihopConfirmationDialog: false });
-    this.multihopRef.current?.setOn(this.props.wireguardMultihop);
   };
 
   private confirmWireguardMultihop = () => {
