@@ -430,10 +430,10 @@ export class RelayLocations extends React.PureComponent<
                   ),
               };
             })
-            .sort((a, b) => a.name.localeCompare(b.name, this.props.locale)),
+            .sort((a, b) => a.label.localeCompare(b.label, this.props.locale)),
         };
       })
-      .sort((a, b) => a.name.localeCompare(b.name, this.props.locale));
+      .sort((a, b) => a.label.localeCompare(b.label, this.props.locale));
   }
 
   private formatRowName(

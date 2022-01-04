@@ -30,12 +30,12 @@ const mapStateToProps = (state: IReduxState, props: IHistoryProps & IAppContext)
   if (tunnelProtocol === 'openvpn' && 'normal' in state.settings.bridgeSettings) {
     selectedBridgeLocation = state.settings.bridgeSettings.normal.location;
   } else if ('normal' in relaySettings) {
+    multihopEnabled = relaySettings.normal.wireguard.useMultihop;
+
     const entryLocation = relaySettings.normal.wireguard.entryLocation;
-    if (entryLocation !== 'any') {
+    if (multihopEnabled && entryLocation !== 'any') {
       selectedEntryLocation = entryLocation;
     }
-
-    multihopEnabled = relaySettings.normal.wireguard.useMultihop;
   }
 
   const allowEntrySelection =
