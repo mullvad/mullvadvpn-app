@@ -69,7 +69,7 @@ internet-checksum = "0.2"
 [target.'cfg(target_os = "macos")'.dependencies]
 either = "1"
 pfctl = "0.4.4"
-system-configuration = "0.4"
+system-configuration = "0.5"
 trust-dns-server = {  git = "https://github.com/mullvad/trust-dns", rev = "c782de0645335d1893a854337b965dd07790c068", features = [ "trust-dns-resolver" ] }
 tun = "0.5.1"
 subslice = "0.2"
