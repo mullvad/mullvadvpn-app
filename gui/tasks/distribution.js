@@ -5,7 +5,7 @@ const parseSemver = require('semver/functions/parse');
 const { notarize } = require('electron-notarize');
 const { version } = require('../package.json');
 
-const compression = process.argv.includes('--no-compression') ? 'store' : 'normal';
+const noCompression = process.argv.includes('--no-compression');
 const noAppleNotarization = process.argv.includes('--no-apple-notarization');
 
 const universal = process.argv.includes('--universal');
@@ -15,7 +15,7 @@ const config = {
   copyright: 'Mullvad VPN AB',
   productName: 'Mullvad VPN',
   asar: true,
-  compression: compression,
+  compression: noCompression ? 'store' : 'normal',
   extraResources: [
     { from: distAssets('ca.crt'), to: '.' },
     { from: distAssets('relays.json'), to: '.' },
@@ -269,6 +269,10 @@ function notarizeMac(notarizePath) {
 }
 
 function packLinux() {
+  if (noCompression) {
+    config.rpm.fpm.unshift('--rpm-compression', 'none');
+  }
+
   return builder.build({
     targets: builder.Platform.LINUX.createTarget(),
     config: {
