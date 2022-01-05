@@ -96,11 +96,11 @@ EOF
 
         echo "Setting Android versionName to $PRODUCT_VERSION and versionCode to $android_version_code"
 
-        cp android/app/build.gradle android/app/build.gradle.bak
-        sed -i -Ee "s/versionCode [0-9]+/versionCode $android_version_code/g" \
-            android/app/build.gradle
-        sed -i -Ee "s/versionName \"[^\"]+\"/versionName \"$PRODUCT_VERSION\"/g" \
-            android/app/build.gradle
+        cp android/app/build.gradle.kts android/app/build.gradle.kts.bak
+        sed -i -Ee "s/versionCode = [0-9]+/versionCode = $android_version_code/g" \
+            android/app/build.gradle.kts
+        sed -i -Ee "s/versionName = \"[^\"]+\"/versionName = \"$PRODUCT_VERSION\"/g" \
+            android/app/build.gradle.kts
     fi
 }
 
@@ -123,7 +123,7 @@ function restore_backup {
 
     if [[ "$ANDROID" == "true" ]]; then
         # Android
-        mv android/app/build.gradle.bak android/app/build.gradle
+        mv android/app/build.gradle.kts.bak android/app/build.gradle.kts
     fi
     set -e
 }
@@ -147,7 +147,7 @@ function delete_backup {
 
     if [[ "$ANDROID" == "true" ]]; then
         # Android
-        rm android/app/build.gradle.bak
+        rm android/app/build.gradle.kts.bak
     fi
     set -e
 }

@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 
-PRODUCT_VERSION="$(sed -n -e 's/^ *versionName "\([^"]*\)"$/\1/p' android/app/build.gradle)"
+PRODUCT_VERSION="$(sed -n -e 's/^ *versionName = "\([^"]*\)"$/\1/p' android/app/build.gradle.kts)"
 BUILD_TYPE="release"
 GRADLE_BUILD_TYPE="release"
 GRADLE_TASK="assembleRelease"
