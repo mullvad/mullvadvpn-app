@@ -1,30 +1,24 @@
 plugins {
-    id("org.owasp.dependencycheck") version "6.5.0.1" apply false
+    id(Dependencies.Plugin.dependencyCheckId) version Versions.Plugin.dependencyCheck apply false
 }
 
 buildscript {
-    val espressoVersion by extra { "3.3.0" }
-    val fragmentVersion by extra { "1.3.2" }
-    val koinVersion by extra { "2.2.2" }
-    val kotlinVersion by extra { "1.4.31" }
-    val mockkVersion by extra { "1.12.0" }
-
     repositories {
         google()
         mavenCentral()
-        maven("https://plugins.gradle.org/m2/")
+        maven(Repositories.GradlePlugins)
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:4.1.3")
-        classpath("com.github.triplet.gradle:play-publisher:2.7.5")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-        classpath("org.owasp:dependency-check-gradle:6.5.0.1")
+        classpath(Dependencies.Plugin.android)
+        classpath(Dependencies.Plugin.playPublisher)
+        classpath(Dependencies.Plugin.kotlin)
+        classpath(Dependencies.Plugin.dependencyCheck)
     }
 }
 
 allprojects {
-    apply(plugin = "org.owasp.dependencycheck")
+    apply(plugin = Dependencies.Plugin.dependencyCheckId)
 
     repositories {
         google()
