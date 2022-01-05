@@ -8,12 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.util.JobTracker
 
 open class UrlButton : Button {
-    private lateinit var authTokenCache: AuthTokenCache
-
     private var shouldEnable = true
 
     var url: String? = null
@@ -46,7 +43,7 @@ open class UrlButton : Button {
     }
 
     fun prepare(
-        authTokenCache: AuthTokenCache,
+        fetchAuthToken: (suspend () -> String),
         jobTracker: JobTracker,
         jobName: String = "fetchUrl",
         extraOnClickAction: (suspend () -> Unit)? = null
@@ -54,14 +51,10 @@ open class UrlButton : Button {
         synchronized(this) {
             super.setEnabled(shouldEnable)
 
-            this.authTokenCache = authTokenCache
-
             setOnClickAction(jobName, jobTracker) {
                 super.setEnabled(false)
-
-                context.startActivity(buildIntent(jobTracker))
+                context.startActivity(buildIntent(jobTracker, fetchAuthToken()))
                 extraOnClickAction?.invoke()
-
                 super.setEnabled(true)
             }
         }
@@ -70,10 +63,7 @@ open class UrlButton : Button {
     override fun setEnabled(enabled: Boolean) {
         synchronized(this) {
             shouldEnable = enabled
-
-            if (!withToken || this::authTokenCache.isInitialized) {
-                super.setEnabled(enabled)
-            }
+            super.setEnabled(enabled)
         }
     }
 
@@ -95,10 +85,10 @@ open class UrlButton : Button {
         }
     }
 
-    private suspend fun buildIntent(jobTracker: JobTracker): Intent {
+    private suspend fun buildIntent(jobTracker: JobTracker, authToken: String): Intent {
         val buildIntent = GlobalScope.async(Dispatchers.Default) {
             val uri = if (withToken) {
-                Uri.parse(url + "?token=" + authTokenCache.fetchAuthToken())
+                Uri.parse("$url?token=$authToken")
             } else {
                 Uri.parse(url)
             }
