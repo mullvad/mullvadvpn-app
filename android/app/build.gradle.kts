@@ -88,7 +88,7 @@ android {
     }
 
     applicationVariants.forEach { variant ->
-        variant.mergeAssetsProvider.configure{
+        variant.mergeAssetsProvider.configure {
             dependsOn(task("copyExtraAssets"))
         }
     }
