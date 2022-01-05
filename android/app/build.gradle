@@ -7,7 +7,7 @@ def repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 def extraAssetsDirectory = "$project.buildDir/extraAssets"
 def extraJniDirectory = "$project.buildDir/extraJni"
 
-def keystorePropertiesFile = file('keystore.properties')
+def keystorePropertiesFile = file("$rootProject.projectDir/keystore.properties")
 def keystoreProperties = new Properties()
 
 if (keystorePropertiesFile.exists()) {
