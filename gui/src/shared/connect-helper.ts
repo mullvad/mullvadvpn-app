@@ -8,6 +8,7 @@ export function connectEnabled(
   return (
     connectedToDaemon &&
     accountToken !== undefined &&
+    accountToken !== '' &&
     (tunnelState === 'disconnected' || tunnelState === 'disconnecting' || tunnelState === 'error')
   );
 }
@@ -20,6 +21,7 @@ export function reconnectEnabled(
   return (
     connectedToDaemon &&
     accountToken !== undefined &&
+    accountToken !== '' &&
     (tunnelState === 'connected' || tunnelState === 'connecting')
   );
 }
