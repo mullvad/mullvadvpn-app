@@ -4,7 +4,6 @@ use crate::{
 };
 
 use lazy_static::lazy_static;
-use log::{error, trace, warn};
 use std::{env, io, net::IpAddr, path::Path};
 use talpid_types::ErrorExt;
 use widestring::WideCString;
@@ -84,8 +83,8 @@ impl super::DnsMonitorT for DnsMonitor {
             .map(|ip_cstr| ip_cstr.as_ptr())
             .collect::<Vec<_>>();
 
-        trace!("ipv4 ips - {:?} - {}", ipv4, ipv4.len());
-        trace!("ipv6 ips - {:?} - {}", ipv6, ipv6.len());
+        log::trace!("ipv4 ips - {:?} - {}", ipv4, ipv4.len());
+        log::trace!("ipv6 ips - {:?} - {}", ipv6, ipv6.len());
 
         let luid = luid_from_alias(interface).map_err(Error::InterfaceLuidError)?;
 
@@ -102,8 +101,8 @@ impl super::DnsMonitorT for DnsMonitor {
 
         if *GLOBAL_DNS_CACHE_POLICY && is_minimum_windows10() {
             if let Err(error) = set_dns_cache_policy(servers) {
-                error!("{}", error.display_chain());
-                warn!("DNS resolution may be slowed down");
+                log::error!("{}", error.display_chain());
+                log::warn!("DNS resolution may be slowed down");
             }
         }
 
@@ -127,7 +126,7 @@ impl Drop for DnsMonitor {
     fn drop(&mut self) {
         if *GLOBAL_DNS_CACHE_POLICY && is_minimum_windows10() {
             if let Err(error) = reset_dns_cache_policy() {
-                warn!(
+                log::warn!(
                     "{}",
                     error.display_chain_with_msg("Failed to reset DNS cache policy")
                 );
@@ -135,9 +134,9 @@ impl Drop for DnsMonitor {
         }
 
         if unsafe { WinDns_Deinitialize().into_result().is_ok() } {
-            trace!("Successfully deinitialized WinDns");
+            log::trace!("Successfully deinitialized WinDns");
         } else {
-            error!("Failed to deinitialize WinDns");
+            log::error!("Failed to deinitialize WinDns");
         }
     }
 }
@@ -213,7 +212,7 @@ fn is_minimum_windows10() -> bool {
     match talpid_platform_metadata::WindowsVersion::new() {
         Ok(version_info) => version_info.major_version() >= 10,
         Err(error) => {
-            error!(
+            log::error!(
                 "{}",
                 error.display_chain_with_msg("OS version check failed")
             );

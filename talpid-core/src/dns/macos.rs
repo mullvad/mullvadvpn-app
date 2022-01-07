@@ -1,6 +1,5 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use futures::channel::mpsc;
-use log::{debug, trace};
 use parking_lot::Mutex;
 use std::{
     collections::HashMap,
@@ -132,7 +131,7 @@ impl DnsSettings {
         store: &SCDynamicStore,
         path: S,
     ) -> Result<()> {
-        trace!(
+        log::trace!(
             "Setting DNS to [{}] for {}",
             self.server_addresses().join(", "),
             path.to_string()
@@ -256,7 +255,7 @@ impl super::DnsMonitorT for DnsMonitor {
         *state_lock = Some(match state_lock.take() {
             None => {
                 let backup = read_all_dns(&self.store);
-                trace!("Backup of DNS settings: {:#?}", backup);
+                log::trace!("Backup of DNS settings: {:#?}", backup);
                 for service_path in backup.keys() {
                     settings.save(&self.store, service_path.as_str())?;
                 }
@@ -277,7 +276,7 @@ impl super::DnsMonitorT for DnsMonitor {
                         tunnel_tx: self.tunnel_tx.clone(),
                     }
                 } else {
-                    debug!("No change, new DNS same as the one already set");
+                    log::debug!("No change, new DNS same as the one already set");
                     state
                 }
             }
@@ -288,12 +287,12 @@ impl super::DnsMonitorT for DnsMonitor {
     fn reset(&mut self) -> Result<()> {
         let mut state_lock = self.state.lock();
         if let Some(state) = state_lock.take() {
-            trace!("Restoring DNS settings to: {:#?}", state.backup);
+            log::trace!("Restoring DNS settings to: {:#?}", state.backup);
             for (service_path, settings) in state.backup {
                 if let Some(settings) = settings {
                     settings.save(&self.store, service_path.as_str())?;
                 } else {
-                    debug!("Removing DNS for {}", service_path);
+                    log::debug!("Removing DNS for {}", service_path);
                     if !self.store.remove(CFString::new(&service_path)) {
                         return Err(Error::SettingDnsFailed);
                     }
@@ -368,7 +367,7 @@ fn create_dynamic_store(state: Arc<Mutex<Option<State>>>) -> Result<SCDynamicSto
     ]);
 
     if store.set_notification_keys(&watch_keys, &watch_patterns) {
-        trace!("Registered for dynamic store notifications");
+        log::trace!("Registered for dynamic store notifications");
         Ok(store)
     } else {
         Err(Error::DynamicStoreInitError)
@@ -379,7 +378,7 @@ fn run_dynamic_store_runloop(store: SCDynamicStore) {
     let run_loop_source = store.create_run_loop_source();
     CFRunLoop::get_current().add_source(&run_loop_source, unsafe { kCFRunLoopCommonModes });
 
-    trace!("Entering DNS CFRunLoop");
+    log::trace!("Entering DNS CFRunLoop");
     CFRunLoop::run_current();
 }
 
@@ -393,7 +392,7 @@ fn dns_change_callback(
     let mut state_lock = state.lock();
     match *state_lock {
         None => {
-            trace!("Not injecting DNS at this time");
+            log::trace!("Not injecting DNS at this time");
         }
         Some(ref mut state) => {
             dns_change_callback_internal(store, changed_keys, state);
@@ -410,17 +409,17 @@ fn dns_change_callback_internal(
     for path in &changed_keys {
         let should_set_dns = match DnsSettings::load(&store, path.clone()).ok() {
             None => {
-                debug!("Detected DNS removed for {}", *path);
+                log::debug!("Detected DNS removed for {}", *path);
                 state.backup.insert(path.to_string(), None);
                 true
             }
             Some(new_settings) => {
                 if new_settings.dict != state.dns_settings.dict {
-                    debug!("Detected DNS change for {}", *path);
+                    log::debug!("Detected DNS change for {}", *path);
                     state.backup.insert(path.to_string(), Some(new_settings));
                     true
                 } else {
-                    trace!("Ignoring DNS change since it's equal to desired DNS");
+                    log::trace!("Ignoring DNS change since it's equal to desired DNS");
                     false
                 }
             }
