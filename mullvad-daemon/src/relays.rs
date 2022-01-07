@@ -8,7 +8,6 @@ use futures::{
     FutureExt, SinkExt, StreamExt,
 };
 use ipnetwork::IpNetwork;
-use log::{debug, error, info, warn};
 use mullvad_rpc::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, RelayListProxy};
 use mullvad_types::{
     endpoint::MullvadEndpoint,
@@ -141,7 +140,7 @@ impl ParsedRelays {
     }
 
     pub fn from_file(path: impl AsRef<Path>) -> Result<Self, Error> {
-        debug!("Reading relays from {}", path.as_ref().display());
+        log::debug!("Reading relays from {}", path.as_ref().display());
         let (last_modified, file) =
             Self::open_file(path.as_ref()).map_err(Error::OpenRelayCache)?;
         let relay_list =
@@ -193,13 +192,13 @@ impl RelaySelector {
         let resource_path = resource_dir.join(RELAYS_FILENAME);
         let unsynchronized_parsed_relays = Self::read_relays_from_disk(&cache_path, &resource_path)
             .unwrap_or_else(|error| {
-                error!(
+                log::error!(
                     "{}",
                     error.display_chain_with_msg("Unable to load cached relays")
                 );
                 ParsedRelays::empty()
             });
-        info!(
+        log::info!(
             "Initialized with {} cached relays from {}",
             unsynchronized_parsed_relays.relays().len(),
             DateTime::<Local>::from(unsynchronized_parsed_relays.last_updated())
@@ -296,9 +295,10 @@ impl RelaySelector {
             if let Some((entry_relay, mut entry_endpoint)) = entry_endpoint.take() {
                 self.set_entry_peers(peer, &mut entry_endpoint);
                 let addr_in = entry_endpoint.to_endpoint().address.ip();
-                info!(
+                log::info!(
                     "Selected entry relay {} at {}",
-                    entry_relay.hostname, addr_in
+                    entry_relay.hostname,
+                    addr_in
                 );
                 return Ok((exit_relay, Some(entry_relay), entry_endpoint));
             } else if relay_constraints.wireguard_constraints.use_multihop {
@@ -326,7 +326,7 @@ impl RelaySelector {
         if let Some((relay, endpoint)) =
             self.get_tunnel_endpoint_internal(&preferred_constraints, wg_entry_peer)
         {
-            debug!(
+            log::debug!(
                 "Relay matched on highest preference for retry attempt {}",
                 retry_attempt
             );
@@ -334,13 +334,13 @@ impl RelaySelector {
         } else if let Some((relay, endpoint)) =
             self.get_tunnel_endpoint_internal(&relay_constraints, wg_entry_peer)
         {
-            debug!(
+            log::debug!(
                 "Relay matched on second preference for retry attempt {}",
                 retry_attempt
             );
             Ok((relay, endpoint))
         } else {
-            warn!("No relays matching {}", &relay_constraints);
+            log::warn!("No relays matching {}", &relay_constraints);
             Err(Error::NoRelay)
         }
     }
@@ -636,7 +636,7 @@ impl RelaySelector {
                     .as_ref()
                     .map(|endpoint| endpoint.to_endpoint().address.ip())
                     .unwrap_or(IpAddr::from(selected_relay.ipv4_addr_in));
-                info!("Selected relay {} at {}", selected_relay.hostname, addr_in);
+                log::info!("Selected relay {} at {}", selected_relay.hostname, addr_in);
                 endpoint.map(|endpoint| (selected_relay.clone(), endpoint))
             })
     }
@@ -801,7 +801,7 @@ impl RelaySelector {
             .shadowsocks
             .choose(&mut self.rng)
             .map(|shadowsocks_endpoint| {
-                info!(
+                log::info!(
                     "Selected Shadowsocks bridge {} at {}:{}/{}",
                     relay.hostname,
                     relay.ipv4_addr_in,
@@ -924,7 +924,7 @@ impl RelaySelector {
                     }
                     port_index -= ports_in_range;
                 }
-                error!("Port selection algorithm is broken!");
+                log::error!("Port selection algorithm is broken!");
                 None
             }
             Constraint::Only(port) => {
@@ -1120,14 +1120,14 @@ impl RelayListUpdater {
 
     async fn update_cache(&mut self, new_relay_list: RelayList) -> Result<(), Error> {
         if let Err(error) = Self::cache_relays(&self.cache_path, &new_relay_list).await {
-            error!(
+            log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to update relay cache on disk")
             );
         }
 
         let new_parsed_relays = ParsedRelays::from_relay_list(new_relay_list, SystemTime::now());
-        info!(
+        log::info!(
             "Downloaded relay inventory has {} relays",
             new_parsed_relays.relays().len()
         );
@@ -1140,7 +1140,7 @@ impl RelayListUpdater {
 
     /// Write a `RelayList` to the cache file.
     async fn cache_relays(cache_path: &Path, relays: &RelayList) -> Result<(), Error> {
-        debug!("Writing relays cache to {}", cache_path.display());
+        log::debug!("Writing relays cache to {}", cache_path.display());
         let mut file = File::create(cache_path)
             .await
             .map_err(Error::OpenRelayCache)?;

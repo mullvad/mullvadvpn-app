@@ -1,6 +1,5 @@
 #![deny(rust_2018_idioms)]
 
-use log::{debug, error, info, trace, warn};
 use mullvad_daemon::{
     logging,
     management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},
@@ -26,7 +25,7 @@ fn main() {
         std::process::exit(1)
     });
 
-    trace!("Using configuration: {:?}", config);
+    log::trace!("Using configuration: {:?}", config);
 
     let runtime = new_runtime_builder().build().unwrap_or_else(|error| {
         eprintln!("{}", error.display_chain());
@@ -36,11 +35,11 @@ fn main() {
     let exit_code = match runtime.block_on(run_platform(config, log_dir)) {
         Ok(_) => 0,
         Err(error) => {
-            error!("{}", error);
+            log::error!("{}", error);
             1
         }
     };
-    debug!("Process exiting with code {}", exit_code);
+    log::debug!("Process exiting with code {}", exit_code);
     std::process::exit(exit_code);
 }
 
@@ -58,7 +57,7 @@ fn init_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
     exception_logging::enable();
     version::log_version();
     if let Some(ref log_dir) = log_dir {
-        info!("Logging to {}", log_dir.display());
+        log::info!("Logging to {}", log_dir.display());
     }
     Ok(log_dir)
 }
@@ -114,7 +113,7 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     }
 
     if !running_as_admin() {
-        warn!("Running daemon as a non-administrator user, clients might refuse to connect");
+        log::warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
 
     let daemon = create_daemon(log_dir).await?;
@@ -125,7 +124,7 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
 
     daemon.run().await.map_err(|e| e.display_chain())?;
 
-    info!("Mullvad daemon is quitting");
+    log::info!("Mullvad daemon is quitting");
     thread::sleep(Duration::from_millis(500));
     Ok(())
 }
@@ -163,7 +162,7 @@ async fn spawn_management_interface(
         error.display_chain_with_msg("Unable to start management interface server")
     })?;
 
-    info!("Management interface listening on {}", socket_path);
+    log::info!("Management interface listening on {}", socket_path);
 
     Ok(event_broadcaster)
 }

@@ -29,7 +29,6 @@ use futures::{
     future::{abortable, AbortHandle, Future},
     StreamExt,
 };
-use log::{debug, error, info, warn};
 use mullvad_rpc::availability::ApiAvailabilityHandle;
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -602,7 +601,7 @@ where
                     .map_err(Error::ReadCachedTargetState),
                 Err(e) => {
                     if e.kind() == io::ErrorKind::NotFound {
-                        debug!("No cached target state to load");
+                        log::debug!("No cached target state to load");
                         Ok(None)
                     } else {
                         Err(Error::OpenCachedTargetState(e))
@@ -610,11 +609,11 @@ where
                 }
             }
             .unwrap_or_else(|error| {
-                error!("{}", error.display_chain());
+                log::error!("{}", error.display_chain());
                 Some(TargetState::Secured)
             });
         if let Some(cached_target_state) = &cached_target_state {
-            info!(
+            log::info!(
                 "Loaded cached target state \"{}\" from {}",
                 cached_target_state,
                 target_cache.display()
@@ -628,7 +627,7 @@ where
         let initial_target_state = if settings.get_account_token().is_some() {
             if settings.auto_connect {
                 // Note: Auto-connect overrides the cached target state
-                info!("Automatically connecting since auto-connect is turned on");
+                log::info!("Automatically connecting since auto-connect is turned on");
                 TargetState::Secured
             } else {
                 cached_target_state.unwrap_or(TargetState::Unsecured)
@@ -901,7 +900,7 @@ where
         if !lock_target_cache {
             let target_cache = cache_dir.join(TARGET_START_STATE_FILE);
             let _ = fs::remove_file(target_cache).await.map_err(|e| {
-                error!("Cannot delete target tunnel state cache: {}", e);
+                log::error!("Cannot delete target tunnel state cache: {}", e);
             });
         }
     }
@@ -985,17 +984,17 @@ where
 
         self.unschedule_reconnect();
 
-        debug!("New tunnel state: {:?}", tunnel_state);
+        log::debug!("New tunnel state: {:?}", tunnel_state);
         match tunnel_state {
             TunnelState::Disconnected => self.state.disconnected(),
             TunnelState::Error(ref error_state) => {
                 if error_state.is_blocking() {
-                    info!(
+                    log::info!(
                         "Blocking all network connections, reason: {}",
                         error_state.cause()
                     );
                 } else {
-                    error!(
+                    log::error!(
                         "FAILED TO BLOCK NETWORK CONNECTIONS, ENTERED ERROR STATE BECAUSE: {}",
                         error_state.cause()
                     );
@@ -1093,7 +1092,7 @@ where
                 log::error!("Failed to send tunnel parameters");
             }
         } else {
-            error!("No account token configured");
+            log::error!("No account token configured");
         }
     }
 
@@ -1440,7 +1439,7 @@ where
             let state_change_initated = self.set_target_state(new_target_state).await;
             Self::oneshot_send(tx, state_change_initated, "state change initiated");
         } else {
-            warn!("Ignoring target state change request due to shutdown");
+            log::warn!("Ignoring target state change request due to shutdown");
         }
     }
 
@@ -1449,7 +1448,7 @@ where
             self.connect_tunnel();
             Self::oneshot_send(tx, true, "reconnect issued");
         } else {
-            debug!("Ignoring reconnect command. Currently not in secured state");
+            log::debug!("Ignoring reconnect command. Currently not in secured state");
             Self::oneshot_send(tx, false, "reconnect issued");
         }
     }
@@ -1503,7 +1502,7 @@ where
             geoip::send_location_request(rpc_service)
                 .await
                 .map_err(|e| {
-                    warn!("Unable to fetch GeoIP location: {}", e.display_chain());
+                    log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
                 })
         }
     }
@@ -1626,11 +1625,13 @@ where
                 if account_changed {
                     match account_token {
                         Some(_) => {
-                            info!("Initiating tunnel restart because the account token changed");
+                            log::info!(
+                                "Initiating tunnel restart because the account token changed"
+                            );
                             self.reconnect_tunnel();
                         }
                         None => {
-                            info!("Disconnecting because account token was cleared");
+                            log::info!("Disconnecting because account token was cleared");
                             self.set_target_state(TargetState::Unsecured).await;
                         }
                     };
@@ -1840,7 +1841,7 @@ where
     #[cfg(target_os = "linux")]
     fn on_get_split_tunnel_processes(&mut self, tx: ResponseTx<Vec<i32>, split_tunnel::Error>) {
         let result = self.exclude_pids.list().map_err(|error| {
-            error!("{}", error.display_chain_with_msg("Unable to obtain PIDs"));
+            log::error!("{}", error.display_chain_with_msg("Unable to obtain PIDs"));
             error
         });
         Self::oneshot_send(tx, result, "get_split_tunnel_processes response");
@@ -1849,7 +1850,7 @@ where
     #[cfg(target_os = "linux")]
     fn on_add_split_tunnel_process(&mut self, tx: ResponseTx<(), split_tunnel::Error>, pid: i32) {
         let result = self.exclude_pids.add(pid).map_err(|error| {
-            error!("{}", error.display_chain_with_msg("Unable to add PID"));
+            log::error!("{}", error.display_chain_with_msg("Unable to add PID"));
             error
         });
         Self::oneshot_send(tx, result, "add_split_tunnel_process response");
@@ -1862,7 +1863,7 @@ where
         pid: i32,
     ) {
         let result = self.exclude_pids.remove(pid).map_err(|error| {
-            error!("{}", error.display_chain_with_msg("Unable to remove PID"));
+            log::error!("{}", error.display_chain_with_msg("Unable to remove PID"));
             error
         });
         Self::oneshot_send(tx, result, "remove_split_tunnel_process response");
@@ -1871,7 +1872,7 @@ where
     #[cfg(target_os = "linux")]
     fn on_clear_split_tunnel_processes(&mut self, tx: ResponseTx<(), split_tunnel::Error>) {
         let result = self.exclude_pids.clear().map_err(|error| {
-            error!("{}", error.display_chain_with_msg("Unable to clear PIDs"));
+            log::error!("{}", error.display_chain_with_msg("Unable to clear PIDs"));
             error
         });
         Self::oneshot_send(tx, result, "clear_split_tunnel_processes response");
@@ -2015,13 +2016,13 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
-                        info!("Initiating tunnel restart");
+                        log::info!("Initiating tunnel restart");
                         self.reconnect_tunnel();
                     }
                 }
             }
             Err(error) => {
-                error!(
+                log::error!(
                     "{}",
                     error.display_chain_with_msg("Unable to save settings")
                 );
@@ -2042,12 +2043,12 @@ where
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
-                    info!("Initiating tunnel restart because the relay settings changed");
+                    log::info!("Initiating tunnel restart because the relay settings changed");
                     self.reconnect_tunnel();
                 }
             }
             Err(e) => {
-                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "update_relay_settings response");
             }
         }
@@ -2065,7 +2066,7 @@ where
                 }
             }
             Err(e) => {
-                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_allow_lan response");
             }
         }
@@ -2088,7 +2089,7 @@ where
                 }
             }
             Err(e) => {
-                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_show_beta_releases response");
             }
         }
@@ -2115,7 +2116,7 @@ where
                 }
             }
             Err(e) => {
-                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_block_when_disconnected response");
             }
         }
@@ -2136,7 +2137,7 @@ where
                 }
             }
             Err(e) => {
-                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set auto-connect response");
             }
         }
@@ -2155,7 +2156,7 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     if let Some(TunnelType::OpenVpn) = self.get_connected_tunnel_type() {
-                        info!(
+                        log::info!(
                             "Initiating tunnel restart because the OpenVPN mssfix setting changed"
                         );
                         self.reconnect_tunnel();
@@ -2163,7 +2164,7 @@ where
                 }
             }
             Err(e) => {
-                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_openvpn_mssfix response");
             }
         }
@@ -2228,12 +2229,12 @@ where
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
-                    info!("Initiating tunnel restart because the enable IPv6 setting changed");
+                    log::info!("Initiating tunnel restart because the enable IPv6 setting changed");
                     self.reconnect_tunnel();
                 }
             }
             Err(e) => {
-                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_enable_ipv6 response");
             }
         }
@@ -2256,7 +2257,7 @@ where
                 }
             }
             Err(e) => {
-                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_dns_options response");
             }
         }
@@ -2319,7 +2320,7 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
-                        info!(
+                        log::info!(
                             "Initiating tunnel restart because the WireGuard MTU setting changed"
                         );
                         self.reconnect_tunnel();
@@ -2327,7 +2328,7 @@ where
                 }
             }
             Err(e) => {
-                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_wireguard_mtu response");
             }
         }
@@ -2352,7 +2353,7 @@ where
                 }
             }
             Err(e) => {
-                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_wireguard_rotation_interval response");
             }
         }
@@ -2486,7 +2487,7 @@ where
 
     fn oneshot_send<T>(tx: oneshot::Sender<T>, t: T, msg: &'static str) {
         if tx.send(t).is_err() {
-            warn!("Unable to send {} to the daemon command sender", msg);
+            log::warn!("Unable to send {} to the daemon command sender", msg);
         }
     }
 
@@ -2555,7 +2556,7 @@ where
     /// Returns a bool representing whether or not a state change was initiated.
     async fn set_target_state(&mut self, new_state: TargetState) -> bool {
         if new_state != self.target_state || self.tunnel_state.is_in_error_state() {
-            debug!("Target state {:?} => {:?}", self.target_state, new_state);
+            log::debug!("Target state {:?} => {:?}", self.target_state, new_state);
 
             if new_state != self.target_state {
                 self.target_state = new_state;

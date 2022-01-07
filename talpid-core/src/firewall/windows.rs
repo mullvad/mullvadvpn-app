@@ -5,7 +5,6 @@ use std::{net::IpAddr, path::Path, ptr};
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, FirewallT, InitialFirewallState};
 use crate::winnet;
-use log::{debug, error, trace};
 use talpid_types::{
     net::{AllowedEndpoint, Endpoint},
     tunnel::FirewallPolicyError,
@@ -77,7 +76,7 @@ impl FirewallT for Firewall {
             };
         }
 
-        trace!("Successfully initialized windows firewall module");
+        log::trace!("Successfully initialized windows firewall module");
         Ok(Firewall(()))
     }
 
@@ -136,9 +135,9 @@ impl Drop for Firewall {
                 .into_result()
                 .is_ok()
         } {
-            trace!("Successfully deinitialized windows firewall module");
+            log::trace!("Successfully deinitialized windows firewall module");
         } else {
-            error!("Failed to deinitialize windows firewall module");
+            log::error!("Failed to deinitialize windows firewall module");
         };
     }
 }
@@ -152,7 +151,7 @@ impl Firewall {
         allowed_endpoint: &WinFwAllowedEndpoint<'_>,
         relay_client: &Path,
     ) -> Result<(), Error> {
-        trace!("Applying 'connecting' firewall policy");
+        log::trace!("Applying 'connecting' firewall policy");
         let ip_str = widestring_ip(endpoint.address.ip());
         let winfw_relay = WinFwEndpoint {
             ip: ip_str.as_ptr(),
@@ -192,7 +191,7 @@ impl Firewall {
         dns_servers: &[IpAddr],
         relay_client: &Path,
     ) -> Result<(), Error> {
-        trace!("Applying 'connected' firewall policy");
+        log::trace!("Applying 'connected' firewall policy");
         let ip_str = widestring_ip(endpoint.address.ip());
         let v4_gateway = widestring_ip(tunnel_metadata.ipv4_gateway.into());
         let v6_gateway = tunnel_metadata
@@ -212,9 +211,9 @@ impl Firewall {
             .map_err(Error::SetTunMetric)?;
 
         if metrics_set {
-            debug!("Network interface metrics were changed");
+            log::debug!("Network interface metrics were changed");
         } else {
-            debug!("Network interface metrics were not changed");
+            log::debug!("Network interface metrics were not changed");
         }
 
         let v6_gateway_ptr = match &v6_gateway {
@@ -249,7 +248,7 @@ impl Firewall {
         winfw_settings: &WinFwSettings,
         allowed_endpoint: &WinFwAllowedEndpoint<'_>,
     ) -> Result<(), Error> {
-        trace!("Applying 'blocked' firewall policy");
+        log::trace!("Applying 'blocked' firewall policy");
         unsafe {
             WinFw_ApplyPolicyBlocked(winfw_settings, allowed_endpoint)
                 .into_result()
