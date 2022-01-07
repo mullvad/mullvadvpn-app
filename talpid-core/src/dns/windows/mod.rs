@@ -4,7 +4,6 @@ use crate::{
 };
 
 use lazy_static::lazy_static;
-use log::{error, trace, warn};
 use std::{env, io, net::IpAddr, path::Path};
 use talpid_types::ErrorExt;
 use widestring::WideCString;
@@ -102,8 +101,8 @@ impl super::DnsMonitorT for DnsMonitor {
 
         if *GLOBAL_DNS_CACHE_POLICY && is_minimum_windows10() {
             if let Err(error) = set_dns_cache_policy(servers) {
-                error!("{}", error.display_chain());
-                warn!("DNS resolution may be slowed down");
+                log::error!("{}", error.display_chain());
+                log::warn!("DNS resolution may be slowed down");
             }
         }
 

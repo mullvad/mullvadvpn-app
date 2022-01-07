@@ -1,6 +1,5 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use futures::channel::mpsc;
-use log::{debug, trace};
 use parking_lot::Mutex;
 use std::{
     collections::HashMap,
@@ -277,7 +276,7 @@ impl super::DnsMonitorT for DnsMonitor {
                         tunnel_tx: self.tunnel_tx.clone(),
                     }
                 } else {
-                    debug!("No change, new DNS same as the one already set");
+                    log::debug!("No change, new DNS same as the one already set");
                     state
                 }
             }
@@ -293,7 +292,7 @@ impl super::DnsMonitorT for DnsMonitor {
                 if let Some(settings) = settings {
                     settings.save(&self.store, service_path.as_str())?;
                 } else {
-                    debug!("Removing DNS for {}", service_path);
+                    log::debug!("Removing DNS for {}", service_path);
                     if !self.store.remove(CFString::new(&service_path)) {
                         return Err(Error::SettingDnsFailed);
                     }
@@ -410,13 +409,13 @@ fn dns_change_callback_internal(
     for path in &changed_keys {
         let should_set_dns = match DnsSettings::load(&store, path.clone()).ok() {
             None => {
-                debug!("Detected DNS removed for {}", *path);
+                log::debug!("Detected DNS removed for {}", *path);
                 state.backup.insert(path.to_string(), None);
                 true
             }
             Some(new_settings) => {
                 if new_settings.dict != state.dns_settings.dict {
-                    debug!("Detected DNS change for {}", *path);
+                    log::debug!("Detected DNS change for {}", *path);
                     state.backup.insert(path.to_string(), Some(new_settings));
                     true
                 } else {

@@ -2,7 +2,6 @@ use fern::{
     colors::{Color, ColoredLevelConfig},
     Output,
 };
-use log;
 use std::{fmt, io, path::PathBuf};
 use talpid_core::logging::rotate_log;
 

@@ -1,5 +1,4 @@
 use clap::{crate_authors, crate_description, crate_name, App, Arg};
-use log;
 
 use crate::version;
 
