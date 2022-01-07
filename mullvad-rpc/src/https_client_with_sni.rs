@@ -162,7 +162,7 @@ impl fmt::Debug for HttpsConnectorWithSni {
 }
 
 impl Service<Uri> for HttpsConnectorWithSni {
-    type Response = MaybeHttpsStream<TcpStream>;
+    type Response = MaybeHttpsStream<TcpStream<TokioTcpStream>>;
     type Error = io::Error;
     type Future =
         Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;

@@ -23,7 +23,7 @@ use std::{
     time::{Duration, Instant},
 };
 use talpid_types::ErrorExt;
-use tokio::runtime::Handle;
+use tokio::{net::TcpStream, runtime::Handle};
 
 pub use hyper::StatusCode;
 
@@ -88,7 +88,7 @@ impl Error {
 pub(crate) struct RequestService {
     command_tx: mpsc::Sender<RequestCommand>,
     command_rx: mpsc::Receiver<RequestCommand>,
-    sockets: BTreeMap<usize, TcpStreamHandle>,
+    sockets: BTreeMap<usize, TcpStreamHandle<TcpStream>>,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
     handle: Handle,
     next_id: u64,
@@ -296,7 +296,7 @@ pub(crate) enum RequestCommand {
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
     RequestFinished(u64),
-    SocketOpened(usize, TcpStreamHandle),
+    SocketOpened(usize, TcpStreamHandle<TcpStream>),
     SocketClosed(usize),
     Reset(oneshot::Sender<()>),
 }

@@ -16,11 +16,11 @@ use tokio::{
 };
 
 #[derive(Debug)]
-pub struct TcpStreamHandle {
-    inner: Weak<Mutex<Option<StreamInner>>>,
+pub struct TcpStreamHandle<S: AsyncRead + AsyncWrite + Connection + Unpin> {
+    inner: Weak<Mutex<Option<StreamInner<S>>>>,
 }
 
-impl TcpStreamHandle {
+impl TcpStreamHandle<TokioTcpStream> {
     pub fn close(self) {
         if let Some(inner_lock) = self.inner.upgrade() {
             if let Ok(Some(inner)) = inner_lock.lock().map(|mut inner| inner.take()) {
@@ -37,15 +37,15 @@ impl TcpStreamHandle {
     }
 }
 
-pub struct TcpStream {
-    inner: Arc<Mutex<Option<StreamInner>>>,
+pub struct TcpStream<S: AsyncRead + AsyncWrite + Connection + Unpin> {
+    inner: Arc<Mutex<Option<StreamInner<S>>>>,
 }
 
-impl TcpStream {
-    pub fn new(
-        stream: TokioTcpStream,
-        shutdown_tx: Option<oneshot::Sender<()>>,
-    ) -> (Self, TcpStreamHandle) {
+impl<S> TcpStream<S>
+where
+    S: AsyncRead + AsyncWrite + Connection + Unpin,
+{
+    pub fn new(stream: S, shutdown_tx: Option<oneshot::Sender<()>>) -> (Self, TcpStreamHandle<S>) {
         let inner = Arc::new(Mutex::new(Some(StreamInner {
             stream,
             shutdown_tx,
@@ -56,11 +56,7 @@ impl TcpStream {
         (Self { inner }, stream_handle)
     }
 
-    fn do_stream<T>(
-        &self,
-        mut stream_fn: impl FnMut(&mut TokioTcpStream) -> T,
-        closed_value: T,
-    ) -> T {
+    fn do_stream<T>(&self, mut stream_fn: impl FnMut(&mut S) -> T, closed_value: T) -> T {
         let mut inner = self.inner.lock().expect("TCP lock poisoned");
         if let Some(inner) = &mut *inner {
             stream_fn(&mut inner.stream)
@@ -70,7 +66,10 @@ impl TcpStream {
     }
 }
 
-impl Drop for TcpStream {
+impl<S> Drop for TcpStream<S>
+where
+    S: AsyncRead + AsyncWrite + Connection + Unpin,
+{
     fn drop(&mut self) {
         if let Ok(Some(mut inner)) = self.inner.lock().map(|mut inner| inner.take()) {
             if let Some(tx) = inner.shutdown_tx.take() {
@@ -80,7 +79,10 @@ impl Drop for TcpStream {
     }
 }
 
-impl AsyncWrite for TcpStream {
+impl<S> AsyncWrite for TcpStream<S>
+where
+    S: AsyncRead + AsyncWrite + Connection + Unpin,
+{
     fn poll_write(
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
@@ -110,7 +112,10 @@ impl AsyncWrite for TcpStream {
     }
 }
 
-impl AsyncRead for TcpStream {
+impl<S> AsyncRead for TcpStream<S>
+where
+    S: AsyncRead + AsyncWrite + Connection + Unpin,
+{
     fn poll_read(
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
@@ -126,15 +131,22 @@ impl AsyncRead for TcpStream {
     }
 }
 
-impl Connection for TcpStream {
+impl<S> Connection for TcpStream<S>
+where
+    S: AsyncRead + AsyncWrite + Connection + Unpin,
+{
     fn connected(&self) -> Connected {
-        Connected::new()
+        if let Some(inner) = &*self.inner.lock().unwrap() {
+            inner.stream.connected()
+        } else {
+            Connected::new()
+        }
     }
 }
 
 #[derive(Debug)]
-struct StreamInner {
-    stream: TokioTcpStream,
+struct StreamInner<S: AsyncRead + AsyncWrite + Connection + Unpin> {
+    stream: S,
     shutdown_tx: Option<oneshot::Sender<()>>,
 }
 
