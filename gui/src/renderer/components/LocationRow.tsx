@@ -7,6 +7,7 @@ import { messages } from '../../shared/gettext';
 import Accordion from './Accordion';
 import * as Cell from './cell';
 import ChevronButton from './ChevronButton';
+import { normalText } from './common-styles';
 import RelayStatusIndicator from './RelayStatusIndicator';
 
 interface IContainerProps {
@@ -46,6 +47,7 @@ const Button = styled.button((props: { location: RelayLocation }) => {
   return {
     display: 'flex',
     alignItems: 'center',
+    minHeight: '44px',
     flex: 1,
     border: 'none',
     background: 'none',
@@ -58,10 +60,8 @@ const StyledChevronButton = styled(ChevronButton)({
   marginLeft: '18px',
 });
 
-const Label = styled(Cell.Label)({
-  fontFamily: 'Open Sans',
-  fontWeight: 'normal',
-  fontSize: '16px',
+const Label = styled(Cell.Label)(normalText, {
+  fontWeight: 400,
 });
 
 interface IProps {

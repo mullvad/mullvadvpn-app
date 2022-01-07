@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { normalText, tinyText } from './common-styles';
 import ImageView from './ImageView';
 
 export const StyledNavigationBarSeparator = styled.div({
@@ -24,10 +25,8 @@ export const StyledNavigationBar = styled.nav((props: { unpinnedWindow: boolean 
   paddingTop: window.env.platform === 'darwin' && !props.unpinnedWindow ? '24px' : '12px',
 }));
 
-export const StyledTitleBarItemLabel = styled.h1({}, (props: { visible?: boolean }) => ({
-  fontFamily: 'Open Sans',
-  fontSize: '16px',
-  fontWeight: 600,
+export const StyledTitleBarItemLabel = styled.h1(normalText, (props: { visible?: boolean }) => ({
+  fontWeight: 400,
   lineHeight: '22px',
   color: colors.white,
   padding: '0 5px',
@@ -70,10 +69,8 @@ export const StyledBackBarItemIcon = styled(ImageView)({
   },
 });
 
-export const StyledBackBarItemLabel = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
-  fontWeight: 600,
+export const StyledBackBarItemLabel = styled.span(tinyText, {
+  fontWeight: 400,
   color: colors.white60,
   whiteSpace: 'nowrap',
   [StyledBackBarItemButton + ':hover &']: {

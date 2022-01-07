@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../../config.json';
-import { mediumText } from '../common-styles';
+import { normalText } from '../common-styles';
 import { CellDisabledContext, Container } from './Container';
 import StandaloneSwitch from '../Switch';
 import ImageView from '../ImageView';
@@ -16,9 +16,8 @@ export const Switch = React.forwardRef(function SwitchT(
 });
 
 const inputTextStyles: React.CSSProperties = {
-  ...mediumText,
-  fontWeight: 600,
-  height: '28px',
+  ...normalText,
+  height: '18px',
   textAlign: 'right',
   padding: '0px',
 };
@@ -151,7 +150,7 @@ const InputFrame = styled.div((props: { focused: boolean }) => ({
   flexGrow: 0,
   backgroundColor: props.focused ? colors.white : 'rgba(255,255,255,0.1)',
   borderRadius: '4px',
-  padding: '4px 8px',
+  padding: '6px 8px',
 }));
 
 const StyledAutoSizingTextInputContainer = styled.div({
@@ -229,24 +228,22 @@ const StyledCellInputRowContainer = styled(Container)({
 const StyledSubmitButton = styled.button({
   border: 'none',
   backgroundColor: 'transparent',
-  padding: '14px 0',
+  padding: '10px 0',
 });
 
-const StyledInputWrapper = styled.div({}, (props: { marginLeft: number }) => ({
+const StyledInputWrapper = styled.div(normalText, (props: { marginLeft: number }) => ({
   position: 'relative',
   flex: 1,
   width: '171px',
   marginLeft: props.marginLeft + 'px',
   lineHeight: '24px',
   minHeight: '24px',
-  fontFamily: 'Open Sans',
-  fontWeight: 'normal',
-  fontSize: '16px',
-  padding: '14px 0',
+  fontWeight: 400,
+  padding: '10px 0',
   maxWidth: '100%',
 }));
 
-const StyledTextArea = styled.textarea({}, (props: { invalid?: boolean }) => ({
+const StyledTextArea = styled.textarea(normalText, (props: { invalid?: boolean }) => ({
   position: 'absolute',
   top: 0,
   left: 0,
@@ -256,11 +253,9 @@ const StyledTextArea = styled.textarea({}, (props: { invalid?: boolean }) => ({
   border: 'none',
   flex: 1,
   lineHeight: '24px',
-  fontFamily: 'Open Sans',
-  fontWeight: 'normal',
-  fontSize: '16px',
+  fontWeight: 400,
   resize: 'none',
-  padding: '14px 25px 14px 0',
+  padding: '10px 25px 10px 0',
   color: props.invalid ? colors.red : 'auto',
 }));
 
@@ -361,7 +356,7 @@ export function RowInput(props: IRowInputProps) {
       <StyledSubmitButton onClick={submit}>
         <ImageView
           source="icon-check"
-          height={22}
+          height={18}
           tintColor={value === '' ? colors.blue60 : colors.blue}
           tintHoverColor={value === '' ? colors.blue60 : colors.blue80}
         />

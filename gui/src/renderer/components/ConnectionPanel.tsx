@@ -11,6 +11,7 @@ import {
 } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { default as ConnectionPanelDisclosure } from '../components/ConnectionPanelDisclosure';
+import { tinyText } from './common-styles';
 import Marquee from './Marquee';
 
 export interface IEndpoint {
@@ -50,11 +51,8 @@ const Row = styled.div({
   marginTop: '3px',
 });
 
-const Text = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
+const Text = styled.span(tinyText, {
   lineHeight: '15px',
-  fontWeight: 600,
   color: colors.white,
 });
 

@@ -4,23 +4,16 @@ import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
 import * as AppButton from './AppButton';
+import { tinyText } from './common-styles';
 import ImageView from './ImageView';
 
 const NOTIFICATION_AREA_ID = 'notification-area';
 
-export const NotificationTitle = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
-  fontWeight: 800,
-  lineHeight: '18px',
+export const NotificationTitle = styled.span(tinyText, {
   color: colors.white,
 });
 
-export const NotificationSubtitleText = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
-  fontWeight: 600,
-  lineHeight: '18px',
+export const NotificationSubtitleText = styled.span(tinyText, {
   color: colors.white60,
 });
 

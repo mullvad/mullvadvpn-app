@@ -6,7 +6,7 @@ import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
-import { mediumText } from './common-styles';
+import { normalText } from './common-styles';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
 import {
@@ -23,7 +23,7 @@ const StyledContainer = styled(Container)({
 });
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
-  backgroundColor: colors.blue,
+  backgroundColor: colors.darkBlue,
   flex: 1,
 });
 
@@ -153,8 +153,11 @@ interface IStyledRowTitleProps {
 
 const StyledRow = styled.div({
   display: 'flex',
-  height: '42px',
-  padding: '9px 22px',
+  height: '44px',
+  alignItems: 'center',
+  padding: '0 22px',
+  marginBottom: '1px',
+  backgroundColor: colors.blue,
 });
 
 const StyledCheckbox = styled.div({
@@ -167,10 +170,8 @@ const StyledCheckbox = styled.div({
   borderRadius: '4px',
 });
 
-const StyledRowTitle = styled.label((props: IStyledRowTitleProps) => ({
-  ...mediumText,
-  fontSize: '16px',
-  fontWeight: props.bold ? 800 : 600,
+const StyledRowTitle = styled.label(normalText, (props: IStyledRowTitleProps) => ({
+  fontWeight: props.bold ? 600 : 400,
   color: colors.white,
   marginLeft: '22px',
 }));
@@ -187,7 +188,7 @@ function ProviderRow(props: IProviderRowProps) {
   return (
     <StyledRow onClick={onCheck}>
       <StyledCheckbox role="checkbox" aria-label={props.provider} aria-checked={props.checked}>
-        {props.checked && <ImageView source="icon-tick" width={16} tintColor={colors.green} />}
+        {props.checked && <ImageView source="icon-tick" width={18} tintColor={colors.green} />}
       </StyledCheckbox>
       <StyledRowTitle aria-hidden bold={props.bold}>
         {props.provider}

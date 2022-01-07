@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import ImageView from './ImageView';
 import * as Cell from './cell';
-import { bigText, smallText, sourceSansPro } from './common-styles';
+import { hugeText, largeText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
 
 export const StyledAccountDropdownContainer = styled.ul({
@@ -54,7 +54,7 @@ export const StyledAccountDropdownItemButton = styled(Cell.CellButton)({
   },
 });
 
-export const StyledAccountDropdownItemButtonLabel = styled(Cell.Label)({
+export const StyledAccountDropdownItemButtonLabel = styled(Cell.Label)(largeText, {
   padding: '11px 0px 11px 12px',
   margin: '0',
   color: colors.blue80,
@@ -135,33 +135,28 @@ export const StyledDropdownSpacer = styled.div({
   backgroundColor: colors.darkBlue,
 });
 
-export const StyledLoginFooterPrompt = styled.span({
-  color: colors.white80,
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
-  fontWeight: 600,
-  lineHeight: '18px',
+export const StyledLoginFooterPrompt = styled.span(tinyText, {
+  color: colors.white60,
   marginBottom: '8px',
 });
 
-export const StyledTitle = styled.h1(bigText, {
+export const StyledTitle = styled.h1(hugeText, {
   lineHeight: '40px',
   marginBottom: '7px',
   flex: 0,
 });
 
-export const StyledSubtitle = styled.span(smallText, {
+export const StyledSubtitle = styled.span(tinyText, {
   lineHeight: '15px',
   marginBottom: '8px',
+  color: colors.white60,
 });
 
-export const StyledInput = styled(FormattableTextInput)({
-  ...sourceSansPro,
+export const StyledInput = styled(FormattableTextInput)(largeText, {
+  fontWeight: 700,
   minWidth: 0,
   borderWidth: 0,
-  padding: '10px 12px 12px',
-  fontSize: '20px',
-  lineHeight: '26px',
+  padding: '12px 12px 12px',
   color: colors.blue,
   backgroundColor: 'transparent',
   flex: 1,

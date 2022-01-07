@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../../../config.json';
 import { AriaInput, AriaLabel } from '../AriaGroup';
 import * as Cell from '.';
+import { normalText } from '../common-styles';
 
 export interface ISelectorItem<T> {
   label: string;
@@ -67,10 +68,8 @@ const StyledCellIcon = styled(Cell.Icon)((props: { visible: boolean }) => ({
   marginRight: '8px',
 }));
 
-const StyledLabel = styled(Cell.Label)({
-  fontFamily: 'Open Sans',
-  fontWeight: 'normal',
-  fontSize: '16px',
+const StyledLabel = styled(Cell.Label)(normalText, {
+  fontWeight: 400,
 });
 
 interface ISelectorCellProps<T> {
@@ -96,8 +95,7 @@ class SelectorCell<T> extends React.Component<ISelectorCellProps<T>> {
         <StyledCellIcon
           visible={this.props.selected}
           source="icon-tick"
-          width={24}
-          height={24}
+          width={18}
           tintColor={colors.white}
         />
         <StyledLabel>{this.props.children}</StyledLabel>
