@@ -1,21 +1,20 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../../config.json';
-import { buttonText, smallText } from '../common-styles';
+import { buttonText, tinyText } from '../common-styles';
 import ImageView, { IImageViewProps } from '../ImageView';
 import { CellButton } from './CellButton';
 import { CellDisabledContext } from './Container';
 
 const StyledLabel = styled.div(buttonText, (props: { disabled: boolean }) => ({
-  margin: '14px 0',
+  margin: '10px 0',
   flex: 1,
   color: props.disabled ? colors.white40 : colors.white,
   textAlign: 'left',
 }));
 
-const StyledSubText = styled.span(smallText, (props: { disabled: boolean }) => ({
+const StyledSubText = styled.span(tinyText, (props: { disabled: boolean }) => ({
   color: props.disabled ? colors.white20 : colors.white60,
-  fontWeight: 800,
   flex: -1,
   textAlign: 'right',
   marginLeft: '8px',

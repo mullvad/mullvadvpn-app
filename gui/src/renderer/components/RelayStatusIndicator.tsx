@@ -11,6 +11,7 @@ const StyledRelayStatus = styled.div((props: { active: boolean }) => ({
 }));
 
 const TickIcon = styled(Cell.Icon)({
+  marginLeft: '3px',
   marginRight: '8px',
 });
 
@@ -21,7 +22,7 @@ interface IProps {
 
 export default function RelayStatusIndicator(props: IProps) {
   return props.selected ? (
-    <TickIcon tintColor={colors.white} source="icon-tick" height={24} width={24} />
+    <TickIcon tintColor={colors.white} source="icon-tick" width={18} />
   ) : (
     <StyledRelayStatus active={props.active} />
   );

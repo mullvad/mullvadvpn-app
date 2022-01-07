@@ -25,8 +25,12 @@ export const StyledContent = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  justifyContent: 'space-between',
   overflow: 'visible',
+});
+
+export const StyledSettingsContent = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
 });
 
 export const StyledCellSpacer = styled.div({

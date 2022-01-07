@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
-import { smallText } from './common-styles';
+import { tinyText } from './common-styles';
 import { Container } from './Layout';
 import { ScopeBar } from './ScopeBar';
 import SettingsHeader from './SettingsHeader';
@@ -52,8 +52,7 @@ export const StyledFilterMenu = styled.div({
   zIndex: 2,
 });
 
-export const StyledFilterByProviderButton = styled.button({
-  ...smallText,
+export const StyledFilterByProviderButton = styled.button(tinyText, {
   borderWidth: 0,
   margin: 0,
   cursor: 'default',
@@ -73,14 +72,14 @@ export const StyledSettingsHeader = styled(SettingsHeader)({
 });
 
 export const StyledProviderCountRow = styled.div({
-  ...smallText,
+  ...tinyText,
   color: colors.white,
   marginLeft: '6px',
   marginBottom: '8px',
 });
 
 export const StyledProvidersCount = styled.div({
-  ...smallText,
+  ...tinyText,
   display: 'inline-flex',
   alignItems: 'center',
   backgroundColor: colors.blue,

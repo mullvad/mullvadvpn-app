@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
-import { smallText } from './common-styles';
+import { normalText, smallText, tinyText } from './common-styles';
 import { Container } from './Layout';
 import { NavigationScrollbars } from './NavigationBar';
 
@@ -24,7 +24,7 @@ export const StyledMessages = styled.div({
 });
 
 export const StyledMessage = styled.span(smallText, (props: { success: boolean }) => ({
-  fontWeight: props.success ? 600 : 800,
+  fontWeight: props.success ? 600 : 700,
   color: props.success ? colors.green : colors.red,
 }));
 
@@ -43,20 +43,17 @@ export const StyledLastButtonRow = styled(StyledButtonRow)({
   marginBottom: '22px',
 });
 
-export const StyledRowLabel = styled.span(smallText, {
-  display: 'flex',
+export const StyledRowLabel = styled.span(tinyText, {
   color: colors.white60,
-  marginBottom: '9px',
+  lineHeight: '20px',
+  marginBottom: '5px',
 });
 
 export const StyledRowLabelSpacer = styled.div({
   flex: 1,
 });
 
-export const StyledRowValue = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '16px',
-  lineHeight: '19px',
-  fontWeight: 800,
+export const StyledRowValue = styled.span(normalText, {
+  fontWeight: 600,
   color: colors.white,
 });

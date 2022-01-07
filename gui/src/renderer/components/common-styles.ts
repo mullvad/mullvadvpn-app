@@ -7,33 +7,52 @@ export const openSans: React.CSSProperties = {
 
 export const sourceSansPro: React.CSSProperties = {
   fontFamily: '"Source Sans Pro", "Noto Sans Myanmar", "Noto Sans Thai", sans-serif',
-  fontWeight: 'bold',
+};
+
+export const tinyText = {
+  ...openSans,
+  fontSize: '12px',
+  fontWeight: 600,
+  lineHeight: '18px',
 };
 
 export const smallText = {
   ...openSans,
-  fontSize: '13px',
+  fontSize: '14px',
   fontWeight: 600,
   lineHeight: '20px',
   color: colors.white80,
 };
 
-export const mediumText = {
+export const normalText = {
   ...openSans,
+  fontSize: '15px',
+  lineHeight: '18px',
+};
+
+export const largeText = {
+  ...sourceSansPro,
+  fontWeight: 600,
   fontSize: '18px',
   lineHeight: '24px',
 };
 
 export const buttonText = {
-  ...sourceSansPro,
-  fontSize: '20px',
-  lineHeight: '24px',
+  ...largeText,
   color: colors.white,
 };
 
 export const bigText = {
   ...sourceSansPro,
+  fontSize: '24px',
+  fontWeight: 700,
+  lineHeight: '28px',
+};
+
+export const hugeText = {
+  ...sourceSansPro,
   fontSize: '32px',
+  fontWeight: 700,
   lineHeight: '34px',
   color: colors.white,
 };

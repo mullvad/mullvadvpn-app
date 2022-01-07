@@ -3,7 +3,7 @@ import { colors } from '../../config.json';
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { bigText, smallText } from './common-styles';
+import { hugeText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { DefaultHeaderBar } from './HeaderBar';
 import { Container } from './Layout';
@@ -16,7 +16,7 @@ export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
   fontFamily: 'Open Sans',
   lineHeight: '20px',
   fontSize: '20px',
-  fontWeight: 800,
+  fontWeight: 700,
   color: colors.white,
 });
 
@@ -57,17 +57,17 @@ export const StyledFooter = styled.div({
   padding: '18px 22px 22px',
 });
 
-export const StyledTitle = styled.span(bigText, {
+export const StyledTitle = styled.span(hugeText, {
   lineHeight: '38px',
   marginBottom: '8px',
 });
 
-export const StyledMessage = styled.span(smallText, {
+export const StyledMessage = styled.span(tinyText, {
   marginBottom: '20px',
   color: colors.white,
 });
 
-export const StyledAccountTokenMessage = styled.span(smallText, {
+export const StyledAccountTokenMessage = styled.span(tinyText, {
   color: colors.white,
 });
 

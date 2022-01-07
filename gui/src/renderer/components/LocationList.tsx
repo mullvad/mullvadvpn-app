@@ -221,7 +221,7 @@ const StyledSpecialLocationCellButton = styled(Cell.CellButton)({
 
 const StyledSpecialLocationCellLabel = styled(Cell.Label)({
   fontFamily: 'Open Sans',
-  fontWeight: 'normal',
+  fontWeight: 400,
   fontSize: '16px',
 });
 

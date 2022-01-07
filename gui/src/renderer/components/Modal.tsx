@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
 import CustomScrollbars from './CustomScrollbars';
+import { tinyText } from './common-styles';
 import ImageView from './ImageView';
 
 const MODAL_CONTAINER_ID = 'modal-container';
@@ -232,11 +233,7 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
   };
 }
 
-export const ModalMessage = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
-  fontWeight: 500,
-  lineHeight: '20px',
+export const ModalMessage = styled.span(tinyText, {
   color: colors.white80,
   marginTop: '16px',
 });

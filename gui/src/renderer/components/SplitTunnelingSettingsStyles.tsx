@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { mediumText, smallText } from './common-styles';
+import { normalText, smallText } from './common-styles';
 import ImageView from './ImageView';
 import { Container } from './Layout';
 import { NavigationScrollbars } from './NavigationBar';
@@ -52,13 +52,12 @@ export const StyledActionIcon = styled(ImageView)({
 });
 
 export const StyledCellWarningIcon = styled(Cell.Icon)({
-  marginLeft: '6px',
+  marginLeft: '9px',
+  marginRight: '3px',
 });
 
-export const StyledCellLabel = styled(Cell.Label)(disabledApplication, {
-  fontFamily: 'Open Sans',
-  fontWeight: 'normal',
-  fontSize: '16px',
+export const StyledCellLabel = styled(Cell.Label)(disabledApplication, normalText, {
+  fontWeight: 400,
   wordWrap: 'break-word',
   overflow: 'hidden',
 });
@@ -97,7 +96,7 @@ export const StyledSearchContainer = styled.div({
 });
 
 export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
-  ...mediumText,
+  ...normalText,
   width: 'calc(100% - 22px * 2)',
   border: 'none',
   borderRadius: '4px',
@@ -158,10 +157,6 @@ export const StyledNoResult = styled(Cell.Footer)({
 
 export const StyledNoResultText = styled(Cell.FooterText)({
   textAlign: 'center',
-});
-
-export const StyledNoResultSearchTerm = styled.span({
-  fontWeight: 'bold',
 });
 
 export const StyledDisabledWarning = styled.span(smallText, {

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { normalText } from './common-styles';
 import ImageView from './ImageView';
 
 const Container = styled.div({
@@ -9,9 +10,7 @@ const Container = styled.div({
   width: '100%',
 });
 
-const Caption = styled.span({}, (props: { open: boolean }) => ({
-  fontFamily: 'Open Sans',
-  fontSize: '15px',
+const Caption = styled.span(normalText, (props: { open: boolean }) => ({
   fontWeight: 600,
   lineHeight: '20px',
   minWidth: '0px',

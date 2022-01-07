@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { bigText, smallText } from './common-styles';
+import { colors } from '../../config.json';
+import { hugeText, tinyText } from './common-styles';
 
 export const Container = styled.div({
   flex: 0,
@@ -13,8 +14,10 @@ export const ContentWrapper = styled.div({
   },
 });
 
-export const HeaderTitle = styled.span(bigText);
-export const HeaderSubTitle = styled.span(smallText);
+export const HeaderTitle = styled.span(hugeText);
+export const HeaderSubTitle = styled.span(tinyText, {
+  color: colors.white60,
+});
 
 interface ISettingsHeaderProps {
   children?: React.ReactNode;

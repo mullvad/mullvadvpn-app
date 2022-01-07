@@ -13,7 +13,7 @@ import { generateRoutePath, RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
-import { bigText } from './common-styles';
+import { hugeText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { calculateHeaderBarStyle, DefaultHeaderBar, HeaderBarStyle } from './HeaderBar';
 import ImageView from './ImageView';
@@ -55,15 +55,12 @@ export const StyledFooter = styled.div({
   padding: '18px 22px 22px',
 });
 
-export const StyledTitle = styled.span(bigText, {
+export const StyledTitle = styled.span(hugeText, {
   lineHeight: '38px',
   marginBottom: '8px',
 });
 
-export const StyledLabel = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
-  fontWeight: 600,
+export const StyledLabel = styled.span(tinyText, {
   lineHeight: '20px',
   color: colors.white,
   marginBottom: '9px',

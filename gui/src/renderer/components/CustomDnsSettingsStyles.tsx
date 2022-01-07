@@ -19,7 +19,7 @@ export const StyledAddCustomDnsLabel = styled(Cell.Label)(
   {},
   (props: { paddingLeft?: number }) => ({
     fontFamily: 'Open Sans',
-    fontWeight: 'normal',
+    fontWeight: 400,
     fontSize: '16px',
     paddingLeft: (props.paddingLeft ?? 32) + 'px',
     whiteSpace: 'pre-wrap',
@@ -47,7 +47,7 @@ export const StyledButton = styled.button({
 
 export const StyledLabel = styled(Cell.Label)({
   fontFamily: 'Open Sans',
-  fontWeight: 'normal',
+  fontWeight: 400,
   fontSize: '16px',
   paddingLeft: '32px',
   whiteSpace: 'pre-wrap',

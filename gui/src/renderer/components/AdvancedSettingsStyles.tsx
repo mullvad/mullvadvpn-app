@@ -25,6 +25,6 @@ export const StyledNoWireguardKeyErrorContainer = styled(Cell.Footer)({
 });
 
 export const StyledNoWireguardKeyError = styled(Cell.FooterText)({
-  fontWeight: 800,
+  fontWeight: 700,
   color: colors.red,
 });

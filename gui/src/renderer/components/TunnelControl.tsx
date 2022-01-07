@@ -5,7 +5,7 @@ import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../shared/gettext';
 import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
-import { bigText } from './common-styles';
+import { hugeText, normalText } from './common-styles';
 import ImageView from './ImageView';
 import Marquee from './Marquee';
 import { MultiButton } from './MultiButton';
@@ -27,10 +27,8 @@ const SwitchLocationButton = styled(AppButton.TransparentButton)({
   marginBottom: '18px',
 });
 
-const Secured = styled(SecuredLabel)({
-  fontFamily: 'Open Sans',
-  fontSize: '16px',
-  fontWeight: 800,
+const Secured = styled(SecuredLabel)(normalText, {
+  fontWeight: 700,
   lineHeight: '22px',
   marginBottom: '2px',
 });
@@ -64,8 +62,7 @@ const Location = styled.div({
   marginBottom: 2,
 });
 
-const StyledMarquee = styled(Marquee)({
-  ...bigText,
+const StyledMarquee = styled(Marquee)(hugeText, {
   lineHeight: '36px',
   overflow: 'hidden',
 });

@@ -42,12 +42,12 @@ import {
   StyledNoResultText,
   StyledSearchContainer,
   StyledNoResult,
-  StyledNoResultSearchTerm,
   StyledDisabledWarning,
   StyledActionIcon,
   StyledCellWarningIcon,
   StyledListContainer,
 } from './SplitTunnelingSettingsStyles';
+import { formatMarkdown } from '../markdown-formatter';
 
 export default function SplitTunneling() {
   const { pop } = useHistory();
@@ -281,7 +281,7 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
         )}
         <StyledCellLabel lookDisabled={disabled}>{props.application.name}</StyledCellLabel>
         {props.application.warning && (
-          <StyledCellWarningIcon source="icon-alert" tintColor={warningColor} />
+          <StyledCellWarningIcon source="icon-alert" tintColor={warningColor} width={18} />
         )}
       </StyledCellButton>
       {showWarning && (
@@ -385,17 +385,6 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
   const showNonSplitSection =
     !filteredNonSplitApplications || filteredNonSplitApplications.length > 0;
 
-  const noResultTextParts = messages
-    .pgettext('split-tunneling-view', 'No result for %(searchTerm)s.')
-    .split('%(searchTerm)s', 2);
-  const noResult = (
-    <>
-      <span>{noResultTextParts[0]}</span>
-      <StyledNoResultSearchTerm>{searchTerm}</StyledNoResultSearchTerm>
-      <span>{noResultTextParts[1]}</span>
-    </>
-  );
-
   return (
     <>
       <SettingsHeader>
@@ -451,7 +440,14 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
 
       {searchTerm !== '' && !showSplitSection && !showNonSplitSection && (
         <StyledNoResult>
-          <StyledNoResultText>{noResult}</StyledNoResultText>
+          <StyledNoResultText>
+            {formatMarkdown(
+              sprintf(
+                messages.pgettext('split-tunneling-view', 'No result for **%(searchTerm)s**.'),
+                { searchTerm },
+              ),
+            )}
+          </StyledNoResultText>
           <StyledNoResultText>
             {messages.pgettext('split-tunneling-view', 'Try a different search.')}
           </StyledNoResultText>
@@ -527,8 +523,7 @@ function ApplicationRow<T extends IApplication>(props: IApplicationRowProps<T>) 
       {props.onSelect && (
         <StyledActionIcon
           source="icon-add"
-          width={24}
-          height={24}
+          width={18}
           onClick={onSelect}
           tintColor={colors.white40}
           tintHoverColor={colors.white60}
@@ -537,8 +532,7 @@ function ApplicationRow<T extends IApplication>(props: IApplicationRowProps<T>) 
       {props.onRemove && (
         <StyledActionIcon
           source="icon-remove"
-          width={24}
-          height={24}
+          width={18}
           onClick={onRemove}
           tintColor={colors.white40}
           tintHoverColor={colors.white60}
@@ -580,7 +574,7 @@ function SearchBar(props: ISearchBarProps) {
       <StyledSearchIcon source="icon-filter" width={24} tintColor={colors.white60} />
       {props.searchTerm.length > 0 && (
         <StyledClearButton onClick={onClear}>
-          <StyledClearIcon source="icon-close-sml" width={16} tintColor={colors.white40} />
+          <StyledClearIcon source="icon-close" width={18} tintColor={colors.white40} />
         </StyledClearButton>
       )}
     </StyledSearchContainer>

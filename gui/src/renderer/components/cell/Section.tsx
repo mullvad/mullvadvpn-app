@@ -9,8 +9,11 @@ const StyledSection = styled.div({
 });
 
 export const SectionTitle = styled.span(buttonText, {
+  display: 'flex',
+  minHeight: '44px',
+  alignItems: 'center',
   backgroundColor: colors.blue,
-  padding: '14px 16px 14px 22px',
+  padding: '0 16px 0 22px',
   marginBottom: '1px',
 });
 

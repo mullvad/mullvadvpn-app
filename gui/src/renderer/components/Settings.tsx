@@ -22,6 +22,7 @@ import {
   StyledNavigationScrollbars,
   StyledOutOfTimeSubText,
   StyledQuitButton,
+  StyledSettingsContent,
 } from './SettingsStyles';
 
 import { LoginState } from '../redux/account/reducers';
@@ -74,7 +75,7 @@ export default class Settings extends React.Component<IProps> {
               </NavigationItems>
             </NavigationBar>
 
-            <StyledNavigationScrollbars>
+            <StyledNavigationScrollbars fillContainer>
               <StyledContent>
                 {showLargeTitle && (
                   <SettingsHeader>
@@ -82,12 +83,14 @@ export default class Settings extends React.Component<IProps> {
                   </SettingsHeader>
                 )}
 
-                {this.renderTopButtons()}
-                {this.renderMiddleButtons()}
-                {this.renderBottomButtons()}
-
-                {this.renderQuitButton()}
+                <StyledSettingsContent>
+                  {this.renderTopButtons()}
+                  {this.renderMiddleButtons()}
+                  {this.renderBottomButtons()}
+                </StyledSettingsContent>
               </StyledContent>
+
+              {this.renderQuitButton()}
             </StyledNavigationScrollbars>
           </NavigationContainer>
         </StyledContainer>
@@ -177,7 +180,7 @@ export default class Settings extends React.Component<IProps> {
         ? inconsistentVersionMessage
         : updateAvailableMessage;
 
-      icon = <StyledCellIcon source="icon-alert" tintColor={colors.red} />;
+      icon = <StyledCellIcon source="icon-alert" width={18} tintColor={colors.red} />;
       footer = (
         <Cell.Footer>
           <Cell.FooterText>{message}</Cell.FooterText>

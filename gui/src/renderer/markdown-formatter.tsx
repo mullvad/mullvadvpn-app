@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 const boldSyntax = '**';
-const Bold = styled.span({ fontWeight: 'bold' });
+const Bold = styled.span({ fontWeight: 700 });
 
 export function formatMarkdown(inputString: string): React.ReactElement {
   const formattedString = inputString
