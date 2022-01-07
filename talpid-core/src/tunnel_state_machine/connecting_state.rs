@@ -16,7 +16,6 @@ use futures::{
     future::Fuse,
     FutureExt, StreamExt,
 };
-use log::{debug, error, info, trace, warn};
 use std::{
     path::{Path, PathBuf},
     thread,
@@ -77,7 +76,7 @@ impl ConnectingState {
             .firewall
             .apply_policy(policy)
             .map_err(|error| {
-                error!(
+                log::error!(
                     "{}",
                     error.display_chain_with_msg(
                         "Failed to apply firewall policy for connecting state"
@@ -145,7 +144,7 @@ impl ConnectingState {
 
             let block_reason = if let Some(monitor) = tunnel_monitor {
                 let reason = Self::wait_for_tunnel_monitor(monitor, retry_attempt);
-                debug!("Tunnel monitor exited with block reason: {:?}", reason);
+                log::debug!("Tunnel monitor exited with block reason: {:?}", reason);
                 reason
             } else {
                 None
@@ -158,10 +157,10 @@ impl ConnectingState {
             }
 
             if tunnel_close_event_tx.send(block_reason).is_err() {
-                warn!("Tunnel state machine stopped before receiving tunnel closed event");
+                log::warn!("Tunnel state machine stopped before receiving tunnel closed event");
             }
 
-            trace!("Tunnel monitor thread exit");
+            log::trace!("Tunnel monitor thread exit");
         });
 
         tunnel_close_event_rx.fuse()
@@ -183,14 +182,14 @@ impl ConnectingState {
                 error @ tunnel::Error::WireguardTunnelMonitoringError(..)
                     if !should_retry(&error, retry_attempt) =>
                 {
-                    error!(
+                    log::error!(
                         "{}",
                         error.display_chain_with_msg("Tunnel has stopped unexpectedly")
                     );
                     Some(ErrorStateCause::StartTunnelError)
                 }
                 error => {
-                    warn!(
+                    log::warn!(
                         "{}",
                         error.display_chain_with_msg("Tunnel has stopped unexpectedly")
                     );
@@ -402,7 +401,7 @@ impl ConnectingState {
             Some((TunnelEvent::Down, _)) => SameState(self.into()),
             None => {
                 // The channel was closed
-                debug!("The tunnel disconnected unexpectedly");
+                log::debug!("The tunnel disconnected unexpectedly");
                 let retry_attempt = self.retry_attempt + 1;
                 self.disconnect(shared_values, AfterDisconnect::Reconnect(retry_attempt))
             }
@@ -421,7 +420,7 @@ impl ConnectingState {
             return NewState(ErrorState::enter(shared_values, block_reason));
         }
 
-        info!(
+        log::info!(
             "Tunnel closed. Reconnecting, attempt {}.",
             self.retry_attempt + 1
         );
@@ -533,7 +532,7 @@ impl TunnelState for ConnectingState {
                     {
                         if retry_attempt > 0 && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0 {
                             if let Err(error) = shared_values.tun_provider.create_tun() {
-                                error!(
+                                log::error!(
                                     "{}",
                                     error.display_chain_with_msg("Failed to recreate tun device")
                                 );

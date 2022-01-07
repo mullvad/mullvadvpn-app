@@ -7,7 +7,6 @@ use crate::{
 };
 #[cfg(target_os = "android")]
 use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
-use log::{debug, info};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::net::IpAddr;
 #[cfg(target_os = "windows")]
@@ -133,16 +132,16 @@ impl Settings {
     /// The boolean in the Result indicates if the account token changed or not
     pub fn set_account_token(&mut self, mut account_token: Option<String>) -> bool {
         if account_token.as_ref().map(String::len) == Some(0) {
-            debug!("Setting empty account token is treated as unsetting it");
+            log::debug!("Setting empty account token is treated as unsetting it");
             account_token = None;
         }
         if account_token != self.account_token {
             if account_token.is_none() {
-                info!("Unsetting account token");
+                log::info!("Unsetting account token");
             } else if self.account_token.is_none() {
-                info!("Setting account token");
+                log::info!("Setting account token");
             } else {
-                info!("Changing account token")
+                log::info!("Changing account token")
             }
             self.account_token = account_token;
             true
@@ -175,9 +174,10 @@ impl Settings {
             if !update_supports_bridge && BridgeState::On == self.bridge_state {
                 self.bridge_state = BridgeState::Auto;
             }
-            debug!(
+            log::debug!(
                 "Changing relay settings:\n\tfrom: {}\n\tto: {}",
-                self.relay_settings, new_settings
+                self.relay_settings,
+                new_settings
             );
 
             self.relay_settings = new_settings;
