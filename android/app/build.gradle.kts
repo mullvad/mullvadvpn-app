@@ -14,7 +14,7 @@ val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = "${project.buildDir}/extraAssets"
 val extraJniDirectory = "${project.buildDir}/extraJni"
 
-val keystorePropertiesFile = file("$rootProject.projectDir/keystore.properties")
+val keystorePropertiesFile = file("${rootProject.projectDir}/keystore.properties")
 val keystoreProperties = Properties()
 
 if (keystorePropertiesFile.exists()) {
@@ -36,7 +36,7 @@ android {
 
     if (keystorePropertiesFile.exists()) {
         signingConfigs {
-            getByName("release") {
+            create("release") {
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
                 storeFile = file(keystoreProperties.getProperty("storeFile"))
