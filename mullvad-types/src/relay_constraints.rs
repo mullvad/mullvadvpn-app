@@ -3,7 +3,7 @@
 
 use crate::{
     location::{CityCode, CountryCode, Hostname},
-    relay_list::{OpenVpnEndpointData, Relay, WireguardEndpointData},
+    relay_list::{OpenVpnEndpointData, Relay},
     CustomTunnelEndpoint,
 };
 #[cfg(target_os = "android")]
@@ -380,48 +380,6 @@ impl fmt::Display for LocationConstraint {
     }
 }
 
-/// Deprecated. Contains protocol-specific constraints for relay selection.
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
-pub enum TunnelConstraints {
-    #[serde(rename = "openvpn")]
-    OpenVpn(OpenVpnConstraints),
-    #[serde(rename = "wireguard")]
-    Wireguard(WireguardConstraints),
-}
-
-impl fmt::Display for TunnelConstraints {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self {
-            TunnelConstraints::OpenVpn(openvpn_constraints) => {
-                write!(f, "OpenVPN over ")?;
-                openvpn_constraints.fmt(f)
-            }
-            TunnelConstraints::Wireguard(wireguard_constraints) => {
-                write!(f, "Wireguard over ")?;
-                wireguard_constraints.fmt(f)
-            }
-        }
-    }
-}
-
-impl Match<OpenVpnEndpointData> for TunnelConstraints {
-    fn matches(&self, endpoint: &OpenVpnEndpointData) -> bool {
-        match *self {
-            TunnelConstraints::OpenVpn(ref constraints) => constraints.matches(endpoint),
-            _ => false,
-        }
-    }
-}
-
-impl Match<WireguardEndpointData> for TunnelConstraints {
-    fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
-        match *self {
-            TunnelConstraints::Wireguard(ref constraints) => constraints.matches(endpoint),
-            _ => false,
-        }
-    }
-}
-
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct TransportPort {
     pub protocol: TransportProtocol,
@@ -498,24 +456,6 @@ impl fmt::Display for WireguardConstraints {
             }
         } else {
             Ok(())
-        }
-    }
-}
-
-impl Match<WireguardEndpointData> for WireguardConstraints {
-    fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
-        match self.port {
-            Constraint::Any => true,
-            Constraint::Only(transport_port) => {
-                transport_port.protocol == endpoint.protocol
-                    && match transport_port.port {
-                        Constraint::Any => true,
-                        Constraint::Only(port) => endpoint
-                            .port_ranges
-                            .iter()
-                            .any(|range| (port >= range.0 && port <= range.1)),
-                    }
-            }
         }
     }
 }
