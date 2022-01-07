@@ -11,12 +11,10 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.util.JobTracker
 
 open class UrlButton : Button {
-    private var shouldEnable = true
-
     var url: String? = null
     var withToken = false
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {
         loadAttributes(attributes)
@@ -49,21 +47,12 @@ open class UrlButton : Button {
         extraOnClickAction: (suspend () -> Unit)? = null
     ) {
         synchronized(this) {
-            super.setEnabled(shouldEnable)
-
             setOnClickAction(jobName, jobTracker) {
                 super.setEnabled(false)
                 context.startActivity(buildIntent(jobTracker, fetchAuthToken()))
                 extraOnClickAction?.invoke()
                 super.setEnabled(true)
             }
-        }
-    }
-
-    override fun setEnabled(enabled: Boolean) {
-        synchronized(this) {
-            shouldEnable = enabled
-            super.setEnabled(enabled)
         }
     }
 

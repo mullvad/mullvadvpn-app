@@ -44,6 +44,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
             newAccount = true
             prepare({ authTokenCache.fetchAuthToken() }, jobTracker)
+            isEnabled = true
         }
 
         view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
