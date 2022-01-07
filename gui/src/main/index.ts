@@ -14,7 +14,6 @@ import {
   Tray,
 } from 'electron';
 import * as path from 'path';
-import { sprintf } from 'sprintf-js';
 import util from 'util';
 import config from '../config.json';
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
@@ -513,10 +512,16 @@ class ApplicationMain {
     this.tunnelStateExpectation = new Expectation(async () => {
       this.trayIconController = new TrayIconController(
         tray,
+        windowController,
         this.trayIconType(this.tunnelState, this.settings.blockWhenDisconnected),
         this.guiSettings.monochromaticIcon,
+        () => setImmediate(() => void this.connectTunnel()),
+        () => setImmediate(() => void this.reconnectTunnel()),
+        () => setImmediate(() => void this.disconnectTunnel()),
       );
       await this.trayIconController.updateTheme();
+
+      this.setTrayContextMenu();
 
       if (process.platform === 'win32') {
         nativeTheme.on('updated', async () => {
@@ -574,7 +579,7 @@ class ApplicationMain {
           this.setMacOsAppMenu();
           break;
         case 'linux':
-          this.tray.setContextMenu(this.createTrayContextMenu());
+          this.setTrayContextMenu();
           this.setLinuxAppMenu();
           this.windowController.window.setMenuBarVisibility(false);
           break;
@@ -716,6 +721,7 @@ class ApplicationMain {
 
       // update the tray icon to indicate that the computer is not secure anymore
       this.updateTrayIcon({ state: 'disconnected' }, false);
+      this.setTrayContextMenu();
 
       // notify renderer process
       if (this.windowController) {
@@ -886,9 +892,7 @@ class ApplicationMain {
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
 
-    if (process.platform === 'linux') {
-      this.tray?.setContextMenu(this.createTrayContextMenu());
-    }
+    this.setTrayContextMenu();
 
     this.notificationController.notifyTunnelState(
       newState,
@@ -1563,6 +1567,8 @@ class ApplicationMain {
     } else if (oldAccount && newAccount && oldAccount !== newAccount) {
       this.accountDataCache.fetch(newAccount);
     }
+
+    this.setTrayContextMenu();
   }
 
   private updateAccountData() {
@@ -1685,6 +1691,8 @@ class ApplicationMain {
       messages: messagesTranslations,
       relayLocations: relayLocationsTranslations,
     };
+
+    this.setTrayContextMenu();
   }
 
   private blockPermissionRequests() {
@@ -1882,54 +1890,6 @@ class ApplicationMain {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   }
 
-  private createTrayContextMenu() {
-    const template: Electron.MenuItemConstructorOptions[] = [
-      {
-        label: sprintf(messages.pgettext('tray-icon-context-menu', 'Open %(mullvadVpn)s'), {
-          mullvadVpn: 'Mullvad VPN',
-        }),
-        click: () => this.windowController?.show(),
-      },
-      { type: 'separator' },
-      {
-        label: this.getContextMenuActionButtonLabel(),
-        click: () => {
-          if (this.tunnelState.state === 'disconnected') {
-            // Workaround: gRPC calls are sometimes delayed by a few seconds and setImmediate
-            // mitigates this. https://github.com/grpc/grpc-node/issues/882
-            setImmediate(() => void this.daemonRpc.connectTunnel());
-          } else {
-            setImmediate(() => void this.daemonRpc.disconnectTunnel());
-          }
-        },
-      },
-      {
-        label: messages.gettext('Reconnect'),
-        enabled: this.tunnelState.state === 'connected' || this.tunnelState.state === 'connecting',
-        click: () => setImmediate(() => void this.daemonRpc.reconnectTunnel()),
-      },
-    ];
-
-    return Menu.buildFromTemplate(template);
-  }
-
-  private getContextMenuActionButtonLabel() {
-    switch (this.tunnelState.state) {
-      case 'disconnected':
-        return messages.gettext('Connect');
-      case 'connecting':
-        return messages.gettext('Cancel');
-      case 'connected':
-        return messages.gettext('Disconnect');
-      case 'disconnecting':
-        return '';
-      case 'error':
-        return this.tunnelState.details.blockFailure
-          ? messages.gettext('Dismiss')
-          : messages.gettext('Cancel');
-    }
-  }
-
   private addContextMenu(windowController: WindowController) {
     const menuTemplate: Electron.MenuItemConstructorOptions[] = [
       { role: 'cut' },
@@ -1991,7 +1951,11 @@ class ApplicationMain {
           // This needs to be executed on click since if it is added to the tray icon it will be
           // displayed on left click as well.
           this.tray?.on('right-click', () =>
-            this.tray?.popUpContextMenu(this.createTrayContextMenu()),
+            this.trayIconController?.popUpContextMenu(
+              this.connectedToDaemon,
+              this.settings.accountToken,
+              this.tunnelState,
+            ),
           );
           this.tray?.on('click', () => this.windowController?.show());
         } else {
@@ -2022,6 +1986,14 @@ class ApplicationMain {
         this.tray?.on('click', () => this.windowController?.show());
         break;
     }
+  }
+
+  private setTrayContextMenu() {
+    this.trayIconController?.setContextMenu(
+      this.connectedToDaemon,
+      this.settings.accountToken,
+      this.tunnelState,
+    );
   }
 
   private installWindowsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
