@@ -87,10 +87,8 @@ android {
         // Opt-in option for Koin annotation of KoinComponent.
     }
 
-    applicationVariants.forEach { variant ->
-        variant.mergeAssetsProvider.configure{
-            dependsOn(task("copyExtraAssets"))
-        }
+    tasks.withType<com.android.build.gradle.tasks.MergeSourceSetFolders> {
+        dependsOn(getTasksByName("copyExtraAssets", true))
     }
 
     testOptions {
