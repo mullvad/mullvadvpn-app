@@ -27,9 +27,10 @@ use winapi::{
         in6addr::IN6_ADDR,
         inaddr::IN_ADDR,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
+        netioapi::MibAddInstance,
         nldef::RouterDiscoveryDisabled,
         ntdef::FALSE,
-        winerror::ERROR_MORE_DATA,
+        winerror::{ERROR_MORE_DATA, ERROR_NOT_FOUND},
         ws2def::{ADDRESS_FAMILY, AF_INET, AF_INET6},
         ws2ipdef::SOCKADDR_INET,
     },
@@ -131,6 +132,10 @@ pub enum Error {
     #[error(display = "Failed to set tunnel WireGuard config")]
     SetWireGuardConfigError(#[error(source)] io::Error),
 
+    /// Failed to listen for IP interface events
+    #[error(display = "Failed to set up tunnel IP interface listener")]
+    SetUpInterfaceListener(#[error(source)] io::Error),
+
     /// Failed to set MTU on tunnel device
     #[error(display = "Failed to set tunnel IPv4 interface MTU")]
     SetTunnelIpv4MtuError(#[error(source)] io::Error),
@@ -164,8 +169,9 @@ pub enum Error {
     InvalidConfigData,
 }
 
-pub struct WgNtTunnel {
+pub struct WgNtTunnel<'a> {
     device: Option<WgNtAdapter>,
+    watcher: Option<Box<crate::windows::IpNotifierHandle<'a>>>,
     interface_luid: NET_LUID,
     interface_name: String,
     _logger_handle: LoggerHandle,
@@ -405,7 +411,7 @@ enum WgAdapterState {
     Up = 1,
 }
 
-impl WgNtTunnel {
+impl WgNtTunnel<'_> {
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
@@ -427,8 +433,9 @@ impl WgNtTunnel {
             .map_err(Error::ObtainAliasError)?
             .to_string_lossy();
 
-        let tunnel = WgNtTunnel {
+        let mut tunnel = WgNtTunnel {
             device: Some(device),
+            watcher: None,
             interface_luid,
             interface_name,
             _logger_handle: logger_handle,
@@ -438,10 +445,11 @@ impl WgNtTunnel {
     }
 
     fn stop_tunnel(&mut self) {
+        let _ = self.watcher.take();
         let _ = self.device.take();
     }
 
-    fn configure(&self, config: &Config) -> Result<()> {
+    fn configure(&mut self, config: &Config) -> Result<()> {
         let device = self.device.as_ref().unwrap();
         if let Err(error) = device.set_logging(WireGuardAdapterLogState::On) {
             log::error!(
@@ -450,11 +458,44 @@ impl WgNtTunnel {
             );
         }
         device.set_config(config)?;
-        prepare_interface(&device.luid(), AF_INET as u16, u32::from(config.mtu))
-            .map_err(Error::SetTunnelIpv4MtuError)?;
+
+        let luid = device.luid();
+        let mtu = u32::from(config.mtu);
+        self.watcher = Some(
+            crate::windows::notify_ip_interface_change(
+                move |row, notification_type| {
+                    if row.InterfaceLuid.Value != luid.Value {
+                        return;
+                    }
+                    if notification_type != MibAddInstance {
+                        return;
+                    }
+                    if let Err(error) = prepare_interface(&luid, row.Family, mtu) {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to set tunnel IP interface MTU"),
+                        );
+                    }
+                },
+                None,
+            )
+            .map_err(Error::SetUpInterfaceListener)?,
+        );
+
+        if let Err(error) = prepare_interface(&device.luid(), AF_INET as u16, u32::from(config.mtu))
+        {
+            if error.raw_os_error() != Some(ERROR_NOT_FOUND as i32) {
+                return Err(Error::SetTunnelIpv4MtuError(error));
+            }
+        }
         if config.tunnel.addresses.iter().any(|addr| addr.is_ipv6()) {
-            prepare_interface(&device.luid(), AF_INET6 as u16, u32::from(config.mtu))
-                .map_err(Error::SetTunnelIpv6MtuError)?;
+            if let Err(error) =
+                prepare_interface(&device.luid(), AF_INET6 as u16, u32::from(config.mtu))
+            {
+                if error.raw_os_error() != Some(ERROR_NOT_FOUND as i32) {
+                    return Err(Error::SetTunnelIpv6MtuError(error));
+                }
+            }
         }
         device
             .set_state(WgAdapterState::Up)
@@ -463,7 +504,7 @@ impl WgNtTunnel {
     }
 }
 
-impl Drop for WgNtTunnel {
+impl Drop for WgNtTunnel<'_> {
     fn drop(&mut self) {
         self.stop_tunnel();
     }
@@ -909,7 +950,7 @@ fn prepare_interface(luid: &NET_LUID, family: u16, mtu: u32) -> io::Result<()> {
     windows::set_ip_interface_entry(&iface)
 }
 
-impl Tunnel for WgNtTunnel {
+impl Tunnel for WgNtTunnel<'_> {
     fn get_interface_name(&self) -> String {
         self.interface_name.clone()
     }
