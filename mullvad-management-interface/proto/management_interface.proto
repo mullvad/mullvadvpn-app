@@ -402,6 +402,7 @@ message TunnelOptions {
 message DefaultDnsOptions {
 	bool block_ads = 1;
 	bool block_trackers = 2;
+	bool block_malware = 3;
 }
 
 message CustomDnsOptions {

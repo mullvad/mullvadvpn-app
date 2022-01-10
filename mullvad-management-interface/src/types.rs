@@ -554,6 +554,7 @@ impl From<&mullvad_types::settings::DnsOptions> for DnsOptions {
             default_options: Some(DefaultDnsOptions {
                 block_ads: options.default_options.block_ads,
                 block_trackers: options.default_options.block_trackers,
+                block_malware: options.default_options.block_malware,
             }),
             custom_options: Some(CustomDnsOptions {
                 addresses: options
@@ -1283,6 +1284,7 @@ impl TryFrom<DnsOptions> for mullvad_types::settings::DnsOptions {
             default_options: MullvadDefaultDnsOptions {
                 block_ads: default_options.block_ads,
                 block_trackers: default_options.block_trackers,
+                block_malware: default_options.block_malware,
             },
             custom_options: MullvadCustomDnsOptions {
                 addresses: custom_options

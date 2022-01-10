@@ -36,6 +36,12 @@ impl Command for Dns {
                                     .long("block-trackers")
                                     .takes_value(false)
                                     .help("Block domain names used for tracking"),
+                            )
+                            .arg(
+                                clap::Arg::with_name("block malware")
+                                    .long("block-malware")
+                                    .takes_value(false)
+                                    .help("Block domains known to be used by malware"),
                             ),
                     )
                     .subcommand(
@@ -58,6 +64,7 @@ impl Command for Dns {
                     self.set_default(
                         matches.is_present("block ads"),
                         matches.is_present("block trackers"),
+                        matches.is_present("block malware"),
                     )
                     .await
                 }
@@ -73,7 +80,12 @@ impl Command for Dns {
 }
 
 impl Dns {
-    async fn set_default(&self, block_ads: bool, block_trackers: bool) -> Result<()> {
+    async fn set_default(
+        &self,
+        block_ads: bool,
+        block_trackers: bool,
+        block_malware: bool,
+    ) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let settings = rpc.get_settings(()).await?.into_inner();
         rpc.set_dns_options(types::DnsOptions {
@@ -81,6 +93,7 @@ impl Dns {
             default_options: Some(types::DefaultDnsOptions {
                 block_ads,
                 block_trackers,
+                block_malware,
             }),
             ..settings.tunnel_options.unwrap().dns_options.unwrap()
         })
@@ -122,6 +135,7 @@ impl Dns {
                 println!("Custom DNS: no");
                 println!("Block ads: {}", options.default_options.block_ads);
                 println!("Block trackers: {}", options.default_options.block_trackers);
+                println!("Block malware: {}", options.default_options.block_malware);
             }
             DnsState::Custom => {
                 println!("Custom DNS: yes\nServers:");
