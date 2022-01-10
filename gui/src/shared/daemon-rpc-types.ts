@@ -291,6 +291,7 @@ export interface IDnsOptions {
   defaultOptions: {
     blockAds: boolean;
     blockTrackers: boolean;
+    blockMalware: boolean;
   };
 }
 

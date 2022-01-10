@@ -846,6 +846,10 @@ msgid "Block ads"
 msgstr ""
 
 msgctxt "preferences-view"
+msgid "Block malware"
+msgstr ""
+
+msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr ""
 
@@ -855,9 +859,10 @@ msgstr ""
 #. Available placeholders:
 #. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
 #. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
 msgstr ""
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
