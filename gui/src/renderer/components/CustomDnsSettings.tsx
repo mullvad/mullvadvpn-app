@@ -45,7 +45,10 @@ export default function CustomDnsSettings() {
 
   const featureAvailable = useMemo(
     () =>
-      dns.state === 'custom' || (!dns.defaultOptions.blockAds && !dns.defaultOptions.blockTrackers),
+      dns.state === 'custom' ||
+      (!dns.defaultOptions.blockAds &&
+        !dns.defaultOptions.blockTrackers &&
+        !dns.defaultOptions.blockMalware),
     [dns],
   );
 
@@ -275,6 +278,7 @@ export default function CustomDnsSettings() {
 function DisabledMessage() {
   const blockAdsFeatureName = messages.pgettext('preferences-view', 'Block ads');
   const blockTrackersFeatureName = messages.pgettext('preferences-view', 'Block trackers');
+  const blockMalwareFeatureName = messages.pgettext('preferences-view', 'Block malware');
   const preferencesPageName = messages.pgettext('preferences-nav', 'Preferences');
 
   // TRANSLATORS: This is displayed when either or both of the block ads/trackers settings are
@@ -283,16 +287,18 @@ function DisabledMessage() {
   // TRANSLATORS: Available placeholders:
   // TRANSLATORS: %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
   // TRANSLATORS: %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+  // TRANSLATORS: %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
   // TRANSLATORS: %(preferencesPageName)s - The page title showed on top in the preferences page.
   const customDnsDisabledMessage = messages.pgettext(
     'preferences-view',
-    'Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting.',
+    'Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting.',
   );
 
   return formatMarkdown(
     sprintf(customDnsDisabledMessage, {
       blockAdsFeatureName,
       blockTrackersFeatureName,
+      blockMalwareFeatureName,
       preferencesPageName,
     }),
   );

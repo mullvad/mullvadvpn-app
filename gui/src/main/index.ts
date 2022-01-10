@@ -185,6 +185,7 @@ class ApplicationMain {
         defaultOptions: {
           blockAds: false,
           blockTrackers: false,
+          blockMalware: false,
         },
         customOptions: {
           addresses: [],
