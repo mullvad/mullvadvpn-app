@@ -127,7 +127,7 @@ impl HttpsConnectorWithSni {
             }
         }
 
-        timeout(CONNECT_TIMEOUT, TokioTcpStream::connect(addr))
+        timeout(CONNECT_TIMEOUT, socket.connect(addr))
             .await
             .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
     }
