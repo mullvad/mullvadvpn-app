@@ -295,6 +295,7 @@ where
 pub struct DefaultDnsOptions {
     pub block_ads: bool,
     pub block_trackers: bool,
+    pub block_malware: bool,
 }
 
 /// Custom DNS config
