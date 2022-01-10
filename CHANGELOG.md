@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add information about the always on kill switch in the desktop app.
 - Add WireGuard multihop setting and entry location selection to desktop app.
+- Add malware blocking to the desktop app. Implemented via DNS on the relays.
 
 #### macOS
 - Add an opt-in feature to leak macOS network check traffic in blocked states to resolve issues with
