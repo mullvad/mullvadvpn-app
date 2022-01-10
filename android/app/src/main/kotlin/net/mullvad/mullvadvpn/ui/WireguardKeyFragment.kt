@@ -168,6 +168,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             }
         }
 
+        manageKeysButton.updateAuthTokenCache(authTokenCache)
+
         actionState = ActionState.Idle(false)
     }
 

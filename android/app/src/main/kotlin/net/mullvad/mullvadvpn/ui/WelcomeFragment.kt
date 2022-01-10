@@ -21,6 +21,7 @@ val POLL_INTERVAL: Long = 15 /* s */ * 1000 /* ms */
 
 class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var accountLabel: TextView
+    private lateinit var sitePaymentButton: SitePaymentButton
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -41,7 +42,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             parentActivity.getString(R.string.pay_to_start_using) + " " +
             parentActivity.getString(R.string.add_time_to_account)
 
-        view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
+        sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
             newAccount = true
             prepare(authTokenCache, jobTracker)
         }
@@ -68,6 +69,8 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
                 delay(POLL_INTERVAL)
             }
         }
+
+        sitePaymentButton.updateAuthTokenCache(authTokenCache)
     }
 
     override fun onSafelyStop() {
