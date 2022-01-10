@@ -9,6 +9,8 @@ use crate::tunnel::tun_provider::TunProvider;
 use crate::tunnel::wireguard::logging::{
     clean_up_logging, initialize_logging, wg_go_logging_callback, WgLogLevel,
 };
+#[cfg(windows)]
+use futures::SinkExt;
 #[cfg(not(windows))]
 use ipnetwork::IpNetwork;
 use std::{
@@ -16,6 +18,8 @@ use std::{
     os::raw::c_char,
     path::Path,
 };
+#[cfg(windows)]
+use talpid_types::BoxedError;
 use zeroize::Zeroize;
 
 #[cfg(target_os = "windows")]
@@ -51,8 +55,6 @@ impl Drop for LoggingContext {
 
 pub struct WgGoTunnel {
     interface_name: String,
-    #[cfg(windows)]
-    interface_luid: u64,
     handle: Option<i32>,
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
@@ -62,6 +64,8 @@ pub struct WgGoTunnel {
     _logging_context: LoggingContext,
     #[cfg(target_os = "windows")]
     _route_callback_handle: Option<crate::winnet::WinNetCallbackHandle>,
+    #[cfg(target_os = "windows")]
+    setup_handle: tokio::task::JoinHandle<()>,
 }
 
 impl WgGoTunnel {
@@ -111,6 +115,7 @@ impl WgGoTunnel {
         config: &Config,
         log_path: Option<&Path>,
         route_manager: &mut routing::RouteManager,
+        mut done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Self> {
         let route_callback_handle = route_manager
             .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ())
@@ -127,13 +132,6 @@ impl WgGoTunnel {
             .map(LoggingContext)
             .map_err(TunnelError::LoggingError)?;
 
-        let wait_on_ipv6 = config.ipv6_gateway.is_some()
-            || config.tunnel.addresses.iter().any(|ip| ip.is_ipv6())
-            || config
-                .peers
-                .iter()
-                .any(|config| config.allowed_ips.iter().any(|ip| ip.is_ipv6()));
-
         let mut alias_ptr = std::ptr::null_mut();
         let mut interface_luid = 0u64;
 
@@ -141,7 +139,6 @@ impl WgGoTunnel {
             wgTurnOn(
                 cstr_iface_name.as_ptr(),
                 config.mtu as i64,
-                wait_on_ipv6 as u8,
                 wg_config_str.as_ptr(),
                 &mut alias_ptr,
                 &mut interface_luid,
@@ -163,10 +160,27 @@ impl WgGoTunnel {
 
         log::debug!("Adapter alias: {}", actual_iface_name);
 
+        let has_ipv6 = config.tunnel.addresses.iter().any(|addr| addr.is_ipv6());
+        let setup_handle = tokio::spawn(async move {
+            use winapi::shared::ifdef::NET_LUID;
+            let luid = NET_LUID {
+                Value: interface_luid,
+            };
+            log::debug!("Waiting for tunnel IP interfaces to arrive");
+            let _ = done_tx
+                .send(
+                    crate::windows::wait_for_interfaces(luid, true, has_ipv6)
+                        .await
+                        .map_err(|error| BoxedError::new(TunnelError::SetupIpInterfaces(error))),
+                )
+                .await;
+            log::debug!("Waiting for tunnel IP interfaces: Done");
+        });
+
         Ok(WgGoTunnel {
             interface_name: actual_iface_name,
-            interface_luid,
             handle: Some(handle),
+            setup_handle,
             _logging_context: logging_context,
             _route_callback_handle: route_callback_handle,
         })
@@ -248,6 +262,8 @@ impl WgGoTunnel {
     }
 
     fn stop_tunnel(&mut self) -> Result<()> {
+        #[cfg(windows)]
+        self.setup_handle.abort();
         if let Some(handle) = self.handle.take() {
             let status = unsafe { wgTurnOff(handle) };
             if status < 0 {
@@ -297,11 +313,6 @@ impl Drop for WgGoTunnel {
 impl Tunnel for WgGoTunnel {
     fn get_interface_name(&self) -> String {
         self.interface_name.clone()
-    }
-
-    #[cfg(target_os = "windows")]
-    fn get_interface_luid(&self) -> u64 {
-        self.interface_luid
     }
 
     fn get_tunnel_stats(&self) -> Result<StatsMap> {
@@ -390,7 +401,6 @@ extern "C" {
     fn wgTurnOn(
         iface_name: *const i8,
         mtu: i64,
-        wait_on_ipv6: u8,
         settings: *const i8,
         iface_name_out: *const *mut std::os::raw::c_char,
         iface_luid_out: *mut u64,

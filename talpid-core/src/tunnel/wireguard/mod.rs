@@ -3,7 +3,11 @@ use self::config::Config;
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing::{self, RequiredRoute};
+#[cfg(windows)]
+use futures::channel::{mpsc, oneshot};
 use futures::future::abortable;
+#[cfg(windows)]
+use futures::{FutureExt, StreamExt};
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
@@ -13,8 +17,10 @@ use std::io;
 use std::{
     net::{IpAddr, SocketAddr},
     path::Path,
-    sync::{mpsc, Arc, Mutex},
+    sync::{mpsc as sync_mpsc, Arc, Mutex},
 };
+#[cfg(windows)]
+use talpid_types::BoxedError;
 use talpid_types::{net::TransportProtocol, ErrorExt};
 use udp_over_tcp::{TcpOptions, Udp2Tcp};
 
@@ -63,8 +69,8 @@ pub enum Error {
 
     /// Failed to set up IP interfaces.
     #[cfg(windows)]
-    #[error(display = "Failed while waiting on IP interfaces")]
-    IpInterfacesError(#[error(source)] io::Error),
+    #[error(display = "Failed to set up IP interfaces")]
+    IpInterfacesError,
 
     /// Failed to set IP addresses on WireGuard interface
     #[cfg(target_os = "windows")]
@@ -84,11 +90,11 @@ pub struct WireguardMonitor {
             + Sync
             + 'static,
     >,
-    close_msg_sender: mpsc::Sender<CloseMsg>,
-    close_msg_receiver: mpsc::Receiver<CloseMsg>,
+    close_msg_sender: sync_mpsc::Sender<CloseMsg>,
+    close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
     #[cfg(target_os = "windows")]
-    stop_setup_tx: Option<futures::channel::oneshot::Sender<()>>,
-    pinger_stop_sender: mpsc::Sender<()>,
+    stop_setup_tx: Option<oneshot::Sender<()>>,
+    pinger_stop_sender: sync_mpsc::Sender<()>,
     _tcp_proxies: Vec<TcpProxy>,
 }
 
@@ -184,6 +190,8 @@ impl WireguardMonitor {
             }
         }
 
+        #[cfg(target_os = "windows")]
+        let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
         let tunnel = Self::open_tunnel(
             runtime.clone(),
             &config,
@@ -191,16 +199,16 @@ impl WireguardMonitor {
             resource_dir,
             tun_provider,
             route_manager,
+            #[cfg(target_os = "windows")]
+            setup_done_tx,
         )?;
         let iface_name = tunnel.get_interface_name().to_string();
-        #[cfg(windows)]
-        let iface_luid = tunnel.get_interface_luid();
 
         let event_callback = Box::new(on_event.clone());
-        let (close_msg_sender, close_msg_receiver) = mpsc::channel();
-        let (pinger_tx, pinger_rx) = mpsc::channel();
+        let (close_msg_sender, close_msg_receiver) = sync_mpsc::channel();
+        let (pinger_tx, pinger_rx) = sync_mpsc::channel();
         #[cfg(target_os = "windows")]
-        let (stop_setup_tx, stop_setup_rx) = futures::channel::oneshot::channel();
+        let (stop_setup_tx, stop_setup_rx) = oneshot::channel();
         let monitor = WireguardMonitor {
             runtime: runtime.clone(),
             tunnel: Arc::new(Mutex::new(Some(tunnel))),
@@ -229,36 +237,35 @@ impl WireguardMonitor {
         let metadata = Self::tunnel_metadata(&iface_name, &config);
 
         std::thread::spawn(move || {
-            runtime.block_on((on_event)(TunnelEvent::InterfaceUp(metadata.clone())));
-
             #[cfg(windows)]
             {
+                let mut done_rx = setup_done_rx.fuse();
                 let iface_close_sender = close_sender.clone();
-                let enable_ipv6 = config.ipv6_gateway.is_some();
-
                 let result = runtime.block_on(async move {
-                    use futures::future::FutureExt;
-                    use winapi::shared::ifdef::NET_LUID;
-                    let luid = NET_LUID { Value: iface_luid };
-                    let setup_future = crate::windows::wait_for_interfaces(luid, true, enable_ipv6);
-
                     futures::select! {
-                        result = setup_future.fuse() => {
-                            result.map_err(|error|
-                                iface_close_sender.send(CloseMsg::SetupError(
-                                    Error::IpInterfacesError(error)
-                                ))
-                                .unwrap_or(())
-                            )
+                        result = done_rx.next() => {
+                            match result {
+                                Some(result) => {
+                                    result.map_err(|error| {
+                                        log::error!("{}", error.display_chain_with_msg("Failed to configure tunnel interface"));
+                                        iface_close_sender.send(CloseMsg::SetupError(
+                                            Error::IpInterfacesError
+                                        ))
+                                        .unwrap_or(())
+                                    })
+                                }
+                                None => Err(()),
+                            }
                         }
                         _ = stop_setup_rx.fuse() => Err(()),
                     }
                 });
-
                 if result.is_err() {
                     return;
                 }
             }
+
+            runtime.block_on((on_event)(TunnelEvent::InterfaceUp(metadata.clone())));
 
             let setup_iface_routes = || -> Result<()> {
                 #[cfg(target_os = "windows")]
@@ -322,6 +329,7 @@ impl WireguardMonitor {
         resource_dir: &Path,
         tun_provider: &mut TunProvider,
         route_manager: &mut routing::RouteManager,
+        #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Box<dyn Tunnel>> {
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
@@ -360,7 +368,12 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "windows")]
         if config.use_wireguard_nt {
-            match wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir) {
+            match wireguard_nt::WgNtTunnel::start_tunnel(
+                config,
+                log_path,
+                resource_dir,
+                setup_done_tx.clone(),
+            ) {
                 Ok(tunnel) => {
                     log::debug!("Using WireGuardNT");
                     return Ok(Box::new(tunnel));
@@ -386,6 +399,8 @@ impl WireguardMonitor {
                 Self::get_tunnel_destinations(config),
                 #[cfg(windows)]
                 route_manager,
+                #[cfg(windows)]
+                setup_done_tx,
             )
             .map_err(Error::TunnelError)?,
         ))
@@ -560,7 +575,7 @@ enum CloseMsg {
 /// Close handle for a WireGuard tunnel.
 #[derive(Clone, Debug)]
 pub struct CloseHandle {
-    chan: mpsc::Sender<CloseMsg>,
+    chan: sync_mpsc::Sender<CloseMsg>,
 }
 
 impl CloseHandle {
@@ -574,8 +589,6 @@ impl CloseHandle {
 
 pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
-    #[cfg(target_os = "windows")]
-    fn get_interface_luid(&self) -> u64;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
 }
@@ -623,6 +636,11 @@ pub enum TunnelError {
     #[cfg(not(windows))]
     #[error(display = "Failed to create tunnel device")]
     SetupTunnelDeviceError(#[error(source)] tun_provider::Error),
+
+    /// Failed to setup a tunnel device.
+    #[cfg(windows)]
+    #[error(display = "Failed to config IP interfaces on tunnel device")]
+    SetupIpInterfaces(#[error(source)] io::Error),
 
     /// Failed to configure Wireguard sockets to bypass the tunnel.
     #[cfg(target_os = "android")]
