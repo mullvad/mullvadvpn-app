@@ -1,13 +1,12 @@
-
 import java.io.FileInputStream
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.android.application")
-    id("com.github.triplet.play")
-    id("kotlin-android")
-    id("kotlin-parcelize")
+    id(Dependencies.Plugin.androidApplicationId)
+    id(Dependencies.Plugin.playPublisherId)
+    id(Dependencies.Plugin.kotlinAndroidId)
+    id(Dependencies.Plugin.kotlinParcelizeId)
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -22,13 +21,13 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion(30)
-    buildToolsVersion("30.0.3")
+    compileSdkVersion(Versions.Android.compileSdkVersion)
+    buildToolsVersion(Versions.Android.buildToolsVersion)
 
     defaultConfig {
         applicationId = "net.mullvad.mullvadvpn"
-        minSdkVersion(26)
-        targetSdkVersion(30)
+        minSdkVersion(Versions.Android.minSdkVersion)
+        targetSdkVersion(Versions.Android.targetSdkVersion)
         versionCode = 21010099
         versionName = "2021.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -82,7 +81,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = Versions.jvmTarget
         freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         // Opt-in option for Koin annotation of KoinComponent.
     }
@@ -134,45 +133,39 @@ play {
 }
 
 dependencies {
-    val espressoVersion: String by rootProject.extra
-    val fragmentVersion: String by rootProject.extra
-    val koinVersion: String by rootProject.extra
-    val kotlinVersion: String by rootProject.extra
-    val mockkVersion: String by rootProject.extra
-
-    implementation("androidx.appcompat:appcompat:1.3.1")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.0")
-    implementation("androidx.coordinatorlayout:coordinatorlayout:1.1.0")
-    implementation("androidx.core:core-ktx:1.6.0")
-    implementation("androidx.fragment:fragment-ktx:$fragmentVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
-    implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("com.google.android.material:material:1.4.0")
-    implementation("commons-validator:commons-validator:1.7")
-    implementation("io.insert-koin:koin-core:$koinVersion")
-    implementation("io.insert-koin:koin-core-ext:$koinVersion")
-    implementation("io.insert-koin:koin-androidx-fragment:$koinVersion")
-    implementation("io.insert-koin:koin-androidx-scope:$koinVersion")
-    implementation("io.insert-koin:koin-androidx-viewmodel:$koinVersion")
-    implementation("joda-time:joda-time:2.10.2")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1")
+    implementation(Dependencies.androidMaterial)
+    implementation(Dependencies.commonsValidator)
+    implementation(Dependencies.AndroidX.appcompat)
+    implementation(Dependencies.AndroidX.constraintlayout)
+    implementation(Dependencies.AndroidX.coordinatorlayout)
+    implementation(Dependencies.AndroidX.coreKtx)
+    implementation(Dependencies.AndroidX.fragmentKtx)
+    implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
+    implementation(Dependencies.AndroidX.lifecycleViewmodelKtx)
+    implementation(Dependencies.AndroidX.recyclerview)
+    implementation(Dependencies.jodaTime)
+    implementation(Dependencies.Koin.core)
+    implementation(Dependencies.Koin.coreExt)
+    implementation(Dependencies.Koin.androidXFragment)
+    implementation(Dependencies.Koin.androidXScope)
+    implementation(Dependencies.Koin.androidXViewmodel)
+    implementation(Dependencies.Kotlin.reflect)
+    implementation(Dependencies.Kotlin.stdlib)
+    implementation(Dependencies.KotlinX.coroutinesAndroid)
 
     /* Test dependencies */
-    testImplementation("io.insert-koin:koin-test:$koinVersion")
-    testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("junit:junit:4.13")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1")
+    testImplementation(Dependencies.Koin.test)
+    testImplementation(Dependencies.Kotlin.test)
+    testImplementation(Dependencies.KotlinX.coroutinesTest)
+    testImplementation(Dependencies.MockK.core)
+    testImplementation(Dependencies.junit)
 
     /* UI test dependencies */
-    debugImplementation("androidx.fragment:fragment-testing:$fragmentVersion")
-    androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:$espressoVersion")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("io.mockk:mockk-android:$mockkVersion")
-    androidTestImplementation("io.insert-koin:koin-test:$koinVersion")
-    androidTestImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
+    debugImplementation(Dependencies.AndroidX.fragmentTestning)
+    androidTestImplementation(Dependencies.AndroidX.espressoContrib)
+    androidTestImplementation(Dependencies.AndroidX.espressoCore)
+    androidTestImplementation(Dependencies.AndroidX.junit)
+    androidTestImplementation(Dependencies.Koin.test)
+    androidTestImplementation(Dependencies.Kotlin.test)
+    androidTestImplementation(Dependencies.MockK.android)
 }
