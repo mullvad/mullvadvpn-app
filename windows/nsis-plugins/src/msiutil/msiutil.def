@@ -1,6 +1,0 @@
-LIBRARY msiutil
-
-EXPORTS
-
-SilentInstall
-SilentUninstall
