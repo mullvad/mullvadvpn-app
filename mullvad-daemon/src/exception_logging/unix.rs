@@ -38,7 +38,7 @@ pub fn enable() {
             let ret = unsafe { libc::sigaltstack(&stack_t, std::ptr::null_mut()) };
             if ret != 0 {
                 log::error!(
-                    "Failed to set alternative stack - {}",
+                    "Failed to set alternative stack: {}",
                     std::io::Error::last_os_error()
                 );
                 SaFlags::empty()

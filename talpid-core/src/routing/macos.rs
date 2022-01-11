@@ -174,7 +174,7 @@ impl RouteManagerImpl {
 
         let output = cmd.output().await.map_err(Error::FailedToRunRoute)?;
         let output = String::from_utf8(output.stdout).map_err(|e| {
-            log::error!("Failed to parse utf-8 bytes from output of netstat - {}", e);
+            log::error!("Failed to parse utf-8 bytes from output of netstat: {}", e);
             Error::BadOutputFromNetstat
         })?;
         Ok(Self::parse_route(&output))
@@ -260,7 +260,7 @@ impl RouteManagerImpl {
                         log::debug!("Failed to remove route during shutdown");
                     }
                 }
-                Err(e) => log::error!("Failed to remove route during shutdown - {}", e),
+                Err(e) => log::error!("Failed to remove route during shutdown: {}", e),
             };
         }
     }

@@ -104,7 +104,7 @@ pub enum Error {
     #[error(display = "Invalid network prefix")]
     InvalidNetworkPrefix(#[error(source)] ipnetwork::IpNetworkError),
 
-    #[error(display = "Unknown device index - {}", _0)]
+    #[error(display = "Unknown device index: {}", _0)]
     UnknownDeviceIndex(u32),
 
     #[error(display = "Failed to get a route for the given IP address")]
@@ -314,7 +314,7 @@ impl RouteManagerImpl {
     async fn cleanup_routes(&mut self) {
         for route in self.added_routes.drain().collect::<Vec<_>>().iter() {
             if let Err(e) = self.delete_route_if_exists(&route).await {
-                log::error!("Failed to remove route - {} - {}", route, e);
+                log::error!("Failed to remove route: {}: {}", route, e);
             }
         }
     }

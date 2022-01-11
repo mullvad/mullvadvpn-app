@@ -1811,7 +1811,7 @@ where
         }
 
         if let Err(e) = self.settings.reset().await {
-            log::error!("Failed to reset settings - {}", e);
+            log::error!("Failed to reset settings: {}", e);
             last_error = Err(Error::ClearSettingsError(e));
         }
 

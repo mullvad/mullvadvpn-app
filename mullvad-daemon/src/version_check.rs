@@ -423,7 +423,7 @@ impl VersionUpdater {
                             self.update_version_info(new_version_info).await;
                         },
                         Err(err) => {
-                            log::error!("Failed to fetch version info - {}", err);
+                            log::error!("Failed to fetch version info: {}", err);
                             self.internal_done_tx = None;
                         },
                     }

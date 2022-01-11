@@ -202,7 +202,7 @@ impl Bridge {
         let settings = rpc.get_settings(()).await?.into_inner();
         let bridge_settings = BridgeSettings::try_from(settings.bridge_settings.unwrap()).unwrap();
         println!(
-            "Bridge state - {}",
+            "Bridge state: {}",
             BridgeState::try_from(settings.bridge_state.unwrap()).unwrap()
         );
         match bridge_settings {
@@ -216,7 +216,7 @@ impl Bridge {
                 }
             },
             BridgeSettings::Normal(constraints) => {
-                println!("Bridge constraints - {}", constraints)
+                println!("Bridge constraints: {}", constraints)
             }
         };
         Ok(())
