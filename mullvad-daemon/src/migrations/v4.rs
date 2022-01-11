@@ -1,4 +1,6 @@
 use super::{Error, Result};
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use mullvad_types::{relay_constraints::Constraint, settings::SettingsVersion};
 
 // ======================================================
