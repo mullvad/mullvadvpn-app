@@ -1,6 +1,12 @@
 use super::{Error, Result};
 use mullvad_types::settings::SettingsVersion;
 
+// ======================================================
+// Section for vendoring types and values that
+// this settings version depend on. See `mod.rs`.
+
+// ======================================================
+
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
         return Ok(());

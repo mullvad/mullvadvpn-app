@@ -1333,7 +1333,6 @@ dependencies = [
  "fern",
  "futures",
  "ipnetwork",
- "jnix",
  "lazy_static",
  "libc",
  "log",
