@@ -238,6 +238,7 @@ impl Default for DnsState {
 
 /// DNS config
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[serde(default)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct DnsOptions {
@@ -292,6 +293,7 @@ where
 
 /// Default DNS config
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[serde(default)]
 pub struct DefaultDnsOptions {
     pub block_ads: bool,
     pub block_trackers: bool,
