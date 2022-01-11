@@ -1,5 +1,0 @@
-LIBRARY osinfo
-
-EXPORTS
-
-HasWindows7Sha2Fix

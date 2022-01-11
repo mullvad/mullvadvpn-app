@@ -22,11 +22,6 @@
 !define MULLVAD_GENERAL_ERROR 0
 !define MULLVAD_SUCCESS 1
 
-# Return codes for KB2921916 check
-!define PATCH_ERROR 0
-!define PATCH_PRESENT 1
-!define PATCH_MISSING 2
-
 # Return codes from driverlogic
 !define DL_GENERAL_SUCCESS 0
 !define DL_GENERAL_ERROR 1
@@ -90,81 +85,6 @@
 !define ExtractMullvadSetup '!insertmacro "ExtractMullvadSetup"'
 
 #
-# InstallWin7Hotfix
-#
-# Installs KB2921916. Fixes the "untrusted publisher" issue on Windows 7.
-# Returns: 0 in $R0 on success. Otherwise, a non-zero value is returned.
-#
-!macro InstallWin7Hotfix
-	Push $0
-	Push $1
-
-	log::Log "InstallWin7Hotfix()"
-
-	osinfo::HasWindows7Sha2Fix
-	Pop $0
-	Pop $1
-
-	${If} $0 == ${PATCH_PRESENT}
-		log::Log "KB2921916 is already installed or superseded"
-		Goto InstallWin7Hotfix_return_success
-	${EndIf}
-
-	${If} $0 == ${PATCH_ERROR}
-		log::LogWithDetails "Detection of KB2921916 failed" $1
-		MessageBox MB_OK "Detection of KB2921916 failed"
-		Goto InstallWin7Hotfix_return_abort
-	${EndIf}
-
-	MessageBox MB_ICONINFORMATION|MB_YESNO "Windows hotfix KB2921916 must be installed for this app to work. Continue?" IDNO InstallWin7Hotfix_return_abort
-
-	log::Log "Extracting KB2921916"
-
-	SetOutPath "$TEMP"
-	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\Windows6.1-KB2921916-x64.msu"
-
-	log::Log "Installing KB2921916"
-
-	nsExec::ExecToStack '"$SYSDIR\wusa.exe" "$TEMP\Windows6.1-KB2921916-x64.msu" /quiet /norestart'
-	Pop $0
-	Pop $1
-
-	${If} $0 != 0
-		${If} $0 == 3010
-			SetRebootFlag true
-		${Else}
-			StrCpy $R0 "Failed to install the hotfix: error $0"
-			log::Log $R0
-			MessageBox MB_OK "Failed to install the hotfix."
-			Goto InstallWin7Hotfix_return_abort
-		${EndIf}
-	${EndIf}
-
-	InstallWin7Hotfix_return_success:
-
-	Push 0
-	Pop $R0
-
-	log::Log "InstallWin7Hotfix() completed successfully"
-
-	Goto InstallWin7Hotfix_return
-
-	InstallWin7Hotfix_return_abort:
-
-	Push 1
-	Pop $R0
-
-	log::Log "InstallWin7Hotfix() failed"
-
-	InstallWin7Hotfix_return:
-
-	Pop $1
-	Pop $0
-
-!macroend
-!define InstallWin7Hotfix '!insertmacro "InstallWin7Hotfix"'
-
-#
 # ExtractSplitTunnelDriver
 #
 # Extract split tunnel driver and associated files into $TEMP\mullvad-split-tunnel
@@ -172,14 +92,7 @@
 !macro ExtractSplitTunnelDriver
 
 	SetOutPath "$TEMP\mullvad-split-tunnel"
-
-	${If} ${AtLeastWin10}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\win10\*"
-	${Else}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\legacy\*"
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\meta\mullvad-ev.cer"
-	${EndIf}
-
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\win10\*"
 	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
 
 !macroend
@@ -366,30 +279,6 @@
 !define InstallService '!insertmacro "InstallService"'
 
 #
-# InstallSplitTunnelDriverCert
-#
-# Install driver certificate in trusted publishers store
-#
-!macro InstallSplitTunnelDriverCert
-
-	${IfNot} ${AtLeastWin10}
-		log::Log "Adding Split Tunnel driver certificate to certificate store"
-
-		nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\mullvad-split-tunnel\mullvad-ev.cer"'
-		Pop $0
-		Pop $1
-
-		${If} $0 != 0
-			StrCpy $R0 "Failed to add trusted publisher certificate: error $0"
-			log::LogWithDetails $R0 $1
-		${EndIf}
-	${EndIf}
-
-!macroend
-
-!define InstallSplitTunnelDriverCert '!insertmacro "InstallSplitTunnelDriverCert"'
-
-#
 # InstallSplitTunnelDriver
 #
 # Install split tunnel driver
@@ -429,8 +318,6 @@
 	${EndIf}
 
 	InstallSplitTunnelDriver_new_install:
-	
-	${InstallSplitTunnelDriverCert}
 	
 	log::Log "Installing Split Tunneling driver"
 	nsExec::ExecToStack '"$TEMP\mullvad-split-tunnel\driverlogic.exe" st-new-install "$TEMP\mullvad-split-tunnel\mullvad-split-tunnel.inf"'
@@ -867,6 +754,11 @@
 
 	Push $0
 
+	${IfNot} ${AtLeastWin10}
+		MessageBox MB_ICONSTOP|MB_TOPMOST|MB_OK "Windows versions below 10 are unsupported. The last version to support Windows 7 and 8/8.1 is 2021.6."
+		Abort
+	${EndIf}
+
 	# Application settings key
 	# Migrate 2018.(x<6) to current
 	registry::MoveKey "HKLM\SOFTWARE\8fa2c331-e09e-5709-bc74-c59df61f0c7e" "HKLM\SOFTWARE\${PRODUCT_NAME}"
@@ -969,13 +861,6 @@
 	SetOutPath "$TEMP"
 	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
 	${RemoveAbandonedWintunAdapter}
-
-	${If} ${AtMostWin7}
-		${InstallWin7Hotfix}
-		${If} $R0 != 0
-			Goto customInstall_abort_installation
-		${EndIf}
-	${EndIf}
 
 	${ExtractSplitTunnelDriver}
 	${InstallSplitTunnelDriver}
