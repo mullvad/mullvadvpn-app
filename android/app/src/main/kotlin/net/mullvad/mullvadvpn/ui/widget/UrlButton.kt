@@ -67,6 +67,12 @@ open class UrlButton : Button {
         }
     }
 
+    fun updateAuthTokenCache(authTokenCache: AuthTokenCache) {
+        synchronized(this) {
+            this.authTokenCache = authTokenCache
+        }
+    }
+
     override fun setEnabled(enabled: Boolean) {
         synchronized(this) {
             shouldEnable = enabled

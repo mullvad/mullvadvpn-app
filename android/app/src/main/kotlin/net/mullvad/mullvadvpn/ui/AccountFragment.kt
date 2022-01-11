@@ -119,6 +119,8 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         oldAccountExpiry?.let { expiry ->
             accountCache.invalidateAccountExpiry(expiry)
         }
+
+        sitePaymentButton.updateAuthTokenCache(authTokenCache)
     }
 
     override fun onSafelyStop() {
