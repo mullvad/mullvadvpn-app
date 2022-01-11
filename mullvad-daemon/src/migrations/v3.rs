@@ -1,4 +1,6 @@
 use super::{Error, Result};
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use mullvad_types::settings::SettingsVersion;
 use std::net::IpAddr;
 
