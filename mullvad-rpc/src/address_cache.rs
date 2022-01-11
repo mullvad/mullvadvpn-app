@@ -60,7 +60,7 @@ impl AddressCache {
 
     /// Initialize cache using `read_path`, and write changes to `write_path`.
     pub async fn from_file(read_path: &Path, write_path: Option<Box<Path>>) -> Result<Self, Error> {
-        log::debug!("Loading API addresses from {:?}", read_path);
+        log::debug!("Loading API addresses from {}", read_path.display());
         Self::new(read_address_file(read_path).await?, write_path)
     }
 
