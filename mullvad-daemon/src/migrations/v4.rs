@@ -1,6 +1,4 @@
 use super::{Error, Result};
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
 use mullvad_types::{relay_constraints::Constraint, settings::SettingsVersion};
 
 // ======================================================
@@ -13,8 +11,6 @@ const OPENVPN_TCP_PORTS: [u16; 2] = [80, 443];
 /// Representation of a transport protocol, either UDP or TCP.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub enum TransportProtocol {
     /// Represents the UDP transport protocol.
     Udp,

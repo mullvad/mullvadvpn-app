@@ -1,6 +1,4 @@
 use super::{Error, Result};
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
 use mullvad_types::settings::SettingsVersion;
 use std::net::IpAddr;
 
@@ -23,19 +21,16 @@ impl Default for DnsState {
 
 /// DNS config
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+#[serde(default)]
 pub struct DnsOptions {
-    #[cfg_attr(target_os = "android", jnix(map = "|state| state == DnsState::Custom"))]
     pub state: DnsState,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub default_options: DefaultDnsOptions,
-    #[cfg_attr(target_os = "android", jnix(map = "|opts| opts.addresses"))]
     pub custom_options: CustomDnsOptions,
 }
 
 /// Default DNS config
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[serde(default)]
 pub struct DefaultDnsOptions {
     pub block_ads: bool,
     pub block_trackers: bool,
