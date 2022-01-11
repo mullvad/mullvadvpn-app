@@ -336,7 +336,13 @@ if [[ -n ${TARGETS:-""} ]]; then
     done
 else
     source env.sh ""
-    build
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        # Provide target for non-universal macOS builds to use the same output location as for
+        # universal builds
+        build "$ENV_TARGET"
+    else
+        build
+    fi
 fi
 
 ################################################################################

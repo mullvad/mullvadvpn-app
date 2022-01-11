@@ -46,6 +46,19 @@ const config = {
     '!node_modules/@types',
   ],
 
+  // Make sure that all files declared in "extraResources" exists and abort if they don't.
+  afterPack: (context) => {
+    const resources = context.packager.platformSpecificBuildOptions.extraResources;
+
+    for (const resource of resources) {
+      const filePath = resource.from.replace('${env.TARGET_TRIPLE}', process.env.TARGET_TRIPLE);
+
+      if (!fs.existsSync(filePath)) {
+        throw new Error(`Can't find file: ${filePath}`);
+      }
+    }
+  },
+
   mac: {
     target: {
       target: 'pkg',
@@ -227,6 +240,8 @@ function packMac() {
         return true;
       },
       afterPack: (context) => {
+        config.afterPack?.(context);
+
         delete process.env.TARGET_TRIPLE;
         appOutDirs.push(context.appOutDir);
         return Promise.resolve();
@@ -278,6 +293,8 @@ function packLinux() {
     config: {
       ...config,
       afterPack: async (context) => {
+        config.afterPack?.(context);
+
         const sourceExecutable = path.join(context.appOutDir, 'mullvad-vpn');
         const targetExecutable = path.join(context.appOutDir, 'mullvad-gui');
         const launcherScript = path.join(context.appOutDir, 'mullvad-gui-launcher.sh');
