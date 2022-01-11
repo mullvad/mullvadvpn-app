@@ -62,6 +62,10 @@ Line wrap the file at 100 chars.                                              Th
   Wintun.
 - Increase firewall transaction timeout from 2 to 5 seconds.
 
+### Removed
+#### Windows
+- Drop support for pre-Windows 10 systems.
+
 ### Fixed
 - Always kill `sslocal` if the tunnel monitor fails to start when using bridges.
 - Show relay location constraint correctly in the CLI when it is set to `any`.
