@@ -824,27 +824,23 @@ where
     fn get_dns_resolvers(options: &DnsOptions) -> Option<Vec<IpAddr>> {
         match options.state {
             DnsState::Default => {
-                // Check if we  should use a custom blocking DNS resolver.
+                // Check if we should use a custom blocking DNS resolver.
                 // And if so, compute the IP.
-                let mut use_blocking_ip = false;
                 let mut last_byte: u8 = 0;
 
                 if options.default_options.block_ads {
                     last_byte |= DNS_AD_BLOCKING_IP_BIT;
-                    use_blocking_ip = true;
                 }
                 if options.default_options.block_trackers {
                     last_byte |= DNS_TRACKER_BLOCKING_IP_BIT;
-                    use_blocking_ip = true;
                 }
                 if options.default_options.block_malware {
                     last_byte |= DNS_MALWARE_BLOCKING_IP_BIT;
-                    use_blocking_ip = true;
                 }
 
-                if use_blocking_ip {
+                if last_byte != 0 {
                     let mut dns_ip = DNS_BLOCKING_IP_BASE.octets();
-                    dns_ip[dns_ip.len() - 1] = last_byte;
+                    dns_ip[dns_ip.len() - 1] |= last_byte;
                     Some(vec![IpAddr::V4(Ipv4Addr::from(dns_ip))])
                 } else {
                     None
