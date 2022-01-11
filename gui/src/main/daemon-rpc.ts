@@ -463,6 +463,7 @@ export class DaemonRpc {
     const defaultOptions = new grpcTypes.DefaultDnsOptions();
     defaultOptions.setBlockAds(dns.defaultOptions.blockAds);
     defaultOptions.setBlockTrackers(dns.defaultOptions.blockTrackers);
+    defaultOptions.setBlockMalware(dns.defaultOptions.blockMalware);
     dnsOptions.setDefaultOptions(defaultOptions);
 
     const customOptions = new grpcTypes.CustomDnsOptions();
@@ -1095,6 +1096,7 @@ function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObjec
       defaultOptions: {
         blockAds: tunnelOptions.dnsOptions?.defaultOptions?.blockAds ?? false,
         blockTrackers: tunnelOptions.dnsOptions?.defaultOptions?.blockTrackers ?? false,
+        blockMalware: tunnelOptions.dnsOptions?.defaultOptions?.blockMalware ?? false,
       },
       customOptions: {
         addresses: tunnelOptions.dnsOptions?.customOptions?.addressesList ?? [],

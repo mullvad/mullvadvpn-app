@@ -190,6 +190,7 @@ const initialState: ISettingsReduxState = {
     defaultOptions: {
       blockAds: false,
       blockTrackers: false,
+      blockMalware: false,
     },
     customOptions: {
       addresses: [],
