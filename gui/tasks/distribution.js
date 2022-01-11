@@ -5,6 +5,8 @@ const parseSemver = require('semver/functions/parse');
 const { notarize } = require('electron-notarize');
 const { version } = require('../package.json');
 
+// test
+
 const noCompression = process.argv.includes('--no-compression');
 const noAppleNotarization = process.argv.includes('--no-apple-notarization');
 
