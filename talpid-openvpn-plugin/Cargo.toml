@@ -35,6 +35,6 @@ winapi = "0.3"
 [package.metadata.winres]
 ProductName = "Mullvad VPN"
 CompanyName = "Mullvad VPN AB"
-LegalCopyright = "(c) 2021 Mullvad VPN AB"
+LegalCopyright = "(c) 2022 Mullvad VPN AB"
 InternalName = "talpid-openvpn-plugin"
 OriginalFilename = "talpid_openvpn_plugin.dll"
