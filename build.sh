@@ -101,13 +101,14 @@ fi
 # C++ is currently hardcoded to build in release mode since distribution.js is hardcoded
 # to use the DLLs from those paths. If we find value in being able to build apps with C++
 # in debug mode, we can fix this.
-CPP_BUILD_MODE="Release"
 if [[ "$OPTIMIZE" == "true" ]]; then
     CARGO_ARGS+=(--release)
     RUST_BUILD_MODE="release"
+    CPP_BUILD_MODE="Release"
 else
     RUST_BUILD_MODE="debug"
     NPM_PACK_ARGS+=(--no-compression)
+    CPP_BUILD_MODE="Debug"
 fi
 
 if [[ "$SIGN" == "true" ]]; then
@@ -311,21 +312,32 @@ function build {
     done
 }
 
-if [[ "$(uname -s)" == "MINGW"* ]]; then
+function build_windows_modules {
     log_header "Building C++ code in $CPP_BUILD_MODE mode"
     CPP_BUILD_MODES=$CPP_BUILD_MODE IS_RELEASE=$IS_RELEASE ./build-windows-modules.sh
 
-    if [[ "$SIGN" == "true" ]]; then
-        signdep=(
-            windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll
-            windows/windns/bin/x64-$CPP_BUILD_MODE/windns.dll
-            windows/winnet/bin/x64-$CPP_BUILD_MODE/winnet.dll
-            windows/driverlogic/bin/x64-$CPP_BUILD_MODE/driverlogic.exe
-            # The nsis plugin is always built in 32 bit release mode
-            windows/nsis-plugins/bin/Win32-Release/*.dll
-        )
-        sign_win "${signdep[@]}"
-    fi
+    deps=(
+        windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll
+        windows/windns/bin/x64-$CPP_BUILD_MODE/windns.dll
+        windows/winnet/bin/x64-$CPP_BUILD_MODE/winnet.dll
+        windows/driverlogic/bin/x64-$CPP_BUILD_MODE/driverlogic.exe
+        # The nsis plugin is always built in 32 bit release mode
+        windows/nsis-plugins/bin/Win32-Release/*.dll
+    )
+
+    local destination_dir="dist-assets"
+    for binary in "${deps[@]}"; do
+        local destination="$destination_dir/$(basename "$binary")"
+        log_info "Copying $binary => $destination"
+        cp "$binary" "$destination"
+        if [[ "$SIGN" == "true" ]]; then
+            sign_win "$destination"
+        fi
+    done
+}
+
+if [[ "$(uname -s)" == "MINGW"* ]]; then
+    build_windows_modules
 fi
 
 # Compile for all defined targets, or the current architecture if unspecified.
