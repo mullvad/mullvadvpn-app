@@ -290,7 +290,14 @@ function build {
         mkdir -p "$destination_dir"
     else
         local cargo_output_dir="$CARGO_TARGET_DIR/$RUST_BUILD_MODE"
-        local destination_dir="dist-assets"
+
+        if [[ "$(uname -s)" == "Darwin" ]]; then
+            # Always use the same location for binaries on macOS
+            local destination_dir="dist-assets/$ENV_TARGET"
+            mkdir -p "$destination_dir"
+        else
+            local destination_dir="dist-assets"
+        fi
     fi
 
     for binary in ${BINARIES[*]}; do
