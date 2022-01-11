@@ -1,7 +1,7 @@
 name: Android app XML formatting verifier
 on:
     # Run verifier whenever an Android XML file changes
-    push:
+    pull_request:
         paths:
             - .github/workflows/android-xml-tidy.yml
             - android/app/src/main/**/*.xml

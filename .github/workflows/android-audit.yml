@@ -1,6 +1,6 @@
 name: Android audit
 on:
-    push:
+    pull_request:
         paths:
             - .github/workflows/android-audit.yml
             - android/**

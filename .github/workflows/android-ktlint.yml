@@ -1,7 +1,7 @@
 name: Android app Kotlin linter
 on:
     # Run linter whenever a Kotlin file changes
-    push:
+    pull_request:
         paths:
             - .github/workflows/android-ktlint.yml
             - android/**/*.kt
