@@ -41,6 +41,7 @@ mullvad-management-interface = { path = "../mullvad-management-interface" }
 
 [target.'cfg(target_os="android")'.dependencies]
 android_logger = "0.8"
+jnix = { version = "0.4", features = ["derive"] }
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.22.2"

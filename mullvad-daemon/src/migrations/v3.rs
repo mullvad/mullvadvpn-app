@@ -1,7 +1,53 @@
 use super::{Error, Result};
-use mullvad_types::settings::{
-    CustomDnsOptions, DefaultDnsOptions, DnsOptions, DnsState, SettingsVersion,
-};
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
+use mullvad_types::settings::SettingsVersion;
+use std::net::IpAddr;
+
+// ======================================================
+// Section for vendoring types and values that
+// this settings version depend on. See `mod.rs`.
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum DnsState {
+    Default,
+    Custom,
+}
+
+impl Default for DnsState {
+    fn default() -> Self {
+        Self::Default
+    }
+}
+
+/// DNS config
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+pub struct DnsOptions {
+    #[cfg_attr(target_os = "android", jnix(map = "|state| state == DnsState::Custom"))]
+    pub state: DnsState,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub default_options: DefaultDnsOptions,
+    #[cfg_attr(target_os = "android", jnix(map = "|opts| opts.addresses"))]
+    pub custom_options: CustomDnsOptions,
+}
+
+/// Default DNS config
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+pub struct DefaultDnsOptions {
+    pub block_ads: bool,
+    pub block_trackers: bool,
+}
+
+/// Custom DNS config
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+pub struct CustomDnsOptions {
+    pub addresses: Vec<IpAddr>,
+}
+
+// ======================================================
 
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {

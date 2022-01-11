@@ -1,7 +1,15 @@
 use super::{Error, Result};
-use crate::wireguard::{MAX_ROTATION_INTERVAL, MIN_ROTATION_INTERVAL};
 use mullvad_types::settings::SettingsVersion;
 use std::time::Duration;
+
+// ======================================================
+// Section for vendoring types and values that
+// this settings version depend on. See `mod.rs`.
+
+pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_secs(1 * 24 * 60 * 60);
+pub const MAX_ROTATION_INTERVAL: Duration = Duration::from_secs(7 * 24 * 60 * 60);
+
+// ======================================================
 
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
