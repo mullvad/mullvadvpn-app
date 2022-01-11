@@ -1,3 +1,24 @@
+//! Code for migrating between different versions of the settings.
+//! Migration only supports migrating forward, to newer formats.
+//!
+//! A settings migration module is responsible for converting
+//! from its own version to the next version. So `v3::migrate`
+//! migrates from settings version `V3` to `V4` etc.
+//!
+//! Migration modules may NOT import and use structs that may
+//! change. Because then a later change to the current code can break
+//! old migrations. The only items a settings migration module may import
+//! are anything from `std` plus the following:
+//!
+//! ```ignore
+//! use super::{Error, Result};
+//! use mullvad_types::relay_constraints::Constraint;
+//! use mullvad_types::settings::SettingsVersion;
+//! ```
+//!
+//! Any other type must be vendored into the migration module so the format
+//! it has is locked over time.
+
 use std::path::Path;
 use tokio::{
     fs,

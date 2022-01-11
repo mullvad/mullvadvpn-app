@@ -1,6 +1,21 @@
 use super::Result;
 use mullvad_types::{relay_constraints::Constraint, settings::SettingsVersion};
-use talpid_types::net::TunnelType;
+
+// ======================================================
+// Section for vendoring types and values that
+// this settings version depend on. See `mod.rs`.
+
+/// The tunnel protocol used by a [`TunnelEndpoint`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename = "tunnel_type")]
+pub enum TunnelType {
+    #[serde(rename = "openvpn")]
+    OpenVpn,
+    #[serde(rename = "wireguard")]
+    Wireguard,
+}
+
+// ======================================================
 
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {

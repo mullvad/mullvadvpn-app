@@ -1,12 +1,32 @@
 use super::{Error, Result};
-use mullvad_types::{
-    relay_constraints::{Constraint, TransportPort},
-    settings::SettingsVersion,
-};
-use talpid_types::net::TransportProtocol;
+use mullvad_types::{relay_constraints::Constraint, settings::SettingsVersion};
+
+// ======================================================
+// Section for vendoring types and values that
+// this settings version depend on. See `mod.rs`.
 
 const WIREGUARD_TCP_PORTS: [u16; 3] = [80, 443, 5001];
 const OPENVPN_TCP_PORTS: [u16; 2] = [80, 443];
+
+/// Representation of a transport protocol, either UDP or TCP.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
+pub enum TransportProtocol {
+    /// Represents the UDP transport protocol.
+    Udp,
+    /// Represents the TCP transport protocol.
+    Tcp,
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub struct TransportPort {
+    pub protocol: TransportProtocol,
+    pub port: Constraint<u16>,
+}
+
+// ======================================================
 
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
