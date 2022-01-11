@@ -1,7 +1,7 @@
 name: Android app CI
 on:
-    # Build whenever a file that affects Android is changed by a push
-    push:
+    # Build whenever a file that affects Android is changed in a pull request
+    pull_request:
         paths:
             - .github/workflows/android-app.yml
             - android/**

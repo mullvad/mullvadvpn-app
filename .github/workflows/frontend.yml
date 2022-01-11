@@ -1,7 +1,7 @@
 name: Electron frontend CI
 on:
-    # Build whenever a file that affects the frontend is changed by a push
-    push:
+    # Build whenever a file that affects the frontend is changed in a pull request
+    pull_request:
         paths:
             - .github/workflows/frontend.yml
             - gui/**

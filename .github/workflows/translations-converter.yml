@@ -1,7 +1,7 @@
 name: Translations converter tool CI
 on:
     # Run whenever a file that affects the translations converter tool is changed
-    push:
+    pull_request:
         paths:
             - .github/workflows/translations-converter.yml
             - android/translations-converter/**
