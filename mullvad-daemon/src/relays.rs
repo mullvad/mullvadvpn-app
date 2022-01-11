@@ -952,7 +952,7 @@ impl RelaySelector {
         let bundled_relays = match ParsedRelays::from_file(resource_path) {
             Ok(bundled_relays) => bundled_relays,
             Err(e) => {
-                log::error!("Failed to load bundled relays - {}", e);
+                log::error!("Failed to load bundled relays: {}", e);
                 return cached_relays;
             }
         };

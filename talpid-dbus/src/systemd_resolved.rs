@@ -156,7 +156,7 @@ impl SystemdResolved {
                 Self::ensure_resolvconf_contents()
             }
             Err(err) => {
-                log::trace!("Failed to read /etc/resolv.conf symlink - {}", err);
+                log::trace!("Failed to read /etc/resolv.conf symlink: {}", err);
                 Err(Error::NotSymlinkedToResolvConf)
             }
         }
@@ -183,7 +183,7 @@ impl SystemdResolved {
                 Ok(link_destination) => RESOLVED_STUB_PATHS.contains(&link_destination.as_ref()),
                 Err(e) => {
                     log::error!(
-                        "Failed to canonicalize resolv conf path {} - {}",
+                        "Failed to canonicalize resolv conf path {}: {}",
                         link_path.display(),
                         e
                     );

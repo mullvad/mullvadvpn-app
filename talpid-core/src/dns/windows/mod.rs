@@ -83,8 +83,8 @@ impl super::DnsMonitorT for DnsMonitor {
             .map(|ip_cstr| ip_cstr.as_ptr())
             .collect::<Vec<_>>();
 
-        log::trace!("ipv4 ips - {:?} - {}", ipv4, ipv4.len());
-        log::trace!("ipv6 ips - {:?} - {}", ipv6, ipv6.len());
+        log::trace!("ipv4 ips: {:?} ({})", ipv4, ipv4.len());
+        log::trace!("ipv6 ips: {:?} ({})", ipv6, ipv6.len());
 
         let luid = luid_from_alias(interface).map_err(Error::InterfaceLuidError)?;
 

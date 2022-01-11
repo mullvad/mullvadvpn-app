@@ -60,7 +60,7 @@ impl super::Pinger for Pinger {
                 .unwrap_or(false)
             {
                 if let Err(err) = proc.kill() {
-                    log::error!("Failed to kill ping process - {}", err);
+                    log::error!("Failed to kill ping process: {}", err);
                 }
             }
         }
@@ -71,7 +71,7 @@ impl Drop for Pinger {
     fn drop(&mut self) {
         for child in self.processes.iter_mut() {
             if let Err(e) = child.kill() {
-                log::error!("Failed to kill ping process - {}", e);
+                log::error!("Failed to kill ping process: {}", e);
             }
         }
     }

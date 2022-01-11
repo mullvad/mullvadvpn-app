@@ -77,13 +77,13 @@ pub enum Error {
     #[error(display = "Configuration has no device associated to it")]
     NoDevice,
 
-    #[error(display = "NetworkManager is too old - {}.{}", _0, _1)]
+    #[error(display = "NetworkManager is too old: {}.{}", _0, _1)]
     NMTooOld(u32, u32),
 
-    #[error(display = "NetworkManager is too new to manage DNS - {}.{}", _0, _1)]
+    #[error(display = "NetworkManager is too new to manage DNS: {}.{}", _0, _1)]
     NMTooNewFroDns(u32, u32),
 
-    #[error(display = "Failed to parse NetworkManager version string - {}", _0)]
+    #[error(display = "Failed to parse NetworkManager version string: {}", _0)]
     ParseNmVersionError(String),
 
     #[error(display = "Device inactive: {}", _0)]
@@ -162,7 +162,7 @@ impl NetworkManager {
             }
             Err(err) => {
                 log::error!(
-                    "Failed to create a new interface via AddConnection2 - {}",
+                    "Failed to create a new interface via AddConnection2: {}",
                     err
                 );
                 return Err(err);

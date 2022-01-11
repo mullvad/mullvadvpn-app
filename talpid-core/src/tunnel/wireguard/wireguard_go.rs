@@ -191,7 +191,7 @@ impl WgGoTunnel {
                     ConvertInterfaceLuidToIndex(&iface_luid as *const _, &mut iface_idx as *mut _);
                 if status != 0 {
                     log::error!(
-                        "Failed to convert interface LUID to interface index - {} - {}",
+                        "Failed to convert interface LUID to interface index: {}: {}",
                         status,
                         std::io::Error::last_os_error()
                     );
@@ -289,7 +289,7 @@ impl WgGoTunnel {
 impl Drop for WgGoTunnel {
     fn drop(&mut self) {
         if let Err(e) = self.stop_tunnel() {
-            log::error!("Failed to stop tunnel - {}", e);
+            log::error!("Failed to stop tunnel: {}", e);
         }
     }
 }

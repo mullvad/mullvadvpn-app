@@ -100,7 +100,7 @@ impl ServerRelayList {
                     country.cities.push(location_to_city(&location, city_code));
                 }
                 None => {
-                    log::error!("Bad location code - {}", code);
+                    log::error!("Bad location code:{}", code);
                     continue;
                 }
             }
