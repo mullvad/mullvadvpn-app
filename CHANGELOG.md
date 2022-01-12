@@ -1,3 +1,5 @@
+test change
+
 # Changelog
 All changes to the software that can be noticed from the users' perspective should have an entry in
 this file. Except very minor things that will not affect functionality, such as log message changes
