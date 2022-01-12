@@ -1,8 +1,5 @@
 name: Bidirectional Unicode scan
-on:
-    push:
-    # Request manually from the Actions tab
-    workflow_dispatch:
+on: [pull_request, workflow_dispatch]
 jobs:
     build-linux:
         runs-on: ubuntu-latest

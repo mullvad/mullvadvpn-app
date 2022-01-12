@@ -1,6 +1,6 @@
 name: Audit Rust dependencies CI
 on:
-    push:
+    pull_request:
         paths:
             - .github/workflows/cargo-audit.yml
             - '**/*.rs'

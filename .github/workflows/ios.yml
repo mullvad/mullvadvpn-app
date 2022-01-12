@@ -1,6 +1,6 @@
 name: iOS app CI
 on:
-    push:
+    pull_request:
         paths:
             - .github/workflows/ios.yml
             - ios/**

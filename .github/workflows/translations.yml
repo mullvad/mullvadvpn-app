@@ -1,7 +1,7 @@
 name: Translation check CI
 on:
-    # Check whenever a file that affects Rust formatting is changed by a push
-    push:
+    # Check whenever a file that affects Rust formatting is changed in a pull request
+    pull_request:
         paths:
             - .github/workflows/translations.yml
             - android/translations-converter/**
