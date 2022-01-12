@@ -21,6 +21,7 @@ pub struct Firewall {
     pf_was_enabled: Option<bool>,
     rule_logging: RuleLogging,
     dns_redirect_port: Option<u16>,
+    /// An exclusion group ID may be used in the future to help split tunneling in the future.
     _exclusion_gid: u32,
 }
 
