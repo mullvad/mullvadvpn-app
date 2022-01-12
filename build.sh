@@ -314,17 +314,16 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
     log_header "Building C++ code in $CPP_BUILD_MODE mode"
     CPP_BUILD_MODES=$CPP_BUILD_MODE IS_RELEASE=$IS_RELEASE ./build-windows-modules.sh
 
-    SIGN_DEPENDENCIES=(
-        windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll
-        windows/windns/bin/x64-$CPP_BUILD_MODE/windns.dll
-        windows/winnet/bin/x64-$CPP_BUILD_MODE/winnet.dll
-        windows/driverlogic/bin/x64-$CPP_BUILD_MODE/driverlogic.exe
-        # The nsis plugin is always built in 32 bit release mode
-        windows/nsis-plugins/bin/Win32-Release/*.dll
-    )
-
     if [[ "$SIGN" == "true" ]]; then
-        sign_win "${SIGN_DEPENDENCIES[@]}"
+        CPP_BINARIES=(
+            windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll
+            windows/windns/bin/x64-$CPP_BUILD_MODE/windns.dll
+            windows/winnet/bin/x64-$CPP_BUILD_MODE/winnet.dll
+            windows/driverlogic/bin/x64-$CPP_BUILD_MODE/driverlogic.exe
+            # The nsis plugin is always built in 32 bit release mode
+            windows/nsis-plugins/bin/Win32-Release/*.dll
+        )
+        sign_win "${CPP_BINARIES[@]}"
     fi
 fi
 
