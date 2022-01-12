@@ -68,6 +68,7 @@ jobs:
                     ~/.gradle/caches
                     ~/.gradle/wrapper
                     ./android/build
+                    ./android/app/build
                 key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-${{ steps.vars.outputs.sha_short }}
                 restore-keys: |
                     gradle-${{ steps.vars.outputs.sha_short }}
@@ -127,6 +128,7 @@ jobs:
                     ~/.gradle/caches
                     ~/.gradle/wrapper
                     ./android/build
+                    ./android/app/build
                 key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-${{ steps.vars.outputs.sha_short }}
                 restore-keys: |
                     gradle-${{ steps.vars.outputs.sha_short }}
