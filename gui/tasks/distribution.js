@@ -9,6 +9,7 @@ const noCompression = process.argv.includes('--no-compression');
 const noAppleNotarization = process.argv.includes('--no-apple-notarization');
 
 const universal = process.argv.includes('--universal');
+const release = process.argv.includes('--release');
 
 const config = {
   appId: 'net.mullvad.vpn',
@@ -121,9 +122,9 @@ const config = {
       { from: distAssets('mullvad-problem-report.exe'), to: '.' },
       { from: distAssets('mullvad-daemon.exe'), to: '.' },
       { from: distAssets('talpid_openvpn_plugin.dll'), to: '.' },
-      { from: root('windows/winfw/bin/x64-Release/winfw.dll'), to: '.' },
-      { from: root('windows/windns/bin/x64-Release/windns.dll'), to: '.' },
-      { from: root('windows/winnet/bin/x64-Release/winnet.dll'), to: '.' },
+      { from: windowsModule('winfw'), to: '.' },
+      { from: windowsModule('windns'), to: '.' },
+      { from: windowsModule('winnet'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/sslocal.exe'), to: '.' },
       { from: root('build/lib/x86_64-pc-windows-msvc/libwg.dll'), to: '.' },
@@ -207,6 +208,11 @@ const config = {
 };
 
 function packWin() {
+  if (release) {
+    process.env.TARGET_CONFIG = 'x64-Release';
+  } else {
+    process.env.TARGET_CONFIG = 'x64-Debug';
+  }
   return builder.build({
     targets: builder.Platform.WINDOWS.createTarget(),
     config: {
@@ -310,6 +316,14 @@ function packLinux() {
 
 function distAssets(relativePath) {
   return path.join(path.resolve(__dirname, '../../dist-assets'), relativePath);
+}
+
+function windowsModule(name) {
+  if (release) {
+    return root(`windows/${name}/bin/x64-Release/${name}.dll`);
+  } else {
+    return root(`windows/${name}/bin/x64-Debug/${name}.dll`);
+  }
 }
 
 function root(relativePath) {
