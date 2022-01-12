@@ -97,21 +97,22 @@ impl Firewall {
         &mut self,
         policy: &FirewallPolicy,
     ) -> Result<Vec<pfctl::RedirectRule>> {
-        match policy {
-            FirewallPolicy::Blocked { .. } => self
-                .dns_redirect_port
-                .iter()
-                .map(|redirect_port| {
+        match (policy, &self.dns_redirect_port.clone()) {
+            (FirewallPolicy::Blocked { .. }, Some(redirect_port)) => {
+                let build_redirect_rule = |proto| {
                     pfctl::RedirectRuleBuilder::default()
                         .action(pfctl::RedirectRuleAction::Redirect)
                         .interface("lo0")
-                        .proto(pfctl::Proto::Udp)
+                        .proto(proto)
                         .to(pfctl::Port::from(53))
                         .redirect_to(pfctl::Port::from(*redirect_port))
                         .build()
-                })
-                .collect::<Result<Vec<_>>>(),
-
+                };
+                Ok(vec![
+                    build_redirect_rule(pfctl::Proto::Udp)?,
+                    build_redirect_rule(pfctl::Proto::Tcp)?,
+                ])
+            }
             _ => Ok(vec![]),
         }
     }
