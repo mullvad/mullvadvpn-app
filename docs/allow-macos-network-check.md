@@ -14,10 +14,10 @@ To not have to wait for macOS to time out it's captive portal check, the app sho
 captive portal check even when it's in a blocking state, whilst still blocking all arbitrary DNS
 traffic. However, only a DNS response is required to appease the connectivity check - and it doesn't
 even need to be valid. As such, during blocked states the app can run a custom resolver that only
-responds to queries for `captive.apple.com` to allow macOS to do it's connectivity check. Since no
+responds to queries for `captive.apple.com` to allow macOS to do its connectivity check. Since no
 lookups have to be made, no traffic needs to be leaked.
 
-# Overcoming hese issues in the daemon.
+# Overcoming these issues in the daemon.
 
 To allow the connectivity check to pass when blocking traffic, the daemon runs a custom resolver
 that listens only on localhost on an arbitrary port. Traffic to it is only redirected during blocked

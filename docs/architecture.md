@@ -120,7 +120,8 @@ they happen on different scenarios and because of different causes.
 - *Tunnel monitor stopped*: communication to the tunnel monitor was lost
 - *Is offline*: notify the tunnel state machine if the operating system is connected or not to the
   network, so that it can safely wait for connectivity to be restored without endlessly retrying to
-  establish the VPN connection
+  establish the VPN connection. Some care needs to be taken to not get stuck in the offline state
+  for too long on [macOS](allow-macos-network-check.md).
 
 #### State machine outputs
 
