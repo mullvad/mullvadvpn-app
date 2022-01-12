@@ -61,6 +61,8 @@ Line wrap the file at 100 chars.                                              Th
 - Make wireguard-nt the default driver for WireGuard. This is used instead of wireguard-go and
   Wintun.
 - Increase firewall transaction timeout from 2 to 5 seconds.
+- Update split tunnel driver to 1.2.0.0. Notably, this driver release allows firewall filters
+  added by other software to block excluded apps.
 
 ### Removed
 #### Windows
