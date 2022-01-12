@@ -102,6 +102,7 @@ if [[ "$OPTIMIZE" == "true" ]]; then
     CARGO_ARGS+=(--release)
     RUST_BUILD_MODE="release"
     CPP_BUILD_MODE="Release"
+    NPM_PACK_ARGS+=(--release)
 else
     RUST_BUILD_MODE="debug"
     NPM_PACK_ARGS+=(--no-compression)
@@ -309,11 +310,11 @@ function build {
     done
 }
 
-function build_windows_modules {
+if [[ "$(uname -s)" == "MINGW"* ]]; then
     log_header "Building C++ code in $CPP_BUILD_MODE mode"
     CPP_BUILD_MODES=$CPP_BUILD_MODE IS_RELEASE=$IS_RELEASE ./build-windows-modules.sh
 
-    deps=(
+    SIGN_DEPENDENCIES=(
         windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll
         windows/windns/bin/x64-$CPP_BUILD_MODE/windns.dll
         windows/winnet/bin/x64-$CPP_BUILD_MODE/winnet.dll
@@ -323,19 +324,8 @@ function build_windows_modules {
     )
 
     if [[ "$SIGN" == "true" ]]; then
-        sign_win "${deps[@]}"
+        sign_win "${SIGN_DEPENDENCIES[@]}"
     fi
-
-    local destination_dir="dist-assets"
-    for binary in "${deps[@]}"; do
-        local destination="$destination_dir/$(basename "$binary")"
-        log_info "Copying $binary => $destination"
-        cp "$binary" "$destination"
-    done
-}
-
-if [[ "$(uname -s)" == "MINGW"* ]]; then
-    build_windows_modules
 fi
 
 # Compile for all defined targets, or the current architecture if unspecified.
