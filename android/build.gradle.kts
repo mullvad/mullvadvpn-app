@@ -1,5 +1,8 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+
 plugins {
     id(Dependencies.Plugin.dependencyCheckId) version Versions.Plugin.dependencyCheck apply false
+    id(Dependencies.Plugin.gradleVersionsId) version Versions.Plugin.gradleVersions
 }
 
 buildscript {
@@ -27,6 +30,18 @@ allprojects {
 
     configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
         failBuildOnCVSS = 0F // All severity levels
+    }
+}
+
+tasks.withType<DependencyUpdatesTask> {
+    resolutionStrategy {
+        componentSelection {
+            all {
+                if (candidate.version.isNonStableVersion()) {
+                    reject("Non-stable version.")
+                }
+            }
+        }
     }
 }
 

@@ -33,5 +33,6 @@ object Versions {
         const val playPublisher = "2.7.5"
         const val kotlin = "1.4.31"
         const val dependencyCheck = "6.5.0.1"
+        const val gradleVersions = "0.41.0"
     }
 }
