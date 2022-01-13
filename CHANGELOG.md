@@ -85,6 +85,7 @@ Line wrap the file at 100 chars.                                              Th
 - Remove tray icon of current running app version when upgrading.
 - Allow Mullvad wireguard-nt tunnels to work simultaneously with other wg-nt tunnels.
 - Fix notifications on Windows not showing if window is unpinned and hidden.
+- Wait for IP interfaces to arrive before trying to configure them when using wireguard-nt.
 
 #### Android
 - Fix Quick Settings tile showing wrong state in certain scenarios.
