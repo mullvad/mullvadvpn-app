@@ -5,11 +5,7 @@ use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing::{self, RequiredRoute};
 use futures::future::abortable;
 #[cfg(windows)]
-use futures::{
-    channel::{mpsc, oneshot},
-    future::{self, Either},
-    StreamExt,
-};
+use futures::{channel::mpsc, StreamExt};
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
@@ -94,8 +90,6 @@ pub struct WireguardMonitor {
     >,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
-    #[cfg(target_os = "windows")]
-    stop_setup_tx: Option<oneshot::Sender<()>>,
     pinger_stop_sender: sync_mpsc::Sender<()>,
     _tcp_proxies: Vec<TcpProxy>,
 }
@@ -209,16 +203,12 @@ impl WireguardMonitor {
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = sync_mpsc::channel();
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
-        #[cfg(target_os = "windows")]
-        let (stop_setup_tx, stop_setup_rx) = oneshot::channel();
         let monitor = WireguardMonitor {
             runtime: runtime.clone(),
             tunnel: Arc::new(Mutex::new(Some(tunnel))),
             event_callback,
             close_msg_sender,
             close_msg_receiver,
-            #[cfg(target_os = "windows")]
-            stop_setup_tx: Some(stop_setup_tx),
             pinger_stop_sender: pinger_tx,
             _tcp_proxies: tcp_proxies,
         };
@@ -242,22 +232,17 @@ impl WireguardMonitor {
             #[cfg(windows)]
             {
                 let iface_close_sender = close_sender.clone();
-                let result = match future::select(setup_done_rx.next(), stop_setup_rx).await {
-                    Either::Left((result, _)) => match result {
-                        Some(result) => result.map_err(|error| {
-                            log::error!(
-                                "{}",
-                                error.display_chain_with_msg(
-                                    "Failed to configure tunnel interface"
-                                )
-                            );
-                            iface_close_sender
-                                .send(CloseMsg::SetupError(Error::IpInterfacesError))
-                                .unwrap_or(())
-                        }),
-                        None => Err(()),
-                    },
-                    Either::Right(_) => Err(()),
+                let result = match setup_done_rx.next().await {
+                    Some(result) => result.map_err(|error| {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to configure tunnel interface")
+                        );
+                        iface_close_sender
+                            .send(CloseMsg::SetupError(Error::IpInterfacesError))
+                            .unwrap_or(())
+                    }),
+                    None => Err(()),
                 };
                 if result.is_err() {
                     return;
@@ -423,10 +408,6 @@ impl WireguardMonitor {
             Err(_) => Ok(()),
         };
 
-        #[cfg(windows)]
-        if let Some(stop_tx) = self.stop_setup_tx.take() {
-            let _ = stop_tx.send(());
-        }
         let _ = self.pinger_stop_sender.send(());
 
         self.stop_tunnel();
