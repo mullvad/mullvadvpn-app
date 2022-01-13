@@ -134,8 +134,8 @@ class ApplicationMain {
   private accountHistory?: AccountToken = undefined;
   private tunnelState: TunnelState = { state: 'disconnected' };
   private lastIgnoredTunnelState?: TunnelState;
-  private ignoreTunnelStatesUntil?: TunnelState['state'];
-  private ignoreTunnelStateFallbackScheduler = new Scheduler();
+  private optimisticTunnelState?: TunnelState['state'];
+  private optimisticTunnelStateFallbackScheduler = new Scheduler();
   private settings: ISettings = {
     accountToken: undefined,
     allowLan: false,
@@ -701,7 +701,7 @@ class ApplicationMain {
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
 
-    this.ignoreTunnelStatesUntil = undefined;
+    this.optimisticTunnelState = undefined;
     this.lastIgnoredTunnelState = undefined;
     this.autoConnectFallbackScheduler.cancel();
 
@@ -811,11 +811,15 @@ class ApplicationMain {
     this.wireguardKeygenEventAutoConnect();
   }
 
-  private setIgnoreTunnelStatesUntil(state: TunnelState['state']) {
-    this.ignoreTunnelStatesUntil = state;
-    this.ignoreTunnelStateFallbackScheduler.schedule(() => {
+  private setOptimisticTunnelState(state: 'connecting' | 'disconnecting') {
+    const tunnelState =
+      state === 'disconnecting' ? ({ state, details: 'nothing' } as const) : { state };
+    this.updateTrayIcon(tunnelState, this.settings.blockWhenDisconnected);
+
+    this.optimisticTunnelState = state;
+    this.optimisticTunnelStateFallbackScheduler.schedule(() => {
       if (this.lastIgnoredTunnelState) {
-        this.ignoreTunnelStatesUntil = undefined;
+        this.optimisticTunnelState = undefined;
         this.setTunnelState(this.lastIgnoredTunnelState);
         this.lastIgnoredTunnelState = undefined;
       }
@@ -823,9 +827,10 @@ class ApplicationMain {
   }
 
   private setTunnelState(newState: TunnelState) {
-    if (this.ignoreTunnelStatesUntil) {
-      if (this.ignoreTunnelStatesUntil === newState.state) {
-        this.ignoreTunnelStatesUntil = undefined;
+    if (this.optimisticTunnelState) {
+      if (this.optimisticTunnelState === newState.state) {
+        this.optimisticTunnelStateFallbackScheduler.cancel();
+        this.optimisticTunnelState = undefined;
         this.lastIgnoredTunnelState = undefined;
       } else {
         this.lastIgnoredTunnelState = newState;
@@ -1205,15 +1210,15 @@ class ApplicationMain {
     IpcMainEventChannel.location.handleGet(() => this.daemonRpc.getLocation());
 
     IpcMainEventChannel.tunnel.handleConnect(() => {
-      this.setIgnoreTunnelStatesUntil('connecting');
+      this.setOptimisticTunnelState('connecting');
       return this.daemonRpc.connectTunnel();
     });
     IpcMainEventChannel.tunnel.handleDisconnect(() => {
-      this.setIgnoreTunnelStatesUntil('disconnecting');
+      this.setOptimisticTunnelState('disconnecting');
       return this.daemonRpc.disconnectTunnel();
     });
     IpcMainEventChannel.tunnel.handleReconnect(() => {
-      this.setIgnoreTunnelStatesUntil('connecting');
+      this.setOptimisticTunnelState('connecting');
       return this.daemonRpc.reconnectTunnel();
     });
 
