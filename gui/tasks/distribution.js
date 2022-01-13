@@ -50,9 +50,10 @@ const config = {
   // Make sure that all files declared in "extraResources" exists and abort if they don't.
   afterPack: (context) => {
     const resources = context.packager.platformSpecificBuildOptions.extraResources;
-
     for (const resource of resources) {
-      const filePath = resource.from.replace('${env.TARGET_TRIPLE}', process.env.TARGET_TRIPLE);
+      const filePath = resource.from.replace(/\$\{env\.(.*)\}/, function(match, captureGroup) {
+        return process.env[captureGroup];
+      });
 
       if (!fs.existsSync(filePath)) {
         throw new Error(`Can't find file: ${filePath}`);
@@ -122,9 +123,9 @@ const config = {
       { from: distAssets('mullvad-problem-report.exe'), to: '.' },
       { from: distAssets('mullvad-daemon.exe'), to: '.' },
       { from: distAssets('talpid_openvpn_plugin.dll'), to: '.' },
-      { from: windowsModule('winfw'), to: '.' },
-      { from: windowsModule('windns'), to: '.' },
-      { from: windowsModule('winnet'), to: '.' },
+      { from: root(path.join('windows', 'winfw', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winfw.dll')), to: '.' },
+      { from: root(path.join('windows', 'windns', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'windns.dll')), to: '.' },
+      { from: root(path.join('windows', 'winnet', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winnet.dll')), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/sslocal.exe'), to: '.' },
       { from: root('build/lib/x86_64-pc-windows-msvc/libwg.dll'), to: '.' },
@@ -208,16 +209,15 @@ const config = {
 };
 
 function packWin() {
-  if (release) {
-    process.env.TARGET_CONFIG = 'x64-Release';
-  } else {
-    process.env.TARGET_CONFIG = 'x64-Debug';
-  }
   return builder.build({
     targets: builder.Platform.WINDOWS.createTarget(),
     config: {
       ...config,
       asarUnpack: ['build/assets/images/menubar icons/win32/lock-*.ico'],
+      beforeBuild: (options) => {
+        process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
+        return true;
+      },
     },
   });
 }
@@ -316,14 +316,6 @@ function packLinux() {
 
 function distAssets(relativePath) {
   return path.join(path.resolve(__dirname, '../../dist-assets'), relativePath);
-}
-
-function windowsModule(name) {
-  if (release) {
-    return root(`windows/${name}/bin/x64-Release/${name}.dll`);
-  } else {
-    return root(`windows/${name}/bin/x64-Debug/${name}.dll`);
-  }
 }
 
 function root(relativePath) {
