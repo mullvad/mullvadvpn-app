@@ -98,16 +98,15 @@ if [[ "$UNIVERSAL" == "true" ]]; then
     NPM_PACK_ARGS+=(--universal)
 fi
 
-# C++ is currently hardcoded to build in release mode since distribution.js is hardcoded
-# to use the DLLs from those paths. If we find value in being able to build apps with C++
-# in debug mode, we can fix this.
-CPP_BUILD_MODE="Release"
 if [[ "$OPTIMIZE" == "true" ]]; then
     CARGO_ARGS+=(--release)
     RUST_BUILD_MODE="release"
+    CPP_BUILD_MODE="Release"
+    NPM_PACK_ARGS+=(--release)
 else
     RUST_BUILD_MODE="debug"
     NPM_PACK_ARGS+=(--no-compression)
+    CPP_BUILD_MODE="Debug"
 fi
 
 if [[ "$SIGN" == "true" ]]; then
@@ -316,7 +315,7 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
     CPP_BUILD_MODES=$CPP_BUILD_MODE IS_RELEASE=$IS_RELEASE ./build-windows-modules.sh
 
     if [[ "$SIGN" == "true" ]]; then
-        signdep=(
+        CPP_BINARIES=(
             windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll
             windows/windns/bin/x64-$CPP_BUILD_MODE/windns.dll
             windows/winnet/bin/x64-$CPP_BUILD_MODE/winnet.dll
@@ -324,7 +323,7 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
             # The nsis plugin is always built in 32 bit release mode
             windows/nsis-plugins/bin/Win32-Release/*.dll
         )
-        sign_win "${signdep[@]}"
+        sign_win "${CPP_BINARIES[@]}"
     fi
 fi
 

@@ -63,7 +63,7 @@
 	SetOutPath "$TEMP"
 	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wintun\wintun.dll"
 	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wireguard-nt\mullvad-wireguard.dll"
-	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
+	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-$%CPP_BUILD_MODE%\driverlogic.exe"
 
 !macroend
 
@@ -78,7 +78,7 @@
 
 	SetOutPath "$TEMP"
 	File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
-	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
+	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-$%CPP_BUILD_MODE%\winfw.dll"
 
 !macroend
 
@@ -95,7 +95,7 @@
 	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\mullvad-split-tunnel.cat"
 	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\mullvad-split-tunnel.inf"
 	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\mullvad-split-tunnel.sys"
-	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
+	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-$%CPP_BUILD_MODE%\driverlogic.exe"
 
 !macroend
 
@@ -861,7 +861,7 @@
 	${RemoveApiAddressCache}
 
 	SetOutPath "$TEMP"
-	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
+	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-$%CPP_BUILD_MODE%\driverlogic.exe"
 	${RemoveAbandonedWintunAdapter}
 
 	${ExtractSplitTunnelDriver}

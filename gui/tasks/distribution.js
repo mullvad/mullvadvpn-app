@@ -9,6 +9,7 @@ const noCompression = process.argv.includes('--no-compression');
 const noAppleNotarization = process.argv.includes('--no-apple-notarization');
 
 const universal = process.argv.includes('--universal');
+const release = process.argv.includes('--release');
 
 const config = {
   appId: 'net.mullvad.vpn',
@@ -49,9 +50,10 @@ const config = {
   // Make sure that all files declared in "extraResources" exists and abort if they don't.
   afterPack: (context) => {
     const resources = context.packager.platformSpecificBuildOptions.extraResources;
-
     for (const resource of resources) {
-      const filePath = resource.from.replace('${env.TARGET_TRIPLE}', process.env.TARGET_TRIPLE);
+      const filePath = resource.from.replace(/\$\{env\.(.*)\}/, function(match, captureGroup) {
+        return process.env[captureGroup];
+      });
 
       if (!fs.existsSync(filePath)) {
         throw new Error(`Can't find file: ${filePath}`);
@@ -121,9 +123,9 @@ const config = {
       { from: distAssets('mullvad-problem-report.exe'), to: '.' },
       { from: distAssets('mullvad-daemon.exe'), to: '.' },
       { from: distAssets('talpid_openvpn_plugin.dll'), to: '.' },
-      { from: root('windows/winfw/bin/x64-Release/winfw.dll'), to: '.' },
-      { from: root('windows/windns/bin/x64-Release/windns.dll'), to: '.' },
-      { from: root('windows/winnet/bin/x64-Release/winnet.dll'), to: '.' },
+      { from: root(path.join('windows', 'winfw', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winfw.dll')), to: '.' },
+      { from: root(path.join('windows', 'windns', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'windns.dll')), to: '.' },
+      { from: root(path.join('windows', 'winnet', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winnet.dll')), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/sslocal.exe'), to: '.' },
       { from: root('build/lib/x86_64-pc-windows-msvc/libwg.dll'), to: '.' },
@@ -212,6 +214,10 @@ function packWin() {
     config: {
       ...config,
       asarUnpack: ['build/assets/images/menubar icons/win32/lock-*.ico'],
+      beforeBuild: (options) => {
+        process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
+        return true;
+      },
     },
   });
 }
