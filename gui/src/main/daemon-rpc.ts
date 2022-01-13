@@ -584,6 +584,9 @@ export class DaemonRpc {
       'grpc.initial_reconnect_backoff_ms': 3000,
       'grpc.keepalive_time_ms': Math.pow(2, 30),
       'grpc.keepalive_timeout_ms': Math.pow(2, 30),
+      // Prevents grpc-js from parsing the `http_proxy` environment variable and trying to use it
+      // even for IPC sockets.
+      'grpc.enable_http_proxy': 0,
     };
     /* eslint-enable @typescript-eslint/naming-convention */
   }
