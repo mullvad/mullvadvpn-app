@@ -584,6 +584,7 @@ export class DaemonRpc {
       'grpc.initial_reconnect_backoff_ms': 3000,
       'grpc.keepalive_time_ms': Math.pow(2, 30),
       'grpc.keepalive_timeout_ms': Math.pow(2, 30),
+      'grpc.enable_http_proxy': 0,
     };
     /* eslint-enable @typescript-eslint/naming-convention */
   }
