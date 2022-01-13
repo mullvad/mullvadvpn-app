@@ -66,5 +66,6 @@ object Dependencies {
         const val dependencyCheck =
             "org.owasp:dependency-check-gradle:${Versions.Plugin.dependencyCheck}"
         const val dependencyCheckId = "org.owasp.dependencycheck"
+        const val gradleVersionsId = "com.github.ben-manes.versions"
     }
 }
