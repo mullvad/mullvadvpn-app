@@ -91,7 +91,6 @@ export default class AppRenderer {
   private lastDisconnectedLocation?: Partial<ILocation>;
   private relayListPair!: IRelayListPair;
   private tunnelState!: TunnelState;
-  private optimisticTunnelState?: TunnelState['state'];
   private settings!: ISettings;
   private guiSettings!: IGuiSettingsState;
   private doingLogin = false;
@@ -312,51 +311,15 @@ export default class AppRenderer {
   }
 
   public async connectTunnel(): Promise<void> {
-    const state = this.optimisticTunnelState ?? this.tunnelState.state;
-
-    // connect only if tunnel is disconnected or blocked.
-    if (state === 'disconnecting' || state === 'disconnected' || state === 'error') {
-      // switch to the connecting state ahead of time to make the app look more responsive
-      this.optimisticTunnelState = 'connecting';
-      batch(() => {
-        void this.updateLocation({ state: 'connecting' });
-        this.reduxActions.connection.connecting();
-      });
-
-      return IpcRendererEventChannel.tunnel.connect();
-    }
+    return IpcRendererEventChannel.tunnel.connect();
   }
 
   public async disconnectTunnel(): Promise<void> {
-    const state = this.optimisticTunnelState ?? this.tunnelState.state;
-
-    // disconnect only if tunnel is connected, connecting or blocked.
-    if (state === 'connecting' || state === 'connected' || state === 'error') {
-      // switch to the disconnecting state ahead of time to make the app look more responsive
-      this.optimisticTunnelState = 'disconnecting';
-      batch(() => {
-        void this.updateLocation({ state: 'disconnecting', details: 'nothing' });
-        this.reduxActions.connection.disconnecting('nothing');
-      });
-
-      return IpcRendererEventChannel.tunnel.disconnect();
-    }
+    return IpcRendererEventChannel.tunnel.disconnect();
   }
 
   public async reconnectTunnel(): Promise<void> {
-    const state = this.optimisticTunnelState ?? this.tunnelState.state;
-
-    // reconnect only if tunnel is connected or connecting.
-    if (state === 'connecting' || state === 'connected') {
-      // switch to the connecting state ahead of time to make the app look more responsive
-      this.optimisticTunnelState = 'connecting';
-      batch(() => {
-        void this.updateLocation({ state: 'connecting' });
-        this.reduxActions.connection.connecting();
-      });
-
-      return IpcRendererEventChannel.tunnel.reconnect();
-    }
+    return IpcRendererEventChannel.tunnel.reconnect();
   }
 
   public updateRelaySettings(relaySettings: RelaySettingsUpdate) {
@@ -724,41 +687,33 @@ export default class AppRenderer {
     log.verbose(`Tunnel state: ${tunnelState.state}`);
 
     this.tunnelState = tunnelState;
-    // The main process doesn't notify the tunnel state while waiting for a new one (unless it times
-    // out). Therefore the first tunnel state update will be the one we're waiting for.
-    this.optimisticTunnelState = undefined;
 
-    switch (tunnelState.state) {
-      case 'connecting':
-        actions.connection.connecting(tunnelState.details);
-        break;
+    batch(() => {
+      switch (tunnelState.state) {
+        case 'connecting':
+          actions.connection.connecting(tunnelState.details);
+          break;
 
-      case 'connected':
-        actions.connection.connected(tunnelState.details);
-        break;
+        case 'connected':
+          actions.connection.connected(tunnelState.details);
+          break;
 
-      case 'disconnecting':
-        if (tunnelState.details === 'reconnect') {
-          this.optimisticTunnelState = 'connecting';
-          this.reduxActions.connection.connecting();
-        } else {
+        case 'disconnecting':
           actions.connection.disconnecting(tunnelState.details);
-        }
-        break;
+          break;
 
-      case 'disconnected':
-        actions.connection.disconnected();
-        break;
+        case 'disconnected':
+          actions.connection.disconnected();
+          break;
 
-      case 'error':
-        actions.connection.blocked(tunnelState.details);
-        break;
-    }
+        case 'error':
+          actions.connection.blocked(tunnelState.details);
+          break;
+      }
 
-    // Update the location when entering a new tunnel state since it's likely changed.
-    void this.updateLocation(
-      this.optimisticTunnelState === undefined ? undefined : { state: this.optimisticTunnelState },
-    );
+      // Update the location when entering a new tunnel state since it's likely changed.
+      void this.updateLocation();
+    });
   }
 
   private setSettings(newSettings: ISettings) {
@@ -876,8 +831,8 @@ export default class AppRenderer {
     this.reduxActions.settings.setWireguardKey(publicKey);
   }
 
-  private async updateLocation(tunnelState = this.tunnelState) {
-    switch (tunnelState.state) {
+  private async updateLocation() {
+    switch (this.tunnelState.state) {
       case 'disconnected': {
         if (this.lastDisconnectedLocation) {
           this.setLocation(this.lastDisconnectedLocation);
@@ -900,11 +855,11 @@ export default class AppRenderer {
         }
         break;
       case 'connecting':
-        this.setLocation(tunnelState.details?.location ?? this.getLocationFromConstraints());
+        this.setLocation(this.tunnelState.details?.location ?? this.getLocationFromConstraints());
         break;
       case 'connected': {
-        if (tunnelState.details?.location) {
-          this.setLocation(tunnelState.details.location);
+        if (this.tunnelState.details?.location) {
+          this.setLocation(this.tunnelState.details.location);
         }
         const location = await this.fetchLocation();
         if (location) {
