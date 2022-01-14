@@ -95,7 +95,6 @@ jobs:
                 source env.sh $TARGET
                 cargo build --target $TARGET --verbose --package mullvad-jni
                 cargo run --bin relay_list > dist-assets/relays.json
-                cargo run --bin address_cache > dist-assets/api-ip-address.txt
                 $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 
             - name: Configure Android SDK

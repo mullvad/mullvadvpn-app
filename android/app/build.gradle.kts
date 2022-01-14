@@ -128,7 +128,6 @@ tasks.withType<KotlinCompile>().all {
 tasks.register("copyExtraAssets", Copy::class) {
     from("$repoRootPath/dist-assets")
     include("relays.json")
-    include("api-ip-address.txt")
     into(extraAssetsDirectory)
 }
 
