@@ -28,8 +28,6 @@ use futures::{
     channel::{mpsc, oneshot},
     stream, StreamExt,
 };
-#[cfg(target_os = "macos")]
-use std::collections::BTreeSet;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
 use std::{collections::HashSet, io, net::IpAddr, path::PathBuf, sync::Arc};
@@ -106,7 +104,6 @@ pub async fn spawn(
     offline_state_listener: mpsc::UnboundedSender<bool>,
     shutdown_tx: oneshot::Sender<()>,
     #[cfg(target_os = "macos")] exclusion_gid: u32,
-    #[cfg(target_os = "macos")] enable_resolver: bool,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
@@ -135,8 +132,6 @@ pub async fn spawn(
         command_rx,
         #[cfg(target_os = "macos")]
         exclusion_gid,
-        #[cfg(target_os = "macos")]
-        enable_resolver,
         #[cfg(target_os = "android")]
         android_context,
     )
@@ -180,15 +175,6 @@ pub enum TunnelCommand {
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<OsString>,
     ),
-    /// Sets IP addresses which should be allowed to pass through the firewall.
-    #[cfg(target_os = "macos")]
-    AddAllowedIps(BTreeSet<IpAddr>, oneshot::Sender<()>),
-    /// Toggles filtering resolver
-    #[cfg(target_os = "macos")]
-    AllowMacosNetworkCheck(bool, oneshot::Sender<Result<(), crate::resolver::Error>>),
-    /// Receive up-to-date system DNS config. It should never contain our changes to the DNS.
-    #[cfg(target_os = "macos")]
-    HostDnsConfig(Option<(String, Vec<IpAddr>)>),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
@@ -222,10 +208,12 @@ impl TunnelStateMachine {
         resource_dir: PathBuf,
         commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
         #[cfg(target_os = "macos")] exclusion_gid: u32,
-        #[cfg(target_os = "macos")] enable_resolver: bool,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         let runtime = tokio::runtime::Handle::current();
+
+        #[cfg(target_os = "macos")]
+        let filtering_resolver = crate::resolver::start_resolver().await?;
 
         #[cfg(windows)]
         let split_tunnel = split_tunnel::SplitTunnel::new(runtime.clone(), command_tx.clone())
@@ -253,13 +241,8 @@ impl TunnelStateMachine {
             route_manager
                 .handle()
                 .map_err(Error::InitRouteManagerError)?,
-            #[cfg(target_os = "macos")]
-            command_tx.clone(),
         )
         .map_err(Error::InitDnsMonitorError)?;
-
-        #[cfg(target_os = "macos")]
-        let filtering_resolver = crate::resolver::start_resolver(command_tx.clone()).await?;
 
         let (offline_tx, mut offline_rx) = mpsc::unbounded();
         let initial_offline_state_tx = offline_state_tx.clone();
@@ -313,8 +296,6 @@ impl TunnelStateMachine {
             connectivity_check_was_enabled: None,
             #[cfg(target_os = "macos")]
             filtering_resolver,
-            #[cfg(target_os = "macos")]
-            enable_filtering_resolver: enable_resolver,
         };
 
         tokio::task::spawn_blocking(move || {
@@ -410,9 +391,6 @@ struct SharedTunnelStateValues {
     /// Filtering resolver handle
     #[cfg(target_os = "macos")]
     filtering_resolver: crate::resolver::ResolverHandle,
-    /// Whether filtering resolver should be enabled
-    #[cfg(target_os = "macos")]
-    enable_filtering_resolver: bool,
 }
 
 impl SharedTunnelStateValues {
@@ -435,29 +413,6 @@ impl SharedTunnelStateValues {
             }
         }
 
-        Ok(())
-    }
-
-    /// Sets the filtering resolver setting and toggles it's state to either inactive or shutdown
-    /// state.
-    #[cfg(target_os = "macos")]
-    pub fn deactivate_filtering_resolver(
-        &mut self,
-        enable_resolver: bool,
-    ) -> Result<(), crate::resolver::Error> {
-        self.enable_filtering_resolver = enable_resolver;
-        self.disable_filtering_resolver()
-    }
-
-    /// Toggles filtering resolver state to either inactive or shutdown.
-    #[cfg(target_os = "macos")]
-    pub fn disable_filtering_resolver(&mut self) -> Result<(), crate::resolver::Error> {
-        if self.enable_filtering_resolver {
-            self.runtime
-                .block_on(self.filtering_resolver.set_inactive())?;
-        } else {
-            self.runtime.block_on(self.filtering_resolver.shutdown())?;
-        }
         Ok(())
     }
 

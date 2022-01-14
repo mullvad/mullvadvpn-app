@@ -240,19 +240,6 @@ The intended use case for this setting is when the user want to only switch betw
 connectivity at all and using VPN. With this setting active, the device can never communicate
 with the internet outside of a VPN tunnel.
 
-### macOS network-check
-
-macOS needs to do a connectivity check before the daemon is able to connect to a tunnel, but the
-connectivity check will fail in the blocked state imposing a hefty timeout before a tunnel can be
-connected. The connectivity check requires a working DNS resolver and access to `captive.apple.com`.
-The feature is discussed in detail [here](allow-macos-network-check.md).
-
-The app has an option to allow the network check to leak in the error state and during the
-disconnected state if _Always require VPN_ is enabled. When the option is enabled, the firewall will
-allow all DNS traffic coming from a mullvad specific unix group, and it will allow all traffic to a
-set of resolved IP addresses coming from root (as identified by a unix user ID of `0`).
-
-
 ## DNS
 
 DNS is treated a bit differently from other protocols. Since a user's DNS history can give a
