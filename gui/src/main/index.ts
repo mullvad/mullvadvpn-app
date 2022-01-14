@@ -76,6 +76,7 @@ import ReconnectionBackoff from './reconnection-backoff';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController from './window-controller';
 import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
+import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
 
 const execAsync = util.promisify(exec);
 
@@ -132,10 +133,16 @@ class ApplicationMain {
 
   private accountData?: IAccountData = undefined;
   private accountHistory?: AccountToken = undefined;
+
+  // The current tunnel state
   private tunnelState: TunnelState = { state: 'disconnected' };
-  private lastIgnoredTunnelState?: TunnelState;
-  private optimisticTunnelState?: TunnelState['state'];
-  private optimisticTunnelStateFallbackScheduler = new Scheduler();
+  // When pressing connect/disconnect/reconnect the app assumes what the next state will be before
+  // it get's the new state from the daemon. The latest state from the daemon is saved as fallback
+  // if the assumed state isn't reached.
+  private tunnelStateFallback?: TunnelState;
+  // Scheduler for discarding the assumed next state.
+  private tunnelStateFallbackScheduler = new Scheduler();
+
   private settings: ISettings = {
     accountToken: undefined,
     allowLan: false,
@@ -701,8 +708,7 @@ class ApplicationMain {
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
 
-    this.optimisticTunnelState = undefined;
-    this.lastIgnoredTunnelState = undefined;
+    this.tunnelStateFallback = undefined;
     this.autoConnectFallbackScheduler.cancel();
 
     if (wasConnected) {
@@ -772,6 +778,31 @@ class ApplicationMain {
     return daemonEventListener;
   }
 
+  private connectTunnel = async (): Promise<void> => {
+    if (
+      connectEnabled(this.connectedToDaemon, this.settings.accountToken, this.tunnelState.state)
+    ) {
+      this.setOptimisticTunnelState('connecting');
+      await this.daemonRpc.connectTunnel();
+    }
+  };
+
+  private reconnectTunnel = async (): Promise<void> => {
+    if (
+      reconnectEnabled(this.connectedToDaemon, this.settings.accountToken, this.tunnelState.state)
+    ) {
+      this.setOptimisticTunnelState('connecting');
+      await this.daemonRpc.reconnectTunnel();
+    }
+  };
+
+  private disconnectTunnel = async (): Promise<void> => {
+    if (disconnectEnabled(this.connectedToDaemon, this.tunnelState.state)) {
+      this.setOptimisticTunnelState('disconnecting');
+      await this.daemonRpc.disconnectTunnel();
+    }
+  };
+
   private setAccountHistory(accountHistory?: AccountToken) {
     this.accountHistory = accountHistory;
 
@@ -811,33 +842,47 @@ class ApplicationMain {
     this.wireguardKeygenEventAutoConnect();
   }
 
+  // This function sets a new tunnel state as an assumed next state and saves the current state as
+  // fallback. The fallback is used if the assumed next state isn't reached.
   private setOptimisticTunnelState(state: 'connecting' | 'disconnecting') {
-    const tunnelState =
-      state === 'disconnecting' ? ({ state, details: 'nothing' } as const) : { state };
-    this.updateTrayIcon(tunnelState, this.settings.blockWhenDisconnected);
+    this.tunnelStateFallback = this.tunnelState;
 
-    this.optimisticTunnelState = state;
-    this.optimisticTunnelStateFallbackScheduler.schedule(() => {
-      if (this.lastIgnoredTunnelState) {
-        this.optimisticTunnelState = undefined;
-        this.setTunnelState(this.lastIgnoredTunnelState);
-        this.lastIgnoredTunnelState = undefined;
+    this.setTunnelStateImpl(
+      state === 'disconnecting' ? { state, details: 'nothing' as const } : { state },
+    );
+
+    this.tunnelStateFallbackScheduler.schedule(() => {
+      if (this.tunnelStateFallback) {
+        this.setTunnelStateImpl(this.tunnelStateFallback);
+        this.tunnelStateFallback = undefined;
       }
     }, 3000);
   }
 
   private setTunnelState(newState: TunnelState) {
-    if (this.optimisticTunnelState) {
-      if (this.optimisticTunnelState === newState.state) {
-        this.optimisticTunnelStateFallbackScheduler.cancel();
-        this.optimisticTunnelState = undefined;
-        this.lastIgnoredTunnelState = undefined;
+    // If there's a fallback state set then the app is in an assumed next state and need to check
+    // if it's now reached or if the current state should be ignored and set as the fallback state.
+    if (this.tunnelStateFallback) {
+      if (this.tunnelState.state === newState.state) {
+        this.tunnelStateFallbackScheduler.cancel();
+        this.tunnelStateFallback = undefined;
       } else {
-        this.lastIgnoredTunnelState = newState;
+        this.tunnelStateFallback = newState;
         return;
       }
     }
 
+    if (newState.state === 'disconnecting' && newState.details === 'reconnect') {
+      // When reconnecting there's no need of showing the disconnecting state. This switches to the
+      // connecting state immediately.
+      this.setOptimisticTunnelState('connecting');
+      this.tunnelStateFallback = newState;
+    } else {
+      this.setTunnelStateImpl(newState);
+    }
+  }
+
+  private setTunnelStateImpl(newState: TunnelState) {
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
 
@@ -1209,18 +1254,9 @@ class ApplicationMain {
 
     IpcMainEventChannel.location.handleGet(() => this.daemonRpc.getLocation());
 
-    IpcMainEventChannel.tunnel.handleConnect(() => {
-      this.setOptimisticTunnelState('connecting');
-      return this.daemonRpc.connectTunnel();
-    });
-    IpcMainEventChannel.tunnel.handleDisconnect(() => {
-      this.setOptimisticTunnelState('disconnecting');
-      return this.daemonRpc.disconnectTunnel();
-    });
-    IpcMainEventChannel.tunnel.handleReconnect(() => {
-      this.setOptimisticTunnelState('connecting');
-      return this.daemonRpc.reconnectTunnel();
-    });
+    IpcMainEventChannel.tunnel.handleConnect(this.connectTunnel);
+    IpcMainEventChannel.tunnel.handleReconnect(this.reconnectTunnel);
+    IpcMainEventChannel.tunnel.handleDisconnect(this.disconnectTunnel);
 
     IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
       this.guiSettings.enableSystemNotifications = flag;
