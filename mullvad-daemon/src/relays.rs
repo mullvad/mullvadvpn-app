@@ -773,15 +773,18 @@ impl RelaySelector {
             .collect()
     }
 
-    /// Pick a random relay from the given slice. Will return `None` if the given slice is empty
-    /// or all relays in it has zero weight.
+    /// Pick a random relay from the given slice. Will return `None` if the given slice is empty.
     fn pick_random_relay<'a>(&mut self, relays: &'a [Relay]) -> Option<&'a Relay> {
+        if relays.is_empty() {
+            return None;
+        }
         let total_weight: u64 = relays.iter().map(|relay| relay.weight).sum();
         if total_weight == 0 {
-            None
+            relays.get(self.rng.gen_range(0, relays.len()))
         } else {
-            // Pick a random number in the range 0 - total_weight. This choses the relay.
-            let mut i: u64 = self.rng.gen_range(0, total_weight + 1);
+            // Pick a random number in the range 1 - total_weight. This choses the relay with a
+            // non-zero weight.
+            let mut i: u64 = self.rng.gen_range(1, total_weight + 1);
             Some(
                 relays
                     .iter()
@@ -789,7 +792,7 @@ impl RelaySelector {
                         i = i.saturating_sub(relay.weight);
                         i == 0
                     })
-                    .unwrap(),
+                    .expect("At least one relay must've had a weight above 0"),
             )
         }
     }
