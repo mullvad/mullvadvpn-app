@@ -589,11 +589,6 @@ mod test {
             "mock-tunnel".to_string()
         }
 
-        #[cfg(windows)]
-        fn get_interface_luid(&self) -> u64 {
-            0
-        }
-
         fn stop(self: Box<Self>) -> Result<(), TunnelError> {
             Ok(())
         }

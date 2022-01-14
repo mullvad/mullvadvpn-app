@@ -6,6 +6,7 @@ use super::{
 };
 use crate::windows;
 use bitflags::bitflags;
+use futures::SinkExt;
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use std::{
@@ -18,7 +19,7 @@ use std::{
     ptr,
     sync::{Arc, Mutex},
 };
-use talpid_types::ErrorExt;
+use talpid_types::{BoxedError, ErrorExt};
 use widestring::{U16CStr, U16CString};
 use winapi::{
     shared::{
@@ -131,6 +132,10 @@ pub enum Error {
     #[error(display = "Failed to set tunnel WireGuard config")]
     SetWireGuardConfigError(#[error(source)] io::Error),
 
+    /// Error listening to tunnel IP interfaces
+    #[error(display = "Failed to wait on tunnel IP interfaces")]
+    IpInterfacesError(#[error(source)] io::Error),
+
     /// Failed to set MTU on tunnel device
     #[error(display = "Failed to set tunnel IPv4 interface MTU")]
     SetTunnelIpv4MtuError(#[error(source)] io::Error),
@@ -165,9 +170,9 @@ pub enum Error {
 }
 
 pub struct WgNtTunnel {
-    device: Option<WgNtAdapter>,
-    interface_luid: NET_LUID,
+    device: Arc<Mutex<Option<WgNtAdapter>>>,
     interface_name: String,
+    setup_handle: tokio::task::JoinHandle<()>,
     _logger_handle: LoggerHandle,
 }
 
@@ -410,6 +415,7 @@ impl WgNtTunnel {
         config: &Config,
         log_path: Option<&Path>,
         resource_dir: &Path,
+        mut done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Self> {
         let dll = load_wg_nt_dll(resource_dir)?;
         let logger_handle = LoggerHandle::new(dll.clone(), log_path)?;
@@ -421,28 +427,11 @@ impl WgNtTunnel {
         )
         .map_err(Error::CreateTunnelDeviceError)?;
 
-        let interface_luid = device.luid();
         let interface_name = device
             .name()
             .map_err(Error::ObtainAliasError)?
             .to_string_lossy();
 
-        let tunnel = WgNtTunnel {
-            device: Some(device),
-            interface_luid,
-            interface_name,
-            _logger_handle: logger_handle,
-        };
-        tunnel.configure(config)?;
-        Ok(tunnel)
-    }
-
-    fn stop_tunnel(&mut self) {
-        let _ = self.device.take();
-    }
-
-    fn configure(&self, config: &Config) -> Result<()> {
-        let device = self.device.as_ref().unwrap();
         if let Err(error) = device.set_logging(WireGuardAdapterLogState::On) {
             log::error!(
                 "{}",
@@ -450,15 +439,57 @@ impl WgNtTunnel {
             );
         }
         device.set_config(config)?;
-        prepare_interface(&device.luid(), AF_INET as u16, u32::from(config.mtu))
-            .map_err(Error::SetTunnelIpv4MtuError)?;
-        if config.tunnel.addresses.iter().any(|addr| addr.is_ipv6()) {
-            prepare_interface(&device.luid(), AF_INET6 as u16, u32::from(config.mtu))
-                .map_err(Error::SetTunnelIpv6MtuError)?;
-        }
+        let device = Arc::new(Mutex::new(Some(device)));
+
+        let setup_future = setup_ip_listener(
+            device.clone(),
+            u32::from(config.mtu),
+            config.tunnel.addresses.iter().any(|addr| addr.is_ipv6()),
+        );
+        let setup_handle = tokio::spawn(async move {
+            let _ = done_tx
+                .send(setup_future.await.map_err(BoxedError::new))
+                .await;
+        });
+
+        let tunnel = WgNtTunnel {
+            device,
+            interface_name,
+            setup_handle,
+            _logger_handle: logger_handle,
+        };
+        Ok(tunnel)
+    }
+
+    fn stop_tunnel(&mut self) {
+        self.setup_handle.abort();
+        let _ = self.device.lock().unwrap().take();
+    }
+}
+
+async fn setup_ip_listener(
+    device: Arc<Mutex<Option<WgNtAdapter>>>,
+    mtu: u32,
+    has_ipv6: bool,
+) -> Result<()> {
+    let luid = { device.lock().unwrap().as_ref().unwrap().luid() };
+
+    log::debug!("Waiting for tunnel IP interfaces to arrive");
+    windows::wait_for_interfaces(luid.clone(), true, has_ipv6)
+        .await
+        .map_err(Error::IpInterfacesError)?;
+    log::debug!("Waiting for tunnel IP interfaces: Done");
+
+    prepare_interface(&luid, AF_INET as u16, mtu).map_err(Error::SetTunnelIpv4MtuError)?;
+    if has_ipv6 {
+        prepare_interface(&luid, AF_INET6 as u16, mtu).map_err(Error::SetTunnelIpv6MtuError)?;
+    }
+
+    if let Some(device) = &*device.lock().unwrap() {
         device
             .set_state(WgAdapterState::Up)
-            .map_err(Error::EnableTunnelError)?;
+            .map_err(Error::EnableTunnelError)
+    } else {
         Ok(())
     }
 }
@@ -914,12 +945,8 @@ impl Tunnel for WgNtTunnel {
         self.interface_name.clone()
     }
 
-    fn get_interface_luid(&self) -> u64 {
-        self.interface_luid.Value
-    }
-
     fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, super::TunnelError> {
-        if let Some(ref device) = self.device {
+        if let Some(ref device) = &*self.device.lock().unwrap() {
             let mut map = StatsMap::new();
             let (_interface, peers) = device.get_config().map_err(|error| {
                 log::error!(
