@@ -281,7 +281,6 @@ pub fn send_problem_report(
 
     let mut rpc_manager = runtime
         .block_on(mullvad_rpc::MullvadRpcRuntime::with_cache(
-            None,
             cache_dir,
             false,
             #[cfg(target_os = "android")]

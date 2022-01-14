@@ -150,7 +150,7 @@ impl MullvadRpcRuntime {
     ) -> Result<Self, Error> {
         Ok(MullvadRpcRuntime {
             handle,
-            address_cache: AddressCache::new(vec![API.addr], None)?,
+            address_cache: AddressCache::new(API.addr, None)?,
             api_availability: ApiAvailability::new(availability::State::default()),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
@@ -158,10 +158,8 @@ impl MullvadRpcRuntime {
     }
 
     /// Create a new `MullvadRpcRuntime` using the specified directories.
-    /// Try to use the cache directory first, and fall back on the resource directory
-    /// if it fails.
+    /// Try to use the cache directory first, and fall back on the bundled address otherwise.
     pub async fn with_cache(
-        resource_dir: Option<&Path>,
         cache_dir: &Path,
         write_changes: bool,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
@@ -185,26 +183,15 @@ impl MullvadRpcRuntime {
         let address_cache = match AddressCache::from_file(&cache_file, write_file.clone()).await {
             Ok(cache) => cache,
             Err(error) => {
-                let cache_exists = cache_file.exists();
-                if cache_exists {
+                if cache_file.exists() {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg(
-                            "Failed to load cached API addresses. Falling back on bundled list"
+                            "Failed to load cached API addresses. Falling back on bundled address"
                         )
                     );
                 }
-
-                // Initialize the cache directory cache using the resource directory
-                match resource_dir {
-                    Some(resource_dir) => {
-                        let read_file = resource_dir.join(API_IP_CACHE_FILENAME);
-                        let cache = AddressCache::from_file(&read_file, write_file).await?;
-                        cache.randomize().await?;
-                        cache
-                    }
-                    None => return Err(Error::AddressCacheError(error)),
-                }
+                AddressCache::new(API.addr, write_file)?
             }
         };
 
@@ -235,7 +222,6 @@ impl MullvadRpcRuntime {
             self.handle.clone(),
             sni_hostname,
             self.api_availability.handle(),
-            self.address_cache.clone(),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         );
