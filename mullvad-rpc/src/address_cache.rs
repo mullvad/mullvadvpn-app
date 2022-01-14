@@ -1,5 +1,3 @@
-use super::API;
-use rand::seq::SliceRandom;
 use std::{
     io,
     net::SocketAddr,
@@ -7,10 +5,9 @@ use std::{
     path::Path,
     sync::{Arc, Mutex},
 };
-use talpid_types::ErrorExt;
 use tokio::{
     fs,
-    io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
+    io::{AsyncReadExt, AsyncWriteExt},
 };
 
 #[derive(err_derive::Error, Debug)]
@@ -21,6 +18,9 @@ pub enum Error {
 
     #[error(display = "Failed to read the address cache file")]
     ReadAddressCache(#[error(source)] io::Error),
+
+    #[error(display = "Failed to parse the address cache file")]
+    ParseAddressCache,
 
     #[error(display = "Failed to update the address cache file")]
     WriteAddressCache(#[error(source)] io::Error),
@@ -44,10 +44,9 @@ pub struct AddressCache {
 
 impl AddressCache {
     /// Initialize cache using the given list, and write changes to `write_path`.
-    pub fn new(addresses: Vec<SocketAddr>, write_path: Option<Box<Path>>) -> Result<Self, Error> {
-        let mut cache = AddressCacheInner::from_addresses(addresses)?;
-        cache.shuffle_tail();
-        log::trace!("API address cache: {:?}", cache.addresses);
+    pub fn new(address: SocketAddr, write_path: Option<Box<Path>>) -> Result<Self, Error> {
+        let cache = AddressCacheInner::from_address(address);
+        log::trace!("API address cache: {:?}", cache.address);
         log::debug!("Using API address: {:?}", Self::get_address_inner(&cache));
 
         let address_cache = Self {
@@ -70,134 +69,41 @@ impl AddressCache {
 
     /// Returns the currently selected address.
     pub fn get_address(&self) -> SocketAddr {
-        let mut inner = self.inner.lock().unwrap();
-        inner.tried_current = true;
-        Self::get_address_inner(&inner)
-    }
-
-    /// Returns the current address without registering it as "tried"
-    /// in [Self::has_tried_current_address].
-    pub fn peek_address(&self) -> SocketAddr {
         let inner = self.inner.lock().unwrap();
         Self::get_address_inner(&inner)
     }
 
     fn get_address_inner(inner: &AddressCacheInner) -> SocketAddr {
-        if inner.addresses.is_empty() {
-            return API.addr;
-        }
-        *inner
-            .addresses
-            .get(inner.choice % inner.addresses.len())
-            .unwrap_or(&API.addr)
+        inner.address
     }
 
-    pub fn has_tried_current_address(&self) -> bool {
-        let inner = self.inner.lock().unwrap();
-        inner.tried_current
-    }
-
-    pub async fn select_new_address(&self) {
-        {
-            let mut inner = self.inner.lock().unwrap();
-            let mut transaction = AddressCacheTransaction::new(&mut inner);
-
-            transaction.choice = transaction.current.choice.wrapping_add(1);
-            if transaction.choice == transaction.current.choice {
-                return;
-            }
-            transaction.tried_current = false;
-
-            tokio::task::block_in_place(move || {
-                if (*self.change_listener)(Self::get_address_inner(&transaction)).is_err() {
-                    log::error!("Failed to select a new API endpoint");
-                    return;
-                }
-                transaction.commit();
-            });
-        }
-
-        if let Err(error) = self.save_to_disk().await {
-            log::error!("{}", error.display_chain());
-        }
-    }
-
-    /// Forgets the currently selected address and randomizes
-    /// the entire list.
-    pub async fn randomize(&self) -> Result<(), Error> {
-        {
-            let mut inner = self.inner.lock().unwrap();
-
-            let mut transaction = AddressCacheTransaction::new(&mut inner);
-            transaction.shuffle();
-            transaction.choice = 0;
-
-            let current_address = Self::get_address_inner(&transaction.current);
-            let new_address = Self::get_address_inner(&transaction);
-
-            tokio::task::block_in_place(move || {
-                if new_address != current_address {
-                    transaction.tried_current = false;
-                    if (*self.change_listener)(new_address).is_err() {
-                        return Err(Error::ChangeListenerError);
-                    }
-                }
-
-                transaction.commit();
-                Ok(())
-            })?;
-        }
-        self.save_to_disk().await.map_err(Error::WriteAddressCache)
-    }
-
-    pub async fn set_addresses(&self, mut addresses: Vec<SocketAddr>) -> io::Result<()> {
+    pub async fn set_address(&self, address: SocketAddr) -> io::Result<()> {
         let should_update = {
             let mut inner = self.inner.lock().unwrap();
             let mut transaction = AddressCacheTransaction::new(&mut inner);
 
-            addresses.sort();
+            let current_address = transaction.address.clone();
 
-            let mut current_sorted = transaction.addresses.clone();
-            current_sorted.sort();
-
-            if addresses != current_sorted {
-                let current_address = Self::get_address_inner(&transaction);
-
-                transaction.addresses = addresses.clone();
-                transaction.shuffle();
-
-                // Prefer a likely-working address
-                let choice = transaction
-                    .addresses
-                    .iter()
-                    .position(|&addr| addr == current_address);
-                if let Some(choice) = choice {
-                    transaction.choice = choice;
+            if address != current_address {
+                transaction.address = address.clone();
+                tokio::task::block_in_place(move || {
+                    if (*self.change_listener)(Self::get_address_inner(&transaction)).is_err() {
+                        log::error!("Failed to select new API endpoint");
+                        return Err(io::Error::new(
+                            io::ErrorKind::Other,
+                            "callback returned an error",
+                        ));
+                    }
                     transaction.commit();
-                } else {
-                    transaction.choice = 0;
-                    transaction.tried_current = false;
-
-                    tokio::task::block_in_place(move || {
-                        if (*self.change_listener)(Self::get_address_inner(&transaction)).is_err() {
-                            log::error!("Failed to select a new API endpoint");
-                            return Err(io::Error::new(
-                                io::ErrorKind::Other,
-                                "callback returned an error",
-                            ));
-                        }
-                        transaction.commit();
-                        Ok(())
-                    })?;
-                }
-
+                    Ok(())
+                })?;
                 true
             } else {
                 false
             }
         };
         if should_update {
-            log::trace!("API address cache: {:?}", addresses);
+            log::trace!("API address cache: {}", address);
             self.save_to_disk().await?;
         }
         Ok(())
@@ -209,25 +115,15 @@ impl AddressCache {
             None => return Ok(()),
         };
 
-        let (mut addresses, choice) = {
+        let address = {
             let inner = self.inner.lock().unwrap();
-            (inner.addresses.clone(), inner.choice)
+            inner.address.clone()
         };
-
-        // Place the current choice on top
-        if !addresses.is_empty() {
-            let addresses_len = addresses.len();
-            addresses.swap(0, choice % addresses_len);
-        }
 
         let temp_path = write_path.with_file_name("api-cache.temp");
 
         let mut file = fs::File::create(&temp_path).await?;
-        let mut contents = addresses
-            .iter()
-            .map(ToString::to_string)
-            .collect::<Vec<String>>()
-            .join("\n");
+        let mut contents = address.to_string();
         contents += "\n";
         file.write_all(contents.as_bytes()).await?;
         file.sync_data().await?;
@@ -248,32 +144,12 @@ impl crate::rest::AddressProvider for AddressCache {
 
 #[derive(Clone, PartialEq, Eq)]
 struct AddressCacheInner {
-    addresses: Vec<SocketAddr>,
-    choice: usize,
-    tried_current: bool,
+    address: SocketAddr,
 }
 
 impl AddressCacheInner {
-    fn from_addresses(addresses: Vec<SocketAddr>) -> Result<Self, Error> {
-        if addresses.is_empty() {
-            return Err(Error::EmptyAddressCache);
-        }
-        Ok(Self {
-            addresses,
-            choice: 0,
-            tried_current: false,
-        })
-    }
-
-    fn shuffle(&mut self) {
-        let mut rng = rand::thread_rng();
-        (&mut self.addresses[..]).shuffle(&mut rng);
-    }
-
-    /// Shuffle all but the first element
-    fn shuffle_tail(&mut self) {
-        let mut rng = rand::thread_rng();
-        (&mut self.addresses[1..]).shuffle(&mut rng);
+    fn from_address(address: SocketAddr) -> Self {
+        Self { address }
     }
 }
 
@@ -309,23 +185,13 @@ impl<'a> DerefMut for AddressCacheTransaction<'a> {
     }
 }
 
-async fn read_address_file(path: &Path) -> Result<Vec<SocketAddr>, Error> {
-    let file = fs::File::open(path)
+async fn read_address_file(path: &Path) -> Result<SocketAddr, Error> {
+    let mut file = fs::File::open(path)
         .await
         .map_err(|error| Error::OpenAddressCache(error))?;
-    let mut lines = BufReader::new(file).lines();
-    let mut addresses = vec![];
-    while let Some(line) = lines
-        .next_line()
+    let mut address = String::new();
+    file.read_to_string(&mut address)
         .await
-        .map_err(|error| Error::ReadAddressCache(error))?
-    {
-        match line.trim().parse() {
-            Ok(address) => addresses.push(address),
-            Err(err) => {
-                log::error!("Failed to parse cached address line: {}", err);
-            }
-        }
-    }
-    Ok(addresses)
+        .map_err(Error::ReadAddressCache)?;
+    address.trim().parse().map_err(|_| Error::ParseAddressCache)
 }
