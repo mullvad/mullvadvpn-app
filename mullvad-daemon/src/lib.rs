@@ -611,7 +611,6 @@ where
         };
 
         let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
-            Some(&resource_dir),
             &cache_dir,
             true,
             #[cfg(target_os = "android")]
@@ -624,7 +623,7 @@ where
         api_availability.suspend();
 
         let initial_api_endpoint =
-            Self::get_allowed_endpoint(rpc_runtime.address_cache.peek_address());
+            Self::get_allowed_endpoint(rpc_runtime.address_cache.get_address());
 
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         let tunnel_command_tx = tunnel_state_machine::spawn(

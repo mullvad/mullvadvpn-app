@@ -97,7 +97,6 @@ pub(crate) struct RequestService {
     next_id: u64,
     in_flight_requests: BTreeMap<u64, AbortHandle>,
     api_availability: ApiAvailabilityHandle,
-    address_cache: AddressCache,
 }
 
 impl RequestService {
@@ -106,7 +105,6 @@ impl RequestService {
         handle: Handle,
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
-        address_cache: AddressCache,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestService {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
@@ -128,7 +126,6 @@ impl RequestService {
             in_flight_requests: BTreeMap::new(),
             next_id: 0,
             api_availability,
-            address_cache,
         }
     }
 
@@ -158,8 +155,6 @@ impl RequestService {
                     let _ = suspend_fut.await;
                     request_fut.await
                 });
-                let address_cache = self.address_cache.clone();
-                let handle = self.handle.clone();
 
                 let future = async move {
                     let response =
@@ -168,29 +163,14 @@ impl RequestService {
                             .map_err(Error::TimeoutError);
 
                     let response = flatten_result(flatten_result(response));
-                    if let Some(host_addr) = host_addr {
+                    if host_addr.is_some() {
                         if let Err(err) = &response {
-                            if err.is_network_error() {
+                            if err.is_network_error() && !api_availability.get_state().is_offline()
+                            {
                                 log::error!(
                                     "{}",
                                     err.display_chain_with_msg("HTTP request failed")
                                 );
-                                if !api_availability.get_state().is_offline() {
-                                    let current_address = address_cache.peek_address();
-                                    if current_address == host_addr
-                                        && address_cache.has_tried_current_address()
-                                    {
-                                        handle.spawn(async move {
-                                            address_cache.select_new_address().await;
-                                            let new_address = address_cache.peek_address();
-                                            log::error!(
-                                                "Request failed using address {}. Trying next API address: {}",
-                                                current_address,
-                                                new_address,
-                                            );
-                                        });
-                                    }
-                                }
                             }
                         }
                     }
@@ -652,14 +632,29 @@ impl MullvadRestHandle {
                     }
                     match api_proxy.clone().get_api_addrs().await {
                         Ok(new_addrs) => {
-                            log::debug!("Fetched new API addresses {:?}, will fetch again in {} hours", new_addrs, API_IP_CHECK_INTERVAL.as_secs() / ( 60 * 60 ));
-                            if let Err(err) = address_cache.set_addresses(new_addrs).await {
-                                log::error!("Failed to save newly updated API addresses: {}", err);
+                            if let Some(addr) = new_addrs.get(0) {
+                                log::debug!(
+                                    "Fetched new API address {:?}. Fetching again in {} hours",
+                                    addr,
+                                    API_IP_CHECK_INTERVAL.as_secs() / (60 * 60)
+                                );
+                                if let Err(err) = address_cache.set_address(*addr).await {
+                                    log::error!(
+                                        "Failed to save newly updated API address: {}",
+                                        err
+                                    );
+                                }
+                            } else {
+                                log::error!("API returned no API addresses");
                             }
                             next_check = next_regular_check();
                         }
                         Err(err) => {
-                            log::error!("Failed to fetch new API addresses: {}, will retry again in {} seconds", err, API_IP_CHECK_ERROR_INTERVAL.as_secs());
+                            log::error!(
+                                "Failed to fetch new API addresses: {}. Retrying in {} seconds",
+                                err,
+                                API_IP_CHECK_ERROR_INTERVAL.as_secs()
+                            );
                             next_check = next_error_check();
                         }
                     }
