@@ -197,6 +197,7 @@ This release is identical to 2021.5-beta2 except that it has translations for ne
 - Update Electron from 11.2.3 to 11.4.9.
 - Move OpenVPN and WireGuard settings in the advanced settings view into separate settings views.
 - Return to main view in desktop app after being hidden/closed for two minutes.
+- Settings format updated from `v3` to `v5`.
 
 #### Linux
 - Always send DNS requests inside the tunnel for excluded processes when using public custom DNS.
@@ -365,6 +366,7 @@ This release is for desktop only.
 - Show default, minimum, and maximum key rotation intervals in CLI.
 - Attempt to send problem reports using other endpoints if using the primary one fails.
 - Upgrade wireguard-go to version 20210225140808 (Windows: v0.3.8)
+- Settings format updated to `v3`.
 
 ### Fixed
 - Fix GUI not showing correct view if disconnected from the daemon during app startup.
@@ -1433,6 +1435,7 @@ This release is identical to 2019.8-beta1
 - Upgrade OpenVPN from 2.4.6 to 2.4.7.
 - Upgrade OpenSSL from 1.1.0h to 1.1.1c.
 - Upgrade wireguard-go library to v0.0.20190805.
+- Settings format updated to `v2`.
 
 ### Fixed
 - Mark CLI `bridge set state` argument as required to avoid a crash.
