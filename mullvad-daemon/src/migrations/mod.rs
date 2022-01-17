@@ -24,11 +24,12 @@
 //!
 //! # Creating a migration
 //!
-//! 1. Copy `vX.rs.template` to `v$CURRENT_VERSION.rs` where `$CURRENT_VERSION` is the version
-//!    specified under `settings_version` when running the last stable official release of the app.
+//! 1. Copy `vX.rs.template` to `vX.rs` where `X` is the latest settings version right now.
+//! 1. Add the new version (`Y = X+1`) to `SettingsVersion` and bump `CURRENT_SETTINGS_VERSION`
+//!    to `Y`.
 //! 1. Write a comment in the new module about how the format changed, what it needs to migrate.
 //! 1. Implement the migration and add adequate tests.
-//! 1. Add to the changelog: "New settings version: ${CURRENT_VERSION + 1}."
+//! 1. Add to the changelog: "Settings format updated to `vY`"
 
 use std::path::Path;
 use tokio::{
@@ -41,6 +42,7 @@ mod v1;
 mod v2;
 mod v3;
 mod v4;
+// Not yet done. Add to this instead of creating v6 for now.
 mod v5;
 
 const SETTINGS_FILE: &str = "settings.json";
