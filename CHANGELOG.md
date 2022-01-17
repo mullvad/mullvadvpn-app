@@ -43,6 +43,8 @@ Line wrap the file at 100 chars.                                              Th
 - Gradually increase the WireGuard connectivity check timeout, lowering the timeout for the first
   few attempts.
 - Stop preferring OpenVPN when bridge mode is enabled.
+- CLI command for setting a specific server by hostname is no longer case sensitive.
+  Example: `mullvad relay set hostname SE9-WIREGUARD` should now work.
 
 #### Android
 - Avoid running in foreground when not connected.

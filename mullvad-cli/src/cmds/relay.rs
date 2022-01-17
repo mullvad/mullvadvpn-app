@@ -393,11 +393,15 @@ impl Relay {
         let countries = Self::get_filtered_relays().await?;
 
         let find_relay = || {
-            for country in &countries {
-                for city in &country.cities {
-                    for relay in &city.relays {
-                        if relay.hostname == hostname {
-                            return Some((country, city, relay));
+            for country in countries {
+                for city in country.cities {
+                    for relay in city.relays {
+                        if relay.hostname.to_lowercase() == hostname.to_lowercase() {
+                            return Some(types::RelayLocation {
+                                country: country.code,
+                                city: city.code,
+                                hostname: relay.hostname,
+                            });
                         }
                     }
                 }
@@ -408,19 +412,13 @@ impl Relay {
         if let Some(location) = find_relay() {
             println!(
                 "Setting location constraint to {} in {}, {}",
-                location.2.hostname, location.1.name, location.0.name
+                location.hostname, location.city, location.country
             );
-
-            let location_constraint = types::RelayLocation {
-                country: location.0.code.clone(),
-                city: location.1.code.clone(),
-                hostname: location.2.hostname.clone(),
-            };
 
             self.update_constraints(types::RelaySettingsUpdate {
                 r#type: Some(types::relay_settings_update::Type::Normal(
                     types::NormalRelaySettingsUpdate {
-                        location: Some(location_constraint),
+                        location: Some(location),
                         ..Default::default()
                     },
                 )),
