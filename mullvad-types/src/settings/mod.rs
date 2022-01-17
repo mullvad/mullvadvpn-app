@@ -13,6 +13,10 @@ use std::net::IpAddr;
 use std::{collections::HashSet, path::PathBuf};
 use talpid_types::net::{self, openvpn, GenericTunnelOptions};
 
+/// The version used by the current version of the code. Should always be the
+/// latest version that exists in `SettingsVersion`.
+/// This should be bumped when a new version is introduced along with a migration
+/// being added to `mullvad-daemon`.
 pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V5;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
