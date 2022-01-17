@@ -18,6 +18,17 @@
 //!
 //! Any other type must be vendored into the migration module so the format
 //! it has is locked over time.
+//!
+//! There should never be multiple migrations between two official releases. At most one.
+//! Between releases, dev builds can break the settings without having a proper migration path.
+//!
+//! # Creating a migration
+//!
+//! 1. Copy `vX.rs.template` to `v$CURRENT_VERSION.rs` where `$CURRENT_VERSION` is the version
+//!    specified under `settings_version` when running the last stable official release of the app.
+//! 1. Write a comment in the new module about how the format changed, what it needs to migrate.
+//! 1. Implement the migration and add adequate tests.
+//! 1. Add to the changelog: "New settings version: ${CURRENT_VERSION + 1}."
 
 use std::path::Path;
 use tokio::{
