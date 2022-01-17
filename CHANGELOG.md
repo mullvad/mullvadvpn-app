@@ -28,10 +28,6 @@ Line wrap the file at 100 chars.                                              Th
 - Add WireGuard multihop setting and entry location selection to desktop app.
 - Add malware blocking to the desktop app. Implemented via DNS on the relays.
 
-#### macOS
-- Add an opt-in feature to leak macOS network check traffic in blocked states to resolve issues with
-  the app blocking internet connectivity after sleep or when connecting to new wireless networks.
-
 ### Changed
 - Keep unspecified constraints unchanged in the CLI when providing specific tunnel constraints
   instead of setting them to default values.
@@ -55,7 +51,7 @@ Line wrap the file at 100 chars.                                              Th
   * Swiping to remove from the Recents/Overview screen.
   * Android Background Execution Limits.
   * The System Settings way of killing apps ("Force Stop").
-- Change Quick Settings tile label to reflect the action of clicking the tile. Also add a subtitle 
+- Change Quick Settings tile label to reflect the action of clicking the tile. Also add a subtitle
   on supported Android versions (Q and above) to reflect the state.
 
 #### Windows
@@ -80,6 +76,9 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Disable built-in DNS resolver in Electron. Prevents Electron from establishing connections to
   DNS servers set in system network preferences.
+- Resolve issues with the app blocking internet connectivity after sleep or when connecting to new
+  wireless networks.
+
 
 #### Windows
 - Fix app size after changing display scale.
