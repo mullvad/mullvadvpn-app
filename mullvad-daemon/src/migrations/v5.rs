@@ -13,6 +13,19 @@ use mullvad_types::settings::SettingsVersion;
 ///
 /// When further migrations are needed, add them here and if they are not backwards
 /// compatible then create v6 and "close" this migration for further modification.
+///
+/// # Changes to the format
+///
+/// The ability to disable WireGuard multihop while preserving the entry location was added.
+/// So a new field, `use_multihop` is introduced. We want this to default to `true` iff:
+///  * `use_mulithop` was not present in the settings
+///  * A multihop entry location had been previously specified.
+///
+/// This change is backwards compatible since older daemons will just ignore `use_multihop` if
+/// present.
+///
+/// It is also no longer valid to have `entry_location` set to null. So remove the field if it
+/// is null in order to make it default back to the default location.
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
         return Ok(());
