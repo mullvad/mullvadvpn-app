@@ -5,35 +5,20 @@ use futures::channel::oneshot;
 use hyper::client::connect::{Connected, Connection};
 use std::{
     io,
-    net::Shutdown,
     pin::Pin,
-    sync::{Arc, Mutex, Weak},
+    sync::{Arc, Mutex},
     task::{Context, Poll},
 };
-use tokio::{
-    io::{AsyncRead, AsyncWrite, ReadBuf},
-    net::TcpStream as TokioTcpStream,
-};
+use tokio::io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf};
 
 #[derive(Debug)]
-pub struct TcpStreamHandle<S: AsyncRead + AsyncWrite + Connection + Unpin> {
-    inner: Weak<Mutex<Option<StreamInner<S>>>>,
+pub struct TcpStreamHandle {
+    tx: oneshot::Sender<()>,
 }
 
-impl TcpStreamHandle<TokioTcpStream> {
+impl TcpStreamHandle {
     pub fn close(self) {
-        if let Some(inner_lock) = self.inner.upgrade() {
-            if let Ok(Some(inner)) = inner_lock.lock().map(|mut inner| inner.take()) {
-                if let Err(err) = flatten_result(
-                    inner
-                        .stream
-                        .into_std()
-                        .map(|stream| stream.shutdown(Shutdown::Both)),
-                ) {
-                    log::error!("Failed to shut down TCP socket: {}", err);
-                }
-            }
-        }
+        let _ = self.tx.send(());
     }
 }
 
@@ -43,16 +28,31 @@ pub struct TcpStream<S: AsyncRead + AsyncWrite + Connection + Unpin> {
 
 impl<S> TcpStream<S>
 where
-    S: AsyncRead + AsyncWrite + Connection + Unpin,
+    S: AsyncRead + AsyncWrite + Connection + Unpin + Send + 'static,
 {
-    pub fn new(stream: S, shutdown_tx: Option<oneshot::Sender<()>>) -> (Self, TcpStreamHandle<S>) {
+    pub fn new(stream: S, shutdown_tx: Option<oneshot::Sender<()>>) -> (Self, TcpStreamHandle) {
         let inner = Arc::new(Mutex::new(Some(StreamInner {
             stream,
             shutdown_tx,
         })));
-        let stream_handle = TcpStreamHandle {
-            inner: Arc::downgrade(&inner),
-        };
+
+        let (tx, rx) = oneshot::channel();
+        let inner_copy = Arc::downgrade(&inner);
+
+        tokio::spawn(async move {
+            let _ = rx.await;
+
+            if let Some(inner_lock) = inner_copy.upgrade() {
+                let inner = { inner_lock.lock().unwrap().take() };
+                if let Some(mut inner) = inner {
+                    if let Err(error) = inner.stream.shutdown().await {
+                        log::error!("Failed to shut down TCP stream: {}", error);
+                    }
+                }
+            }
+        });
+
+        let stream_handle = TcpStreamHandle { tx };
         (Self { inner }, stream_handle)
     }
 
@@ -81,7 +81,7 @@ where
 
 impl<S> AsyncWrite for TcpStream<S>
 where
-    S: AsyncRead + AsyncWrite + Connection + Unpin,
+    S: AsyncRead + AsyncWrite + Connection + Unpin + Send + 'static,
 {
     fn poll_write(
         self: Pin<&mut Self>,
@@ -114,7 +114,7 @@ where
 
 impl<S> AsyncRead for TcpStream<S>
 where
-    S: AsyncRead + AsyncWrite + Connection + Unpin,
+    S: AsyncRead + AsyncWrite + Connection + Unpin + Send + 'static,
 {
     fn poll_read(
         self: Pin<&mut Self>,
@@ -148,11 +148,4 @@ where
 struct StreamInner<S: AsyncRead + AsyncWrite + Connection + Unpin> {
     stream: S,
     shutdown_tx: Option<oneshot::Sender<()>>,
-}
-
-fn flatten_result<T, E>(result: Result<Result<T, E>, E>) -> Result<T, E> {
-    match result {
-        Ok(value) => value,
-        Err(err) => Err(err),
-    }
 }
