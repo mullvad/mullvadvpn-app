@@ -7,6 +7,12 @@ use mullvad_types::settings::SettingsVersion;
 
 // ======================================================
 
+/// This is an open ended migration. There is no v6 yet!
+/// The migrations performed by this function are still backwards compatible.
+/// The JSON coming out of this migration can be read by any v5 compatible daemon.
+///
+/// When further migrations are needed, add them here and if they are not backwards
+/// compatible then create v6 and "close" this migration for further modification.
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
         return Ok(());
@@ -35,7 +41,9 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
         }
     }
 
-    // Note: Not incrementing the version number
+    // Note: Not incrementing the version number yet, since this migration is still open
+    // for future modification.
+    // settings["settings_version"] = serde_json::json!(SettingsVersion::V6);
 
     Ok(())
 }
