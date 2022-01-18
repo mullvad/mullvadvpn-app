@@ -1,5 +1,7 @@
-/// Intended to be used to pre-load a relay list when creating an installer for the Mullvad VPN
-/// app.
+//! Fetches and prints the full relay list in JSON.
+//! Used by the installer artifact packer to bundle the latest available
+//! relay list at the time of creating the installer.
+
 use mullvad_rpc::{rest::Error as RestError, MullvadRpcRuntime, RelayListProxy};
 use std::process;
 use talpid_types::ErrorExt;
