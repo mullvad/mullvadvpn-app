@@ -8,3 +8,5 @@ export interface ICurrentAppVersionInfo {
 export interface IWindowShapeParameters {
   arrowPosition?: number;
 }
+
+export type IChangelog = Array<string>;
