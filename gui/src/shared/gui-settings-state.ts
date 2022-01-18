@@ -27,4 +27,8 @@ export interface IGuiSettingsState {
   // Conains a list of filepaths to applications added to the list of applications, in the split
   // tunneling view, by the user.
   browsedForSplitTunnelingApplications: Array<string>;
+
+  // The last version that the changelog dialog was shown for. This is used to only show the
+  // changelog after upgrade.
+  changelogDisplayedForVersion: string;
 }

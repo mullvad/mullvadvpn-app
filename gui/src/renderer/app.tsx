@@ -16,7 +16,7 @@ import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
 
-import { ICurrentAppVersionInfo } from '../shared/ipc-types';
+import { IChangelog, ICurrentAppVersionInfo } from '../shared/ipc-types';
 import { IApplication, ILinuxSplitTunnelingApplication } from '../shared/application-types';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { messages, relayLocations } from '../shared/gettext';
@@ -214,6 +214,7 @@ export default class AppRenderer {
     this.setGuiSettings(initialState.guiSettings);
     this.storeAutoStart(initialState.autoStart);
     this.setWireguardPublicKey(initialState.wireguardPublicKey);
+    this.setChangelog(initialState.changelog);
 
     if (initialState.macOsScrollbarVisibility !== undefined) {
       this.reduxActions.userInterface.setMacOsScrollbarVisibility(
@@ -837,6 +838,10 @@ export default class AppRenderer {
 
   private setWireguardPublicKey(publicKey?: IWireguardPublicKey) {
     this.reduxActions.settings.setWireguardKey(publicKey);
+  }
+
+  private setChangelog(changelog: IChangelog) {
+    this.reduxActions.userInterface.setChangelog(changelog);
   }
 
   private async updateLocation() {
