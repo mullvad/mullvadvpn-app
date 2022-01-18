@@ -12,6 +12,7 @@ use std::{
     net::IpAddr,
     process::{ExitStatus, Stdio},
 };
+use talpid_types::net::IpVersion;
 use tokio::{io::AsyncBufReadExt, process::Command};
 use tokio_stream::wrappers::LinesStream;
 
@@ -64,10 +65,10 @@ pub struct RouteManagerImpl {
 
 impl RouteManagerImpl {
     pub async fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
-        let v4_gateway = Self::get_default_node_cmd("-inet").await?;
-        let v6_gateway = Self::get_default_node_cmd("-inet6").await?;
+        let v4_gateway = Self::get_default_node(IpVersion::V4).await?;
+        let v6_gateway = Self::get_default_node(IpVersion::V6).await?;
 
-        let monitor = listen_for_default_route_changes().await?;
+        let monitor = listen_for_default_route_changes()?;
 
         let mut manager = Self {
             default_destinations: HashSet::new(),
@@ -110,8 +111,8 @@ impl RouteManagerImpl {
                 },
 
                 _result = connectivity_change.select_next_some() => {
-                    let v4_gateway = Self::get_default_node_cmd("-inet").await.unwrap_or(None);
-                    let v6_gateway = Self::get_default_node_cmd("-inet6").await.unwrap_or(None);
+                    let v4_gateway = Self::get_default_node(IpVersion::V4).await.unwrap_or(None);
+                    let v6_gateway = Self::get_default_node(IpVersion::V6).await.unwrap_or(None);
 
                     if v4_gateway != self.v4_gateway {
                         self.v4_gateway = v4_gateway;
@@ -167,10 +168,13 @@ impl RouteManagerImpl {
     }
 
     // Retrieves the node that's currently used to reach 0.0.0.0/0
-    // Arguments can be either -inet or -inet6
-    async fn get_default_node_cmd(if_family: &'static str) -> Result<Option<Node>> {
+    pub(crate) async fn get_default_node(ip_version: IpVersion) -> Result<Option<Node>> {
+        let ip_version_arg = match ip_version {
+            IpVersion::V4 => "-inet",
+            IpVersion::V6 => "-inet6",
+        };
         let mut cmd = Command::new("route");
-        cmd.arg("-n").arg("get").arg(if_family).arg("default");
+        cmd.arg("-n").arg("get").arg(ip_version_arg).arg("default");
 
         let output = cmd.output().await.map_err(Error::FailedToRunRoute)?;
         let output = String::from_utf8(output.stdout).map_err(|e| {
@@ -296,7 +300,8 @@ fn ip_vers(prefix: IpNetwork) -> &'static str {
 
 /// Returns a stream that produces an item whenever a default route is either added or deleted from
 /// the routing table.
-async fn listen_for_default_route_changes() -> Result<impl Stream<Item = std::io::Result<()>>> {
+pub(crate) fn listen_for_default_route_changes() -> Result<impl Stream<Item = std::io::Result<()>>>
+{
     let mut cmd = Command::new("route");
     cmd.arg("-n")
         .arg("monitor")
