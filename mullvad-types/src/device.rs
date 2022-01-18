@@ -2,6 +2,7 @@ use crate::{account::AccountToken, wireguard};
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use talpid_types::net::wireguard::PublicKey;
 
 /// UUID for a device.
@@ -48,6 +49,12 @@ impl Device {
 pub struct DevicePort {
     /// Port identifier.
     pub id: String,
+}
+
+impl fmt::Display for DevicePort {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.id)
+    }
 }
 
 /// A complete device configuration.
