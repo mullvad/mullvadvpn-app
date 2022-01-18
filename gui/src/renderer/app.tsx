@@ -45,6 +45,7 @@ import {
 import { LogLevel } from '../shared/logging-types';
 import IpcOutput from './lib/logging';
 import { RoutePath } from './lib/routes';
+import { Changelog } from './components/Changelog';
 import { ModalContainer } from './components/Modal';
 
 const IpcRendererEventChannel = window.ipc;
@@ -251,6 +252,7 @@ export default class AppRenderer {
             <ErrorBoundary>
               <ModalContainer>
                 <AppRouter />
+                <Changelog />
                 {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
               </ModalContainer>
             </ErrorBoundary>

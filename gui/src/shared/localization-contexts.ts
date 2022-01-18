@@ -1,4 +1,5 @@
 export type LocalizationContexts =
+  | 'changelog'
   | 'accessibility'
   | 'login-view'
   | 'auth-failure'
