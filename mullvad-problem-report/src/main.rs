@@ -1,7 +1,7 @@
 #![deny(rust_2018_idioms)]
 
 use clap::{crate_authors, crate_name};
-use mullvad_problem_report::{collect_report, metadata, send_problem_report, Error};
+use mullvad_problem_report::{collect_report, metadata, Error};
 use std::{env, path::Path, process};
 use talpid_types::ErrorExt;
 
@@ -112,9 +112,26 @@ fn run() -> Result<(), Error> {
         let report_path = Path::new(send_matches.value_of_os("report").unwrap());
         let user_email = send_matches.value_of("email").unwrap_or("");
         let user_message = send_matches.value_of("message").unwrap_or("");
-        let cache_dir = mullvad_paths::get_cache_dir()?;
-        send_problem_report(user_email, user_message, report_path, &cache_dir)
+        send_problem_report(user_email, user_message, report_path)
     } else {
         unreachable!("No sub command given");
     }
+}
+
+fn send_problem_report(
+    user_email: &str,
+    user_message: &str,
+    report_path: &Path,
+) -> Result<(), Error> {
+    let cache_dir = mullvad_paths::get_cache_dir().map_err(Error::ObtainCacheDirectory)?;
+    match mullvad_problem_report::send_problem_report(
+        user_email,
+        user_message,
+        report_path,
+        &cache_dir,
+    ) {
+        Ok(()) => println!("Problem report sent"),
+        Err(e) => eprintln!("{}", e.display_chain()),
+    }
+    Ok(())
 }
