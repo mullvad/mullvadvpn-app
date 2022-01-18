@@ -1,4 +1,5 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
+import { IChangelog } from '../../../shared/ipc-types';
 import { ReduxAction } from '../store';
 
 export interface IUserInterfaceReduxState {
@@ -9,6 +10,7 @@ export interface IUserInterfaceReduxState {
   scrollPosition: Record<string, [number, number]>;
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
   connectedToDaemon: boolean;
+  changelog: IChangelog;
 }
 
 const initialState: IUserInterfaceReduxState = {
@@ -18,6 +20,7 @@ const initialState: IUserInterfaceReduxState = {
   scrollPosition: {},
   macOsScrollbarVisibility: undefined,
   connectedToDaemon: false,
+  changelog: [],
 };
 
 export default function (
@@ -54,6 +57,12 @@ export default function (
 
     case 'SET_CONNECTED_TO_DAEMON':
       return { ...state, connectedToDaemon: action.connectedToDaemon };
+
+    case 'SET_CHANGELOG':
+      return {
+        ...state,
+        changelog: action.changelog,
+      };
 
     default:
       return state;
