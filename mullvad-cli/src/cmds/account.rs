@@ -150,6 +150,9 @@ impl Account {
             if verbose {
                 println!("Device id      : {}", inner_device.id);
                 println!("Device pubkey  : {}", inner_device.pubkey);
+                for port in inner_device.ports {
+                    println!("Device port    : {}", port);
+                }
             }
             let expiry = rpc
                 .get_account_data(device.account_token)
@@ -185,6 +188,9 @@ impl Account {
                 println!("Name      : {}", device.pretty_name());
                 println!("Id        : {}", device.id);
                 println!("Public key: {}", device.pubkey);
+                for port in device.ports {
+                    println!("Port      : {}", port);
+                }
             } else {
                 println!("{}", device.pretty_name());
             }
