@@ -114,6 +114,7 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
+#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr ""
 
@@ -361,6 +362,10 @@ msgstr ""
 
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
+msgstr ""
+
+msgctxt "changelog"
+msgid "Changes in this version:"
 msgstr ""
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
