@@ -168,7 +168,7 @@ impl RouteManagerImpl {
 
     // Retrieves the node that's currently used to reach 0.0.0.0/0
     // Arguments can be either -inet or -inet6
-    async fn get_default_node_cmd(if_family: &'static str) -> Result<Option<Node>> {
+    pub(crate) async fn get_default_node_cmd(if_family: &'static str) -> Result<Option<Node>> {
         let mut cmd = Command::new("route");
         cmd.arg("-n").arg("get").arg(if_family).arg("default");
 
@@ -296,7 +296,8 @@ fn ip_vers(prefix: IpNetwork) -> &'static str {
 
 /// Returns a stream that produces an item whenever a default route is either added or deleted from
 /// the routing table.
-async fn listen_for_default_route_changes() -> Result<impl Stream<Item = std::io::Result<()>>> {
+pub(crate) async fn listen_for_default_route_changes(
+) -> Result<impl Stream<Item = std::io::Result<()>>> {
     let mut cmd = Command::new("route");
     cmd.arg("-n")
         .arg("monitor")

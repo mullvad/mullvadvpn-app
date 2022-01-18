@@ -54,6 +54,10 @@ Line wrap the file at 100 chars.                                              Th
 - Change Quick Settings tile label to reflect the action of clicking the tile. Also add a subtitle
   on supported Android versions (Q and above) to reflect the state.
 
+#### macOS
+- Use `route monitor` instead of relying on `SCNetworkReachability` API to infer whether the host is
+  offline.
+
 #### Windows
 - Update wireguard-nt to 0.10.1.
 - Make wireguard-nt the default driver for WireGuard. This is used instead of wireguard-go and

@@ -20,6 +20,8 @@ use std::net::IpAddr;
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
 mod imp;
+#[cfg(target_os = "macos")]
+pub(crate) use imp::listen_for_default_route_changes;
 
 #[cfg(target_os = "linux")]
 #[path = "linux.rs"]
@@ -262,4 +264,12 @@ impl Drop for RouteManager {
     fn drop(&mut self) {
         self.runtime.clone().block_on(self.stop());
     }
+}
+
+#[cfg(target_os = "macos")]
+pub(crate) async fn get_default_routes() -> Result<(Option<super::Node>, Option<super::Node>), Error>
+{
+    let v4 = imp::RouteManagerImpl::get_default_node_cmd("-inet").await?;
+    let v6 = imp::RouteManagerImpl::get_default_node_cmd("-inet").await?;
+    Ok((v4, v6))
 }
