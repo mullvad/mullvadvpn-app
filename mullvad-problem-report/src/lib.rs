@@ -46,6 +46,7 @@ macro_rules! write_line {
 /// These are critical errors that can happen when using the tool, that stops
 /// it from working. Meaning it will print the error and exit.
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to write the problem report to {}", path)]
     WriteReportError {
@@ -65,7 +66,10 @@ pub enum Error {
     CreateRpcClientError(#[error(source)] mullvad_rpc::Error),
 
     #[error(display = "Failed to send problem report")]
-    SendProblemReportError,
+    SendProblemReportError(#[error(source)] mullvad_rpc::rest::Error),
+
+    #[error(display = "Failed to send problem report {} times", MAX_SEND_ATTEMPTS)]
+    SendFailedTooManyTimes,
 
     #[error(display = "Unable to spawn Tokio runtime")]
     CreateRuntime(#[error(source)] io::Error),
@@ -293,21 +297,22 @@ pub fn send_problem_report(
                 .await
             {
                 Ok(()) => {
-                    println!("Problem report sent.");
                     return Ok(());
                 }
                 Err(error) => {
-                    eprintln!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to send problem report")
-                    );
                     if !error.is_network_error() {
-                        break;
+                        return Err(Error::SendProblemReportError(error));
                     }
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to send problem report due to network error"
+                        )
+                    );
                 }
             }
         }
-        Err(Error::SendProblemReportError)
+        Err(Error::SendFailedTooManyTimes)
     })
 }
 
@@ -369,7 +374,7 @@ impl ProblemReport {
                 },
             ));
             self.logs.push((redacted_path, content));
-            println!("Adding {}", expanded_path.display());
+            log::info!("Adding {}", expanded_path.display());
         }
     }
 
