@@ -1456,6 +1456,10 @@ class ApplicationMain {
       return response;
     });
 
+    IpcMainEventChannel.currentVersion.handleDisplayedChangelog(() => {
+      this.guiSettings.changelogDisplayedForVersion = this.currentVersion.gui;
+    });
+
     if (windowsSplitTunneling) {
       this.guiSettings.browsedForSplitTunnelingApplications.forEach(
         windowsSplitTunneling.addApplicationPathToCache,
