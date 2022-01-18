@@ -24,7 +24,7 @@ interface ILogEntry {
   message: string;
 }
 import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
-import { ICurrentAppVersionInfo, IWindowShapeParameters } from './ipc-types';
+import { IChangelog, ICurrentAppVersionInfo, IWindowShapeParameters } from './ipc-types';
 
 export interface ITranslations {
   locale: string;
@@ -60,6 +60,7 @@ export interface IAppStateSnapshot {
   translations: ITranslations;
   windowsSplitTunnelingApplications?: IApplication[];
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
+  changelog: IChangelog;
 }
 
 // The different types of requests are:

@@ -1,4 +1,5 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
+import { IChangelog } from '../../../shared/ipc-types';
 
 export interface IUpdateLocaleAction {
   type: 'UPDATE_LOCALE';
@@ -40,6 +41,11 @@ export interface ISetConnectedToDaemon {
   connectedToDaemon: boolean;
 }
 
+export interface ISetChangelog {
+  type: 'SET_CHANGELOG';
+  changelog: IChangelog;
+}
+
 export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
@@ -48,7 +54,8 @@ export type UserInterfaceAction =
   | IAddScrollPosition
   | IRemoveScrollPosition
   | ISetMacOsScrollbarVisibility
-  | ISetConnectedToDaemon;
+  | ISetConnectedToDaemon
+  | ISetChangelog;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
   return {
@@ -108,6 +115,13 @@ function setConnectedToDaemon(connectedToDaemon: boolean): ISetConnectedToDaemon
   };
 }
 
+function setChangelog(changelog: IChangelog): ISetChangelog {
+  return {
+    type: 'SET_CHANGELOG',
+    changelog,
+  };
+}
+
 export default {
   updateLocale,
   updateWindowArrowPosition,
@@ -117,4 +131,5 @@ export default {
   removeScrollPosition,
   setMacOsScrollbarVisibility,
   setConnectedToDaemon,
+  setChangelog,
 };
