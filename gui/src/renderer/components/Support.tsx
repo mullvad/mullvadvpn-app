@@ -5,7 +5,7 @@ import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
-import { ModalAlert, ModalAlertType, ModalContainer } from './Modal';
+import { ModalAlert, ModalAlertType } from './Modal';
 import { BackBarItem, NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
@@ -150,35 +150,33 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     const content = this.renderContent();
 
     return (
-      <ModalContainer>
-        <Layout>
-          <StyledContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <BackBarItem action={this.props.onClose}>
-                  {
-                    // TRANSLATORS: Back button in navigation bar
-                    messages.pgettext('navigation-bar', 'Settings')
-                  }
-                </BackBarItem>
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('support-view', 'Report a problem')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
-            <StyledContentContainer>
-              {header}
-              {content}
-            </StyledContentContainer>
+      <Layout>
+        <StyledContainer>
+          <NavigationBar>
+            <NavigationItems>
+              <BackBarItem action={this.props.onClose}>
+                {
+                  // TRANSLATORS: Back button in navigation bar
+                  messages.pgettext('navigation-bar', 'Settings')
+                }
+              </BackBarItem>
+              <TitleBarItem>
+                {
+                  // TRANSLATORS: Title label in navigation bar
+                  messages.pgettext('support-view', 'Report a problem')
+                }
+              </TitleBarItem>
+            </NavigationItems>
+          </NavigationBar>
+          <StyledContentContainer>
+            {header}
+            {content}
+          </StyledContentContainer>
 
-            {sendState === SendState.confirm && this.renderNoEmailDialog()}
-            {showOutdatedVersionWarning && this.renderOutdateVersionWarningDialog()}
-          </StyledContainer>
-        </Layout>
-      </ModalContainer>
+          {sendState === SendState.confirm && this.renderNoEmailDialog()}
+          {showOutdatedVersionWarning && this.renderOutdateVersionWarningDialog()}
+        </StyledContainer>
+      </Layout>
     );
   }
 
