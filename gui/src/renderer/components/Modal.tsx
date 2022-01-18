@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
+import CustomScrollbars from './CustomScrollbars';
 import ImageView from './ImageView';
 
 const MODAL_CONTAINER_ID = 'modal-container';
@@ -105,7 +106,12 @@ const StyledModalAlert = styled.div({
   flexDirection: 'column',
   backgroundColor: colors.darkBlue,
   borderRadius: '11px',
-  padding: '16px',
+  padding: '16px 0 16px 16px',
+  maxHeight: '80vh',
+});
+
+const StyledCustomScrollbars = styled(CustomScrollbars)({
+  paddingRight: '16px',
 });
 
 const ModalAlertIcon = styled.div({
@@ -118,6 +124,7 @@ const ModalAlertButtonContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
   marginTop: '18px',
+  marginRight: '16px',
 });
 
 interface IModalAlertProps {
@@ -178,11 +185,14 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
       <ModalBackground>
         <ModalAlertContainer>
           <StyledModalAlert ref={this.modalRef} tabIndex={-1} role="dialog" aria-modal>
-            {this.props.type && (
-              <ModalAlertIcon>{this.renderTypeIcon(this.props.type)}</ModalAlertIcon>
-            )}
-            {this.props.message && <ModalMessage>{this.props.message}</ModalMessage>}
-            {this.props.children}
+            <StyledCustomScrollbars>
+              {this.props.type && (
+                <ModalAlertIcon>{this.renderTypeIcon(this.props.type)}</ModalAlertIcon>
+              )}
+              {this.props.message && <ModalMessage>{this.props.message}</ModalMessage>}
+              {this.props.children}
+            </StyledCustomScrollbars>
+
             {this.props.buttons.map((button, index) => (
               <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
             ))}
