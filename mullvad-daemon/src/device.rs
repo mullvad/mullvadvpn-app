@@ -192,14 +192,14 @@ impl AccountManager {
     pub async fn set(&mut self, data: DeviceData) -> Result<(), Error> {
         self.logout();
         let (result_tx, result_rx) = oneshot::channel();
+        let _ = self
+            .cache_update_tx
+            .unbounded_send((Some(data.clone()), result_tx));
         {
             let mut inner = self.inner.lock().unwrap();
-            let _ = self
-                .cache_update_tx
-                .unbounded_send((Some(data.clone()), result_tx));
-            result_rx.await.map_err(Error::Cancelled)??;
             inner.data.replace(data.clone());
         }
+        result_rx.await.map_err(Error::Cancelled)??;
         self.start_key_rotation();
         Ok(())
     }
