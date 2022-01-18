@@ -45,6 +45,7 @@ import {
 import { LogLevel } from '../shared/logging-types';
 import IpcOutput from './lib/logging';
 import { RoutePath } from './lib/routes';
+import { ModalContainer } from './components/Modal';
 
 const IpcRendererEventChannel = window.ipc;
 
@@ -247,8 +248,10 @@ export default class AppRenderer {
         <Provider store={this.reduxStore}>
           <Router history={this.history.asHistory}>
             <ErrorBoundary>
-              <AppRouter />
-              {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
+              <ModalContainer>
+                <AppRouter />
+                {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
+              </ModalContainer>
             </ErrorBoundary>
           </Router>
         </Provider>

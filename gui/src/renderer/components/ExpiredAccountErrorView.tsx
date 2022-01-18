@@ -26,7 +26,7 @@ import {
 import { calculateHeaderBarStyle, HeaderBarStyle } from './HeaderBar';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
-import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
+import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 
 export enum RecoveryAction {
   openBrowser,
@@ -65,34 +65,32 @@ export default class ExpiredAccountErrorView extends React.Component<
         : calculateHeaderBarStyle(this.props.tunnelState);
 
     return (
-      <ModalContainer>
-        <Layout>
-          <StyledHeader barStyle={headerBarStyle} />
-          <StyledCustomScrollbars fillContainer>
-            <StyledContainer>
-              <StyledBody>{this.renderContent()}</StyledBody>
+      <Layout>
+        <StyledHeader barStyle={headerBarStyle} />
+        <StyledCustomScrollbars fillContainer>
+          <StyledContainer>
+            <StyledBody>{this.renderContent()}</StyledBody>
 
-              <StyledFooter>
-                {this.getRecoveryAction() === RecoveryAction.disconnect && (
-                  <AppButton.BlockingButton onClick={this.props.onDisconnect}>
-                    <StyledDisconnectButton>
-                      {messages.pgettext('connect-view', 'Disconnect')}
-                    </StyledDisconnectButton>
-                  </AppButton.BlockingButton>
-                )}
+            <StyledFooter>
+              {this.getRecoveryAction() === RecoveryAction.disconnect && (
+                <AppButton.BlockingButton onClick={this.props.onDisconnect}>
+                  <StyledDisconnectButton>
+                    {messages.pgettext('connect-view', 'Disconnect')}
+                  </StyledDisconnectButton>
+                </AppButton.BlockingButton>
+              )}
 
-                {this.renderExternalPaymentButton()}
+              {this.renderExternalPaymentButton()}
 
-                <AppButton.GreenButton onClick={this.props.navigateToRedeemVoucher}>
-                  {messages.pgettext('connect-view', 'Redeem voucher')}
-                </AppButton.GreenButton>
-              </StyledFooter>
+              <AppButton.GreenButton onClick={this.props.navigateToRedeemVoucher}>
+                {messages.pgettext('connect-view', 'Redeem voucher')}
+              </AppButton.GreenButton>
+            </StyledFooter>
 
-              {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
-            </StyledContainer>
-          </StyledCustomScrollbars>
-        </Layout>
-      </ModalContainer>
+            {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
+          </StyledContainer>
+        </StyledCustomScrollbars>
+      </Layout>
     );
   }
 

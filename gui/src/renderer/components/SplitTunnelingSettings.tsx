@@ -15,7 +15,7 @@ import { CustomScrollbarsRef } from './CustomScrollbars';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
 import List from './List';
-import { ModalContainer, ModalAlert, ModalAlertType } from './Modal';
+import { ModalAlert, ModalAlertType } from './Modal';
 import {
   BackBarItem,
   NavigationBar,
@@ -59,39 +59,37 @@ export default function SplitTunneling() {
   return (
     <>
       <StyledPageCover show={browsing} />
-      <ModalContainer>
-        <Layout>
-          <StyledContainer>
-            <NavigationContainer>
-              <NavigationBar>
-                <NavigationItems>
-                  <BackBarItem action={pop}>
-                    {
-                      // TRANSLATORS: Back button in navigation bar
-                      messages.pgettext('navigation-bar', 'Advanced')
-                    }
-                  </BackBarItem>
-                  <TitleBarItem>
-                    {
-                      // TRANSLATORS: Title label in navigation bar
-                      messages.pgettext('split-tunneling-nav', 'Split tunneling')
-                    }
-                  </TitleBarItem>
-                </NavigationItems>
-              </NavigationBar>
+      <Layout>
+        <StyledContainer>
+          <NavigationContainer>
+            <NavigationBar>
+              <NavigationItems>
+                <BackBarItem action={pop}>
+                  {
+                    // TRANSLATORS: Back button in navigation bar
+                    messages.pgettext('navigation-bar', 'Advanced')
+                  }
+                </BackBarItem>
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('split-tunneling-nav', 'Split tunneling')
+                  }
+                </TitleBarItem>
+              </NavigationItems>
+            </NavigationBar>
 
-              <StyledNavigationScrollbars ref={scrollbarsRef}>
-                <StyledContent>
-                  <PlatformSpecificSplitTunnelingSettings
-                    setBrowsing={setBrowsing}
-                    scrollToTop={scrollToTop}
-                  />
-                </StyledContent>
-              </StyledNavigationScrollbars>
-            </NavigationContainer>
-          </StyledContainer>
-        </Layout>
-      </ModalContainer>
+            <StyledNavigationScrollbars ref={scrollbarsRef}>
+              <StyledContent>
+                <PlatformSpecificSplitTunnelingSettings
+                  setBrowsing={setBrowsing}
+                  scrollToTop={scrollToTop}
+                />
+              </StyledContent>
+            </StyledNavigationScrollbars>
+          </NavigationContainer>
+        </StyledContainer>
+      </Layout>
     </>
   );
 }
