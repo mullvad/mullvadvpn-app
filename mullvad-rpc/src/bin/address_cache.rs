@@ -1,4 +1,8 @@
-/// Generate a first list of IP addresses for Mullvad VPN to use to talk to the API.
+//! Fetches and prints a list of IP addresses and ports where the Mullvad API
+//! can be reached.
+//! Used by the installer artifact packer to bundle the latest available list
+//! of API IPs.
+
 use mullvad_rpc::{rest::Error as RestError, ApiProxy, MullvadRpcRuntime};
 use std::process;
 use talpid_types::ErrorExt;

@@ -1,4 +1,5 @@
-/// A module dedicated to retrieving the relay list from the master API.
+//! A module dedicated to retrieving the relay list from the Mullvad API.
+
 use crate::rest;
 
 use hyper::{header, Method, StatusCode};
