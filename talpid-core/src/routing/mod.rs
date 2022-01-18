@@ -15,6 +15,9 @@ mod imp;
 #[cfg(target_os = "linux")]
 use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
 
+#[cfg(target_os = "macos")]
+pub(crate) use imp::{get_default_routes, listen_for_default_route_changes, PlatformError};
+
 pub use imp::{Error, RouteManager};
 
 pub use imp::RouteManagerHandle;

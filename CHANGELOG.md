@@ -81,6 +81,9 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Resolve issues with the app blocking internet connectivity after sleep or when connecting to new
   wireless networks.
+- Fix issue where the app would get stuck in offline state after a reboot or a reinstall by using
+  `route monitor` instead of relying on `SCNetworkReachability` API to infer whether the host is
+  offline.
 
 #### Windows
 - Fix app size after changing display scale.
