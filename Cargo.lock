@@ -1431,6 +1431,7 @@ dependencies = [
  "env_logger 0.8.4",
  "err-derive",
  "lazy_static",
+ "log",
  "mullvad-paths",
  "mullvad-rpc",
  "regex",
