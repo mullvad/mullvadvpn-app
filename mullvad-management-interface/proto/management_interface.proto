@@ -533,6 +533,11 @@ message Device {
 	string id = 1;
 	string name = 2;
 	bytes pubkey = 3;
+	repeated DevicePort ports = 4;
+}
+
+message DevicePort {
+	string id = 1;
 }
 
 message DeviceList {

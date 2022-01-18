@@ -7,7 +7,7 @@ use futures::Stream;
 use hyper::Method;
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
-    device::{Device, DeviceId, DeviceName},
+    device::{Device, DeviceId, DeviceName, DevicePort},
     version::AppVersion,
 };
 use proxy::ApiConnectionMode;
@@ -423,6 +423,7 @@ struct DeviceResponse {
     pubkey: wireguard::PublicKey,
     ipv4_address: ipnetwork::Ipv4Network,
     ipv6_address: ipnetwork::Ipv6Network,
+    ports: Vec<DevicePort>,
 }
 
 impl DevicesProxy {
@@ -466,11 +467,17 @@ impl DevicesProxy {
                 pubkey,
                 ipv4_address,
                 ipv6_address,
+                ports,
                 ..
             } = response;
 
             Ok((
-                Device { id, name, pubkey },
+                Device {
+                    id,
+                    name,
+                    pubkey,
+                    ports,
+                },
                 mullvad_types::wireguard::AssociatedAddresses {
                     ipv4_address,
                     ipv6_address,

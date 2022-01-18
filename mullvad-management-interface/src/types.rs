@@ -203,7 +203,14 @@ impl From<mullvad_types::device::Device> for Device {
             id: device.id,
             name: device.name,
             pubkey: device.pubkey.as_bytes().to_vec(),
+            ports: device.ports.into_iter().map(DevicePort::from).collect(),
         }
+    }
+}
+
+impl From<mullvad_types::device::DevicePort> for DevicePort {
+    fn from(port: mullvad_types::device::DevicePort) -> Self {
+        DevicePort { id: port.id }
     }
 }
 
@@ -725,7 +732,18 @@ impl TryFrom<Device> for mullvad_types::device::Device {
             id: device.id,
             name: device.name,
             pubkey: bytes_to_pubkey(&device.pubkey)?,
+            ports: device
+                .ports
+                .into_iter()
+                .map(mullvad_types::device::DevicePort::from)
+                .collect(),
         })
+    }
+}
+
+impl From<DevicePort> for mullvad_types::device::DevicePort {
+    fn from(port: DevicePort) -> Self {
+        mullvad_types::device::DevicePort { id: port.id }
     }
 }
 

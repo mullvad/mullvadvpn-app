@@ -19,6 +19,7 @@ pub struct Device {
     pub name: DeviceName,
     #[cfg_attr(target_os = "android", jnix(map = "|key| *key.as_bytes()"))]
     pub pubkey: PublicKey,
+    pub ports: Vec<DevicePort>,
 }
 
 impl Eq for Device {}
@@ -38,6 +39,15 @@ impl Device {
             .collect::<Vec<String>>()
             .join(" ")
     }
+}
+
+/// Ports associated with a device.
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+pub struct DevicePort {
+    /// Port identifier.
+    pub id: String,
 }
 
 /// A complete device configuration.

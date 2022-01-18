@@ -1794,6 +1794,7 @@ where
                         id: device_id,
                         name: "unknown device".to_string(),
                         pubkey: talpid_types::net::wireguard::PublicKey::from([0u8; 32]),
+                        ports: vec![],
                     }
                 };
             event_listener.notify_remove_device_event(RemoveDeviceEvent {
