@@ -123,6 +123,7 @@ export const ipcSchema = {
   },
   currentVersion: {
     '': notifyRenderer<ICurrentAppVersionInfo>(),
+    displayedChangelog: send<void>(),
   },
   upgradeVersion: {
     '': notifyRenderer<IAppVersionInfo>(),

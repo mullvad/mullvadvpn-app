@@ -540,6 +540,10 @@ export default class AppRenderer {
     return preferredLocale ? preferredLocale.name : '';
   }
 
+  public setDisplayedChangelog = (): void => {
+    IpcRendererEventChannel.currentVersion.displayedChangelog();
+  };
+
   // Make sure that the content height is correct and log if it isn't. This is mostly for debugging
   // purposes since there's a bug in Electron that causes the app height to be another value than
   // the one we have set.
