@@ -10,6 +10,8 @@ use futures::channel::{
     oneshot,
 };
 use std::{collections::HashSet, io};
+#[cfg(target_os = "macos")]
+use talpid_types::net::IpVersion;
 
 #[cfg(target_os = "linux")]
 use futures::stream::Stream;
@@ -20,6 +22,8 @@ use std::net::IpAddr;
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
 mod imp;
+#[cfg(target_os = "macos")]
+pub(crate) use imp::listen_for_default_route_changes;
 
 #[cfg(target_os = "linux")]
 #[path = "linux.rs"]
@@ -262,4 +266,13 @@ impl Drop for RouteManager {
     fn drop(&mut self) {
         self.runtime.clone().block_on(self.stop());
     }
+}
+
+/// Returns a tuple containing a IPv4 and IPv6 default route nodes.
+#[cfg(target_os = "macos")]
+pub(crate) async fn get_default_routes() -> Result<(Option<super::Node>, Option<super::Node>), Error>
+{
+    let v4 = imp::RouteManagerImpl::get_default_node(IpVersion::V4).await?;
+    let v6 = imp::RouteManagerImpl::get_default_node(IpVersion::V6).await?;
+    Ok((v4, v6))
 }
