@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import AppRouter from './components/AppRouter';
 import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import ErrorBoundary from './components/ErrorBoundary';
+import PlatformWindowContainer from './containers/PlatformWindowContainer';
 import { AppContext } from './context';
 
 import accountActions from './redux/account/actions';
@@ -45,6 +46,7 @@ import {
 import { LogLevel } from '../shared/logging-types';
 import IpcOutput from './lib/logging';
 import { RoutePath } from './lib/routes';
+import { ModalContainer } from './components/Modal';
 
 const IpcRendererEventChannel = window.ipc;
 
@@ -248,10 +250,14 @@ export default class AppRenderer {
       <AppContext.Provider value={{ app: this }}>
         <Provider store={this.reduxStore}>
           <Router history={this.history.asHistory}>
-            <ErrorBoundary>
-              <AppRouter />
-              {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
-            </ErrorBoundary>
+            <PlatformWindowContainer>
+              <ErrorBoundary>
+                <ModalContainer>
+                  <AppRouter />
+                  {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
+                </ModalContainer>
+              </ErrorBoundary>
+            </PlatformWindowContainer>
           </Router>
         </Provider>
       </AppContext.Provider>
