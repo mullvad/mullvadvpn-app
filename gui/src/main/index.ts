@@ -13,6 +13,7 @@ import {
   systemPreferences,
   Tray,
 } from 'electron';
+import fs from 'fs';
 import * as path from 'path';
 import util from 'util';
 import config from '../config.json';
@@ -336,9 +337,11 @@ class ApplicationMain {
     if (process.platform === 'win32') {
       const appDataDir = process.env.LOCALAPPDATA;
       if (appDataDir) {
+        const userData = path.join(appDataDir, app.name);
         app.setPath('appData', appDataDir);
-        app.setPath('userData', path.join(appDataDir, app.name));
+        app.setPath('userData', userData);
         app.setPath('logs', path.join(appDataDir, app.name, 'logs'));
+        fs.mkdirSync(userData, { recursive: true });
       } else {
         throw new Error('Missing %LOCALAPPDATA% environment variable');
       }
