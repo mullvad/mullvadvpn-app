@@ -145,7 +145,6 @@ impl RequestService {
                 let timeout = request.timeout();
 
                 let hyper_request = request.into_request();
-                let host_addr = get_request_socket_addr(&hyper_request);
 
                 let api_availability = self.api_availability.clone();
                 let suspend_fut = api_availability.wait_for_unsuspend();
@@ -163,15 +162,14 @@ impl RequestService {
                             .map_err(Error::TimeoutError);
 
                     let response = flatten_result(flatten_result(response));
-                    if host_addr.is_some() {
-                        if let Err(err) = &response {
-                            if err.is_network_error() && !api_availability.get_state().is_offline()
-                            {
-                                log::error!(
-                                    "{}",
-                                    err.display_chain_with_msg("HTTP request failed")
-                                );
-                            }
+
+                    if let Err(err) = &response {
+                        if err.is_network_error() && !api_availability.get_state().is_offline() {
+                            log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
+
+                            // TODO: ask provider for new proxy config
+                            // TODO: notify connector handle of this new config
+                            // TODO: pass proxy config to tunnel state machine
                         }
                     }
 
@@ -217,18 +215,6 @@ impl RequestService {
         }
         self.reset();
     }
-}
-
-fn get_request_socket_addr(request: &Request) -> Option<SocketAddr> {
-    let uri = request.uri();
-    let port = uri
-        .port_u16()
-        // Assuming HTTPS always
-        .unwrap_or(443);
-
-    let host_addr = uri.host().and_then(|host| host.parse::<IpAddr>().ok())?;
-
-    Some(SocketAddr::new(host_addr, port))
 }
 
 #[derive(Clone)]
