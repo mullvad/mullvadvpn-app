@@ -29,6 +29,12 @@ type OptionalPort = number | undefined;
 
 type OptionalRelayProtocol = RelayProtocol | undefined;
 
+export enum BridgeModeAvailability {
+  available,
+  blockedDueToTunnelProtocol,
+  blockedDueToTransportProtocol,
+}
+
 function mapPortToSelectorItem(value: number): ISelectorItem<number> {
   return { label: value.toString(), value };
 }
@@ -45,12 +51,8 @@ export const StyledInputFrame = styled(Cell.InputFrame)({
   flex: 0,
 });
 
-export const StyledSelectorForFooter = (styled(Selector)({
-  marginBottom: 0,
-}) as unknown) as new <T>() => Selector<T>;
-
 interface IProps {
-  tunnelProtocolIsOpenVpn: boolean;
+  bridgeModeAvailablity: BridgeModeAvailability;
   openvpn: {
     protocol?: RelayProtocol;
     port?: number;
@@ -71,7 +73,6 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
   public state = { showBridgeStateConfirmationDialog: false };
 
   private portItems: { [key in RelayProtocol]: Array<ISelectorItem<OptionalPort>> };
-  private protocolItems: Array<ISelectorItem<OptionalRelayProtocol>>;
 
   constructor(props: IProps) {
     super(props);
@@ -85,21 +86,6 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
       udp: [automaticPort].concat(UDP_PORTS.map(mapPortToSelectorItem)),
       tcp: [automaticPort].concat(TCP_PORTS.map(mapPortToSelectorItem)),
     };
-
-    this.protocolItems = [
-      {
-        label: messages.gettext('Automatic'),
-        value: undefined,
-      },
-      {
-        label: messages.gettext('TCP'),
-        value: 'tcp',
-      },
-      {
-        label: messages.gettext('UDP'),
-        value: 'udp',
-      },
-    ];
   }
 
   public render() {
@@ -132,15 +118,36 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
                   </HeaderTitle>
                 </SettingsHeader>
 
-                <AriaInputGroup>
-                  <StyledSelectorContainer>
+                <StyledSelectorContainer>
+                  <AriaInputGroup>
                     <Selector
                       title={messages.pgettext('openvpn-settings-view', 'Transport protocol')}
-                      values={this.protocolItems}
+                      values={this.protocolItems(this.props.bridgeState !== 'on')}
                       value={this.props.openvpn.protocol}
                       onSelect={this.onSelectOpenvpnProtocol}
+                      hasFooter={this.props.bridgeState === 'on'}
                     />
+                    {this.props.bridgeState === 'on' && (
+                      <Cell.Footer>
+                        <AriaDescription>
+                          <Cell.FooterText>
+                            {formatMarkdown(
+                              // TRANSLATORS: This is used to instruct users how to make UDP mode
+                              // TRANSLATORS: available.
+                              messages.pgettext(
+                                'openvpn-settings-view',
+                                'To activate UDP, change **Bridge mode** to **Automatic** or **Off**.',
+                              ),
+                            )}
+                          </Cell.FooterText>
+                        </AriaDescription>
+                      </Cell.Footer>
+                    )}
+                  </AriaInputGroup>
+                </StyledSelectorContainer>
 
+                <StyledSelectorContainer>
+                  <AriaInputGroup>
                     {this.props.openvpn.protocol ? (
                       <Selector
                         title={sprintf(
@@ -157,41 +164,27 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
                         onSelect={this.onSelectOpenVpnPort}
                       />
                     ) : undefined}
-                  </StyledSelectorContainer>
-                </AriaInputGroup>
+                  </AriaInputGroup>
+                </StyledSelectorContainer>
 
                 <AriaInputGroup>
                   <StyledSelectorContainer>
-                    <StyledSelectorForFooter
+                    <Selector
                       title={
                         // TRANSLATORS: The title for the shadowsocks bridge selector section.
                         messages.pgettext('openvpn-settings-view', 'Bridge mode')
                       }
-                      values={this.bridgeStateItems(this.props.tunnelProtocolIsOpenVpn)}
+                      values={this.bridgeStateItems(
+                        this.props.bridgeModeAvailablity === BridgeModeAvailability.available,
+                      )}
                       value={this.props.bridgeState}
                       onSelect={this.onSelectBridgeState}
+                      hasFooter
                     />
                   </StyledSelectorContainer>
                   <Cell.Footer>
                     <AriaDescription>
-                      <Cell.FooterText>
-                        {this.props.tunnelProtocolIsOpenVpn
-                          ? // This line is here to prevent prettier from moving up the next line.
-                            // TRANSLATORS: This is used as a description for the bridge mode
-                            // TRANSLATORS: setting.
-                            messages.pgettext(
-                              'openvpn-settings-view',
-                              'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder.',
-                            )
-                          : formatMarkdown(
-                              // TRANSLATORS: This is used to instruct users how to make the bridge
-                              // TRANSLATORS: mode setting available.
-                              messages.pgettext(
-                                'openvpn-settings-view',
-                                'To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**.',
-                              ),
-                            )}
-                      </Cell.FooterText>
+                      <Cell.FooterText>{this.bridgeModeFooterText()}</Cell.FooterText>
                     </AriaDescription>
                   </Cell.Footer>
                 </AriaInputGroup>
@@ -267,6 +260,24 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
     ];
   }
 
+  private protocolItems(udpAvailable: boolean): Array<ISelectorItem<OptionalRelayProtocol>> {
+    return [
+      {
+        label: messages.gettext('Automatic'),
+        value: undefined,
+      },
+      {
+        label: messages.gettext('TCP'),
+        value: 'tcp',
+      },
+      {
+        label: messages.gettext('UDP'),
+        value: 'udp',
+        disabled: !udpAvailable,
+      },
+    ];
+  }
+
   private onSelectOpenvpnProtocol = (protocol?: RelayProtocol) => {
     this.props.setOpenVpnRelayProtocolAndPort(protocol);
   };
@@ -292,6 +303,37 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
       parsedMssFix === undefined ||
       (parsedMssFix >= MIN_MSSFIX_VALUE && parsedMssFix <= MAX_MSSFIX_VALUE)
     );
+  }
+
+  private bridgeModeFooterText() {
+    switch (this.props.bridgeModeAvailablity) {
+      case BridgeModeAvailability.blockedDueToTunnelProtocol:
+        return formatMarkdown(
+          // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
+          // TRANSLATORS: available.
+          messages.pgettext(
+            'openvpn-settings-view',
+            'To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**.',
+          ),
+        );
+      case BridgeModeAvailability.blockedDueToTransportProtocol:
+        return formatMarkdown(
+          // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
+          // TRANSLATORS: available.
+          messages.pgettext(
+            'openvpn-settings-view',
+            'To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**.',
+          ),
+        );
+      case BridgeModeAvailability.available:
+        // This line is here to prevent prettier from moving up the next line.
+        // TRANSLATORS: This is used as a description for the bridge mode
+        // TRANSLATORS: setting.
+        return messages.pgettext(
+          'openvpn-settings-view',
+          'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder.',
+        );
+    }
   }
 
   private renderBridgeStateConfirmation = () => {
