@@ -1743,6 +1743,7 @@ where
         // Make sure the device is updated
         match self.account_manager.validate_device().await {
             Ok(status) => self.handle_validation_result(status),
+            Err(device::Error::NoDevice) => (),
             Err(error) => {
                 log::error!(
                     "{}",
