@@ -1162,19 +1162,7 @@ where
                 {
                     match self.account_manager.validate_device().await {
                         Ok(status) => {
-                            match status {
-                                device::ValidationResult::Valid => (),
-                                device::ValidationResult::Removed => {
-                                    self.event_listener
-                                        .notify_device_event(DeviceEvent::revoke(true));
-                                }
-                                device::ValidationResult::RotatedKey(_) => {
-                                    self.event_listener.notify_device_event(DeviceEvent::new(
-                                        self.account_manager.get(),
-                                        true,
-                                    ));
-                                }
-                            }
+                            self.handle_validation_result(status);
                             self.wg_check_validity = false;
                         }
                         Err(error) => {
@@ -1213,6 +1201,21 @@ where
                     generic_options: tunnel_options.generic,
                 }
                 .into())
+            }
+        }
+    }
+
+    // Emit the appropriate events for an updated device.
+    fn handle_validation_result(&mut self, result: device::ValidationResult) {
+        match result {
+            device::ValidationResult::Valid => (),
+            device::ValidationResult::Removed => {
+                self.event_listener
+                    .notify_device_event(DeviceEvent::revoke(true));
+            }
+            device::ValidationResult::Updated => {
+                self.event_listener
+                    .notify_device_event(DeviceEvent::new(self.account_manager.get(), true));
             }
         }
     }
@@ -1737,6 +1740,17 @@ where
     }
 
     async fn on_get_device(&mut self, tx: ResponseTx<Option<DeviceConfig>, Error>) {
+        // Make sure the device is updated
+        match self.account_manager.validate_device().await {
+            Ok(status) => self.handle_validation_result(status),
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to update device data")
+                );
+            }
+        }
+
         Self::oneshot_send(
             tx,
             Ok(self.account_manager.get().map(DeviceConfig::from)),

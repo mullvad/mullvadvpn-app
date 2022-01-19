@@ -80,8 +80,8 @@ impl Error {
 pub enum ValidationResult {
     /// The device and key were valid.
     Valid,
-    /// The device was valid but the key had to be replaced.
-    RotatedKey(WireguardData),
+    /// The device was valid but one or more fields, such as the key, were replaced
+    Updated,
     /// The device was not found remotely and was removed from the cache.
     Removed,
 }
@@ -317,20 +317,38 @@ impl AccountManager {
     }
 
     /// Check if the device is valid for the account, and yank it if it no longer exists.
+    /// This also updates any associated data and returns whether it changed.
     pub async fn validate_device(&mut self) -> Result<ValidationResult, Error> {
-        let data = {
+        let mut data = {
             let inner = self.inner.lock().unwrap();
             inner.data.as_ref().ok_or(Error::NoDevice)?.clone()
         };
 
-        match self.device_service.get(data.token, data.device.id).await {
+        match self
+            .device_service
+            .get(data.token.clone(), data.device.id.clone())
+            .await
+        {
             Ok(device) => {
                 if device.pubkey == data.device.pubkey {
-                    log::debug!("The current device is still valid");
-                    Ok(ValidationResult::Valid)
+                    if device == data.device {
+                        log::debug!("The current device is still valid");
+                        Ok(ValidationResult::Valid)
+                    } else {
+                        log::debug!("Updating data for the current device");
+                        data.device = device;
+                        {
+                            let mut inner = self.inner.lock().unwrap();
+                            inner.data.replace(data.clone());
+                            let (result_tx, _result_rx) = oneshot::channel();
+                            let _ = self.cache_update_tx.unbounded_send((Some(data), result_tx));
+                        }
+                        Ok(ValidationResult::Updated)
+                    }
                 } else {
                     log::debug!("Rotating invalid WireGuard key");
-                    Ok(ValidationResult::RotatedKey(self.rotate_key().await?))
+                    self.rotate_key().await?;
+                    Ok(ValidationResult::Updated)
                 }
             }
             Err(Error::InvalidAccount) | Err(Error::InvalidDevice) => {
