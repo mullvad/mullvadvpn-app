@@ -40,6 +40,10 @@ impl Device {
             .collect::<Vec<String>>()
             .join(" ")
     }
+
+    pub fn eq_id(&self, other: &Device) -> bool {
+        self.id == other.id
+    }
 }
 
 /// Ports associated with a device.

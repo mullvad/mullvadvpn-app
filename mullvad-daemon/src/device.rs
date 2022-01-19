@@ -190,16 +190,41 @@ impl AccountManager {
     }
 
     pub async fn set(&mut self, data: DeviceData) -> Result<(), Error> {
-        self.logout();
+        self.stop_key_rotation();
+
         let (result_tx, result_rx) = oneshot::channel();
         let _ = self
             .cache_update_tx
             .unbounded_send((Some(data.clone()), result_tx));
-        {
+
+        let old_data = {
             let mut inner = self.inner.lock().unwrap();
-            inner.data.replace(data.clone());
+            inner.data.replace(data.clone())
+        };
+
+        if let Err(error) = flatten_result(result_rx.await.map_err(Error::DeviceUpdaterCancelled)) {
+            // Delete the device if an I/O error occurred
+            self.logout();
+            return Err(error);
         }
-        result_rx.await.map_err(Error::DeviceUpdaterCancelled)??;
+
+        if let Some(old_data) = old_data {
+            // Log out the previous device if the id differs
+            if !old_data.device.eq_id(&data.device) {
+                let service = self.device_service.clone();
+                tokio::spawn(async move {
+                    if let Err(error) = service
+                        .remove_device_with_backoff(old_data.token, old_data.device.id)
+                        .await
+                    {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to remove a previous device")
+                        );
+                    }
+                });
+            }
+        }
         self.start_key_rotation();
         Ok(())
     }
