@@ -1,9 +1,14 @@
 import { exec as execAsync } from 'child_process';
-import { nativeImage, NativeImage, Tray } from 'electron';
+import { Menu, nativeImage, NativeImage, Tray } from 'electron';
 import path from 'path';
+import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
+import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
+import { AccountToken, TunnelState } from '../shared/daemon-rpc-types';
+import { messages } from '../shared/gettext';
 import log from '../shared/logging';
 import KeyframeAnimation from './keyframe-animation';
+import WindowController from './window-controller';
 
 const exec = promisify(execAsync);
 
@@ -23,8 +28,12 @@ export default class TrayIconController {
 
   constructor(
     private tray: Tray,
+    private windowController: WindowController,
     private iconTypeValue: TrayIconType,
     private useMonochromaticIconValue: boolean,
+    private connect: () => void,
+    private reconnect: () => void,
+    private disconnect: () => void,
   ) {
     this.loadImages();
   }
@@ -86,6 +95,28 @@ export default class TrayIconController {
     const frame = this.targetFrame();
 
     animation.play({ end: frame });
+  }
+
+  public setContextMenu(
+    connectedToDaemon: boolean,
+    accountToken: AccountToken | undefined,
+    tunnelState: TunnelState,
+  ) {
+    if (process.platform === 'linux') {
+      this.tray.setContextMenu(
+        this.createContextMenu(connectedToDaemon, accountToken, tunnelState),
+      );
+    }
+  }
+
+  public popUpContextMenu(
+    connectedToDaemon: boolean,
+    accountToken: AccountToken | undefined,
+    tunnelState: TunnelState,
+  ) {
+    this.tray.popUpContextMenu(
+      this.createContextMenu(connectedToDaemon, accountToken, tunnelState),
+    );
   }
 
   private initAnimation() {
@@ -177,5 +208,41 @@ export default class TrayIconController {
       case 'secured':
         return 8;
     }
+  }
+
+  private createContextMenu(
+    connectedToDaemon: boolean,
+    accountToken: AccountToken | undefined,
+    tunnelState: TunnelState,
+  ) {
+    const template: Electron.MenuItemConstructorOptions[] = [
+      {
+        label: sprintf(messages.pgettext('tray-icon-context-menu', 'Open %(mullvadVpn)s'), {
+          mullvadVpn: 'Mullvad VPN',
+        }),
+        click: () => this.windowController.show(),
+      },
+      { type: 'separator' },
+      {
+        id: 'connect',
+        label: messages.gettext('Connect'),
+        enabled: connectEnabled(connectedToDaemon, accountToken, tunnelState.state),
+        click: this.connect,
+      },
+      {
+        id: 'reconnect',
+        label: messages.gettext('Reconnect'),
+        enabled: reconnectEnabled(connectedToDaemon, accountToken, tunnelState.state),
+        click: this.reconnect,
+      },
+      {
+        id: 'disconnect',
+        label: messages.gettext('Disconnect'),
+        enabled: disconnectEnabled(connectedToDaemon, tunnelState.state),
+        click: this.disconnect,
+      },
+    ];
+
+    return Menu.buildFromTemplate(template);
   }
 }

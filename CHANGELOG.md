@@ -74,6 +74,8 @@ Line wrap the file at 100 chars.                                              Th
   environment variable `http_proxy` is set. This caused the app to fail to connect to the daemon.
 - Disable built-in DNS resolver in Electron. Prevents Electron from establishing connections to
   DNS servers set in system network preferences.
+- Fix tray context menu showing or executing wrong actions, using wrong language or in other
+  ways not update properly.
 
 #### macOS
 - Resolve issues with the app blocking internet connectivity after sleep or when connecting to new
