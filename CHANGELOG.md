@@ -72,13 +72,12 @@ Line wrap the file at 100 chars.                                              Th
 - Show relay location constraint correctly in the CLI when it is set to `any`.
 - Prevent gRPC from trying to run the app-daemon IPC communication through a HTTP proxy when the
   environment variable `http_proxy` is set. This caused the app to fail to connect to the daemon.
-
-#### macOS
 - Disable built-in DNS resolver in Electron. Prevents Electron from establishing connections to
   DNS servers set in system network preferences.
+
+#### macOS
 - Resolve issues with the app blocking internet connectivity after sleep or when connecting to new
   wireless networks.
-
 
 #### Windows
 - Fix app size after changing display scale.
