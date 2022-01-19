@@ -34,5 +34,7 @@ lazy_static = "1.1.0"
 mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
 
+shadowsocks = { version = "1.12", default-features = false, features = ["stream-cipher"] }
+
 [target.'cfg(target_os="macos")'.dependencies]
 tokio-stream = { version = "0.1", features = ["io-util"] }
