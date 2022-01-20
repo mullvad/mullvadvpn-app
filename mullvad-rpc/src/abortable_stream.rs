@@ -10,14 +10,16 @@ use std::{
 };
 use tokio::io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct AbortableStreamHandle {
-    tx: oneshot::Sender<()>,
+    tx: Arc<Mutex<Option<oneshot::Sender<()>>>>,
 }
 
 impl AbortableStreamHandle {
     pub fn close(self) {
-        let _ = self.tx.send(());
+        if let Some(tx) = self.tx.lock().unwrap().take() {
+            let _ = tx.send(());
+        }
     }
 }
 
@@ -54,7 +56,9 @@ where
             }
         });
 
-        let stream_handle = AbortableStreamHandle { tx };
+        let stream_handle = AbortableStreamHandle {
+            tx: Arc::new(Mutex::new(Some(tx))),
+        };
         (Self { inner }, stream_handle)
     }
 
