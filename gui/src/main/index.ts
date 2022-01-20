@@ -338,17 +338,22 @@ class ApplicationMain {
     if (process.platform === 'win32') {
       const appDataDir = process.env.LOCALAPPDATA;
       if (appDataDir) {
-        const userData = path.join(appDataDir, app.name);
+        const userDataDir = path.join(appDataDir, app.name);
+        const logDir = path.join(userDataDir, 'logs');
+        // In Electron 16, the `appData` directory must be created explicitly or an error is
+        // thrown when creating the singleton lock file.
+        fs.mkdirSync(logDir, { recursive: true });
         app.setPath('appData', appDataDir);
-        app.setPath('userData', userData);
-        app.setPath('logs', path.join(appDataDir, app.name, 'logs'));
-        fs.mkdirSync(userData, { recursive: true });
+        app.setPath('userData', userDataDir);
+        app.setPath('logs', logDir);
       } else {
         throw new Error('Missing %LOCALAPPDATA% environment variable');
       }
     } else if (process.platform === 'linux') {
       const userDataDir = app.getPath('userData');
-      app.setPath('logs', path.join(userDataDir, 'logs'));
+      const logDir = path.join(userDataDir, 'logs');
+      fs.mkdirSync(logDir, { recursive: true });
+      app.setPath('logs', logDir);
     }
   }
 
