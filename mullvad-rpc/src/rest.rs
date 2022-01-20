@@ -1,6 +1,9 @@
+#[cfg(target_os = "android")]
+pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
-    abortable_stream::AbortableStreamHandle, address_cache::AddressCache,
-    availability::ApiAvailabilityHandle, https_client_with_sni::HttpsConnectorWithSni,
+    address_cache::AddressCache,
+    availability::ApiAvailabilityHandle,
+    https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
 };
 use futures::{
     channel::{mpsc, oneshot},
@@ -88,7 +91,7 @@ impl Error {
 pub(crate) struct RequestService {
     command_tx: mpsc::Sender<RequestCommand>,
     command_rx: mpsc::Receiver<RequestCommand>,
-    sockets: BTreeMap<usize, AbortableStreamHandle>,
+    connector_handle: HttpsConnectorWithSniHandle,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
     handle: Handle,
     next_id: u64,
@@ -100,24 +103,30 @@ pub(crate) struct RequestService {
 impl RequestService {
     /// Constructs a new request service.
     pub fn new(
-        mut connector: HttpsConnectorWithSni,
         handle: Handle,
+        sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
         address_cache: AddressCache,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestService {
-        let (command_tx, command_rx) = mpsc::channel(1);
+        let (connector, connector_handle) = HttpsConnectorWithSni::new(
+            handle.clone(),
+            sni_hostname,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx.clone(),
+        );
 
-        connector.set_service_tx(command_tx.clone());
+        let (command_tx, command_rx) = mpsc::channel(1);
         let client = Client::builder().build(connector);
 
         Self {
             command_tx,
             command_rx,
-            sockets: BTreeMap::new(),
+            connector_handle,
             client,
+            handle,
             in_flight_requests: BTreeMap::new(),
             next_id: 0,
-            handle,
             api_availability,
             address_cache,
         }
@@ -194,20 +203,12 @@ impl RequestService {
                     let _ = tx.send(RequestCommand::RequestFinished(id)).await;
                 };
 
-                self.handle.spawn(future);
                 self.in_flight_requests.insert(id, abort_handle);
-            }
-
-            RequestCommand::SocketOpened(id, socket) => {
-                self.sockets.insert(id, socket);
-            }
-            RequestCommand::SocketClosed(id) => {
-                self.sockets.remove(&id);
+                self.handle.spawn(future);
             }
             RequestCommand::RequestFinished(id) => {
                 self.in_flight_requests.remove(&id);
             }
-
             RequestCommand::Reset(tx) => {
                 self.reset();
                 let _ = tx.send(());
@@ -216,17 +217,12 @@ impl RequestService {
     }
 
     fn reset(&mut self) {
-        let old_requests = mem::replace(&mut self.in_flight_requests, BTreeMap::new());
-        for (_, abort_handle) in old_requests.into_iter() {
+        let old_requests = mem::take(&mut self.in_flight_requests);
+        for (_, abort_handle) in old_requests {
             abort_handle.abort();
         }
 
-        let old_sockets = mem::replace(&mut self.sockets, BTreeMap::new());
-        for (_, socket) in old_sockets.into_iter() {
-            socket.close();
-        }
-
-        self.next_id = 0;
+        self.connector_handle.reset();
     }
 
     fn id(&mut self) -> u64 {
@@ -296,8 +292,6 @@ pub(crate) enum RequestCommand {
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
     RequestFinished(u64),
-    SocketOpened(usize, AbortableStreamHandle),
-    SocketClosed(usize),
     Reset(oneshot::Sender<()>),
 }
 

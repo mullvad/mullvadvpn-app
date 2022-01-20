@@ -1,7 +1,12 @@
-use crate::{abortable_stream::AbortableStream, rest::RequestCommand, tls_stream::TlsStream};
+use crate::{
+    abortable_stream::{AbortableStream, AbortableStreamHandle},
+    tls_stream::TlsStream,
+};
+#[cfg(target_os = "android")]
+use futures::sink::SinkExt;
 use futures::{
     channel::{mpsc, oneshot},
-    sink::SinkExt,
+    StreamExt,
 };
 use http::uri::Scheme;
 use hyper::{
@@ -12,12 +17,14 @@ use hyper::{
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
+    collections::BTreeMap,
     fmt,
     future::Future,
     io,
     net::{IpAddr, SocketAddr},
     pin::Pin,
     str::{self, FromStr},
+    sync::{Arc, Mutex},
     task::{Context, Poll},
     time::Duration,
 };
@@ -28,15 +35,31 @@ use tokio::{net::TcpStream, runtime::Handle, time::timeout};
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
+#[derive(Clone)]
+pub struct HttpsConnectorWithSniHandle {
+    tx: mpsc::UnboundedSender<()>,
+}
+
+impl HttpsConnectorWithSniHandle {
+    /// Stop all streams produced by this connector
+    pub fn reset(&self) {
+        let _ = self.tx.unbounded_send(());
+    }
+}
+
 /// A Connector for the `https` scheme.
 #[derive(Clone)]
 pub struct HttpsConnectorWithSni {
-    next_socket_id: usize,
+    inner: Arc<Mutex<HttpsConnectorWithSniInner>>,
     handle: Handle,
     sni_hostname: Option<String>,
-    service_tx: Option<mpsc::Sender<RequestCommand>>,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+}
+
+struct HttpsConnectorWithSniInner {
+    next_socket_id: usize,
+    stream_handles: BTreeMap<usize, AbortableStreamHandle>,
 }
 
 #[cfg(target_os = "android")]
@@ -47,25 +70,43 @@ impl HttpsConnectorWithSni {
         handle: Handle,
         sni_hostname: Option<String>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> Self {
-        HttpsConnectorWithSni {
+    ) -> (Self, HttpsConnectorWithSniHandle) {
+        let (tx, mut rx): (_, mpsc::UnboundedReceiver<()>) = mpsc::unbounded();
+        let inner = Arc::new(Mutex::new(HttpsConnectorWithSniInner {
+            stream_handles: BTreeMap::new(),
             next_socket_id: 0,
-            handle,
-            sni_hostname,
-            #[cfg(target_os = "android")]
-            socket_bypass_tx,
-            service_tx: None,
-        }
-    }
+        }));
 
-    /// Set a channel to register sockets with the request service.
-    pub(crate) fn set_service_tx(&mut self, service_tx: mpsc::Sender<RequestCommand>) {
-        self.service_tx = Some(service_tx);
+        let inner_copy = inner.clone();
+        handle.spawn(async move {
+            // Handle requests by `HttpsConnectorWithSniHandle`s
+            while let Some(()) = rx.next().await {
+                let handles = {
+                    let mut inner = inner_copy.lock().unwrap();
+                    std::mem::take(&mut inner.stream_handles)
+                };
+                for (_, handle) in handles {
+                    handle.close();
+                }
+            }
+        });
+
+        (
+            HttpsConnectorWithSni {
+                inner,
+                handle,
+                sni_hostname,
+                #[cfg(target_os = "android")]
+                socket_bypass_tx,
+            },
+            HttpsConnectorWithSniHandle { tx },
+        )
     }
 
     fn next_id(&mut self) -> usize {
-        let next_id = self.next_socket_id;
-        self.next_socket_id = self.next_socket_id.wrapping_add(1);
+        let mut inner = self.inner.lock().unwrap();
+        let next_id = inner.next_socket_id;
+        inner.next_socket_id = inner.next_socket_id.wrapping_add(1);
         next_id
     }
 
@@ -148,8 +189,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
             .ok_or_else(|| {
                 io::Error::new(io::ErrorKind::InvalidInput, "invalid url, missing host")
             });
-        let service_tx = self.service_tx.clone();
-
+        let inner = self.inner.clone();
         let socket_id = self.next_id();
         let handle = self.handle.clone();
         #[cfg(target_os = "android")]
@@ -177,25 +217,22 @@ impl Service<Uri> for HttpsConnectorWithSni {
 
             let (tcp_stream, socket_handle) =
                 AbortableStream::new(tokio_connection, Some(socket_shutdown_tx));
-            if let Some(mut service_tx) = service_tx {
-                if service_tx
-                    .send(RequestCommand::SocketOpened(socket_id, socket_handle))
-                    .await
-                    .is_err()
-                {
-                    log::error!("Failed to submit new socket to request service");
-                }
-                handle.spawn(async move {
-                    let _ = socket_shutdown_rx.await;
-                    if service_tx
-                        .send(RequestCommand::SocketClosed(socket_id))
-                        .await
-                        .is_err()
-                    {
-                        log::error!("Failed to send socket closure command to request service");
-                    }
-                });
+
+            {
+                let mut inner = inner.lock().unwrap();
+                inner
+                    .stream_handles
+                    .insert(socket_id, socket_handle.clone());
             }
+
+            handle.spawn(async move {
+                let _ = socket_shutdown_rx.await;
+                {
+                    let mut inner = inner.lock().unwrap();
+                    inner.stream_handles.remove(&socket_id);
+                }
+            });
+
             Ok(TlsStream::connect_https(tcp_stream, &hostname).await?)
         };
 
