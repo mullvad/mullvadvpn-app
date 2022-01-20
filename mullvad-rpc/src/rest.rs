@@ -1,6 +1,6 @@
 use crate::{
-    address_cache::AddressCache, availability::ApiAvailabilityHandle,
-    https_client_with_sni::HttpsConnectorWithSni, tcp_stream::TcpStreamHandle,
+    abortable_stream::AbortableStreamHandle, address_cache::AddressCache,
+    availability::ApiAvailabilityHandle, https_client_with_sni::HttpsConnectorWithSni,
 };
 use futures::{
     channel::{mpsc, oneshot},
@@ -88,7 +88,7 @@ impl Error {
 pub(crate) struct RequestService {
     command_tx: mpsc::Sender<RequestCommand>,
     command_rx: mpsc::Receiver<RequestCommand>,
-    sockets: BTreeMap<usize, TcpStreamHandle>,
+    sockets: BTreeMap<usize, AbortableStreamHandle>,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
     handle: Handle,
     next_id: u64,
@@ -296,7 +296,7 @@ pub(crate) enum RequestCommand {
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
     RequestFinished(u64),
-    SocketOpened(usize, TcpStreamHandle),
+    SocketOpened(usize, AbortableStreamHandle),
     SocketClosed(usize),
     Reset(oneshot::Sender<()>),
 }

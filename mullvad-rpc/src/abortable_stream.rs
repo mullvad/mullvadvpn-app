@@ -1,5 +1,4 @@
-//! Wrapper around [`tokio::net::TcpStream`]. This allows in-flight requests to be cancelled
-//! immediately instead of after the socket times out.
+//! Wrapper around a stream to make it abortable.
 
 use futures::channel::oneshot;
 use hyper::client::connect::{Connected, Connection};
@@ -12,25 +11,28 @@ use std::{
 use tokio::io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf};
 
 #[derive(Debug)]
-pub struct TcpStreamHandle {
+pub struct AbortableStreamHandle {
     tx: oneshot::Sender<()>,
 }
 
-impl TcpStreamHandle {
+impl AbortableStreamHandle {
     pub fn close(self) {
         let _ = self.tx.send(());
     }
 }
 
-pub struct TcpStream<S: AsyncRead + AsyncWrite + Connection + Unpin> {
+pub struct AbortableStream<S: AsyncRead + AsyncWrite + Connection + Unpin> {
     inner: Arc<Mutex<Option<StreamInner<S>>>>,
 }
 
-impl<S> TcpStream<S>
+impl<S> AbortableStream<S>
 where
     S: AsyncRead + AsyncWrite + Connection + Unpin + Send + 'static,
 {
-    pub fn new(stream: S, shutdown_tx: Option<oneshot::Sender<()>>) -> (Self, TcpStreamHandle) {
+    pub fn new(
+        stream: S,
+        shutdown_tx: Option<oneshot::Sender<()>>,
+    ) -> (Self, AbortableStreamHandle) {
         let inner = Arc::new(Mutex::new(Some(StreamInner {
             stream,
             shutdown_tx,
@@ -46,18 +48,18 @@ where
                 let inner = { inner_lock.lock().unwrap().take() };
                 if let Some(mut inner) = inner {
                     if let Err(error) = inner.stream.shutdown().await {
-                        log::error!("Failed to shut down TCP stream: {}", error);
+                        log::error!("Failed to shut down stream: {}", error);
                     }
                 }
             }
         });
 
-        let stream_handle = TcpStreamHandle { tx };
+        let stream_handle = AbortableStreamHandle { tx };
         (Self { inner }, stream_handle)
     }
 
     fn do_stream<T>(&self, mut stream_fn: impl FnMut(&mut S) -> T, closed_value: T) -> T {
-        let mut inner = self.inner.lock().expect("TCP lock poisoned");
+        let mut inner = self.inner.lock().expect("Stream lock poisoned");
         if let Some(inner) = &mut *inner {
             stream_fn(&mut inner.stream)
         } else {
@@ -66,7 +68,7 @@ where
     }
 }
 
-impl<S> Drop for TcpStream<S>
+impl<S> Drop for AbortableStream<S>
 where
     S: AsyncRead + AsyncWrite + Connection + Unpin,
 {
@@ -79,7 +81,7 @@ where
     }
 }
 
-impl<S> AsyncWrite for TcpStream<S>
+impl<S> AsyncWrite for AbortableStream<S>
 where
     S: AsyncRead + AsyncWrite + Connection + Unpin + Send + 'static,
 {
@@ -92,7 +94,7 @@ where
             |stream| Pin::new(stream).poll_write(cx, buf),
             Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
-                "socket is closed",
+                "stream is closed",
             ))),
         )
     }
@@ -112,7 +114,7 @@ where
     }
 }
 
-impl<S> AsyncRead for TcpStream<S>
+impl<S> AsyncRead for AbortableStream<S>
 where
     S: AsyncRead + AsyncWrite + Connection + Unpin + Send + 'static,
 {
@@ -125,13 +127,13 @@ where
             |stream| Pin::new(stream).poll_read(cx, buf),
             Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
-                "socket is closed",
+                "stream is closed",
             ))),
         )
     }
 }
 
-impl<S> Connection for TcpStream<S>
+impl<S> Connection for AbortableStream<S>
 where
     S: AsyncRead + AsyncWrite + Connection + Unpin,
 {

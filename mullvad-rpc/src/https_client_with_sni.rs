@@ -1,4 +1,4 @@
-use crate::{rest::RequestCommand, tcp_stream::TcpStream, tls_stream::TlsStream};
+use crate::{abortable_stream::AbortableStream, rest::RequestCommand, tls_stream::TlsStream};
 use futures::{
     channel::{mpsc, oneshot},
     sink::SinkExt,
@@ -24,7 +24,7 @@ use std::{
 #[cfg(target_os = "android")]
 use tokio::net::TcpSocket;
 
-use tokio::{net::TcpStream as TokioTcpStream, runtime::Handle, time::timeout};
+use tokio::{net::TcpStream, runtime::Handle, time::timeout};
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -70,8 +70,8 @@ impl HttpsConnectorWithSni {
     }
 
     #[cfg(not(target_os = "android"))]
-    async fn open_socket(addr: SocketAddr) -> std::io::Result<TokioTcpStream> {
-        timeout(CONNECT_TIMEOUT, TokioTcpStream::connect(addr))
+    async fn open_socket(addr: SocketAddr) -> std::io::Result<TcpStream> {
+        timeout(CONNECT_TIMEOUT, TcpStream::connect(addr))
             .await
             .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
     }
@@ -80,7 +80,7 @@ impl HttpsConnectorWithSni {
     async fn open_socket(
         addr: SocketAddr,
         socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> std::io::Result<TokioTcpStream> {
+    ) -> std::io::Result<TcpStream> {
         let socket = match addr {
             SocketAddr::V4(_) => TcpSocket::new_v4()?,
             SocketAddr::V6(_) => TcpSocket::new_v6()?,
@@ -131,7 +131,7 @@ impl fmt::Debug for HttpsConnectorWithSni {
 }
 
 impl Service<Uri> for HttpsConnectorWithSni {
-    type Response = TlsStream<TcpStream<TokioTcpStream>>;
+    type Response = TlsStream<AbortableStream<TcpStream>>;
     type Error = io::Error;
     type Future =
         Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
@@ -176,7 +176,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
             let (socket_shutdown_tx, socket_shutdown_rx) = oneshot::channel();
 
             let (tcp_stream, socket_handle) =
-                TcpStream::new(tokio_connection, Some(socket_shutdown_tx));
+                AbortableStream::new(tokio_connection, Some(socket_shutdown_tx));
             if let Some(mut service_tx) = service_tx {
                 if service_tx
                     .send(RequestCommand::SocketOpened(socket_id, socket_handle))
