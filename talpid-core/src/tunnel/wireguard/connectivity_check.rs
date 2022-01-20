@@ -801,7 +801,7 @@ mod test {
                     .unwrap();
             }
         });
-        let err = DELAY_ON_INITIAL_SETUP + Duration::from_millis(100);
+        let err = DELAY_ON_INITIAL_SETUP + Duration::from_millis(200);
         assert!(!result_rx
             .recv_timeout(Duration::from_millis(500) + err)
             .unwrap()
