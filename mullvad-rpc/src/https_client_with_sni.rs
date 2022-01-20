@@ -1,4 +1,4 @@
-use crate::{abortable_stream::AbortableStream, rest::RequestCommand};
+use crate::{abortable_stream::AbortableStream, rest::RequestCommand, tls_stream::TlsStream};
 use futures::{
     channel::{mpsc, oneshot},
     sink::SinkExt,
@@ -9,18 +9,15 @@ use hyper::{
     service::Service,
     Uri,
 };
-use hyper_rustls::MaybeHttpsStream;
-use rustls::ServerName;
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
     fmt,
     future::Future,
-    io::{self, BufReader},
+    io,
     net::{IpAddr, SocketAddr},
     pin::Pin,
     str::{self, FromStr},
-    sync::Arc,
     task::{Context, Poll},
     time::Duration,
 };
@@ -28,10 +25,6 @@ use std::{
 use tokio::net::TcpSocket;
 
 use tokio::{net::TcpStream, runtime::Handle, time::timeout};
-use tokio_rustls::rustls;
-
-// New LetsEncrypt root certificate
-const LE_ROOT_CERT: &[u8] = include_bytes!("../le_root_cert.pem");
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -44,7 +37,6 @@ pub struct HttpsConnectorWithSni {
     service_tx: Option<mpsc::Sender<RequestCommand>>,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    tls: Arc<rustls::ClientConfig>,
 }
 
 #[cfg(target_os = "android")]
@@ -56,15 +48,6 @@ impl HttpsConnectorWithSni {
         sni_hostname: Option<String>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Self {
-        let mut config = rustls::ClientConfig::builder()
-            .with_safe_default_cipher_suites()
-            .with_safe_default_kx_groups()
-            .with_protocol_versions(&[&rustls::version::TLS13])
-            .unwrap()
-            .with_root_certificates(Self::read_cert_store())
-            .with_no_client_auth();
-        config.enable_sni = true;
-
         HttpsConnectorWithSni {
             next_socket_id: 0,
             handle,
@@ -72,21 +55,7 @@ impl HttpsConnectorWithSni {
             #[cfg(target_os = "android")]
             socket_bypass_tx,
             service_tx: None,
-            tls: Arc::new(config),
         }
-    }
-
-    fn read_cert_store() -> rustls::RootCertStore {
-        let mut cert_store = rustls::RootCertStore::empty();
-
-        let certs = rustls_pemfile::certs(&mut BufReader::new(LE_ROOT_CERT))
-            .expect("Failed to parse pem file");
-        let (num_certs_added, num_failures) = cert_store.add_parsable_certificates(&certs);
-        if num_failures > 0 || num_certs_added != 1 {
-            panic!("Failed to add root cert");
-        }
-
-        cert_store
     }
 
     /// Set a channel to register sockets with the request service.
@@ -162,7 +131,7 @@ impl fmt::Debug for HttpsConnectorWithSni {
 }
 
 impl Service<Uri> for HttpsConnectorWithSni {
-    type Response = MaybeHttpsStream<AbortableStream<TcpStream>>;
+    type Response = TlsStream<AbortableStream<TcpStream>>;
     type Error = io::Error;
     type Future =
         Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
@@ -172,7 +141,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
     }
 
     fn call(&mut self, uri: Uri) -> Self::Future {
-        let tls_connector: tokio_rustls::TlsConnector = self.tls.clone().into();
         let sni_hostname = self
             .sni_hostname
             .clone()
@@ -196,12 +164,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
             }
 
             let hostname = sni_hostname?;
-            let host = ServerName::try_from(hostname.as_str()).map_err(|_| {
-                io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    format!("invalid hostname \"{}\"", hostname),
-                )
-            })?;
             let addr = Self::resolve_address(&uri).await?;
 
             let tokio_connection = Self::open_socket(
@@ -234,22 +196,9 @@ impl Service<Uri> for HttpsConnectorWithSni {
                     }
                 });
             }
-
-            let tls_connection = tls_connector.connect(host, tcp_stream).await?;
-
-            Ok(MaybeHttpsStream::Https(tls_connection))
+            Ok(TlsStream::connect_https(tcp_stream, &hostname).await?)
         };
 
         Box::pin(fut)
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::HttpsConnectorWithSni;
-
-    #[test]
-    fn test_cert_loading() {
-        let _certs = HttpsConnectorWithSni::read_cert_store();
     }
 }

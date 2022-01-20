@@ -24,6 +24,7 @@ pub mod rest;
 mod https_client_with_sni;
 use crate::https_client_with_sni::HttpsConnectorWithSni;
 mod abortable_stream;
+mod tls_stream;
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
 
