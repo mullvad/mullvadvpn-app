@@ -10,6 +10,7 @@ use hyper::{
     Uri,
 };
 use hyper_rustls::MaybeHttpsStream;
+use rustls::ServerName;
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
@@ -27,8 +28,7 @@ use std::{
 use tokio::net::TcpSocket;
 
 use tokio::{net::TcpStream as TokioTcpStream, runtime::Handle, time::timeout};
-use tokio_rustls::rustls::{self, ProtocolVersion};
-use webpki::DNSNameRef;
+use tokio_rustls::rustls;
 
 // New LetsEncrypt root certificate
 const LE_ROOT_CERT: &[u8] = include_bytes!("../le_root_cert.pem");
@@ -51,21 +51,19 @@ pub struct HttpsConnectorWithSni {
 pub type SocketBypassRequest = (RawFd, oneshot::Sender<()>);
 
 impl HttpsConnectorWithSni {
-    /// Construct a new HttpsConnectorWithSni.
-    ///
-    /// Takes number of DNS worker threads.
-    ///
-    /// This uses hyper's default `HttpConnector`, and default `TlsConnector`.
-    /// If you wish to use something besides the defaults, use `From::from`.
     pub fn new(
         handle: Handle,
         sni_hostname: Option<String>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Self {
-        let mut config = rustls::ClientConfig::new();
+        let mut config = rustls::ClientConfig::builder()
+            .with_safe_default_cipher_suites()
+            .with_safe_default_kx_groups()
+            .with_protocol_versions(&[&rustls::version::TLS13])
+            .unwrap()
+            .with_root_certificates(Self::read_cert_store())
+            .with_no_client_auth();
         config.enable_sni = true;
-        config.root_store = Self::read_cert_store();
-        config.versions = vec![ProtocolVersion::TLSv1_3];
 
         HttpsConnectorWithSni {
             next_socket_id: 0,
@@ -81,11 +79,11 @@ impl HttpsConnectorWithSni {
     fn read_cert_store() -> rustls::RootCertStore {
         let mut cert_store = rustls::RootCertStore::empty();
 
-        let (num_certs_added, num_failures) = cert_store
-            .add_pem_file(&mut BufReader::new(LE_ROOT_CERT))
-            .expect("Failed to add new root cert");
+        let certs = rustls_pemfile::certs(&mut BufReader::new(LE_ROOT_CERT))
+            .expect("Failed to parse pem file");
+        let (num_certs_added, num_failures) = cert_store.add_parsable_certificates(&certs);
         if num_failures > 0 || num_certs_added != 1 {
-            panic!("Failed to add new root cert");
+            panic!("Failed to add root cert");
         }
 
         cert_store
@@ -198,8 +196,12 @@ impl Service<Uri> for HttpsConnectorWithSni {
             }
 
             let hostname = sni_hostname?;
-            let host = DNSNameRef::try_from_ascii_str(&hostname)
-                .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid hostname"))?;
+            let host = ServerName::try_from(hostname.as_str()).map_err(|_| {
+                io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    format!("invalid hostname \"{}\"", hostname),
+                )
+            })?;
             let addr = Self::resolve_address(&uri).await?;
 
             let tokio_connection = Self::open_socket(
