@@ -1,8 +1,6 @@
 package net.mullvad.mullvadvpn.service.notifications
 
 import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationChannelCompat
@@ -13,6 +11,7 @@ import net.mullvad.mullvadvpn.R
 class NotificationChannel(
     val context: Context,
     val id: String,
+    val visibility: Int,
     name: Int,
     description: Int,
     importance: Int
@@ -72,6 +71,7 @@ class NotificationChannel(
             .setColor(badgeColor)
             .setContentTitle(title)
             .setContentIntent(pendingIntent)
+            .setVisibility(visibility)
 
         for (action in actions) {
             builder.addAction(action)
