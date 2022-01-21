@@ -272,7 +272,24 @@ impl Drop for RouteManager {
 #[cfg(target_os = "macos")]
 pub(crate) async fn get_default_routes() -> Result<(Option<super::Node>, Option<super::Node>), Error>
 {
-    let v4 = imp::RouteManagerImpl::get_default_node(IpVersion::V4).await?;
-    let v6 = imp::RouteManagerImpl::get_default_node(IpVersion::V6).await?;
-    Ok((v4, v6))
+    let (v4, v6) = futures::join!(
+        imp::RouteManagerImpl::get_default_node(IpVersion::V4),
+        imp::RouteManagerImpl::get_default_node(IpVersion::V6)
+    );
+
+    match (v4, v6) {
+        (Ok(v4), Ok(v6)) => Ok((v4, v6)),
+        (Ok(node), Err(err)) => {
+            log::error!("Failed to get IPv4 node: {}", err);
+            Ok((node, None))
+        }
+        (Err(err), Ok(node)) => {
+            log::error!("Failed to get IPv4 node: {}", err);
+            Ok((None, node))
+        }
+        (Err(v4_err), Err(v6_err)) => {
+            log::error!("Failed to get IPv6 node: {}", v6_err);
+            Err(v4_err.into())
+        }
+    }
 }
