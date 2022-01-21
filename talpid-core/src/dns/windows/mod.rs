@@ -99,7 +99,7 @@ impl super::DnsMonitorT for DnsMonitor {
             .into_result()
         }?;
 
-        if *GLOBAL_DNS_CACHE_POLICY && is_minimum_windows10() {
+        if *GLOBAL_DNS_CACHE_POLICY {
             if let Err(error) = set_dns_cache_policy(servers) {
                 log::error!("{}", error.display_chain());
                 log::warn!("DNS resolution may be slowed down");
@@ -110,7 +110,7 @@ impl super::DnsMonitorT for DnsMonitor {
     }
 
     fn reset(&mut self) -> Result<(), Error> {
-        if *GLOBAL_DNS_CACHE_POLICY && is_minimum_windows10() {
+        if *GLOBAL_DNS_CACHE_POLICY {
             reset_dns_cache_policy()
         } else {
             Ok(())
@@ -124,7 +124,7 @@ fn ip_to_widestring(ip: &IpAddr) -> WideCString {
 
 impl Drop for DnsMonitor {
     fn drop(&mut self) {
-        if *GLOBAL_DNS_CACHE_POLICY && is_minimum_windows10() {
+        if *GLOBAL_DNS_CACHE_POLICY {
             if let Err(error) = reset_dns_cache_policy() {
                 log::warn!(
                     "{}",
@@ -204,19 +204,6 @@ fn reset_dns_cache_policy() -> Result<(), Error> {
             } else {
                 Err(Error::UpdateDnsCachePolicy(error))
             }
-        }
-    }
-}
-
-fn is_minimum_windows10() -> bool {
-    match talpid_platform_metadata::WindowsVersion::new() {
-        Ok(version_info) => version_info.major_version() >= 10,
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("OS version check failed")
-            );
-            false
         }
     }
 }
