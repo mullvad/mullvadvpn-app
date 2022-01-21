@@ -3,7 +3,8 @@ pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
-    https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle}, proxy::ProxyConfigProvider,
+    https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
+    proxy::ProxyConfigProvider,
 };
 use futures::{
     channel::{mpsc, oneshot},
@@ -23,7 +24,8 @@ use std::{
     mem,
     net::IpAddr,
     str::FromStr,
-    time::{Duration, Instant}, sync::Arc,
+    sync::Arc,
+    time::{Duration, Instant},
 };
 use talpid_types::ErrorExt;
 use tokio::runtime::Handle;
@@ -116,6 +118,14 @@ impl RequestService {
             socket_bypass_tx.clone(),
         );
 
+        let proxy_config_provider = Arc::new(proxy_config_provider);
+
+        let proxy_config_provider_2 = proxy_config_provider.clone();
+        let connector_handle_2 = connector_handle.clone();
+        handle.spawn(async move {
+            connector_handle_2.set_proxy(proxy_config_provider_2.next().await);
+        });
+
         let (command_tx, command_rx) = mpsc::channel(1);
         let client = Client::builder().build(connector);
 
@@ -127,7 +137,7 @@ impl RequestService {
             handle,
             in_flight_requests: BTreeMap::new(),
             next_id: 0,
-            proxy_config_provider: Arc::new(proxy_config_provider),
+            proxy_config_provider,
             api_availability,
         }
     }

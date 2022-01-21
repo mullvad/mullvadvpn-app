@@ -994,7 +994,7 @@ dependencies = [
  "httpdate",
  "itoa 0.4.8",
  "pin-project-lite",
- "socket2",
+ "socket2 0.4.2",
  "tokio",
  "tower-service",
  "tracing",
@@ -1121,14 +1121,26 @@ dependencies = [
 
 [[package]]
 name = "ipconfig"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7e2f18aece9709094573a9f24f483c4f65caa4298e2f7ae1b71cc65d853fad7"
+dependencies = [
+ "socket2 0.3.19",
+ "widestring 0.4.3",
+ "winapi 0.3.9",
+ "winreg 0.6.2",
+]
+
+[[package]]
+name = "ipconfig"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "723519edce41262b05d4143ceb95050e4c614f483e78e9fd9e39a8275a84ad98"
 dependencies = [
- "socket2",
+ "socket2 0.4.2",
  "widestring 0.5.1",
  "winapi 0.3.9",
- "winreg",
+ "winreg 0.7.0",
 ]
 
 [[package]]
@@ -2922,6 +2934,17 @@ checksum = "1ecab6c735a6bb4139c0caafd0cc3635748bbb3acf4550e8138122099251f309"
 
 [[package]]
 name = "socket2"
+version = "0.3.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "122e570113d28d773067fab24266b66753f6ea915758651696b6e35e49f88d6e"
+dependencies = [
+ "cfg-if 1.0.0",
+ "libc",
+ "winapi 0.3.9",
+]
+
+[[package]]
+name = "socket2"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5dc90fe6c7be1a323296982db1836d1ea9e47b6839496dde9a541bc496df3516"
@@ -3082,7 +3105,7 @@ dependencies = [
  "resolv-conf",
  "rtnetlink",
  "shell-escape",
- "socket2",
+ "socket2 0.4.2",
  "subslice",
  "system-configuration",
  "talpid-dbus",
@@ -3101,7 +3124,7 @@ dependencies = [
  "which",
  "widestring 0.5.1",
  "winapi 0.3.9",
- "winreg",
+ "winreg 0.7.0",
  "zeroize",
 ]
 
@@ -3577,7 +3600,7 @@ checksum = "f6ad17b608a64bd0735e67bde16b0636f8aa8591f831a25d18443ed00a699770"
 dependencies = [
  "cfg-if 1.0.0",
  "futures-util",
- "ipconfig",
+ "ipconfig 0.2.2",
  "lazy_static",
  "log",
  "lru-cache",
@@ -3596,7 +3619,7 @@ source = "git+https://github.com/BlueJekyll/trust-dns?rev=550e8f8be33df267b5c8e4
 dependencies = [
  "cfg-if 1.0.0",
  "futures-util",
- "ipconfig",
+ "ipconfig 0.3.0",
  "lazy_static",
  "log",
  "lru-cache",
@@ -3989,6 +4012,15 @@ dependencies = [
  "bitflags",
  "err-derive",
  "widestring 0.4.3",
+ "winapi 0.3.9",
+]
+
+[[package]]
+name = "winreg"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2986deb581c4fe11b621998a5e53361efe6b48a151178d0cd9eeffa4dc6acc9"
+dependencies = [
  "winapi 0.3.9",
 ]
 
