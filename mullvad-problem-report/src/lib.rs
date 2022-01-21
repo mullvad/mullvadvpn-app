@@ -287,7 +287,7 @@ pub fn send_problem_report(
             None,
         ))
         .map_err(Error::CreateRpcClientError)?;
-    let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());
+    let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle(None));
 
     runtime.block_on(async move {
         for _attempt in 0..MAX_SEND_ATTEMPTS {
