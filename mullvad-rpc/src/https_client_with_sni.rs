@@ -1,8 +1,9 @@
 use crate::{
     abortable_stream::{AbortableStream, AbortableStreamHandle},
+    proxy::{MaybeProxyStream, ProxyConfig},
     tls_stream::TlsStream,
 };
-use futures::{channel::mpsc, StreamExt};
+use futures::{channel::mpsc, future, StreamExt};
 #[cfg(target_os = "android")]
 use futures::{channel::oneshot, sink::SinkExt};
 use http::uri::Scheme;
@@ -10,6 +11,12 @@ use hyper::{
     client::connect::dns::{GaiResolver, Name},
     service::Service,
     Uri,
+};
+use shadowsocks::{
+    config::ServerType,
+    context::{Context as SsContext, SharedContext},
+    relay::tcprelay::ProxyClientStream,
+    ServerAddr, ServerConfig,
 };
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
@@ -33,14 +40,26 @@ const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
 #[derive(Clone)]
 pub struct HttpsConnectorWithSniHandle {
-    tx: mpsc::UnboundedSender<()>,
+    tx: mpsc::UnboundedSender<HttpsConnectorRequest>,
 }
 
 impl HttpsConnectorWithSniHandle {
     /// Stop all streams produced by this connector
     pub fn reset(&self) {
-        let _ = self.tx.unbounded_send(());
+        let _ = self.tx.unbounded_send(HttpsConnectorRequest::Reset);
     }
+
+    /// Stop all streams produced by this connector
+    pub fn set_proxy(&self, proxy: ProxyConfig) {
+        let _ = self
+            .tx
+            .unbounded_send(HttpsConnectorRequest::SetProxy(proxy));
+    }
+}
+
+enum HttpsConnectorRequest {
+    Reset,
+    SetProxy(ProxyConfig),
 }
 
 /// A Connector for the `https` scheme.
@@ -48,12 +67,15 @@ impl HttpsConnectorWithSniHandle {
 pub struct HttpsConnectorWithSni {
     inner: Arc<Mutex<HttpsConnectorWithSniInner>>,
     sni_hostname: Option<String>,
+    abort_notify: Arc<tokio::sync::Notify>,
+    proxy_context: SharedContext,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
 }
 
 struct HttpsConnectorWithSniInner {
     stream_handles: Vec<AbortableStreamHandle>,
+    proxy_config: ProxyConfig,
 }
 
 #[cfg(target_os = "android")]
@@ -65,22 +87,31 @@ impl HttpsConnectorWithSni {
         sni_hostname: Option<String>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> (Self, HttpsConnectorWithSniHandle) {
-        let (tx, mut rx): (_, mpsc::UnboundedReceiver<()>) = mpsc::unbounded();
+        let (tx, mut rx) = mpsc::unbounded();
+        let abort_notify = Arc::new(tokio::sync::Notify::new());
         let inner = Arc::new(Mutex::new(HttpsConnectorWithSniInner {
             stream_handles: vec![],
+            proxy_config: ProxyConfig::Tls,
         }));
 
         let inner_copy = inner.clone();
+        let notify = abort_notify.clone();
         handle.spawn(async move {
             // Handle requests by `HttpsConnectorWithSniHandle`s
-            while let Some(()) = rx.next().await {
+            while let Some(request) = rx.next().await {
                 let handles = {
                     let mut inner = inner_copy.lock().unwrap();
+
+                    if let HttpsConnectorRequest::SetProxy(config) = request {
+                        inner.proxy_config = config;
+                    }
+
                     std::mem::take(&mut inner.stream_handles)
                 };
                 for handle in handles {
                     handle.close();
                 }
+                notify.notify_waiters();
             }
         });
 
@@ -88,6 +119,8 @@ impl HttpsConnectorWithSni {
             HttpsConnectorWithSni {
                 inner,
                 sni_hostname,
+                abort_notify,
+                proxy_context: SsContext::new_shared(ServerType::Local),
                 #[cfg(target_os = "android")]
                 socket_bypass_tx,
             },
@@ -157,7 +190,7 @@ impl fmt::Debug for HttpsConnectorWithSni {
 }
 
 impl Service<Uri> for HttpsConnectorWithSni {
-    type Response = TlsStream<AbortableStream<TcpStream>>;
+    type Response = AbortableStream<MaybeProxyStream>;
     type Error = io::Error;
     type Future =
         Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
@@ -175,6 +208,8 @@ impl Service<Uri> for HttpsConnectorWithSni {
                 io::Error::new(io::ErrorKind::InvalidInput, "invalid url, missing host")
             });
         let inner = self.inner.clone();
+        let abort_notify = self.abort_notify.clone();
+        let proxy_context = self.proxy_context.clone();
         #[cfg(target_os = "android")]
         let socket_bypass_tx = self.socket_bypass_tx.clone();
 
@@ -189,14 +224,70 @@ impl Service<Uri> for HttpsConnectorWithSni {
             let hostname = sni_hostname?;
             let addr = Self::resolve_address(&uri).await?;
 
-            let tokio_connection = Self::open_socket(
-                addr,
+            // Loop until we have established a connection. This starts over if a new endpoint
+            // is selected while connecting.
+            let stream = loop {
+                let config = { inner.lock().unwrap().proxy_config.clone() };
+                let hostname_copy = hostname.clone();
+                let addr_copy = addr.clone();
+                let context = proxy_context.clone();
                 #[cfg(target_os = "android")]
-                socket_bypass_tx,
-            )
-            .await?;
+                let socket_bypass_tx_copy = socket_bypass_tx.clone();
 
-            let (tcp_stream, socket_handle) = AbortableStream::new(tokio_connection);
+                let stream_fut: Pin<
+                    Box<dyn Future<Output = Result<MaybeProxyStream, io::Error>> + Send>,
+                > = Box::pin(async move {
+                    match config {
+                        ProxyConfig::Tls => {
+                            let socket = Self::open_socket(
+                                addr_copy,
+                                #[cfg(target_os = "android")]
+                                socket_bypass_tx_copy,
+                            )
+                            .await?;
+                            let tls_stream =
+                                TlsStream::connect_https(socket, &hostname_copy).await?;
+                            Ok(MaybeProxyStream::Tls(tls_stream))
+                        }
+                        ProxyConfig::Proxied(proxy_config) => {
+                            let proxy_addr = if let ServerAddr::SocketAddr(sockaddr) =
+                                proxy_config.external_addr()
+                            {
+                                *sockaddr
+                            } else {
+                                return Err(io::Error::new(
+                                    io::ErrorKind::InvalidInput,
+                                    "proxy address must be socket address",
+                                ));
+                            };
+                            let socket = Self::open_socket(
+                                proxy_addr,
+                                #[cfg(target_os = "android")]
+                                socket_bypass_tx_copy,
+                            )
+                            .await?;
+                            let proxy = ProxyClientStream::from_stream(
+                                context,
+                                socket,
+                                &proxy_config,
+                                addr,
+                            );
+                            let tls_stream =
+                                TlsStream::connect_https(proxy, &hostname_copy).await?;
+                            Ok(MaybeProxyStream::Proxied(tls_stream))
+                        }
+                    }
+                });
+
+                // Wait for connection. Abort and retry if we switched to a different server.
+                if let future::Either::Left((stream, _)) =
+                    future::select(stream_fut, Box::pin(abort_notify.notified())).await
+                {
+                    break stream?;
+                }
+            };
+
+            let (stream, socket_handle) = AbortableStream::new(stream);
 
             {
                 let mut inner = inner.lock().unwrap();
@@ -204,7 +295,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                 inner.stream_handles.push(socket_handle);
             }
 
-            Ok(TlsStream::connect_https(tcp_stream, &hostname).await?)
+            Ok(stream)
         };
 
         Box::pin(fut)
