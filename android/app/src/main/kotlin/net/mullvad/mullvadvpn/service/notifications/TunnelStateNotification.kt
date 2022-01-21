@@ -23,7 +23,8 @@ class TunnelStateNotification(val context: Context) {
         NotificationCompat.VISIBILITY_SECRET,
         R.string.foreground_notification_channel_name,
         R.string.foreground_notification_channel_description,
-        NotificationManager.IMPORTANCE_MIN
+        NotificationManager.IMPORTANCE_MIN,
+        false
     )
 
     private val notificationText: Int

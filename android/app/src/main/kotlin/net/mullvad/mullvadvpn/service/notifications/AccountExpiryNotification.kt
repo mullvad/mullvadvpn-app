@@ -40,7 +40,8 @@ class AccountExpiryNotification(
         NotificationCompat.VISIBILITY_PRIVATE,
         R.string.account_time_notification_channel_name,
         R.string.account_time_notification_channel_description,
-        NotificationManager.IMPORTANCE_HIGH
+        NotificationManager.IMPORTANCE_HIGH,
+        true
     )
 
     var loginStatus by observable<LoginStatus?>(null) { _, oldValue, newValue ->
