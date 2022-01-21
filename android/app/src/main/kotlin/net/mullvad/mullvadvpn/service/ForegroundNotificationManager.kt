@@ -128,6 +128,10 @@ class ForegroundNotificationManager(
         }
     }
 
+    fun cancelNotification() {
+        tunnelStateNotification.visible = false
+    }
+
     private fun updateNotificationAction() {
         tunnelStateNotification.showAction = loggedIn && deviceIsUnlocked
     }
