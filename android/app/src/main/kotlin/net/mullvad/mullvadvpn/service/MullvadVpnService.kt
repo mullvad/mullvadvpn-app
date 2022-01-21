@@ -13,6 +13,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
 import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
 import net.mullvad.mullvadvpn.ui.MainActivity
@@ -167,6 +168,15 @@ class MullvadVpnService : TalpidVpnService() {
         notificationManager.onDestroy()
         daemonInstance.onDestroy()
         super.onDestroy()
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        connectionProxy.onStateChange.latestEvent.let { tunnelState ->
+            Log.d(TAG, "Task removed (tunnelState=$tunnelState)")
+            if (tunnelState == TunnelState.Disconnected) {
+                stop()
+            }
+        }
     }
 
     private fun handleDaemonInstance(daemon: MullvadDaemon?) {
