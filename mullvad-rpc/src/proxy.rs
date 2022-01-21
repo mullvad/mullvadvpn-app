@@ -1,6 +1,7 @@
 use crate::tls_stream::TlsStream;
+use futures::Future;
 use hyper::client::connect::{Connected, Connection};
-use shadowsocks::relay::tcprelay::ProxyClientStream;
+use shadowsocks::{relay::tcprelay::ProxyClientStream, ServerConfig};
 use std::{
     io,
     pin::Pin,
@@ -10,6 +11,26 @@ use tokio::{
     io::{AsyncRead, AsyncWrite, ReadBuf},
     net::TcpStream,
 };
+
+#[derive(Clone)]
+pub enum ProxyConfig {
+    /// Connect directly to the target.
+    Tls,
+    /// Connect to the destination via a proxy.
+    Proxied(ServerConfig),
+}
+
+pub trait ProxyConfigProvider: Send + Sync {
+    fn next(&self) -> Pin<Box<dyn Future<Output = ProxyConfig> + Send>>;
+}
+
+pub struct ProxyConfigProviderNoop(pub ());
+
+impl ProxyConfigProvider for ProxyConfigProviderNoop {
+    fn next(&self) -> Pin<Box<dyn Future<Output = ProxyConfig> + Send>> {
+        Box::pin(async { ProxyConfig::Tls })
+    }
+}
 
 /// Stream that is either a regular TLS stream or TLS via shadowsocks
 pub enum MaybeProxyStream {

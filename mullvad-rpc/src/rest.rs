@@ -3,7 +3,7 @@ pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
-    https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
+    https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle}, proxy::ProxyConfigProvider,
 };
 use futures::{
     channel::{mpsc, oneshot},
@@ -21,9 +21,9 @@ use std::{
     collections::BTreeMap,
     future::Future,
     mem,
-    net::{IpAddr, SocketAddr},
+    net::IpAddr,
     str::FromStr,
-    time::{Duration, Instant},
+    time::{Duration, Instant}, sync::Arc,
 };
 use talpid_types::ErrorExt;
 use tokio::runtime::Handle;
@@ -96,6 +96,7 @@ pub(crate) struct RequestService {
     handle: Handle,
     next_id: u64,
     in_flight_requests: BTreeMap<u64, AbortHandle>,
+    proxy_config_provider: Arc<Box<dyn ProxyConfigProvider>>,
     api_availability: ApiAvailabilityHandle,
 }
 
@@ -105,6 +106,7 @@ impl RequestService {
         handle: Handle,
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
+        proxy_config_provider: Box<dyn ProxyConfigProvider>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestService {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
@@ -125,6 +127,7 @@ impl RequestService {
             handle,
             in_flight_requests: BTreeMap::new(),
             next_id: 0,
+            proxy_config_provider: Arc::new(proxy_config_provider),
             api_availability,
         }
     }
@@ -154,6 +157,8 @@ impl RequestService {
                     let _ = suspend_fut.await;
                     request_fut.await
                 });
+                let connector_handle = self.connector_handle.clone();
+                let proxy_config_provider = self.proxy_config_provider.clone();
 
                 let future = async move {
                     let response =
@@ -166,10 +171,9 @@ impl RequestService {
                     if let Err(err) = &response {
                         if err.is_network_error() && !api_availability.get_state().is_offline() {
                             log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
-
-                            // TODO: ask provider for new proxy config
-                            // TODO: notify connector handle of this new config
-                            // TODO: pass proxy config to tunnel state machine
+                            tokio::spawn(async move {
+                                connector_handle.set_proxy(proxy_config_provider.next().await);
+                            });
                         }
                     }
 
