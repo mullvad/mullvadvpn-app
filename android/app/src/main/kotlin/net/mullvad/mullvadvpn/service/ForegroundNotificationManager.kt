@@ -86,8 +86,6 @@ class ForegroundNotificationManager(
     }
 
     fun onDestroy() {
-        accountNumberEvents = null
-
         connectionProxy.onStateChange.unsubscribe(this)
         service.unregisterReceiver(deviceLockListener)
 
