@@ -8,7 +8,7 @@ use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     version::AppVersion,
 };
-use proxy::ProxyConfigProviderNoop;
+use proxy::{ProxyConfigProvider, ProxyConfigProviderNoop};
 use std::{
     collections::BTreeMap,
     future::Future,
@@ -215,12 +215,16 @@ impl MullvadRpcRuntime {
     }
 
     /// Creates a new request service and returns a handle to it.
-    fn new_request_service(&mut self, sni_hostname: Option<String>) -> rest::RequestServiceHandle {
+    fn new_request_service(
+        &mut self,
+        sni_hostname: Option<String>,
+        proxy_provider: Option<Box<dyn ProxyConfigProvider>>,
+    ) -> rest::RequestServiceHandle {
         let service = rest::RequestService::new(
             self.handle.clone(),
             sni_hostname,
             self.api_availability.handle(),
-            Box::new(ProxyConfigProviderNoop(())),
+            proxy_provider.unwrap_or(Box::new(ProxyConfigProviderNoop(()))),
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
         );
@@ -230,8 +234,11 @@ impl MullvadRpcRuntime {
     }
 
     /// Returns a request factory initialized to create requests for the master API
-    pub fn mullvad_rest_handle(&mut self) -> rest::MullvadRestHandle {
-        let service = self.new_request_service(Some(API.host.clone()));
+    pub fn mullvad_rest_handle(
+        &mut self,
+        proxy_provider: Option<Box<dyn ProxyConfigProvider>>,
+    ) -> rest::MullvadRestHandle {
+        let service = self.new_request_service(Some(API.host.clone()), proxy_provider);
         let factory = rest::RequestFactory::new(
             API.host.clone(),
             Box::new(self.address_cache.clone()),
@@ -248,7 +255,7 @@ impl MullvadRpcRuntime {
 
     /// Returns a new request service handle
     pub fn rest_handle(&mut self) -> rest::RequestServiceHandle {
-        self.new_request_service(None)
+        self.new_request_service(None, None)
     }
 
     pub fn handle(&mut self) -> &mut tokio::runtime::Handle {

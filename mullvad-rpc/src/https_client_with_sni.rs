@@ -15,6 +15,7 @@ use hyper::{
 use shadowsocks::{
     config::ServerType,
     context::{Context as SsContext, SharedContext},
+    crypto::v1::CipherKind,
     relay::tcprelay::ProxyClientStream,
     ServerAddr, ServerConfig,
 };
@@ -31,6 +32,7 @@ use std::{
     task::{Context, Poll},
     time::Duration,
 };
+use talpid_types::ErrorExt;
 #[cfg(target_os = "android")]
 use tokio::net::TcpSocket;
 
@@ -62,6 +64,37 @@ enum HttpsConnectorRequest {
     SetProxy(ProxyConfig),
 }
 
+#[derive(Clone)]
+enum InnerProxyConfig {
+    /// Connect directly to the target.
+    Tls,
+    /// Connect to the destination via a proxy.
+    Proxied(ServerConfig),
+}
+
+#[derive(err_derive::Error, Debug)]
+enum ProxyConfigError {
+    /// Connect directly to the target.
+    #[error(display = "Unrecognized cipher selected: {}", _0)]
+    InvalidCipher(String),
+}
+
+impl TryFrom<ProxyConfig> for InnerProxyConfig {
+    type Error = ProxyConfigError;
+
+    fn try_from(config: ProxyConfig) -> Result<Self, Self::Error> {
+        Ok(match config {
+            ProxyConfig::Tls => InnerProxyConfig::Tls,
+            ProxyConfig::Proxied(config) => InnerProxyConfig::Proxied(ServerConfig::new(
+                ServerAddr::SocketAddr(config.peer),
+                config.password,
+                CipherKind::from_str(&config.cipher)
+                    .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
+            )),
+        })
+    }
+}
+
 /// A Connector for the `https` scheme.
 #[derive(Clone)]
 pub struct HttpsConnectorWithSni {
@@ -75,7 +108,7 @@ pub struct HttpsConnectorWithSni {
 
 struct HttpsConnectorWithSniInner {
     stream_handles: Vec<AbortableStreamHandle>,
-    proxy_config: ProxyConfig,
+    proxy_config: InnerProxyConfig,
 }
 
 #[cfg(target_os = "android")]
@@ -91,7 +124,7 @@ impl HttpsConnectorWithSni {
         let abort_notify = Arc::new(tokio::sync::Notify::new());
         let inner = Arc::new(Mutex::new(HttpsConnectorWithSniInner {
             stream_handles: vec![],
-            proxy_config: ProxyConfig::Tls,
+            proxy_config: InnerProxyConfig::Tls,
         }));
 
         let inner_copy = inner.clone();
@@ -103,7 +136,19 @@ impl HttpsConnectorWithSni {
                     let mut inner = inner_copy.lock().unwrap();
 
                     if let HttpsConnectorRequest::SetProxy(config) = request {
-                        inner.proxy_config = config;
+                        match InnerProxyConfig::try_from(config) {
+                            Ok(config) => {
+                                inner.proxy_config = config;
+                            }
+                            Err(error) => {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg(
+                                        "Failed to parse new API proxy config"
+                                    )
+                                );
+                            }
+                        }
                     }
 
                     std::mem::take(&mut inner.stream_handles)
@@ -238,7 +283,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                     Box<dyn Future<Output = Result<MaybeProxyStream, io::Error>> + Send>,
                 > = Box::pin(async move {
                     match config {
-                        ProxyConfig::Tls => {
+                        InnerProxyConfig::Tls => {
                             let socket = Self::open_socket(
                                 addr_copy,
                                 #[cfg(target_os = "android")]
@@ -249,7 +294,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                                 TlsStream::connect_https(socket, &hostname_copy).await?;
                             Ok(MaybeProxyStream::Tls(tls_stream))
                         }
-                        ProxyConfig::Proxied(proxy_config) => {
+                        InnerProxyConfig::Proxied(proxy_config) => {
                             let proxy_addr = if let ServerAddr::SocketAddr(sockaddr) =
                                 proxy_config.external_addr()
                             {

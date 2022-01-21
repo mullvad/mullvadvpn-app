@@ -1,23 +1,39 @@
 use crate::tls_stream::TlsStream;
 use futures::Future;
 use hyper::client::connect::{Connected, Connection};
-use shadowsocks::{relay::tcprelay::ProxyClientStream, ServerConfig};
+use shadowsocks::relay::tcprelay::ProxyClientStream;
 use std::{
     io,
+    net::SocketAddr,
     pin::Pin,
     task::{self, Poll},
 };
+use talpid_types::net::openvpn::ShadowsocksProxySettings;
 use tokio::{
     io::{AsyncRead, AsyncWrite, ReadBuf},
     net::TcpStream,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ProxyConfig {
     /// Connect directly to the target.
     Tls,
     /// Connect to the destination via a proxy.
-    Proxied(ServerConfig),
+    Proxied(ShadowsocksProxySettings),
+}
+
+impl ProxyConfig {
+    /// Returns the remote address, or `None` for `ProxyConfig::Tls`.
+    pub fn get_endpoint(&self) -> Option<SocketAddr> {
+        match self {
+            ProxyConfig::Proxied(ss) => Some(ss.peer),
+            ProxyConfig::Tls => None,
+        }
+    }
+
+    pub fn is_proxy(&self) -> bool {
+        *self != ProxyConfig::Tls
+    }
 }
 
 pub trait ProxyConfigProvider: Send + Sync {
