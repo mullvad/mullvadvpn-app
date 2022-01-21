@@ -4,13 +4,14 @@ use crate::{
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
+    proxy::ApiConnectionMode,
 };
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Aborted},
     sink::SinkExt,
     stream::StreamExt,
-    TryFutureExt,
+    Stream, TryFutureExt,
 };
 use hyper::{
     client::Client,
@@ -21,7 +22,7 @@ use std::{
     collections::BTreeMap,
     future::Future,
     mem,
-    net::{IpAddr, SocketAddr},
+    net::SocketAddr,
     str::FromStr,
     time::{Duration, Instant},
 };
@@ -88,7 +89,11 @@ impl Error {
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService {
+pub(crate) struct RequestService<
+    T: Stream<Item = ApiConnectionMode>,
+    F: Fn(SocketAddr) -> AcceptedNewEndpoint,
+    AcceptedNewEndpoint: Future<Output = bool>,
+> {
     command_tx: mpsc::Sender<RequestCommand>,
     command_rx: mpsc::Receiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
@@ -96,23 +101,40 @@ pub(crate) struct RequestService {
     handle: Handle,
     next_id: u64,
     in_flight_requests: BTreeMap<u64, AbortHandle>,
+    proxy_config_provider: T,
+    new_address_callback: F,
+    address_cache: AddressCache,
     api_availability: ApiAvailabilityHandle,
 }
 
-impl RequestService {
+impl<
+        T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
+        F: (Fn(SocketAddr) -> AcceptedNewEndpoint) + Send + Sync + 'static,
+        AcceptedNewEndpoint: Future<Output = bool> + Send + 'static,
+    > RequestService<T, F, AcceptedNewEndpoint>
+{
     /// Constructs a new request service.
-    pub fn new(
+    pub async fn new(
         handle: Handle,
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
+        address_cache: AddressCache,
+        mut proxy_config_provider: T,
+        new_address_callback: F,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> RequestService {
+    ) -> RequestService<T> {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
             handle.clone(),
             sni_hostname,
+            address_cache.clone(),
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
         );
+
+        proxy_config_provider
+            .next()
+            .await
+            .map(|config| connector_handle.set_connection_mode(config));
 
         let (command_tx, command_rx) = mpsc::channel(1);
         let client = Client::builder().build(connector);
@@ -125,6 +147,9 @@ impl RequestService {
             handle,
             in_flight_requests: BTreeMap::new(),
             next_id: 0,
+            proxy_config_provider,
+            new_address_callback,
+            address_cache,
             api_availability,
         }
     }
@@ -137,7 +162,7 @@ impl RequestService {
         }
     }
 
-    fn process_command(&mut self, command: RequestCommand) {
+    async fn process_command(&mut self, command: RequestCommand) {
         match command {
             RequestCommand::NewRequest(request, completion_tx) => {
                 let id = self.id();
@@ -166,10 +191,7 @@ impl RequestService {
                     if let Err(err) = &response {
                         if err.is_network_error() && !api_availability.get_state().is_offline() {
                             log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
-
-                            // TODO: ask provider for new proxy config
-                            // TODO: notify connector handle of this new config
-                            // TODO: pass proxy config to tunnel state machine
+                            let _ = tx.send(RequestCommand::NextApiConfig).await;
                         }
                     }
 
@@ -191,6 +213,18 @@ impl RequestService {
                 self.reset();
                 let _ = tx.send(());
             }
+            RequestCommand::NextApiConfig => {
+                if let Some(new_config) = self.proxy_config_provider.next().await {
+                    let endpoint = match new_config.get_endpoint() {
+                        Some(endpoint) => endpoint,
+                        None => self.address_cache.get_address().await,
+                    };
+                    // Switch to new connection mode unless rejected by address change callback
+                    if (self.new_address_callback)(endpoint).await {
+                        self.connector_handle.set_connection_mode(new_config);
+                    }
+                }
+            }
         }
     }
 
@@ -211,7 +245,7 @@ impl RequestService {
 
     pub async fn into_future(mut self) {
         while let Some(command) = self.command_rx.next().await {
-            self.process_command(command);
+            self.process_command(command).await;
         }
         self.reset();
     }
@@ -259,6 +293,7 @@ pub(crate) enum RequestCommand {
     ),
     RequestFinished(u64),
     Reset(oneshot::Sender<()>),
+    NextApiConfig,
 }
 
 /// A REST request that is sent to the RequestService to be executed.
@@ -358,20 +393,14 @@ pub struct ErrorResponse {
 #[derive(Clone)]
 pub struct RequestFactory {
     hostname: String,
-    address_provider: Box<dyn AddressProvider>,
     path_prefix: Option<String>,
     pub timeout: Duration,
 }
 
 impl RequestFactory {
-    pub fn new(
-        hostname: String,
-        address_provider: Box<dyn AddressProvider>,
-        path_prefix: Option<String>,
-    ) -> Self {
+    pub fn new(hostname: String, path_prefix: Option<String>) -> Self {
         Self {
             hostname,
-            address_provider,
             path_prefix,
             timeout: DEFAULT_TIMEOUT,
         }
@@ -432,38 +461,14 @@ impl RequestFactory {
     }
 
     fn get_uri(&self, path: &str) -> Result<Uri> {
-        let host = self.address_provider.get_address();
         let prefix = self.path_prefix.as_ref().map(AsRef::as_ref).unwrap_or("");
-        let uri = format!("https://{}/{}{}", host, prefix, path);
+        let uri = format!("https://{}/{}{}", self.hostname, prefix, path);
         hyper::Uri::from_str(&uri).map_err(Error::UriError)
     }
 
     fn set_request_timeout(&self, mut request: RestRequest) -> RestRequest {
         request.timeout = self.timeout;
         request
-    }
-}
-
-pub trait AddressProvider: Send + Sync {
-    /// Must return a string that represents either a host or a host with port
-    fn get_address(&self) -> String;
-    fn clone_box(&self) -> Box<dyn AddressProvider>;
-}
-
-impl Clone for Box<dyn AddressProvider> {
-    fn clone(&self) -> Self {
-        self.clone_box()
-    }
-}
-
-impl AddressProvider for IpAddr {
-    /// Must return a string that represents either a host or a host with port
-    fn get_address(&self) -> String {
-        self.to_string()
-    }
-
-    fn clone_box(&self) -> Box<dyn AddressProvider> {
-        Box::new(*self)
     }
 }
 
