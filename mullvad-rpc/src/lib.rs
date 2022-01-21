@@ -8,6 +8,7 @@ use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     version::AppVersion,
 };
+use proxy::ProxyConfigProviderNoop;
 use std::{
     collections::BTreeMap,
     future::Future,
@@ -23,8 +24,8 @@ pub mod rest;
 
 mod abortable_stream;
 mod https_client_with_sni;
+pub mod proxy;
 mod tls_stream;
-mod proxy;
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
 
@@ -219,6 +220,7 @@ impl MullvadRpcRuntime {
             self.handle.clone(),
             sni_hostname,
             self.api_availability.handle(),
+            Box::new(ProxyConfigProviderNoop(())),
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
         );
