@@ -6,6 +6,7 @@ extern crate serde;
 
 mod account;
 pub mod account_history;
+mod api;
 pub mod exception_logging;
 #[cfg(target_os = "macos")]
 pub mod exclusion_gid;
@@ -29,14 +30,14 @@ use futures::{
     future::{abortable, AbortHandle, Future},
     StreamExt,
 };
-use mullvad_rpc::availability::ApiAvailabilityHandle;
+use mullvad_rpc::{availability::ApiAvailabilityHandle, proxy::ProxyConfig};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{
-        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, RelaySettings,
-        RelaySettingsUpdate,
+        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints,
+        RelaySettings, RelaySettingsUpdate,
     },
     relay_list::{Relay, RelayList},
     settings::{DnsOptions, DnsState, Settings},
@@ -54,7 +55,7 @@ use std::{collections::HashSet, ffi::OsString};
 use std::{
     marker::PhantomData,
     mem,
-    net::{IpAddr, Ipv4Addr},
+    net::{IpAddr, Ipv4Addr, SocketAddr},
     path::PathBuf,
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Weak},
@@ -70,8 +71,8 @@ use talpid_core::{
 use talpid_types::android::AndroidContext;
 use talpid_types::{
     net::{
-        openvpn, AllowedEndpoint, Endpoint, TransportProtocol, TunnelEndpoint, TunnelParameters,
-        TunnelType,
+        openvpn::{self, ProxySettings},
+        AllowedEndpoint, Endpoint, TransportProtocol, TunnelEndpoint, TunnelParameters, TunnelType,
     },
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
@@ -326,6 +327,10 @@ pub(crate) enum InternalDaemonEvent {
     NewAccountEvent(AccountToken, oneshot::Sender<Result<String, Error>>),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
+    /// Request from REST client to use a different API endpoint.
+    GenerateApiProxyConfig(api::ApiProxyRequest),
+    /// Endpoint used to reach the API.
+    NewApiEndpoint(SocketAddr),
     /// The split tunnel paths or state were updated.
     #[cfg(target_os = "windows")]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
@@ -352,6 +357,12 @@ impl From<DaemonCommand> for InternalDaemonEvent {
 impl From<AppVersionInfo> for InternalDaemonEvent {
     fn from(command: AppVersionInfo) -> Self {
         InternalDaemonEvent::NewAppVersionInfo(command)
+    }
+}
+
+impl From<api::ApiProxyRequest> for InternalDaemonEvent {
+    fn from(request: api::ApiProxyRequest) -> Self {
+        InternalDaemonEvent::GenerateApiProxyConfig(request)
     }
 }
 
@@ -542,6 +553,7 @@ pub struct Daemon<L: EventListener> {
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
     last_generated_entry_relay: Option<Relay>,
+    api_proxy_config: ProxyConfig,
     app_version_info: Option<AppVersionInfo>,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
@@ -650,25 +662,20 @@ where
         .await
         .map_err(Error::TunnelError)?;
 
-        let address_change_runtime = runtime.clone();
-        let tunnel_cmd_weak_tx = Arc::downgrade(&tunnel_command_tx);
+        let address_inner_tx = internal_event_tx.clone();
         rpc_runtime.set_address_change_listener(move |address| {
-            let (result_tx, result_rx) = oneshot::channel();
-            let tx = tunnel_cmd_weak_tx.clone();
-            address_change_runtime.block_on(async move {
-                if let Some(tx) = tx.upgrade() {
-                    let _ = tx.unbounded_send(TunnelCommand::AllowEndpoint(
-                        Self::get_allowed_endpoint(address),
-                        result_tx,
-                    ));
-                    result_rx.await.map_err(|_| ())
-                } else {
-                    Err(())
-                }
-            })
+            let weak_tx = address_inner_tx.sender.clone();
+            if let Some(tx) = weak_tx.upgrade() {
+                let _ = tx.unbounded_send(InternalDaemonEvent::NewApiEndpoint(address));
+                Ok(())
+            } else {
+                Err(())
+            }
         });
 
-        let rpc_handle = rpc_runtime.mullvad_rest_handle();
+        let proxy_provider =
+            api::MullvadProxyConfigProvider::new(internal_event_tx.to_specialized_sender());
+        let rpc_handle = rpc_runtime.mullvad_rest_handle(Some(Box::new(proxy_provider)));
 
         Self::forward_offline_state(api_availability.clone(), offline_state_rx).await;
 
@@ -738,6 +745,7 @@ where
             last_generated_relay: None,
             last_generated_bridge_relay: None,
             last_generated_entry_relay: None,
+            api_proxy_config: ProxyConfig::Tls,
             app_version_info,
             shutdown_tasks: vec![],
             tunnel_state_machine_shutdown_signal,
@@ -908,6 +916,8 @@ where
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info)
             }
+            GenerateApiProxyConfig(request) => self.handle_generate_api_proxy_config(request).await,
+            NewApiEndpoint(endpoint) => self.handle_new_api_endpoint(endpoint).await,
             #[cfg(windows)]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
         }
@@ -1078,7 +1088,7 @@ where
                             BridgeState::On => {
                                 let (bridge_settings, bridge_relay) = self
                                     .relay_selector
-                                    .get_proxy_settings(&bridge_constraints, location)
+                                    .get_proxy_settings(&bridge_constraints, Some(location))
                                     .ok_or(Error::NoBridgeAvailable)?;
                                 self.last_generated_bridge_relay = Some(bridge_relay);
                                 Some(bridge_settings)
@@ -1087,7 +1097,7 @@ where
                                 if let Some((bridge_settings, bridge_relay)) =
                                     self.relay_selector.get_auto_proxy_settings(
                                         &bridge_constraints,
-                                        location,
+                                        Some(location),
                                         retry_attempt,
                                     )
                                 {
@@ -1350,6 +1360,64 @@ where
     fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
         self.app_version_info = Some(app_version_info.clone());
         self.event_listener.notify_app_version(app_version_info);
+    }
+
+    async fn handle_generate_api_proxy_config(&mut self, request: api::ApiProxyRequest) {
+        let constraints = InternalBridgeConstraints {
+            location: Constraint::Any,
+            providers: Constraint::Any,
+            transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+        };
+
+        let bridge = if request.retry_attempt % 3 > 0 {
+            self.relay_selector.get_proxy_settings(&constraints, None)
+        } else {
+            None
+        };
+        let config = match bridge {
+            Some((settings, _relay)) => match settings {
+                ProxySettings::Shadowsocks(ss_settings) => ProxyConfig::Proxied(ss_settings),
+                _ => {
+                    log::error!("Received unexpected proxy settings type");
+                    ProxyConfig::Tls
+                }
+            },
+            None => ProxyConfig::Tls,
+        };
+
+        let allowed_endpoint = match config.get_endpoint() {
+            Some(addr) => Self::get_allowed_endpoint(addr),
+            None => Self::get_allowed_endpoint(self.rpc_runtime.address_cache.get_address()),
+        };
+
+        // Poke a hole for this endpoint in the firewall. If this fails, we keep the old endpoint.
+        let (tx, rx) = oneshot::channel();
+        let _ = self
+            .tunnel_command_tx
+            .unbounded_send(TunnelCommand::AllowEndpoint(allowed_endpoint, tx));
+
+        if rx.await.is_ok() {
+            log::debug!("New API endpoint: {:?}. {}", config, request.retry_attempt);
+            self.api_proxy_config = config;
+        }
+        let _ = request.response_tx.send(self.api_proxy_config.clone());
+    }
+
+    async fn handle_new_api_endpoint(&mut self, endpoint: SocketAddr) {
+        // Update the firewall if no proxy is being used
+        if !self.api_proxy_config.is_proxy() {
+            let (tx, rx) = oneshot::channel();
+            let _ = self
+                .tunnel_command_tx
+                .unbounded_send(TunnelCommand::AllowEndpoint(
+                    Self::get_allowed_endpoint(endpoint),
+                    tx,
+                ));
+            if rx.await.is_err() {
+                // We can't do much if this fails
+                log::error!("Failed to update API endpoint");
+            }
+        }
     }
 
     #[cfg(windows)]

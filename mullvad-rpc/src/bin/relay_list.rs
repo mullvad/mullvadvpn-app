@@ -11,7 +11,7 @@ async fn main() {
     let mut runtime =
         MullvadRpcRuntime::new(tokio::runtime::Handle::current()).expect("Failed to load runtime");
 
-    let relay_list_request = RelayListProxy::new(runtime.mullvad_rest_handle())
+    let relay_list_request = RelayListProxy::new(runtime.mullvad_rest_handle(None))
         .relay_list(None)
         .await;
 
