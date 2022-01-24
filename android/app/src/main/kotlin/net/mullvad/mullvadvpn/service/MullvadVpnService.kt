@@ -83,7 +83,7 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
         notificationManager =
-            ForegroundNotificationManager(this, connectionProxy, keyguardManager).apply {
+            ForegroundNotificationManager(this, connectionProxy).apply {
                 accountNumberEvents = endpoint.settingsListener.accountNumberNotifier
             }
 
@@ -174,6 +174,7 @@ class MullvadVpnService : TalpidVpnService() {
         connectionProxy.onStateChange.latestEvent.let { tunnelState ->
             Log.d(TAG, "Task removed (tunnelState=$tunnelState)")
             if (tunnelState == TunnelState.Disconnected) {
+                notificationManager.cancelNotification()
                 stop()
             }
         }
