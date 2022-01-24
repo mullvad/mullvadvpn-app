@@ -85,7 +85,10 @@ where
 
     fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
-            return Poll::Ready(Ok(()));
+            return Poll::Ready(Err(io::Error::new(
+                io::ErrorKind::ConnectionReset,
+                "stream is closed",
+            )));
         }
         Pin::new(&mut self.stream).poll_flush(cx)
     }
