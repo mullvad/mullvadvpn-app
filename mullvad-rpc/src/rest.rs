@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
@@ -105,6 +107,7 @@ impl RequestService {
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
         address_cache: AddressCache,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestService {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
             handle.clone(),

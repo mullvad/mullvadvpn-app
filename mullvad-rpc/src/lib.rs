@@ -232,6 +232,8 @@ impl MullvadRpcRuntime {
             sni_hostname,
             self.api_availability.handle(),
             self.address_cache.clone(),
+            #[cfg(target_os = "android")]
+            self.socket_bypass_tx.clone(),
         );
         let handle = service.handle();
         self.handle.spawn(service.into_future());
