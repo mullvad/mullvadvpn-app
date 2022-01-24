@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
-import OpenVPNSettings from '../components/OpenVPNSettings';
+import OpenVPNSettings, { BridgeModeAvailability } from '../components/OpenVPNSettings';
 
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
@@ -12,8 +12,15 @@ import { IReduxState, ReduxDispatch } from '../redux/store';
 const mapStateToProps = (state: IReduxState) => {
   const protocolAndPort = mapRelaySettingsToProtocolAndPort(state.settings.relaySettings);
 
+  let bridgeModeAvailablity = BridgeModeAvailability.available;
+  if (mapRelaySettingsToProtocol(state.settings.relaySettings) !== 'openvpn') {
+    bridgeModeAvailablity = BridgeModeAvailability.blockedDueToTunnelProtocol;
+  } else if (protocolAndPort.openvpn.protocol === 'udp') {
+    bridgeModeAvailablity = BridgeModeAvailability.blockedDueToTransportProtocol;
+  }
+
   return {
-    tunnelProtocolIsOpenVpn: mapRelaySettingsToProtocol(state.settings.relaySettings) === 'openvpn',
+    bridgeModeAvailablity,
     mssfix: state.settings.openVpn.mssfix,
     bridgeState: state.settings.bridgeState,
     ...protocolAndPort,
