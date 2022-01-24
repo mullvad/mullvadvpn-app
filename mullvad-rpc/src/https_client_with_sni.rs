@@ -2,6 +2,8 @@ use crate::{
     abortable_stream::{AbortableStream, AbortableStreamHandle},
     tls_stream::TlsStream,
 };
+#[cfg(target_os = "android")]
+use futures::sink::SinkExt;
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
