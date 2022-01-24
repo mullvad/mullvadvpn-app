@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
-import { assignToRef } from '../lib/utilityHooks';
 
 interface IProps {
   id?: string;
@@ -14,16 +13,6 @@ interface IProps {
   innerRef?: React.Ref<HTMLDivElement>;
 }
 
-interface IState {
-  isOn: boolean;
-  isPressed: boolean;
-  // gRPC calls cause the transition to glitch for some reason. Waiting with the onchange event
-  // until after the transition prevents the visual glitch from happening.
-  notifyOnTransitionEnd: boolean;
-}
-
-const PAN_DISTANCE = 10;
-
 const SwitchContainer = styled.div({}, (props: { disabled: boolean }) => ({
   position: 'relative',
   width: '48px',
@@ -35,7 +24,7 @@ const SwitchContainer = styled.div({}, (props: { disabled: boolean }) => ({
   padding: '2px',
 }));
 
-const Knob = styled.div({}, (props: { isOn: boolean; isPressed: boolean; disabled: boolean }) => {
+const Knob = styled.div({}, (props: { isOn: boolean; disabled: boolean }) => {
   let backgroundColor = props.isOn ? colors.green : colors.red;
   if (props.disabled) {
     backgroundColor = props.isOn ? colors.green40 : colors.red40;
@@ -46,42 +35,19 @@ const Knob = styled.div({}, (props: { isOn: boolean; isPressed: boolean; disable
     height: '22px',
     borderRadius: '11px',
     transition: 'all 200ms linear',
-    width: props.isPressed ? '26px' : '22px',
+    width: '22px',
     backgroundColor,
-    // When enabled the button should be placed all the way to the right (100%) minus padding (2px).
-    left: props.isOn ? 'calc(100% - 2px)' : '2px',
-    // This moves the knob to the left making the right side aligned with the parent's right side.
-    transform: `translateX(${props.isOn ? '-100%' : '0'})`,
+    // When enabled the button should be placed all the way to the right (100%) minus padding (2px)
+    // minus it's own width (22px).
+    left: props.isOn ? 'calc(100% - 2px - 22px)' : '2px',
   };
 });
 
-export default class Switch extends React.PureComponent<IProps, IState> {
-  public state: IState = {
-    isOn: this.props.isOn,
-    isPressed: false,
-    notifyOnTransitionEnd: false,
-  };
-
-  private containerRef = React.createRef<HTMLDivElement>();
-
-  private isPanning = false;
-  private startPos = 0;
-  private changedDuringPan = false;
-
-  public componentDidUpdate(prevProps: IProps, _prevState: IState) {
-    if (
-      this.props.isOn !== prevProps.isOn &&
-      this.props.isOn !== this.state.isOn &&
-      !this.isPanning
-    ) {
-      this.setState({ isOn: this.props.isOn });
-    }
-  }
-
+export default class Switch extends React.PureComponent<IProps> {
   public render() {
     return (
       <SwitchContainer
-        ref={this.refCallback}
+        ref={this.props.innerRef}
         id={this.props.id}
         role="checkbox"
         aria-labelledby={this.props['aria-labelledby']}
@@ -92,106 +58,14 @@ export default class Switch extends React.PureComponent<IProps, IState> {
         aria-disabled={this.props.disabled ?? false}
         tabIndex={-1}
         className={this.props.className}>
-        <Knob
-          disabled={this.props.disabled ?? false}
-          isOn={this.state.isOn}
-          isPressed={this.state.isPressed}
-          onMouseDown={this.handleMouseDown}
-          onTransitionEnd={this.onTransitionEnd}
-        />
+        <Knob disabled={this.props.disabled ?? false} isOn={this.props.isOn} />
       </SwitchContainer>
     );
   }
 
-  public setOn(isOn: boolean) {
-    this.setState({ isOn });
-  }
-
-  private refCallback = (element: HTMLDivElement | null) => {
-    assignToRef(element, this.containerRef);
-    assignToRef(element, this.props.innerRef);
-  };
-
-  private onTransitionEnd = (event: React.TransitionEvent) => {
-    if (this.state.notifyOnTransitionEnd && event.propertyName === 'left') {
-      this.notify();
-    }
-  };
-
   private handleClick = () => {
-    if (this.props.disabled) {
-      return;
-    }
-
-    if (!this.changedDuringPan) {
-      this.setState((state) => ({ isOn: !state.isOn, notifyOnTransitionEnd: true }));
-    }
-
-    // Needs to be reset to allow clicks on container after panning.
-    this.changedDuringPan = false;
-  };
-
-  private handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (this.props.disabled) {
-      return;
-    }
-
-    this.isPanning = true;
-    this.startPos = event.clientX;
-    this.changedDuringPan = false;
-
-    document.addEventListener('mouseup', this.handleMouseUp);
-    document.addEventListener('mousemove', this.handleMouseMove);
-  };
-
-  private handleMouseUp = (event: MouseEvent) => {
-    if (this.props.disabled) {
-      return;
-    }
-
-    document.removeEventListener('mouseup', this.handleMouseUp);
-    document.removeEventListener('mousemove', this.handleMouseMove);
-
-    this.setState({ isPressed: false });
-    this.isPanning = false;
-    // Reset changedDuringPan when onClick wont be called.
-    if (event.target instanceof Element && !this.containerRef.current?.contains(event.target)) {
-      this.changedDuringPan = false;
-    }
-
-    if (this.props.isOn !== this.state.isOn) {
-      this.notify();
+    if (!this.props.disabled) {
+      this.props.onChange?.(!this.props.isOn);
     }
   };
-
-  private handleMouseMove = (event: MouseEvent) => {
-    if (this.props.disabled) {
-      return;
-    }
-
-    if (this.isPanning) {
-      this.setState({ isPressed: true });
-
-      const nextOn = this.computeNextState(event.clientX);
-      if (this.state.isOn !== nextOn) {
-        this.startPos = event.clientX;
-        this.changedDuringPan = true;
-        this.setState({ isOn: nextOn, notifyOnTransitionEnd: false });
-      }
-    }
-  };
-
-  private computeNextState(currentPos: number): boolean {
-    if (currentPos + PAN_DISTANCE < this.startPos && this.state.isOn) {
-      return false;
-    } else if (currentPos - PAN_DISTANCE > this.startPos && !this.state.isOn) {
-      return true;
-    } else {
-      return this.state.isOn;
-    }
-  }
-
-  private notify() {
-    this.props.onChange?.(this.state.isOn);
-  }
 }
