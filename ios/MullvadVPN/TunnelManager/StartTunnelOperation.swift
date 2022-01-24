@@ -8,7 +8,6 @@
 
 import Foundation
 import NetworkExtension
-import Logging
 
 protocol StartTunnelOperationDelegate: AnyObject {
     func operationDidRequestTunnelInfo(_ operation: Operation) -> TunnelInfo?
