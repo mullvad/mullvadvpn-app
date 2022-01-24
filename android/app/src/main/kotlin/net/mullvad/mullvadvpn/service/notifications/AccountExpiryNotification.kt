@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.app.NotificationCompat
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
@@ -36,9 +37,11 @@ class AccountExpiryNotification(
     private val channel = NotificationChannel(
         context,
         "mullvad_account_time",
+        NotificationCompat.VISIBILITY_PRIVATE,
         R.string.account_time_notification_channel_name,
         R.string.account_time_notification_channel_description,
-        NotificationManager.IMPORTANCE_HIGH
+        NotificationManager.IMPORTANCE_HIGH,
+        true
     )
 
     var loginStatus by observable<LoginStatus?>(null) { _, oldValue, newValue ->

@@ -53,6 +53,7 @@ Line wrap the file at 100 chars.                                              Th
   * The System Settings way of killing apps ("Force Stop").
 - Change Quick Settings tile label to reflect the action of clicking the tile. Also add a subtitle
   on supported Android versions (Q and above) to reflect the state.
+- Hide the tunnel state notification from the lock screen.
 
 #### Windows
 - Update wireguard-nt to 0.10.1.
@@ -93,6 +94,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix Quick Settings tile showing wrong state in certain scenarios.
 - Fix banner sometimes incorrectly showing (e.g. "BLOCKING INTERNET").
 - Fix issue with the user getting kicked out of certain views in settings when the app is brought to the foreground.
+- Fix "Secure my connection" action not always visible in tunnel state notification.
+- Fix tunnel state notification sometimes re-appearing after being dismissed.
 
 ### Security
 - Restrict which applications are allowed to communicate with the API while in a blocking state.

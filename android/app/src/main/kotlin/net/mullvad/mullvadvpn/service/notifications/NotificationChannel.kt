@@ -1,35 +1,38 @@
 package net.mullvad.mullvadvpn.service.notifications
 
 import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import net.mullvad.mullvadvpn.R
 
 class NotificationChannel(
     val context: Context,
     val id: String,
-    val name: Int,
-    val description: Int,
-    val importance: Int
+    val visibility: Int,
+    name: Int,
+    description: Int,
+    importance: Int,
+    isVibrationEnabled: Boolean
 ) {
     private val badgeColor by lazy {
         context.getColor(R.color.colorPrimary)
     }
 
-    val notificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    val notificationManager = NotificationManagerCompat.from(context)
 
     init {
         val channelName = context.getString(name)
         val channelDescription = context.getString(description)
 
-        val channel = NotificationChannel(id, channelName, importance).apply {
-            description = channelDescription
-            setShowBadge(true)
-        }
+        val channel = NotificationChannelCompat.Builder(id, importance)
+            .setName(channelName)
+            .setDescription(channelDescription)
+            .setShowBadge(true)
+            .setVibrationEnabled(isVibrationEnabled)
+            .build()
 
         notificationManager.createNotificationChannel(channel)
     }
@@ -59,7 +62,7 @@ class NotificationChannel(
         return buildNotification(pendingIntent, context.getString(title), actions, deleteIntent)
     }
 
-    fun buildNotification(
+    private fun buildNotification(
         pendingIntent: PendingIntent,
         title: String,
         actions: List<NotificationCompat.Action>,
@@ -70,6 +73,7 @@ class NotificationChannel(
             .setColor(badgeColor)
             .setContentTitle(title)
             .setContentIntent(pendingIntent)
+            .setVisibility(visibility)
 
         for (action in actions) {
             builder.addAction(action)

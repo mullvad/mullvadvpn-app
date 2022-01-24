@@ -20,9 +20,11 @@ class TunnelStateNotification(val context: Context) {
     private val channel = NotificationChannel(
         context,
         "vpn_tunnel_status",
+        NotificationCompat.VISIBILITY_SECRET,
         R.string.foreground_notification_channel_name,
         R.string.foreground_notification_channel_description,
-        NotificationManager.IMPORTANCE_MIN
+        NotificationManager.IMPORTANCE_MIN,
+        false
     )
 
     private val notificationText: Int
