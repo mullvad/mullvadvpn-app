@@ -17,7 +17,6 @@ const LE_ROOT_CERT: &[u8] = include_bytes!("../le_root_cert.pem");
 
 pub struct TlsStream<S: AsyncRead + AsyncWrite + Unpin> {
     stream: Pin<Box<tokio_rustls::client::TlsStream<S>>>,
-    negotiated_http2: bool,
 }
 
 impl<S> TlsStream<S>
@@ -34,7 +33,6 @@ where
                     .unwrap()
                     .with_root_certificates(read_cert_store())
                     .with_no_client_auth();
-                //config.alpn_protocols = vec![b"h2".to_vec()];
                 Arc::new(config)
             };
         }
@@ -53,12 +51,8 @@ where
 
         let tls_stream = connector.connect(host, stream).await?;
 
-        let (_, session) = tls_stream.get_ref();
-        let negotiated_http2 = session.alpn_protocol() == Some(b"h2");
-
         Ok(TlsStream {
             stream: Box::pin(tls_stream),
-            negotiated_http2,
         })
     }
 }
@@ -115,12 +109,7 @@ where
     S: AsyncRead + AsyncWrite + Unpin,
 {
     fn connected(&self) -> Connected {
-        let conn = Connected::new();
-        if self.negotiated_http2 {
-            conn.negotiated_h2()
-        } else {
-            conn
-        }
+        Connected::new()
     }
 }
 
