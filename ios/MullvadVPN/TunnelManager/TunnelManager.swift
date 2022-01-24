@@ -38,7 +38,6 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
     private enum OperationCategory {
         static let manageTunnelProvider = "TunnelManager.manageTunnelProvider"
         static let changeTunnelSettings = "TunnelManager.changeTunnelSettings"
-        static let notifyTunnelSettingsChange = "TunnelManager.notifyTunnelSettingsChange"
         static let tunnelStateUpdate = "TunnelManager.tunnelStateUpdate"
     }
 
