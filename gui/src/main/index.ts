@@ -249,6 +249,7 @@ class ApplicationMain {
   private autoConnectFallbackScheduler = new Scheduler();
 
   private blurNavigationResetScheduler = new Scheduler();
+  private backgroundThrottleScheduler = new Scheduler();
 
   private rendererLog?: Logger;
   private translations: ITranslations = { locale: this.locale };
@@ -1192,10 +1193,14 @@ class ApplicationMain {
     // Use hide instead of blur to prevent the navigation reset from happening when bluring an
     // unpinned window.
     windowController.window?.on('hide', () => {
-      this.blurNavigationResetScheduler.schedule(
-        () => IpcMainEventChannel.navigation.notifyReset(windowController.webContents),
-        120_000,
-      );
+      this.blurNavigationResetScheduler.schedule(() => {
+        this.windowController?.webContents?.setBackgroundThrottling(false);
+        IpcMainEventChannel.navigation.notifyReset(windowController.webContents);
+
+        this.backgroundThrottleScheduler.schedule(() => {
+          this.windowController?.webContents?.setBackgroundThrottling(true);
+        }, 1_000);
+      }, 120_000);
     });
   }
 

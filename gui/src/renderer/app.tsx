@@ -177,7 +177,9 @@ export default class AppRenderer {
       this.reduxActions.userInterface.setMacOsScrollbarVisibility(visibility);
     });
 
-    IpcRendererEventChannel.navigation.listenReset(() => this.history.dismiss(true));
+    IpcRendererEventChannel.navigation.listenReset(() =>
+      this.history.dismiss(true, transitions.none),
+    );
 
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();

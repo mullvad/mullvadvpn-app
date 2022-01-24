@@ -88,9 +88,9 @@ export default class History {
     this.notify(transitions.show);
   };
 
-  public dismiss = (all?: boolean) => {
+  public dismiss = (all?: boolean, transition = transitions.dismiss) => {
     if (this.popImpl(all ? this.index : 1)) {
-      this.notify(transitions.dismiss);
+      this.notify(transition);
     }
   };
 
