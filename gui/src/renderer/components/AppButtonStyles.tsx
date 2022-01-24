@@ -1,27 +1,41 @@
 import styled from 'styled-components';
 import { buttonText } from './common-styles';
 
-export const StyledLabelContainer = styled.div((props: { textAdjustment: number }) => ({
-  display: 'flex',
-  flex: 1,
-  paddingRight: `${props.textAdjustment > 0 ? props.textAdjustment : 0}px`,
-  paddingLeft: `${props.textAdjustment < 0 ? Math.abs(props.textAdjustment) : 0}px`,
+export const StyledLabel = styled.span(buttonText, (props: { textOffset: number }) => ({
+  paddingLeft: props.textOffset > 0 ? `${props.textOffset}px` : 0,
+  paddingRight: props.textOffset < 0 ? `${-props.textOffset}px` : 0,
+  textAlign: 'center',
+  wordBreak: 'break-word',
 }));
 
-export const StyledLabel = styled.span(buttonText, {
-  flex: 1,
-  textAlign: 'center',
-});
-
 export const StyledButtonContent = styled.div({
-  display: 'flex',
   flex: 1,
-  flexDirection: 'row',
+  display: 'grid',
+  gridTemplateColumns: '1fr auto 1fr',
   alignItems: 'center',
-  justifyContent: 'center',
   padding: '9px',
 });
 
 export const transparentButton = {
   backdropFilter: 'blur(4px)',
 };
+
+export const StyledLeft = styled.div({
+  justifySelf: 'start',
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+export const StyledRight = styled(StyledLeft)({
+  justifySelf: 'end',
+});
+
+export const StyledVisibleSide = styled.div({
+  display: 'flex',
+  flexDirection: 'row',
+});
+
+export const StyledHiddenSide = styled(StyledVisibleSide).attrs({ 'aria-hidden': true })({
+  height: 0,
+  visibility: 'hidden',
+});
