@@ -36,10 +36,12 @@ impl MullvadEndpoint {
         }
     }
 
-    pub fn get_peer_config(&self) -> Option<&wireguard::PeerConfig> {
+    pub fn unwrap_wireguard(&self) -> &MullvadWireguardEndpoint {
         match self {
-            Self::Wireguard(wireguard_endpoint) => Some(&wireguard_endpoint.peer),
-            _ => None,
+            Self::Wireguard(endpoint) => endpoint,
+            other => {
+                panic!("Expected WireGuard enum variant but got {:?}", other);
+            }
         }
     }
 }
