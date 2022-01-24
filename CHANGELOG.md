@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add information about the always on kill switch in the desktop app.
 - Add WireGuard multihop setting and entry location selection to desktop app.
 - Add malware blocking to the desktop app. Implemented via DNS on the relays.
+- Add changes dialog which will include the most notable changes in each new version.
 
 ### Changed
 - Keep unspecified constraints unchanged in the CLI when providing specific tunnel constraints
