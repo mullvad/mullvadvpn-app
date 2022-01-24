@@ -99,7 +99,6 @@ class RotatePrivateKeyOperation: AsyncOperation {
         finish()
     }
 
-
     private class func handleResponse(token: String, newPrivateKey: PrivateKeyWithMetadata, result: Result<REST.WireguardAddressesResponse, REST.Error>) -> Result<TunnelSettings, TunnelManager.Error> {
 
         return result.flatMapError { restError in
