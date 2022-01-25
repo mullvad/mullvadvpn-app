@@ -15,6 +15,7 @@ use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 #[derive(Clone, Debug)]
 pub struct AbortableStreamHandle {
     tx: Arc<Mutex<Option<oneshot::Sender<()>>>>,
+    notify_tx: Arc<Mutex<Option<oneshot::Sender<()>>>>,
 }
 
 impl AbortableStreamHandle {
@@ -22,12 +23,16 @@ impl AbortableStreamHandle {
         if let Some(tx) = self.tx.lock().unwrap().take() {
             let _ = tx.send(());
         }
+        if let Some(tx) = self.notify_tx.lock().unwrap().take() {
+            let _ = tx.send(());
+        }
     }
 }
 
 pub struct AbortableStream<S: Unpin> {
     stream: S,
-    shutdown_tx: Option<oneshot::Sender<()>>,
+    /// Notified when the stream is shut down.
+    notify_tx: Arc<Mutex<Option<oneshot::Sender<()>>>>,
     shutdown_rx: oneshot::Receiver<()>,
 }
 
@@ -37,20 +42,30 @@ where
 {
     pub fn new(
         stream: S,
-        shutdown_tx: Option<oneshot::Sender<()>>,
+        notify_shutdown_tx: Option<oneshot::Sender<()>>,
     ) -> (Self, AbortableStreamHandle) {
         let (tx, rx) = oneshot::channel();
+        let notify_tx = Arc::new(Mutex::new(notify_shutdown_tx));
         let stream_handle = AbortableStreamHandle {
             tx: Arc::new(Mutex::new(Some(tx))),
+            notify_tx: notify_tx.clone(),
         };
         (
             Self {
                 stream,
-                shutdown_tx,
+                notify_tx,
                 shutdown_rx: rx,
             },
             stream_handle,
         )
+    }
+}
+
+impl<S: Unpin> AbortableStream<S> {
+    fn maybe_send_shutdown_signal(&mut self) {
+        if let Some(tx) = self.notify_tx.lock().unwrap().take() {
+            let _ = tx.send(());
+        }
     }
 }
 
@@ -59,9 +74,7 @@ where
     S: Unpin,
 {
     fn drop(&mut self) {
-        if let Some(tx) = self.shutdown_tx.take() {
-            let _ = tx.send(());
-        }
+        self.maybe_send_shutdown_signal();
     }
 }
 
@@ -75,6 +88,7 @@ where
         buf: &[u8],
     ) -> Poll<io::Result<usize>> {
         if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
+            self.maybe_send_shutdown_signal();
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
                 "stream is closed",
@@ -85,6 +99,7 @@ where
 
     fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
+            self.maybe_send_shutdown_signal();
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
                 "stream is closed",
@@ -108,6 +123,7 @@ where
         buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<()>> {
         if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
+            self.maybe_send_shutdown_signal();
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
                 "stream is closed",
