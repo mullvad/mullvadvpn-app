@@ -25,7 +25,7 @@ impl AbortableStreamHandle {
     }
 }
 
-pub struct AbortableStream<S: AsyncRead + AsyncWrite + Connection + Unpin> {
+pub struct AbortableStream<S: AsyncRead + AsyncWrite + Unpin> {
     stream: S,
     shutdown_tx: Option<oneshot::Sender<()>>,
     shutdown_rx: oneshot::Receiver<()>,
@@ -33,7 +33,7 @@ pub struct AbortableStream<S: AsyncRead + AsyncWrite + Connection + Unpin> {
 
 impl<S> AbortableStream<S>
 where
-    S: AsyncRead + AsyncWrite + Connection + Unpin + Send + 'static,
+    S: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
     pub fn new(
         stream: S,
@@ -56,7 +56,7 @@ where
 
 impl<S> Drop for AbortableStream<S>
 where
-    S: AsyncRead + AsyncWrite + Connection + Unpin,
+    S: AsyncRead + AsyncWrite + Unpin,
 {
     fn drop(&mut self) {
         if let Some(tx) = self.shutdown_tx.take() {
@@ -67,7 +67,7 @@ where
 
 impl<S> AsyncWrite for AbortableStream<S>
 where
-    S: AsyncRead + AsyncWrite + Connection + Unpin + Send + 'static,
+    S: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
     fn poll_write(
         mut self: Pin<&mut Self>,
@@ -100,7 +100,7 @@ where
 
 impl<S> AsyncRead for AbortableStream<S>
 where
-    S: AsyncRead + AsyncWrite + Connection + Unpin + Send + 'static,
+    S: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
     fn poll_read(
         mut self: Pin<&mut Self>,
