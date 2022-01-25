@@ -25,7 +25,7 @@ impl AbortableStreamHandle {
     }
 }
 
-pub struct AbortableStream<S: AsyncRead + AsyncWrite + Unpin> {
+pub struct AbortableStream<S: Unpin> {
     stream: S,
     shutdown_tx: Option<oneshot::Sender<()>>,
     shutdown_rx: oneshot::Receiver<()>,
@@ -33,7 +33,7 @@ pub struct AbortableStream<S: AsyncRead + AsyncWrite + Unpin> {
 
 impl<S> AbortableStream<S>
 where
-    S: AsyncRead + AsyncWrite + Unpin + Send + 'static,
+    S: Unpin + Send + 'static,
 {
     pub fn new(
         stream: S,
@@ -56,7 +56,7 @@ where
 
 impl<S> Drop for AbortableStream<S>
 where
-    S: AsyncRead + AsyncWrite + Unpin,
+    S: Unpin,
 {
     fn drop(&mut self) {
         if let Some(tx) = self.shutdown_tx.take() {
@@ -67,7 +67,7 @@ where
 
 impl<S> AsyncWrite for AbortableStream<S>
 where
-    S: AsyncRead + AsyncWrite + Unpin + Send + 'static,
+    S: AsyncWrite + Unpin + Send + 'static,
 {
     fn poll_write(
         mut self: Pin<&mut Self>,
@@ -100,7 +100,7 @@ where
 
 impl<S> AsyncRead for AbortableStream<S>
 where
-    S: AsyncRead + AsyncWrite + Unpin + Send + 'static,
+    S: AsyncRead + Unpin + Send + 'static,
 {
     fn poll_read(
         mut self: Pin<&mut Self>,
@@ -119,7 +119,7 @@ where
 
 impl<S> Connection for AbortableStream<S>
 where
-    S: AsyncRead + AsyncWrite + Connection + Unpin,
+    S: Connection + Unpin,
 {
     fn connected(&self) -> Connected {
         self.stream.connected()
