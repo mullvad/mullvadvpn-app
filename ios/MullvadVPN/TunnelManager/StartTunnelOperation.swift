@@ -14,29 +14,27 @@ protocol StartTunnelOperationDelegate: AnyObject {
     func operationDidRequestTunnelState(_ operation: Operation) -> TunnelState
     func operation(_ operation: Operation, didSetTunnelState newTunnelState: TunnelState)
     func operation(_ operation: Operation, didSetTunnelProvider newTunnelProvider: TunnelProviderManagerType)
-    func operation(_ operation: Operation, didFailToStartTunnelWithError error: TunnelManager.Error)
     func operation(_ operation: Operation, didFailToEncodeTunnelOptions error: Error)
+    func operation(_ operation: Operation, didStartTunnelWithCompletion completion: OperationCompletion<(), TunnelManager.Error>)
 }
 
-class StartTunnelOperation: AsyncOperation {
-    private let queue: DispatchQueue
+class StartTunnelOperation: BaseTunnelOperation<(), TunnelManager.Error> {
     private weak var delegate: StartTunnelOperationDelegate?
 
     init(queue: DispatchQueue, delegate: StartTunnelOperationDelegate) {
-        self.queue = queue
         self.delegate = delegate
+        super.init(queue: queue)
     }
 
     override func main() {
         queue.async {
             guard !self.isCancelled else {
-                self.finish()
+                self.completeOperation(completion: .cancelled)
                 return
             }
 
             guard let tunnelInfo = self.delegate?.operationDidRequestTunnelInfo(self) else {
-                self.delegate?.operation(self, didFailToStartTunnelWithError: .missingAccount)
-                self.finish()
+                self.completeOperation(completion: .failure(.missingAccount))
                 return
             }
 
@@ -45,7 +43,7 @@ class StartTunnelOperation: AsyncOperation {
             switch tunnelState {
             case .disconnecting(.nothing):
                 self.delegate?.operation(self, didSetTunnelState: .disconnecting(.reconnect))
-                self.finish()
+                self.completeOperation(completion: .success(()))
 
             case .disconnected, .pendingReconnect:
                 RelayCache.Tracker.shared.read { readResult in
@@ -53,24 +51,27 @@ class StartTunnelOperation: AsyncOperation {
                         switch readResult {
                         case .success(let cachedRelays):
                             self.didReceiveRelays(tunnelInfo: tunnelInfo, cachedRelays: cachedRelays) { error in
-                                if let error = error {
-                                    self.delegate?.operation(self, didFailToStartTunnelWithError: error)
-                                }
-                                self.finish()
+                                self.completeOperation(completion: error.map { .failure($0) } ?? .success(()))
                             }
 
                         case .failure(let error):
-                            self.delegate?.operation(self, didFailToStartTunnelWithError: .readRelays(error))
-                            self.finish()
+                            self.completeOperation(completion: .failure(.readRelays(error)))
                         }
                     }
                 }
 
             default:
                 // Do not attempt to start the tunnel in all other cases.
-                self.finish()
+                self.completeOperation(completion: .success(()))
             }
         }
+    }
+
+    override func completeOperation(completion: OperationCompletion<(), TunnelManager.Error>) {
+        delegate?.operation(self, didStartTunnelWithCompletion: completion)
+        delegate = nil
+
+        super.completeOperation(completion: completion)
     }
 
     private func didReceiveRelays(tunnelInfo: TunnelInfo, cachedRelays: RelayCache.CachedRelays, completionHandler: @escaping (TunnelManager.Error?) -> Void) {

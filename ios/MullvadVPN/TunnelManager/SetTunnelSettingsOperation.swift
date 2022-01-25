@@ -10,37 +10,29 @@ import Foundation
 
 protocol SetTunnelSettingsOperationDelegate: AnyObject {
     func operationDidRequestTunnelInfo(_ operation: Operation) -> TunnelInfo?
-
-    func operation(_ operation: Operation, didSetTunnelSettings newTunnelSettings: TunnelSettings)
-    func operation(_ operation: Operation, didFailToSetTunnelSettingsWithError error: TunnelManager.Error)
+    func operation(_ operation: Operation, didFinishSettingTunnelSettingsWithCompletion completion: OperationCompletion<TunnelSettings, TunnelManager.Error>)
 }
 
-class SetTunnelSettingsOperation: AsyncOperation {
-    typealias CompletionHandler = (TunnelManager.Error?) -> Void
-
-    private let queue: DispatchQueue
+class SetTunnelSettingsOperation: BaseTunnelOperation<TunnelSettings, TunnelManager.Error> {
     private weak var delegate: SetTunnelSettingsOperationDelegate?
     private let modificationBlock: (inout TunnelSettings) -> Void
-    private var completionHandler: CompletionHandler?
 
-    init(queue: DispatchQueue, delegate: SetTunnelSettingsOperationDelegate, modificationBlock: @escaping (inout TunnelSettings) -> Void, completionHandler: CompletionHandler?) {
-        self.queue = queue
+    init(queue: DispatchQueue, delegate: SetTunnelSettingsOperationDelegate, modificationBlock: @escaping (inout TunnelSettings) -> Void) {
         self.delegate = delegate
         self.modificationBlock = modificationBlock
-        self.completionHandler = completionHandler
+
+        super.init(queue: queue)
     }
 
     override func main() {
         queue.async {
             guard !self.isCancelled else {
-                self.finish(error: nil)
+                self.completeOperation(completion: .cancelled)
                 return
             }
 
             guard let token = self.delegate?.operationDidRequestTunnelInfo(self)?.token else {
-                let tunnelManagerError = TunnelManager.Error.missingAccount
-                self.delegate?.operation(self, didFailToSetTunnelSettingsWithError: tunnelManagerError)
-                self.finish(error: tunnelManagerError)
+                self.completeOperation(completion: .failure(.missingAccount))
                 return
             }
 
@@ -48,23 +40,16 @@ class SetTunnelSettingsOperation: AsyncOperation {
                 self.modificationBlock(&tunnelSettings)
             }
 
-            switch result {
-            case .success(let newTunnelSettings):
-                self.delegate?.operation(self, didSetTunnelSettings: newTunnelSettings)
-                self.finish(error: nil)
+            let mappedResult = result.mapError { TunnelManager.Error.updateTunnelSettings($0) }
 
-            case .failure(let error):
-                let tunnelManagerError = TunnelManager.Error.updateTunnelSettings(error)
-                self.delegate?.operation(self, didFailToSetTunnelSettingsWithError: tunnelManagerError)
-                self.finish(error: tunnelManagerError)
-            }
+            self.completeOperation(completion: OperationCompletion(result: mappedResult))
         }
     }
 
-    private func finish(error: TunnelManager.Error?) {
-        completionHandler?(error)
-        completionHandler = nil
+    override func completeOperation(completion: OperationCompletion<TunnelSettings, TunnelManager.Error>) {
+        delegate?.operation(self, didFinishSettingTunnelSettingsWithCompletion: completion)
+        delegate = nil
 
-        finish()
+        super.completeOperation(completion: completion)
     }
 }

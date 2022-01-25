@@ -192,11 +192,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
     /// The given account token is used to ensure that the system tunnel was configured for the same
     /// account. The system tunnel is removed in case of inconsistency.
     func loadTunnel(accountToken: String?, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
-        let operation = LoadTunnelOperation(queue: stateQueue, token: accountToken, delegate: self) { error in
-            DispatchQueue.main.async {
-                completionHandler(error)
-            }
-        }
+        let operation = LoadTunnelOperation(queue: stateQueue, token: accountToken, delegate: self)
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Load tunnel") {
             operation.cancel()
@@ -204,6 +200,10 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
 
         operation.completionBlock = {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
+        }
+
+        operation.addObserver(queue: .main) { operation, completion in
+            completionHandler(completion.error)
         }
 
         exclusivityController.addOperation(operation, categories: [OperationCategory.manageTunnelProvider, OperationCategory.changeTunnelSettings])
@@ -264,11 +264,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
     }
 
     func setAccount(accountToken: String, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
-        let operation = SetAccountOperation(queue: stateQueue, restClient: restClient, token: accountToken, delegate: self) { error in
-            DispatchQueue.main.async {
-                completionHandler(error)
-            }
-        }
+        let operation = SetAccountOperation(queue: stateQueue, restClient: restClient, token: accountToken, delegate: self)
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Set tunnel account") {
             operation.cancel()
@@ -276,6 +272,10 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
 
         operation.completionBlock = {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
+        }
+
+        operation.addObserver(queue: .main) { operation, completion in
+            completionHandler(completion.error)
         }
 
         exclusivityController.addOperation(operation, categories: [OperationCategory.manageTunnelProvider, OperationCategory.changeTunnelSettings])
@@ -305,14 +305,7 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
     }
 
     func regeneratePrivateKey(completionHandler: ((TunnelManager.Error?) -> Void)? = nil) {
-        let operation = RenegeratePrivateKeyOperation(
-            queue: stateQueue,
-            restClient: restClient,
-            delegate: self) { error in
-                DispatchQueue.main.async {
-                    completionHandler?(error)
-                }
-            }
+        let operation = RenegeratePrivateKeyOperation(queue: stateQueue, restClient: restClient, delegate: self)
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Regenerate private key") {
             operation.cancel()
@@ -322,17 +315,17 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
 
+        operation.addObserver(queue: .main) { operation, completion in
+            completionHandler?(completion.error)
+        }
+
         exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
 
         operationQueue.addOperation(operation)
     }
 
     func rotatePrivateKey(completionHandler: @escaping (KeyRotationResult?, TunnelManager.Error?) -> Void) {
-        let operation = RotatePrivateKeyOperation(queue: stateQueue, restClient: restClient, rotationInterval: Self.privateKeyRotationInterval, delegate: self) { rotationResult, error in
-            self.reconnectTunnel {
-                completionHandler(rotationResult, error)
-            }
-        }
+        let operation = RotatePrivateKeyOperation(queue: stateQueue, restClient: restClient, rotationInterval: Self.privateKeyRotationInterval, delegate: self)
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Rotate private key") {
             operation.cancel()
@@ -340,6 +333,24 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
 
         operation.completionBlock = {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
+        }
+
+        operation.addObserver(queue: nil) { [weak self] operation, completion in
+            self?.reconnectTunnel {
+                var rotationResult: KeyRotationResult?
+                var rotationError: TunnelManager.Error?
+
+                switch completion {
+                case .success(let result):
+                    rotationResult = result
+                case .failure(let error):
+                    rotationError = error
+                case .cancelled:
+                    break
+                }
+
+                completionHandler(rotationResult, rotationError)
+            }
         }
 
         exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
@@ -371,12 +382,8 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
         let operation = SetTunnelSettingsOperation(
             queue: stateQueue,
             delegate: self,
-            modificationBlock: modificationBlock,
-            completionHandler: { error in
-                DispatchQueue.main.async {
-                    completionHandler(error)
-                }
-            })
+            modificationBlock: modificationBlock
+        )
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: taskName) {
             operation.cancel()
@@ -384,6 +391,10 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
 
         operation.completionBlock = {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
+        }
+
+        operation.addObserver(queue: .main) { operation, completion in
+            completionHandler(completion.error)
         }
 
         exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
@@ -509,11 +520,17 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
         updateTunnelState()
     }
 
-    func operation(_ operation: Operation, didFailToStartTunnelWithError error: TunnelManager.Error) {
-        logger.error(chainedError: error)
+    func operation(_ operation: Operation, didStartTunnelWithCompletion completion: OperationCompletion<(), TunnelManager.Error>) {
+        dispatchPrecondition(condition: .onQueue(stateQueue))
+
+        if case .failure(let error) = completion {
+            logger.error(chainedError: error)
+        }
     }
 
     func operation(_ operation: Operation, didFailToEncodeTunnelOptions error: Swift.Error) {
+        dispatchPrecondition(condition: .onQueue(stateQueue))
+        
         logger.error(chainedError: AnyChainedError(error), message: "Failed to encode tunnel options")
     }
 
@@ -525,8 +542,10 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
         return tunnelProvider
     }
 
-    func operation(_ operation: Operation, didFailToStopTunnelWithError error: TunnelManager.Error) {
+    func operation(_ operation: Operation, didStopTunnelWithCompletion completion: OperationCompletion<(), TunnelManager.Error>) {
         dispatchPrecondition(condition: .onQueue(stateQueue))
+
+        guard let error = completion.error else { return }
 
         // Pass tunnel failure to observers
         DispatchQueue.main.async {
@@ -538,8 +557,12 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
 
     // MARK: - ReloadTunnelOperationDelegate
 
-    func operation(_ operation: Operation, didFailToReloadTunnelWithError error: TunnelIPC.Error) {
-        logger.error(chainedError: error, message: "Failed to send IPC request to reload tunnel settings")
+    func operation(_ operation: Operation, didFinishReloadingTunnelWithCompletion completion: OperationCompletion<(), TunnelManager.Error>) {
+        dispatchPrecondition(condition: .onQueue(stateQueue))
+        
+        if let error = completion.error {
+            logger.error(chainedError: error)
+        }
     }
 
     // MARK: - MapConnectionStatusOperationDelegate
@@ -552,33 +575,38 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
 
     // MARK: - RenegeratePrivateKeyOperationDelegate
 
-    func operation(_ operation: Operation, didFinishRegeneratingPrivateKeyWithNewTunnelSettings newTunnelSettings: TunnelSettings) {
+    func operation(_ operation: Operation, didFinishRegeneratingPrivateKeyWithCompletion completion: OperationCompletion<TunnelSettings, Error>) {
         dispatchPrecondition(condition: .onQueue(stateQueue))
 
-        tunnelInfo?.tunnelSettings = newTunnelSettings
+        switch completion {
+        case .success(let newTunnelSettings):
+            tunnelInfo?.tunnelSettings = newTunnelSettings
 
-        updatePrivateKeyRotationTimer()
-        reconnectTunnel(completionHandler: nil)
-    }
+            updatePrivateKeyRotationTimer()
+            reconnectTunnel(completionHandler: nil)
 
-    func operation(_ operation: Operation, didFailToReplacePrivateKeyWithError error: TunnelManager.Error) {
-        dispatchPrecondition(condition: .onQueue(stateQueue))
+        case .failure(let error):
+            logger.error(chainedError: error, message: "Failed to regenerate private key")
 
-        logger.error(chainedError: error, message: "Failed to regenerate private key")
+        case .cancelled:
+            break
+        }
     }
 
     // MARK: - RotatePrivateKeyOperationDelegate
 
-    func operation(_ operation: Operation, didFinishRotatingPrivateKeyWithNewTunnelSettings newTunnelSettings: TunnelSettings) {
+    func operation(_ operation: Operation, didSaveTunnelSettings newTunnelSettings: TunnelSettings) {
         dispatchPrecondition(condition: .onQueue(stateQueue))
 
         tunnelInfo?.tunnelSettings = newTunnelSettings
     }
 
-    func operation(_ operation: Operation, didFailToRotatePrivateKeyWithError error: Error) {
+    func operation(_ operation: Operation, didFinishKeyRotationWithCompletion completion: OperationCompletion<KeyRotationResult, TunnelManager.Error>) {
         dispatchPrecondition(condition: .onQueue(stateQueue))
 
-        logger.error(chainedError: error, message: "Failed to rotate private key")
+        if case .failure(let error) = completion {
+            logger.error(chainedError: error, message: "Failed to rotate private key")
+        }
     }
 
     // MARK: - LoadTunnelOperationDelegate
@@ -589,30 +617,31 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
         self.tunnelInfo = newTunnelInfo
     }
 
-    func operation(_ operation: Operation, didFailToLoadTunnelWithError error: TunnelManager.Error) {
+    func operation(_ operation: Operation, didFinishLoadingTunnelWithCompletion completion: OperationCompletion<(), TunnelManager.Error>) {
         dispatchPrecondition(condition: .onQueue(stateQueue))
 
-        logger.error(chainedError: error, message: "Failed to load tunnel")
-    }
-
-    func operationDidFinishLoadingTunnel(_ operation: Operation) {
-        dispatchPrecondition(condition: .onQueue(stateQueue))
+        if case .failure(let error) = completion {
+            logger.error(chainedError: error, message: "Failed to load tunnel")
+        }
 
         updatePrivateKeyRotationTimer()
     }
 
     // MARK: - SetAccountOperationDelegate
 
-    func operation(_ operation: Operation, didFailToSetAccountWithError error: TunnelManager.Error) {
+    func operation(_ operation: Operation, didFinishSettingAccountTokenWithCompletion completion: OperationCompletion<(), TunnelManager.Error>) {
         dispatchPrecondition(condition: .onQueue(stateQueue))
 
-        logger.error(chainedError: error, message: "Failed to set account token")
-    }
+        switch completion {
+        case .success:
+            updatePrivateKeyRotationTimer()
 
-    func operationDidSetAccountToken(_ operation: Operation) {
-        dispatchPrecondition(condition: .onQueue(stateQueue))
+        case .failure(let error):
+            logger.error(chainedError: error, message: "Failed to set account token")
 
-        updatePrivateKeyRotationTimer()
+        case .cancelled:
+            break
+        }
     }
 
     // MARK: - UnsetAccountOperationDelegate
@@ -643,17 +672,20 @@ class TunnelManager: StartTunnelOperationDelegate, StopTunnelOperationDelegate,
 
     // MARK: - SetTunnelSettingsOperationDelegate
 
-    func operation(_ operation: Operation, didFailToSetTunnelSettingsWithError error: Error) {
+    func operation(_ operation: Operation, didFinishSettingTunnelSettingsWithCompletion completion: OperationCompletion<TunnelSettings, Error>) {
         dispatchPrecondition(condition: .onQueue(stateQueue))
 
-        logger.error(chainedError: error, message: "Failed to set tunnel settings")
-    }
+        switch completion {
+        case .success(let newTunnelSettings):
+            tunnelInfo?.tunnelSettings = newTunnelSettings
+            reconnectTunnel(completionHandler: nil)
 
-    func operation(_ operation: Operation, didSetTunnelSettings newTunnelSettings: TunnelSettings) {
-        dispatchPrecondition(condition: .onQueue(stateQueue))
+        case .failure(let error):
+            logger.error(chainedError: error, message: "Failed to set tunnel settings")
 
-        tunnelInfo?.tunnelSettings = newTunnelSettings
-        reconnectTunnel(completionHandler: nil)
+        case .cancelled:
+            break
+        }
     }
 
 }

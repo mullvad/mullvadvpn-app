@@ -261,6 +261,17 @@ extension TunnelManager.Error: DisplayChainedError {
         case .backgroundTaskScheduler:
             // This error is never displayed anywhere
             return nil
+
+        case .reloadTunnel(let error):
+            return String(
+                format: NSLocalizedString(
+                    "RELOAD_TUNNEL_ERROR",
+                    tableName: "TunnelManager",
+                    value: "Failed to reload tunnel: %@",
+                    comment: ""
+                ),
+                error.localizedDescription
+            )
         }
     }
 }

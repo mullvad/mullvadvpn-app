@@ -7,35 +7,31 @@
 //
 
 import Foundation
-import Logging
 import NetworkExtension
 
 protocol ReloadTunnelOperationDelegate: AnyObject {
     func operationDidRequestTunnelProvider(_ operation: Operation) -> TunnelProviderManagerType?
-    func operation(_ operation: Operation, didFailToReloadTunnelWithError error: TunnelIPC.Error)
+    func operation(_ operation: Operation, didFinishReloadingTunnelWithCompletion: OperationCompletion<(), TunnelManager.Error>)
 }
 
-class ReloadTunnelOperation: AsyncOperation {
-    private let queue: DispatchQueue
+class ReloadTunnelOperation: BaseTunnelOperation<(), TunnelManager.Error> {
     private weak var delegate: ReloadTunnelOperationDelegate?
     private var statusObserver: NSObjectProtocol?
 
-    private let logger = Logger(label: "TunnelManager.ReloadTunnelOperation")
-
     init(queue: DispatchQueue, delegate: ReloadTunnelOperationDelegate) {
-        self.queue = queue
         self.delegate = delegate
+        super.init(queue: queue)
     }
 
     override func main() {
         queue.async {
             guard !self.isCancelled else {
-                self.finish()
+                self.completeOperation(completion: .cancelled)
                 return
             }
 
             guard let tunnelProvider = self.delegate?.operationDidRequestTunnelProvider(self) else {
-                self.finish()
+                self.completeOperation(completion: .failure(.missingAccount))
                 return
             }
 
@@ -66,14 +62,14 @@ class ReloadTunnelOperation: AsyncOperation {
             self.removeStatusObserver()
 
             if self.isExecuting {
-                self.finish()
+                self.completeOperation(completion: .cancelled)
             }
         }
     }
 
     private func handleStatus(_ status: NEVPNStatus, ipcSession: TunnelIPC.Session) {
         guard isCancelled else {
-            finish()
+            completeOperation(completion: .cancelled)
             return
         }
 
@@ -84,11 +80,9 @@ class ReloadTunnelOperation: AsyncOperation {
             ipcSession.reloadTunnelSettings { [weak self] error in
                 guard let self = self else { return }
 
-                if let error = error {
-                    self.delegate?.operation(self, didFailToReloadTunnelWithError: error)
+                self.queue.async {
+                    self.completeOperation(completion: error.map { .failure(.reloadTunnel($0)) } ?? .success(()))
                 }
-
-                self.finish()
             }
 
         case .connecting, .reasserting:
@@ -97,7 +91,7 @@ class ReloadTunnelOperation: AsyncOperation {
 
         case .invalid, .disconnecting, .disconnected:
             removeStatusObserver()
-            finish()
+            completeOperation(completion: .success(()))
 
         @unknown default:
             break
@@ -110,6 +104,13 @@ class ReloadTunnelOperation: AsyncOperation {
 
             self.statusObserver = nil
         }
+    }
+
+    override func completeOperation(completion: OperationCompletion<(), TunnelManager.Error>) {
+        delegate?.operation(self, didFinishReloadingTunnelWithCompletion: completion)
+        delegate = nil
+
+        super.completeOperation(completion: completion)
     }
 
 }

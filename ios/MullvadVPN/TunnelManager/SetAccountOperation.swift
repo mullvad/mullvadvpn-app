@@ -11,32 +11,27 @@ import class WireGuardKit.PublicKey
 
 protocol SetAccountOperationDelegate: AnyObject {
     func operation(_ operation: Operation, didSetTunnelInfo newTunnelInfo: TunnelInfo)
-    func operation(_ operation: Operation, didFailToSetAccountWithError error: TunnelManager.Error)
-    func operationDidSetAccountToken(_ operation: Operation)
+    func operation(_ operation: Operation, didFinishSettingAccountTokenWithCompletion completion: OperationCompletion<(), TunnelManager.Error>)
 }
 
-class SetAccountOperation: AsyncOperation {
-    typealias CompletionHandler = (TunnelManager.Error?) -> Void
-
-    private let queue: DispatchQueue
+class SetAccountOperation: BaseTunnelOperation<(), TunnelManager.Error> {
     private let restClient: REST.Client
     private let token: String
-    private var completionHandler: CompletionHandler?
 
     private weak var delegate: SetAccountOperationDelegate?
 
-    init(queue: DispatchQueue, restClient: REST.Client, token: String, delegate: SetAccountOperationDelegate, completionHandler: @escaping CompletionHandler) {
-        self.queue = queue
+    init(queue: DispatchQueue, restClient: REST.Client, token: String, delegate: SetAccountOperationDelegate) {
         self.restClient = restClient
         self.token = token
         self.delegate = delegate
-        self.completionHandler = completionHandler
+
+        super.init(queue: queue)
     }
 
     override func main() {
         queue.async {
             guard !self.isCancelled else {
-                self.finish(error: nil)
+                self.completeOperation(completion: .cancelled)
                 return
             }
 
@@ -47,23 +42,16 @@ class SetAccountOperation: AsyncOperation {
                 // Push key if interface addresses were not received yet
                 if interfaceSettings.addresses.isEmpty {
                     self.pushWireguardKey(publicKey: interfaceSettings.publicKey) { error in
-                        if let error = error {
-                            self.delegate?.operation(self, didFailToSetAccountWithError: error)
-                            self.finish(error: error)
-                        } else {
-                            self.delegate?.operationDidSetAccountToken(self)
-                            self.finish(error: nil)
-                        }
+                        let completion: OperationCompletion<(), TunnelManager.Error> = error.map { .failure($0) } ?? .success(())
+
+                        self.completeOperation(completion: completion)
                     }
                 } else {
-                    self.delegate?.operationDidSetAccountToken(self)
-                    self.finish(error: nil)
+                    self.completeOperation(completion: .success(()))
                 }
 
             case .failure(let error):
-                self.delegate?.operation(self, didFailToSetAccountWithError: error)
-
-                self.finish(error: error)
+                self.completeOperation(completion: .failure(error))
             }
         }
     }
@@ -121,10 +109,10 @@ class SetAccountOperation: AsyncOperation {
             }
     }
 
-    private func finish(error: TunnelManager.Error?) {
-        completionHandler?(error)
-        completionHandler = nil
+    override func completeOperation(completion: OperationCompletion<(), TunnelManager.Error>) {
+        delegate?.operation(self, didFinishSettingAccountTokenWithCompletion: completion)
+        delegate = nil
 
-        finish()
+        super.completeOperation(completion: completion)
     }
 }

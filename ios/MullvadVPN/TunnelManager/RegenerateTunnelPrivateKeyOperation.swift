@@ -10,39 +10,30 @@ import Foundation
 
 protocol RenegeratePrivateKeyOperationDelegate: AnyObject {
     func operationDidRequestTunnelInfo(_ operation: Operation) -> TunnelInfo?
-    func operation(_ operation: Operation, didFinishRegeneratingPrivateKeyWithNewTunnelSettings newTunnelSettings: TunnelSettings)
-    func operation(_ operation: Operation, didFailToReplacePrivateKeyWithError error: TunnelManager.Error)
+    func operation(_ operation: Operation, didFinishRegeneratingPrivateKeyWithCompletion completion: OperationCompletion<TunnelSettings, TunnelManager.Error>)
 }
 
-class RenegeratePrivateKeyOperation: AsyncOperation {
-    typealias CompletionHandler = (TunnelManager.Error?) -> Void
-
-    private let queue: DispatchQueue
+class RenegeratePrivateKeyOperation: BaseTunnelOperation<TunnelSettings, TunnelManager.Error> {
     private let restClient: REST.Client
-    private var completionHandler: CompletionHandler?
     private weak var delegate: RenegeratePrivateKeyOperationDelegate?
     private var restCancellable: Cancellable?
 
-    init(queue: DispatchQueue,
-         restClient: REST.Client,
-         delegate: RenegeratePrivateKeyOperationDelegate,
-         completionHandler: @escaping CompletionHandler)
-    {
-        self.queue = queue
+    init(queue: DispatchQueue, restClient: REST.Client, delegate: RenegeratePrivateKeyOperationDelegate) {
         self.restClient = restClient
         self.delegate = delegate
-        self.completionHandler = completionHandler
+
+        super.init(queue: queue)
     }
 
     override func main() {
         queue.async {
             guard !self.isCancelled else {
-                self.finish(error: nil)
+                self.completeOperation(completion: .cancelled)
                 return
             }
 
             guard let tunnelInfo = self.delegate?.operationDidRequestTunnelInfo(self) else {
-                self.finish(error: .missingAccount)
+                self.completeOperation(completion: .failure(.missingAccount))
                 return
             }
 
@@ -59,15 +50,7 @@ class RenegeratePrivateKeyOperation: AsyncOperation {
                 self.queue.async {
                     let saveResult = Self.handleResponse(token: tunnelInfo.token, newPrivateKey: newPrivateKey, result: restResult)
 
-                    switch saveResult {
-                    case .success(let tunnelSettings):
-                        self.delegate?.operation(self, didFinishRegeneratingPrivateKeyWithNewTunnelSettings: tunnelSettings)
-                        self.finish(error: nil)
-
-                    case .failure(let error):
-                        self.delegate?.operation(self, didFailToReplacePrivateKeyWithError: error)
-                        self.finish(error: error)
-                    }
+                    self.completeOperation(completion: OperationCompletion(result: saveResult))
                 }
             }
         }
@@ -82,7 +65,6 @@ class RenegeratePrivateKeyOperation: AsyncOperation {
     }
 
     private class func handleResponse(token: String, newPrivateKey: PrivateKeyWithMetadata, result: Result<REST.WireguardAddressesResponse, REST.Error>) -> Result<TunnelSettings, TunnelManager.Error> {
-
         return result.flatMapError { restError in
             return .failure(.replaceWireguardKey(restError))
         }
@@ -99,10 +81,10 @@ class RenegeratePrivateKeyOperation: AsyncOperation {
         }
     }
 
-    private func finish(error: TunnelManager.Error?) {
-        completionHandler?(error)
-        completionHandler = nil
+    override func completeOperation(completion: OperationCompletion<TunnelSettings, TunnelManager.Error>) {
+        delegate?.operation(self, didFinishRegeneratingPrivateKeyWithCompletion: completion)
+        delegate = nil
 
-        finish()
+        super.completeOperation(completion: completion)
     }
 }
