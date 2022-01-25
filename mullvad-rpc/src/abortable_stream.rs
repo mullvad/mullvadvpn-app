@@ -141,3 +141,77 @@ where
         self.stream.connected()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::time::Duration;
+    use tokio::io::AsyncReadExt;
+
+    /// Test whether the abort handle stops the stream.
+    #[test]
+    fn test_abort() {
+        let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
+
+        let (client, _server) = tokio::io::duplex(64);
+
+        runtime.block_on(async move {
+            let (mut stream, abort_handle) = AbortableStream::new(client, None);
+
+            let stream_task = tokio::spawn(async move {
+                let mut buf = vec![];
+                stream.read_to_end(&mut buf).await
+            });
+
+            abort_handle.close();
+            let result = tokio::time::timeout(Duration::from_secs(1), stream_task)
+                .await
+                .unwrap();
+            assert!(
+                matches!(result, Ok(Err(error)) if error.kind() == io::ErrorKind::ConnectionReset)
+            );
+        });
+    }
+
+    /// Test whether the shutdown signal is sent when the stream is explicitly closed.
+    #[test]
+    fn test_shutdown_signal() {
+        let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
+
+        let (client, _server) = tokio::io::duplex(64);
+        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+
+        runtime.block_on(async move {
+            let (_stream, abort_handle) = AbortableStream::new(client, Some(shutdown_tx));
+            abort_handle.close();
+            assert!(tokio::time::timeout(Duration::from_secs(1), shutdown_rx)
+                .await
+                .unwrap()
+                .is_ok());
+        });
+    }
+
+    /// Test whether the shutdown signal is sent when the stream stops on its own.
+    #[test]
+    fn test_shutdown_signal_normal() {
+        let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
+
+        let (client, server) = tokio::io::duplex(64);
+        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+
+        runtime.block_on(async move {
+            let (mut stream, _abort_handle) = AbortableStream::new(client, Some(shutdown_tx));
+
+            tokio::spawn(async move {
+                drop(server);
+                let mut buf = vec![];
+                stream.read_to_end(&mut buf).await
+            });
+
+            assert!(tokio::time::timeout(Duration::from_secs(1), shutdown_rx)
+                .await
+                .unwrap()
+                .is_ok());
+        });
+    }
+}
