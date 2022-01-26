@@ -19,6 +19,7 @@ impl PersistentTargetState {
     /// Initialize using the current target state (or default, if there is none)
     pub async fn new(cache_dir: &Path) -> Self {
         let cache_file = cache_dir.join(TARGET_START_STATE_FILE);
+        let mut update_cache = false;
         let state = match fs::read_to_string(&cache_file).await {
             Ok(content) => serde_json::from_str(&content)
                 .map(|state| {
@@ -34,6 +35,7 @@ impl PersistentTargetState {
                         "{}",
                         error.display_chain_with_msg("Failed to parse cached target tunnel state")
                     );
+                    update_cache = true;
                     TargetState::Secured
                 }),
             Err(error) => {
@@ -45,15 +47,20 @@ impl PersistentTargetState {
                         "{}",
                         error.display_chain_with_msg("Failed to read cached target tunnel state")
                     );
+                    update_cache = true;
                     TargetState::Secured
                 }
             }
         };
-        PersistentTargetState {
+        let state = PersistentTargetState {
             state,
             cache_file,
             locked: false,
+        };
+        if update_cache {
+            state.save().await;
         }
+        state
     }
 
     /// Override the current target state, if there is one
