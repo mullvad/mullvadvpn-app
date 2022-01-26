@@ -2,12 +2,9 @@ use crate::{
     abortable_stream::{AbortableStream, AbortableStreamHandle},
     tls_stream::TlsStream,
 };
+use futures::{channel::mpsc, StreamExt};
 #[cfg(target_os = "android")]
-use futures::sink::SinkExt;
-use futures::{
-    channel::{mpsc, oneshot},
-    StreamExt,
-};
+use futures::{channel::oneshot, sink::SinkExt};
 use http::uri::Scheme;
 use hyper::{
     client::connect::dns::{GaiResolver, Name},
@@ -17,7 +14,6 @@ use hyper::{
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
-    collections::BTreeMap,
     fmt,
     future::Future,
     io,
@@ -51,15 +47,13 @@ impl HttpsConnectorWithSniHandle {
 #[derive(Clone)]
 pub struct HttpsConnectorWithSni {
     inner: Arc<Mutex<HttpsConnectorWithSniInner>>,
-    handle: Handle,
     sni_hostname: Option<String>,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
 }
 
 struct HttpsConnectorWithSniInner {
-    next_socket_id: usize,
-    stream_handles: BTreeMap<usize, AbortableStreamHandle>,
+    stream_handles: Vec<AbortableStreamHandle>,
 }
 
 #[cfg(target_os = "android")]
@@ -73,8 +67,7 @@ impl HttpsConnectorWithSni {
     ) -> (Self, HttpsConnectorWithSniHandle) {
         let (tx, mut rx): (_, mpsc::UnboundedReceiver<()>) = mpsc::unbounded();
         let inner = Arc::new(Mutex::new(HttpsConnectorWithSniInner {
-            stream_handles: BTreeMap::new(),
-            next_socket_id: 0,
+            stream_handles: vec![],
         }));
 
         let inner_copy = inner.clone();
@@ -85,7 +78,7 @@ impl HttpsConnectorWithSni {
                     let mut inner = inner_copy.lock().unwrap();
                     std::mem::take(&mut inner.stream_handles)
                 };
-                for (_, handle) in handles {
+                for handle in handles {
                     handle.close();
                 }
             }
@@ -94,20 +87,12 @@ impl HttpsConnectorWithSni {
         (
             HttpsConnectorWithSni {
                 inner,
-                handle,
                 sni_hostname,
                 #[cfg(target_os = "android")]
                 socket_bypass_tx,
             },
             HttpsConnectorWithSniHandle { tx },
         )
-    }
-
-    fn next_id(&mut self) -> usize {
-        let mut inner = self.inner.lock().unwrap();
-        let next_id = inner.next_socket_id;
-        inner.next_socket_id = inner.next_socket_id.wrapping_add(1);
-        next_id
     }
 
     #[cfg(not(target_os = "android"))]
@@ -190,8 +175,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
                 io::Error::new(io::ErrorKind::InvalidInput, "invalid url, missing host")
             });
         let inner = self.inner.clone();
-        let socket_id = self.next_id();
-        let handle = self.handle.clone();
         #[cfg(target_os = "android")]
         let socket_bypass_tx = self.socket_bypass_tx.clone();
 
@@ -213,25 +196,13 @@ impl Service<Uri> for HttpsConnectorWithSni {
             )
             .await?;
 
-            let (socket_shutdown_tx, socket_shutdown_rx) = oneshot::channel();
-
-            let (tcp_stream, socket_handle) =
-                AbortableStream::new(tokio_connection, Some(socket_shutdown_tx));
+            let (tcp_stream, socket_handle) = AbortableStream::new(tokio_connection);
 
             {
                 let mut inner = inner.lock().unwrap();
-                inner
-                    .stream_handles
-                    .insert(socket_id, socket_handle.clone());
+                inner.stream_handles.retain(|handle| !handle.is_closed());
+                inner.stream_handles.push(socket_handle);
             }
-
-            handle.spawn(async move {
-                let _ = socket_shutdown_rx.await;
-                {
-                    let mut inner = inner.lock().unwrap();
-                    inner.stream_handles.remove(&socket_id);
-                }
-            });
 
             Ok(TlsStream::connect_https(tcp_stream, &hostname).await?)
         };
