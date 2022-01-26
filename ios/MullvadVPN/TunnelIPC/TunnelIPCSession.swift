@@ -24,7 +24,7 @@ extension TunnelIPC {
             }
         }
 
-        func getTunnelConnectionInfo(completionHandler: @escaping (Result<TunnelConnectionInfo?, Error>) -> Void) {
+        func getTunnelConnectionInfo(completionHandler: @escaping (Result<TunnelConnectionInfo?, TunnelIPC.Error>) -> Void) {
             send(message: .tunnelConnectionInfo) { result in
                 completionHandler(result)
             }
@@ -32,7 +32,7 @@ extension TunnelIPC {
 
         // MARK: - Private
 
-        private func send(message: TunnelIPC.Request, completionHandler: @escaping (Result<(), Error>) -> Void) {
+        private func send(message: TunnelIPC.Request, completionHandler: @escaping (Result<(), TunnelIPC.Error>) -> Void) {
             sendWithoutDecoding(message: message) { (result) in
                 let result = result.map { _ in () }
 
@@ -40,10 +40,10 @@ extension TunnelIPC {
             }
         }
 
-        private func send<T>(message: TunnelIPC.Request, completionHandler: @escaping (Result<T, Error>) -> Void) where T: Codable
+        private func send<T>(message: TunnelIPC.Request, completionHandler: @escaping (Result<T, TunnelIPC.Error>) -> Void) where T: Codable
         {
             sendWithoutDecoding(message: message) { (result) in
-                let result = result.flatMap { (data) -> Result<T, Error> in
+                let result = result.flatMap { (data) -> Result<T, TunnelIPC.Error> in
                     guard let data = data else {
                         return .failure(.nilResponse)
                     }
@@ -58,7 +58,7 @@ extension TunnelIPC {
             }
         }
 
-        private func sendWithoutDecoding(message: TunnelIPC.Request, completionHandler: @escaping (Result<Data?, Error>) -> Void) {
+        private func sendWithoutDecoding(message: TunnelIPC.Request, completionHandler: @escaping (Result<Data?, TunnelIPC.Error>) -> Void) {
             do {
                 let data = try TunnelIPC.Coding.encodeRequest(message)
 
@@ -70,7 +70,7 @@ extension TunnelIPC {
             }
         }
 
-        private func sendProviderMessage(_ messageData: Data, completionHandler: @escaping (Result<Data?, Error>) -> Void) {
+        private func sendProviderMessage(_ messageData: Data, completionHandler: @escaping (Result<Data?, TunnelIPC.Error>) -> Void) {
             do {
                 try tunnelProviderSession.sendProviderMessage(messageData) { response in
                     completionHandler(.success(response))

@@ -10,45 +10,47 @@ import Foundation
 import NetworkExtension
 import Logging
 
-protocol MapConnectionStatusOperationDelegate: AnyObject {
-    func operationDidRequestTunnelState(_ operation: Operation) -> TunnelState
-    func operation(_ operation: Operation, didSetTunnelState newTunnelState: TunnelState)
-    func operationDidRequestTunnelProvider(_ operation: Operation) -> TunnelProviderManagerType?
-    func operationDidRequestTunnelToStart(_ operation: Operation)
-}
-
 class MapConnectionStatusOperation: AsyncOperation {
+    typealias StartTunnelHandler = () -> Void
+
     private let queue: DispatchQueue
+    private let state: TunnelManager.State
     private let connectionStatus: NEVPNStatus
-    private weak var delegate: MapConnectionStatusOperationDelegate?
+    private var startTunnelHandler: StartTunnelHandler?
 
     private let logger = Logger(label: "TunnelManager.MapConnectionStatusOperation")
 
-    init(queue: DispatchQueue, connectionStatus: NEVPNStatus, delegate: MapConnectionStatusOperationDelegate) {
+    init(queue: DispatchQueue, state: TunnelManager.State, connectionStatus: NEVPNStatus, startTunnelHandler: @escaping StartTunnelHandler) {
         self.queue = queue
+        self.state = state
         self.connectionStatus = connectionStatus
-        self.delegate = delegate
+        self.startTunnelHandler = startTunnelHandler
     }
 
     override func main() {
         queue.async {
-            self.execute {
+            self.execute()
+        }
+    }
+
+    override func cancel() {
+        super.cancel()
+
+        queue.async {
+            // Finish immediately if cancelled during execution.
+            if self.isExecuting {
                 self.finish()
             }
         }
     }
 
-    private func execute(completionHandler: @escaping () -> Void) {
-        guard !isCancelled else {
-            completionHandler()
+    private func execute() {
+        guard let tunnelProvider = state.tunnelProvider, !isCancelled else {
+            finish()
             return
         }
 
-        guard let tunnelProvider = delegate?.operationDidRequestTunnelProvider(self),
-              let tunnelState = delegate?.operationDidRequestTunnelState(self) else {
-                  completionHandler()
-                  return
-              }
+        let tunnelState = state.tunnelState
 
         switch connectionStatus {
         case .connecting:
@@ -56,33 +58,31 @@ class MapConnectionStatusOperation: AsyncOperation {
             case .connecting(.some(_)):
                 logger.debug("Ignore repeating connecting state.")
             default:
-                delegate?.operation(self, didSetTunnelState: .connecting(nil))
+                state.tunnelState = .connecting(nil)
             }
 
         case .reasserting:
-            let ipcSession = TunnelIPC.Session(from: tunnelProvider)
+            requestTunnelRelay(from: tunnelProvider) { [weak self] result in
+                guard let self = self else { return }
 
-            ipcSession.getTunnelConnectionInfo { result in
-                self.queue.async {
-                    if case .success(.some(let connectionInfo)) = result, !self.isCancelled {
-                        self.delegate?.operation(self, didSetTunnelState: .reconnecting(connectionInfo))
-                    }
-                    completionHandler()
+                if case .success(.some(let connectionInfo)) = result, !self.isCancelled {
+                    self.state.tunnelState = .reconnecting(connectionInfo)
                 }
+
+                self.finish()
             }
 
             return
 
         case .connected:
-            let ipcSession = TunnelIPC.Session(from: tunnelProvider)
+            requestTunnelRelay(from: tunnelProvider) { [weak self] result in
+                guard let self = self else { return }
 
-            ipcSession.getTunnelConnectionInfo { result in
-                self.queue.async {
-                    if case .success(.some(let connectionInfo)) = result, !self.isCancelled {
-                        self.delegate?.operation(self, didSetTunnelState: .connected(connectionInfo))
-                    }
-                    completionHandler()
+                if case .success(.some(let connectionInfo)) = result, !self.isCancelled {
+                    self.state.tunnelState = .connected(connectionInfo)
                 }
+
+                self.finish()
             }
 
             return
@@ -94,11 +94,14 @@ class MapConnectionStatusOperation: AsyncOperation {
 
             case .disconnecting(.reconnect):
                 logger.debug("Restart the tunnel on disconnect.")
-                delegate?.operation(self, didSetTunnelState: .pendingReconnect)
-                delegate?.operationDidRequestTunnelToStart(self)
+
+                state.tunnelState = .pendingReconnect
+
+                startTunnelHandler?()
+                startTunnelHandler = nil
 
             default:
-                delegate?.operation(self, didSetTunnelState: .disconnected)
+                state.tunnelState = .disconnected
             }
 
         case .disconnecting:
@@ -106,16 +109,33 @@ class MapConnectionStatusOperation: AsyncOperation {
             case .disconnecting:
                 break
             default:
-                delegate?.operation(self, didSetTunnelState: .disconnecting(.nothing))
+                state.tunnelState = .disconnecting(.nothing)
             }
 
         case .invalid:
-            delegate?.operation(self, didSetTunnelState: .disconnected)
+            state.tunnelState = .disconnected
 
         @unknown default:
             logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")
         }
 
-        completionHandler()
+        finish()
+    }
+
+    private func requestTunnelRelay(from tunnelProvider: TunnelProviderManagerType, completionHandler: @escaping (Result<TunnelConnectionInfo?, TunnelIPC.Error>?) -> Void) {
+        guard tunnelProvider.connection.status == .reasserting || tunnelProvider.connection.status == .connected else {
+            completionHandler(nil)
+            return
+        }
+
+        let ipcSession = TunnelIPC.Session(from: tunnelProvider)
+
+        ipcSession.getTunnelConnectionInfo { [weak self] result in
+            guard let self = self else { return }
+
+            self.queue.async {
+                completionHandler(result)
+            }
+        }
     }
 }

@@ -8,72 +8,36 @@
 
 import Foundation
 
-protocol RotatePrivateKeyOperationDelegate: AnyObject {
-    func operationDidRequestTunnelInfo(_ operation: Operation) -> TunnelInfo?
-    func operation(_ operation: Operation, didSaveTunnelSettings newTunnelSettings: TunnelSettings)
-    func operation(_ operation: Operation, didFinishKeyRotationWithCompletion completion: OperationCompletion<TunnelManager.KeyRotationResult, TunnelManager.Error>)
-}
+class RotatePrivateKeyOperation: AsyncOperation {
+    typealias CompletionHandler = (OperationCompletion<TunnelManager.KeyRotationResult, TunnelManager.Error>) -> Void
 
-class RotatePrivateKeyOperation: BaseTunnelOperation<TunnelManager.KeyRotationResult, TunnelManager.Error> {
+    private let queue: DispatchQueue
+    private let state: TunnelManager.State
     private let restClient: REST.Client
     private let rotationInterval: TimeInterval
-    private weak var delegate: RotatePrivateKeyOperationDelegate?
-    private var restCancellable: Cancellable?
+    private var completionHandler: CompletionHandler?
+    private var restRequest: Cancellable?
 
     init(queue: DispatchQueue,
+         state: TunnelManager.State,
          restClient: REST.Client,
          rotationInterval: TimeInterval,
-         delegate: RotatePrivateKeyOperationDelegate)
+         completionHandler: @escaping CompletionHandler)
     {
+        self.queue = queue
+        self.state = state
         self.restClient = restClient
         self.rotationInterval = rotationInterval
-        self.delegate = delegate
-
-        super.init(queue: queue)
+        self.completionHandler = completionHandler
     }
 
     override func main() {
         queue.async {
-            guard !self.isCancelled else {
-                self.completeOperation(completion: .cancelled)
-                return
-            }
+            self.execute { completion in
+                self.completionHandler?(completion)
+                self.completionHandler = nil
 
-            guard let tunnelInfo = self.delegate?.operationDidRequestTunnelInfo(self) else {
-                self.completeOperation(completion: .failure(.missingAccount))
-                return
-            }
-
-            let creationDate = tunnelInfo.tunnelSettings.interface.privateKey.creationDate
-            let timeInterval = Date().timeIntervalSince(creationDate)
-
-            guard timeInterval >= self.rotationInterval else {
-                self.completeOperation(completion: .success(.throttled(creationDate)))
-                return
-            }
-
-            let newPrivateKey = PrivateKeyWithMetadata()
-            let oldPublicKey = tunnelInfo.tunnelSettings.interface.publicKey
-
-            let restRequest = self.restClient.replaceWireguardKey(
-                token: tunnelInfo.token,
-                oldPublicKey: oldPublicKey,
-                newPublicKey: newPrivateKey.publicKey
-            )
-
-            self.restCancellable = restRequest.execute { restResult in
-                self.queue.async {
-                    let saveResult = Self.handleResponse(token: tunnelInfo.token, newPrivateKey: newPrivateKey, result: restResult)
-
-                    switch saveResult {
-                    case .success(let tunnelSettings):
-                        self.delegate?.operation(self, didSaveTunnelSettings: tunnelSettings)
-                        self.completeOperation(completion: .success(.finished))
-
-                    case .failure(let error):
-                        self.completeOperation(completion: .failure(error))
-                    }
-                }
+                self.finish()
             }
         }
     }
@@ -82,15 +46,62 @@ class RotatePrivateKeyOperation: BaseTunnelOperation<TunnelManager.KeyRotationRe
         super.cancel()
 
         queue.async {
-            self.restCancellable?.cancel()
+            self.restRequest?.cancel()
         }
     }
 
-    override func completeOperation(completion: OperationCompletion<TunnelManager.KeyRotationResult, TunnelManager.Error>) {
-        delegate?.operation(self, didFinishKeyRotationWithCompletion: completion)
-        delegate = nil
+    private func execute(completionHandler: @escaping CompletionHandler) {
+        guard !isCancelled else {
+            completionHandler(.cancelled)
+            return
+        }
 
-        super.completeOperation(completion: completion)
+        guard let tunnelInfo = state.tunnelInfo else {
+            completionHandler(.failure(.missingAccount))
+            return
+        }
+
+        let creationDate = tunnelInfo.tunnelSettings.interface.privateKey.creationDate
+        let timeInterval = Date().timeIntervalSince(creationDate)
+
+        guard timeInterval >= rotationInterval else {
+            completionHandler(.success(.throttled(creationDate)))
+            return
+        }
+
+        let newPrivateKey = PrivateKeyWithMetadata()
+        let oldPublicKey = tunnelInfo.tunnelSettings.interface.publicKey
+
+        let requestAdapter = self.restClient.replaceWireguardKey(
+            token: tunnelInfo.token,
+            oldPublicKey: oldPublicKey,
+            newPublicKey: newPrivateKey.publicKey
+        )
+
+        restRequest = requestAdapter.execute(retryStrategy: .default) { result in
+            self.queue.async {
+                self.didRotatePrivateKey(
+                    result: result,
+                    token: tunnelInfo.token,
+                    newPrivateKey: newPrivateKey,
+                    completionHandler: completionHandler
+                )
+            }
+        }
+    }
+
+    private func didRotatePrivateKey(result: Result<REST.WireguardAddressesResponse, REST.Error>, token: String, newPrivateKey: PrivateKeyWithMetadata, completionHandler: @escaping CompletionHandler) {
+        let saveResult = Self.handleResponse(token: token, newPrivateKey: newPrivateKey, result: result)
+
+        switch saveResult {
+        case .success(let tunnelSettings):
+            state.tunnelInfo?.tunnelSettings = tunnelSettings
+
+            completionHandler(.success(.finished))
+
+        case .failure(let error):
+            completionHandler(.failure(error))
+        }
     }
 
     private class func handleResponse(token: String, newPrivateKey: PrivateKeyWithMetadata, result: Result<REST.WireguardAddressesResponse, REST.Error>) -> Result<TunnelSettings, TunnelManager.Error> {

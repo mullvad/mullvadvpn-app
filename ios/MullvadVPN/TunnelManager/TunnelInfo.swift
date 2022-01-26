@@ -9,7 +9,7 @@
 import Foundation
 
 /// Struct that holds current account token and tunnel settings.
-struct TunnelInfo {
+struct TunnelInfo: Equatable {
     /// Mullvad account token
     var token: String
 

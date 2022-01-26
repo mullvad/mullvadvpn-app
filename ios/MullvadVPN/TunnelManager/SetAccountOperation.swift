@@ -9,50 +9,53 @@
 import Foundation
 import class WireGuardKit.PublicKey
 
-protocol SetAccountOperationDelegate: AnyObject {
-    func operation(_ operation: Operation, didSetTunnelInfo newTunnelInfo: TunnelInfo)
-    func operation(_ operation: Operation, didFinishSettingAccountTokenWithCompletion completion: OperationCompletion<(), TunnelManager.Error>)
-}
+class SetAccountOperation: AsyncOperation {
+    typealias CompletionHandler = (OperationCompletion<(), TunnelManager.Error>) -> Void
 
-class SetAccountOperation: BaseTunnelOperation<(), TunnelManager.Error> {
+    private let queue: DispatchQueue
+    private let state: TunnelManager.State
     private let restClient: REST.Client
     private let token: String
+    private var completionHandler: CompletionHandler?
 
-    private weak var delegate: SetAccountOperationDelegate?
-
-    init(queue: DispatchQueue, restClient: REST.Client, token: String, delegate: SetAccountOperationDelegate) {
+    init(queue: DispatchQueue, state: TunnelManager.State, restClient: REST.Client, token: String, completionHandler: @escaping CompletionHandler) {
+        self.queue = queue
+        self.state = state
         self.restClient = restClient
         self.token = token
-        self.delegate = delegate
-
-        super.init(queue: queue)
+        self.completionHandler = completionHandler
     }
 
     override func main() {
         queue.async {
-            guard !self.isCancelled else {
-                self.completeOperation(completion: .cancelled)
-                return
+            self.execute { completion in
+                self.completionHandler?(completion)
+                self.completionHandler = nil
+
+                self.finish()
+            }
+        }
+    }
+
+    private func execute(completionHandler: @escaping CompletionHandler) {
+        guard !isCancelled else {
+            completionHandler(.cancelled)
+            return
+        }
+
+        switch makeTunnelSettings() {
+        case .success(let tunnelSettings):
+            let interfaceSettings = tunnelSettings.interface
+
+            // Push key if interface addresses were not received yet
+            if interfaceSettings.addresses.isEmpty {
+                pushWireguardKey(publicKey: interfaceSettings.publicKey, completionHandler: completionHandler)
+            } else {
+                completionHandler(.success(()))
             }
 
-            switch self.makeTunnelSettings() {
-            case .success(let tunnelSettings):
-                let interfaceSettings = tunnelSettings.interface
-
-                // Push key if interface addresses were not received yet
-                if interfaceSettings.addresses.isEmpty {
-                    self.pushWireguardKey(publicKey: interfaceSettings.publicKey) { error in
-                        let completion: OperationCompletion<(), TunnelManager.Error> = error.map { .failure($0) } ?? .success(())
-
-                        self.completeOperation(completion: completion)
-                    }
-                } else {
-                    self.completeOperation(completion: .success(()))
-                }
-
-            case .failure(let error):
-                self.completeOperation(completion: .failure(error))
-            }
+        case .failure(let error):
+            completionHandler(.failure(error))
         }
     }
 
@@ -74,45 +77,42 @@ class SetAccountOperation: BaseTunnelOperation<(), TunnelManager.Error> {
             }
     }
 
-    private func pushWireguardKey(publicKey: PublicKey, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
+    private func pushWireguardKey(publicKey: PublicKey, completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void) {
         _ = restClient.pushWireguardKey(token: token, publicKey: publicKey)
-            .execute { result in
+            .execute(retryStrategy: .default) { result in
                 self.queue.async {
-                    switch result {
-                    case .success(let associatedAddresses):
-                        let saveSettingsResult = TunnelSettingsManager.update(searchTerm: .accountToken(self.token)) { tunnelSettings in
-                            tunnelSettings.interface.addresses = [
-                                associatedAddresses.ipv4Address,
-                                associatedAddresses.ipv6Address
-                            ]
-                        }
-
-                        switch saveSettingsResult {
-                        case .success(let newTunnelSettings):
-                            let tunnelInfo = TunnelInfo(
-                                token: self.token,
-                                tunnelSettings: newTunnelSettings
-                            )
-
-                            self.delegate?.operation(self, didSetTunnelInfo: tunnelInfo)
-
-                            completionHandler(nil)
-
-                        case .failure(let error):
-                            completionHandler(.updateTunnelSettings(error))
-                        }
-
-                    case .failure(let error):
-                        completionHandler(.pushWireguardKey(error))
-                    }
+                    self.didPushWireguardKey(result: result, completionHandler: completionHandler)
                 }
             }
     }
 
-    override func completeOperation(completion: OperationCompletion<(), TunnelManager.Error>) {
-        delegate?.operation(self, didFinishSettingAccountTokenWithCompletion: completion)
-        delegate = nil
+    private func didPushWireguardKey(result: Result<REST.WireguardAddressesResponse, REST.Error>, completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void) {
+        switch result {
+        case .success(let associatedAddresses):
+            let saveSettingsResult = TunnelSettingsManager.update(searchTerm: .accountToken(token)) { tunnelSettings in
+                tunnelSettings.interface.addresses = [
+                    associatedAddresses.ipv4Address,
+                    associatedAddresses.ipv6Address
+                ]
+            }
 
-        super.completeOperation(completion: completion)
+            switch saveSettingsResult {
+            case .success(let newTunnelSettings):
+                let tunnelInfo = TunnelInfo(
+                    token: token,
+                    tunnelSettings: newTunnelSettings
+                )
+
+                state.tunnelInfo = tunnelInfo
+
+                completionHandler(.success(()))
+
+            case .failure(let error):
+                completionHandler(.failure(.updateTunnelSettings(error)))
+            }
+
+        case .failure(let error):
+            completionHandler(.failure(.pushWireguardKey(error)))
+        }
     }
 }
