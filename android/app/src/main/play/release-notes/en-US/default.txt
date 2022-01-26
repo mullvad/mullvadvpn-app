@@ -1,1 +1,3 @@
-- First stable release. Identical to last beta release.
+- Allow splitting TV-only apps
+- Add toggle to show system apps in split tunneling view
+- Large rework to improve app stability
