@@ -1,50 +1,59 @@
-use crate::{rest::RequestCommand, tcp_stream::TcpStream};
-use futures::{
-    channel::{mpsc, oneshot},
-    sink::SinkExt,
+use crate::{
+    abortable_stream::{AbortableStream, AbortableStreamHandle},
+    tls_stream::TlsStream,
 };
+use futures::{channel::mpsc, StreamExt};
+#[cfg(target_os = "android")]
+use futures::{channel::oneshot, sink::SinkExt};
 use http::uri::Scheme;
 use hyper::{
     client::connect::dns::{GaiResolver, Name},
     service::Service,
     Uri,
 };
-use hyper_rustls::MaybeHttpsStream;
-use rustls::ServerName;
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
     fmt,
     future::Future,
-    io::{self, BufReader},
+    io,
     net::{IpAddr, SocketAddr},
     pin::Pin,
     str::{self, FromStr},
-    sync::Arc,
+    sync::{Arc, Mutex},
     task::{Context, Poll},
     time::Duration,
 };
 #[cfg(target_os = "android")]
 use tokio::net::TcpSocket;
 
-use tokio::{net::TcpStream as TokioTcpStream, runtime::Handle, time::timeout};
-use tokio_rustls::rustls;
-
-// New LetsEncrypt root certificate
-const LE_ROOT_CERT: &[u8] = include_bytes!("../le_root_cert.pem");
+use tokio::{net::TcpStream, runtime::Handle, time::timeout};
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
+
+#[derive(Clone)]
+pub struct HttpsConnectorWithSniHandle {
+    tx: mpsc::UnboundedSender<()>,
+}
+
+impl HttpsConnectorWithSniHandle {
+    /// Stop all streams produced by this connector
+    pub fn reset(&self) {
+        let _ = self.tx.unbounded_send(());
+    }
+}
 
 /// A Connector for the `https` scheme.
 #[derive(Clone)]
 pub struct HttpsConnectorWithSni {
-    next_socket_id: usize,
-    handle: Handle,
+    inner: Arc<Mutex<HttpsConnectorWithSniInner>>,
     sni_hostname: Option<String>,
-    service_tx: Option<mpsc::Sender<RequestCommand>>,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    tls: Arc<rustls::ClientConfig>,
+}
+
+struct HttpsConnectorWithSniInner {
+    stream_handles: Vec<AbortableStreamHandle>,
 }
 
 #[cfg(target_os = "android")]
@@ -55,54 +64,40 @@ impl HttpsConnectorWithSni {
         handle: Handle,
         sni_hostname: Option<String>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> Self {
-        let mut config = rustls::ClientConfig::builder()
-            .with_safe_default_cipher_suites()
-            .with_safe_default_kx_groups()
-            .with_protocol_versions(&[&rustls::version::TLS13])
-            .unwrap()
-            .with_root_certificates(Self::read_cert_store())
-            .with_no_client_auth();
-        config.enable_sni = true;
+    ) -> (Self, HttpsConnectorWithSniHandle) {
+        let (tx, mut rx): (_, mpsc::UnboundedReceiver<()>) = mpsc::unbounded();
+        let inner = Arc::new(Mutex::new(HttpsConnectorWithSniInner {
+            stream_handles: vec![],
+        }));
 
-        HttpsConnectorWithSni {
-            next_socket_id: 0,
-            handle,
-            sni_hostname,
-            #[cfg(target_os = "android")]
-            socket_bypass_tx,
-            service_tx: None,
-            tls: Arc::new(config),
-        }
-    }
+        let inner_copy = inner.clone();
+        handle.spawn(async move {
+            // Handle requests by `HttpsConnectorWithSniHandle`s
+            while let Some(()) = rx.next().await {
+                let handles = {
+                    let mut inner = inner_copy.lock().unwrap();
+                    std::mem::take(&mut inner.stream_handles)
+                };
+                for handle in handles {
+                    handle.close();
+                }
+            }
+        });
 
-    fn read_cert_store() -> rustls::RootCertStore {
-        let mut cert_store = rustls::RootCertStore::empty();
-
-        let certs = rustls_pemfile::certs(&mut BufReader::new(LE_ROOT_CERT))
-            .expect("Failed to parse pem file");
-        let (num_certs_added, num_failures) = cert_store.add_parsable_certificates(&certs);
-        if num_failures > 0 || num_certs_added != 1 {
-            panic!("Failed to add root cert");
-        }
-
-        cert_store
-    }
-
-    /// Set a channel to register sockets with the request service.
-    pub(crate) fn set_service_tx(&mut self, service_tx: mpsc::Sender<RequestCommand>) {
-        self.service_tx = Some(service_tx);
-    }
-
-    fn next_id(&mut self) -> usize {
-        let next_id = self.next_socket_id;
-        self.next_socket_id = self.next_socket_id.wrapping_add(1);
-        next_id
+        (
+            HttpsConnectorWithSni {
+                inner,
+                sni_hostname,
+                #[cfg(target_os = "android")]
+                socket_bypass_tx,
+            },
+            HttpsConnectorWithSniHandle { tx },
+        )
     }
 
     #[cfg(not(target_os = "android"))]
-    async fn open_socket(addr: SocketAddr) -> std::io::Result<TokioTcpStream> {
-        timeout(CONNECT_TIMEOUT, TokioTcpStream::connect(addr))
+    async fn open_socket(addr: SocketAddr) -> std::io::Result<TcpStream> {
+        timeout(CONNECT_TIMEOUT, TcpStream::connect(addr))
             .await
             .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
     }
@@ -111,7 +106,7 @@ impl HttpsConnectorWithSni {
     async fn open_socket(
         addr: SocketAddr,
         socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> std::io::Result<TokioTcpStream> {
+    ) -> std::io::Result<TcpStream> {
         let socket = match addr {
             SocketAddr::V4(_) => TcpSocket::new_v4()?,
             SocketAddr::V6(_) => TcpSocket::new_v6()?,
@@ -162,7 +157,7 @@ impl fmt::Debug for HttpsConnectorWithSni {
 }
 
 impl Service<Uri> for HttpsConnectorWithSni {
-    type Response = MaybeHttpsStream<TcpStream>;
+    type Response = TlsStream<AbortableStream<TcpStream>>;
     type Error = io::Error;
     type Future =
         Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
@@ -172,7 +167,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
     }
 
     fn call(&mut self, uri: Uri) -> Self::Future {
-        let tls_connector: tokio_rustls::TlsConnector = self.tls.clone().into();
         let sni_hostname = self
             .sni_hostname
             .clone()
@@ -180,10 +174,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
             .ok_or_else(|| {
                 io::Error::new(io::ErrorKind::InvalidInput, "invalid url, missing host")
             });
-        let service_tx = self.service_tx.clone();
-
-        let socket_id = self.next_id();
-        let handle = self.handle.clone();
+        let inner = self.inner.clone();
         #[cfg(target_os = "android")]
         let socket_bypass_tx = self.socket_bypass_tx.clone();
 
@@ -196,12 +187,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
             }
 
             let hostname = sni_hostname?;
-            let host = ServerName::try_from(hostname.as_str()).map_err(|_| {
-                io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    format!("invalid hostname \"{}\"", hostname),
-                )
-            })?;
             let addr = Self::resolve_address(&uri).await?;
 
             let tokio_connection = Self::open_socket(
@@ -211,45 +196,17 @@ impl Service<Uri> for HttpsConnectorWithSni {
             )
             .await?;
 
-            let (socket_shutdown_tx, socket_shutdown_rx) = oneshot::channel();
+            let (tcp_stream, socket_handle) = AbortableStream::new(tokio_connection);
 
-            let (tcp_stream, socket_handle) =
-                TcpStream::new(tokio_connection, Some(socket_shutdown_tx));
-            if let Some(mut service_tx) = service_tx {
-                if service_tx
-                    .send(RequestCommand::SocketOpened(socket_id, socket_handle))
-                    .await
-                    .is_err()
-                {
-                    log::error!("Failed to submit new socket to request service");
-                }
-                handle.spawn(async move {
-                    let _ = socket_shutdown_rx.await;
-                    if service_tx
-                        .send(RequestCommand::SocketClosed(socket_id))
-                        .await
-                        .is_err()
-                    {
-                        log::error!("Failed to send socket closure command to request service");
-                    }
-                });
+            {
+                let mut inner = inner.lock().unwrap();
+                inner.stream_handles.retain(|handle| !handle.is_closed());
+                inner.stream_handles.push(socket_handle);
             }
 
-            let tls_connection = tls_connector.connect(host, tcp_stream).await?;
-
-            Ok(MaybeHttpsStream::Https(tls_connection))
+            Ok(TlsStream::connect_https(tcp_stream, &hostname).await?)
         };
 
         Box::pin(fut)
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::HttpsConnectorWithSni;
-
-    #[test]
-    fn test_cert_loading() {
-        let _certs = HttpsConnectorWithSni::read_cert_store();
     }
 }

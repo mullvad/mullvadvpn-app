@@ -21,11 +21,11 @@ pub mod availability;
 use availability::{ApiAvailability, ApiAvailabilityHandle};
 pub mod rest;
 
+mod abortable_stream;
 mod https_client_with_sni;
-use crate::https_client_with_sni::HttpsConnectorWithSni;
+mod tls_stream;
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
-mod tcp_stream;
 
 mod address_cache;
 mod relay_list;
@@ -227,18 +227,13 @@ impl MullvadRpcRuntime {
 
     /// Creates a new request service and returns a handle to it.
     fn new_request_service(&mut self, sni_hostname: Option<String>) -> rest::RequestServiceHandle {
-        let https_connector = HttpsConnectorWithSni::new(
+        let service = rest::RequestService::new(
             self.handle.clone(),
             sni_hostname,
-            #[cfg(target_os = "android")]
-            self.socket_bypass_tx.clone(),
-        );
-
-        let service = rest::RequestService::new(
-            https_connector,
-            self.handle.clone(),
             self.api_availability.handle(),
             self.address_cache.clone(),
+            #[cfg(target_os = "android")]
+            self.socket_bypass_tx.clone(),
         );
         let handle = service.handle();
         self.handle.spawn(service.into_future());
