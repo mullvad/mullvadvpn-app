@@ -47,13 +47,15 @@ use mullvad_types::{
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
+#[cfg(not(target_os = "android"))]
+use std::path::Path;
 #[cfg(target_os = "windows")]
 use std::{collections::HashSet, ffi::OsString};
 use std::{
     marker::PhantomData,
     mem,
     net::{IpAddr, Ipv4Addr},
-    path::{Path, PathBuf},
+    path::PathBuf,
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Weak},
     time::Duration,
@@ -74,7 +76,9 @@ use talpid_types::{
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
-use tokio::{fs, io};
+#[cfg(not(target_os = "android"))]
+use tokio::fs;
+use tokio::io;
 
 #[path = "wireguard.rs"]
 mod wireguard;
