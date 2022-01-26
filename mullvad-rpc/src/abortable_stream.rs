@@ -15,7 +15,6 @@ use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 #[derive(Clone, Debug)]
 pub struct AbortableStreamHandle {
     tx: Arc<Mutex<Option<oneshot::Sender<()>>>>,
-    notify_tx: Arc<Mutex<Option<oneshot::Sender<()>>>>,
 }
 
 impl AbortableStreamHandle {
@@ -23,16 +22,21 @@ impl AbortableStreamHandle {
         if let Some(tx) = self.tx.lock().unwrap().take() {
             let _ = tx.send(());
         }
-        if let Some(tx) = self.notify_tx.lock().unwrap().take() {
-            let _ = tx.send(());
-        }
+    }
+
+    /// Returns whether the stream has already stopped on its own.
+    pub fn is_closed(&self) -> bool {
+        self.tx
+            .lock()
+            .unwrap()
+            .as_ref()
+            .map(|tx| tx.is_canceled())
+            .unwrap_or(true)
     }
 }
 
 pub struct AbortableStream<S: Unpin> {
     stream: S,
-    /// Notified when the stream is shut down.
-    notify_tx: Arc<Mutex<Option<oneshot::Sender<()>>>>,
     shutdown_rx: oneshot::Receiver<()>,
 }
 
@@ -40,41 +44,18 @@ impl<S> AbortableStream<S>
 where
     S: Unpin + Send + 'static,
 {
-    pub fn new(
-        stream: S,
-        notify_shutdown_tx: Option<oneshot::Sender<()>>,
-    ) -> (Self, AbortableStreamHandle) {
+    pub fn new(stream: S) -> (Self, AbortableStreamHandle) {
         let (tx, rx) = oneshot::channel();
-        let notify_tx = Arc::new(Mutex::new(notify_shutdown_tx));
         let stream_handle = AbortableStreamHandle {
             tx: Arc::new(Mutex::new(Some(tx))),
-            notify_tx: notify_tx.clone(),
         };
         (
             Self {
                 stream,
-                notify_tx,
                 shutdown_rx: rx,
             },
             stream_handle,
         )
-    }
-}
-
-impl<S: Unpin> AbortableStream<S> {
-    fn maybe_send_shutdown_signal(&mut self) {
-        if let Some(tx) = self.notify_tx.lock().unwrap().take() {
-            let _ = tx.send(());
-        }
-    }
-}
-
-impl<S> Drop for AbortableStream<S>
-where
-    S: Unpin,
-{
-    fn drop(&mut self) {
-        self.maybe_send_shutdown_signal();
     }
 }
 
@@ -88,7 +69,6 @@ where
         buf: &[u8],
     ) -> Poll<io::Result<usize>> {
         if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
-            self.maybe_send_shutdown_signal();
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
                 "stream is closed",
@@ -99,7 +79,6 @@ where
 
     fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
-            self.maybe_send_shutdown_signal();
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
                 "stream is closed",
@@ -123,7 +102,6 @@ where
         buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<()>> {
         if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
-            self.maybe_send_shutdown_signal();
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
                 "stream is closed",
@@ -156,7 +134,7 @@ mod test {
         let (client, _server) = tokio::io::duplex(64);
 
         runtime.block_on(async move {
-            let (mut stream, abort_handle) = AbortableStream::new(client, None);
+            let (mut stream, abort_handle) = AbortableStream::new(client);
 
             let stream_task = tokio::spawn(async move {
                 let mut buf = vec![];
@@ -173,45 +151,45 @@ mod test {
         });
     }
 
-    /// Test whether the shutdown signal is sent when the stream is explicitly closed.
+    /// Test the `AbortableStreamHandle::is_closed` method when explicitly closed.
     #[test]
     fn test_shutdown_signal() {
         let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
 
         let (client, _server) = tokio::io::duplex(64);
-        let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
         runtime.block_on(async move {
-            let (_stream, abort_handle) = AbortableStream::new(client, Some(shutdown_tx));
+            let (_stream, abort_handle) = AbortableStream::new(client);
+            let abort_handle_2 = abort_handle.clone();
+            assert!(!abort_handle_2.is_closed());
             abort_handle.close();
-            assert!(tokio::time::timeout(Duration::from_secs(1), shutdown_rx)
-                .await
-                .unwrap()
-                .is_ok());
+            assert!(abort_handle_2.is_closed());
         });
     }
 
-    /// Test whether the shutdown signal is sent when the stream stops on its own.
+    /// Test the `AbortableStreamHandle::is_closed` method when the stream stops on its own.
     #[test]
     fn test_shutdown_signal_normal() {
         let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
 
         let (client, server) = tokio::io::duplex(64);
-        let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
         runtime.block_on(async move {
-            let (mut stream, _abort_handle) = AbortableStream::new(client, Some(shutdown_tx));
+            let (mut stream, abort_handle) = AbortableStream::new(client);
 
-            tokio::spawn(async move {
+            assert!(!abort_handle.is_closed());
+
+            let stream_task = tokio::spawn(async move {
                 drop(server);
                 let mut buf = vec![];
                 stream.read_to_end(&mut buf).await
             });
 
-            assert!(tokio::time::timeout(Duration::from_secs(1), shutdown_rx)
+            assert!(tokio::time::timeout(Duration::from_secs(1), stream_task)
                 .await
                 .unwrap()
                 .is_ok());
+            assert!(abort_handle.is_closed());
         });
     }
 }
