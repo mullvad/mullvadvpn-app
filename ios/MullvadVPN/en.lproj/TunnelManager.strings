@@ -29,6 +29,9 @@
 "READ_TUNNEL_SETTINGS_ERROR" = "Failed to read tunnel settings";
 
 /* No comment provided by engineer. */
+"RELOAD_TUNNEL_ERROR" = "Failed to reload tunnel: %@";
+
+/* No comment provided by engineer. */
 "RELOAD_VPN_CONFIGURATIONS_ERROR" = "Failed to reload a VPN configuration: %@";
 
 /* No comment provided by engineer. */
