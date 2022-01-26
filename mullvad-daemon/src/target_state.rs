@@ -6,9 +6,11 @@ use std::{
 use talpid_types::ErrorExt;
 use tokio::{fs, io};
 
+/// State to use by default if there is no cache.
+const DEFAULT_TARGET_STATE: TargetState = TargetState::Unsecured;
 const TARGET_START_STATE_FILE: &str = "target-start-state.json";
 
-/// Persists the target state to a file, unless dropped cleanly.
+/// Persists the target state to a file, which is only removed if the instance is dropped cleanly.
 pub struct PersistentTargetState {
     state: TargetState,
     cache_file: PathBuf,
@@ -16,7 +18,7 @@ pub struct PersistentTargetState {
 }
 
 impl PersistentTargetState {
-    /// Initialize using the current target state (or default, if there is none)
+    /// Initialize using the current target state (if there is one)
     pub async fn new(cache_dir: &Path) -> Self {
         let cache_file = cache_dir.join(TARGET_START_STATE_FILE);
         let mut update_cache = false;
@@ -41,7 +43,7 @@ impl PersistentTargetState {
             Err(error) => {
                 if error.kind() == io::ErrorKind::NotFound {
                     log::debug!("No cached target state to load");
-                    TargetState::Unsecured
+                    DEFAULT_TARGET_STATE
                 } else {
                     log::error!(
                         "{}",
