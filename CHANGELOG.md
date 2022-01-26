@@ -43,19 +43,6 @@ Line wrap the file at 100 chars.                                              Th
 - CLI command for setting a specific server by hostname is no longer case sensitive.
   Example: `mullvad relay set hostname SE9-WIREGUARD` should now work.
 
-#### Android
-- Avoid running in foreground when not connected.
-- Avoid removing notification when service is stopped.
-- Change so that swiping the notification no longer kills the service since that isn't a common way
-  of handling the lifecycle in Android. Instead rely on the following mechanisms to kill the
-  service:
-  * Swiping to remove from the Recents/Overview screen.
-  * Android Background Execution Limits.
-  * The System Settings way of killing apps ("Force Stop").
-- Change Quick Settings tile label to reflect the action of clicking the tile. Also add a subtitle
-  on supported Android versions (Q and above) to reflect the state.
-- Hide the tunnel state notification from the lock screen.
-
 #### Windows
 - Update wireguard-nt to 0.10.1.
 - Make wireguard-nt the default driver for WireGuard. This is used instead of wireguard-go and
@@ -95,11 +82,6 @@ Line wrap the file at 100 chars.                                              Th
 - Wait for IP interfaces to arrive before trying to configure them when using wireguard-nt.
 
 #### Android
-- Fix Quick Settings tile showing wrong state in certain scenarios.
-- Fix banner sometimes incorrectly showing (e.g. "BLOCKING INTERNET").
-- Fix issue with the user getting kicked out of certain views in settings when the app is brought to the foreground.
-- Fix "Secure my connection" action not always visible in tunnel state notification.
-- Fix tunnel state notification sometimes re-appearing after being dismissed.
 - Fix app sometimes crashing during startup on Android TVs.
 
 ### Security
@@ -107,6 +89,50 @@ Line wrap the file at 100 chars.                                              Th
   This prevents malicious scripts on websites from trying to do so. On Windows, only
   `mullvad-problem-report.exe` and `mullvad-daemon.exe` executables are allowed to reach the API,
   whereas on Linux and macOS only root processes are able to reach the API.
+
+
+## [android/2022.1-beta1] - 2022-01-26
+### Added
+#### Android
+- Add toggle for Split tunneling view to be able to show system apps
+- Add support of adaptive icons (available only from Android 8).
+
+### Changed
+- Gradually increase the WireGuard connectivity check timeout, lowering the timeout for the first
+  few attempts.
+
+#### Android
+- Improve stability by running the UI and the tunnel management logic in separate processes.
+- Remove dialog warning that only custom local DNS servers are supported, since public custom DNS
+  servers are now supported.
+- Drop support for Android 7/7.1 (Android 8/API level 26 or later is now required).
+- Change so that swiping the notification no longer kills the service since that isn't a common way
+  of handling the lifecycle in Android. Instead rely on the following mechanisms to kill the
+  service:
+  * Swiping to remove app from the Recents/Overview screen.
+  * Android Background Execution Limits.
+  * The System Settings way of killing apps ("Force Stop").
+- Change Quick Settings tile label to reflect the action of clicking the tile. Also add a subtitle
+  on supported Android versions (Q and above) to reflect the state.
+- Hide the tunnel state notification from the lock screen.
+
+### Fixed
+#### Android
+- Fix banner sometimes incorrectly showing (e.g. "BLOCKING INTERNET").
+- Fix tunnel state notification sometimes re-appearing after being dismissed.
+- Fix invalid URLs. Rely on browser locale rather than app/system language.
+- Automatically disable custom DNS when no servers have been added.
+- Fix issue where erasing wireguard MTU value did not clear its setting.
+- Fix initial state of Split tunneling excluded apps list. Previously it was not notified the daemon
+properly after initialization.
+- Fix UI sometimes not updating correctly while no split screen or after having a dialog from
+  another app appear on top.
+- Fix request to connect from notification or quick-settings tile not connecting if VPN permission
+  isn't granted to the app. The app will now show the UI to ask for the permission and correctly
+  connect after it is granted.
+- Fix quick-settings tile sometimes showing the wrong tunnel state.
+- Fix TV-only apps not appearing in the Split Tunneling screen.
+- Fix status bar having the wrong color after logging out.
 
 
 ## [2021.6] - 2021-11-17
@@ -124,9 +150,6 @@ Line wrap the file at 100 chars.                                              Th
 - Update Electron from 11.4.9 to 15.0.0.
 - Revamp main view with blurred background behind semi-transparent buttons and switch to
   correct font for logo. Also a slightly less bold font in other parts of the app.
-
-#### Android
-- Drop support for Android 7/7.1 (Android 8/API level 26 or later is now required).
 
 ### Removed
 - Remove the old Let's encrypt root certificate from the API REST client. Only bundle and
@@ -149,11 +172,6 @@ Line wrap the file at 100 chars.                                              Th
 - Use route-based offline monitoring. Fixes issues where the daemon falsely entered the offline
   state, for example when using virtual switches in Hyper-V.
 - Improve repositioning of app window after connecting/disconnecting external monitor.
-
-#### Android
-- Fix reconnect on app resume. Don't reconnect the tunnel every time the app is opened.
-- Fix invalid URLs. Rely on browser locale rather than app/system language.
-- Automatically disable custom DNS when no servers have been added.
 
 #### macOS
 - Prevent app from showing when dragging tray icon on macOS.
@@ -187,9 +205,6 @@ This release is identical to 2021.5-beta2 except that it has translations for ne
   normal users.
 - Add setting for changing between IPv4 and IPv6 for the connection to WireGuard servers on
   desktop.
-
-#### Android
-- Added toggle for Split tunneling view to be able to show system apps
 
 #### Windows
 - Resolve symbolic links and junctions for excluded apps.
@@ -257,11 +272,6 @@ This release is identical to 2021.5-beta2 except that it has translations for ne
   of failing due to "no matching relays".
 - Retry tunnel device creation multiple times to work around issues early after boot or hibernation.
 
-#### Android
-- Fix erasing wireguard MTU value in some scenarious.
-- Fix initial state of Split tunneling excluded apps list. Previously it was not notified the daemon
-properly after initialization.
-
 
 ## [2021.4] - 2021-06-30
 This release is for desktop only.
@@ -283,9 +293,6 @@ This release is for desktop only.
 #### Windows
 - Add split tunneling as a beta feature. Allows excluding some applications from the VPN tunnel.
 
-#### Android
-- Added support of adaptive icons (available only from Android 8).
-
 ### Changed
 - Upgrade OpenVPN from 2.5.0 to 2.5.1.
 - Replace CLI command `mullvad custom-dns` with the new command `mullvad dns`.
@@ -296,11 +303,6 @@ This release is for desktop only.
   Previously, bridges were expected to run as root instead.
 - Use an ICMP socket instead of relying on a `ping` binary in `$PATH` to establish if a tunnel is
   working.
-
-#### Android
-- Improve stability by running the UI and the tunnel management logic in separate processes.
-- Remove dialog warning that only custom local DNS servers are supported, since public custom DNS
-  servers are now supported.
 
 #### macOS
 - Update shape of macOS icon to be in line with Apple's guidelines.
@@ -326,15 +328,6 @@ This release is for desktop only.
 - Set correct permissions for daemon's launch file in installer.
 - Fix downgrades on macOS silently keeping previous version.
 - Fix other menubar context menus not always closing when opening app on macOS 11.
-
-#### Android
-- Fix UI sometimes not updating correctly while no split screen or after having a dialog from
-  another app appear on top.
-- Fix request to connect from notification or quick-settings tile not connecting if VPN permission
-  isn't granted to the app. The app will now show the UI to ask for the permission and correctly
-  connect after it is granted.
-- Fix quick-settings tile sometimes showing the wrong tunnel state.
-- Fix TV-only apps not appearing in the Split Tunneling screen.
 
 ### Security
 #### Linux
@@ -383,9 +376,6 @@ This release is for desktop only.
 
 #### Linux
 - Further improve offline monitor to properly receive `ENETUNREACH`.
-
-#### Android
-- Fix status bar having the wrong color after logging out.
 
 ### Security
 - Always reconnect appropriately after an upgrade. Previously, installing the app twice in
