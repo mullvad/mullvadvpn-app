@@ -9,49 +9,25 @@
 import Foundation
 import NetworkExtension
 
-protocol ReloadTunnelOperationDelegate: AnyObject {
-    func operationDidRequestTunnelProvider(_ operation: Operation) -> TunnelProviderManagerType?
-    func operation(_ operation: Operation, didFinishReloadingTunnelWithCompletion: OperationCompletion<(), TunnelManager.Error>)
-}
+class ReloadTunnelOperation: AsyncOperation {
+    typealias CompletionHandler = (OperationCompletion<(), TunnelManager.Error>) -> Void
 
-class ReloadTunnelOperation: BaseTunnelOperation<(), TunnelManager.Error> {
-    private weak var delegate: ReloadTunnelOperationDelegate?
+    private let queue: DispatchQueue
+    private let state: TunnelManager.State
+    private var completionHandler: CompletionHandler?
     private var statusObserver: NSObjectProtocol?
 
-    init(queue: DispatchQueue, delegate: ReloadTunnelOperationDelegate) {
-        self.delegate = delegate
-        super.init(queue: queue)
+    init(queue: DispatchQueue, state: TunnelManager.State, completionHandler: @escaping CompletionHandler) {
+        self.queue = queue
+        self.state = state
+        self.completionHandler = completionHandler
     }
 
     override func main() {
         queue.async {
-            guard !self.isCancelled else {
-                self.completeOperation(completion: .cancelled)
-                return
+            self.execute { [weak self] completion in
+                self?.completeOperation(completion: completion)
             }
-
-            guard let tunnelProvider = self.delegate?.operationDidRequestTunnelProvider(self) else {
-                self.completeOperation(completion: .failure(.missingAccount))
-                return
-            }
-
-            let ipcSession = TunnelIPC.Session(from: tunnelProvider)
-
-            // Add observer
-            self.statusObserver = NotificationCenter.default.addObserver(
-                forName: .NEVPNStatusDidChange,
-                object: tunnelProvider.connection,
-                queue: nil) { [weak self] notification in
-                    guard let self = self else { return }
-                    guard let connection = notification.object as? VPNConnectionProtocol else { return }
-
-                    self.queue.async {
-                        self.handleStatus(connection.status, ipcSession: ipcSession)
-                    }
-                }
-
-            // Run initial check
-            self.handleStatus(tunnelProvider.connection.status, ipcSession: ipcSession)
         }
     }
 
@@ -67,9 +43,46 @@ class ReloadTunnelOperation: BaseTunnelOperation<(), TunnelManager.Error> {
         }
     }
 
-    private func handleStatus(_ status: NEVPNStatus, ipcSession: TunnelIPC.Session) {
-        guard isCancelled else {
-            completeOperation(completion: .cancelled)
+    private func completeOperation(completion: OperationCompletion<(), TunnelManager.Error>) {
+        completionHandler?(completion)
+        completionHandler = nil
+
+        finish()
+    }
+
+    private func execute(completionHandler: @escaping CompletionHandler) {
+        guard !isCancelled else {
+            completionHandler(.cancelled)
+            return
+        }
+
+        guard let tunnelProvider = self.state.tunnelProvider else {
+            completionHandler(.failure(.missingAccount))
+            return
+        }
+
+        let ipcSession = TunnelIPC.Session(from: tunnelProvider)
+
+        // Add observer
+        statusObserver = NotificationCenter.default.addObserver(
+            forName: .NEVPNStatusDidChange,
+            object: tunnelProvider.connection,
+            queue: nil) { [weak self] notification in
+                guard let self = self else { return }
+                guard let connection = notification.object as? VPNConnectionProtocol else { return }
+
+                self.queue.async {
+                    self.handleStatus(connection.status, ipcSession: ipcSession, completionHandler: completionHandler)
+                }
+            }
+
+        // Run initial check
+        handleStatus(tunnelProvider.connection.status, ipcSession: ipcSession, completionHandler: completionHandler)
+    }
+
+    private func handleStatus(_ status: NEVPNStatus, ipcSession: TunnelIPC.Session, completionHandler: @escaping CompletionHandler) {
+        guard !isCancelled else {
+            completionHandler(.cancelled)
             return
         }
 
@@ -81,7 +94,7 @@ class ReloadTunnelOperation: BaseTunnelOperation<(), TunnelManager.Error> {
                 guard let self = self else { return }
 
                 self.queue.async {
-                    self.completeOperation(completion: error.map { .failure(.reloadTunnel($0)) } ?? .success(()))
+                    completionHandler(error.map { .failure(.reloadTunnel($0)) } ?? .success(()))
                 }
             }
 
@@ -91,7 +104,7 @@ class ReloadTunnelOperation: BaseTunnelOperation<(), TunnelManager.Error> {
 
         case .invalid, .disconnecting, .disconnected:
             removeStatusObserver()
-            completeOperation(completion: .success(()))
+            completionHandler(.success(()))
 
         @unknown default:
             break
@@ -104,13 +117,6 @@ class ReloadTunnelOperation: BaseTunnelOperation<(), TunnelManager.Error> {
 
             self.statusObserver = nil
         }
-    }
-
-    override func completeOperation(completion: OperationCompletion<(), TunnelManager.Error>) {
-        delegate?.operation(self, didFinishReloadingTunnelWithCompletion: completion)
-        delegate = nil
-
-        super.completeOperation(completion: completion)
     }
 
 }

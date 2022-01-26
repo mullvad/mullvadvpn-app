@@ -8,65 +8,64 @@
 
 import Foundation
 
-protocol StopTunnelOperationDelegate: AnyObject {
-    func operationDidRequestTunnelState(_ operation: Operation) -> TunnelState
-    func operation(_ operation: Operation, didSetTunnelState newTunnelState: TunnelState)
-    func operationDidRequestTunnelProvider(_ operation: Operation) -> TunnelProviderManagerType?
-    func operation(_ operation: Operation, didStopTunnelWithCompletion completion: OperationCompletion<(), TunnelManager.Error>)
-}
+class StopTunnelOperation: AsyncOperation {
+    typealias CompletionHandler = (OperationCompletion<(), TunnelManager.Error>) -> Void
 
-class StopTunnelOperation: BaseTunnelOperation<(), TunnelManager.Error> {
-    private weak var delegate: StopTunnelOperationDelegate?
+    private let queue: DispatchQueue
+    private let state: TunnelManager.State
+    private var completionHandler: CompletionHandler?
 
-    init(queue: DispatchQueue, delegate: StopTunnelOperationDelegate) {
-        self.delegate = delegate
-        super.init(queue: queue)
+    init(queue: DispatchQueue, state: TunnelManager.State, completionHandler: @escaping CompletionHandler) {
+        self.queue = queue
+        self.state = state
+        self.completionHandler = completionHandler
     }
 
     override func main() {
         queue.async {
-            guard !self.isCancelled else {
-                self.completeOperation(completion: .cancelled)
-                return
-            }
+            self.execute { completion in
+                self.completionHandler?(completion)
+                self.completionHandler = nil
 
-            guard let tunnelProvider = self.delegate?.operationDidRequestTunnelProvider(self) else {
-                self.completeOperation(completion: .failure(.missingAccount))
-                return
-            }
-
-            let tunnelState = self.delegate?.operationDidRequestTunnelState(self)
-
-            switch tunnelState {
-            case .disconnecting(.reconnect):
-                self.delegate?.operation(self, didSetTunnelState: .disconnecting(.nothing))
-                self.completeOperation(completion: .success(()))
-
-            case .connected, .connecting:
-                // Disable on-demand when stopping the tunnel to prevent it from coming back up
-                tunnelProvider.isOnDemandEnabled = false
-
-                tunnelProvider.saveToPreferences { error in
-                    self.queue.async {
-                        if let error = error {
-                            self.completeOperation(completion: .failure(.saveVPNConfiguration(error)))
-                        } else {
-                            tunnelProvider.connection.stopVPNTunnel()
-                            self.completeOperation(completion: .success(()))
-                        }
-                    }
-                }
-
-            default:
-                self.completeOperation(completion: .success(()))
+                self.finish()
             }
         }
     }
 
-    override func completeOperation(completion: OperationCompletion<(), TunnelManager.Error>) {
-        delegate?.operation(self, didStopTunnelWithCompletion: completion)
-        delegate = nil
+    private func execute(completionHandler: @escaping CompletionHandler) {
+        guard !isCancelled else {
+            completionHandler(.cancelled)
+            return
+        }
 
-        super.completeOperation(completion: completion)
+        guard let tunnelProvider = state.tunnelProvider else {
+            completionHandler(.failure(.missingAccount))
+            return
+        }
+
+        switch self.state.tunnelState {
+        case .disconnecting(.reconnect):
+            state.tunnelState = .disconnecting(.nothing)
+
+            completionHandler(.success(()))
+
+        case .connected, .connecting:
+            // Disable on-demand when stopping the tunnel to prevent it from coming back up
+            tunnelProvider.isOnDemandEnabled = false
+
+            tunnelProvider.saveToPreferences { error in
+                self.queue.async {
+                    if let error = error {
+                        completionHandler(.failure(.saveVPNConfiguration(error)))
+                    } else {
+                        tunnelProvider.connection.stopVPNTunnel()
+                        completionHandler(.success(()))
+                    }
+                }
+            }
+
+        default:
+            completionHandler(.success(()))
+        }
     }
 }
