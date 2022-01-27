@@ -193,7 +193,7 @@ dependencies = [
  "num-integer",
  "num-traits",
  "serde",
- "time 0.1.43",
+ "time",
  "winapi 0.3.9",
 ]
 
@@ -463,19 +463,6 @@ name = "env_logger"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a19187fea3ac7e84da7dacf48de0c45d63c6a76f9490dae389aead16c243fce3"
-dependencies = [
- "atty",
- "humantime",
- "log",
- "regex",
- "termcolor",
-]
-
-[[package]]
-name = "env_logger"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b2cf0344971ee6c64c31be0d530793fba457d322dfec2810c453d0ef228f9c3"
 dependencies = [
  "atty",
  "humantime",
@@ -2761,15 +2748,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "time"
-version = "0.3.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41effe7cfa8af36f439fac33861b66b049edc6f9a32331e2312660529c1c24ad"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "tinyvec"
 version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3007,10 +2985,12 @@ checksum = "ce148eae0d1a376c1b94ae651fc3261d9cb8294788b962b7382066376503a2d1"
 
 [[package]]
 name = "trust-dns-client"
-version = "0.21.0-alpha.4"
-source = "git+https://github.com/mullvad/trust-dns?rev=c782de0645335d1893a854337b965dd07790c068#c782de0645335d1893a854337b965dd07790c068"
+version = "0.20.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fea72219106741b56ebab5e58e506beb657e1ed5d568a987141a9659124474f9"
 dependencies = [
  "cfg-if 1.0.0",
+ "chrono",
  "data-encoding",
  "futures-channel",
  "futures-util",
@@ -3019,15 +2999,15 @@ dependencies = [
  "radix_trie",
  "rand 0.8.4",
  "thiserror",
- "time 0.3.5",
  "tokio",
  "trust-dns-proto",
 ]
 
 [[package]]
 name = "trust-dns-proto"
-version = "0.21.0-alpha.4"
-source = "git+https://github.com/mullvad/trust-dns?rev=c782de0645335d1893a854337b965dd07790c068#c782de0645335d1893a854337b965dd07790c068"
+version = "0.20.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad0d7f5db438199a6e2609debe3f69f808d074e0a2888ee0bccb45fe234d03f4"
 dependencies = [
  "async-trait",
  "cfg-if 1.0.0",
@@ -3051,10 +3031,10 @@ dependencies = [
 
 [[package]]
 name = "trust-dns-resolver"
-version = "0.21.0-alpha.4"
-source = "git+https://github.com/mullvad/trust-dns?rev=c782de0645335d1893a854337b965dd07790c068#c782de0645335d1893a854337b965dd07790c068"
+version = "0.20.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f6ad17b608a64bd0735e67bde16b0636f8aa8591f831a25d18443ed00a699770"
 dependencies = [
- "async-trait",
  "cfg-if 1.0.0",
  "futures-util",
  "ipconfig",
@@ -3072,20 +3052,21 @@ dependencies = [
 
 [[package]]
 name = "trust-dns-server"
-version = "0.21.0-alpha.4"
-source = "git+https://github.com/mullvad/trust-dns?rev=c782de0645335d1893a854337b965dd07790c068#c782de0645335d1893a854337b965dd07790c068"
+version = "0.20.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a29ad5a3b1d988b4dfc6b428578366c4fabf484aece2b3c3a15cab9c272cc0a"
 dependencies = [
  "async-trait",
  "bytes",
  "cfg-if 1.0.0",
+ "chrono",
  "enum-as-inner",
- "env_logger 0.9.0",
+ "env_logger 0.8.4",
  "futures-executor",
  "futures-util",
  "log",
  "serde",
  "thiserror",
- "time 0.3.5",
  "tokio",
  "toml",
  "trust-dns-client",
@@ -3195,7 +3176,6 @@ dependencies = [
  "idna",
  "matches",
  "percent-encoding",
- "serde",
 ]
 
 [[package]]
