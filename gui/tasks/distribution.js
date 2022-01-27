@@ -35,6 +35,7 @@ const config = {
 
   files: [
     'package.json',
+    'changelog.txt',
     'init.js',
     'build/',
     '!build/src/renderer',
@@ -51,7 +52,7 @@ const config = {
   afterPack: (context) => {
     const resources = context.packager.platformSpecificBuildOptions.extraResources;
     for (const resource of resources) {
-      const filePath = resource.from.replace(/\$\{env\.(.*)\}/, function(match, captureGroup) {
+      const filePath = resource.from.replace(/\$\{env\.(.*)\}/, function (match, captureGroup) {
         return process.env[captureGroup];
       });
 
@@ -123,9 +124,22 @@ const config = {
       { from: distAssets('mullvad-problem-report.exe'), to: '.' },
       { from: distAssets('mullvad-daemon.exe'), to: '.' },
       { from: distAssets('talpid_openvpn_plugin.dll'), to: '.' },
-      { from: root(path.join('windows', 'winfw', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winfw.dll')), to: '.' },
-      { from: root(path.join('windows', 'windns', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'windns.dll')), to: '.' },
-      { from: root(path.join('windows', 'winnet', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winnet.dll')), to: '.' },
+      {
+        from: root(path.join('windows', 'winfw', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winfw.dll')),
+        to: '.',
+      },
+      {
+        from: root(
+          path.join('windows', 'windns', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'windns.dll'),
+        ),
+        to: '.',
+      },
+      {
+        from: root(
+          path.join('windows', 'winnet', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winnet.dll'),
+        ),
+        to: '.',
+      },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/sslocal.exe'), to: '.' },
       { from: root('build/lib/x86_64-pc-windows-msvc/libwg.dll'), to: '.' },

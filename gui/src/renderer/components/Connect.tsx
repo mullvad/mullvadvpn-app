@@ -9,7 +9,6 @@ import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
-import { ModalContainer } from './Modal';
 import TunnelControl from './TunnelControl';
 
 interface IProps {
@@ -85,12 +84,10 @@ export default class Connect extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <ModalContainer>
-        <Layout>
-          <DefaultHeaderBar barStyle={calculateHeaderBarStyle(this.props.connection.status)} />
-          <StyledContainer>{this.renderMap()}</StyledContainer>
-        </Layout>
-      </ModalContainer>
+      <Layout>
+        <DefaultHeaderBar barStyle={calculateHeaderBarStyle(this.props.connection.status)} />
+        <StyledContainer>{this.renderMap()}</StyledContainer>
+      </Layout>
     );
   }
 

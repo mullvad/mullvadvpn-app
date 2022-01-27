@@ -155,6 +155,7 @@ const initialState: ISettingsReduxState = {
     startMinimized: false,
     unpinnedWindow: window.env.platform !== 'win32' && window.env.platform !== 'darwin',
     browsedForSplitTunnelingApplications: [],
+    changelogDisplayedForVersion: '',
   },
   relaySettings: {
     normal: {

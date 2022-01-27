@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { supportEmail } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
-import PlatformWindowContainer from '../containers/PlatformWindowContainer';
 import ErrorView from './ErrorView';
 
 interface IProps {
@@ -42,11 +41,7 @@ export default class ErrorBoundary extends React.Component<IProps, IState> {
           .split('%(email)s', 2);
       reachBackMessage.splice(1, 0, <Email>{supportEmail}</Email>);
 
-      return (
-        <PlatformWindowContainer>
-          <ErrorView>{reachBackMessage}</ErrorView>
-        </PlatformWindowContainer>
-      );
+      return <ErrorView>{reachBackMessage}</ErrorView>;
     } else {
       return this.props.children;
     }

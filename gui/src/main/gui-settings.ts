@@ -4,7 +4,7 @@ import * as path from 'path';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import log from '../shared/logging';
 
-const settingsSchema = {
+const settingsSchema: Record<keyof IGuiSettingsState, string> = {
   preferredLocale: 'string',
   autoConnect: 'boolean',
   enableSystemNotifications: 'boolean',
@@ -12,6 +12,7 @@ const settingsSchema = {
   startMinimized: 'boolean',
   unpinnedWindow: 'boolean',
   browsedForSplitTunnelingApplications: 'Array<string>',
+  changelogDisplayedForVersion: 'string',
 };
 
 const defaultSettings: IGuiSettingsState = {
@@ -22,6 +23,7 @@ const defaultSettings: IGuiSettingsState = {
   startMinimized: false,
   unpinnedWindow: process.platform !== 'win32' && process.platform !== 'darwin',
   browsedForSplitTunnelingApplications: [],
+  changelogDisplayedForVersion: '',
 };
 
 export default class GuiSettings {
@@ -90,6 +92,16 @@ export default class GuiSettings {
 
   get browsedForSplitTunnelingApplications(): Array<string> {
     return this.stateValue.browsedForSplitTunnelingApplications;
+  }
+
+  set changelogDisplayedForVersion(newValue: string | undefined) {
+    this.changeStateAndNotify({ ...this.stateValue, changelogDisplayedForVersion: newValue ?? '' });
+  }
+
+  get changelogDisplayedForVersion(): string | undefined {
+    return this.stateValue.changelogDisplayedForVersion === ''
+      ? undefined
+      : this.stateValue.changelogDisplayedForVersion;
   }
 
   public load() {

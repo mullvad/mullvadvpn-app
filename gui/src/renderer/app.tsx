@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import AppRouter from './components/AppRouter';
 import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import ErrorBoundary from './components/ErrorBoundary';
+import PlatformWindowContainer from './containers/PlatformWindowContainer';
 import { AppContext } from './context';
 
 import accountActions from './redux/account/actions';
@@ -15,7 +16,7 @@ import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
 
-import { ICurrentAppVersionInfo } from '../shared/ipc-types';
+import { IChangelog, ICurrentAppVersionInfo } from '../shared/ipc-types';
 import { IApplication, ILinuxSplitTunnelingApplication } from '../shared/application-types';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { messages, relayLocations } from '../shared/gettext';
@@ -45,6 +46,8 @@ import {
 import { LogLevel } from '../shared/logging-types';
 import IpcOutput from './lib/logging';
 import { RoutePath } from './lib/routes';
+import { Changelog } from './components/Changelog';
+import { ModalContainer } from './components/Modal';
 
 const IpcRendererEventChannel = window.ipc;
 
@@ -212,6 +215,7 @@ export default class AppRenderer {
     this.setGuiSettings(initialState.guiSettings);
     this.storeAutoStart(initialState.autoStart);
     this.setWireguardPublicKey(initialState.wireguardPublicKey);
+    this.setChangelog(initialState.changelog);
 
     if (initialState.macOsScrollbarVisibility !== undefined) {
       this.reduxActions.userInterface.setMacOsScrollbarVisibility(
@@ -248,10 +252,15 @@ export default class AppRenderer {
       <AppContext.Provider value={{ app: this }}>
         <Provider store={this.reduxStore}>
           <Router history={this.history.asHistory}>
-            <ErrorBoundary>
-              <AppRouter />
-              {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
-            </ErrorBoundary>
+            <PlatformWindowContainer>
+              <ErrorBoundary>
+                <ModalContainer>
+                  <AppRouter />
+                  <Changelog />
+                  {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
+                </ModalContainer>
+              </ErrorBoundary>
+            </PlatformWindowContainer>
           </Router>
         </Provider>
       </AppContext.Provider>
@@ -532,6 +541,10 @@ export default class AppRenderer {
 
     return preferredLocale ? preferredLocale.name : '';
   }
+
+  public setDisplayedChangelog = (): void => {
+    IpcRendererEventChannel.currentVersion.displayedChangelog();
+  };
 
   // Make sure that the content height is correct and log if it isn't. This is mostly for debugging
   // purposes since there's a bug in Electron that causes the app height to be another value than
@@ -831,6 +844,10 @@ export default class AppRenderer {
 
   private setWireguardPublicKey(publicKey?: IWireguardPublicKey) {
     this.reduxActions.settings.setWireguardKey(publicKey);
+  }
+
+  private setChangelog(changelog: IChangelog) {
+    this.reduxActions.userInterface.setChangelog(changelog);
   }
 
   private async updateLocation() {

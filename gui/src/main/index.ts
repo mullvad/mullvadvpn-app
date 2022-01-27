@@ -41,8 +41,9 @@ import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
+import { readChangelog } from './changelog';
 import { IpcMainEventChannel } from './ipc-event-channel';
-import { ICurrentAppVersionInfo } from '../shared/ipc-types';
+import { IChangelog, ICurrentAppVersionInfo } from '../shared/ipc-types';
 import {
   AccountExpiredNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
@@ -260,6 +261,8 @@ class ApplicationMain {
 
   private quitWithoutDisconnect = false;
 
+  private changelog?: IChangelog;
+
   public run() {
     // Remove window animations to combat window flickering when opening window. Can be removed when
     // this issue has been resolved: https://github.com/electron/electron/issues/12130
@@ -301,6 +304,7 @@ class ApplicationMain {
     }
 
     this.guiSettings.load();
+    this.changelog = readChangelog();
 
     app.on('render-process-gone', (_event, _webContents, details) => {
       log.error(
@@ -1228,6 +1232,7 @@ class ApplicationMain {
       translations: this.translations,
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
+      changelog: this.changelog ?? [],
     }));
 
     IpcMainEventChannel.settings.handleSetAllowLan((allowLan: boolean) =>
@@ -1459,6 +1464,10 @@ class ApplicationMain {
       });
       this.browsingFiles = false;
       return response;
+    });
+
+    IpcMainEventChannel.currentVersion.handleDisplayedChangelog(() => {
+      this.guiSettings.changelogDisplayedForVersion = this.currentVersion.gui;
     });
 
     if (windowsSplitTunneling) {
