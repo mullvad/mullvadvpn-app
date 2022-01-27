@@ -472,8 +472,6 @@ impl PathMonitorHandle {
     }
 }
 
-pub type PathChangeNotifyRx = sync_mpsc::Receiver<()>;
-
 enum PathMonitorCommand {
     Shutdown,
     SetPaths(Vec<PathBuf>),
@@ -487,7 +485,7 @@ pub struct PathMonitor {
 }
 
 impl PathMonitor {
-    pub fn spawn() -> io::Result<(PathMonitorHandle, PathChangeNotifyRx)> {
+    pub fn spawn(update_notify_tx: sync_mpsc::Sender<()>) -> io::Result<PathMonitorHandle> {
         let port_handle = Arc::new(CompletionPort::create(0)?);
         let mut original_paths: Vec<PathBuf> = vec![];
 
@@ -499,7 +497,6 @@ impl PathMonitor {
         };
 
         let (cmd_tx, cmd_rx) = sync_mpsc::channel();
-        let (notify_tx, notify_rx) = sync_mpsc::channel();
 
         std::thread::spawn(move || {
             loop {
@@ -509,7 +506,7 @@ impl PathMonitor {
                 match monitor.handle_next_completion_packet() {
                     Ok(true) => match monitor.update_paths(&original_paths) {
                         Ok(true) => {
-                            let _ = notify_tx.send(());
+                            let _ = update_notify_tx.send(());
                         }
                         Ok(false) => (),
                         Err(_) => break,
@@ -526,13 +523,10 @@ impl PathMonitor {
             monitor.abort_all_requests();
         });
 
-        Ok((
-            PathMonitorHandle {
-                port_handle,
-                tx: cmd_tx,
-            },
-            notify_rx,
-        ))
+        Ok(PathMonitorHandle {
+            port_handle,
+            tx: cmd_tx,
+        })
     }
 
     fn service_commands(

@@ -316,10 +316,9 @@ impl DeviceHandle {
         for app in apps.as_ref() {
             match get_device_path(app.as_ref()) {
                 Err(error) if error.kind() == io::ErrorKind::NotFound => {
-                    log::warn!(
+                    log::debug!(
                         "{}\nPath: {}",
-                        error
-                            .display_chain_with_msg("Skipping path with non-existent drive letter"),
+                        error.display_chain_with_msg("Ignoring path on unmounted volume"),
                         app.as_ref().to_string_lossy()
                     );
                 }
