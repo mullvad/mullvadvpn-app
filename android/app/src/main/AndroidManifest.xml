@@ -28,25 +28,15 @@
                   android:label="@string/app_name"
                   android:launchMode="singleTask"
                   android:configChanges="orientation|screenSize|screenLayout"
-                  android:screenOrientation="sensorPortrait"
+                  android:screenOrientation="locked"
                   android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
-            </intent-filter>
-        </activity>
-        <activity android:name="net.mullvad.mullvadvpn.ui.activities.TVActivity"
-                  android:label="@string/app_name"
-                  android:launchMode="singleTask"
-                  android:configChanges="orientation|screenSize|screenLayout"
-                  android:screenOrientation="sensor"
-                  android:windowSoftInputMode="adjustPan">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
         <service android:name="net.mullvad.mullvadvpn.service.MullvadVpnService"

@@ -64,8 +64,10 @@ open class MainActivity : FragmentActivity() {
     var backButtonHandler: (() -> Boolean)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (deviceIsTv) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
+        requestedOrientation = if (deviceIsTv) {
+            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
         super.onCreate(savedInstanceState)
