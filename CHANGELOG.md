@@ -81,14 +81,17 @@ Line wrap the file at 100 chars.                                              Th
 - Fix notifications on Windows not showing if window is unpinned and hidden.
 - Wait for IP interfaces to arrive before trying to configure them when using wireguard-nt.
 
-#### Android
-- Fix app sometimes crashing during startup on Android TVs.
-
 ### Security
 - Restrict which applications are allowed to communicate with the API while in a blocking state.
   This prevents malicious scripts on websites from trying to do so. On Windows, only
   `mullvad-problem-report.exe` and `mullvad-daemon.exe` executables are allowed to reach the API,
   whereas on Linux and macOS only root processes are able to reach the API.
+
+
+## [android/2022.1-beta2] - 2022-01-27
+### Fixed
+#### Android
+- Fix app sometimes crashing during startup on Android TVs.
 
 
 ## [android/2022.1-beta1] - 2022-01-26
