@@ -100,6 +100,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix issue with the user getting kicked out of certain views in settings when the app is brought to the foreground.
 - Fix "Secure my connection" action not always visible in tunnel state notification.
 - Fix tunnel state notification sometimes re-appearing after being dismissed.
+- Fix app sometimes crashing during startup on Android TVs.
 
 ### Security
 - Restrict which applications are allowed to communicate with the API while in a blocking state.
