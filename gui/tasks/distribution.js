@@ -35,7 +35,7 @@ const config = {
 
   files: [
     'package.json',
-    'changelog.txt',
+    'changes.txt',
     'init.js',
     'build/',
     '!build/src/renderer',
