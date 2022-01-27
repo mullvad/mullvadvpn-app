@@ -96,6 +96,14 @@ jobs:
                 ./gradlew --console plain assembleDebug
                 ./gradlew testDebugUnitTest
 
+            - name: Upload apks
+              uses: actions/upload-artifact@v2
+              with:
+                name: apks
+                path: android/app/build/outputs/apk
+                if-no-files-found: error
+                retention-days: 1
+
     instrumented-tests:
         name: Instrumented tests
         runs-on: macos-latest
