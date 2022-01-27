@@ -182,7 +182,14 @@ impl ResolverImpl {
     fn build_response<'a>(
         message: &'a MessageRequest,
         lookup: &'a mut Box<dyn LookupObject>,
-    ) -> MessageResponse<'a, 'a> {
+    ) -> MessageResponse<
+        'a,
+        'a,
+        Box<dyn Iterator<Item = &'a Record> + Send + 'a>,
+        std::iter::Empty<&'a Record>,
+        std::iter::Empty<&'a Record>,
+        std::iter::Empty<&'a Record>,
+    > {
         let mut response_header = Header::new();
         response_header.set_id(message.id());
         response_header.set_op_code(OpCode::Query);
@@ -193,9 +200,9 @@ impl ResolverImpl {
             response_header,
             lookup.iter(),
             // forwarder responses only contain query answers, no ns,soa or additionals
-            Box::new(std::iter::empty()) as Box<dyn Iterator<Item = _> + Send>,
-            Box::new(std::iter::empty()) as Box<dyn Iterator<Item = _> + Send>,
-            Box::new(std::iter::empty()) as Box<dyn Iterator<Item = _> + Send>,
+            std::iter::empty(),
+            std::iter::empty(),
+            std::iter::empty(),
         )
     }
 
