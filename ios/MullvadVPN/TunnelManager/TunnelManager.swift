@@ -359,7 +359,7 @@ class TunnelManager: TunnelManagerStateDelegate
     }
 
     func regeneratePrivateKey(completionHandler: ((TunnelManager.Error?) -> Void)? = nil) {
-        let operation = RenegeratePrivateKeyOperation(queue: stateQueue, state: state, restClient: restClient) { [weak self] completion in
+        let operation = RegeneratePrivateKeyOperation(queue: stateQueue, state: state, restClient: restClient) { [weak self] completion in
             guard let self = self else { return }
 
             dispatchPrecondition(condition: .onQueue(self.stateQueue))

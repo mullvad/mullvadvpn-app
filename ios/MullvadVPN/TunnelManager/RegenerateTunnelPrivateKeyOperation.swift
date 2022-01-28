@@ -1,5 +1,5 @@
 //
-//  RenegeratePrivateKeyOperation.swift
+//  RegeneratePrivateKeyOperation.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 15/12/2021.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-class RenegeratePrivateKeyOperation: AsyncOperation {
+class RegeneratePrivateKeyOperation: AsyncOperation {
     typealias CompletionHandler = (OperationCompletion<(), TunnelManager.Error>) -> Void
 
     private let queue: DispatchQueue
