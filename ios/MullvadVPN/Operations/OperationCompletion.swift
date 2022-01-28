@@ -30,4 +30,15 @@ enum OperationCompletion<Success, Failure: Error> {
             self = .failure(error)
         }
     }
+
+    func mapError<NewFailure: Error>(_ block: (Failure) -> NewFailure) -> OperationCompletion<Success, NewFailure> {
+        switch self {
+        case .success(let value):
+            return .success(value)
+        case .failure(let error):
+            return .failure(block(error))
+        case .cancelled:
+            return .cancelled
+        }
+    }
 }
