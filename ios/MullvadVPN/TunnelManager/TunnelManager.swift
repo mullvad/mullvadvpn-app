@@ -277,31 +277,11 @@ class TunnelManager: TunnelManagerStateDelegate
     }
 
     func setAccount(accountToken: String, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
-        let operation = SetAccountOperation(
-            queue: stateQueue,
-            state: state,
-            restClient: restClient,
-            accountToken: accountToken
-        ) { [weak self] completion in
-                guard let self = self else { return }
-
-                dispatchPrecondition(condition: .onQueue(self.stateQueue))
-
-                switch completion {
-                case .success:
-                    self.updatePrivateKeyRotationTimer()
-
-                case .failure(let error):
-                    self.logger.error(chainedError: error, message: "Failed to set account token")
-
-                case .cancelled:
-                    break
-                }
-
-                DispatchQueue.main.async {
-                    completionHandler(completion.error)
-                }
+        let operation = makeSetAccountOperation(accountToken: accountToken) { completion in
+            DispatchQueue.main.async {
+                completionHandler(completion.error)
             }
+        }
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Set tunnel account") {
             operation.cancel()
@@ -316,30 +296,12 @@ class TunnelManager: TunnelManagerStateDelegate
         operationQueue.addOperation(operation)
     }
 
-    /// Remove the account token and remove the active tunnel
     func unsetAccount(completionHandler: @escaping () -> Void) {
-        let operation = UnsetAccountOperation(
-            queue: stateQueue,
-            state: state,
-            restClient: restClient,
-            willDeleteVPNConfigurationHandler: { [weak self] in
-                guard let self = self else { return }
-
-                dispatchPrecondition(condition: .onQueue(self.stateQueue))
-
-                // Unregister from receiving VPN connection status changes
-                self.unsubscribeVPNStatusObserver()
-
-                // Cancel last VPN status mapping operation
-                self.lastMapConnectionStatusOperation?.cancel()
-                self.lastMapConnectionStatusOperation = nil
-            }, completionHandler: { [weak self] completion in
-                guard let self = self else { return }
-
-                dispatchPrecondition(condition: .onQueue(self.stateQueue))
-
-                self.updatePrivateKeyRotationTimer()
-            })
+        let operation = makeSetAccountOperation(accountToken: nil) { _ in
+            DispatchQueue.main.async {
+                completionHandler()
+            }
+        }
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Unset tunnel account") {
             operation.cancel()
@@ -347,10 +309,6 @@ class TunnelManager: TunnelManagerStateDelegate
 
         operation.completionBlock = {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-
-            DispatchQueue.main.async {
-                completionHandler()
-            }
         }
 
         exclusivityController.addOperation(operation, categories: [OperationCategory.manageTunnelProvider, OperationCategory.changeTunnelSettings])
@@ -463,45 +421,6 @@ class TunnelManager: TunnelManagerStateDelegate
         )
     }
 
-    private func scheduleTunnelSettingsUpdate(taskName: String, modificationBlock: @escaping (inout TunnelSettings) -> Void, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
-        let operation = SetTunnelSettingsOperation(
-            queue: stateQueue,
-            state: state,
-            modificationBlock: modificationBlock,
-            completionHandler: { [weak self] completion in
-                guard let self = self else { return }
-
-                dispatchPrecondition(condition: .onQueue(self.stateQueue))
-
-                switch completion {
-                case .success:
-                    self.reconnectTunnel(completionHandler: nil)
-
-                case .failure(let error):
-                    self.logger.error(chainedError: error, message: "Failed to set tunnel settings")
-
-                case .cancelled:
-                    break
-                }
-
-                DispatchQueue.main.async {
-                    completionHandler(completion.error)
-                }
-            })
-
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: taskName) {
-            operation.cancel()
-        }
-
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
-
-        operationQueue.addOperation(operation)
-    }
-
     // MARK: - Tunnel observeration
 
     /// Add tunnel observer.
@@ -605,6 +524,76 @@ class TunnelManager: TunnelManagerStateDelegate
             // Refresh tunnel state when application becomes active.
             self.updateTunnelState()
         }
+    }
+
+    private func makeSetAccountOperation(accountToken: String?, completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void) -> Operation {
+        return SetAccountOperation(
+            queue: stateQueue,
+            state: state,
+            restClient: restClient,
+            accountToken: accountToken,
+            willDeleteVPNConfigurationHandler: { [weak self] in
+                guard let self = self else { return }
+
+                dispatchPrecondition(condition: .onQueue(self.stateQueue))
+
+                // Unregister from receiving VPN connection status changes
+                self.unsubscribeVPNStatusObserver()
+
+                // Cancel last VPN status mapping operation
+                self.lastMapConnectionStatusOperation?.cancel()
+                self.lastMapConnectionStatusOperation = nil
+            },
+            completionHandler: { [weak self] completion in
+                guard let self = self else { return }
+
+                dispatchPrecondition(condition: .onQueue(self.stateQueue))
+
+                if case .success = completion {
+                    self.updatePrivateKeyRotationTimer()
+                }
+
+                completionHandler(completion)
+            })
+    }
+
+    private func scheduleTunnelSettingsUpdate(taskName: String, modificationBlock: @escaping (inout TunnelSettings) -> Void, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
+        let operation = SetTunnelSettingsOperation(
+            queue: stateQueue,
+            state: state,
+            modificationBlock: modificationBlock,
+            completionHandler: { [weak self] completion in
+                guard let self = self else { return }
+
+                dispatchPrecondition(condition: .onQueue(self.stateQueue))
+
+                switch completion {
+                case .success:
+                    self.reconnectTunnel(completionHandler: nil)
+
+                case .failure(let error):
+                    self.logger.error(chainedError: error, message: "Failed to set tunnel settings")
+
+                case .cancelled:
+                    break
+                }
+
+                DispatchQueue.main.async {
+                    completionHandler(completion.error)
+                }
+            })
+
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: taskName) {
+            operation.cancel()
+        }
+
+        operation.completionBlock = {
+            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
+        }
+
+        exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
+
+        operationQueue.addOperation(operation)
     }
 
 }

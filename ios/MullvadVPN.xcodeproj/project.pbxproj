@@ -195,7 +195,6 @@
 		588527B2276B3F0700BAA373 /* LoadTunnelOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B1276B3F0700BAA373 /* LoadTunnelOperation.swift */; };
 		588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */; };
 		588527B6276B58B300BAA373 /* SetTunnelSettingsOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B5276B58B300BAA373 /* SetTunnelSettingsOperation.swift */; };
-		588527B8276B5EDC00BAA373 /* UnsetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B7276B5EDC00BAA373 /* UnsetAccountOperation.swift */; };
 		58871D1E25D535A3002297FA /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 58871D1D25D535A3002297FA /* WireGuardKit */; };
 		58871D2325D535D2002297FA /* IPAddressRange+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */; };
 		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
@@ -495,7 +494,6 @@
 		588527B1276B3F0700BAA373 /* LoadTunnelOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadTunnelOperation.swift; sourceTree = "<group>"; };
 		588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetAccountOperation.swift; sourceTree = "<group>"; };
 		588527B5276B58B300BAA373 /* SetTunnelSettingsOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetTunnelSettingsOperation.swift; sourceTree = "<group>"; };
-		588527B7276B5EDC00BAA373 /* UnsetAccountOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsetAccountOperation.swift; sourceTree = "<group>"; };
 		5888AD82227B11080051EB06 /* SelectLocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationCell.swift; sourceTree = "<group>"; };
 		5888AD86227B17950051EB06 /* SelectLocationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationViewController.swift; sourceTree = "<group>"; };
 		588CD8BA275A0A0B00CF902E /* RESTRequestAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTRequestAdapter.swift; sourceTree = "<group>"; };
@@ -714,7 +712,6 @@
 				588527B1276B3F0700BAA373 /* LoadTunnelOperation.swift */,
 				584B17AA27637DE40057F3B8 /* ReloadTunnelOperation.swift */,
 				588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */,
-				588527B7276B5EDC00BAA373 /* UnsetAccountOperation.swift */,
 				58F2E143276A13F300A79513 /* StartTunnelOperation.swift */,
 				58F2E145276A2C9900A79513 /* StopTunnelOperation.swift */,
 				58F2E147276A307400A79513 /* MapConnectionStatusOperation.swift */,
@@ -1387,7 +1384,6 @@
 				5875960726F36B3A00BF6711 /* TunnelIPCError.swift in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
 				58CCA010224249A1004F3011 /* ConnectViewController.swift in Sources */,
-				588527B8276B5EDC00BAA373 /* UnsetAccountOperation.swift in Sources */,
 				58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */,
 				582BB1B1229569620055B6EF /* CustomNavigationBar.swift in Sources */,
 				58B3F30F2742708B00A2DD38 /* HeaderBarButton.swift in Sources */,
