@@ -1176,7 +1176,7 @@ mod test {
         let endpoint = endpoint.unwrap_wireguard();
         assert_eq!(
             exit_relay.ipv4_addr_in,
-            endpoint.exit_peer.unwrap().endpoint.ip()
+            endpoint.exit_peer.as_ref().unwrap().endpoint.ip()
         );
         assert_ne!(exit_relay.ipv4_addr_in, endpoint.peer.endpoint.ip());
 
