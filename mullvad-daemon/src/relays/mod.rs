@@ -22,7 +22,6 @@ use std::{
     sync::Arc,
     time::{self, SystemTime},
 };
-use talpid_core::unwrap_enum;
 use talpid_types::{
     net::{openvpn::ProxySettings, wireguard, IpVersion, TransportProtocol, TunnelType},
     ErrorExt,
@@ -345,10 +344,7 @@ impl RelaySelector {
                 )
             };
 
-        Self::set_entry_peers(
-            &unwrap_enum!(&exit_endpoint, MullvadEndpoint::Wireguard).peer,
-            &mut entry_endpoint,
-        );
+        Self::set_entry_peers(&exit_endpoint.unwrap_wireguard().peer, &mut entry_endpoint);
 
         log::info!(
             "Selected entry relay {} at {} going through {} at {}",
@@ -570,8 +566,11 @@ impl RelaySelector {
             .pick_random_relay(&matching_relays)
             .map(|relay| relay.clone())
             .ok_or(Error::NoRelay)?;
-        let endpoint = matcher.mullvad_endpoint(&relay).ok_or(Error::NoRelay)?;
-        let endpoint = unwrap_enum!(endpoint, MullvadEndpoint::Wireguard);
+        let endpoint = matcher
+            .mullvad_endpoint(&relay)
+            .ok_or(Error::NoRelay)?
+            .unwrap_wireguard()
+            .clone();
 
         Ok((relay, endpoint))
     }
@@ -1174,7 +1173,7 @@ mod test {
 
         assert_eq!(exit_relay.hostname, specific_hostname);
 
-        let endpoint = unwrap_enum!(endpoint, MullvadEndpoint::Wireguard);
+        let endpoint = endpoint.unwrap_wireguard();
         assert_eq!(
             exit_relay.ipv4_addr_in,
             endpoint.exit_peer.unwrap().endpoint.ip()
