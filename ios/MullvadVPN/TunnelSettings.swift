@@ -13,6 +13,8 @@ import struct WireGuardKit.IPAddressRange
 /// A struct that holds a tun interface configuration.
 struct InterfaceSettings: Codable, Equatable {
     var privateKey: PrivateKeyWithMetadata
+    var nextPrivateKey: PrivateKeyWithMetadata?
+
     var addresses: [IPAddressRange]
     var dnsSettings: DNSSettings
 
@@ -21,11 +23,12 @@ struct InterfaceSettings: Codable, Equatable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case privateKey, addresses, dnsSettings
+        case privateKey, nextPrivateKey, addresses, dnsSettings
     }
 
-    init(privateKey: PrivateKeyWithMetadata = PrivateKeyWithMetadata(), addresses: [IPAddressRange] = [], dnsSettings: DNSSettings = DNSSettings()) {
+    init(privateKey: PrivateKeyWithMetadata = PrivateKeyWithMetadata(), nextPrivateKey: PrivateKeyWithMetadata? = nil, addresses: [IPAddressRange] = [], dnsSettings: DNSSettings = DNSSettings()) {
         self.privateKey = privateKey
+        self.nextPrivateKey = nextPrivateKey
         self.addresses = addresses
         self.dnsSettings = dnsSettings
     }
@@ -36,6 +39,9 @@ struct InterfaceSettings: Codable, Equatable {
         privateKey = try container.decode(PrivateKeyWithMetadata.self, forKey: .privateKey)
         addresses = try container.decode([IPAddressRange].self, forKey: .addresses)
 
+        // Added in 2022.1
+        nextPrivateKey = try container.decodeIfPresent(PrivateKeyWithMetadata.self, forKey: .nextPrivateKey)
+
         // Provide default value, since `dnsSettings` key does not exist in <= 2021.2
         dnsSettings = try container.decodeIfPresent(DNSSettings.self, forKey: .dnsSettings)
             ?? DNSSettings()
@@ -45,6 +51,7 @@ struct InterfaceSettings: Codable, Equatable {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try container.encode(privateKey, forKey: .privateKey)
+        try container.encode(nextPrivateKey, forKey: .nextPrivateKey)
         try container.encode(addresses, forKey: .addresses)
         try container.encode(dnsSettings, forKey: .dnsSettings)
     }
