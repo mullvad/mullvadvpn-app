@@ -182,7 +182,14 @@ impl ResolverImpl {
     fn build_response<'a>(
         message: &'a MessageRequest,
         lookup: &'a mut Box<dyn LookupObject>,
-    ) -> MessageResponse<'a, 'a> {
+    ) -> MessageResponse<
+        'a,
+        'a,
+        Box<dyn Iterator<Item = &'a Record> + Send + 'a>,
+        std::iter::Empty<&'a Record>,
+        std::iter::Empty<&'a Record>,
+        std::iter::Empty<&'a Record>,
+    > {
         let mut response_header = Header::new();
         response_header.set_id(message.id());
         response_header.set_op_code(OpCode::Query);
@@ -193,9 +200,9 @@ impl ResolverImpl {
             response_header,
             lookup.iter(),
             // forwarder responses only contain query answers, no ns,soa or additionals
-            Box::new(std::iter::empty()) as Box<dyn Iterator<Item = _> + Send>,
-            Box::new(std::iter::empty()) as Box<dyn Iterator<Item = _> + Send>,
-            Box::new(std::iter::empty()) as Box<dyn Iterator<Item = _> + Send>,
+            std::iter::empty(),
+            std::iter::empty(),
+            std::iter::empty(),
         )
     }
 
@@ -265,12 +272,9 @@ impl LookupObject for ForwardLookup {
 mod test {
     use super::*;
     use std::{mem, net::UdpSocket, thread, time::Duration};
-    use trust_dns_server::{
-        proto,
-        resolver::{
-            config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
-            AsyncResolver,
-        },
+    use trust_dns_server::resolver::{
+        config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
+        TokioAsyncResolver,
     };
 
     async fn start_resolver() -> ResolverHandle {
@@ -283,12 +287,7 @@ mod test {
             vec![],
             NameServerConfigGroup::from_ips_clear(&[Ipv4Addr::LOCALHOST.into()], port, true),
         );
-        AsyncResolver::new(
-            resolver_config,
-            ResolverOpts::default(),
-            proto::TokioRuntime,
-        )
-        .unwrap()
+        TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default()).unwrap()
     }
 
     #[test]
