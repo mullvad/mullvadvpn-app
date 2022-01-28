@@ -283,8 +283,7 @@
 		58F2E144276A13F300A79513 /* StartTunnelOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E143276A13F300A79513 /* StartTunnelOperation.swift */; };
 		58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E145276A2C9900A79513 /* StopTunnelOperation.swift */; };
 		58F2E148276A307400A79513 /* MapConnectionStatusOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E147276A307400A79513 /* MapConnectionStatusOperation.swift */; };
-		58F2E14A276A43AA00A79513 /* RegenerateTunnelPrivateKeyOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E149276A43AA00A79513 /* RegenerateTunnelPrivateKeyOperation.swift */; };
-		58F2E14C276A61C000A79513 /* RotatePrivateKeyOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E14B276A61C000A79513 /* RotatePrivateKeyOperation.swift */; };
+		58F2E14C276A61C000A79513 /* ReplaceKeyOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E14B276A61C000A79513 /* ReplaceKeyOperation.swift */; };
 		58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C0A3249CB069003E76BE /* HeaderBarView.swift */; };
 		58F3C0A624A50157003E76BE /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
 		58F3C0A724A50C02003E76BE /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
@@ -572,8 +571,7 @@
 		58F2E143276A13F300A79513 /* StartTunnelOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTunnelOperation.swift; sourceTree = "<group>"; };
 		58F2E145276A2C9900A79513 /* StopTunnelOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StopTunnelOperation.swift; sourceTree = "<group>"; };
 		58F2E147276A307400A79513 /* MapConnectionStatusOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapConnectionStatusOperation.swift; sourceTree = "<group>"; };
-		58F2E149276A43AA00A79513 /* RegenerateTunnelPrivateKeyOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegenerateTunnelPrivateKeyOperation.swift; sourceTree = "<group>"; };
-		58F2E14B276A61C000A79513 /* RotatePrivateKeyOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RotatePrivateKeyOperation.swift; sourceTree = "<group>"; };
+		58F2E14B276A61C000A79513 /* ReplaceKeyOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceKeyOperation.swift; sourceTree = "<group>"; };
 		58F3C0A3249CB069003E76BE /* HeaderBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBarView.swift; sourceTree = "<group>"; };
 		58F3C0A524A50155003E76BE /* relays.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = relays.json; sourceTree = "<group>"; };
 		58F558DC2695B85E00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Consent.strings; sourceTree = "<group>"; };
@@ -717,8 +715,7 @@
 				58F2E143276A13F300A79513 /* StartTunnelOperation.swift */,
 				58F2E145276A2C9900A79513 /* StopTunnelOperation.swift */,
 				58F2E147276A307400A79513 /* MapConnectionStatusOperation.swift */,
-				58F2E149276A43AA00A79513 /* RegenerateTunnelPrivateKeyOperation.swift */,
-				58F2E14B276A61C000A79513 /* RotatePrivateKeyOperation.swift */,
+				58F2E14B276A61C000A79513 /* ReplaceKeyOperation.swift */,
 				588527B5276B58B300BAA373 /* SetTunnelSettingsOperation.swift */,
 			);
 			path = TunnelManager;
@@ -1403,7 +1400,7 @@
 				5806766C27048E3E00C858CB /* AnyOptional.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
 				5850367F25A481D800A43E93 /* IPAddressRange+Codable.swift in Sources */,
-				58F2E14C276A61C000A79513 /* RotatePrivateKeyOperation.swift in Sources */,
+				58F2E14C276A61C000A79513 /* ReplaceKeyOperation.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* AppStorePaymentObserver.swift in Sources */,
@@ -1533,7 +1530,6 @@
 				58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
-				58F2E14A276A43AA00A79513 /* RegenerateTunnelPrivateKeyOperation.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
 				58F840B22464491D0044E708 /* ChainedError.swift in Sources */,
 				58FAEDFF24533A7000CB0F5B /* KeychainReturn.swift in Sources */,
