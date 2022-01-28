@@ -317,7 +317,7 @@ class TunnelManager: TunnelManagerStateDelegate
     }
 
     func regeneratePrivateKey(completionHandler: ((TunnelManager.Error?) -> Void)? = nil) {
-        let operation = RegeneratePrivateKeyOperation(queue: stateQueue, state: state, restClient: restClient) { [weak self] completion in
+        let operation = ReplaceKeyOperation.operationForKeyRegeneration(queue: stateQueue, state: state, restClient: restClient) { [weak self] completion in
             guard let self = self else { return }
 
             dispatchPrecondition(condition: .onQueue(self.stateQueue))
@@ -353,7 +353,7 @@ class TunnelManager: TunnelManagerStateDelegate
     }
 
     func rotatePrivateKey(completionHandler: @escaping (KeyRotationResult?, TunnelManager.Error?) -> Void) {
-        let operation = RotatePrivateKeyOperation(
+        let operation = ReplaceKeyOperation.operationForKeyRotation(
             queue: stateQueue,
             state: state,
             restClient: restClient,
