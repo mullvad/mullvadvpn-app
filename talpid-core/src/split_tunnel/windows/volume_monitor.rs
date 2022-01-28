@@ -1,5 +1,6 @@
 //! Used to monitor volume mounts and dismounts, and reapply the split
 //! tunnel config if any of the excluded paths are affected by them.
+use super::path_monitor::PathMonitorHandle;
 use crate::windows::window::{create_hidden_window, WindowCloseHandle};
 use std::{
     ffi::OsString,
@@ -21,6 +22,7 @@ pub(super) struct VolumeMonitor(());
 
 impl VolumeMonitor {
     pub fn spawn(
+        path_monitor: PathMonitorHandle,
         update_tx: sync_mpsc::Sender<()>,
         paths: Arc<Mutex<Vec<OsString>>>,
     ) -> WindowCloseHandle {
@@ -58,6 +60,7 @@ impl VolumeMonitor {
             if label_found {
                 // Reapply config
                 let _ = update_tx.send(());
+                let _ = path_monitor.refresh();
             }
 
             // Always grant the request

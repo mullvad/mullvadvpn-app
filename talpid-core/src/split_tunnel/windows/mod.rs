@@ -335,11 +335,13 @@ impl SplitTunnel {
 
         let (monitor_tx, monitor_rx) = sync_mpsc::channel();
 
-        let mut volume_monitor =
-            volume_monitor::VolumeMonitor::spawn(monitor_tx.clone(), monitored_paths.clone());
-
-        let path_monitor =
-            path_monitor::PathMonitor::spawn(monitor_tx).map_err(Error::StartPathMonitor)?;
+        let path_monitor = path_monitor::PathMonitor::spawn(monitor_tx.clone())
+            .map_err(Error::StartPathMonitor)?;
+        let mut volume_monitor = volume_monitor::VolumeMonitor::spawn(
+            path_monitor.clone(),
+            monitor_tx,
+            monitored_paths.clone(),
+        );
 
         std::thread::spawn(move || {
             let result = driver::DeviceHandle::new()
@@ -401,13 +403,13 @@ impl SplitTunnel {
                 }
             }
 
+            volume_monitor.close();
             if let Err(error) = path_monitor.shutdown() {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to shut down path monitor")
                 );
             }
-            volume_monitor.close();
         });
 
         let handle = init_rx

@@ -445,6 +445,7 @@ impl StrippedPath {
     }
 }
 
+#[derive(Clone)]
 pub struct PathMonitorHandle {
     port_handle: Arc<CompletionPort>,
     tx: sync_mpsc::Sender<PathMonitorCommand>,
@@ -455,6 +456,11 @@ impl PathMonitorHandle {
         let _ = self.tx.send(PathMonitorCommand::SetPaths(
             paths.iter().map(|p| p.as_ref().to_path_buf()).collect(),
         ));
+        self.notify_monitor()
+    }
+
+    pub fn refresh(&self) -> io::Result<()> {
+        let _ = self.tx.send(PathMonitorCommand::Refresh);
         self.notify_monitor()
     }
 
@@ -473,8 +479,9 @@ impl PathMonitorHandle {
 }
 
 enum PathMonitorCommand {
-    Shutdown,
     SetPaths(Vec<PathBuf>),
+    Refresh,
+    Shutdown,
 }
 
 pub struct PathMonitor {
@@ -504,7 +511,7 @@ impl PathMonitor {
                     break;
                 }
                 match monitor.handle_next_completion_packet() {
-                    Ok(true) => match monitor.update_paths(&original_paths) {
+                    Ok(true) => match monitor.update_paths(&original_paths, false) {
                         Ok(true) => {
                             let _ = update_notify_tx.send(());
                         }
@@ -541,20 +548,23 @@ impl PathMonitor {
                 }
                 PathMonitorCommand::SetPaths(new_paths) => {
                     *original_paths = new_paths;
-                    return !self.update_paths(&original_paths).is_err();
+                    return !self.update_paths(&original_paths, false).is_err();
+                }
+                PathMonitorCommand::Refresh => {
+                    return !self.update_paths(&original_paths, true).is_err();
                 }
             }
         }
         true
     }
 
-    fn update_paths(&mut self, unresolved_paths: &[PathBuf]) -> Result<bool, ()> {
+    fn update_paths(&mut self, unresolved_paths: &[PathBuf], force: bool) -> Result<bool, ()> {
         let resolved_paths = resolve_all_links_multiple(unresolved_paths);
         let new_stripped_paths = resolved_paths
             .iter()
             .filter_map(|p| StrippedPath::new(p).ok())
             .collect();
-        if new_stripped_paths != self.stripped_paths {
+        if force || new_stripped_paths != self.stripped_paths {
             self.stripped_paths = new_stripped_paths;
             if let Err(error) = self.update_directory_contexts() {
                 log::error!("Failed to open new directory handles: {}", error);
