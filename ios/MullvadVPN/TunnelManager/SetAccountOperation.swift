@@ -15,14 +15,14 @@ class SetAccountOperation: AsyncOperation {
     private let queue: DispatchQueue
     private let state: TunnelManager.State
     private let restClient: REST.Client
-    private let token: String
+    private let accountToken: String
     private var completionHandler: CompletionHandler?
 
-    init(queue: DispatchQueue, state: TunnelManager.State, restClient: REST.Client, token: String, completionHandler: @escaping CompletionHandler) {
+    init(queue: DispatchQueue, state: TunnelManager.State, restClient: REST.Client, accountToken: String, completionHandler: @escaping CompletionHandler) {
         self.queue = queue
         self.state = state
         self.restClient = restClient
-        self.token = token
+        self.accountToken = accountToken
         self.completionHandler = completionHandler
     }
 
@@ -60,7 +60,7 @@ class SetAccountOperation: AsyncOperation {
     }
 
     private func makeTunnelSettings() -> Result<TunnelSettings, TunnelManager.Error> {
-        return TunnelSettingsManager.load(searchTerm: .accountToken(self.token))
+        return TunnelSettingsManager.load(searchTerm: .accountToken(self.accountToken))
             .mapError { TunnelManager.Error.readTunnelSettings($0) }
             .map { $0.tunnelSettings }
             .flatMapError { error in
@@ -68,7 +68,7 @@ class SetAccountOperation: AsyncOperation {
                     let defaultConfiguration = TunnelSettings()
 
                     return TunnelSettingsManager
-                        .add(configuration: defaultConfiguration, account: self.token)
+                        .add(configuration: defaultConfiguration, account: self.accountToken)
                         .mapError { .addTunnelSettings($0) }
                         .map { defaultConfiguration }
                 } else {
@@ -78,7 +78,7 @@ class SetAccountOperation: AsyncOperation {
     }
 
     private func pushWireguardKey(publicKey: PublicKey, completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void) {
-        _ = restClient.pushWireguardKey(token: token, publicKey: publicKey)
+        _ = restClient.pushWireguardKey(token: accountToken, publicKey: publicKey)
             .execute(retryStrategy: .default) { result in
                 self.queue.async {
                     self.didPushWireguardKey(result: result, completionHandler: completionHandler)
@@ -89,7 +89,7 @@ class SetAccountOperation: AsyncOperation {
     private func didPushWireguardKey(result: Result<REST.WireguardAddressesResponse, REST.Error>, completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void) {
         switch result {
         case .success(let associatedAddresses):
-            let saveSettingsResult = TunnelSettingsManager.update(searchTerm: .accountToken(token)) { tunnelSettings in
+            let saveSettingsResult = TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { tunnelSettings in
                 tunnelSettings.interface.addresses = [
                     associatedAddresses.ipv4Address,
                     associatedAddresses.ipv6Address
@@ -99,7 +99,7 @@ class SetAccountOperation: AsyncOperation {
             switch saveSettingsResult {
             case .success(let newTunnelSettings):
                 let tunnelInfo = TunnelInfo(
-                    token: token,
+                    token: accountToken,
                     tunnelSettings: newTunnelSettings
                 )
 

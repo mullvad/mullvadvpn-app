@@ -41,12 +41,12 @@ class SetTunnelSettingsOperation: AsyncOperation {
             return
         }
 
-        guard let token = state.tunnelInfo?.token else {
+        guard let accountToken = state.tunnelInfo?.token else {
             completionHandler(.failure(.missingAccount))
             return
         }
 
-        let result = TunnelSettingsManager.update(searchTerm: .accountToken(token)) { tunnelSettings in
+        let result = TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { tunnelSettings in
             self.modificationBlock(&tunnelSettings)
         }
 

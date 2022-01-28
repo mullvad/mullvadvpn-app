@@ -82,7 +82,7 @@ class RotatePrivateKeyOperation: AsyncOperation {
             self.queue.async {
                 self.didRotatePrivateKey(
                     result: result,
-                    token: tunnelInfo.token,
+                    accountToken: tunnelInfo.token,
                     newPrivateKey: newPrivateKey,
                     completionHandler: completionHandler
                 )
@@ -90,8 +90,8 @@ class RotatePrivateKeyOperation: AsyncOperation {
         }
     }
 
-    private func didRotatePrivateKey(result: Result<REST.WireguardAddressesResponse, REST.Error>, token: String, newPrivateKey: PrivateKeyWithMetadata, completionHandler: @escaping CompletionHandler) {
-        let saveResult = Self.handleResponse(token: token, newPrivateKey: newPrivateKey, result: result)
+    private func didRotatePrivateKey(result: Result<REST.WireguardAddressesResponse, REST.Error>, accountToken: String, newPrivateKey: PrivateKeyWithMetadata, completionHandler: @escaping CompletionHandler) {
+        let saveResult = Self.handleResponse(accountToken: accountToken, newPrivateKey: newPrivateKey, result: result)
 
         switch saveResult {
         case .success(let tunnelSettings):
@@ -104,12 +104,12 @@ class RotatePrivateKeyOperation: AsyncOperation {
         }
     }
 
-    private class func handleResponse(token: String, newPrivateKey: PrivateKeyWithMetadata, result: Result<REST.WireguardAddressesResponse, REST.Error>) -> Result<TunnelSettings, TunnelManager.Error> {
+    private class func handleResponse(accountToken: String, newPrivateKey: PrivateKeyWithMetadata, result: Result<REST.WireguardAddressesResponse, REST.Error>) -> Result<TunnelSettings, TunnelManager.Error> {
         return result.flatMapError { restError in
             return .failure(.replaceWireguardKey(restError))
         }
         .flatMap { associatedAddresses in
-            return TunnelSettingsManager.update(searchTerm: .accountToken(token)) { newTunnelSettings in
+            return TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { newTunnelSettings in
                 newTunnelSettings.interface.privateKey = newPrivateKey
                 newTunnelSettings.interface.addresses = [
                     associatedAddresses.ipv4Address,

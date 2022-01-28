@@ -13,16 +13,16 @@ class LoadTunnelOperation: AsyncOperation {
     typealias CompletionHandler = (OperationCompletion<(), TunnelManager.Error>) -> Void
 
     private let queue: DispatchQueue
-    private let token: String?
+    private let accountToken: String?
     private let state: TunnelManager.State
     private var completionHandler: CompletionHandler?
 
     private let logger = Logger(label: "TunnelManager.LoadTunnelOperation")
 
-    init(queue: DispatchQueue, state: TunnelManager.State, token: String?, completionHandler: @escaping CompletionHandler) {
+    init(queue: DispatchQueue, state: TunnelManager.State, accountToken: String?, completionHandler: @escaping CompletionHandler) {
         self.queue = queue
         self.state = state
-        self.token = token
+        self.accountToken = accountToken
         self.completionHandler = completionHandler
     }
 
@@ -44,8 +44,8 @@ class LoadTunnelOperation: AsyncOperation {
         }
 
         // Migrate the tunnel settings if needed
-        if let token = token {
-            let migrationResult = migrateTunnelSettings(accountToken: token)
+        if let accountToken = accountToken {
+            let migrationResult = migrateTunnelSettings(accountToken: accountToken)
 
             if case .failure(let migrationError) = migrationResult {
                 completionHandler(.failure(migrationError))
@@ -66,11 +66,11 @@ class LoadTunnelOperation: AsyncOperation {
 
     private func didLoadVPNConfigurations(tunnels: [TunnelProviderManagerType]?, completionHandler: @escaping CompletionHandler) {
         if let tunnelProvider = tunnels?.first {
-            if let token = token {
+            if let accountToken = accountToken {
                 // Case 1: tunnel exists and account token is set.
                 // Verify that tunnel can access the configuration via the persistent keychain reference
                 // stored in `passwordReference` field of VPN configuration.
-                handleTunnelConsistency(tunnelProvider: tunnelProvider, token: token, completionHandler: completionHandler)
+                handleTunnelConsistency(tunnelProvider: tunnelProvider, accountToken: accountToken, completionHandler: completionHandler)
             } else {
                 // Case 2: tunnel exists but account token is unset.
                 // Remove the orphaned tunnel.
@@ -85,10 +85,10 @@ class LoadTunnelOperation: AsyncOperation {
                 }
             }
         } else {
-            if let token = token {
+            if let accountToken = accountToken {
                 // Case 3: tunnel does not exist but the account token is set.
                 // Verify that tunnel settings exists in keychain.
-                let tunnelSettingsResult = TunnelSettingsManager.load(searchTerm: .accountToken(token))
+                let tunnelSettingsResult = TunnelSettingsManager.load(searchTerm: .accountToken(accountToken))
                    .mapError { TunnelManager.Error.readTunnelSettings($0) }
 
                 if case .success(let keychainEntry) = tunnelSettingsResult {
@@ -108,14 +108,14 @@ class LoadTunnelOperation: AsyncOperation {
         }
     }
 
-    private func handleTunnelConsistency(tunnelProvider: TunnelProviderManagerType, token: String, completionHandler: @escaping CompletionHandler) {
-        let verificationResult = verifyTunnel(tunnelProvider: tunnelProvider, expectedAccountToken: token)
-        let tunnelSettingsResult = TunnelSettingsManager.load(searchTerm: .accountToken(token))
+    private func handleTunnelConsistency(tunnelProvider: TunnelProviderManagerType, accountToken: String, completionHandler: @escaping CompletionHandler) {
+        let verificationResult = verifyTunnel(tunnelProvider: tunnelProvider, expectedAccountToken: accountToken)
+        let tunnelSettingsResult = TunnelSettingsManager.load(searchTerm: .accountToken(accountToken))
             .mapError { TunnelManager.Error.readTunnelSettings($0) }
 
         switch (verificationResult, tunnelSettingsResult) {
         case (.success(true), .success(let keychainEntry)):
-            let tunnelInfo = TunnelInfo(token: token, tunnelSettings: keychainEntry.tunnelSettings)
+            let tunnelInfo = TunnelInfo(token: accountToken, tunnelSettings: keychainEntry.tunnelSettings)
 
             state.tunnelInfo = tunnelInfo
             state.setTunnelProvider(tunnelProvider, shouldRefreshTunnelState: true)
@@ -130,7 +130,7 @@ class LoadTunnelOperation: AsyncOperation {
                     if let error = error {
                         completionHandler(.failure(.removeInconsistentVPNConfiguration(error)))
                     } else {
-                        let tunnelInfo = TunnelInfo(token: token, tunnelSettings: keychainEntry.tunnelSettings)
+                        let tunnelInfo = TunnelInfo(token: accountToken, tunnelSettings: keychainEntry.tunnelSettings)
                         self.state.tunnelInfo = tunnelInfo
 
                         completionHandler(.success(()))
@@ -150,7 +150,7 @@ class LoadTunnelOperation: AsyncOperation {
                     if let error = error {
                         completionHandler(.failure(.removeInconsistentVPNConfiguration(error)))
                     } else {
-                        let tunnelInfo = TunnelInfo(token: token, tunnelSettings: keychainEntry.tunnelSettings)
+                        let tunnelInfo = TunnelInfo(token: accountToken, tunnelSettings: keychainEntry.tunnelSettings)
                         self.state.tunnelInfo = tunnelInfo
 
                         completionHandler(.success(()))

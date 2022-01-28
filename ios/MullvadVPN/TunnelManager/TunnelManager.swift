@@ -155,7 +155,7 @@ class TunnelManager: TunnelManagerStateDelegate
     /// The given account token is used to ensure that the system tunnel was configured for the same
     /// account. The system tunnel is removed in case of inconsistency.
     func loadTunnel(accountToken: String?, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
-        let operation = LoadTunnelOperation(queue: stateQueue, state: state, token: accountToken) { [weak self] completion in
+        let operation = LoadTunnelOperation(queue: stateQueue, state: state, accountToken: accountToken) { [weak self] completion in
             guard let self = self else { return }
 
             dispatchPrecondition(condition: .onQueue(self.stateQueue))
@@ -281,7 +281,7 @@ class TunnelManager: TunnelManagerStateDelegate
             queue: stateQueue,
             state: state,
             restClient: restClient,
-            token: accountToken
+            accountToken: accountToken
         ) { [weak self] completion in
                 guard let self = self else { return }
 

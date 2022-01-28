@@ -67,7 +67,7 @@ class RegeneratePrivateKeyOperation: AsyncOperation {
 
         restRequest = restRequestAdapter.execute(retryStrategy: .default) { restResult in
             self.queue.async {
-                let saveResult = Self.handleResponse(token: tunnelInfo.token, newPrivateKey: newPrivateKey, result: restResult)
+                let saveResult = Self.handleResponse(accountToken: tunnelInfo.token, newPrivateKey: newPrivateKey, result: restResult)
 
                 if case .success(let newTunnelSettings) = saveResult {
                     self.state.tunnelInfo?.tunnelSettings = newTunnelSettings
@@ -78,12 +78,12 @@ class RegeneratePrivateKeyOperation: AsyncOperation {
         }
     }
 
-    private class func handleResponse(token: String, newPrivateKey: PrivateKeyWithMetadata, result: Result<REST.WireguardAddressesResponse, REST.Error>) -> Result<TunnelSettings, TunnelManager.Error> {
+    private class func handleResponse(accountToken: String, newPrivateKey: PrivateKeyWithMetadata, result: Result<REST.WireguardAddressesResponse, REST.Error>) -> Result<TunnelSettings, TunnelManager.Error> {
         return result.flatMapError { restError in
             return .failure(.replaceWireguardKey(restError))
         }
         .flatMap { associatedAddresses in
-            return TunnelSettingsManager.update(searchTerm: .accountToken(token)) { newTunnelSettings in
+            return TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { newTunnelSettings in
                 newTunnelSettings.interface.privateKey = newPrivateKey
                 newTunnelSettings.interface.addresses = [
                     associatedAddresses.ipv4Address,

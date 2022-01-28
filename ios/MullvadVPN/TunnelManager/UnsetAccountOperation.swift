@@ -54,22 +54,22 @@ class UnsetAccountOperation: AsyncOperation {
             return
         }
 
-        let token = tunnelInfo.token
+        let accountToken = tunnelInfo.token
         let publicKey = tunnelInfo.tunnelSettings.interface.publicKey
 
-        _ = REST.Client.shared.deleteWireguardKey(token: token, publicKey: publicKey)
+        _ = REST.Client.shared.deleteWireguardKey(token: accountToken, publicKey: publicKey)
             .execute(retryStrategy: .default) { result in
                 self.queue.async {
                     self.didDeleteWireguardKey(
                         result: result,
-                        token: token,
+                        accountToken: accountToken,
                         completionHandler: completionHandler
                     )
                 }
             }
     }
 
-    private func didDeleteWireguardKey(result: Result<(), REST.Error>, token: String, completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void) {
+    private func didDeleteWireguardKey(result: Result<(), REST.Error>, accountToken: String, completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void) {
         switch result {
         case .success:
             logger.warning("Deleted WireGuard key on server")
@@ -92,7 +92,7 @@ class UnsetAccountOperation: AsyncOperation {
         self.state.tunnelInfo = nil
 
         // Remove settings from Keychain
-        if case .failure(let error) = TunnelSettingsManager.remove(searchTerm: .accountToken(token)) {
+        if case .failure(let error) = TunnelSettingsManager.remove(searchTerm: .accountToken(accountToken)) {
             // Ignore Keychain errors because that normally means that the Keychain
             // configuration was already removed and we shouldn't be blocking the
             // user from logging out
