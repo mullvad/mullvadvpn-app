@@ -200,8 +200,13 @@ impl Command for Relay {
                                 ),
             )
             .subcommand(clap::SubCommand::with_name("get"))
-            .subcommand(
-                clap::SubCommand::with_name("list").about("List available countries and cities"),
+            .subcommand(clap::SubCommand::with_name("list")
+                        .about("List available countries and cities")
+                        .arg(
+                            clap::Arg::with_name("json")
+                            .help("Whether to output JSON")
+                            .long("json")
+                        ),
             )
             .subcommand(
                 clap::SubCommand::with_name("update")
@@ -214,8 +219,8 @@ impl Command for Relay {
             self.set(set_matches).await
         } else if matches.subcommand_matches("get").is_some() {
             self.get().await
-        } else if matches.subcommand_matches("list").is_some() {
-            self.list().await
+        } else if let Some(list_matches) = matches.subcommand_matches("list") {
+            self.list(list_matches).await
         } else if matches.subcommand_matches("update").is_some() {
             self.update().await
         } else {
@@ -645,46 +650,54 @@ impl Relay {
         Ok(())
     }
 
-    async fn list(&self) -> Result<()> {
+    async fn list(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut countries = Self::get_filtered_relays().await?;
         countries.sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
-        for mut country in countries {
-            country
-                .cities
-                .sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
-            println!("{} ({})", country.name, country.code);
-            for mut city in country.cities {
-                city.relays
-                    .sort_by(|r1, r2| natord::compare_ignore_case(&r1.hostname, &r2.hostname));
-                println!(
-                    "\t{} ({}) @ {:.5}°N, {:.5}°W",
-                    city.name, city.code, city.latitude, city.longitude
-                );
-                for relay in &city.relays {
-                    let tunnels = relay.tunnels.as_ref().unwrap();
-                    let supports_openvpn = !tunnels.openvpn.is_empty();
-                    let supports_wireguard = !tunnels.wireguard.is_empty();
-                    let support_msg = match (supports_openvpn, supports_wireguard) {
-                        (true, true) => "OpenVPN and WireGuard",
-                        (true, false) => "OpenVPN",
-                        (false, true) => "WireGuard",
-                        _ => unreachable!("Bug in relay filtering earlier on"),
-                    };
-                    let mut addresses = vec![&relay.ipv4_addr_in];
-                    if !relay.ipv6_addr_in.is_empty() {
-                        addresses.push(&relay.ipv6_addr_in);
-                    }
+        if matches.is_present("json") {
+            println!(
+                "{}",
+                serde_json::to_string(&countries).expect("Invalid JSON")
+            );
+        } else {
+            for mut country in countries {
+                country
+                    .cities
+                    .sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
+                println!("{} ({})", country.name, country.code);
+                for mut city in country.cities {
+                    city.relays
+                        .sort_by(|r1, r2| natord::compare_ignore_case(&r1.hostname, &r2.hostname));
                     println!(
-                        "\t\t{} ({}) - {}, hosted by {}",
-                        relay.hostname,
-                        addresses.iter().join(", "),
-                        support_msg,
-                        relay.provider
+                        "\t{} ({}) @ {:.5}°N, {:.5}°W",
+                        city.name, city.code, city.latitude, city.longitude
                     );
+                    for relay in &city.relays {
+                        let tunnels = relay.tunnels.as_ref().unwrap();
+                        let supports_openvpn = !tunnels.openvpn.is_empty();
+                        let supports_wireguard = !tunnels.wireguard.is_empty();
+                        let support_msg = match (supports_openvpn, supports_wireguard) {
+                            (true, true) => "OpenVPN and WireGuard",
+                            (true, false) => "OpenVPN",
+                            (false, true) => "WireGuard",
+                            _ => unreachable!("Bug in relay filtering earlier on"),
+                        };
+                        let mut addresses = vec![&relay.ipv4_addr_in];
+                        if !relay.ipv6_addr_in.is_empty() {
+                            addresses.push(&relay.ipv6_addr_in);
+                        }
+                        println!(
+                            "\t\t{} ({}) - {}, hosted by {}",
+                            relay.hostname,
+                            addresses.iter().join(", "),
+                            support_msg,
+                            relay.provider
+                        );
+                    }
                 }
+                println!();
             }
-            println!();
         }
+
         Ok(())
     }
 

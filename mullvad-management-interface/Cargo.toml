@@ -17,6 +17,7 @@ tower = "0.4"
 prost = "0.8"
 prost-types = "0.8"
 parity-tokio-ipc = "0.9"
+serde = { version = "1.0", features = ["derive"] }
 futures = "0.3"
 tokio = { version = "1.8", features =  [ "rt" ] }
 log = "0.4"

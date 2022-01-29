@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add WireGuard multihop setting and entry location selection to desktop app.
 - Add malware blocking to the desktop app. Implemented via DNS on the relays.
 - Add changes dialog which will include the most notable changes in each new version.
+- Add `--json` flag to `relay list` to print the list of available relays in JSON format.
 
 ### Changed
 - Keep unspecified constraints unchanged in the CLI when providing specific tunnel constraints
