@@ -558,6 +558,7 @@ pub struct Daemon<L: EventListener> {
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
     tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
+    cache_dir: PathBuf,
 }
 
 impl<L> Daemon<L>
@@ -749,6 +750,7 @@ where
             app_version_info,
             shutdown_tasks: vec![],
             tunnel_state_machine_shutdown_signal,
+            cache_dir,
         };
 
         daemon.ensure_wireguard_keys_for_current_account().await;
@@ -1398,7 +1400,16 @@ where
 
         if rx.await.is_ok() {
             log::debug!("New API endpoint: {:?}. {}", config, request.retry_attempt);
-            self.api_proxy_config = config;
+            self.api_proxy_config = config.clone();
+            let cache_dir = self.cache_dir.clone();
+            tokio::spawn(async move {
+                if let Err(error) = config.save(&cache_dir).await {
+                    log::debug!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to save API endpoint")
+                    );
+                }
+            });
         }
         let _ = request.response_tx.send(self.api_proxy_config.clone());
     }
