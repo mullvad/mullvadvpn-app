@@ -54,10 +54,11 @@ class SetAccountOperation: AsyncOperation {
         if let tunnelInfo = state.tunnelInfo, tunnelInfo.token != accountToken {
             let currentAccountToken = tunnelInfo.token
             let currentPublicKey = tunnelInfo.tunnelSettings.interface.publicKey
+            let nextPublicKey = tunnelInfo.tunnelSettings.interface.nextPrivateKey?.publicKey
 
             logger.debug("Unset current account token.")
 
-            deleteOldAccount(accountToken: currentAccountToken, publicKey: currentPublicKey) {
+            deleteOldAccount(accountToken: currentAccountToken, currentPublicKey: currentPublicKey, nextPublicKey: nextPublicKey) {
                 self.setNewAccount(completionHandler: completionHandler)
             }
         } else {
@@ -126,28 +127,40 @@ class SetAccountOperation: AsyncOperation {
             }
     }
 
-    private func deleteOldAccount(accountToken: String, publicKey: PublicKey, completionHandler: @escaping () -> Void) {
-        _ = REST.Client.shared.deleteWireguardKey(token: accountToken, publicKey: publicKey)
-            .execute(retryStrategy: .default) { result in
-                self.queue.async {
-                    self.didDeleteOldAccountKey(result: result, accountToken: accountToken, completionHandler: completionHandler)
+    private func deleteOldAccount(accountToken: String, currentPublicKey: PublicKey, nextPublicKey: PublicKey?, completionHandler: @escaping () -> Void) {
+        let dispatchGroup = DispatchGroup()
+
+        let keysToDelete = [currentPublicKey, nextPublicKey].compactMap { $0 }
+
+        logger.debug("Deleting \(keysToDelete.count) key(s) from old account.")
+
+        for (index, publicKey) in keysToDelete.enumerated() {
+            dispatchGroup.enter()
+            _ = REST.Client.shared.deleteWireguardKey(token: accountToken, publicKey: publicKey)
+                .execute(retryStrategy: .default) { result in
+                    self.queue.async {
+                        switch result {
+                        case .success:
+                            self.logger.info("Removed old key (\(index)) from server.")
+
+                        case .failure(.server(.pubKeyNotFound)):
+                            self.logger.debug("Old key (\(index)) was not found on server.")
+
+                        case .failure(let error):
+                            self.logger.error(chainedError: error, message: "Failed to delete old key (\(index)) on server.")
+                        }
+
+                        dispatchGroup.leave()
+                    }
                 }
-            }
-    }
-
-    private func didDeleteOldAccountKey(result: Result<(), REST.Error>, accountToken: String, completionHandler: @escaping () -> Void) {
-        switch result {
-        case .success:
-            logger.info("Removed old key from server.")
-
-        case .failure(let error):
-            if case .server(.pubKeyNotFound) = error {
-                logger.debug("Old key was not found on server.")
-            } else {
-                logger.error(chainedError: error, message: "Failed to delete old key on server.")
-            }
         }
 
+        dispatchGroup.notify(queue: queue) {
+            self.deleteKeychainEntryAndVPNConfiguration(accountToken: accountToken, completionHandler: completionHandler)
+        }
+    }
+
+    private func deleteKeychainEntryAndVPNConfiguration(accountToken: String, completionHandler: @escaping () -> Void) {
         // Tell the caller to unsubscribe from VPN status notifications.
         willDeleteVPNConfigurationHandler?()
         willDeleteVPNConfigurationHandler = nil
