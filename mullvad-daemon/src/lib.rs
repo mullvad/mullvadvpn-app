@@ -37,7 +37,7 @@ use mullvad_rpc::{
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
-    location::GeoIpLocation,
+    location::{Coordinates, GeoIpLocation},
     relay_constraints::{
         BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, RelaySettings,
         RelaySettingsUpdate,
@@ -1383,14 +1383,33 @@ where
         &mut self,
         request: api::ApiConnectionModeRequest,
     ) {
-        let constraints = InternalBridgeConstraints {
-            location: Constraint::Any,
-            providers: Constraint::Any,
-            transport_protocol: Constraint::Only(TransportProtocol::Tcp),
-        };
-
+        let location = self
+            .last_generated_entry_relay
+            .as_ref()
+            .or(self.last_generated_relay.as_ref())
+            .and_then(|relay| relay.location.as_ref().map(Coordinates::from))
+            .or_else(|| {
+                if let RelaySettings::Normal(settings) = self.settings.get_relay_settings() {
+                    self.relay_selector.get_relay_midpoint(&settings)
+                } else {
+                    None
+                }
+            });
         let bridge = if request.retry_attempt % 3 > 0 {
-            self.relay_selector.get_proxy_settings(&constraints, None)
+            let constraints = match &self.settings.bridge_settings {
+                BridgeSettings::Normal(settings) => InternalBridgeConstraints {
+                    location: settings.location.clone(),
+                    providers: settings.providers.clone(),
+                    transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+                },
+                _ => InternalBridgeConstraints {
+                    location: Constraint::Any,
+                    providers: Constraint::Any,
+                    transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+                },
+            };
+            self.relay_selector
+                .get_proxy_settings(&constraints, location)
         } else {
             None
         };
