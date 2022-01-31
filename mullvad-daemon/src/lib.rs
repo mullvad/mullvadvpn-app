@@ -1382,14 +1382,20 @@ where
                 }
             });
 
-        let constraints = InternalBridgeConstraints {
-            location: Constraint::Any,
-            providers: Constraint::Any,
-            transport_protocol: Constraint::Only(TransportProtocol::Tcp),
-        };
-
         let bridge = location.and_then(|location| {
             if request.retry_attempt % 3 > 0 {
+                let constraints = match &self.settings.bridge_settings {
+                    BridgeSettings::Normal(settings) => InternalBridgeConstraints {
+                        location: settings.location.clone(),
+                        providers: settings.providers.clone(),
+                        transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+                    },
+                    _ => InternalBridgeConstraints {
+                        location: Constraint::Any,
+                        providers: Constraint::Any,
+                        transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+                    },
+                };
                 self.relay_selector
                     .get_proxy_settings(&constraints, Some(location))
             } else {
