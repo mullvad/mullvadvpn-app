@@ -1,20 +1,25 @@
 use crate::tls_stream::TlsStream;
 use futures::Future;
 use hyper::client::connect::{Connected, Connection};
+use serde::{Deserialize, Serialize};
 use shadowsocks::relay::tcprelay::ProxyClientStream;
 use std::{
     io,
     net::SocketAddr,
+    path::Path,
     pin::Pin,
     task::{self, Poll},
 };
-use talpid_types::net::openvpn::ShadowsocksProxySettings;
+use talpid_types::{net::openvpn::ShadowsocksProxySettings, ErrorExt};
 use tokio::{
-    io::{AsyncRead, AsyncWrite, ReadBuf},
+    fs,
+    io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf},
     net::TcpStream,
 };
 
-#[derive(Clone, Debug, PartialEq)]
+const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum ProxyConfig {
     /// Connect directly to the target.
     Tls,
@@ -23,6 +28,46 @@ pub enum ProxyConfig {
 }
 
 impl ProxyConfig {
+    /// Reads the proxy config from `CURRENT_API_CONFIG_FILENAME`.
+    /// If the file does not exist, this returns `Ok(ProxyConfig::Tls)`.
+    async fn from_cache(cache_dir: &Path) -> io::Result<Self> {
+        let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
+        match fs::read_to_string(path).await {
+            Ok(s) => serde_json::from_str(&s).map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(&format!(
+                        "Failed to deserialize \"{}\"",
+                        CURRENT_CONFIG_FILENAME
+                    ))
+                );
+                io::Error::new(io::ErrorKind::Other, "deserialization failed")
+            }),
+            Err(error) => {
+                if error.kind() == io::ErrorKind::NotFound {
+                    Ok(ProxyConfig::Tls)
+                } else {
+                    Err(error)
+                }
+            }
+        }
+    }
+
+    /// Stores this config to `CURRENT_API_CONFIG_FILENAME`.
+    pub async fn save(&self, cache_dir: &Path) -> io::Result<()> {
+        let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
+        let temp_path = path.with_extension("temp");
+
+        let mut file = fs::File::create(&temp_path).await?;
+        let json = serde_json::to_string_pretty(self)
+            .map_err(|_| io::Error::new(io::ErrorKind::Other, "serialization failed"))?;
+        file.write_all(json.as_bytes()).await?;
+        file.write_all(b"\n").await?;
+        file.sync_data().await?;
+
+        fs::rename(&temp_path, path).await
+    }
+
     /// Returns the remote address, or `None` for `ProxyConfig::Tls`.
     pub fn get_endpoint(&self) -> Option<SocketAddr> {
         match self {
