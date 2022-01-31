@@ -4,7 +4,7 @@ use hyper::client::connect::{Connected, Connection};
 use serde::{Deserialize, Serialize};
 use shadowsocks::relay::tcprelay::ProxyClientStream;
 use std::{
-    io,
+    fmt, io,
     net::SocketAddr,
     path::Path,
     pin::Pin,
@@ -24,7 +24,30 @@ pub enum ProxyConfig {
     /// Connect directly to the target.
     Tls,
     /// Connect to the destination via a proxy.
-    Proxied(ShadowsocksProxySettings),
+    Proxied(ProxyConfigSettings),
+}
+
+impl fmt::Display for ProxyConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            ProxyConfig::Tls => write!(f, "unproxied"),
+            ProxyConfig::Proxied(settings) => write!(f, "{}", settings),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub enum ProxyConfigSettings {
+    Shadowsocks(ShadowsocksProxySettings),
+}
+
+impl fmt::Display for ProxyConfigSettings {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            // TODO: Do not hardcode TCP
+            ProxyConfigSettings::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
+        }
+    }
 }
 
 impl ProxyConfig {
@@ -84,7 +107,7 @@ impl ProxyConfig {
     /// Returns the remote address, or `None` for `ProxyConfig::Tls`.
     pub fn get_endpoint(&self) -> Option<SocketAddr> {
         match self {
-            ProxyConfig::Proxied(ss) => Some(ss.peer),
+            ProxyConfig::Proxied(ProxyConfigSettings::Shadowsocks(ss)) => Some(ss.peer),
             ProxyConfig::Tls => None,
         }
     }
