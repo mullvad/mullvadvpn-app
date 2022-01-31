@@ -68,6 +68,19 @@ impl ProxyConfig {
         fs::rename(&temp_path, path).await
     }
 
+    /// Attempts to remove `CURRENT_API_CONFIG_FILENAME`, if it exists.
+    pub async fn try_delete_cache(cache_dir: &Path) {
+        let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
+        if let Err(err) = fs::remove_file(path).await {
+            if err.kind() != std::io::ErrorKind::NotFound {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to remove old API config")
+                );
+            }
+        }
+    }
+
     /// Returns the remote address, or `None` for `ProxyConfig::Tls`.
     pub fn get_endpoint(&self) -> Option<SocketAddr> {
         match self {
