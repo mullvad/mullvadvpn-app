@@ -191,15 +191,15 @@ class SetAccountOperation: AsyncOperation {
         // Remove VPN configuration
         tunnelProvider.removeFromPreferences { error in
             self.queue.async {
+                // Ignore error but log it
                 if let error = error {
-                    // Ignore error but log it
                     self.logger.error(
                         chainedError: AnyChainedError(error),
                         message: "Failed to remove VPN configuration."
                     )
-                } else {
-                    self.state.setTunnelProvider(nil, shouldRefreshTunnelState: false)
                 }
+
+                self.state.setTunnelProvider(nil, shouldRefreshTunnelState: false)
 
                 completionHandler()
             }
