@@ -29,6 +29,10 @@ impl Location {
             other.longitude,
         )
     }
+
+    pub fn has_same_city(&self, other: &Self) -> bool {
+        self.country_code == other.country_code && self.city_code == other.city_code
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
