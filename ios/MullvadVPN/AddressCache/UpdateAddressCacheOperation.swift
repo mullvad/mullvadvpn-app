@@ -67,7 +67,7 @@ extension AddressCache {
 
         private func startUpdate() {
             guard !isCancelled else {
-                finish(with: .cancelled)
+                completeOperation(with: .cancelled)
                 return
             }
 
@@ -75,7 +75,7 @@ extension AddressCache {
             let nextUpdate = Date(timeInterval: updateInterval, since: lastUpdate)
 
             guard nextUpdate <= Date() else {
-                finish(with: .throttled(lastUpdate))
+                completeOperation(with: .throttled(lastUpdate))
                 return
             }
 
@@ -87,27 +87,29 @@ extension AddressCache {
                             self.store.setEndpoints(newEndpoints) { error in
                                 self.queue.async {
                                     if let error = error {
-                                        self.finish(with: .failure(error))
+                                        self.completeOperation(with: .failure(error))
                                     } else {
-                                        self.finish(with: .success)
+                                        self.completeOperation(with: .success)
                                     }
                                 }
                             }
 
                         case .failure(let error):
                             if case URLError.cancelled = error {
-                                self.finish(with: .cancelled)
+                                self.completeOperation(with: .cancelled)
                             } else {
-                                self.finish(with: .failure(error))
+                                self.completeOperation(with: .failure(error))
                             }
                         }
                     }
                 }
         }
 
-        private func finish(with result: CacheUpdateResult) {
+        private func completeOperation(with result: CacheUpdateResult) {
             completionHandler?(result)
             completionHandler = nil
+
+            finish()
         }
     }
 }
