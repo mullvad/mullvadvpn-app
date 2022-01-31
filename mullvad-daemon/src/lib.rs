@@ -1008,16 +1008,21 @@ where
                             self.settings.get_wireguard().is_some(),
                         )
                         .ok();
-                    if let Some((relay, entry_relay, endpoint)) = endpoint {
+                    if let Some(relays::RelaySelectorResult {
+                        exit_relay,
+                        entry_relay,
+                        endpoint,
+                    }) = endpoint
+                    {
                         let result = self
                             .create_tunnel_parameters(
-                                &relay,
+                                &exit_relay,
                                 endpoint,
                                 account_token,
                                 retry_attempt,
                             )
                             .await;
-                        self.last_generated_relay = Some(relay);
+                        self.last_generated_relay = Some(exit_relay);
                         self.last_generated_entry_relay = entry_relay;
                         match result {
                             Ok(result) => Ok(result),
@@ -1123,12 +1128,7 @@ where
                 }
                 .into())
             }
-            MullvadEndpoint::Wireguard {
-                peer,
-                exit_peer,
-                ipv4_gateway,
-                ipv6_gateway,
-            } => {
+            MullvadEndpoint::Wireguard(endpoint) => {
                 let wg_data = self.settings.get_wireguard().ok_or(Error::NoKeyAvailable)?;
                 let tunnel = wireguard::TunnelConfig {
                     private_key: wg_data.private_key,
@@ -1140,10 +1140,10 @@ where
                 Ok(wireguard::TunnelParameters {
                     connection: wireguard::ConnectionConfig {
                         tunnel,
-                        peer,
-                        exit_peer,
-                        ipv4_gateway,
-                        ipv6_gateway: Some(ipv6_gateway),
+                        peer: endpoint.peer,
+                        exit_peer: endpoint.exit_peer,
+                        ipv4_gateway: endpoint.ipv4_gateway,
+                        ipv6_gateway: Some(endpoint.ipv6_gateway),
                     },
                     options: tunnel_options.wireguard.options,
                     generic_options: tunnel_options.generic,
