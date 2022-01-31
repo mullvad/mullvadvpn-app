@@ -30,7 +30,7 @@ pub enum ProxyConfig {
 impl ProxyConfig {
     /// Reads the proxy config from `CURRENT_API_CONFIG_FILENAME`.
     /// If the file does not exist, this returns `Ok(ProxyConfig::Tls)`.
-    async fn from_cache(cache_dir: &Path) -> io::Result<Self> {
+    pub async fn from_cache(cache_dir: &Path) -> io::Result<Self> {
         let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
         match fs::read_to_string(path).await {
             Ok(s) => serde_json::from_str(&s).map_err(|error| {
@@ -98,11 +98,12 @@ pub trait ProxyConfigProvider: Send + Sync {
     fn next(&self) -> Pin<Box<dyn Future<Output = ProxyConfig> + Send>>;
 }
 
-pub struct ProxyConfigProviderNoop(pub ());
+pub struct ProxyConfigProviderNoop(pub ProxyConfig);
 
 impl ProxyConfigProvider for ProxyConfigProviderNoop {
     fn next(&self) -> Pin<Box<dyn Future<Output = ProxyConfig> + Send>> {
-        Box::pin(async { ProxyConfig::Tls })
+        let config = self.0.clone();
+        Box::pin(async { config })
     }
 }
 

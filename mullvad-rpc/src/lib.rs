@@ -224,7 +224,7 @@ impl MullvadRpcRuntime {
             self.handle.clone(),
             sni_hostname,
             self.api_availability.handle(),
-            proxy_provider.unwrap_or(Box::new(ProxyConfigProviderNoop(()))),
+            proxy_provider.unwrap_or(Box::new(ProxyConfigProviderNoop(proxy::ProxyConfig::Tls))),
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
         );
