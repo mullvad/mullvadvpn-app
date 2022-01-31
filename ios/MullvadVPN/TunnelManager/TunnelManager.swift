@@ -549,9 +549,7 @@ class TunnelManager: TunnelManagerStateDelegate
 
                 dispatchPrecondition(condition: .onQueue(self.stateQueue))
 
-                if case .success = completion {
-                    self.updatePrivateKeyRotationTimer()
-                }
+                self.updatePrivateKeyRotationTimer()
 
                 completionHandler(completion)
             })
