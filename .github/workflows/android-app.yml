@@ -87,11 +87,20 @@ jobs:
                 NDK_TOOLCHAIN_DIR: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
                 AR_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar
                 CC_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang
-                ARCHITECTURES: aarch64 x86_64
+                ARCHITECTURES: x86_64
+                TARGET: "x86_64-linux-android"
+                BUILD_TYPE: debug
               run: |
+                ABI="$ARCHITECTURES"
+                UNSTRIPPED_LIB_PATH="./target/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
+                STRIPPED_LIB_PATH="./android/app/build/extraJni/$ABI/libmullvad_jni.so"
+                NDK_TOOLCHAIN_STRIP_TOOL="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-strip"
                 ./wireguard/build-wireguard-go.sh --android --no-docker
-                source env.sh x86_64-linux-android
-                cargo build --target x86_64-linux-android --verbose --package mullvad-jni
+                source env.sh $TARGET
+                cargo build --target $TARGET --verbose --package mullvad-jni
+                cargo run --bin relay_list > dist-assets/relays.json
+                cargo run --bin address_cache > dist-assets/api-ip-address.txt
+                $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
                 cd android
                 ./gradlew --console plain assembleDebug
                 ./gradlew testDebugUnitTest
