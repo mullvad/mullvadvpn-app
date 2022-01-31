@@ -80,11 +80,20 @@ class SetAccountOperation: AsyncOperation {
 
             // Push key if interface addresses were not received yet
             if interfaceSettings.addresses.isEmpty {
-                pushNewAccountKey(
-                    accountToken: accountToken,
-                    publicKey: interfaceSettings.publicKey,
-                    completionHandler: completionHandler
-                )
+                if let newPrivateKey = interfaceSettings.nextPrivateKey {
+                    replaceOldAccountKey(
+                        accountToken: accountToken,
+                        oldPrivateKey: interfaceSettings.privateKey,
+                        newPrivateKey: newPrivateKey,
+                        completionHandler: completionHandler
+                    )
+                } else {
+                    pushNewAccountKey(
+                        accountToken: accountToken,
+                        publicKey: interfaceSettings.publicKey,
+                        completionHandler: completionHandler
+                    )
+                }
             } else {
                 state.tunnelInfo = TunnelInfo(
                     token: accountToken,
@@ -184,50 +193,72 @@ class SetAccountOperation: AsyncOperation {
         }
     }
 
-    private func pushNewAccountKey(accountToken: String, publicKey: PublicKey, completionHandler: @escaping CompletionHandler) {
-        _ = restClient.pushWireguardKey(token: accountToken, publicKey: publicKey)
+    private func replaceOldAccountKey(accountToken: String, oldPrivateKey: PrivateKeyWithMetadata, newPrivateKey: PrivateKeyWithMetadata, completionHandler: @escaping CompletionHandler) {
+        _ = restClient.replaceWireguardKey(token: accountToken, oldPublicKey: oldPrivateKey.publicKey, newPublicKey: newPrivateKey.publicKey)
             .execute(retryStrategy: .default) { result in
                 self.queue.async {
-                    self.didPushNewAccountKey(result: result, accountToken: accountToken, completionHandler: completionHandler)
+                    switch result {
+                    case .success(let associatedAddresses):
+                        self.logger.debug("Replaced old key with new key on server.")
+
+                        self.saveAssociatedAddresses(associatedAddresses, accountToken: accountToken, newPrivateKey: newPrivateKey, completionHandler: completionHandler)
+
+                    case .failure(let error):
+                        self.logger.error(chainedError: error, message: "Failed to replace old key with new key on server.")
+
+                        completionHandler(.failure(.replaceWireguardKey(error)))
+                    }
                 }
             }
     }
 
-    private func didPushNewAccountKey(result: Result<REST.WireguardAddressesResponse, REST.Error>, accountToken: String, completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void) {
-        switch result {
-        case .success(let associatedAddresses):
-            logger.debug("Pushed new key to server.")
+    private func pushNewAccountKey(accountToken: String, publicKey: PublicKey, completionHandler: @escaping CompletionHandler) {
+        _ = restClient.pushWireguardKey(token: accountToken, publicKey: publicKey)
+            .execute(retryStrategy: .default) { result in
+                self.queue.async {
+                    switch result {
+                    case .success(let associatedAddresses):
+                        self.logger.debug("Pushed new key to server.")
 
-            let saveSettingsResult = TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { tunnelSettings in
-                tunnelSettings.interface.addresses = [
-                    associatedAddresses.ipv4Address,
-                    associatedAddresses.ipv6Address
-                ]
+                        self.saveAssociatedAddresses(associatedAddresses, accountToken: accountToken, newPrivateKey: nil, completionHandler: completionHandler)
+
+                    case .failure(let error):
+                        self.logger.error(chainedError: error, message: "Failed to push new key to server.")
+
+                        completionHandler(.failure(.pushWireguardKey(error)))
+                    }
+                }
             }
+    }
 
-            switch saveSettingsResult {
-            case .success(let newTunnelSettings):
-                logger.debug("Saved associated addresses.")
+    private func saveAssociatedAddresses(_ associatedAddresses: REST.WireguardAddressesResponse, accountToken: String, newPrivateKey: PrivateKeyWithMetadata?, completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void) {
+        let saveResult = TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { tunnelSettings in
+            tunnelSettings.interface.addresses = [
+                associatedAddresses.ipv4Address,
+                associatedAddresses.ipv6Address
+            ]
 
-                let tunnelInfo = TunnelInfo(
-                    token: accountToken,
-                    tunnelSettings: newTunnelSettings
-                )
-
-                state.tunnelInfo = tunnelInfo
-
-                completionHandler(.success(()))
-
-            case .failure(let error):
-                logger.error(chainedError: error, message: "Failed to save associated addresses.")
-
-                completionHandler(.failure(.updateTunnelSettings(error)))
+            if let newPrivateKey = newPrivateKey {
+                tunnelSettings.interface.privateKey = newPrivateKey
+                tunnelSettings.interface.nextPrivateKey = nil
             }
+        }
+
+        switch saveResult {
+        case .success(let newTunnelSettings):
+            logger.debug("Saved associated addresses.")
+
+            state.tunnelInfo = TunnelInfo(
+                token: accountToken,
+                tunnelSettings: newTunnelSettings
+            )
+
+            completionHandler(.success(()))
 
         case .failure(let error):
-            logger.error(chainedError: error, message: "Failed to push new key to server.")
+            logger.error(chainedError: error, message: "Failed to save associated addresses.")
 
-            completionHandler(.failure(.pushWireguardKey(error)))
+            completionHandler(.failure(.updateTunnelSettings(error)))
         }
     }
 }
