@@ -37,7 +37,7 @@ use mullvad_rpc::{
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
-    location::GeoIpLocation,
+    location::{Coordinates, GeoIpLocation},
     relay_constraints::{
         BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints,
         RelaySettings, RelaySettingsUpdate,
@@ -1370,17 +1370,32 @@ where
     }
 
     async fn handle_generate_api_proxy_config(&mut self, request: api::ApiProxyRequest) {
+        let location = self
+            .last_generated_entry_relay
+            .as_ref()
+            .and_then(|relay| relay.location.as_ref().map(Coordinates::from))
+            .or_else(|| {
+                if let RelaySettings::Normal(settings) = self.settings.get_relay_settings() {
+                    self.relay_selector.get_relay_midpoint(&settings)
+                } else {
+                    None
+                }
+            });
+
         let constraints = InternalBridgeConstraints {
             location: Constraint::Any,
             providers: Constraint::Any,
             transport_protocol: Constraint::Only(TransportProtocol::Tcp),
         };
 
-        let bridge = if request.retry_attempt % 3 > 0 {
-            self.relay_selector.get_proxy_settings(&constraints, None)
-        } else {
-            None
-        };
+        let bridge = location.and_then(|location| {
+            if request.retry_attempt % 3 > 0 {
+                self.relay_selector
+                    .get_proxy_settings(&constraints, Some(location))
+            } else {
+                None
+            }
+        });
         let config = match bridge {
             Some((settings, _relay)) => match settings {
                 ProxySettings::Shadowsocks(ss_settings) => {
