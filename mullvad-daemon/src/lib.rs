@@ -580,6 +580,8 @@ where
             exclusion_gid::set_exclusion_gid().map_err(Error::GroupIdError)?
         };
 
+        mullvad_rpc::proxy::ProxyConfig::try_delete_cache(&cache_dir).await;
+
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
         let runtime = tokio::runtime::Handle::current();
