@@ -1,6 +1,6 @@
 use crate::{
     abortable_stream::{AbortableStream, AbortableStreamHandle},
-    proxy::{MaybeProxyStream, ProxyConfig},
+    proxy::{MaybeProxyStream, ProxyConfig, ProxyConfigSettings},
     tls_stream::TlsStream,
 };
 use futures::{channel::mpsc, future, StreamExt};
@@ -85,12 +85,14 @@ impl TryFrom<ProxyConfig> for InnerProxyConfig {
     fn try_from(config: ProxyConfig) -> Result<Self, Self::Error> {
         Ok(match config {
             ProxyConfig::Tls => InnerProxyConfig::Tls,
-            ProxyConfig::Proxied(config) => InnerProxyConfig::Proxied(ServerConfig::new(
-                ServerAddr::SocketAddr(config.peer),
-                config.password,
-                CipherKind::from_str(&config.cipher)
-                    .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
-            )),
+            ProxyConfig::Proxied(ProxyConfigSettings::Shadowsocks(config)) => {
+                InnerProxyConfig::Proxied(ServerConfig::new(
+                    ServerAddr::SocketAddr(config.peer),
+                    config.password,
+                    CipherKind::from_str(&config.cipher)
+                        .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
+                ))
+            }
         })
     }
 }
