@@ -21,13 +21,72 @@ pub struct Location {
 const RAIDUS_OF_EARTH: f64 = 6372.8;
 
 impl Location {
-    pub fn distance_from(&self, other: &Location) -> f64 {
+    pub fn distance_from(&self, other: &Coordinates) -> f64 {
         haversine_dist_deg(
             self.latitude,
             self.longitude,
             other.latitude,
             other.longitude,
         )
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Coordinates {
+    pub latitude: f64,
+    pub longitude: f64,
+}
+
+impl From<&Location> for Coordinates {
+    fn from(location: &Location) -> Self {
+        Self {
+            latitude: location.latitude,
+            longitude: location.longitude,
+        }
+    }
+}
+
+impl From<Location> for Coordinates {
+    fn from(location: Location) -> Self {
+        Coordinates::from(&location)
+    }
+}
+
+impl Coordinates {
+    /// Computes the approximate midpoint of a set of locations.
+    ///
+    /// This works by calculating the mean Cartesian coordinates, and converting them
+    /// back to spherical coordinates. This is approximate, because the semi-minor (polar)
+    /// axis is assumed to equal the semi-major (equatorial) axis.
+    ///
+    /// https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates
+    pub fn midpoint(locations: &[Location]) -> Self {
+        let mut x = 0f64;
+        let mut y = 0f64;
+        let mut z = 0f64;
+
+        for location in locations {
+            let cos_lat = location.latitude.to_radians().cos();
+            let sin_lat = location.latitude.to_radians().sin();
+            let cos_lon = location.longitude.to_radians().cos();
+            let sin_lon = location.longitude.to_radians().sin();
+            x += cos_lat * cos_lon;
+            y += cos_lat * sin_lon;
+            z += sin_lat;
+        }
+        let inv_total_weight = 1f64 / (locations.len() as f64);
+        x *= inv_total_weight;
+        y *= inv_total_weight;
+        z *= inv_total_weight;
+
+        let longitude = y.atan2(x);
+        let hypotenuse = (x * x + y * y).sqrt();
+        let latitude = z.atan2(hypotenuse);
+
+        Coordinates {
+            latitude: latitude.to_degrees(),
+            longitude: longitude.to_degrees(),
+        }
     }
 }
 
