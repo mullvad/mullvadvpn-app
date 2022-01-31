@@ -21,13 +21,66 @@ pub struct Location {
 const RAIDUS_OF_EARTH: f64 = 6372.8;
 
 impl Location {
-    pub fn distance_from(&self, other: &Location) -> f64 {
+    pub fn distance_from(&self, other: &Coordinates) -> f64 {
         haversine_dist_deg(
             self.latitude,
             self.longitude,
             other.latitude,
             other.longitude,
         )
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Coordinates {
+    pub latitude: f64,
+    pub longitude: f64,
+}
+
+impl From<&Location> for Coordinates {
+    fn from(location: &Location) -> Self {
+        Self {
+            latitude: location.latitude,
+            longitude: location.latitude,
+        }
+    }
+}
+
+impl From<Location> for Coordinates {
+    fn from(location: Location) -> Self {
+        Coordinates::from(&location)
+    }
+}
+
+impl Coordinates {
+    /// Computes the approximate midpoint of a set of locations
+    pub fn midpoint(locations: &[Location]) -> Self {
+        let mut x = 0f64;
+        let mut y = 0f64;
+        let mut z = 0f64;
+
+        for location in locations {
+            let lat_cos = location.latitude.to_radians().cos();
+            let lat_sin = location.latitude.to_radians().sin();
+            let lon_cos = location.longitude.to_radians().cos();
+            let lon_sin = location.longitude.to_radians().sin();
+            x += lat_cos * lon_cos;
+            y += lat_cos * lon_sin;
+            z += lat_sin;
+        }
+        let inv_total_weight = 1f64 / (locations.len() as f64);
+        x *= inv_total_weight;
+        y *= inv_total_weight;
+        z *= inv_total_weight;
+
+        let longitude = y.atan2(x);
+        let hypotenuse = (x * x + y * y).sqrt();
+        let latitude = z.atan2(hypotenuse);
+
+        Coordinates {
+            latitude: latitude.to_degrees(),
+            longitude: longitude.to_degrees(),
+        }
     }
 }
 
