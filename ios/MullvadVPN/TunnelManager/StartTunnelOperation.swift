@@ -44,7 +44,7 @@ class StartTunnelOperation: AsyncOperation {
         }
 
         guard let tunnelInfo = self.state.tunnelInfo else {
-            completionHandler(.failure(.missingAccount))
+            completionHandler(.failure(.unsetAccount))
             return
         }
 

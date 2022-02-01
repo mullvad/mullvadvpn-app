@@ -42,7 +42,7 @@ class SetTunnelSettingsOperation: AsyncOperation {
         }
 
         guard let accountToken = state.tunnelInfo?.token else {
-            completionHandler(.failure(.missingAccount))
+            completionHandler(.failure(.unsetAccount))
             return
         }
 
