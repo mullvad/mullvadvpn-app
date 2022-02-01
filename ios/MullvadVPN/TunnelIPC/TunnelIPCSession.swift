@@ -7,78 +7,50 @@
 //
 
 import Foundation
+import NetworkExtension
 
 extension TunnelIPC {
-    /// Wrapper class around `NETunnelProviderSession` that provides convenient interface for interacting with the
-    /// Packet Tunnel process.
+    /// Wrapper class around `NETunnelProviderSession` that provides convenient interface for
+    /// interacting with the Packet Tunnel process.
     final class Session {
-        private let tunnelProviderSession: VPNTunnelProviderSessionProtocol
+        private let connection: VPNConnectionProtocol
+        private let queue = DispatchQueue(label: "TunnelIPC.SessionQueue")
+        private let operationQueue = OperationQueue()
 
-        init<T: VPNTunnelProviderManagerProtocol>(from tunnelProvider: T) {
-            tunnelProviderSession = tunnelProvider.connection as! VPNTunnelProviderSessionProtocol
+        init(connection: VPNConnectionProtocol) {
+            self.connection = connection
         }
 
-        func reloadTunnelSettings(completionHandler: @escaping (TunnelIPC.Error?) -> Void) {
-            send(message: .reloadTunnelSettings) { result in
-                completionHandler(result.error)
+        func reloadTunnelSettings(completionHandler: @escaping (OperationCompletion<(), TunnelIPC.Error>) -> Void) -> Cancellable {
+            let operation = RequestOperation(
+                queue: queue,
+                connection: connection,
+                request: .reloadTunnelSettings,
+                options: TunnelIPC.RequestOptions(waitIfReasserting: true),
+                completionHandler: completionHandler
+            )
+
+            operationQueue.addOperation(operation)
+
+            return AnyCancellable {
+                operation.cancel()
             }
         }
 
-        func getTunnelConnectionInfo(completionHandler: @escaping (Result<TunnelConnectionInfo?, TunnelIPC.Error>) -> Void) {
-            send(message: .tunnelConnectionInfo) { result in
-                completionHandler(result)
+        func getTunnelConnectionInfo(completionHandler: @escaping (OperationCompletion<TunnelConnectionInfo?, TunnelIPC.Error>) -> Void) -> Cancellable {
+            let operation = RequestOperation<TunnelConnectionInfo?>(
+                queue: queue,
+                connection: connection,
+                request: .tunnelConnectionInfo,
+                options: TunnelIPC.RequestOptions(waitIfReasserting: false),
+                completionHandler: completionHandler
+            )
+
+            operationQueue.addOperation(operation)
+
+            return AnyCancellable {
+                operation.cancel()
             }
         }
-
-        // MARK: - Private
-
-        private func send(message: TunnelIPC.Request, completionHandler: @escaping (Result<(), TunnelIPC.Error>) -> Void) {
-            sendWithoutDecoding(message: message) { (result) in
-                let result = result.map { _ in () }
-
-                completionHandler(result)
-            }
-        }
-
-        private func send<T>(message: TunnelIPC.Request, completionHandler: @escaping (Result<T, TunnelIPC.Error>) -> Void) where T: Codable
-        {
-            sendWithoutDecoding(message: message) { (result) in
-                let result = result.flatMap { (data) -> Result<T, TunnelIPC.Error> in
-                    guard let data = data else {
-                        return .failure(.nilResponse)
-                    }
-
-                    return Result { try TunnelIPC.Coding.decodeResponse(T.self, from: data) }
-                        .mapError { error in
-                            return .decoding(error)
-                        }
-                }
-
-                completionHandler(result)
-            }
-        }
-
-        private func sendWithoutDecoding(message: TunnelIPC.Request, completionHandler: @escaping (Result<Data?, TunnelIPC.Error>) -> Void) {
-            do {
-                let data = try TunnelIPC.Coding.encodeRequest(message)
-
-                sendProviderMessage(data) { (result) in
-                    completionHandler(result)
-                }
-            } catch {
-                completionHandler(.failure(.encoding(error)))
-            }
-        }
-
-        private func sendProviderMessage(_ messageData: Data, completionHandler: @escaping (Result<Data?, TunnelIPC.Error>) -> Void) {
-            do {
-                try tunnelProviderSession.sendProviderMessage(messageData) { response in
-                    completionHandler(.success(response))
-                }
-            } catch {
-                completionHandler(.failure(.send(error)))
-            }
-        }
-
     }
 }

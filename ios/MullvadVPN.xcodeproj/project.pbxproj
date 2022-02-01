@@ -162,6 +162,7 @@
 		5868585524054096000B8131 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868585424054096000B8131 /* AppButton.swift */; };
 		5868BD33261DCD2600E6027F /* CustomSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868BD32261DCD2600E6027F /* CustomSplitViewController.swift */; };
 		586ADD4723FC13F400CE9E87 /* countries.geo.json in Resources */ = {isa = PBXBuildFile; fileRef = 586ADD4523FC13F400CE9E87 /* countries.geo.json */; };
+		586E54FB27A2DF6D0029B88B /* TunnelIPCRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E54FA27A2DF6D0029B88B /* TunnelIPCRequestOperation.swift */; };
 		5871FB8325498CA20051A0A4 /* Swizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB8225498CA20051A0A4 /* Swizzle.swift */; };
 		5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
 		5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */; };
@@ -466,6 +467,7 @@
 		5868585424054096000B8131 /* AppButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
 		5868BD32261DCD2600E6027F /* CustomSplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSplitViewController.swift; sourceTree = "<group>"; };
 		586ADD4523FC13F400CE9E87 /* countries.geo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = countries.geo.json; sourceTree = "<group>"; };
+		586E54FA27A2DF6D0029B88B /* TunnelIPCRequestOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelIPCRequestOperation.swift; sourceTree = "<group>"; };
 		5871FB8225498CA20051A0A4 /* Swizzle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swizzle.swift; sourceTree = "<group>"; };
 		5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsolidatedApplicationLog.swift; sourceTree = "<group>"; };
 		5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegularExpression+IPAddress.swift"; sourceTree = "<group>"; };
@@ -805,6 +807,7 @@
 				585DA89226B0323E00B8C587 /* TunnelIPCRequest.swift */,
 				585DA89526B0328000B8C587 /* TunnelIPCResponse.swift */,
 				5875960926F371FC00BF6711 /* TunnelIPCSession.swift */,
+				586E54FA27A2DF6D0029B88B /* TunnelIPCRequestOperation.swift */,
 			);
 			path = TunnelIPC;
 			sourceTree = "<group>";
@@ -1507,6 +1510,7 @@
 				5868BD33261DCD2600E6027F /* CustomSplitViewController.swift in Sources */,
 				5806766E27048E5600C858CB /* KeychainMatchLimit.swift in Sources */,
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
+				586E54FB27A2DF6D0029B88B /* TunnelIPCRequestOperation.swift in Sources */,
 				584592612639B4A200EF967F /* ConsentContentView.swift in Sources */,
 				584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */,
 				5875960A26F371FC00BF6711 /* TunnelIPCSession.swift in Sources */,
