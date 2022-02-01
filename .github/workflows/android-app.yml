@@ -30,22 +30,73 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
-            - name: Declare commit sha variable
-              id: vars
+            - name: Calculate native lib cache hash
+              id: native-lib-cache-hash
               shell: bash
               run: |
-                echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+                non_android_hash="$(git grep --cached -l '' -- ':!android/' | xargs -d '\n' sha1sum | sha1sum | awk '{print $1}')"
+                echo "::set-output name=native_lib_hash::$non_android_hash"
+
+            - name: Cache native libraries
+              uses: actions/cache@v2
+              id: cache-native-libs
+              with:
+                path: |
+                  ./android/app/build/extraJni
+                  ./dist-assets/relays.json
+                  ./dist-assets/api-ip-address.txt
+                key: android-native-libs-${{ runner.os }}-x86_64-${{ steps.native-lib-cache-hash.outputs.native_lib_hash }}
 
             - name: Configure Rust
+              if: steps.cache-native-libs.outputs.cache-hit != 'true'
               uses: ATiltedTree/setup-rust@v1.0.4
               with:
                   rust-version: stable
                   targets: x86_64-linux-android
 
             - name: Configure Go
+              if: steps.cache-native-libs.outputs.cache-hit != 'true'
               uses: actions/setup-go@v2.1.3
               with:
                   go-version: 1.16
+
+            - name: Configure Android NDK
+              if: steps.cache-native-libs.outputs.cache-hit != 'true'
+              id: install-android-ndk
+              uses: nttld/setup-ndk@v1
+              with:
+                  ndk-version: r20b
+
+            - name: Bind Cargo with NDK
+              if: steps.cache-native-libs.outputs.cache-hit != 'true'
+              run: |
+                cat >> $HOME/.cargo/config << EOF
+                [target.x86_64-linux-android]
+                ar = "${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
+                linker = "${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
+                EOF
+
+            - name: Build native libraries
+              if: steps.cache-native-libs.outputs.cache-hit != 'true'
+              env:
+                RUSTFLAGS: --deny warnings
+                NDK_TOOLCHAIN_DIR: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
+                AR_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar
+                CC_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang
+                ABI: x86_64
+                TARGET: x86_64-linux-android
+                BUILD_TYPE: debug
+              run: |
+                ARCHITECTURES="$ABI"
+                UNSTRIPPED_LIB_PATH="./target/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
+                STRIPPED_LIB_PATH="./android/app/build/extraJni/$ABI/libmullvad_jni.so"
+                NDK_TOOLCHAIN_STRIP_TOOL="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-strip"
+                ./wireguard/build-wireguard-go.sh --android --no-docker
+                source env.sh $TARGET
+                cargo build --target $TARGET --verbose --package mullvad-jni
+                cargo run --bin relay_list > dist-assets/relays.json
+                cargo run --bin address_cache > dist-assets/api-ip-address.txt
+                $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 
             - name: Configure Android SDK
               uses: maxim-lobanov/setup-android-tools@v1
@@ -55,46 +106,39 @@ jobs:
                       build-tools;30.0.3
                   cache: true
 
-            - name: Configure Android NDK
-              id: install-android-ndk
-              uses: nttld/setup-ndk@v1
+            - name: Build Android app
+              uses: burrunan/gradle-cache-action@v1
               with:
-                  ndk-version: r20b
+                job-id: jdk8
+                arguments: assembleDebug
+                gradle-version: wrapper
+                build-root-directory: android
 
-            - name: Configure cache
-              uses: actions/cache@v2
+            - name: Run unit tests
+              uses: burrunan/gradle-cache-action@v1
               with:
-                path: |
-                    ~/.gradle/caches
-                    ~/.gradle/wrapper
-                    ./android/build
-                    ./android/app/build
-                key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-${{ steps.vars.outputs.sha_short }}
-                restore-keys: |
-                    gradle-${{ steps.vars.outputs.sha_short }}
+                job-id: jdk8
+                arguments: testDebugUnitTest
+                gradle-version: wrapper
+                build-root-directory: android
+                execution-only-caches: true
 
-            - name: Bind Cargo with NDK
-              run: |
-                cat >> $HOME/.cargo/config << EOF
-                [target.x86_64-linux-android]
-                ar = "${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
-                linker = "${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
-                EOF
+            - name: Assemble instrumented test apk
+              uses: burrunan/gradle-cache-action@v1
+              with:
+                job-id: jdk8
+                arguments: assembleAndroidTest
+                gradle-version: wrapper
+                build-root-directory: android
+                execution-only-caches: true
 
-            - name: Build and run unit tests
-              env:
-                RUSTFLAGS: --deny warnings
-                NDK_TOOLCHAIN_DIR: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
-                AR_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar
-                CC_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang
-                ARCHITECTURES: aarch64 x86_64
-              run: |
-                ./wireguard/build-wireguard-go.sh --android --no-docker
-                source env.sh x86_64-linux-android
-                cargo build --target x86_64-linux-android --verbose --package mullvad-jni
-                cd android
-                ./gradlew --console plain assembleDebug
-                ./gradlew testDebugUnitTest
+            - name: Upload apks
+              uses: actions/upload-artifact@v2
+              with:
+                name: apks
+                path: android/app/build/outputs/apk
+                if-no-files-found: error
+                retention-days: 1
 
     instrumented-tests:
         name: Instrumented tests
@@ -108,40 +152,42 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
-            - name: Declare commit sha variable
-              id: vars
-              shell: bash
-              run: |
-                echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-
-            - name: Set up Java
-              uses: actions/setup-java@v1
+            - uses: actions/download-artifact@v2
               with:
-                java-version: 1.8
+                name: apks
 
-            - uses: gradle/wrapper-validation-action@v1
-
-            - name: Configure cache
+            - name: AVD cache
               uses: actions/cache@v2
+              id: avd-cache
               with:
                 path: |
-                    ~/.gradle/caches
-                    ~/.gradle/wrapper
-                    ./android/build
-                    ./android/app/build
-                key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-${{ steps.vars.outputs.sha_short }}
-                restore-keys: |
-                    gradle-${{ steps.vars.outputs.sha_short }}
+                  ~/.android/avd/*
+                  ~/.android/adb*
+                key: emulator-api-29
+
+            - name: Create avd and generate snapshot
+              uses: reactivecircus/android-emulator-runner@v2
+              if: steps.avd-cache.outputs.cache-hit != 'true'
+              with:
+                force-avd-creation: false
+                api-level: 29
+                arch: x86_64
+                emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+                disable-animations: true
+                profile: pixel
+                script: echo "Generated AVD snapshot for caching."
+              env:
+                API_LEVEL: 29
 
             - name: Run Android instrumented tests
               uses: reactivecircus/android-emulator-runner@v2
               with:
+                force-avd-creation: false
                 api-level: 29
                 arch: x86_64
-                emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-load -noaudio -no-boot-anim
+                emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
                 disable-animations: true
                 profile: pixel
-                script: ./gradlew connectedCheck --stacktrace
-                working-directory: ./android
+                script: ./ci/run-android-instrumented-tests.sh $(pwd)
               env:
                 API_LEVEL: 29
