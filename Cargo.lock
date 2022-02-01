@@ -60,12 +60,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61604a8f862e1d5c3229fdd78f8b02c68dcf73a4c4b05fd636d12240aaa242c1"
 
 [[package]]
-name = "arc-swap"
-version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5d78ce20460b82d3fa150275ed9d55e21064fc7951177baacf86a145c4a4b1f"
-
-[[package]]
 name = "ascii"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -269,26 +263,6 @@ name = "core-foundation-sys"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea221b5284a47e40033bf9b66f35f984ec0ea2931eb03505246cd27a963f981b"
-
-[[package]]
-name = "crossbeam-channel"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e54ea8bc3fb1ee042f5aace6e3c6e025d3874866da222930f70ce62aceba0bfa"
-dependencies = [
- "cfg-if 1.0.0",
- "crossbeam-utils",
-]
-
-[[package]]
-name = "crossbeam-utils"
-version = "0.8.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfcae03edb34f947e64acdb1c33ec169824e20657e9ecb61cef6c8c74dcb8120"
-dependencies = [
- "cfg-if 1.0.0",
- "lazy_static",
-]
 
 [[package]]
 name = "crypto2"
@@ -624,7 +598,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ab7d1bd1bd33cc98b0889831b72da23c0aa4df9cec7e0702f46ecea04b35db6"
 dependencies = [
  "bitflags",
- "fsevent-sys 2.0.1",
+ "fsevent-sys",
 ]
 
 [[package]]
@@ -632,15 +606,6 @@ name = "fsevent-sys"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f41b048a94555da0f42f1d632e2e19510084fb8e303b0daa2816e733fb3644a0"
-dependencies = [
- "libc",
-]
-
-[[package]]
-name = "fsevent-sys"
-version = "4.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76ee7a02da4d231650c7cea31349b889be2f45ddb3ef3032d2ec8185f6313fd2"
 dependencies = [
  "libc",
 ]
@@ -920,7 +885,7 @@ dependencies = [
  "httpdate",
  "itoa 0.4.8",
  "pin-project-lite",
- "socket2 0.4.2",
+ "socket2",
  "tokio",
  "tower-service",
  "tracing",
@@ -993,17 +958,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "inotify"
-version = "0.9.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8069d3ec154eb856955c1c0fbffefbf5f3c40a104ec912d4797314c1801abff"
-dependencies = [
- "bitflags",
- "inotify-sys",
- "libc",
-]
-
-[[package]]
 name = "inotify-sys"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1047,26 +1001,14 @@ dependencies = [
 
 [[package]]
 name = "ipconfig"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7e2f18aece9709094573a9f24f483c4f65caa4298e2f7ae1b71cc65d853fad7"
-dependencies = [
- "socket2 0.3.19",
- "widestring 0.4.3",
- "winapi 0.3.9",
- "winreg 0.6.2",
-]
-
-[[package]]
-name = "ipconfig"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "723519edce41262b05d4143ceb95050e4c614f483e78e9fd9e39a8275a84ad98"
 dependencies = [
- "socket2 0.4.2",
+ "socket2",
  "widestring 0.5.1",
  "winapi 0.3.9",
- "winreg 0.7.0",
+ "winreg",
 ]
 
 [[package]]
@@ -1166,26 +1108,6 @@ checksum = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 dependencies = [
  "winapi 0.2.8",
  "winapi-build",
-]
-
-[[package]]
-name = "kqueue"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "058a107a784f8be94c7d35c1300f4facced2e93d2fbe5b1452b44e905ddca4a9"
-dependencies = [
- "kqueue-sys",
- "libc",
-]
-
-[[package]]
-name = "kqueue-sys"
-version = "1.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8367585489f01bc55dd27404dcf56b95e6da061a256a666ab23be9ba96a2e587"
-dependencies = [
- "bitflags",
- "libc",
 ]
 
 [[package]]
@@ -1760,29 +1682,11 @@ dependencies = [
  "bitflags",
  "filetime",
  "fsevent",
- "fsevent-sys 2.0.1",
- "inotify 0.7.1",
+ "fsevent-sys",
+ "inotify",
  "libc",
  "mio 0.6.23",
  "mio-extras",
- "walkdir",
- "winapi 0.3.9",
-]
-
-[[package]]
-name = "notify"
-version = "5.0.0-pre.13"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "245d358380e2352c2d020e8ee62baac09b3420f1f6c012a31326cfced4ad487d"
-dependencies = [
- "bitflags",
- "crossbeam-channel",
- "filetime",
- "fsevent-sys 4.1.0",
- "inotify 0.9.6",
- "kqueue",
- "libc",
- "mio 0.7.13",
  "walkdir",
  "winapi 0.3.9",
 ]
@@ -2561,7 +2465,6 @@ version = "1.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8498cb3c1e3ea8e283fcf9635edc6011a3fea65b1582525ba94928ebea1cfee2"
 dependencies = [
- "arc-swap",
  "async-trait",
  "base64",
  "byte_string",
@@ -2571,7 +2474,6 @@ dependencies = [
  "libc",
  "log",
  "nix 0.23.1",
- "notify 5.0.0-pre.13",
  "once_cell",
  "pin-project",
  "sendfd",
@@ -2579,11 +2481,10 @@ dependencies = [
  "serde_json",
  "serde_urlencoded",
  "shadowsocks-crypto",
- "socket2 0.4.2",
+ "socket2",
  "thiserror",
  "tokio",
  "tokio-tfo",
- "trust-dns-resolver 0.20.3",
  "url",
  "winapi 0.3.9",
 ]
@@ -2651,17 +2552,6 @@ name = "smallvec"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ecab6c735a6bb4139c0caafd0cc3635748bbb3acf4550e8138122099251f309"
-
-[[package]]
-name = "socket2"
-version = "0.3.19"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "122e570113d28d773067fab24266b66753f6ea915758651696b6e35e49f88d6e"
-dependencies = [
- "cfg-if 1.0.0",
- "libc",
- "winapi 0.3.9",
-]
 
 [[package]]
 name = "socket2"
@@ -2803,7 +2693,7 @@ dependencies = [
  "netlink-sys",
  "nftnl",
  "nix 0.22.2",
- "notify 4.0.17",
+ "notify",
  "os_pipe",
  "parity-tokio-ipc",
  "parking_lot",
@@ -2816,7 +2706,7 @@ dependencies = [
  "resolv-conf",
  "rtnetlink",
  "shell-escape",
- "socket2 0.4.2",
+ "socket2",
  "subslice",
  "system-configuration",
  "talpid-dbus",
@@ -2835,7 +2725,7 @@ dependencies = [
  "which",
  "widestring 0.5.1",
  "winapi 0.3.9",
- "winreg 0.7.0",
+ "winreg",
  "zeroize",
 ]
 
@@ -3053,7 +2943,7 @@ dependencies = [
  "log",
  "once_cell",
  "pin-project",
- "socket2 0.4.2",
+ "socket2",
  "tokio",
  "winapi 0.3.9",
 ]
@@ -3233,32 +3123,7 @@ dependencies = [
  "thiserror",
  "time 0.3.5",
  "tokio",
- "trust-dns-proto 0.21.0-alpha.4",
-]
-
-[[package]]
-name = "trust-dns-proto"
-version = "0.20.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad0d7f5db438199a6e2609debe3f69f808d074e0a2888ee0bccb45fe234d03f4"
-dependencies = [
- "async-trait",
- "cfg-if 1.0.0",
- "data-encoding",
- "enum-as-inner",
- "futures-channel",
- "futures-io",
- "futures-util",
- "idna",
- "ipnet",
- "lazy_static",
- "log",
- "rand 0.8.4",
- "smallvec",
- "thiserror",
- "tinyvec",
- "tokio",
- "url",
+ "trust-dns-proto",
 ]
 
 [[package]]
@@ -3288,32 +3153,12 @@ dependencies = [
 
 [[package]]
 name = "trust-dns-resolver"
-version = "0.20.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6ad17b608a64bd0735e67bde16b0636f8aa8591f831a25d18443ed00a699770"
-dependencies = [
- "cfg-if 1.0.0",
- "futures-util",
- "ipconfig 0.2.2",
- "lazy_static",
- "log",
- "lru-cache",
- "parking_lot",
- "resolv-conf",
- "smallvec",
- "thiserror",
- "tokio",
- "trust-dns-proto 0.20.3",
-]
-
-[[package]]
-name = "trust-dns-resolver"
 version = "0.21.0-alpha.4"
 source = "git+https://github.com/BlueJekyll/trust-dns?rev=550e8f8be33df267b5c8e47586024cf17c3407f0#550e8f8be33df267b5c8e47586024cf17c3407f0"
 dependencies = [
  "cfg-if 1.0.0",
  "futures-util",
- "ipconfig 0.3.0",
+ "ipconfig",
  "lazy_static",
  "log",
  "lru-cache",
@@ -3323,7 +3168,7 @@ dependencies = [
  "smallvec",
  "thiserror",
  "tokio",
- "trust-dns-proto 0.21.0-alpha.4",
+ "trust-dns-proto",
 ]
 
 [[package]]
@@ -3345,8 +3190,8 @@ dependencies = [
  "tokio",
  "toml",
  "trust-dns-client",
- "trust-dns-proto 0.21.0-alpha.4",
- "trust-dns-resolver 0.21.0-alpha.4",
+ "trust-dns-proto",
+ "trust-dns-resolver",
 ]
 
 [[package]]
@@ -3679,15 +3524,6 @@ dependencies = [
  "bitflags",
  "err-derive",
  "widestring 0.4.3",
- "winapi 0.3.9",
-]
-
-[[package]]
-name = "winreg"
-version = "0.6.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2986deb581c4fe11b621998a5e53361efe6b48a151178d0cd9eeffa4dc6acc9"
-dependencies = [
  "winapi 0.3.9",
 ]
 
