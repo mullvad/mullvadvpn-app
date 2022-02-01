@@ -35,7 +35,6 @@ mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
 
 shadowsocks = { version = "1.12" }
-shadowsocks-service = { version = "1.12", features = ["local", "local-http-rustls"] }
 shadowsocks-crypto = { version = "0.2" }
 
 [target.'cfg(target_os="macos")'.dependencies]
