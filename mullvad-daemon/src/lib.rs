@@ -39,8 +39,8 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::{Coordinates, GeoIpLocation},
     relay_constraints::{
-        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints,
-        RelaySettings, RelaySettingsUpdate,
+        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, RelaySettings,
+        RelaySettingsUpdate,
     },
     relay_list::{Relay, RelayList},
     settings::{DnsOptions, DnsState, Settings},

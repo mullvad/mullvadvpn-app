@@ -25,15 +25,20 @@ impl MullvadProxyConfigProvider {
 }
 
 impl ProxyConfigProvider for MullvadProxyConfigProvider {
+    fn first(&self) -> ProxyConfig {
+        let mut attempt = self.retry_attempt.lock().unwrap();
+        *attempt = 0;
+        ProxyConfig::Tls
+    }
+
     fn next(&self) -> Pin<Box<dyn Future<Output = ProxyConfig> + Send>> {
         let (tx, rx) = oneshot::channel();
 
         let retry_attempt = {
             let mut attempt = self.retry_attempt.lock().unwrap();
-            let prev = *attempt;
             let (next, _) = attempt.overflowing_add(1);
             *attempt = next;
-            prev
+            next
         };
 
         let _ = self.tx.send(ApiProxyRequest {
