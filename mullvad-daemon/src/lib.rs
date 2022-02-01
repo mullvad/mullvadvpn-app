@@ -1429,15 +1429,12 @@ where
         if rx.await.is_ok() {
             log::debug!("API endpoint: {}", config);
             self.api_proxy_config = config.clone();
-            let cache_dir = self.cache_dir.clone();
-            tokio::spawn(async move {
-                if let Err(error) = config.save(&cache_dir).await {
-                    log::debug!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to save API endpoint")
-                    );
-                }
-            });
+            if let Err(error) = self.api_proxy_config.save(&self.cache_dir).await {
+                log::debug!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to save API endpoint")
+                );
+            }
         }
         let _ = request.response_tx.send(self.api_proxy_config.clone());
     }
