@@ -106,7 +106,7 @@ class ReplaceKeyOperation: AsyncOperation {
         }
 
         guard let tunnelInfo = state.tunnelInfo else {
-            completionHandler(.failure(.missingAccount))
+            completionHandler(.failure(.unsetAccount))
             return
         }
 

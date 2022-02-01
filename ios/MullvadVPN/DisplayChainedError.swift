@@ -236,7 +236,7 @@ extension TunnelManager.Error: DisplayChainedError {
             // This error is never displayed anywhere
             return nil
 
-        case .missingAccount:
+        case .unsetAccount:
             return NSLocalizedString(
                 "MISSING_ACCOUNT_INTERNAL_ERROR",
                 tableName: "TunnelManager",

@@ -11,8 +11,8 @@ import Foundation
 extension TunnelManager {
     /// An error emitted by all public methods of TunnelManager
     enum Error: ChainedError {
-        /// Account token is not set
-        case missingAccount
+        /// Account is unset.
+        case unsetAccount
 
         /// A failure to start the VPN tunnel via system call
         case startVPNTunnel(Swift.Error)

@@ -644,7 +644,7 @@ extension TunnelManager {
 
             return submitBackgroundTask(at: beginDate)
         } else {
-            return .failure(.missingAccount)
+            return .failure(.unsetAccount)
         }
     }
 
@@ -722,7 +722,7 @@ extension TunnelManager {
 
     fileprivate func nextRetryScheduleDate(_ error: TunnelManager.Error) -> Date? {
         switch error {
-        case .missingAccount:
+        case .unsetAccount:
             // Do not retry if logged out.
             return nil
 
