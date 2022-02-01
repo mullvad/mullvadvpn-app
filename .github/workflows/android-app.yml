@@ -107,6 +107,7 @@ jobs:
                 cd android
                 ./gradlew --console plain assembleDebug
                 ./gradlew testDebugUnitTest
+                ./gradlew assembleAndroidTest
 
             - name: Upload apks
               uses: actions/upload-artifact@v2
@@ -128,30 +129,9 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
-            - name: Declare commit sha variable
-              id: vars
-              shell: bash
-              run: |
-                echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-
-            - name: Set up Java
-              uses: actions/setup-java@v1
+            - uses: actions/download-artifact@v2
               with:
-                java-version: 1.8
-
-            - uses: gradle/wrapper-validation-action@v1
-
-            - name: Configure cache
-              uses: actions/cache@v2
-              with:
-                path: |
-                    ~/.gradle/caches
-                    ~/.gradle/wrapper
-                    ./android/build
-                    ./android/app/build
-                key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-${{ steps.vars.outputs.sha_short }}
-                restore-keys: |
-                    gradle-${{ steps.vars.outputs.sha_short }}
+                name: apks
 
             - name: Run Android instrumented tests
               uses: reactivecircus/android-emulator-runner@v2
@@ -161,7 +141,6 @@ jobs:
                 emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-load -noaudio -no-boot-anim
                 disable-animations: true
                 profile: pixel
-                script: ./gradlew connectedCheck --stacktrace
-                working-directory: ./android
+                script: ./ci/run-android-instrumented-tests.sh $(pwd)
               env:
                 API_LEVEL: 29
