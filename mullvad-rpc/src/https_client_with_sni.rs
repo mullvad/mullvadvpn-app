@@ -15,10 +15,10 @@ use hyper::{
 use shadowsocks::{
     config::ServerType,
     context::{Context as SsContext, SharedContext},
+    crypto::v1::CipherKind,
     relay::tcprelay::ProxyClientStream,
     ServerAddr, ServerConfig,
 };
-use shadowsocks_crypto::v1::CipherKind;
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::{

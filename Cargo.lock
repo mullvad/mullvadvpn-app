@@ -1548,7 +1548,6 @@ dependencies = [
  "serde",
  "serde_json",
  "shadowsocks",
- "shadowsocks-crypto",
  "talpid-types",
  "tokio",
  "tokio-rustls",
