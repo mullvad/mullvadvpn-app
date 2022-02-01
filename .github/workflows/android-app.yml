@@ -30,12 +30,6 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
-            - name: Declare commit sha variable
-              id: vars
-              shell: bash
-              run: |
-                echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-
             - name: Configure Rust
               uses: ATiltedTree/setup-rust@v1.0.4
               with:
@@ -60,18 +54,6 @@ jobs:
               uses: nttld/setup-ndk@v1
               with:
                   ndk-version: r20b
-
-            - name: Configure cache
-              uses: actions/cache@v2
-              with:
-                path: |
-                    ~/.gradle/caches
-                    ~/.gradle/wrapper
-                    ./android/build
-                    ./android/app/build
-                key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-${{ steps.vars.outputs.sha_short }}
-                restore-keys: |
-                    gradle-${{ steps.vars.outputs.sha_short }}
 
             - name: Bind Cargo with NDK
               run: |
@@ -102,12 +84,31 @@ jobs:
                 cargo run --bin address_cache > dist-assets/api-ip-address.txt
                 $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 
-            - name: Build and run unit tests
-              run: |
-                cd android
-                ./gradlew --console plain assembleDebug
-                ./gradlew testDebugUnitTest
-                ./gradlew assembleAndroidTest
+            - name: Build Android app
+              uses: burrunan/gradle-cache-action@v1
+              with:
+                job-id: jdk8
+                arguments: assembleDebug
+                gradle-version: wrapper
+                build-root-directory: android
+
+            - name: Run unit tests
+              uses: burrunan/gradle-cache-action@v1
+              with:
+                job-id: jdk8
+                arguments: testDebugUnitTest
+                gradle-version: wrapper
+                build-root-directory: android
+                execution-only-caches: true
+
+            - name: Assemble instrumented test apk
+              uses: burrunan/gradle-cache-action@v1
+              with:
+                job-id: jdk8
+                arguments: assembleAndroidTest
+                gradle-version: wrapper
+                build-root-directory: android
+                execution-only-caches: true
 
             - name: Upload apks
               uses: actions/upload-artifact@v2
