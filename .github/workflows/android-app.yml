@@ -30,32 +30,45 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
+            - name: Calculate native lib cache hash
+              id: native-lib-cache-hash
+              shell: bash
+              run: |
+                non_android_hash="$(git grep --cached -l '' -- ':!android/' | xargs -d '\n' sha1sum | sha1sum | awk '{print $1}')"
+                echo "::set-output name=native_lib_hash::$non_android_hash"
+
+            - name: Cache native libraries
+              uses: actions/cache@v2
+              id: cache-native-libs
+              with:
+                path: |
+                  ./android/app/build/extraJni
+                  ./dist-assets/relays.json
+                  ./dist-assets/api-ip-address.txt
+                key: android-native-libs-${{ runner.os }}-x86_64-${{ steps.native-lib-cache-hash.outputs.native_lib_hash }}
+
             - name: Configure Rust
+              if: steps.cache-native-libs.outputs.cache-hit != 'true'
               uses: ATiltedTree/setup-rust@v1.0.4
               with:
                   rust-version: stable
                   targets: x86_64-linux-android
 
             - name: Configure Go
+              if: steps.cache-native-libs.outputs.cache-hit != 'true'
               uses: actions/setup-go@v2.1.3
               with:
                   go-version: 1.16
 
-            - name: Configure Android SDK
-              uses: maxim-lobanov/setup-android-tools@v1
-              with:
-                  packages: |
-                      platforms;android-30
-                      build-tools;30.0.3
-                  cache: true
-
             - name: Configure Android NDK
+              if: steps.cache-native-libs.outputs.cache-hit != 'true'
               id: install-android-ndk
               uses: nttld/setup-ndk@v1
               with:
                   ndk-version: r20b
 
             - name: Bind Cargo with NDK
+              if: steps.cache-native-libs.outputs.cache-hit != 'true'
               run: |
                 cat >> $HOME/.cargo/config << EOF
                 [target.x86_64-linux-android]
@@ -64,6 +77,7 @@ jobs:
                 EOF
 
             - name: Build native libraries
+              if: steps.cache-native-libs.outputs.cache-hit != 'true'
               env:
                 RUSTFLAGS: --deny warnings
                 NDK_TOOLCHAIN_DIR: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
@@ -83,6 +97,14 @@ jobs:
                 cargo run --bin relay_list > dist-assets/relays.json
                 cargo run --bin address_cache > dist-assets/api-ip-address.txt
                 $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
+
+            - name: Configure Android SDK
+              uses: maxim-lobanov/setup-android-tools@v1
+              with:
+                  packages: |
+                      platforms;android-30
+                      build-tools;30.0.3
+                  cache: true
 
             - name: Build Android app
               uses: burrunan/gradle-cache-action@v1
