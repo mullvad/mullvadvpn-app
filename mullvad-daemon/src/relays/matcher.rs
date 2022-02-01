@@ -258,6 +258,12 @@ impl From<WireguardConstraints> for WireguardMatcher {
 
 impl Match<WireguardEndpointData> for WireguardMatcher {
     fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
+        if let Constraint::Only(port) = &self.port {
+            if port.protocol != endpoint.protocol {
+                return false;
+            }
+        }
+
         match self
             .port
             .as_ref()

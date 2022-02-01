@@ -1350,23 +1350,66 @@ mod test {
         );
     }
 
+    const WIREGUARD_MULTIHOP_CONSTRAINTS: RelayConstraints = RelayConstraints {
+        location: Constraint::Any,
+        providers: Constraint::Any,
+        wireguard_constraints: WireguardConstraints {
+            use_multihop: true,
+            port: Constraint::Any,
+            ip_version: Constraint::Any,
+            entry_location: Constraint::Any,
+        },
+        // This has to be explicit otherwise Android will chose WireGuard when default
+        // constructing.
+        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+        openvpn_constraints: OpenVpnConstraints {
+            port: Constraint::Any,
+        },
+    };
+
     #[test]
     fn test_selecting_wireguard_location_will_consider_multihop() {
-        let wireguard_specific_location = LocationConstraint::Hostname(
-            "se".to_string(),
-            "got".to_string(),
-            "se9-wireguard".to_string(),
-        );
+        let relay_selector = new_relay_selector();
 
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_MULTIHOP_CONSTRAINTS, BridgeState::Off, 0, true)
+
+            .expect("Failed to get relay when tunnel constraints are set to Any and retrying the selection");
+
+        assert!(result.entry_relay.is_some());
+        let _endpoint = result.endpoint.unwrap_wireguard();
+    }
+
+    #[test]
+    fn test_selecting_wg_multihop_tcp() {
+        let mut relay_constraints = WIREGUARD_MULTIHOP_CONSTRAINTS.clone();
+        relay_constraints.wireguard_constraints.port = Constraint::Only(TransportPort {
+            port: Constraint::Any,
+            protocol: TransportProtocol::Tcp,
+        });
+
+        let relay_selector = new_relay_selector();
+
+        let result = relay_selector.get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, true)
+            .expect("Failed to get relay when tunnel constraints are set to Any and retrying the selection");
+
+        assert!(result.entry_relay.is_some());
+        let endpoint = result.endpoint.unwrap_wireguard();
+        assert!(matches!(endpoint.peer.protocol, TransportProtocol::Tcp))
+    }
+
+    #[test]
+    fn test_selecting_wg_tcp() {
         let relay_constraints = RelayConstraints {
-            location: Constraint::Only(wireguard_specific_location),
             wireguard_constraints: WireguardConstraints {
-                use_multihop: true,
+                port: Constraint::Only(TransportPort {
+                    port: Constraint::Any,
+                    protocol: TransportProtocol::Tcp,
+                }),
                 ..WireguardConstraints::default()
             },
             // This has to be explicit otherwise Android will chose WireGuard when default
             // constructing.
-            tunnel_protocol: Constraint::Any,
+            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
             ..RelayConstraints::default()
         };
 
@@ -1374,9 +1417,7 @@ mod test {
 
         let result = relay_selector.get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, true)
             .expect("Failed to get relay when tunnel constraints are set to Any and retrying the selection");
-        assert!(
-            matches!(result.endpoint, MullvadEndpoint::Wireguard(_))
-                && result.entry_relay.is_some()
-        );
+        let endpoint = result.endpoint.unwrap_wireguard();
+        assert!(matches!(endpoint.peer.protocol, TransportProtocol::Tcp))
     }
 }
