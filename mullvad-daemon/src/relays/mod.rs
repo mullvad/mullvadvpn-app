@@ -389,6 +389,10 @@ impl RelaySelector {
         }
 
         entry_relay_matcher.location = wireguard_constraints.entry_location.clone();
+        entry_relay_matcher.tunnel.port = entry_relay_matcher
+            .tunnel
+            .port
+            .or(Self::preferred_wireguard_port(retry_attempt));
         self.get_wireguard_multi_hop_endpoint(entry_relay_matcher, location.clone())
     }
 
