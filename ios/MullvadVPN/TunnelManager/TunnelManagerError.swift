@@ -69,6 +69,9 @@ extension TunnelManager {
         /// A failure to schedule background task
         case backgroundTaskScheduler(Swift.Error)
 
+        /// A failure to reload tunnel
+        case reloadTunnel(TunnelIPC.Error)
+
         var errorDescription: String? {
             switch self {
             case .missingAccount:
@@ -109,6 +112,8 @@ extension TunnelManager {
                 return "Failed to remove the WireGuard key from server"
             case .backgroundTaskScheduler:
                 return "Failed to schedule background task"
+            case .reloadTunnel:
+                return "Failed to reload tunnel"
             }
         }
     }

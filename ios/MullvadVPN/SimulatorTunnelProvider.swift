@@ -45,56 +45,6 @@ extension NEVPNConnection: VPNConnectionProtocol {}
 extension NETunnelProviderSession: VPNTunnelProviderSessionProtocol {}
 extension NETunnelProviderManager: VPNTunnelProviderManagerProtocol {}
 
-extension VPNTunnelProviderManagerProtocol {
-    static func loadAllFromPreferences() -> Result<[SelfType]?, Error>.Promise {
-        return Result<[SelfType]?, Error>.Promise { resolver in
-            Self.loadAllFromPreferences { tunnels, error in
-                if let error = error {
-                    resolver.resolve(value: .failure(error))
-                } else {
-                    resolver.resolve(value: .success(tunnels))
-                }
-            }
-        }
-    }
-
-    func loadFromPreferences() -> Result<(), Error>.Promise {
-        return Result<(), Error>.Promise { resolver in
-            loadFromPreferences { error in
-                if let error = error {
-                    resolver.resolve(value: .failure(error))
-                } else {
-                    resolver.resolve(value: .success(()))
-                }
-            }
-        }
-    }
-
-    func saveToPreferences() -> Result<(), Error>.Promise {
-        return Result<(), Error>.Promise { resolver in
-            saveToPreferences { error in
-                if let error = error {
-                    resolver.resolve(value: .failure(error))
-                } else {
-                    resolver.resolve(value: .success(()))
-                }
-            }
-        }
-    }
-
-    func removeFromPreferences() -> Result<(), Error>.Promise {
-        return Result<(), Error>.Promise { resolver in
-            removeFromPreferences { error in
-                if let error = error {
-                    resolver.resolve(value: .failure(error))
-                } else {
-                    resolver.resolve(value: .success(()))
-                }
-            }
-        }
-    }
-}
-
 #if targetEnvironment(simulator)
 
 // MARK: - NEPacketTunnelProvider stubs

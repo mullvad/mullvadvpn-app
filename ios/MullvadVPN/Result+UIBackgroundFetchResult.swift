@@ -8,21 +8,6 @@
 
 import UIKit
 
-extension Result where Success == TunnelManager.KeyRotationResult {
-    var backgroundFetchResult: UIBackgroundFetchResult {
-        switch self.asConcreteType() {
-        case .success(.finished):
-            return .newData
-
-        case .success(.throttled):
-            return .noData
-
-        case .failure:
-            return .failed
-        }
-    }
-}
-
 extension AddressCache.CacheUpdateResult {
     var backgroundFetchResult: UIBackgroundFetchResult {
         switch self {
