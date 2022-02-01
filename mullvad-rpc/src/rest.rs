@@ -119,12 +119,7 @@ impl RequestService {
         );
 
         let proxy_config_provider = Arc::new(proxy_config_provider);
-
-        let proxy_config_provider_2 = proxy_config_provider.clone();
-        let connector_handle_2 = connector_handle.clone();
-        handle.spawn(async move {
-            connector_handle_2.set_proxy(proxy_config_provider_2.next().await);
-        });
+        connector_handle.set_proxy(proxy_config_provider.first());
 
         let (command_tx, command_rx) = mpsc::channel(1);
         let client = Client::builder().build(connector);
