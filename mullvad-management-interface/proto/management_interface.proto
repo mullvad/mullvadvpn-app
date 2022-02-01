@@ -71,6 +71,9 @@ service ManagementService {
 	rpc SetSplitTunnelState(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 
 	rpc SetUseWireguardNt(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+
+	// Notify the split tunnel monitor that a volume was mounted or dismounted (Windows).
+	rpc CheckVolumes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 message RelaySettingsUpdate {

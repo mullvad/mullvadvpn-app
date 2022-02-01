@@ -708,6 +708,22 @@ impl ManagementService for ManagementServiceImpl {
     async fn set_use_wireguard_nt(&self, _: Request<bool>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
+
+    #[cfg(windows)]
+    async fn check_volumes(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("check_volumes");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::CheckVolumes(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)
+            .map(Response::new)
+    }
+
+    #[cfg(not(windows))]
+    async fn check_volumes(&self, _: Request<()>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
 }
 
 impl ManagementServiceImpl {

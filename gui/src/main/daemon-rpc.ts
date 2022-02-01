@@ -501,6 +501,10 @@ export class DaemonRpc {
     await this.callBool(this.client.setSplitTunnelState, enabled);
   }
 
+  public async checkVolumes(): Promise<void> {
+    await this.callEmpty(this.client.checkVolumes);
+  }
+
   private subscriptionId(): number {
     const current = this.nextSubscriptionId;
     this.nextSubscriptionId += 1;
