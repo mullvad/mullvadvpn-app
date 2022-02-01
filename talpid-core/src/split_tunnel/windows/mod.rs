@@ -157,8 +157,9 @@ impl SplitTunnel {
     pub fn new(
         runtime: tokio::runtime::Handle,
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
+        volume_update_rx: mpsc::UnboundedReceiver<()>,
     ) -> Result<Self, Error> {
-        let (request_tx, handle) = Self::spawn_request_thread()?;
+        let (request_tx, handle) = Self::spawn_request_thread(volume_update_rx)?;
 
         let mut event_overlapped: OVERLAPPED = unsafe { mem::zeroed() };
         event_overlapped.hEvent =
@@ -326,7 +327,9 @@ impl SplitTunnel {
         })
     }
 
-    fn spawn_request_thread() -> Result<(RequestTx, Arc<driver::DeviceHandle>), Error> {
+    fn spawn_request_thread(
+        volume_update_rx: mpsc::UnboundedReceiver<()>,
+    ) -> Result<(RequestTx, Arc<driver::DeviceHandle>), Error> {
         let (tx, rx): (RequestTx, _) = sync_mpsc::channel();
         let (init_tx, init_rx) = sync_mpsc::channel();
 
@@ -337,10 +340,11 @@ impl SplitTunnel {
 
         let path_monitor = path_monitor::PathMonitor::spawn(monitor_tx.clone())
             .map_err(Error::StartPathMonitor)?;
-        let mut volume_monitor = volume_monitor::VolumeMonitor::spawn(
+        let volume_monitor = volume_monitor::VolumeMonitor::spawn(
             path_monitor.clone(),
             monitor_tx,
             monitored_paths.clone(),
+            volume_update_rx,
         );
 
         std::thread::spawn(move || {
@@ -403,7 +407,7 @@ impl SplitTunnel {
                 }
             }
 
-            volume_monitor.close();
+            drop(volume_monitor);
             if let Err(error) = path_monitor.shutdown() {
                 log::error!(
                     "{}",
