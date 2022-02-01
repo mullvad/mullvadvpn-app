@@ -29,6 +29,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix crash occurring after completing in-app purchase.
 - Fix error when changing relays while in airplane mode.
+- Prevent key rotation from clogging the server key list by storing the next key and reusing it 
+  until receiving the successful response from Mullvad API. Add up to three retry attempts.
 
 ### Changed
 - Increase hit area of settings (cog) button.
