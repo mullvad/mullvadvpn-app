@@ -118,12 +118,17 @@ impl ProxyConfig {
 }
 
 pub trait ProxyConfigProvider: Send + Sync {
+    fn first(&self) -> ProxyConfig;
     fn next(&self) -> Pin<Box<dyn Future<Output = ProxyConfig> + Send>>;
 }
 
 pub struct ProxyConfigProviderNoop(pub ProxyConfig);
 
 impl ProxyConfigProvider for ProxyConfigProviderNoop {
+    fn first(&self) -> ProxyConfig {
+        self.0.clone()
+    }
+
     fn next(&self) -> Pin<Box<dyn Future<Output = ProxyConfig> + Send>> {
         let config = self.0.clone();
         Box::pin(async { config })
