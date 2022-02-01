@@ -112,9 +112,9 @@ class ReplaceKeyOperation: AsyncOperation {
 
         if let rotationInterval = rotationInterval {
             let creationDate = tunnelInfo.tunnelSettings.interface.privateKey.creationDate
-            let timeElapsed = Date().timeIntervalSince(creationDate)
+            let nextRotationDate = creationDate.addingTimeInterval(rotationInterval)
 
-            if timeElapsed < rotationInterval {
+            if nextRotationDate > Date() {
                 logger.debug("Throttle private key rotation.")
 
                 completionHandler(.success(.throttled(creationDate)))
