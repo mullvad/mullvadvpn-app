@@ -1857,6 +1857,20 @@ class ApplicationMain {
           // https://github.com/electron/electron/blob/main/docs/faq.md#the-font-looks-blurry-what-is-this-and-what-can-i-do
           backgroundColor: '#fff',
         });
+        const WM_DEVICECHANGE = 0x0219;
+        const DBT_DEVICEARRIVAL = 0x8000;
+        const DBT_DEVICEREMOVECOMPLETE = 0x8004;
+        appWindow.hookWindowMessage(WM_DEVICECHANGE, (wParam) => {
+          const wParamL = wParam.readBigInt64LE(0);
+          if (wParamL != DBT_DEVICEARRIVAL && wParamL != DBT_DEVICEREMOVECOMPLETE) {
+            return;
+          }
+          this.daemonRpc
+            .checkVolumes()
+            .catch((error) =>
+              log.error(`Unable to notify daemon of device event: ${error.message}`),
+            );
+        });
 
         appWindow.removeMenu();
 
