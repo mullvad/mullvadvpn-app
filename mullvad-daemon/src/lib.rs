@@ -293,6 +293,9 @@ pub enum DaemonCommand {
     /// Toggle wireguard-nt on or off
     #[cfg(target_os = "windows")]
     UseWireGuardNt(ResponseTx<(), Error>, bool),
+    /// Notify the split tunnel monitor that a volume was mounted or dismounted
+    #[cfg(target_os = "windows")]
+    CheckVolumes(ResponseTx<(), Error>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
     /// Saves the target tunnel state and enters a blocking state. The state is restored
@@ -546,6 +549,8 @@ pub struct Daemon<L: EventListener> {
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
     tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
+    #[cfg(target_os = "windows")]
+    volume_update_tx: mpsc::UnboundedSender<()>,
 }
 
 impl<L> Daemon<L>
@@ -627,6 +632,8 @@ where
             Self::get_allowed_endpoint(rpc_runtime.address_cache.peek_address());
 
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
+        #[cfg(target_os = "windows")]
+        let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
         let tunnel_command_tx = tunnel_state_machine::spawn(
             tunnel_state_machine::InitialTunnelState {
                 allow_lan: settings.allow_lan,
@@ -643,6 +650,8 @@ where
             internal_event_tx.to_specialized_sender(),
             offline_state_tx,
             tunnel_state_machine_shutdown_tx,
+            #[cfg(target_os = "windows")]
+            volume_update_rx,
             #[cfg(target_os = "macos")]
             exclusion_gid,
             #[cfg(target_os = "android")]
@@ -742,6 +751,8 @@ where
             app_version_info,
             shutdown_tasks: vec![],
             tunnel_state_machine_shutdown_signal,
+            #[cfg(target_os = "windows")]
+            volume_update_tx,
         };
 
         daemon.ensure_wireguard_keys_for_current_account().await;
@@ -1241,6 +1252,8 @@ where
             SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled).await,
             #[cfg(target_os = "windows")]
             UseWireGuardNt(tx, state) => self.on_use_wireguard_nt(tx, state).await,
+            #[cfg(target_os = "windows")]
+            CheckVolumes(tx) => self.on_check_volumes(tx).await,
             Shutdown => self.trigger_shutdown_event(),
             PrepareRestart => self.on_prepare_restart(),
             #[cfg(target_os = "android")]
@@ -1977,6 +1990,13 @@ where
                 );
                 Self::oneshot_send(tx, Err(error), "use_wireguard_nt response");
             }
+        }
+    }
+
+    #[cfg(windows)]
+    async fn on_check_volumes(&mut self, tx: ResponseTx<(), Error>) {
+        if self.volume_update_tx.unbounded_send(()).is_ok() {
+            let _ = tx.send(Ok(()));
         }
     }
 

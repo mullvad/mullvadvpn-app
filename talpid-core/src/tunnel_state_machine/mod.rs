@@ -103,6 +103,7 @@ pub async fn spawn(
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     offline_state_listener: mpsc::UnboundedSender<bool>,
     shutdown_tx: oneshot::Sender<()>,
+    #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "macos")] exclusion_gid: u32,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
@@ -130,6 +131,8 @@ pub async fn spawn(
         log_dir,
         resource_dir,
         command_rx,
+        #[cfg(target_os = "windows")]
+        volume_update_rx,
         #[cfg(target_os = "macos")]
         exclusion_gid,
         #[cfg(target_os = "android")]
@@ -207,6 +210,7 @@ impl TunnelStateMachine {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
+        #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
         #[cfg(target_os = "macos")] exclusion_gid: u32,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
@@ -216,8 +220,9 @@ impl TunnelStateMachine {
         let filtering_resolver = crate::resolver::start_resolver().await?;
 
         #[cfg(windows)]
-        let split_tunnel = split_tunnel::SplitTunnel::new(runtime.clone(), command_tx.clone())
-            .map_err(Error::InitSplitTunneling)?;
+        let split_tunnel =
+            split_tunnel::SplitTunnel::new(runtime.clone(), command_tx.clone(), volume_update_rx)
+                .map_err(Error::InitSplitTunneling)?;
 
         let args = FirewallArguments {
             initial_state: if settings.block_when_disconnected || !settings.reset_firewall {
