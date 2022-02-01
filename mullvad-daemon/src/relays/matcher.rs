@@ -258,17 +258,20 @@ impl From<WireguardConstraints> for WireguardMatcher {
 
 impl Match<WireguardEndpointData> for WireguardMatcher {
     fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
-        match self
-            .port
-            .as_ref()
-            .map(|port| port.port)
-            .unwrap_or(Constraint::Any)
-        {
+        match self.port {
             Constraint::Any => true,
-            Constraint::Only(port) => endpoint
-                .port_ranges
-                .iter()
-                .any(|range| (port >= range.0 && port <= range.1)),
+            Constraint::Only(TransportPort { port, protocol }) => {
+                if protocol != endpoint.protocol {
+                    return false;
+                }
+                match port {
+                    Constraint::Any => true,
+                    Constraint::Only(port) => endpoint
+                        .port_ranges
+                        .iter()
+                        .any(|range| (port >= range.0 && port <= range.1)),
+                }
+            }
         }
     }
 }
