@@ -31,6 +31,8 @@ use winapi::shared::{
     ws2ipdef::{SOCKADDR_IN6_LH as sockaddr_in6, SOCKADDR_INET},
 };
 
+pub mod window;
+
 /// Result type for this module.
 pub type Result<T> = std::result::Result<T, Error>;
 

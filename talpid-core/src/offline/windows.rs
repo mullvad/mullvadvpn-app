@@ -1,40 +1,20 @@
-use crate::winnet;
+use crate::{
+    windows::window::{create_hidden_window, WindowCloseHandle},
+    winnet,
+};
 use futures::channel::mpsc::UnboundedSender;
 use parking_lot::Mutex;
 use std::{
     ffi::c_void,
     io,
-    mem::zeroed,
-    os::windows::io::{IntoRawHandle, RawHandle},
-    ptr,
     sync::{Arc, Weak},
     thread,
     time::Duration,
 };
 use talpid_types::ErrorExt;
-use winapi::{
-    shared::{
-        basetsd::LONG_PTR,
-        minwindef::{DWORD, LPARAM, LRESULT, UINT, WPARAM},
-        windef::HWND,
-    },
-    um::{
-        handleapi::CloseHandle,
-        libloaderapi::GetModuleHandleW,
-        processthreadsapi::GetThreadId,
-        synchapi::WaitForSingleObject,
-        winbase::INFINITE,
-        winuser::{
-            CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GetMessageW,
-            GetWindowLongPtrW, PostQuitMessage, PostThreadMessageW, SetWindowLongPtrW,
-            GWLP_USERDATA, GWLP_WNDPROC, PBT_APMRESUMEAUTOMATIC, PBT_APMSUSPEND, WM_DESTROY,
-            WM_POWERBROADCAST, WM_USER,
-        },
-    },
+use winapi::um::winuser::{
+    DefWindowProcW, PBT_APMRESUMEAUTOMATIC, PBT_APMSUSPEND, WM_POWERBROADCAST,
 };
-
-const CLASS_NAME: &[u8] = b"S\0T\0A\0T\0I\0C\0\0\0";
-const REQUEST_THREAD_SHUTDOWN: UINT = WM_USER + 1;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -45,8 +25,7 @@ pub enum Error {
 }
 
 pub struct BroadcastListener {
-    thread_handle: RawHandle,
-    thread_id: DWORD,
+    window: WindowCloseHandle,
     system_state: Arc<Mutex<SystemState>>,
     _callback_handle: winnet::WinNetCallbackHandle,
     _notify_tx: Arc<UnboundedSender<bool>>,
@@ -67,7 +46,7 @@ impl BroadcastListener {
 
         let power_broadcast_state_ref = system_state.clone();
 
-        let power_broadcast_callback = move |message: UINT, wparam: WPARAM, _lparam: LPARAM| {
+        let power_broadcast_callback = move |window, message, wparam, lparam| {
             let state = power_broadcast_state_ref.clone();
             if message == WM_POWERBROADCAST {
                 if wparam == PBT_APMSUSPEND {
@@ -83,22 +62,16 @@ impl BroadcastListener {
                     });
                 }
             }
+            unsafe { DefWindowProcW(window, message, wparam, lparam) }
         };
 
-        let join_handle = thread::Builder::new()
-            .spawn(move || unsafe {
-                Self::message_pump(power_broadcast_callback);
-            })
-            .map_err(Error::ThreadCreationError)?;
-
-        let real_handle = join_handle.into_raw_handle();
+        let window = create_hidden_window(power_broadcast_callback);
 
         let callback_handle =
             unsafe { Self::setup_network_connectivity_listener(system_state.clone())? };
 
         Ok(BroadcastListener {
-            thread_handle: real_handle,
-            thread_id: unsafe { GetThreadId(real_handle) },
+            window,
             system_state,
             _callback_handle: callback_handle,
             _notify_tx: notify_tx,
@@ -129,88 +102,6 @@ impl BroadcastListener {
         log::info!("Initial connectivity: {}", is_offline_str(!is_online));
 
         (v4_connectivity, v6_connectivity)
-    }
-
-    unsafe fn message_pump<F>(client_callback: F)
-    where
-        F: Fn(UINT, WPARAM, LPARAM),
-    {
-        let dummy_window = CreateWindowExW(
-            0,
-            CLASS_NAME.as_ptr() as *const u16,
-            ptr::null_mut(),
-            0,
-            0,
-            0,
-            0,
-            0,
-            ptr::null_mut(),
-            ptr::null_mut(),
-            GetModuleHandleW(ptr::null_mut()),
-            ptr::null_mut(),
-        );
-
-        // Move callback information to the heap.
-        // This enables us to reach the callback through a "thin pointer".
-        let boxed_callback = Box::new(client_callback);
-
-        // Detach callback from Box.
-        let raw_callback = Box::into_raw(boxed_callback) as *mut c_void;
-
-        SetWindowLongPtrW(dummy_window, GWLP_USERDATA, raw_callback as LONG_PTR);
-        SetWindowLongPtrW(
-            dummy_window,
-            GWLP_WNDPROC,
-            Self::window_procedure::<F> as LONG_PTR,
-        );
-
-        let mut msg = zeroed();
-
-        loop {
-            let status = GetMessageW(&mut msg, 0 as HWND, 0, 0);
-
-            if status < 0 {
-                continue;
-            }
-            if status == 0 {
-                break;
-            }
-
-            if msg.hwnd.is_null() {
-                if msg.message == REQUEST_THREAD_SHUTDOWN {
-                    DestroyWindow(dummy_window);
-                }
-            } else {
-                DispatchMessageW(&mut msg);
-            }
-        }
-
-        // Reattach callback to Box for proper clean-up.
-        let _ = Box::from_raw(raw_callback as *mut F);
-    }
-
-    unsafe extern "system" fn window_procedure<F>(
-        window: HWND,
-        message: UINT,
-        wparam: WPARAM,
-        lparam: LPARAM,
-    ) -> LRESULT
-    where
-        F: Fn(UINT, WPARAM, LPARAM),
-    {
-        let raw_callback = GetWindowLongPtrW(window, GWLP_USERDATA);
-
-        if raw_callback != 0 {
-            let typed_callback = &mut *(raw_callback as *mut F);
-            typed_callback(message, wparam, lparam);
-        }
-
-        if message == WM_DESTROY {
-            PostQuitMessage(0);
-            return 0;
-        }
-
-        DefWindowProcW(window, message, wparam, lparam)
     }
 
     /// The caller must make sure the `system_state` reference is valid
@@ -252,11 +143,7 @@ impl BroadcastListener {
 
 impl Drop for BroadcastListener {
     fn drop(&mut self) {
-        unsafe {
-            PostThreadMessageW(self.thread_id, REQUEST_THREAD_SHUTDOWN, 0, 0);
-            WaitForSingleObject(self.thread_handle, INFINITE);
-            CloseHandle(self.thread_handle);
-        }
+        self.window.close();
     }
 }
 

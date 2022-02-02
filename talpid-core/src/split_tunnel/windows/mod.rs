@@ -1,5 +1,6 @@
 mod driver;
 mod path_monitor;
+mod volume_monitor;
 mod windows;
 
 use crate::{
@@ -329,11 +330,18 @@ impl SplitTunnel {
         let (tx, rx): (RequestTx, _) = sync_mpsc::channel();
         let (init_tx, init_rx) = sync_mpsc::channel();
 
-        let (path_monitor, path_change_rx) =
-            path_monitor::PathMonitor::spawn().map_err(Error::StartPathMonitor)?;
-
         let monitored_paths = Arc::new(Mutex::new(vec![]));
         let monitored_paths_copy = monitored_paths.clone();
+
+        let (monitor_tx, monitor_rx) = sync_mpsc::channel();
+
+        let path_monitor = path_monitor::PathMonitor::spawn(monitor_tx.clone())
+            .map_err(Error::StartPathMonitor)?;
+        let mut volume_monitor = volume_monitor::VolumeMonitor::spawn(
+            path_monitor.clone(),
+            monitor_tx,
+            monitored_paths.clone(),
+        );
 
         std::thread::spawn(move || {
             let result = driver::DeviceHandle::new()
@@ -395,6 +403,7 @@ impl SplitTunnel {
                 }
             }
 
+            volume_monitor.close();
             if let Err(error) = path_monitor.shutdown() {
                 log::error!(
                     "{}",
@@ -410,7 +419,7 @@ impl SplitTunnel {
         let handle_copy = handle.clone();
 
         std::thread::spawn(move || {
-            while let Ok(()) = path_change_rx.recv() {
+            while let Ok(()) = monitor_rx.recv() {
                 let paths = monitored_paths_copy.lock().unwrap();
                 let result = if paths.len() > 0 {
                     log::debug!("Re-resolving excluded paths");
