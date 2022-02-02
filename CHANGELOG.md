@@ -29,6 +29,11 @@ Line wrap the file at 100 chars.                                              Th
 - Add malware blocking to the desktop app. Implemented via DNS on the relays.
 - Add changes dialog which will include the most notable changes in each new version.
 
+#### Windows
+- Detect mounting and dismounting of volumes, such as VeraCrypt volumes or USB drives,
+  and exclude paths from the tunnel correctly when these occur. This sometimes only works
+  when the GUI frontend is running.
+
 ### Changed
 - Keep unspecified constraints unchanged in the CLI when providing specific tunnel constraints
   instead of setting them to default values.
