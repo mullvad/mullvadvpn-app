@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.view.animation.Animation
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.SendChannel
@@ -34,24 +35,44 @@ fun Animation.transitionFinished(): Flow<Unit> = callbackFlow<Unit> {
 }.take(1)
 
 fun Context.bindServiceFlow(intent: Intent, flags: Int = 0): Flow<ServiceResult> = callbackFlow {
+    val isBoundOrTryingToBind = AtomicBoolean(false)
+
     val connectionCallback = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
+            isBoundOrTryingToBind.set(true)
             safeOffer(ServiceResult(binder))
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
+            isBoundOrTryingToBind.set(false)
+
             safeOffer(ServiceResult.NOT_CONNECTED)
-            bindService(intent, this, flags)
+
+            bindService(intent, this, flags).also { result ->
+                isBoundOrTryingToBind.set(result)
+            }
+        }
+
+        override fun onBindingDied(name: ComponentName?) {
+            isBoundOrTryingToBind.set(false)
+        }
+
+        override fun onNullBinding(name: ComponentName?) {
+            isBoundOrTryingToBind.set(false)
         }
     }
 
-    bindService(intent, connectionCallback, flags)
+    bindService(intent, connectionCallback, flags).also { result ->
+        isBoundOrTryingToBind.set(result)
+    }
 
     awaitClose {
         safeOffer(ServiceResult.NOT_CONNECTED)
 
         Dispatchers.Default.dispatch(EmptyCoroutineContext) {
-            unbindService(connectionCallback)
+            if (isBoundOrTryingToBind.compareAndSet(true, false)) {
+                unbindService(connectionCallback)
+            }
         }
     }
 }
