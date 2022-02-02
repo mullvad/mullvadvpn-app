@@ -933,10 +933,21 @@ export default class AppRenderer {
           const country = relayLocations.find(({ code }) => constraint.hostname[0] === code);
           const city = country?.cities.find((location) => location.code === constraint.hostname[1]);
 
+          let entryHostname: string | undefined;
+          const entryLocationConstraint = relaySettings.normal.wireguardConstraints.entryLocation;
+          if (
+            entryLocationConstraint !== 'any' &&
+            'hostname' in entryLocationConstraint.only &&
+            entryLocationConstraint.only.hostname.length === 3
+          ) {
+            entryHostname = entryLocationConstraint.only.hostname[2];
+          }
+
           return {
             country: country?.name,
             city: city?.name,
             hostname: constraint.hostname[2],
+            entryHostname,
             ...coordinates,
           };
         }
