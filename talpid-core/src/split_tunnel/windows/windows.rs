@@ -8,7 +8,7 @@ use std::{
         ffi::{OsStrExt, OsStringExt},
         io::{AsRawHandle, RawHandle},
     },
-    path::Path,
+    path::{Component, Path},
     ptr,
 };
 use winapi::{
@@ -116,9 +116,10 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
         return get_final_path_name_by_handle(file.as_raw_handle());
     }
 
-    let drive_comp = path.as_ref().components().next();
-    let drive = match drive_comp {
-        Some(std::path::Component::Prefix(prefix)) => prefix.as_os_str(),
+    let mut components = path.as_ref().components();
+    let drive_comp = components.next();
+    let drive = match (drive_comp, components.next()) {
+        (Some(Component::Prefix(prefix)), Some(Component::RootDir)) => prefix.as_os_str(),
         _ => {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
@@ -131,7 +132,9 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
     let suffix = path
         .as_ref()
         .strip_prefix(drive_comp.unwrap())
-        .expect("path missing own component");
+        .map_err(|_error| {
+            io::Error::new(io::ErrorKind::InvalidInput, "path missing own component")
+        })?;
     new_path.push(suffix);
 
     Ok(new_path)
