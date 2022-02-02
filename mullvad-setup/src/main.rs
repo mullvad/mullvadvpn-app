@@ -4,7 +4,7 @@ use mullvad_rpc::MullvadRpcRuntime;
 use mullvad_types::version::ParsedAppVersion;
 use std::{path::PathBuf, process, time::Duration};
 use talpid_core::{
-    firewall::{self, Firewall, FirewallArguments, InitialFirewallState},
+    firewall::{self, Firewall},
     future_retry::{constant_interval, retry_future_n},
 };
 use talpid_types::ErrorExt;
@@ -153,15 +153,10 @@ async fn reset_firewall() -> Result<(), Error> {
         return Err(Error::DaemonIsRunning);
     }
 
-    let mut firewall = Firewall::new(FirewallArguments {
-        initial_state: InitialFirewallState::None,
-        allow_lan: true,
-        #[cfg(target_os = "macos")]
-        exclusion_gid: 0,
-    })
-    .map_err(Error::FirewallError)?;
-
-    firewall.reset_policy().map_err(Error::FirewallError)
+    Firewall::new()
+        .map_err(Error::FirewallError)?
+        .reset_policy()
+        .map_err(Error::FirewallError)
 }
 
 async fn remove_wireguard_key() -> Result<(), Error> {

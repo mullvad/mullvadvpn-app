@@ -241,7 +241,7 @@ impl TunnelStateMachine {
             exclusion_gid,
         };
 
-        let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
+        let firewall = Firewall::from_args(args).map_err(Error::InitFirewallError)?;
         let route_manager = RouteManager::new(HashSet::new())
             .await
             .map_err(Error::InitRouteManagerError)?;

@@ -225,10 +225,6 @@ pub struct FirewallArguments {
     pub initial_state: InitialFirewallState,
     /// This argument is required for the blocked state to configure the firewall correctly.
     pub allow_lan: bool,
-    #[cfg(target_os = "macos")]
-    /// This argument is required on macOS to know which group's traffic should be excluded, if at
-    /// all.
-    pub exclusion_gid: u32,
 }
 
 /// State to enter during firewall init.
@@ -240,10 +236,17 @@ pub enum InitialFirewallState {
 }
 
 impl Firewall {
-    /// Returns a new `Firewall`, ready to apply policies.
-    pub fn new(args: FirewallArguments) -> Result<Self, Error> {
+    /// Creates a firewall instance with the given arguments.
+    pub fn from_args(args: FirewallArguments) -> Result<Self, Error> {
         Ok(Firewall {
-            inner: imp::Firewall::new(args)?,
+            inner: imp::Firewall::from_args(args)?,
+        })
+    }
+
+    /// Createsa new firewall instance.
+    pub fn new() -> Result<Self, Error> {
+        Ok(Firewall {
+            inner: imp::Firewall::new()?,
         })
     }
 
@@ -260,20 +263,4 @@ impl Firewall {
         log::info!("Resetting firewall policy");
         self.inner.reset_policy()
     }
-}
-
-/// Abstract firewall interaction trait. Used by the OS specific implementations.
-trait FirewallT: Sized {
-    /// The error type thrown by the implementer of this trait
-    type Error: std::error::Error;
-
-    /// Create new instance
-    fn new(args: FirewallArguments) -> Result<Self, Self::Error>;
-
-    /// Enable the given FirewallPolicy
-    fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Self::Error>;
-
-    /// Revert the system firewall state to what it was before this instance started
-    /// modifying the system.
-    fn reset_policy(&mut self) -> Result<(), Self::Error>;
 }
