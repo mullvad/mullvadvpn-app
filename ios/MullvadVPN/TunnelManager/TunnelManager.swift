@@ -201,7 +201,7 @@ class TunnelManager: TunnelManagerStateDelegate
                 dispatchPrecondition(condition: .onQueue(self.stateQueue))
 
                 if case .failure(let error) = completion {
-                    self.logger.error(chainedError: error)
+                    self.logger.error(chainedError: error, message: "Failed to start the tunnel.")
                 }
             })
 
