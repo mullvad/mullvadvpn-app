@@ -34,24 +34,51 @@ fun Animation.transitionFinished(): Flow<Unit> = callbackFlow<Unit> {
 }.take(1)
 
 fun Context.bindServiceFlow(intent: Intent, flags: Int = 0): Flow<ServiceResult> = callbackFlow {
+    var shouldAttemptBindOnLostConnection = true
+    var isBoundOrTryingToBind: Boolean
+
     val connectionCallback = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
+            isBoundOrTryingToBind = true
             safeOffer(ServiceResult(binder))
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
+            isBoundOrTryingToBind = false
             safeOffer(ServiceResult.NOT_CONNECTED)
-            bindService(intent, this, flags)
+
+            synchronized(shouldAttemptBindOnLostConnection) {
+                if (shouldAttemptBindOnLostConnection) {
+                    isBoundOrTryingToBind = bindService(intent, this, flags)
+                }
+            }
+        }
+
+        override fun onBindingDied(name: ComponentName?) {
+            isBoundOrTryingToBind = false
+            safeOffer(ServiceResult.NOT_CONNECTED)
+        }
+
+        override fun onNullBinding(name: ComponentName?) {
+            isBoundOrTryingToBind = false
+            safeOffer(ServiceResult.NOT_CONNECTED)
         }
     }
 
-    bindService(intent, connectionCallback, flags)
+    isBoundOrTryingToBind = bindService(intent, connectionCallback, flags)
 
     awaitClose {
-        safeOffer(ServiceResult.NOT_CONNECTED)
+        synchronized(shouldAttemptBindOnLostConnection) {
+            shouldAttemptBindOnLostConnection = false
 
-        Dispatchers.Default.dispatch(EmptyCoroutineContext) {
-            unbindService(connectionCallback)
+            safeOffer(ServiceResult.NOT_CONNECTED)
+
+            Dispatchers.Default.dispatch(EmptyCoroutineContext) {
+                if (isBoundOrTryingToBind) {
+                    unbindService(connectionCallback)
+                    isBoundOrTryingToBind = false
+                }
+            }
         }
     }
 }
