@@ -237,8 +237,6 @@ impl TunnelStateMachine {
                 InitialFirewallState::None
             },
             allow_lan: settings.allow_lan,
-            #[cfg(target_os = "macos")]
-            exclusion_gid,
         };
 
         let firewall = Firewall::from_args(args).map_err(Error::InitFirewallError)?;
