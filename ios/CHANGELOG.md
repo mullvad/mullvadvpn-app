@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix crash occurring after completing in-app purchase.
+- Fix error when changing relays while in airplane mode.
 
 ### Changed
 - Increase hit area of settings (cog) button.
