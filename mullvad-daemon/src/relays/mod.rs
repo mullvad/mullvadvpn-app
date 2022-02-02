@@ -11,7 +11,7 @@ use mullvad_types::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
         OpenVpnConstraints, Providers, RelayConstraints, Set, TransportPort, WireguardConstraints,
     },
-    relay_list::{Relay, RelayList, WireguardEndpointData},
+    relay_list::{Relay, RelayList, RelayListCity, WireguardEndpointData},
 };
 use parking_lot::Mutex;
 use rand::{self, seq::SliceRandom, Rng};
@@ -105,27 +105,77 @@ impl ParsedRelays {
                         latitude,
                         longitude,
                     });
-
-                    for wg_tunnel in &relay.tunnels.wireguard {
-                        relay_with_location
-                            .tunnels
-                            .wireguard
-                            .push(WireguardEndpointData {
-                                protocol: TransportProtocol::Tcp,
-                                port_ranges: WIREGUARD_TCP_PORTS.to_vec(),
-                                ..wg_tunnel.clone()
-                            });
-                    }
+                    Self::filter_invalid_relays(&mut relay_with_location);
+                    Self::tack_on_wireguard_tcp_relays(&mut relay_with_location.tunnels.wireguard);
 
                     relays.push(relay_with_location);
                 }
             }
         }
+
         ParsedRelays {
             last_updated,
             locations: relay_list,
             relays,
         }
+    }
+
+    fn filter_invalid_relays(relay: &mut Relay) {
+        let openvpn_endpoints = &mut relay.tunnels.openvpn;
+        let filtered_openvpn_endpoints: Vec<_> = openvpn_endpoints
+            .iter()
+            .cloned()
+            .filter(|data| data.port != 0)
+            .collect();
+
+        if filtered_openvpn_endpoints.len() <= openvpn_endpoints.len() {
+            log::error!(
+                "Relay {} contained {} invalid OpenVPN endpoints out of {} endpoints",
+                relay.hostname,
+                openvpn_endpoints.len() - filtered_openvpn_endpoints.len(),
+                openvpn_endpoints.len()
+            );
+        }
+        *openvpn_endpoints = filtered_openvpn_endpoints;
+
+        let wireguard_endpoints = &mut relay.tunnels.wireguard;
+        let filtered_wireguard_endpoints: Vec<_> = wireguard_endpoints
+            .iter()
+            .cloned()
+            .filter(|data| {
+                !data.port_ranges.is_empty()
+                    && data.port_ranges.iter().all(|(start, end)| start <= end)
+            })
+            .collect();
+
+        if filtered_wireguard_endpoints.len() <= wireguard_endpoints.len() {
+            log::error!(
+                "Relay {} contained {} invalid WireGuard endpoints out of {} endpoints",
+                relay.hostname,
+                wireguard_endpoints.len() - filtered_wireguard_endpoints.len(),
+                wireguard_endpoints.len()
+            );
+        }
+        *wireguard_endpoints = filtered_wireguard_endpoints;
+    }
+
+    /// Add synthesized WireGuard TCP endpoints to a relay
+    fn tack_on_wireguard_tcp_relays(endpoints: &mut Vec<WireguardEndpointData>) {
+        *endpoints = endpoints
+            .iter()
+            .cloned()
+            .map(|udp_endpoint| {
+                [
+                    WireguardEndpointData {
+                        protocol: TransportProtocol::Tcp,
+                        port_ranges: WIREGUARD_TCP_PORTS.to_vec(),
+                        ..udp_endpoint.clone()
+                    },
+                    udp_endpoint,
+                ]
+            })
+            .flatten()
+            .collect();
     }
 
     pub fn from_file(path: impl AsRef<Path>) -> Result<Self, Error> {
@@ -995,6 +1045,53 @@ mod test {
                                     },
                                     location: None,
                                 },
+                                Relay {
+                                    hostname: "se11-wireguard-filtered".to_string(),
+                                    ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                                    ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                                    include_in_country: true,
+                                    active: true,
+                                    owned: true,
+                                    provider: "31173".to_string(),
+                                    weight: 1,
+                                    tunnels: RelayTunnels {
+                                        openvpn: vec![],
+                                        wireguard: vec![
+                                            WireguardEndpointData {
+                                                port_ranges: vec![],
+                                                ipv4_gateway: "10.64.0.1".parse().unwrap(),
+                                                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+                                                public_key: PublicKey::from_base64("veGD6/aEY6sMfN3Ls7YWPmNgu3AheO7nQqsFT47YSws=").unwrap(),
+                                                protocol: TransportProtocol::Udp,
+                                            },
+                                        ],
+                                    },
+                                    bridges: RelayBridges {
+                                        shadowsocks: vec![],
+                                    },
+                                    location: None,
+                                },
+                                Relay {
+                                    hostname: "se-got-010-filtered".to_string(),
+                                    ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                                    ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                                    include_in_country: true,
+                                    active: true,
+                                    owned: true,
+                                    provider: "31173".to_string(),
+                                    weight: 1,
+                                    tunnels: RelayTunnels {
+                                        openvpn: vec![OpenVpnEndpointData{
+                                            port: 0,
+                                            protocol: TransportProtocol::Udp,
+                                        }],
+                                        wireguard: vec![],
+                                    },
+                                    bridges: RelayBridges {
+                                        shadowsocks: vec![],
+                                    },
+                                    location: None,
+                                }
                             ],
                         },
                     ],
@@ -1466,5 +1563,31 @@ mod test {
                 TransportProtocol::Tcp
             );
         }
+    }
+
+    #[test]
+    fn test_filtering_invalid_endpoint_relays() {
+        let relay_selector = new_relay_selector();
+        let mut constraints = RelayConstraints {
+            location: Constraint::Only(LocationConstraint::Hostname(
+                "se".to_string(),
+                "got".to_string(),
+                "se11-wireguard-filtered".to_string(),
+            )),
+            ..RelayConstraints::default()
+        };
+        relay_selector
+            .get_tunnel_endpoint(&constraints, BridgeState::Off, 0, true)
+            .expect_err("Successfully selected a relay that should be filtered");
+
+        constraints.location = Constraint::Only(LocationConstraint::Hostname(
+            "se".to_string(),
+            "got".to_string(),
+            "se-got-010-filtered".to_string(),
+        ));
+
+        relay_selector
+            .get_tunnel_endpoint(&constraints, BridgeState::Off, 0, true)
+            .expect_err("Successfully selected a relay that should be filtered");
     }
 }
