@@ -8,7 +8,7 @@ use mullvad_types::{
 };
 use rand::{seq::SliceRandom, Rng};
 use std::net::{IpAddr, SocketAddr};
-use talpid_types::net::{all_of_the_internet, wireguard, IpVersion, TransportProtocol, TunnelType};
+use talpid_types::net::{all_of_the_internet, wireguard, IpVersion, TunnelType};
 
 #[derive(Clone)]
 pub struct RelayMatcher<T: TunnelMatcher> {
@@ -183,10 +183,7 @@ impl WireguardMatcher {
             public_key: data.public_key,
             endpoint: SocketAddr::new(host, port),
             allowed_ips: all_of_the_internet(),
-            protocol: self
-                .port
-                .map(|port| port.protocol)
-                .unwrap_or(TransportProtocol::Udp),
+            protocol: data.protocol,
         };
         Some(MullvadEndpoint::Wireguard(MullvadWireguardEndpoint {
             peer: peer_config,
@@ -306,11 +303,17 @@ impl TunnelMatcher for WireguardMatcher {
     }
 
     fn mullvad_endpoint(&self, relay: &Relay) -> Option<MullvadEndpoint> {
-        relay
+        let valid_relays = relay
             .tunnels
             .wireguard
+            .iter()
+            .filter(|tunnel| match self.port {
+                Constraint::Any => true,
+                Constraint::Only(port) => port.protocol == tunnel.protocol,
+            })
+            .collect::<Vec<_>>();
+        valid_relays
             .choose(&mut rand::thread_rng())
-            .cloned()
-            .and_then(|wg_tunnel| self.wg_data_to_endpoint(relay, wg_tunnel))
+            .and_then(|wg_tunnel| self.wg_data_to_endpoint(relay, (*wg_tunnel).clone()))
     }
 }

@@ -389,6 +389,10 @@ impl RelaySelector {
         }
 
         entry_relay_matcher.location = wireguard_constraints.entry_location.clone();
+        entry_relay_matcher.tunnel.port = entry_relay_matcher
+            .tunnel
+            .port
+            .or(Self::preferred_wireguard_port(retry_attempt));
         self.get_wireguard_multi_hop_endpoint(entry_relay_matcher, location.clone())
     }
 
@@ -1427,5 +1431,40 @@ mod test {
         let endpoint = result.endpoint.unwrap_wireguard();
         assert!(matches!(endpoint.peer.protocol, TransportProtocol::Tcp));
         assert!(endpoint.exit_peer.is_none());
+    }
+
+    #[test]
+    fn test_selecting_wg_multihop_ports() {
+        let mut relay_constraints = WIREGUARD_MULTIHOP_CONSTRAINTS.clone();
+        let relay_selector = new_relay_selector();
+
+        const INVALID_UDP_PORTS: [u16; 2] = [80, 443];
+        for attempt in 0..1000 {
+            let result = relay_selector
+                .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, attempt, true)
+                .expect("Failed to get WireGuard TCP multihop relay");
+            assert!(!INVALID_UDP_PORTS.contains(&result.endpoint.to_endpoint().address.port()));
+            assert_eq!(
+                result.endpoint.unwrap_wireguard().peer.protocol,
+                TransportProtocol::Udp
+            );
+        }
+
+        relay_constraints.wireguard_constraints.port = Constraint::Only(TransportPort {
+            port: Constraint::Any,
+            protocol: TransportProtocol::Tcp,
+        });
+
+        const VALID_TCP_PORTS: [u16; 3] = [80, 443, 5001];
+        for attempt in 0..1000 {
+            let result = relay_selector
+                .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, attempt, true)
+                .expect("Failed to get WireGuard TCP multihop relay");
+            assert!(VALID_TCP_PORTS.contains(&result.endpoint.to_endpoint().address.port()));
+            assert_eq!(
+                result.endpoint.unwrap_wireguard().peer.protocol,
+                TransportProtocol::Tcp
+            );
+        }
     }
 }
