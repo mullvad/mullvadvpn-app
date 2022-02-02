@@ -80,6 +80,8 @@ Line wrap the file at 100 chars.                                              Th
 - Allow Mullvad wireguard-nt tunnels to work simultaneously with other wg-nt tunnels.
 - Fix notifications on Windows not showing if window is unpinned and hidden.
 - Wait for IP interfaces to arrive before trying to configure them when using wireguard-nt.
+- Fix panic that occurs in the split tunnel monitor when a path consisting only of a prefix,
+  such as "C:", is excluded using the CLI.
 
 #### Linux
 - Remove auto-launch file, GUI settings and other files created by the app in user directories, when
