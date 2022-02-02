@@ -30,7 +30,7 @@ class ReloadTunnelOperation: AsyncOperation {
             }
 
             guard let tunnelProvider = self.state.tunnelProvider else {
-                self.completeOperation(completion: .failure(.missingAccount))
+                self.completeOperation(completion: .failure(.unsetAccount))
                 return
             }
 

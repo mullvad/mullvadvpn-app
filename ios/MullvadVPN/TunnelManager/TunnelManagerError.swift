@@ -11,71 +11,71 @@ import Foundation
 extension TunnelManager {
     /// An error emitted by all public methods of TunnelManager
     enum Error: ChainedError {
-        /// Account token is not set
-        case missingAccount
+        /// Account is unset.
+        case unsetAccount
 
-        /// A failure to start the VPN tunnel via system call
+        /// A failure to start the VPN tunnel via system call.
         case startVPNTunnel(Swift.Error)
 
-        /// A failure to load the system VPN configurations created by the app
+        /// A failure to load the system VPN configurations created by the app.
         case loadAllVPNConfigurations(Swift.Error)
 
-        /// A failure to save the system VPN configuration
+        /// A failure to save the system VPN configuration.
         case saveVPNConfiguration(Swift.Error)
 
-        /// A failure to reload the system VPN configuration
+        /// A failure to reload the system VPN configuration.
         case reloadVPNConfiguration(Swift.Error)
 
-        /// A failure to remove the system VPN configuration
+        /// A failure to remove the system VPN configuration.
         case removeVPNConfiguration(Swift.Error)
 
         /// A failure to perform a recovery (by removing the VPN configuration) when a corrupt
         /// VPN configuration is detected.
         case removeInconsistentVPNConfiguration(Swift.Error)
 
-        /// A failure to read tunnel settings
+        /// A failure to read tunnel settings.
         case readTunnelSettings(TunnelSettingsManager.Error)
 
-        /// A failure to read relays cache
+        /// A failure to read relays cache.
         case readRelays(RelayCache.Error)
 
-        /// A failure to find a relay satisfying the given constraints
+        /// A failure to find a relay satisfying the given constraints.
         case cannotSatisfyRelayConstraints
 
-        /// A failure to add the tunnel settings
+        /// A failure to add the tunnel settings.
         case addTunnelSettings(TunnelSettingsManager.Error)
 
-        /// A failure to update the tunnel settings
+        /// A failure to update the tunnel settings.
         case updateTunnelSettings(TunnelSettingsManager.Error)
 
-        /// A failure to remove the tunnel settings from Keychain
+        /// A failure to remove the tunnel settings from Keychain.
         case removeTunnelSettings(TunnelSettingsManager.Error)
 
-        /// A failure to migrate tunnel settings
+        /// A failure to migrate tunnel settings.
         case migrateTunnelSettings(TunnelSettingsManager.Error)
 
-        /// Unable to obtain the persistent keychain reference for the tunnel settings
+        /// Unable to obtain the persistent keychain reference for the tunnel settings.
         case obtainPersistentKeychainReference(TunnelSettingsManager.Error)
 
-        /// A failure to push the public WireGuard key
+        /// A failure to push the public WireGuard key.
         case pushWireguardKey(REST.Error)
 
-        /// A failure to replace the public WireGuard key
+        /// A failure to replace the public WireGuard key.
         case replaceWireguardKey(REST.Error)
 
-        /// A failure to remove the public WireGuard key
+        /// A failure to remove the public WireGuard key.
         case removeWireguardKey(REST.Error)
 
-        /// A failure to schedule background task
+        /// A failure to schedule background task.
         case backgroundTaskScheduler(Swift.Error)
 
-        /// A failure to reload tunnel
+        /// A failure to reload tunnel.
         case reloadTunnel(TunnelIPC.Error)
 
         var errorDescription: String? {
             switch self {
-            case .missingAccount:
-                return "Missing account token"
+            case .unsetAccount:
+                return "Account is unset"
             case .startVPNTunnel:
                 return "Failed to start the VPN tunnel"
             case .loadAllVPNConfigurations:

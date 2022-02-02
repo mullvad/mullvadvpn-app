@@ -161,7 +161,7 @@ class TunnelManager: TunnelManagerStateDelegate
             dispatchPrecondition(condition: .onQueue(self.stateQueue))
 
             if case .failure(let error) = completion {
-                self.logger.error(chainedError: error, message: "Failed to load tunnel")
+                self.logger.error(chainedError: error, message: "Failed to load tunnel.")
             }
 
             self.updatePrivateKeyRotationTimer()
@@ -201,7 +201,7 @@ class TunnelManager: TunnelManagerStateDelegate
                 dispatchPrecondition(condition: .onQueue(self.stateQueue))
 
                 if case .failure(let error) = completion {
-                    self.logger.error(chainedError: error)
+                    self.logger.error(chainedError: error, message: "Failed to start the tunnel.")
                 }
             })
 
@@ -255,7 +255,7 @@ class TunnelManager: TunnelManagerStateDelegate
             dispatchPrecondition(condition: .onQueue(self.stateQueue))
 
             if let error = completion.error {
-                self.logger.error(chainedError: error)
+                self.logger.error(chainedError: error, message: "Failed to reconnect the tunnel.")
             }
 
             DispatchQueue.main.async {
@@ -317,7 +317,7 @@ class TunnelManager: TunnelManagerStateDelegate
     }
 
     func regeneratePrivateKey(completionHandler: ((TunnelManager.Error?) -> Void)? = nil) {
-        let operation = RegeneratePrivateKeyOperation(queue: stateQueue, state: state, restClient: restClient) { [weak self] completion in
+        let operation = ReplaceKeyOperation.operationForKeyRegeneration(queue: stateQueue, state: state, restClient: restClient) { [weak self] completion in
             guard let self = self else { return }
 
             dispatchPrecondition(condition: .onQueue(self.stateQueue))
@@ -328,7 +328,7 @@ class TunnelManager: TunnelManagerStateDelegate
                 self.reconnectTunnel(completionHandler: nil)
 
             case .failure(let error):
-                self.logger.error(chainedError: error, message: "Failed to regenerate private key")
+                self.logger.error(chainedError: error, message: "Failed to regenerate private key.")
 
             case .cancelled:
                 break
@@ -353,7 +353,7 @@ class TunnelManager: TunnelManagerStateDelegate
     }
 
     func rotatePrivateKey(completionHandler: @escaping (KeyRotationResult?, TunnelManager.Error?) -> Void) {
-        let operation = RotatePrivateKeyOperation(
+        let operation = ReplaceKeyOperation.operationForKeyRotation(
             queue: stateQueue,
             state: state,
             restClient: restClient,
@@ -375,7 +375,7 @@ class TunnelManager: TunnelManagerStateDelegate
 
                 case .failure(let error):
                     rotationError = error
-                    self.logger.error(chainedError: error, message: "Failed to rotate private key")
+                    self.logger.error(chainedError: error, message: "Failed to rotate private key.")
 
                     DispatchQueue.main.async {
                         completionHandler(rotationResult, rotationError)
@@ -570,7 +570,7 @@ class TunnelManager: TunnelManagerStateDelegate
                     self.reconnectTunnel(completionHandler: nil)
 
                 case .failure(let error):
-                    self.logger.error(chainedError: error, message: "Failed to set tunnel settings")
+                    self.logger.error(chainedError: error, message: "Failed to set tunnel settings.")
 
                 case .cancelled:
                     break
@@ -644,7 +644,7 @@ extension TunnelManager {
 
             return submitBackgroundTask(at: beginDate)
         } else {
-            return .failure(.missingAccount)
+            return .failure(.unsetAccount)
         }
     }
 
@@ -674,7 +674,7 @@ extension TunnelManager {
                     self.logger.debug("Scheduled next private key rotation task at \(scheduleDate.logFormatDate())")
 
                 case .failure(let error):
-                    self.logger.error(chainedError: error, message: "Failed to schedule next private key rotation task")
+                    self.logger.error(chainedError: error, message: "Failed to schedule next private key rotation task.")
                 }
             }
 
@@ -722,7 +722,7 @@ extension TunnelManager {
 
     fileprivate func nextRetryScheduleDate(_ error: TunnelManager.Error) -> Date? {
         switch error {
-        case .missingAccount:
+        case .unsetAccount:
             // Do not retry if logged out.
             return nil
 
