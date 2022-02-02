@@ -79,22 +79,21 @@ class SetAccountOperation: AsyncOperation {
         case .success(let tunnelSettings):
             let interfaceSettings = tunnelSettings.interface
 
-            // Push key if interface addresses were not received yet
-            if interfaceSettings.addresses.isEmpty {
-                if let newPrivateKey = interfaceSettings.nextPrivateKey {
-                    replaceOldAccountKey(
-                        accountToken: accountToken,
-                        oldPrivateKey: interfaceSettings.privateKey,
-                        newPrivateKey: newPrivateKey,
-                        completionHandler: completionHandler
-                    )
-                } else {
-                    pushNewAccountKey(
-                        accountToken: accountToken,
-                        publicKey: interfaceSettings.publicKey,
-                        completionHandler: completionHandler
-                    )
-                }
+            if let newPrivateKey = interfaceSettings.nextPrivateKey {
+                // Replace key if key rotation had failed.
+                replaceOldAccountKey(
+                    accountToken: accountToken,
+                    oldPrivateKey: interfaceSettings.privateKey,
+                    newPrivateKey: newPrivateKey,
+                    completionHandler: completionHandler
+                )
+            } else if interfaceSettings.addresses.isEmpty {
+                // Push key if interface addresses were not received yet
+                pushNewAccountKey(
+                    accountToken: accountToken,
+                    publicKey: interfaceSettings.publicKey,
+                    completionHandler: completionHandler
+                )
             } else {
                 state.tunnelInfo = TunnelInfo(
                     token: accountToken,
