@@ -117,8 +117,8 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
     }
 
     let drive_comp = path.as_ref().components().next();
-    let drive = match drive_comp {
-        Some(std::path::Component::Prefix(prefix)) => prefix.as_os_str(),
+    let drive = match (path.is_absolute(), drive_comp) {
+        (true, Some(std::path::Component::Prefix(prefix))) => prefix.as_os_str(),
         _ => {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
@@ -131,7 +131,10 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
     let suffix = path
         .as_ref()
         .strip_prefix(drive_comp.unwrap())
-        .expect("path missing own component");
+        .map_err(|_error| io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "path missing own component",
+        ))?;
     new_path.push(suffix);
 
     Ok(new_path)
