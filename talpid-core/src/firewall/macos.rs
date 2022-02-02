@@ -20,16 +20,14 @@ pub struct Firewall {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
     rule_logging: RuleLogging,
-    /// An exclusion group ID may be used in the future to help split tunneling in the future.
-    _exclusion_gid: u32,
 }
 
 impl Firewall {
-    pub fn from_args(args: FirewallArguments) -> Result<Self> {
-        Self::new(args.exclusion_gid)
+    pub fn from_args(_args: FirewallArguments) -> Result<Self> {
+        Self::new()
     }
 
-    fn new(exclusion_gid: u32) -> Result<Self> {
+    pub fn new() -> Result<Self> {
         // Allows controlling whether firewall rules should log to pflog0. Useful for debugging the
         // rules.
         let firewall_debugging = env::var("TALPID_FIREWALL_DEBUG");
@@ -45,7 +43,6 @@ impl Firewall {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
             rule_logging,
-            _exclusion_gid: exclusion_gid,
         })
     }
 
