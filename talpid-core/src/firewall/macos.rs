@@ -1,4 +1,4 @@
-use super::{FirewallArguments, FirewallPolicy, FirewallT};
+use super::{FirewallArguments, FirewallPolicy};
 use ipnetwork::IpNetwork;
 use pfctl::{DropAction, FilterRuleAction, Uid};
 use std::{
@@ -24,10 +24,12 @@ pub struct Firewall {
     _exclusion_gid: u32,
 }
 
-impl FirewallT for Firewall {
-    type Error = Error;
+impl Firewall {
+    pub fn from_args(args: FirewallArguments) -> Result<Self> {
+        Self::new(args.exclusion_gid)
+    }
 
-    fn new(args: FirewallArguments) -> Result<Self> {
+    fn new(exclusion_gid: u32) -> Result<Self> {
         // Allows controlling whether firewall rules should log to pflog0. Useful for debugging the
         // rules.
         let firewall_debugging = env::var("TALPID_FIREWALL_DEBUG");
@@ -43,17 +45,17 @@ impl FirewallT for Firewall {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
             rule_logging,
-            _exclusion_gid: args.exclusion_gid,
+            _exclusion_gid: exclusion_gid,
         })
     }
 
-    fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
+    pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         self.enable()?;
         self.add_anchor()?;
         self.set_rules(policy)
     }
 
-    fn reset_policy(&mut self) -> Result<()> {
+    pub fn reset_policy(&mut self) -> Result<()> {
         // Implemented this way to not early return on an error.
         // We always want all three methods to run, and then return
         // the first error it encounterd, if any.
@@ -61,9 +63,7 @@ impl FirewallT for Firewall {
             .and(self.remove_anchor())
             .and(self.restore_state())
     }
-}
 
-impl Firewall {
     fn set_rules(&mut self, policy: FirewallPolicy) -> Result<()> {
         let mut new_filter_rules = vec![];
 
