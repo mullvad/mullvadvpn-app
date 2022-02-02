@@ -3,7 +3,7 @@ use crate::{logging::windows::log_sink, tunnel::TunnelMetadata};
 use std::{net::IpAddr, path::Path, ptr};
 
 use self::winfw::*;
-use super::{FirewallArguments, FirewallPolicy, FirewallT, InitialFirewallState};
+use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use crate::winnet;
 use talpid_types::{
     net::{AllowedEndpoint, Endpoint},
@@ -47,40 +47,55 @@ pub enum Error {
 /// Timeout for acquiring the WFP transaction lock
 const WINFW_TIMEOUT_SECONDS: u32 = 5;
 
+const LOGGING_CONTEXT: &[u8] = b"WinFw\0";
+
 /// The Windows implementation for the firewall and DNS.
 pub struct Firewall(());
 
-impl FirewallT for Firewall {
-    type Error = Error;
-
-    fn new(args: FirewallArguments) -> Result<Self, Self::Error> {
-        let logging_context = b"WinFw\0".as_ptr();
-
+impl Firewall {
+    pub fn from_args(args: FirewallArguments) -> Result<Self, Error> {
         if let InitialFirewallState::Blocked(allowed_endpoint) = args.initial_state {
-            let cfg = &WinFwSettings::new(args.allow_lan);
-            let allowed_endpoint = WinFwAllowedEndpointContainer::from(allowed_endpoint);
-            unsafe {
-                WinFw_InitializeBlocked(
-                    WINFW_TIMEOUT_SECONDS,
-                    &cfg,
-                    &allowed_endpoint.as_endpoint(),
-                    Some(log_sink),
-                    logging_context,
-                )
-                .into_result()?
-            };
+            Self::initialize_blocked(allowed_endpoint, args.allow_lan)
         } else {
-            unsafe {
-                WinFw_Initialize(WINFW_TIMEOUT_SECONDS, Some(log_sink), logging_context)
-                    .into_result()?
-            };
+            Self::new()
         }
+    }
+
+    pub fn new() -> Result<Self, Error> {
+        unsafe {
+            WinFw_Initialize(
+                WINFW_TIMEOUT_SECONDS,
+                Some(log_sink),
+                LOGGING_CONTEXT.as_ptr(),
+            )
+            .into_result()?
+        };
 
         log::trace!("Successfully initialized windows firewall module");
         Ok(Firewall(()))
     }
 
-    fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Self::Error> {
+    fn initialize_blocked(
+        allowed_endpoint: AllowedEndpoint,
+        allow_lan: bool,
+    ) -> Result<Self, Error> {
+        let cfg = &WinFwSettings::new(allow_lan);
+        let allowed_endpoint = WinFwAllowedEndpointContainer::from(allowed_endpoint);
+        unsafe {
+            WinFw_InitializeBlocked(
+                WINFW_TIMEOUT_SECONDS,
+                &cfg,
+                &allowed_endpoint.as_endpoint(),
+                Some(log_sink),
+                LOGGING_CONTEXT.as_ptr(),
+            )
+            .into_result()?
+        };
+        log::trace!("Successfully initialized windows firewall module to a blocking state");
+        Ok(Firewall(()))
+    }
+
+    pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Error> {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
@@ -122,27 +137,11 @@ impl FirewallT for Firewall {
         }
     }
 
-    fn reset_policy(&mut self) -> Result<(), Self::Error> {
+    pub fn reset_policy(&mut self) -> Result<(), Error> {
         unsafe { WinFw_Reset().into_result().map_err(Error::ResettingPolicy) }?;
         Ok(())
     }
-}
 
-impl Drop for Firewall {
-    fn drop(&mut self) {
-        if unsafe {
-            WinFw_Deinitialize(WinFwCleanupPolicy::ContinueBlocking)
-                .into_result()
-                .is_ok()
-        } {
-            log::trace!("Successfully deinitialized windows firewall module");
-        } else {
-            log::error!("Failed to deinitialize windows firewall module");
-        };
-    }
-}
-
-impl Firewall {
     fn set_connecting_state(
         &mut self,
         endpoint: &Endpoint,
@@ -254,6 +253,20 @@ impl Firewall {
                 .into_result()
                 .map_err(Error::ApplyingBlockedPolicy)
         }
+    }
+}
+
+impl Drop for Firewall {
+    fn drop(&mut self) {
+        if unsafe {
+            WinFw_Deinitialize(WinFwCleanupPolicy::ContinueBlocking)
+                .into_result()
+                .is_ok()
+        } {
+            log::trace!("Successfully deinitialized windows firewall module");
+        } else {
+            log::error!("Failed to deinitialize windows firewall module");
+        };
     }
 }
 
