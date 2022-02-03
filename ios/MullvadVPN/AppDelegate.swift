@@ -214,7 +214,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return
             }
 
-            TunnelManager.shared.rotatePrivateKey { rotationResult, error in
+            _ = TunnelManager.shared.rotatePrivateKey { rotationResult, error in
                 if let error = error {
                     self.logger?.error(chainedError: error, message: "Failed to rotate the key")
 
