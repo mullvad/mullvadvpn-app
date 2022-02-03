@@ -9,7 +9,7 @@ use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     version::AppVersion,
 };
-use proxy::ProxyConfig;
+use proxy::ApiConnectionMode;
 use std::{
     collections::BTreeMap,
     future::Future,
@@ -216,7 +216,7 @@ impl MullvadRpcRuntime {
     }
 
     /// Creates a new request service and returns a handle to it.
-    async fn new_request_service<T: Stream<Item = ProxyConfig> + Unpin + Send + 'static>(
+    async fn new_request_service<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static>(
         &mut self,
         sni_hostname: Option<String>,
         proxy_provider: T,
@@ -236,7 +236,9 @@ impl MullvadRpcRuntime {
     }
 
     /// Returns a request factory initialized to create requests for the master API
-    pub async fn mullvad_rest_handle<T: Stream<Item = ProxyConfig> + Unpin + Send + 'static>(
+    pub async fn mullvad_rest_handle<
+        T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
+    >(
         &mut self,
         proxy_provider: T,
     ) -> rest::MullvadRestHandle {
@@ -259,7 +261,7 @@ impl MullvadRpcRuntime {
 
     /// Returns a new request service handle
     pub async fn rest_handle(&mut self) -> rest::RequestServiceHandle {
-        self.new_request_service(None, ProxyConfig::Tls.into_repeat())
+        self.new_request_service(None, ApiConnectionMode::Direct.into_repeat())
             .await
     }
 

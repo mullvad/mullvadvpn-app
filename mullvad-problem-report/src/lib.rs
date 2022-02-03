@@ -1,7 +1,7 @@
 #![deny(rust_2018_idioms)]
 
 use lazy_static::lazy_static;
-use mullvad_rpc::proxy::ProxyConfig;
+use mullvad_rpc::proxy::ApiConnectionMode;
 use regex::Regex;
 use std::{
     borrow::Cow,
@@ -304,7 +304,11 @@ async fn send_problem_report_inner(
 
     let rpc_client = mullvad_rpc::ProblemReportProxy::new(
         rpc_runtime
-            .mullvad_rest_handle(ProxyConfig::try_from_cache(cache_dir).await.into_repeat())
+            .mullvad_rest_handle(
+                ApiConnectionMode::try_from_cache(cache_dir)
+                    .await
+                    .into_repeat(),
+            )
             .await,
     );
 

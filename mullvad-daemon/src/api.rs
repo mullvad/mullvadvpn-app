@@ -1,11 +1,11 @@
 use crate::DaemonEventSender;
 use futures::{channel::oneshot, stream, Stream, StreamExt};
-use mullvad_rpc::proxy::ProxyConfig;
+use mullvad_rpc::proxy::ApiConnectionMode;
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
 
 pub(crate) struct ApiProxyRequest {
-    pub response_tx: oneshot::Sender<ProxyConfig>,
+    pub response_tx: oneshot::Sender<ApiConnectionMode>,
     pub retry_attempt: u32,
 }
 
@@ -14,8 +14,8 @@ pub(crate) struct ApiProxyRequest {
 /// of this.
 pub(crate) fn create_api_config_provider(
     daemon_sender: DaemonEventSender<ApiProxyRequest>,
-    initial_config: ProxyConfig,
-) -> impl Stream<Item = ProxyConfig> + Unpin {
+    initial_config: ApiConnectionMode,
+) -> impl Stream<Item = ApiConnectionMode> + Unpin {
     struct Context {
         attempt: u32,
         daemon_sender: DaemonEventSender<ApiProxyRequest>,
@@ -44,7 +44,7 @@ pub(crate) fn create_api_config_provider(
                         error.display_chain_with_msg("Failed to receive API proxy config")
                     );
                     // Fall back on unbridged connection
-                    ProxyConfig::Tls
+                    ApiConnectionMode::Direct
                 });
 
                 Some((new_config, ctx))
