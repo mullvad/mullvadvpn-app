@@ -1,5 +1,5 @@
 use crate::tls_stream::TlsStream;
-use futures::Future;
+use futures::Stream;
 use hyper::client::connect::{Connected, Connection};
 use serde::{Deserialize, Serialize};
 use shadowsocks::relay::tcprelay::ProxyClientStream;
@@ -51,9 +51,21 @@ impl fmt::Display for ProxyConfigSettings {
 }
 
 impl ProxyConfig {
-    /// Reads the proxy config from `CURRENT_API_CONFIG_FILENAME`.
+    /// Reads the proxy config from `CURRENT_CONFIG_FILENAME`.
+    /// This returns `ProxyConfig::Tls` if reading from disk fails for any reason.
+    pub async fn try_from_cache(cache_dir: &Path) -> Self {
+        Self::from_cache(cache_dir).await.unwrap_or_else(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to read API endpoint cache")
+            );
+            ProxyConfig::Tls
+        })
+    }
+
+    /// Reads the proxy config from `CURRENT_CONFIG_FILENAME`.
     /// If the file does not exist, this returns `Ok(ProxyConfig::Tls)`.
-    pub async fn from_cache(cache_dir: &Path) -> io::Result<Self> {
+    async fn from_cache(cache_dir: &Path) -> io::Result<Self> {
         let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
         match fs::read_to_string(path).await {
             Ok(s) => serde_json::from_str(&s).map_err(|error| {
@@ -76,7 +88,7 @@ impl ProxyConfig {
         }
     }
 
-    /// Stores this config to `CURRENT_API_CONFIG_FILENAME`.
+    /// Stores this config to `CURRENT_CONFIG_FILENAME`.
     pub async fn save(&self, cache_dir: &Path) -> io::Result<()> {
         let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
         let temp_path = path.with_extension("temp");
@@ -91,7 +103,7 @@ impl ProxyConfig {
         fs::rename(&temp_path, path).await
     }
 
-    /// Attempts to remove `CURRENT_API_CONFIG_FILENAME`, if it exists.
+    /// Attempts to remove `CURRENT_CONFIG_FILENAME`, if it exists.
     pub async fn try_delete_cache(cache_dir: &Path) {
         let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
         if let Err(err) = fs::remove_file(path).await {
@@ -115,23 +127,11 @@ impl ProxyConfig {
     pub fn is_proxy(&self) -> bool {
         *self != ProxyConfig::Tls
     }
-}
 
-pub trait ProxyConfigProvider: Send + Sync {
-    fn first(&self) -> ProxyConfig;
-    fn next(&self) -> Pin<Box<dyn Future<Output = ProxyConfig> + Send>>;
-}
-
-pub struct ProxyConfigProviderNoop(pub ProxyConfig);
-
-impl ProxyConfigProvider for ProxyConfigProviderNoop {
-    fn first(&self) -> ProxyConfig {
-        self.0.clone()
-    }
-
-    fn next(&self) -> Pin<Box<dyn Future<Output = ProxyConfig> + Send>> {
-        let config = self.0.clone();
-        Box::pin(async { config })
+    /// Convenience function that returns a stream that repeats
+    /// this config forever.
+    pub fn into_repeat(self) -> impl Stream<Item = ProxyConfig> {
+        futures::stream::repeat(self)
     }
 }
 

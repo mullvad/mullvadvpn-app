@@ -1,7 +1,7 @@
 #![deny(rust_2018_idioms)]
 
 use lazy_static::lazy_static;
-use mullvad_rpc::proxy::{ProxyConfig, ProxyConfigProviderNoop};
+use mullvad_rpc::proxy::ProxyConfig;
 use regex::Regex;
 use std::{
     borrow::Cow,
@@ -302,18 +302,11 @@ async fn send_problem_report_inner(
     .await
     .map_err(Error::CreateRpcClientError)?;
 
-    let rpc_client =
-        mullvad_rpc::ProblemReportProxy::new(rpc_runtime.mullvad_rest_handle(Some(Box::new(
-            ProxyConfigProviderNoop(ProxyConfig::from_cache(cache_dir).await.unwrap_or_else(
-                |error| {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to read API endpoint cache")
-                    );
-                    ProxyConfig::Tls
-                },
-            )),
-        ))));
+    let rpc_client = mullvad_rpc::ProblemReportProxy::new(
+        rpc_runtime
+            .mullvad_rest_handle(ProxyConfig::try_from_cache(cache_dir).await.into_repeat())
+            .await,
+    );
 
     for _attempt in 0..MAX_SEND_ATTEMPTS {
         match rpc_client
