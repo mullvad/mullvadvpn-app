@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.util.Log
 import android.view.animation.Animation
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +52,11 @@ fun Context.bindServiceFlow(intent: Intent, flags: Int = 0): Flow<ServiceResult>
         safeOffer(ServiceResult.NOT_CONNECTED)
 
         Dispatchers.Default.dispatch(EmptyCoroutineContext) {
-            unbindService(connectionCallback)
+            try {
+                unbindService(connectionCallback)
+            } catch (e: IllegalArgumentException) {
+                Log.e("mullvad", "Cannot unbind as no binding exists.")
+            }
         }
     }
 }
