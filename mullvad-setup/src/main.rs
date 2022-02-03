@@ -1,9 +1,6 @@
 use clap::{crate_authors, crate_description, crate_name, SubCommand};
 use mullvad_management_interface::new_rpc_client;
-use mullvad_rpc::{
-    proxy::{ProxyConfig, ProxyConfigProviderNoop},
-    MullvadRpcRuntime,
-};
+use mullvad_rpc::{proxy::ProxyConfig, MullvadRpcRuntime};
 use mullvad_types::version::ParsedAppVersion;
 use std::{path::PathBuf, process, time::Duration};
 use talpid_core::{
@@ -181,17 +178,11 @@ async fn remove_wireguard_key() -> Result<(), Error> {
                 .await
                 .map_err(Error::RpcInitializationError)?;
             let mut key_proxy = mullvad_rpc::WireguardKeyProxy::new(
-                rpc_runtime.mullvad_rest_handle(Some(Box::new(ProxyConfigProviderNoop(
-                    ProxyConfig::from_cache(&cache_path)
-                        .await
-                        .unwrap_or_else(|error| {
-                            eprintln!(
-                                "{}",
-                                error.display_chain_with_msg("Failed to read API endpoint cache")
-                            );
-                            ProxyConfig::Tls
-                        }),
-                )))),
+                rpc_runtime
+                    .mullvad_rest_handle(
+                        ProxyConfig::try_from_cache(&cache_path).await.into_repeat(),
+                    )
+                    .await,
             );
             retry_future_n(
                 move || {

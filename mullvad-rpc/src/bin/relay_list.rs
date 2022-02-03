@@ -2,7 +2,9 @@
 //! Used by the installer artifact packer to bundle the latest available
 //! relay list at the time of creating the installer.
 
-use mullvad_rpc::{rest::Error as RestError, MullvadRpcRuntime, RelayListProxy};
+use mullvad_rpc::{
+    proxy::ProxyConfig, rest::Error as RestError, MullvadRpcRuntime, RelayListProxy,
+};
 use std::process;
 use talpid_types::ErrorExt;
 
@@ -11,9 +13,13 @@ async fn main() {
     let mut runtime =
         MullvadRpcRuntime::new(tokio::runtime::Handle::current()).expect("Failed to load runtime");
 
-    let relay_list_request = RelayListProxy::new(runtime.mullvad_rest_handle(None))
-        .relay_list(None)
-        .await;
+    let relay_list_request = RelayListProxy::new(
+        runtime
+            .mullvad_rest_handle(ProxyConfig::Tls.into_repeat())
+            .await,
+    )
+    .relay_list(None)
+    .await;
 
     let relay_list = match relay_list_request {
         Ok(relay_list) => relay_list,

@@ -3,12 +3,13 @@
 use chrono::{offset::Utc, DateTime};
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
+use futures::Stream;
 use hyper::Method;
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     version::AppVersion,
 };
-use proxy::{ProxyConfigProvider, ProxyConfigProviderNoop};
+use proxy::ProxyConfig;
 use std::{
     collections::BTreeMap,
     future::Future,
@@ -215,30 +216,33 @@ impl MullvadRpcRuntime {
     }
 
     /// Creates a new request service and returns a handle to it.
-    fn new_request_service(
+    async fn new_request_service<T: Stream<Item = ProxyConfig> + Unpin + Send + 'static>(
         &mut self,
         sni_hostname: Option<String>,
-        proxy_provider: Option<Box<dyn ProxyConfigProvider>>,
+        proxy_provider: T,
     ) -> rest::RequestServiceHandle {
         let service = rest::RequestService::new(
             self.handle.clone(),
             sni_hostname,
             self.api_availability.handle(),
-            proxy_provider.unwrap_or(Box::new(ProxyConfigProviderNoop(proxy::ProxyConfig::Tls))),
+            proxy_provider,
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
-        );
+        )
+        .await;
         let handle = service.handle();
         self.handle.spawn(service.into_future());
         handle
     }
 
     /// Returns a request factory initialized to create requests for the master API
-    pub fn mullvad_rest_handle(
+    pub async fn mullvad_rest_handle<T: Stream<Item = ProxyConfig> + Unpin + Send + 'static>(
         &mut self,
-        proxy_provider: Option<Box<dyn ProxyConfigProvider>>,
+        proxy_provider: T,
     ) -> rest::MullvadRestHandle {
-        let service = self.new_request_service(Some(API.host.clone()), proxy_provider);
+        let service = self
+            .new_request_service(Some(API.host.clone()), proxy_provider)
+            .await;
         let factory = rest::RequestFactory::new(
             API.host.clone(),
             Box::new(self.address_cache.clone()),
@@ -254,8 +258,9 @@ impl MullvadRpcRuntime {
     }
 
     /// Returns a new request service handle
-    pub fn rest_handle(&mut self) -> rest::RequestServiceHandle {
-        self.new_request_service(None, None)
+    pub async fn rest_handle(&mut self) -> rest::RequestServiceHandle {
+        self.new_request_service(None, ProxyConfig::Tls.into_repeat())
+            .await
     }
 
     pub fn handle(&mut self) -> &mut tokio::runtime::Handle {
