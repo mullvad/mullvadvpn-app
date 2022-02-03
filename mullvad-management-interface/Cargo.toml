@@ -22,7 +22,7 @@ tokio = { version = "1.8", features =  [ "rt" ] }
 log = "0.4"
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.22.2"
+nix = "0.23"
 lazy_static = "1.0"
 
 [build-dependencies]

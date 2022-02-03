@@ -260,11 +260,11 @@ checksum = "ea221b5284a47e40033bf9b66f35f984ec0ea2931eb03505246cd27a963f981b"
 
 [[package]]
 name = "ctrlc"
-version = "3.2.0"
+version = "3.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "377c9b002a72a0b2c1a18c62e2f3864bdfea4a015e3683a96e24aa45dd6c02d1"
+checksum = "a19c6cedffdc8c03a3346d723eb20bd85a13362bb96dc2ac000842c6381ec7bf"
 dependencies = [
- "nix 0.22.2",
+ "nix 0.23.1",
  "winapi 0.3.9",
 ]
 
@@ -1330,7 +1330,7 @@ dependencies = [
  "mullvad-paths",
  "mullvad-rpc",
  "mullvad-types",
- "nix 0.22.2",
+ "nix 0.23.1",
  "parking_lot",
  "rand 0.7.3",
  "regex",
@@ -1353,7 +1353,7 @@ name = "mullvad-exclude"
 version = "2021.6.0"
 dependencies = [
  "err-derive",
- "nix 0.22.2",
+ "nix 0.23.1",
  "talpid-types",
 ]
 
@@ -1373,7 +1373,7 @@ dependencies = [
  "mullvad-problem-report",
  "mullvad-rpc",
  "mullvad-types",
- "nix 0.22.2",
+ "nix 0.23.1",
  "rand 0.7.3",
  "talpid-core",
  "talpid-types",
@@ -1390,7 +1390,7 @@ dependencies = [
  "log",
  "mullvad-paths",
  "mullvad-types",
- "nix 0.22.2",
+ "nix 0.23.1",
  "parity-tokio-ipc",
  "prost",
  "prost-types",
@@ -1630,9 +1630,22 @@ dependencies = [
 
 [[package]]
 name = "nix"
-version = "0.22.2"
+version = "0.22.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3bb9a13fa32bc5aeb64150cd3f32d6cf4c748f8f8a417cce5d2eb976a8370ba"
+checksum = "e4916f159ed8e5de0082076562152a76b7a1f64a01fd9d1e0fea002c37624faf"
+dependencies = [
+ "bitflags",
+ "cc",
+ "cfg-if 1.0.0",
+ "libc",
+ "memoffset",
+]
+
+[[package]]
+name = "nix"
+version = "0.23.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9f866317acbd3a240710c63f065ffb1e4fd466259045ccb504130b7f668f35c6"
 dependencies = [
  "bitflags",
  "cc",
@@ -2221,7 +2234,7 @@ dependencies = [
  "log",
  "netlink-packet-route",
  "netlink-proto",
- "nix 0.22.2",
+ "nix 0.22.3",
  "thiserror",
  "tokio",
 ]
@@ -2597,7 +2610,7 @@ dependencies = [
  "netlink-proto",
  "netlink-sys",
  "nftnl",
- "nix 0.22.2",
+ "nix 0.23.1",
  "notify",
  "os_pipe",
  "parity-tokio-ipc",
