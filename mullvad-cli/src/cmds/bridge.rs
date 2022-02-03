@@ -155,13 +155,13 @@ fn create_set_custom_settings_subcommand() -> clap::App<'static, 'static> {
                 .arg(
                     clap::Arg::with_name("password")
                         .help("Specifies the password on the remote Shadowsocks server")
-                        .default_value("23#dfsbbb")
+                        .default_value("mullvad")
                         .index(3),
                 )
                 .arg(
                     clap::Arg::with_name("cipher")
                         .help("Specifies the cipher to use")
-                        .default_value("chacha20")
+                        .default_value("aes-256-gcm")
                         .possible_values(SHADOWSOCKS_CIPHERS)
                         .index(4),
                 ),
