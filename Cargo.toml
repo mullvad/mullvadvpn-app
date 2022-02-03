@@ -19,9 +19,5 @@ members = [
 exclude = ["dist-assets/binaries/shadowsocks-rust"]
 
 [profile.release]
-# FIXME: This is here as a temporary hack to stop the mullvad-daemon from segfaulting
-# on Windows. Can hopefully be removed after we have replaced OpenSSL with Rustls.
-# https://github.com/mullvad/mullvadvpn-app/pull/1438
-# Other opt-levels that stops the daemon from crashing include 0 and 1. Crashes has
-# only been detected on 2.
-opt-level = "s"
+opt-level = 3
+lto = true
