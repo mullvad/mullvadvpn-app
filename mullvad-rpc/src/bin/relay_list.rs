@@ -3,7 +3,7 @@
 //! relay list at the time of creating the installer.
 
 use mullvad_rpc::{
-    proxy::ProxyConfig, rest::Error as RestError, MullvadRpcRuntime, RelayListProxy,
+    proxy::ApiConnectionMode, rest::Error as RestError, MullvadRpcRuntime, RelayListProxy,
 };
 use std::process;
 use talpid_types::ErrorExt;
@@ -15,7 +15,7 @@ async fn main() {
 
     let relay_list_request = RelayListProxy::new(
         runtime
-            .mullvad_rest_handle(ProxyConfig::Tls.into_repeat())
+            .mullvad_rest_handle(ApiConnectionMode::Direct.into_repeat())
             .await,
     )
     .relay_list(None)

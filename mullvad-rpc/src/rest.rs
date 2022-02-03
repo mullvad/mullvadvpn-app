@@ -4,7 +4,7 @@ use crate::{
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
-    proxy::ProxyConfig,
+    proxy::ApiConnectionMode,
 };
 use futures::{
     channel::{mpsc, oneshot},
@@ -89,7 +89,7 @@ impl Error {
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService<T: Stream<Item = ProxyConfig> + Unpin> {
+pub(crate) struct RequestService<T: Stream<Item = ApiConnectionMode> + Unpin> {
     command_tx: mpsc::Sender<RequestCommand>,
     command_rx: mpsc::Receiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
@@ -101,7 +101,7 @@ pub(crate) struct RequestService<T: Stream<Item = ProxyConfig> + Unpin> {
     api_availability: ApiAvailabilityHandle,
 }
 
-impl<T: Stream<Item = ProxyConfig> + Unpin> RequestService<T> {
+impl<T: Stream<Item = ApiConnectionMode> + Unpin> RequestService<T> {
     /// Constructs a new request service.
     pub async fn new(
         handle: Handle,
