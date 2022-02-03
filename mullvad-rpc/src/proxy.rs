@@ -71,8 +71,8 @@ impl ProxyConfig {
             Ok(s) => serde_json::from_str(&s).map_err(|error| {
                 log::error!(
                     "{}",
-                    error.display_chain_with_msg(stringify!(
-                        "Failed to deserialize ",
+                    error.display_chain_with_msg(&format!(
+                        "Failed to deserialize \"{}\"",
                         CURRENT_CONFIG_FILENAME
                     ))
                 );
