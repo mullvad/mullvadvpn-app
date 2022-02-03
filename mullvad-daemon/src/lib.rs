@@ -32,7 +32,7 @@ use futures::{
 };
 use mullvad_rpc::{
     availability::ApiAvailabilityHandle,
-    proxy::{ProxyConfig, ProxyConfigSettings},
+    proxy::{ApiConnectionMode, ProxyConfig},
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -556,7 +556,7 @@ pub struct Daemon<L: EventListener> {
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
     last_generated_entry_relay: Option<Relay>,
-    api_proxy_config: ProxyConfig,
+    api_connection_mode: ApiConnectionMode,
     app_version_info: Option<AppVersionInfo>,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
@@ -583,7 +583,7 @@ where
             exclusion_gid::set_exclusion_gid().map_err(Error::GroupIdError)?
         };
 
-        mullvad_rpc::proxy::ProxyConfig::try_delete_cache(&cache_dir).await;
+        mullvad_rpc::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
 
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
@@ -681,7 +681,7 @@ where
 
         let proxy_provider = api::create_api_config_provider(
             internal_event_tx.to_specialized_sender(),
-            ProxyConfig::Tls,
+            ApiConnectionMode::Direct,
         );
         let rpc_handle = rpc_runtime.mullvad_rest_handle(proxy_provider).await;
 
@@ -753,7 +753,7 @@ where
             last_generated_relay: None,
             last_generated_bridge_relay: None,
             last_generated_entry_relay: None,
-            api_proxy_config: ProxyConfig::Tls,
+            api_connection_mode: ApiConnectionMode::Direct,
             app_version_info,
             shutdown_tasks: vec![],
             tunnel_state_machine_shutdown_signal,
@@ -925,7 +925,9 @@ where
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info)
             }
-            GenerateApiProxyConfig(request) => self.handle_generate_api_proxy_config(request).await,
+            GenerateApiProxyConfig(request) => {
+                self.handle_generate_api_connection_mode(request).await
+            }
             NewApiEndpoint(endpoint) => self.handle_new_api_endpoint(endpoint).await,
             #[cfg(windows)]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
@@ -1371,7 +1373,7 @@ where
         self.event_listener.notify_app_version(app_version_info);
     }
 
-    async fn handle_generate_api_proxy_config(&mut self, request: api::ApiProxyRequest) {
+    async fn handle_generate_api_connection_mode(&mut self, request: api::ApiProxyRequest) {
         let location = self
             .last_generated_entry_relay
             .as_ref()
@@ -1407,14 +1409,14 @@ where
         let config = match bridge {
             Some((settings, _relay)) => match settings {
                 ProxySettings::Shadowsocks(ss_settings) => {
-                    ProxyConfig::Proxied(ProxyConfigSettings::Shadowsocks(ss_settings))
+                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(ss_settings))
                 }
                 _ => {
                     log::error!("Received unexpected proxy settings type");
-                    ProxyConfig::Tls
+                    ApiConnectionMode::Direct
                 }
             },
-            None => ProxyConfig::Tls,
+            None => ApiConnectionMode::Direct,
         };
 
         let allowed_endpoint = match config.get_endpoint() {
@@ -1430,20 +1432,20 @@ where
 
         if rx.await.is_ok() {
             log::debug!("API endpoint: {}", config);
-            self.api_proxy_config = config.clone();
-            if let Err(error) = self.api_proxy_config.save(&self.cache_dir).await {
+            self.api_connection_mode = config.clone();
+            if let Err(error) = self.api_connection_mode.save(&self.cache_dir).await {
                 log::debug!(
                     "{}",
                     error.display_chain_with_msg("Failed to save API endpoint")
                 );
             }
         }
-        let _ = request.response_tx.send(self.api_proxy_config.clone());
+        let _ = request.response_tx.send(self.api_connection_mode.clone());
     }
 
     async fn handle_new_api_endpoint(&mut self, endpoint: SocketAddr) {
         // Update the firewall if no proxy is being used
-        if !self.api_proxy_config.is_proxy() {
+        if !self.api_connection_mode.is_proxy() {
             let (tx, rx) = oneshot::channel();
             let _ = self
                 .tunnel_command_tx

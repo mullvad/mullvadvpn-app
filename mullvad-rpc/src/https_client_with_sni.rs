@@ -1,6 +1,6 @@
 use crate::{
     abortable_stream::{AbortableStream, AbortableStreamHandle},
-    proxy::{MaybeProxyStream, ProxyConfig, ProxyConfigSettings},
+    proxy::{ApiConnectionMode, MaybeProxyStream, ProxyConfig},
     tls_stream::TlsStream,
 };
 use futures::{channel::mpsc, future, StreamExt};
@@ -52,7 +52,7 @@ impl HttpsConnectorWithSniHandle {
     }
 
     /// Stop all streams produced by this connector
-    pub fn set_proxy(&self, proxy: ProxyConfig) {
+    pub fn set_proxy(&self, proxy: ApiConnectionMode) {
         let _ = self
             .tx
             .unbounded_send(HttpsConnectorRequest::SetProxy(proxy));
@@ -61,31 +61,30 @@ impl HttpsConnectorWithSniHandle {
 
 enum HttpsConnectorRequest {
     Reset,
-    SetProxy(ProxyConfig),
+    SetProxy(ApiConnectionMode),
 }
 
 #[derive(Clone)]
 enum InnerProxyConfig {
     /// Connect directly to the target.
-    Tls,
+    Direct,
     /// Connect to the destination via a proxy.
     Proxied(ServerConfig),
 }
 
 #[derive(err_derive::Error, Debug)]
 enum ProxyConfigError {
-    /// Connect directly to the target.
     #[error(display = "Unrecognized cipher selected: {}", _0)]
     InvalidCipher(String),
 }
 
-impl TryFrom<ProxyConfig> for InnerProxyConfig {
+impl TryFrom<ApiConnectionMode> for InnerProxyConfig {
     type Error = ProxyConfigError;
 
-    fn try_from(config: ProxyConfig) -> Result<Self, Self::Error> {
+    fn try_from(config: ApiConnectionMode) -> Result<Self, Self::Error> {
         Ok(match config {
-            ProxyConfig::Tls => InnerProxyConfig::Tls,
-            ProxyConfig::Proxied(ProxyConfigSettings::Shadowsocks(config)) => {
+            ApiConnectionMode::Direct => InnerProxyConfig::Direct,
+            ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(config)) => {
                 InnerProxyConfig::Proxied(ServerConfig::new(
                     ServerAddr::SocketAddr(config.peer),
                     config.password,
@@ -126,7 +125,7 @@ impl HttpsConnectorWithSni {
         let abort_notify = Arc::new(tokio::sync::Notify::new());
         let inner = Arc::new(Mutex::new(HttpsConnectorWithSniInner {
             stream_handles: vec![],
-            proxy_config: InnerProxyConfig::Tls,
+            proxy_config: InnerProxyConfig::Direct,
         }));
 
         let inner_copy = inner.clone();
@@ -285,7 +284,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                     Box<dyn Future<Output = Result<MaybeProxyStream, io::Error>> + Send>,
                 > = Box::pin(async move {
                     match config {
-                        InnerProxyConfig::Tls => {
+                        InnerProxyConfig::Direct => {
                             let socket = Self::open_socket(
                                 addr_copy,
                                 #[cfg(target_os = "android")]
