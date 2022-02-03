@@ -20,51 +20,51 @@ use tokio::{
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub enum ProxyConfig {
+pub enum ApiConnectionMode {
     /// Connect directly to the target.
-    Tls,
+    Direct,
     /// Connect to the destination via a proxy.
-    Proxied(ProxyConfigSettings),
+    Proxied(ProxyConfig),
 }
 
-impl fmt::Display for ProxyConfig {
+impl fmt::Display for ApiConnectionMode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
-            ProxyConfig::Tls => write!(f, "unproxied"),
-            ProxyConfig::Proxied(settings) => write!(f, "{}", settings),
+            ApiConnectionMode::Direct => write!(f, "unproxied"),
+            ApiConnectionMode::Proxied(settings) => settings.fmt(f),
         }
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub enum ProxyConfigSettings {
+pub enum ProxyConfig {
     Shadowsocks(ShadowsocksProxySettings),
 }
 
-impl fmt::Display for ProxyConfigSettings {
+impl fmt::Display for ProxyConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             // TODO: Do not hardcode TCP
-            ProxyConfigSettings::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
+            ProxyConfig::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
         }
     }
 }
 
-impl ProxyConfig {
+impl ApiConnectionMode {
     /// Reads the proxy config from `CURRENT_CONFIG_FILENAME`.
-    /// This returns `ProxyConfig::Tls` if reading from disk fails for any reason.
+    /// This returns `ApiConnectionMode::Direct` if reading from disk fails for any reason.
     pub async fn try_from_cache(cache_dir: &Path) -> Self {
         Self::from_cache(cache_dir).await.unwrap_or_else(|error| {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to read API endpoint cache")
             );
-            ProxyConfig::Tls
+            ApiConnectionMode::Direct
         })
     }
 
     /// Reads the proxy config from `CURRENT_CONFIG_FILENAME`.
-    /// If the file does not exist, this returns `Ok(ProxyConfig::Tls)`.
+    /// If the file does not exist, this returns `Ok(ApiConnectionMode::Direct)`.
     async fn from_cache(cache_dir: &Path) -> io::Result<Self> {
         let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
         match fs::read_to_string(path).await {
@@ -80,7 +80,7 @@ impl ProxyConfig {
             }),
             Err(error) => {
                 if error.kind() == io::ErrorKind::NotFound {
-                    Ok(ProxyConfig::Tls)
+                    Ok(ApiConnectionMode::Direct)
                 } else {
                     Err(error)
                 }
@@ -116,21 +116,21 @@ impl ProxyConfig {
         }
     }
 
-    /// Returns the remote address, or `None` for `ProxyConfig::Tls`.
+    /// Returns the remote address, or `None` for `ApiConnectionMode::Direct`.
     pub fn get_endpoint(&self) -> Option<SocketAddr> {
         match self {
-            ProxyConfig::Proxied(ProxyConfigSettings::Shadowsocks(ss)) => Some(ss.peer),
-            ProxyConfig::Tls => None,
+            ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(ss)) => Some(ss.peer),
+            ApiConnectionMode::Direct => None,
         }
     }
 
     pub fn is_proxy(&self) -> bool {
-        *self != ProxyConfig::Tls
+        *self != ApiConnectionMode::Direct
     }
 
     /// Convenience function that returns a stream that repeats
     /// this config forever.
-    pub fn into_repeat(self) -> impl Stream<Item = ProxyConfig> {
+    pub fn into_repeat(self) -> impl Stream<Item = ApiConnectionMode> {
         futures::stream::repeat(self)
     }
 }
