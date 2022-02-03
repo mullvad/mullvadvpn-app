@@ -4,14 +4,14 @@ use crate::{
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
-    proxy::ProxyConfigProvider,
+    proxy::ProxyConfig,
 };
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Aborted},
     sink::SinkExt,
     stream::StreamExt,
-    TryFutureExt,
+    Stream, TryFutureExt,
 };
 use hyper::{
     client::Client,
@@ -24,7 +24,6 @@ use std::{
     mem,
     net::IpAddr,
     str::FromStr,
-    sync::Arc,
     time::{Duration, Instant},
 };
 use talpid_types::ErrorExt;
@@ -90,7 +89,7 @@ impl Error {
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService {
+pub(crate) struct RequestService<T: Stream<Item = ProxyConfig> + Unpin> {
     command_tx: mpsc::Sender<RequestCommand>,
     command_rx: mpsc::Receiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
@@ -98,19 +97,19 @@ pub(crate) struct RequestService {
     handle: Handle,
     next_id: u64,
     in_flight_requests: BTreeMap<u64, AbortHandle>,
-    proxy_config_provider: Arc<Box<dyn ProxyConfigProvider>>,
+    proxy_config_provider: T,
     api_availability: ApiAvailabilityHandle,
 }
 
-impl RequestService {
+impl<T: Stream<Item = ProxyConfig> + Unpin> RequestService<T> {
     /// Constructs a new request service.
-    pub fn new(
+    pub async fn new(
         handle: Handle,
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
-        proxy_config_provider: Box<dyn ProxyConfigProvider>,
+        mut proxy_config_provider: T,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> RequestService {
+    ) -> RequestService<T> {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
             handle.clone(),
             sni_hostname,
@@ -118,8 +117,10 @@ impl RequestService {
             socket_bypass_tx.clone(),
         );
 
-        let proxy_config_provider = Arc::new(proxy_config_provider);
-        connector_handle.set_proxy(proxy_config_provider.first());
+        proxy_config_provider
+            .next()
+            .await
+            .map(|config| connector_handle.set_proxy(config));
 
         let (command_tx, command_rx) = mpsc::channel(1);
         let client = Client::builder().build(connector);
@@ -145,7 +146,7 @@ impl RequestService {
         }
     }
 
-    fn process_command(&mut self, command: RequestCommand) {
+    async fn process_command(&mut self, command: RequestCommand) {
         match command {
             RequestCommand::NewRequest(request, completion_tx) => {
                 let id = self.id();
@@ -162,8 +163,6 @@ impl RequestService {
                     let _ = suspend_fut.await;
                     request_fut.await
                 });
-                let connector_handle = self.connector_handle.clone();
-                let proxy_config_provider = self.proxy_config_provider.clone();
 
                 let future = async move {
                     let response =
@@ -176,9 +175,7 @@ impl RequestService {
                     if let Err(err) = &response {
                         if err.is_network_error() && !api_availability.get_state().is_offline() {
                             log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
-                            tokio::spawn(async move {
-                                connector_handle.set_proxy(proxy_config_provider.next().await);
-                            });
+                            let _ = tx.send(RequestCommand::NextApiConfig).await;
                         }
                     }
 
@@ -200,6 +197,11 @@ impl RequestService {
                 self.reset();
                 let _ = tx.send(());
             }
+            RequestCommand::NextApiConfig => {
+                if let Some(new_config) = self.proxy_config_provider.next().await {
+                    self.connector_handle.set_proxy(new_config);
+                }
+            }
         }
     }
 
@@ -220,7 +222,7 @@ impl RequestService {
 
     pub async fn into_future(mut self) {
         while let Some(command) = self.command_rx.next().await {
-            self.process_command(command);
+            self.process_command(command).await;
         }
         self.reset();
     }
@@ -268,6 +270,7 @@ pub(crate) enum RequestCommand {
     ),
     RequestFinished(u64),
     Reset(oneshot::Sender<()>),
+    NextApiConfig,
 }
 
 /// A REST request that is sent to the RequestService to be executed.
