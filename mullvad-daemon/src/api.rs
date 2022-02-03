@@ -1,7 +1,7 @@
 use crate::DaemonEventSender;
-use futures::channel::oneshot;
-use mullvad_rpc::proxy::{ProxyConfig, ProxyConfigProvider};
-use std::{future::Future, pin::Pin, sync::Mutex};
+use futures::{channel::oneshot, stream, Stream, StreamExt};
+use mullvad_rpc::proxy::ProxyConfig;
+use std::sync::atomic::{AtomicU32, Ordering};
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
 
@@ -10,50 +10,43 @@ pub(crate) struct ApiProxyRequest {
     pub retry_attempt: u32,
 }
 
-pub(crate) struct MullvadProxyConfigProvider {
-    retry_attempt: Mutex<u32>,
-    tx: DaemonEventSender<ApiProxyRequest>,
-}
-
-impl MullvadProxyConfigProvider {
-    pub fn new(tx: DaemonEventSender<ApiProxyRequest>) -> Self {
-        Self {
-            retry_attempt: Mutex::new(0),
-            tx,
-        }
-    }
-}
-
-impl ProxyConfigProvider for MullvadProxyConfigProvider {
-    fn first(&self) -> ProxyConfig {
-        let mut attempt = self.retry_attempt.lock().unwrap();
-        *attempt = 0;
-        ProxyConfig::Tls
+/// Returns a stream that returns the next API bridge to try.
+/// `initial_config` refers to the first config returned by the stream. The daemon is not notified
+/// of this.
+pub(crate) fn create_api_config_provider(
+    daemon_sender: DaemonEventSender<ApiProxyRequest>,
+    initial_config: ProxyConfig,
+) -> impl Stream<Item = ProxyConfig> + Unpin {
+    struct Context {
+        attempt: AtomicU32,
+        daemon_sender: DaemonEventSender<ApiProxyRequest>,
     }
 
-    fn next(&self) -> Pin<Box<dyn Future<Output = ProxyConfig> + Send>> {
-        let (tx, rx) = oneshot::channel();
+    let ctx = Context {
+        attempt: AtomicU32::new(1),
+        daemon_sender,
+    };
 
-        let retry_attempt = {
-            let mut attempt = self.retry_attempt.lock().unwrap();
-            let (next, _) = attempt.overflowing_add(1);
-            *attempt = next;
-            next
-        };
+    Box::pin(
+        stream::once(async move { initial_config }).chain(stream::unfold(ctx, |ctx| async move {
+            let retry_attempt = ctx.attempt.fetch_add(1, Ordering::Relaxed);
+            let (response_tx, response_rx) = oneshot::channel();
 
-        let _ = self.tx.send(ApiProxyRequest {
-            response_tx: tx,
-            retry_attempt,
-        });
+            let _ = ctx.daemon_sender.send(ApiProxyRequest {
+                response_tx,
+                retry_attempt,
+            });
 
-        Box::pin(async move {
-            rx.await.unwrap_or_else(|error| {
+            let new_config = response_rx.await.unwrap_or_else(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to receive API proxy config")
                 );
+                // Fall back on unbridged connection
                 ProxyConfig::Tls
-            })
-        })
-    }
+            });
+
+            Some((new_config, ctx))
+        })),
+    )
 }
