@@ -10,7 +10,6 @@ import Foundation
 
 /// A base implementation of an asynchronous operation
 class AsyncOperation: Operation {
-
     /// A state lock used for manipulating the operation state flags in a thread safe fashion.
     private let stateLock = NSRecursiveLock()
 
@@ -85,5 +84,13 @@ class AsyncOperation: Operation {
         willChangeValue(for: \.isExecuting)
         _isExecuting = value
         didChangeValue(for: \.isExecuting)
+    }
+}
+
+extension Operation {
+    func addDependencies(_ dependencies: [Operation]) {
+        for dependency in dependencies {
+            addDependency(dependency)
+        }
     }
 }
