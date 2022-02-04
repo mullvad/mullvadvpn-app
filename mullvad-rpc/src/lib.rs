@@ -221,8 +221,7 @@ impl MullvadRpcRuntime {
         sni_hostname: Option<String>,
         proxy_provider: T,
     ) -> rest::RequestServiceHandle {
-        let service = rest::RequestService::new(
-            self.handle.clone(),
+        let service_handle = rest::RequestService::new(
             sni_hostname,
             self.api_availability.handle(),
             proxy_provider,
@@ -230,9 +229,7 @@ impl MullvadRpcRuntime {
             self.socket_bypass_tx.clone(),
         )
         .await;
-        let handle = service.handle();
-        self.handle.spawn(service.into_future());
-        handle
+        service_handle
     }
 
     /// Returns a request factory initialized to create requests for the master API

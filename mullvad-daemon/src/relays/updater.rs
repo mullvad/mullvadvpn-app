@@ -58,7 +58,6 @@ impl RelayListUpdater {
         api_availability: ApiAvailabilityHandle,
     ) -> RelayListUpdaterHandle {
         let (tx, cmd_rx) = mpsc::channel(1);
-        let service = rpc_handle.service();
         let rpc_client = RelayListProxy::new(rpc_handle);
         let updater = RelayListUpdater {
             rpc_client,
@@ -69,7 +68,7 @@ impl RelayListUpdater {
             api_availability,
         };
 
-        service.spawn(updater.run(cmd_rx));
+        tokio::spawn(updater.run(cmd_rx));
 
         RelayListUpdaterHandle { tx }
     }

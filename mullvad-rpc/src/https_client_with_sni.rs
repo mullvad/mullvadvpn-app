@@ -36,7 +36,7 @@ use talpid_types::ErrorExt;
 #[cfg(target_os = "android")]
 use tokio::net::TcpSocket;
 
-use tokio::{net::TcpStream, runtime::Handle, time::timeout};
+use tokio::{net::TcpStream, time::timeout};
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -117,7 +117,6 @@ pub type SocketBypassRequest = (RawFd, oneshot::Sender<()>);
 
 impl HttpsConnectorWithSni {
     pub fn new(
-        handle: Handle,
         sni_hostname: Option<String>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> (Self, HttpsConnectorWithSniHandle) {
@@ -130,7 +129,7 @@ impl HttpsConnectorWithSni {
 
         let inner_copy = inner.clone();
         let notify = abort_notify.clone();
-        handle.spawn(async move {
+        tokio::spawn(async move {
             // Handle requests by `HttpsConnectorWithSniHandle`s
             while let Some(request) = rx.next().await {
                 let handles = {
