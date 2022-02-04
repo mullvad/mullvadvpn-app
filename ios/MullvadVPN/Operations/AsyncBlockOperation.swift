@@ -48,4 +48,10 @@ class AsyncBlockOperation: AsyncOperation {
             stateLock.unlock()
         }
     }
+
+    override func operationDidFinish() {
+        stateLock.lock()
+        cancellationBlocks.removeAll()
+        stateLock.unlock()
+    }
 }
