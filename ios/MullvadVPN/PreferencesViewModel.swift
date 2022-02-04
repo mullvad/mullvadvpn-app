@@ -68,6 +68,7 @@ struct DNSServerEntry: Equatable, Hashable {
 struct PreferencesViewModel: Equatable {
     private(set) var blockAdvertising: Bool
     private(set) var blockTracking: Bool
+    private(set) var blockMalware: Bool
     private(set) var enableCustomDNS: Bool
     var customDNSDomains: [DNSServerEntry]
 
@@ -81,6 +82,11 @@ struct PreferencesViewModel: Equatable {
         enableCustomDNS = false
     }
 
+    mutating func setBlockMalware(_ newValue: Bool) {
+        blockMalware = newValue
+        enableCustomDNS = false
+    }
+
     mutating func setEnableCustomDNS(_ newValue: Bool) {
         blockTracking = false
         blockAdvertising = false
@@ -89,7 +95,7 @@ struct PreferencesViewModel: Equatable {
 
     /// Precondition for enabling Custom DNS.
     var customDNSPrecondition: CustomDNSPrecondition {
-        if blockAdvertising || blockTracking {
+        if blockAdvertising || blockTracking || blockMalware {
             return .conflictsWithOtherSettings
         } else {
             let hasValidDNSDomains = customDNSDomains.contains { entry in
@@ -110,8 +116,9 @@ struct PreferencesViewModel: Equatable {
     }
 
     init(from dnsSettings: DNSSettings = DNSSettings()) {
-        blockAdvertising = dnsSettings.blockAdvertising
-        blockTracking = dnsSettings.blockTracking
+        blockAdvertising = dnsSettings.blockingOptions.contains(.blockAdvertising)
+        blockTracking = dnsSettings.blockingOptions.contains(.blockTracking)
+        blockMalware = dnsSettings.blockingOptions.contains(.blockMalware)
         enableCustomDNS = dnsSettings.enableCustomDNS
         customDNSDomains = dnsSettings.customDNSDomains.map { ipAddress in
             return DNSServerEntry(identifier: UUID(), address: "\(ipAddress)")
@@ -124,6 +131,7 @@ struct PreferencesViewModel: Equatable {
 
         mergedViewModel.blockAdvertising = other.blockAdvertising
         mergedViewModel.blockTracking = other.blockTracking
+        mergedViewModel.blockMalware = other.blockMalware
         mergedViewModel.enableCustomDNS = other.enableCustomDNS
 
         var oldDNSDomains = customDNSDomains
@@ -188,9 +196,21 @@ struct PreferencesViewModel: Equatable {
 
     /// Converts view model into `DNSSettings`.
     func asDNSSettings() -> DNSSettings {
+        var blockingOptions = DNSBlockingOptions()
+        if blockAdvertising {
+            blockingOptions.insert(.blockAdvertising)
+        }
+
+        if blockTracking {
+            blockingOptions.insert(.blockTracking)
+        }
+
+        if blockMalware {
+            blockingOptions.insert(.blockMalware)
+        }
+
         var dnsSettings = DNSSettings()
-        dnsSettings.blockAdvertising = blockAdvertising
-        dnsSettings.blockTracking = blockTracking
+        dnsSettings.blockingOptions = blockingOptions
         dnsSettings.enableCustomDNS = enableCustomDNS
         dnsSettings.customDNSDomains = customDNSDomains.compactMap { entry in
             return AnyIPAddress(entry.address)
