@@ -124,7 +124,7 @@ class TunnelManager: TunnelManagerStateDelegate
         timer.setEventHandler { [weak self] in
             guard let self = self else { return }
 
-            self.rotatePrivateKey { rotationResult, error in
+            _ = self.rotatePrivateKey { rotationResult, error in
                 self.stateQueue.async {
                     if let scheduleDate = self.handlePrivateKeyRotationCompletion(result: rotationResult, error: error) {
                         guard self.isRunningPeriodicPrivateKeyRotation else { return }
