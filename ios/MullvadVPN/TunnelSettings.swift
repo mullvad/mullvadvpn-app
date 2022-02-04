@@ -74,6 +74,9 @@ struct DNSSettings: Codable, Equatable {
     /// Block tracking.
     var blockTracking: Bool = false
 
+    /// Block malware.
+    var blockMalware: Bool = false
+
     /// Enable custom DNS.
     var enableCustomDNS: Bool = false
 
@@ -82,11 +85,11 @@ struct DNSSettings: Codable, Equatable {
 
     /// Effective state of the custom DNS setting.
     var effectiveEnableCustomDNS: Bool {
-        return !blockAdvertising && !blockTracking && enableCustomDNS && !customDNSDomains.isEmpty
+        return !blockAdvertising && !blockTracking && !blockMalware && enableCustomDNS && !customDNSDomains.isEmpty
     }
 
     private enum CodingKeys: String, CodingKey {
-        case blockAdvertising, blockTracking, enableCustomDNS, customDNSDomains
+        case blockAdvertising, blockTracking, blockMalware, enableCustomDNS, customDNSDomains
     }
 
     init() {}
@@ -96,6 +99,11 @@ struct DNSSettings: Codable, Equatable {
 
         blockAdvertising = try container.decode(Bool.self, forKey: .blockAdvertising)
         blockTracking = try container.decode(Bool.self, forKey: .blockTracking)
+
+        // Added in 2022.2
+        if let storedBlockMalware = try container.decodeIfPresent(Bool.self, forKey: .blockMalware) {
+            blockMalware = storedBlockMalware
+        }
 
         if let storedEnableCustomDNS = try container.decodeIfPresent(Bool.self, forKey: .enableCustomDNS) {
             enableCustomDNS = storedEnableCustomDNS
@@ -111,6 +119,7 @@ struct DNSSettings: Codable, Equatable {
 
         try container.encode(blockAdvertising, forKey: .blockAdvertising)
         try container.encode(blockTracking, forKey: .blockTracking)
+        try container.encode(blockMalware, forKey: .blockMalware)
         try container.encode(enableCustomDNS, forKey: .enableCustomDNS)
         try container.encode(customDNSDomains, forKey: .customDNSDomains)
     }
