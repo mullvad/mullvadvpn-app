@@ -27,7 +27,6 @@ use std::{
     time::{Duration, Instant},
 };
 use talpid_types::ErrorExt;
-use tokio::runtime::Handle;
 
 pub use hyper::StatusCode;
 
@@ -98,7 +97,6 @@ pub(crate) struct RequestService<
     command_rx: mpsc::Receiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
-    handle: Handle,
     next_id: u64,
     in_flight_requests: BTreeMap<u64, AbortHandle>,
     proxy_config_provider: T,
@@ -115,16 +113,14 @@ impl<
 {
     /// Constructs a new request service.
     pub async fn new(
-        handle: Handle,
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
         address_cache: AddressCache,
         mut proxy_config_provider: T,
         new_address_callback: F,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> RequestService<T> {
+    ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
-            handle.clone(),
             sni_hostname,
             address_cache.clone(),
             #[cfg(target_os = "android")]
@@ -139,26 +135,26 @@ impl<
         let (command_tx, command_rx) = mpsc::channel(1);
         let client = Client::builder().build(connector);
 
-        Self {
+        let service = Self {
             command_tx,
             command_rx,
             connector_handle,
             client,
-            handle,
             in_flight_requests: BTreeMap::new(),
             next_id: 0,
             proxy_config_provider,
             new_address_callback,
             address_cache,
             api_availability,
-        }
+        };
+        let handle = service.handle();
+        tokio::spawn(service.into_future());
+        handle
     }
 
-    /// Constructs a handle
-    pub fn handle(&self) -> RequestServiceHandle {
+    fn handle(&self) -> RequestServiceHandle {
         RequestServiceHandle {
             tx: self.command_tx.clone(),
-            handle: self.handle.clone(),
         }
     }
 
@@ -204,7 +200,7 @@ impl<
                 };
 
                 self.in_flight_requests.insert(id, abort_handle);
-                self.handle.spawn(future);
+                tokio::spawn(future);
             }
             RequestCommand::RequestFinished(id) => {
                 self.in_flight_requests.remove(&id);
@@ -243,7 +239,7 @@ impl<
         id
     }
 
-    pub async fn into_future(mut self) {
+    async fn into_future(mut self) {
         while let Some(command) = self.command_rx.next().await {
             self.process_command(command).await;
         }
@@ -255,7 +251,6 @@ impl<
 /// A handle to interact with a spawned `RequestService`.
 pub struct RequestServiceHandle {
     tx: mpsc::Sender<RequestCommand>,
-    handle: Handle,
 }
 
 impl RequestServiceHandle {
@@ -277,11 +272,6 @@ impl RequestServiceHandle {
             .map_err(|_| Error::SendError)?;
 
         completion_rx.await.map_err(|_| Error::ReceiveError)?
-    }
-
-    /// Spawns a future on the RPC runtime.
-    pub fn spawn<T: Send + 'static>(&self, future: impl Future<Output = T> + Send + 'static) {
-        let _ = self.handle.spawn(future);
     }
 }
 
@@ -603,7 +593,7 @@ impl MullvadRestHandle {
         let handle = self.clone();
         let availability = self.availability.clone();
 
-        self.service.spawn(async move {
+        tokio::spawn(async move {
             // always start the fetch after 15 minutes
             let api_proxy = crate::ApiProxy::new(handle);
             let mut next_check = Instant::now() + API_IP_CHECK_DELAY;
