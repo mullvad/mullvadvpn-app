@@ -245,30 +245,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        rotatePrivateKeyOperation.addDependency(updateRelaysOperation)
-        rotatePrivateKeyOperation.addDependency(updateAddressCacheOperation)
+        rotatePrivateKeyOperation.addDependencies([updateRelaysOperation, updateAddressCacheOperation])
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "AppDelegate.performFetch") {
             operationQueue.cancelAllOperations()
         }
 
-        rotatePrivateKeyOperation.completionBlock = {
-            DispatchQueue.main.async {
-                let operationResults = [addressCacheFetchResult, relaysFetchResult, rotatePrivateKeyFetchResult].compactMap { $0 }
-                let initialResult = operationResults.first ?? .failed
-                let backgroundFetchResult = operationResults.reduce(initialResult) { partialResult, other in
-                    return partialResult.combine(with: other)
-                }
+        let fetchOperations = [updateAddressCacheOperation, updateRelaysOperation, rotatePrivateKeyOperation]
 
-                self.logger?.info("Finish background refresh with \(backgroundFetchResult)")
-
-                completionHandler(backgroundFetchResult)
-
-                UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
+        let completionOperation = BlockOperation {
+            let operationResults = [addressCacheFetchResult, relaysFetchResult, rotatePrivateKeyFetchResult].compactMap { $0 }
+            let initialResult = operationResults.first ?? .failed
+            let backgroundFetchResult = operationResults.reduce(initialResult) { partialResult, other in
+                return partialResult.combine(with: other)
             }
+
+            self.logger?.info("Finish background refresh with \(backgroundFetchResult)")
+
+            completionHandler(backgroundFetchResult)
+
+            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
 
-        operationQueue.addOperations([updateAddressCacheOperation, updateRelaysOperation, rotatePrivateKeyOperation], waitUntilFinished: false)
+        completionOperation.addDependencies(fetchOperations)
+
+        operationQueue.addOperations(fetchOperations, waitUntilFinished: false)
+        OperationQueue.main.addOperation(completionOperation)
     }
 
     // MARK: - Private
