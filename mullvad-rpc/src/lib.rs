@@ -217,8 +217,7 @@ impl MullvadRpcRuntime {
         new_address_callback: impl (Fn(SocketAddr) -> AcceptedNewEndpoint) + Send + Sync + 'static,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> rest::RequestServiceHandle {
-        let service = rest::RequestService::new(
-            self.handle.clone(),
+        let service_handle = rest::RequestService::new(
             sni_hostname,
             self.api_availability.handle(),
             self.address_cache.clone(),
@@ -228,9 +227,7 @@ impl MullvadRpcRuntime {
             socket_bypass_tx,
         )
         .await;
-        let handle = service.handle();
-        self.handle.spawn(service.into_future());
-        handle
+        service_handle
     }
 
     /// Returns a request factory initialized to create requests for the master API
