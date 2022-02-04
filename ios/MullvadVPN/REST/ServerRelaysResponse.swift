@@ -24,7 +24,7 @@ extension REST {
         let owned: Bool
         let location: String
         let provider: String
-        let weight: Int32
+        let weight: UInt64
         let ipv4AddrIn: IPv4Address
         let ipv6AddrIn: IPv6Address
         let publicKey: Data
