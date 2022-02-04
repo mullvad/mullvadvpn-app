@@ -48,6 +48,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
     private enum Item: Hashable {
         case blockAdvertising
         case blockTracking
+        case blockMalware
         case useCustomDNS
         case addDNSServer
         case dnsServer(_ uniqueID: UUID)
@@ -308,7 +309,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
     private func updateSnapshot() {
         var newSnapshot = DataSourceSnapshot<Section, Item>()
         newSnapshot.appendSections([.mullvadDNS, .customDNS])
-        newSnapshot.appendItems([.blockAdvertising, .blockTracking], in: .mullvadDNS)
+        newSnapshot.appendItems([.blockAdvertising, .blockTracking, .blockMalware], in: .mullvadDNS)
         newSnapshot.appendItems([.useCustomDNS], in: .customDNS)
 
         let dnsServerItems = viewModel.customDNSDomains.map { entry in
@@ -355,6 +356,23 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             cell.setOn(viewModel.blockTracking, animated: false)
             cell.action = { [weak self] isOn in
                 self?.setBlockTracking(isOn)
+            }
+
+            return cell
+
+        case .blockMalware:
+            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue, for: indexPath) as! SettingsSwitchCell
+
+            cell.titleLabel.text = NSLocalizedString(
+                "BLOCK_MALWARE_CELL_LABEL",
+                tableName: "Preferences",
+                value: "Block malware",
+                comment: ""
+            )
+            cell.accessibilityHint = nil
+            cell.setOn(viewModel.blockMalware, animated: false)
+            cell.action = { [weak self] isOn in
+                self?.setBlockMalware(isOn)
             }
 
             return cell
@@ -434,6 +452,20 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         let oldViewModel = viewModel
 
         viewModel.setBlockTracking(isEnabled)
+
+        if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
+            reloadCustomDNSFooter()
+        }
+
+        if !isEditing {
+            delegate?.preferencesDataSource(self, didChangeViewModel: viewModel)
+        }
+    }
+
+    private func setBlockMalware(_ isEnabled: Bool) {
+        let oldViewModel = viewModel
+
+        viewModel.setBlockMalware(isEnabled)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
             reloadCustomDNSFooter()

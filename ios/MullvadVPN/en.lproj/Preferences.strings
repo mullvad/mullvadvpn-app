@@ -5,6 +5,9 @@
 "BLOCK_ADS_CELL_LABEL" = "Block ads";
 
 /* No comment provided by engineer. */
+"BLOCK_MALWARE_CELL_LABEL" = "Block malware";
+
+/* No comment provided by engineer. */
 "BLOCK_TRACKERS_CELL_LABEL" = "Block trackers";
 
 /* No comment provided by engineer. */

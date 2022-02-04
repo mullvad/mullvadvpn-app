@@ -68,6 +68,7 @@ struct DNSServerEntry: Equatable, Hashable {
 struct PreferencesViewModel: Equatable {
     private(set) var blockAdvertising: Bool
     private(set) var blockTracking: Bool
+    private(set) var blockMalware: Bool
     private(set) var enableCustomDNS: Bool
     var customDNSDomains: [DNSServerEntry]
 
@@ -81,6 +82,11 @@ struct PreferencesViewModel: Equatable {
         enableCustomDNS = false
     }
 
+    mutating func setBlockMalware(_ newValue: Bool) {
+        blockMalware = newValue
+        enableCustomDNS = false
+    }
+
     mutating func setEnableCustomDNS(_ newValue: Bool) {
         blockTracking = false
         blockAdvertising = false
@@ -89,7 +95,7 @@ struct PreferencesViewModel: Equatable {
 
     /// Precondition for enabling Custom DNS.
     var customDNSPrecondition: CustomDNSPrecondition {
-        if blockAdvertising || blockTracking {
+        if blockAdvertising || blockTracking || blockMalware {
             return .conflictsWithOtherSettings
         } else {
             let hasValidDNSDomains = customDNSDomains.contains { entry in
@@ -112,6 +118,7 @@ struct PreferencesViewModel: Equatable {
     init(from dnsSettings: DNSSettings = DNSSettings()) {
         blockAdvertising = dnsSettings.blockAdvertising
         blockTracking = dnsSettings.blockTracking
+        blockMalware = dnsSettings.blockMalware
         enableCustomDNS = dnsSettings.enableCustomDNS
         customDNSDomains = dnsSettings.customDNSDomains.map { ipAddress in
             return DNSServerEntry(identifier: UUID(), address: "\(ipAddress)")
@@ -124,6 +131,7 @@ struct PreferencesViewModel: Equatable {
 
         mergedViewModel.blockAdvertising = other.blockAdvertising
         mergedViewModel.blockTracking = other.blockTracking
+        mergedViewModel.blockMalware = other.blockMalware
         mergedViewModel.enableCustomDNS = other.enableCustomDNS
 
         var oldDNSDomains = customDNSDomains
@@ -191,6 +199,7 @@ struct PreferencesViewModel: Equatable {
         var dnsSettings = DNSSettings()
         dnsSettings.blockAdvertising = blockAdvertising
         dnsSettings.blockTracking = blockTracking
+        dnsSettings.blockMalware = blockMalware
         dnsSettings.enableCustomDNS = enableCustomDNS
         dnsSettings.customDNSDomains = customDNSDomains.compactMap { entry in
             return AnyIPAddress(entry.address)
