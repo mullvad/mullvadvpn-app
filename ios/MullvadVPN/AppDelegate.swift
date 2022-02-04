@@ -184,14 +184,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let operationQueue = OperationQueue()
 
         let updateAddressCacheOperation = AsyncBlockOperation { operation in
-            _ = self.addressCacheTracker.updateEndpoints { result in
+            let handle = self.addressCacheTracker.updateEndpoints { result in
                 addressCacheFetchResult = result.backgroundFetchResult
                 operation.finish()
+            }
+
+            operation.addCancellationBlock {
+                handle.cancel()
             }
         }
 
         let updateRelaysOperation = AsyncBlockOperation { operation in
+            var cancellationToken: PromiseCancellationToken?
+
             RelayCache.Tracker.shared.updateRelays()
+                .storeCancellationToken(in: &cancellationToken)
                 .observe { completion in
                     switch completion.unwrappedValue {
                     case .success(let result):
@@ -206,15 +213,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
                     operation.finish()
                 }
+
+            operation.addCancellationBlock {
+                cancellationToken?.cancel()
+            }
         }
 
         let rotatePrivateKeyOperation = AsyncBlockOperation { operation in
-            guard !operation.isCancelled else {
-                operation.finish()
-                return
-            }
-
-            _ = TunnelManager.shared.rotatePrivateKey { rotationResult, error in
+            let handle = TunnelManager.shared.rotatePrivateKey { rotationResult, error in
                 if let error = error {
                     self.logger?.error(chainedError: error, message: "Failed to rotate the key")
 
@@ -232,6 +238,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
 
                 operation.finish()
+            }
+
+            operation.addCancellationBlock {
+                handle.cancel()
             }
         }
 
