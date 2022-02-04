@@ -90,6 +90,9 @@ Line wrap the file at 100 chars.                                              Th
 - Remove auto-launch file, GUI settings and other files created by the app in user directories, when
   uninstalling/purging.
 
+#### Android
+- Fix tile service crash when trying to unbind.
+
 ### Security
 - Restrict which applications are allowed to communicate with the API while in a blocking state.
   This prevents malicious scripts on websites from trying to do so. On Windows, only
