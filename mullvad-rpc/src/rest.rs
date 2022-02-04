@@ -116,7 +116,7 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
         proxy_config_provider
             .next()
             .await
-            .map(|config| connector_handle.set_proxy(config));
+            .map(|config| connector_handle.set_connection_mode(config));
 
         let (command_tx, command_rx) = mpsc::channel(1);
         let client = Client::builder().build(connector);
@@ -195,7 +195,7 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
             }
             RequestCommand::NextApiConfig => {
                 if let Some(new_config) = self.proxy_config_provider.next().await {
-                    self.connector_handle.set_proxy(new_config);
+                    self.connector_handle.set_connection_mode(new_config);
                 }
             }
         }
