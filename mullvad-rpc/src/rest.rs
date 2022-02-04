@@ -27,7 +27,6 @@ use std::{
     time::{Duration, Instant},
 };
 use talpid_types::ErrorExt;
-use tokio::runtime::Handle;
 
 pub use hyper::StatusCode;
 
@@ -89,29 +88,26 @@ impl Error {
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService<T: Stream<Item = ApiConnectionMode> + Unpin> {
+pub(crate) struct RequestService<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> {
     command_tx: mpsc::Sender<RequestCommand>,
     command_rx: mpsc::Receiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
-    handle: Handle,
     next_id: u64,
     in_flight_requests: BTreeMap<u64, AbortHandle>,
     proxy_config_provider: T,
     api_availability: ApiAvailabilityHandle,
 }
 
-impl<T: Stream<Item = ApiConnectionMode> + Unpin> RequestService<T> {
+impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestService<T> {
     /// Constructs a new request service.
     pub async fn new(
-        handle: Handle,
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
         mut proxy_config_provider: T,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> RequestService<T> {
+    ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
-            handle.clone(),
             sni_hostname,
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
@@ -125,24 +121,24 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin> RequestService<T> {
         let (command_tx, command_rx) = mpsc::channel(1);
         let client = Client::builder().build(connector);
 
-        Self {
+        let service = Self {
             command_tx,
             command_rx,
             connector_handle,
             client,
-            handle,
             in_flight_requests: BTreeMap::new(),
             next_id: 0,
             proxy_config_provider,
             api_availability,
-        }
+        };
+        let handle = service.handle();
+        tokio::spawn(service.into_future());
+        handle
     }
 
-    /// Constructs a handle
-    pub fn handle(&self) -> RequestServiceHandle {
+    fn handle(&self) -> RequestServiceHandle {
         RequestServiceHandle {
             tx: self.command_tx.clone(),
-            handle: self.handle.clone(),
         }
     }
 
@@ -188,7 +184,7 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin> RequestService<T> {
                 };
 
                 self.in_flight_requests.insert(id, abort_handle);
-                self.handle.spawn(future);
+                tokio::spawn(future);
             }
             RequestCommand::RequestFinished(id) => {
                 self.in_flight_requests.remove(&id);
@@ -220,7 +216,7 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin> RequestService<T> {
         id
     }
 
-    pub async fn into_future(mut self) {
+    async fn into_future(mut self) {
         while let Some(command) = self.command_rx.next().await {
             self.process_command(command).await;
         }
@@ -232,7 +228,6 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin> RequestService<T> {
 /// A handle to interact with a spawned `RequestService`.
 pub struct RequestServiceHandle {
     tx: mpsc::Sender<RequestCommand>,
-    handle: Handle,
 }
 
 impl RequestServiceHandle {
@@ -254,11 +249,6 @@ impl RequestServiceHandle {
             .map_err(|_| Error::SendError)?;
 
         completion_rx.await.map_err(|_| Error::ReceiveError)?
-    }
-
-    /// Spawns a future on the RPC runtime.
-    pub fn spawn<T: Send + 'static>(&self, future: impl Future<Output = T> + Send + 'static) {
-        let _ = self.handle.spawn(future);
     }
 }
 
@@ -610,7 +600,7 @@ impl MullvadRestHandle {
         let handle = self.clone();
         let availability = self.availability.clone();
 
-        self.service.spawn(async move {
+        tokio::spawn(async move {
             // always start the fetch after 15 minutes
             let api_proxy = crate::ApiProxy::new(handle);
             let mut next_check = Instant::now() + API_IP_CHECK_DELAY;
