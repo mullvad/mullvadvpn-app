@@ -4,7 +4,7 @@ use mullvad_rpc::proxy::ApiConnectionMode;
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
 
-pub(crate) struct ApiProxyRequest {
+pub(crate) struct ApiConnectionModeRequest {
     pub response_tx: oneshot::Sender<ApiConnectionMode>,
     pub retry_attempt: u32,
 }
@@ -13,12 +13,12 @@ pub(crate) struct ApiProxyRequest {
 /// `initial_config` refers to the first config returned by the stream. The daemon is not notified
 /// of this.
 pub(crate) fn create_api_config_provider(
-    daemon_sender: DaemonEventSender<ApiProxyRequest>,
+    daemon_sender: DaemonEventSender<ApiConnectionModeRequest>,
     initial_config: ApiConnectionMode,
 ) -> impl Stream<Item = ApiConnectionMode> + Unpin {
     struct Context {
         attempt: u32,
-        daemon_sender: DaemonEventSender<ApiProxyRequest>,
+        daemon_sender: DaemonEventSender<ApiConnectionModeRequest>,
     }
 
     let ctx = Context {
@@ -33,7 +33,7 @@ pub(crate) fn create_api_config_provider(
                 ctx.attempt = ctx.attempt.wrapping_add(1);
                 let (response_tx, response_rx) = oneshot::channel();
 
-                let _ = ctx.daemon_sender.send(ApiProxyRequest {
+                let _ = ctx.daemon_sender.send(ApiConnectionModeRequest {
                     response_tx,
                     retry_attempt: ctx.attempt,
                 });

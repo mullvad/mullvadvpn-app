@@ -331,7 +331,7 @@ pub(crate) enum InternalDaemonEvent {
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
     /// Request from REST client to use a different API endpoint.
-    GenerateApiProxyConfig(api::ApiProxyRequest),
+    GenerateApiConnectionMode(api::ApiConnectionModeRequest),
     /// Endpoint used to reach the API.
     NewApiEndpoint(SocketAddr),
     /// The split tunnel paths or state were updated.
@@ -363,9 +363,9 @@ impl From<AppVersionInfo> for InternalDaemonEvent {
     }
 }
 
-impl From<api::ApiProxyRequest> for InternalDaemonEvent {
-    fn from(request: api::ApiProxyRequest) -> Self {
-        InternalDaemonEvent::GenerateApiProxyConfig(request)
+impl From<api::ApiConnectionModeRequest> for InternalDaemonEvent {
+    fn from(request: api::ApiConnectionModeRequest) -> Self {
+        InternalDaemonEvent::GenerateApiConnectionMode(request)
     }
 }
 
@@ -925,7 +925,7 @@ where
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info)
             }
-            GenerateApiProxyConfig(request) => {
+            GenerateApiConnectionMode(request) => {
                 self.handle_generate_api_connection_mode(request).await
             }
             NewApiEndpoint(endpoint) => self.handle_new_api_endpoint(endpoint).await,
@@ -1373,7 +1373,10 @@ where
         self.event_listener.notify_app_version(app_version_info);
     }
 
-    async fn handle_generate_api_connection_mode(&mut self, request: api::ApiProxyRequest) {
+    async fn handle_generate_api_connection_mode(
+        &mut self,
+        request: api::ApiConnectionModeRequest,
+    ) {
         let location = self
             .last_generated_entry_relay
             .as_ref()
