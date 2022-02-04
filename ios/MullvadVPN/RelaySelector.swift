@@ -36,16 +36,11 @@ enum RelaySelector {}
 extension RelaySelector {
 
     static func evaluate(relays: REST.ServerRelaysResponse, constraints: RelayConstraints) -> RelaySelectorResult? {
-        let filteredRelays = Self.applyConstraints(constraints, relays: Self.parseRelaysResponse(relays))
-        let totalWeight = filteredRelays.reduce(0) { $0 + $1.relay.weight }
+        let filteredRelays = applyConstraints(constraints, relays: Self.parseRelaysResponse(relays))
 
-        guard totalWeight > 0 else { return nil }
-        guard var i = (0...totalWeight).randomElement() else { return nil }
-
-        let relayWithLocation = filteredRelays.first { (relayWithLocation) -> Bool in
-            i -= relayWithLocation.relay.weight
-            return i <= 0
-        }.unsafelyUnwrapped
+        guard let relayWithLocation = pickRandomRelay(relays: filteredRelays) else {
+            return nil
+        }
 
         guard let port = relays.wireguard.portRanges.randomElement()?.randomElement() else {
             return nil
@@ -91,6 +86,33 @@ extension RelaySelector {
         }.filter { (relayWithLocation) -> Bool in
             return relayWithLocation.relay.active
         }
+    }
+
+    private static func pickRandomRelay(relays: [RelayWithLocation]) -> RelayWithLocation? {
+        let totalWeight = relays.reduce(0) { accummulatedWeight, relayWithLocation in
+            return accummulatedWeight + relayWithLocation.relay.weight
+        }
+
+        // Return random relay when all relays within the list have zero weight.
+        guard totalWeight > 0 else {
+            return relays.randomElement()
+        }
+
+        // Pick a random number in the range 1 - totalWeight. This choses the relay with a
+        // non-zero weight.
+        var i = (1...totalWeight).randomElement()!
+
+        let randomRelay = relays.first { (relayWithLocation) -> Bool in
+            let (result, isOverflow) = i.subtractingReportingOverflow(relayWithLocation.relay.weight)
+
+            i = isOverflow ? 0 : result
+
+            return i == 0
+        }
+
+        precondition(randomRelay != nil, "At least one relay must've had a weight above 0")
+
+        return randomRelay
     }
 
     private static func parseRelaysResponse(_ response: REST.ServerRelaysResponse) -> [RelayWithLocation] {
