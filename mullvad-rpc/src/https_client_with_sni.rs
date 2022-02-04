@@ -1,6 +1,6 @@
 use crate::{
     abortable_stream::{AbortableStream, AbortableStreamHandle},
-    proxy::{ApiConnectionMode, MaybeProxyStream, ProxyConfig},
+    proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
 };
 use futures::{channel::mpsc, future, StreamExt};
@@ -51,21 +51,21 @@ impl HttpsConnectorWithSniHandle {
         let _ = self.tx.unbounded_send(HttpsConnectorRequest::Reset);
     }
 
-    /// Stop all streams produced by this connector
-    pub fn set_proxy(&self, proxy: ApiConnectionMode) {
+    /// Change the proxy settings for the connector
+    pub fn set_connection_mode(&self, proxy: ApiConnectionMode) {
         let _ = self
             .tx
-            .unbounded_send(HttpsConnectorRequest::SetProxy(proxy));
+            .unbounded_send(HttpsConnectorRequest::SetConnectionMode(proxy));
     }
 }
 
 enum HttpsConnectorRequest {
     Reset,
-    SetProxy(ApiConnectionMode),
+    SetConnectionMode(ApiConnectionMode),
 }
 
 #[derive(Clone)]
-enum InnerProxyConfig {
+enum InnerConnectionMode {
     /// Connect directly to the target.
     Direct,
     /// Connect to the destination via a proxy.
@@ -78,14 +78,14 @@ enum ProxyConfigError {
     InvalidCipher(String),
 }
 
-impl TryFrom<ApiConnectionMode> for InnerProxyConfig {
+impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
     type Error = ProxyConfigError;
 
     fn try_from(config: ApiConnectionMode) -> Result<Self, Self::Error> {
         Ok(match config {
-            ApiConnectionMode::Direct => InnerProxyConfig::Direct,
+            ApiConnectionMode::Direct => InnerConnectionMode::Direct,
             ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(config)) => {
-                InnerProxyConfig::Proxied(ServerConfig::new(
+                InnerConnectionMode::Proxied(ServerConfig::new(
                     ServerAddr::SocketAddr(config.peer),
                     config.password,
                     CipherKind::from_str(&config.cipher)
@@ -109,7 +109,7 @@ pub struct HttpsConnectorWithSni {
 
 struct HttpsConnectorWithSniInner {
     stream_handles: Vec<AbortableStreamHandle>,
-    proxy_config: InnerProxyConfig,
+    proxy_config: InnerConnectionMode,
 }
 
 #[cfg(target_os = "android")]
@@ -124,7 +124,7 @@ impl HttpsConnectorWithSni {
         let abort_notify = Arc::new(tokio::sync::Notify::new());
         let inner = Arc::new(Mutex::new(HttpsConnectorWithSniInner {
             stream_handles: vec![],
-            proxy_config: InnerProxyConfig::Direct,
+            proxy_config: InnerConnectionMode::Direct,
         }));
 
         let inner_copy = inner.clone();
@@ -135,8 +135,8 @@ impl HttpsConnectorWithSni {
                 let handles = {
                     let mut inner = inner_copy.lock().unwrap();
 
-                    if let HttpsConnectorRequest::SetProxy(config) = request {
-                        match InnerProxyConfig::try_from(config) {
+                    if let HttpsConnectorRequest::SetConnectionMode(config) = request {
+                        match InnerConnectionMode::try_from(config) {
                             Ok(config) => {
                                 inner.proxy_config = config;
                             }
@@ -235,7 +235,7 @@ impl fmt::Debug for HttpsConnectorWithSni {
 }
 
 impl Service<Uri> for HttpsConnectorWithSni {
-    type Response = AbortableStream<MaybeProxyStream>;
+    type Response = AbortableStream<ApiConnection>;
     type Error = io::Error;
     type Future =
         Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
@@ -280,10 +280,10 @@ impl Service<Uri> for HttpsConnectorWithSni {
                 let socket_bypass_tx_copy = socket_bypass_tx.clone();
 
                 let stream_fut: Pin<
-                    Box<dyn Future<Output = Result<MaybeProxyStream, io::Error>> + Send>,
+                    Box<dyn Future<Output = Result<ApiConnection, io::Error>> + Send>,
                 > = Box::pin(async move {
                     match config {
-                        InnerProxyConfig::Direct => {
+                        InnerConnectionMode::Direct => {
                             let socket = Self::open_socket(
                                 addr_copy,
                                 #[cfg(target_os = "android")]
@@ -292,9 +292,9 @@ impl Service<Uri> for HttpsConnectorWithSni {
                             .await?;
                             let tls_stream =
                                 TlsStream::connect_https(socket, &hostname_copy).await?;
-                            Ok(MaybeProxyStream::Tls(tls_stream))
+                            Ok(ApiConnection::Direct(tls_stream))
                         }
-                        InnerProxyConfig::Proxied(proxy_config) => {
+                        InnerConnectionMode::Proxied(proxy_config) => {
                             let proxy_addr = if let ServerAddr::SocketAddr(sockaddr) =
                                 proxy_config.external_addr()
                             {
@@ -319,7 +319,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                             );
                             let tls_stream =
                                 TlsStream::connect_https(proxy, &hostname_copy).await?;
-                            Ok(MaybeProxyStream::Proxied(tls_stream))
+                            Ok(ApiConnection::Proxied(tls_stream))
                         }
                     }
                 });
