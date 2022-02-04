@@ -291,6 +291,22 @@ struct PacketTunnelConfiguration {
     var selectorResult: RelaySelectorResult
 }
 
+struct DNSBlockingOptions: OptionSet {
+    let rawValue: UInt8
+
+    static let blockAdvertising = DNSBlockingOptions(rawValue: 0b001)
+    static let blockTracking = DNSBlockingOptions(rawValue: 0b010)
+    static let blockMalware = DNSBlockingOptions(rawValue: 0b100)
+
+    var serverAddress: IPv4Address? {
+        if isEmpty {
+            return nil
+        } else {
+            return IPv4Address("100.64.0.\(rawValue)")
+        }
+    }
+}
+
 extension PacketTunnelConfiguration {
     var wgTunnelConfig: TunnelConfiguration {
         let mullvadEndpoint = selectorResult.endpoint
@@ -327,14 +343,23 @@ extension PacketTunnelConfiguration {
                 .prefix(DNSSettings.maxAllowedCustomDNSDomains)
             return Array(dnsServers)
         } else {
-            switch (dnsSettings.blockAdvertising, dnsSettings.blockTracking) {
-            case (true, false):
-                return [IPv4Address("100.64.0.1")!]
-            case (false, true):
-                return [IPv4Address("100.64.0.2")!]
-            case (true, true):
-                return [IPv4Address("100.64.0.3")!]
-            case (false, false):
+            var dnsBlockingOptions: DNSBlockingOptions = []
+
+            if dnsSettings.blockAdvertising {
+                dnsBlockingOptions.insert(.blockAdvertising)
+            }
+
+            if dnsSettings.blockTracking {
+                dnsBlockingOptions.insert(.blockTracking)
+            }
+
+            if dnsSettings.blockMalware {
+                dnsBlockingOptions.insert(.blockMalware)
+            }
+
+            if let serverAddress = dnsBlockingOptions.serverAddress {
+                return [serverAddress]
+            } else {
                 return [mullvadEndpoint.ipv4Gateway, mullvadEndpoint.ipv6Gateway]
             }
         }
