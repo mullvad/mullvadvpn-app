@@ -17,7 +17,10 @@ use winapi::{
     self,
     shared::{
         minwindef::TRUE,
-        winerror::{ERROR_NOT_FOUND, ERROR_OPERATION_ABORTED},
+        winerror::{
+            ERROR_NOT_FOUND, ERROR_OPERATION_ABORTED, ERROR_PATH_NOT_FOUND,
+            ERROR_UNRECOGNIZED_VOLUME,
+        },
     },
     um::{
         fileapi::{GetFileAttributesW, GetFullPathNameW},
@@ -609,14 +612,20 @@ impl PathMonitor {
             let index = self.dir_contexts.len();
             let mut ctx = match DirContext::new(&path.prefix, self.port_handle.clone(), index) {
                 Ok(ctx) => ctx,
-                Err(error) if error.kind() == io::ErrorKind::NotFound => {
-                    log::warn!(
-                        "Not monitoring reparse points on {} since it does not exist",
-                        path.prefix.to_string_lossy()
-                    );
+                Err(error) => {
+                    match error.raw_os_error().map(|code| code as u32) {
+                        Some(ERROR_NOT_FOUND)
+                        | Some(ERROR_PATH_NOT_FOUND)
+                        | Some(ERROR_UNRECOGNIZED_VOLUME) => {
+                            log::trace!(
+                                "Not monitoring reparse points on {} since it does not exist",
+                                path.prefix.to_string_lossy()
+                            );
+                        }
+                        _ => return Err(error),
+                    }
                     continue;
                 }
-                Err(error) => return Err(error),
             };
             ctx.read_directory_changes()?;
             self.dir_contexts.push(ctx);
