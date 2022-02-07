@@ -940,7 +940,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateR
 
 fn log_request_error(request: &str, error: &daemon_interface::Error) {
     match error {
-        daemon_interface::Error::RpcError(RestError::Aborted(_)) => {
+        daemon_interface::Error::RpcError(RestError::Aborted) => {
             log::debug!("Request to {} cancelled", request);
         }
         error => {
