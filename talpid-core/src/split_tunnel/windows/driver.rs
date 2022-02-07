@@ -945,10 +945,16 @@ pub unsafe fn deserialize_buffer<T: Sized>(buffer: &Vec<u8>) -> T {
     instance
 }
 
+/// Inserts a string into `buffer` at a given `byte_offset`.
+///
+/// # Panics
+///
+/// This panics if either `byte_offset` or `byte_offset + 2 * string.len() - 1` is
+/// an out of bounds index for `buffer`.
 fn write_string_to_buffer(buffer: &mut [MaybeUninit<u8>], byte_offset: usize, string: &[u16]) {
     for (i, byte) in string
         .iter()
-        .flat_map(|word| std::array::IntoIter::new(word.to_ne_bytes()))
+        .flat_map(|word| word.to_ne_bytes().into_iter())
         .enumerate()
     {
         buffer[byte_offset + i] = MaybeUninit::new(byte);
