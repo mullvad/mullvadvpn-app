@@ -12,6 +12,10 @@ use std::{
 };
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 
+#[derive(err_derive::Error, Debug)]
+#[error(display = "Stream is closed")]
+pub struct Aborted(());
+
 #[derive(Clone, Debug)]
 pub struct AbortableStreamHandle {
     tx: Arc<Mutex<Option<oneshot::Sender<()>>>>,
@@ -71,7 +75,7 @@ where
         if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
-                "stream is closed",
+                Aborted(()),
             )));
         }
         Pin::new(&mut self.stream).poll_write(cx, buf)
@@ -81,7 +85,7 @@ where
         if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
-                "stream is closed",
+                Aborted(()),
             )));
         }
         Pin::new(&mut self.stream).poll_flush(cx)
@@ -104,7 +108,7 @@ where
         if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
-                "stream is closed",
+                Aborted(()),
             )));
         }
         Pin::new(&mut self.stream).poll_read(cx, buf)
