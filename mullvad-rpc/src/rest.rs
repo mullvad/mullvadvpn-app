@@ -8,7 +8,6 @@ use crate::{
 };
 use futures::{
     channel::{mpsc, oneshot},
-    future::{abortable, AbortHandle, Aborted},
     sink::SinkExt,
     stream::StreamExt,
     Stream, TryFutureExt,
@@ -19,9 +18,7 @@ use hyper::{
     Method, Uri,
 };
 use std::{
-    collections::BTreeMap,
     future::Future,
-    mem,
     net::SocketAddr,
     str::FromStr,
     time::{Duration, Instant},
@@ -45,7 +42,7 @@ const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Request cancelled")]
-    Aborted(Aborted),
+    Aborted,
 
     #[error(display = "Hyper error")]
     HyperError(#[error(source)] hyper::Error),
@@ -84,6 +81,26 @@ impl Error {
             _ => false,
         }
     }
+
+    /// Returns a new instance for which `abortable_stream::Aborted` is mapped to `Self::Aborted`.
+    fn map_aborted(self) -> Self {
+        if let Error::HyperError(error) = &self {
+            use std::error::Error;
+            let mut source = error.source();
+            while let Some(error) = source {
+                let io_error: Option<&std::io::Error> = error.downcast_ref();
+                if let Some(io_error) = io_error {
+                    let abort_error: Option<&crate::abortable_stream::Aborted> =
+                        io_error.get_ref().and_then(|inner| inner.downcast_ref());
+                    if abort_error.is_some() {
+                        return Self::Aborted;
+                    }
+                }
+                source = error.source();
+            }
+        }
+        self
+    }
 }
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
@@ -97,8 +114,6 @@ pub(crate) struct RequestService<
     command_rx: mpsc::Receiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
-    next_id: u64,
-    in_flight_requests: BTreeMap<u64, AbortHandle>,
     proxy_config_provider: T,
     new_address_callback: F,
     address_cache: AddressCache,
@@ -140,8 +155,6 @@ impl<
             command_rx,
             connector_handle,
             client,
-            in_flight_requests: BTreeMap::new(),
-            next_id: 0,
             proxy_config_provider,
             new_address_callback,
             address_cache,
@@ -161,7 +174,6 @@ impl<
     async fn process_command(&mut self, command: RequestCommand) {
         match command {
             RequestCommand::NewRequest(request, completion_tx) => {
-                let id = self.id();
                 let mut tx = self.command_tx.clone();
                 let timeout = request.timeout();
 
@@ -171,18 +183,17 @@ impl<
                 let suspend_fut = api_availability.wait_for_unsuspend();
                 let request_fut = self.client.request(hyper_request).map_err(Error::from);
 
-                let (request_future, abort_handle) = abortable(async move {
+                let request_future = async move {
                     let _ = suspend_fut.await;
                     request_fut.await
-                });
+                };
 
                 let future = async move {
-                    let response =
-                        tokio::time::timeout(timeout, request_future.map_err(Error::Aborted))
-                            .await
-                            .map_err(Error::TimeoutError);
+                    let response = tokio::time::timeout(timeout, request_future)
+                        .await
+                        .map_err(Error::TimeoutError);
 
-                    let response = flatten_result(flatten_result(response));
+                    let response = flatten_result(response).map_err(|error| error.map_aborted());
 
                     if let Err(err) = &response {
                         if err.is_network_error() && !api_availability.get_state().is_offline() {
@@ -196,18 +207,11 @@ impl<
                             "Failed to send response to caller, caller channel is shut down"
                         );
                     }
-                    let _ = tx.send(RequestCommand::RequestFinished(id)).await;
                 };
-
-                self.in_flight_requests.insert(id, abort_handle);
                 tokio::spawn(future);
             }
-            RequestCommand::RequestFinished(id) => {
-                self.in_flight_requests.remove(&id);
-            }
-            RequestCommand::Reset(tx) => {
-                self.reset();
-                let _ = tx.send(());
+            RequestCommand::Reset => {
+                self.connector_handle.reset();
             }
             RequestCommand::NextApiConfig => {
                 if let Some(new_config) = self.proxy_config_provider.next().await {
@@ -224,26 +228,11 @@ impl<
         }
     }
 
-    fn reset(&mut self) {
-        let old_requests = mem::take(&mut self.in_flight_requests);
-        for (_, abort_handle) in old_requests {
-            abort_handle.abort();
-        }
-
-        self.connector_handle.reset();
-    }
-
-    fn id(&mut self) -> u64 {
-        let id = self.next_id;
-        self.next_id = id.wrapping_add(1);
-        id
-    }
-
     async fn into_future(mut self) {
         while let Some(command) = self.command_rx.next().await {
             self.process_command(command).await;
         }
-        self.reset();
+        self.connector_handle.reset();
     }
 }
 
@@ -257,10 +246,7 @@ impl RequestServiceHandle {
     /// Resets the corresponding RequestService, dropping all in-flight requests.
     pub async fn reset(&self) {
         let mut tx = self.tx.clone();
-        let (done_tx, done_rx) = oneshot::channel();
-
-        let _ = tx.send(RequestCommand::Reset(done_tx)).await;
-        let _ = done_rx.await;
+        let _ = tx.send(RequestCommand::Reset).await;
     }
 
     /// Submits a `RestRequest` for exectuion to the request service.
@@ -281,8 +267,7 @@ pub(crate) enum RequestCommand {
         RestRequest,
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
-    RequestFinished(u64),
-    Reset(oneshot::Sender<()>),
+    Reset,
     NextApiConfig,
 }
 
