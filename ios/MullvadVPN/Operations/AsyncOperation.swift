@@ -10,7 +10,6 @@ import Foundation
 
 /// A base implementation of an asynchronous operation
 class AsyncOperation: Operation {
-
     /// A state lock used for manipulating the operation state flags in a thread safe fashion.
     private let stateLock = NSRecursiveLock()
 
@@ -58,22 +57,40 @@ class AsyncOperation: Operation {
     }
 
     final func finish() {
-        stateLock.withCriticalBlock {
-            if _isExecuting {
-               setExecuting(false)
-            }
+        stateLock.lock()
 
-            if !_isFinished {
-                willChangeValue(for: \.isFinished)
-                _isFinished = true
-                didChangeValue(for: \.isFinished)
-            }
+        if _isExecuting {
+           setExecuting(false)
         }
+
+        if !_isFinished {
+            willChangeValue(for: \.isFinished)
+            _isFinished = true
+            didChangeValue(for: \.isFinished)
+
+            stateLock.unlock()
+
+            operationDidFinish()
+        } else {
+            stateLock.unlock()
+        }
+    }
+
+    func operationDidFinish() {
+        // Override in subclasses
     }
 
     private func setExecuting(_ value: Bool) {
         willChangeValue(for: \.isExecuting)
         _isExecuting = value
         didChangeValue(for: \.isExecuting)
+    }
+}
+
+extension Operation {
+    func addDependencies(_ dependencies: [Operation]) {
+        for dependency in dependencies {
+            addDependency(dependency)
+        }
     }
 }

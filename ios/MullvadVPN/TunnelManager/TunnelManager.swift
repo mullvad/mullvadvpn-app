@@ -124,7 +124,7 @@ class TunnelManager: TunnelManagerStateDelegate
         timer.setEventHandler { [weak self] in
             guard let self = self else { return }
 
-            self.rotatePrivateKey { rotationResult, error in
+            _ = self.rotatePrivateKey { rotationResult, error in
                 self.stateQueue.async {
                     if let scheduleDate = self.handlePrivateKeyRotationCompletion(result: rotationResult, error: error) {
                         guard self.isRunningPeriodicPrivateKeyRotation else { return }
@@ -352,7 +352,7 @@ class TunnelManager: TunnelManagerStateDelegate
         operationQueue.addOperation(operation)
     }
 
-    func rotatePrivateKey(completionHandler: @escaping (KeyRotationResult?, TunnelManager.Error?) -> Void) {
+    func rotatePrivateKey(completionHandler: @escaping (KeyRotationResult?, TunnelManager.Error?) -> Void) -> Cancellable {
         let operation = ReplaceKeyOperation.operationForKeyRotation(
             queue: stateQueue,
             state: state,
@@ -399,6 +399,10 @@ class TunnelManager: TunnelManagerStateDelegate
         exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
 
         operationQueue.addOperation(operation)
+
+        return AnyCancellable {
+            operation.cancel()
+        }
     }
 
     func setRelayConstraints(_ newConstraints: RelayConstraints, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
@@ -666,7 +670,7 @@ extension TunnelManager {
     private func handleBackgroundTask(_ task: BGProcessingTask) {
         logger.debug("Start private key rotation task")
 
-        rotatePrivateKey { rotationResult, error in
+        let request = rotatePrivateKey { rotationResult, error in
             if let scheduleDate = self.handlePrivateKeyRotationCompletion(result: rotationResult, error: error) {
                 // Schedule next background task
                 switch self.submitBackgroundTask(at: scheduleDate) {
@@ -683,7 +687,7 @@ extension TunnelManager {
         }
 
         task.expirationHandler = {
-            // TODO: handle cancellation?
+            request.cancel()
         }
     }
 }
