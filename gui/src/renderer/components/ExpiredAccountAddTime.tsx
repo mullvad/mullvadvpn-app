@@ -1,16 +1,16 @@
 import { useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector } from '../redux/store';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 import { links, colors } from '../../config.json';
+import { formatDate } from '../../shared/account-expiry';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { transitions, useHistory } from '../lib/history';
-import { RoutePath } from '../lib/routes';
+import { generateRoutePath, RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
-import { IReduxState } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { bigText } from './common-styles';
@@ -24,6 +24,7 @@ import {
   RedeemVoucherResponse,
   RedeemVoucherSubmitButton,
 } from './RedeemVoucher';
+import { useParams } from 'react-router';
 
 export const StyledHeader = styled(DefaultHeaderBar)({
   flex: 0,
@@ -82,9 +83,13 @@ export const StyledStatusIcon = styled.div({
 export function VoucherInput() {
   const history = useHistory();
 
-  const onSuccess = useCallback(() => {
-    history.push(RoutePath.voucherSuccess);
-  }, [history]);
+  const onSuccess = useCallback(
+    (newExpiry: string, secondsAdded: number) => {
+      const path = generateRoutePath(RoutePath.voucherSuccess, { newExpiry, secondsAdded });
+      history.push(path);
+    },
+    [history],
+  );
 
   const navigateBack = useCallback(() => {
     history.pop();
@@ -119,23 +124,31 @@ export function VoucherInput() {
 }
 
 export function VoucherVerificationSuccess() {
+  const { newExpiry, secondsAdded } = useParams<{ newExpiry: string; secondsAdded: string }>();
+
   return (
-    <TimeAdded title={messages.pgettext('connect-view', 'Voucher was successfully redeemed')} />
+    <TimeAdded
+      newExpiry={newExpiry}
+      secondsAdded={parseInt(secondsAdded)}
+      title={messages.pgettext('connect-view', 'Voucher was successfully redeemed')}
+    />
   );
 }
 
 interface ITimeAddedProps {
   title?: string;
+  newExpiry?: string;
+  secondsAdded?: number;
 }
 
 export function TimeAdded(props: ITimeAddedProps) {
   const history = useHistory();
   const finish = useFinishedCallback();
-  const accountData = useSelector((state: IReduxState) => state.account);
+  const expiry = useSelector((state) => state.account.expiry);
   const isNewAccount = useSelector(
-    (state: IReduxState) =>
-      state.account.status.type === 'ok' && state.account.status.method === 'new_account',
+    (state) => state.account.status.type === 'ok' && state.account.status.method === 'new_account',
   );
+  const locale = useSelector((state) => state.userInterface.locale);
 
   const navigateToSetupFinished = useCallback(() => {
     if (isNewAccount) {
@@ -146,10 +159,8 @@ export function TimeAdded(props: ITimeAddedProps) {
   }, [history, finish]);
 
   const duration =
-    (accountData.expiry &&
-      accountData.previousExpiry &&
-      formatRelativeDate(accountData.expiry, accountData.previousExpiry)) ??
-    '';
+    props.secondsAdded !== undefined ? formatRelativeDate(props.secondsAdded * 1000, 0) : undefined;
+  const newExpiry = formatDate(props.newExpiry ?? expiry!, locale);
 
   return (
     <Layout>
@@ -164,7 +175,17 @@ export function TimeAdded(props: ITimeAddedProps) {
               {props.title ?? messages.pgettext('connect-view', 'Time was successfully added')}
             </StyledTitle>
             <StyledLabel>
-              {sprintf(messages.gettext('%(duration)s was added to your account.'), { duration })}
+              {duration
+                ? sprintf(
+                    messages.gettext('%(duration)s was added, account paid until %(expiry)s.'),
+                    {
+                      duration,
+                      expiry: newExpiry,
+                    },
+                  )
+                : sprintf(messages.gettext('Account paid until %(expiry)s.'), {
+                    expiry: newExpiry,
+                  })}
             </StyledLabel>
           </StyledBody>
 
@@ -238,10 +259,9 @@ export function SetupFinished() {
 
 function HeaderBar() {
   const isNewAccount = useSelector(
-    (state: IReduxState) =>
-      state.account.status.type === 'ok' && state.account.status.method === 'new_account',
+    (state) => state.account.status.type === 'ok' && state.account.status.method === 'new_account',
   );
-  const tunnelState = useSelector((state: IReduxState) => state.connection.status);
+  const tunnelState = useSelector((state) => state.connection.status);
   const headerBarStyle = isNewAccount
     ? HeaderBarStyle.default
     : calculateHeaderBarStyle(tunnelState);
@@ -254,8 +274,7 @@ function useFinishedCallback() {
 
   const history = useHistory();
   const isNewAccount = useSelector(
-    (state: IReduxState) =>
-      state.account.status.type === 'ok' && state.account.status.method === 'new_account',
+    (state) => state.account.status.type === 'ok' && state.account.status.method === 'new_account',
   );
 
   const callback = useCallback(() => {
