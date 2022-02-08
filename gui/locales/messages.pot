@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
-msgid "%(duration)s was added to your account."
+msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr ""
 
 msgid "1 day"
@@ -54,6 +54,9 @@ msgid "a year ago"
 msgid_plural "%d years ago"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "Account paid until %(expiry)s."
+msgstr ""
 
 msgid "an hour ago"
 msgid_plural "%d hours ago"
