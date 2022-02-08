@@ -53,8 +53,8 @@ enum CustomDNSPrecondition {
             return NSAttributedString(markdownString: NSLocalizedString(
                 "CUSTOM_DNS_DISABLE_ADTRACKER_BLOCKING_FOOTNOTE",
                 tableName: "Preferences",
-                value: "Disable **Block ads** and **Block trackers** to activate this setting.",
-                comment: "Foot note displayed when custom DNS cannot be enabled, because ad/tracker blockers features should be disabled first."
+                value: "Disable **Block ads**, **Block trackers** and **Block malware** to activate this setting.",
+                comment: "Foot note displayed when custom DNS cannot be enabled, because ad/tracker/malware blockers features should be disabled first."
             ), font: preferredFont)
         }
     }

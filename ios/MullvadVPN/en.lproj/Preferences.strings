@@ -13,8 +13,8 @@
 /* No comment provided by engineer. */
 "CUSTOM_DNS_CELL_LABEL" = "Use custom DNS";
 
-/* Foot note displayed when custom DNS cannot be enabled, because ad/tracker blockers features should be disabled first. */
-"CUSTOM_DNS_DISABLE_ADTRACKER_BLOCKING_FOOTNOTE" = "Disable **Block ads** and **Block trackers** to activate this setting.";
+/* Foot note displayed when custom DNS cannot be enabled, because ad/tracker/malware blockers features should be disabled first. */
+"CUSTOM_DNS_DISABLE_ADTRACKER_BLOCKING_FOOTNOTE" = "Disable **Block ads**, **Block trackers** and **Block malware** to activate this setting.";
 
 /* Foot note displayed if there are no DNS entries, but table view is not in editing mode. */
 "CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_OFF_FOOTNOTE" = "Tap **Edit** to add at least one DNS server.";
