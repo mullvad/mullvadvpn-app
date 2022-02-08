@@ -69,7 +69,20 @@ enum InnerConnectionMode {
     /// Connect directly to the target.
     Direct,
     /// Connect to the destination via a proxy.
-    Proxied(ServerConfig),
+    Proxied(ParsedShadowsocksConfig),
+}
+
+#[derive(Clone)]
+struct ParsedShadowsocksConfig {
+    peer: SocketAddr,
+    password: String,
+    cipher: CipherKind,
+}
+
+impl From<ParsedShadowsocksConfig> for ServerConfig {
+    fn from(config: ParsedShadowsocksConfig) -> Self {
+        ServerConfig::new(config.peer, config.password, config.cipher)
+    }
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -85,12 +98,12 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
         Ok(match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
             ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(config)) => {
-                InnerConnectionMode::Proxied(ServerConfig::new(
-                    ServerAddr::SocketAddr(config.peer),
-                    config.password,
-                    CipherKind::from_str(&config.cipher)
+                InnerConnectionMode::Proxied(ParsedShadowsocksConfig {
+                    peer: config.peer,
+                    password: config.password,
+                    cipher: CipherKind::from_str(&config.cipher)
                         .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
-                ))
+                })
             }
         })
     }
@@ -295,18 +308,8 @@ impl Service<Uri> for HttpsConnectorWithSni {
                             Ok(ApiConnection::Direct(tls_stream))
                         }
                         InnerConnectionMode::Proxied(proxy_config) => {
-                            let proxy_addr = if let ServerAddr::SocketAddr(sockaddr) =
-                                proxy_config.external_addr()
-                            {
-                                *sockaddr
-                            } else {
-                                return Err(io::Error::new(
-                                    io::ErrorKind::InvalidInput,
-                                    "proxy address must be socket address",
-                                ));
-                            };
                             let socket = Self::open_socket(
-                                proxy_addr,
+                                proxy_config.peer,
                                 #[cfg(target_os = "android")]
                                 socket_bypass_tx_copy,
                             )
@@ -314,7 +317,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                             let proxy = ProxyClientStream::from_stream(
                                 context,
                                 socket,
-                                &proxy_config,
+                                &ServerConfig::from(proxy_config),
                                 addr,
                             );
                             let tls_stream =
