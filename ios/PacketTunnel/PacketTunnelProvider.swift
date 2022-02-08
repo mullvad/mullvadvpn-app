@@ -327,14 +327,9 @@ extension PacketTunnelConfiguration {
                 .prefix(DNSSettings.maxAllowedCustomDNSDomains)
             return Array(dnsServers)
         } else {
-            switch (dnsSettings.blockAdvertising, dnsSettings.blockTracking) {
-            case (true, false):
-                return [IPv4Address("100.64.0.1")!]
-            case (false, true):
-                return [IPv4Address("100.64.0.2")!]
-            case (true, true):
-                return [IPv4Address("100.64.0.3")!]
-            case (false, false):
+            if let serverAddress = dnsSettings.blockingOptions.serverAddress {
+                return [serverAddress]
+            } else {
                 return [mullvadEndpoint.ipv4Gateway, mullvadEndpoint.ipv6Gateway]
             }
         }

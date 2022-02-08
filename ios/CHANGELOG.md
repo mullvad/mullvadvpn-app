@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Show privacy overlay when entering app switcher.
+- Add option to block malware.
 
 ### Fixed
 - Fix crash occurring after completing in-app purchase.
