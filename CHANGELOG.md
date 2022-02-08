@@ -75,6 +75,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix notifications on Windows not showing if window is unpinned and hidden.
 - Wait for IP interfaces to arrive before trying to configure them when using wireguard-nt.
 
+#### Android
+- Fix tile service crash when trying to unbind.
+
 ### Security
 - Restrict which applications are allowed to communicate with the API while in a blocking state.
   This prevents malicious scripts on websites from trying to do so. On Windows, only
