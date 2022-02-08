@@ -2,8 +2,6 @@ use super::{
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
 };
-#[cfg(windows)]
-use crate::routing;
 #[cfg(not(windows))]
 use crate::tunnel::tun_provider::TunProvider;
 use crate::tunnel::wireguard::logging::{
@@ -43,6 +41,9 @@ type Result<T> = std::result::Result<T, TunnelError>;
 use crate::winnet;
 
 #[cfg(not(target_os = "windows"))]
+use std::sync::{Arc, Mutex};
+
+#[cfg(not(target_os = "windows"))]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 struct LoggingContext(u32);
@@ -73,7 +74,7 @@ impl WgGoTunnel {
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        tun_provider: &mut TunProvider,
+        tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
         #[cfg_attr(not(target_os = "android"), allow(unused_mut))]
@@ -114,12 +115,13 @@ impl WgGoTunnel {
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        route_manager: &mut routing::RouteManager,
         mut done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Self> {
-        let route_callback_handle = route_manager
-            .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ())
-            .ok();
+        let route_callback_handle = winnet::add_default_route_change_callback(
+            Some(WgGoTunnel::default_route_changed_callback),
+            (),
+        )
+        .ok();
         if route_callback_handle.is_none() {
             log::warn!("Failed to register default route callback");
         }
@@ -275,12 +277,14 @@ impl WgGoTunnel {
 
     #[cfg(not(target_os = "windows"))]
     fn get_tunnel(
-        tun_provider: &mut TunProvider,
+        tun_provider: Arc<Mutex<TunProvider>>,
         config: &Config,
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<(Tun, RawFd)> {
         let mut last_error = None;
         let tunnel_config = Self::create_tunnel_config(config, routes);
+
+        let mut tun_provider = tun_provider.lock().unwrap();
 
         for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
             let tunnel_device = tun_provider

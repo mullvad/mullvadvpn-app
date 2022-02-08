@@ -3,13 +3,8 @@ use super::{
     EventConsequence, EventResult, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver,
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use crate::tunnel::CloseHandle;
-use futures::{future::FusedFuture, StreamExt};
-use std::thread;
-use talpid_types::{
-    tunnel::{ActionAfterDisconnect, ErrorStateCause},
-    ErrorExt,
-};
+use futures::{channel::oneshot, future::FusedFuture, StreamExt};
+use talpid_types::tunnel::{ActionAfterDisconnect, ErrorStateCause};
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.
@@ -175,23 +170,13 @@ impl DisconnectingState {
 }
 
 impl TunnelState for DisconnectingState {
-    type Bootstrap = (Option<CloseHandle>, TunnelCloseEvent, AfterDisconnect);
+    type Bootstrap = (oneshot::Sender<()>, TunnelCloseEvent, AfterDisconnect);
 
     fn enter(
         _: &mut SharedTunnelStateValues,
-        (close_handle, tunnel_close_event, after_disconnect): Self::Bootstrap,
+        (tunnel_close_tx, tunnel_close_event, after_disconnect): Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        if let Some(close_handle) = close_handle {
-            thread::spawn(move || {
-                if let Err(error) = close_handle.close() {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to close the tunnel")
-                    );
-                }
-            });
-        }
-
+        let _ = tunnel_close_tx.send(());
         let action_after_disconnect = after_disconnect.action();
 
         (

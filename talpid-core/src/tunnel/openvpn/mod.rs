@@ -1,6 +1,6 @@
 use super::TunnelEvent;
 #[cfg(target_os = "linux")]
-use crate::routing::RequiredRoute;
+use crate::routing::{self, RequiredRoute};
 use crate::{
     mktemp,
     process::{
@@ -8,8 +8,8 @@ use crate::{
         stoppable_process::StoppableProcess,
     },
     proxy::{self, ProxyMonitor, ProxyResourceData},
-    routing,
 };
+use futures::channel::oneshot;
 #[cfg(windows)]
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
@@ -64,11 +64,6 @@ pub enum Error {
     /// Failed to initialize the tokio runtime.
     #[error(display = "Failed to initialize the tokio runtime")]
     RuntimeError(#[error(source)] io::Error),
-
-    /// Failed to set up routing.
-    #[cfg(target_os = "linux")]
-    #[error(display = "Failed to setup routing")]
-    SetupRoutingError(#[error(source)] routing::Error),
 
     /// Unable to start, wait for or kill the OpenVPN process.
     #[error(display = "Error in OpenVPN process management: {}", _0)]
@@ -254,8 +249,8 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         params: &openvpn::TunnelParameters,
         log_path: Option<PathBuf>,
         resource_dir: &Path,
-        #[cfg(target_os = "linux")] route_manager: &mut routing::RouteManager,
-        #[cfg(not(target_os = "linux"))] _route_manager: &mut routing::RouteManager,
+        tunnel_close_rx: oneshot::Receiver<()>,
+        #[cfg(target_os = "linux")] route_manager: routing::RouteManagerHandle,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -323,8 +318,6 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
         #[cfg(target_os = "linux")]
         let ipv6_enabled = params.generic_options.enable_ipv6;
-        #[cfg(target_os = "linux")]
-        let route_manager_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
 
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
 
@@ -338,7 +331,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 proxy_auth_file_path: proxy_auth_file_path.clone(),
                 abort_server_tx: event_server_abort_tx,
                 #[cfg(target_os = "linux")]
-                route_manager_handle,
+                route_manager_handle: route_manager,
                 #[cfg(target_os = "linux")]
                 ipv6_enabled,
             },
@@ -347,6 +340,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             user_pass_file,
             proxy_auth_file,
             proxy_monitor,
+            tunnel_close_rx,
             #[cfg(windows)]
             Box::new(WintunContextImpl {
                 adapter: wintun_adapter,
@@ -379,6 +373,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         user_pass_file: mktemp::TempFile,
         proxy_auth_file: Option<mktemp::TempFile>,
         proxy_monitor: Option<Box<dyn ProxyMonitor>>,
+        tunnel_close_rx: oneshot::Receiver<()>,
         #[cfg(windows)] wintun: Box<dyn WintunContext>,
     ) -> Result<OpenVpnMonitor<C>>
     where
@@ -424,7 +419,9 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         ));
         let spawn_task = runtime.spawn(spawn_task);
 
-        Ok(OpenVpnMonitor {
+        let handle = runtime.handle().clone();
+
+        let monitor = OpenVpnMonitor {
             spawn_task: Some(spawn_task),
             abort_spawn,
             child: Arc::new(Mutex::new(None)),
@@ -439,7 +436,25 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
             #[cfg(windows)]
             _wintun: wintun,
-        })
+        };
+
+        let close_handle = monitor.close_handle();
+        handle.spawn(async move {
+            if tunnel_close_rx.await.is_ok() {
+                tokio::task::spawn_blocking(move || {
+                    if let Err(error) = close_handle.close() {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to close the tunnel")
+                        );
+                    }
+                })
+                .await
+                .expect("close handle panic");
+            }
+        });
+
+        Ok(monitor)
     }
 
     async fn prepare_process(
@@ -457,7 +472,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
     /// Creates a handle to this monitor, allowing the tunnel to be closed while some other
     /// thread is blocked in `wait`.
-    pub fn close_handle(&self) -> OpenVpnCloseHandle<C::ProcessHandle> {
+    fn close_handle(&self) -> OpenVpnCloseHandle<C::ProcessHandle> {
         OpenVpnCloseHandle {
             child: self.child.clone(),
             abort_spawn: self.abort_spawn.clone(),
@@ -1212,6 +1227,7 @@ mod tests {
     fn sets_plugin() {
         let builder = TestOpenVpnBuilder::default();
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
+        let (_close_tx, close_rx) = oneshot::channel();
         let _ = OpenVpnMonitor::new_internal(
             builder.clone(),
             event_server_abort_tx,
@@ -1222,6 +1238,7 @@ mod tests {
             TempFile::new(),
             None,
             None,
+            close_rx,
             #[cfg(windows)]
             Box::new(TestWintunContext {}),
         );
@@ -1235,6 +1252,7 @@ mod tests {
     fn sets_log() {
         let builder = TestOpenVpnBuilder::default();
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
+        let (_close_tx, close_rx) = oneshot::channel();
         let _ = OpenVpnMonitor::new_internal(
             builder.clone(),
             event_server_abort_tx,
@@ -1245,6 +1263,7 @@ mod tests {
             TempFile::new(),
             None,
             None,
+            close_rx,
             #[cfg(windows)]
             Box::new(TestWintunContext {}),
         );
@@ -1259,6 +1278,7 @@ mod tests {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(0));
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
+        let (_close_tx, close_rx) = oneshot::channel();
         let testee = OpenVpnMonitor::new_internal(
             builder,
             event_server_abort_tx,
@@ -1269,6 +1289,7 @@ mod tests {
             TempFile::new(),
             None,
             None,
+            close_rx,
             #[cfg(windows)]
             Box::new(TestWintunContext {}),
         )
@@ -1281,6 +1302,7 @@ mod tests {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(1));
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
+        let (_close_tx, close_rx) = oneshot::channel();
         let testee = OpenVpnMonitor::new_internal(
             builder,
             event_server_abort_tx,
@@ -1291,6 +1313,7 @@ mod tests {
             TempFile::new(),
             None,
             None,
+            close_rx,
             #[cfg(windows)]
             Box::new(TestWintunContext {}),
         )
@@ -1303,6 +1326,7 @@ mod tests {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(1));
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
+        let (_close_tx, close_rx) = oneshot::channel();
         let testee = OpenVpnMonitor::new_internal(
             builder,
             event_server_abort_tx,
@@ -1313,6 +1337,7 @@ mod tests {
             TempFile::new(),
             None,
             None,
+            close_rx,
             #[cfg(windows)]
             Box::new(TestWintunContext {}),
         )
@@ -1325,6 +1350,7 @@ mod tests {
     fn failed_process_start() {
         let builder = TestOpenVpnBuilder::default();
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
+        let (_close_tx, close_rx) = oneshot::channel();
         let result = OpenVpnMonitor::new_internal(
             builder,
             event_server_abort_tx,
@@ -1335,6 +1361,7 @@ mod tests {
             TempFile::new(),
             None,
             None,
+            close_rx,
             #[cfg(windows)]
             Box::new(TestWintunContext {}),
         )

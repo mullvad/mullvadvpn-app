@@ -5,7 +5,7 @@ use super::{
 };
 use crate::{
     firewall::FirewallPolicy,
-    tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
+    tunnel::{TunnelEvent, TunnelMetadata},
 };
 use cfg_if::cfg_if;
 use futures::{
@@ -33,7 +33,7 @@ pub struct ConnectedStateBootstrap {
     pub tunnel_events: TunnelEventsReceiver,
     pub tunnel_parameters: TunnelParameters,
     pub tunnel_close_event: TunnelCloseEvent,
-    pub close_handle: Option<CloseHandle>,
+    pub tunnel_close_tx: oneshot::Sender<()>,
 }
 
 /// The tunnel is up and working.
@@ -42,7 +42,7 @@ pub struct ConnectedState {
     tunnel_events: TunnelEventsReceiver,
     tunnel_parameters: TunnelParameters,
     tunnel_close_event: TunnelCloseEvent,
-    close_handle: Option<CloseHandle>,
+    tunnel_close_tx: oneshot::Sender<()>,
 }
 
 impl ConnectedState {
@@ -52,7 +52,7 @@ impl ConnectedState {
             tunnel_events: bootstrap.tunnel_events,
             tunnel_parameters: bootstrap.tunnel_parameters,
             tunnel_close_event: bootstrap.tunnel_close_event,
-            close_handle: bootstrap.close_handle,
+            tunnel_close_tx: bootstrap.tunnel_close_tx,
         }
     }
 
@@ -173,7 +173,11 @@ impl ConnectedState {
 
         EventConsequence::NewState(DisconnectingState::enter(
             shared_values,
-            (self.close_handle, self.tunnel_close_event, after_disconnect),
+            (
+                self.tunnel_close_tx,
+                self.tunnel_close_event,
+                after_disconnect,
+            ),
         ))
     }
 
@@ -328,7 +332,7 @@ impl TunnelState for ConnectedState {
             DisconnectingState::enter(
                 shared_values,
                 (
-                    connected_state.close_handle,
+                    connected_state.tunnel_close_tx,
                     connected_state.tunnel_close_event,
                     AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
                 ),
@@ -338,7 +342,7 @@ impl TunnelState for ConnectedState {
             DisconnectingState::enter(
                 shared_values,
                 (
-                    connected_state.close_handle,
+                    connected_state.tunnel_close_tx,
                     connected_state.tunnel_close_event,
                     AfterDisconnect::Block(ErrorStateCause::SetDnsError),
                 ),
