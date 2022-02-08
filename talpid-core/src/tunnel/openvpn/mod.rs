@@ -1,6 +1,6 @@
 use super::TunnelEvent;
 #[cfg(target_os = "linux")]
-use crate::routing::RequiredRoute;
+use crate::routing::{self, RequiredRoute};
 use crate::{
     mktemp,
     process::{
@@ -64,11 +64,6 @@ pub enum Error {
     /// Failed to initialize the tokio runtime.
     #[error(display = "Failed to initialize the tokio runtime")]
     RuntimeError(#[error(source)] io::Error),
-
-    /// Failed to set up routing.
-    #[cfg(target_os = "linux")]
-    #[error(display = "Failed to setup routing")]
-    SetupRoutingError(#[error(source)] routing::Error),
 
     /// Unable to start, wait for or kill the OpenVPN process.
     #[error(display = "Error in OpenVPN process management: {}", _0)]
@@ -255,7 +250,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         log_path: Option<PathBuf>,
         resource_dir: &Path,
         tunnel_close_rx: oneshot::Receiver<()>,
-        #[cfg(target_os = "linux")] route_manager: &mut routing::RouteManager,
+        #[cfg(target_os = "linux")] route_manager: routing::RouteManagerHandle,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -323,8 +318,6 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
         #[cfg(target_os = "linux")]
         let ipv6_enabled = params.generic_options.enable_ipv6;
-        #[cfg(target_os = "linux")]
-        let route_manager_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
 
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
 
@@ -338,7 +331,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 proxy_auth_file_path: proxy_auth_file_path.clone(),
                 abort_server_tx: event_server_abort_tx,
                 #[cfg(target_os = "linux")]
-                route_manager_handle,
+                route_manager_handle: route_manager,
                 #[cfg(target_os = "linux")]
                 ipv6_enabled,
             },
@@ -448,12 +441,16 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         let close_handle = monitor.close_handle();
         handle.spawn(async move {
             if tunnel_close_rx.await.is_ok() {
-                if let Err(error) = close_handle.close() {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to close the tunnel")
-                    );
-                }
+                tokio::task::spawn_blocking(move || {
+                    if let Err(error) = close_handle.close() {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to close the tunnel")
+                        );
+                    }
+                })
+                .await
+                .expect("close handle panic");
             }
         });
 

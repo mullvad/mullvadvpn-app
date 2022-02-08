@@ -16,6 +16,7 @@ use futures::{
 };
 use std::{
     path::{Path, PathBuf},
+    sync::{Arc, Mutex},
     thread,
     time::{Duration, Instant},
 };
@@ -93,10 +94,10 @@ impl ConnectingState {
         parameters: TunnelParameters,
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
-        tun_provider: &mut TunProvider,
+        tun_provider: Arc<Mutex<TunProvider>>,
         route_manager: &mut RouteManager,
         retry_attempt: u32,
-    ) -> crate::tunnel::Result<Self> {
+    ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();
         let on_tunnel_event =
             move |event| -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
@@ -107,46 +108,86 @@ impl ConnectingState {
                 })
             };
 
+        let route_manager_handle = route_manager.handle();
+        let log_dir = log_dir.clone();
+        let resource_dir = resource_dir.to_path_buf();
+
         let (tunnel_close_tx, tunnel_close_rx) = oneshot::channel();
-        let monitor = TunnelMonitor::start(
-            runtime,
-            &parameters,
-            log_dir,
-            resource_dir,
-            on_tunnel_event,
-            tun_provider,
-            route_manager,
-            retry_attempt,
-            tunnel_close_rx,
-        )?;
-        let tunnel_close_event =
-            Self::spawn_tunnel_monitor_wait_thread(Some(monitor), retry_attempt);
-
-        Ok(ConnectingState {
-            tunnel_events: event_rx.fuse(),
-            tunnel_parameters: parameters,
-            tunnel_metadata: None,
-            tunnel_close_event,
-            tunnel_close_tx,
-            retry_attempt,
-        })
-    }
-
-    fn spawn_tunnel_monitor_wait_thread(
-        tunnel_monitor: Option<TunnelMonitor>,
-        retry_attempt: u32,
-    ) -> TunnelCloseEvent {
         let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
 
-        thread::spawn(move || {
+        let tunnel_parameters = parameters.clone();
+
+        tokio::task::spawn_blocking(move || {
             let start = Instant::now();
 
-            let block_reason = if let Some(monitor) = tunnel_monitor {
-                let reason = Self::wait_for_tunnel_monitor(monitor, retry_attempt);
-                log::debug!("Tunnel monitor exited with block reason: {:?}", reason);
-                reason
-            } else {
-                None
+            let route_manager_handle = match route_manager_handle {
+                Ok(handle) => handle,
+                Err(error) => {
+                    if tunnel_close_event_tx
+                        .send(Some(ErrorStateCause::StartTunnelError))
+                        .is_err()
+                    {
+                        log::warn!(
+                            "Tunnel state machine stopped before receiving tunnel closed event"
+                        );
+                    }
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to obtain route monitor handle")
+                    );
+                    return;
+                }
+            };
+
+            let block_reason = match TunnelMonitor::start(
+                runtime,
+                &tunnel_parameters,
+                &log_dir,
+                &resource_dir,
+                on_tunnel_event,
+                tun_provider,
+                route_manager_handle,
+                retry_attempt,
+                tunnel_close_rx,
+            ) {
+                Ok(monitor) => {
+                    let reason = Self::wait_for_tunnel_monitor(monitor, retry_attempt);
+                    log::debug!("Tunnel monitor exited with block reason: {:?}", reason);
+                    reason
+                }
+                Err(error) if should_retry(&error, retry_attempt) => {
+                    log::warn!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Retrying to connect after failing to start tunnel"
+                        )
+                    );
+                    None
+                }
+                Err(error) => {
+                    log::error!("{}", error.display_chain_with_msg("Failed to start tunnel"));
+                    let block_reason = match error {
+                        tunnel::Error::EnableIpv6Error => ErrorStateCause::Ipv6Unavailable,
+                        #[cfg(target_os = "android")]
+                        tunnel::Error::WireguardTunnelMonitoringError(
+                            tunnel::wireguard::Error::TunnelError(
+                                tunnel::wireguard::TunnelError::SetupTunnelDeviceError(
+                                    tun_provider::Error::PermissionDenied,
+                                ),
+                            ),
+                        ) => ErrorStateCause::VpnPermissionDenied,
+                        #[cfg(target_os = "android")]
+                        tunnel::Error::WireguardTunnelMonitoringError(
+                            tunnel::wireguard::Error::TunnelError(
+                                tunnel::wireguard::TunnelError::SetupTunnelDeviceError(
+                                    tun_provider::Error::InvalidDnsServers(addresses),
+                                ),
+                            ),
+                        ) => ErrorStateCause::InvalidDnsServers(addresses),
+                        _ => ErrorStateCause::StartTunnelError,
+                    };
+                    Some(block_reason)
+                }
             };
 
             if block_reason.is_none() {
@@ -162,7 +203,14 @@ impl ConnectingState {
             log::trace!("Tunnel monitor thread exit");
         });
 
-        tunnel_close_event_rx.fuse()
+        ConnectingState {
+            tunnel_events: event_rx.fuse(),
+            tunnel_parameters: parameters,
+            tunnel_metadata: None,
+            tunnel_close_event: tunnel_close_event_rx.fuse(),
+            tunnel_close_tx,
+            retry_attempt,
+        }
     }
 
     fn wait_for_tunnel_monitor(
@@ -524,69 +572,20 @@ impl TunnelState for ConnectingState {
                         }
                     }
 
-                    match Self::start_tunnel(
+                    let connecting_state = Self::start_tunnel(
                         shared_values.runtime.clone(),
                         tunnel_parameters,
                         &shared_values.log_dir,
                         &shared_values.resource_dir,
-                        &mut shared_values.tun_provider,
+                        shared_values.tun_provider.clone(),
                         &mut shared_values.route_manager,
                         retry_attempt,
-                    ) {
-                        Ok(connecting_state) => {
-                            let params = connecting_state.tunnel_parameters.clone();
-                            (
-                                TunnelStateWrapper::from(connecting_state),
-                                TunnelStateTransition::Connecting(params.get_tunnel_endpoint()),
-                            )
-                        }
-                        Err(error) => {
-                            if should_retry(&error, retry_attempt) {
-                                log::warn!(
-                                    "{}",
-                                    error.display_chain_with_msg(
-                                        "Retrying to connect after failing to start tunnel"
-                                    )
-                                );
-                                DisconnectingState::enter(
-                                    shared_values,
-                                    (
-                                        None,
-                                        Self::spawn_tunnel_monitor_wait_thread(None, retry_attempt),
-                                        AfterDisconnect::Reconnect(retry_attempt + 1),
-                                    ),
-                                )
-                            } else {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg("Failed to start tunnel")
-                                );
-                                let block_reason = match error {
-                                    tunnel::Error::EnableIpv6Error => {
-                                        ErrorStateCause::Ipv6Unavailable
-                                    }
-                                    #[cfg(target_os = "android")]
-                                    tunnel::Error::WireguardTunnelMonitoringError(
-                                        tunnel::wireguard::Error::TunnelError(
-                                            tunnel::wireguard::TunnelError::SetupTunnelDeviceError(
-                                                tun_provider::Error::PermissionDenied,
-                                            ),
-                                        ),
-                                    ) => ErrorStateCause::VpnPermissionDenied,
-                                    #[cfg(target_os = "android")]
-                                    tunnel::Error::WireguardTunnelMonitoringError(
-                                        tunnel::wireguard::Error::TunnelError(
-                                            tunnel::wireguard::TunnelError::SetupTunnelDeviceError(
-                                                tun_provider::Error::InvalidDnsServers(addresses),
-                                            ),
-                                        ),
-                                    ) => ErrorStateCause::InvalidDnsServers(addresses),
-                                    _ => ErrorStateCause::StartTunnelError,
-                                };
-                                ErrorState::enter(shared_values, block_reason)
-                            }
-                        }
-                    }
+                    );
+                    let params = connecting_state.tunnel_parameters.clone();
+                    (
+                        TunnelStateWrapper::from(connecting_state),
+                        TunnelStateTransition::Connecting(params.get_tunnel_endpoint()),
+                    )
                 }
             }
         }

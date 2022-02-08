@@ -1,9 +1,10 @@
 use self::tun_provider::TunProvider;
-use crate::{logging, routing::RouteManager};
+use crate::{logging, routing::RouteManagerHandle};
 use futures::channel::oneshot;
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::{Path, PathBuf},
+    sync::{Arc, Mutex},
 };
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
@@ -104,8 +105,8 @@ impl TunnelMonitor {
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
-        tun_provider: &mut TunProvider,
-        route_manager: &mut RouteManager,
+        tun_provider: Arc<Mutex<TunProvider>>,
+        route_manager: RouteManagerHandle,
         retry_attempt: u32,
         tunnel_close_rx: oneshot::Receiver<()>,
     ) -> Result<Self>
@@ -173,8 +174,8 @@ impl TunnelMonitor {
         log: Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
-        tun_provider: &mut TunProvider,
-        route_manager: &mut RouteManager,
+        tun_provider: Arc<Mutex<TunProvider>>,
+        route_manager: RouteManagerHandle,
         retry_attempt: u32,
         tunnel_close_rx: oneshot::Receiver<()>,
     ) -> Result<Self>
@@ -209,7 +210,7 @@ impl TunnelMonitor {
         resource_dir: &Path,
         on_event: L,
         tunnel_close_rx: oneshot::Receiver<()>,
-        #[cfg(target_os = "linux")] route_manager: &mut RouteManager,
+        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)

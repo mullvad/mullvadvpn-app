@@ -2,7 +2,7 @@ use self::config::Config;
 #[cfg(not(windows))]
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
-use crate::routing::{self, RequiredRoute};
+use crate::routing::{self, RequiredRoute, RouteManagerHandle};
 #[cfg(windows)]
 use futures::{channel::mpsc, StreamExt};
 use futures::{channel::oneshot, future::abortable};
@@ -168,8 +168,8 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         resource_dir: &Path,
         on_event: F,
-        tun_provider: &mut TunProvider,
-        route_manager: &mut routing::RouteManager,
+        tun_provider: Arc<Mutex<TunProvider>>,
+        route_manager: RouteManagerHandle,
         retry_attempt: u32,
         tunnel_close_rx: oneshot::Receiver<()>,
     ) -> Result<WireguardMonitor> {
@@ -195,7 +195,6 @@ impl WireguardMonitor {
             log_path,
             resource_dir,
             tun_provider,
-            route_manager,
             #[cfg(target_os = "windows")]
             setup_done_tx,
         )?;
@@ -224,8 +223,6 @@ impl WireguardMonitor {
             pinger_rx,
         )
         .map_err(Error::ConnectivityMonitorError)?;
-
-        let route_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
 
         let metadata = Self::tunnel_metadata(&iface_name, &config);
 
@@ -259,7 +256,7 @@ impl WireguardMonitor {
                 }
 
                 #[cfg(target_os = "linux")]
-                route_handle
+                route_manager
                     .create_routing_rules(config.enable_ipv6)
                     .await
                     .map_err(Error::SetupRoutingError)?;
@@ -267,7 +264,7 @@ impl WireguardMonitor {
                 let routes = Self::get_in_tunnel_routes(&iface_name, &config)
                     .chain(Self::get_tunnel_traffic_routes(&endpoint_addrs));
 
-                route_handle
+                route_manager
                     .add_routes(routes.collect())
                     .await
                     .map_err(Error::SetupRoutingError)
@@ -321,8 +318,7 @@ impl WireguardMonitor {
         config: &Config,
         log_path: Option<&Path>,
         resource_dir: &Path,
-        tun_provider: &mut TunProvider,
-        route_manager: &mut routing::RouteManager,
+        tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Box<dyn Tunnel>> {
         #[cfg(target_os = "linux")]
@@ -391,8 +387,6 @@ impl WireguardMonitor {
                 tun_provider,
                 #[cfg(not(windows))]
                 Self::get_tunnel_destinations(config),
-                #[cfg(windows)]
-                route_manager,
                 #[cfg(windows)]
                 setup_done_tx,
             )

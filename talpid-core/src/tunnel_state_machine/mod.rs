@@ -30,7 +30,13 @@ use futures::{
 };
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
-use std::{collections::HashSet, io, net::IpAddr, path::PathBuf, sync::Arc};
+use std::{
+    collections::HashSet,
+    io,
+    net::IpAddr,
+    path::PathBuf,
+    sync::{Arc, Mutex},
+};
 #[cfg(target_os = "android")]
 use talpid_types::{android::AndroidContext, ErrorExt};
 use talpid_types::{
@@ -289,7 +295,7 @@ impl TunnelStateMachine {
             dns_servers: settings.dns_servers,
             allowed_endpoint: settings.allowed_endpoint,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
-            tun_provider,
+            tun_provider: Arc::new(Mutex::new(tun_provider)),
             log_dir,
             resource_dir,
             #[cfg(target_os = "linux")]
@@ -378,7 +384,7 @@ struct SharedTunnelStateValues {
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
     /// The provider of tunnel devices.
-    tun_provider: TunProvider,
+    tun_provider: Arc<Mutex<TunProvider>>,
     /// Directory to store tunnel log file.
     log_dir: Option<PathBuf>,
     /// Resource directory path.
