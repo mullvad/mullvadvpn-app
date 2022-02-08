@@ -9,7 +9,7 @@
 import Foundation
 import Logging
 
-func initLoggingSystem(bundleIdentifier: String) {
+func initLoggingSystem(bundleIdentifier: String, metadata: Logger.Metadata? = nil) {
     let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier)!
     let logsDirectoryURL = containerURL.appendingPathComponent("Logs", isDirectory: true)
     let logFileName = "\(bundleIdentifier).log"
@@ -44,7 +44,11 @@ func initLoggingSystem(bundleIdentifier: String) {
         if logHandlers.isEmpty {
             return SwiftLogNoOpLogHandler()
         } else {
-            return MultiplexLogHandler(logHandlers)
+            var multiplex = MultiplexLogHandler(logHandlers)
+            if let metadata = metadata {
+                multiplex.metadata = metadata
+            }
+            return multiplex
         }
     }
 
