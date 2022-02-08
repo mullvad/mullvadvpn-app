@@ -90,14 +90,18 @@ Line wrap the file at 100 chars.                                              Th
 - Remove auto-launch file, GUI settings and other files created by the app in user directories, when
   uninstalling/purging.
 
-#### Android
-- Fix tile service crash when trying to unbind.
 
 ### Security
 - Restrict which applications are allowed to communicate with the API while in a blocking state.
   This prevents malicious scripts on websites from trying to do so. On Windows, only
   `mullvad-problem-report.exe` and `mullvad-daemon.exe` executables are allowed to reach the API,
   whereas on Linux and macOS only root processes are able to reach the API.
+
+
+## [android/2022.1-beta3] - 2022-02-08
+### Fixed
+#### Android
+- Fix app crash caused by quick settings tile.
 
 
 ## [android/2022.1-beta2] - 2022-01-27
