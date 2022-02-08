@@ -10,7 +10,6 @@ import CustomScrollbars, { CustomScrollbarsRef, IScrollEvent } from './CustomScr
 import {
   StyledBackBarItemButton,
   StyledBackBarItemIcon,
-  StyledBackBarItemLabel,
   StyledCloseBarItemButton,
   StyledCloseBarItemIcon,
   StyledNavigationBar,
@@ -208,7 +207,6 @@ export function CloseBarItem(props: ICloseBarItemProps) {
 }
 
 interface IBackBarItemProps {
-  children?: React.ReactText;
   action: () => void;
 }
 
@@ -216,7 +214,6 @@ export function BackBarItem(props: IBackBarItemProps) {
   return (
     <StyledBackBarItemButton onClick={props.action}>
       <StyledBackBarItemIcon source="icon-back" tintColor={colors.white40} />
-      <StyledBackBarItemLabel>{props.children}</StyledBackBarItemLabel>
     </StyledBackBarItemButton>
   );
 }

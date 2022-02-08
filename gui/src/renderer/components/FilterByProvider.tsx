@@ -111,12 +111,7 @@ export default function FilterByProvider() {
         <NavigationContainer>
           <NavigationBar alwaysDisplayBarTitle={true}>
             <NavigationItems>
-              <BackBarItem action={history.pop}>
-                {
-                  // TRANSLATORS: Back button in navigation bar
-                  messages.pgettext('filter-by-provider-nav', 'Select location')
-                }
-              </BackBarItem>
+              <BackBarItem action={history.pop} />
               <TitleBarItem>
                 {
                   // TRANSLATORS: Title label in navigation bar

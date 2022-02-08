@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
-import { normalText, tinyText } from './common-styles';
+import { normalText } from './common-styles';
 import ImageView from './ImageView';
 
 export const StyledNavigationBarSeparator = styled.div({
@@ -66,14 +66,5 @@ export const StyledBackBarItemIcon = styled(ImageView)({
   marginRight: '8px',
   [StyledBackBarItemButton + ':hover &']: {
     backgroundColor: colors.white60,
-  },
-});
-
-export const StyledBackBarItemLabel = styled.span(tinyText, {
-  fontWeight: 400,
-  color: colors.white60,
-  whiteSpace: 'nowrap',
-  [StyledBackBarItemButton + ':hover &']: {
-    color: colors.white80,
   },
 });

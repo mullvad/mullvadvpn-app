@@ -64,12 +64,7 @@ export default function SplitTunneling() {
           <NavigationContainer>
             <NavigationBar>
               <NavigationItems>
-                <BackBarItem action={pop}>
-                  {
-                    // TRANSLATORS: Back button in navigation bar
-                    messages.pgettext('navigation-bar', 'Advanced')
-                  }
-                </BackBarItem>
+                <BackBarItem action={pop} />
                 <TitleBarItem>
                   {
                     // TRANSLATORS: Title label in navigation bar
