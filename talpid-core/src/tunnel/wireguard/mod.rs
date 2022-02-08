@@ -3,9 +3,9 @@ use self::config::Config;
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing::{self, RequiredRoute};
-use futures::future::abortable;
 #[cfg(windows)]
 use futures::{channel::mpsc, StreamExt};
+use futures::{channel::oneshot, future::abortable};
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
@@ -171,6 +171,7 @@ impl WireguardMonitor {
         tun_provider: &mut TunProvider,
         route_manager: &mut routing::RouteManager,
         retry_attempt: u32,
+        tunnel_close_rx: oneshot::Receiver<()>,
     ) -> Result<WireguardMonitor> {
         let mut tcp_proxies = vec![];
         let mut endpoint_addrs = vec![];
@@ -304,6 +305,13 @@ impl WireguardMonitor {
             let _ = close_sender.send(CloseMsg::PingErr);
         });
 
+        let mut close_handle = monitor.close_handle();
+        tokio::spawn(async move {
+            if tunnel_close_rx.await.is_ok() {
+                close_handle.close();
+            }
+        });
+
         Ok(monitor)
     }
 
@@ -393,7 +401,7 @@ impl WireguardMonitor {
     }
 
     /// Returns a close handle for the tunnel
-    pub fn close_handle(&self) -> CloseHandle {
+    fn close_handle(&self) -> CloseHandle {
         CloseHandle {
             chan: self.close_msg_sender.clone(),
         }

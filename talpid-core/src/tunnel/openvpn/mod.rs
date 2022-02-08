@@ -8,8 +8,8 @@ use crate::{
         stoppable_process::StoppableProcess,
     },
     proxy::{self, ProxyMonitor, ProxyResourceData},
-    routing,
 };
+use futures::channel::oneshot;
 #[cfg(windows)]
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
@@ -254,8 +254,8 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         params: &openvpn::TunnelParameters,
         log_path: Option<PathBuf>,
         resource_dir: &Path,
+        tunnel_close_rx: oneshot::Receiver<()>,
         #[cfg(target_os = "linux")] route_manager: &mut routing::RouteManager,
-        #[cfg(not(target_os = "linux"))] _route_manager: &mut routing::RouteManager,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -347,6 +347,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             user_pass_file,
             proxy_auth_file,
             proxy_monitor,
+            tunnel_close_rx,
             #[cfg(windows)]
             Box::new(WintunContextImpl {
                 adapter: wintun_adapter,
@@ -379,6 +380,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         user_pass_file: mktemp::TempFile,
         proxy_auth_file: Option<mktemp::TempFile>,
         proxy_monitor: Option<Box<dyn ProxyMonitor>>,
+        tunnel_close_rx: oneshot::Receiver<()>,
         #[cfg(windows)] wintun: Box<dyn WintunContext>,
     ) -> Result<OpenVpnMonitor<C>>
     where
@@ -424,7 +426,9 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         ));
         let spawn_task = runtime.spawn(spawn_task);
 
-        Ok(OpenVpnMonitor {
+        let handle = runtime.handle().clone();
+
+        let monitor = OpenVpnMonitor {
             spawn_task: Some(spawn_task),
             abort_spawn,
             child: Arc::new(Mutex::new(None)),
@@ -439,7 +443,21 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
             #[cfg(windows)]
             _wintun: wintun,
-        })
+        };
+
+        let close_handle = monitor.close_handle();
+        handle.spawn(async move {
+            if tunnel_close_rx.await.is_ok() {
+                if let Err(error) = close_handle.close() {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to close the tunnel")
+                    );
+                }
+            }
+        });
+
+        Ok(monitor)
     }
 
     async fn prepare_process(
@@ -457,7 +475,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
     /// Creates a handle to this monitor, allowing the tunnel to be closed while some other
     /// thread is blocked in `wait`.
-    pub fn close_handle(&self) -> OpenVpnCloseHandle<C::ProcessHandle> {
+    fn close_handle(&self) -> OpenVpnCloseHandle<C::ProcessHandle> {
         OpenVpnCloseHandle {
             child: self.child.clone(),
             abort_spawn: self.abort_spawn.clone(),

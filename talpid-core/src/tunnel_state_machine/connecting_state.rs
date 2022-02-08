@@ -6,9 +6,7 @@ use super::{
 use crate::{
     firewall::FirewallPolicy,
     routing::RouteManager,
-    tunnel::{
-        self, tun_provider::TunProvider, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor,
-    },
+    tunnel::{self, tun_provider::TunProvider, TunnelEvent, TunnelMetadata, TunnelMonitor},
 };
 use cfg_if::cfg_if;
 use futures::{
@@ -49,7 +47,7 @@ pub struct ConnectingState {
     tunnel_parameters: TunnelParameters,
     tunnel_metadata: Option<TunnelMetadata>,
     tunnel_close_event: TunnelCloseEvent,
-    close_handle: Option<CloseHandle>,
+    tunnel_close_tx: oneshot::Sender<()>,
     retry_attempt: u32,
 }
 
@@ -109,6 +107,7 @@ impl ConnectingState {
                 })
             };
 
+        let (tunnel_close_tx, tunnel_close_rx) = oneshot::channel();
         let monitor = TunnelMonitor::start(
             runtime,
             &parameters,
@@ -118,8 +117,8 @@ impl ConnectingState {
             tun_provider,
             route_manager,
             retry_attempt,
+            tunnel_close_rx,
         )?;
-        let close_handle = Some(monitor.close_handle());
         let tunnel_close_event =
             Self::spawn_tunnel_monitor_wait_thread(Some(monitor), retry_attempt);
 
@@ -128,7 +127,7 @@ impl ConnectingState {
             tunnel_parameters: parameters,
             tunnel_metadata: None,
             tunnel_close_event,
-            close_handle,
+            tunnel_close_tx,
             retry_attempt,
         })
     }
@@ -205,7 +204,7 @@ impl ConnectingState {
             tunnel_events: self.tunnel_events,
             tunnel_parameters: self.tunnel_parameters,
             tunnel_close_event: self.tunnel_close_event,
-            close_handle: self.close_handle,
+            tunnel_close_tx: self.tunnel_close_tx,
         }
     }
 
@@ -234,7 +233,11 @@ impl ConnectingState {
 
         EventConsequence::NewState(DisconnectingState::enter(
             shared_values,
-            (self.close_handle, self.tunnel_close_event, after_disconnect),
+            (
+                Some(self.tunnel_close_tx),
+                self.tunnel_close_event,
+                after_disconnect,
+            ),
         ))
     }
 
