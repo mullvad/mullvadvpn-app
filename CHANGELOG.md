@@ -50,6 +50,8 @@ Line wrap the file at 100 chars.                                              Th
 - Update the default Shadowsocks password to `mullvad` and cipher to `aes-256-gcm` in the CLI
   when using it to configure a *custom Shadowsocks bridge*. The Mullvad bridges recently changed
   these parameters on port 443 (which is the default port).
+- Decrease the size of fonts, some icons and other design elements in the desktop app. This makes it
+  possible to fit more into the same area and makes text easier to read.
 
 #### Windows
 - Update wireguard-nt to 0.10.1.
