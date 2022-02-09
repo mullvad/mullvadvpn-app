@@ -1134,7 +1134,7 @@ msgid "Launch"
 msgstr ""
 
 msgctxt "split-tunneling-view"
-msgid "No result for %(searchTerm)s."
+msgid "No result for **%(searchTerm)s**."
 msgstr ""
 
 #. This error message is shown if the user tries to launch a Linux desktop
