@@ -73,6 +73,7 @@ Line wrap the file at 100 chars.                                              Th
   DNS servers set in system network preferences.
 - Fix tray context menu showing or executing wrong actions, using wrong language or in other
   ways not update properly.
+- Fix the sometimes incorrect time added text after adding time to the account.
 
 #### macOS
 - Resolve issues with the app blocking internet connectivity after sleep or when connecting to new

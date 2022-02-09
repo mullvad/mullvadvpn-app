@@ -10,7 +10,6 @@ export interface IAccountReduxState {
   accountToken?: AccountToken;
   accountHistory?: AccountToken;
   expiry?: string; // ISO8601
-  previousExpiry?: string; // ISO8601
   status: LoginState;
 }
 
@@ -18,7 +17,6 @@ const initialState: IAccountReduxState = {
   accountToken: undefined,
   accountHistory: undefined,
   expiry: undefined,
-  previousExpiry: undefined,
   status: { type: 'none' },
 };
 
@@ -50,7 +48,6 @@ export default function (
         status: { type: 'none' },
         accountToken: undefined,
         expiry: undefined,
-        previousExpiry: undefined,
       };
     case 'RESET_LOGIN_ERROR':
       return {
@@ -73,7 +70,6 @@ export default function (
         status: { type: 'ok', method: 'new_account' },
         accountToken: action.token,
         expiry: action.expiry,
-        previousExpiry: undefined,
       };
     case 'UPDATE_ACCOUNT_TOKEN':
       return {
@@ -89,7 +85,6 @@ export default function (
       return {
         ...state,
         expiry: action.expiry,
-        previousExpiry: action.previousExpiry,
       };
   }
 

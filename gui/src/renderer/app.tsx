@@ -120,7 +120,7 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.account.listen((newAccountData?: IAccountData) => {
-      this.setAccountExpiry(newAccountData?.expiry, newAccountData?.previousExpiry);
+      this.setAccountExpiry(newAccountData?.expiry);
     });
 
     IpcRendererEventChannel.accountHistory.listen((newAccountHistory?: AccountToken) => {
@@ -199,10 +199,7 @@ export default class AppRenderer {
       initialState.translations.relayLocations,
     );
 
-    this.setAccountExpiry(
-      initialState.accountData?.expiry,
-      initialState.accountData?.previousExpiry,
-    );
+    this.setAccountExpiry(initialState.accountData?.expiry);
     this.setSettings(initialState.settings);
     this.handleAccountChange(undefined, initialState.settings.accountToken);
     this.setAccountHistory(initialState.accountHistory);
@@ -834,8 +831,8 @@ export default class AppRenderer {
     this.reduxActions.settings.updateGuiSettings(guiSettings);
   }
 
-  private setAccountExpiry(expiry?: string, previousExpiry?: string) {
-    this.reduxActions.account.updateAccountExpiry(expiry, previousExpiry);
+  private setAccountExpiry(expiry?: string) {
+    this.reduxActions.account.updateAccountExpiry(expiry);
   }
 
   private storeAutoStart(autoStart: boolean) {

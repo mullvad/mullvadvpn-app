@@ -1,7 +1,7 @@
 import { Location, Action, LocationDescriptorObject, History as OriginalHistory } from 'history';
 import React from 'react';
 import { RouteComponentProps, useHistory as useReactRouterHistory, withRouter } from 'react-router';
-import { RoutePath } from './routes';
+import { GeneratedRoutePath, RoutePath } from './routes';
 
 export interface ITransitionSpecification {
   name: string;
@@ -38,7 +38,7 @@ export const transitions: ITransitionMap = {
   },
 };
 
-type LocationDescriptor<S> = RoutePath | LocationDescriptorObject<S>;
+type LocationDescriptor<S> = RoutePath | GeneratedRoutePath | LocationDescriptorObject<S>;
 
 type LocationListener<S = unknown> = (
   location: Location<S>,
@@ -168,7 +168,11 @@ export default class History {
   }
 
   private createLocation(location: LocationDescriptor<S>, state?: S): Location<S> {
-    if (typeof location === 'object') {
+    if (typeof location === 'string') {
+      return this.createLocationFromString(location, state);
+    } else if ('routePath' in location) {
+      return this.createLocationFromString(location.routePath, state);
+    } else {
       return {
         pathname: location.pathname ?? this.location.pathname,
         search: location.search ?? '',
@@ -176,15 +180,17 @@ export default class History {
         state: location.state,
         key: location.key ?? this.getRandomKey(),
       };
-    } else {
-      return {
-        pathname: location,
-        search: '',
-        hash: '',
-        state,
-        key: this.getRandomKey(),
-      };
     }
+  }
+
+  private createLocationFromString(path: string, state?: S): Location<S> {
+    return {
+      pathname: path,
+      search: '',
+      hash: '',
+      state,
+      key: this.getRandomKey(),
+    };
   }
 
   private getRandomKey() {

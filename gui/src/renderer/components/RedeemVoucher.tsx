@@ -1,13 +1,13 @@
 import React, { useCallback, useContext, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector } from '../redux/store';
 import { sprintf } from 'sprintf-js';
+import { formatDate } from '../../shared/account-expiry';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import accountActions from '../redux/account/actions';
-import { IReduxState } from '../redux/store';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { ModalAlert } from './Modal';
@@ -59,7 +59,7 @@ const RedeemVoucherContext = React.createContext<IRedeemVoucherContextValue>({
 
 interface IRedeemVoucherProps {
   onSubmit?: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (newExpiry: string, secondsAdded: number) => void;
   onFailure?: () => void;
   children?: React.ReactNode;
 }
@@ -95,7 +95,7 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
     setSubmitting(false);
     setResponse(response);
     if (response.type === 'success') {
-      onSuccess?.();
+      onSuccess?.(response.newExpiry, response.secondsAdded);
     } else {
       onFailure?.();
     }
@@ -212,15 +212,12 @@ interface IRedeemVoucherAlertProps {
 
 export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
   const { submitting, response } = useContext(RedeemVoucherContext);
-  const accountData = useSelector((state: IReduxState) => state.account);
-
-  const duration =
-    (accountData.expiry &&
-      accountData.previousExpiry &&
-      formatRelativeDate(accountData.expiry, accountData.previousExpiry)) ??
-    '';
+  const locale = useSelector((state) => state.userInterface.locale);
 
   if (response?.type === 'success') {
+    const duration = formatRelativeDate(response.secondsAdded * 1000, 0);
+    const expiry = formatDate(response.newExpiry, locale);
+
     return (
       <ModalAlert
         buttons={[
@@ -236,8 +233,9 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
           {messages.pgettext('redeem-voucher-view', 'Voucher was successfully redeemed.')}
         </StyledTitle>
         <StyledLabel>
-          {sprintf(messages.gettext('%(duration)s was added to your account.'), {
+          {sprintf(messages.gettext('%(duration)s was added, account paid until %(expiry)s.'), {
             duration,
+            expiry,
           })}
         </StyledLabel>
       </ModalAlert>
