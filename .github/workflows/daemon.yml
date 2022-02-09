@@ -90,6 +90,25 @@ jobs:
             - name: Checkout submodules
               run: git submodule update --init --depth=1
 
+            - name: Calculate Windows libraries cache hash
+              id: windows-modules-hash
+              shell: bash
+              run: |
+                hash="$(git grep --recurse-submodules --cached -l '' -- './windows/' | xargs sha1sum | sha1sum | cut -d" " -f1)"
+                echo "::set-output name=hash::$hash"
+
+            - name: Cache Windows libraries
+              uses: actions/cache@v2
+              id: cache-windows-modules
+              with:
+                path: |
+                  ./windows/*/bin/x64-*/*.dll
+                  ./windows/*/bin/x64-*/*.lib
+                  !./windows/*/bin/x64-*/libcommon.lib
+                  !./windows/*/bin/x64-*/libshared.lib
+                  !./windows/*/bin/x64-*/libwfp.lib
+                key: windows-modules-${{ steps.windows-modules-hash.outputs.hash }}
+
             - name: Install Rust
               uses: ATiltedTree/setup-rust@v1.0.4
               with:
@@ -104,6 +123,11 @@ jobs:
               uses: microsoft/setup-msbuild@v1.0.2
               with:
                   vs-version: 16
+
+            - name: Build Windows modules
+              if: steps.cache-windows-modules.outputs.cache-hit != 'true'
+              shell: bash
+              run: ./build-windows-modules.sh
 
             - name: Build and test crates
               shell: bash
