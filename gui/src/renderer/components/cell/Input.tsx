@@ -5,6 +5,7 @@ import { mediumText } from '../common-styles';
 import { CellDisabledContext, Container } from './Container';
 import StandaloneSwitch from '../Switch';
 import ImageView from '../ImageView';
+import { useBoolean } from '../../lib/utilityHooks';
 
 export const Switch = React.forwardRef(function SwitchT(
   props: StandaloneSwitch['props'],
@@ -12,13 +13,6 @@ export const Switch = React.forwardRef(function SwitchT(
 ) {
   const disabled = useContext(CellDisabledContext);
   return <StandaloneSwitch ref={ref} disabled={disabled} {...props} />;
-});
-
-export const InputFrame = styled.div({
-  flexGrow: 0,
-  backgroundColor: 'rgba(255,255,255,0.1)',
-  borderRadius: '4px',
-  padding: '4px 8px',
 });
 
 const inputTextStyles: React.CSSProperties = {
@@ -29,35 +23,17 @@ const inputTextStyles: React.CSSProperties = {
   padding: '0px',
 };
 
-const StyledInput = styled.input({}, (props: { valid?: boolean }) => ({
+const StyledInput = styled.input({}, (props: { focused: boolean; valid?: boolean }) => ({
   ...inputTextStyles,
   backgroundColor: 'transparent',
   border: 'none',
   width: '100%',
   height: '100%',
-  color: props.valid !== false ? colors.white : colors.red,
+  color: props.valid === false ? colors.red : props.focused ? colors.blue : colors.white,
   '::placeholder': {
-    color: colors.white60,
+    color: props.focused ? colors.blue60 : colors.white60,
   },
 }));
-
-const StyledAutoSizingTextInputContainer = styled.div({
-  position: 'relative',
-});
-
-const StyledAutoSizingTextInputFiller = styled.pre({
-  ...inputTextStyles,
-  minWidth: '80px',
-  color: 'transparent',
-});
-
-const StyledAutoSizingTextInputWrapper = styled.div({
-  position: 'absolute',
-  top: '0px',
-  left: '0px',
-  width: '100%',
-  height: '100%',
-});
 
 interface IInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value?: string;
@@ -123,6 +99,7 @@ export class Input extends React.Component<IInputProps, IInputState> {
             ref={this.inputRef}
             type="text"
             valid={valid}
+            focused={this.state.focused}
             aria-invalid={!valid}
             onChange={this.onChange}
             onFocus={this.onFocus}
@@ -151,9 +128,12 @@ export class Input extends React.Component<IInputProps, IInputState> {
 
   private onBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     this.setState({ focused: false });
+
     this.props.onBlur?.(event);
-    if (this.props.submitOnBlur) {
+    if (this.props.validateValue?.(this.state.value) !== false && this.props.submitOnBlur) {
       this.props.onSubmitValue?.(this.state.value);
+    } else {
+      this.setState({ value: this.props.value });
     }
   };
 
@@ -166,8 +146,37 @@ export class Input extends React.Component<IInputProps, IInputState> {
   };
 }
 
-export function AutoSizingTextInput({ onChangeValue, ...otherProps }: IInputProps) {
+const InputFrame = styled.div((props: { focused: boolean }) => ({
+  display: 'flex',
+  flexGrow: 0,
+  backgroundColor: props.focused ? colors.white : 'rgba(255,255,255,0.1)',
+  borderRadius: '4px',
+  padding: '4px 8px',
+}));
+
+const StyledAutoSizingTextInputContainer = styled.div({
+  position: 'relative',
+});
+
+const StyledAutoSizingTextInputFiller = styled.pre({
+  ...inputTextStyles,
+  minWidth: '80px',
+  color: 'transparent',
+});
+
+const StyledAutoSizingTextInputWrapper = styled.div({
+  position: 'absolute',
+  top: '0px',
+  left: '0px',
+  width: '100%',
+  height: '100%',
+});
+
+export function AutoSizingTextInput(props: IInputProps) {
+  const { onChangeValue, onFocus, onBlur, ...otherProps } = props;
+
   const [value, setValue] = useState(otherProps.value ?? '');
+  const [focused, setFocused, setBlurred] = useBoolean(false);
 
   const onChangeValueWrapper = useCallback(
     (value: string) => {
@@ -177,15 +186,38 @@ export function AutoSizingTextInput({ onChangeValue, ...otherProps }: IInputProp
     [onChangeValue],
   );
 
+  const onBlurWrapper = useCallback(
+    (event: React.FocusEvent<HTMLInputElement>) => {
+      setBlurred();
+      onBlur?.(event);
+    },
+    [onBlur],
+  );
+
+  const onFocusWrapper = useCallback(
+    (event: React.FocusEvent<HTMLInputElement>) => {
+      setFocused();
+      onFocus?.(event);
+    },
+    [onFocus],
+  );
+
   return (
-    <StyledAutoSizingTextInputContainer>
-      <StyledAutoSizingTextInputWrapper>
-        <Input onChangeValue={onChangeValueWrapper} {...otherProps} />
-      </StyledAutoSizingTextInputWrapper>
-      <StyledAutoSizingTextInputFiller className={otherProps.className} aria-hidden={true}>
-        {value === '' ? otherProps.placeholder : value}
-      </StyledAutoSizingTextInputFiller>
-    </StyledAutoSizingTextInputContainer>
+    <InputFrame focused={focused}>
+      <StyledAutoSizingTextInputContainer>
+        <StyledAutoSizingTextInputWrapper>
+          <Input
+            onChangeValue={onChangeValueWrapper}
+            onBlur={onBlurWrapper}
+            onFocus={onFocusWrapper}
+            {...otherProps}
+          />
+        </StyledAutoSizingTextInputWrapper>
+        <StyledAutoSizingTextInputFiller className={otherProps.className} aria-hidden={true}>
+          {value === '' ? otherProps.placeholder : value}
+        </StyledAutoSizingTextInputFiller>
+      </StyledAutoSizingTextInputContainer>
+    </InputFrame>
   );
 }
 

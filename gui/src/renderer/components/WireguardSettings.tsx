@@ -43,10 +43,6 @@ export const StyledSelectorForFooter = (styled(Selector)({
   marginBottom: 0,
 }) as unknown) as new <T>() => Selector<T>;
 
-export const StyledInputFrame = styled(Cell.InputFrame)({
-  flex: 0,
-});
-
 interface IProps {
   wireguard: { port?: number; ipVersion?: IpVersion };
   wireguardMtu?: number;
@@ -227,20 +223,18 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
                       {messages.pgettext('wireguard-settings-view', 'MTU')}
                     </Cell.InputLabel>
                   </AriaLabel>
-                  <StyledInputFrame>
-                    <AriaInput>
-                      <Cell.AutoSizingTextInput
-                        value={this.props.wireguardMtu ? this.props.wireguardMtu.toString() : ''}
-                        inputMode={'numeric'}
-                        maxLength={4}
-                        placeholder={messages.gettext('Default')}
-                        onSubmitValue={this.onWireguardMtuSubmit}
-                        validateValue={WireguardSettings.wireguarMtuIsValid}
-                        submitOnBlur={true}
-                        modifyValue={WireguardSettings.removeNonNumericCharacters}
-                      />
-                    </AriaInput>
-                  </StyledInputFrame>
+                  <AriaInput>
+                    <Cell.AutoSizingTextInput
+                      value={this.props.wireguardMtu ? this.props.wireguardMtu.toString() : ''}
+                      inputMode={'numeric'}
+                      maxLength={4}
+                      placeholder={messages.gettext('Default')}
+                      onSubmitValue={this.onWireguardMtuSubmit}
+                      validateValue={WireguardSettings.wireguarMtuIsValid}
+                      submitOnBlur={true}
+                      modifyValue={WireguardSettings.removeNonNumericCharacters}
+                    />
+                  </AriaInput>
                 </Cell.Container>
                 <Cell.Footer>
                   <AriaDescription>

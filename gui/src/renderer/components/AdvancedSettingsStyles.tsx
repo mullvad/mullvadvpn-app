@@ -4,10 +4,6 @@ import * as Cell from './cell';
 import { NavigationScrollbars } from './NavigationBar';
 import Selector from './cell/Selector';
 
-export const StyledInputFrame = styled(Cell.InputFrame)({
-  flex: 0,
-});
-
 export const StyledSelectorContainer = styled.div({
   flex: 0,
 });
