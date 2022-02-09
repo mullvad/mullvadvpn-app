@@ -47,10 +47,6 @@ export const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export const StyledInputFrame = styled(Cell.InputFrame)({
-  flex: 0,
-});
-
 interface IProps {
   bridgeModeAvailablity: BridgeModeAvailability;
   openvpn: {
@@ -195,20 +191,18 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
                       {messages.pgettext('openvpn-settings-view', 'Mssfix')}
                     </Cell.InputLabel>
                   </AriaLabel>
-                  <StyledInputFrame>
-                    <AriaInput>
-                      <Cell.AutoSizingTextInput
-                        value={this.props.mssfix ? this.props.mssfix.toString() : ''}
-                        inputMode={'numeric'}
-                        maxLength={4}
-                        placeholder={messages.gettext('Default')}
-                        onSubmitValue={this.onMssfixSubmit}
-                        validateValue={OpenVpnSettings.mssfixIsValid}
-                        submitOnBlur={true}
-                        modifyValue={OpenVpnSettings.removeNonNumericCharacters}
-                      />
-                    </AriaInput>
-                  </StyledInputFrame>
+                  <AriaInput>
+                    <Cell.AutoSizingTextInput
+                      value={this.props.mssfix ? this.props.mssfix.toString() : ''}
+                      inputMode={'numeric'}
+                      maxLength={4}
+                      placeholder={messages.gettext('Default')}
+                      onSubmitValue={this.onMssfixSubmit}
+                      validateValue={OpenVpnSettings.mssfixIsValid}
+                      submitOnBlur={true}
+                      modifyValue={OpenVpnSettings.removeNonNumericCharacters}
+                    />
+                  </AriaInput>
                 </Cell.Container>
                 <Cell.Footer>
                   <AriaDescription>
