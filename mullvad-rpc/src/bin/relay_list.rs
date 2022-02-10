@@ -10,12 +10,14 @@ use talpid_types::ErrorExt;
 
 #[tokio::main]
 async fn main() {
-    let mut runtime =
+    let runtime =
         MullvadRpcRuntime::new(tokio::runtime::Handle::current()).expect("Failed to load runtime");
 
     let relay_list_request = RelayListProxy::new(
         runtime
-            .mullvad_rest_handle(ApiConnectionMode::Direct.into_repeat())
+            .mullvad_rest_handle(ApiConnectionMode::Direct.into_repeat(), |_| async move {
+                Ok(())
+            })
             .await,
     )
     .relay_list(None)

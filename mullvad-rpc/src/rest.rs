@@ -19,7 +19,7 @@ use hyper::{
 };
 use std::{
     future::Future,
-    net::IpAddr,
+    net::SocketAddr,
     str::FromStr,
     time::{Duration, Instant},
 };
@@ -105,25 +105,39 @@ impl Error {
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> {
+pub(crate) struct RequestService<
+    T: Stream<Item = ApiConnectionMode>,
+    F: Fn(SocketAddr) -> Fut,
+    Fut: Future<Output = std::result::Result<(), ()>>,
+> {
     command_tx: mpsc::Sender<RequestCommand>,
     command_rx: mpsc::Receiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
     proxy_config_provider: T,
+    new_address_callback: F,
+    address_cache: AddressCache,
     api_availability: ApiAvailabilityHandle,
 }
 
-impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestService<T> {
+impl<
+        T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
+        F: (Fn(SocketAddr) -> Fut) + Send + Sync + 'static,
+        Fut: Future<Output = std::result::Result<(), ()>> + Send + 'static,
+    > RequestService<T, F, Fut>
+{
     /// Constructs a new request service.
     pub async fn new(
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
+        address_cache: AddressCache,
         mut proxy_config_provider: T,
+        new_address_callback: F,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
             sni_hostname,
+            address_cache.clone(),
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
         );
@@ -142,6 +156,8 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
             connector_handle,
             client,
             proxy_config_provider,
+            new_address_callback,
+            address_cache,
             api_availability,
         };
         let handle = service.handle();
@@ -194,27 +210,29 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
                 };
                 tokio::spawn(future);
             }
-            RequestCommand::Reset(tx) => {
-                self.reset();
-                let _ = tx.send(());
+            RequestCommand::Reset => {
+                self.connector_handle.reset();
             }
             RequestCommand::NextApiConfig => {
                 if let Some(new_config) = self.proxy_config_provider.next().await {
-                    self.connector_handle.set_connection_mode(new_config);
+                    let endpoint = match new_config.get_endpoint() {
+                        Some(endpoint) => endpoint,
+                        None => self.address_cache.get_address().await,
+                    };
+                    // Switch to new connection mode unless rejected by address change callback
+                    if let Ok(()) = (self.new_address_callback)(endpoint).await {
+                        self.connector_handle.set_connection_mode(new_config);
+                    }
                 }
             }
         }
-    }
-
-    fn reset(&mut self) {
-        self.connector_handle.reset();
     }
 
     async fn into_future(mut self) {
         while let Some(command) = self.command_rx.next().await {
             self.process_command(command).await;
         }
-        self.reset();
+        self.connector_handle.reset();
     }
 }
 
@@ -228,10 +246,7 @@ impl RequestServiceHandle {
     /// Resets the corresponding RequestService, dropping all in-flight requests.
     pub async fn reset(&self) {
         let mut tx = self.tx.clone();
-        let (done_tx, done_rx) = oneshot::channel();
-
-        let _ = tx.send(RequestCommand::Reset(done_tx)).await;
-        let _ = done_rx.await;
+        let _ = tx.send(RequestCommand::Reset).await;
     }
 
     /// Submits a `RestRequest` for exectuion to the request service.
@@ -252,7 +267,7 @@ pub(crate) enum RequestCommand {
         RestRequest,
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
-    Reset(oneshot::Sender<()>),
+    Reset,
     NextApiConfig,
 }
 
@@ -353,20 +368,14 @@ pub struct ErrorResponse {
 #[derive(Clone)]
 pub struct RequestFactory {
     hostname: String,
-    address_provider: Box<dyn AddressProvider>,
     path_prefix: Option<String>,
     pub timeout: Duration,
 }
 
 impl RequestFactory {
-    pub fn new(
-        hostname: String,
-        address_provider: Box<dyn AddressProvider>,
-        path_prefix: Option<String>,
-    ) -> Self {
+    pub fn new(hostname: String, path_prefix: Option<String>) -> Self {
         Self {
             hostname,
-            address_provider,
             path_prefix,
             timeout: DEFAULT_TIMEOUT,
         }
@@ -427,38 +436,14 @@ impl RequestFactory {
     }
 
     fn get_uri(&self, path: &str) -> Result<Uri> {
-        let host = self.address_provider.get_address();
         let prefix = self.path_prefix.as_ref().map(AsRef::as_ref).unwrap_or("");
-        let uri = format!("https://{}/{}{}", host, prefix, path);
+        let uri = format!("https://{}/{}{}", self.hostname, prefix, path);
         hyper::Uri::from_str(&uri).map_err(Error::UriError)
     }
 
     fn set_request_timeout(&self, mut request: RestRequest) -> RestRequest {
         request.timeout = self.timeout;
         request
-    }
-}
-
-pub trait AddressProvider: Send + Sync {
-    /// Must return a string that represents either a host or a host with port
-    fn get_address(&self) -> String;
-    fn clone_box(&self) -> Box<dyn AddressProvider>;
-}
-
-impl Clone for Box<dyn AddressProvider> {
-    fn clone(&self) -> Self {
-        self.clone_box()
-    }
-}
-
-impl AddressProvider for IpAddr {
-    /// Must return a string that represents either a host or a host with port
-    fn get_address(&self) -> String {
-        self.to_string()
-    }
-
-    fn clone_box(&self) -> Box<dyn AddressProvider> {
-        Box::new(*self)
     }
 }
 

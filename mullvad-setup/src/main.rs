@@ -174,7 +174,7 @@ async fn remove_wireguard_key() -> Result<(), Error> {
 
     if let Some(token) = settings.get_account_token() {
         if let Some(wg_data) = settings.get_wireguard() {
-            let mut rpc_runtime = MullvadRpcRuntime::with_cache(&cache_path, false)
+            let rpc_runtime = MullvadRpcRuntime::with_cache(&cache_path, false)
                 .await
                 .map_err(Error::RpcInitializationError)?;
             let mut key_proxy = mullvad_rpc::WireguardKeyProxy::new(
@@ -183,6 +183,7 @@ async fn remove_wireguard_key() -> Result<(), Error> {
                         ApiConnectionMode::try_from_cache(&cache_path)
                             .await
                             .into_repeat(),
+                        |_| async move { Ok(()) },
                     )
                     .await,
             );

@@ -15,7 +15,6 @@ use std::{
     future::Future,
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
-    sync::Arc,
 };
 use talpid_types::{net::wireguard, ErrorExt};
 
@@ -32,7 +31,7 @@ pub use crate::https_client_with_sni::SocketBypassRequest;
 
 mod address_cache;
 mod relay_list;
-pub use address_cache::{AddressCache, CurrentAddressChangeListener};
+pub use address_cache::AddressCache;
 pub use hyper::StatusCode;
 pub use relay_list::RelayListProxy;
 
@@ -153,7 +152,7 @@ impl MullvadRpcRuntime {
     ) -> Result<Self, Error> {
         Ok(MullvadRpcRuntime {
             handle,
-            address_cache: AddressCache::new(API.addr, None)?,
+            address_cache: AddressCache::new(None)?,
             api_availability: ApiAvailability::new(availability::State::default()),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
@@ -194,7 +193,7 @@ impl MullvadRpcRuntime {
                         )
                     );
                 }
-                AddressCache::new(API.addr, write_file)?
+                AddressCache::new(write_file)?
             }
         };
 
@@ -207,24 +206,23 @@ impl MullvadRpcRuntime {
         })
     }
 
-    pub fn set_address_change_listener(
-        &mut self,
-        address_change_listener: impl Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static,
-    ) {
-        self.address_cache
-            .set_change_listener(Arc::new(Box::new(address_change_listener)));
-    }
-
     /// Creates a new request service and returns a handle to it.
-    async fn new_request_service<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static>(
-        &mut self,
+    async fn new_request_service<
+        T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
+        F: (Fn(SocketAddr) -> Fut) + Send + Sync + 'static,
+        Fut: Future<Output = std::result::Result<(), ()>> + Send + 'static,
+    >(
+        &self,
         sni_hostname: Option<String>,
         proxy_provider: T,
+        new_address_callback: F,
     ) -> rest::RequestServiceHandle {
         let service_handle = rest::RequestService::new(
             sni_hostname,
             self.api_availability.handle(),
+            self.address_cache.clone(),
             proxy_provider,
+            new_address_callback,
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
         )
@@ -235,18 +233,17 @@ impl MullvadRpcRuntime {
     /// Returns a request factory initialized to create requests for the master API
     pub async fn mullvad_rest_handle<
         T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
+        F: (Fn(SocketAddr) -> Fut) + Send + Sync + 'static,
+        Fut: Future<Output = std::result::Result<(), ()>> + Send + 'static,
     >(
-        &mut self,
+        &self,
         proxy_provider: T,
+        new_address_callback: F,
     ) -> rest::MullvadRestHandle {
         let service = self
-            .new_request_service(Some(API.host.clone()), proxy_provider)
+            .new_request_service(Some(API.host.clone()), proxy_provider, new_address_callback)
             .await;
-        let factory = rest::RequestFactory::new(
-            API.host.clone(),
-            Box::new(self.address_cache.clone()),
-            Some("app".to_owned()),
-        );
+        let factory = rest::RequestFactory::new(API.host.clone(), Some("app".to_owned()));
 
         rest::MullvadRestHandle::new(
             service,
@@ -258,8 +255,12 @@ impl MullvadRpcRuntime {
 
     /// Returns a new request service handle
     pub async fn rest_handle(&mut self) -> rest::RequestServiceHandle {
-        self.new_request_service(None, ApiConnectionMode::Direct.into_repeat())
-            .await
+        self.new_request_service(
+            None,
+            ApiConnectionMode::Direct.into_repeat(),
+            |_| async move { Ok(()) },
+        )
+        .await
     }
 
     pub fn handle(&mut self) -> &mut tokio::runtime::Handle {

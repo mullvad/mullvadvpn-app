@@ -293,7 +293,7 @@ async fn send_problem_report_inner(
 ) -> Result<(), Error> {
     let metadata =
         ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
-    let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
+    let rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
         cache_dir,
         false,
         #[cfg(target_os = "android")]
@@ -308,6 +308,7 @@ async fn send_problem_report_inner(
                 ApiConnectionMode::try_from_cache(cache_dir)
                     .await
                     .into_repeat(),
+                |_| async move { Ok(()) },
             )
             .await,
     );

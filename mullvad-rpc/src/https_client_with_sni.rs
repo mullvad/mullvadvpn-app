@@ -2,6 +2,7 @@ use crate::{
     abortable_stream::{AbortableStream, AbortableStreamHandle},
     proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
+    AddressCache,
 };
 use futures::{channel::mpsc, future, StreamExt};
 #[cfg(target_os = "android")]
@@ -114,6 +115,7 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
 pub struct HttpsConnectorWithSni {
     inner: Arc<Mutex<HttpsConnectorWithSniInner>>,
     sni_hostname: Option<String>,
+    address_cache: AddressCache,
     abort_notify: Arc<tokio::sync::Notify>,
     proxy_context: SharedContext,
     #[cfg(target_os = "android")]
@@ -131,6 +133,7 @@ pub type SocketBypassRequest = (RawFd, oneshot::Sender<()>);
 impl HttpsConnectorWithSni {
     pub fn new(
         sni_hostname: Option<String>,
+        address_cache: AddressCache,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> (Self, HttpsConnectorWithSniHandle) {
         let (tx, mut rx) = mpsc::unbounded();
@@ -177,6 +180,7 @@ impl HttpsConnectorWithSni {
             HttpsConnectorWithSni {
                 inner,
                 sni_hostname,
+                address_cache,
                 abort_notify,
                 proxy_context: SsContext::new_shared(ServerType::Local),
                 #[cfg(target_os = "android")]
@@ -216,17 +220,24 @@ impl HttpsConnectorWithSni {
             .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
     }
 
-    async fn resolve_address(uri: &Uri) -> io::Result<SocketAddr> {
+    async fn resolve_address(address_cache: AddressCache, uri: Uri) -> io::Result<SocketAddr> {
         let hostname = uri.host().ok_or(io::Error::new(
             io::ErrorKind::InvalidInput,
             "invalid url, missing host",
         ))?;
         let port = uri.port_u16().unwrap_or(443);
-
         if let Some(addr) = hostname.parse::<IpAddr>().ok() {
             return Ok(SocketAddr::new(addr, port));
         }
 
+        // Preferentially, use cached address.
+        //
+        if let Some(addr) = address_cache.resolve_hostname(hostname).await {
+            return Ok(SocketAddr::new(addr.ip(), port));
+        }
+
+        // Use getaddrinfo as a fallback
+        //
         let mut addrs = GaiResolver::new()
             .call(
                 Name::from_str(&hostname)
@@ -270,6 +281,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
         let proxy_context = self.proxy_context.clone();
         #[cfg(target_os = "android")]
         let socket_bypass_tx = self.socket_bypass_tx.clone();
+        let address_cache = self.address_cache.clone();
 
         let fut = async move {
             if uri.scheme() != Some(&Scheme::HTTPS) {
@@ -280,7 +292,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
             }
 
             let hostname = sni_hostname?;
-            let addr = Self::resolve_address(&uri).await?;
+            let addr = Self::resolve_address(address_cache, uri).await?;
 
             // Loop until we have established a connection. This starts over if a new endpoint
             // is selected while connecting.

@@ -332,8 +332,6 @@ pub(crate) enum InternalDaemonEvent {
     NewAppVersionInfo(AppVersionInfo),
     /// Request from REST client to use a different API endpoint.
     GenerateApiConnectionMode(api::ApiConnectionModeRequest),
-    /// Endpoint used to reach the API.
-    NewApiEndpoint(SocketAddr),
     /// The split tunnel paths or state were updated.
     #[cfg(target_os = "windows")]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
@@ -556,7 +554,6 @@ pub struct Daemon<L: EventListener> {
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
     last_generated_entry_relay: Option<Relay>,
-    api_connection_mode: ApiConnectionMode,
     app_version_info: Option<AppVersionInfo>,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
@@ -628,7 +625,7 @@ where
             vec![]
         };
 
-        let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
+        let rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
             &cache_dir,
             true,
             #[cfg(target_os = "android")]
@@ -641,7 +638,7 @@ where
         api_availability.suspend();
 
         let initial_api_endpoint =
-            Self::get_allowed_endpoint(rpc_runtime.address_cache.get_address());
+            Self::get_allowed_endpoint(rpc_runtime.address_cache.get_address().await);
 
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         let tunnel_command_tx = tunnel_state_machine::spawn(
@@ -668,22 +665,37 @@ where
         .await
         .map_err(Error::TunnelError)?;
 
-        let address_inner_tx = internal_event_tx.clone();
-        rpc_runtime.set_address_change_listener(move |address| {
-            let weak_tx = address_inner_tx.sender.clone();
-            if let Some(tx) = weak_tx.upgrade() {
-                let _ = tx.unbounded_send(InternalDaemonEvent::NewApiEndpoint(address));
-                Ok(())
-            } else {
-                Err(())
+        let api_endpoint_tunnel_tx = Arc::downgrade(&tunnel_command_tx);
+        let api_endpoint_handler = move |address: SocketAddr| {
+            let tunnel_tx = api_endpoint_tunnel_tx.clone();
+            async move {
+                let (result_tx, result_rx) = oneshot::channel();
+                if let Some(tunnel_tx) = tunnel_tx.upgrade() {
+                    let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
+                        Self::get_allowed_endpoint(address.clone()),
+                        result_tx,
+                    ));
+                    if result_rx.await.is_ok() {
+                        log::debug!("API endpoint: {}", address);
+                        Ok(())
+                    } else {
+                        log::error!("Failed to update allowed endpoint");
+                        Err(())
+                    }
+                } else {
+                    log::error!("Tunnel state machine is down");
+                    Err(())
+                }
             }
-        });
+        };
 
         let proxy_provider = api::create_api_config_provider(
             internal_event_tx.to_specialized_sender(),
             ApiConnectionMode::Direct,
         );
-        let rpc_handle = rpc_runtime.mullvad_rest_handle(proxy_provider).await;
+        let rpc_handle = rpc_runtime
+            .mullvad_rest_handle(proxy_provider, api_endpoint_handler)
+            .await;
 
         Self::forward_offline_state(api_availability.clone(), offline_state_rx).await;
 
@@ -753,7 +765,6 @@ where
             last_generated_relay: None,
             last_generated_bridge_relay: None,
             last_generated_entry_relay: None,
-            api_connection_mode: ApiConnectionMode::Direct,
             app_version_info,
             shutdown_tasks: vec![],
             tunnel_state_machine_shutdown_signal,
@@ -928,7 +939,6 @@ where
             GenerateApiConnectionMode(request) => {
                 self.handle_generate_api_connection_mode(request).await
             }
-            NewApiEndpoint(endpoint) => self.handle_new_api_endpoint(endpoint).await,
             #[cfg(windows)]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
         }
@@ -1420,47 +1430,13 @@ where
             None => ApiConnectionMode::Direct,
         };
 
-        let allowed_endpoint = match config.get_endpoint() {
-            Some(addr) => Self::get_allowed_endpoint(addr),
-            None => Self::get_allowed_endpoint(self.rpc_runtime.address_cache.get_address()),
-        };
-
-        // Poke a hole for this endpoint in the firewall. If this fails, we keep the old endpoint.
-        let (tx, rx) = oneshot::channel();
-        let _ = self
-            .tunnel_command_tx
-            .unbounded_send(TunnelCommand::AllowEndpoint(allowed_endpoint, tx));
-
-        if rx.await.is_ok() {
-            log::debug!("API endpoint: {}", config);
-            self.api_connection_mode = config.clone();
-            if let Err(error) = self.api_connection_mode.save(&self.cache_dir).await {
-                log::debug!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to save API endpoint")
-                );
-            }
+        if let Err(error) = config.save(&self.cache_dir).await {
+            log::debug!(
+                "{}",
+                error.display_chain_with_msg("Failed to save API endpoint")
+            );
         }
-        let _ = request.response_tx.send(self.api_connection_mode.clone());
-    }
-
-    async fn handle_new_api_endpoint(&mut self, endpoint: SocketAddr) {
-        // Update the firewall if no proxy is being used
-        if !self.api_connection_mode.is_proxy() {
-            let (tx, rx) = oneshot::channel();
-            let _ = self
-                .tunnel_command_tx
-                .unbounded_send(TunnelCommand::AllowEndpoint(
-                    Self::get_allowed_endpoint(endpoint.clone()),
-                    tx,
-                ));
-            if rx.await.is_err() {
-                // We can't do much if this fails
-                log::error!("Failed to update API endpoint");
-            } else {
-                log::debug!("API endpoint: {} (unproxied)", endpoint);
-            }
-        }
+        let _ = request.response_tx.send(config);
     }
 
     #[cfg(windows)]
