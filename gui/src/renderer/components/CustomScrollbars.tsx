@@ -27,32 +27,36 @@ const StyledScrollable = styled.div((props: { fillContainer?: boolean }) => ({
   },
 }));
 
-const StyledTrack = styled.div({}, (props: { show: boolean }) => ({
+const StyledTrack = styled.div({}, (props: { canScroll: boolean; show: boolean }) => ({
   position: 'absolute',
   top: 0,
   right: 0,
   bottom: 0,
   width: '16px',
-  backgroundColor: 'rgba(0, 0, 0, 0.2)',
-  opacity: props.show ? 1 : 0,
-  transition: 'width 0.1s ease-in-out, opacity 0.25s ease-in-out',
-  zIndex: 98,
-  pointerEvents: props.show ? 'all' : 'none',
+  backgroundColor: props.show ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0)',
+  transition: 'width 0.1s ease-in-out, background-color 0.25s ease-in-out',
+  zIndex: 99,
+  pointerEvents: props.canScroll ? 'auto' : 'none',
+  // Thumb should be less transparent when track is hovered.
+  [`&:hover ${StyledThumb}`]: {
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+  },
 }));
 
-const StyledThumb = styled.div({}, (props: { show: boolean; active: boolean; wide: boolean }) => ({
-  position: 'absolute',
-  top: 0,
-  right: 0,
-  backgroundColor: props.active ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.4)',
-  borderRadius: props.wide ? '6px' : '4px',
-  width: props.wide ? '12px' : '8px',
-  transition:
-    'width 0.25s ease-in-out, border-radius 0.25s ease-in-out, height 0.25s ease-in-out, opacity 0.25s ease-in-out, background-color 0.1s ease-in-out',
-  opacity: props.show ? 1 : 0,
-  zIndex: 99,
-  pointerEvents: 'none',
-}));
+const StyledThumb = styled.div(
+  {},
+  (props: { show: boolean; isDragging: boolean; wide: boolean }) => ({
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderRadius: props.wide ? '6px' : '4px',
+    width: props.wide ? '12px' : '8px',
+    transition:
+      'width 0.25s ease-in-out, border-radius 0.25s ease-in-out, height 0.25s ease-in-out, opacity 0.25s ease-in-out, background-color 0.1s ease-in-out',
+    opacity: props.show ? 1 : 0,
+    backgroundColor: props.isDragging ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.4)',
+  }),
+);
 
 const AUTOHIDE_TIMEOUT = 1000;
 
@@ -68,14 +72,12 @@ interface IProps {
 interface IState {
   canScroll: boolean;
   showScrollIndicators: boolean;
-  showTrack: boolean;
-  isTrackHovered: boolean;
+  active: boolean;
   isDragging: boolean;
   dragStart: {
     x: number;
     y: number;
   };
-  isWide: boolean;
 }
 
 export interface IScrollEvent {
@@ -115,11 +117,9 @@ class CustomScrollbars extends React.Component<IProps, IState> {
   public state = {
     canScroll: false,
     showScrollIndicators: true,
-    showTrack: false,
-    isTrackHovered: false,
+    active: false,
     isDragging: false,
     dragStart: { x: 0, y: 0 },
-    isWide: false,
   };
 
   private scrollableRef = React.createRef<HTMLDivElement>();
@@ -203,7 +203,6 @@ class CustomScrollbars extends React.Component<IProps, IState> {
 
     document.addEventListener('mousemove', this.handleMouseMove);
     document.addEventListener('mouseup', this.handleMouseUp);
-    document.addEventListener('mousedown', this.handleMouseDown);
 
     // show scroll indicators briefly when mounted
     if (this.props.autoHide) {
@@ -226,10 +225,8 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       prevProps.trackPadding?.y !== nextProps.trackPadding?.y ||
       prevState.canScroll !== nextState.canScroll ||
       prevState.showScrollIndicators !== nextState.showScrollIndicators ||
-      prevState.showTrack !== nextState.showTrack ||
-      prevState.isTrackHovered !== nextState.isTrackHovered ||
       prevState.isDragging !== nextState.isDragging ||
-      prevState.isWide !== nextState.isWide
+      prevState.active !== nextState.active
     );
   }
 
@@ -238,7 +235,6 @@ class CustomScrollbars extends React.Component<IProps, IState> {
 
     document.removeEventListener('mousemove', this.handleMouseMove);
     document.removeEventListener('mouseup', this.handleMouseUp);
-    document.removeEventListener('mousedown', this.handleMouseDown);
 
     if (this.scrollableContentRef.current) {
       this.contentResizeObserver.unobserve(this.scrollableContentRef.current);
@@ -265,13 +261,20 @@ class CustomScrollbars extends React.Component<IProps, IState> {
 
     return (
       <StyledCustomScrollbars {...otherProps}>
-        <StyledTrack ref={this.trackRef} show={showScrollbars && this.state.showTrack} />
-        <StyledThumb
-          ref={this.thumbRef}
-          show={showScrollbars}
-          active={this.state.isTrackHovered || this.state.isDragging}
-          wide={this.state.isWide}
-        />
+        <StyledTrack
+          ref={this.trackRef}
+          show={showScrollbars && this.state.active}
+          canScroll={this.state.canScroll}
+          onMouseEnter={this.handleMouseEnter}
+          onMouseLeave={this.handleMouseLeave}>
+          <StyledThumb
+            ref={this.thumbRef}
+            show={showScrollbars}
+            isDragging={this.state.isDragging}
+            wide={this.state.active}
+            onMouseDown={this.handleMouseDown}
+          />
+        </StyledTrack>
         <StyledScrollable
           fillContainer={fillContainer}
           onScroll={this.onScroll}
@@ -310,40 +313,38 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     }
   };
 
-  private handleEnterTrack = () => {
+  private handleMouseEnter = () => {
     this.autoHideScheduler.cancel();
     this.setState({
-      isTrackHovered: true,
       showScrollIndicators: true,
-      showTrack: true,
-      isWide: true,
+      active: true,
     });
   };
 
-  private handleLeaveTrack = () => {
-    this.setState({
-      isTrackHovered: false,
-    });
-
+  private handleMouseLeave = () => {
     // do not hide the scrollbar if user is dragging a thumb but left the track area.
     if (!this.state.isDragging) {
-      if (this.props.autoHide) {
-        this.startAutoHide();
-      } else {
-        this.startAutoShrink();
-      }
+      this.mouseLeaveAction();
     }
   };
 
-  private handleMouseDown = (event: MouseEvent) => {
-    const thumb = this.thumbRef.current;
-    const cursorPosition = {
-      x: event.clientX,
-      y: event.clientY,
-    };
+  private mouseLeaveAction = () => {
+    if (this.props.autoHide) {
+      this.startAutoHide();
+    } else {
+      this.startAutoShrink();
+    }
+  };
 
+  private handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
     // initiate dragging when user clicked inside of thumb
-    if (thumb && this.isPointInsideOfElement(thumb, cursorPosition)) {
+    const thumb = this.thumbRef.current;
+    if (thumb === event.target || thumb?.contains(event.target as Node)) {
+      const cursorPosition = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
       this.setState({
         isDragging: true,
         dragStart: this.getPointRelativeToElement(thumb, cursorPosition),
@@ -369,11 +370,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       };
 
       if (!this.isPointInsideOfElement(track, cursorPosition)) {
-        if (this.props.autoHide) {
-          this.startAutoHide();
-        } else {
-          this.startAutoShrink();
-        }
+        this.mouseLeaveAction();
       }
     }
   };
@@ -381,7 +378,6 @@ class CustomScrollbars extends React.Component<IProps, IState> {
   private handleMouseMove = (event: MouseEvent) => {
     const scrollable = this.scrollableRef.current;
     const thumb = this.thumbRef.current;
-    const track = this.trackRef.current;
 
     const cursorPosition = {
       x: event.clientX,
@@ -410,16 +406,6 @@ class CustomScrollbars extends React.Component<IProps, IState> {
 
       scrollable.scrollTop = newScrollTop;
     }
-
-    if (scrollable && track) {
-      const intersectsTrack = this.isPointInsideOfElement(track, cursorPosition);
-
-      if (!this.state.isTrackHovered && intersectsTrack) {
-        this.handleEnterTrack();
-      } else if (this.state.isTrackHovered && !intersectsTrack) {
-        this.handleLeaveTrack();
-      }
-    }
   };
 
   private ensureScrollbarsVisible() {
@@ -434,8 +420,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     this.autoHideScheduler.schedule(() => {
       this.setState({
         showScrollIndicators: false,
-        showTrack: false,
-        isWide: false,
+        active: false,
       });
     }, AUTOHIDE_TIMEOUT);
   }
@@ -443,8 +428,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
   private startAutoShrink() {
     this.autoHideScheduler.schedule(() => {
       this.setState({
-        showTrack: false,
-        isWide: false,
+        active: false,
       });
     }, AUTOHIDE_TIMEOUT);
   }
