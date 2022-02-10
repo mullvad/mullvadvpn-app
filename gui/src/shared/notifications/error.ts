@@ -154,7 +154,7 @@ function getTunnelParameterMessage(err: TunnelParameterError): string {
     case 'no_matching_relay':
       return messages.pgettext(
         'notifications',
-        "Your selected server and tunnel protocol don't match. Please adjust your settings.",
+        'No servers in your selected location match your settings.',
       );
     case 'no_wireguard_key':
       return messages.pgettext(
