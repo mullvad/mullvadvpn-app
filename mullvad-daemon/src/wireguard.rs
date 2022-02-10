@@ -354,6 +354,7 @@ impl KeyManager {
 
     async fn wait_for_key_expiry(key: &PublicKey, rotation_interval_secs: u64) {
         let mut interval = tokio::time::interval(KEY_CHECK_INTERVAL);
+        interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
         loop {
             interval.tick().await;
             if (Utc::now().signed_duration_since(key.created)).num_seconds() as u64
