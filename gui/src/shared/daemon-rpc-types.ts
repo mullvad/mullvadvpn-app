@@ -73,7 +73,7 @@ export type ProxyType = 'shadowsocks' | 'custom';
 export function proxyTypeToString(proxy: ProxyType): string {
   switch (proxy) {
     case 'shadowsocks':
-      return 'Shadowsocks';
+      return 'Shadowsocks bridge';
     case 'custom':
       return 'custom bridge';
     default:

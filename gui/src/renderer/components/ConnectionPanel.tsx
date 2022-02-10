@@ -150,6 +150,11 @@ export default class ConnectionPanel extends React.Component<IProps> {
           entry: this.props.entryHostname,
         },
       );
+    } else if (this.props.bridgeInfo?.ip) {
+      return sprintf(messages.pgettext('connection-info', '%(relay)s via %(entry)s'), {
+        relay: this.props.hostname,
+        entry: this.props.bridgeInfo.ip,
+      });
     } else {
       return this.props.hostname || '';
     }
