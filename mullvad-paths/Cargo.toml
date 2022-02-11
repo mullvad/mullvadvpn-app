@@ -8,7 +8,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-err-derive = "0.3.0"
+err-derive = "0.3.1"
 log = "0.4"
 
 [target.'cfg(any(windows, target_os = "macos"))'.dependencies]
