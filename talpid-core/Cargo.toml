@@ -27,7 +27,7 @@ shell-escape = "0.1"
 talpid-types = { path = "../talpid-types" }
 uuid = { version = "0.8", features = ["v4"] }
 zeroize = "1"
-chrono = "0.4"
+chrono = "0.4.19"
 tokio = { version = "1.8", features = [ "process", "rt-multi-thread", "fs" ] }
 tokio-stream = { version = "0.1", features =  [ "io-util" ] }
 rand = "0.7"
