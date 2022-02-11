@@ -1,5 +1,4 @@
 use crate::{location, new_rpc_client, Command, Error, Result};
-use clap::{value_t, values_t};
 
 use mullvad_management_interface::types;
 use mullvad_types::relay_constraints::{
@@ -7,10 +6,7 @@ use mullvad_types::relay_constraints::{
 };
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
-use std::{
-    convert::TryFrom,
-    net::{IpAddr, SocketAddr},
-};
+use std::{convert::TryFrom, net::SocketAddr};
 
 pub struct Bridge;
 
@@ -20,43 +16,41 @@ impl Command for Bridge {
         "bridge"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about("Manage use of bridges")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(create_bridge_set_subcommand())
-            .subcommand(
-                clap::SubCommand::with_name("get").about("Get current bridge settings and state"),
-            )
-            .subcommand(clap::SubCommand::with_name("list").about("List bridge relays"))
+            .subcommand(clap::App::new("get").about("Get current bridge settings and state"))
+            .subcommand(clap::App::new("list").about("List bridge relays"))
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
-            ("set", Some(set_matches)) => Self::handle_set(set_matches).await,
-            ("get", _) => Self::handle_get().await,
-            ("list", _) => Self::list_bridge_relays().await,
+            Some(("set", set_matches)) => Self::handle_set(set_matches).await,
+            Some(("get", _)) => Self::handle_get().await,
+            Some(("list", _)) => Self::list_bridge_relays().await,
             _ => unreachable!("unhandled command"),
         }
     }
 }
 
-fn create_bridge_set_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("set")
+fn create_bridge_set_subcommand() -> clap::App<'static> {
+    clap::App::new("set")
         .about("Set bridge state and settings")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
         .subcommand(create_set_state_subcommand())
         .subcommand(create_set_custom_settings_subcommand())
         .subcommand(
-            clap::SubCommand::with_name("provider")
+            clap::App::new("provider")
                 .about(
                     "Set hosting provider(s) to select bridge relays from. The 'list' \
                         command shows the available relays and their providers.",
                 )
                 .arg(
-                    clap::Arg::with_name("provider")
+                    clap::Arg::new("provider")
                         .help("The hosting provider(s) to use, or 'any' for no preference.")
-                        .multiple(true)
+                        .multiple_values(true)
                         .required(true),
                 ),
         )
@@ -66,24 +60,24 @@ fn create_bridge_set_subcommand() -> clap::App<'static, 'static> {
         ))
 }
 
-fn create_set_custom_settings_subcommand() -> clap::App<'static, 'static> {
+fn create_set_custom_settings_subcommand() -> clap::App<'static> {
     #[allow(unused_mut)]
-    let mut local_subcommand = clap::SubCommand::with_name("local")
+    let mut local_subcommand = clap::App::new("local")
         .about("Registers a local SOCKS5 proxy")
         .arg(
-            clap::Arg::with_name("local-port")
+            clap::Arg::new("local-port")
                 .help("Specifies the port the local proxy server is listening on")
                 .required(true)
                 .index(1),
         )
         .arg(
-            clap::Arg::with_name("remote-ip")
+            clap::Arg::new("remote-ip")
                 .help("Specifies the IP of the proxy server peer")
                 .required(true)
                 .index(2),
         )
         .arg(
-            clap::Arg::with_name("remote-port")
+            clap::Arg::new("remote-port")
                 .help("Specifies the port of the proxy server peer")
                 .required(true)
                 .index(3),
@@ -99,67 +93,67 @@ fn create_set_custom_settings_subcommand() -> clap::App<'static, 'static> {
     }
     #[cfg(target_os = "macos")]
     {
-        local_subcommand = local_subcommand.help(
+        local_subcommand = local_subcommand.about(
             "Registers a local SOCKS5 proxy. The server must run as root to bypass \
             firewall restrictions",
         );
     }
 
-    clap::SubCommand::with_name("custom")
+    clap::App::new("custom")
         .about("Configure a SOCKS5 proxy")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
         .subcommand(local_subcommand)
         .subcommand(
-            clap::SubCommand::with_name("remote")
+            clap::App::new("remote")
                 .about("Registers a remote SOCKS5 proxy")
                 .arg(
-                    clap::Arg::with_name("remote-ip")
+                    clap::Arg::new("remote-ip")
                         .help("Specifies the IP of the remote proxy server")
                         .required(true)
                         .index(1),
                 )
                 .arg(
-                    clap::Arg::with_name("remote-port")
+                    clap::Arg::new("remote-port")
                         .help("Specifies the port the remote proxy server is listening on")
                         .required(true)
                         .index(2),
                 )
                 .arg(
-                    clap::Arg::with_name("username")
+                    clap::Arg::new("username")
                         .help("Specifies the username for remote authentication")
                         .required(true)
                         .index(3),
                 )
                 .arg(
-                    clap::Arg::with_name("password")
+                    clap::Arg::new("password")
                         .help("Specifies the password for remote authentication")
                         .required(true)
                         .index(4),
                 ),
         )
         .subcommand(
-            clap::SubCommand::with_name("shadowsocks")
+            clap::App::new("shadowsocks")
                 .about("Configure bundled Shadowsocks proxy")
                 .arg(
-                    clap::Arg::with_name("remote-ip")
+                    clap::Arg::new("remote-ip")
                         .help("Specifies the IP of the remote Shadowsocks server")
                         .required(true)
                         .index(1),
                 )
                 .arg(
-                    clap::Arg::with_name("remote-port")
+                    clap::Arg::new("remote-port")
                         .help("Specifies the port of the remote Shadowsocks server")
                         .default_value("443")
                         .index(2),
                 )
                 .arg(
-                    clap::Arg::with_name("password")
+                    clap::Arg::new("password")
                         .help("Specifies the password on the remote Shadowsocks server")
                         .default_value("mullvad")
                         .index(3),
                 )
                 .arg(
-                    clap::Arg::with_name("cipher")
+                    clap::Arg::new("cipher")
                         .help("Specifies the cipher to use")
                         .default_value("aes-256-gcm")
                         .possible_values(SHADOWSOCKS_CIPHERS)
@@ -168,31 +162,29 @@ fn create_set_custom_settings_subcommand() -> clap::App<'static, 'static> {
         )
 }
 
-fn create_set_state_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("state")
-        .about("Set bridge state")
-        .arg(
-            clap::Arg::with_name("policy")
-                .help("Specifies whether a bridge should be used")
-                .required(true)
-                .index(1)
-                .possible_values(&["auto", "on", "off"]),
-        )
+fn create_set_state_subcommand() -> clap::App<'static> {
+    clap::App::new("state").about("Set bridge state").arg(
+        clap::Arg::new("policy")
+            .help("Specifies whether a bridge should be used")
+            .required(true)
+            .index(1)
+            .possible_values(&["auto", "on", "off"]),
+    )
 }
 
 impl Bridge {
-    async fn handle_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn handle_set(matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
-            ("location", Some(location_matches)) => {
+            Some(("location", location_matches)) => {
                 Self::handle_set_bridge_location(location_matches).await
             }
-            ("provider", Some(provider_matches)) => {
+            Some(("provider", provider_matches)) => {
                 Self::handle_set_bridge_provider(provider_matches).await
             }
-            ("custom", Some(custom_matches)) => {
+            Some(("custom", custom_matches)) => {
                 Self::handle_bridge_set_custom_settings(custom_matches).await
             }
-            ("state", Some(set_matches)) => Self::handle_set_bridge_state(set_matches).await,
+            Some(("state", set_matches)) => Self::handle_set_bridge_state(set_matches).await,
             _ => unreachable!("unhandled command"),
         }
     }
@@ -222,13 +214,12 @@ impl Bridge {
         Ok(())
     }
 
-    async fn handle_set_bridge_location(matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn handle_set_bridge_location(matches: &clap::ArgMatches) -> Result<()> {
         Self::update_bridge_settings(Some(location::get_constraint_from_args(matches)), None).await
     }
 
-    async fn handle_set_bridge_provider(matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let providers =
-            values_t!(matches.values_of("provider"), String).unwrap_or_else(|e| e.exit());
+    async fn handle_set_bridge_provider(matches: &clap::ArgMatches) -> Result<()> {
+        let providers: Vec<String> = matches.values_of_t_or_exit("provider");
         let providers = if providers.iter().next().map(String::as_str) == Some("any") {
             vec![]
         } else {
@@ -277,7 +268,7 @@ impl Bridge {
         Ok(())
     }
 
-    async fn handle_set_bridge_state(matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn handle_set_bridge_state(matches: &clap::ArgMatches) -> Result<()> {
         let state = match matches.value_of("policy").unwrap() {
             "auto" => BridgeState::Auto,
             "on" => BridgeState::On,
@@ -290,14 +281,11 @@ impl Bridge {
         Ok(())
     }
 
-    async fn handle_bridge_set_custom_settings(matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn handle_bridge_set_custom_settings(matches: &clap::ArgMatches) -> Result<()> {
         if let Some(args) = matches.subcommand_matches("local") {
-            let local_port =
-                value_t!(args.value_of("local-port"), u16).unwrap_or_else(|e| e.exit());
-            let remote_ip =
-                value_t!(args.value_of("remote-ip"), IpAddr).unwrap_or_else(|e| e.exit());
-            let remote_port =
-                value_t!(args.value_of("remote-port"), u16).unwrap_or_else(|e| e.exit());
+            let local_port = args.value_of_t_or_exit("local-port");
+            let remote_ip = args.value_of_t_or_exit("remote-ip");
+            let remote_port = args.value_of_t_or_exit("remote-port");
 
             let local_proxy = openvpn::LocalProxySettings {
                 port: local_port,
@@ -314,10 +302,8 @@ impl Bridge {
             )))
             .await?;
         } else if let Some(args) = matches.subcommand_matches("remote") {
-            let remote_ip =
-                value_t!(args.value_of("remote-ip"), IpAddr).unwrap_or_else(|e| e.exit());
-            let remote_port =
-                value_t!(args.value_of("remote-port"), u16).unwrap_or_else(|e| e.exit());
+            let remote_ip = args.value_of_t_or_exit("remote-ip");
+            let remote_port = args.value_of_t_or_exit("remote-port");
             let username = args.value_of("username");
             let password = args.value_of("password");
 
@@ -343,12 +329,10 @@ impl Bridge {
             )))
             .await?;
         } else if let Some(args) = matches.subcommand_matches("shadowsocks") {
-            let remote_ip =
-                value_t!(args.value_of("remote-ip"), IpAddr).unwrap_or_else(|e| e.exit());
-            let remote_port =
-                value_t!(args.value_of("remote-port"), u16).unwrap_or_else(|e| e.exit());
-            let password = args.value_of("password").unwrap().to_string();
-            let cipher = args.value_of("cipher").unwrap().to_string();
+            let remote_ip = args.value_of_t_or_exit("remote-ip");
+            let remote_port = args.value_of_t_or_exit("remote-port");
+            let password = args.value_of_t_or_exit("password");
+            let cipher = args.value_of_t_or_exit("cipher");
 
             let proxy = openvpn::ShadowsocksProxySettings {
                 peer: SocketAddr::new(remote_ip, remote_port),

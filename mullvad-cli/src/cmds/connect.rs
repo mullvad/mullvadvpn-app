@@ -10,18 +10,18 @@ impl Command for Connect {
         "connect"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about("Command the client to start establishing a VPN tunnel")
             .arg(
-                clap::Arg::with_name("wait")
+                clap::Arg::new("wait")
                     .long("wait")
-                    .short("w")
+                    .short('w')
                     .help("Wait until connected before exiting"),
             )
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
 
         let receiver_option = if matches.is_present("wait") {

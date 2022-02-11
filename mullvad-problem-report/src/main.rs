@@ -22,62 +22,65 @@ fn run() -> Result<(), Error> {
         .author(crate_authors!())
         .about("Mullvad VPN problem report tool. Collects logs and sends them to Mullvad support.")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .global_settings(&[
-            clap::AppSettings::DisableHelpSubcommand,
-            clap::AppSettings::VersionlessSubcommands,
-        ])
+        .global_setting(clap::AppSettings::DisableHelpSubcommand)
+        .global_setting(clap::AppSettings::DisableVersionFlag)
         .subcommand(
-            clap::SubCommand::with_name("collect")
+            clap::App::new("collect")
                 .about("Collect problem report")
                 .arg(
-                    clap::Arg::with_name("output")
+                    clap::Arg::new("output")
                         .help("The destination path for saving the collected report.")
                         .long("output")
-                        .short("o")
+                        .short('o')
                         .value_name("PATH")
+                        .allow_invalid_utf8(true)
                         .takes_value(true)
                         .required(true),
                 )
                 .arg(
-                    clap::Arg::with_name("extra_logs")
+                    clap::Arg::new("extra_logs")
                         .help("Paths to additional log files to be included.")
-                        .multiple(true)
+                        .multiple_occurrences(true)
+                        .multiple_values(true)
                         .value_name("EXTRA LOGS")
+                        .allow_invalid_utf8(true)
                         .takes_value(true)
                         .required(false),
                 )
                 .arg(
-                    clap::Arg::with_name("redact")
+                    clap::Arg::new("redact")
                         .help("List of words and expressions to remove from the report")
                         .long("redact")
                         .value_name("PHRASE")
-                        .multiple(true)
+                        .multiple_occurrences(true)
+                        .multiple_values(true)
                         .takes_value(true),
                 ),
         )
         .subcommand(
-            clap::SubCommand::with_name("send")
+            clap::App::new("send")
                 .about("Send collected problem report")
                 .arg(
-                    clap::Arg::with_name("report")
+                    clap::Arg::new("report")
                         .long("report")
-                        .short("r")
+                        .short('r')
                         .help("The path to previously collected report file.")
+                        .allow_invalid_utf8(true)
                         .takes_value(true)
                         .required(true),
                 )
                 .arg(
-                    clap::Arg::with_name("email")
+                    clap::Arg::new("email")
                         .long("email")
-                        .short("e")
+                        .short('e')
                         .help("Reporter's email")
                         .takes_value(true)
                         .required(false),
                 )
                 .arg(
-                    clap::Arg::with_name("message")
+                    clap::Arg::new("message")
                         .long("message")
-                        .short("m")
+                        .short('m')
                         .help("Reporter's message")
                         .takes_value(true)
                         .required(false),
@@ -88,8 +91,8 @@ fn run() -> Result<(), Error> {
 
     if let Some(collect_matches) = matches.subcommand_matches("collect") {
         let redact_custom_strings = collect_matches
-            .values_of_lossy("redact")
-            .unwrap_or_else(Vec::new);
+            .values_of_t("redact")
+            .unwrap_or_else(|_| vec![]);
         let extra_logs = collect_matches
             .values_of_os("extra_logs")
             .map(|os_values| os_values.map(Path::new).collect())

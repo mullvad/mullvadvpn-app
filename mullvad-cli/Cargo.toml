@@ -14,7 +14,7 @@ path = "src/main.rs"
 [dependencies]
 base64 = "0.13"
 chrono = { version = "0.4", features = ["serde"] }
-clap = "2.32"
+clap = { version = "3.0", features = ["cargo"] }
 err-derive = "0.3.0"
 env_logger = "0.8.2"
 futures = "0.3"
@@ -28,6 +28,9 @@ talpid-types = { path = "../talpid-types" }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 tokio = { version = "1.8", features =  [ "rt-multi-thread" ] }
+
+[target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
+clap_complete = { version = "3.0" }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"

@@ -8,11 +8,11 @@ impl Command for Reset {
         "factory-reset"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name()).about("Reset settings, caches and logs")
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name()).about("Reset settings, caches and logs")
     }
 
-    async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, _: &clap::ArgMatches) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         if Self::receive_confirmation() {
             rpc.factory_reset(())
