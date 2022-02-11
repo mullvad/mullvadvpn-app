@@ -251,8 +251,8 @@ export default function CustomDnsSettings() {
           </StyledAddCustomDnsLabel>
           <Cell.Icon
             source="icon-add"
-            width={22}
-            height={22}
+            width={18}
+            height={18}
             tintColor={colors.white40}
             tintHoverColor={colors.white60}
             tabIndex={-1}
@@ -378,8 +378,8 @@ function CellListItem(props: ICellListItemProps) {
               aria-label={messages.pgettext('accessibility', 'Remove item')}>
               <StyledRemoveIcon
                 source="icon-close"
-                width={22}
-                height={22}
+                width={18}
+                height={18}
                 tintColor={editing ? colors.black : colors.white40}
               />
             </StyledRemoveButton>

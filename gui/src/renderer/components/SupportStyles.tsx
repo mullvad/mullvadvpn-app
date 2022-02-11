@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
-import { bigText, smallText } from './common-styles';
+import { hugeText, smallText } from './common-styles';
 import { Container } from './Layout';
 
 export const StyledBlueButton = styled(AppButton.BlueButton)({
@@ -53,10 +53,12 @@ const input = {
 
 export const StyledEmailInput = styled.input.attrs({ type: 'email' })(smallText, input, {
   lineHeight: '26px',
+  fontWeight: 400,
 });
 
 export const StyledMessageInput = styled.textarea(smallText, input, {
   resize: 'none',
+  fontWeight: 400,
 });
 
 export const StyledFooter = styled.div({
@@ -86,6 +88,6 @@ export const StyledEmail = styled.span({
   color: colors.white,
 });
 
-export const StyledSendStatus = styled.span(bigText, {
+export const StyledSendStatus = styled.span(hugeText, {
   marginBottom: '4px',
 });

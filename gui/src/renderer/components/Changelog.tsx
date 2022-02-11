@@ -15,7 +15,7 @@ const StyledTitle = styled.h1(bigText, {
 
 const StyledSubTitle = styled.span(smallText, {
   marginTop: '10px',
-  fontWeight: 800,
+  fontWeight: 700,
 });
 
 const StyledList = styled.ul({

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
+import { normalText, tinyText } from './common-styles';
 import { Container } from './Layout';
 import { RedeemVoucherButton } from './RedeemVoucher';
 
@@ -32,18 +33,14 @@ const AccountRowText = styled.span({
   fontFamily: 'Open Sans',
 });
 
-export const AccountRowLabel = styled(AccountRowText)({
-  fontSize: '13px',
-  fontWeight: 600,
+export const AccountRowLabel = styled(AccountRowText)(tinyText, {
   lineHeight: '20px',
-  marginBottom: '9px',
+  marginBottom: '5px',
   color: colors.white60,
 });
 
-export const AccountRowValue = styled(AccountRowText)({
-  fontSize: '16px',
-  lineHeight: '19px',
-  fontWeight: 800,
+export const AccountRowValue = styled(AccountRowText)(normalText, {
+  fontWeight: 600,
   color: colors.white,
 });
 

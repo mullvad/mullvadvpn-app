@@ -83,7 +83,7 @@ export default class Preferences extends React.Component<IProps, IState> {
                   <Cell.InputLabel>
                     {messages.pgettext('preferences-view', 'Kill switch')}
                   </Cell.InputLabel>
-                  <ImageView source="icon-info" width={24} tintColor={colors.white} />
+                  <ImageView source="icon-info" width={18} tintColor={colors.white} />
                 </Cell.CellButton>
                 <StyledSeparator height={20} />
 

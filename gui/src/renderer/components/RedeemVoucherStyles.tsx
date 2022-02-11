@@ -1,23 +1,18 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { normalText, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
 import ImageView from './ImageView';
 
-export const StyledLabel = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
-  fontWeight: 600,
-  lineHeight: '20px',
+export const StyledLabel = styled.span(smallText, {
   color: colors.white,
   marginBottom: '9px',
 });
 
-export const StyledInput = styled(FormattableTextInput)({
+export const StyledInput = styled(FormattableTextInput)(normalText, {
   flex: 1,
   overflow: 'hidden',
   padding: '14px',
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
   fontWeight: 600,
   lineHeight: '26px',
   color: colors.blue,
@@ -29,12 +24,9 @@ export const StyledInput = styled(FormattableTextInput)({
   },
 });
 
-export const StyledResponse = styled.span({
-  marginTop: '8px',
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
+export const StyledResponse = styled.span(tinyText, {
   lineHeight: '20px',
-  fontWeight: 800,
+  marginTop: '8px',
   color: colors.white,
 });
 
@@ -69,11 +61,9 @@ export const StyledStatusIcon = styled.div({
   marginTop: '25px',
 });
 
-export const StyledTitle = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '16px',
+export const StyledTitle = styled.span(smallText, {
   lineHeight: '22px',
-  fontWeight: 800,
+  fontWeight: 400,
   color: colors.white,
   marginBottom: '5px',
 });
