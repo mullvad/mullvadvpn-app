@@ -11,7 +11,7 @@ publish = false
 crate_type = ["cdylib"]
 
 [target.'cfg(target_os = "android")'.dependencies]
-err-derive = "0.3.0"
+err-derive = "0.3.1"
 futures = "0.3"
 ipnetwork = "0.16"
 jnix = { version = "0.4", features = ["derive"] }
