@@ -8,12 +8,12 @@ impl Command for Version {
         "version"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about("Shows current version, and the currently supported versions")
     }
 
-    async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, _: &clap::ArgMatches) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let current_version = rpc
             .get_current_version(())

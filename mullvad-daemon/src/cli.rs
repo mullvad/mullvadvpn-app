@@ -66,42 +66,42 @@ lazy_static::lazy_static! {
         mullvad_paths::get_default_rpc_socket_path().display());
 }
 
-fn create_app() -> App<'static, 'static> {
+fn create_app() -> App<'static> {
     let mut app = App::new(crate_name!())
         .version(version::PRODUCT_VERSION)
         .author(crate_authors!(", "))
         .about(crate_description!())
         .after_help(ENV_DESC.as_str())
         .arg(
-            Arg::with_name("v")
-                .short("v")
-                .multiple(true)
+            Arg::new("v")
+                .short('v')
+                .multiple_occurrences(true)
                 .help("Sets the level of verbosity"),
         )
         .arg(
-            Arg::with_name("disable_log_to_file")
+            Arg::new("disable_log_to_file")
                 .long("disable-log-to-file")
                 .help("Disable logging to file"),
         )
         .arg(
-            Arg::with_name("disable_stdout_timestamps")
+            Arg::new("disable_stdout_timestamps")
                 .long("disable-stdout-timestamps")
                 .help("Don't log timestamps when logging to stdout, useful when running as a systemd service")
         );
 
     if cfg!(windows) {
         app = app.arg(
-            Arg::with_name("run_as_service")
+            Arg::new("run_as_service")
                 .long("run-as-service")
                 .help("Run as a system service. On Windows this option must be used when running a system service"),
         )
         .arg(
-            Arg::with_name("register_service")
+            Arg::new("register_service")
                 .long("register-service")
                 .help("Register itself as a system service"),
         )
         .arg(
-            Arg::with_name("restart_service")
+            Arg::new("restart_service")
                 .long("restart-service")
                 .help("Restarts the existing system service"),
         )

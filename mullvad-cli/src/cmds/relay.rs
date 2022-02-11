@@ -1,5 +1,4 @@
 use crate::{location, new_rpc_client, Command, Error, Result};
-use clap::{value_t, values_t};
 use itertools::Itertools;
 use std::{
     convert::TryFrom,
@@ -20,49 +19,49 @@ impl Command for Relay {
         "relay"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about("Manage relay and tunnel constraints")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
-                clap::SubCommand::with_name("set")
+                clap::App::new("set")
                     .about(
                         "Set relay server selection parameters. Such as location and port/protocol",
                     )
                     .setting(clap::AppSettings::SubcommandRequiredElseHelp)
                     .subcommand(
-                        clap::SubCommand::with_name("custom")
+                        clap::App::new("custom")
                             .about("Set a custom VPN relay")
                             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-                            .subcommand(clap::SubCommand::with_name("wireguard")
+                            .subcommand(clap::App::new("wireguard")
                                 .arg(
-                                    clap::Arg::with_name("host")
+                                    clap::Arg::new("host")
                                         .help("Hostname or IP")
                                         .required(true),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("port")
+                                    clap::Arg::new("port")
                                         .help("Remote network port")
                                         .required(true),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("peer-pubkey")
+                                    clap::Arg::new("peer-pubkey")
                                         .help("Base64 encoded peer public key")
                                         .required(true),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("v4-gateway")
+                                    clap::Arg::new("v4-gateway")
                                         .help("IPv4 gateway address")
                                         .required(true),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("addr")
+                                    clap::Arg::new("addr")
                                         .help("Local address of wireguard tunnel")
                                         .required(true)
-                                        .multiple(true),
+                                        .multiple_values(true),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("protocol")
+                                    clap::Arg::new("protocol")
                                         .help("Transport protocol. If TCP is selected, traffic is \
                                                sent over TCP using a udp-over-tcp proxy")
                                         .long("protocol")
@@ -70,35 +69,35 @@ impl Command for Relay {
                                         .possible_values(&["udp", "tcp"]),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("v6-gateway")
+                                    clap::Arg::new("v6-gateway")
                                         .help("IPv6 gateway address")
                                         .long("v6-gateway")
                                         .takes_value(true),
                                 )
                             )
-                            .subcommand(clap::SubCommand::with_name("openvpn")
+                            .subcommand(clap::App::new("openvpn")
                                 .arg(
-                                    clap::Arg::with_name("host")
+                                    clap::Arg::new("host")
                                         .help("Hostname or IP")
                                         .required(true),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("port")
+                                    clap::Arg::new("port")
                                         .help("Remote network port")
                                         .required(true),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("username")
+                                    clap::Arg::new("username")
                                         .help("Username to be used with the OpenVpn relay")
                                         .required(true),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("password")
+                                    clap::Arg::new("password")
                                         .help("Password to be used with the OpenVpn relay")
                                         .required(true),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("protocol")
+                                    clap::Arg::new("protocol")
                                         .help("Transport protocol")
                                         .long("protocol")
                                         .default_value("udp")
@@ -112,42 +111,42 @@ impl Command for Relay {
                                    command to show available alternatives.")
                     )
                     .subcommand(
-                        clap::SubCommand::with_name("hostname")
+                        clap::App::new("hostname")
                             .about("Set the exact relay to use via its hostname. Shortcut for \
                                 'location <country> <city> <hostname>'.")
                             .arg(
-                                clap::Arg::with_name("hostname")
+                                clap::Arg::new("hostname")
                                     .help("The hostname")
                                     .required(true),
                             ),
                     )
                     .subcommand(
-                        clap::SubCommand::with_name("provider")
+                        clap::App::new("provider")
                             .about("Set hosting provider(s) to select relays from. The 'list' \
                                    command shows the available relays and their providers.")
                             .arg(
-                                clap::Arg::with_name("provider")
+                                clap::Arg::new("provider")
                                 .help("The hosting provider(s) to use, or 'any' for no preference.")
-                                .multiple(true)
+                                .multiple_values(true)
                                 .required(true)
                             )
                     )
                     .subcommand(
-                        clap::SubCommand::with_name("tunnel")
+                        clap::App::new("tunnel")
                             .about("Set tunnel protocol-specific constraints.")
                             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
                             .subcommand(
-                                clap::SubCommand::with_name("openvpn")
+                                clap::App::new("openvpn")
                                     .about("Set OpenVPN-specific constraints")
                                     .setting(clap::AppSettings::ArgRequiredElseHelp)
                                     .arg(
-                                        clap::Arg::with_name("port")
+                                        clap::Arg::new("port")
                                             .help("Port to use. Either 'any' or a specific port")
                                             .long("port")
                                             .takes_value(true),
                                     )
                                     .arg(
-                                        clap::Arg::with_name("transport protocol")
+                                        clap::Arg::new("transport protocol")
                                             .help("Transport protocol")
                                             .long("protocol")
                                             .possible_values(&["any", "udp", "tcp"])
@@ -155,17 +154,17 @@ impl Command for Relay {
                                     )
                             )
                             .subcommand(
-                                clap::SubCommand::with_name("wireguard")
+                                clap::App::new("wireguard")
                                     .about("Set WireGuard-specific constraints")
                                     .setting(clap::AppSettings::ArgRequiredElseHelp)
                                     .arg(
-                                        clap::Arg::with_name("port")
+                                        clap::Arg::new("port")
                                             .help("Port to use. Either 'any' or a specific port")
                                             .long("port")
                                             .takes_value(true),
                                     )
                                     .arg(
-                                        clap::Arg::with_name("transport protocol")
+                                        clap::Arg::new("transport protocol")
                                             .help("Transport protocol. If TCP is selected, traffic is \
                                                    sent over TCP using a udp-over-tcp proxy")
                                             .long("protocol")
@@ -173,13 +172,13 @@ impl Command for Relay {
                                             .takes_value(true),
                                     )
                                     .arg(
-                                        clap::Arg::with_name("ip version")
+                                        clap::Arg::new("ip version")
                                             .long("ipv")
                                             .possible_values(&["any", "4", "6"])
                                             .takes_value(true),
                                     )
                                     .arg(
-                                        clap::Arg::with_name("entry location")
+                                        clap::Arg::new("entry location")
                                             .help("Entry endpoint to use. This can be 'any', 'none', or \
                                                    any location that is valid with 'set location', \
                                                    such as 'se got'.")
@@ -189,27 +188,27 @@ impl Command for Relay {
                                     )
                             )
                     )
-                    .subcommand(clap::SubCommand::with_name("tunnel-protocol")
+                    .subcommand(clap::App::new("tunnel-protocol")
                                 .about("Set tunnel protocol")
                                 .arg(
-                                    clap::Arg::with_name("tunnel protocol")
+                                    clap::Arg::new("tunnel protocol")
                                     .required(true)
                                     .index(1)
                                     .possible_values(&["any", "wireguard", "openvpn", ]),
                                     )
                                 ),
             )
-            .subcommand(clap::SubCommand::with_name("get"))
+            .subcommand(clap::App::new("get"))
             .subcommand(
-                clap::SubCommand::with_name("list").about("List available countries and cities"),
+                clap::App::new("list").about("List available countries and cities"),
             )
             .subcommand(
-                clap::SubCommand::with_name("update")
+                clap::App::new("update")
                     .about("Update the list of available countries and cities"),
             )
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             self.set(set_matches).await
         } else if matches.subcommand_matches("get").is_some() {
@@ -234,7 +233,7 @@ impl Relay {
         Ok(())
     }
 
-    async fn set(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn set(&self, matches: &clap::ArgMatches) -> Result<()> {
         if let Some(custom_matches) = matches.subcommand_matches("custom") {
             self.set_custom(custom_matches).await
         } else if let Some(location_matches) = matches.subcommand_matches("location") {
@@ -258,11 +257,11 @@ impl Relay {
         }
     }
 
-    async fn set_custom(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn set_custom(&self, matches: &clap::ArgMatches) -> Result<()> {
         let custom_endpoint = match matches.subcommand() {
-            ("openvpn", Some(openvpn_matches)) => Self::read_custom_openvpn_relay(openvpn_matches),
-            ("wireguard", Some(wg_matches)) => Self::read_custom_wireguard_relay(wg_matches),
-            (_unknown_tunnel, _) => unreachable!("No set relay command given"),
+            Some(("openvpn", openvpn_matches)) => Self::read_custom_openvpn_relay(openvpn_matches),
+            Some(("wireguard", wg_matches)) => Self::read_custom_wireguard_relay(wg_matches),
+            _ => unreachable!("No set relay command given"),
         };
 
         self.update_constraints(types::RelaySettingsUpdate {
@@ -271,12 +270,12 @@ impl Relay {
         .await
     }
 
-    fn read_custom_openvpn_relay(matches: &clap::ArgMatches<'_>) -> types::CustomRelaySettings {
-        let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
-        let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
-        let username = value_t!(matches.value_of("username"), String).unwrap_or_else(|e| e.exit());
-        let password = value_t!(matches.value_of("password"), String).unwrap_or_else(|e| e.exit());
-        let protocol = value_t!(matches.value_of("protocol"), String).unwrap_or_else(|e| e.exit());
+    fn read_custom_openvpn_relay(matches: &clap::ArgMatches) -> types::CustomRelaySettings {
+        let host = matches.value_of_t_or_exit("host");
+        let port = matches.value_of_t_or_exit("port");
+        let username = matches.value_of_t_or_exit("username");
+        let password = matches.value_of_t_or_exit("password");
+        let protocol: String = matches.value_of_t_or_exit("protocol");
 
         let protocol = Self::validate_transport_protocol(&protocol);
 
@@ -296,24 +295,22 @@ impl Relay {
         }
     }
 
-    fn read_custom_wireguard_relay(matches: &clap::ArgMatches<'_>) -> types::CustomRelaySettings {
+    fn read_custom_wireguard_relay(matches: &clap::ArgMatches) -> types::CustomRelaySettings {
         use types::connection_config::wireguard_config;
 
-        let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
-        let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
-        let addresses = values_t!(matches.values_of("addr"), IpAddr).unwrap_or_else(|e| e.exit());
-        let peer_key_str =
-            value_t!(matches.value_of("peer-pubkey"), String).unwrap_or_else(|e| e.exit());
-        let ipv4_gateway =
-            value_t!(matches.value_of("v4-gateway"), Ipv4Addr).unwrap_or_else(|e| e.exit());
-        let ipv6_gateway = match value_t!(matches.value_of("v6-gateway"), Ipv6Addr) {
+        let host = matches.value_of_t_or_exit("host");
+        let port = matches.value_of_t_or_exit("port");
+        let addresses: Vec<IpAddr> = matches.values_of_t_or_exit("addr");
+        let peer_key_str: String = matches.value_of_t_or_exit("peer-pubkey");
+        let ipv4_gateway: Ipv4Addr = matches.value_of_t_or_exit("v4-gateway");
+        let ipv6_gateway = match matches.value_of_t::<Ipv6Addr>("v6-gateway") {
             Ok(gateway) => Some(gateway),
             Err(e) => match e.kind {
                 clap::ErrorKind::ArgumentNotFound => None,
                 _ => e.exit(),
             },
         };
-        let protocol = value_t!(matches.value_of("protocol"), String).unwrap_or_else(|e| e.exit());
+        let protocol: String = matches.value_of_t_or_exit("protocol");
         let protocol = Self::validate_transport_protocol(&protocol);
         let mut private_key_str = String::new();
         println!("Reading private key from standard input");
@@ -380,15 +377,15 @@ impl Relay {
         match protocol {
             "udp" => types::TransportProtocol::Udp,
             "tcp" => types::TransportProtocol::Tcp,
-            _ => clap::Error::with_description(
-                "invalid transport protocol",
+            _ => clap::Error::raw(
                 clap::ErrorKind::ValueValidation,
+                "invalid transport protocol",
             )
             .exit(),
         }
     }
 
-    async fn set_hostname(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn set_hostname(&self, matches: &clap::ArgMatches) -> Result<()> {
         let hostname = matches.value_of("hostname").unwrap();
         let countries = Self::get_filtered_relays().await?;
 
@@ -425,15 +422,11 @@ impl Relay {
             })
             .await
         } else {
-            clap::Error::with_description(
-                "No matching server found",
-                clap::ErrorKind::ValueValidation,
-            )
-            .exit()
+            clap::Error::raw(clap::ErrorKind::ValueValidation, "No matching server found").exit()
         }
     }
 
-    async fn set_location(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn set_location(&self, matches: &clap::ArgMatches) -> Result<()> {
         let location_constraint = location::get_constraint_from_args(matches);
         let mut found = false;
 
@@ -490,10 +483,8 @@ impl Relay {
         .await
     }
 
-    async fn set_providers(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let providers =
-            values_t!(matches.values_of("provider"), String).unwrap_or_else(|e| e.exit());
-
+    async fn set_providers(&self, matches: &clap::ArgMatches) -> Result<()> {
+        let providers: Vec<String> = matches.values_of_t_or_exit("provider");
         let providers = if providers.iter().next().map(String::as_str) == Some("any") {
             vec![]
         } else {
@@ -511,7 +502,7 @@ impl Relay {
         .await
     }
 
-    async fn set_openvpn_constraints(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn set_openvpn_constraints(&self, matches: &clap::ArgMatches) -> Result<()> {
         let mut openvpn_constraints = {
             let mut rpc = new_rpc_client().await?;
             self.get_openvpn_constraints(&mut rpc).await?
@@ -552,7 +543,7 @@ impl Relay {
         }
     }
 
-    async fn set_wireguard_constraints(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn set_wireguard_constraints(&self, matches: &clap::ArgMatches) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let mut wireguard_constraints = self.get_wireguard_constraints(&mut rpc).await?;
 
@@ -606,7 +597,7 @@ impl Relay {
         }
     }
 
-    async fn set_tunnel_protocol(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn set_tunnel_protocol(&self, matches: &clap::ArgMatches) -> Result<()> {
         let tunnel_type = match matches.value_of("tunnel protocol").unwrap() {
             "wireguard" => Some(types::TunnelType::Wireguard),
             "openvpn" => Some(types::TunnelType::Openvpn),
@@ -775,7 +766,7 @@ fn parse_entry_location_constraint<'a, T: Iterator<Item = &'a str>>(
 }
 
 fn parse_transport_port(
-    matches: &clap::ArgMatches<'_>,
+    matches: &clap::ArgMatches,
     current_constraint: &mut Option<types::TransportPort>,
 ) -> Result<Option<types::TransportPort>> {
     let protocol = match matches.value_of("transport protocol") {

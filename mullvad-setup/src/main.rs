@@ -1,4 +1,4 @@
-use clap::{crate_authors, crate_description, crate_name, SubCommand};
+use clap::{crate_authors, crate_description, crate_name, App};
 use mullvad_management_interface::new_rpc_client;
 use mullvad_rpc::MullvadRpcRuntime;
 use mullvad_types::version::ParsedAppVersion;
@@ -84,16 +84,14 @@ async fn main() {
     env_logger::init();
 
     let subcommands = vec![
-        SubCommand::with_name("prepare-restart")
+        App::new("prepare-restart")
             .about("Move a running daemon into a blocking state and save its target state"),
-        SubCommand::with_name("reset-firewall")
-            .about("Remove any firewall rules introduced by the daemon"),
-        SubCommand::with_name("remove-wireguard-key")
-            .about("Removes the WireGuard key from the active account"),
-        SubCommand::with_name("is-older-version")
+        App::new("reset-firewall").about("Remove any firewall rules introduced by the daemon"),
+        App::new("remove-wireguard-key").about("Removes the WireGuard key from the active account"),
+        App::new("is-older-version")
             .about("Checks whether the given version is older than the current version")
             .arg(
-                clap::Arg::with_name("OLDVERSION")
+                clap::Arg::new("OLDVERSION")
                     .required(true)
                     .help("Version string to compare the current version"),
             ),
@@ -104,18 +102,16 @@ async fn main() {
         .author(crate_authors!())
         .about(crate_description!())
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .global_settings(&[
-            clap::AppSettings::DisableHelpSubcommand,
-            clap::AppSettings::VersionlessSubcommands,
-        ])
+        .global_setting(clap::AppSettings::DisableHelpSubcommand)
+        .global_setting(clap::AppSettings::DisableVersionFlag)
         .subcommands(subcommands);
 
     let matches = app.get_matches();
     let result = match matches.subcommand() {
-        ("prepare-restart", _) => prepare_restart().await,
-        ("reset-firewall", _) => reset_firewall().await,
-        ("remove-wireguard-key", _) => remove_wireguard_key().await,
-        ("is-older-version", Some(sub_matches)) => {
+        Some(("prepare-restart", _)) => prepare_restart().await,
+        Some(("reset-firewall", _)) => reset_firewall().await,
+        Some(("remove-wireguard-key", _)) => remove_wireguard_key().await,
+        Some(("is-older-version", sub_matches)) => {
             let old_version = sub_matches.value_of("OLDVERSION").unwrap();
             match is_older_version(old_version).await {
                 // Returning exit status

@@ -11,27 +11,27 @@ impl Command for Status {
         "status"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about("View the state of the VPN tunnel")
             .arg(
-                clap::Arg::with_name("location")
+                clap::Arg::new("location")
                     .long("location")
-                    .short("l")
+                    .short('l')
                     .help("Prints the current location and IP. Based on GeoIP lookups"),
             )
             .subcommand(
-                clap::SubCommand::with_name("listen")
+                clap::App::new("listen")
                     .about("Listen for VPN tunnel state changes")
                     .arg(
-                        clap::Arg::with_name("verbose")
-                            .short("v")
+                        clap::Arg::new("verbose")
+                            .short('v')
                             .help("Enables verbose output"),
                     ),
             )
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let state = rpc.get_tunnel_state(()).await?.into_inner();
 

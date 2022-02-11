@@ -1,5 +1,4 @@
 use crate::{new_rpc_client, Command, Result};
-use clap::value_t_or_exit;
 
 pub struct SplitTunnel;
 
@@ -9,8 +8,8 @@ impl Command for SplitTunnel {
         "split-tunnel"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about(
                 "Manage split tunneling. To launch applications outside \
                     the tunnel, use the program 'mullvad-exclude'.",
@@ -19,55 +18,51 @@ impl Command for SplitTunnel {
             .subcommand(create_pid_subcommand())
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
-            ("pid", Some(pid_matches)) => Self::handle_pid_cmd(pid_matches).await,
+            Some(("pid", pid_matches)) => Self::handle_pid_cmd(pid_matches).await,
             _ => unreachable!("unhandled comand"),
         }
     }
 }
 
-fn create_pid_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("pid")
+fn create_pid_subcommand() -> clap::App<'static> {
+    clap::App::new("pid")
         .about("Manage processes to exclude from the tunnel")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .subcommand(
-            clap::SubCommand::with_name("add").arg(clap::Arg::with_name("pid").required(true)),
-        )
-        .subcommand(
-            clap::SubCommand::with_name("delete").arg(clap::Arg::with_name("pid").required(true)),
-        )
-        .subcommand(clap::SubCommand::with_name("clear"))
-        .subcommand(clap::SubCommand::with_name("list"))
+        .subcommand(clap::App::new("add").arg(clap::Arg::new("pid").required(true)))
+        .subcommand(clap::App::new("delete").arg(clap::Arg::new("pid").required(true)))
+        .subcommand(clap::App::new("clear"))
+        .subcommand(clap::App::new("list"))
 }
 
 impl SplitTunnel {
-    async fn handle_pid_cmd(matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn handle_pid_cmd(matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
-            ("add", Some(matches)) => {
-                let pid = value_t_or_exit!(matches.value_of("pid"), i32);
+            Some(("add", matches)) => {
+                let pid: i32 = matches.value_of_t_or_exit("pid");
                 new_rpc_client()
                     .await?
                     .add_split_tunnel_process(pid)
                     .await?;
                 Ok(())
             }
-            ("delete", Some(matches)) => {
-                let pid = value_t_or_exit!(matches.value_of("pid"), i32);
+            Some(("delete", matches)) => {
+                let pid: i32 = matches.value_of_t_or_exit("pid");
                 new_rpc_client()
                     .await?
                     .remove_split_tunnel_process(pid)
                     .await?;
                 Ok(())
             }
-            ("clear", Some(_)) => {
+            Some(("clear", _)) => {
                 new_rpc_client()
                     .await?
                     .clear_split_tunnel_processes(())
                     .await?;
                 Ok(())
             }
-            ("list", Some(_)) => {
+            Some(("list", _)) => {
                 let mut pids_stream = new_rpc_client()
                     .await?
                     .get_split_tunnel_processes(())

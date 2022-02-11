@@ -1,5 +1,4 @@
 use crate::{new_rpc_client, Command, Error, Result, PRODUCT_VERSION};
-use clap::value_t_or_exit;
 
 pub struct BetaProgram;
 
@@ -9,25 +8,25 @@ impl Command for BetaProgram {
         "beta-program"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about("Receive notifications about beta updates")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
-                clap::SubCommand::with_name("set")
+                clap::App::new("set")
                     .about("Change beta notifications setting")
                     .arg(
-                        clap::Arg::with_name("policy")
+                        clap::Arg::new("policy")
                             .required(true)
                             .possible_values(&["on", "off"]),
                     ),
             )
-            .subcommand(clap::SubCommand::with_name("get").about("Get beta notifications setting"))
+            .subcommand(clap::App::new("get").about("Get beta notifications setting"))
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
-            ("get", Some(_)) => {
+            Some(("get", _)) => {
                 let mut rpc = new_rpc_client().await?;
                 let settings = rpc.get_settings(()).await?.into_inner();
                 let enabled_str = if settings.show_beta_releases {
@@ -38,8 +37,8 @@ impl Command for BetaProgram {
                 println!("Beta program: {}", enabled_str);
                 Ok(())
             }
-            ("set", Some(matches)) => {
-                let enable_str = value_t_or_exit!(matches.value_of("policy"), String);
+            Some(("set", matches)) => {
+                let enable_str = matches.value_of("policy").expect("missing policy");
                 let enable = enable_str == "on";
 
                 if !enable && PRODUCT_VERSION.contains("beta") {
