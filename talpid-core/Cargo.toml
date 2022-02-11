@@ -58,8 +58,8 @@ netlink-packet-route = "0.8"
 netlink-proto = "0.7"
 netlink-sys = "0.7"
 byteorder = "1"
-nftnl = { version = "0.6", features = ["nftnl-1-1-0"] }
-mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
+nftnl = { version = "0.6.2", features = ["nftnl-1-1-0"] }
+mnl = { version = "0.2.2", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
 tun = "0.5.1"
 talpid-dbus = { path = "../talpid-dbus" }
