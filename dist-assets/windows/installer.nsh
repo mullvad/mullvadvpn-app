@@ -1185,6 +1185,11 @@
 		${If} $Silent != 1
 			MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
 			${RemoveSettings}
+
+			DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "net.mullvad.vpn"
+			# Discard return value
+			Pop $0
+			Pop $0
 		${EndIf}
 		customRemoveFiles_after_remove_settings:
 	${Else}
