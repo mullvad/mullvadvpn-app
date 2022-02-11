@@ -496,11 +496,6 @@ msgctxt "filter-by-provider-nav"
 msgid "Filter by provider"
 msgstr ""
 
-#. Back button in navigation bar
-msgctxt "filter-by-provider-nav"
-msgid "Select location"
-msgstr ""
-
 msgctxt "filter-by-provider-view"
 msgid "All providers"
 msgstr ""
@@ -630,12 +625,6 @@ msgctxt "login-view"
 msgid "Valid account number"
 msgstr ""
 
-#. Back button in navigation bar
-msgctxt "navigation-bar"
-msgid "Advanced"
-msgstr ""
-
-#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -1322,11 +1311,6 @@ msgstr ""
 #. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
-msgstr ""
-
-#. Back button in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "WireGuard settings"
 msgstr ""
 
 #. Title label in navigation bar
