@@ -517,9 +517,9 @@ checksum = "449aad22b1364e927ff3bf50f55404efd705c40065fb47f73f28704de707c89e"
 
 [[package]]
 name = "err-derive"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dcc7f65832b62ed38939f98966824eb6294911c3629b0e9a262bfb80836d9686"
+checksum = "c34a887c8df3ed90498c1c437ce21f211c8e27672921a8ffa293cb8d6d4caa9e"
 dependencies = [
  "proc-macro-error",
  "proc-macro2",
@@ -1290,9 +1290,9 @@ dependencies = [
 
 [[package]]
 name = "mnl"
-version = "0.2.0"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6efb50a48dbacd112e7e847b9847fa530ec4a473ba6322a2f82c42ef333e226"
+checksum = "d1a5469630da93e1813bb257964c0ccee3b26b6879dd858039ddec35cc8681ed"
 dependencies = [
  "libc",
  "log",
@@ -1301,9 +1301,9 @@ dependencies = [
 
 [[package]]
 name = "mnl-sys"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5302035599c722b3a5b92a6502ff73c501dc6d100c53b89f0fae0cb932a37122"
+checksum = "9750685b201e1ecfaaf7aa5d0387829170fa565989cc481b49080aa155f70457"
 dependencies = [
  "libc",
  "pkg-config",
@@ -1611,9 +1611,9 @@ dependencies = [
 
 [[package]]
 name = "nftnl"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2453197ab3fcf147bf0ebd193557eeffa3998e6c84670eb8c9d86393bd09011f"
+checksum = "e9201688bd0bc571dfa4c21ce0a525480c8b782776cf88e12571fa89108dd920"
 dependencies = [
  "bitflags",
  "err-derive",
@@ -1623,9 +1623,9 @@ dependencies = [
 
 [[package]]
 name = "nftnl-sys"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4de1b9f700ed2553ce1c7bcef72fb6d52e56cdf2bd6ef74ceb0cef89800fe153"
+checksum = "26b5c587b6a5e76a3a5d51e0a757ae66dbff38c277563485807ae979ce361b56"
 dependencies = [
  "cfg-if 1.0.0",
  "libc",
