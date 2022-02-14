@@ -66,6 +66,7 @@ pub struct ApiAvailabilityHandle {
 
 impl ApiAvailabilityHandle {
     pub fn suspend(&self) {
+        log::info!("Suspending API requests");
         let mut state = self.state.lock().unwrap();
         if !state.suspended {
             state.suspended = true;
@@ -74,6 +75,7 @@ impl ApiAvailabilityHandle {
     }
 
     pub fn unsuspend(&self) {
+        log::info!("Unsuspending API requests");
         let mut state = self.state.lock().unwrap();
         if state.suspended {
             state.suspended = false;
@@ -82,6 +84,7 @@ impl ApiAvailabilityHandle {
     }
 
     pub fn pause_background(&self) {
+        log::info!("Pausing background API requests");
         let mut state = self.state.lock().unwrap();
         if !state.pause_background {
             state.pause_background = true;
@@ -90,6 +93,7 @@ impl ApiAvailabilityHandle {
     }
 
     pub fn resume_background(&self) {
+        log::info!("Resuming background API requests");
         let mut state = self.state.lock().unwrap();
         if state.pause_background {
             state.pause_background = false;
@@ -98,6 +102,11 @@ impl ApiAvailabilityHandle {
     }
 
     pub fn set_offline(&self, offline: bool) {
+        if offline {
+            log::info!("Pausing API requests due to being offline");
+        } else {
+            log::info!("Resuming API requests due to coming online");
+        }
         let mut state = self.state.lock().unwrap();
         if state.offline != offline {
             state.offline = offline;
