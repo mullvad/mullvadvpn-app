@@ -120,7 +120,7 @@ impl TunnelState for DisconnectedState {
         #[cfg(target_os = "linux")]
         shared_values.reset_connectivity_check();
         #[cfg(target_os = "android")]
-        shared_values.tun_provider.close_tun();
+        shared_values.tun_provider.lock().unwrap().close_tun();
 
         (
             TunnelStateWrapper::from(DisconnectedState),

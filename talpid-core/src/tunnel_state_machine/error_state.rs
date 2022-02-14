@@ -51,7 +51,12 @@ impl ErrorState {
     /// Returns true if a new tunnel device was successfully created.
     #[cfg(target_os = "android")]
     fn create_blocking_tun(shared_values: &mut SharedTunnelStateValues) -> bool {
-        match shared_values.tun_provider.create_blocking_tun() {
+        match shared_values
+            .tun_provider
+            .lock()
+            .unwrap()
+            .create_blocking_tun()
+        {
             Ok(()) => true,
             Err(error) => {
                 log::error!(

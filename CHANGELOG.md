@@ -52,6 +52,9 @@ Line wrap the file at 100 chars.                                              Th
   these parameters on port 443 (which is the default port).
 - Decrease the size of fonts, some icons and other design elements in the desktop app. This makes it
   possible to fit more into the same area and makes text easier to read.
+- Don't block the tunnel state machine while starting the tunnel monitor. This also means that
+  the machine will not transition directly from the `disconnected` to the `disconnecting` state
+  if an error occurs.
 
 #### Windows
 - Update wireguard-nt to 0.10.1.

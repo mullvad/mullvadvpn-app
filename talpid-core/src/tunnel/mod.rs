@@ -1,9 +1,10 @@
 use self::tun_provider::TunProvider;
-use crate::{logging, routing::RouteManager};
+use crate::{logging, routing::RouteManagerHandle};
+use futures::channel::oneshot;
 use std::{
-    io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::{Path, PathBuf},
+    sync::{Arc, Mutex},
 };
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
@@ -104,9 +105,10 @@ impl TunnelMonitor {
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
-        tun_provider: &mut TunProvider,
-        route_manager: &mut RouteManager,
+        tun_provider: Arc<Mutex<TunProvider>>,
+        route_manager: RouteManagerHandle,
         retry_attempt: u32,
+        tunnel_close_rx: oneshot::Receiver<()>,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -120,9 +122,15 @@ impl TunnelMonitor {
 
         match tunnel_parameters {
             #[cfg(not(target_os = "android"))]
-            TunnelParameters::OpenVpn(config) => {
-                Self::start_openvpn_tunnel(&config, log_file, resource_dir, on_event, route_manager)
-            }
+            TunnelParameters::OpenVpn(config) => Self::start_openvpn_tunnel(
+                &config,
+                log_file,
+                resource_dir,
+                on_event,
+                tunnel_close_rx,
+                #[cfg(target_os = "linux")]
+                route_manager,
+            ),
             #[cfg(target_os = "android")]
             TunnelParameters::OpenVpn(_) => Err(Error::UnsupportedPlatform),
 
@@ -135,6 +143,7 @@ impl TunnelMonitor {
                 tun_provider,
                 route_manager,
                 retry_attempt,
+                tunnel_close_rx,
             ),
         }
     }
@@ -165,9 +174,10 @@ impl TunnelMonitor {
         log: Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
-        tun_provider: &mut TunProvider,
-        route_manager: &mut RouteManager,
+        tun_provider: Arc<Mutex<TunProvider>>,
+        route_manager: RouteManagerHandle,
         retry_attempt: u32,
+        tunnel_close_rx: oneshot::Receiver<()>,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -186,6 +196,7 @@ impl TunnelMonitor {
             tun_provider,
             route_manager,
             retry_attempt,
+            tunnel_close_rx,
         )?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),
@@ -198,7 +209,8 @@ impl TunnelMonitor {
         log: Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
-        route_manager: &mut RouteManager,
+        tunnel_close_rx: oneshot::Receiver<()>,
+        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -206,8 +218,15 @@ impl TunnelMonitor {
             + Sync
             + 'static,
     {
-        let monitor =
-            openvpn::OpenVpnMonitor::start(on_event, config, log, resource_dir, route_manager)?;
+        let monitor = openvpn::OpenVpnMonitor::start(
+            on_event,
+            config,
+            log,
+            resource_dir,
+            tunnel_close_rx,
+            #[cfg(target_os = "linux")]
+            route_manager,
+        )?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::OpenVpn(monitor),
         })
@@ -263,39 +282,9 @@ impl TunnelMonitor {
         }
     }
 
-    /// Creates a handle to this monitor, allowing the tunnel to be closed while some other
-    /// thread
-    /// is blocked in `wait`.
-    pub fn close_handle(&self) -> CloseHandle {
-        self.monitor.close_handle()
-    }
-
     /// Consumes the monitor and blocks until the tunnel exits or there is an error.
     pub fn wait(self) -> Result<()> {
         self.monitor.wait().map_err(Error::from)
-    }
-}
-
-/// A handle to a `TunnelMonitor`
-pub enum CloseHandle {
-    #[cfg(not(target_os = "android"))]
-    /// OpenVpn close handle
-    OpenVpn(openvpn::OpenVpnCloseHandle),
-    /// Wireguard close handle
-    Wireguard(wireguard::CloseHandle),
-}
-
-impl CloseHandle {
-    /// Closes the underlying tunnel, making the `TunnelMonitor::wait` method return.
-    pub fn close(self) -> io::Result<()> {
-        match self {
-            #[cfg(not(target_os = "android"))]
-            CloseHandle::OpenVpn(handle) => handle.close(),
-            CloseHandle::Wireguard(mut handle) => {
-                handle.close();
-                Ok(())
-            }
-        }
     }
 }
 
@@ -306,14 +295,6 @@ enum InternalTunnelMonitor {
 }
 
 impl InternalTunnelMonitor {
-    fn close_handle(&self) -> CloseHandle {
-        match self {
-            #[cfg(not(target_os = "android"))]
-            InternalTunnelMonitor::OpenVpn(tun) => CloseHandle::OpenVpn(tun.close_handle()),
-            InternalTunnelMonitor::Wireguard(tun) => CloseHandle::Wireguard(tun.close_handle()),
-        }
-    }
-
     fn wait(self) -> Result<()> {
         match self {
             #[cfg(not(target_os = "android"))]
