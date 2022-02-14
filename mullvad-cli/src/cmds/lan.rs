@@ -1,5 +1,4 @@
 use crate::{new_rpc_client, Command, Result};
-use clap::value_t_or_exit;
 
 pub struct Lan;
 
@@ -9,28 +8,25 @@ impl Command for Lan {
         "lan"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about("Control the allow local network sharing setting")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
-                clap::SubCommand::with_name("set")
-                    .about("Change allow LAN setting")
-                    .arg(
-                        clap::Arg::with_name("policy")
-                            .required(true)
-                            .possible_values(&["allow", "block"]),
-                    ),
+                clap::App::new("set").about("Change allow LAN setting").arg(
+                    clap::Arg::new("policy")
+                        .required(true)
+                        .possible_values(&["allow", "block"]),
+                ),
             )
             .subcommand(
-                clap::SubCommand::with_name("get")
-                    .about("Display the current local network sharing setting"),
+                clap::App::new("get").about("Display the current local network sharing setting"),
             )
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
-            let allow_lan = value_t_or_exit!(set_matches.value_of("policy"), String);
+            let allow_lan = set_matches.value_of("policy").expect("missing policy");
             self.set(allow_lan == "allow").await
         } else if let Some(_matches) = matches.subcommand_matches("get") {
             self.get().await

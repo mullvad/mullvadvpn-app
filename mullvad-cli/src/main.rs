@@ -1,6 +1,8 @@
 #![deny(rust_2018_idioms)]
 
 use clap::{crate_authors, crate_description};
+#[cfg(all(unix, not(target_os = "android")))]
+use clap_complete::{generator::generate_to, Shell};
 use mullvad_management_interface::async_trait;
 use std::{collections::HashMap, io};
 use talpid_types::ErrorExt;
@@ -43,6 +45,10 @@ pub enum Error {
 
     #[error(display = "Failed to listen for status updates")]
     StatusListenerFailed,
+
+    //#[cfg(all(unix, not(target_os = "android"))
+    #[error(display = "Failed to generate shell completions")]
+    CompletionsError(#[error(source, no_from)] io::Error),
 }
 
 #[tokio::main]
@@ -74,17 +80,19 @@ async fn run() -> Result<()> {
     let commands = cmds::get_commands();
     let app = build_cli(&commands);
 
+    #[cfg(all(unix, not(target_os = "android")))]
     let app = app.subcommand(
-        clap::SubCommand::with_name("shell-completions")
+        clap::App::new("shell-completions")
             .about("Generates completion scripts for your shell")
             .arg(
-                clap::Arg::with_name("SHELL")
+                clap::Arg::new("SHELL")
                     .required(true)
-                    .possible_values(&clap::Shell::variants()[..])
+                    .possible_values(Shell::possible_values())
                     .help("The shell to generate the script for"),
             )
             .arg(
-                clap::Arg::with_name("DIR")
+                clap::Arg::new("DIR")
+                    .allow_invalid_utf8(true)
                     .default_value("./")
                     .help("Output directory where the shell completions are written"),
             )
@@ -93,39 +101,40 @@ async fn run() -> Result<()> {
 
     let app_matches = app.get_matches();
     match app_matches.subcommand() {
-        ("shell-completions", Some(sub_matches)) => {
-            let shell = sub_matches
+        #[cfg(all(unix, not(target_os = "android")))]
+        Some(("shell-completions", sub_matches)) => {
+            let shell: Shell = sub_matches
                 .value_of("SHELL")
                 .unwrap()
                 .parse()
                 .expect("Invalid shell");
             let out_dir = sub_matches.value_of_os("DIR").unwrap();
-            build_cli(&commands).gen_completions(BIN_NAME, shell, out_dir);
-            Ok(())
+            let mut app = build_cli(&commands);
+            generate_to(shell, &mut app, BIN_NAME, out_dir)
+                .map(|_output_file| ())
+                .map_err(Error::CompletionsError)
         }
-        (sub_name, Some(sub_matches)) => {
+        Some((sub_name, sub_matches)) => {
             if let Some(cmd) = commands.get(sub_name) {
                 cmd.run(sub_matches).await
             } else {
                 unreachable!("No command matched");
             }
         }
-        (_, None) => {
+        _ => {
             unreachable!("No subcommand matches");
         }
     }
 }
 
-fn build_cli(commands: &HashMap<&'static str, Box<dyn Command>>) -> clap::App<'static, 'static> {
+fn build_cli(commands: &HashMap<&'static str, Box<dyn Command>>) -> clap::App<'static> {
     clap::App::new(BIN_NAME)
         .version(PRODUCT_VERSION)
         .author(crate_authors!())
         .about(crate_description!())
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .global_settings(&[
-            clap::AppSettings::DisableHelpSubcommand,
-            clap::AppSettings::VersionlessSubcommands,
-        ])
+        .global_setting(clap::AppSettings::DisableHelpSubcommand)
+        .global_setting(clap::AppSettings::DisableVersionFlag)
         .subcommands(commands.values().map(|cmd| cmd.clap_subcommand()))
 }
 
@@ -133,7 +142,7 @@ fn build_cli(commands: &HashMap<&'static str, Box<dyn Command>>) -> clap::App<'s
 pub trait Command {
     fn name(&self) -> &'static str;
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static>;
+    fn clap_subcommand(&self) -> clap::App<'static>;
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()>;
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()>;
 }

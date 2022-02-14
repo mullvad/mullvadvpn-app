@@ -1,5 +1,4 @@
 use crate::{new_rpc_client, Command, Result};
-use clap::value_t_or_exit;
 
 pub struct SplitTunnel;
 
@@ -9,29 +8,29 @@ impl Command for SplitTunnel {
         "split-tunnel"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about("Set options for applications to exclude from the tunnel")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(create_app_subcommand())
             .subcommand(
-                clap::SubCommand::with_name("set")
+                clap::App::new("set")
                     .about("Enable or disable split tunnel")
                     .arg(
-                        clap::Arg::with_name("policy")
+                        clap::Arg::new("policy")
                             .required(true)
                             .possible_values(&["on", "off"]),
                     ),
             )
-            .subcommand(clap::SubCommand::with_name("get").about("Display the split tunnel status"))
+            .subcommand(clap::App::new("get").about("Display the split tunnel status"))
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
-            ("app", Some(matches)) => Self::handle_app_subcommand(matches).await,
-            ("get", _) => self.get().await,
-            ("set", Some(matches)) => {
-                let enabled = value_t_or_exit!(matches.value_of("policy"), String);
+            Some(("app", matches)) => Self::handle_app_subcommand(matches).await,
+            Some(("get", _)) => self.get().await,
+            Some(("set", matches)) => {
+                let enabled = matches.value_of("policy").expect("missing policy");
                 self.set(enabled == "on").await
             }
             _ => {
@@ -41,24 +40,20 @@ impl Command for SplitTunnel {
     }
 }
 
-fn create_app_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("app")
+fn create_app_subcommand() -> clap::App<'static> {
+    clap::App::new("app")
         .about("Manage applications to exclude from the tunnel")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .subcommand(clap::SubCommand::with_name("list"))
-        .subcommand(
-            clap::SubCommand::with_name("add").arg(clap::Arg::with_name("path").required(true)),
-        )
-        .subcommand(
-            clap::SubCommand::with_name("remove").arg(clap::Arg::with_name("path").required(true)),
-        )
-        .subcommand(clap::SubCommand::with_name("clear"))
+        .subcommand(clap::App::new("list"))
+        .subcommand(clap::App::new("add").arg(clap::Arg::new("path").required(true)))
+        .subcommand(clap::App::new("remove").arg(clap::Arg::new("path").required(true)))
+        .subcommand(clap::App::new("clear"))
 }
 
 impl SplitTunnel {
-    async fn handle_app_subcommand(matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn handle_app_subcommand(matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
-            ("list", Some(_)) => {
+            Some(("list", _)) => {
                 let paths = new_rpc_client()
                     .await?
                     .get_settings(())
@@ -75,20 +70,20 @@ impl SplitTunnel {
 
                 Ok(())
             }
-            ("add", Some(matches)) => {
-                let path = value_t_or_exit!(matches.value_of("path"), String);
+            Some(("add", matches)) => {
+                let path: String = matches.value_of_t_or_exit("path");
                 new_rpc_client().await?.add_split_tunnel_app(path).await?;
                 Ok(())
             }
-            ("remove", Some(matches)) => {
-                let path = value_t_or_exit!(matches.value_of("path"), String);
+            Some(("remove", matches)) => {
+                let path: String = matches.value_of_t_or_exit("path");
                 new_rpc_client()
                     .await?
                     .remove_split_tunnel_app(path)
                     .await?;
                 Ok(())
             }
-            ("clear", Some(_)) => {
+            Some(("clear", _)) => {
                 new_rpc_client().await?.clear_split_tunnel_apps(()).await?;
                 Ok(())
             }

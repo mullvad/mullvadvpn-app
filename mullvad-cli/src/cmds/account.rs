@@ -1,5 +1,4 @@
 use crate::{new_rpc_client, Command, Error, Result};
-use clap::value_t_or_exit;
 use itertools::Itertools;
 use mullvad_management_interface::{types::Timestamp, Code};
 use mullvad_types::account::AccountToken;
@@ -13,43 +12,38 @@ impl Command for Account {
         "account"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about("Control and display information about your Mullvad account")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
-                clap::SubCommand::with_name("set")
-                    .about("Change account")
-                    .arg(
-                        clap::Arg::with_name("token")
-                            .help("The Mullvad account token to configure the client with")
-                            .required(false),
-                    ),
+                clap::App::new("set").about("Change account").arg(
+                    clap::Arg::new("token")
+                        .help("The Mullvad account token to configure the client with")
+                        .required(false),
+                ),
             )
             .subcommand(
-                clap::SubCommand::with_name("get")
+                clap::App::new("get")
                     .about("Display information about the currently configured account"),
             )
             .subcommand(
-                clap::SubCommand::with_name("unset")
-                    .about("Removes the account number from the settings"),
+                clap::App::new("unset").about("Removes the account number from the settings"),
             )
             .subcommand(
-                clap::SubCommand::with_name("create")
+                clap::App::new("create")
                     .about("Creates a new account and sets it as the active one"),
             )
             .subcommand(
-                clap::SubCommand::with_name("redeem")
-                    .about("Redeems a voucher")
-                    .arg(
-                        clap::Arg::with_name("voucher")
-                            .help("The Mullvad voucher code to be submitted")
-                            .required(true),
-                    ),
+                clap::App::new("redeem").about("Redeems a voucher").arg(
+                    clap::Arg::new("voucher")
+                        .help("The Mullvad voucher code to be submitted")
+                        .required(true),
+                ),
             )
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             let mut token = match set_matches.value_of("token") {
                 Some(token) => token.to_string(),
@@ -74,7 +68,7 @@ impl Command for Account {
         } else if let Some(_matches) = matches.subcommand_matches("create") {
             self.create().await
         } else if let Some(matches) = matches.subcommand_matches("redeem") {
-            let voucher = value_t_or_exit!(matches.value_of("voucher"), String);
+            let voucher = matches.value_of_t_or_exit("voucher");
             self.redeem_voucher(voucher).await
         } else {
             unreachable!("No account command given");

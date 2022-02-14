@@ -8,7 +8,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-clap = "2.25"
+clap = { version = "3.0", features = ["cargo"] }
 dirs-next = "2.0"
 env_logger = "0.8.2"
 err-derive = "0.3.0"

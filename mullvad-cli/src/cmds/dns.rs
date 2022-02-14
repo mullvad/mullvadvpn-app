@@ -1,7 +1,7 @@
 use crate::{new_rpc_client, Command, Result};
 use mullvad_management_interface::types;
 use mullvad_types::settings::{DnsOptions, DnsState};
-use std::convert::TryInto;
+use std::{convert::TryInto, net::IpAddr};
 
 pub struct Dns;
 
@@ -11,45 +11,43 @@ impl Command for Dns {
         "dns"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about("Configure DNS servers to use when connected")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+            .subcommand(clap::App::new("get").about("Display the current DNS settings"))
             .subcommand(
-                clap::SubCommand::with_name("get").about("Display the current DNS settings"),
-            )
-            .subcommand(
-                clap::SubCommand::with_name("set")
+                clap::App::new("set")
                     .about("Set DNS servers to use")
                     .setting(clap::AppSettings::SubcommandRequiredElseHelp)
                     .subcommand(
-                        clap::SubCommand::with_name("default")
+                        clap::App::new("default")
                             .about("Use default DNS servers")
                             .arg(
-                                clap::Arg::with_name("block ads")
+                                clap::Arg::new("block ads")
                                     .long("block-ads")
                                     .takes_value(false)
                                     .help("Block domain names used for ads"),
                             )
                             .arg(
-                                clap::Arg::with_name("block trackers")
+                                clap::Arg::new("block trackers")
                                     .long("block-trackers")
                                     .takes_value(false)
                                     .help("Block domain names used for tracking"),
                             )
                             .arg(
-                                clap::Arg::with_name("block malware")
+                                clap::Arg::new("block malware")
                                     .long("block-malware")
                                     .takes_value(false)
                                     .help("Block domains known to be used by malware"),
                             ),
                     )
                     .subcommand(
-                        clap::SubCommand::with_name("custom")
+                        clap::App::new("custom")
                             .about("Set a list of custom DNS servers")
                             .arg(
-                                clap::Arg::with_name("servers")
-                                    .multiple(true)
+                                clap::Arg::new("servers")
+                                    .multiple_occurrences(true)
                                     .help("One or more IP addresses pointing to DNS resolvers.")
                                     .required(true),
                             ),
@@ -57,10 +55,10 @@ impl Command for Dns {
             )
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
-            ("set", Some(matches)) => match matches.subcommand() {
-                ("default", Some(matches)) => {
+            Some(("set", matches)) => match matches.subcommand() {
+                Some(("default", matches)) => {
                     self.set_default(
                         matches.is_present("block ads"),
                         matches.is_present("block trackers"),
@@ -68,12 +66,19 @@ impl Command for Dns {
                     )
                     .await
                 }
-                ("custom", Some(matches)) => {
-                    self.set_custom(matches.values_of_lossy("servers")).await
+                Some(("custom", matches)) => {
+                    let servers = match matches.values_of_t::<IpAddr>("servers") {
+                        Ok(servers) => Some(servers),
+                        Err(e) => match e.kind {
+                            clap::ErrorKind::ArgumentNotFound => None,
+                            _ => e.exit(),
+                        },
+                    };
+                    self.set_custom(servers).await
                 }
                 _ => unreachable!("No custom-dns server command given"),
             },
-            ("get", _) => self.get().await,
+            Some(("get", _)) => self.get().await,
             _ => unreachable!("No custom-dns command given"),
         }
     }
@@ -102,13 +107,17 @@ impl Dns {
         Ok(())
     }
 
-    async fn set_custom(&self, servers: Option<Vec<String>>) -> Result<()> {
+    async fn set_custom(&self, servers: Option<Vec<IpAddr>>) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let settings = rpc.get_settings(()).await?.into_inner();
         rpc.set_dns_options(types::DnsOptions {
             state: types::dns_options::DnsState::Custom as i32,
             custom_options: Some(types::CustomDnsOptions {
-                addresses: servers.unwrap_or_default(),
+                addresses: servers
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|a| a.to_string())
+                    .collect(),
             }),
             ..settings.tunnel_options.unwrap().dns_options.unwrap()
         })

@@ -1,5 +1,4 @@
 use crate::{new_rpc_client, Command, Result};
-use clap::value_t_or_exit;
 
 pub struct BlockWhenDisconnected;
 
@@ -9,28 +8,28 @@ impl Command for BlockWhenDisconnected {
         "always-require-vpn"
     }
 
-    fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+    fn clap_subcommand(&self) -> clap::App<'static> {
+        clap::App::new(self.name())
             .about("Control if the system service should block network access when disconnected from VPN")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
-                clap::SubCommand::with_name("set")
+                clap::App::new("set")
                     .about("Change the always require VPN setting")
                     .arg(
-                        clap::Arg::with_name("policy")
+                        clap::Arg::new("policy")
                             .required(true)
                             .possible_values(&["on", "off"]),
                     ),
             )
             .subcommand(
-                clap::SubCommand::with_name("get")
+                clap::App::new("get")
                     .about("Display the current always require VPN setting"),
             )
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
-            let block_when_disconnected = value_t_or_exit!(set_matches.value_of("policy"), String);
+            let block_when_disconnected = set_matches.value_of("policy").expect("missing policy");
             self.set(block_when_disconnected == "on").await
         } else if let Some(_matches) = matches.subcommand_matches("get") {
             self.get().await
