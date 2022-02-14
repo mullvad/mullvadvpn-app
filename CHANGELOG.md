@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2022.1-beta1] - 2022-02-14
 ### Added
 - Add information about the always on kill switch in the desktop app.
 - Add WireGuard multihop setting and entry location selection to desktop app.
