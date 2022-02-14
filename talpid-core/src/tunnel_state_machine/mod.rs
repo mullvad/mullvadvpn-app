@@ -305,6 +305,8 @@ impl TunnelStateMachine {
             connectivity_check_was_enabled: None,
             #[cfg(target_os = "macos")]
             filtering_resolver,
+            #[cfg(target_os = "macos")]
+            _exclusion_gid: exclusion_gid,
         };
 
         tokio::task::spawn_blocking(move || {
@@ -400,6 +402,10 @@ struct SharedTunnelStateValues {
     /// Filtering resolver handle
     #[cfg(target_os = "macos")]
     filtering_resolver: crate::resolver::ResolverHandle,
+
+    /// Exclusion GID
+    #[cfg(target_os = "macos")]
+    _exclusion_gid: u32,
 }
 
 impl SharedTunnelStateValues {
