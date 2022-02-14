@@ -150,7 +150,8 @@ impl TunnelState for DisconnectedState {
                 SameState(self.into())
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                if shared_values.set_allowed_endpoint(endpoint) {
+                if shared_values.allowed_endpoint != endpoint {
+                    shared_values.allowed_endpoint = endpoint;
                     Self::set_firewall_policy(shared_values, true);
                 }
                 if let Err(_) = tx.send(()) {
