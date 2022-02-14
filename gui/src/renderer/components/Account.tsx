@@ -44,12 +44,7 @@ export default class Account extends React.Component<IProps> {
         <StyledContainer>
           <NavigationBar>
             <NavigationItems>
-              <BackBarItem action={this.props.onClose}>
-                {
-                  // TRANSLATORS: Back button in navigation bar
-                  messages.pgettext('navigation-bar', 'Settings')
-                }
-              </BackBarItem>
+              <BackBarItem action={this.props.onClose} />
               <TitleBarItem>
                 {
                   // TRANSLATORS: Title label in navigation bar
