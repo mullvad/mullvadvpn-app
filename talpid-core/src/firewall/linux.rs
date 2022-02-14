@@ -126,10 +126,6 @@ impl Firewall {
     }
 
     pub fn reset_policy(&mut self) -> Result<()> {
-        Self::clear_policy()
-    }
-
-    pub fn clear_policy() -> Result<()> {
         let tables = [
             Table::new(&*TABLE_NAME, ProtoFamily::Inet),
             Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
