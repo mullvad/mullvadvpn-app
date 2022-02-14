@@ -24,15 +24,29 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add information about the always on kill switch in the desktop app.
-- Add WireGuard multihop setting and entry location selection to desktop app.
-- Add malware blocking to the desktop app. Implemented via DNS on the relays.
-- Add changes dialog which will include the most notable changes in each new version.
-
 #### Windows
 - Detect mounting and dismounting of volumes, such as VeraCrypt volumes or USB drives,
   and exclude paths from the tunnel correctly when these occur. This sometimes only works
   when the GUI frontend is running.
+
+### Changed
+- Decrease the size of fonts, some icons and other design elements in the desktop app. This makes it
+  possible to fit more into the same area and makes text easier to read.
+- Don't block the tunnel state machine while starting the tunnel monitor. This also means that
+  the machine will not transition directly from the `disconnected` to the `disconnecting` state
+  if an error occurs.
+
+### Fixed
+- Fix the sometimes incorrect time added text after adding time to the account.
+- Fix scrollbar no longer responsive and usable when covered by other elements.
+
+
+## [2022.1-beta1] - 2022-02-14
+### Added
+- Add information about the always on kill switch in the desktop app.
+- Add WireGuard multihop setting and entry location selection to desktop app.
+- Add malware blocking to the desktop app. Implemented via DNS on the relays.
+- Add changes dialog which will include the most notable changes in each new version.
 
 ### Changed
 - Keep unspecified constraints unchanged in the CLI when providing specific tunnel constraints
@@ -48,11 +62,6 @@ Line wrap the file at 100 chars.                                              Th
 - Update the default Shadowsocks password to `mullvad` and cipher to `aes-256-gcm` in the CLI
   when using it to configure a *custom Shadowsocks bridge*. The Mullvad bridges recently changed
   these parameters on port 443 (which is the default port).
-- Decrease the size of fonts, some icons and other design elements in the desktop app. This makes it
-  possible to fit more into the same area and makes text easier to read.
-- Don't block the tunnel state machine while starting the tunnel monitor. This also means that
-  the machine will not transition directly from the `disconnected` to the `disconnecting` state
-  if an error occurs.
 
 #### Windows
 - Update wireguard-nt to 0.10.1.
@@ -76,8 +85,6 @@ Line wrap the file at 100 chars.                                              Th
   DNS servers set in system network preferences.
 - Fix tray context menu showing or executing wrong actions, using wrong language or in other
   ways not update properly.
-- Fix the sometimes incorrect time added text after adding time to the account.
-- Fix scrollbar no longer responsive and usable when covered by other elements.
 
 #### macOS
 - Resolve issues with the app blocking internet connectivity after sleep or when connecting to new
@@ -99,7 +106,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Remove auto-launch file, GUI settings and other files created by the app in user directories, when
   uninstalling/purging.
-
 
 ### Security
 - Restrict which applications are allowed to communicate with the API while in a blocking state.
