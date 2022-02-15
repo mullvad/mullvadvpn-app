@@ -24,6 +24,10 @@ msgstr "Albania"
 msgid "Amsterdam"
 msgstr "Amsterdam"
 
+#. US QAS
+msgid "Ashburn, VA"
+msgstr ""
+
 #. GR ATH
 msgid "Athens"
 msgstr "Atene"
@@ -511,4 +515,3 @@ msgstr "Vienna"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zurigo"
-
