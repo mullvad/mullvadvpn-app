@@ -153,7 +153,7 @@ impl FilteringResolver {
             return_query.query_type(),
             TTL_SECONDS,
         );
-        return_record.set_rdata(RData::A(RESOLVED_ADDR));
+        return_record.set_data(RData::A(RESOLVED_ADDR));
 
         let lookup = Lookup::new_with_deadline(
             return_query,
