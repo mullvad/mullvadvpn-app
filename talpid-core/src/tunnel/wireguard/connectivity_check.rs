@@ -801,22 +801,13 @@ mod test {
                     .unwrap();
             }
         });
-        let err = DELAY_ON_INITIAL_SETUP + Duration::from_millis(100);
-        assert!(!result_rx
-            .recv_timeout(Duration::from_millis(500) + err)
-            .unwrap()
-            .unwrap());
-        assert!(!result_rx
-            .recv_timeout(Duration::from_secs(1) + err)
-            .unwrap()
-            .unwrap());
-        assert!(!result_rx
-            .recv_timeout(Duration::from_secs(2) + err)
-            .unwrap()
-            .unwrap());
-        assert!(!result_rx
-            .recv_timeout(Duration::from_secs(2) + err)
-            .unwrap()
-            .unwrap());
+        let err = DELAY_ON_INITIAL_SETUP + Duration::from_millis(350);
+        let assert_rx = |recv_timeout: Duration| {
+            assert!(!result_rx.recv_timeout(recv_timeout + err).unwrap().unwrap());
+        };
+        assert_rx(Duration::from_millis(500));
+        assert_rx(Duration::from_secs(1));
+        assert_rx(Duration::from_secs(2));
+        assert_rx(Duration::from_secs(2));
     }
 }
