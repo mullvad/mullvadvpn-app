@@ -19,7 +19,7 @@ lazy_static = "1.1.0"
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 
-tokio = { version = "1.8", features =  [ "rt-multi-thread" ] }
+tokio = { version = "1.8", features =  ["rt-multi-thread"] }
 
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }
@@ -29,7 +29,7 @@ talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3.6", features = [ "securitybaseapi", "impl-default", "impl-debug", "handleapi", "psapi" ]}
+winapi = { version = "0.3.6", features = ["securitybaseapi", "impl-default", "impl-debug", "handleapi", "psapi"]}
 widestring = "0.5"
 
 [target.'cfg(windows)'.build-dependencies]

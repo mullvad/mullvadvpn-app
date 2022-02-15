@@ -16,7 +16,7 @@ lazy_static = "1.0"
 log = "0.4"
 regex = "1.0"
 uuid = { version = "0.8", features = ["v4"] }
-tokio = { version = "1.8", features = [ "rt" ] }
+tokio = { version = "1.8", features = ["rt"] }
 
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-rpc = { path = "../mullvad-rpc" }
