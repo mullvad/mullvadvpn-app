@@ -13,7 +13,7 @@ async-trait = "0.1"
 atty = "0.2"
 cfg-if = "1.0"
 duct = "0.13"
-err-derive = "0.3.0"
+err-derive = "0.3.1"
 futures = "0.3.15"
 hex = "0.4"
 ipnetwork = "0.16"
@@ -27,7 +27,7 @@ shell-escape = "0.1"
 talpid-types = { path = "../talpid-types" }
 uuid = { version = "0.8", features = ["v4"] }
 zeroize = "1"
-chrono = "0.4"
+chrono = "0.4.19"
 tokio = { version = "1.8", features = [ "process", "rt-multi-thread", "fs" ] }
 tokio-stream = { version = "0.1", features =  [ "io-util" ] }
 rand = "0.7"
@@ -58,8 +58,8 @@ netlink-packet-route = "0.8"
 netlink-proto = "0.7"
 netlink-sys = "0.7"
 byteorder = "1"
-nftnl = { version = "0.6", features = ["nftnl-1-1-0"] }
-mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
+nftnl = { version = "0.6.2", features = ["nftnl-1-1-0"] }
+mnl = { version = "0.2.2", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
 tun = "0.5.1"
 talpid-dbus = { path = "../talpid-dbus" }

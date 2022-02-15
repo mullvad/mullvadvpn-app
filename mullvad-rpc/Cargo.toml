@@ -12,8 +12,8 @@ publish = false
 api-override = []
 
 [dependencies]
-chrono = { version = "0.4", features = ["serde"] }
-err-derive = "0.3.0"
+chrono = { version = "0.4.19", features = ["serde"] }
+err-derive = "0.3.1"
 futures = "0.3"
 http = "0.2"
 hyper = { version = "0.14", features = ["client", "stream"] }

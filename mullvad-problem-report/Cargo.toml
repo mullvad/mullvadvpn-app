@@ -11,7 +11,7 @@ publish = false
 clap = { version = "3.0", features = ["cargo"] }
 dirs-next = "2.0"
 env_logger = "0.8.2"
-err-derive = "0.3.0"
+err-derive = "0.3.1"
 lazy_static = "1.0"
 log = "0.4"
 regex = "1.0"
