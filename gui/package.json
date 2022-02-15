@@ -30,7 +30,7 @@
   },
   "optionalDependencies": {
     "grpc-tools": "^1.10.0",
-    "nseventmonitor": "^1.0.1"
+    "nseventmonitor": "^1.0.2"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
@@ -63,7 +63,7 @@
     "electron": "^16.0.4",
     "electron-builder": "^22.11.7",
     "electron-devtools-installer": "^3.2.0",
-    "electron-mocha": "^9.3.3",
+    "electron-mocha": "^11.0.2",
     "electron-notarize": "^0.1.1",
     "eslint": "^7.27.0",
     "eslint-plugin-prettier": "^3.4.0",
