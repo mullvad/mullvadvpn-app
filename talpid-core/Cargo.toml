@@ -28,11 +28,11 @@ talpid-types = { path = "../talpid-types" }
 uuid = { version = "0.8", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4.19"
-tokio = { version = "1.8", features = [ "process", "rt-multi-thread", "fs" ] }
-tokio-stream = { version = "0.1", features =  [ "io-util" ] }
+tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
+tokio-stream = { version = "0.1", features = ["io-util"] }
 rand = "0.7"
 udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "1e27324362ed123b61fa2062b1599e5f9d569796" }
-socket2 = { version = "0.4.2", features = [ "all" ] }
+socket2 = { version = "0.4.2", features = ["all"] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 parity-tokio-ipc = "0.9"
@@ -69,7 +69,7 @@ internet-checksum = "0.2"
 [target.'cfg(target_os = "macos")'.dependencies]
 pfctl = "0.4.4"
 system-configuration = "0.5"
-trust-dns-server = {  version = "0.21.0-alpha.5",  features = [ "trust-dns-resolver" ] }
+trust-dns-server = { version = "0.21.0-alpha.5", features = ["trust-dns-resolver"] }
 tun = "0.5.1"
 subslice = "0.2"
 
