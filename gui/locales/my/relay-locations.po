@@ -24,6 +24,10 @@ msgstr "အယ်လ်ဘေးနီးယား"
 msgid "Amsterdam"
 msgstr "အမ်စတာဒမ်"
 
+#. US QAS
+msgid "Ashburn, VA"
+msgstr ""
+
 #. GR ATH
 msgid "Athens"
 msgstr "အေသင်"
@@ -511,4 +515,3 @@ msgstr "ဗင်း"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ဇူးရစ်ချ်"
-
