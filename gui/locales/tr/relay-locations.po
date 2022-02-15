@@ -24,6 +24,10 @@ msgstr "Arnavutluk"
 msgid "Amsterdam"
 msgstr "Amsterdam"
 
+#. US QAS
+msgid "Ashburn, VA"
+msgstr ""
+
 #. GR ATH
 msgid "Athens"
 msgstr "Atina"
@@ -511,4 +515,3 @@ msgstr "Viyana"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürih"
-
