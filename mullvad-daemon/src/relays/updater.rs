@@ -75,16 +75,16 @@ impl RelayListUpdater {
     }
 
     async fn run(mut self, mut cmd_rx: mpsc::Receiver<()>) {
-        let mut check_interval =
-            tokio_stream::wrappers::IntervalStream::new(tokio::time::interval_at(
-                (Instant::now() + UPDATE_CHECK_INTERVAL).into(),
-                UPDATE_CHECK_INTERVAL,
-            ))
-            .fuse();
+        let mut check_interval = tokio::time::interval_at(
+            (Instant::now() + UPDATE_CHECK_INTERVAL).into(),
+            UPDATE_CHECK_INTERVAL,
+        );
+        check_interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+        let mut ticker = tokio_stream::wrappers::IntervalStream::new(check_interval).fuse();
         let mut download_future = Box::pin(Fuse::terminated());
         loop {
             futures::select! {
-                _check_update = check_interval.next() => {
+                _check_update = ticker.select_next_some() => {
                     if download_future.is_terminated() && self.should_update() {
                         let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
                         download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.rpc_client.clone(), tag).fuse());
@@ -94,7 +94,6 @@ impl RelayListUpdater {
 
                 new_relay_list = download_future => {
                     self.consume_new_relay_list(new_relay_list).await;
-
                 },
 
                 cmd = cmd_rx.next() => {

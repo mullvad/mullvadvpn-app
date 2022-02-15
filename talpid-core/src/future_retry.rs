@@ -205,4 +205,27 @@ mod test {
         let jittered_duration = apply_jitter(unjittered_duration, jitter);
         assert!(jittered_duration <= unjittered_duration);
     }
+
+    #[tokio::test]
+    async fn test_exponential_backoff_delay() {
+        let retry_interval_initial = Duration::from_secs(4);
+        let retry_interval_factor = 5;
+        let retry_interval_max = Duration::from_secs(24 * 60 * 60);
+        tokio::time::pause();
+
+        let _ = retry_future_n(
+            || async { 0 },
+            |_| true,
+            ExponentialBackoff::new(retry_interval_initial, retry_interval_factor)
+                .max_delay(retry_interval_max),
+            5,
+        )
+        .await;
+    }
+
+    #[tokio::test]
+    async fn test_timer_advancement() {
+        tokio::time::pause();
+        sleep(Duration::from_secs(60 * 60)).await
+    }
 }
