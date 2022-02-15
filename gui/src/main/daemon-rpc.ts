@@ -1206,7 +1206,7 @@ function convertFromWireguardConstraints(
     entryLocation: 'any',
   };
 
-  const port = constraints.getPort()?.getPort();
+  const port = constraints.getPort();
   if (port) {
     result.port = { only: port };
   }
@@ -1332,10 +1332,7 @@ function convertToWireguardConstraints(
 
     const port = liftConstraint(constraint.port);
     if (port) {
-      const portConstraints = new grpcTypes.TransportPort();
-      portConstraints.setPort(port);
-      portConstraints.setProtocol(grpcTypes.TransportProtocol.UDP);
-      wireguardConstraints.setPort(portConstraints);
+      wireguardConstraints.setPort(port);
     }
 
     const ipVersion = liftConstraint(constraint.ipVersion);
