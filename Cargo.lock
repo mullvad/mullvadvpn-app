@@ -1058,7 +1058,7 @@ dependencies = [
  "jni",
  "jnix-macros",
  "once_cell",
- "parking_lot",
+ "parking_lot 0.11.2",
 ]
 
 [[package]]
@@ -1127,9 +1127,9 @@ checksum = "7fb9b38af92608140b86b693604b9ffcc5824240a484d1ecd4795bacb2fe88f3"
 
 [[package]]
 name = "lock_api"
-version = "0.4.5"
+version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "712a4d093c9976e24e7dbca41db895dabcbac38eb5f4045393d17a95bdfb1109"
+checksum = "88943dd7ef4a2e5a4bfa2753aaab3013e34ce2533d1996fb18ef591e315e2b3b"
 dependencies = [
  "scopeguard",
 ]
@@ -1331,7 +1331,7 @@ dependencies = [
  "mullvad-rpc",
  "mullvad-types",
  "nix 0.23.1",
- "parking_lot",
+ "parking_lot 0.11.2",
  "rand 0.7.3",
  "regex",
  "serde",
@@ -1774,7 +1774,17 @@ checksum = "7d17b78036a60663b797adeaee46f5c9dfebb86948d1255007a1d6be0271ff99"
 dependencies = [
  "instant",
  "lock_api",
- "parking_lot_core",
+ "parking_lot_core 0.8.5",
+]
+
+[[package]]
+name = "parking_lot"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87f5ec2493a61ac0506c0f4199f99070cbe83857b0337006a30f3e6719b8ef58"
+dependencies = [
+ "lock_api",
+ "parking_lot_core 0.9.1",
 ]
 
 [[package]]
@@ -1789,6 +1799,19 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "parking_lot_core"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28141e0cc4143da2443301914478dc976a61ffdb3f043058310c70df2fed8954"
+dependencies = [
+ "cfg-if 1.0.0",
+ "libc",
+ "redox_syscall",
+ "smallvec",
+ "windows-sys",
 ]
 
 [[package]]
@@ -2614,7 +2637,7 @@ dependencies = [
  "notify",
  "os_pipe",
  "parity-tokio-ipc",
- "parking_lot",
+ "parking_lot 0.11.2",
  "pfctl",
  "prost",
  "quickcheck",
@@ -3009,8 +3032,9 @@ checksum = "ce148eae0d1a376c1b94ae651fc3261d9cb8294788b962b7382066376503a2d1"
 
 [[package]]
 name = "trust-dns-client"
-version = "0.21.0-alpha.4"
-source = "git+https://github.com/BlueJekyll/trust-dns?rev=550e8f8be33df267b5c8e47586024cf17c3407f0#550e8f8be33df267b5c8e47586024cf17c3407f0"
+version = "0.21.0-alpha.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b62dfcea87b25f0810e2a527458dd621e252fd8a5827153329308d6e1f252d68"
 dependencies = [
  "cfg-if 1.0.0",
  "data-encoding",
@@ -3028,8 +3052,9 @@ dependencies = [
 
 [[package]]
 name = "trust-dns-proto"
-version = "0.21.0-alpha.4"
-source = "git+https://github.com/BlueJekyll/trust-dns?rev=550e8f8be33df267b5c8e47586024cf17c3407f0#550e8f8be33df267b5c8e47586024cf17c3407f0"
+version = "0.21.0-alpha.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df4689a56fb36e79b76d13f52056c116f1f014afb1bd330162f2d9dc08ef5405"
 dependencies = [
  "async-trait",
  "cfg-if 1.0.0",
@@ -3053,8 +3078,9 @@ dependencies = [
 
 [[package]]
 name = "trust-dns-resolver"
-version = "0.21.0-alpha.4"
-source = "git+https://github.com/BlueJekyll/trust-dns?rev=550e8f8be33df267b5c8e47586024cf17c3407f0#550e8f8be33df267b5c8e47586024cf17c3407f0"
+version = "0.21.0-alpha.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f2ce3a81fcddc72de8da5852c4ea0a5507bd129c0aa20a2354a1b1e51d6813a"
 dependencies = [
  "cfg-if 1.0.0",
  "futures-util",
@@ -3062,7 +3088,7 @@ dependencies = [
  "lazy_static",
  "log",
  "lru-cache",
- "parking_lot",
+ "parking_lot 0.12.0",
  "resolv-conf",
  "serde",
  "smallvec",
@@ -3073,8 +3099,9 @@ dependencies = [
 
 [[package]]
 name = "trust-dns-server"
-version = "0.21.0-alpha.4"
-source = "git+https://github.com/BlueJekyll/trust-dns?rev=550e8f8be33df267b5c8e47586024cf17c3407f0#550e8f8be33df267b5c8e47586024cf17c3407f0"
+version = "0.21.0-alpha.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a8f6d384fe1e29633d7e64be24b04aaf63a54c3af956635b67a10c823adc5d1"
 dependencies = [
  "async-trait",
  "bytes",
@@ -3426,6 +3453,49 @@ dependencies = [
  "widestring 0.4.3",
  "winapi 0.3.9",
 ]
+
+[[package]]
+name = "windows-sys"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3df6e476185f92a12c072be4a189a0210dcdcf512a1891d6dff9edb874deadc6"
+dependencies = [
+ "windows_aarch64_msvc",
+ "windows_i686_gnu",
+ "windows_i686_msvc",
+ "windows_x86_64_gnu",
+ "windows_x86_64_msvc",
+]
+
+[[package]]
+name = "windows_aarch64_msvc"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8e92753b1c443191654ec532f14c199742964a061be25d77d7a96f09db20bf5"
+
+[[package]]
+name = "windows_i686_gnu"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a711c68811799e017b6038e0922cb27a5e2f43a2ddb609fe0b6f3eeda9de615"
+
+[[package]]
+name = "windows_i686_msvc"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "146c11bb1a02615db74680b32a68e2d61f553cc24c4eb5b4ca10311740e44172"
+
+[[package]]
+name = "windows_x86_64_gnu"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c912b12f7454c6620635bbff3450962753834be2a594819bd5e945af18ec64bc"
+
+[[package]]
+name = "windows_x86_64_msvc"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "504a2476202769977a040c6364301a3f65d0cc9e3fb08600b2bda150a0488316"
 
 [[package]]
 name = "winreg"
