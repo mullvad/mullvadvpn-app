@@ -28,6 +28,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add WireGuard multihop setting and entry location selection to desktop app.
 - Add malware blocking to the desktop app. Implemented via DNS on the relays.
 - Add changes dialog which will include the most notable changes in each new version.
+- Add device management to desktop app. This simplifies knowing which device is which and adds the
+  option to log out other devices when there are already 5 connected when logging in.
 
 #### Windows
 - Detect mounting and dismounting of volumes, such as VeraCrypt volumes or USB drives,
