@@ -1379,6 +1379,22 @@ where
         self.event_listener.notify_app_version(app_version_info);
     }
 
+    /// Returns the next API connection mode to use for reaching the API.
+    ///
+    /// When `mullvad-rpc` fails to contact the API, it requests a new connection mode
+    /// from this function, which will be used for future requests. The API can be
+    /// connected to either directly (i.e., [`ApiConnectionMode::Direct`]) or from
+    /// a bridge ([`ApiConnectionMode::Proxied`]).
+    ///
+    /// * Every 3rd attempt returns [`ApiConnectionMode::Direct`] (i.e., no bridge).
+    /// * For any other attempt, this function returns a configuration for the bridge that is
+    ///   closest to the selected relay location[^note] and matches all bridge constraints.
+    /// * When no matching bridge is found, e.g. if the selected hosting providers don't match any
+    ///   bridge, [`ApiConnectionMode::Direct`] is returned.
+    ///
+    /// [^note]: The "selected relay location" is the location of the last relay that
+    ///    the daemon connected to, or, if no relay was connected to, the "midpoint" of
+    ///    all relays that match the selected relay location constraint.
     async fn handle_generate_api_connection_mode(
         &mut self,
         request: api::ApiConnectionModeRequest,
