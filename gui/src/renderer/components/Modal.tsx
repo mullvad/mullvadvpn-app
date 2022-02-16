@@ -20,8 +20,9 @@ const ModalContent = styled.div({
   bottom: 0,
 });
 
-const ModalBackground = styled.div({
-  backgroundColor: 'rgba(0,0,0,0.5)',
+const ModalBackground = styled.div({}, (props: { visible: boolean }) => ({
+  backgroundColor: props.visible ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)',
+  backdropFilter: props.visible ? 'blur(1.5px)' : '',
   position: 'absolute',
   display: 'flex',
   flexDirection: 'column',
@@ -30,7 +31,8 @@ const ModalBackground = styled.div({
   left: 0,
   right: 0,
   bottom: 0,
-});
+  transition: 'all 150ms ease-out',
+}));
 
 export const StyledModalContainer = styled.div({
   position: 'relative',
@@ -102,14 +104,18 @@ const ModalAlertContainer = styled.div({
   padding: '26px 14px 14px',
 });
 
-const StyledModalAlert = styled.div({
+const StyledModalAlert = styled.div({}, (props: { visible: boolean }) => ({
   display: 'flex',
   flexDirection: 'column',
   backgroundColor: colors.darkBlue,
   borderRadius: '11px',
   padding: '16px 0 16px 16px',
   maxHeight: '80vh',
-});
+  opacity: props.visible ? 1 : 0,
+  transform: props.visible ? '' : 'translateY(10px) scale(98%)',
+  boxShadow: ' 0px 15px 35px 5px rgba(0,0,0,0.5)',
+  transition: 'all 150ms ease-out',
+}));
 
 const StyledCustomScrollbars = styled(CustomScrollbars)({
   paddingRight: '16px',
@@ -142,7 +148,16 @@ export function ModalAlert(props: IModalAlertProps) {
   return <ModalAlertWithContext {...activeModalContext} {...props} />;
 }
 
-class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalContext> {
+interface IModalAlertState {
+  visible: boolean;
+}
+
+class ModalAlertWithContext extends React.Component<
+  IModalAlertProps & IModalContext,
+  IModalAlertState
+> {
+  public state = { visible: false };
+
   private element = document.createElement('div');
   private modalRef = React.createRef<HTMLDivElement>();
 
@@ -164,6 +179,8 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
     if (modalContainer) {
       modalContainer.appendChild(this.element);
       this.modalRef.current?.focus();
+
+      this.setState({ visible: true });
     } else {
       log.error('Modal container not found when mounting modal');
     }
@@ -183,9 +200,14 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
 
   private renderModal() {
     return (
-      <ModalBackground>
+      <ModalBackground visible={this.state.visible}>
         <ModalAlertContainer>
-          <StyledModalAlert ref={this.modalRef} tabIndex={-1} role="dialog" aria-modal>
+          <StyledModalAlert
+            ref={this.modalRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal
+            visible={this.state.visible}>
             <StyledCustomScrollbars>
               {this.props.type && (
                 <ModalAlertIcon>{this.renderTypeIcon(this.props.type)}</ModalAlertIcon>
