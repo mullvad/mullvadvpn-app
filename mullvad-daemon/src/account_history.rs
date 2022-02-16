@@ -116,7 +116,6 @@ impl AccountHistory {
                 .await
                 .map_err(Error::Write)?;
         }
-        self.file.flush().await.map_err(Error::Write)?;
         self.file.get_mut().sync_all().await.map_err(Error::Write)
     }
 }
