@@ -108,6 +108,8 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
         return Err(Error::NoMatchingVersion);
     }
 
+    let old_settings = settings.clone();
+
     v1::migrate(&mut settings)?;
     v2::migrate(&mut settings)?;
     v3::migrate(&mut settings)?;
@@ -116,6 +118,11 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
 
     account_history::migrate_location(cache_dir, settings_dir).await;
     account_history::migrate_formats(settings_dir, &mut settings).await?;
+
+    if settings == old_settings {
+        // Nothing changed
+        return Ok(());
+    }
 
     let buffer = serde_json::to_string_pretty(&settings).map_err(Error::SerializeError)?;
 
