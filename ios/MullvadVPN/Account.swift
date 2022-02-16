@@ -60,6 +60,17 @@ class Account {
 
         /// A failure to configure a tunnel
         case tunnelConfiguration(TunnelManager.Error)
+
+        var errorDescription: String? {
+            switch self {
+            case .createAccount:
+                return "Failure to create new account."
+            case .verifyAccount:
+                return "Failure to verify account."
+            case .tunnelConfiguration:
+                return "Failure to configure the tunnel."
+            }
+        }
     }
 
     /// A shared instance of `Account`

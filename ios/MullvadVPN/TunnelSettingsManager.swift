@@ -37,6 +37,25 @@ extension TunnelSettingsManager {
 
         /// Missing attributes required to perform an operation.
         case missingRequiredAttributes
+
+        var errorDescription: String? {
+            switch self {
+            case .encode:
+                return "Failure to encode settings."
+            case .decode:
+                return "Failure to decode settings."
+            case .addEntry:
+                return "Failure to add keychain entry."
+            case .updateEntry:
+                return "Failure to update keychain entry."
+            case .removeEntry:
+                return "Failure to remove keychain entry."
+            case .lookupEntry:
+                return "Failure to lookup keychain entry."
+            case .missingRequiredAttributes:
+                return "Keychain entry is missing required set of attributes."
+            }
+        }
     }
 
     typealias Result<T> = Swift.Result<T, Error>
