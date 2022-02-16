@@ -62,8 +62,14 @@ pub enum Error {
     #[error(display = "Unable to serialize settings to JSON")]
     SerializeError(#[error(source)] serde_json::Error),
 
+    #[error(display = "Unable to open settings for writing")]
+    OpenError(#[error(source)] io::Error),
+
     #[error(display = "Unable to write new settings")]
     WriteError(#[error(source)] io::Error),
+
+    #[error(display = "Unable to sync settings to disk")]
+    SyncError(#[error(source)] io::Error),
 
     #[error(display = "Failed to read the account history")]
     ReadHistoryError(#[error(source)] io::Error),
@@ -124,10 +130,11 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
         .truncate(true)
         .open(&path)
         .await
-        .map_err(Error::WriteError)?;
+        .map_err(Error::OpenError)?;
     file.write_all(&buffer.into_bytes())
         .await
         .map_err(Error::WriteError)?;
+    file.sync_data().await.map_err(Error::SyncError)?;
     Ok(())
 }
 
