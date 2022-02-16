@@ -23,11 +23,11 @@ enum AppStoreReceipt {
         var errorDescription: String? {
             switch self {
             case .doesNotExist:
-                return "AppStore receipt file does not exist on disk"
+                return "AppStore receipt file does not exist on disk."
             case .io:
-                return "Read error"
+                return "Read error."
             case .refresh:
-                return "Receipt refresh error"
+                return "Receipt refresh error."
             }
         }
     }

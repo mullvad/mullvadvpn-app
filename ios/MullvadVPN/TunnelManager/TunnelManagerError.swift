@@ -75,45 +75,45 @@ extension TunnelManager {
         var errorDescription: String? {
             switch self {
             case .unsetAccount:
-                return "Account is unset"
+                return "Account is unset."
             case .startVPNTunnel:
-                return "Failed to start the VPN tunnel"
+                return "Failed to start the VPN tunnel."
             case .loadAllVPNConfigurations:
-                return "Failed to load the system VPN configurations"
+                return "Failed to load the system VPN configurations."
             case .saveVPNConfiguration:
-                return "Failed to save the system VPN configuration"
+                return "Failed to save the system VPN configuration."
             case .reloadVPNConfiguration:
-                return "Failed to reload the system VPN configuration"
+                return "Failed to reload the system VPN configuration."
             case .removeVPNConfiguration:
-                return "Failed to remove the system VPN configuration"
+                return "Failed to remove the system VPN configuration."
             case .removeInconsistentVPNConfiguration:
-                return "Failed to remove the inconsistent VPN tunnel"
+                return "Failed to remove the inconsistent VPN tunnel."
             case .readTunnelSettings:
-                return "Failed to read the tunnel settings"
+                return "Failed to read the tunnel settings."
             case .readRelays:
-                return "Failed to read relays"
+                return "Failed to read relays."
             case .cannotSatisfyRelayConstraints:
-                return "Failed to satisfy the relay constraints"
+                return "Failed to satisfy the relay constraints."
             case .addTunnelSettings:
-                return "Failed to add the tunnel settings"
+                return "Failed to add the tunnel settings."
             case .updateTunnelSettings:
-                return "Failed to update the tunnel settings"
+                return "Failed to update the tunnel settings."
             case .removeTunnelSettings:
-                return "Failed to remove the tunnel settings"
+                return "Failed to remove the tunnel settings."
             case .migrateTunnelSettings:
-                return "Failed to migrate the tunnel settings"
+                return "Failed to migrate the tunnel settings."
             case .obtainPersistentKeychainReference:
-                return "Failed to obtain the persistent keychain reference"
+                return "Failed to obtain the persistent keychain reference."
             case .pushWireguardKey:
-                return "Failed to push the WireGuard key to server"
+                return "Failed to push the WireGuard key to server."
             case .replaceWireguardKey:
-                return "Failed to replace the WireGuard key on server"
+                return "Failed to replace the WireGuard key on server."
             case .removeWireguardKey:
-                return "Failed to remove the WireGuard key from server"
+                return "Failed to remove the WireGuard key from server."
             case .backgroundTaskScheduler:
-                return "Failed to schedule background task"
+                return "Failed to schedule background task."
             case .reloadTunnel:
-                return "Failed to reload tunnel"
+                return "Failed to reload tunnel."
             }
         }
     }

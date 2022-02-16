@@ -35,9 +35,9 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         var errorDescription: String? {
             switch self {
             case .logFileDoesNotExist(let path):
-                return "Log file does not exist: \(path)"
+                return "Log file does not exist: \(path)."
             case .invalidLogFileURL(let url):
-                return "Invalid log file URL: \(url.absoluteString)"
+                return "Invalid log file URL: \(url.absoluteString)."
             }
         }
     }

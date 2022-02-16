@@ -17,9 +17,9 @@ enum LogRotation {
         var errorDescription: String? {
             switch self {
             case .noSourceLogFile:
-                return "Source log file does not exist"
+                return "Source log file does not exist."
             case .moveSourceLogFile:
-                return "Failure to move the source log file to backup"
+                return "Failure to move the source log file to backup."
             }
         }
     }
