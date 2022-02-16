@@ -67,7 +67,6 @@ pub async fn migrate_formats(settings_dir: &Path, settings: &mut serde_json::Val
     file.write_all(token.as_bytes())
         .await
         .map_err(Error::WriteHistoryError)?;
-    file.flush().await.map_err(Error::WriteHistoryError)?;
     file.sync_all().await.map_err(Error::WriteHistoryError)?;
 
     Ok(())
