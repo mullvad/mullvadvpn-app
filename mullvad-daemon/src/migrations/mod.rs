@@ -142,6 +142,9 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
         .await
         .map_err(Error::WriteError)?;
     file.sync_data().await.map_err(Error::SyncError)?;
+
+    log::debug!("Migrated settings. Wrote settings to {}", path.display());
+
     Ok(())
 }
 
