@@ -270,7 +270,11 @@ export default function CustomDnsSettings() {
         </Cell.FooterText>
       </StyledCustomDnsFooter>
 
-      {confirmAction && <ConfirmationDialog confirm={confirm} abort={abortConfirmation} />}
+      <ConfirmationDialog
+        isOpen={confirmAction !== undefined}
+        confirm={confirm}
+        abort={abortConfirmation}
+      />
     </>
   );
 }
@@ -391,6 +395,7 @@ function CellListItem(props: ICellListItemProps) {
 }
 
 interface IConfirmationDialogProps {
+  isOpen: boolean;
   confirm: () => void;
   abort: () => void;
 }
@@ -398,6 +403,7 @@ interface IConfirmationDialogProps {
 function ConfirmationDialog(props: IConfirmationDialogProps) {
   return (
     <ModalAlert
+      isOpen={props.isOpen}
       type={ModalAlertType.caution}
       buttons={[
         <AppButton.RedButton key="confirm" onClick={props.confirm}>

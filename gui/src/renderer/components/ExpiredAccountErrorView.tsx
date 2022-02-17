@@ -87,7 +87,7 @@ export default class ExpiredAccountErrorView extends React.Component<
               </AppButton.GreenButton>
             </StyledFooter>
 
-            {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
+            {this.renderBlockWhenDisconnectedAlert()}
           </StyledContainer>
         </StyledCustomScrollbars>
       </Layout>
@@ -192,6 +192,7 @@ export default class ExpiredAccountErrorView extends React.Component<
   private renderBlockWhenDisconnectedAlert() {
     return (
       <ModalAlert
+        isOpen={this.state.showBlockWhenDisconnectedAlert}
         type={ModalAlertType.caution}
         buttons={[
           <AppButton.BlueButton

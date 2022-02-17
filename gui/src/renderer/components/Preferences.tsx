@@ -351,21 +351,20 @@ export default class Preferences extends React.Component<IProps, IState> {
           </NavigationContainer>
         </StyledContainer>
 
-        {this.state.showKillSwitchInfo && (
-          <ModalAlert
-            message={messages.pgettext(
-              'preferences-view',
-              'The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished.',
-            )}
-            type={ModalAlertType.info}
-            buttons={[
-              <AppButton.BlueButton key="back" onClick={this.hideKillSwitchInfo}>
-                {messages.gettext('Got it!')}
-              </AppButton.BlueButton>,
-            ]}
-            close={this.hideKillSwitchInfo}
-          />
-        )}
+        <ModalAlert
+          isOpen={this.state.showKillSwitchInfo}
+          message={messages.pgettext(
+            'preferences-view',
+            'The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished.',
+          )}
+          type={ModalAlertType.info}
+          buttons={[
+            <AppButton.BlueButton key="back" onClick={this.hideKillSwitchInfo}>
+              {messages.gettext('Got it!')}
+            </AppButton.BlueButton>,
+          ]}
+          close={this.hideKillSwitchInfo}
+        />
       </Layout>
     );
   }

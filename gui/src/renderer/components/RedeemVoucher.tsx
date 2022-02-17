@@ -207,6 +207,7 @@ export function RedeemVoucherSubmitButton() {
 }
 
 interface IRedeemVoucherAlertProps {
+  show: boolean;
   onClose?: () => void;
 }
 
@@ -220,6 +221,7 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
 
     return (
       <ModalAlert
+        isOpen={props.show}
         buttons={[
           <AppButton.BlueButton key="gotit" onClick={props.onClose}>
             {messages.gettext('Got it!')}
@@ -243,6 +245,7 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
   } else {
     return (
       <ModalAlert
+        isOpen={props.show}
         buttons={[
           <RedeemVoucherSubmitButton key="submit" />,
           <AppButton.BlueButton key="cancel" disabled={submitting} onClick={props.onClose}>
@@ -273,11 +276,9 @@ export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
       <AppButton.GreenButton onClick={onClick} className={props.className}>
         {messages.pgettext('redeem-voucher-alert', 'Redeem voucher')}
       </AppButton.GreenButton>
-      {showAlert && (
-        <RedeemVoucherContainer>
-          <RedeemVoucherAlert onClose={onClose} />
-        </RedeemVoucherContainer>
-      )}
+      <RedeemVoucherContainer>
+        <RedeemVoucherAlert show={showAlert} onClose={onClose} />
+      </RedeemVoucherContainer>
     </>
   );
 }

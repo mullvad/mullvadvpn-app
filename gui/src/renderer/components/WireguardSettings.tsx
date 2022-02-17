@@ -256,7 +256,7 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
           </NavigationContainer>
         </SettingsContainer>
 
-        {this.state.showMultihopConfirmationDialog && this.renderMultihopConfirmation()}
+        {this.renderMultihopConfirmation()}
       </Layout>
     );
   }
@@ -283,6 +283,7 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
   private renderMultihopConfirmation = () => {
     return (
       <ModalAlert
+        isOpen={this.state.showMultihopConfirmationDialog}
         type={ModalAlertType.info}
         message={
           // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
