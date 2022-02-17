@@ -303,7 +303,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
           <AppButton.RedButton key="proceed" onClick={this.acknowledgeOutdateVersion}>
             {messages.pgettext('support-view', 'Continue anyway')}
           </AppButton.RedButton>,
-          <AppButton.BlueButton key="cancel" onClick={this.props.onClose}>
+          <AppButton.BlueButton key="cancel" onClick={this.outdatedVersionCancel}>
             {messages.gettext('Cancel')}
           </AppButton.BlueButton>,
         ]}
@@ -311,6 +311,11 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
       />
     );
   }
+
+  private outdatedVersionCancel = () => {
+    this.acknowledgeOutdateVersion();
+    this.props.onClose();
+  };
 
   private renderForm() {
     return (
