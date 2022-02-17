@@ -33,6 +33,7 @@ const ModalBackground = styled.div({}, (props: { visible: boolean }) => ({
   bottom: 0,
   transition: 'all 150ms ease-out',
   pointerEvents: props.visible ? 'auto' : 'none',
+  zIndex: 2,
 }));
 
 export const StyledModalContainer = styled.div({
