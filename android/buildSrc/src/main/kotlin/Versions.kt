@@ -6,6 +6,7 @@ object Versions {
     const val koin = "2.2.2"
     const val kotlin = "1.4.31"
     const val kotlinx = "1.5.1"
+    const val leakCanary = "2.8.1"
     const val mockk = "1.12.0"
 
     object Android {

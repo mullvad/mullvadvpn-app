@@ -57,6 +57,10 @@ android {
             isMinifyEnabled = false
             signingConfig = null
         }
+
+        create("leakCanary") {
+            initWith(buildTypes.getByName("debug"))
+        }
     }
 
     sourceSets {
@@ -153,14 +157,17 @@ dependencies {
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 
-    /* Test dependencies */
+    // Leak canary
+    leakCanaryImplementation(Dependencies.leakCanary)
+
+    // Test dependencies
     testImplementation(Dependencies.Koin.test)
     testImplementation(Dependencies.Kotlin.test)
     testImplementation(Dependencies.KotlinX.coroutinesTest)
     testImplementation(Dependencies.MockK.core)
     testImplementation(Dependencies.junit)
 
-    /* UI test dependencies */
+    // UI test dependencies
     debugImplementation(Dependencies.AndroidX.fragmentTestning)
     androidTestImplementation(Dependencies.AndroidX.espressoContrib)
     androidTestImplementation(Dependencies.AndroidX.espressoCore)
