@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
@@ -32,6 +32,7 @@ const ModalBackground = styled.div({}, (props: { visible: boolean }) => ({
   right: 0,
   bottom: 0,
   transition: 'all 150ms ease-out',
+  pointerEvents: props.visible ? 'auto' : 'none',
 }));
 
 export const StyledModalContainer = styled.div({
@@ -104,18 +105,27 @@ const ModalAlertContainer = styled.div({
   padding: '26px 14px 14px',
 });
 
-const StyledModalAlert = styled.div({}, (props: { visible: boolean }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  backgroundColor: colors.darkBlue,
-  borderRadius: '11px',
-  padding: '16px 0 16px 16px',
-  maxHeight: '80vh',
-  opacity: props.visible ? 1 : 0,
-  transform: props.visible ? '' : 'translateY(10px) scale(98%)',
-  boxShadow: ' 0px 15px 35px 5px rgba(0,0,0,0.5)',
-  transition: 'all 150ms ease-out',
-}));
+const StyledModalAlert = styled.div({}, (props: { visible: boolean; closing: boolean }) => {
+  let transform = '';
+  if (props.visible && props.closing) {
+    transform = 'scale(80%)';
+  } else if (!props.visible) {
+    transform = 'translateY(10px) scale(98%)';
+  }
+
+  return {
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: colors.darkBlue,
+    borderRadius: '11px',
+    padding: '16px 0 16px 16px',
+    maxHeight: '80vh',
+    opacity: props.visible && !props.closing ? 1 : 0,
+    transform,
+    boxShadow: ' 0px 15px 35px 5px rgba(0,0,0,0.5)',
+    transition: 'all 150ms ease-out',
+  };
+});
 
 const StyledCustomScrollbars = styled(CustomScrollbars)({
   paddingRight: '16px',
@@ -143,25 +153,48 @@ interface IModalAlertProps {
   close?: () => void;
 }
 
-export function ModalAlert(props: IModalAlertProps) {
+export function ModalAlert(props: IModalAlertProps & { isOpen: boolean }) {
+  const { isOpen, ...otherProps } = props;
   const activeModalContext = useContext(ActiveModalContext);
-  return <ModalAlertWithContext {...activeModalContext} {...props} />;
+  const [closing, setClosing] = useState(false);
+  const prevIsOpen = useRef(isOpen);
+
+  const onTransitionEnd = useCallback(() => setClosing(false), []);
+  useEffect(() => {
+    setClosing((closing) => closing || (prevIsOpen.current && !isOpen));
+    prevIsOpen.current = isOpen;
+  }, [isOpen]);
+
+  if (!prevIsOpen.current && !isOpen && !closing) {
+    return null;
+  }
+
+  return (
+    <ModalAlertImpl
+      {...activeModalContext}
+      {...otherProps}
+      closing={closing}
+      onTransitionEnd={onTransitionEnd}
+    />
+  );
 }
 
 interface IModalAlertState {
   visible: boolean;
 }
 
-class ModalAlertWithContext extends React.Component<
-  IModalAlertProps & IModalContext,
-  IModalAlertState
-> {
+interface IModalAlertImplProps extends IModalAlertProps, IModalContext {
+  closing: boolean;
+  onTransitionEnd: () => void;
+}
+
+class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertState> {
   public state = { visible: false };
 
   private element = document.createElement('div');
   private modalRef = React.createRef<HTMLDivElement>();
 
-  constructor(props: IModalAlertProps & IModalContext) {
+  constructor(props: IModalAlertImplProps) {
     super(props);
 
     if (document.activeElement) {
@@ -200,14 +233,16 @@ class ModalAlertWithContext extends React.Component<
 
   private renderModal() {
     return (
-      <ModalBackground visible={this.state.visible}>
+      <ModalBackground visible={this.state.visible && !this.props.closing}>
         <ModalAlertContainer>
           <StyledModalAlert
             ref={this.modalRef}
             tabIndex={-1}
             role="dialog"
             aria-modal
-            visible={this.state.visible}>
+            visible={this.state.visible}
+            closing={this.props.closing}
+            onTransitionEnd={this.onTransitionEnd}>
             <StyledCustomScrollbars>
               {this.props.type && (
                 <ModalAlertIcon>{this.renderTypeIcon(this.props.type)}</ModalAlertIcon>
@@ -251,6 +286,12 @@ class ModalAlertWithContext extends React.Component<
     if (event.key === 'Escape') {
       event.stopPropagation();
       this.props.close?.();
+    }
+  };
+
+  private onTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
+    if (event.target === this.modalRef.current) {
+      this.props.onTransitionEnd();
     }
   };
 }
