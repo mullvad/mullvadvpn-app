@@ -1,4 +1,4 @@
-name: Android app Kotlin linter
+name: Android - Kotlin linter
 on:
     # Run linter whenever a Kotlin file changes
     pull_request:
