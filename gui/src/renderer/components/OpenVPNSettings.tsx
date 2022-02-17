@@ -224,7 +224,7 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
           </NavigationContainer>
         </SettingsContainer>
 
-        {this.state.showBridgeStateConfirmationDialog && this.renderBridgeStateConfirmation()}
+        {this.renderBridgeStateConfirmation()}
       </Layout>
     );
   }
@@ -326,6 +326,7 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
   private renderBridgeStateConfirmation = () => {
     return (
       <ModalAlert
+        isOpen={this.state.showBridgeStateConfirmationDialog}
         type={ModalAlertType.info}
         message={messages.gettext('This setting increases latency. Use only if needed.')}
         buttons={[

@@ -37,17 +37,15 @@ export function Changelog() {
 
   const { setDisplayedChangelog } = useAppContext();
 
-  if (
-    changelogDisplayedForVersion === currentVersion ||
-    changelog.length === 0 ||
-    window.env.development ||
-    /-dev-[0-9a-f]{6}$/.test(currentVersion)
-  ) {
-    return null;
-  }
+  const visible =
+    changelogDisplayedForVersion !== currentVersion &&
+    changelog.length > 0 &&
+    !window.env.development &&
+    !/-dev-[0-9a-f]{6}$/.test(currentVersion);
 
   return (
     <ModalAlert
+      isOpen={visible}
       buttons={[
         <AppButton.BlueButton key="close" onClick={setDisplayedChangelog}>
           {

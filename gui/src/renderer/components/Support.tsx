@@ -132,7 +132,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
   };
 
   public render() {
-    const { sendState, showOutdatedVersionWarning } = this.state;
+    const { sendState } = this.state;
     const header = (
       <SettingsHeader>
         <HeaderTitle>{messages.pgettext('support-view', 'Report a problem')}</HeaderTitle>
@@ -168,8 +168,8 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
             {content}
           </StyledContentContainer>
 
-          {sendState === SendState.confirm && this.renderNoEmailDialog()}
-          {showOutdatedVersionWarning && this.renderOutdateVersionWarningDialog()}
+          {this.renderNoEmailDialog()}
+          {this.renderOutdateVersionWarningDialog()}
         </StyledContainer>
       </Layout>
     );
@@ -247,6 +247,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     );
     return (
       <ModalAlert
+        isOpen={this.state.sendState === SendState.confirm}
         type={ModalAlertType.warning}
         message={message}
         buttons={[
@@ -276,6 +277,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     );
     return (
       <ModalAlert
+        isOpen={this.state.showOutdatedVersionWarning}
         type={ModalAlertType.warning}
         message={message}
         buttons={[
