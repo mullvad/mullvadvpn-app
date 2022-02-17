@@ -6,16 +6,13 @@ const Container = styled.div({
   overflow: 'hidden',
 });
 
-const Text = styled.span(
-  {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-  },
-  (props: { overflow: number; alignRight: boolean }) => ({
-    left: props.alignRight ? -props.overflow + 'px' : '0',
-    transition: `left linear ${props.overflow * 80}ms`,
-  }),
-);
+const Text = styled.span({}, (props: { overflow: number; alignRight: boolean }) => ({
+  display: 'inline-block',
+  whiteSpace: 'nowrap',
+  willChange: 'transform',
+  transform: props.alignRight ? `translate(${-props.overflow}px)` : 'translate(0)',
+  transition: `transform linear ${props.overflow * 80}ms`,
+}));
 
 interface IMarqueeProps {
   className?: string;
