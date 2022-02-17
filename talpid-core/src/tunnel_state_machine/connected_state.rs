@@ -211,7 +211,7 @@ impl ConnectedState {
                 }
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                let _ = shared_values.set_allowed_endpoint(endpoint);
+                shared_values.allowed_endpoint = endpoint;
                 if let Err(_) = tx.send(()) {
                     log::error!("The AllowEndpoint receiver was dropped");
                 }

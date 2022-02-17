@@ -328,7 +328,8 @@ impl ConnectingState {
                 }
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                if shared_values.set_allowed_endpoint(endpoint) {
+                if shared_values.allowed_endpoint != endpoint {
+                    shared_values.allowed_endpoint = endpoint;
                     if let Err(error) = Self::set_firewall_policy(
                         shared_values,
                         &self.tunnel_parameters,

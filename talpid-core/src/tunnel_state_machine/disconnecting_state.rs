@@ -28,7 +28,7 @@ impl DisconnectingState {
                     AfterDisconnect::Nothing
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                    let _ = shared_values.set_allowed_endpoint(endpoint);
+                    shared_values.allowed_endpoint = endpoint;
                     if let Err(_) = tx.send(()) {
                         log::error!("The AllowEndpoint receiver was dropped");
                     }
@@ -66,7 +66,7 @@ impl DisconnectingState {
                     AfterDisconnect::Block(reason)
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                    let _ = shared_values.set_allowed_endpoint(endpoint);
+                    shared_values.allowed_endpoint = endpoint;
                     if let Err(_) = tx.send(()) {
                         log::error!("The AllowEndpoint receiver was dropped");
                     }
@@ -109,7 +109,7 @@ impl DisconnectingState {
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                    let _ = shared_values.set_allowed_endpoint(endpoint);
+                    shared_values.allowed_endpoint = endpoint;
                     if let Err(_) = tx.send(()) {
                         log::error!("The AllowEndpoint receiver was dropped");
                     }

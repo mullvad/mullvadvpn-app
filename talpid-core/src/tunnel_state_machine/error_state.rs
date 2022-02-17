@@ -149,7 +149,8 @@ impl TunnelState for ErrorState {
                 }
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                if shared_values.set_allowed_endpoint(endpoint) {
+                if shared_values.allowed_endpoint != endpoint {
+                    shared_values.allowed_endpoint = endpoint;
                     let _ = Self::set_firewall_policy(shared_values);
 
                     #[cfg(target_os = "android")]
