@@ -2495,6 +2495,7 @@ where
     }
 
     fn connect_tunnel(&mut self) {
+        self.rpc_runtime.availability_handle().resume_background();
         self.send_tunnel_command(TunnelCommand::Connect);
     }
 
