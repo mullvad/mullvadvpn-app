@@ -211,7 +211,14 @@ impl RelaySelector {
     /// Download the newest relay list.
     pub async fn update(&self) {
         if let Some(mut updater) = self.updater.clone() {
-            let _ = updater.update_relay_list().await;
+            if let Err(err) = updater.update_relay_list().await {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg(
+                        "Unable to send update command to relay list updater"
+                    )
+                );
+            }
         }
     }
 
