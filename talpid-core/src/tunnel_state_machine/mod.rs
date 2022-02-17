@@ -237,11 +237,9 @@ impl TunnelStateMachine {
                 InitialFirewallState::None
             },
             allow_lan: settings.allow_lan,
-            #[cfg(target_os = "macos")]
-            exclusion_gid,
         };
 
-        let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
+        let firewall = Firewall::from_args(args).map_err(Error::InitFirewallError)?;
         let route_manager = RouteManager::new(HashSet::new())
             .await
             .map_err(Error::InitRouteManagerError)?;
@@ -307,6 +305,8 @@ impl TunnelStateMachine {
             connectivity_check_was_enabled: None,
             #[cfg(target_os = "macos")]
             filtering_resolver,
+            #[cfg(target_os = "macos")]
+            _exclusion_gid: exclusion_gid,
         };
 
         tokio::task::spawn_blocking(move || {
@@ -402,6 +402,10 @@ struct SharedTunnelStateValues {
     /// Filtering resolver handle
     #[cfg(target_os = "macos")]
     filtering_resolver: crate::resolver::ResolverHandle,
+
+    /// Exclusion GID
+    #[cfg(target_os = "macos")]
+    _exclusion_gid: u32,
 }
 
 impl SharedTunnelStateValues {

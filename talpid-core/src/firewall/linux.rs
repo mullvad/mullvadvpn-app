@@ -1,4 +1,4 @@
-use super::{FirewallArguments, FirewallPolicy, FirewallT};
+use super::{FirewallArguments, FirewallPolicy};
 use crate::{split_tunnel, tunnel};
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
@@ -104,26 +104,28 @@ struct FirewallTables {
     mangle_v6: Table,
 }
 
-impl FirewallT for Firewall {
-    type Error = Error;
-
-    fn new(_args: FirewallArguments) -> Result<Self> {
+impl Firewall {
+    pub fn from_args(_args: FirewallArguments) -> Result<Self> {
         Ok(Firewall(()))
     }
 
-    fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
+    pub fn new() -> Result<Self> {
+        Ok(Firewall(()))
+    }
+
+    pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         let tables = FirewallTables {
             main: Table::new(&*TABLE_NAME, ProtoFamily::Inet),
             mangle_v4: Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
             mangle_v6: Table::new(&*MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),
         };
         let batch = PolicyBatch::new(&tables).finalize(&policy)?;
-        self.send_and_process(&batch)?;
+        Self::send_and_process(&batch)?;
         Self::apply_kernel_config(&policy);
         self.verify_tables(&[&TABLE_NAME, &MANGLE_TABLE_NAME_V4, &MANGLE_TABLE_NAME_V6])
     }
 
-    fn reset_policy(&mut self) -> Result<()> {
+    pub fn reset_policy(&mut self) -> Result<()> {
         let tables = [
             Table::new(&*TABLE_NAME, ProtoFamily::Inet),
             Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
@@ -139,12 +141,10 @@ impl FirewallT for Firewall {
         }
         let batch = batch.finalize();
         log::debug!("Removing table and chain from netfilter");
-        self.send_and_process(&batch)?;
+        Self::send_and_process(&batch)?;
         Ok(())
     }
-}
 
-impl Firewall {
     fn apply_kernel_config(policy: &FirewallPolicy) {
         if *DONT_SET_SRC_VALID_MARK {
             log::debug!("Not setting src_valid_mark");
@@ -158,7 +158,7 @@ impl Firewall {
         }
     }
 
-    fn send_and_process(&self, batch: &FinalizedBatch) -> Result<()> {
+    fn send_and_process(batch: &FinalizedBatch) -> Result<()> {
         let socket = mnl::Socket::new(mnl::Bus::Netfilter).map_err(Error::NetlinkOpenError)?;
         socket.send_all(batch).map_err(Error::NetlinkSendError)?;
 
