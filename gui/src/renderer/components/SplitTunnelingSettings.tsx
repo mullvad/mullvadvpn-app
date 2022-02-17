@@ -183,26 +183,25 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
         {messages.pgettext('split-tunneling-view', 'Find another app')}
       </StyledBrowseButton>
 
-      {browseError && (
-        <ModalAlert
-          type={ModalAlertType.warning}
-          iconColor={colors.red}
-          message={sprintf(
-            // TRANSLATORS: Error message showed in a dialog when an application failes to launch.
-            messages.pgettext(
-              'split-tunneling-view',
-              'Unable to launch selection. %(detailedErrorMessage)s',
-            ),
-            { detailedErrorMessage: browseError },
-          )}
-          buttons={[
-            <AppButton.BlueButton key="close" onClick={hideBrowseFailureDialog}>
-              {messages.gettext('Close')}
-            </AppButton.BlueButton>,
-          ]}
-          close={hideBrowseFailureDialog}
-        />
-      )}
+      <ModalAlert
+        isOpen={browseError !== undefined}
+        type={ModalAlertType.warning}
+        iconColor={colors.red}
+        message={sprintf(
+          // TRANSLATORS: Error message showed in a dialog when an application failes to launch.
+          messages.pgettext(
+            'split-tunneling-view',
+            'Unable to launch selection. %(detailedErrorMessage)s',
+          ),
+          { detailedErrorMessage: browseError },
+        )}
+        buttons={[
+          <AppButton.BlueButton key="close" onClick={hideBrowseFailureDialog}>
+            {messages.gettext('Close')}
+          </AppButton.BlueButton>,
+        ]}
+        close={hideBrowseFailureDialog}
+      />
     </>
   );
 }
@@ -279,15 +278,14 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
           <StyledCellWarningIcon source="icon-alert" tintColor={warningColor} width={18} />
         )}
       </StyledCellButton>
-      {showWarning && (
-        <ModalAlert
-          type={ModalAlertType.warning}
-          iconColor={warningColor}
-          message={warningMessage}
-          buttons={warningDialogButtons}
-          close={hideWarningDialog}
-        />
-      )}
+      <ModalAlert
+        isOpen={showWarning}
+        type={ModalAlertType.warning}
+        iconColor={warningColor}
+        message={warningMessage}
+        buttons={warningDialogButtons}
+        close={hideWarningDialog}
+      />
     </>
   );
 }

@@ -187,8 +187,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
           </NavigationContainer>
         </SettingsContainer>
 
-        {this.state.showConfirmBlockWhenDisconnectedAlert &&
-          this.renderConfirmBlockWhenDisconnectedAlert()}
+        {this.renderConfirmBlockWhenDisconnectedAlert()}
       </Layout>
     );
   }
@@ -221,6 +220,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
   private renderConfirmBlockWhenDisconnectedAlert = () => {
     return (
       <ModalAlert
+        isOpen={this.state.showConfirmBlockWhenDisconnectedAlert}
         type={ModalAlertType.caution}
         buttons={[
           <AppButton.RedButton key="confirm" onClick={this.confirmEnableBlockWhenDisconnected}>
