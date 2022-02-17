@@ -222,6 +222,14 @@ msgctxt "accessibility"
 msgid "Opens externally"
 msgstr ""
 
+#. Button action description provided to accessibility tools such as screen
+#. readers.
+#. Available placeholders:
+#. %(deviceName)s - The device name to remove.
+msgctxt "accessibility"
+msgid "Remove device named %(deviceName)s"
+msgstr ""
+
 msgctxt "accessibility"
 msgid "Remove item"
 msgstr ""
@@ -317,10 +325,6 @@ msgid "Increases anonymity by routing your traffic into one WireGuard server and
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "missing key"
-msgstr ""
-
-msgctxt "advanced-settings-view"
 msgid "OpenVPN"
 msgstr ""
 
@@ -334,10 +338,6 @@ msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -489,6 +489,75 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr ""
 
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "**" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Are you sure you want to log out of **%(deviceName)s**?"
+msgstr ""
+
+#. Button for continuing login process.
+msgctxt "device-management"
+msgid "Continue with login"
+msgstr ""
+
+msgctxt "device-management"
+msgid "Device is inactive"
+msgstr ""
+
+msgctxt "device-management"
+msgid "Device name"
+msgstr ""
+
+msgctxt "device-management"
+msgid "Go to login"
+msgstr ""
+
+#. Confirmation button when logging out
+msgctxt "device-management"
+msgid "Log out anyway"
+msgstr ""
+
+#. Page title informing user that enough devices has been removed to continue
+#. login process.
+msgctxt "device-management"
+msgid "Super!"
+msgstr ""
+
+#. This is is a further explanation of what happens when logging out.
+msgctxt "device-management"
+msgid "The ports forwarded to this device will be deleted if you log out."
+msgstr ""
+
+#. Further information about consequences of logging out device.
+msgctxt "device-management"
+msgid "This will delete all forwarded ports. Local settings will be saved."
+msgstr ""
+
+#. Page title informing user that the login failed due to too many registered
+#. devices on account.
+msgctxt "device-management"
+msgid "Too many devices"
+msgstr ""
+
+#. Confirmation button when logging out other device.
+msgctxt "device-management"
+msgid "Yes, log out device"
+msgstr ""
+
+msgctxt "device-management"
+msgid "You can now continue logging in on this device."
+msgstr ""
+
+msgctxt "device-management"
+msgid "You have removed this device from your list of active devices. To connect with this device again, log in."
+msgstr ""
+
+msgctxt "device-management"
+msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device’s Account settings."
+msgstr ""
+
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -535,10 +604,6 @@ msgid "Install the latest app version to stay up to date."
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "Manage keys under Advanced settings."
-msgstr ""
-
-msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr ""
 
@@ -560,10 +625,6 @@ msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "VALID WIREGUARD KEY IS MISSING"
 msgstr ""
 
 msgctxt "launch-view"
@@ -634,6 +695,10 @@ msgstr ""
 
 msgctxt "login-view"
 msgid "Please wait"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Too many devices"
 msgstr ""
 
 msgctxt "login-view"
@@ -1258,67 +1323,6 @@ msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr ""
 
-msgctxt "wireguard-key-view"
-msgid "Failed to generate a key"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Generate key"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Generating key"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Key generated"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Key is invalid"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Key is valid"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Key verification failed"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Manage keys"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "No key set"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Public key"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Reconnecting with new WireGuard key..."
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Regenerate key"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Verify key"
-msgstr ""
-
-#. Title label in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "WireGuard key"
-msgstr ""
-
 #. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
 msgid "WireGuard settings"
@@ -1352,10 +1356,6 @@ msgstr ""
 #. The hint displayed below the WireGuard IP version selector.
 msgctxt "wireguard-settings-view"
 msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "WireGuard key"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -1413,6 +1413,9 @@ msgstr ""
 msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
 msgstr ""
 
+msgid "Failed to generate a key"
+msgstr ""
+
 msgid "Failed to resolve the hostname of custom server"
 msgstr ""
 
@@ -1422,10 +1425,28 @@ msgstr ""
 msgid "Failed to start tunnel connection"
 msgstr ""
 
+msgid "Generate key"
+msgstr ""
+
 msgid "If needed we will contact you on %s"
 msgstr ""
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr ""
+
+msgid "Key generated"
+msgstr ""
+
+msgid "Key is invalid"
+msgstr ""
+
+msgid "Key is valid"
+msgstr ""
+
+msgid "Key verification failed"
+msgstr ""
+
+msgid "Manage keys"
 msgstr ""
 
 msgid "Mullvad account number"
@@ -1435,6 +1456,15 @@ msgid "No bridge relay server matches the current settings"
 msgstr ""
 
 msgid "No relay server matches the current settings"
+msgstr ""
+
+msgid "Public key"
+msgstr ""
+
+msgid "Reconnecting with new WireGuard key..."
+msgstr ""
+
+msgid "Regenerate key"
 msgstr ""
 
 msgid "Secured"
@@ -1479,6 +1509,9 @@ msgstr ""
 msgid "VPN tunnel status"
 msgstr ""
 
+msgid "Verify key"
+msgstr ""
+
 msgid "Virtual adapter error"
 msgstr ""
 
@@ -1489,6 +1522,9 @@ msgid "WireGuard MTU"
 msgstr ""
 
 msgid "WireGuard error"
+msgstr ""
+
+msgid "WireGuard key"
 msgstr ""
 
 msgid "WireGuard public key"
