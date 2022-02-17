@@ -3,19 +3,25 @@ import styled from 'styled-components';
 import { Scheduler } from '../../shared/scheduler';
 
 const Container = styled.div({
+  position: 'relative',
   overflow: 'hidden',
 });
 
-const Text = styled.span(
-  {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-  },
-  (props: { overflow: number; alignRight: boolean }) => ({
-    left: props.alignRight ? -props.overflow + 'px' : '0',
-    transition: `left linear ${props.overflow * 80}ms`,
-  }),
-);
+// Having an element take up the same amount of space as Text is required since Text is position
+// absolute and therefore doesn't take up any space.
+const Filler = styled.span({
+  whiteSpace: 'nowrap',
+  visibility: 'hidden',
+});
+
+// Using transform for positioning since that makes the transition GPU accelerated. Absolute
+// positioning is required for transform translate function to work.
+const Text = styled.span({}, (props: { overflow: number; alignRight: boolean }) => ({
+  position: 'absolute',
+  whiteSpace: 'nowrap',
+  transform: props.alignRight ? `translate(${-props.overflow}px)` : 'translate(0)',
+  transition: `transform linear ${props.overflow * 80}ms`,
+}));
 
 interface IMarqueeProps {
   className?: string;
@@ -71,6 +77,7 @@ export default class Marquee extends React.Component<IMarqueeProps, IMarqueeStat
           onTransitionEnd={this.scheduleToggleAlignRight}>
           {this.props.children}
         </Text>
+        <Filler className={this.props.className}>{this.props.children}</Filler>
       </Container>
     );
   }
