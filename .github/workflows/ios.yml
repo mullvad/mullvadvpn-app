@@ -1,4 +1,4 @@
-name: iOS app CI
+name: iOS app
 on:
     pull_request:
         paths:

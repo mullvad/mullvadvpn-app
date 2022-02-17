@@ -1,4 +1,4 @@
-name: Android audit
+name: Android - Audit dependencies
 on:
     pull_request:
         paths:

@@ -1,4 +1,4 @@
-name: Android app XML formatting verifier
+name: Android - Check XML formatting
 on:
     # Run verifier whenever an Android XML file changes
     pull_request:

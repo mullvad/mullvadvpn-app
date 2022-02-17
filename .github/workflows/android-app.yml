@@ -1,4 +1,4 @@
-name: Android app CI
+name: Android - Build and test
 on:
     # Build whenever a file that affects Android is changed in a pull request
     pull_request:
