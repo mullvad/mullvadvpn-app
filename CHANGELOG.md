@@ -30,6 +30,8 @@ Line wrap the file at 100 chars.                                              Th
   when the GUI frontend is running.
 
 ### Changed
+- Increase availability of the API by allowing to issue requests to the API when connecting to the
+  relay even if account data might be invalid.
 - Decrease the size of fonts, some icons and other design elements in the desktop app. This makes it
   possible to fit more into the same area and makes text easier to read.
 - Don't block the tunnel state machine while starting the tunnel monitor. This also means that
