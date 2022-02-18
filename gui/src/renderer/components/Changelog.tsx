@@ -1,14 +1,12 @@
 import styled from 'styled-components';
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
-import { bigText, smallText } from './common-styles';
+import { hugeText, smallText } from './common-styles';
 import { ModalAlert, ModalMessage } from './Modal';
 
-const StyledTitle = styled.h1(bigText, {
-  fontColor: colors.white,
+const StyledTitle = styled.h1(hugeText, {
   textAlign: 'center',
   margin: '7px 0 4px',
 });
