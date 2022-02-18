@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
 - Don't block the tunnel state machine while starting the tunnel monitor. This also means that
   the machine will not transition directly from the `disconnected` to the `disconnecting` state
   if an error occurs.
+- Enable "Always require VPN" by default if the settings cannot be parsed.
 
 ### Fixed
 - Fix the sometimes incorrect time added text after adding time to the account.
