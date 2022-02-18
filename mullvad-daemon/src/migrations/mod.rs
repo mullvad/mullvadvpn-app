@@ -62,8 +62,14 @@ pub enum Error {
     #[error(display = "Unable to serialize settings to JSON")]
     SerializeError(#[error(source)] serde_json::Error),
 
+    #[error(display = "Unable to open settings for writing")]
+    OpenError(#[error(source)] io::Error),
+
     #[error(display = "Unable to write new settings")]
     WriteError(#[error(source)] io::Error),
+
+    #[error(display = "Unable to sync settings to disk")]
+    SyncError(#[error(source)] io::Error),
 
     #[error(display = "Failed to read the account history")]
     ReadHistoryError(#[error(source)] io::Error),
@@ -102,6 +108,8 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
         return Err(Error::NoMatchingVersion);
     }
 
+    let old_settings = settings.clone();
+
     v1::migrate(&mut settings)?;
     v2::migrate(&mut settings)?;
     v3::migrate(&mut settings)?;
@@ -110,6 +118,11 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
 
     account_history::migrate_location(cache_dir, settings_dir).await;
     account_history::migrate_formats(settings_dir, &mut settings).await?;
+
+    if settings == old_settings {
+        // Nothing changed
+        return Ok(());
+    }
 
     let buffer = serde_json::to_string_pretty(&settings).map_err(Error::SerializeError)?;
 
@@ -124,10 +137,14 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
         .truncate(true)
         .open(&path)
         .await
-        .map_err(Error::WriteError)?;
+        .map_err(Error::OpenError)?;
     file.write_all(&buffer.into_bytes())
         .await
         .map_err(Error::WriteError)?;
+    file.sync_data().await.map_err(Error::SyncError)?;
+
+    log::debug!("Migrated settings. Wrote settings to {}", path.display());
+
     Ok(())
 }
 

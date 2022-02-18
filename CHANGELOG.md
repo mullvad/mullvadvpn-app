@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+- Fix settings file being truncated before being read.
 
 
 ## [2022.1-beta1] - 2022-02-14
