@@ -132,7 +132,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
   };
 
   public render() {
-    const { sendState, showOutdatedVersionWarning } = this.state;
+    const { sendState } = this.state;
     const header = (
       <SettingsHeader>
         <HeaderTitle>{messages.pgettext('support-view', 'Report a problem')}</HeaderTitle>
@@ -168,8 +168,8 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
             {content}
           </StyledContentContainer>
 
-          {sendState === SendState.confirm && this.renderNoEmailDialog()}
-          {showOutdatedVersionWarning && this.renderOutdateVersionWarningDialog()}
+          {this.renderNoEmailDialog()}
+          {this.renderOutdateVersionWarningDialog()}
         </StyledContainer>
       </Layout>
     );
@@ -247,6 +247,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     );
     return (
       <ModalAlert
+        isOpen={this.state.sendState === SendState.confirm}
         type={ModalAlertType.warning}
         message={message}
         buttons={[
@@ -276,6 +277,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     );
     return (
       <ModalAlert
+        isOpen={this.state.showOutdatedVersionWarning}
         type={ModalAlertType.warning}
         message={message}
         buttons={[
@@ -301,7 +303,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
           <AppButton.RedButton key="proceed" onClick={this.acknowledgeOutdateVersion}>
             {messages.pgettext('support-view', 'Continue anyway')}
           </AppButton.RedButton>,
-          <AppButton.BlueButton key="cancel" onClick={this.props.onClose}>
+          <AppButton.BlueButton key="cancel" onClick={this.outdatedVersionCancel}>
             {messages.gettext('Cancel')}
           </AppButton.BlueButton>,
         ]}
@@ -309,6 +311,11 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
       />
     );
   }
+
+  private outdatedVersionCancel = () => {
+    this.acknowledgeOutdateVersion();
+    this.props.onClose();
+  };
 
   private renderForm() {
     return (
