@@ -579,11 +579,7 @@ where
                 error.display_chain_with_msg("Failed to migrate settings or cache")
             );
         }
-        let mut settings = SettingsPersister::load(&settings_dir).await;
-
-        if version::is_beta_version() {
-            let _ = settings.set_show_beta_releases(true).await;
-        }
+        let settings = SettingsPersister::load(&settings_dir).await;
 
         let target_state = if settings.get_account_token().is_none() {
             PersistentTargetState::force(&cache_dir, TargetState::Unsecured).await
