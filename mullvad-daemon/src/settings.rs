@@ -74,6 +74,9 @@ impl SettingsPersister {
             should_save |=
                 Self::update_field(&mut settings.tunnel_options.generic.enable_ipv6, true);
         }
+        if crate::version::is_beta_version() {
+            should_save |= Self::update_field(&mut settings.show_beta_releases, true);
+        }
 
         let mut persister = SettingsPersister { settings, path };
 
