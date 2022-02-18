@@ -27,6 +27,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix settings file being truncated before being read.
 - Improve performance for automatically scrolling text in desktop app.
 
+### Changed
+- Increase availability of the API by allowing to issue requests to the API when connecting to the
+  relay even if account data might be invalid.
+
 
 ## [2022.1-beta1] - 2022-02-14
 ### Added
