@@ -31,6 +31,10 @@ Line wrap the file at 100 chars.                                              Th
 - Increase availability of the API by allowing to issue requests to the API when connecting to the
   relay even if account data might be invalid.
 
+### Security
+- Enable "Always require VPN" by default if the settings cannot be parsed. This reduces the number
+  of errors that lead to the daemon unexpectedly starting into non-blocking mode.
+
 
 ## [2022.1-beta1] - 2022-02-14
 ### Added
