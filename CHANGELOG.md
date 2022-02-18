@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix the sometimes incorrect time added text after adding time to the account.
 - Fix scrollbar no longer responsive and usable when covered by other elements.
+- Fix settings file being truncated before being read.
 
 
 ## [2022.1-beta1] - 2022-02-14
