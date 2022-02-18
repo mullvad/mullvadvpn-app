@@ -59,7 +59,13 @@ impl SettingsPersister {
                     "{}",
                     error.display_chain_with_msg("Failed to load settings. Using defaults.")
                 );
-                (Self::default_settings(), true)
+                let mut settings = Self::default_settings();
+
+                // Protect the user by blocking the internet by default. Previous settings may
+                // not have caused the daemon to enter the non-blocking disconnected state.
+                settings.block_when_disconnected = true;
+
+                (settings, true)
             }
         };
 
