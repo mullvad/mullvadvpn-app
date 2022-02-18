@@ -59,7 +59,7 @@ impl SettingsPersister {
                     "{}",
                     error.display_chain_with_msg("Failed to load settings. Using defaults.")
                 );
-                (Self::default_settings(), true)
+                (Self::default_settings(true), true)
             }
         };
 
@@ -91,7 +91,7 @@ impl SettingsPersister {
             Err(error) => {
                 if error.kind() == io::ErrorKind::NotFound {
                     log::info!("No settings were found. Using defaults.");
-                    return Ok((Self::default_settings(), true));
+                    return Ok((Self::default_settings(false), true));
                 } else {
                     return Err(Error::ReadError(path.display().to_string(), error));
                 }
@@ -152,7 +152,7 @@ impl SettingsPersister {
     /// Resets default settings
     #[cfg(not(target_os = "android"))]
     pub async fn reset(&mut self) -> Result<(), Error> {
-        self.settings = Self::default_settings();
+        self.settings = Self::default_settings(false);
         let path = self.path.clone();
         self.save()
             .or_else(|e| async move {
@@ -173,11 +173,15 @@ impl SettingsPersister {
     }
 
     /// Modifies `Settings::default()` somewhat, e.g. depending on whether a beta version
-    /// is being run or not.
-    fn default_settings() -> Settings {
+    /// is being run or not. `fallback` should be true if the actual settings couldn't be
+    /// parsed.
+    fn default_settings(fallback: bool) -> Settings {
         let mut settings = Settings::default();
         if crate::version::is_beta_version() {
             settings.show_beta_releases = true;
+        }
+        if fallback {
+            settings.block_when_disconnected = true;
         }
         settings
     }
