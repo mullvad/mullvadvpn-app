@@ -7,17 +7,15 @@ import { useCombinedRefs } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import userInterface from '../redux/userinterface/actions';
 import CustomScrollbars, { CustomScrollbarsRef, IScrollEvent } from './CustomScrollbars';
+import { BackActionContext } from './KeyboardNavigation';
 import {
   StyledBackBarItemButton,
   StyledBackBarItemIcon,
-  StyledCloseBarItemButton,
-  StyledCloseBarItemIcon,
   StyledNavigationBar,
+  StyledNavigationItems,
   StyledNavigationBarSeparator,
   StyledTitleBarItemLabel,
 } from './NavigationBarStyles';
-
-export { StyledNavigationItems as NavigationItems } from './NavigationBarStyles';
 
 interface INavigationContainerProps {
   children?: React.ReactNode;
@@ -179,6 +177,20 @@ export const NavigationBar = function NavigationBarT(props: INavigationBarProps)
   );
 };
 
+interface INavigationItemsProps {
+  children: React.ReactNode;
+}
+
+export function NavigationItems(props: INavigationItemsProps) {
+  const { parentBackAction } = useContext(BackActionContext);
+  return (
+    <StyledNavigationItems>
+      {parentBackAction && <BackBarItem />}
+      {props.children}
+    </StyledNavigationItems>
+  );
+}
+
 interface ITitleBarItemProps {
   children?: React.ReactText;
 }
@@ -188,32 +200,15 @@ export const TitleBarItem = React.memo(function TitleBarItemT(props: ITitleBarIt
   return <StyledTitleBarItemLabel visible={visible}>{props.children}</StyledTitleBarItemLabel>;
 });
 
-interface ICloseBarItemProps {
-  action: () => void;
-}
+export function BackBarItem() {
+  const { parentBackAction } = useContext(BackActionContext);
+  const iconSource = parentBackAction?.icon === 'back' ? 'icon-back' : 'icon-close-down';
+  const ariaLabel =
+    parentBackAction?.icon === 'back' ? messages.gettext('Back') : messages.gettext('Close');
 
-export function CloseBarItem(props: ICloseBarItemProps) {
   return (
-    <StyledCloseBarItemButton aria-label={messages.gettext('Close')} onClick={props.action}>
-      <StyledCloseBarItemIcon
-        height={24}
-        width={24}
-        source={'icon-close-down'}
-        tintColor={colors.white40}
-        tintHoverColor={colors.white60}
-      />
-    </StyledCloseBarItemButton>
-  );
-}
-
-interface IBackBarItemProps {
-  action: () => void;
-}
-
-export function BackBarItem(props: IBackBarItemProps) {
-  return (
-    <StyledBackBarItemButton onClick={props.action}>
-      <StyledBackBarItemIcon source="icon-back" tintColor={colors.white40} />
+    <StyledBackBarItemButton aria-label={ariaLabel} onClick={parentBackAction?.action}>
+      <StyledBackBarItemIcon source={iconSource} tintColor={colors.white40} width={24} />
     </StyledBackBarItemButton>
   );
 }
