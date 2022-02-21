@@ -12,6 +12,10 @@ import NetworkExtension
 extension TunnelIPC {
 
     struct RequestOptions {
+        /// Delay for sending IPC requests to the tunnel when in connecting state.
+        /// Used to workaround a bug when talking to the tunnel too early may cause it to freeze.
+        static let connectingStateWaitDelay: TimeInterval = 5
+
         /// Wait until the tunnel transitioned from reasserting to connected state before sending
         /// the request.
         var waitIfReasserting: Bool
@@ -35,7 +39,8 @@ extension TunnelIPC {
         private var completionHandler: CompletionHandler?
 
         private var statusObserver: NSObjectProtocol?
-        private var timeoutTimer: DispatchSourceTimer?
+        private var timeoutWork: DispatchWorkItem?
+        private var waitForConnectingStateWork: DispatchWorkItem?
 
         init(queue: DispatchQueue,
              connection: VPNConnectionProtocol,
@@ -78,7 +83,7 @@ extension TunnelIPC {
                 return
             }
 
-            startTimeoutTimer()
+            setTimeoutTimer(isConnectingState: false)
 
             statusObserver = NotificationCenter.default.addObserver(
                 forName: .NEVPNStatusDidChange,
@@ -100,21 +105,24 @@ extension TunnelIPC {
             }
         }
 
-        private func startTimeoutTimer() {
-            let timer = DispatchSource.makeTimerSource(queue: queue)
-            timer.setEventHandler { [weak self] in
+        private func setTimeoutTimer(isConnectingState: Bool) {
+            let workItem = DispatchWorkItem { [weak self] in
                 self?.completeOperation(completion: .failure(.send(.timeout)))
             }
 
-            timer.schedule(wallDeadline: .now() + options.timeout)
-            timer.activate()
+            // Cancel pending timeout work.
+            timeoutWork?.cancel()
 
-            timeoutTimer = timer
-        }
+            // Assign new timeout work.
+            timeoutWork = workItem
 
-        private func stopTimeoutTimer() {
-            timeoutTimer?.cancel()
-            timeoutTimer = nil
+            // Compute additional delay associated with connecting state.
+            let connectingStateWaitDelay = isConnectingState ? RequestOptions.connectingStateWaitDelay : 0
+
+            // Schedule timeout work.
+            let deadline: DispatchWallTime = .now() + options.timeout + connectingStateWaitDelay
+
+            queue.asyncAfter(wallDeadline: deadline, execute: workItem)
         }
 
         private func handleVPNStatus(_ status: NEVPNStatus) {
@@ -127,9 +135,9 @@ extension TunnelIPC {
                 sendRequest()
 
             case .connecting:
-                // Sending IPC message while in connecting state may cause the tunnel process to
-                // freeze for no apparent reason.
-                break
+                waitForConnectingState { [weak self] in
+                    self?.sendRequest()
+                }
 
             case .reasserting:
                 if !options.waitIfReasserting {
@@ -144,11 +152,32 @@ extension TunnelIPC {
             }
         }
 
-        private func sendRequest() {
-            let session = connection as! VPNTunnelProviderSessionProtocol
+        private func waitForConnectingState(block: @escaping () -> Void) {
+            let workItem = DispatchWorkItem(block: block)
 
+            // Cancel pending work.
+            waitForConnectingStateWork?.cancel()
+
+            // Assign new work.
+            waitForConnectingStateWork = workItem
+
+            // Reschedule the timeout work.
+            setTimeoutTimer(isConnectingState: true)
+
+            // Schedule delayed work.
+            let deadline: DispatchWallTime = .now() + RequestOptions.connectingStateWaitDelay
+
+            queue.asyncAfter(wallDeadline: deadline, execute: workItem)
+        }
+
+        private func sendRequest() {
+            // Release status observer.
             removeVPNStatusObserver()
 
+            // Cancel pending delayed work.
+            waitForConnectingStateWork?.cancel()
+
+            // Encode request.
             let messageData: Data
             do {
                 messageData = try TunnelIPC.Coding.encodeRequest(request)
@@ -157,7 +186,9 @@ extension TunnelIPC {
                 return
             }
 
+            // Send IPC message.
             do {
+                let session = connection as! VPNTunnelProviderSessionProtocol
                 try session.sendProviderMessage(messageData) { [weak self] responseData in
                     guard let self = self else { return }
 
@@ -173,12 +204,18 @@ extension TunnelIPC {
         }
 
         private func completeOperation(completion: OperationCompletion<Output, TunnelIPC.Error>) {
+            // Release status observer.
             removeVPNStatusObserver()
-            stopTimeoutTimer()
 
+            // Cancel pending work.
+            timeoutWork?.cancel()
+            waitForConnectingStateWork?.cancel()
+
+            // Call completion handler.
             completionHandler?(completion)
             completionHandler = nil
 
+            // Finish operation.
             finish()
         }
     }
