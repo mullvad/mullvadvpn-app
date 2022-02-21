@@ -10,6 +10,7 @@ pub mod exception_logging;
 #[cfg(target_os = "macos")]
 pub mod exclusion_gid;
 mod geoip;
+mod ipc;
 pub mod logging;
 #[cfg(not(target_os = "android"))]
 pub mod management_interface;
@@ -1177,13 +1178,8 @@ where
             return;
         }
         match command {
-            SetTargetState(tx, state) => self.on_set_target_state(tx, state).await,
-            Reconnect(tx) => self.on_reconnect(tx),
-            GetState(tx) => self.on_get_state(tx),
-            GetCurrentLocation(tx) => self.on_get_current_location(tx).await,
             CreateNewAccount(tx) => self.on_create_new_account(tx).await,
             GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token).await,
-            GetWwwAuthToken(tx) => self.on_get_www_auth_token(tx).await,
             SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher).await,
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
@@ -1241,6 +1237,7 @@ where
             PrepareRestart => self.on_prepare_restart(),
             #[cfg(target_os = "android")]
             BypassSocket(fd, tx) => self.on_bypass_socket(fd, tx),
+            cmd => self.handle_ipc_command(cmd).await,
         }
     }
 
@@ -1375,72 +1372,6 @@ where
         }
     }
 
-    async fn on_set_target_state(
-        &mut self,
-        tx: oneshot::Sender<bool>,
-        new_target_state: TargetState,
-    ) {
-        if self.state.is_running() {
-            let state_change_initated = self.set_target_state(new_target_state).await;
-            Self::oneshot_send(tx, state_change_initated, "state change initiated");
-        } else {
-            log::warn!("Ignoring target state change request due to shutdown");
-        }
-    }
-
-    fn on_reconnect(&mut self, tx: oneshot::Sender<bool>) {
-        if *self.target_state == TargetState::Secured || self.tunnel_state.is_in_error_state() {
-            self.connect_tunnel();
-            Self::oneshot_send(tx, true, "reconnect issued");
-        } else {
-            log::debug!("Ignoring reconnect command. Currently not in secured state");
-            Self::oneshot_send(tx, false, "reconnect issued");
-        }
-    }
-
-    fn on_get_state(&self, tx: oneshot::Sender<TunnelState>) {
-        Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
-    }
-
-    async fn on_get_current_location(&mut self, tx: oneshot::Sender<Option<GeoIpLocation>>) {
-        use self::TunnelState::*;
-
-        match &self.tunnel_state {
-            Disconnected => {
-                let location = self.get_geo_location();
-                tokio::spawn(async {
-                    Self::oneshot_send(tx, location.await.ok(), "current location");
-                });
-            }
-            Connecting { location, .. } => {
-                Self::oneshot_send(tx, location.clone(), "current location")
-            }
-            Disconnecting(..) => {
-                Self::oneshot_send(tx, self.build_location_from_relay(), "current location")
-            }
-            Connected { location, .. } => {
-                let relay_location = location.clone();
-                let location_future = self.get_geo_location();
-                tokio::spawn(async {
-                    let location = location_future.await;
-                    Self::oneshot_send(
-                        tx,
-                        location.ok().map(|fetched_location| GeoIpLocation {
-                            ipv4: fetched_location.ipv4,
-                            ipv6: fetched_location.ipv6,
-                            ..relay_location.unwrap_or(fetched_location)
-                        }),
-                        "current location",
-                    );
-                });
-            }
-            Error(_) => {
-                // We are not online at all at this stage so no location data is available.
-                Self::oneshot_send(tx, None, "current location");
-            }
-        }
-    }
-
     fn get_geo_location(&mut self) -> impl Future<Output = Result<GeoIpLocation, ()>> {
         let rpc_service = self.rpc_runtime.rest_handle();
         async {
@@ -1508,26 +1439,6 @@ where
                 "account data",
             );
         });
-    }
-
-    async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
-        if let Some(account_token) = self.settings.get_account_token() {
-            let future = self.account.get_www_auth_token(account_token);
-            let rpc_call = async {
-                Self::oneshot_send(
-                    tx,
-                    future.await.map_err(Error::RestError),
-                    "get_www_auth_token response",
-                );
-            };
-            tokio::spawn(rpc_call);
-        } else {
-            Self::oneshot_send(
-                tx,
-                Err(Error::NoAccountToken),
-                "get_www_auth_token response",
-            );
-        }
     }
 
     async fn on_submit_voucher(
