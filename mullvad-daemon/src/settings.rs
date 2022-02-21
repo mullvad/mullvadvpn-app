@@ -59,7 +59,13 @@ impl SettingsPersister {
                     "{}",
                     error.display_chain_with_msg("Failed to load settings. Using defaults.")
                 );
-                (Self::default_settings(), true)
+                let mut settings = Self::default_settings();
+
+                // Protect the user by blocking the internet by default. Previous settings may
+                // not have caused the daemon to enter the non-blocking disconnected state.
+                settings.block_when_disconnected = true;
+
+                (settings, true)
             }
         };
 
@@ -67,6 +73,9 @@ impl SettingsPersister {
         if cfg!(target_os = "android") {
             should_save |=
                 Self::update_field(&mut settings.tunnel_options.generic.enable_ipv6, true);
+        }
+        if crate::version::is_beta_version() {
+            should_save |= Self::update_field(&mut settings.show_beta_releases, true);
         }
 
         let mut persister = SettingsPersister { settings, path };

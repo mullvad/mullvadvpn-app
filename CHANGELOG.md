@@ -44,6 +44,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix settings file being truncated before being read.
 - Improve performance for automatically scrolling text in desktop app.
 
+### Security
+- Enable "Always require VPN" by default if the settings cannot be parsed. This reduces the number
+  of errors that lead to the daemon unexpectedly starting into non-blocking mode.
+
 
 ## [2022.1-beta1] - 2022-02-14
 ### Added
