@@ -46,6 +46,11 @@ if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
     exit 1
 fi
 
+if [[ $DESKTOP == "true" && $(grep "CHANGE THIS BEFORE A RELEASE" gui/changes.txt) != "" ]]; then
+    echo "It looks like you did not update gui/changes.txt"
+    exit 1
+fi
+
 if [[ $(grep "^## \\[$PRODUCT_VERSION\\] - " CHANGELOG.md) == "" ]]; then
     echo "It looks like you did not add $PRODUCT_VERSION to the changelog?"
     echo "Please make sure the changelog is up to date and correct before you proceed."

@@ -1,4 +1,5 @@
-Add multihop with WireGuard tunnels. Can be enabled under the advanced settings.
-Add malware blocking. Can be found under preferences.
-[macOS] Fix slow wakeups from sleep. The internet and VPN tunnels should now come up instantly.
-[Windows] Make WireGuardNT the default driver for WireGuard. If you use WireGuard, you can potentially see significant performance increases.
+CHANGE THIS BEFORE A RELEASE
+Each line is treated as a separate change item shown in the GUI the first time it runs after install.
+Start each line with a capital letter and end each line with a period.
+[macOS, Windows, linux] To make an entry platform specific, start the line with an angle bracket enclosed comma separated list of platforms to show the entry on.
+Only point out the major changes.
