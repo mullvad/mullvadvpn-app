@@ -6,11 +6,17 @@ import accountActions from '../redux/account/actions';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => {
+  const tunnelState = state.connection.status;
+  const blockWhenDisconnected = state.settings.blockWhenDisconnected;
   const { accountToken, accountHistory, status } = state.account;
+
+  const showBlockMessage = tunnelState.state === 'error' || blockWhenDisconnected;
+
   return {
     accountToken,
     accountHistory,
     loginState: status,
+    showBlockMessage,
   };
 };
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
