@@ -36,6 +36,7 @@ use std::{
     net::IpAddr,
     path::PathBuf,
     sync::{Arc, Mutex},
+    time::Duration,
 };
 #[cfg(target_os = "android")]
 use talpid_types::{android::AndroidContext, ErrorExt};
@@ -43,6 +44,8 @@ use talpid_types::{
     net::{AllowedEndpoint, TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
+
+const TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Errors that can happen when setting up or using the state machine.
 #[derive(err_derive::Error, Debug)]
@@ -108,11 +111,10 @@ pub async fn spawn(
     resource_dir: PathBuf,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     offline_state_listener: mpsc::UnboundedSender<bool>,
-    shutdown_tx: oneshot::Sender<()>,
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "macos")] exclusion_gid: u32,
     #[cfg(target_os = "android")] android_context: AndroidContext,
-) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
+) -> Result<(Arc<mpsc::UnboundedSender<TunnelCommand>>, JoinHandle), Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
 
@@ -124,6 +126,8 @@ pub async fn spawn(
         #[cfg(target_os = "android")]
         initial_settings.dns_servers.clone(),
     );
+
+    let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
     let weak_command_tx = Arc::downgrade(&command_tx);
     let state_machine = TunnelStateMachine::new(
@@ -151,7 +155,7 @@ pub async fn spawn(
         }
     });
 
-    Ok(command_tx)
+    Ok((command_tx, JoinHandle { shutdown_rx }))
 }
 
 /// Representation of external commands for the tunnel state machine.
@@ -578,5 +582,21 @@ state_wrapper! {
         Connected(ConnectedState),
         Disconnecting(DisconnectingState),
         Error(ErrorState),
+    }
+}
+
+/// Handle used to wait for the tunnel state machine to shut down.
+pub struct JoinHandle {
+    shutdown_rx: oneshot::Receiver<()>,
+}
+
+impl JoinHandle {
+    /// Waits for the tunnel state machine to shut down.
+    /// This may fail after a timeout of `TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT`.
+    pub async fn try_join(self) {
+        match tokio::time::timeout(TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT, self.shutdown_rx).await {
+            Ok(_) => log::info!("Tunnel state machine shut down"),
+            Err(_) => log::error!("Tunnel state machine did not shut down gracefully"),
+        }
     }
 }
