@@ -6,6 +6,7 @@ import log from '../../shared/logging';
 import CustomScrollbars from './CustomScrollbars';
 import { tinyText } from './common-styles';
 import ImageView from './ImageView';
+import { BackAction } from './KeyboardNavigation';
 
 const MODAL_CONTAINER_ID = 'modal-container';
 
@@ -205,9 +206,6 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
 
   public componentDidMount() {
     this.props.setActiveModal(true);
-    // The `true` argument specifies that the event should be dispatched in the capture phase. This
-    // makes sure that this component catches the event before the escape hatch.
-    document.addEventListener('keydown', this.handleKeyPress, true);
 
     const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
     if (modalContainer) {
@@ -222,7 +220,6 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
 
   public componentWillUnmount() {
     this.props.setActiveModal(false);
-    document.removeEventListener('keydown', this.handleKeyPress, true);
 
     const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
     modalContainer?.removeChild(this.element);
@@ -234,32 +231,38 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
 
   private renderModal() {
     return (
-      <ModalBackground visible={this.state.visible && !this.props.closing}>
-        <ModalAlertContainer>
-          <StyledModalAlert
-            ref={this.modalRef}
-            tabIndex={-1}
-            role="dialog"
-            aria-modal
-            visible={this.state.visible}
-            closing={this.props.closing}
-            onTransitionEnd={this.onTransitionEnd}>
-            <StyledCustomScrollbars>
-              {this.props.type && (
-                <ModalAlertIcon>{this.renderTypeIcon(this.props.type)}</ModalAlertIcon>
-              )}
-              {this.props.message && <ModalMessage>{this.props.message}</ModalMessage>}
-              {this.props.children}
-            </StyledCustomScrollbars>
+      <BackAction action={this.close}>
+        <ModalBackground visible={this.state.visible && !this.props.closing}>
+          <ModalAlertContainer>
+            <StyledModalAlert
+              ref={this.modalRef}
+              tabIndex={-1}
+              role="dialog"
+              aria-modal
+              visible={this.state.visible}
+              closing={this.props.closing}
+              onTransitionEnd={this.onTransitionEnd}>
+              <StyledCustomScrollbars>
+                {this.props.type && (
+                  <ModalAlertIcon>{this.renderTypeIcon(this.props.type)}</ModalAlertIcon>
+                )}
+                {this.props.message && <ModalMessage>{this.props.message}</ModalMessage>}
+                {this.props.children}
+              </StyledCustomScrollbars>
 
-            {this.props.buttons.map((button, index) => (
-              <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
-            ))}
-          </StyledModalAlert>
-        </ModalAlertContainer>
-      </ModalBackground>
+              {this.props.buttons.map((button, index) => (
+                <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
+              ))}
+            </StyledModalAlert>
+          </ModalAlertContainer>
+        </ModalBackground>
+      </BackAction>
     );
   }
+
+  private close = () => {
+    this.props.close?.();
+  };
 
   private renderTypeIcon(type: ModalAlertType) {
     let source = '';
@@ -282,13 +285,6 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
       <ImageView height={44} width={44} source={source} tintColor={this.props.iconColor ?? color} />
     );
   }
-
-  private handleKeyPress = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      event.stopPropagation();
-      this.props.close?.();
-    }
-  };
 
   private onTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
     if (event.target === this.modalRef.current) {
