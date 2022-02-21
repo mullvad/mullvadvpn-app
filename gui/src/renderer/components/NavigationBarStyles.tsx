@@ -37,19 +37,6 @@ export const StyledTitleBarItemLabel = styled.h1(normalText, (props: { visible?:
   transition: 'opacity 250ms ease-in-out',
 }));
 
-export const StyledCloseBarItemButton = styled.button({
-  justifySelf: 'start',
-  borderWidth: 0,
-  padding: 0,
-  margin: 0,
-  cursor: 'default',
-  backgroundColor: 'transparent',
-});
-
-export const StyledCloseBarItemIcon = styled(ImageView)({
-  flex: 0,
-});
-
 export const StyledBackBarItemButton = styled.button({
   justifySelf: 'start',
   borderWidth: 0,
