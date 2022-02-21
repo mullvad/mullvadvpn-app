@@ -381,11 +381,11 @@ export default class AppRenderer {
     actions.settings.updateBridgeState(bridgeState);
   }
 
-  public async setBlockWhenDisconnected(blockWhenDisconnected: boolean) {
+  public setBlockWhenDisconnected = async (blockWhenDisconnected: boolean) => {
     const actions = this.reduxActions;
     await IpcRendererEventChannel.settings.setBlockWhenDisconnected(blockWhenDisconnected);
     actions.settings.updateBlockWhenDisconnected(blockWhenDisconnected);
-  }
+  };
 
   public async setOpenVpnMssfix(mssfix?: number) {
     const actions = this.reduxActions;
