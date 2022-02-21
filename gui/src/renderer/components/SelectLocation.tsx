@@ -15,7 +15,6 @@ import LocationList, {
   LocationSelectionType,
 } from './LocationList';
 import {
-  CloseBarItem,
   NavigationBar,
   NavigationContainer,
   NavigationItems,
@@ -38,6 +37,7 @@ import {
   StyledSettingsHeader,
 } from './SelectLocationStyles';
 import { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+import { BackAction } from './KeyboardNavigation';
 
 interface IProps {
   locale: string;
@@ -132,101 +132,102 @@ export default class SelectLocation extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <Layout onClick={this.onClickAnywhere}>
-        <StyledContainer>
-          <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('select-location-nav', 'Select location')
-                  }
-                </TitleBarItem>
+      <BackAction icon="close" action={this.props.onClose}>
+        <Layout onClick={this.onClickAnywhere}>
+          <StyledContainer>
+            <NavigationContainer>
+              <NavigationBar>
+                <NavigationItems>
+                  <TitleBarItem>
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('select-location-nav', 'Select location')
+                    }
+                  </TitleBarItem>
 
-                <StyledFilterContainer ref={this.filterButtonRef}>
-                  <StyledFilterIconButton
-                    onClick={this.toggleFilterMenu}
-                    aria-label={messages.gettext('Filter')}>
-                    <ImageView
-                      source="icon-filter-round"
-                      tintColor={colors.white40}
-                      tintHoverColor={colors.white60}
-                      height={24}
-                      width={24}
-                    />
-                  </StyledFilterIconButton>
-                  {this.state.showFilterMenu && (
-                    <StyledFilterMenu>
-                      <StyledFilterByProviderButton onClick={this.props.onViewFilterByProvider}>
-                        {messages.pgettext('select-location-view', 'Filter by provider')}
-                      </StyledFilterByProviderButton>
-                    </StyledFilterMenu>
-                  )}
-                </StyledFilterContainer>
-              </NavigationItems>
-            </NavigationBar>
-            <NavigationScrollbars ref={this.scrollView}>
-              <SpacePreAllocationView ref={this.spacePreAllocationViewRef}>
-                <StyledNavigationBarAttachment top={-this.state.headingHeight}>
-                  <StyledSettingsHeader ref={this.headerRef}>
-                    <HeaderTitle>
-                      {
-                        // TRANSLATORS: Heading in select location view
-                        messages.pgettext('select-location-view', 'Select location')
-                      }
-                    </HeaderTitle>
-                    {this.renderHeaderSubtitle()}
-                  </StyledSettingsHeader>
+                  <StyledFilterContainer ref={this.filterButtonRef}>
+                    <StyledFilterIconButton
+                      onClick={this.toggleFilterMenu}
+                      aria-label={messages.gettext('Filter')}>
+                      <ImageView
+                        source="icon-filter-round"
+                        tintColor={colors.white40}
+                        tintHoverColor={colors.white60}
+                        height={24}
+                        width={24}
+                      />
+                    </StyledFilterIconButton>
+                    {this.state.showFilterMenu && (
+                      <StyledFilterMenu>
+                        <StyledFilterByProviderButton onClick={this.props.onViewFilterByProvider}>
+                          {messages.pgettext('select-location-view', 'Filter by provider')}
+                        </StyledFilterByProviderButton>
+                      </StyledFilterMenu>
+                    )}
+                  </StyledFilterContainer>
+                </NavigationItems>
+              </NavigationBar>
+              <NavigationScrollbars ref={this.scrollView}>
+                <SpacePreAllocationView ref={this.spacePreAllocationViewRef}>
+                  <StyledNavigationBarAttachment top={-this.state.headingHeight}>
+                    <StyledSettingsHeader ref={this.headerRef}>
+                      <HeaderTitle>
+                        {
+                          // TRANSLATORS: Heading in select location view
+                          messages.pgettext('select-location-view', 'Select location')
+                        }
+                      </HeaderTitle>
+                      {this.renderHeaderSubtitle()}
+                    </StyledSettingsHeader>
 
-                  {this.props.providers.length > 0 && (
-                    <StyledProviderCountRow>
-                      {messages.pgettext('select-location-view', 'Filtered:')}
-                      <StyledProvidersCount>
-                        {sprintf(
-                          messages.pgettext(
-                            'select-location-view',
-                            'Providers: %(numberOfProviders)d',
-                          ),
-                          {
-                            numberOfProviders: this.props.providers.length,
-                          },
-                        )}
-                        <StyledClearProvidersButton
-                          aria-label={messages.gettext('Clear')}
-                          onClick={this.props.onClearProviders}>
-                          <ImageView
-                            height={16}
-                            width={16}
-                            source="icon-close"
-                            tintColor={colors.white60}
-                            tintHoverColor={colors.white80}
-                          />
-                        </StyledClearProvidersButton>
-                      </StyledProvidersCount>
-                    </StyledProviderCountRow>
-                  )}
-                  {this.props.allowEntrySelection && (
-                    <StyledScopeBar
-                      defaultSelectedIndex={this.state.locationScope}
-                      onChange={this.onChangeLocationScope}>
-                      <ScopeBarItem>
-                        {messages.pgettext('select-location-view', 'Entry')}
-                      </ScopeBarItem>
-                      <ScopeBarItem>
-                        {messages.pgettext('select-location-view', 'Exit')}
-                      </ScopeBarItem>
-                    </StyledScopeBar>
-                  )}
-                </StyledNavigationBarAttachment>
+                    {this.props.providers.length > 0 && (
+                      <StyledProviderCountRow>
+                        {messages.pgettext('select-location-view', 'Filtered:')}
+                        <StyledProvidersCount>
+                          {sprintf(
+                            messages.pgettext(
+                              'select-location-view',
+                              'Providers: %(numberOfProviders)d',
+                            ),
+                            {
+                              numberOfProviders: this.props.providers.length,
+                            },
+                          )}
+                          <StyledClearProvidersButton
+                            aria-label={messages.gettext('Clear')}
+                            onClick={this.props.onClearProviders}>
+                            <ImageView
+                              height={16}
+                              width={16}
+                              source="icon-close"
+                              tintColor={colors.white60}
+                              tintHoverColor={colors.white80}
+                            />
+                          </StyledClearProvidersButton>
+                        </StyledProvidersCount>
+                      </StyledProviderCountRow>
+                    )}
+                    {this.props.allowEntrySelection && (
+                      <StyledScopeBar
+                        defaultSelectedIndex={this.state.locationScope}
+                        onChange={this.onChangeLocationScope}>
+                        <ScopeBarItem>
+                          {messages.pgettext('select-location-view', 'Entry')}
+                        </ScopeBarItem>
+                        <ScopeBarItem>
+                          {messages.pgettext('select-location-view', 'Exit')}
+                        </ScopeBarItem>
+                      </StyledScopeBar>
+                    )}
+                  </StyledNavigationBarAttachment>
 
-                <StyledContent>{this.renderLocationList()}</StyledContent>
-              </SpacePreAllocationView>
-            </NavigationScrollbars>
-          </NavigationContainer>
-        </StyledContainer>
-      </Layout>
+                  <StyledContent>{this.renderLocationList()}</StyledContent>
+                </SpacePreAllocationView>
+              </NavigationScrollbars>
+            </NavigationContainer>
+          </StyledContainer>
+        </Layout>
+      </BackAction>
     );
   }
 

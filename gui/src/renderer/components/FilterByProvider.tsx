@@ -8,9 +8,9 @@ import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { normalText } from './common-styles';
 import ImageView from './ImageView';
+import { BackAction } from './KeyboardNavigation';
 import { Container, Layout } from './Layout';
 import {
-  BackBarItem,
   NavigationBar,
   NavigationContainer,
   NavigationItems,
@@ -106,39 +106,47 @@ export default function FilterByProvider() {
   }, [providers, history, updateRelaySettings, selectionStatus]);
 
   return (
-    <Layout>
-      <StyledContainer>
-        <NavigationContainer>
-          <NavigationBar alwaysDisplayBarTitle={true}>
-            <NavigationItems>
-              <BackBarItem action={history.pop} />
-              <TitleBarItem>
-                {
-                  // TRANSLATORS: Title label in navigation bar
-                  messages.pgettext('filter-by-provider-nav', 'Filter by provider')
-                }
-              </TitleBarItem>
-            </NavigationItems>
-          </NavigationBar>
-          <StyledNavigationScrollbars>
-            <ProviderRow
-              provider={messages.pgettext('filter-by-provider-view', 'All providers')}
-              bold
-              checked={selectionStatus === Selection.all}
-              onCheck={toggleAll}
-            />
-            {Object.entries(providers).map(([provider, checked]) => (
-              <ProviderRow key={provider} provider={provider} checked={checked} onCheck={onCheck} />
-            ))}
-          </StyledNavigationScrollbars>
-          <StyledFooter>
-            <AppButton.GreenButton disabled={selectionStatus === Selection.none} onClick={onApply}>
-              {messages.gettext('Apply')}
-            </AppButton.GreenButton>
-          </StyledFooter>
-        </NavigationContainer>
-      </StyledContainer>
-    </Layout>
+    <BackAction action={history.pop}>
+      <Layout>
+        <StyledContainer>
+          <NavigationContainer>
+            <NavigationBar alwaysDisplayBarTitle={true}>
+              <NavigationItems>
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('filter-by-provider-nav', 'Filter by provider')
+                  }
+                </TitleBarItem>
+              </NavigationItems>
+            </NavigationBar>
+            <StyledNavigationScrollbars>
+              <ProviderRow
+                provider={messages.pgettext('filter-by-provider-view', 'All providers')}
+                bold
+                checked={selectionStatus === Selection.all}
+                onCheck={toggleAll}
+              />
+              {Object.entries(providers).map(([provider, checked]) => (
+                <ProviderRow
+                  key={provider}
+                  provider={provider}
+                  checked={checked}
+                  onCheck={onCheck}
+                />
+              ))}
+            </StyledNavigationScrollbars>
+            <StyledFooter>
+              <AppButton.GreenButton
+                disabled={selectionStatus === Selection.none}
+                onClick={onApply}>
+                {messages.gettext('Apply')}
+              </AppButton.GreenButton>
+            </StyledFooter>
+          </NavigationContainer>
+        </StyledContainer>
+      </Layout>
+    </BackAction>
   );
 }
 

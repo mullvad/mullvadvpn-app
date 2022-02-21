@@ -6,7 +6,7 @@ import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGrou
 import ImageView from './ImageView';
 import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
-import { BackBarItem, NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
+import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
   StyledBlueButton,
@@ -28,6 +28,7 @@ import {
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { ISupportReportForm } from '../redux/support/actions';
+import { BackAction } from './KeyboardNavigation';
 
 enum SendState {
   initial,
@@ -150,28 +151,29 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     const content = this.renderContent();
 
     return (
-      <Layout>
-        <StyledContainer>
-          <NavigationBar>
-            <NavigationItems>
-              <BackBarItem action={this.props.onClose} />
-              <TitleBarItem>
-                {
-                  // TRANSLATORS: Title label in navigation bar
-                  messages.pgettext('support-view', 'Report a problem')
-                }
-              </TitleBarItem>
-            </NavigationItems>
-          </NavigationBar>
-          <StyledContentContainer>
-            {header}
-            {content}
-          </StyledContentContainer>
+      <BackAction action={this.props.onClose}>
+        <Layout>
+          <StyledContainer>
+            <NavigationBar>
+              <NavigationItems>
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('support-view', 'Report a problem')
+                  }
+                </TitleBarItem>
+              </NavigationItems>
+            </NavigationBar>
+            <StyledContentContainer>
+              {header}
+              {content}
+            </StyledContentContainer>
 
-          {this.renderNoEmailDialog()}
-          {this.renderOutdateVersionWarningDialog()}
-        </StyledContainer>
-      </Layout>
+            {this.renderNoEmailDialog()}
+            {this.renderOutdateVersionWarningDialog()}
+          </StyledContainer>
+        </Layout>
+      </BackAction>
     );
   }
 

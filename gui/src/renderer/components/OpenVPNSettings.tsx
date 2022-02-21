@@ -9,7 +9,6 @@ import * as Cell from './cell';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import {
-  BackBarItem,
   NavigationBar,
   NavigationContainer,
   NavigationItems,
@@ -19,6 +18,7 @@ import {
 import Selector, { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import { formatMarkdown } from '../markdown-formatter';
+import { BackAction } from './KeyboardNavigation';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
@@ -86,146 +86,147 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <BackBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('openvpn-settings-nav', 'OpenVPN settings')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
-
-            <StyledNavigationScrollbars>
-              <SettingsHeader>
-                <HeaderTitle>
-                  {messages.pgettext('openvpn-settings-view', 'OpenVPN settings')}
-                </HeaderTitle>
-              </SettingsHeader>
-
-              <StyledSelectorContainer>
-                <AriaInputGroup>
-                  <Selector
-                    title={messages.pgettext('openvpn-settings-view', 'Transport protocol')}
-                    values={this.protocolItems(this.props.bridgeState !== 'on')}
-                    value={this.props.openvpn.protocol}
-                    onSelect={this.onSelectOpenvpnProtocol}
-                    hasFooter={this.props.bridgeState === 'on'}
-                  />
-                  {this.props.bridgeState === 'on' && (
-                    <Cell.Footer>
-                      <AriaDescription>
-                        <Cell.FooterText>
-                          {formatMarkdown(
-                            // TRANSLATORS: This is used to instruct users how to make UDP mode
-                            // TRANSLATORS: available.
-                            messages.pgettext(
-                              'openvpn-settings-view',
-                              'To activate UDP, change **Bridge mode** to **Automatic** or **Off**.',
-                            ),
-                          )}
-                        </Cell.FooterText>
-                      </AriaDescription>
-                    </Cell.Footer>
-                  )}
-                </AriaInputGroup>
-              </StyledSelectorContainer>
-
-              <StyledSelectorContainer>
-                <AriaInputGroup>
-                  {this.props.openvpn.protocol ? (
-                    <Selector
-                      title={sprintf(
-                        // TRANSLATORS: The title for the port selector section.
-                        // TRANSLATORS: Available placeholders:
-                        // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
-                        messages.pgettext('openvpn-settings-view', '%(portType)s port'),
-                        {
-                          portType: this.props.openvpn.protocol.toUpperCase(),
-                        },
-                      )}
-                      values={this.portItems[this.props.openvpn.protocol]}
-                      value={this.props.openvpn.port}
-                      onSelect={this.onSelectOpenVpnPort}
-                    />
-                  ) : undefined}
-                </AriaInputGroup>
-              </StyledSelectorContainer>
-
-              <AriaInputGroup>
-                <StyledSelectorContainer>
-                  <Selector
-                    title={
-                      // TRANSLATORS: The title for the shadowsocks bridge selector section.
-                      messages.pgettext('openvpn-settings-view', 'Bridge mode')
+      <BackAction action={this.props.onClose}>
+        <Layout>
+          <SettingsContainer>
+            <NavigationContainer>
+              <NavigationBar>
+                <NavigationItems>
+                  <TitleBarItem>
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('openvpn-settings-nav', 'OpenVPN settings')
                     }
-                    values={this.bridgeStateItems(
-                      this.props.bridgeModeAvailablity === BridgeModeAvailability.available,
-                    )}
-                    value={this.props.bridgeState}
-                    onSelect={this.onSelectBridgeState}
-                    hasFooter
-                  />
-                </StyledSelectorContainer>
-                <Cell.Footer>
-                  <AriaDescription>
-                    <Cell.FooterText>{this.bridgeModeFooterText()}</Cell.FooterText>
-                  </AriaDescription>
-                </Cell.Footer>
-              </AriaInputGroup>
+                  </TitleBarItem>
+                </NavigationItems>
+              </NavigationBar>
 
-              <AriaInputGroup>
-                <Cell.Container>
-                  <AriaLabel>
-                    <Cell.InputLabel>
-                      {messages.pgettext('openvpn-settings-view', 'Mssfix')}
-                    </Cell.InputLabel>
-                  </AriaLabel>
-                  <AriaInput>
-                    <Cell.AutoSizingTextInput
-                      value={this.props.mssfix ? this.props.mssfix.toString() : ''}
-                      inputMode={'numeric'}
-                      maxLength={4}
-                      placeholder={messages.gettext('Default')}
-                      onSubmitValue={this.onMssfixSubmit}
-                      validateValue={OpenVpnSettings.mssfixIsValid}
-                      submitOnBlur={true}
-                      modifyValue={OpenVpnSettings.removeNonNumericCharacters}
+              <StyledNavigationScrollbars>
+                <SettingsHeader>
+                  <HeaderTitle>
+                    {messages.pgettext('openvpn-settings-view', 'OpenVPN settings')}
+                  </HeaderTitle>
+                </SettingsHeader>
+
+                <StyledSelectorContainer>
+                  <AriaInputGroup>
+                    <Selector
+                      title={messages.pgettext('openvpn-settings-view', 'Transport protocol')}
+                      values={this.protocolItems(this.props.bridgeState !== 'on')}
+                      value={this.props.openvpn.protocol}
+                      onSelect={this.onSelectOpenvpnProtocol}
+                      hasFooter={this.props.bridgeState === 'on'}
                     />
-                  </AriaInput>
-                </Cell.Container>
-                <Cell.Footer>
-                  <AriaDescription>
-                    <Cell.FooterText>
-                      {sprintf(
-                        // TRANSLATORS: The hint displayed below the Mssfix input field.
-                        // TRANSLATORS: Available placeholders:
-                        // TRANSLATORS: %(max)d - the maximum possible mssfix value
-                        // TRANSLATORS: %(min)d - the minimum possible mssfix value
-                        messages.pgettext(
-                          'openvpn-settings-view',
-                          'Set OpenVPN MSS value. Valid range: %(min)d - %(max)d.',
-                        ),
-                        {
-                          min: MIN_MSSFIX_VALUE,
-                          max: MAX_MSSFIX_VALUE,
-                        },
-                      )}
-                    </Cell.FooterText>
-                  </AriaDescription>
-                </Cell.Footer>
-              </AriaInputGroup>
-            </StyledNavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
+                    {this.props.bridgeState === 'on' && (
+                      <Cell.Footer>
+                        <AriaDescription>
+                          <Cell.FooterText>
+                            {formatMarkdown(
+                              // TRANSLATORS: This is used to instruct users how to make UDP mode
+                              // TRANSLATORS: available.
+                              messages.pgettext(
+                                'openvpn-settings-view',
+                                'To activate UDP, change **Bridge mode** to **Automatic** or **Off**.',
+                              ),
+                            )}
+                          </Cell.FooterText>
+                        </AriaDescription>
+                      </Cell.Footer>
+                    )}
+                  </AriaInputGroup>
+                </StyledSelectorContainer>
 
-        {this.renderBridgeStateConfirmation()}
-      </Layout>
+                <StyledSelectorContainer>
+                  <AriaInputGroup>
+                    {this.props.openvpn.protocol ? (
+                      <Selector
+                        title={sprintf(
+                          // TRANSLATORS: The title for the port selector section.
+                          // TRANSLATORS: Available placeholders:
+                          // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
+                          messages.pgettext('openvpn-settings-view', '%(portType)s port'),
+                          {
+                            portType: this.props.openvpn.protocol.toUpperCase(),
+                          },
+                        )}
+                        values={this.portItems[this.props.openvpn.protocol]}
+                        value={this.props.openvpn.port}
+                        onSelect={this.onSelectOpenVpnPort}
+                      />
+                    ) : undefined}
+                  </AriaInputGroup>
+                </StyledSelectorContainer>
+
+                <AriaInputGroup>
+                  <StyledSelectorContainer>
+                    <Selector
+                      title={
+                        // TRANSLATORS: The title for the shadowsocks bridge selector section.
+                        messages.pgettext('openvpn-settings-view', 'Bridge mode')
+                      }
+                      values={this.bridgeStateItems(
+                        this.props.bridgeModeAvailablity === BridgeModeAvailability.available,
+                      )}
+                      value={this.props.bridgeState}
+                      onSelect={this.onSelectBridgeState}
+                      hasFooter
+                    />
+                  </StyledSelectorContainer>
+                  <Cell.Footer>
+                    <AriaDescription>
+                      <Cell.FooterText>{this.bridgeModeFooterText()}</Cell.FooterText>
+                    </AriaDescription>
+                  </Cell.Footer>
+                </AriaInputGroup>
+
+                <AriaInputGroup>
+                  <Cell.Container>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('openvpn-settings-view', 'Mssfix')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
+                      <Cell.AutoSizingTextInput
+                        value={this.props.mssfix ? this.props.mssfix.toString() : ''}
+                        inputMode={'numeric'}
+                        maxLength={4}
+                        placeholder={messages.gettext('Default')}
+                        onSubmitValue={this.onMssfixSubmit}
+                        validateValue={OpenVpnSettings.mssfixIsValid}
+                        submitOnBlur={true}
+                        modifyValue={OpenVpnSettings.removeNonNumericCharacters}
+                      />
+                    </AriaInput>
+                  </Cell.Container>
+                  <Cell.Footer>
+                    <AriaDescription>
+                      <Cell.FooterText>
+                        {sprintf(
+                          // TRANSLATORS: The hint displayed below the Mssfix input field.
+                          // TRANSLATORS: Available placeholders:
+                          // TRANSLATORS: %(max)d - the maximum possible mssfix value
+                          // TRANSLATORS: %(min)d - the minimum possible mssfix value
+                          messages.pgettext(
+                            'openvpn-settings-view',
+                            'Set OpenVPN MSS value. Valid range: %(min)d - %(max)d.',
+                          ),
+                          {
+                            min: MIN_MSSFIX_VALUE,
+                            max: MAX_MSSFIX_VALUE,
+                          },
+                        )}
+                      </Cell.FooterText>
+                    </AriaDescription>
+                  </Cell.Footer>
+                </AriaInputGroup>
+              </StyledNavigationScrollbars>
+            </NavigationContainer>
+          </SettingsContainer>
+
+          {this.renderBridgeStateConfirmation()}
+        </Layout>
+      </BackAction>
     );
   }
 
