@@ -23,15 +23,17 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2022.1-beta2] - 2022-02-22
 ### Added
 - Show warning message when blocking internet while logged out, and make it possible to unblock the
   connection from the login view.
 
 ### Fixed
-- Fix settings file being truncated before being read.
+- Prevent settings file being truncated before being read. This caused the daemon to read an empty
+  settings file, restore to default settings and log out.
 - Improve performance for automatically scrolling text in desktop app.
-
-### Changed
 - Increase availability of the API by allowing to issue requests to the API when connecting to the
   relay even if account data might be invalid.
 
