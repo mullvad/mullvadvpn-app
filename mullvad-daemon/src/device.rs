@@ -296,11 +296,11 @@ impl AccountManager {
         result
     }
 
-    pub fn get(&self) -> Option<DeviceData> {
+    pub fn data(&self) -> Option<DeviceData> {
         self.inner.lock().unwrap().data.clone()
     }
 
-    pub fn is_some(&self) -> bool {
+    pub fn has_data(&self) -> bool {
         self.inner.lock().unwrap().data.is_some()
     }
 
