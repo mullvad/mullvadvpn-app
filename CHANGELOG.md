@@ -42,6 +42,11 @@ Line wrap the file at 100 chars.                                              Th
 - Fix the sometimes incorrect time added text after adding time to the account.
 - Fix scrollbar no longer responsive and usable when covered by other elements.
 
+### Security
+#### Android
+- Prevent location request responses from being received outside the tunnel when in the connected
+  state.
+
 
 ## [2022.1-beta2] - 2022-02-22
 ### Added
