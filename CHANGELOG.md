@@ -24,17 +24,12 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Show warning message when blocking internet while logged out, and make it possible to unblock the
-  connection from the login view.
-
 #### Windows
 - Detect mounting and dismounting of volumes, such as VeraCrypt volumes or USB drives,
   and exclude paths from the tunnel correctly when these occur. This sometimes only works
   when the GUI frontend is running.
 
 ### Changed
-- Increase availability of the API by allowing to issue requests to the API when connecting to the
-  relay even if account data might be invalid.
 - Decrease the size of fonts, some icons and other design elements in the desktop app. This makes it
   possible to fit more into the same area and makes text easier to read.
 - Don't block the tunnel state machine while starting the tunnel monitor. This also means that
@@ -44,8 +39,19 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix the sometimes incorrect time added text after adding time to the account.
 - Fix scrollbar no longer responsive and usable when covered by other elements.
-- Fix settings file being truncated before being read.
+
+
+## [2022.1-beta2] - 2022-02-22
+### Added
+- Show warning message when blocking internet while logged out, and make it possible to unblock the
+  connection from the login view.
+
+### Fixed
+- Prevent settings file being truncated before being read. This caused the daemon to read an empty
+  settings file, restore to default settings and log out.
 - Improve performance for automatically scrolling text in desktop app.
+- Increase availability of the API by allowing to issue requests to the API when connecting to the
+  relay even if account data might be invalid.
 
 ### Security
 - Enable "Always require VPN" by default if the settings cannot be parsed. This reduces the number
