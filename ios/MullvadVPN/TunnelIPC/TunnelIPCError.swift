@@ -28,13 +28,13 @@ extension TunnelIPC {
         var errorDescription: String? {
             switch self {
             case .encoding:
-                return "Encoding failure"
+                return "Encoding failure."
             case .decoding:
-                return "Decoding failure"
+                return "Decoding failure."
             case .send:
-                return "Send failure"
+                return "Send failure."
             case .nilResponse:
-                return "Unexpected nil response from the tunnel"
+                return "Unexpected nil response from the tunnel."
             }
         }
     }

@@ -24,21 +24,21 @@ extension RelayCache {
         var errorDescription: String? {
             switch self {
             case .encodeCache:
-                return "Encode cache error"
+                return "Encode cache error."
             case .decodeCache:
-                return "Decode cache error"
+                return "Decode cache error."
             case .readCache:
-                return "Read cache error"
+                return "Read cache error."
             case .readPrebundledRelays:
-                return "Read pre-bundled relays error"
+                return "Read pre-bundled relays error."
             case .decodePrebundledRelays:
-                return "Decode pre-bundled relays error"
+                return "Decode pre-bundled relays error."
             case .writeCache:
-                return "Write cache error"
+                return "Write cache error."
             case .rest:
-                return "REST error"
+                return "REST error."
             case .backgroundTaskScheduler:
-                return "Background task scheduler error"
+                return "Background task scheduler error."
             }
         }
     }

@@ -30,15 +30,15 @@ extension REST {
         var errorDescription: String? {
             switch self {
             case .encodePayload:
-                return "Failure to encode the payload"
+                return "Failure to encode the payload."
             case .network:
-                return "Network error"
+                return "Network error."
             case .server:
-                return "Server error"
+                return "Server error."
             case .decodeErrorResponse:
-                return "Failure to decode error response from server"
+                return "Failure to decode error response from server."
             case .decodeSuccessResponse:
-                return "Failure to decode success response from server"
+                return "Failure to decode success response from server."
             }
         }
     }
