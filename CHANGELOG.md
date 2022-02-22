@@ -24,6 +24,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Show warning message when blocking internet while logged out, and make it possible to unblock the
+  connection from the login view.
+
 #### Windows
 - Detect mounting and dismounting of volumes, such as VeraCrypt volumes or USB drives,
   and exclude paths from the tunnel correctly when these occur. This sometimes only works
