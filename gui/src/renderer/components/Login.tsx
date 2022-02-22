@@ -17,6 +17,9 @@ import {
   StyledAccountDropdownRemoveIcon,
   StyledAccountInputBackdrop,
   StyledAccountInputGroup,
+  StyledBlockMessage,
+  StyledBlockMessageContainer,
+  StyledBlockTitle,
   StyledDropdownSpacer,
   StyledFooter,
   StyledInput,
@@ -27,16 +30,21 @@ import {
   StyledStatusIcon,
   StyledSubtitle,
   StyledTitle,
+  StyledTopInfo,
 } from './LoginStyles';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { LoginState } from '../redux/account/reducers';
 import { AriaControlGroup, AriaControlled, AriaControls } from './AriaGroup';
+import { useSelector } from '../redux/store';
+import { useAppContext } from '../context';
+import { formatMarkdown } from '../markdown-formatter';
 
 interface IProps {
   accountToken?: AccountToken;
   accountHistory?: AccountToken;
   loginState: LoginState;
+  showBlockMessage: boolean;
   openExternalLink: (type: string) => void;
   login: (accountToken: AccountToken) => void;
   resetLoginError: () => void;
@@ -90,8 +98,11 @@ export default class Login extends React.Component<IProps, IState> {
           <HeaderBarSettingsButton />
         </Header>
         <Container>
+          <StyledTopInfo>
+            {this.props.showBlockMessage ? <BlockMessage /> : this.getStatusIcon()}
+          </StyledTopInfo>
+
           <StyledLoginForm>
-            {this.getStatusIcon()}
             <StyledTitle aria-live="polite">{this.formTitle()}</StyledTitle>
 
             {this.createLoginForm()}
@@ -390,5 +401,55 @@ function AccountDropdownItem(props: IAccountDropdownItemProps) {
         </AriaControlGroup>
       </StyledAccountDropdownItem>
     </>
+  );
+}
+
+function BlockMessage() {
+  const { setBlockWhenDisconnected, disconnectTunnel } = useAppContext();
+  const tunnelState = useSelector((state) => state.connection.status);
+  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
+
+  const unlock = useCallback(() => {
+    if (blockWhenDisconnected) {
+      void setBlockWhenDisconnected(false);
+    }
+
+    if (tunnelState.state === 'error') {
+      void disconnectTunnel();
+    }
+  }, [blockWhenDisconnected, tunnelState, setBlockWhenDisconnected, disconnectTunnel]);
+
+  const alwaysRequireVpnSettingsName = messages.pgettext(
+    'advanced-settings-view',
+    'Always require VPN',
+  );
+  const message = formatMarkdown(
+    blockWhenDisconnected
+      ? sprintf(
+          // TRANSLATORS: This is a warning message shown when the app is blocking the users
+          // TRANSLATORS: internet connection while logged out.
+          // TRANSLATORS: Available placeholder:
+          // TRANSLATORS: %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
+          messages.pgettext(
+            'login-view',
+            '**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection.',
+          ),
+          { alwaysRequireVpnSettingsName },
+        )
+      : // This makes the translator comment appear on it's own line.
+        // TRANSLATORS: This is a warning message shown when the app is blocking the users
+        // TRANSLATORS: internet connection while logged out.
+        messages.pgettext('login-view', 'Our kill switch is currently blocking your connection.'),
+  );
+  const buttonText = blockWhenDisconnected
+    ? messages.gettext('Disable')
+    : messages.gettext('Unblock');
+
+  return (
+    <StyledBlockMessageContainer>
+      <StyledBlockTitle>{messages.gettext('Blocking internet')}</StyledBlockTitle>
+      <StyledBlockMessage>{message}</StyledBlockMessage>
+      <AppButton.RedButton onClick={unlock}>{buttonText}</AppButton.RedButton>
+    </StyledBlockMessageContainer>
   );
 }

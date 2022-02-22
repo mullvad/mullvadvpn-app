@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Show warning message when blocking internet while logged out, and make it possible to unblock the
+  connection from the login view.
+
 ### Fixed
 - Fix settings file being truncated before being read.
 - Improve performance for automatically scrolling text in desktop app.

@@ -67,12 +67,19 @@ export const StyledAccountDropdownItemButtonLabel = styled(Cell.Label)({
   },
 });
 
+export const StyledTopInfo = styled.div({
+  display: 'flex',
+  justifyContent: 'center',
+  flex: 1,
+});
+
 export const StyledFooter = styled.div({}, (props: { show: boolean }) => ({
-  position: 'absolute',
+  position: 'relative',
   width: '100%',
   bottom: 0,
   transform: `translateY(${props.show ? 0 : 100}%)`,
   display: 'flex',
+  flex: '0',
   flexDirection: 'column',
   padding: '18px 22px 22px',
   backgroundColor: colors.darkBlue,
@@ -81,6 +88,7 @@ export const StyledFooter = styled.div({}, (props: { show: boolean }) => ({
 
 export const StyledStatusIcon = styled.div({
   display: 'flex',
+  alignSelf: 'end',
   flex: 0,
   marginBottom: '30px',
   justifyContent: 'center',
@@ -90,11 +98,10 @@ export const StyledStatusIcon = styled.div({
 
 export const StyledLoginForm = styled.div({
   display: 'flex',
-  flex: 1,
+  flex: '0 1 225px',
   flexDirection: 'column',
   overflow: 'visible',
   padding: '0 22px',
-  margin: '83px 0 0',
 });
 
 interface IStyledAccountInputGroupProps {
@@ -168,4 +175,27 @@ export const StyledInput = styled(FormattableTextInput)({
   '::placeholder': {
     color: colors.blue40,
   },
+});
+
+export const StyledBlockMessageContainer = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  alignSelf: 'start',
+  backgroundColor: colors.darkBlue,
+  borderRadius: '8px',
+  margin: '5px 16px 10px',
+  padding: '16px',
+});
+
+export const StyledBlockTitle = styled.div(smallText, {
+  color: colors.white,
+  marginBottom: '5px',
+  fontWeight: 700,
+});
+
+export const StyledBlockMessage = styled.div(smallText, {
+  fontSize: '12px',
+  color: colors.white,
+  marginBottom: '10px',
 });

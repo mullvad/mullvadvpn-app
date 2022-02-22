@@ -75,6 +75,9 @@ msgstr ""
 msgid "BLOCKED CONNECTION"
 msgstr ""
 
+msgid "Blocking internet"
+msgstr ""
+
 msgid "Buy credit"
 msgstr ""
 
@@ -97,6 +100,9 @@ msgid "CREATING SECURE CONNECTION"
 msgstr ""
 
 msgid "Default"
+msgstr ""
+
+msgid "Disable"
 msgstr ""
 
 msgid "Disconnect"
@@ -168,6 +174,9 @@ msgid "This setting increases latency. Use only if needed."
 msgstr ""
 
 msgid "UDP"
+msgstr ""
+
+msgid "Unblock"
 msgstr ""
 
 msgid "UNSECURED CONNECTION"
@@ -567,6 +576,14 @@ msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr ""
 
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+#. Available placeholder:
+#. %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
+msgctxt "login-view"
+msgid "**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection."
+msgstr ""
+
 msgctxt "login-view"
 msgid "Account created"
 msgstr ""
@@ -613,6 +630,12 @@ msgstr ""
 
 msgctxt "login-view"
 msgid "Login failed"
+msgstr ""
+
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+msgctxt "login-view"
+msgid "Our kill switch is currently blocking your connection."
 msgstr ""
 
 msgctxt "login-view"
@@ -1385,9 +1408,6 @@ msgid "All applications"
 msgstr ""
 
 msgid "Blocking all connections"
-msgstr ""
-
-msgid "Blocking internet"
 msgstr ""
 
 msgid "Copied Mullvad account number to clipboard"
