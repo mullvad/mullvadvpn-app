@@ -670,6 +670,7 @@ export default class AppRenderer {
           [RoutePath.login]: {
             [RoutePath.launch]: transitions.push,
             [RoutePath.main]: transitions.pop,
+            [RoutePath.deviceRevoked]: transitions.pop,
             '*': transitions.none,
           },
           [RoutePath.main]: {
@@ -677,6 +678,9 @@ export default class AppRenderer {
             [RoutePath.login]: transitions.push,
             [RoutePath.tooManyDevices]: transitions.push,
             '*': transitions.dismiss,
+          },
+          [RoutePath.deviceRevoked]: {
+            '*': transitions.pop,
           },
         };
 
@@ -691,7 +695,14 @@ export default class AppRenderer {
     if (this.connectedToDaemon) {
       const loginState = this.reduxStore.getState().account.status;
       const deviceRevoked = loginState.type === 'none' && loginState.deviceRevoked;
-      return this.deviceConfig?.accountToken || deviceRevoked ? RoutePath.main : RoutePath.login;
+
+      if (deviceRevoked) {
+        return RoutePath.deviceRevoked;
+      } else if (this.deviceConfig?.accountToken) {
+        return RoutePath.main;
+      } else {
+        return RoutePath.login;
+      }
     } else {
       return RoutePath.launch;
     }

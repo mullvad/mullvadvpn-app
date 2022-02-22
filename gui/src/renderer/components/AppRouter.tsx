@@ -27,6 +27,7 @@ import {
 import { RoutePath } from '../lib/routes';
 import FilterByProvider from './FilterByProvider';
 import TooManyDevices from './TooManyDevices';
+import { DeviceRevokedView } from './DeviceRevokedView';
 
 interface IAppRoutesState {
   currentLocation: IHistoryProps['history']['location'];
@@ -78,6 +79,7 @@ class AppRouter extends React.Component<IHistoryProps, IAppRoutesState> {
                 <Route exact path={RoutePath.launch} component={Launch} />
                 <Route exact path={RoutePath.login} component={LoginPage} />
                 <Route exact path={RoutePath.tooManyDevices} component={TooManyDevices} />
+                <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />
                 <Route exact path={RoutePath.main} component={MainView} />
                 <Route exact path={RoutePath.redeemVoucher} component={VoucherInput} />
                 <Route
