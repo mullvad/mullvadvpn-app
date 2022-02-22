@@ -64,16 +64,6 @@ open class TalpidVpnService : VpnService() {
         }
     }
 
-    fun createTunIfClosed(): Boolean {
-        synchronized(this) {
-            if (!tunIsOpen) {
-                activeTunStatus = createTun(currentTunConfig)
-            }
-
-            return tunIsOpen
-        }
-    }
-
     fun recreateTunIfOpen(config: TunConfig) {
         synchronized(this) {
             if (tunIsOpen) {

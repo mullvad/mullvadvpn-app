@@ -7,7 +7,6 @@ use jnix::{
     jni::{
         objects::{GlobalRef, JValue},
         signature::{JavaType, Primitive},
-        sys::JNI_FALSE,
         JavaVM,
     },
     FromJava, IntoJava, JnixEnv,
@@ -156,26 +155,6 @@ impl AndroidTunProvider {
             JValue::Void => Ok(()),
             value => Err(Error::InvalidMethodResult(
                 "createTun",
-                format!("{:?}", value),
-            )),
-        }
-    }
-
-    /// Open a tunnel device using the previous or the default configuration if there is no
-    /// currently active tunnel.
-    pub fn create_tun_if_closed(&mut self) -> Result<(), Error> {
-        let result = self.call_method(
-            "createTunIfClosed",
-            "()Z",
-            JavaType::Primitive(Primitive::Boolean),
-            &[],
-        )?;
-
-        match result {
-            JValue::Bool(JNI_FALSE) => Err(Error::TunnelDeviceError),
-            JValue::Bool(_) => Ok(()),
-            value => Err(Error::InvalidMethodResult(
-                "createTunIfClosed",
                 format!("{:?}", value),
             )),
         }
