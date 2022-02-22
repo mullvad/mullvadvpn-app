@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 - Don't block the tunnel state machine while starting the tunnel monitor. This also means that
   the machine will not transition directly from the `disconnected` to the `disconnecting` state
   if an error occurs.
+- Change behavior of escape key in the desktop app. It now navigates backwards one step instead of
+  to the main view. To navigate back to the main view Shift+Escape can be used.
 
 ### Fixed
 - Fix the sometimes incorrect time added text after adding time to the account.
