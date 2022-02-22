@@ -226,14 +226,18 @@ impl MullvadRpcRuntime {
     }
 
     /// Creates a new request service and returns a handle to it.
-    fn new_request_service(&mut self, sni_hostname: Option<String>) -> rest::RequestServiceHandle {
+    fn new_request_service(
+        &mut self,
+        sni_hostname: Option<String>,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+    ) -> rest::RequestServiceHandle {
         let service = rest::RequestService::new(
             self.handle.clone(),
             sni_hostname,
             self.api_availability.handle(),
             self.address_cache.clone(),
             #[cfg(target_os = "android")]
-            self.socket_bypass_tx.clone(),
+            socket_bypass_tx,
         );
         let handle = service.handle();
         self.handle.spawn(service.into_future());
@@ -242,7 +246,11 @@ impl MullvadRpcRuntime {
 
     /// Returns a request factory initialized to create requests for the master API
     pub fn mullvad_rest_handle(&mut self) -> rest::MullvadRestHandle {
-        let service = self.new_request_service(Some(API.host.clone()));
+        let service = self.new_request_service(
+            Some(API.host.clone()),
+            #[cfg(target_os = "android")]
+            self.socket_bypass_tx.clone(),
+        );
         let factory = rest::RequestFactory::new(
             API.host.clone(),
             Box::new(self.address_cache.clone()),
@@ -259,7 +267,11 @@ impl MullvadRpcRuntime {
 
     /// Returns a new request service handle
     pub fn rest_handle(&mut self) -> rest::RequestServiceHandle {
-        self.new_request_service(None)
+        self.new_request_service(
+            None,
+            #[cfg(target_os = "android")]
+            None,
+        )
     }
 
     pub fn handle(&mut self) -> &mut tokio::runtime::Handle {
