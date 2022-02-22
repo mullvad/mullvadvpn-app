@@ -658,7 +658,6 @@ where
         };
 
         let mut account_manager = device::AccountManager::new(
-            runtime.clone(),
             rpc_handle.clone(),
             api_availability.clone(),
             &settings_dir,

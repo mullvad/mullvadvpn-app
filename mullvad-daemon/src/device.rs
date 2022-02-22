@@ -87,7 +87,6 @@ pub enum ValidationResult {
 }
 
 pub(crate) struct AccountManager {
-    runtime: tokio::runtime::Handle,
     account_service: AccountService,
     device_service: DeviceService,
     inner: Arc<Mutex<AccountManagerInner>>,
@@ -105,7 +104,6 @@ struct AccountManagerInner {
 
 impl AccountManager {
     pub async fn new(
-        runtime: tokio::runtime::Handle,
         rest_handle: rest::MullvadRestHandle,
         api_availability: ApiAvailabilityHandle,
         settings_dir: &Path,
@@ -113,12 +111,8 @@ impl AccountManager {
     ) -> Result<AccountManager, Error> {
         let (mut cacher, device_data) = DeviceCacher::new(settings_dir).await?;
         let token = device_data.as_ref().map(|state| state.token.clone());
-        let account_service = Account::new(
-            runtime.clone(),
-            rest_handle.clone(),
-            token,
-            api_availability.clone(),
-        );
+        let account_service =
+            spawn_account_service(rest_handle.clone(), token, api_availability.clone());
         let should_start_rotation = device_data.is_some();
         let inner = Arc::new(Mutex::new(AccountManagerInner {
             data: device_data,
@@ -129,7 +123,7 @@ impl AccountManager {
             _,
             mpsc::UnboundedReceiver<(_, oneshot::Sender<Result<(), Error>>)>,
         ) = mpsc::unbounded();
-        let cache_task_join_handle = runtime.spawn(async move {
+        let cache_task_join_handle = tokio::spawn(async move {
             while let Some((new_device, result_tx)) = cache_update_rx.next().await {
                 let result = cacher.write(new_device).await;
                 if let Err(error) = &result {
@@ -143,7 +137,6 @@ impl AccountManager {
         });
 
         let mut manager = AccountManager {
-            runtime,
             account_service,
             device_service: DeviceService::new(rest_handle, api_availability),
             inner,
@@ -232,7 +225,7 @@ impl AccountManager {
     /// Log out without waiting for the result.
     pub fn logout(&mut self) {
         let fut = self.logout_inner(true);
-        self.runtime.spawn(async move {
+        tokio::spawn(async move {
             let result = fut.await;
             if let Err(error) = result {
                 log::error!(
@@ -418,7 +411,7 @@ impl AccountManager {
                 }
             }
         });
-        self.runtime.spawn(task);
+        tokio::spawn(task);
         self.rotation_abort_handle = Some(abort_handle);
     }
 
@@ -795,45 +788,39 @@ impl AccountService {
     }
 }
 
-struct Account(());
+pub fn spawn_account_service(
+    rpc_handle: MullvadRestHandle,
+    token: Option<String>,
+    api_availability: ApiAvailabilityHandle,
+) -> AccountService {
+    let accounts_proxy = AccountsProxy::new(rpc_handle);
+    api_availability.pause_background();
 
-impl Account {
-    pub fn new(
-        runtime: tokio::runtime::Handle,
-        rpc_handle: MullvadRestHandle,
-        token: Option<String>,
-        api_availability: ApiAvailabilityHandle,
-    ) -> AccountService {
-        let accounts_proxy = AccountsProxy::new(rpc_handle);
-        api_availability.pause_background();
+    let api_availability_copy = api_availability.clone();
+    let accounts_proxy_copy = accounts_proxy.clone();
 
-        let api_availability_copy = api_availability.clone();
-        let accounts_proxy_copy = accounts_proxy.clone();
+    let (future, initial_check_abort_handle) = abortable(async move {
+        let token = if let Some(token) = token {
+            token
+        } else {
+            api_availability.pause_background();
+            return;
+        };
 
-        let (future, initial_check_abort_handle) = abortable(async move {
-            let token = if let Some(token) = token {
-                token
-            } else {
-                api_availability.pause_background();
-                return;
-            };
+        let future_generator = move || {
+            let expiry_fut = api_availability.when_online(accounts_proxy.get_expiry(token.clone()));
+            let api_availability_copy = api_availability.clone();
+            async move { handle_expiry_result_inner(&expiry_fut.await, &api_availability_copy) }
+        };
+        let should_retry = move |state_was_updated: &bool| -> bool { !*state_was_updated };
+        retry_future(future_generator, should_retry, retry_strategy()).await;
+    });
+    tokio::spawn(future);
 
-            let future_generator = move || {
-                let expiry_fut =
-                    api_availability.when_online(accounts_proxy.get_expiry(token.clone()));
-                let api_availability_copy = api_availability.clone();
-                async move { handle_expiry_result_inner(&expiry_fut.await, &api_availability_copy) }
-            };
-            let should_retry = move |state_was_updated: &bool| -> bool { !*state_was_updated };
-            retry_future(future_generator, should_retry, retry_strategy()).await;
-        });
-        runtime.spawn(future);
-
-        AccountService {
-            api_availability: api_availability_copy,
-            initial_check_abort_handle,
-            proxy: accounts_proxy_copy,
-        }
+    AccountService {
+        api_availability: api_availability_copy,
+        initial_check_abort_handle,
+        proxy: accounts_proxy_copy,
     }
 }
 
