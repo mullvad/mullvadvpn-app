@@ -119,6 +119,7 @@ const Collapsible = styled.div({}, (props: ICollapsibleProps) => {
     backgroundColor: 'rgba(25, 38, 56, 0.95)',
     overflow: 'hidden',
     // Using auto as the initial value prevents transition if a notification is visible on mount.
+    willChange: 'height',
     height: props.contentHeight === undefined ? 'auto' : `${props.contentHeight}px`,
     transition: `height ${duration}ms ease-in-out`,
   };

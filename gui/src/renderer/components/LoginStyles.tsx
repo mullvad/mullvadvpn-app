@@ -84,6 +84,7 @@ export const StyledFooter = styled.div({}, (props: { show: boolean }) => ({
   flexDirection: 'column',
   padding: '18px 22px 22px',
   backgroundColor: colors.darkBlue,
+  willChange: 'transform',
   transition: 'transform 250ms ease-in-out',
 }));
 
@@ -134,6 +135,7 @@ export const StyledInputButton = styled.button((props: { visible: boolean }) => 
   alignItems: 'center',
   justifyContent: 'center',
   opacity: props.visible ? 1 : 0,
+  willChange: 'opacity',
   transition: 'opacity 250ms ease-in-out',
   backgroundColor: colors.green,
 }));

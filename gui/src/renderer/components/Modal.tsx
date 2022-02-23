@@ -33,9 +33,13 @@ const ModalBackground = styled.div({}, (props: { visible: boolean }) => ({
   left: 0,
   right: 0,
   bottom: 0,
-  transition: 'all 150ms ease-out',
   pointerEvents: props.visible ? 'auto' : 'none',
   zIndex: 2,
+
+  willChange: 'background-color, backdrop-filter',
+  transitionProperty: 'background-color, backdrop-filter',
+  transitionDuration: '150ms',
+  transitionTimingFunction: 'ease-out',
 }));
 
 export const StyledModalContainer = styled.div({
@@ -126,7 +130,11 @@ const StyledModalAlert = styled.div({}, (props: { visible: boolean; closing: boo
     opacity: props.visible && !props.closing ? 1 : 0,
     transform,
     boxShadow: ' 0px 15px 35px 5px rgba(0,0,0,0.5)',
-    transition: 'all 150ms ease-out',
+
+    willChange: 'transform, opacity',
+    transitionProperty: 'transform, opacity',
+    transitionDuration: '150ms',
+    transitionTimingFunction: 'ease-out',
   };
 });
 

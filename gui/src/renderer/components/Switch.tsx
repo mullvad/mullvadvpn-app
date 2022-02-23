@@ -35,12 +35,17 @@ const Knob = styled.div({}, (props: { isOn: boolean; disabled: boolean }) => {
     position: 'absolute',
     height: '22px',
     borderRadius: '11px',
-    transition: 'all 200ms linear',
     width: '22px',
     backgroundColor,
+    left: '2px',
     // When enabled the button should be placed all the way to the right (100%) minus padding (2px)
     // minus it's own width (22px).
-    left: props.isOn ? 'calc(100% - 2px - 22px)' : '2px',
+    transform: props.isOn ? 'translateX(18px)' : 'translateX(0)',
+
+    willChange: 'background-color, transform',
+    transitionProperty: 'background-color, transform',
+    transitionDuration: '200ms',
+    transitionTimingFunction: 'linear',
   };
 });
 

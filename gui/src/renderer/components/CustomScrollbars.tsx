@@ -35,6 +35,7 @@ const StyledTrack = styled.div({}, (props: { canScroll: boolean; show: boolean }
   bottom: 0,
   width: '16px',
   backgroundColor: props.show ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0)',
+  willChange: 'width, background-color',
   transition: 'width 0.1s ease-in-out, background-color 0.25s ease-in-out',
   zIndex: 99,
   pointerEvents: props.canScroll ? 'auto' : 'none',
@@ -52,6 +53,7 @@ const StyledThumb = styled.div(
     right: 0,
     borderRadius: props.wide ? '6px' : '4px',
     width: props.wide ? '12px' : '8px',
+    willChange: 'width, border-radius, height, opacity, background-color',
     transition:
       'width 0.25s ease-in-out, border-radius 0.25s ease-in-out, height 0.25s ease-in-out, opacity 0.25s ease-in-out, background-color 0.1s ease-in-out',
     opacity: props.show ? 1 : 0,

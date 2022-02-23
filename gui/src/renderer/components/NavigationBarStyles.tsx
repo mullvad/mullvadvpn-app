@@ -35,6 +35,7 @@ export const StyledTitleBarItemLabel = styled.h1(normalText, (props: { visible?:
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   opacity: props.visible ? 1 : 0,
+  willChange: 'opacity',
   transition: 'opacity 250ms ease-in-out',
 }));
 
