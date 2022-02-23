@@ -80,7 +80,9 @@ impl Error {
 pub enum ValidationResult {
     /// The device and key were valid.
     Valid,
-    /// The device was valid but one or more fields, such as the key, were replaced
+    /// The device was valid but the key was replaced
+    RotatedKey,
+    /// The device was valid but one or more fields, such as ports, were replaced
     Updated,
     /// The device was not found remotely and was removed from the cache.
     Removed,
@@ -282,8 +284,11 @@ impl AccountManager {
             let mut inner = self.inner.lock().unwrap();
             inner.data.replace(data.clone());
             let (result_tx, _result_rx) = oneshot::channel();
-            let _ = self.cache_update_tx.unbounded_send((Some(data), result_tx));
+            let _ = self
+                .cache_update_tx
+                .unbounded_send((Some(data.clone()), result_tx));
             // NOTE: No need to wait on cache update
+            let _ = self.key_update_tx.send(DeviceKeyEvent(data));
         }
         self.start_key_rotation();
         result
@@ -317,6 +322,8 @@ impl AccountManager {
             inner.data.as_ref().ok_or(Error::NoDevice)?.clone()
         };
 
+        log::debug!("Checking whether the device is still valid");
+
         match self
             .device_service
             .get(data.token.clone(), data.device.id.clone())
@@ -341,7 +348,7 @@ impl AccountManager {
                 } else {
                     log::debug!("Rotating invalid WireGuard key");
                     self.rotate_key().await?;
-                    Ok(ValidationResult::Updated)
+                    Ok(ValidationResult::RotatedKey)
                 }
             }
             Err(Error::InvalidAccount) | Err(Error::InvalidDevice) => {

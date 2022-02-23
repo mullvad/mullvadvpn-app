@@ -973,6 +973,7 @@ where
     ) {
         self.reset_rpc_sockets_on_tunnel_state_transition(&tunnel_state_transition)
             .await;
+
         let tunnel_state = match tunnel_state_transition {
             TunnelStateTransition::Disconnected => TunnelState::Disconnected,
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
@@ -989,7 +990,12 @@ where
             TunnelStateTransition::Error(error_state) => TunnelState::Error(error_state),
         };
 
-        self.unschedule_reconnect();
+        if !tunnel_state.is_connected() {
+            // Cancel reconnects except when entering the connected state.
+            // Exempt the latter because a reconnect scheduled while connecting should not be
+            // aborted.
+            self.unschedule_reconnect();
+        }
 
         log::debug!("New tunnel state: {:?}", tunnel_state);
         match tunnel_state {
@@ -1008,14 +1014,17 @@ where
                 }
 
                 if let ErrorStateCause::AuthFailed(_) = error_state.cause() {
-                    self.schedule_reconnect(Duration::from_secs(60)).await
+                    self.schedule_reconnect(Duration::from_secs(60))
                 }
             }
             _ => {}
         }
 
         self.tunnel_state = tunnel_state.clone();
-        self.event_listener.notify_new_state(tunnel_state);
+        self.event_listener.notify_new_state(tunnel_state.clone());
+
+        // Check device validity last so that the broadcast is not delayed.
+        self.maybe_validate_device(&tunnel_state).await;
     }
 
     async fn reset_rpc_sockets_on_tunnel_state_transition(
@@ -1029,6 +1038,41 @@ where
             }
             _ => (),
         };
+    }
+
+    /// Check whether the device is valid after a number of failed connection attempts.
+    async fn maybe_validate_device(&mut self, tunnel_state: &TunnelState) {
+        match tunnel_state {
+            TunnelState::Connecting { endpoint, .. } => {
+                if endpoint.tunnel_type != TunnelType::Wireguard {
+                    return;
+                }
+                self.wg_retry_attempt += 1;
+                if self.wg_check_validity && self.wg_retry_attempt % WG_DEVICE_CHECK_THRESHOLD == 0
+                {
+                    match self.account_manager.validate_device().await {
+                        Ok(status) => {
+                            self.handle_validation_result(status);
+                            self.wg_check_validity = false;
+                        }
+                        Err(error) => {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg("Failed to check device validity")
+                            );
+                            if !error.is_network_error() {
+                                self.wg_check_validity = false;
+                            }
+                        }
+                    }
+                }
+            }
+            TunnelState::Connected { .. } | TunnelState::Disconnected => {
+                self.wg_check_validity = true;
+                self.wg_retry_attempt = 0;
+            }
+            _ => (),
+        }
     }
 
     async fn handle_generate_tunnel_parameters(
@@ -1117,10 +1161,6 @@ where
         let tunnel_options = self.settings.tunnel_options.clone();
         let location = relay.location.as_ref().expect("Relay has no location set");
         self.last_generated_bridge_relay = None;
-        if retry_attempt == 0 {
-            self.wg_retry_attempt = 0;
-            self.wg_check_validity = true;
-        }
         match endpoint {
             MullvadEndpoint::OpenVpn(endpoint) => {
                 let proxy_settings = match &self.settings.bridge_settings {
@@ -1185,26 +1225,6 @@ where
                 .into())
             }
             MullvadEndpoint::Wireguard(endpoint) => {
-                self.wg_retry_attempt += 1;
-                if self.wg_check_validity && self.wg_retry_attempt % WG_DEVICE_CHECK_THRESHOLD == 0
-                {
-                    match self.account_manager.validate_device().await {
-                        Ok(status) => {
-                            self.handle_validation_result(status);
-                            self.wg_check_validity = false;
-                        }
-                        Err(error) => {
-                            log::error!(
-                                "{}",
-                                error.display_chain_with_msg("Failed to check device validity")
-                            );
-                            if !error.is_network_error() {
-                                self.wg_check_validity = false;
-                            }
-                        }
-                    }
-                }
-
                 let wg_data = self
                     .account_manager
                     .data()
@@ -1236,7 +1256,7 @@ where
     // Emit the appropriate events for an updated device.
     fn handle_validation_result(&mut self, result: device::ValidationResult) {
         match result {
-            device::ValidationResult::Valid => (),
+            device::ValidationResult::RotatedKey | device::ValidationResult::Valid => (),
             device::ValidationResult::Removed => {
                 self.event_listener
                     .notify_device_event(DeviceEvent::revoke(true));
@@ -1248,7 +1268,7 @@ where
         }
     }
 
-    async fn schedule_reconnect(&mut self, delay: Duration) {
+    fn schedule_reconnect(&mut self, delay: Duration) {
         self.unschedule_reconnect();
 
         let tunnel_command_tx = self.tx.to_specialized_sender();
@@ -1388,7 +1408,7 @@ where
             return;
         }
         if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
-            self.schedule_reconnect(WG_RECONNECT_DELAY).await;
+            self.schedule_reconnect(WG_RECONNECT_DELAY);
         }
         self.event_listener
             .notify_device_event(DeviceEvent::from_device(event.0, false));
@@ -2367,10 +2387,6 @@ where
 
     async fn on_rotate_wireguard_key(&mut self, tx: ResponseTx<(), Error>) {
         let result = self.account_manager.rotate_key().await;
-        if let Ok(ref _wg_data) = result {
-            let device = DeviceEvent::new(self.account_manager.data(), false);
-            self.event_listener.notify_device_event(device);
-        }
         let _ = tx.send(result.map(|_| ()).map_err(Error::KeyRotationError));
     }
 
