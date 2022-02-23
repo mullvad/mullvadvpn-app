@@ -6,7 +6,6 @@ import { AriaInputGroup } from './AriaGroup';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import { Container, Layout } from './Layout';
 import {
-  BackBarItem,
   NavigationBar,
   NavigationContainer,
   NavigationItems,
@@ -15,6 +14,7 @@ import {
 } from './NavigationBar';
 import Selector, { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import { BackAction } from './KeyboardNavigation';
 
 interface IProps {
   preferredLocale: string;
@@ -59,40 +59,41 @@ export default class SelectLanguage extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <Layout>
-        <StyledContainer>
-          <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <BackBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('select-language-nav', 'Select language')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+      <BackAction action={this.props.onClose}>
+        <Layout>
+          <StyledContainer>
+            <NavigationContainer>
+              <NavigationBar>
+                <NavigationItems>
+                  <TitleBarItem>
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('select-language-nav', 'Select language')
+                    }
+                  </TitleBarItem>
+                </NavigationItems>
+              </NavigationBar>
 
-            <StyledNavigationScrollbars ref={this.scrollView}>
-              <SettingsHeader>
-                <HeaderTitle>
-                  {messages.pgettext('select-language-nav', 'Select language')}
-                </HeaderTitle>
-              </SettingsHeader>
-              <AriaInputGroup>
-                <StyledSelector
-                  title=""
-                  values={this.state.source}
-                  value={this.props.preferredLocale}
-                  onSelect={this.props.setPreferredLocale}
-                  selectedCellRef={this.selectedCellRef}
-                />
-              </AriaInputGroup>
-            </StyledNavigationScrollbars>
-          </NavigationContainer>
-        </StyledContainer>
-      </Layout>
+              <StyledNavigationScrollbars ref={this.scrollView}>
+                <SettingsHeader>
+                  <HeaderTitle>
+                    {messages.pgettext('select-language-nav', 'Select language')}
+                  </HeaderTitle>
+                </SettingsHeader>
+                <AriaInputGroup>
+                  <StyledSelector
+                    title=""
+                    values={this.state.source}
+                    value={this.props.preferredLocale}
+                    onSelect={this.props.setPreferredLocale}
+                    selectedCellRef={this.selectedCellRef}
+                  />
+                </AriaInputGroup>
+              </StyledNavigationScrollbars>
+            </NavigationContainer>
+          </StyledContainer>
+        </Layout>
+      </BackAction>
     );
   }
 

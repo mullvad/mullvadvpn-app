@@ -6,6 +6,7 @@ import { CellDisabledContext, Container } from './Container';
 import StandaloneSwitch from '../Switch';
 import ImageView from '../ImageView';
 import { useBoolean } from '../../lib/utilityHooks';
+import { BackAction } from '../KeyboardNavigation';
 
 export const Switch = React.forwardRef(function SwitchT(
   props: StandaloneSwitch['props'],
@@ -113,6 +114,10 @@ export class Input extends React.Component<IInputProps, IInputState> {
     );
   }
 
+  public blur = () => {
+    this.inputRef.current?.blur();
+  };
+
   private onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = this.props.modifyValue?.(event.target.value) ?? event.target.value;
     this.setState({ value });
@@ -176,6 +181,7 @@ export function AutoSizingTextInput(props: IInputProps) {
 
   const [value, setValue] = useState(otherProps.value ?? '');
   const [focused, setFocused, setBlurred] = useBoolean(false);
+  const inputRef = useRef() as React.RefObject<Input>;
 
   const onChangeValueWrapper = useCallback(
     (value: string) => {
@@ -201,22 +207,27 @@ export function AutoSizingTextInput(props: IInputProps) {
     [onFocus],
   );
 
+  const blur = useCallback(() => inputRef.current?.blur(), []);
+
   return (
-    <InputFrame focused={focused}>
-      <StyledAutoSizingTextInputContainer>
-        <StyledAutoSizingTextInputWrapper>
-          <Input
-            onChangeValue={onChangeValueWrapper}
-            onBlur={onBlurWrapper}
-            onFocus={onFocusWrapper}
-            {...otherProps}
-          />
-        </StyledAutoSizingTextInputWrapper>
-        <StyledAutoSizingTextInputFiller className={otherProps.className} aria-hidden={true}>
-          {value === '' ? otherProps.placeholder : value}
-        </StyledAutoSizingTextInputFiller>
-      </StyledAutoSizingTextInputContainer>
-    </InputFrame>
+    <BackAction disabled={!focused} action={blur}>
+      <InputFrame focused={focused}>
+        <StyledAutoSizingTextInputContainer>
+          <StyledAutoSizingTextInputWrapper>
+            <Input
+              ref={inputRef}
+              onChangeValue={onChangeValueWrapper}
+              onBlur={onBlurWrapper}
+              onFocus={onFocusWrapper}
+              {...otherProps}
+            />
+          </StyledAutoSizingTextInputWrapper>
+          <StyledAutoSizingTextInputFiller className={otherProps.className} aria-hidden={true}>
+            {value === '' ? otherProps.placeholder : value}
+          </StyledAutoSizingTextInputFiller>
+        </StyledAutoSizingTextInputContainer>
+      </InputFrame>
+    </BackAction>
   );
 }
 
@@ -282,6 +293,7 @@ interface IRowInputProps {
 export function RowInput(props: IRowInputProps) {
   const [value, setValue] = useState(props.initialValue ?? '');
   const textAreaRef = useRef() as React.RefObject<HTMLTextAreaElement>;
+  const [focused, setFocused, setBlurred] = useBoolean(false);
 
   const submit = useCallback(() => props.onSubmit(value), [props.onSubmit, value]);
   const onChange = useCallback(
@@ -302,12 +314,17 @@ export function RowInput(props: IRowInputProps) {
     [submit],
   );
 
-  const globalKeyListener = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.stopPropagation();
-        props.onBlur?.();
-      }
+  const onFocus = useCallback(
+    (event: React.FocusEvent<HTMLTextAreaElement>) => {
+      setFocused();
+      props.onFocus?.(event);
+    },
+    [props.onFocus],
+  );
+  const onBlur = useCallback(
+    (event: React.FocusEvent<HTMLTextAreaElement>) => {
+      setBlurred();
+      props.onBlur?.(event);
     },
     [props.onBlur],
   );
@@ -319,6 +336,8 @@ export function RowInput(props: IRowInputProps) {
       input.selectionStart = input.selectionEnd = value.length;
     }
   }, [textAreaRef, value.length]);
+
+  const blur = useCallback(() => textAreaRef.current?.blur(), []);
 
   useEffect(() => {
     if (props.autofocus) {
@@ -332,35 +351,32 @@ export function RowInput(props: IRowInputProps) {
     }
   }, [props.invalid, focus]);
 
-  useEffect(() => {
-    document.addEventListener('keydown', globalKeyListener, true);
-    return () => document.removeEventListener('keydown', globalKeyListener, true);
-  }, []);
-
   return (
-    <StyledCellInputRowContainer>
-      <StyledInputWrapper marginLeft={props.paddingLeft ?? 0}>
-        <StyledInputFiller>{value}</StyledInputFiller>
-        <StyledTextArea
-          ref={textAreaRef}
-          onChange={onChange}
-          onKeyDown={onKeyDown}
-          rows={1}
-          value={value}
-          invalid={props.invalid}
-          onFocus={props.onFocus}
-          onBlur={props.onBlur}
-          placeholder={props.placeholder}
-        />
-      </StyledInputWrapper>
-      <StyledSubmitButton onClick={submit}>
-        <ImageView
-          source="icon-check"
-          height={18}
-          tintColor={value === '' ? colors.blue60 : colors.blue}
-          tintHoverColor={value === '' ? colors.blue60 : colors.blue80}
-        />
-      </StyledSubmitButton>
-    </StyledCellInputRowContainer>
+    <BackAction disabled={!focused} action={blur}>
+      <StyledCellInputRowContainer>
+        <StyledInputWrapper marginLeft={props.paddingLeft ?? 0}>
+          <StyledInputFiller>{value}</StyledInputFiller>
+          <StyledTextArea
+            ref={textAreaRef}
+            onChange={onChange}
+            onKeyDown={onKeyDown}
+            rows={1}
+            value={value}
+            invalid={props.invalid}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            placeholder={props.placeholder}
+          />
+        </StyledInputWrapper>
+        <StyledSubmitButton onClick={submit}>
+          <ImageView
+            source="icon-check"
+            height={18}
+            tintColor={value === '' ? colors.blue60 : colors.blue}
+            tintHoverColor={value === '' ? colors.blue60 : colors.blue80}
+          />
+        </StyledSubmitButton>
+      </StyledCellInputRowContainer>
+    </BackAction>
   );
 }

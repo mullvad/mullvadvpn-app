@@ -17,10 +17,11 @@ import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { Layout } from './Layout';
-import { BackBarItem, NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
+import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
+import { BackAction } from './KeyboardNavigation';
 
 interface IProps {
   accountToken?: AccountToken;
@@ -40,75 +41,78 @@ export default class Account extends React.Component<IProps> {
 
   public render() {
     return (
-      <Layout>
-        <StyledContainer>
-          <NavigationBar>
-            <NavigationItems>
-              <BackBarItem action={this.props.onClose} />
-              <TitleBarItem>
-                {
-                  // TRANSLATORS: Title label in navigation bar
-                  messages.pgettext('account-view', 'Account')
-                }
-              </TitleBarItem>
-            </NavigationItems>
-          </NavigationBar>
+      <BackAction action={this.props.onClose}>
+        <Layout>
+          <StyledContainer>
+            <NavigationBar>
+              <NavigationItems>
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('account-view', 'Account')
+                  }
+                </TitleBarItem>
+              </NavigationItems>
+            </NavigationBar>
 
-          <AccountContainer>
-            <SettingsHeader>
-              <HeaderTitle>{messages.pgettext('account-view', 'Account')}</HeaderTitle>
-            </SettingsHeader>
+            <AccountContainer>
+              <SettingsHeader>
+                <HeaderTitle>{messages.pgettext('account-view', 'Account')}</HeaderTitle>
+              </SettingsHeader>
 
-            <AccountRows>
-              <AccountRow>
-                <AccountRowLabel>
-                  {messages.pgettext('account-view', 'Account number')}
-                </AccountRowLabel>
-                <AccountRowValue
-                  as={AccountTokenLabel}
-                  accountToken={this.props.accountToken || ''}
-                />
-              </AccountRow>
+              <AccountRows>
+                <AccountRow>
+                  <AccountRowLabel>
+                    {messages.pgettext('account-view', 'Account number')}
+                  </AccountRowLabel>
+                  <AccountRowValue
+                    as={AccountTokenLabel}
+                    accountToken={this.props.accountToken || ''}
+                  />
+                </AccountRow>
 
-              <AccountRow>
-                <AccountRowLabel>{messages.pgettext('account-view', 'Paid until')}</AccountRowLabel>
-                <FormattedAccountExpiry
-                  expiry={this.props.accountExpiry}
-                  locale={this.props.expiryLocale}
-                />
-              </AccountRow>
-            </AccountRows>
+                <AccountRow>
+                  <AccountRowLabel>
+                    {messages.pgettext('account-view', 'Paid until')}
+                  </AccountRowLabel>
+                  <FormattedAccountExpiry
+                    expiry={this.props.accountExpiry}
+                    locale={this.props.expiryLocale}
+                  />
+                </AccountRow>
+              </AccountRows>
 
-            <AccountFooter>
-              <AppButton.BlockingButton
-                disabled={this.props.isOffline}
-                onClick={this.props.onBuyMore}>
-                <AriaDescriptionGroup>
-                  <AriaDescribed>
-                    <StyledBuyCreditButton>
-                      <AppButton.Label>{messages.gettext('Buy more credit')}</AppButton.Label>
-                      <AriaDescription>
-                        <AppButton.Icon
-                          source="icon-extLink"
-                          height={16}
-                          width={16}
-                          aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                        />
-                      </AriaDescription>
-                    </StyledBuyCreditButton>
-                  </AriaDescribed>
-                </AriaDescriptionGroup>
-              </AppButton.BlockingButton>
+              <AccountFooter>
+                <AppButton.BlockingButton
+                  disabled={this.props.isOffline}
+                  onClick={this.props.onBuyMore}>
+                  <AriaDescriptionGroup>
+                    <AriaDescribed>
+                      <StyledBuyCreditButton>
+                        <AppButton.Label>{messages.gettext('Buy more credit')}</AppButton.Label>
+                        <AriaDescription>
+                          <AppButton.Icon
+                            source="icon-extLink"
+                            height={16}
+                            width={16}
+                            aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                          />
+                        </AriaDescription>
+                      </StyledBuyCreditButton>
+                    </AriaDescribed>
+                  </AriaDescriptionGroup>
+                </AppButton.BlockingButton>
 
-              <StyledRedeemVoucherButton />
+                <StyledRedeemVoucherButton />
 
-              <AppButton.RedButton onClick={this.props.onLogout}>
-                {messages.pgettext('account-view', 'Log out')}
-              </AppButton.RedButton>
-            </AccountFooter>
-          </AccountContainer>
-        </StyledContainer>
-      </Layout>
+                <AppButton.RedButton onClick={this.props.onLogout}>
+                  {messages.pgettext('account-view', 'Log out')}
+                </AppButton.RedButton>
+              </AccountFooter>
+            </AccountContainer>
+          </StyledContainer>
+        </Layout>
+      </BackAction>
     );
   }
 }

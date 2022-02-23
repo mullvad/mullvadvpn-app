@@ -8,10 +8,10 @@ import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import ImageView from './ImageView';
+import { BackAction } from './KeyboardNavigation';
 import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import {
-  BackBarItem,
   NavigationBar,
   NavigationContainer,
   NavigationItems,
@@ -53,223 +53,63 @@ export default class Preferences extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <Layout>
-        <StyledContainer>
-          <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <BackBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('preferences-nav', 'Preferences')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+      <BackAction action={this.props.onClose}>
+        <Layout>
+          <StyledContainer>
+            <NavigationContainer>
+              <NavigationBar>
+                <NavigationItems>
+                  <TitleBarItem>
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('preferences-nav', 'Preferences')
+                    }
+                  </TitleBarItem>
+                </NavigationItems>
+              </NavigationBar>
 
-            <NavigationScrollbars>
-              <SettingsHeader>
-                <HeaderTitle>{messages.pgettext('preferences-view', 'Preferences')}</HeaderTitle>
-              </SettingsHeader>
+              <NavigationScrollbars>
+                <SettingsHeader>
+                  <HeaderTitle>{messages.pgettext('preferences-view', 'Preferences')}</HeaderTitle>
+                </SettingsHeader>
 
-              <StyledContent>
-                <Cell.CellButton onClick={this.showKillSwitchInfo}>
-                  <Cell.InputLabel>
-                    {messages.pgettext('preferences-view', 'Kill switch')}
-                  </Cell.InputLabel>
-                  <ImageView source="icon-info" width={18} tintColor={colors.white} />
-                </Cell.CellButton>
-                <StyledSeparator height={20} />
+                <StyledContent>
+                  <Cell.CellButton onClick={this.showKillSwitchInfo}>
+                    <Cell.InputLabel>
+                      {messages.pgettext('preferences-view', 'Kill switch')}
+                    </Cell.InputLabel>
+                    <ImageView source="icon-info" width={18} tintColor={colors.white} />
+                  </Cell.CellButton>
+                  <StyledSeparator height={20} />
 
-                <AriaInputGroup>
-                  <Cell.Container>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('preferences-view', 'Launch app on start-up')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.Switch isOn={this.props.autoStart} onChange={this.props.setAutoStart} />
-                    </AriaInput>
-                  </Cell.Container>
-                </AriaInputGroup>
-                <StyledSeparator />
-
-                <AriaInputGroup>
-                  <Cell.Container>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('preferences-view', 'Auto-connect')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.Switch
-                        isOn={this.props.autoConnect}
-                        onChange={this.props.setAutoConnect}
-                      />
-                    </AriaInput>
-                  </Cell.Container>
-                  <Cell.Footer>
-                    <AriaDescription>
-                      <Cell.FooterText>
-                        {messages.pgettext(
-                          'preferences-view',
-                          'Automatically connect to a server when the app launches.',
-                        )}
-                      </Cell.FooterText>
-                    </AriaDescription>
-                  </Cell.Footer>
-                </AriaInputGroup>
-
-                <AriaInputGroup>
-                  <Cell.Container disabled={this.props.dns.state === 'custom'}>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('preferences-view', 'Block ads')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.Switch
-                        isOn={
-                          this.props.dns.state === 'default' &&
-                          this.props.dns.defaultOptions.blockAds
-                        }
-                        onChange={this.setBlockAds}
-                      />
-                    </AriaInput>
-                  </Cell.Container>
-                </AriaInputGroup>
-                <StyledSeparator />
-                <AriaInputGroup>
-                  <Cell.Container disabled={this.props.dns.state === 'custom'}>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('preferences-view', 'Block trackers')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.Switch
-                        isOn={
-                          this.props.dns.state === 'default' &&
-                          this.props.dns.defaultOptions.blockTrackers
-                        }
-                        onChange={this.setBlockTrackers}
-                      />
-                    </AriaInput>
-                  </Cell.Container>
-                </AriaInputGroup>
-                <StyledSeparator />
-                <AriaInputGroup>
-                  <Cell.Container disabled={this.props.dns.state === 'custom'}>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('preferences-view', 'Block malware')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.Switch
-                        isOn={
-                          this.props.dns.state === 'default' &&
-                          this.props.dns.defaultOptions.blockMalware
-                        }
-                        onChange={this.setBlockMalware}
-                      />
-                    </AriaInput>
-                  </Cell.Container>
-                  {this.props.dns.state === 'custom' && <CustomDnsEnabledFooter />}
-                </AriaInputGroup>
-
-                {this.props.dns.state !== 'custom' && <StyledSeparator height={20} />}
-
-                <AriaInputGroup>
-                  <Cell.Container>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('preferences-view', 'Local network sharing')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
-                    </AriaInput>
-                  </Cell.Container>
-                  <Cell.Footer>
-                    <AriaDescription>
-                      <Cell.FooterText>
-                        {messages.pgettext(
-                          'preferences-view',
-                          'Allows access to other devices on the same network for sharing, printing etc.',
-                        )}
-                      </Cell.FooterText>
-                    </AriaDescription>
-                  </Cell.Footer>
-                </AriaInputGroup>
-
-                <AriaInputGroup>
-                  <Cell.Container>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('preferences-view', 'Notifications')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.Switch
-                        isOn={this.props.enableSystemNotifications}
-                        onChange={this.props.setEnableSystemNotifications}
-                      />
-                    </AriaInput>
-                  </Cell.Container>
-                  <Cell.Footer>
-                    <AriaDescription>
-                      <Cell.FooterText>
-                        {messages.pgettext(
-                          'preferences-view',
-                          'Enable or disable system notifications. The critical notifications will always be displayed.',
-                        )}
-                      </Cell.FooterText>
-                    </AriaDescription>
-                  </Cell.Footer>
-                </AriaInputGroup>
-
-                <AriaInputGroup>
-                  <Cell.Container>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('preferences-view', 'Monochromatic tray icon')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.Switch
-                        isOn={this.props.monochromaticIcon}
-                        onChange={this.props.setMonochromaticIcon}
-                      />
-                    </AriaInput>
-                  </Cell.Container>
-                  <Cell.Footer>
-                    <AriaDescription>
-                      <Cell.FooterText>
-                        {messages.pgettext(
-                          'preferences-view',
-                          'Use a monochromatic tray icon instead of a colored one.',
-                        )}
-                      </Cell.FooterText>
-                    </AriaDescription>
-                  </Cell.Footer>
-                </AriaInputGroup>
-
-                {(window.env.platform === 'win32' ||
-                  (window.env.platform === 'darwin' && window.env.development)) && (
                   <AriaInputGroup>
                     <Cell.Container>
                       <AriaLabel>
                         <Cell.InputLabel>
-                          {messages.pgettext('preferences-view', 'Unpin app from taskbar')}
+                          {messages.pgettext('preferences-view', 'Launch app on start-up')}
                         </Cell.InputLabel>
                       </AriaLabel>
                       <AriaInput>
                         <Cell.Switch
-                          isOn={this.props.unpinnedWindow}
-                          onChange={this.props.setUnpinnedWindow}
+                          isOn={this.props.autoStart}
+                          onChange={this.props.setAutoStart}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                  </AriaInputGroup>
+                  <StyledSeparator />
+
+                  <AriaInputGroup>
+                    <Cell.Container>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Auto-connect')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch
+                          isOn={this.props.autoConnect}
+                          onChange={this.props.setAutoConnect}
                         />
                       </AriaInput>
                     </Cell.Container>
@@ -278,27 +118,161 @@ export default class Preferences extends React.Component<IProps, IState> {
                         <Cell.FooterText>
                           {messages.pgettext(
                             'preferences-view',
-                            'Enable to move the app around as a free-standing window.',
+                            'Automatically connect to a server when the app launches.',
                           )}
                         </Cell.FooterText>
                       </AriaDescription>
                     </Cell.Footer>
                   </AriaInputGroup>
-                )}
 
-                {this.props.unpinnedWindow && (
-                  <React.Fragment>
+                  <AriaInputGroup>
+                    <Cell.Container disabled={this.props.dns.state === 'custom'}>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Block ads')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch
+                          isOn={
+                            this.props.dns.state === 'default' &&
+                            this.props.dns.defaultOptions.blockAds
+                          }
+                          onChange={this.setBlockAds}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                  </AriaInputGroup>
+                  <StyledSeparator />
+                  <AriaInputGroup>
+                    <Cell.Container disabled={this.props.dns.state === 'custom'}>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Block trackers')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch
+                          isOn={
+                            this.props.dns.state === 'default' &&
+                            this.props.dns.defaultOptions.blockTrackers
+                          }
+                          onChange={this.setBlockTrackers}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                  </AriaInputGroup>
+                  <StyledSeparator />
+                  <AriaInputGroup>
+                    <Cell.Container disabled={this.props.dns.state === 'custom'}>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Block malware')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch
+                          isOn={
+                            this.props.dns.state === 'default' &&
+                            this.props.dns.defaultOptions.blockMalware
+                          }
+                          onChange={this.setBlockMalware}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                    {this.props.dns.state === 'custom' && <CustomDnsEnabledFooter />}
+                  </AriaInputGroup>
+
+                  {this.props.dns.state !== 'custom' && <StyledSeparator height={20} />}
+
+                  <AriaInputGroup>
+                    <Cell.Container>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Local network sharing')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
+                      </AriaInput>
+                    </Cell.Container>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>
+                          {messages.pgettext(
+                            'preferences-view',
+                            'Allows access to other devices on the same network for sharing, printing etc.',
+                          )}
+                        </Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
+                  </AriaInputGroup>
+
+                  <AriaInputGroup>
+                    <Cell.Container>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Notifications')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch
+                          isOn={this.props.enableSystemNotifications}
+                          onChange={this.props.setEnableSystemNotifications}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>
+                          {messages.pgettext(
+                            'preferences-view',
+                            'Enable or disable system notifications. The critical notifications will always be displayed.',
+                          )}
+                        </Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
+                  </AriaInputGroup>
+
+                  <AriaInputGroup>
+                    <Cell.Container>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Monochromatic tray icon')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch
+                          isOn={this.props.monochromaticIcon}
+                          onChange={this.props.setMonochromaticIcon}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>
+                          {messages.pgettext(
+                            'preferences-view',
+                            'Use a monochromatic tray icon instead of a colored one.',
+                          )}
+                        </Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
+                  </AriaInputGroup>
+
+                  {(window.env.platform === 'win32' ||
+                    (window.env.platform === 'darwin' && window.env.development)) && (
                     <AriaInputGroup>
                       <Cell.Container>
                         <AriaLabel>
                           <Cell.InputLabel>
-                            {messages.pgettext('preferences-view', 'Start minimized')}
+                            {messages.pgettext('preferences-view', 'Unpin app from taskbar')}
                           </Cell.InputLabel>
                         </AriaLabel>
                         <AriaInput>
                           <Cell.Switch
-                            isOn={this.props.startMinimized}
-                            onChange={this.props.setStartMinimized}
+                            isOn={this.props.unpinnedWindow}
+                            onChange={this.props.setUnpinnedWindow}
                           />
                         </AriaInput>
                       </Cell.Container>
@@ -307,65 +281,95 @@ export default class Preferences extends React.Component<IProps, IState> {
                           <Cell.FooterText>
                             {messages.pgettext(
                               'preferences-view',
-                              'Show only the tray icon when the app starts.',
+                              'Enable to move the app around as a free-standing window.',
                             )}
                           </Cell.FooterText>
                         </AriaDescription>
                       </Cell.Footer>
                     </AriaInputGroup>
-                  </React.Fragment>
-                )}
+                  )}
 
-                <AriaInputGroup>
-                  <Cell.Container disabled={this.props.isBeta}>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('preferences-view', 'Beta program')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.Switch
-                        isOn={this.props.showBetaReleases}
-                        onChange={this.props.setShowBetaReleases}
-                      />
-                    </AriaInput>
-                  </Cell.Container>
-                  <Cell.Footer>
-                    <AriaDescription>
-                      <Cell.FooterText>
-                        {this.props.isBeta
-                          ? messages.pgettext(
-                              'preferences-view',
-                              'This option is unavailable while using a beta version.',
-                            )
-                          : messages.pgettext(
-                              'preferences-view',
-                              'Enable to get notified when new beta versions of the app are released.',
-                            )}
-                      </Cell.FooterText>
-                    </AriaDescription>
-                  </Cell.Footer>
-                </AriaInputGroup>
-              </StyledContent>
-            </NavigationScrollbars>
-          </NavigationContainer>
-        </StyledContainer>
+                  {this.props.unpinnedWindow && (
+                    <React.Fragment>
+                      <AriaInputGroup>
+                        <Cell.Container>
+                          <AriaLabel>
+                            <Cell.InputLabel>
+                              {messages.pgettext('preferences-view', 'Start minimized')}
+                            </Cell.InputLabel>
+                          </AriaLabel>
+                          <AriaInput>
+                            <Cell.Switch
+                              isOn={this.props.startMinimized}
+                              onChange={this.props.setStartMinimized}
+                            />
+                          </AriaInput>
+                        </Cell.Container>
+                        <Cell.Footer>
+                          <AriaDescription>
+                            <Cell.FooterText>
+                              {messages.pgettext(
+                                'preferences-view',
+                                'Show only the tray icon when the app starts.',
+                              )}
+                            </Cell.FooterText>
+                          </AriaDescription>
+                        </Cell.Footer>
+                      </AriaInputGroup>
+                    </React.Fragment>
+                  )}
 
-        <ModalAlert
-          isOpen={this.state.showKillSwitchInfo}
-          message={messages.pgettext(
-            'preferences-view',
-            'The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished.',
-          )}
-          type={ModalAlertType.info}
-          buttons={[
-            <AppButton.BlueButton key="back" onClick={this.hideKillSwitchInfo}>
-              {messages.gettext('Got it!')}
-            </AppButton.BlueButton>,
-          ]}
-          close={this.hideKillSwitchInfo}
-        />
-      </Layout>
+                  <AriaInputGroup>
+                    <Cell.Container disabled={this.props.isBeta}>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Beta program')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch
+                          isOn={this.props.showBetaReleases}
+                          onChange={this.props.setShowBetaReleases}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>
+                          {this.props.isBeta
+                            ? messages.pgettext(
+                                'preferences-view',
+                                'This option is unavailable while using a beta version.',
+                              )
+                            : messages.pgettext(
+                                'preferences-view',
+                                'Enable to get notified when new beta versions of the app are released.',
+                              )}
+                        </Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
+                  </AriaInputGroup>
+                </StyledContent>
+              </NavigationScrollbars>
+            </NavigationContainer>
+          </StyledContainer>
+
+          <ModalAlert
+            isOpen={this.state.showKillSwitchInfo}
+            message={messages.pgettext(
+              'preferences-view',
+              'The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished.',
+            )}
+            type={ModalAlertType.info}
+            buttons={[
+              <AppButton.BlueButton key="back" onClick={this.hideKillSwitchInfo}>
+                {messages.gettext('Got it!')}
+              </AppButton.BlueButton>,
+            ]}
+            close={this.hideKillSwitchInfo}
+          />
+        </Layout>
+      </BackAction>
     );
   }
 

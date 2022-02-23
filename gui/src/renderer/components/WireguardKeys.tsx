@@ -9,14 +9,9 @@ import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ClipboardLabel from './ClipboardLabel';
 import ImageView from './ImageView';
+import { BackAction } from './KeyboardNavigation';
 import { Layout } from './Layout';
-import {
-  BackBarItem,
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import {
   StyledButtonRow,
@@ -95,85 +90,86 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <Layout>
-        <StyledContainer>
-          <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <BackBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('wireguard-keys-nav', 'WireGuard key')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+      <BackAction action={this.props.onClose}>
+        <Layout>
+          <StyledContainer>
+            <NavigationContainer>
+              <NavigationBar>
+                <NavigationItems>
+                  <TitleBarItem>
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('wireguard-keys-nav', 'WireGuard key')
+                    }
+                  </TitleBarItem>
+                </NavigationItems>
+              </NavigationBar>
 
-            <StyledNavigationScrollbars fillContainer>
-              <StyledContent>
-                <SettingsHeader>
-                  <HeaderTitle>
-                    {messages.pgettext('wireguard-keys-nav', 'WireGuard key')}
-                  </HeaderTitle>
-                </SettingsHeader>
+              <StyledNavigationScrollbars fillContainer>
+                <StyledContent>
+                  <SettingsHeader>
+                    <HeaderTitle>
+                      {messages.pgettext('wireguard-keys-nav', 'WireGuard key')}
+                    </HeaderTitle>
+                  </SettingsHeader>
 
-                <StyledRow>
-                  <StyledRowLabel>
-                    <span>{messages.pgettext('wireguard-key-view', 'Public key')}</span>
-                    <StyledRowLabelSpacer />
-                    <span>{this.keyValidityLabel()}</span>
-                  </StyledRowLabel>
+                  <StyledRow>
+                    <StyledRowLabel>
+                      <span>{messages.pgettext('wireguard-key-view', 'Public key')}</span>
+                      <StyledRowLabelSpacer />
+                      <span>{this.keyValidityLabel()}</span>
+                    </StyledRowLabel>
 
-                  <StyledRowValue>{this.getKeyText()}</StyledRowValue>
-                </StyledRow>
-                <StyledRow>
-                  <StyledRowLabel>
-                    {messages.pgettext('wireguard-key-view', 'Key generated')}
-                  </StyledRowLabel>
-                  <StyledRowValue>{this.state.ageOfKeyString}</StyledRowValue>
-                </StyledRow>
+                    <StyledRowValue>{this.getKeyText()}</StyledRowValue>
+                  </StyledRow>
+                  <StyledRow>
+                    <StyledRowLabel>
+                      {messages.pgettext('wireguard-key-view', 'Key generated')}
+                    </StyledRowLabel>
+                    <StyledRowValue>{this.state.ageOfKeyString}</StyledRowValue>
+                  </StyledRow>
 
-                <StyledMessages>{this.getStatusMessage()}</StyledMessages>
+                  <StyledMessages>{this.getStatusMessage()}</StyledMessages>
 
-                <StyledButtonRow>{this.getGenerateButton()}</StyledButtonRow>
-                <StyledButtonRow>
-                  <AppButton.BlueButton
-                    disabled={this.isVerifyButtonDisabled()}
-                    onClick={this.handleVerifyKeyPress}>
-                    <AppButton.Label>
-                      {messages.pgettext('wireguard-key-view', 'Verify key')}
-                    </AppButton.Label>
-                  </AppButton.BlueButton>
-                </StyledButtonRow>
-                <StyledLastButtonRow>
-                  <AppButton.BlockingButton
-                    disabled={this.props.isOffline}
-                    onClick={this.props.onVisitWebsiteKey}>
-                    <AriaDescriptionGroup>
-                      <AriaDescribed>
-                        <AppButton.BlueButton>
-                          <AppButton.Label>
-                            {messages.pgettext('wireguard-key-view', 'Manage keys')}
-                          </AppButton.Label>
-                          <AriaDescription>
-                            <AppButton.Icon
-                              source="icon-extLink"
-                              height={16}
-                              width={16}
-                              aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                            />
-                          </AriaDescription>
-                        </AppButton.BlueButton>
-                      </AriaDescribed>
-                    </AriaDescriptionGroup>
-                  </AppButton.BlockingButton>
-                </StyledLastButtonRow>
-              </StyledContent>
-            </StyledNavigationScrollbars>
-          </NavigationContainer>
-        </StyledContainer>
-      </Layout>
+                  <StyledButtonRow>{this.getGenerateButton()}</StyledButtonRow>
+                  <StyledButtonRow>
+                    <AppButton.BlueButton
+                      disabled={this.isVerifyButtonDisabled()}
+                      onClick={this.handleVerifyKeyPress}>
+                      <AppButton.Label>
+                        {messages.pgettext('wireguard-key-view', 'Verify key')}
+                      </AppButton.Label>
+                    </AppButton.BlueButton>
+                  </StyledButtonRow>
+                  <StyledLastButtonRow>
+                    <AppButton.BlockingButton
+                      disabled={this.props.isOffline}
+                      onClick={this.props.onVisitWebsiteKey}>
+                      <AriaDescriptionGroup>
+                        <AriaDescribed>
+                          <AppButton.BlueButton>
+                            <AppButton.Label>
+                              {messages.pgettext('wireguard-key-view', 'Manage keys')}
+                            </AppButton.Label>
+                            <AriaDescription>
+                              <AppButton.Icon
+                                source="icon-extLink"
+                                height={16}
+                                width={16}
+                                aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                              />
+                            </AriaDescription>
+                          </AppButton.BlueButton>
+                        </AriaDescribed>
+                      </AriaDescriptionGroup>
+                    </AppButton.BlockingButton>
+                  </StyledLastButtonRow>
+                </StyledContent>
+              </StyledNavigationScrollbars>
+            </NavigationContainer>
+          </StyledContainer>
+        </Layout>
+      </BackAction>
     );
   }
 

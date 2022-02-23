@@ -16,16 +16,11 @@ import * as Cell from './cell';
 import CustomDnsSettings from './CustomDnsSettings';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
-import {
-  BackBarItem,
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import Switch from './Switch';
+import { BackAction } from './KeyboardNavigation';
 
 type OptionalTunnelProtocol = TunnelProtocol | undefined;
 
@@ -58,137 +53,143 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
     const hasWireguardKey = this.props.wireguardKeyState.type === 'key-set';
 
     return (
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <BackBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('advanced-settings-nav', 'Advanced')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+      <BackAction action={this.props.onClose}>
+        <Layout>
+          <SettingsContainer>
+            <NavigationContainer>
+              <NavigationBar>
+                <NavigationItems>
+                  <TitleBarItem>
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('advanced-settings-nav', 'Advanced')
+                    }
+                  </TitleBarItem>
+                </NavigationItems>
+              </NavigationBar>
 
-            <StyledNavigationScrollbars>
-              <SettingsHeader>
-                <HeaderTitle>{messages.pgettext('advanced-settings-view', 'Advanced')}</HeaderTitle>
-              </SettingsHeader>
+              <StyledNavigationScrollbars>
+                <SettingsHeader>
+                  <HeaderTitle>
+                    {messages.pgettext('advanced-settings-view', 'Advanced')}
+                  </HeaderTitle>
+                </SettingsHeader>
 
-              <AriaInputGroup>
-                <Cell.Container>
-                  <AriaLabel>
-                    <Cell.InputLabel>
-                      {messages.pgettext('advanced-settings-view', 'Enable IPv6')}
-                    </Cell.InputLabel>
-                  </AriaLabel>
-                  <AriaInput>
-                    <Cell.Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
-                  </AriaInput>
-                </Cell.Container>
-                <Cell.Footer>
-                  <AriaDescription>
-                    <Cell.FooterText>
-                      {messages.pgettext(
-                        'advanced-settings-view',
-                        'Enable IPv6 communication through the tunnel.',
-                      )}
-                    </Cell.FooterText>
-                  </AriaDescription>
-                </Cell.Footer>
-              </AriaInputGroup>
+                <AriaInputGroup>
+                  <Cell.Container>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('advanced-settings-view', 'Enable IPv6')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
+                      <Cell.Switch
+                        isOn={this.props.enableIpv6}
+                        onChange={this.props.setEnableIpv6}
+                      />
+                    </AriaInput>
+                  </Cell.Container>
+                  <Cell.Footer>
+                    <AriaDescription>
+                      <Cell.FooterText>
+                        {messages.pgettext(
+                          'advanced-settings-view',
+                          'Enable IPv6 communication through the tunnel.',
+                        )}
+                      </Cell.FooterText>
+                    </AriaDescription>
+                  </Cell.Footer>
+                </AriaInputGroup>
 
-              <AriaInputGroup>
-                <Cell.Container>
-                  <AriaLabel>
-                    <Cell.InputLabel>
-                      {messages.pgettext('advanced-settings-view', 'Always require VPN')}
-                    </Cell.InputLabel>
-                  </AriaLabel>
-                  <AriaInput>
-                    <Cell.Switch
-                      ref={this.blockWhenDisconnectedRef}
-                      isOn={this.props.blockWhenDisconnected}
-                      onChange={this.setBlockWhenDisconnected}
+                <AriaInputGroup>
+                  <Cell.Container>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('advanced-settings-view', 'Always require VPN')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
+                      <Cell.Switch
+                        ref={this.blockWhenDisconnectedRef}
+                        isOn={this.props.blockWhenDisconnected}
+                        onChange={this.setBlockWhenDisconnected}
+                      />
+                    </AriaInput>
+                  </Cell.Container>
+                  <Cell.Footer>
+                    <AriaDescription>
+                      <Cell.FooterText>
+                        {messages.pgettext(
+                          'advanced-settings-view',
+                          'If you disconnect or quit the app, this setting will block your internet.',
+                        )}
+                      </Cell.FooterText>
+                    </AriaDescription>
+                  </Cell.Footer>
+                </AriaInputGroup>
+
+                {(window.env.platform === 'linux' || window.env.platform === 'win32') && (
+                  <Cell.CellButtonGroup>
+                    <Cell.CellButton onClick={this.props.onViewSplitTunneling}>
+                      <Cell.Label>
+                        {messages.pgettext('advanced-settings-view', 'Split tunneling')}
+                      </Cell.Label>
+                      <Cell.Icon height={12} width={7} source="icon-chevron" />
+                    </Cell.CellButton>
+                  </Cell.CellButtonGroup>
+                )}
+
+                <AriaInputGroup>
+                  <StyledTunnelProtocolContainer>
+                    <StyledSelectorForFooter
+                      title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
+                      values={this.tunnelProtocolItems(hasWireguardKey)}
+                      value={this.props.tunnelProtocol}
+                      onSelect={this.onSelectTunnelProtocol}
                     />
-                  </AriaInput>
-                </Cell.Container>
-                <Cell.Footer>
-                  <AriaDescription>
-                    <Cell.FooterText>
-                      {messages.pgettext(
-                        'advanced-settings-view',
-                        'If you disconnect or quit the app, this setting will block your internet.',
-                      )}
-                    </Cell.FooterText>
-                  </AriaDescription>
-                </Cell.Footer>
-              </AriaInputGroup>
+                    {!hasWireguardKey && (
+                      <StyledNoWireguardKeyErrorContainer>
+                        <AriaDescription>
+                          <StyledNoWireguardKeyError>
+                            {messages.pgettext(
+                              'advanced-settings-view',
+                              'To enable WireGuard, generate a key under the "WireGuard key" setting below.',
+                            )}
+                          </StyledNoWireguardKeyError>
+                        </AriaDescription>
+                      </StyledNoWireguardKeyErrorContainer>
+                    )}
+                  </StyledTunnelProtocolContainer>
+                </AriaInputGroup>
 
-              {(window.env.platform === 'linux' || window.env.platform === 'win32') && (
                 <Cell.CellButtonGroup>
-                  <Cell.CellButton onClick={this.props.onViewSplitTunneling}>
+                  <Cell.CellButton
+                    onClick={this.props.onViewWireguardSettings}
+                    disabled={this.props.tunnelProtocol === 'openvpn'}>
                     <Cell.Label>
-                      {messages.pgettext('advanced-settings-view', 'Split tunneling')}
+                      {messages.pgettext('advanced-settings-view', 'WireGuard settings')}
+                    </Cell.Label>
+                    <Cell.Icon height={12} width={7} source="icon-chevron" />
+                  </Cell.CellButton>
+
+                  <Cell.CellButton
+                    onClick={this.props.onViewOpenVpnSettings}
+                    disabled={this.props.tunnelProtocol === 'wireguard'}>
+                    <Cell.Label>
+                      {messages.pgettext('advanced-settings-view', 'OpenVPN settings')}
                     </Cell.Label>
                     <Cell.Icon height={12} width={7} source="icon-chevron" />
                   </Cell.CellButton>
                 </Cell.CellButtonGroup>
-              )}
 
-              <AriaInputGroup>
-                <StyledTunnelProtocolContainer>
-                  <StyledSelectorForFooter
-                    title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
-                    values={this.tunnelProtocolItems(hasWireguardKey)}
-                    value={this.props.tunnelProtocol}
-                    onSelect={this.onSelectTunnelProtocol}
-                  />
-                  {!hasWireguardKey && (
-                    <StyledNoWireguardKeyErrorContainer>
-                      <AriaDescription>
-                        <StyledNoWireguardKeyError>
-                          {messages.pgettext(
-                            'advanced-settings-view',
-                            'To enable WireGuard, generate a key under the "WireGuard key" setting below.',
-                          )}
-                        </StyledNoWireguardKeyError>
-                      </AriaDescription>
-                    </StyledNoWireguardKeyErrorContainer>
-                  )}
-                </StyledTunnelProtocolContainer>
-              </AriaInputGroup>
+                <CustomDnsSettings />
+              </StyledNavigationScrollbars>
+            </NavigationContainer>
+          </SettingsContainer>
 
-              <Cell.CellButtonGroup>
-                <Cell.CellButton
-                  onClick={this.props.onViewWireguardSettings}
-                  disabled={this.props.tunnelProtocol === 'openvpn'}>
-                  <Cell.Label>
-                    {messages.pgettext('advanced-settings-view', 'WireGuard settings')}
-                  </Cell.Label>
-                  <Cell.Icon height={12} width={7} source="icon-chevron" />
-                </Cell.CellButton>
-
-                <Cell.CellButton
-                  onClick={this.props.onViewOpenVpnSettings}
-                  disabled={this.props.tunnelProtocol === 'wireguard'}>
-                  <Cell.Label>
-                    {messages.pgettext('advanced-settings-view', 'OpenVPN settings')}
-                  </Cell.Label>
-                  <Cell.Icon height={12} width={7} source="icon-chevron" />
-                </Cell.CellButton>
-              </Cell.CellButtonGroup>
-
-              <CustomDnsSettings />
-            </StyledNavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-
-        {this.renderConfirmBlockWhenDisconnectedAlert()}
-      </Layout>
+          {this.renderConfirmBlockWhenDisconnectedAlert()}
+        </Layout>
+      </BackAction>
     );
   }
 

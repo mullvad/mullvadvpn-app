@@ -6,13 +6,7 @@ import History from '../lib/history';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './cell';
 import { Layout } from './Layout';
-import {
-  CloseBarItem,
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import {
   StyledCellIcon,
@@ -26,6 +20,7 @@ import {
 } from './SettingsStyles';
 
 import { LoginState } from '../redux/account/reducers';
+import { BackAction } from './KeyboardNavigation';
 
 export interface IProps {
   preferredLocaleDisplayName: string;
@@ -60,41 +55,42 @@ export default class Settings extends React.Component<IProps> {
     const showLargeTitle = this.props.loginState.type !== 'ok';
 
     return (
-      <Layout>
-        <StyledContainer>
-          <NavigationContainer>
-            <NavigationBar alwaysDisplayBarTitle={!showLargeTitle}>
-              <NavigationItems>
-                <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('navigation-bar', 'Settings')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+      <BackAction icon="close" action={this.props.onClose}>
+        <Layout>
+          <StyledContainer>
+            <NavigationContainer>
+              <NavigationBar alwaysDisplayBarTitle={!showLargeTitle}>
+                <NavigationItems>
+                  <TitleBarItem>
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('navigation-bar', 'Settings')
+                    }
+                  </TitleBarItem>
+                </NavigationItems>
+              </NavigationBar>
 
-            <StyledNavigationScrollbars fillContainer>
-              <StyledContent>
-                {showLargeTitle && (
-                  <SettingsHeader>
-                    <HeaderTitle>{messages.pgettext('navigation-bar', 'Settings')}</HeaderTitle>
-                  </SettingsHeader>
-                )}
+              <StyledNavigationScrollbars fillContainer>
+                <StyledContent>
+                  {showLargeTitle && (
+                    <SettingsHeader>
+                      <HeaderTitle>{messages.pgettext('navigation-bar', 'Settings')}</HeaderTitle>
+                    </SettingsHeader>
+                  )}
 
-                <StyledSettingsContent>
-                  {this.renderTopButtons()}
-                  {this.renderMiddleButtons()}
-                  {this.renderBottomButtons()}
-                </StyledSettingsContent>
-              </StyledContent>
+                  <StyledSettingsContent>
+                    {this.renderTopButtons()}
+                    {this.renderMiddleButtons()}
+                    {this.renderBottomButtons()}
+                  </StyledSettingsContent>
+                </StyledContent>
 
-              {this.renderQuitButton()}
-            </StyledNavigationScrollbars>
-          </NavigationContainer>
-        </StyledContainer>
-      </Layout>
+                {this.renderQuitButton()}
+              </StyledNavigationScrollbars>
+            </NavigationContainer>
+          </StyledContainer>
+        </Layout>
+      </BackAction>
     );
   }
 
