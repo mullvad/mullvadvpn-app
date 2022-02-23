@@ -26,7 +26,7 @@ extension TunnelIPC {
                 queue: queue,
                 connection: connection,
                 request: .reloadTunnelSettings,
-                options: TunnelIPC.RequestOptions(waitIfReasserting: true),
+                options: TunnelIPC.RequestOptions(),
                 completionHandler: completionHandler
             )
 
@@ -42,7 +42,7 @@ extension TunnelIPC {
                 queue: queue,
                 connection: connection,
                 request: .tunnelConnectionInfo,
-                options: TunnelIPC.RequestOptions(waitIfReasserting: false),
+                options: TunnelIPC.RequestOptions(),
                 completionHandler: completionHandler
             )
 

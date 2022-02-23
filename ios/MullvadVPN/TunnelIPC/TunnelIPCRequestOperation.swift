@@ -16,10 +16,6 @@ extension TunnelIPC {
         /// Used to workaround a bug when talking to the tunnel too early may cause it to freeze.
         static let connectingStateWaitDelay: TimeInterval = 5
 
-        /// Wait until the tunnel transitioned from reasserting to connected state before sending
-        /// the request.
-        var waitIfReasserting: Bool
-
         /// Timeout interval in seconds.
         var timeout: TimeInterval = 5
     }
@@ -140,9 +136,7 @@ extension TunnelIPC {
                 }
 
             case .reasserting:
-                if !options.waitIfReasserting {
-                    sendRequest()
-                }
+                sendRequest()
 
             case .invalid, .disconnecting, .disconnected:
                 completeOperation(completion: .failure(.send(.tunnelDown(status))))
