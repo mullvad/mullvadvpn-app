@@ -7,7 +7,7 @@ import {
   IAccountData,
   IAppVersionInfo,
   IDevice,
-  DeviceConfig,
+  IDeviceConfig,
   IDeviceRemoval,
   IDnsOptions,
   ILocation,
@@ -54,7 +54,7 @@ export interface IAppStateSnapshot {
   accountHistory?: AccountToken;
   tunnelState: TunnelState;
   settings: ISettings;
-  deviceConfig: DeviceConfig;
+  deviceConfig?: IDeviceConfig;
   relayListPair: IRelayListPair;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppVersionInfo;

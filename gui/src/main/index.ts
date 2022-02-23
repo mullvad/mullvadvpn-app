@@ -27,7 +27,7 @@ import {
   DaemonEvent,
   IAccountData,
   IAppVersionInfo,
-  DeviceConfig,
+  IDeviceConfig,
   IDeviceRemoval,
   IDnsOptions,
   IRelayList,
@@ -197,7 +197,7 @@ class ApplicationMain {
       },
     },
   };
-  private deviceConfig: DeviceConfig = undefined;
+  private deviceConfig?: IDeviceConfig;
   private guiSettings = new GuiSettings();
   private tunnelStateExpectation?: Expectation;
 

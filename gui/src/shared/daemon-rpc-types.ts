@@ -323,16 +323,14 @@ export interface IAppVersionInfo {
 }
 
 export interface IDeviceEvent {
-  deviceConfig: DeviceConfig;
+  deviceConfig?: IDeviceConfig;
   remote?: boolean;
 }
 
-export type DeviceConfig =
-  | undefined
-  | {
-      accountToken: AccountToken;
-      device?: IDevice;
-    };
+export interface IDeviceConfig {
+  accountToken: AccountToken;
+  device?: IDevice;
+}
 
 export interface IDevice {
   id: string;

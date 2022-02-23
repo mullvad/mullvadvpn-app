@@ -32,7 +32,7 @@ import {
   IAccountData,
   IAppVersionInfo,
   IDevice,
-  DeviceConfig,
+  IDeviceConfig,
   IDeviceRemoval,
   IDnsOptions,
   ILocation,
@@ -96,7 +96,7 @@ export default class AppRenderer {
   private relayListPair!: IRelayListPair;
   private tunnelState!: TunnelState;
   private settings!: ISettings;
-  private deviceConfig: DeviceConfig;
+  private deviceConfig?: IDeviceConfig;
   private guiSettings!: IGuiSettingsState;
   private loginState: 'none' | 'logging in' | 'creating account' | 'too many devices' = 'none';
   private loginScheduler = new Scheduler();

@@ -46,7 +46,7 @@ import {
   VoucherResponse,
   TunnelProtocol,
   IDnsOptions,
-  DeviceConfig,
+  IDeviceConfig,
   IDevice,
   IDeviceRemoval,
   IDeviceEvent,
@@ -499,7 +499,7 @@ export class DaemonRpc {
     await this.callEmpty(this.client.checkVolumes);
   }
 
-  public async getDevice(): Promise<DeviceConfig> {
+  public async getDevice(): Promise<IDeviceConfig | undefined> {
     try {
       const response = await this.callEmpty<grpcTypes.DeviceConfig>(this.client.getDevice);
       return convertFromDeviceConfig(response);
@@ -1378,7 +1378,7 @@ function convertFromDeviceEvent(deviceEvent: grpcTypes.DeviceEvent): IDeviceEven
   };
 }
 
-function convertFromDeviceConfig(deviceConfig?: grpcTypes.DeviceConfig): DeviceConfig {
+function convertFromDeviceConfig(deviceConfig?: grpcTypes.DeviceConfig): IDeviceConfig | undefined {
   const device = deviceConfig?.getDevice();
   return (
     deviceConfig && {
