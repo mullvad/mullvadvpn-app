@@ -37,11 +37,11 @@ extension TunnelIPC {
             }
         }
 
-        func getTunnelConnectionInfo(completionHandler: @escaping (OperationCompletion<TunnelConnectionInfo?, TunnelIPC.Error>) -> Void) -> Cancellable {
-            let operation = RequestOperation<TunnelConnectionInfo?>(
+        func getTunnelStatus(completionHandler: @escaping (OperationCompletion<PacketTunnelStatus, TunnelIPC.Error>) -> Void) -> Cancellable {
+            let operation = RequestOperation<PacketTunnelStatus>(
                 queue: queue,
                 tunnel: tunnel,
-                request: .tunnelConnectionInfo,
+                request: .getTunnelStatus,
                 options: TunnelIPC.RequestOptions(),
                 completionHandler: completionHandler
             )

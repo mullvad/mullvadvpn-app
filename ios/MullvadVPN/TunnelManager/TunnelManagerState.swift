@@ -11,7 +11,7 @@ import NetworkExtension
 
 protocol TunnelManagerStateDelegate: AnyObject {
     func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelInfo newTunnelInfo: TunnelInfo?)
-    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelState newTunnelState: TunnelState)
+    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelStatus newTunnelStatus: TunnelStatus)
     func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelProvider newTunnelObject: Tunnel?, shouldRefreshTunnelState: Bool)
 }
 
@@ -25,7 +25,11 @@ extension TunnelManager {
 
         private var _tunnelInfo: TunnelInfo?
         private var _tunnelObject: Tunnel?
-        private var _tunnelState: TunnelState = .disconnected
+        private var _tunnelStatus = TunnelStatus(
+            isNetworkReachable: false,
+            connectingDate: nil,
+            state: .disconnected
+        )
 
         var tunnelInfo: TunnelInfo? {
             get {
@@ -50,18 +54,18 @@ extension TunnelManager {
             }
         }
 
-        var tunnelState: TunnelState {
+        var tunnelStatus: TunnelStatus {
             get {
                 return performBlock {
-                    return _tunnelState
+                    return _tunnelStatus
                 }
             }
             set {
                 performBlock {
-                    if _tunnelState != newValue {
-                        _tunnelState = newValue
+                    if _tunnelStatus != newValue {
+                        _tunnelStatus = newValue
 
-                        delegate?.tunnelManagerState(self, didChangeTunnelState: newValue)
+                        delegate?.tunnelManagerState(self, didChangeTunnelStatus: newValue)
                     }
                 }
             }

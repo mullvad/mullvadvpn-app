@@ -165,7 +165,7 @@ class SetAccountOperation: AsyncOperation {
         willDeleteVPNConfigurationHandler = nil
 
         // Reset tunnel state to disconnected
-        state.tunnelState = .disconnected
+        state.tunnelStatus.reset(to: .disconnected)
 
         // Remove tunnel info
         state.tunnelInfo = nil

@@ -208,30 +208,30 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     private func updateTunnelConnectionInfo() {
         switch tunnelState {
-        case .connecting(let connectionInfo):
-            setConnectionInfo(connectionInfo)
+        case .connecting(let tunnelRelay):
+            setTunnelRelay(tunnelRelay)
 
-        case .connected(let connectionInfo), .reconnecting(let connectionInfo):
-            setConnectionInfo(connectionInfo)
+        case .connected(let tunnelRelay), .reconnecting(let tunnelRelay):
+            setTunnelRelay(tunnelRelay)
 
         case .disconnected, .disconnecting, .pendingReconnect:
-            setConnectionInfo(nil)
+            setTunnelRelay(nil)
         }
 
         mainContentView.locationContainerView.accessibilityLabel = tunnelState.localizedAccessibilityLabel
     }
 
-    private func setConnectionInfo(_ connectionInfo: TunnelConnectionInfo?) {
-        if let connectionInfo = connectionInfo {
-            mainContentView.cityLabel.attributedText = attributedStringForLocation(string: connectionInfo.location.city)
-            mainContentView.countryLabel.attributedText = attributedStringForLocation(string: connectionInfo.location.country)
+    private func setTunnelRelay(_ tunnelRelay: PacketTunnelRelay?) {
+        if let tunnelRelay = tunnelRelay {
+            mainContentView.cityLabel.attributedText = attributedStringForLocation(string: tunnelRelay.location.city)
+            mainContentView.countryLabel.attributedText = attributedStringForLocation(string: tunnelRelay.location.country)
 
             mainContentView.connectionPanel.dataSource = ConnectionPanelData(
-                inAddress: "\(connectionInfo.ipv4Relay) UDP",
+                inAddress: "\(tunnelRelay.ipv4Relay) UDP",
                 outAddress: nil
             )
             mainContentView.connectionPanel.isHidden = false
-            mainContentView.connectionPanel.connectedRelayName = connectionInfo.hostname
+            mainContentView.connectionPanel.connectedRelayName = tunnelRelay.hostname
         } else {
             mainContentView.countryLabel.attributedText = attributedStringForLocation(string: " ")
             mainContentView.cityLabel.attributedText = attributedStringForLocation(string: " ")
@@ -274,15 +274,15 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     private func updateLocation(animated: Bool) {
         switch tunnelState {
-        case .connecting(let connectionInfo):
-            if let connectionInfo = connectionInfo {
-                setLocation(coordinate: connectionInfo.location.geoCoordinate, animated: animated)
+        case .connecting(let tunnelRelay):
+            if let tunnelRelay = tunnelRelay {
+                setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated)
             } else {
                 unsetLocation(animated: animated)
             }
 
-        case .connected(let connectionInfo), .reconnecting(let connectionInfo):
-            setLocation(coordinate: connectionInfo.location.geoCoordinate, animated: animated)
+        case .connected(let tunnelRelay), .reconnecting(let tunnelRelay):
+            setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated)
 
         case .disconnected, .disconnecting, .pendingReconnect:
             unsetLocation(animated: animated)

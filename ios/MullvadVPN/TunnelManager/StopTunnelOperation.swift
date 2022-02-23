@@ -43,9 +43,9 @@ class StopTunnelOperation: AsyncOperation {
             return
         }
 
-        switch self.state.tunnelState {
+        switch self.state.tunnelStatus.state {
         case .disconnecting(.reconnect):
-            state.tunnelState = .disconnecting(.nothing)
+            state.tunnelStatus.state = .disconnecting(.nothing)
 
             completionHandler(.success(()))
 
