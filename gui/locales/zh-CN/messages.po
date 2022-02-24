@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2021-10-22 12:27\n"
+"PO-Revision-Date: 2022-02-24 09:05\n"
 
 msgid "%(duration)s was added to your account."
 msgstr "%(duration)s已添加到您的帐户。"
@@ -92,9 +92,6 @@ msgstr "关闭"
 msgid "Connect"
 msgstr "连接"
 
-msgid "COPIED TO CLIPBOARD!"
-msgstr "已复制到剪贴板！"
-
 msgid "CREATING SECURE CONNECTION"
 msgstr "正在创建安全连接"
 
@@ -107,12 +104,16 @@ msgstr "断开连接"
 msgid "Dismiss"
 msgstr "关闭"
 
+msgid "Enable anyway"
+msgstr "仍然启用"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "无法保护连接"
 
 msgid "Filter"
 msgstr "筛选"
 
+#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "知道了！"
 
@@ -161,6 +162,10 @@ msgstr "系统默认值"
 msgid "TCP"
 msgstr "TCP"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgid "This setting increases latency. Use only if needed."
+msgstr "此设置会增大延迟。仅在需要时使用。"
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -175,6 +180,12 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "折叠 %(location)s"
 
+#. Provided to accessibility tools such as screenreaders to describe a button
+#. which copies the account number to the clipboard.
+msgctxt "accessibility"
+msgid "Copy account number"
+msgstr "复制帐号"
+
 msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "展开 %(location)s"
@@ -182,6 +193,12 @@ msgstr "展开 %(location)s"
 msgctxt "accessibility"
 msgid "Forget %(accountToken)s"
 msgstr "忘记 %(accountToken)s"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which obscures the account number.
+msgctxt "accessibility"
+msgid "Hide account number"
+msgstr "隐藏帐号"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -199,6 +216,12 @@ msgstr "移除条目"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "选择位置。当前位置为 %(location)s"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which unobscures the account number.
+msgctxt "accessibility"
+msgid "Show account number"
+msgstr "显示帐号"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -250,9 +273,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意：启用此选项后，将始终需要 Mullvad VPN 才能连接到网络。"
 
-msgid "Enable anyway"
-msgstr "仍然启用"
-
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "启用 IPv6"
@@ -260,6 +280,11 @@ msgstr "启用 IPv6"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "启用通过隧道进行 IPv6 通信。"
+
+#. The label next to the multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Enable multihop"
+msgstr "启用多跳"
 
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
@@ -272,6 +297,11 @@ msgstr "输入 IP"
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "如果断开连接或退出应用，此设置将阻止您的网络连接。"
+
+#. Description for multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
+msgstr "通过将您的流量路由到一个 WireGuard 服务器中并从另一个服务器传出的方式增加匿名性，提高追踪难度。"
 
 msgctxt "advanced-settings-view"
 msgid "missing key"
@@ -332,6 +362,10 @@ msgstr "无法验证帐户。请联系技术支持。"
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "您登录时使用的帐号无效。请退出并尝试其他帐号。"
+
+msgctxt "changelog"
+msgid "Changes in this version:"
+msgstr "此版本中的变更："
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -750,6 +784,12 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "桥接模式"
 
+#. This is used as a description for the bridge mode
+#. setting.
+msgctxt "openvpn-settings-view"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
+msgstr "通过在到达 OpenVPN 服务器之前将您的流量经过桥接服务器，帮助规避审查。添加了混淆以使指纹识别更加困难。"
+
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
@@ -765,6 +805,24 @@ msgstr "OpenVPN 设置"
 msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "设置 OpenVPN MSS 值。值范围：%(min)d - %(max)d。"
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
+msgstr "要激活桥接模式，请将**传输协议**更改为**自动**或 **TCP**。"
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
+msgstr "要激活桥接模式，请返回并将**隧道协议**更改为 **OpenVPN**。"
+
+#. This is used to instruct users how to make UDP mode
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
+msgstr "要激活 UDP，请将**桥接模式**更改为**自动**或**关**。"
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -796,6 +854,10 @@ msgid "Block ads"
 msgstr "屏蔽广告"
 
 msgctxt "preferences-view"
+msgid "Block malware"
+msgstr "屏蔽恶意软件"
+
+msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "屏蔽跟踪广告代码"
 
@@ -805,10 +867,11 @@ msgstr "屏蔽跟踪广告代码"
 #. Available placeholders:
 #. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
 #. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "禁用**%(blockAdsFeatureName)s**和**%(blockTrackersFeatureName)s**（在“%(preferencesPageName)s”下）以激活此设置。"
+msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "禁用**%(blockAdsFeatureName)s**、**%(blockTrackersFeatureName)s**和**%(blockMalwareFeatureName)s**（在“%(preferencesPageName)s”下）以激活此设置。"
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -830,6 +893,10 @@ msgstr "启用以在新的测试版应用发布时获得通知。"
 msgctxt "preferences-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "启用以将应用作为独立窗口自由移动。"
+
+msgctxt "preferences-view"
+msgid "Kill switch"
+msgstr "终止开关"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -858,6 +925,10 @@ msgstr "应用启动时仅显示托盘图标。"
 msgctxt "preferences-view"
 msgid "Start minimized"
 msgstr "启动时最小化"
+
+msgctxt "preferences-view"
+msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
+msgstr "该应用有一个内置的终止开关，默认情况下处于启用状态且无法禁用。这是为了防止您的流量在您的网络突然停止工作或隧道因任何原因出现故障时泄漏到 VPN 隧道之外。Mullvad 会自动保护您的数据，直到您重新建立连接。"
 
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
@@ -912,6 +983,24 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "选择语言"
 
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "选择位置"
+
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "select-location-view"
+msgid "%(location)s (%(info)s)"
+msgstr "%(location)s（%(info)s）"
+
+msgctxt "select-location-view"
+msgid "Closest to exit server"
+msgstr "最靠近出口服务器"
+
 msgctxt "select-location-view"
 msgid "Entry"
 msgstr "入口"
@@ -919,15 +1008,6 @@ msgstr "入口"
 msgctxt "select-location-view"
 msgid "Exit"
 msgstr "出口"
-
-#. Title label in navigation bar
-msgctxt "select-location-nav"
-msgid "Select location"
-msgstr "选择位置"
-
-msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "最靠近出口服务器"
 
 msgctxt "select-location-view"
 msgid "Filter by provider"
@@ -949,6 +1029,10 @@ msgstr "选择位置"
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "连接时，您的流量将通过两个安全位置路由，即入口点（桥接服务器）和出口点（VPN 服务器）。"
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
+msgstr "连接时，您的流量将经过两个安全位置，即入口点和出口点（需要是两个不同的 VPN 服务器）。"
 
 #. Navigation button to the 'Account' view
 msgctxt "settings-view"
@@ -1353,9 +1437,6 @@ msgstr "如果需要，我们将通过 %s 与您联系"
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "安装 Mullvad VPN (%s) 以保持最新状态"
 
-msgid "Mullvad VPN"
-msgstr "Mullvad VPN"
-
 msgid "Mullvad account number"
 msgstr "Mullvad 帐号"
 
@@ -1385,6 +1466,9 @@ msgstr "除非您在“偏好设置”下启用“本地网络共享”，否则
 
 msgid "This device is offline, no tunnels can be established"
 msgstr "此设备已离线，无法建立隧道"
+
+msgid "Toggle VPN"
+msgstr "切换 VPN"
 
 msgid "Too many WireGuard keys registered to account"
 msgstr "帐户中注册的 WireGuard 密钥过多"
@@ -1427,9 +1511,6 @@ msgstr "您正在运行不受支持的应用版本。请立即升级到 %s 以�
 
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr "在重试之前，您需要返回应用的主屏幕并点击“断开连接”。别担心，您输入的信息将保留在窗体中。"
-
-msgid "e.g. 10.0.0.4"
-msgstr "例如 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

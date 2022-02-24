@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2021-10-22 12:27\n"
+"PO-Revision-Date: 2022-02-24 09:05\n"
 
 msgid "%(duration)s was added to your account."
 msgstr "%(duration)s이(가) 귀하의 계정에 추가되었습니다."
@@ -92,9 +92,6 @@ msgstr "닫기"
 msgid "Connect"
 msgstr "연결"
 
-msgid "COPIED TO CLIPBOARD!"
-msgstr "클립보드에 복사됨!"
-
 msgid "CREATING SECURE CONNECTION"
 msgstr "보안 연결 생성 중"
 
@@ -107,12 +104,16 @@ msgstr "연결 끊기"
 msgid "Dismiss"
 msgstr "해제"
 
+msgid "Enable anyway"
+msgstr "그래도 사용"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "보안 연결 실패"
 
 msgid "Filter"
 msgstr "필터"
 
+#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "확인!"
 
@@ -161,6 +162,10 @@ msgstr "시스템 기본값"
 msgid "TCP"
 msgstr "TCP"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgid "This setting increases latency. Use only if needed."
+msgstr "이 설정을 사용하면 대기 시간이 길어집니다. 필요한 경우에만 사용하세요."
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -175,6 +180,12 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "%(location)s 축소"
 
+#. Provided to accessibility tools such as screenreaders to describe a button
+#. which copies the account number to the clipboard.
+msgctxt "accessibility"
+msgid "Copy account number"
+msgstr "계정 번호 복사"
+
 msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "%(location)s 확장"
@@ -182,6 +193,12 @@ msgstr "%(location)s 확장"
 msgctxt "accessibility"
 msgid "Forget %(accountToken)s"
 msgstr "%(accountToken)s 지우기"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which obscures the account number.
+msgctxt "accessibility"
+msgid "Hide account number"
+msgstr "계정 번호 숨기기"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -199,6 +216,12 @@ msgstr "항목 제거"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "위치를 선택하세요. 현재 위치는 %(location)s입니다"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which unobscures the account number.
+msgctxt "accessibility"
+msgid "Show account number"
+msgstr "계정 번호 표시"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -250,9 +273,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "주의: 이 기능을 사용하려면 인터넷 연결을 위해 항상 Mullvad VPN 연결이 필요합니다."
 
-msgid "Enable anyway"
-msgstr "그래도 사용"
-
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "IPv6 사용"
@@ -260,6 +280,11 @@ msgstr "IPv6 사용"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "터널을 통한 IPv6 통신 사용"
+
+#. The label next to the multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Enable multihop"
+msgstr "멀티홉 사용"
 
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
@@ -272,6 +297,11 @@ msgstr "IP 입력"
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "앱 연결을 끊거나 종료하면 이 설정으로 인해 인터넷이 차단됩니다."
+
+#. Description for multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
+msgstr "트래픽을 하나의 WireGuard 서버로 라우팅하고 다른 서버로 전달하여 익명성을 높이고 추적을 더 어렵게 만듭니다."
 
 msgctxt "advanced-settings-view"
 msgid "missing key"
@@ -332,6 +362,10 @@ msgstr "계정을 인증할 수 없습니다. 지원팀에 문의하세요."
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "잘못된 계정 번호로 로그인했습니다. 로그아웃한 후 다른 계정 번호로 시도하세요."
+
+msgctxt "changelog"
+msgid "Changes in this version:"
+msgstr "이 버전의 변경 사항:"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -750,6 +784,12 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "브리지 모드"
 
+#. This is used as a description for the bridge mode
+#. setting.
+msgctxt "openvpn-settings-view"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
+msgstr "OpenVPN 서버에 도달하기 전에 브리지 서버를 통해 트래픽을 라우팅하여 검열을 피할 수 있습니다. 지문 채취를 어렵게 만들기 위해 난독 처리가 추가되었습니다."
+
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
@@ -765,6 +805,24 @@ msgstr "OpenVPN 설정"
 msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "OpenVPN MSS 값을 설정하세요. 유효 범위: %(min)d - %(max)d."
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
+msgstr "브리지 모드를 활성화하려면 **전송 프로토콜**을 **자동* 또는 **TCP**로 변경합니다."
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
+msgstr "브리지 모드를 활성화하려면 되돌아가서 **터널 프로토콜**을 **OpenVPN**으로 변경합니다."
+
+#. This is used to instruct users how to make UDP mode
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
+msgstr "UDP를 활성화하려면 **브릿지 모드**를 **자동* 또는 **끄기**로 변경합니다."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -796,6 +854,10 @@ msgid "Block ads"
 msgstr "광고 차단"
 
 msgctxt "preferences-view"
+msgid "Block malware"
+msgstr "맬웨어 차단"
+
+msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "블록 추적기"
 
@@ -805,10 +867,11 @@ msgstr "블록 추적기"
 #. Available placeholders:
 #. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
 #. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "이 설정을 활성화하려면 **%(blockAdsFeatureName)s** 및 **%(blockTrackersFeatureName)s**(%(preferencesPageName)s 아래)을(를) 비활성화하세요."
+msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "이 설정을 활성화려면 **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** 및 **%(blockMalwareFeatureName)s**(%(preferencesPageName)s 아래)을(를) 비활성화합니다."
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -830,6 +893,10 @@ msgstr "베타 버전의 새로운 앱이 출시될 때 알림을 받도록 설�
 msgctxt "preferences-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "앱을 독립 실행 창으로 이동할 수 있습니다."
+
+msgctxt "preferences-view"
+msgid "Kill switch"
+msgstr "킬 스위치"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -858,6 +925,10 @@ msgstr "앱이 시작될 때 트레이 아이콘만 표시합니다."
 msgctxt "preferences-view"
 msgid "Start minimized"
 msgstr "최소화 상태로 시작"
+
+msgctxt "preferences-view"
+msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
+msgstr "이 앱에는 기본적으로 활성화되어 비활성화할 수 없는 내장 킬 스위치가 있습니다. 이는 네트워크 작동이 갑자기 중지되거나 어떤 이유로든 터널이 실패할 경우 VPN 터널 외부로 트래픽이 유출되는 것을 방지하기 위한 것입니다. Mullvad는 연결이 다시 설정될 때까지 데이터를 자동으로 보호합니다."
 
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
@@ -912,6 +983,24 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "언어 선택"
 
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "위치 선택"
+
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "select-location-view"
+msgid "%(location)s (%(info)s)"
+msgstr "%(location)s(%(info)s)"
+
+msgctxt "select-location-view"
+msgid "Closest to exit server"
+msgstr "가장 가까운 종료 서버"
+
 msgctxt "select-location-view"
 msgid "Entry"
 msgstr "시작"
@@ -919,15 +1008,6 @@ msgstr "시작"
 msgctxt "select-location-view"
 msgid "Exit"
 msgstr "종료"
-
-#. Title label in navigation bar
-msgctxt "select-location-nav"
-msgid "Select location"
-msgstr "위치 선택"
-
-msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "가장 가까운 종료 서버"
 
 msgctxt "select-location-view"
 msgid "Filter by provider"
@@ -949,6 +1029,10 @@ msgstr "위치 선택"
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "연결되어 있는 동안 트래픽은 시작 지점(브리지 서버)과 종료 지점(VPN 서버)의 두 가지 안전한 위치를 통해 라우팅됩니다."
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
+msgstr "연결된 동안 트래픽이 시작 지점과 종료 지점(서로 다른 두 VPN 서버여야 함)의 두 보안 위치를 통해 라우팅됩니다."
 
 #. Navigation button to the 'Account' view
 msgctxt "settings-view"
@@ -1353,9 +1437,6 @@ msgstr "필요한 경우 %s(으)로 연락드리겠습니다."
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Mullvad VPN(%s)을 설치하여 최신 상태로 유지하세요."
 
-msgid "Mullvad VPN"
-msgstr "Mullvad VPN"
-
 msgid "Mullvad account number"
 msgstr "Mullvad 계정 번호"
 
@@ -1385,6 +1466,9 @@ msgstr "환경 설정에서 ”로컬 네트워크 공유”를 활성화하지 
 
 msgid "This device is offline, no tunnels can be established"
 msgstr "장치가 오프라인 상태이며, 터널을 설정할 수 없습니다"
+
+msgid "Toggle VPN"
+msgstr "VPN 전환"
 
 msgid "Too many WireGuard keys registered to account"
 msgstr "계정에 너무 많은 WireGuard 키가 등록됨"
@@ -1427,9 +1511,6 @@ msgstr "지원되지 않는 앱 버전을 실행 중입니다. 지금 %s(으)로
 
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr "다시 시도하기 전에 앱의 기본 화면으로 돌아가 연결 해제를 클릭해야 할 수 있습니다. 걱정하지 마세요. 입력한 정보는 양식에 남아 있습니다."
-
-msgid "e.g. 10.0.0.4"
-msgstr "예: 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
