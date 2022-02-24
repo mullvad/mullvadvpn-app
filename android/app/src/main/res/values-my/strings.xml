@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">Tunnel ချိတ်ဆက်မှုကို စတင်ရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="switch_location">တည်နေရာ ပြောင်းရန်</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">VPN ရွေးသုံးရန်</string>
     <string name="too_many_keys">အကောင့်တွင် စာရင်းသွင်းထားသည့် WireGuard ကီးများ များလွန်းနေပါသည်</string>
     <string name="try_again">ထပ်ကြိုးစားရန်</string>
     <string name="udp">UDP</string>

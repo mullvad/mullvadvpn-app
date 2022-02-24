@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">Starten van tunnelverbinding mislukt</string>
     <string name="switch_location">Locatie wijzigen</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">VPN aan/uit</string>
     <string name="too_many_keys">Te veel WireGuard-sleutels geregistreerd op account</string>
     <string name="try_again">Probeer het opnieuw</string>
     <string name="udp">UDP</string>

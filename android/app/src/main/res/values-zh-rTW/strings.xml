@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">無法啟動通道連線</string>
     <string name="switch_location">切換位置</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">切換 VPN</string>
     <string name="too_many_keys">帳戶中註冊的 WireGuard 金鑰過多</string>
     <string name="try_again">再試一次</string>
     <string name="udp">UDP</string>
