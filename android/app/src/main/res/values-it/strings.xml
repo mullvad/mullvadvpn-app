@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">Impossibile avviare la connessione tunnel</string>
     <string name="switch_location">Cambia posizione</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">Attiva/disattiva VPN</string>
     <string name="too_many_keys">Troppe chiavi WireGuard registrate per l\'account</string>
     <string name="try_again">Riprova</string>
     <string name="udp">UDP</string>

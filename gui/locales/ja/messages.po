@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2021-10-22 12:27\n"
+"PO-Revision-Date: 2022-02-24 09:05\n"
 
 msgid "%(duration)s was added to your account."
 msgstr "%(duration)sがアカウントに追加されました。"
@@ -21,8 +21,7 @@ msgstr[0] "%d 日"
 
 msgid "1 day left"
 msgid_plural "%d days left"
-msgstr[0] "残り1日\n\n"
-"残り%d日"
+msgstr[0] "残り%d日"
 
 msgid "1 month"
 msgid_plural "%d months"
@@ -30,8 +29,7 @@ msgstr[0] "%d ヶ月"
 
 msgid "1 month left"
 msgid_plural "%d months left"
-msgstr[0] "残り1ヶ月\n\n"
-"残り%d ヶ月"
+msgstr[0] "残り%d ヶ月"
 
 msgid "1 year"
 msgid_plural "%d years"
@@ -39,33 +37,27 @@ msgstr[0] "%d 年"
 
 msgid "1 year left"
 msgid_plural "%d years left"
-msgstr[0] "残り1年\n\n"
-"残り%d年"
+msgstr[0] "残り%d 年"
 
 msgid "a day ago"
 msgid_plural "%d days ago"
-msgstr[0] "1日前\n\n"
-"%d 日前"
+msgstr[0] "%d 日前"
 
 msgid "a minute ago"
 msgid_plural "%d minutes ago"
-msgstr[0] "残り1分\n\n"
-"残り%d 分"
+msgstr[0] "%d 分前"
 
 msgid "a month ago"
 msgid_plural "%d months ago"
-msgstr[0] "1ヶ月前\n\n"
-"%d ヶ月前"
+msgstr[0] "%d ヶ月前"
 
 msgid "a year ago"
 msgid_plural "%d years ago"
-msgstr[0] "1年前\n\n"
-"%d 年前"
+msgstr[0] "%d 年前"
 
 msgid "an hour ago"
 msgid_plural "%d hours ago"
-msgstr[0] "1時間前\n\n"
-"%d時間前"
+msgstr[0] "%d時間前"
 
 msgid "Apply"
 msgstr "適用"
@@ -100,9 +92,6 @@ msgstr "閉じる"
 msgid "Connect"
 msgstr "接続"
 
-msgid "COPIED TO CLIPBOARD!"
-msgstr "クリップボードにコピーしました！"
-
 msgid "CREATING SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立中"
 
@@ -115,12 +104,16 @@ msgstr "接続解除"
 msgid "Dismiss"
 msgstr "閉じる"
 
+msgid "Enable anyway"
+msgstr "それでも有効化する"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立できませんでした"
 
 msgid "Filter"
 msgstr "絞り込み"
 
+#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "了解"
 
@@ -169,6 +162,10 @@ msgstr "システムデフォルト"
 msgid "TCP"
 msgstr "TCP"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgid "This setting increases latency. Use only if needed."
+msgstr "この設定を有効にすると、遅延が増加します。必要な場合にのみご利用ください。"
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -183,6 +180,12 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "%(location)sを折りたたむ"
 
+#. Provided to accessibility tools such as screenreaders to describe a button
+#. which copies the account number to the clipboard.
+msgctxt "accessibility"
+msgid "Copy account number"
+msgstr "アカウント番号のコピー"
+
 msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "%(location)sを展開する"
@@ -190,6 +193,12 @@ msgstr "%(location)sを展開する"
 msgctxt "accessibility"
 msgid "Forget %(accountToken)s"
 msgstr "%(accountToken)sを忘れる"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which obscures the account number.
+msgctxt "accessibility"
+msgid "Hide account number"
+msgstr "アカウント番号の非表示"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -207,6 +216,12 @@ msgstr "アイテムを削除する"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "場所を選択します。現在の場所は%(location)sです"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which unobscures the account number.
+msgctxt "accessibility"
+msgid "Show account number"
+msgstr "アカウント番号の表示"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -258,9 +273,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意：この設定を有効化すると、インターネットにアクセスするために常にMullvad VPNへの接続が必要になります。"
 
-msgid "Enable anyway"
-msgstr "それでも有効化する"
-
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "IPv6を有効化する"
@@ -268,6 +280,11 @@ msgstr "IPv6を有効化する"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "トンネルを通じてIPv6 通信を有効化する"
+
+#. The label next to the multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Enable multihop"
+msgstr "マルチホップを有効化する"
 
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
@@ -280,6 +297,11 @@ msgstr "IP を入力"
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "アプリを接続解除したり終了したりすると、この設定によってインターネットアクセスがブロックされます。"
+
+#. Description for multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
+msgstr "トラフィックをあるWireGuardサーバーにルーティングし、別サーバーに送出することで匿名性を高め、追跡を困難にします。"
 
 msgctxt "advanced-settings-view"
 msgid "missing key"
@@ -340,6 +362,10 @@ msgstr "アカウントを認証できません。サポートにお問い合わ
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "無効なアカウント番号でログインしています。いったんログアウトして、別のアカウント番号を試してください。"
+
+msgctxt "changelog"
+msgid "Changes in this version:"
+msgstr "このバージョンでの変更内容:"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -436,7 +462,7 @@ msgstr "準備完了！"
 #. %(entry)s - the entry relay hostname
 msgctxt "connection-info"
 msgid "%(relay)s via %(entry)s"
-msgstr "%(entry)s経由で%(relay)s"
+msgstr "%(relay)s (%(entry)s経由)"
 
 #. The tunnel type line displayed below the hostname line on the main screen
 #. Available placeholders:
@@ -616,7 +642,7 @@ msgstr "設定"
 #. %(duration)s - remaining time, e.g. "2 days"
 msgctxt "notifications"
 msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "アカウントクレジットは %(duration)sで期限切れになります。追加クレジットを購入してください。"
+msgstr "アカウントクレジットは %(duration)sで期限切れになります。追加クレジットを購入。"
 
 msgctxt "notifications"
 msgid "Account is out of time"
@@ -758,6 +784,12 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "ブリッジモード"
 
+#. This is used as a description for the bridge mode
+#. setting.
+msgctxt "openvpn-settings-view"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
+msgstr "OpenVPNサーバーへ到達する前にブリッジサーバー経由でトラフィックをルーティングすることにより、検閲を回避できるようにします。アクセス元の特定を困難にするために、難読化が施されます。"
+
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
@@ -773,6 +805,24 @@ msgstr "OpenVPN設定"
 msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "OpenVPN MSSの値を設定します。有効範囲: %(min)d ～ %(max)d。"
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
+msgstr "ブリッジモードを有効にするには、**転送プロトコル**を**自動**または**TCP**に変更してください。"
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
+msgstr "ブリッジモードを有効にするには、戻ってから**トンネリングプロトコル**を**OpenVPN**に変更してください。"
+
+#. This is used to instruct users how to make UDP mode
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
+msgstr "UDPを有効にするには、**ブリッジモード**を**自動**または**オフ**に変更してください。"
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -804,6 +854,10 @@ msgid "Block ads"
 msgstr "広告のブロック"
 
 msgctxt "preferences-view"
+msgid "Block malware"
+msgstr "マルウェアのブロック"
+
+msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "トラッカーのブロック"
 
@@ -813,10 +867,11 @@ msgstr "トラッカーのブロック"
 #. Available placeholders:
 #. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
 #. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "この設定を有効にするには、(%(preferencesPageName)s の) **%(blockAdsFeatureName)s** および **%(blockTrackersFeatureName)s** を無効にしてください。"
+msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "この設定を有効にするには、(%(preferencesPageName)sにある) **%(blockAdsFeatureName)s**、 **%(blockTrackersFeatureName)s**、**%(blockMalwareFeatureName)s**を無効にしてください。"
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -838,6 +893,10 @@ msgstr "有効化すると、アプリの新しいベータ版がリリースさ
 msgctxt "preferences-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "アプリを独立したウィンドウとして移動できるようにします。"
+
+msgctxt "preferences-view"
+msgid "Kill switch"
+msgstr "キルスイッチ"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -866,6 +925,10 @@ msgstr "アプリ開始時にトレイアイコンのみを表示します。"
 msgctxt "preferences-view"
 msgid "Start minimized"
 msgstr "最小化状態で起動"
+
+msgctxt "preferences-view"
+msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
+msgstr "このアプリにはデフォルトで有効なキルスイッチが内蔵されており、無効にすることはできません。これは、ネットワークが突然停止したり、何らかの理由でトンネリングに失敗した場合にトラフィックがVPNトンネルの外に漏洩してしまうことを防止するための措置です。接続が再確立されるまでの間、Mullvadは自動的にデータを保護します。"
 
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
@@ -920,6 +983,24 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "言語を選択"
 
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "場所を選択する"
+
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "select-location-view"
+msgid "%(location)s (%(info)s)"
+msgstr "%(location)s (%(info)s)"
+
+msgctxt "select-location-view"
+msgid "Closest to exit server"
+msgstr "最寄りの出口サーバー"
+
 msgctxt "select-location-view"
 msgid "Entry"
 msgstr "入口"
@@ -927,15 +1008,6 @@ msgstr "入口"
 msgctxt "select-location-view"
 msgid "Exit"
 msgstr "出口"
-
-#. Title label in navigation bar
-msgctxt "select-location-nav"
-msgid "Select location"
-msgstr "場所を選択する"
-
-msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "最寄りの出口サーバー"
 
 msgctxt "select-location-view"
 msgid "Filter by provider"
@@ -957,6 +1029,10 @@ msgstr "場所を選択"
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "接続中、あなたのトラフィックはセキュリティで保護された2つの場所、入口（ブリッジサーバー）および出口（VPNサーバー）経由で転送されます。"
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
+msgstr "接続中のトラフィックは、セキュリティで保護された入口ポイントと出口ポイント (これらのポイントは2つの異なるVPNサーバーである必要があります) の2箇所を経由して転送されます。"
 
 #. Navigation button to the 'Account' view
 msgctxt "settings-view"
@@ -1361,9 +1437,6 @@ msgstr "必要に応じて %s 宛にご連絡します"
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Mullvad VPN (%s) をインストールして常に最新の状態を保ちましょう"
 
-msgid "Mullvad VPN"
-msgstr "Mullvad VPN"
-
 msgid "Mullvad account number"
 msgstr "Mullvadアカウント番号"
 
@@ -1393,6 +1466,9 @@ msgstr "環境設定で「ローカルネットワーク共有」を有効にし
 
 msgid "This device is offline, no tunnels can be established"
 msgstr "このデバイスはオフラインであるため、トンネルを作成できません。"
+
+msgid "Toggle VPN"
+msgstr "VPNの切り替え"
 
 msgid "Too many WireGuard keys registered to account"
 msgstr "アカウントに登録されているWireGuard鍵が多すぎます"
@@ -1436,16 +1512,11 @@ msgstr "未対応のアプリバージョンを実行中です。今すぐ %s �
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr "再試行する前に、アプリのメイン画面に戻って [接続解除] をクリックする必要があるかもしれません。すでにフォームに入力された情報が失われることはありませんので、ご安心ください。"
 
-msgid "e.g. 10.0.0.4"
-msgstr "例: 10.0.0.4"
-
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
-msgstr[0] "アカウントのクレジットが1日後に無効になります\n\n"
-"アカウントのクレジットが%d日後に無効になります"
+msgstr[0] "アカウントのクレジットが%d日後に無効になります"
 
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
-msgstr[0] "アカウントのクレジットが1時間後に無効になります\n\n"
-"アカウントのクレジットが%d時間後に無効になります"
+msgstr[0] "アカウントのクレジットが%d時間後に無効になります"
 
