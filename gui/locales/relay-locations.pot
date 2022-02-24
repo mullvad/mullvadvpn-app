@@ -14,6 +14,10 @@ msgstr ""
 msgid "Amsterdam"
 msgstr ""
 
+#. US QAS
+msgid "Ashburn, VA"
+msgstr ""
+
 #. GR ATH
 msgid "Athens"
 msgstr ""

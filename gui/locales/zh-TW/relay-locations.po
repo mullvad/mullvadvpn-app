@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2021-10-22 12:27\n"
+"PO-Revision-Date: 2022-02-24 09:05\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -23,6 +23,10 @@ msgstr "阿爾巴尼亞"
 #. NL AMS
 msgid "Amsterdam"
 msgstr "阿姆斯特丹"
+
+#. US QAS
+msgid "Ashburn, VA"
+msgstr "維吉尼亞州阿什本"
 
 #. GR ATH
 msgid "Athens"

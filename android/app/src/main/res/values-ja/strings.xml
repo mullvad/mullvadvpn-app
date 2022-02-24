@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">トンネル接続の開始に失敗しました</string>
     <string name="switch_location">場所を切り替える</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">VPNの切り替え</string>
     <string name="too_many_keys">アカウントに登録されているWireGuard鍵が多すぎます</string>
     <string name="try_again">再試行</string>
     <string name="udp">UDP</string>

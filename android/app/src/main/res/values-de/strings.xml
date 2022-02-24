@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">Fehler beim Starten der Tunnel-Verbindung</string>
     <string name="switch_location">Ort wechseln</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">VPN umschalten</string>
     <string name="too_many_keys">Zu viele WireGuard-Schlüssel wurden auf das Konto registriert</string>
     <string name="try_again">Erneut versuchen</string>
     <string name="udp">UDP</string>
