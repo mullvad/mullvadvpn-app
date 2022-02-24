@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2021-10-22 12:27\n"
+"PO-Revision-Date: 2022-02-24 09:05\n"
 
 msgid "%(duration)s was added to your account."
 msgstr "%(duration)s lisättiin tilillesi."
@@ -103,9 +103,6 @@ msgstr "Sulje"
 msgid "Connect"
 msgstr "Yhdistä"
 
-msgid "COPIED TO CLIPBOARD!"
-msgstr "KOPIOITU LEIKEPÖYDÄLLE!"
-
 msgid "CREATING SECURE CONNECTION"
 msgstr "LUODAAN SUOJATTU YHTEYS"
 
@@ -118,12 +115,16 @@ msgstr "Katkaise yhteys"
 msgid "Dismiss"
 msgstr "Jätä huomiotta"
 
+msgid "Enable anyway"
+msgstr "Ota silti käyttöön"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "YHTEYDEN SUOJAAMINEN EPÄONNISTUI"
 
 msgid "Filter"
 msgstr "Suodatin"
 
+#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "Selvä!"
 
@@ -172,6 +173,10 @@ msgstr "Järjestelmän oletusarvo"
 msgid "TCP"
 msgstr "TCP"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgid "This setting increases latency. Use only if needed."
+msgstr "Tämä asetus lisää viivettä. Käytä vain tarvittaessa."
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -186,6 +191,12 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "Näytä vähemmän: %(location)s"
 
+#. Provided to accessibility tools such as screenreaders to describe a button
+#. which copies the account number to the clipboard.
+msgctxt "accessibility"
+msgid "Copy account number"
+msgstr "Kopioi tilin numero"
+
 msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "Näytä enemmän: %(location)s"
@@ -193,6 +204,12 @@ msgstr "Näytä enemmän: %(location)s"
 msgctxt "accessibility"
 msgid "Forget %(accountToken)s"
 msgstr "Unohda %(accountToken)s"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which obscures the account number.
+msgctxt "accessibility"
+msgid "Hide account number"
+msgstr "Piilota tilin numero"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -210,6 +227,12 @@ msgstr "Poista kohde"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "Valitse sijainti. Nykyinen sijainti on %(location)s."
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which unobscures the account number.
+msgctxt "accessibility"
+msgid "Show account number"
+msgstr "Näytä tilin numero"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -261,9 +284,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Huomio: jos tämä otetaan käyttöön, verkkoon yhdistäminen vaatii aina Mullvad VPN -yhteyden."
 
-msgid "Enable anyway"
-msgstr "Ota silti käyttöön"
-
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "Salli IPv6"
@@ -271,6 +291,11 @@ msgstr "Salli IPv6"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "Salli IPv6-yhteys tunnelin kautta."
+
+#. The label next to the multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Enable multihop"
+msgstr "Ota multihop käyttöön"
 
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
@@ -283,6 +308,11 @@ msgstr "Anna IP-osoite"
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "Jos katkaiset sovellusyhteyden tai suljet sovelluksen, tämä asetus estää verkkoyhteyden."
+
+#. Description for multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
+msgstr "Paranna anonymiteettia reitittämällä liikennettä yhdelle WireGuard-palvelimelle ja sitten toisen kautta ulos, mikä tekee jäljittämisestä vaikeampaa."
 
 msgctxt "advanced-settings-view"
 msgid "missing key"
@@ -343,6 +373,10 @@ msgstr "Tilin todentaminen ei onnistu. Ota yhteyttä tukeen."
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "Olet kirjautunut sisään virheellisellä tilinumerolla. Kirjaudu ulos ja kokeile toista."
+
+msgctxt "changelog"
+msgid "Changes in this version:"
+msgstr "Muutokset tässä versiossa:"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -761,6 +795,12 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Siltaus"
 
+#. This is used as a description for the bridge mode
+#. setting.
+msgctxt "openvpn-settings-view"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
+msgstr "Auttaa kiertämään sensuuria reitittämällä liikennettä siltapalvelimen kautta siihen saakka, kunnes OpenVPN-palvelin saavutetaan. Hämäysteknologiaa käytetään sormenjälkijäljityksen vaikeuttamiseksi."
+
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
@@ -776,6 +816,24 @@ msgstr "OpenVPN-asetukset"
 msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "Aseta OpenVPN MSS -arvo asteikolla %(min)d–%(max)d."
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
+msgstr "Aktivoi siltaustila muuttamalla **Siirtoprotokolla**-asetukseksi **Automaattinen** tai **TCP**."
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
+msgstr "Aktivoi siltaustila palaamalla takaisin ja muuttamalla **Tunneliprotokolla**-asetukseksi **OpenVPN**."
+
+#. This is used to instruct users how to make UDP mode
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
+msgstr "Aktivoi UDP muuttamalla **Siltaustila**-asetukseksi **Automaattinen** tai **Pois**."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -807,6 +865,10 @@ msgid "Block ads"
 msgstr "Estä mainokset"
 
 msgctxt "preferences-view"
+msgid "Block malware"
+msgstr "Estä haittaohjelmat"
+
+msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "Estä seurantapalvelimet"
 
@@ -816,10 +878,11 @@ msgstr "Estä seurantapalvelimet"
 #. Available placeholders:
 #. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
 #. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "Poista **%(blockAdsFeatureName)s** ja **%(blockTrackersFeatureName)s** käytöstä (kohdassa %(preferencesPageName)s) aktivoidaksesi tämän asetuksen."
+msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "Jotta voit aktivoida asetuksen, poista seuraavat kohteet käytöstä: **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** ja **%(blockMalwareFeatureName)s** (kohdassa %(preferencesPageName)s)."
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -841,6 +904,10 @@ msgstr "Ota käyttöön niin saat ilmoituksen uusista sovelluksen betaversioista
 msgctxt "preferences-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Salli sovelluksen siirtäminen itsenäisenä ikkunana."
+
+msgctxt "preferences-view"
+msgid "Kill switch"
+msgstr "Tappokytkin"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -869,6 +936,10 @@ msgstr "Näytä vain ilmaisinalueen kuvake, kun sovellus käynnistyy."
 msgctxt "preferences-view"
 msgid "Start minimized"
 msgstr "Käynnistä pienennettynä"
+
+msgctxt "preferences-view"
+msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
+msgstr "Sovelluksessa on sisäänrakennettu tappokytkin, ja se on aina poikkeuksetta käytössä; näin liikenteesi vuotaminen VPN-tunnelin ulkopuolelle estetään, jos verkkosi yhtäkkiä lakkaa toimimasta tai tunnelin yhteys jostakin syystä katkeaa. Mullvad suojaa tietojasi automaattisesti, kunnes yhteys on muodostettu uudelleen."
 
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
@@ -923,6 +994,24 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "Valitse kieli"
 
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "Valitse sijainti"
+
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "select-location-view"
+msgid "%(location)s (%(info)s)"
+msgstr "%(location)s (%(info)s)"
+
+msgctxt "select-location-view"
+msgid "Closest to exit server"
+msgstr "Lähinnä lähtöpalvelinta"
+
 msgctxt "select-location-view"
 msgid "Entry"
 msgstr "Tulo"
@@ -930,15 +1019,6 @@ msgstr "Tulo"
 msgctxt "select-location-view"
 msgid "Exit"
 msgstr "Lähtö"
-
-#. Title label in navigation bar
-msgctxt "select-location-nav"
-msgid "Select location"
-msgstr "Valitse sijainti"
-
-msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "Lähinnä lähtöpalvelinta"
 
 msgctxt "select-location-view"
 msgid "Filter by provider"
@@ -960,6 +1040,10 @@ msgstr "Valitse sijainti"
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "Kun yhteys on muodostettu, liikenteesi ohjataan kahden turvallisen siajinnin kautta: tulopisteen (siltauspalvelin) ja poistumispisteen (VPN-palvelin)."
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
+msgstr "Kun yhteys on muodostettu, liikenteesi ohjataan kahden turvallisen siajinnin kautta: tulopisteen ja poistumispisteen (näiden on oltava kaksi erillistä VPN-palvelinta)."
 
 #. Navigation button to the 'Account' view
 msgctxt "settings-view"
@@ -1364,9 +1448,6 @@ msgstr "Tarvittaessa otamme sinuun yhteyttä (yhteydenottotapa: %s)"
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Päivitä asentamalla Mullvad VPN:n versio (%s)"
 
-msgid "Mullvad VPN"
-msgstr "Mullvad VPN"
-
 msgid "Mullvad account number"
 msgstr "Mullvad-tilin numero"
 
@@ -1396,6 +1477,9 @@ msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisa
 
 msgid "This device is offline, no tunnels can be established"
 msgstr "Tämä laite ei ole yhdistetty verkkoon. Tunneleita ei voida luoda."
+
+msgid "Toggle VPN"
+msgstr "Vaihda VPN:ää"
 
 msgid "Too many WireGuard keys registered to account"
 msgstr "Tilille on rekisteröity liian monta WireGuard-avainta"
@@ -1438,9 +1522,6 @@ msgstr "Sovellusversiosi ei ole tuettu. Taataksesi turvallisuutesi päivitä het
 
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr "Ennen kuin yrität uudelleen, sinun on ehkä palattava sovelluksen päänäytölle ja napsautettava yhteyden katkaisua. Älä huoli – syöttämäsi tiedot säilyvät lomakkeella."
-
-msgid "e.g. 10.0.0.4"
-msgstr "esim. 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

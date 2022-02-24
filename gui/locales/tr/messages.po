@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2021-10-22 12:27\n"
+"PO-Revision-Date: 2022-02-24 09:05\n"
 
 msgid "%(duration)s was added to your account."
 msgstr "Hesabınıza %(duration)s eklendi."
@@ -103,9 +103,6 @@ msgstr "Kapat"
 msgid "Connect"
 msgstr "Bağlan"
 
-msgid "COPIED TO CLIPBOARD!"
-msgstr "PANOYA KOPYALANDI!"
-
 msgid "CREATING SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI OLUŞTURULUYOR"
 
@@ -118,12 +115,16 @@ msgstr "Bağlantıyı Kes"
 msgid "Dismiss"
 msgstr "Reddet"
 
+msgid "Enable anyway"
+msgstr "Yine de etkinleştir"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI OLUŞTURULAMADI"
 
 msgid "Filter"
 msgstr "Filtrele"
 
+#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "Anladım!"
 
@@ -172,6 +173,10 @@ msgstr "Sistem varsayılanı"
 msgid "TCP"
 msgstr "TCP"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgid "This setting increases latency. Use only if needed."
+msgstr "Bu ayar gecikmeyi artırır. Sadece gerekiyorsa kullanın."
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -186,6 +191,12 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "%(location)s listesini daralt"
 
+#. Provided to accessibility tools such as screenreaders to describe a button
+#. which copies the account number to the clipboard.
+msgctxt "accessibility"
+msgid "Copy account number"
+msgstr "Hesap numarasını kopyala"
+
 msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "%(location)s listesini genişlet"
@@ -193,6 +204,12 @@ msgstr "%(location)s listesini genişlet"
 msgctxt "accessibility"
 msgid "Forget %(accountToken)s"
 msgstr "%(accountToken)s unut"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which obscures the account number.
+msgctxt "accessibility"
+msgid "Hide account number"
+msgstr "Hesap numarasını gizle"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -210,6 +227,12 @@ msgstr "Öğeyi kaldır"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "Konum seçin. Mevcut konum %(location)s"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which unobscures the account number.
+msgctxt "accessibility"
+msgid "Show account number"
+msgstr "Hesap numarasını göster"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -261,9 +284,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Dikkat: bu seçeneğin etkinleştirilmesi, internete erişim için her zaman bir Mullvad VPN bağlantısı gerektirir."
 
-msgid "Enable anyway"
-msgstr "Yine de etkinleştir"
-
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "IPv6'yı etkinleştir"
@@ -271,6 +291,11 @@ msgstr "IPv6'yı etkinleştir"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "Tünel üzerinden IPv6 iletişimini etkinleştir."
+
+#. The label next to the multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Enable multihop"
+msgstr "Çoklu geçişi etkinleştir"
 
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
@@ -283,6 +308,11 @@ msgstr "IP'yi girin"
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "Uygulamanın bağlantısını keserseniz veya uygulamadan çıkarsanız, bu ayar İnternet'e bağlanmanızı engeller."
+
+#. Description for multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
+msgstr "Trafiğinizi bir WireGuard sunucusundan diğerine yönlendirerek gizliliği artırır ve izlemeyi zorlaştırır."
 
 msgctxt "advanced-settings-view"
 msgid "missing key"
@@ -343,6 +373,10 @@ msgstr "Hesabın kimliği doğrulanamıyor. Lütfen destek ekibiyle iletişime g
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "Geçersiz bir hesap numarası ile giriş yaptınız. Lütfen çıkış yapın ve farklı bir hesap numarası ile tekrar deneyin."
+
+msgctxt "changelog"
+msgid "Changes in this version:"
+msgstr "Bu sürümdeki değişiklikler:"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -761,6 +795,12 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Köprü modu"
 
+#. This is used as a description for the bridge mode
+#. setting.
+msgctxt "openvpn-settings-view"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
+msgstr "OpenVPN sunucusuna ulaşmadan önce trafiği bir köprü sunucusu üzerinden yönlendirerek sansürü aşmaya yardımcı olur. Dijital parmak izi oluşturmayı daha zor hale getirmek için gizleme ekler."
+
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
@@ -776,6 +816,24 @@ msgstr "OpenVPN ayarları"
 msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "OpenVPN MSS değerini ayarlayın. Geçerli aralık: %(min)d - %(max)d."
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
+msgstr "Köprü modunu etkinleştirmek için **Taşıma protokolü**'nü **Otomatik** veya **TCP** olarak değiştirin."
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
+msgstr "Köprü modunu etkinleştirmek için geri dönün ve **Tünel protokolü**'nü **OpenVPN** olarak değiştirin."
+
+#. This is used to instruct users how to make UDP mode
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
+msgstr "UDP'yi etkinleştirmek için **Köprü modu**'nu **Otomatik** veya **Kapalı** olarak değiştirin."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -807,6 +865,10 @@ msgid "Block ads"
 msgstr "Reklamları engelle"
 
 msgctxt "preferences-view"
+msgid "Block malware"
+msgstr "Kötü amaçlı yazılımları engelle"
+
+msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "İzleyicileri engelle"
 
@@ -816,10 +878,11 @@ msgstr "İzleyicileri engelle"
 #. Available placeholders:
 #. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
 #. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "Bu ayarı etkinleştirmek için **%(blockAdsFeatureName)s** ve **%(blockTrackersFeatureName)s** (%(preferencesPageName)s altından) seçeneklerini devre dışı bırakın."
+msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "Bu ayarı etkinleştirmek için **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** ve **%(blockMalwareFeatureName)s** özelliklerini (%(preferencesPageName)s altında) devre dışı bırakın."
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -841,6 +904,10 @@ msgstr "Uygulamanın yeni beta sürümleri yayınlandığında bildirim almayı 
 msgctxt "preferences-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Uygulamayı bağımsız bir pencere olarak taşımak için etkinleştirin."
+
+msgctxt "preferences-view"
+msgid "Kill switch"
+msgstr "Kill Switch"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -869,6 +936,10 @@ msgstr "Uygulama başladığında sadece sistem çubuğu simgesini göster."
 msgctxt "preferences-view"
 msgid "Start minimized"
 msgstr "Küçültülmüş olarak başlat"
+
+msgctxt "preferences-view"
+msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
+msgstr "Uygulama, varsayılan olarak etkinleştirilen ve devre dışı bırakılamayan yerleşik bir ağ kapatma anahtarına sahiptir. Bu özellik, ağınız aniden çökerse veya tünel herhangi bir nedenle başarısız olursa, trafiğinizin VPN tünelinden sızmasını önler. Mullvad, bağlantınız yeniden kurulana kadar verilerinizi otomatik olarak korur."
 
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
@@ -923,6 +994,24 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "Dili seçin"
 
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "Konum seçin"
+
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "select-location-view"
+msgid "%(location)s (%(info)s)"
+msgstr "%(location)s (%(info)s)"
+
+msgctxt "select-location-view"
+msgid "Closest to exit server"
+msgstr "Çıkış sunucusuna en yakın"
+
 msgctxt "select-location-view"
 msgid "Entry"
 msgstr "Giriş"
@@ -930,15 +1019,6 @@ msgstr "Giriş"
 msgctxt "select-location-view"
 msgid "Exit"
 msgstr "Çıkış"
-
-#. Title label in navigation bar
-msgctxt "select-location-nav"
-msgid "Select location"
-msgstr "Konum seçin"
-
-msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "Çıkış sunucusuna en yakın"
 
 msgctxt "select-location-view"
 msgid "Filter by provider"
@@ -960,6 +1040,10 @@ msgstr "Konum seçin"
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "Bağlıyken, İnternet trafiğiniz giriş noktası (bir köprü sunucusu) ve çıkış noktası (bir VPN sunucusu) olmak üzere iki güvenli konum boyunca yönlendirilir."
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
+msgstr "Bağlıyken trafiğiniz, giriş noktası ve çıkış noktası (iki farklı VPN sunucusu gerekir) olmak üzere iki güvenli konum üzerinden yönlendirilir."
 
 #. Navigation button to the 'Account' view
 msgctxt "settings-view"
@@ -1364,9 +1448,6 @@ msgstr "Gerektiğinde sizinle %s üzerinden iletişime geçeceğiz"
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Güncel kalmak için Mullvad VPN'in (%s) sürümünü yükleyin"
 
-msgid "Mullvad VPN"
-msgstr "Mullvad VPN"
-
 msgid "Mullvad account number"
 msgstr "Mullvad hesap numarası"
 
@@ -1396,6 +1477,9 @@ msgstr "Tercihler sekmesinin altındaki \"Yerel Ağ Paylaşımı\" seçeneğini 
 
 msgid "This device is offline, no tunnels can be established"
 msgstr "Bu cihaz çevrimdışı, tünel oluşturulamaz"
+
+msgid "Toggle VPN"
+msgstr "VPN'i aç/kapat"
 
 msgid "Too many WireGuard keys registered to account"
 msgstr "Hesaba kayıtlı çok fazla WireGuard anahtarı"
@@ -1438,9 +1522,6 @@ msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi 
 
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr "Yeniden denemeden önce uygulamanın ana ekranına dönüp Bağlantıyı Kes'e tıklamanız gerekebilir. Endişelenmeyin, girdiğiniz bilgiler formda kalacaktır."
-
-msgid "e.g. 10.0.0.4"
-msgstr "ör. 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

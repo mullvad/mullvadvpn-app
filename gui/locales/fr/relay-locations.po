@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
-"PO-Revision-Date: 2021-10-22 12:27\n"
+"PO-Revision-Date: 2022-02-24 09:05\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -26,7 +26,7 @@ msgstr "Amsterdam"
 
 #. US QAS
 msgid "Ashburn, VA"
-msgstr ""
+msgstr "Ashburn, VA"
 
 #. GR ATH
 msgid "Athens"
@@ -515,3 +515,4 @@ msgstr "Vienne"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zurich"
+
