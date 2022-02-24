@@ -13,6 +13,7 @@ import NetworkExtension
 
 protocol VPNConnectionProtocol: NSObject {
     var status: NEVPNStatus { get }
+    var connectedDate: Date? { get }
 
     func startVPNTunnel() throws
     func startVPNTunnel(options: [String: NSObject]?) throws
@@ -165,6 +166,21 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
         }
     }
 
+    private var _connectedDate: Date?
+    private(set) var connectedDate: Date? {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+
+            return _connectedDate
+        }
+        set {
+            lock.lock()
+            _connectedDate = newValue
+            lock.unlock()
+        }
+    }
+
     func startVPNTunnel() throws {
         try startVPNTunnel(options: nil)
     }
@@ -177,8 +193,10 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
         SimulatorTunnelProvider.shared.delegate.startTunnel(options: options) { (error) in
             if error == nil {
                 self.status = .connected
+                self.connectedDate = Date()
             } else {
                 self.status = .disconnected
+                self.connectedDate = nil
             }
         }
     }
@@ -188,6 +206,7 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
 
         SimulatorTunnelProvider.shared.delegate.stopTunnel(with: .userInitiated) {
             self.status = .disconnected
+            self.connectedDate = nil
         }
     }
 
