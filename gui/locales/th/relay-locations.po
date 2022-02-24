@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2021-10-22 12:27\n"
+"PO-Revision-Date: 2022-02-24 09:05\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -26,7 +26,7 @@ msgstr "อัมสเตอร์ดัม"
 
 #. US QAS
 msgid "Ashburn, VA"
-msgstr ""
+msgstr "แอชเบิร์น รัฐเวอร์จิเนีย"
 
 #. GR ATH
 msgid "Athens"
@@ -515,3 +515,4 @@ msgstr "วีน"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ซือริช"
+

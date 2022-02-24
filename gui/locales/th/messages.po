@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2021-10-22 12:27\n"
+"PO-Revision-Date: 2022-02-24 09:05\n"
 
 msgid "%(duration)s was added to your account."
 msgstr "%(duration)s ได้ถูกเพิ่มไปยังบัญชีของคุณ"
@@ -92,9 +92,6 @@ msgstr "ปิด"
 msgid "Connect"
 msgstr "เชื่อมต่อ"
 
-msgid "COPIED TO CLIPBOARD!"
-msgstr "คัดลอกไปยังคลิปบอร์ดแล้ว!"
-
 msgid "CREATING SECURE CONNECTION"
 msgstr "กำลังสร้างการเชื่อมต่อที่ปลอดภัย"
 
@@ -107,12 +104,16 @@ msgstr "ตัดการเชื่อมต่อ"
 msgid "Dismiss"
 msgstr "ละทิ้ง"
 
+msgid "Enable anyway"
+msgstr "เปิดใช้งานต่อไป"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "ไม่สามารถเชื่อมต่ออย่างปลอดภัยได้"
 
 msgid "Filter"
 msgstr "ตัวกรอง"
 
+#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "รับทราบ!"
 
@@ -161,6 +162,10 @@ msgstr "ค่าเริ่มต้นของระบบ"
 msgid "TCP"
 msgstr "TCP"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgid "This setting increases latency. Use only if needed."
+msgstr "การตั้งค่านี้จะเพิ่มความหน่วงแฝง ใช้เมื่อจำเป็นเท่านั้น"
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -175,6 +180,12 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "ย่อ %(location)s"
 
+#. Provided to accessibility tools such as screenreaders to describe a button
+#. which copies the account number to the clipboard.
+msgctxt "accessibility"
+msgid "Copy account number"
+msgstr "คัดลอกหมายเลขบัญชี"
+
 msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "ขยาย %(location)s"
@@ -182,6 +193,12 @@ msgstr "ขยาย %(location)s"
 msgctxt "accessibility"
 msgid "Forget %(accountToken)s"
 msgstr "ลืม %(accountToken)s"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which obscures the account number.
+msgctxt "accessibility"
+msgid "Hide account number"
+msgstr "ซ่อนหมายเลขบัญชี"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -199,6 +216,12 @@ msgstr "นำรายการออก"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "เลือกตำแหน่งที่ตั้ง ตำแหน่งที่ตั้งปัจจุบันคือ %(location)s"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which unobscures the account number.
+msgctxt "accessibility"
+msgid "Show account number"
+msgstr "แสดงหมายเลขบัญชี"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -250,9 +273,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "โปรดทราบ: การเปิดใช้งานสิ่งนี้จะทำให้คุณจำเป็นต้องเชื่อมต่อ Mullvad VPN ไว้ตลอดเวลา เพื่อที่จะเข้าถึงอินเทอร์เน็ต"
 
-msgid "Enable anyway"
-msgstr "เปิดใช้งานต่อไป"
-
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "เปิดใช้งาน IPv6"
@@ -260,6 +280,11 @@ msgstr "เปิดใช้งาน IPv6"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "เปิดใช้งานการสื่อสาร IPv6 ผ่านช่องทางการเชื่อมต่อ"
+
+#. The label next to the multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Enable multihop"
+msgstr "เปิดใช้ Multihop"
 
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
@@ -272,6 +297,11 @@ msgstr "ป้อน IP"
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "หากคุณตัดการเชื่อมต่อหรือออกจากแอป การตั้งค่านี้จะบล็อกการเข้าถึงอินเทอร์เน็ตของคุณ"
+
+#. Description for multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
+msgstr "ยกระดับการไม่ระบุตัวตน ด้วยการกำหนดเส้นทางการรับส่งข้อมูลของคุณไปยังเซิร์ฟเวอร์ WireGuard เดียว และออกไปยังอีกเซิร์ฟเวอร์ เพื่อทำให้ติดตามได้ยากขึ้น"
 
 msgctxt "advanced-settings-view"
 msgid "missing key"
@@ -332,6 +362,10 @@ msgstr "ไม่สามารถตรวจสอบความถูกต
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "คุณกำลังเข้าสู่ระบบโดยใช้หมายเลขบัญชีที่ไม่ถูกต้อง โปรดออกจากระบบแล้วลองใช้บัญชีอื่น"
+
+msgctxt "changelog"
+msgid "Changes in this version:"
+msgstr "การเปลี่ยนแปลงในเวอร์ชันนี้:"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -750,6 +784,12 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "โหมดบริดจ์"
 
+#. This is used as a description for the bridge mode
+#. setting.
+msgctxt "openvpn-settings-view"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
+msgstr "ช่วยหลบเลี่ยงการเซ็นเซอร์ โดยกำหนดเส้นทางการรับส่งข้อมูลของคุณผ่านเซิร์ฟเวอร์บริดจ์ ก่อนที่จะไปถึงเซิร์ฟเวอร์ OpenVPN โดยมีการเพิ่มข้อมูลที่คลุมเครือ เพื่อทำให้สร้างลายนิ้วมือได้ยากขึ้น"
+
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
@@ -765,6 +805,24 @@ msgstr "การตั้งค่า OpenVPN"
 msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "ตั้งค่า OpenVPN MSS ช่วงที่ใช้ได้: %(min)d - %(max)d"
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
+msgstr "ในการเปิดใช้โหมด Bridge ให้เปลี่ยน **โพรโทคอลการส่งข้อมูล** เป็น **อัตโนมัติ** หรือ **TCP**"
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
+msgstr "ในการเปิดใช้โหมด Bridge ให้กลับไปและเปลี่ยน **โพรโทคอลช่องทางการเชื่อมต่อ** เป็น **OpenVPN**"
+
+#. This is used to instruct users how to make UDP mode
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
+msgstr "ในการเปิดใช้งาน UDP ให้เปลี่ยน **โหมด Bridge** เป็น **อัตโนมัติ** หรือ **ปิด**"
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -796,6 +854,10 @@ msgid "Block ads"
 msgstr "บล็อกโฆษณา"
 
 msgctxt "preferences-view"
+msgid "Block malware"
+msgstr "บล็อกมัลแวร์"
+
+msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "บล็อกตัวติดตาม"
 
@@ -805,10 +867,11 @@ msgstr "บล็อกตัวติดตาม"
 #. Available placeholders:
 #. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
 #. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "ปิดใช้งาน **%(blockAdsFeatureName)s** และ **%(blockTrackersFeatureName)s** (ภายใต้ %(preferencesPageName)s) เพื่อเปิดใช้การตั้งค่านี้"
+msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "ปิดใช้งาน **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** และ **%(blockMalwareFeatureName)s** (ภายใต้ %(preferencesPageName)s) เพื่อเปิดใช้การตั้งค่านี้"
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -830,6 +893,10 @@ msgstr "เปิดใช้งานเพื่อรับการแจ้
 msgctxt "preferences-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "เปิดใช้งานเพื่อให้เคลื่อนย้ายแอปไปรอบ ๆ เหมือนเป็นหน้าต่างอิสระได้"
+
+msgctxt "preferences-view"
+msgid "Kill switch"
+msgstr "คิลสวิตช์"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -858,6 +925,10 @@ msgstr "แสดงเฉพาะไอคอนถาด เมื่อเ�
 msgctxt "preferences-view"
 msgid "Start minimized"
 msgstr "เริ่มใช้งานในมุมมองแบบย่อ"
+
+msgctxt "preferences-view"
+msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
+msgstr "แอปมีคิลสวิตช์ในตัวที่เปิดใช้งานตามค่าเริ่มต้น และไม่สามารถปิดใช้งานได้ นี่จะเป็นการป้องกันไม่ให้การรับส่งข้อมูลของคุณรั่วไหลออกไปภายนอกช่องทาง VPN หากเครือข่ายของคุณหยุดทำงานกะทันหัน หรือหากช่องทางทำงานผิดพลาดไม่ว่าด้วยเหตุผลใดก็ตาม Mullvad จะปกป้องข้อมูลของคุณโดยอัตโนมัติ จนกว่าการเชื่อมต่อของคุณจะถูกสร้างขึ้นใหม่"
 
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
@@ -912,6 +983,24 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "เลือกภาษา"
 
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "เลือกตำแหน่งที่ตั้ง"
+
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "select-location-view"
+msgid "%(location)s (%(info)s)"
+msgstr "%(location)s (%(info)s)"
+
+msgctxt "select-location-view"
+msgid "Closest to exit server"
+msgstr "เซิร์ฟเวอร์ทางออกที่ใกล้ที่สุด"
+
 msgctxt "select-location-view"
 msgid "Entry"
 msgstr "เข้า"
@@ -919,15 +1008,6 @@ msgstr "เข้า"
 msgctxt "select-location-view"
 msgid "Exit"
 msgstr "ออก"
-
-#. Title label in navigation bar
-msgctxt "select-location-nav"
-msgid "Select location"
-msgstr "เลือกตำแหน่งที่ตั้ง"
-
-msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "เซิร์ฟเวอร์ทางออกที่ใกล้ที่สุด"
 
 msgctxt "select-location-view"
 msgid "Filter by provider"
@@ -949,6 +1029,10 @@ msgstr "เลือกตำแหน่งที่ตั้ง"
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "ในขณะที่เชื่อมต่อ การรับส่งข้อมูลของคุณจะได้รับการกำหนดเส้นทางไปยังตำแหน่งที่ตั้งที่ปลอดภัยสองแห่ง จุดทางเข้า (เซิร์ฟเวอร์บริดจ์) และจุดทางออก (เซิร์ฟเวอร์ VPN)"
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
+msgstr "ในขณะที่เชื่อมต่อ การรับส่งข้อมูลของคุณจะได้รับการกำหนดเส้นทางไปยังตำแหน่งที่ตั้งที่ปลอดภัยสองแห่ง จุดทางเข้าและจุดทางออก (ต้องเป็นเซิร์ฟเวอร์ VPN 2 เซิร์ฟเวอร์ที่แตกต่างกัน)"
 
 #. Navigation button to the 'Account' view
 msgctxt "settings-view"
@@ -1353,9 +1437,6 @@ msgstr "เราจะติดต่อคุณทาง %s หากจำ�
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "ติดตั้ง Mullvad VPN (%s) เพื่อรับอัปเดตล่าสุด"
 
-msgid "Mullvad VPN"
-msgstr "Mullvad VPN"
-
 msgid "Mullvad account number"
 msgstr "หมายเลขบัญชี Mullvad"
 
@@ -1385,6 +1466,9 @@ msgstr "เซิร์ฟเวอร์ DNS ในท้องถิ่นจ�
 
 msgid "This device is offline, no tunnels can be established"
 msgstr "อุปกรณ์ออฟไลน์อยู่ในขณะนี้ ไม่สามารถสร้างช่องทางการเชื่อมต่อได้"
+
+msgid "Toggle VPN"
+msgstr "เปิด/ปิด VPN"
 
 msgid "Too many WireGuard keys registered to account"
 msgstr "มีคีย์ WireGuard ที่ลงทะเบียนไปยังบัญชีมากเกินไป"
@@ -1427,9 +1511,6 @@ msgstr "คุณกำลังใช้งานแอปในเวอร์
 
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr "คุณอาจจำเป็นต้องย้อนกลับไปที่หน้าจอหลักของแอป และคลิกตัดการเชื่อมต่อ ก่อนที่จะลองใหม่อีกครั้ง และไม่ต้องกังวลไป เพราะข้อมูลที่คุณป้อนไว้จะยังคงอยู่ในแบบฟอร์มเหมือนเดิม"
-
-msgid "e.g. 10.0.0.4"
-msgstr "เช่น 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
