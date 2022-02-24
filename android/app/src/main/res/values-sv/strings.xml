@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">Det gick inte att starta tunnelanslutning</string>
     <string name="switch_location">Växla plats</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">Växla VPN</string>
     <string name="too_many_keys">För många WireGuard-nycklar registrerade på kontot</string>
     <string name="try_again">Försök igen</string>
     <string name="udp">UDP</string>

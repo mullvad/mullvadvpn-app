@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">Tünel bağlantısı başlatılamıyor</string>
     <string name="switch_location">Konum değiştir</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">VPN\'i aç/kapat</string>
     <string name="too_many_keys">Hesaba kayıtlı çok fazla WireGuard anahtarı</string>
     <string name="try_again">Tekrar dene</string>
     <string name="udp">UDP</string>

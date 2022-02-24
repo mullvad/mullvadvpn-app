@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">No se pudo iniciar la conexión del túnel</string>
     <string name="switch_location">Cambiar ubicación</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">Alternar VPN</string>
     <string name="too_many_keys">Hay demasiadas claves de WireGuard registradas en la cuenta</string>
     <string name="try_again">Volver a intentarlo</string>
     <string name="udp">UDP</string>

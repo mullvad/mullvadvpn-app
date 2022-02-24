@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">Tunneliyhteyden muodostaminen epäonnistui</string>
     <string name="switch_location">Vaihda sijaintia</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">Vaihda VPN:ää</string>
     <string name="too_many_keys">Tilille on rekisteröity liian monta WireGuard-avainta</string>
     <string name="try_again">Yritä uudelleen</string>
     <string name="udp">UDP</string>
