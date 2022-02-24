@@ -91,7 +91,6 @@ pub struct WireguardMonitor {
             + Sync
             + 'static,
     >,
-    close_msg_sender: sync_mpsc::Sender<CloseMsg>,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
     pinger_stop_sender: sync_mpsc::Sender<()>,
     _tcp_proxies: Vec<TcpProxy>,
@@ -210,14 +209,12 @@ impl WireguardMonitor {
             runtime: runtime.clone(),
             tunnel: Arc::new(Mutex::new(Some(tunnel))),
             event_callback,
-            close_msg_sender,
             close_msg_receiver,
             pinger_stop_sender: pinger_tx,
             _tcp_proxies: tcp_proxies,
         };
 
         let gateway = config.ipv4_gateway;
-        let close_sender = monitor.close_msg_sender.clone();
         let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
             #[cfg(not(target_os = "windows"))]
@@ -236,7 +233,7 @@ impl WireguardMonitor {
                     .next()
                     .await
                     .ok_or_else(|| {
-                        log::error!("Failed to receive interface setup result");
+                        // Tunnel was shut down early
                         CloseMsg::SetupError(Error::IpInterfacesError)
                     })?
                     .map_err(|error| {
@@ -248,9 +245,7 @@ impl WireguardMonitor {
                     })?;
 
                 if !crate::winnet::add_device_ip_addresses(&iface_name, &config.tunnel.addresses) {
-                    return Err(CloseMsg::SetupError(
-                        Error::SetIpAddressesError,
-                    ));
+                    return Err(CloseMsg::SetupError(Error::SetIpAddressesError));
                 }
             }
 
@@ -314,16 +309,18 @@ impl WireguardMonitor {
 
             Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
         };
-        tokio::spawn(async move {
+
+        let close_sender = close_msg_sender.clone();
+        let monitor_handle = tokio::spawn(async move {
             // This is safe to unwrap because the future resolves to `Result<Infallible, E>`.
             let close_msg = tunnel_fut.await.unwrap_err();
             let _ = close_sender.send(close_msg);
         });
 
-        let mut close_handle = monitor.close_handle();
         tokio::spawn(async move {
             if tunnel_close_rx.await.is_ok() {
-                close_handle.close();
+                monitor_handle.abort();
+                let _ = close_msg_sender.send(CloseMsg::Stop);
             }
         });
 
@@ -410,13 +407,6 @@ impl WireguardMonitor {
             )
             .map_err(Error::TunnelError)?,
         ))
-    }
-
-    /// Returns a close handle for the tunnel
-    fn close_handle(&self) -> CloseHandle {
-        CloseHandle {
-            chan: self.close_msg_sender.clone(),
-        }
     }
 
     /// Blocks the current thread until tunnel disconnects
@@ -584,21 +574,6 @@ enum CloseMsg {
     Stop,
     PingErr,
     SetupError(Error),
-}
-
-/// Close handle for a WireGuard tunnel.
-#[derive(Clone, Debug)]
-pub struct CloseHandle {
-    chan: sync_mpsc::Sender<CloseMsg>,
-}
-
-impl CloseHandle {
-    /// Closes a WireGuard tunnel
-    pub fn close(&mut self) {
-        if let Err(e) = self.chan.send(CloseMsg::Stop) {
-            log::trace!("Failed to send close message to wireguard tunnel: {}", e);
-        }
-    }
 }
 
 pub(crate) trait Tunnel: Send {
