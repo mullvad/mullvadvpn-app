@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">ไม่สามารถเริ่มการเชื่อมต่อช่องทางได้</string>
     <string name="switch_location">สลับตำแหน่ง</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">เปิด/ปิด VPN</string>
     <string name="too_many_keys">มีคีย์ WireGuard ที่ลงทะเบียนไปยังบัญชีมากเกินไป</string>
     <string name="try_again">ลองอีกครั้ง</string>
     <string name="udp">UDP</string>

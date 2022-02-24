@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">无法启动隧道连接</string>
     <string name="switch_location">切换位置</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">切换 VPN</string>
     <string name="too_many_keys">帐户中注册的 WireGuard 密钥过多</string>
     <string name="try_again">重试</string>
     <string name="udp">UDP</string>
