@@ -113,6 +113,7 @@
     <string name="start_tunnel_error">Не удалось запустить подключение к туннелю</string>
     <string name="switch_location">Сменить местоположение</string>
     <string name="tcp">TCP</string>
+    <string name="toggle_vpn">Включение VPN</string>
     <string name="too_many_keys">Для этой учетной записи зарегистрировано слишком много ключей WireGuard</string>
     <string name="try_again">Повторить попытку</string>
     <string name="udp">UDP</string>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
-"PO-Revision-Date: 2021-10-22 12:27\n"
+"PO-Revision-Date: 2022-02-24 09:05\n"
 
 msgid "%(duration)s was added to your account."
 msgstr "%(duration)s blev føjet til din konto."
@@ -103,9 +103,6 @@ msgstr "Luk"
 msgid "Connect"
 msgstr "Tilslut"
 
-msgid "COPIED TO CLIPBOARD!"
-msgstr "KOPIERET TIL UDKLIPSHOLDER!"
-
 msgid "CREATING SECURE CONNECTION"
 msgstr "OPRETTER SIKKER FORBINDELSE"
 
@@ -118,12 +115,16 @@ msgstr "Afbryd forbindelse"
 msgid "Dismiss"
 msgstr "Afvis"
 
+msgid "Enable anyway"
+msgstr "Aktivér alligevel"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "KUNNE IKKE SIKRE FORBINDELSEN"
 
 msgid "Filter"
 msgstr "Filter"
 
+#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "Forstået!"
 
@@ -172,6 +173,10 @@ msgstr "Systemstandard"
 msgid "TCP"
 msgstr "TCP"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgid "This setting increases latency. Use only if needed."
+msgstr "Denne indstilling øger latensen. Brug den kun, hvis det er nødvendigt."
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -186,6 +191,12 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "Skjul %(location)s"
 
+#. Provided to accessibility tools such as screenreaders to describe a button
+#. which copies the account number to the clipboard.
+msgctxt "accessibility"
+msgid "Copy account number"
+msgstr "Kopiér kontonummer"
+
 msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "Udvid %(location)s"
@@ -193,6 +204,12 @@ msgstr "Udvid %(location)s"
 msgctxt "accessibility"
 msgid "Forget %(accountToken)s"
 msgstr "Glem %(accountToken)s"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which obscures the account number.
+msgctxt "accessibility"
+msgid "Hide account number"
+msgstr "Skjul kontonummer"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -210,6 +227,12 @@ msgstr "Fjern element"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "Vælg placering. Nuværende placering er %(location)s"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which unobscures the account number.
+msgctxt "accessibility"
+msgid "Show account number"
+msgstr "Vis kontonummer"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -261,9 +284,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Bemærk: aktivering af dette medfører, at der altid kræves en Mullvad VPN-forbindelse for at oprette forbindelse til internettet."
 
-msgid "Enable anyway"
-msgstr "Aktivér alligevel"
-
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "Aktivér IPv6"
@@ -271,6 +291,11 @@ msgstr "Aktivér IPv6"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "Aktivér IPv6-kommunikation gennem tunnelen."
+
+#. The label next to the multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Enable multihop"
+msgstr "Aktiver multihop"
 
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
@@ -283,6 +308,11 @@ msgstr "Indtast IP"
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "Hvis du afbryder forbindelsen eller lukker appen, blokerer denne indstilling dit internet."
+
+#. Description for multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
+msgstr "Øger anonymiteten ved at dirigere din trafik ind på én WireGuard-server og ud af en anden, hvilket gør det sværere at spore."
 
 msgctxt "advanced-settings-view"
 msgid "missing key"
@@ -343,6 +373,10 @@ msgstr "Kunne ikke godkende konto. Kontakt support."
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "Du er logget ind med et ugyldigt kontonummer. Log ud og prøv et andet."
+
+msgctxt "changelog"
+msgid "Changes in this version:"
+msgstr "Ændringer i denne version:"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -761,6 +795,12 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Brotilstand"
 
+#. This is used as a description for the bridge mode
+#. setting.
+msgctxt "openvpn-settings-view"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
+msgstr "Hjælper med at omgå censur ved at dirigere din trafik gennem en broserver, før du når en OpenVPN-server. Tilsløring er tilføjet for at gøre registrering af fingeraftryk sværere."
+
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
@@ -776,6 +816,24 @@ msgstr "OpenVPN-indstillinger"
 msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "Indstil OpenVPN MSS-værdi. Gyldigt interval: %(min)d - %(max)d."
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
+msgstr "For at aktivere brotilstand skal du ændre **Transportprotokol** til **Automatisk** eller **TCP**."
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
+msgstr "For at aktivere brotilstand skal du gå tilbage og ændre **Tunnelprotokol** til **OpenVPN**."
+
+#. This is used to instruct users how to make UDP mode
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
+msgstr "For at aktivere UDP skal du ændre **Brotilstand** til **Automatisk** eller **Fra**."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -807,6 +865,10 @@ msgid "Block ads"
 msgstr "Bloker annoncer"
 
 msgctxt "preferences-view"
+msgid "Block malware"
+msgstr "Bloker malware"
+
+msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "Bloker trackere"
 
@@ -816,10 +878,11 @@ msgstr "Bloker trackere"
 #. Available placeholders:
 #. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
 #. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "Deaktiver **%(blockAdsFeatureName)s** og **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) for at aktivere denne indstilling."
+msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "Deaktiver **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** og **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) for at aktivere denne indstilling."
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -841,6 +904,10 @@ msgstr "Aktivér for at blive underrettet, når nye betaversioner af appen frigi
 msgctxt "preferences-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Aktiver for at flytte appen rundt som et fritstående vindue."
+
+msgctxt "preferences-view"
+msgid "Kill switch"
+msgstr "Kill-switch"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -869,6 +936,10 @@ msgstr "Vis kun bakkeikonet, når appen starter."
 msgctxt "preferences-view"
 msgid "Start minimized"
 msgstr "Start minimeret"
+
+msgctxt "preferences-view"
+msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
+msgstr "Appen har en indbygget kill-switch, der er aktiveret som standard og ikke kan deaktiveres. Dette er for at forhindre din trafik i at lække uden for VPN-tunnelen, hvis dit netværk pludselig holder op med at fungere, eller hvis tunnelen fejler af en eller anden grund. Mullvad beskytter automatisk dine data, indtil din forbindelse er genetableret."
 
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
@@ -923,6 +994,24 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "Vælg sprog"
 
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "Vælg placering"
+
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "select-location-view"
+msgid "%(location)s (%(info)s)"
+msgstr "%(location)s (%(info)s)"
+
+msgctxt "select-location-view"
+msgid "Closest to exit server"
+msgstr "Tættest på udgangsserver"
+
 msgctxt "select-location-view"
 msgid "Entry"
 msgstr "Indgang"
@@ -930,15 +1019,6 @@ msgstr "Indgang"
 msgctxt "select-location-view"
 msgid "Exit"
 msgstr "Udgang"
-
-#. Title label in navigation bar
-msgctxt "select-location-nav"
-msgid "Select location"
-msgstr "Vælg placering"
-
-msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "Tættest på udgangsserver"
 
 msgctxt "select-location-view"
 msgid "Filter by provider"
@@ -960,6 +1040,10 @@ msgstr "Vælg placering"
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "Når du er tilsluttet, dirigeres din trafik gennem to sikre placeringer, indgangspunktet (en broserver) og udgangspunktet (en VPN-server)."
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
+msgstr "Mens du er tilsluttet, vil din trafik blive dirigeret gennem to sikre lokationer, indgangspunktet og udgangspunktet (skal være to forskellige VPN-servere)."
 
 #. Navigation button to the 'Account' view
 msgctxt "settings-view"
@@ -1364,9 +1448,6 @@ msgstr "Hvis det er nødvendigt, kontakter vi dig via %s"
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Installer Mullvad VPN (%s) for at holde dig opdateret"
 
-msgid "Mullvad VPN"
-msgstr "Mullvad VPN"
-
 msgid "Mullvad account number"
 msgstr "Mullvad-kontonummer"
 
@@ -1396,6 +1477,9 @@ msgstr "Den lokale DNS-server fungerer ikke, medmindre du aktiverer \"Lokal netv
 
 msgid "This device is offline, no tunnels can be established"
 msgstr "Denne enhed er offline, ingen tunneler kan etableres"
+
+msgid "Toggle VPN"
+msgstr "Slå VPN til/fra"
 
 msgid "Too many WireGuard keys registered to account"
 msgstr "For mange WireGuard-nøgler er registreret til kontoen"
@@ -1438,9 +1522,6 @@ msgstr "Du kører en ikke-understøttet appversion. Opgrader til %s nu for at st
 
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr "Du skal muligvis vende tilbage til appens hovedskærm og klikke på Afbryd forbindelse, før du prøver igen. Bare rolig, de angivne oplysninger bliver ikke slettet fra formularen."
-
-msgid "e.g. 10.0.0.4"
-msgstr "f.eks. 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

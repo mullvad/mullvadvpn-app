@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2021-10-22 12:27\n"
+"PO-Revision-Date: 2022-02-24 09:05\n"
 
 msgid "%(duration)s was added to your account."
 msgstr "На учетную запись добавлено время: %(duration)s."
@@ -125,9 +125,6 @@ msgstr "Закрыть"
 msgid "Connect"
 msgstr "Подключить"
 
-msgid "COPIED TO CLIPBOARD!"
-msgstr "СКОПИРОВАНО В БУФЕР ОБМЕНА."
-
 msgid "CREATING SECURE CONNECTION"
 msgstr "СОЗДАНИЕ ЗАЩИЩЕННОГО ПОДКЛЮЧЕНИЯ"
 
@@ -140,12 +137,16 @@ msgstr "Отключить"
 msgid "Dismiss"
 msgstr "Закрыть"
 
+msgid "Enable anyway"
+msgstr "Всё равно включить"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "НЕ УДАЛОСЬ УСТАНОВИТЬ БЕЗОПАСНОЕ ПОДКЛЮЧЕНИЕ"
 
 msgid "Filter"
 msgstr "Фильтр"
 
+#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "Понятно!"
 
@@ -194,6 +195,10 @@ msgstr "Системные настройки по умолчанию"
 msgid "TCP"
 msgstr "TCP"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgid "This setting increases latency. Use only if needed."
+msgstr "Этот параметр увеличивает задержку. Используйте только в случае необходимости."
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -208,6 +213,12 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "Свернуть %(location)s"
 
+#. Provided to accessibility tools such as screenreaders to describe a button
+#. which copies the account number to the clipboard.
+msgctxt "accessibility"
+msgid "Copy account number"
+msgstr "Копировать номер учетной записи"
+
 msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "Развернуть %(location)s"
@@ -215,6 +226,12 @@ msgstr "Развернуть %(location)s"
 msgctxt "accessibility"
 msgid "Forget %(accountToken)s"
 msgstr "Забыть %(accountToken)s"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which obscures the account number.
+msgctxt "accessibility"
+msgid "Hide account number"
+msgstr "Скрыть номер учетной записи"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -232,6 +249,12 @@ msgstr "Удалить элемент"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "Выбрать местоположение. Текущее местоположение %(location)s"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which unobscures the account number.
+msgctxt "accessibility"
+msgid "Show account number"
+msgstr "Показать номер учетной записи"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -283,9 +306,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Внимание: при активации этого параметра для выхода в Интернет необходимо будет обязательно подключиться через Mullvad VPN."
 
-msgid "Enable anyway"
-msgstr "Всё равно активировать"
-
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "Включить IPv6"
@@ -293,6 +313,11 @@ msgstr "Включить IPv6"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "Включить передачу данных по IPv6 через туннель."
+
+#. The label next to the multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Enable multihop"
+msgstr "Многократные переходы"
 
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
@@ -305,6 +330,11 @@ msgstr "Введите IP-адрес"
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "Если разорвать соединение или закрыть приложение, то выход в Интернет будет заблокирован."
+
+#. Description for multihop settings toggle.
+msgctxt "advanced-settings-view"
+msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
+msgstr "Повышает анонимность, направляя трафик с одного сервера WireGuard на другой, что затрудняет отслеживание."
 
 msgctxt "advanced-settings-view"
 msgid "missing key"
@@ -366,6 +396,10 @@ msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "Вы вошли в систему под недействительным номером учетной записи. Выйдите из системы и попробуйте еще раз."
 
+msgctxt "changelog"
+msgid "Changes in this version:"
+msgstr "Изменения в этой версии:"
+
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
 #. Available placeholders:
@@ -421,7 +455,7 @@ msgstr "Внимание: если отключить этот параметр,
 
 msgctxt "connect-view"
 msgid "Start using the app"
-msgstr "Начните использовать приложение"
+msgstr "Начать использовать приложение"
 
 msgctxt "connect-view"
 msgid "Time was successfully added"
@@ -783,6 +817,12 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Режим моста"
 
+#. This is used as a description for the bridge mode
+#. setting.
+msgctxt "openvpn-settings-view"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
+msgstr "Помогает обойти цензуру: трафик, прежде чем попасть на сервер OpenVPN, направляется через сервер-мост. Чтобы затруднить создание цифрового отпечатка, добавляется обфускация."
+
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
@@ -798,6 +838,24 @@ msgstr "Настройки OpenVPN"
 msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "Значение MSS для OpenVPN. Допустимый диапазон: %(min)d–%(max)d."
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
+msgstr "Чтобы активировать режим моста, измените **Транспортный протокол** на **Автоматически** или **TCP**."
+
+#. This is used to instruct users how to make the bridge mode setting
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
+msgstr "Чтобы активировать режим моста, вернитесь назад и измените **Протокол туннелирования** на **OpenVPN**."
+
+#. This is used to instruct users how to make UDP mode
+#. available.
+msgctxt "openvpn-settings-view"
+msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
+msgstr "Чтобы активировать UDP, измените **Режим моста** на **Автоматически** или **Выключен**."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -829,6 +887,10 @@ msgid "Block ads"
 msgstr "Блокировать рекламу"
 
 msgctxt "preferences-view"
+msgid "Block malware"
+msgstr "Блокировать вредоносное ПО"
+
+msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "Блокировать трекеры"
 
@@ -838,10 +900,11 @@ msgstr "Блокировать трекеры"
 #. Available placeholders:
 #. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
 #. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "Чтобы активировать этот параметр, отключите опции **%(blockAdsFeatureName)s** и **%(blockTrackersFeatureName)s** (в разделе %(preferencesPageName)s)."
+msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "Чтобы активировать этот параметр, отключите **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** и **%(blockMalwareFeatureName)s** (в разделе «%(preferencesPageName)s»)."
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -863,6 +926,10 @@ msgstr "Включить оповещения о выходе новых бет�
 msgctxt "preferences-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Возможность передвигать приложение на экране как незакрепленное окно."
+
+msgctxt "preferences-view"
+msgid "Kill switch"
+msgstr "Аварийное отключение"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -891,6 +958,10 @@ msgstr "При запуске приложения показывать толь
 msgctxt "preferences-view"
 msgid "Start minimized"
 msgstr "Запускать свернутым"
+
+msgctxt "preferences-view"
+msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
+msgstr "Приложение имеет встроенную функцию аварийного отключения (kill switch), которая включена по умолчанию, и ее нельзя выключить. Это сделано, чтобы предотвратить утечку трафика за пределы VPN-туннеля, если сеть внезапно перестанет работать или если по какой-либо причине туннель деактивируется. Mullvad будет автоматически защищать ваши данные, пока соединение не восстановится."
 
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
@@ -945,6 +1016,24 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "Выбрать язык"
 
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "Выбор местоположения"
+
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "select-location-view"
+msgid "%(location)s (%(info)s)"
+msgstr "%(location)s (%(info)s)"
+
+msgctxt "select-location-view"
+msgid "Closest to exit server"
+msgstr "Ближайший к выходному серверу"
+
 msgctxt "select-location-view"
 msgid "Entry"
 msgstr "Вход"
@@ -952,15 +1041,6 @@ msgstr "Вход"
 msgctxt "select-location-view"
 msgid "Exit"
 msgstr "Выход"
-
-#. Title label in navigation bar
-msgctxt "select-location-nav"
-msgid "Select location"
-msgstr "Выбор местоположения"
-
-msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "Ближайший к выходному серверу"
 
 msgctxt "select-location-view"
 msgid "Filter by provider"
@@ -982,6 +1062,10 @@ msgstr "Выбор местоположения"
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "При подключении трафик будет направляться через два безопасных местоположения: точку входа (сервер-мост) и точку выхода (VPN-сервер)."
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
+msgstr "При подключении трафик будет направляться через два безопасных местоположения: точку входа и точку выхода (нужны два разных VPN-сервера)."
 
 #. Navigation button to the 'Account' view
 msgctxt "settings-view"
@@ -1386,9 +1470,6 @@ msgstr "При необходимости мы свяжемся с вами по
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Пользуйтесь актуальной версией — установите Mullvad VPN (%s)"
 
-msgid "Mullvad VPN"
-msgstr "Mullvad VPN"
-
 msgid "Mullvad account number"
 msgstr "Номер учетной записи Mullvad"
 
@@ -1418,6 +1499,9 @@ msgstr "Локальный DNS-сервер не будет работать, п
 
 msgid "This device is offline, no tunnels can be established"
 msgstr "Устройство вне сети, установить подключение к туннелям невозможно"
+
+msgid "Toggle VPN"
+msgstr "Включение VPN"
 
 msgid "Too many WireGuard keys registered to account"
 msgstr "Для этой учетной записи зарегистрировано слишком много ключей WireGuard"
@@ -1460,9 +1544,6 @@ msgstr "Вы используете неподдерживаемую верси�
 
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr "Возможно, потребуется вернуться на основной экран приложения и нажать кнопку «Отключить», прежде чем повторять попытку. Не волнуйтесь: введенные в форму данные сохранятся."
-
-msgid "e.g. 10.0.0.4"
-msgstr "напр., 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
