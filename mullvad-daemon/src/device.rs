@@ -757,7 +757,9 @@ impl DeviceCacher {
 
     pub async fn remove(self) -> Result<(), Error> {
         let path = {
-            let DeviceCacher { path, .. } = self;
+            let DeviceCacher { path, file } = self;
+            let std_file = file.into_inner().into_std().await;
+            let _ = tokio::task::spawn_blocking(move || drop(std_file)).await;
             path
         };
         tokio::fs::remove_file(path).await?;
