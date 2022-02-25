@@ -300,17 +300,15 @@ impl AccountsProxy {
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
         async move {
-            let access_token = access_proxy.get_token(&account).await?;
             let response = rest::send_request(
                 &factory,
                 service,
                 &format!("{}/accounts/me", ACCOUNTS_URL_PREFIX),
                 Method::GET,
-                Some(access_token),
+                Some((access_proxy, account)),
                 &[StatusCode::OK],
             )
             .await;
-            access_proxy.check_response(&account, &response);
 
             let account: AccountResponse = rest::deserialize_body(response?).await?;
             Ok(account.expiry)
@@ -350,18 +348,16 @@ impl AccountsProxy {
         let submission = VoucherSubmission { voucher_code };
 
         async move {
-            let access_token = access_proxy.get_token(&account_token).await?;
             let response = rest::send_json_request(
                 &factory,
                 service,
                 &format!("{}/submit-voucher", APP_URL_PREFIX),
                 Method::POST,
                 &submission,
-                Some(access_token),
+                Some((access_proxy, account_token)),
                 &[StatusCode::OK],
             )
             .await;
-            access_proxy.check_response(&account_token, &response);
             rest::deserialize_body(response?).await
         }
     }
@@ -380,17 +376,15 @@ impl AccountsProxy {
         let access_proxy = self.handle.token_store.clone();
 
         async move {
-            let access_token = access_proxy.get_token(&account).await?;
             let response = rest::send_request(
                 &factory,
                 service,
                 &format!("{}/www-auth-token", APP_URL_PREFIX),
                 Method::POST,
-                Some(access_token),
+                Some((access_proxy, account)),
                 &[StatusCode::OK],
             )
             .await;
-            access_proxy.check_response(&account, &response);
             let response: AuthTokenResponse = rest::deserialize_body(response?).await?;
             Ok(response.auth_token)
         }
@@ -435,18 +429,16 @@ impl DevicesProxy {
         let access_proxy = self.handle.token_store.clone();
 
         async move {
-            let access_token = access_proxy.get_token(&account).await?;
             let response = rest::send_json_request(
                 &factory,
                 service,
                 &format!("{}/devices", ACCOUNTS_URL_PREFIX),
                 Method::POST,
                 &submission,
-                Some(access_token),
+                Some((access_proxy, account)),
                 &[StatusCode::CREATED],
             )
             .await;
-            access_proxy.check_response(&account, &response);
 
             let response: DeviceResponse = rest::deserialize_body(response?).await?;
             let DeviceResponse {
@@ -483,17 +475,15 @@ impl DevicesProxy {
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
         async move {
-            let access_token = access_proxy.get_token(&account).await?;
             let response = rest::send_request(
                 &factory,
                 service,
                 &format!("{}/devices/{}", ACCOUNTS_URL_PREFIX, id),
                 Method::GET,
-                Some(access_token),
+                Some((access_proxy, account)),
                 &[StatusCode::OK],
             )
             .await;
-            access_proxy.check_response(&account, &response);
             rest::deserialize_body(response?).await
         }
     }
@@ -506,17 +496,15 @@ impl DevicesProxy {
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
         async move {
-            let access_token = access_proxy.get_token(&account).await?;
             let response = rest::send_request(
                 &factory,
                 service,
                 &format!("{}/devices", ACCOUNTS_URL_PREFIX),
                 Method::GET,
-                Some(access_token),
+                Some((access_proxy, account)),
                 &[StatusCode::OK],
             )
             .await;
-            access_proxy.check_response(&account, &response);
             rest::deserialize_body(response?).await
         }
     }
@@ -530,17 +518,15 @@ impl DevicesProxy {
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
         async move {
-            let access_token = access_proxy.get_token(&account).await?;
             let response = rest::send_request(
                 &factory,
                 service,
                 &format!("{}/devices/{}", ACCOUNTS_URL_PREFIX, id),
                 Method::DELETE,
-                Some(access_token),
+                Some((access_proxy, account)),
                 &[StatusCode::NO_CONTENT],
             )
             .await;
-            access_proxy.check_response(&account, &response);
 
             response?;
             Ok(())
@@ -565,18 +551,16 @@ impl DevicesProxy {
         let access_proxy = self.handle.token_store.clone();
 
         async move {
-            let access_token = access_proxy.get_token(&account).await?;
             let response = rest::send_json_request(
                 &factory,
                 service,
                 &format!("{}/devices/{}/pubkey", ACCOUNTS_URL_PREFIX, id),
                 Method::PUT,
                 &req_body,
-                Some(access_token),
+                Some((access_proxy, account)),
                 &[StatusCode::OK],
             )
             .await;
-            access_proxy.check_response(&account, &response);
 
             let updated_device: DeviceResponse = rest::deserialize_body(response?).await?;
             let DeviceResponse {

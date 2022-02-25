@@ -18,6 +18,7 @@ use hyper::{
     header::{self, HeaderValue},
     Method, Uri,
 };
+use mullvad_types::account::AccountToken;
 use std::{
     collections::BTreeMap,
     future::Future,
@@ -520,16 +521,25 @@ pub fn send_request(
     service: RequestServiceHandle,
     uri: &str,
     method: Method,
-    auth: Option<String>,
+    auth: Option<(AccessTokenProxy, AccountToken)>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.request(uri, method);
 
     async move {
         let mut request = request?;
-        request.set_auth(auth)?;
+        if let Some((store, account)) = &auth {
+            let access_token = store.get_token(&account).await?;
+            request.set_auth(Some(access_token))?;
+        }
         let response = service.request(request).await?;
-        parse_rest_response(response, expected_statuses).await
+        let result = parse_rest_response(response, expected_statuses).await;
+
+        if let Some((store, account)) = &auth {
+            store.check_response(&account, &result);
+        }
+
+        result
     }
 }
 
@@ -539,15 +549,24 @@ pub fn send_json_request<B: serde::Serialize>(
     uri: &str,
     method: Method,
     body: &B,
-    auth: Option<String>,
+    auth: Option<(AccessTokenProxy, AccountToken)>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.json_request(method, uri, body);
     async move {
         let mut request = request?;
-        request.set_auth(auth)?;
+        if let Some((store, account)) = &auth {
+            let access_token = store.get_token(&account).await?;
+            request.set_auth(Some(access_token))?;
+        }
         let response = service.request(request).await?;
-        parse_rest_response(response, expected_statuses).await
+        let result = parse_rest_response(response, expected_statuses).await;
+
+        if let Some((store, account)) = &auth {
+            store.check_response(&account, &result);
+        }
+
+        result
     }
 }
 

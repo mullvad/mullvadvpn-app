@@ -99,15 +99,14 @@ impl AccessTokenProxy {
         };
 
         let service = self.service.clone();
-        let response = rest::send_json_request(
-            &self.factory,
-            service,
-            &format!("{}/token", AUTH_URL_PREFIX),
+
+        let rest_request = self.factory.json_request(
             Method::POST,
+            &format!("{}/token", AUTH_URL_PREFIX),
             &request,
-            None,
-            &[StatusCode::OK],
-        );
-        rest::deserialize_body(response.await?).await
+        )?;
+        let response = service.request(rest_request).await?;
+        let response = rest::parse_rest_response(response, &[StatusCode::OK]).await?;
+        rest::deserialize_body(response).await
     }
 }
