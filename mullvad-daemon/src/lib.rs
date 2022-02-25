@@ -1021,7 +1021,7 @@ where
                 self.wg_retry_attempt += 1;
                 if self.wg_check_validity && self.wg_retry_attempt % WG_DEVICE_CHECK_THRESHOLD == 0
                 {
-                    match self.account_manager.validate_device().await {
+                    match self.account_manager.validate_device_cached().await {
                         Ok(status) => {
                             self.handle_validation_result(status);
                             self.wg_check_validity = false;

@@ -19,7 +19,7 @@ use std::{
     future::Future,
     path::Path,
     sync::{Arc, Mutex},
-    time::Duration,
+    time::{Duration, SystemTime},
 };
 use talpid_core::{
     future_retry::{constant_interval, retry_future, retry_future_n, ExponentialBackoff, Jittered},
@@ -44,6 +44,9 @@ const RETRY_ACTION_MAX_RETRIES: usize = 2;
 const RETRY_BACKOFF_INTERVAL_INITIAL: Duration = Duration::from_secs(4);
 const RETRY_BACKOFF_INTERVAL_FACTOR: u32 = 5;
 const RETRY_BACKOFF_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
+
+/// How long to keep the known status for [AccountManager::validate_device_cached].
+const DEVICE_VALIDITY_CACHE_DURATION: Duration = Duration::from_secs(30);
 
 pub struct DeviceKeyEvent(pub DeviceData);
 
@@ -102,6 +105,7 @@ pub(crate) struct AccountManager {
 struct AccountManagerInner {
     data: Option<DeviceData>,
     rotation_interval: RotationInterval,
+    last_validation: Option<SystemTime>,
 }
 
 impl AccountManager {
@@ -119,6 +123,7 @@ impl AccountManager {
         let inner = Arc::new(Mutex::new(AccountManagerInner {
             data: device_data,
             rotation_interval: RotationInterval::default(),
+            last_validation: None,
         }));
 
         let (cache_update_tx, mut cache_update_rx): (
@@ -364,6 +369,31 @@ impl AccountManager {
             }
             Err(error) => Err(error),
         }
+    }
+
+    /// Same as [Self::validate_device] but returns [ValidationResult::Valid] (or [Error::NoDevice])
+    /// if the last check was recent.
+    pub async fn validate_device_cached(&mut self) -> Result<ValidationResult, Error> {
+        let last_validation = {
+            let inner = self.inner.lock().unwrap();
+            if inner.data.is_none() {
+                return Err(Error::NoDevice);
+            }
+            inner.last_validation.clone()
+        };
+
+        if last_validation
+            .and_then(|last_check| SystemTime::now().duration_since(last_check).ok())
+            .map(|elapsed| elapsed < DEVICE_VALIDITY_CACHE_DURATION)
+            .unwrap_or(false)
+        {
+            return Ok(ValidationResult::Valid);
+        }
+
+        let result = self.validate_device().await;
+        let mut inner = self.inner.lock().unwrap();
+        inner.last_validation = Some(SystemTime::now());
+        result
     }
 
     fn start_key_rotation(&mut self) {
