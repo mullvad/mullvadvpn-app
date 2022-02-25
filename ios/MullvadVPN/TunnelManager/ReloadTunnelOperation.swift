@@ -29,12 +29,12 @@ class ReloadTunnelOperation: AsyncOperation {
                 return
             }
 
-            guard let tunnelProvider = self.state.tunnelProvider else {
+            guard let tunnel = self.state.tunnel else {
                 self.completeOperation(completion: .failure(.unsetAccount))
                 return
             }
 
-            let session = TunnelIPC.Session(connection: tunnelProvider.connection)
+            let session = TunnelIPC.Session(tunnel: tunnel)
 
             self.request = session.reloadTunnelSettings { [weak self] completion in
                 guard let self = self else { return }

@@ -25,31 +25,30 @@ extension TunnelIPC {
         typealias CompletionHandler = (OperationCompletion<Output, TunnelIPC.Error>) -> Void
 
         private let queue: DispatchQueue
-        private let notificationQueue: OperationQueue
 
-        private let connection: VPNConnectionProtocol
+        private let tunnel: Tunnel
         private let request: TunnelIPC.Request
         private let options: RequestOptions
 
         private let decoderHandler: DecoderHandler
         private var completionHandler: CompletionHandler?
 
-        private var statusObserver: NSObjectProtocol?
+        private var statusObserver: Tunnel.StatusBlockObserver?
         private var timeoutWork: DispatchWorkItem?
         private var waitForConnectingStateWork: DispatchWorkItem?
 
+        private var requestSent = false
+
         init(queue: DispatchQueue,
-             connection: VPNConnectionProtocol,
+             tunnel: Tunnel,
              request: TunnelIPC.Request,
              options: TunnelIPC.RequestOptions,
              decoderHandler: @escaping DecoderHandler,
              completionHandler: @escaping CompletionHandler)
         {
             self.queue = queue
-            self.notificationQueue = OperationQueue()
-            self.notificationQueue.underlyingQueue = queue
 
-            self.connection = connection
+            self.tunnel = tunnel
             self.request = request
             self.options = options
 
@@ -79,29 +78,21 @@ extension TunnelIPC {
                 return
             }
 
-            setTimeoutTimer(isConnectingState: false)
+            setTimeoutTimer(connectingStateWaitDelay: 0)
 
-            statusObserver = NotificationCenter.default.addObserver(
-                forName: .NEVPNStatusDidChange,
-                object: connection,
-                queue: notificationQueue) { [weak self] notification in
-                    guard let self = self else { return }
-                    guard let connection = notification.object as? VPNConnectionProtocol else { return }
+            statusObserver = tunnel.addBlockObserver(queue: queue) { [weak self] tunnel, status in
+                self?.handleVPNStatus(status)
+            }
 
-                    self.handleVPNStatus(connection.status)
-                }
-
-            handleVPNStatus(connection.status)
+            handleVPNStatus(tunnel.status)
         }
 
         private func removeVPNStatusObserver() {
-            if let statusObserver = statusObserver {
-                NotificationCenter.default.removeObserver(statusObserver)
-                self.statusObserver = nil
-            }
+            statusObserver?.invalidate()
+            statusObserver = nil
         }
 
-        private func setTimeoutTimer(isConnectingState: Bool) {
+        private func setTimeoutTimer(connectingStateWaitDelay: TimeInterval) {
             let workItem = DispatchWorkItem { [weak self] in
                 self?.completeOperation(completion: .failure(.send(.timeout)))
             }
@@ -112,9 +103,6 @@ extension TunnelIPC {
             // Assign new timeout work.
             timeoutWork = workItem
 
-            // Compute additional delay associated with connecting state.
-            let connectingStateWaitDelay = isConnectingState ? RequestOptions.connectingStateWaitDelay : 0
-
             // Schedule timeout work.
             let deadline: DispatchWallTime = .now() + options.timeout + connectingStateWaitDelay
 
@@ -123,6 +111,10 @@ extension TunnelIPC {
 
         private func handleVPNStatus(_ status: NEVPNStatus) {
             guard !isCancelled else {
+                return
+            }
+
+            guard !requestSent else {
                 return
             }
 
@@ -147,24 +139,43 @@ extension TunnelIPC {
         }
 
         private func waitForConnectingState(block: @escaping () -> Void) {
-            let workItem = DispatchWorkItem(block: block)
+            // Compute amount of time elapsed since the tunnel was launched.
+            let timeElapsed: TimeInterval
+            if let startDate = tunnel.startDate {
+                timeElapsed = Date().timeIntervalSince(startDate)
+            } else {
+                timeElapsed = 0
+            }
 
             // Cancel pending work.
             waitForConnectingStateWork?.cancel()
+            waitForConnectingStateWork = nil
+
+            // Execute right away if enough time passed since the tunnel was launched.
+            guard timeElapsed < RequestOptions.connectingStateWaitDelay else {
+                block()
+                return
+            }
+
+            let waitDelay = RequestOptions.connectingStateWaitDelay - timeElapsed
+            let workItem = DispatchWorkItem(block: block)
 
             // Assign new work.
             waitForConnectingStateWork = workItem
 
             // Reschedule the timeout work.
-            setTimeoutTimer(isConnectingState: true)
+            setTimeoutTimer(connectingStateWaitDelay: waitDelay)
 
             // Schedule delayed work.
-            let deadline: DispatchWallTime = .now() + RequestOptions.connectingStateWaitDelay
+            let deadline: DispatchWallTime = .now() + waitDelay
 
             queue.asyncAfter(wallDeadline: deadline, execute: workItem)
         }
 
         private func sendRequest() {
+            // Mark request sent.
+            requestSent = true
+
             // Release status observer.
             removeVPNStatusObserver()
 
@@ -182,8 +193,7 @@ extension TunnelIPC {
 
             // Send IPC message.
             do {
-                let session = connection as! VPNTunnelProviderSessionProtocol
-                try session.sendProviderMessage(messageData) { [weak self] responseData in
+                try tunnel.sendProviderMessage(messageData) { [weak self] responseData in
                     guard let self = self else { return }
 
                     self.queue.async {
@@ -218,7 +228,7 @@ extension TunnelIPC {
 extension TunnelIPC.RequestOperation where Output: Codable {
     convenience init(
         queue: DispatchQueue,
-        connection: VPNConnectionProtocol,
+        tunnel: Tunnel,
         request: TunnelIPC.Request,
         options: TunnelIPC.RequestOptions,
         completionHandler: @escaping CompletionHandler
@@ -226,7 +236,7 @@ extension TunnelIPC.RequestOperation where Output: Codable {
     {
         self.init(
             queue: queue,
-            connection: connection,
+            tunnel: tunnel,
             request: request,
             options: options,
             decoderHandler: { data in
@@ -246,14 +256,14 @@ extension TunnelIPC.RequestOperation where Output: Codable {
 extension TunnelIPC.RequestOperation where Output == Void {
     convenience init(
         queue: DispatchQueue,
-        connection: VPNConnectionProtocol,
+        tunnel: Tunnel,
         request: TunnelIPC.Request,
         options: TunnelIPC.RequestOptions,
         completionHandler: @escaping CompletionHandler
     ) {
         self.init(
             queue: queue,
-            connection: connection,
+            tunnel: tunnel,
             request: request,
             options: options,
             decoderHandler: { _ in .success(()) },

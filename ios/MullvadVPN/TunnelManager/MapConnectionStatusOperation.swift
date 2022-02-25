@@ -43,7 +43,7 @@ class MapConnectionStatusOperation: AsyncOperation {
     }
 
     private func execute() {
-        guard let tunnelProvider = state.tunnelProvider, !isCancelled else {
+        guard let tunnel = state.tunnel, !isCancelled else {
             finish()
             return
         }
@@ -54,13 +54,27 @@ class MapConnectionStatusOperation: AsyncOperation {
         case .connecting:
             switch tunnelState {
             case .connecting(.some(_)):
-                logger.debug("Ignore repeating connecting state.")
+                break
             default:
                 state.tunnelState = .connecting(nil)
             }
 
+            let session = TunnelIPC.Session(tunnel: tunnel)
+
+            request = session.getTunnelConnectionInfo { [weak self] completion in
+                guard let self = self else { return }
+
+                self.queue.async {
+                    if case .success(.some(let connectionInfo)) = completion, !self.isCancelled {
+                        self.state.tunnelState = .connecting(connectionInfo)
+                    }
+
+                    self.finish()
+                }
+            }
+
         case .reasserting:
-            let session = TunnelIPC.Session(connection: tunnelProvider.connection)
+            let session = TunnelIPC.Session(tunnel: tunnel)
 
             request = session.getTunnelConnectionInfo { [weak self] completion in
                 guard let self = self else { return }
@@ -77,7 +91,7 @@ class MapConnectionStatusOperation: AsyncOperation {
             return
 
         case .connected:
-            let session = TunnelIPC.Session(connection: tunnelProvider.connection)
+            let session = TunnelIPC.Session(tunnel: tunnel)
 
             request = session.getTunnelConnectionInfo { [weak self] completion in
                 guard let self = self else { return }

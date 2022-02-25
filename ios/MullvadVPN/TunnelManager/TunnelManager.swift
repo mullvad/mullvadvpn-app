@@ -43,6 +43,7 @@ class TunnelManager: TunnelManagerStateDelegate
     private let operationQueue = OperationQueue()
     private let exclusivityController = ExclusivityController()
 
+    private var statusObserver: Tunnel.StatusBlockObserver?
     private var lastMapConnectionStatusOperation: Operation?
     private let observerList = ObserverList<TunnelObserver>()
 
@@ -459,12 +460,12 @@ class TunnelManager: TunnelManagerStateDelegate
         }
     }
 
-    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelProvider newTunnelProvider: TunnelProviderManagerType?, shouldRefreshTunnelState: Bool) {
+    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelProvider newTunnelObject: Tunnel?, shouldRefreshTunnelState: Bool) {
         dispatchPrecondition(condition: .onQueue(stateQueue))
 
         // Register for tunnel connection status changes
-        if let newTunnelProvider = newTunnelProvider {
-            subscribeVPNStatusObserver(for: newTunnelProvider)
+        if let newTunnelObject = newTunnelObject {
+            subscribeVPNStatusObserver(tunnel: newTunnelObject)
         } else {
             unsubscribeVPNStatusObserver()
         }
@@ -477,24 +478,17 @@ class TunnelManager: TunnelManagerStateDelegate
 
     // MARK: - Private methods
 
-    private func subscribeVPNStatusObserver(for tunnelProvider: TunnelProviderManagerType) {
+    private func subscribeVPNStatusObserver(tunnel: Tunnel) {
         unsubscribeVPNStatusObserver()
 
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(didReceiveVPNStatusChange(_:)),
-            name: .NEVPNStatusDidChange,
-            object: tunnelProvider.connection
-        )
+        statusObserver = tunnel.addBlockObserver(queue: stateQueue) { [weak self] tunnel, status in
+            self?.updateTunnelState()
+        }
     }
 
     private func unsubscribeVPNStatusObserver() {
-        NotificationCenter.default.removeObserver(self, name: .NEVPNStatusDidChange, object: nil)
-    }
-
-    @objc private func didReceiveVPNStatusChange(_ notification: Notification) {
-        stateQueue.async {
-            self.updateTunnelState()
-        }
+        statusObserver?.invalidate()
+        statusObserver = nil
     }
 
     /// Update `TunnelState` from `NEVPNStatus`.
@@ -502,7 +496,7 @@ class TunnelManager: TunnelManagerStateDelegate
     private func updateTunnelState() {
         dispatchPrecondition(condition: .onQueue(stateQueue))
 
-        guard let connectionStatus = self.state.tunnelProvider?.connection.status else { return }
+        guard let connectionStatus = self.state.tunnel?.status else { return }
 
         logger.debug("VPN status changed to \(connectionStatus)")
 

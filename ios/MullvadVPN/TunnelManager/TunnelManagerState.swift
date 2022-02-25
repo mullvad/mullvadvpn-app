@@ -9,17 +9,10 @@
 import Foundation
 import NetworkExtension
 
-// Switch to stabs on simulator
-#if targetEnvironment(simulator)
-typealias TunnelProviderManagerType = SimulatorTunnelProviderManager
-#else
-typealias TunnelProviderManagerType = NETunnelProviderManager
-#endif
-
 protocol TunnelManagerStateDelegate: AnyObject {
     func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelInfo newTunnelInfo: TunnelInfo?)
     func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelState newTunnelState: TunnelState)
-    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelProvider newTunnelProvider: TunnelProviderManagerType?, shouldRefreshTunnelState: Bool)
+    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelProvider newTunnelObject: Tunnel?, shouldRefreshTunnelState: Bool)
 }
 
 extension TunnelManager {
@@ -31,7 +24,7 @@ extension TunnelManager {
         private let queueMarkerKey = DispatchSpecificKey<Bool>()
 
         private var _tunnelInfo: TunnelInfo?
-        private var _tunnelProvider: TunnelProviderManagerType?
+        private var _tunnelObject: Tunnel?
         private var _tunnelState: TunnelState = .disconnected
 
         var tunnelInfo: TunnelInfo? {
@@ -51,9 +44,9 @@ extension TunnelManager {
             }
         }
 
-        var tunnelProvider: TunnelProviderManagerType? {
+        var tunnel: Tunnel? {
             return performBlock {
-                return _tunnelProvider
+                return _tunnelObject
             }
         }
 
@@ -84,12 +77,12 @@ extension TunnelManager {
             queue.setSpecific(key: queueMarkerKey, value: nil)
         }
 
-        func setTunnelProvider(_ newTunnelProvider: TunnelProviderManagerType?, shouldRefreshTunnelState: Bool) {
+        func setTunnel(_ newTunnelObject: Tunnel?, shouldRefreshTunnelState: Bool) {
             performBlock {
-                if _tunnelProvider != newTunnelProvider {
-                    _tunnelProvider = newTunnelProvider
+                if _tunnelObject != newTunnelObject {
+                    _tunnelObject = newTunnelObject
 
-                    delegate?.tunnelManagerState(self, didChangeTunnelProvider: newTunnelProvider, shouldRefreshTunnelState: shouldRefreshTunnelState)
+                    delegate?.tunnelManagerState(self, didChangeTunnelProvider: newTunnelObject, shouldRefreshTunnelState: shouldRefreshTunnelState)
                 }
             }
         }

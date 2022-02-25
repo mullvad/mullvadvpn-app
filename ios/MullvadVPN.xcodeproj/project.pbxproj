@@ -270,6 +270,7 @@
 		58D0C7A223F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C7A023F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift */; };
 		58D67A0A26D7AE3300557C3C /* OSLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5823FA4F26CA690600283BF8 /* OSLogHandler.swift */; };
 		58DF28A52417CB4B00E836B0 /* AppStorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */; };
+		58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E0A98727C8F46300FE6BDD /* Tunnel.swift */; };
 		58E1336926D2BE3700CC316B /* PromiseObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E1336826D2BE3700CC316B /* PromiseObserver.swift */; };
 		58E1336A26D2BE3700CC316B /* PromiseObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E1336826D2BE3700CC316B /* PromiseObserver.swift */; };
 		58E1336B26D2BE3700CC316B /* PromiseObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E1336826D2BE3700CC316B /* PromiseObserver.swift */; };
@@ -557,6 +558,7 @@
 		58D0C79F23F1CECF00FE9BA7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58D0C7A023F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MullvadVPNScreenshots.swift; sourceTree = "<group>"; };
 		58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorePaymentManager.swift; sourceTree = "<group>"; };
+		58E0A98727C8F46300FE6BDD /* Tunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tunnel.swift; sourceTree = "<group>"; };
 		58E1336826D2BE3700CC316B /* PromiseObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromiseObserver.swift; sourceTree = "<group>"; };
 		58E1336C26D2BE7500CC316B /* AnyResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyResult.swift; sourceTree = "<group>"; };
 		58E1337026D2BE9C00CC316B /* AnyOptional.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyOptional.swift; sourceTree = "<group>"; };
@@ -989,6 +991,7 @@
 				58FD5BF12424F7D700112C88 /* UserInterfaceInteractionRestriction.swift */,
 				58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */,
 				5877152F23981F7B001F8237 /* WireguardKeysViewController.swift */,
+				58E0A98727C8F46300FE6BDD /* Tunnel.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -1494,6 +1497,7 @@
 				5815039D24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				588DD76B26FCB49E006F6233 /* Cancellable.swift in Sources */,
+				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
 				5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */,
 				5840BE35279EDB16002836BA /* OperationCompletion.swift in Sources */,

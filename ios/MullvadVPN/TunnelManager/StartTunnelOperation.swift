@@ -114,7 +114,7 @@ class StartTunnelOperation: AsyncOperation {
 
         encodeErrorHandler = nil
 
-        state.setTunnelProvider(tunnelProvider, shouldRefreshTunnelState: false)
+        state.setTunnel(Tunnel(tunnelProvider: tunnelProvider), shouldRefreshTunnelState: false)
         state.tunnelState = .connecting(selectorResult.tunnelConnectionInfo)
 
         try tunnelProvider.connection.startVPNTunnel(options: tunnelOptions.rawOptions())
