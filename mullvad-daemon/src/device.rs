@@ -693,6 +693,7 @@ impl DeviceService {
 
 pub struct DeviceCacher {
     file: io::BufWriter<fs::File>,
+    path: std::path::PathBuf,
 }
 
 impl DeviceCacher {
@@ -717,7 +718,7 @@ impl DeviceCacher {
             .write(true)
             .read(true)
             .create(true)
-            .open(path)
+            .open(&path)
             .await?;
 
         let device: Option<DeviceData> = if cache_exists {
@@ -736,6 +737,7 @@ impl DeviceCacher {
         Ok((
             DeviceCacher {
                 file: io::BufWriter::new(file),
+                path,
             },
             device,
         ))
@@ -750,6 +752,17 @@ impl DeviceCacher {
         self.file.flush().await?;
         self.file.get_mut().sync_data().await?;
 
+        Ok(())
+    }
+
+    pub async fn remove(self) -> Result<(), Error> {
+        let path = {
+            let DeviceCacher { path, file } = self;
+            let std_file = file.into_inner().into_std().await;
+            let _ = tokio::task::spawn_blocking(move || drop(std_file)).await;
+            path
+        };
+        tokio::fs::remove_file(path).await?;
         Ok(())
     }
 }

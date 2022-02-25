@@ -164,7 +164,7 @@ async fn reset_firewall() -> Result<(), Error> {
 
 async fn remove_device() -> Result<(), Error> {
     let (cache_path, settings_path) = get_paths()?;
-    let (mut cacher, data) = mullvad_daemon::device::DeviceCacher::new(&settings_path)
+    let (cacher, data) = mullvad_daemon::device::DeviceCacher::new(&settings_path)
         .await
         .map_err(Error::ReadDeviceCacheError)?;
     if let Some(device) = data {
@@ -195,7 +195,7 @@ async fn remove_device() -> Result<(), Error> {
         .map_err(Error::RemoveDeviceError)?;
 
         cacher
-            .write(None)
+            .remove()
             .await
             .map_err(Error::WriteDeviceCacheError)?;
     }
