@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix the sometimes incorrect time added text after adding time to the account.
 - Fix scrollbar no longer responsive and usable when covered by other elements.
+- Improve tunnel bypass for the API sometimes not working in the connecting state.
 
 ### Security
 #### Android
