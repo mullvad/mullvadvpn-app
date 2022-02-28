@@ -1,6 +1,7 @@
 #![deny(rust_2018_idioms)]
 
 use lazy_static::lazy_static;
+use mullvad_rpc::proxy::ApiConnectionMode;
 use regex::Regex;
 use std::{
     borrow::Cow,
@@ -270,49 +271,70 @@ pub fn send_problem_report(
             }
         })?,
     );
-    let metadata =
-        ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
 
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(2)
         .enable_all()
         .build()
         .map_err(Error::CreateRuntime)?;
+    runtime.block_on(send_problem_report_inner(
+        user_email,
+        user_message,
+        &report_content,
+        cache_dir,
+    ))
+}
 
-    let mut rpc_manager = runtime
-        .block_on(mullvad_rpc::MullvadRpcRuntime::with_cache(
-            cache_dir,
-            false,
-            #[cfg(target_os = "android")]
-            None,
-        ))
-        .map_err(Error::CreateRpcClientError)?;
-    let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());
+async fn send_problem_report_inner(
+    user_email: &str,
+    user_message: &str,
+    report_content: &str,
+    cache_dir: &Path,
+) -> Result<(), Error> {
+    let metadata =
+        ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
+    let rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
+        cache_dir,
+        false,
+        #[cfg(target_os = "android")]
+        None,
+    )
+    .await
+    .map_err(Error::CreateRpcClientError)?;
 
-    runtime.block_on(async move {
-        for _attempt in 0..MAX_SEND_ATTEMPTS {
-            match rpc_client
-                .problem_report(user_email, user_message, &report_content, &metadata)
-                .await
-            {
-                Ok(()) => {
-                    return Ok(());
+    let rpc_client = mullvad_rpc::ProblemReportProxy::new(
+        rpc_runtime
+            .mullvad_rest_handle(
+                ApiConnectionMode::try_from_cache(cache_dir)
+                    .await
+                    .into_repeat(),
+                |_| async { true },
+            )
+            .await,
+    );
+
+    for _attempt in 0..MAX_SEND_ATTEMPTS {
+        match rpc_client
+            .problem_report(user_email, user_message, &report_content, &metadata)
+            .await
+        {
+            Ok(()) => {
+                return Ok(());
+            }
+            Err(error) => {
+                if !error.is_network_error() {
+                    return Err(Error::SendProblemReportError(error));
                 }
-                Err(error) => {
-                    if !error.is_network_error() {
-                        return Err(Error::SendProblemReportError(error));
-                    }
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg(
-                            "Failed to send problem report due to network error"
-                        )
-                    );
-                }
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to send problem report due to network error"
+                    )
+                );
             }
         }
-        Err(Error::SendFailedTooManyTimes)
-    })
+    }
+    Err(Error::SendFailedTooManyTimes)
 }
 
 fn write_problem_report(path: &Path, problem_report: &ProblemReport) -> io::Result<()> {

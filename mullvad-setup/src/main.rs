@@ -1,6 +1,6 @@
 use clap::{crate_authors, crate_description, crate_name, App};
 use mullvad_management_interface::new_rpc_client;
-use mullvad_rpc::MullvadRpcRuntime;
+use mullvad_rpc::{proxy::ApiConnectionMode, MullvadRpcRuntime};
 use mullvad_types::version::ParsedAppVersion;
 use std::{path::PathBuf, process, time::Duration};
 use talpid_core::{
@@ -165,11 +165,19 @@ async fn remove_wireguard_key() -> Result<(), Error> {
 
     if let Some(token) = settings.get_account_token() {
         if let Some(wg_data) = settings.get_wireguard() {
-            let mut rpc_runtime = MullvadRpcRuntime::with_cache(&cache_path, false)
+            let rpc_runtime = MullvadRpcRuntime::with_cache(&cache_path, false)
                 .await
                 .map_err(Error::RpcInitializationError)?;
-            let mut key_proxy =
-                mullvad_rpc::WireguardKeyProxy::new(rpc_runtime.mullvad_rest_handle());
+            let mut key_proxy = mullvad_rpc::WireguardKeyProxy::new(
+                rpc_runtime
+                    .mullvad_rest_handle(
+                        ApiConnectionMode::try_from_cache(&cache_path)
+                            .await
+                            .into_repeat(),
+                        |_| async { true },
+                    )
+                    .await,
+            );
             retry_future_n(
                 move || {
                     key_proxy.remove_wireguard_key(token.clone(), wg_data.private_key.public_key())
