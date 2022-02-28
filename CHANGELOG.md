@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Obfuscate traffic to the Mullvad API using bridges if it cannot be reached directly.
+
 #### Windows
 - Detect mounting and dismounting of volumes, such as VeraCrypt volumes or USB drives,
   and exclude paths from the tunnel correctly when these occur. This sometimes only works
