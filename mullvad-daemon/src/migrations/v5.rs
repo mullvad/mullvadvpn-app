@@ -319,14 +319,12 @@ mod test {
 }
 "#;
 
-    #[test]
-    fn test_v5_v1_migration() {
-        let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
-
+    #[tokio::test]
+    async fn test_v5_v1_migration() {
         let mut old_settings = serde_json::from_str(V5_SETTINGS_V1).unwrap();
 
         assert!(version_matches(&mut old_settings));
-        runtime.block_on(migrate_inner(&mut old_settings)).unwrap();
+        migrate_inner(&mut old_settings).await.unwrap();
         let new_settings: serde_json::Value = serde_json::from_str(V5_SETTINGS_V2).unwrap();
 
         assert_eq!(&old_settings, &new_settings);
