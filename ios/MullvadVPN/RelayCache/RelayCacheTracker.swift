@@ -38,7 +38,7 @@ extension RelayCache {
         private var isPeriodicUpdatesEnabled = false
 
         /// Observers
-        private let observerList = ObserverList<AnyRelayCacheObserver>()
+        private let observerList = ObserverList<RelayCacheObserver>()
 
         /// A shared instance of `RelayCache`
         static let shared: RelayCache.Tracker = {
@@ -144,12 +144,12 @@ extension RelayCache {
 
         // MARK: - Observation
 
-        func addObserver<T: RelayCacheObserver>(_ observer: T) {
-            observerList.append(AnyRelayCacheObserver(observer))
+        func addObserver(_ observer: RelayCacheObserver) {
+            observerList.append(observer)
         }
 
-        func removeObserver<T: RelayCacheObserver>(_ observer: T) {
-            observerList.remove(AnyRelayCacheObserver(observer))
+        func removeObserver(_ observer: RelayCacheObserver) {
+            observerList.remove(observer)
         }
 
         // MARK: - Private instance methods

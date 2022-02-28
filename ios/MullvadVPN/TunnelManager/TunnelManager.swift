@@ -44,7 +44,7 @@ class TunnelManager: TunnelManagerStateDelegate
     private let exclusivityController = ExclusivityController()
 
     private var lastMapConnectionStatusOperation: Operation?
-    private let observerList = ObserverList<AnyTunnelObserver>()
+    private let observerList = ObserverList<TunnelObserver>()
 
     private let state: TunnelManager.State
 
@@ -430,13 +430,13 @@ class TunnelManager: TunnelManagerStateDelegate
     /// Add tunnel observer.
     /// In order to cancel the observation, either call `removeObserver(_:)` or simply release
     /// the observer.
-    func addObserver<T: TunnelObserver>(_ observer: T) {
-        observerList.append(AnyTunnelObserver(observer))
+    func addObserver(_ observer: TunnelObserver) {
+        observerList.append(observer)
     }
 
     /// Remove tunnel observer.
-    func removeObserver<T: TunnelObserver>(_ observer: T) {
-        observerList.remove(AnyTunnelObserver(observer))
+    func removeObserver(_ observer: TunnelObserver) {
+        observerList.remove(observer)
     }
 
     // MARK: - TunnelManagerStateDelegate

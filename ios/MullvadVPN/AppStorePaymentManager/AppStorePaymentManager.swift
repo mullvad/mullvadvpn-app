@@ -29,7 +29,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     }()
 
     private let paymentQueue: SKPaymentQueue
-    private var observerList = ObserverList<AnyAppStorePaymentObserver>()
+    private var observerList = ObserverList<AppStorePaymentObserver>()
 
     private weak var classDelegate: AppStorePaymentManagerDelegate?
     weak var delegate: AppStorePaymentManagerDelegate? {
@@ -85,12 +85,12 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     // MARK: - Payment observation
 
-    func addPaymentObserver<T: AppStorePaymentObserver>(_ observer: T) {
-        observerList.append(AnyAppStorePaymentObserver(observer))
+    func addPaymentObserver(_ observer: AppStorePaymentObserver) {
+        observerList.append(observer)
     }
 
-    func removePaymentObserver<T: AppStorePaymentObserver>(_ observer: T) {
-        observerList.remove(AnyAppStorePaymentObserver(observer))
+    func removePaymentObserver(_ observer: AppStorePaymentObserver) {
+        observerList.remove(observer)
     }
 
     // MARK: - Products and payments

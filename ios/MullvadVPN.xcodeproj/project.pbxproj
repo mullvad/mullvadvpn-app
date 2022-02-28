@@ -74,7 +74,6 @@
 		5820676426E771DB00655B05 /* TunnelManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820676326E771DB00655B05 /* TunnelManagerError.swift */; };
 		5820676826E79E7B00655B05 /* Result+UIBackgroundFetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820676726E79E7B00655B05 /* Result+UIBackgroundFetchResult.swift */; };
 		5823FA5426CE49F700283BF8 /* TunnelObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5823FA5326CE49F600283BF8 /* TunnelObserver.swift */; };
-		5823FA5626CE4A2B00283BF8 /* AnyTunnelObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5823FA5526CE4A2B00283BF8 /* AnyTunnelObserver.swift */; };
 		58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */; };
 		58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB025124117005D0BB5 /* CustomTextField.swift */; };
 		58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB2251241B3005D0BB5 /* CustomTextView.swift */; };
@@ -104,7 +103,6 @@
 		5846226A26E0E6FA0035F7C2 /* ReceiptRefreshOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846226926E0E6FA0035F7C2 /* ReceiptRefreshOperation.swift */; };
 		5846227126E229F20035F7C2 /* AppStoreSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227026E229F20035F7C2 /* AppStoreSubscription.swift */; };
 		5846227326E22A160035F7C2 /* AppStorePaymentObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227226E22A160035F7C2 /* AppStorePaymentObserver.swift */; };
-		5846227526E22A350035F7C2 /* AnyAppStorePaymentObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227426E22A350035F7C2 /* AnyAppStorePaymentObserver.swift */; };
 		5846227726E22A7C0035F7C2 /* AppStorePaymentManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227626E22A7C0035F7C2 /* AppStorePaymentManagerDelegate.swift */; };
 		5846227A26E24F1F0035F7C2 /* ExclusivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE20524B3222200F9D8A1 /* ExclusivityController.swift */; };
 		584789BE264D4A2A000E45FB /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B7264D4A2A000E45FB /* le_root_cert.cer */; };
@@ -318,7 +316,6 @@
 		58FAEE0324533ABE00CB0F5B /* KeychainReturn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */; };
 		58FAEE0424533AC000CB0F5B /* KeychainClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */; };
 		58FB865526E8BF3100F188BC /* AppStorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* AppStorePaymentManagerError.swift */; };
-		58FB865826EA213300F188BC /* AnyRelayCacheObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865726EA213300F188BC /* AnyRelayCacheObserver.swift */; };
 		58FB865A26EA214400F188BC /* RelayCacheObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865926EA214400F188BC /* RelayCacheObserver.swift */; };
 		58FB865E26EA284E00F188BC /* LogFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865D26EA284E00F188BC /* LogFormatting.swift */; };
 		58FB865F26EA2E6D00F188BC /* LogFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865D26EA284E00F188BC /* LogFormatting.swift */; };
@@ -409,7 +406,6 @@
 		5820676726E79E7B00655B05 /* Result+UIBackgroundFetchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Result+UIBackgroundFetchResult.swift"; sourceTree = "<group>"; };
 		5823FA4F26CA690600283BF8 /* OSLogHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogHandler.swift; sourceTree = "<group>"; };
 		5823FA5326CE49F600283BF8 /* TunnelObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObserver.swift; sourceTree = "<group>"; };
-		5823FA5526CE4A2B00283BF8 /* AnyTunnelObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyTunnelObserver.swift; sourceTree = "<group>"; };
 		58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportViewController.swift; sourceTree = "<group>"; };
 		58293FB025124117005D0BB5 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		58293FB2251241B3005D0BB5 /* CustomTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
@@ -435,7 +431,6 @@
 		5846226926E0E6FA0035F7C2 /* ReceiptRefreshOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptRefreshOperation.swift; sourceTree = "<group>"; };
 		5846227026E229F20035F7C2 /* AppStoreSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreSubscription.swift; sourceTree = "<group>"; };
 		5846227226E22A160035F7C2 /* AppStorePaymentObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorePaymentObserver.swift; sourceTree = "<group>"; };
-		5846227426E22A350035F7C2 /* AnyAppStorePaymentObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyAppStorePaymentObserver.swift; sourceTree = "<group>"; };
 		5846227626E22A7C0035F7C2 /* AppStorePaymentManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorePaymentManagerDelegate.swift; sourceTree = "<group>"; };
 		584789B7264D4A2A000E45FB /* le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = le_root_cert.cer; sourceTree = "<group>"; };
 		584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSLPinningURLSessionDelegate.swift; sourceTree = "<group>"; };
@@ -603,7 +598,6 @@
 		58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainReturn.swift; sourceTree = "<group>"; };
 		58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainClass.swift; sourceTree = "<group>"; };
 		58FB865426E8BF3100F188BC /* AppStorePaymentManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorePaymentManagerError.swift; sourceTree = "<group>"; };
-		58FB865726EA213300F188BC /* AnyRelayCacheObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyRelayCacheObserver.swift; sourceTree = "<group>"; };
 		58FB865926EA214400F188BC /* RelayCacheObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheObserver.swift; sourceTree = "<group>"; };
 		58FB865D26EA284E00F188BC /* LogFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFormatting.swift; sourceTree = "<group>"; };
 		58FB866026EB677F00F188BC /* TunnelInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelInfo.swift; sourceTree = "<group>"; };
@@ -704,7 +698,6 @@
 		5823FA5726CE4A4100283BF8 /* TunnelManager */ = {
 			isa = PBXGroup;
 			children = (
-				5823FA5526CE4A2B00283BF8 /* AnyTunnelObserver.swift */,
 				587C575226D2615F005EF767 /* PacketTunnelOptions.swift */,
 				58FB866026EB677F00F188BC /* TunnelInfo.swift */,
 				5835B7CB233B76CB0096D79F /* TunnelManager.swift */,
@@ -756,7 +749,6 @@
 		5846226F26E229CD0035F7C2 /* AppStorePaymentManager */ = {
 			isa = PBXGroup;
 			children = (
-				5846227426E22A350035F7C2 /* AnyAppStorePaymentObserver.swift */,
 				58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */,
 				5846227626E22A7C0035F7C2 /* AppStorePaymentManagerDelegate.swift */,
 				58FB865426E8BF3100F188BC /* AppStorePaymentManagerError.swift */,
@@ -769,7 +761,6 @@
 		585DA87526B0249A00B8C587 /* RelayCache */ = {
 			isa = PBXGroup;
 			children = (
-				58FB865726EA213300F188BC /* AnyRelayCacheObserver.swift */,
 				585DA87626B024A600B8C587 /* CachedRelays.swift */,
 				5820675A26E6576800655B05 /* RelayCache.swift */,
 				585DA87926B024F900B8C587 /* RelayCacheError.swift */,
@@ -1437,7 +1428,6 @@
 				58AEEF6B2344A46200C9BBD5 /* TunnelSettingsManager.swift in Sources */,
 				587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */,
 				5806767927048E8800C858CB /* Keychain.swift in Sources */,
-				5846227526E22A350035F7C2 /* AnyAppStorePaymentObserver.swift in Sources */,
 				588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
 				58095C592762155700890776 /* RESTRetryStrategy.swift in Sources */,
@@ -1481,7 +1471,6 @@
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
-				5823FA5626CE4A2B00283BF8 /* AnyTunnelObserver.swift in Sources */,
 				58FD5BE724192A2C00112C88 /* AppStoreReceipt.swift in Sources */,
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
 				58FB866126EB678000F188BC /* TunnelInfo.swift in Sources */,
@@ -1523,7 +1512,6 @@
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
 				585DA87726B024A600B8C587 /* CachedRelays.swift in Sources */,
 				585DA89B26B146B300B8C587 /* TunnelIPCCoding.swift in Sources */,
-				58FB865826EA213300F188BC /* AnyRelayCacheObserver.swift in Sources */,
 				5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
 				585DA89626B0328000B8C587 /* TunnelIPCResponse.swift in Sources */,
 				587AD7C623421D7000E93A53 /* TunnelSettings.swift in Sources */,
