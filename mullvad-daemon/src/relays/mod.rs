@@ -638,7 +638,7 @@ impl RelaySelector {
     pub fn get_auto_proxy_settings(
         &mut self,
         bridge_constraints: &InternalBridgeConstraints,
-        location: &Location,
+        location: Option<&Location>,
         retry_attempt: u32,
     ) -> Option<(ProxySettings, Relay)> {
         if !self.should_use_bridge(retry_attempt) {
@@ -666,7 +666,7 @@ impl RelaySelector {
     pub fn get_proxy_settings(
         &mut self,
         constraints: &InternalBridgeConstraints,
-        location: &Location,
+        location: Option<&Location>,
     ) -> Option<(ProxySettings, Relay)> {
         let mut matching_relays: Vec<Relay> = self
             .parsed_relays
@@ -681,9 +681,11 @@ impl RelaySelector {
             return None;
         }
 
-        matching_relays.sort_by_cached_key(|relay| {
-            (relay.location.as_ref().unwrap().distance_from(&location) * 1000.0) as i64
-        });
+        if let Some(location) = location {
+            matching_relays.sort_by_cached_key(|relay| {
+                (relay.location.as_ref().unwrap().distance_from(&location) * 1000.0) as i64
+            });
+        }
         matching_relays.get(0).and_then(|relay| {
             self.pick_random_bridge(&relay)
                 .map(|bridge| (bridge, relay.clone()))
