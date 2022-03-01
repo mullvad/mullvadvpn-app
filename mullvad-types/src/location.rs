@@ -45,7 +45,7 @@ impl From<&Location> for Coordinates {
     fn from(location: &Location) -> Self {
         Self {
             latitude: location.latitude,
-            longitude: location.latitude,
+            longitude: location.longitude,
         }
     }
 }
