@@ -9,10 +9,13 @@ use futures::{channel::oneshot, future::abortable};
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
+use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
+#[cfg(target_os = "linux")]
 use std::env;
 #[cfg(windows)]
 use std::io;
 use std::{
+    convert::Infallible,
     net::{IpAddr, SocketAddr},
     path::Path,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
@@ -88,7 +91,6 @@ pub struct WireguardMonitor {
             + Sync
             + 'static,
     >,
-    close_msg_sender: sync_mpsc::Sender<CloseMsg>,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
     pinger_stop_sender: sync_mpsc::Sender<()>,
     _tcp_proxies: Vec<TcpProxy>,
@@ -207,14 +209,12 @@ impl WireguardMonitor {
             runtime: runtime.clone(),
             tunnel: Arc::new(Mutex::new(Some(tunnel))),
             event_callback,
-            close_msg_sender,
             close_msg_receiver,
             pinger_stop_sender: pinger_tx,
             _tcp_proxies: tcp_proxies,
         };
 
         let gateway = config.ipv4_gateway;
-        let close_sender = monitor.close_msg_sender.clone();
         let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
             #[cfg(not(target_os = "windows"))]
@@ -226,86 +226,101 @@ impl WireguardMonitor {
 
         let metadata = Self::tunnel_metadata(&iface_name, &config);
 
-        tokio::spawn(async move {
+        let tunnel_fut = async move {
             #[cfg(windows)]
             {
-                let iface_close_sender = close_sender.clone();
-                let result = match setup_done_rx.next().await {
-                    Some(result) => result.map_err(|error| {
+                setup_done_rx
+                    .next()
+                    .await
+                    .ok_or_else(|| {
+                        // Tunnel was shut down early
+                        CloseMsg::SetupError(Error::IpInterfacesError)
+                    })?
+                    .map_err(|error| {
                         log::error!(
                             "{}",
                             error.display_chain_with_msg("Failed to configure tunnel interface")
                         );
-                        iface_close_sender
-                            .send(CloseMsg::SetupError(Error::IpInterfacesError))
-                            .unwrap_or(())
-                    }),
-                    None => Err(()),
-                };
-                if result.is_err() {
-                    return;
+                        CloseMsg::SetupError(Error::IpInterfacesError)
+                    })?;
+
+                if !crate::winnet::add_device_ip_addresses(&iface_name, &config.tunnel.addresses) {
+                    return Err(CloseMsg::SetupError(Error::SetIpAddressesError));
                 }
             }
 
             (on_event)(TunnelEvent::InterfaceUp(metadata.clone())).await;
 
-            let setup_iface_routes = async move {
-                #[cfg(target_os = "windows")]
-                if !crate::winnet::add_device_ip_addresses(&iface_name, &config.tunnel.addresses) {
-                    return Err(Error::SetIpAddressesError);
-                }
+            // Add a specific gateway route for the connectivity monitor
+            route_manager
+                .add_routes(Self::gateway_route(&iface_name, &config).collect())
+                .await
+                .map_err(Error::SetupRoutingError)
+                .map_err(CloseMsg::SetupError)?;
 
-                #[cfg(target_os = "linux")]
-                route_manager
-                    .create_routing_rules(config.enable_ipv6)
-                    .await
-                    .map_err(Error::SetupRoutingError)?;
-
-                let routes = Self::get_in_tunnel_routes(&iface_name, &config)
-                    .chain(Self::get_tunnel_traffic_routes(&endpoint_addrs));
-
-                route_manager
-                    .add_routes(routes.collect())
-                    .await
-                    .map_err(Error::SetupRoutingError)
-            };
-
-            if let Err(error) = setup_iface_routes.await {
-                let _ = close_sender.send(CloseMsg::SetupError(error));
-                return;
-            }
-
-            tokio::task::spawn_blocking(move || {
+            let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(retry_attempt) {
-                    Ok(true) => {
-                        tokio::spawn((on_event)(TunnelEvent::Up(metadata)));
-
-                        if let Err(error) = connectivity_monitor.run() {
-                            log::error!(
-                                "{}",
-                                error.display_chain_with_msg("Connectivity monitor failed")
-                            );
-                        }
+                    Ok(true) => Ok(connectivity_monitor),
+                    Ok(false) => {
+                        log::warn!("Timeout while checking tunnel connection");
+                        Err(CloseMsg::PingErr)
                     }
-                    Ok(false) => log::warn!("Timeout while checking tunnel connection"),
                     Err(error) => {
                         log::error!(
                             "{}",
                             error.display_chain_with_msg("Failed to check tunnel connection")
                         );
+                        Err(CloseMsg::PingErr)
                     }
                 }
             })
             .await
-            .expect("connectivity monitor thread panicked");
+            .unwrap()?;
 
-            let _ = close_sender.send(CloseMsg::PingErr);
+            // Set up routes once tunnel is established
+            #[cfg(target_os = "linux")]
+            route_manager
+                .create_routing_rules(config.enable_ipv6)
+                .await
+                .map_err(Error::SetupRoutingError)
+                .map_err(CloseMsg::SetupError)?;
+
+            let routes = Self::get_in_tunnel_routes(&iface_name, &config)
+                .chain(Self::get_tunnel_traffic_routes(&endpoint_addrs));
+
+            route_manager
+                .add_routes(routes.collect())
+                .await
+                .map_err(Error::SetupRoutingError)
+                .map_err(CloseMsg::SetupError)?;
+
+            (on_event)(TunnelEvent::Up(metadata)).await;
+
+            tokio::task::spawn_blocking(move || {
+                if let Err(error) = connectivity_monitor.run() {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Connectivity monitor failed")
+                    );
+                }
+            })
+            .await
+            .unwrap();
+
+            Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
+        };
+
+        let close_sender = close_msg_sender.clone();
+        let monitor_handle = tokio::spawn(async move {
+            // This is safe to unwrap because the future resolves to `Result<Infallible, E>`.
+            let close_msg = tunnel_fut.await.unwrap_err();
+            let _ = close_sender.send(close_msg);
         });
 
-        let mut close_handle = monitor.close_handle();
         tokio::spawn(async move {
             if tunnel_close_rx.await.is_ok() {
-                close_handle.close();
+                monitor_handle.abort();
+                let _ = close_msg_sender.send(CloseMsg::Stop);
             }
         });
 
@@ -392,13 +407,6 @@ impl WireguardMonitor {
             )
             .map_err(Error::TunnelError)?,
         ))
-    }
-
-    /// Returns a close handle for the tunnel
-    fn close_handle(&self) -> CloseHandle {
-        CloseHandle {
-            chan: self.close_msg_sender.clone(),
-        }
     }
 
     /// Blocks the current thread until tunnel disconnects
@@ -504,8 +512,6 @@ impl WireguardMonitor {
         iface_name: &str,
         config: &'a Config,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
-        use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
-
         let node = routing::Node::device(iface_name.to_string());
         let v4_node = node.clone();
         let v6_node = node.clone();
@@ -540,6 +546,20 @@ impl WireguardMonitor {
             .map(move |network| RequiredRoute::new(network, node.clone()))
     }
 
+    fn gateway_route<'a>(
+        iface_name: &str,
+        config: &'a Config,
+    ) -> impl Iterator<Item = RequiredRoute> + 'a {
+        let node = routing::Node::device(iface_name.to_string());
+        let r = RequiredRoute::new(
+            ipnetwork::Ipv4Network::from(config.ipv4_gateway).into(),
+            node,
+        );
+        #[cfg(target_os = "linux")]
+        let r = r.table(u32::from(RT_TABLE_MAIN));
+        std::iter::once(r)
+    }
+
     fn tunnel_metadata(interface_name: &str, config: &Config) -> TunnelMetadata {
         TunnelMetadata {
             interface: interface_name.to_string(),
@@ -554,21 +574,6 @@ enum CloseMsg {
     Stop,
     PingErr,
     SetupError(Error),
-}
-
-/// Close handle for a WireGuard tunnel.
-#[derive(Clone, Debug)]
-pub struct CloseHandle {
-    chan: sync_mpsc::Sender<CloseMsg>,
-}
-
-impl CloseHandle {
-    /// Closes a WireGuard tunnel
-    pub fn close(&mut self) {
-        if let Err(e) = self.chan.send(CloseMsg::Stop) {
-            log::trace!("Failed to send close message to wireguard tunnel: {}", e);
-        }
-    }
 }
 
 pub(crate) trait Tunnel: Send {
