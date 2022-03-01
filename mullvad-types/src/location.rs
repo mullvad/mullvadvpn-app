@@ -35,7 +35,7 @@ impl Location {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Coordinates {
     pub latitude: f64,
     pub longitude: f64,
@@ -65,9 +65,15 @@ impl Coordinates {
     ///
     /// https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates
     pub fn midpoint(locations: &[Location]) -> Self {
+        Self::midpoint_inner(locations.iter().map(Coordinates::from))
+    }
+
+    fn midpoint_inner(locations: impl std::iter::Iterator<Item = Coordinates>) -> Self {
         let mut x = 0f64;
         let mut y = 0f64;
         let mut z = 0f64;
+
+        let mut count = 0;
 
         for location in locations {
             let cos_lat = location.latitude.to_radians().cos();
@@ -77,8 +83,9 @@ impl Coordinates {
             x += cos_lat * cos_lon;
             y += cos_lat * sin_lon;
             z += sin_lat;
+            count += 1;
         }
-        let inv_total_weight = 1f64 / (locations.len() as f64);
+        let inv_total_weight = 1f64 / (count as f64);
         x *= inv_total_weight;
         y *= inv_total_weight;
         z *= inv_total_weight;
@@ -190,6 +197,51 @@ mod tests {
         assert_eq!(
             haversine_dist_deg(0.0, 179.5, 0.0, -179.5),
             111.22634257109495
+        );
+    }
+
+    #[test]
+    fn test_midpoint() {
+        use super::Coordinates;
+
+        assert_eq!(
+            Coordinates::midpoint_inner(
+                [
+                    Coordinates {
+                        latitude: 0.0,
+                        longitude: 90.0,
+                    },
+                    Coordinates {
+                        latitude: 90.0,
+                        longitude: 0.0,
+                    },
+                ]
+                .into_iter()
+            ),
+            Coordinates {
+                latitude: 45.0,
+                longitude: 90.0,
+            },
+        );
+
+        assert_eq!(
+            Coordinates::midpoint_inner(
+                [
+                    Coordinates {
+                        latitude: -20.0,
+                        longitude: 90.0,
+                    },
+                    Coordinates {
+                        latitude: -20.0,
+                        longitude: -90.0,
+                    },
+                ]
+                .into_iter()
+            ),
+            Coordinates {
+                latitude: -90.0,
+                longitude: 0.0,
+            },
         );
     }
 }
