@@ -361,8 +361,6 @@ fi
 
 log_info "Updating relays.json..."
 cargo run --bin relay_list "${CARGO_ARGS[@]}" > dist-assets/relays.json
-log_info "Updating api-ip-address..."
-cargo run --bin address_cache "${CARGO_ARGS[@]}" > dist-assets/api-ip-address.txt
 
 
 log_header "Installing JavaScript dependencies"

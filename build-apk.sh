@@ -128,8 +128,6 @@ done
 
 echo "Updating relays.json..."
 cargo run --bin relay_list $CARGO_ARGS > dist-assets/relays.json
-echo "Updating api-ip-address..."
-cargo run --bin address_cache $CARGO_ARGS > dist-assets/api-ip-address.txt
 
 cd "$SCRIPT_DIR/android"
 $GRADLE_CMD --console plain "$GRADLE_TASK"

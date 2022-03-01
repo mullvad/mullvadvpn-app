@@ -6,7 +6,7 @@ use ipnetwork::IpNetwork;
 use mullvad_rpc::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle};
 use mullvad_types::{
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
-    location::Location,
+    location::{Coordinates, Location},
     relay_constraints::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
         OpenVpnConstraints, Providers, RelayConstraints, Set, TransportPort, WireguardConstraints,
@@ -300,6 +300,34 @@ impl RelaySelector {
                 wg_key_exists,
             ),
         }
+    }
+
+    /// Returns the average location of relays that match the given constraints.
+    /// This returns none if the location is `any` or if no relays match the constraints.
+    pub fn get_relay_midpoint(&self, relay_constraints: &RelayConstraints) -> Option<Coordinates> {
+        if relay_constraints.location.is_any() {
+            return None;
+        }
+
+        let matcher = RelayMatcher::from(relay_constraints.clone());
+        let mut matching_locations: Vec<Location> = self
+            .parsed_relays
+            .lock()
+            .relays()
+            .iter()
+            .filter(|relay| relay.active)
+            .filter_map(|relay| {
+                matcher
+                    .filter_matching_relay(relay)
+                    .and_then(|relay| relay.location)
+            })
+            .collect();
+        matching_locations.dedup_by(|a, b| a.has_same_city(b));
+
+        if matching_locations.is_empty() {
+            return None;
+        }
+        Some(Coordinates::midpoint(&matching_locations))
     }
 
     /// Returns an OpenVpn endpoint, should only ever be used when the user has specified the tunnel
@@ -635,10 +663,10 @@ impl RelaySelector {
         entry_endpoint.exit_peer = Some(exit_peer.clone());
     }
 
-    pub fn get_auto_proxy_settings(
+    pub fn get_auto_proxy_settings<T: Into<Coordinates>>(
         &mut self,
         bridge_constraints: &InternalBridgeConstraints,
-        location: &Location,
+        location: Option<T>,
         retry_attempt: u32,
     ) -> Option<(ProxySettings, Relay)> {
         if !self.should_use_bridge(retry_attempt) {
@@ -663,10 +691,10 @@ impl RelaySelector {
             (retry_attempt % 4) < 2
     }
 
-    pub fn get_proxy_settings(
+    pub fn get_proxy_settings<T: Into<Coordinates>>(
         &mut self,
         constraints: &InternalBridgeConstraints,
-        location: &Location,
+        location: Option<T>,
     ) -> Option<(ProxySettings, Relay)> {
         let mut matching_relays: Vec<Relay> = self
             .parsed_relays
@@ -681,10 +709,16 @@ impl RelaySelector {
             return None;
         }
 
-        matching_relays.sort_by_cached_key(|relay| {
-            (relay.location.as_ref().unwrap().distance_from(&location) * 1000.0) as i64
-        });
-        matching_relays.get(0).and_then(|relay| {
+        let relay = if let Some(location) = location {
+            let location = location.into();
+            matching_relays.sort_by_cached_key(|relay| {
+                (relay.location.as_ref().unwrap().distance_from(&location) * 1000.0) as i64
+            });
+            matching_relays.get(0)
+        } else {
+            self.pick_random_relay(&matching_relays)
+        };
+        relay.and_then(|relay| {
             self.pick_random_bridge(&relay)
                 .map(|bridge| (bridge, relay.clone()))
         })

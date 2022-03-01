@@ -4,13 +4,13 @@ use crate::{
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
+    proxy::ApiConnectionMode,
 };
 use futures::{
     channel::{mpsc, oneshot},
-    future::{abortable, AbortHandle, Aborted},
     sink::SinkExt,
     stream::StreamExt,
-    TryFutureExt,
+    Stream, TryFutureExt,
 };
 use hyper::{
     client::Client,
@@ -18,15 +18,12 @@ use hyper::{
     Method, Uri,
 };
 use std::{
-    collections::BTreeMap,
     future::Future,
-    mem,
-    net::{IpAddr, SocketAddr},
+    net::SocketAddr,
     str::FromStr,
     time::{Duration, Instant},
 };
 use talpid_types::ErrorExt;
-use tokio::runtime::Handle;
 
 pub use hyper::StatusCode;
 
@@ -45,7 +42,7 @@ const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Request cancelled")]
-    Aborted(Aborted),
+    Aborted,
 
     #[error(display = "Hyper error")]
     HyperError(#[error(source)] hyper::Error),
@@ -84,114 +81,124 @@ impl Error {
             _ => false,
         }
     }
+
+    /// Returns a new instance for which `abortable_stream::Aborted` is mapped to `Self::Aborted`.
+    fn map_aborted(self) -> Self {
+        if let Error::HyperError(error) = &self {
+            use std::error::Error;
+            let mut source = error.source();
+            while let Some(error) = source {
+                let io_error: Option<&std::io::Error> = error.downcast_ref();
+                if let Some(io_error) = io_error {
+                    let abort_error: Option<&crate::abortable_stream::Aborted> =
+                        io_error.get_ref().and_then(|inner| inner.downcast_ref());
+                    if abort_error.is_some() {
+                        return Self::Aborted;
+                    }
+                }
+                source = error.source();
+            }
+        }
+        self
+    }
 }
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService {
+pub(crate) struct RequestService<
+    T: Stream<Item = ApiConnectionMode>,
+    F: Fn(SocketAddr) -> AcceptedNewEndpoint,
+    AcceptedNewEndpoint: Future<Output = bool>,
+> {
     command_tx: mpsc::Sender<RequestCommand>,
     command_rx: mpsc::Receiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
-    handle: Handle,
-    next_id: u64,
-    in_flight_requests: BTreeMap<u64, AbortHandle>,
-    api_availability: ApiAvailabilityHandle,
+    proxy_config_provider: T,
+    new_address_callback: F,
     address_cache: AddressCache,
+    api_availability: ApiAvailabilityHandle,
 }
 
-impl RequestService {
+impl<
+        T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
+        F: (Fn(SocketAddr) -> AcceptedNewEndpoint) + Send + Sync + 'static,
+        AcceptedNewEndpoint: Future<Output = bool> + Send + 'static,
+    > RequestService<T, F, AcceptedNewEndpoint>
+{
     /// Constructs a new request service.
-    pub fn new(
-        handle: Handle,
+    pub async fn new(
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
         address_cache: AddressCache,
+        mut proxy_config_provider: T,
+        new_address_callback: F,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> RequestService {
+    ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
-            handle.clone(),
             sni_hostname,
+            address_cache.clone(),
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
         );
 
+        proxy_config_provider
+            .next()
+            .await
+            .map(|config| connector_handle.set_connection_mode(config));
+
         let (command_tx, command_rx) = mpsc::channel(1);
         let client = Client::builder().build(connector);
 
-        Self {
+        let service = Self {
             command_tx,
             command_rx,
             connector_handle,
             client,
-            handle,
-            in_flight_requests: BTreeMap::new(),
-            next_id: 0,
-            api_availability,
+            proxy_config_provider,
+            new_address_callback,
             address_cache,
-        }
+            api_availability,
+        };
+        let handle = service.handle();
+        tokio::spawn(service.into_future());
+        handle
     }
 
-    /// Constructs a handle
-    pub fn handle(&self) -> RequestServiceHandle {
+    fn handle(&self) -> RequestServiceHandle {
         RequestServiceHandle {
             tx: self.command_tx.clone(),
-            handle: self.handle.clone(),
         }
     }
 
-    fn process_command(&mut self, command: RequestCommand) {
+    async fn process_command(&mut self, command: RequestCommand) {
         match command {
             RequestCommand::NewRequest(request, completion_tx) => {
-                let id = self.id();
                 let mut tx = self.command_tx.clone();
                 let timeout = request.timeout();
 
                 let hyper_request = request.into_request();
-                let host_addr = get_request_socket_addr(&hyper_request);
 
                 let api_availability = self.api_availability.clone();
                 let suspend_fut = api_availability.wait_for_unsuspend();
                 let request_fut = self.client.request(hyper_request).map_err(Error::from);
 
-                let (request_future, abort_handle) = abortable(async move {
+                let request_future = async move {
                     let _ = suspend_fut.await;
                     request_fut.await
-                });
-                let address_cache = self.address_cache.clone();
-                let handle = self.handle.clone();
+                };
 
                 let future = async move {
-                    let response =
-                        tokio::time::timeout(timeout, request_future.map_err(Error::Aborted))
-                            .await
-                            .map_err(Error::TimeoutError);
+                    let response = tokio::time::timeout(timeout, request_future)
+                        .await
+                        .map_err(Error::TimeoutError);
 
-                    let response = flatten_result(flatten_result(response));
-                    if let Some(host_addr) = host_addr {
-                        if let Err(err) = &response {
-                            if err.is_network_error() {
-                                log::error!(
-                                    "{}",
-                                    err.display_chain_with_msg("HTTP request failed")
-                                );
-                                if !api_availability.get_state().is_offline() {
-                                    let current_address = address_cache.peek_address();
-                                    if current_address == host_addr
-                                        && address_cache.has_tried_current_address()
-                                    {
-                                        handle.spawn(async move {
-                                            address_cache.select_new_address().await;
-                                            let new_address = address_cache.peek_address();
-                                            log::error!(
-                                                "Request failed using address {}. Trying next API address: {}",
-                                                current_address,
-                                                new_address,
-                                            );
-                                        });
-                                    }
-                                }
-                            }
+                    let response = flatten_result(response).map_err(|error| error.map_aborted());
+
+                    if let Err(err) = &response {
+                        if err.is_network_error() && !api_availability.get_state().is_offline() {
+                            log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
+                            let _ = tx.send(RequestCommand::NextApiConfig).await;
                         }
                     }
 
@@ -200,72 +207,46 @@ impl RequestService {
                             "Failed to send response to caller, caller channel is shut down"
                         );
                     }
-                    let _ = tx.send(RequestCommand::RequestFinished(id)).await;
                 };
-
-                self.in_flight_requests.insert(id, abort_handle);
-                self.handle.spawn(future);
+                tokio::spawn(future);
             }
-            RequestCommand::RequestFinished(id) => {
-                self.in_flight_requests.remove(&id);
+            RequestCommand::Reset => {
+                self.connector_handle.reset();
             }
-            RequestCommand::Reset(tx) => {
-                self.reset();
-                let _ = tx.send(());
+            RequestCommand::NextApiConfig => {
+                if let Some(new_config) = self.proxy_config_provider.next().await {
+                    let endpoint = match new_config.get_endpoint() {
+                        Some(endpoint) => endpoint,
+                        None => self.address_cache.get_address().await,
+                    };
+                    // Switch to new connection mode unless rejected by address change callback
+                    if (self.new_address_callback)(endpoint).await {
+                        self.connector_handle.set_connection_mode(new_config);
+                    }
+                }
             }
         }
     }
 
-    fn reset(&mut self) {
-        let old_requests = mem::take(&mut self.in_flight_requests);
-        for (_, abort_handle) in old_requests {
-            abort_handle.abort();
+    async fn into_future(mut self) {
+        while let Some(command) = self.command_rx.next().await {
+            self.process_command(command).await;
         }
-
         self.connector_handle.reset();
     }
-
-    fn id(&mut self) -> u64 {
-        let id = self.next_id;
-        self.next_id = id.wrapping_add(1);
-        id
-    }
-
-    pub async fn into_future(mut self) {
-        while let Some(command) = self.command_rx.next().await {
-            self.process_command(command);
-        }
-        self.reset();
-    }
-}
-
-fn get_request_socket_addr(request: &Request) -> Option<SocketAddr> {
-    let uri = request.uri();
-    let port = uri
-        .port_u16()
-        // Assuming HTTPS always
-        .unwrap_or(443);
-
-    let host_addr = uri.host().and_then(|host| host.parse::<IpAddr>().ok())?;
-
-    Some(SocketAddr::new(host_addr, port))
 }
 
 #[derive(Clone)]
 /// A handle to interact with a spawned `RequestService`.
 pub struct RequestServiceHandle {
     tx: mpsc::Sender<RequestCommand>,
-    handle: Handle,
 }
 
 impl RequestServiceHandle {
     /// Resets the corresponding RequestService, dropping all in-flight requests.
     pub async fn reset(&self) {
         let mut tx = self.tx.clone();
-        let (done_tx, done_rx) = oneshot::channel();
-
-        let _ = tx.send(RequestCommand::Reset(done_tx)).await;
-        let _ = done_rx.await;
+        let _ = tx.send(RequestCommand::Reset).await;
     }
 
     /// Submits a `RestRequest` for exectuion to the request service.
@@ -278,11 +259,6 @@ impl RequestServiceHandle {
 
         completion_rx.await.map_err(|_| Error::ReceiveError)?
     }
-
-    /// Spawns a future on the RPC runtime.
-    pub fn spawn<T: Send + 'static>(&self, future: impl Future<Output = T> + Send + 'static) {
-        let _ = self.handle.spawn(future);
-    }
 }
 
 #[derive(Debug)]
@@ -291,8 +267,8 @@ pub(crate) enum RequestCommand {
         RestRequest,
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
-    RequestFinished(u64),
-    Reset(oneshot::Sender<()>),
+    Reset,
+    NextApiConfig,
 }
 
 /// A REST request that is sent to the RequestService to be executed.
@@ -392,20 +368,14 @@ pub struct ErrorResponse {
 #[derive(Clone)]
 pub struct RequestFactory {
     hostname: String,
-    address_provider: Box<dyn AddressProvider>,
     path_prefix: Option<String>,
     pub timeout: Duration,
 }
 
 impl RequestFactory {
-    pub fn new(
-        hostname: String,
-        address_provider: Box<dyn AddressProvider>,
-        path_prefix: Option<String>,
-    ) -> Self {
+    pub fn new(hostname: String, path_prefix: Option<String>) -> Self {
         Self {
             hostname,
-            address_provider,
             path_prefix,
             timeout: DEFAULT_TIMEOUT,
         }
@@ -466,38 +436,14 @@ impl RequestFactory {
     }
 
     fn get_uri(&self, path: &str) -> Result<Uri> {
-        let host = self.address_provider.get_address();
         let prefix = self.path_prefix.as_ref().map(AsRef::as_ref).unwrap_or("");
-        let uri = format!("https://{}/{}{}", host, prefix, path);
+        let uri = format!("https://{}/{}{}", self.hostname, prefix, path);
         hyper::Uri::from_str(&uri).map_err(Error::UriError)
     }
 
     fn set_request_timeout(&self, mut request: RestRequest) -> RestRequest {
         request.timeout = self.timeout;
         request
-    }
-}
-
-pub trait AddressProvider: Send + Sync {
-    /// Must return a string that represents either a host or a host with port
-    fn get_address(&self) -> String;
-    fn clone_box(&self) -> Box<dyn AddressProvider>;
-}
-
-impl Clone for Box<dyn AddressProvider> {
-    fn clone(&self) -> Self {
-        self.clone_box()
-    }
-}
-
-impl AddressProvider for IpAddr {
-    /// Must return a string that represents either a host or a host with port
-    fn get_address(&self) -> String {
-        self.to_string()
-    }
-
-    fn clone_box(&self) -> Box<dyn AddressProvider> {
-        Box::new(*self)
     }
 }
 
@@ -632,7 +578,7 @@ impl MullvadRestHandle {
         let handle = self.clone();
         let availability = self.availability.clone();
 
-        self.service.spawn(async move {
+        tokio::spawn(async move {
             // always start the fetch after 15 minutes
             let api_proxy = crate::ApiProxy::new(handle);
             let mut next_check = Instant::now() + API_IP_CHECK_DELAY;
@@ -652,14 +598,29 @@ impl MullvadRestHandle {
                     }
                     match api_proxy.clone().get_api_addrs().await {
                         Ok(new_addrs) => {
-                            log::debug!("Fetched new API addresses {:?}, will fetch again in {} hours", new_addrs, API_IP_CHECK_INTERVAL.as_secs() / ( 60 * 60 ));
-                            if let Err(err) = address_cache.set_addresses(new_addrs).await {
-                                log::error!("Failed to save newly updated API addresses: {}", err);
+                            if let Some(addr) = new_addrs.get(0) {
+                                log::debug!(
+                                    "Fetched new API address {:?}. Fetching again in {} hours",
+                                    addr,
+                                    API_IP_CHECK_INTERVAL.as_secs() / (60 * 60)
+                                );
+                                if let Err(err) = address_cache.set_address(*addr).await {
+                                    log::error!(
+                                        "Failed to save newly updated API address: {}",
+                                        err
+                                    );
+                                }
+                            } else {
+                                log::error!("API returned no API addresses");
                             }
                             next_check = next_regular_check();
                         }
                         Err(err) => {
-                            log::error!("Failed to fetch new API addresses: {}, will retry again in {} seconds", err, API_IP_CHECK_ERROR_INTERVAL.as_secs());
+                            log::error!(
+                                "Failed to fetch new API addresses: {}. Retrying in {} seconds",
+                                err,
+                                API_IP_CHECK_ERROR_INTERVAL.as_secs()
+                            );
                             next_check = next_error_check();
                         }
                     }

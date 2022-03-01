@@ -16,7 +16,7 @@ use tokio_rustls::{
 const LE_ROOT_CERT: &[u8] = include_bytes!("../le_root_cert.pem");
 
 pub struct TlsStream<S: AsyncRead + AsyncWrite + Unpin> {
-    stream: Pin<Box<tokio_rustls::client::TlsStream<S>>>,
+    stream: tokio_rustls::client::TlsStream<S>,
 }
 
 impl<S> TlsStream<S>
@@ -49,11 +49,9 @@ where
             }
         };
 
-        let tls_stream = connector.connect(host, stream).await?;
+        let stream = connector.connect(host, stream).await?;
 
-        Ok(TlsStream {
-            stream: Box::pin(tls_stream),
-        })
+        Ok(TlsStream { stream })
     }
 }
 
@@ -79,7 +77,7 @@ where
         cx: &mut task::Context<'_>,
         buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<()>> {
-        self.stream.as_mut().poll_read(cx, buf)
+        Pin::new(&mut self.stream).poll_read(cx, buf)
     }
 }
 
@@ -92,15 +90,15 @@ where
         cx: &mut task::Context<'_>,
         buf: &[u8],
     ) -> Poll<io::Result<usize>> {
-        self.stream.as_mut().poll_write(cx, buf)
+        Pin::new(&mut self.stream).poll_write(cx, buf)
     }
 
     fn poll_flush(mut self: Pin<&mut Self>, cx: &mut task::Context<'_>) -> Poll<io::Result<()>> {
-        self.stream.as_mut().poll_flush(cx)
+        Pin::new(&mut self.stream).poll_flush(cx)
     }
 
     fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut task::Context<'_>) -> Poll<io::Result<()>> {
-        self.stream.as_mut().poll_shutdown(cx)
+        Pin::new(&mut self.stream).poll_shutdown(cx)
     }
 }
 

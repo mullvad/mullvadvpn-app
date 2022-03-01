@@ -11,7 +11,6 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.util.Intermittent
 
-private const val API_IP_ADDRESS_FILE = "api-ip-address.txt"
 private const val RELAYS_FILE = "relays.json"
 
 class DaemonInstance(val vpnService: MullvadVpnService) {
@@ -88,7 +87,6 @@ class DaemonInstance(val vpnService: MullvadVpnService) {
             lastUpdatedTime() > File(vpnService.filesDir, RELAYS_FILE).lastModified()
 
         FileResourceExtractor(vpnService).apply {
-            extract(API_IP_ADDRESS_FILE, false)
             extract(RELAYS_FILE, shouldOverwriteRelayList)
         }
     }
