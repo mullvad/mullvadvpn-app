@@ -1,4 +1,4 @@
-- Allow splitting TV-only apps
-- Add toggle to show system apps in split tunneling view
-- Large rework to improve app stability
-- Fix app sometimes crashing during startup on Android TVs
+- Include some missing TV apps in split tunneling view.
+- Add toggle to show system apps in split tunneling view.
+- Fix startup crash on some Android TVs.
+- Improve app stability.
