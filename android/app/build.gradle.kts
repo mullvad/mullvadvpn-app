@@ -28,8 +28,8 @@ android {
         applicationId = "net.mullvad.mullvadvpn"
         minSdkVersion(Versions.Android.minSdkVersion)
         targetSdkVersion(Versions.Android.targetSdkVersion)
-        versionCode = 22010003
-        versionName = "2022.1-beta3"
+        versionCode = 22010099
+        versionName = "2022.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
