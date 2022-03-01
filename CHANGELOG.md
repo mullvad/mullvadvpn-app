@@ -49,6 +49,10 @@ Line wrap the file at 100 chars.                                              Th
   state.
 
 
+## [android/2022.1] - 2022-03-01
+Identical to android/2022.1-beta3 except for a few updated translations.
+
+
 ## [2022.1] - 2022-03-01
 This release is for desktop only.
 
