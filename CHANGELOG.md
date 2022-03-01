@@ -83,6 +83,10 @@ Line wrap the file at 100 chars.                                              Th
   whereas on Linux and macOS only root processes are able to reach the API.
 
 
+## [android/2022.1] - 2022-03-01
+Identical to android/2022.1-beta3 except for a few updated translations.
+
+
 ## [android/2022.1-beta3] - 2022-02-08
 ### Fixed
 #### Android
