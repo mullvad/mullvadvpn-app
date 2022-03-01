@@ -49,6 +49,12 @@ Line wrap the file at 100 chars.                                              Th
   state.
 
 
+## [2022.1] - 2022-03-01
+This release is for desktop only.
+
+This release is identical to 2022.1-beta2 except that it has translations for new texts in the UI.
+
+
 ## [2022.1-beta2] - 2022-02-22
 ### Added
 - Show warning message when blocking internet while logged out, and make it possible to unblock the
