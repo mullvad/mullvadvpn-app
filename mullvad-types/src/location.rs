@@ -70,13 +70,13 @@ impl Coordinates {
         let mut z = 0f64;
 
         for location in locations {
-            let lat_cos = location.latitude.to_radians().cos();
-            let lat_sin = location.latitude.to_radians().sin();
-            let lon_cos = location.longitude.to_radians().cos();
-            let lon_sin = location.longitude.to_radians().sin();
-            x += lat_cos * lon_cos;
-            y += lat_cos * lon_sin;
-            z += lat_sin;
+            let cos_lat = location.latitude.to_radians().cos();
+            let sin_lat = location.latitude.to_radians().sin();
+            let cos_lon = location.longitude.to_radians().cos();
+            let sin_lon = location.longitude.to_radians().sin();
+            x += cos_lat * cos_lon;
+            y += cos_lat * sin_lon;
+            z += sin_lat;
         }
         let inv_total_weight = 1f64 / (locations.len() as f64);
         x *= inv_total_weight;
