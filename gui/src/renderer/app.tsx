@@ -516,7 +516,7 @@ export default class AppRenderer {
         name: messages.gettext('System default'),
         code: SYSTEM_PREFERRED_LOCALE_KEY,
       },
-      ...SUPPORTED_LOCALE_LIST,
+      ...SUPPORTED_LOCALE_LIST.sort((a, b) => a.name.localeCompare(b.name)),
     ];
   }
 
