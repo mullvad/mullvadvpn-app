@@ -45,6 +45,10 @@ export default class TrayIconController {
     }
   }
 
+  public setWindowController(windowController: WindowController) {
+    this.windowController = windowController;
+  }
+
   get iconType(): TrayIconType {
     return this.iconTypeValue;
   }
