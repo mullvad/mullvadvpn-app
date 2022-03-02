@@ -46,6 +46,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix scrollbar no longer responsive and usable when covered by other elements.
 - Improve tunnel bypass for the API sometimes not working in the connecting state.
 
+#### Windows
+- Fix "Open Mullvad VPN" tray context menu item not working after toggling unpinned window setting.
+
 ### Security
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected

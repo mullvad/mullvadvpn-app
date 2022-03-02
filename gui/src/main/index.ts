@@ -594,6 +594,7 @@ class ApplicationMain {
 
       this.installWindowCloseHandler(this.windowController);
       this.installTrayClickHandlers();
+      this.trayIconController?.setWindowController(this.windowController);
 
       const filePath = path.resolve(path.join(__dirname, '../renderer/index.html'));
       try {
