@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
   if an error occurs.
 - Change behavior of escape key in the desktop app. It now navigates backwards one step instead of
   to the main view. To navigate back to the main view Shift+Escape can be used.
+- Update Electron from 16.0.4 to 17.1.0.
 
 ### Fixed
 - Fix the sometimes incorrect time added text after adding time to the account.
