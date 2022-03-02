@@ -46,6 +46,11 @@ interface IProps {
   className?: string;
 }
 
+const Container = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
 const Row = styled.div({
   display: 'flex',
   marginTop: '3px',
@@ -67,6 +72,7 @@ const IpAddresses = styled.div({
 });
 
 const Header = styled.div({
+  alignSelf: 'start',
   display: 'flex',
   alignItems: 'center',
 });
@@ -77,7 +83,7 @@ export default class ConnectionPanel extends React.Component<IProps> {
     const entryPoint = this.getEntryPoint();
 
     return (
-      <div className={this.props.className}>
+      <Container className={this.props.className}>
         {this.props.hostname && (
           <Header>
             <ConnectionPanelDisclosure pointsUp={this.props.isOpen} onToggle={this.props.onToggle}>
@@ -114,7 +120,7 @@ export default class ConnectionPanel extends React.Component<IProps> {
             )}
           </React.Fragment>
         )}
-      </div>
+      </Container>
     );
   }
 
