@@ -136,6 +136,19 @@ pub enum Error {
     ApiCheckError(#[error(source)] availability::Error),
 }
 
+/// Closure that receives the next API (real or proxy) endpoint to use for `api.mullvad.net`.
+/// It should return a future that determines whether to reject the new endpoint or not.
+pub trait ApiEndpointUpdateCallback: Fn(SocketAddr) -> Self::AcceptedNewEndpoint {
+    type AcceptedNewEndpoint: Future<Output = bool> + Send;
+}
+
+impl<U, T: Future<Output = bool> + Send> ApiEndpointUpdateCallback for U
+where
+    U: Fn(SocketAddr) -> T,
+{
+    type AcceptedNewEndpoint = T;
+}
+
 impl MullvadRpcRuntime {
     /// Create a new `MullvadRpcRuntime`.
     pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
@@ -207,14 +220,11 @@ impl MullvadRpcRuntime {
     }
 
     /// Creates a new request service and returns a handle to it.
-    async fn new_request_service<
-        T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
-        AcceptedNewEndpoint: Future<Output = bool> + Send + 'static,
-    >(
+    async fn new_request_service<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static>(
         &self,
         sni_hostname: Option<String>,
         proxy_provider: T,
-        new_address_callback: impl (Fn(SocketAddr) -> AcceptedNewEndpoint) + Send + Sync + 'static,
+        new_address_callback: impl ApiEndpointUpdateCallback + Send + Sync + 'static,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> rest::RequestServiceHandle {
         let service_handle = rest::RequestService::new(
@@ -233,11 +243,10 @@ impl MullvadRpcRuntime {
     /// Returns a request factory initialized to create requests for the master API
     pub async fn mullvad_rest_handle<
         T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
-        AcceptedNewEndpoint: Future<Output = bool> + Send + 'static,
     >(
         &self,
         proxy_provider: T,
-        new_address_callback: impl (Fn(SocketAddr) -> AcceptedNewEndpoint) + Send + Sync + 'static,
+        new_address_callback: impl ApiEndpointUpdateCallback + Send + Sync + 'static,
     ) -> rest::MullvadRestHandle {
         let service = self
             .new_request_service(
