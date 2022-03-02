@@ -110,11 +110,7 @@ extension TunnelIPC {
         }
 
         private func handleVPNStatus(_ status: NEVPNStatus) {
-            guard !isCancelled else {
-                return
-            }
-
-            guard !requestSent else {
+            guard !isCancelled && !requestSent else {
                 return
             }
 
