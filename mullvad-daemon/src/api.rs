@@ -1,8 +1,18 @@
 use crate::DaemonEventSender;
-use futures::{channel::oneshot, stream, Stream, StreamExt};
-use mullvad_rpc::proxy::ApiConnectionMode;
-use talpid_core::mpsc::Sender;
-use talpid_types::ErrorExt;
+use futures::{
+    channel::{mpsc, oneshot},
+    stream, Stream, StreamExt,
+};
+use mullvad_rpc::{proxy::ApiConnectionMode, ApiEndpointUpdateCallback};
+use std::{
+    net::SocketAddr,
+    sync::{Arc, Mutex, Weak},
+};
+use talpid_core::{mpsc::Sender, tunnel_state_machine::TunnelCommand};
+use talpid_types::{
+    net::{AllowedEndpoint, Endpoint, TransportProtocol},
+    ErrorExt,
+};
 
 pub(crate) struct ApiConnectionModeRequest {
     pub response_tx: oneshot::Sender<ApiConnectionMode>,
@@ -51,4 +61,73 @@ pub(crate) fn create_api_config_provider(
             },
         )),
     )
+}
+
+/// Notifies the tunnel state machine that the API (real or proxied) endpoint has
+/// changed. [ApiEndpointUpdaterHandle::callback()] creates a callback that may
+/// be passed to the `mullvad-rpc` runtime.
+pub(super) struct ApiEndpointUpdaterHandle {
+    tunnel_cmd_tx: Arc<Mutex<Option<Weak<mpsc::UnboundedSender<TunnelCommand>>>>>,
+}
+
+impl ApiEndpointUpdaterHandle {
+    pub fn new() -> Self {
+        Self {
+            tunnel_cmd_tx: Arc::new(Mutex::new(None)),
+        }
+    }
+
+    pub fn set_tunnel_command_tx(&self, tunnel_cmd_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>) {
+        *self.tunnel_cmd_tx.lock().unwrap() = Some(tunnel_cmd_tx);
+    }
+
+    pub fn callback(&self) -> impl ApiEndpointUpdateCallback {
+        let tunnel_tx = self.tunnel_cmd_tx.clone();
+        move |address: SocketAddr| {
+            let inner_tx = tunnel_tx.clone();
+            async move {
+                let tunnel_tx = if let Some(Some(tunnel_tx)) = { inner_tx.lock().unwrap().as_ref() }
+                    .map(|tx: &Weak<mpsc::UnboundedSender<TunnelCommand>>| tx.upgrade())
+                {
+                    tunnel_tx
+                } else {
+                    log::error!("Rejecting allowed endpoint: Tunnel state machine is not running");
+                    return false;
+                };
+                let (result_tx, result_rx) = oneshot::channel();
+                let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
+                    get_allowed_endpoint(address.clone()),
+                    result_tx,
+                ));
+                if result_rx.await.is_ok() {
+                    log::debug!("API endpoint: {}", address);
+                    true
+                } else {
+                    log::error!("Failed to update allowed endpoint");
+                    false
+                }
+            }
+        }
+    }
+}
+
+pub(super) fn get_allowed_endpoint(api_address: SocketAddr) -> AllowedEndpoint {
+    let endpoint = Endpoint::from_socket_address(api_address, TransportProtocol::Tcp);
+
+    #[cfg(windows)]
+    let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
+    #[cfg(windows)]
+    let clients = vec![
+        daemon_exe
+            .parent()
+            .expect("missing executable parent directory")
+            .join("mullvad-problem-report.exe"),
+        daemon_exe,
+    ];
+
+    AllowedEndpoint {
+        #[cfg(windows)]
+        clients,
+        endpoint,
+    }
 }
