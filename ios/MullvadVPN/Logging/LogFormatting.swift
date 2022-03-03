@@ -11,7 +11,7 @@ import Foundation
 extension Date {
     func logFormatDate() -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "dd/MM/yyyy @ HH:mm"
+        formatter.dateFormat = "dd/MM/yyyy @ HH:mm:ss"
 
         return formatter.string(from: self)
     }
