@@ -51,18 +51,12 @@ import {
 } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
 
-import * as managementInterface from './management_interface/management_interface_grpc_pb';
+import { ManagementServiceClient } from './management_interface/management_interface_grpc_pb';
 import * as grpcTypes from './management_interface/management_interface_pb';
 import { CommunicationError, InvalidAccountError } from './errors';
 
 const NETWORK_CALL_TIMEOUT = 10000;
 const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;
-
-const ManagementServiceClient = grpc.makeClientConstructor(
-  // @ts-ignore
-  managementInterface['mullvad_daemon.management_interface.ManagementService'],
-  'ManagementService',
-);
 
 const noConnectionError = new Error('No connection established to daemon');
 const configNotSupported = new Error('Setting custom settings is not supported');
@@ -120,7 +114,7 @@ type CallFunctionArgument<T, R> =
   | undefined;
 
 export class DaemonRpc {
-  private client: managementInterface.ManagementServiceClient;
+  private client: ManagementServiceClient;
   private isConnected = false;
   private connectionObservers: ConnectionObserver[] = [];
   private nextSubscriptionId = 0;
@@ -128,11 +122,11 @@ export class DaemonRpc {
   private reconnectionTimeout?: NodeJS.Timer;
 
   constructor(connectionParams: string) {
-    this.client = (new ManagementServiceClient(
+    this.client = new ManagementServiceClient(
       connectionParams,
       grpc.credentials.createInsecure(),
       this.channelOptions(),
-    ) as unknown) as managementInterface.ManagementServiceClient;
+    );
   }
 
   public connect(): Promise<void> {
@@ -588,9 +582,6 @@ export class DaemonRpc {
       'grpc.initial_reconnect_backoff_ms': 3000,
       'grpc.keepalive_time_ms': Math.pow(2, 30),
       'grpc.keepalive_timeout_ms': Math.pow(2, 30),
-      // Prevents grpc-js from parsing the `http_proxy` environment variable and trying to use it
-      // even for IPC sockets.
-      'grpc.enable_http_proxy': 0,
     };
     /* eslint-enable @typescript-eslint/naming-convention */
   }

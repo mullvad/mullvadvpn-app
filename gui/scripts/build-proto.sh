@@ -35,13 +35,13 @@ if [[ "${PLATFORM}" == "Darwin-arm64" ]]; then
 else
   "$NODE_MODULES_DIR/grpc_tools_node_protoc" \
       --js_out=import_style=commonjs,binary:$DESTINATION_DIR \
-      --grpc_out=generate_package_definition:$DESTINATION_DIR \
+      --grpc_out=grpc_js:$DESTINATION_DIR \
       --proto_path=$PROTO_DIR \
       $PROTO_DIR/$PROTO_FILENAME
 
   "$NODE_MODULES_DIR/grpc_tools_node_protoc" \
       --plugin=protoc-gen-ts=$TS_PROTOC_PLUGIN \
-      --ts_out=generate_package_definition:$TYPES_DESTINATION_DIR \
+      --ts_out=grpc_js:$TYPES_DESTINATION_DIR \
       --proto_path=$PROTO_DIR \
       $PROTO_DIR/$PROTO_FILENAME
 fi
