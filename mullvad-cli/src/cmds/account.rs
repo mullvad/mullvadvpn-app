@@ -202,7 +202,6 @@ impl Account {
     async fn revoke_device(&self, matches: &clap::ArgMatches) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
 
-
         let token = self.parse_account_else_current(&mut rpc, matches).await?;
         let device_to_revoke = parse_device_name(matches);
 

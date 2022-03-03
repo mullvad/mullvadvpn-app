@@ -11,7 +11,7 @@ use mullvad_rpc::{
 };
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
-    device::{Device, DeviceData, DeviceId},
+    device::{Device, DeviceData, DeviceEvent, DeviceId},
     wireguard::{RotationInterval, WireguardData},
 };
 use std::{
@@ -31,7 +31,7 @@ use tokio::{
 
 /// How often to check whether the key has expired.
 /// A short interval is used in case the computer is ever suspended.
-const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
+const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(5 * 60);
 
 /// File that used to store account and device data.
 const DEVICE_CACHE_FILENAME: &str = "device.json";
@@ -43,10 +43,9 @@ const RETRY_BACKOFF_INTERVAL_INITIAL: Duration = Duration::from_secs(4);
 const RETRY_BACKOFF_INTERVAL_FACTOR: u32 = 5;
 const RETRY_BACKOFF_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
 
-/// How long to keep the known status for [AccountManager::validate_device_cached].
-const DEVICE_VALIDITY_CACHE_DURATION: Duration = Duration::from_secs(30);
+const VALIDITY_CACHE_TIMEOUT: Duration = Duration::from_secs(10);
 
-pub struct DeviceKeyEvent(pub DeviceData);
+const LOGOUT_TIMEOUT: Duration = Duration::from_secs(2);
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -66,6 +65,54 @@ pub enum Error {
     OtherRestError(#[error(source)] rest::Error),
     #[error(display = "The device update task is not running")]
     DeviceUpdaterCancelled(#[error(source)] oneshot::Canceled),
+    #[error(display = "The account manager is down")]
+    AccountManagerDown,
+}
+
+#[derive(Clone)]
+pub(crate) enum InnerDeviceEvent {
+    /// The device was removed due to user (or daemon) action.
+    Logout,
+    /// Logged in to a new device.
+    Login(DeviceData),
+    /// The device was updated remotely, but not its key.
+    Updated(DeviceData),
+    /// The key was rotated.
+    RotatedKey(DeviceData),
+    /// Device was removed because it was not found remotely.
+    Revoked,
+}
+
+impl From<InnerDeviceEvent> for DeviceEvent {
+    fn from(event: InnerDeviceEvent) -> DeviceEvent {
+        match event {
+            InnerDeviceEvent::Logout => DeviceEvent::revoke(false),
+            InnerDeviceEvent::Login(data) => DeviceEvent::from_device(data, false),
+            InnerDeviceEvent::Updated(data) => DeviceEvent::from_device(data, true),
+            InnerDeviceEvent::RotatedKey(data) => DeviceEvent::from_device(data, false),
+            InnerDeviceEvent::Revoked => DeviceEvent::revoke(true),
+        }
+    }
+}
+
+impl InnerDeviceEvent {
+    fn data(&self) -> Option<&DeviceData> {
+        match self {
+            InnerDeviceEvent::Login(data) => Some(&data),
+            InnerDeviceEvent::Updated(data) => Some(&data),
+            InnerDeviceEvent::RotatedKey(data) => Some(&data),
+            InnerDeviceEvent::Logout | InnerDeviceEvent::Revoked => None,
+        }
+    }
+
+    fn into_data(self) -> Option<DeviceData> {
+        match self {
+            InnerDeviceEvent::Login(data) => Some(data),
+            InnerDeviceEvent::Updated(data) => Some(data),
+            InnerDeviceEvent::RotatedKey(data) => Some(data),
+            InnerDeviceEvent::Logout | InnerDeviceEvent::Revoked => None,
+        }
+    }
 }
 
 impl Error {
@@ -89,243 +136,290 @@ pub enum ValidationResult {
     Removed,
 }
 
-pub(crate) struct AccountManager {
-    account_service: AccountService,
-    device_service: DeviceService,
-    inner: Arc<Mutex<AccountManagerInner>>,
-    cache_update_tx:
-        mpsc::UnboundedSender<(Option<DeviceData>, oneshot::Sender<Result<(), Error>>)>,
-    cache_task_join_handle: Option<tokio::task::JoinHandle<()>>,
-    key_update_tx: DaemonEventSender<DeviceKeyEvent>,
-    rotation_abort_handle: Option<AbortHandle>,
+type ResponseTx<T> = oneshot::Sender<Result<T, Error>>;
+
+enum AccountManagerCommand {
+    Login(AccountToken, ResponseTx<()>),
+    Logout(ResponseTx<()>),
+    SetData(DeviceData, ResponseTx<()>),
+    GetData(ResponseTx<Option<DeviceData>>),
+    RotateKey(ResponseTx<()>),
+    SetRotationInterval(RotationInterval, ResponseTx<()>),
+    GetRotationInterval(ResponseTx<RotationInterval>),
+    ValidateDevice(ResponseTx<ValidationResult>),
+    ReceiveEvents(Box<dyn Sender<InnerDeviceEvent> + Send>, ResponseTx<()>),
+    Shutdown(oneshot::Sender<()>),
 }
 
-struct AccountManagerInner {
+#[derive(Clone)]
+pub(crate) struct AccountManagerHandle {
+    cmd_tx: mpsc::UnboundedSender<AccountManagerCommand>,
+    pub account_service: AccountService,
+    pub device_service: DeviceService,
+}
+
+impl AccountManagerHandle {
+    pub async fn login(&self, token: AccountToken) -> Result<(), Error> {
+        self.send_command(|tx| AccountManagerCommand::Login(token, tx))
+            .await
+    }
+
+    pub async fn logout(&self) -> Result<(), Error> {
+        self.send_command(|tx| AccountManagerCommand::Logout(tx))
+            .await
+    }
+
+    pub async fn set(&self, data: DeviceData) -> Result<(), Error> {
+        self.send_command(|tx| AccountManagerCommand::SetData(data, tx))
+            .await
+    }
+
+    pub async fn data(&self) -> Result<Option<DeviceData>, Error> {
+        self.send_command(|tx| AccountManagerCommand::GetData(tx))
+            .await
+    }
+
+    pub async fn rotate_key(&self) -> Result<(), Error> {
+        self.send_command(|tx| AccountManagerCommand::RotateKey(tx))
+            .await
+    }
+
+    pub async fn set_rotation_interval(&self, interval: RotationInterval) -> Result<(), Error> {
+        self.send_command(|tx| AccountManagerCommand::SetRotationInterval(interval, tx))
+            .await
+    }
+
+    pub async fn rotation_interval(&self) -> Result<RotationInterval, Error> {
+        self.send_command(|tx| AccountManagerCommand::GetRotationInterval(tx))
+            .await
+    }
+
+    pub async fn validate_device(&self) -> Result<ValidationResult, Error> {
+        self.send_command(|tx| AccountManagerCommand::ValidateDevice(tx))
+            .await
+    }
+
+    pub async fn receive_events(
+        &self,
+        events_tx: impl Sender<InnerDeviceEvent> + Send + 'static,
+    ) -> Result<(), Error> {
+        self.send_command(|tx| {
+            AccountManagerCommand::ReceiveEvents(Box::new(events_tx) as Box<_>, tx)
+        })
+        .await
+    }
+
+    pub async fn shutdown(self) {
+        let (tx, rx) = oneshot::channel();
+        let _ = self
+            .cmd_tx
+            .unbounded_send(AccountManagerCommand::Shutdown(tx));
+        let _ = rx.await;
+    }
+
+    async fn send_command<T>(
+        &self,
+        make_cmd: impl FnOnce(oneshot::Sender<Result<T, Error>>) -> AccountManagerCommand,
+    ) -> Result<T, Error> {
+        let (tx, rx) = oneshot::channel();
+        self.cmd_tx
+            .unbounded_send(make_cmd(tx))
+            .map_err(|_| Error::AccountManagerDown)?;
+        rx.await.map_err(|_| Error::AccountManagerDown)?
+    }
+}
+
+pub(crate) struct AccountManager {
+    cacher: DeviceCacher,
+    device_service: DeviceService,
     data: Option<DeviceData>,
     rotation_interval: RotationInterval,
+    listeners: Vec<Box<dyn Sender<InnerDeviceEvent> + Send>>,
     last_validation: Option<SystemTime>,
 }
 
 impl AccountManager {
-    pub async fn new(
+    pub async fn spawn(
         rest_handle: rest::MullvadRestHandle,
         api_availability: ApiAvailabilityHandle,
         settings_dir: &Path,
-        key_update_tx: DaemonEventSender<DeviceKeyEvent>,
-    ) -> Result<AccountManager, Error> {
-        let (mut cacher, device_data) = DeviceCacher::new(settings_dir).await?;
-        let token = device_data.as_ref().map(|state| state.token.clone());
+        initial_rotation_interval: RotationInterval,
+    ) -> Result<AccountManagerHandle, Error> {
+        let (cacher, data) = DeviceCacher::new(settings_dir).await?;
+        let token = data.as_ref().map(|state| state.token.clone());
         let account_service =
             spawn_account_service(rest_handle.clone(), token, api_availability.clone());
-        let should_start_rotation = device_data.is_some();
-        let inner = Arc::new(Mutex::new(AccountManagerInner {
-            data: device_data,
-            rotation_interval: RotationInterval::default(),
+
+        let (cmd_tx, cmd_rx) = mpsc::unbounded();
+
+        let device_service = DeviceService::new(rest_handle, api_availability);
+        let manager = AccountManager {
+            cacher,
+            device_service: device_service.clone(),
+            data,
+            rotation_interval: initial_rotation_interval,
+            listeners: vec![],
             last_validation: None,
-        }));
+        };
 
-        let (cache_update_tx, mut cache_update_rx): (
-            _,
-            mpsc::UnboundedReceiver<(_, oneshot::Sender<Result<(), Error>>)>,
-        ) = mpsc::unbounded();
-        let cache_task_join_handle = tokio::spawn(async move {
-            while let Some((new_device, result_tx)) = cache_update_rx.next().await {
-                let result = cacher.write(new_device).await;
-                if let Err(error) = &result {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to update device cache")
-                    );
-                }
-                let _ = result_tx.send(result);
-            }
-        });
-
-        let mut manager = AccountManager {
+        tokio::spawn(manager.run(cmd_rx));
+        let handle = AccountManagerHandle {
+            cmd_tx,
             account_service,
-            device_service: DeviceService::new(rest_handle, api_availability),
-            inner,
-            cache_update_tx,
-            cache_task_join_handle: Some(cache_task_join_handle),
-            key_update_tx,
-            rotation_abort_handle: None,
+            device_service,
         };
-
-        if should_start_rotation {
-            manager.start_key_rotation();
-        }
-
-        Ok(manager)
+        KeyUpdater::spawn(handle.clone()).await?;
+        Ok(handle)
     }
 
-    pub fn account_service(&self) -> AccountService {
-        self.account_service.clone()
-    }
-
-    pub fn device_service(&self) -> DeviceService {
-        self.device_service.clone()
-    }
-
-    pub async fn login(&mut self, token: AccountToken) -> Result<DeviceData, Error> {
-        let data = self.device_service.generate_for_account(token).await?;
-        self.logout();
-        let (result_tx, result_rx) = oneshot::channel();
-        let _ = self
-            .cache_update_tx
-            .unbounded_send((Some(data.clone()), result_tx));
-        {
-            let mut inner = self.inner.lock().unwrap();
-            inner.data.replace(data.clone());
-        }
-        if let Err(error) = flatten_result(result_rx.await.map_err(Error::DeviceUpdaterCancelled)) {
-            // Delete the device if an I/O error occurred
-            self.logout();
-            return Err(error);
-        }
-        self.start_key_rotation();
-
-        Ok(data)
-    }
-
-    pub async fn set(&mut self, data: DeviceData) -> Result<(), Error> {
-        self.stop_key_rotation();
-
-        let (result_tx, result_rx) = oneshot::channel();
-        let _ = self
-            .cache_update_tx
-            .unbounded_send((Some(data.clone()), result_tx));
-
-        let old_data = {
-            let mut inner = self.inner.lock().unwrap();
-            inner.data.replace(data.clone())
-        };
-
-        if let Err(error) = flatten_result(result_rx.await.map_err(Error::DeviceUpdaterCancelled)) {
-            // Delete the device if an I/O error occurred
-            self.logout();
-            return Err(error);
-        }
-
-        if let Some(old_data) = old_data {
-            // Log out the previous device if the id differs
-            if !old_data.device.eq_id(&data.device) {
-                let service = self.device_service.clone();
-                tokio::spawn(async move {
-                    if let Err(error) = service
-                        .remove_device_with_backoff(old_data.token, old_data.device.id)
-                        .await
-                    {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg("Failed to remove a previous device")
-                        );
-                    }
-                });
+    async fn run(mut self, mut cmd_rx: mpsc::UnboundedReceiver<AccountManagerCommand>) {
+        let mut shutdown_tx = None;
+        while let Some(cmd) = cmd_rx.next().await {
+            match cmd {
+                AccountManagerCommand::Shutdown(tx) => {
+                    shutdown_tx = Some(tx);
+                    break;
+                }
+                other => self.service_command(other).await,
             }
         }
-        self.start_key_rotation();
+        self.shutdown().await;
+        if let Some(tx) = shutdown_tx {
+            let _ = tx.send(());
+        }
+        log::debug!("Account manager has stopped");
+    }
+
+    async fn service_command(&mut self, cmd: AccountManagerCommand) {
+        match cmd {
+            AccountManagerCommand::Login(token, tx) => {
+                let _ = tx.send(self.login(token).await);
+            }
+            AccountManagerCommand::Logout(tx) => {
+                let _ = tx.send(self.logout().await);
+            }
+            AccountManagerCommand::SetData(data, tx) => {
+                let _ = tx.send(self.set(data).await);
+            }
+            AccountManagerCommand::GetData(tx) => {
+                let _ = tx.send(Ok(self.data.clone()));
+            }
+            AccountManagerCommand::RotateKey(tx) => {
+                let _ = tx.send(self.rotate_key().await);
+            }
+            AccountManagerCommand::SetRotationInterval(interval, tx) => {
+                self.rotation_interval = interval;
+                let _ = tx.send(Ok(()));
+            }
+            AccountManagerCommand::GetRotationInterval(tx) => {
+                let _ = tx.send(Ok(self.rotation_interval));
+            }
+            AccountManagerCommand::ValidateDevice(tx) => {
+                let _ = tx.send(self.validate_device().await);
+            }
+            AccountManagerCommand::ReceiveEvents(events_tx, tx) => {
+                let _ = tx.send(Ok(self.listeners.push(events_tx)));
+            }
+            AccountManagerCommand::Shutdown(_) => unreachable!("shutdown is handled earlier"),
+        }
+    }
+
+    async fn login(&mut self, token: AccountToken) -> Result<(), Error> {
+        let data = self.device_service.generate_for_account(token).await?;
+        self.set(data).await?;
         Ok(())
     }
 
-    /// Log out without waiting for the result.
-    pub fn logout(&mut self) {
-        let fut = self.logout_inner(true);
-        tokio::spawn(async move {
-            let result = fut.await;
-            if let Err(error) = result {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to remove a previous device")
-                );
-            }
-        });
+    async fn logout(&mut self) -> Result<(), Error> {
+        if self.data.is_some() {
+            self.cacher.write(None).await?;
+            let _ = tokio::time::timeout(LOGOUT_TIMEOUT, self.logout_inner()).await;
+
+            let event = InnerDeviceEvent::Logout;
+            self.listeners
+                .retain(|listener| listener.send(event.clone()).is_ok());
+        }
+        Ok(())
     }
 
-    /// Log out, and wait until the API has removed the device.
-    #[cfg(not(target_os = "android"))]
-    pub fn logout_wait(&mut self) -> impl Future<Output = Result<(), Error>> {
-        self.logout_inner(false)
-    }
-
-    fn logout_inner(&mut self, use_backoff: bool) -> impl Future<Output = Result<(), Error>> {
-        self.stop_key_rotation();
-        let data = {
-            let mut inner = self.inner.lock().unwrap();
-            let (result_tx, _result_rx) = oneshot::channel();
-            let _ = self.cache_update_tx.unbounded_send((None, result_tx));
-            // NOTE: No need to wait on cache update
-            inner.data.take()
-        };
+    async fn logout_inner(&mut self) -> tokio::task::JoinHandle<()> {
+        let prev_data = self.data.take();
         let service = self.device_service.clone();
-        async move {
-            if let Some(data) = data {
-                if use_backoff {
-                    return service
-                        .remove_device_with_backoff(data.token, data.device.id)
-                        .await;
-                } else {
-                    return service.remove_device(data.token, data.device.id).await;
+
+        tokio::spawn(async move {
+            if let Some(data) = prev_data {
+                if let Err(error) = service
+                    .remove_device_with_backoff(data.token, data.device.id)
+                    .await
+                {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to remove a previous device")
+                    );
                 }
             }
-            Ok(())
-        }
+        })
     }
 
-    pub async fn rotate_key(&mut self) -> Result<WireguardData, Error> {
-        let mut data = {
-            let inner = self.inner.lock().unwrap();
-            inner.data.as_ref().ok_or(Error::NoDevice)?.clone()
-        };
-        self.stop_key_rotation();
-        let result = self
+    #[inline]
+    async fn set(&mut self, new_data: DeviceData) -> Result<(), Error> {
+        self.set_inner(InnerDeviceEvent::Login(new_data)).await
+    }
+
+    async fn set_inner(&mut self, event: InnerDeviceEvent) -> Result<(), Error> {
+        let data = event.data();
+        if data == self.data.as_ref() {
+            return Ok(());
+        }
+
+        self.cacher.write(data).await?;
+
+        if self
+            .data
+            .as_ref()
+            .map(|current| data.as_ref().map(|d| &d.device.id) != Some(&current.device.id))
+            .unwrap_or(false)
+        {
+            // Remove the existing device if its ID differs. Otherwise, only update
+            // the data.
+            self.logout_inner().await;
+        }
+
+        self.data = data.cloned();
+
+        self.listeners
+            .retain(|listener| listener.send(event.clone()).is_ok());
+
+        Ok(())
+    }
+
+    async fn rotate_key(&mut self) -> Result<(), Error> {
+        // TODO: Update all data opportunistically?
+        let data = self.data.as_ref().ok_or(Error::NoDevice)?;
+
+        let wg_data = self
             .device_service
             .rotate_key(data.token.clone(), data.device.id.clone())
-            .await;
-        if let Ok(ref wg_data) = result {
-            data.wg_data = wg_data.clone();
-            data.device.pubkey = wg_data.private_key.public_key();
-            let mut inner = self.inner.lock().unwrap();
-            inner.data.replace(data.clone());
-            let (result_tx, _result_rx) = oneshot::channel();
-            let _ = self
-                .cache_update_tx
-                .unbounded_send((Some(data.clone()), result_tx));
-            // NOTE: No need to wait on cache update
-            let _ = self.key_update_tx.send(DeviceKeyEvent(data));
-        }
-        self.start_key_rotation();
-        result
-    }
+            .await?;
 
-    pub fn data(&self) -> Option<DeviceData> {
-        self.inner.lock().unwrap().data.clone()
-    }
-
-    pub fn has_data(&self) -> bool {
-        self.inner.lock().unwrap().data.is_some()
-    }
-
-    pub async fn set_rotation_interval(&mut self, interval: RotationInterval) {
-        self.stop_key_rotation();
-        let restart_rotation = {
-            let mut inner = self.inner.lock().unwrap();
-            inner.rotation_interval = interval;
-            inner.data.is_some()
-        };
-        if restart_rotation {
-            self.start_key_rotation();
-        }
+        // Copy the data to keep a predictable state if an error occurs.
+        let mut new_data = data.clone();
+        new_data.device.pubkey = wg_data.private_key.public_key();
+        new_data.wg_data = wg_data;
+        self.set_inner(InnerDeviceEvent::RotatedKey(new_data)).await
     }
 
     /// Check if the device is valid for the account, and yank it if it no longer exists.
     /// This also updates any associated data and returns whether it changed.
-    pub async fn validate_device(&mut self) -> Result<ValidationResult, Error> {
-        let mut data = {
-            let inner = self.inner.lock().unwrap();
-            inner.data.as_ref().ok_or(Error::NoDevice)?.clone()
-        };
-
+    async fn validate_device(&mut self) -> Result<ValidationResult, Error> {
         log::debug!("Checking whether the device is still valid");
+
+        if let Some(result) = self.cached_validation() {
+            log::debug!("The current device is still valid");
+            return Ok(result);
+        }
+
+        let data = self.data.as_ref().ok_or(Error::NoDevice)?;
 
         match self
             .device_service
@@ -339,13 +433,12 @@ impl AccountManager {
                         Ok(ValidationResult::Valid)
                     } else {
                         log::debug!("Updating data for the current device");
-                        data.device = device;
-                        {
-                            let mut inner = self.inner.lock().unwrap();
-                            inner.data.replace(data.clone());
-                            let (result_tx, _result_rx) = oneshot::channel();
-                            let _ = self.cache_update_tx.unbounded_send((Some(data), result_tx));
-                        }
+                        // Copy the data to keep a predictable state if an error occurs.
+                        let new_data = DeviceData {
+                            device,
+                            ..data.clone()
+                        };
+                        self.set_inner(InnerDeviceEvent::Updated(new_data)).await?;
                         Ok(ValidationResult::Updated)
                     }
                 } else {
@@ -356,123 +449,153 @@ impl AccountManager {
             }
             Err(Error::InvalidAccount) | Err(Error::InvalidDevice) => {
                 log::debug!("The current device is no longer valid for this account");
-                self.stop_key_rotation();
-                {
-                    self.inner.lock().unwrap().data.take();
-                    let (result_tx, _result_rx) = oneshot::channel();
-                    let _ = self.cache_update_tx.unbounded_send((None, result_tx));
-                    // NOTE: No need to wait on cache update
-                }
+
+                self.cacher.write(None).await?;
+                self.data = None;
+
+                let event = InnerDeviceEvent::Revoked;
+                self.listeners
+                    .retain(|listener| listener.send(event.clone()).is_ok());
+
                 Ok(ValidationResult::Removed)
             }
             Err(error) => Err(error),
         }
     }
 
-    /// Same as [Self::validate_device] but returns [ValidationResult::Valid] (or [Error::NoDevice])
-    /// if the last check was recent.
-    pub async fn validate_device_cached(&mut self) -> Result<ValidationResult, Error> {
-        let last_validation = {
-            let inner = self.inner.lock().unwrap();
-            if inner.data.is_none() {
-                return Err(Error::NoDevice);
-            }
-            inner.last_validation.clone()
-        };
-
-        if last_validation
-            .and_then(|last_check| SystemTime::now().duration_since(last_check).ok())
-            .map(|elapsed| elapsed < DEVICE_VALIDITY_CACHE_DURATION)
-            .unwrap_or(false)
-        {
-            return Ok(ValidationResult::Valid);
+    fn cached_validation(&mut self) -> Option<ValidationResult> {
+        if self.data.is_none() {
+            return None;
         }
 
-        let result = self.validate_device().await;
-        let mut inner = self.inner.lock().unwrap();
-        inner.last_validation = Some(SystemTime::now());
-        result
-    }
+        let now = SystemTime::now();
 
-    fn start_key_rotation(&mut self) {
-        self.stop_key_rotation();
+        let elapsed = self
+            .last_validation
+            .and_then(|last_check| now.duration_since(last_check).ok())
+            .unwrap_or(VALIDITY_CACHE_TIMEOUT);
 
-        let service = self.device_service.clone();
-        let inner = self.inner.clone();
-        let cache_update_tx = self.cache_update_tx.clone();
-        let key_update_tx = self.key_update_tx.clone();
-
-        let (task, abort_handle) = abortable(async move {
-            loop {
-                tokio::time::sleep(KEY_CHECK_INTERVAL).await;
-
-                let rotation_interval = { inner.lock().unwrap().rotation_interval.clone() };
-
-                let mut state = {
-                    match inner.lock().unwrap().data.as_ref() {
-                        Some(device_config) => device_config.clone(),
-                        None => continue,
-                    }
-                };
-
-                if (chrono::Utc::now()
-                    .signed_duration_since(state.wg_data.created)
-                    .num_seconds() as u64)
-                    < rotation_interval.as_duration().as_secs()
-                {
-                    continue;
-                }
-
-                match service
-                    .rotate_key_with_backoff(state.token.clone(), state.device.id.clone())
-                    .await
-                {
-                    Ok(wg_data) => {
-                        state.device.pubkey = wg_data.private_key.public_key();
-                        state.wg_data = wg_data;
-                        {
-                            let mut inner = inner.lock().unwrap();
-                            inner.data.replace(state.clone());
-                            let (result_tx, _result_rx) = oneshot::channel();
-                            let _ =
-                                cache_update_tx.unbounded_send((Some(state.clone()), result_tx));
-                            // NOTE: No need to wait on cache update
-                        }
-                        let _ = key_update_tx.send(DeviceKeyEvent(state));
-                    }
-                    Err(error) => {
-                        log::debug!("{}", error.display_chain_with_msg("Stopping key rotation"));
-                    }
-                }
-            }
-        });
-        tokio::spawn(task);
-        self.rotation_abort_handle = Some(abort_handle);
-    }
-
-    fn stop_key_rotation(&mut self) {
-        if let Some(abort_handle) = self.rotation_abort_handle.take() {
-            abort_handle.abort();
+        if elapsed >= VALIDITY_CACHE_TIMEOUT {
+            self.last_validation = Some(now);
+            return None;
         }
+
+        Some(ValidationResult::Valid)
     }
 
-    /// Consumes the object and completes when there is nothing left to write to
-    /// the cache file.
-    pub fn finalize(mut self) -> impl Future<Output = ()> {
-        let join_handle = self.cache_task_join_handle.take();
-        drop(self);
-
-        async move {
-            if let Some(join_handle) = join_handle {
-                let _ = join_handle.await;
-            }
-        }
+    async fn shutdown(self) {
+        self.cacher.finalize().await;
     }
 }
 
-impl Drop for AccountManager {
-    fn drop(&mut self) {
-        self.stop_key_rotation();
+struct KeyUpdater {
+    handle: AccountManagerHandle,
+    rx: mpsc::UnboundedReceiver<InnerDeviceEvent>,
+    data: Option<DeviceData>,
+}
+
+impl KeyUpdater {
+    async fn spawn(handle: AccountManagerHandle) -> Result<(), Error> {
+        let (tx, rx) = mpsc::unbounded();
+        handle.receive_events(tx).await?;
+        let data = handle.data().await?;
+        let mut key_rotator = KeyUpdater { handle, rx, data };
+
+        tokio::spawn(async move {
+            loop {
+                tokio::time::sleep(KEY_CHECK_INTERVAL).await;
+
+                if let Err(error) = key_rotator.check_key_validity().await {
+                    if let Error::AccountManagerDown = error {
+                        break;
+                    }
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Stopping key rotation task due to an error")
+                    );
+                    break;
+                }
+            }
+            log::debug!("Stopping key updater");
+        });
+
+        Ok(())
+    }
+
+    async fn check_key_validity(&mut self) -> Result<(), Error> {
+        let rotation_interval = self.handle.rotation_interval().await?;
+        let data = self.wait_for_data().await?;
+
+        if (chrono::Utc::now()
+            .signed_duration_since(data.wg_data.created)
+            .num_seconds() as u64)
+            < rotation_interval.as_duration().as_secs()
+        {
+            return Ok(());
+        }
+
+        let mut data = data.clone();
+
+        let rotation_fut = self
+            .handle
+            .device_service
+            .rotate_key_with_backoff(data.token.clone(), data.device.id.clone());
+
+        match futures::future::select(Box::pin(rotation_fut), self.rx.next()).await {
+            futures::future::Either::Left((Ok(wg_data), _)) => {
+                log::debug!("Rotating WireGuard key");
+                data.device.pubkey = wg_data.private_key.public_key();
+                data.wg_data = wg_data;
+                self.handle.set(data).await?;
+            }
+            futures::future::Either::Left((Err(error), _)) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Stopping key rotation due to an error")
+                );
+
+                // Forget the current device. Key rotation will restart when
+                // it is updated in any way.
+                self.data = None;
+            }
+            futures::future::Either::Right((event, _)) => {
+                // Abort key rotation if the device changed
+                if let Some(event) = event {
+                    self.data = event.into_data();
+                } else {
+                    return Err(Error::AccountManagerDown);
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn wait_for_data(&mut self) -> Result<&DeviceData, Error> {
+        while let Ok(item) = self.rx.try_next() {
+            match item {
+                Some(event) => {
+                    self.data = event.into_data();
+                }
+                None => return Err(Error::AccountManagerDown),
+            }
+        }
+
+        match self.data {
+            Some(ref data) => Ok(data),
+            None => loop {
+                let event = self.rx.next().await;
+                match event {
+                    Some(event) => {
+                        if let Some(data) = event.into_data() {
+                            self.data = Some(data);
+                            break Ok(self.data.as_ref().unwrap());
+                        }
+                    }
+                    None => break Err(Error::AccountManagerDown),
+                }
+            },
+        }
     }
 }
 
@@ -741,7 +864,7 @@ impl DeviceCacher {
         ))
     }
 
-    pub async fn write(&mut self, device: Option<DeviceData>) -> Result<(), Error> {
+    pub async fn write(&mut self, device: Option<&DeviceData>) -> Result<(), Error> {
         let data = serde_json::to_vec_pretty(&device).unwrap();
 
         self.file.get_mut().set_len(0).await?;
@@ -762,6 +885,11 @@ impl DeviceCacher {
         };
         tokio::fs::remove_file(path).await?;
         Ok(())
+    }
+
+    async fn finalize(self) {
+        let std_file = self.file.into_inner().into_std().await;
+        let _ = tokio::task::spawn_blocking(move || drop(std_file)).await;
     }
 }
 
@@ -943,13 +1071,4 @@ fn retry_strategy() -> Jittered<ExponentialBackoff> {
         )
         .max_delay(RETRY_BACKOFF_INTERVAL_MAX),
     )
-}
-
-fn flatten_result<T, E>(
-    result: std::result::Result<std::result::Result<T, E>, E>,
-) -> std::result::Result<T, E> {
-    match result {
-        Ok(value) => value,
-        Err(err) => Err(err),
-    }
 }
