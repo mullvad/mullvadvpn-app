@@ -1,4 +1,3 @@
-use crate::DaemonEventSender;
 use chrono::{DateTime, Utc};
 use futures::{
     channel::{mpsc, oneshot},
@@ -18,7 +17,6 @@ use mullvad_types::{
 use std::{
     future::Future,
     path::Path,
-    sync::{Arc, Mutex},
     time::{Duration, SystemTime},
 };
 use talpid_core::{
