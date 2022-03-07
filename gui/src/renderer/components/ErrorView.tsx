@@ -31,15 +31,14 @@ const Subtitle = styled.span({
 });
 
 interface ErrorViewProps {
+  settingsUnavailable?: boolean;
   children: React.ReactNode | React.ReactNode[];
 }
 
 export default function ErrorView(props: ErrorViewProps) {
   return (
     <Layout>
-      <Header>
-        <HeaderBarSettingsButton />
-      </Header>
+      <Header>{!props.settingsUnavailable && <HeaderBarSettingsButton />}</Header>
       <StyledContainer>
         <Logo height={106} width={106} source="logo-icon" />
         <Title height={18} source="logo-text" />
