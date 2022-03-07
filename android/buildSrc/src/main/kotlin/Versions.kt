@@ -27,6 +27,8 @@ object Versions {
         const val fragment = "1.3.2"
         const val recyclerview = "1.2.1"
         const val junit = "1.1.3"
+        const val test = "1.4.0"
+        const val uiautomator = "2.2.0"
     }
 
     object Plugin {

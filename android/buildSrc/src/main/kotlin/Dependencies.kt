@@ -27,6 +27,14 @@ object Dependencies {
             "androidx.test.espresso:espresso-core:${Versions.AndroidX.espresso}"
         const val espressoContrib =
             "androidx.test.espresso:espresso-contrib:${Versions.AndroidX.espresso}"
+        const val testCore =
+            "androidx.test:core:${Versions.AndroidX.test}"
+        const val testRunner =
+            "androidx.test:runner:${Versions.AndroidX.test}"
+        const val testUiAutomator =
+            "androidx.test.uiautomator:uiautomator:${Versions.AndroidX.uiautomator}"
+        const val testOrchestrator =
+            "androidx.test:orchestrator:${Versions.AndroidX.test}"
     }
 
     object Koin {
@@ -59,6 +67,7 @@ object Dependencies {
     object Plugin {
         const val android = "com.android.tools.build:gradle:${Versions.Plugin.android}"
         const val androidApplicationId = "com.android.application"
+        const val androidTestId = "com.android.test"
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"
         const val playPublisherId = "com.github.triplet.play"
