@@ -7,9 +7,12 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.e2e.constant.APP_LAUNCH_TIMEOUT
+import net.mullvad.mullvadvpn.e2e.constant.CONNECTION_TIMEOUT
 import net.mullvad.mullvadvpn.e2e.constant.LOGIN_TIMEOUT
 import net.mullvad.mullvadvpn.e2e.constant.MULLVAD_PACKAGE
 import net.mullvad.mullvadvpn.e2e.constant.SETTINGS_COG_ID
+import net.mullvad.mullvadvpn.e2e.constant.TUNNEL_INFO_ID
+import net.mullvad.mullvadvpn.e2e.constant.TUNNEL_OUT_ADDRESS_ID
 import net.mullvad.mullvadvpn.e2e.extension.findObjectWithTimeout
 
 class AppInteractor(
@@ -37,6 +40,12 @@ class AppInteractor(
         )
     }
 
+    fun launchAndEnsureLoggedIn(accountToken: String = validTestAccountToken) {
+        launch()
+        attemptLogin(accountToken)
+        ensureLoggedIn()
+    }
+
     fun attemptLogin(accountToken: String = validTestAccountToken) {
         device.findObjectWithTimeout(By.text("Login"))
         val loginObject = device.findObjectWithTimeout(By.clazz("android.widget.EditText"))
@@ -48,10 +57,12 @@ class AppInteractor(
         device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"), LOGIN_TIMEOUT)
     }
 
-    fun launchAndEnsureLoggedIn(accountToken: String = validTestAccountToken) {
-        launch()
-        attemptLogin(accountToken)
-        ensureLoggedIn()
+    fun extractIpAddress(): String {
+        device.findObjectWithTimeout(By.res(TUNNEL_INFO_ID)).click()
+        return device.findObjectWithTimeout(
+            By.res(TUNNEL_OUT_ADDRESS_ID),
+            CONNECTION_TIMEOUT
+        ).text.extractIpAddress()
     }
 
     fun clickSettingsCog() {
@@ -64,5 +75,9 @@ class AppInteractor(
 
     fun clickActionButtonByText(text: String) {
         device.findObjectWithTimeout(By.text(text)).click()
+    }
+
+    private fun String.extractIpAddress(): String {
+        return split("  ")[1].split(" ")[0]
     }
 }

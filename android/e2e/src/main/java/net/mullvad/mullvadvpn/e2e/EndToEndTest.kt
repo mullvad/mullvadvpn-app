@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.e2e.constant.INVALID_TEST_ACCOUNT_TOKEN_ARGUMENT_K
 import net.mullvad.mullvadvpn.e2e.constant.VALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY
 import net.mullvad.mullvadvpn.e2e.extension.getRequiredArgument
 import net.mullvad.mullvadvpn.e2e.interactor.AppInteractor
+import net.mullvad.mullvadvpn.e2e.interactor.WebViewInteractor
 import net.mullvad.mullvadvpn.e2e.misc.CaptureScreenshotOnFailedTestRule
 import org.junit.Before
 import org.junit.Rule
@@ -23,6 +24,7 @@ abstract class EndToEndTest {
     lateinit var device: UiDevice
     lateinit var targetContext: Context
     lateinit var app: AppInteractor
+    lateinit var web: WebViewInteractor
     lateinit var validTestAccountToken: String
     lateinit var invalidTestAccountToken: String
 
@@ -41,6 +43,11 @@ abstract class EndToEndTest {
             targetContext,
             validTestAccountToken,
             invalidTestAccountToken
+        )
+
+        web = WebViewInteractor(
+            targetContext,
+            device
         )
     }
 }
