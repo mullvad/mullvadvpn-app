@@ -1,0 +1,22 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="net.mullvad.mullvadvpn">
+    <application android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:theme="@style/AppTheme"
+        android:extractNativeLibs="true"
+        android:allowBackup="false"
+        android:banner="@drawable/banner"
+        android:name=".MullvadApplication"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name="net.mullvad.mullvadvpn.TestActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|screenLayout"
+            android:screenOrientation="locked"
+            android:windowSoftInputMode="adjustPan"
+            android:exported="true">
+        </activity>
+    </application>
+</manifest>
