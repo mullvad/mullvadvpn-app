@@ -43,8 +43,10 @@ const RETRY_BACKOFF_INTERVAL_INITIAL: Duration = Duration::from_secs(4);
 const RETRY_BACKOFF_INTERVAL_FACTOR: u32 = 5;
 const RETRY_BACKOFF_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
 
+/// How long to keep the known status for [AccountManagerHandle::validate_device].
 const VALIDITY_CACHE_TIMEOUT: Duration = Duration::from_secs(10);
 
+/// How long to wait on logout (device removal) before letting it continue as a background task.
 const LOGOUT_TIMEOUT: Duration = Duration::from_secs(2);
 
 #[derive(err_derive::Error, Debug)]
