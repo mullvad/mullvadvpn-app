@@ -95,10 +95,12 @@ impl PersistentTargetState {
             return;
         }
         let _ = fs::remove_file(&self.cache_path).await.map_err(|error| {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Cannot delete target tunnel state cache")
-            );
+            if error.kind() != io::ErrorKind::NotFound {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Cannot delete target tunnel state cache")
+                );
+            }
         });
         // prevent the sync destructor from running
         self.locked = true;
@@ -134,10 +136,12 @@ impl Drop for PersistentTargetState {
             return;
         }
         let _ = std::fs::remove_file(&self.cache_path).map_err(|error| {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Cannot delete target tunnel state cache")
-            );
+            if error.kind() != io::ErrorKind::NotFound {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Cannot delete target tunnel state cache")
+                );
+            }
         });
     }
 }
