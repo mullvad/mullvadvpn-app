@@ -41,7 +41,7 @@ export default class ErrorBoundary extends React.Component<IProps, IState> {
           .split('%(email)s', 2);
       reachBackMessage.splice(1, 0, <Email>{supportEmail}</Email>);
 
-      return <ErrorView>{reachBackMessage}</ErrorView>;
+      return <ErrorView settingsUnavailable>{reachBackMessage}</ErrorView>;
     } else {
       return this.props.children;
     }
