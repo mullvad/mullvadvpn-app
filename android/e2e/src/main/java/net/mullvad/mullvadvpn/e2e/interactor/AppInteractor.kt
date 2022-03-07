@@ -2,10 +2,12 @@ package net.mullvad.mullvadvpn.e2e.interactor
 
 import android.content.Context
 import android.content.Intent
+import android.widget.ImageButton
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.e2e.constant.APP_LAUNCH_TIMEOUT
+import net.mullvad.mullvadvpn.e2e.constant.LOGIN_TIMEOUT
 import net.mullvad.mullvadvpn.e2e.constant.MULLVAD_PACKAGE
 import net.mullvad.mullvadvpn.e2e.constant.SETTINGS_COG_ID
 import net.mullvad.mullvadvpn.e2e.extension.findObjectWithTimeout
@@ -35,11 +37,32 @@ class AppInteractor(
         )
     }
 
+    fun attemptLogin(accountToken: String = validTestAccountToken) {
+        device.findObjectWithTimeout(By.text("Login"))
+        val loginObject = device.findObjectWithTimeout(By.clazz("android.widget.EditText"))
+            .apply { text = accountToken }
+        loginObject.parent.findObject(By.clazz(ImageButton::class.java)).click()
+    }
+
+    fun ensureLoggedIn() {
+        device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"), LOGIN_TIMEOUT)
+    }
+
+    fun launchAndEnsureLoggedIn(accountToken: String = validTestAccountToken) {
+        launch()
+        attemptLogin(accountToken)
+        ensureLoggedIn()
+    }
+
     fun clickSettingsCog() {
         device.findObjectWithTimeout(By.res(SETTINGS_COG_ID)).click()
     }
 
     fun clickListItemByText(text: String) {
+        device.findObjectWithTimeout(By.text(text)).click()
+    }
+
+    fun clickActionButtonByText(text: String) {
         device.findObjectWithTimeout(By.text(text)).click()
     }
 }
