@@ -19,7 +19,6 @@ use hyper::{
 };
 use std::{
     future::Future,
-    net::SocketAddr,
     str::FromStr,
     time::{Duration, Instant},
 };
@@ -103,12 +102,13 @@ impl Error {
     }
 }
 
+use super::ApiEndpointUpdateCallback;
+
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
 pub(crate) struct RequestService<
     T: Stream<Item = ApiConnectionMode>,
-    F: Fn(SocketAddr) -> AcceptedNewEndpoint,
-    AcceptedNewEndpoint: Future<Output = bool>,
+    F: ApiEndpointUpdateCallback + Send,
 > {
     command_tx: mpsc::Sender<RequestCommand>,
     command_rx: mpsc::Receiver<RequestCommand>,
@@ -122,9 +122,8 @@ pub(crate) struct RequestService<
 
 impl<
         T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
-        F: (Fn(SocketAddr) -> AcceptedNewEndpoint) + Send + Sync + 'static,
-        AcceptedNewEndpoint: Future<Output = bool> + Send + 'static,
-    > RequestService<T, F, AcceptedNewEndpoint>
+        F: ApiEndpointUpdateCallback + Send + Sync + 'static,
+    > RequestService<T, F>
 {
     /// Constructs a new request service.
     pub async fn new(

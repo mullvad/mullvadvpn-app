@@ -58,7 +58,7 @@ use std::{collections::HashSet, ffi::OsString};
 use std::{
     marker::PhantomData,
     mem,
-    net::{IpAddr, Ipv4Addr, SocketAddr},
+    net::{IpAddr, Ipv4Addr},
     path::PathBuf,
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Weak},
@@ -75,7 +75,7 @@ use talpid_types::android::AndroidContext;
 use talpid_types::{
     net::{
         openvpn::{self, ProxySettings},
-        AllowedEndpoint, Endpoint, TransportProtocol, TunnelEndpoint, TunnelParameters, TunnelType,
+        TransportProtocol, TunnelEndpoint, TunnelParameters, TunnelType,
     },
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
@@ -634,7 +634,7 @@ where
         api_availability.suspend();
 
         let initial_api_endpoint =
-            Self::get_allowed_endpoint(rpc_runtime.address_cache.get_address().await);
+            api::get_allowed_endpoint(rpc_runtime.address_cache.get_address().await);
 
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
@@ -664,36 +664,15 @@ where
         .await
         .map_err(Error::TunnelError)?;
 
-        let api_endpoint_tunnel_tx = Arc::downgrade(&tunnel_command_tx);
-        let api_endpoint_handler = move |address: SocketAddr| {
-            let tunnel_tx = api_endpoint_tunnel_tx.clone();
-            async move {
-                let (result_tx, result_rx) = oneshot::channel();
-                if let Some(tunnel_tx) = tunnel_tx.upgrade() {
-                    let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
-                        Self::get_allowed_endpoint(address.clone()),
-                        result_tx,
-                    ));
-                    if result_rx.await.is_ok() {
-                        log::debug!("API endpoint: {}", address);
-                        true
-                    } else {
-                        log::error!("Failed to update allowed endpoint");
-                        false
-                    }
-                } else {
-                    log::error!("Tunnel state machine is down");
-                    false
-                }
-            }
-        };
+        let endpoint_updater = api::ApiEndpointUpdaterHandle::new();
+        endpoint_updater.set_tunnel_command_tx(Arc::downgrade(&tunnel_command_tx));
 
         let proxy_provider = api::create_api_config_provider(
             internal_event_tx.to_specialized_sender(),
             ApiConnectionMode::Direct,
         );
         let rpc_handle = rpc_runtime
-            .mullvad_rest_handle(proxy_provider, api_endpoint_handler)
+            .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
             .await;
 
         Self::forward_offline_state(api_availability.clone(), offline_state_rx).await;
@@ -777,27 +756,6 @@ where
         api_availability.unsuspend();
 
         Ok(daemon)
-    }
-
-    fn get_allowed_endpoint(api_address: std::net::SocketAddr) -> AllowedEndpoint {
-        let endpoint = Endpoint::from_socket_address(api_address, TransportProtocol::Tcp);
-
-        #[cfg(windows)]
-        let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
-        #[cfg(windows)]
-        let clients = vec![
-            daemon_exe
-                .parent()
-                .expect("missing executable parent directory")
-                .join("mullvad-problem-report.exe"),
-            daemon_exe,
-        ];
-
-        AllowedEndpoint {
-            #[cfg(windows)]
-            clients,
-            endpoint,
-        }
     }
 
     /// Get which special DNS resolvers to use. Returns `None` when no special resolvers
