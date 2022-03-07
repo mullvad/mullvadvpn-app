@@ -1410,10 +1410,29 @@ where
     }
 
     async fn handle_device_event(&mut self, event: InnerDeviceEvent) {
-        if let InnerDeviceEvent::RotatedKey(_) = &event {
-            if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
-                self.schedule_reconnect(WG_RECONNECT_DELAY);
+        match &event {
+            InnerDeviceEvent::Login(device) => {
+                if let Err(error) = self.account_history.set(device.token.clone()).await {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to update account history")
+                    );
+                }
+                if *self.target_state == TargetState::Secured {
+                    log::debug!("Initiating tunnel restart because the account token changed");
+                    self.reconnect_tunnel();
+                }
             }
+            InnerDeviceEvent::Logout => {
+                log::info!("Disconnecting because account token was cleared");
+                self.set_target_state(TargetState::Unsecured).await;
+            }
+            InnerDeviceEvent::RotatedKey(_) => {
+                if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
+                    self.schedule_reconnect(WG_RECONNECT_DELAY);
+                }
+            }
+            _ => (),
         }
         self.event_listener
             .notify_device_event(DeviceEvent::from(event));
@@ -1564,31 +1583,31 @@ where
     }
 
     async fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
-        let fut = async {
-            if let Ok(Some(_)) = self.account_manager.data().await {
-                return Err(Error::AlreadyLoggedIn);
-            }
-            let token = self
-                .account_manager
-                .account_service
-                .create_account()
-                .await
-                .map_err(Error::RestError)?;
-            match self.set_account(Some(token.clone())).await {
-                Ok(_) => {
-                    self.set_target_state(TargetState::Unsecured).await;
-                    Ok(token)
+        let account_manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            let result = async {
+                if let Ok(Some(_)) = account_manager.data().await {
+                    return Err(Error::AlreadyLoggedIn);
                 }
-                Err(error) => {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Handling new account failed")
-                    );
-                    Err(error)
-                }
-            }
-        };
-        Self::oneshot_send(tx, fut.await, "create new account");
+                let token = account_manager
+                    .account_service
+                    .create_account()
+                    .await
+                    .map_err(Error::RestError)?;
+                account_manager
+                    .login(token.clone())
+                    .await
+                    .map_err(|error| {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Creating new account failed")
+                        );
+                        Error::LoginError(error)
+                    })?;
+                Ok(token)
+            };
+            Self::oneshot_send(tx, result.await, "create new account");
+        });
     }
 
     async fn on_get_account_data(
@@ -1660,109 +1679,69 @@ where
     }
 
     async fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_token: String) {
-        match self.set_account(Some(account_token)).await {
-            Ok(account_changed) => {
-                if account_changed {
-                    log::info!("Initiating tunnel restart because the account token changed");
-                    self.reconnect_tunnel();
-                }
-                Self::oneshot_send(tx, Ok(()), "login_account response");
-            }
-            Err(error) => {
-                log::error!("{}", error.display_chain_with_msg("Login failed"));
-                Self::oneshot_send(tx, Err(error), "login_account response");
-            }
-        }
+        let account_manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            let result = async {
+                account_manager.login(account_token).await.map_err(|error| {
+                    log::error!("{}", error.display_chain_with_msg("Login failed"));
+                    Error::LoginError(error)
+                })
+            };
+            Self::oneshot_send(tx, result.await, "login_account response");
+        });
     }
 
     async fn on_logout_account(&mut self, tx: ResponseTx<(), Error>) {
-        match self.set_account(None).await {
-            Ok(account_changed) => {
-                if account_changed {
-                    log::info!("Disconnecting because account token was cleared");
-                    self.set_target_state(TargetState::Unsecured).await;
-                }
-                Self::oneshot_send(tx, Ok(()), "logout_account response");
-            }
-            Err(error) => {
-                log::error!("{}", error.display_chain_with_msg("Logout failed"));
-                Self::oneshot_send(tx, Err(error), "logout_account response");
-            }
-        }
-    }
-
-    async fn set_account(&mut self, account_token: Option<String>) -> Result<bool, Error> {
-        let previous_token = self
-            .account_manager
-            .data()
-            .await
-            .unwrap_or(None)
-            .map(|device| device.token);
-        if previous_token == account_token {
-            return Ok(false);
-        }
-
-        match account_token.clone() {
-            Some(token) => {
-                self.account_manager
-                    .login(token)
-                    .await
-                    .map_err(Error::LoginError)?;
-            }
-            None => {
-                self.account_manager
-                    .logout()
-                    .await
-                    .map_err(Error::LogoutError)?;
-            }
-        }
-
-        if let Some(token) = account_token.or(previous_token) {
-            if let Err(error) = self.account_history.set(token).await {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to update account history")
-                );
-            }
-        }
-
-        Ok(true)
+        let account_manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            let result = async {
+                account_manager.logout().await.map_err(|error| {
+                    log::error!("{}", error.display_chain_with_msg("Logout failed"));
+                    Error::LogoutError(error)
+                })
+            };
+            Self::oneshot_send(tx, result.await, "logout_account response");
+        });
     }
 
     async fn on_get_device(&mut self, tx: ResponseTx<Option<DeviceConfig>, Error>) {
-        // Make sure the device is updated
-        match self.account_manager.validate_device().await {
-            Ok(_) | Err(device::Error::NoDevice) => (),
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to update device data")
-                );
+        let account_manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            // Make sure the device is updated
+            match account_manager.validate_device().await {
+                Ok(_) | Err(device::Error::NoDevice) => (),
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to update device data")
+                    );
+                }
             }
-        }
 
-        Self::oneshot_send(
-            tx,
-            Ok(self
-                .account_manager
-                .data()
-                .await
-                .unwrap_or(None)
-                .map(DeviceConfig::from)),
-            "get_device response",
-        );
+            Self::oneshot_send(
+                tx,
+                Ok(account_manager
+                    .data()
+                    .await
+                    .unwrap_or(None)
+                    .map(DeviceConfig::from)),
+                "get_device response",
+            );
+        });
     }
 
-    async fn on_list_devices(&mut self, tx: ResponseTx<Vec<Device>, Error>, token: AccountToken) {
-        Self::oneshot_send(
-            tx,
-            self.account_manager
-                .device_service
-                .list_devices(token)
-                .await
-                .map_err(Error::ListDevicesError),
-            "list_devices response",
-        );
+    async fn on_list_devices(&self, tx: ResponseTx<Vec<Device>, Error>, token: AccountToken) {
+        let service = self.account_manager.device_service.clone();
+        tokio::spawn(async move {
+            Self::oneshot_send(
+                tx,
+                service
+                    .list_devices(token)
+                    .await
+                    .map_err(Error::ListDevicesError),
+                "list_devices response",
+            );
+        });
     }
 
     async fn on_remove_device(
@@ -2410,12 +2389,19 @@ where
         }
     }
 
-    async fn on_rotate_wireguard_key(&mut self, tx: ResponseTx<(), Error>) {
-        let result = self.account_manager.rotate_key().await;
-        let _ = tx.send(result.map(|_| ()).map_err(Error::KeyRotationError));
+    async fn on_rotate_wireguard_key(&self, tx: ResponseTx<(), Error>) {
+        let manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            let result = manager
+                .rotate_key()
+                .await
+                .map(|_| ())
+                .map_err(Error::KeyRotationError);
+            Self::oneshot_send(tx, result, "rotate_wireguard_key response");
+        });
     }
 
-    async fn on_get_wireguard_key(&mut self, tx: ResponseTx<Option<PublicKey>, Error>) {
+    async fn on_get_wireguard_key(&self, tx: ResponseTx<Option<PublicKey>, Error>) {
         let result = if let Ok(Some(device)) = self.account_manager.data().await {
             Ok(Some(device.wg_data.get_public_key()))
         } else {
