@@ -384,6 +384,7 @@ impl AccountManager {
         }
 
         self.cacher.write(data).await?;
+        self.last_validation = None;
 
         if self
             .data
