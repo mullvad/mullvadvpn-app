@@ -346,8 +346,6 @@ pub(crate) enum InternalDaemonEvent {
     Command(DaemonCommand),
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
     TriggerShutdown,
-    /// New Account created
-    NewAccountEvent(AccountToken, oneshot::Sender<Result<String, Error>>),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
     /// Request from REST client to use a different API endpoint.
@@ -932,9 +930,6 @@ where
             }
             Command(command) => self.handle_command(command).await,
             TriggerShutdown => self.trigger_shutdown_event(),
-            NewAccountEvent(account_token, tx) => {
-                self.handle_new_account_event(account_token, tx).await
-            }
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info)
             }
@@ -1337,26 +1332,6 @@ where
         }
     }
 
-    async fn handle_new_account_event(
-        &mut self,
-        new_token: AccountToken,
-        tx: ResponseTx<String, Error>,
-    ) {
-        match self.set_account(Some(new_token.clone())).await {
-            Ok(_) => {
-                self.set_target_state(TargetState::Unsecured).await;
-                let _ = tx.send(Ok(new_token));
-            }
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Handling new account failed")
-                );
-                let _ = tx.send(Err(error));
-            }
-        };
-    }
-
     fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
         self.app_version_info = Some(app_version_info.clone());
         self.event_listener.notify_app_version(app_version_info);
@@ -1589,22 +1564,31 @@ where
     }
 
     async fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
-        if let Ok(Some(_)) = self.account_manager.data().await {
-            let _ = tx.send(Err(Error::AlreadyLoggedIn));
-            return;
-        }
-        let daemon_tx = self.tx.clone();
-        let future = self.account_manager.account_service.create_account();
-        tokio::spawn(async move {
-            match future.await {
-                Ok(account_token) => {
-                    let _ = daemon_tx.send(InternalDaemonEvent::NewAccountEvent(account_token, tx));
+        let fut = async {
+            if let Ok(Some(_)) = self.account_manager.data().await {
+                return Err(Error::AlreadyLoggedIn);
+            }
+            let token = self
+                .account_manager
+                .account_service
+                .create_account()
+                .await
+                .map_err(Error::RestError)?;
+            match self.set_account(Some(token.clone())).await {
+                Ok(_) => {
+                    self.set_target_state(TargetState::Unsecured).await;
+                    Ok(token)
                 }
-                Err(err) => {
-                    let _ = tx.send(Err(Error::RestError(err)));
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Handling new account failed")
+                    );
+                    Err(error)
                 }
             }
-        });
+        };
+        Self::oneshot_send(tx, fut.await, "create new account");
     }
 
     async fn on_get_account_data(
