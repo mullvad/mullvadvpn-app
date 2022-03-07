@@ -92,12 +92,18 @@ const HeaderBarSettingsButtonContainer = styled.button({
   border: 'none',
 });
 
-export function HeaderBarSettingsButton() {
+interface IHeaderBarSettingsButtonProps {
+  disabled?: boolean;
+}
+
+export function HeaderBarSettingsButton(props: IHeaderBarSettingsButtonProps) {
   const history = useHistory();
 
   const openSettings = useCallback(() => {
-    history.show(RoutePath.settings);
-  }, [history]);
+    if (!props.disabled) {
+      history.show(RoutePath.settings);
+    }
+  }, [history, props.disabled]);
 
   return (
     <HeaderBarSettingsButtonContainer
@@ -107,8 +113,8 @@ export function HeaderBarSettingsButton() {
         height={24}
         width={24}
         source="icon-settings"
-        tintColor={colors.white60}
-        tintHoverColor={colors.white80}
+        tintColor={props.disabled ? colors.white40 : colors.white60}
+        tintHoverColor={props.disabled ? colors.white40 : colors.white80}
       />
     </HeaderBarSettingsButtonContainer>
   );

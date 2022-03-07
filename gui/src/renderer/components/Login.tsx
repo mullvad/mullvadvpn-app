@@ -89,13 +89,13 @@ export default class Login extends React.Component<IProps, IState> {
   }
 
   public render() {
-    const showFooter = this.allowInteraction();
+    const allowInteraction = this.allowInteraction();
 
     return (
       <Layout>
         <Header>
           <Brand />
-          <HeaderBarSettingsButton />
+          <HeaderBarSettingsButton disabled={!allowInteraction} />
         </Header>
         <Container>
           <StyledTopInfo>
@@ -108,7 +108,7 @@ export default class Login extends React.Component<IProps, IState> {
             {this.createLoginForm()}
           </StyledLoginForm>
 
-          <StyledFooter show={showFooter}>{this.createFooter()}</StyledFooter>
+          <StyledFooter show={allowInteraction}>{this.createFooter()}</StyledFooter>
         </Container>
       </Layout>
     );
