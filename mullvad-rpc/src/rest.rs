@@ -415,12 +415,13 @@ impl RequestFactory {
             HeaderValue::from_static("application/json"),
         );
 
-        Ok(RestRequest::from(request))
+        Ok(self.set_request_timeout(RestRequest::from(request)))
     }
 
     pub fn delete(&self, path: &str) -> Result<RestRequest> {
         self.hyper_request(path, Method::DELETE)
             .map(RestRequest::from)
+            .map(|req| self.set_request_timeout(req))
     }
 
     fn hyper_request(&self, path: &str, method: Method) -> Result<Request> {
