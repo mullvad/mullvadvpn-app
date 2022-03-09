@@ -57,6 +57,8 @@ interface IPreferredLocaleDescriptor {
   code: string;
 }
 
+type LoginState = 'none' | 'logging in' | 'creating account' | 'too many devices';
+
 const SUPPORTED_LOCALE_LIST = [
   { name: 'Dansk', code: 'da' },
   { name: 'Deutsch', code: 'de' },
@@ -98,7 +100,8 @@ export default class AppRenderer {
   private settings!: ISettings;
   private deviceConfig?: IDeviceConfig;
   private guiSettings!: IGuiSettingsState;
-  private loginState: 'none' | 'logging in' | 'creating account' | 'too many devices' = 'none';
+  private loginState: LoginState = 'none';
+  private previousLoginState: LoginState = 'none';
   private loginScheduler = new Scheduler();
   private connectedToDaemon = false;
   private getLocationPromise?: Promise<ILocation>;
@@ -266,16 +269,11 @@ export default class AppRenderer {
 
     log.info('Logging in');
 
-    const previousLoginState = this.loginState;
+    this.previousLoginState = this.loginState;
     this.loginState = 'logging in';
 
     try {
       await IpcRendererEventChannel.account.login(accountToken);
-      if (previousLoginState === 'too many devices') {
-        this.resetNavigation();
-      } else {
-        this.redirectToConnect();
-      }
     } catch (e) {
       const error = e as Error;
       if (error.message === 'Too many devices') {
@@ -812,6 +810,12 @@ export default class AppRenderer {
         case 'none':
         case 'logging in':
           reduxAccount.loggedIn({ accountToken: newAccount, device: newDevice });
+
+          if (this.previousLoginState === 'too many devices') {
+            this.resetNavigation();
+          } else {
+            this.redirectToConnect();
+          }
           break;
         case 'creating account':
           reduxAccount.accountCreated(
@@ -826,6 +830,7 @@ export default class AppRenderer {
       }
     }
 
+    this.previousLoginState = this.loginState;
     this.loginState = 'none';
   }
 
