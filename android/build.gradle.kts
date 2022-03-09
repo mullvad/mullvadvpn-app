@@ -30,6 +30,7 @@ allprojects {
 
     configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
         failBuildOnCVSS = 0F // All severity levels
+        suppressionFile = "${rootProject.projectDir}/config/dependency-check-suppression.xml"
     }
 }
 
