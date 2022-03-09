@@ -63,10 +63,7 @@ use std::{
     net::{IpAddr, Ipv4Addr},
     path::PathBuf,
     pin::Pin,
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        mpsc as sync_mpsc, Arc, Weak,
-    },
+    sync::{mpsc as sync_mpsc, Arc, Weak},
     time::Duration,
 };
 #[cfg(any(target_os = "linux", windows))]
@@ -91,9 +88,6 @@ use tokio::io;
 
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
-
-/// Validate the current device once for every `WG_DEVICE_CHECK_THRESHOLD` attempts.
-const WG_DEVICE_CHECK_THRESHOLD: usize = 3;
 
 /// When we want to block certain contents with the help of DNS server side,
 /// we compute the resolver IP to use based on these constants. The last
@@ -576,9 +570,8 @@ pub struct Daemon<L: EventListener> {
     event_listener: L,
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
+    device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
-    wg_retry_attempt: usize,
-    wg_check_validity: Arc<AtomicBool>,
     rpc_runtime: mullvad_rpc::MullvadRpcRuntime,
     rpc_handle: mullvad_rpc::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -782,9 +775,8 @@ where
             event_listener,
             settings,
             account_history,
+            device_checker: device::TunnelStateChangeHandler::new(account_manager.clone()),
             account_manager,
-            wg_retry_attempt: 0,
-            wg_check_validity: Arc::new(AtomicBool::new(true)),
             rpc_runtime,
             rpc_handle,
             version_updater_handle,
@@ -949,6 +941,8 @@ where
     ) {
         self.reset_rpc_sockets_on_tunnel_state_transition(&tunnel_state_transition)
             .await;
+        self.device_checker
+            .handle_state_transition(&tunnel_state_transition);
 
         let tunnel_state = match tunnel_state_transition {
             TunnelStateTransition::Disconnected => TunnelState::Disconnected,
@@ -965,8 +959,6 @@ where
             }
             TunnelStateTransition::Error(error_state) => TunnelState::Error(error_state),
         };
-
-        self.maybe_validate_device(&tunnel_state);
 
         if !tunnel_state.is_connected() {
             // Cancel reconnects except when entering the connected state.
@@ -1013,41 +1005,6 @@ where
             }
             _ => (),
         };
-    }
-
-    /// Check whether the device is valid after a number of failed connection attempts.
-    fn maybe_validate_device(&mut self, tunnel_state: &TunnelState) {
-        match tunnel_state {
-            TunnelState::Connecting { endpoint, .. } => {
-                if endpoint.tunnel_type != TunnelType::Wireguard {
-                    return;
-                }
-                self.wg_retry_attempt += 1;
-                if self.wg_retry_attempt % WG_DEVICE_CHECK_THRESHOLD == 0 {
-                    let handle = self.account_manager.clone();
-                    let check_validity = self.wg_check_validity.clone();
-                    tokio::spawn(async move {
-                        if !check_validity.swap(false, Ordering::SeqCst) {
-                            return;
-                        }
-                        if let Err(error) = handle.validate_device().await {
-                            log::error!(
-                                "{}",
-                                error.display_chain_with_msg("Failed to check device validity")
-                            );
-                            if error.is_network_error() {
-                                check_validity.store(true, Ordering::SeqCst);
-                            }
-                        }
-                    });
-                }
-            }
-            TunnelState::Connected { .. } | TunnelState::Disconnected => {
-                self.wg_check_validity.store(true, Ordering::SeqCst);
-                self.wg_retry_attempt = 0;
-            }
-            _ => (),
-        }
     }
 
     async fn handle_generate_tunnel_parameters(

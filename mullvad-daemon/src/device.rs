@@ -17,13 +17,21 @@ use mullvad_types::{
 use std::{
     future::Future,
     path::Path,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
     time::{Duration, SystemTime},
 };
 use talpid_core::{
     future_retry::{constant_interval, retry_future, retry_future_n, ExponentialBackoff, Jittered},
     mpsc::Sender,
 };
-use talpid_types::{net::wireguard::PrivateKey, ErrorExt};
+use talpid_types::{
+    net::{wireguard::PrivateKey, TunnelType},
+    tunnel::TunnelStateTransition,
+    ErrorExt,
+};
 use tokio::{
     fs,
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
@@ -48,6 +56,10 @@ const VALIDITY_CACHE_TIMEOUT: Duration = Duration::from_secs(10);
 
 /// How long to wait on logout (device removal) before letting it continue as a background task.
 const LOGOUT_TIMEOUT: Duration = Duration::from_secs(2);
+
+/// Validate the current device once for every `WG_DEVICE_CHECK_THRESHOLD` failed attempts
+/// to set up a WireGuard tunnel.
+const WG_DEVICE_CHECK_THRESHOLD: usize = 3;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -1074,4 +1086,56 @@ fn retry_strategy() -> Jittered<ExponentialBackoff> {
         )
         .max_delay(RETRY_BACKOFF_INTERVAL_MAX),
     )
+}
+
+/// Checks if the current device is valid if a WireGuard tunnel cannot be set up
+/// after multiple attempts.
+pub(crate) struct TunnelStateChangeHandler {
+    manager: AccountManagerHandle,
+    check_validity: Arc<AtomicBool>,
+    wg_retry_attempt: usize,
+}
+
+impl TunnelStateChangeHandler {
+    pub fn new(manager: AccountManagerHandle) -> Self {
+        Self {
+            manager,
+            check_validity: Arc::new(AtomicBool::new(true)),
+            wg_retry_attempt: 0,
+        }
+    }
+
+    pub fn handle_state_transition(&mut self, new_state: &TunnelStateTransition) {
+        match new_state {
+            TunnelStateTransition::Connecting(endpoint) => {
+                if endpoint.tunnel_type != TunnelType::Wireguard {
+                    return;
+                }
+                self.wg_retry_attempt += 1;
+                if self.wg_retry_attempt % WG_DEVICE_CHECK_THRESHOLD == 0 {
+                    let handle = self.manager.clone();
+                    let check_validity = self.check_validity.clone();
+                    tokio::spawn(async move {
+                        if !check_validity.swap(false, Ordering::SeqCst) {
+                            return;
+                        }
+                        if let Err(error) = handle.validate_device().await {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg("Failed to check device validity")
+                            );
+                            if error.is_network_error() {
+                                check_validity.store(true, Ordering::SeqCst);
+                            }
+                        }
+                    });
+                }
+            }
+            TunnelStateTransition::Connected(_) | TunnelStateTransition::Disconnected => {
+                self.check_validity.store(true, Ordering::SeqCst);
+                self.wg_retry_attempt = 0;
+            }
+            _ => (),
+        }
+    }
 }
