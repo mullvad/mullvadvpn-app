@@ -113,8 +113,10 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
     fileprivate var protocolConfiguration = NEVPNProtocol()
 
     private let lock = NSRecursiveLock()
-
     private var _status: NEVPNStatus = .disconnected
+    private var _reasserting = false
+    private var _connectedDate: Date?
+
     private(set) var status: NEVPNStatus {
         get {
             lock.lock()
@@ -139,7 +141,6 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
     }
 
     private var statusBeforeReasserting: NEVPNStatus?
-    private var _reasserting = false
     var reasserting: Bool {
         get {
             lock.lock()
@@ -166,7 +167,6 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
         }
     }
 
-    private var _connectedDate: Date?
     private(set) var connectedDate: Date? {
         get {
             lock.lock()
