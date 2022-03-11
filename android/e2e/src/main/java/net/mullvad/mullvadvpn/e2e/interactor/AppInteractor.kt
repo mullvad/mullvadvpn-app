@@ -12,7 +12,9 @@ import net.mullvad.mullvadvpn.e2e.extension.findObjectWithTimeout
 
 class AppInteractor(
     private val device: UiDevice,
-    private val targetContext: Context
+    private val targetContext: Context,
+    private val validTestAccountToken: String,
+    private val invalidTestAccountToken: String
 ) {
     fun launch() {
         device.pressHome()

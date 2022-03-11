@@ -1,5 +1,6 @@
 object Dependencies {
     const val androidMaterial = "com.google.android.material:material:${Versions.Android.material}"
+    const val androidVolley = "com.android.volley:volley:${Versions.Android.volley}"
     const val commonsValidator = "commons-validator:commons-validator:${Versions.commonsValidator}"
     const val jodaTime = "joda-time:joda-time:${Versions.jodaTime}"
     const val junit = "junit:junit:${Versions.junit}"
