@@ -329,10 +329,6 @@ msgid "OpenVPN settings"
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "Split tunneling"
-msgstr ""
-
-msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr ""
 
@@ -1100,11 +1096,6 @@ msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
 msgstr ""
 
-#. Title label in navigation bar
-msgctxt "split-tunneling-nav"
-msgid "Split tunneling"
-msgstr ""
-
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr ""
@@ -1160,14 +1151,6 @@ msgstr ""
 #. This error message is shown if an application failes during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or contact support."
-msgstr ""
-
-msgctxt "split-tunneling-view"
-msgid "Split tunneling"
-msgstr ""
-
-msgctxt "split-tunneling-view"
-msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
 msgstr ""
 
 msgctxt "split-tunneling-view"
@@ -1464,6 +1447,9 @@ msgid "Shows current VPN tunnel status"
 msgstr ""
 
 msgid "Shows reminders when the account time is about to expire"
+msgstr ""
+
+msgid "Split tunneling"
 msgstr ""
 
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."

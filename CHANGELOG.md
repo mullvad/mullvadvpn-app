@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Detect mounting and dismounting of volumes, such as VeraCrypt volumes or USB drives,
   and exclude paths from the tunnel correctly when these occur. This sometimes only works
   when the GUI frontend is running.
+- Add toggle for split tunneling state.
 
 ### Changed
 - Decrease the size of fonts, some icons and other design elements in the desktop app. This makes it

@@ -2,10 +2,11 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { normalText, smallText } from './common-styles';
+import { normalText } from './common-styles';
 import ImageView from './ImageView';
 import { Container } from './Layout';
 import { NavigationScrollbars } from './NavigationBar';
+import { HeaderTitle } from './SettingsHeader';
 
 export const StyledPageCover = styled.div({}, (props: { show: boolean }) => ({
   position: 'absolute',
@@ -159,7 +160,11 @@ export const StyledNoResultText = styled(Cell.FooterText)({
   textAlign: 'center',
 });
 
-export const StyledDisabledWarning = styled.span(smallText, {
-  margin: '0 22px 18px',
-  color: colors.red,
+export const StyledHeaderTitleContainer = styled.div({
+  display: 'flex',
+  alignItems: 'center',
+});
+
+export const StyledHeaderTitle = styled(HeaderTitle)({
+  flex: 1,
 });
