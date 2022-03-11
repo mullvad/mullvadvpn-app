@@ -1,3 +1,6 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import java.util.Properties
+
 plugins {
     id(Dependencies.Plugin.androidTestId)
     id(Dependencies.Plugin.kotlinAndroidId)
@@ -11,6 +14,37 @@ android {
         targetSdkVersion(Versions.Android.targetSdkVersion)
         testApplicationId = "net.mullvad.mullvadvpn.e2e"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        targetProjectPath = ":app"
+
+        fun Properties.addRequiredPropertyAsBuildConfigField(name: String) {
+            val value = getProperty(name) ?: throw GradleException("Missing property: $name")
+            buildConfigField(
+                type = "String",
+                name = name,
+                value = "\"$value\""
+            )
+        }
+
+        Properties().apply {
+            load(project.file("e2e.properties").inputStream())
+            addRequiredPropertyAsBuildConfigField("API_BASE_URL")
+            addRequiredPropertyAsBuildConfigField("API_VERSION")
+        }
+
+        fun MutableMap<String, String>.addOptionalPropertyAsArgument(name: String) {
+            val value = rootProject.properties.getOrDefault(name, null) as? String
+                ?: gradleLocalProperties(rootProject.projectDir).getProperty(name)
+
+            if (value != null) {
+                put(name, value)
+            }
+        }
+
+        testInstrumentationRunnerArguments += mutableMapOf<String, String>().apply {
+            put("clearPackageData", "true")
+            addOptionalPropertyAsArgument("valid_test_account_token")
+            addOptionalPropertyAsArgument("invalid_test_account_token")
+        }
     }
 
     testOptions {
@@ -22,7 +56,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    targetProjectPath = ":app"
+    kotlinOptions {
+        jvmTarget = Versions.jvmTarget
+    }
 }
 
 val localScreenshotPath = "$buildDir/reports/androidTests/connected/screenshots"
@@ -64,5 +100,6 @@ dependencies {
     implementation(Dependencies.AndroidX.testRunner)
     implementation(Dependencies.AndroidX.testRules)
     implementation(Dependencies.AndroidX.testUiAutomator)
+    implementation(Dependencies.androidVolley)
     implementation(Dependencies.Kotlin.stdlib)
 }

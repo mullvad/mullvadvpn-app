@@ -15,6 +15,7 @@ object Versions {
         const val material = "1.4.0"
         const val minSdkVersion = 26
         const val targetSdkVersion = 30
+        const val volley = "1.2.1"
     }
 
     object AndroidX {
