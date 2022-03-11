@@ -7,6 +7,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.e2e.constant.APP_LAUNCH_TIMEOUT
 import net.mullvad.mullvadvpn.e2e.constant.MULLVAD_PACKAGE
+import net.mullvad.mullvadvpn.e2e.constant.SETTINGS_COG_ID
+import net.mullvad.mullvadvpn.e2e.extension.findObjectWithTimeout
 
 class AppInteractor(
     private val device: UiDevice,
@@ -29,5 +31,13 @@ class AppInteractor(
             Until.hasObject(By.pkg(MULLVAD_PACKAGE).depth(0)),
             APP_LAUNCH_TIMEOUT
         )
+    }
+
+    fun clickSettingsCog() {
+        device.findObjectWithTimeout(By.res(SETTINGS_COG_ID)).click()
+    }
+
+    fun clickListItemByText(text: String) {
+        device.findObjectWithTimeout(By.text(text)).click()
     }
 }
