@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import struct WireGuardKit.IPAddressRange
+import struct WireGuardKitTypes.IPAddressRange
 
 extension IPAddressRange: Codable {
     public func encode(to encoder: Encoder) throws {
