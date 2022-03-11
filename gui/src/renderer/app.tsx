@@ -466,9 +466,9 @@ export default class AppRenderer {
     return IpcRendererEventChannel.linuxSplitTunneling.launchApplication(application);
   }
 
-  public setSplitTunnelingState(enabled: boolean): Promise<void> {
+  public setSplitTunnelingState = (enabled: boolean): Promise<void> => {
     return IpcRendererEventChannel.windowsSplitTunneling.setState(enabled);
-  }
+  };
 
   public addSplitTunnelingApplication(application: IApplication | string): Promise<void> {
     return IpcRendererEventChannel.windowsSplitTunneling.addApplication(application);
