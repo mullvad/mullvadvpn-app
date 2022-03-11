@@ -36,13 +36,15 @@ import {
   StyledNoResultText,
   StyledSearchContainer,
   StyledNoResult,
-  StyledDisabledWarning,
   StyledActionIcon,
   StyledCellWarningIcon,
   StyledListContainer,
+  StyledHeaderTitleContainer,
+  StyledHeaderTitle,
 } from './SplitTunnelingSettingsStyles';
 import { formatMarkdown } from '../markdown-formatter';
 import { BackAction } from './KeyboardNavigation';
+import Switch from './Switch';
 
 export default function SplitTunneling() {
   const { pop } = useHistory();
@@ -60,12 +62,7 @@ export default function SplitTunneling() {
             <NavigationContainer>
               <NavigationBar>
                 <NavigationItems>
-                  <TitleBarItem>
-                    {
-                      // TRANSLATORS: Title label in navigation bar
-                      messages.pgettext('split-tunneling-nav', 'Split tunneling')
-                    }
-                  </TitleBarItem>
+                  <TitleBarItem>Split tunneling</TitleBarItem>
                 </NavigationItems>
               </NavigationBar>
 
@@ -159,7 +156,7 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
   return (
     <>
       <SettingsHeader>
-        <HeaderTitle>{messages.pgettext('split-tunneling-view', 'Split tunneling')}</HeaderTitle>
+        <HeaderTitle>Split tunneling</HeaderTitle>
         <HeaderSubTitle>
           {messages.pgettext(
             'split-tunneling-view',
@@ -370,14 +367,18 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
     await filePickerCallback();
   }, [filePickerCallback, props.scrollToTop]);
 
-  const showSplitSection = filteredSplitApplications.length > 0;
+  const showSplitSection = splitTunnelingEnabled && filteredSplitApplications.length > 0;
   const showNonSplitSection =
-    !filteredNonSplitApplications || filteredNonSplitApplications.length > 0;
+    splitTunnelingEnabled &&
+    (!filteredNonSplitApplications || filteredNonSplitApplications.length > 0);
 
   return (
     <>
       <SettingsHeader>
-        <HeaderTitle>{messages.pgettext('split-tunneling-view', 'Split tunneling')}</HeaderTitle>
+        <StyledHeaderTitleContainer>
+          <StyledHeaderTitle>Split tunneling</StyledHeaderTitle>
+          <Switch isOn={splitTunnelingEnabled} onChange={setSplitTunnelingState} />
+        </StyledHeaderTitleContainer>
         <HeaderSubTitle>
           {messages.pgettext(
             'split-tunneling-view',
@@ -386,48 +387,35 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
         </HeaderSubTitle>
       </SettingsHeader>
 
-      {!splitTunnelingEnabled && filteredSplitApplications?.length > 0 && (
-        <StyledDisabledWarning>
-          {messages.pgettext(
-            'split-tunneling-view',
-            'Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below.',
-          )}
-        </StyledDisabledWarning>
-      )}
+      {splitTunnelingEnabled && <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />}
 
-      <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
+      <Accordion expanded={showSplitSection}>
+        <Cell.Section>
+          <Cell.SectionTitle>
+            {messages.pgettext('split-tunneling-view', 'Excluded apps')}
+          </Cell.SectionTitle>
+          <ApplicationList
+            applications={filteredSplitApplications}
+            onRemove={removeApplication}
+            rowComponent={ApplicationRow}
+          />
+        </Cell.Section>
+      </Accordion>
 
-      {(showSplitSection || showNonSplitSection) && (
-        <>
-          <Accordion expanded={showSplitSection}>
-            <Cell.Section>
-              <Cell.SectionTitle>
-                {messages.pgettext('split-tunneling-view', 'Excluded apps')}
-              </Cell.SectionTitle>
-              <ApplicationList
-                applications={filteredSplitApplications}
-                onRemove={removeApplication}
-                rowComponent={ApplicationRow}
-              />
-            </Cell.Section>
-          </Accordion>
+      <Accordion expanded={showNonSplitSection}>
+        <Cell.Section>
+          <Cell.SectionTitle>
+            {messages.pgettext('split-tunneling-view', 'All apps')}
+          </Cell.SectionTitle>
+          <ApplicationList
+            applications={filteredNonSplitApplications}
+            onSelect={addApplication}
+            rowComponent={ApplicationRow}
+          />
+        </Cell.Section>
+      </Accordion>
 
-          <Accordion expanded={showNonSplitSection}>
-            <Cell.Section>
-              <Cell.SectionTitle>
-                {messages.pgettext('split-tunneling-view', 'All apps')}
-              </Cell.SectionTitle>
-              <ApplicationList
-                applications={filteredNonSplitApplications}
-                onSelect={addApplication}
-                rowComponent={ApplicationRow}
-              />
-            </Cell.Section>
-          </Accordion>
-        </>
-      )}
-
-      {searchTerm !== '' && !showSplitSection && !showNonSplitSection && (
+      {splitTunnelingEnabled && searchTerm !== '' && !showSplitSection && !showNonSplitSection && (
         <StyledNoResult>
           <StyledNoResultText>
             {formatMarkdown(
@@ -443,9 +431,11 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
         </StyledNoResult>
       )}
 
-      <StyledBrowseButton onClick={addWithFilePicker}>
-        {messages.pgettext('split-tunneling-view', 'Find another app')}
-      </StyledBrowseButton>
+      {splitTunnelingEnabled && (
+        <StyledBrowseButton onClick={addWithFilePicker}>
+          {messages.pgettext('split-tunneling-view', 'Find another app')}
+        </StyledBrowseButton>
+      )}
     </>
   );
 }

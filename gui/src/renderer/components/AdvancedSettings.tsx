@@ -131,9 +131,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                 {(window.env.platform === 'linux' || window.env.platform === 'win32') && (
                   <Cell.CellButtonGroup>
                     <Cell.CellButton onClick={this.props.onViewSplitTunneling}>
-                      <Cell.Label>
-                        {messages.pgettext('advanced-settings-view', 'Split tunneling')}
-                      </Cell.Label>
+                      <Cell.Label>Split tunneling</Cell.Label>
                       <Cell.Icon height={12} width={7} source="icon-chevron" />
                     </Cell.CellButton>
                   </Cell.CellButtonGroup>
