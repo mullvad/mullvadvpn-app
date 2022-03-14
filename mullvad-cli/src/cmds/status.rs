@@ -1,4 +1,4 @@
-use crate::{format, format::print_keygen_event, new_rpc_client, Command, Error, Result};
+use crate::{format, new_rpc_client, Command, Error, Result};
 use mullvad_management_interface::{
     types::daemon_event::Event as EventType, ManagementServiceClient,
 };
@@ -74,10 +74,14 @@ impl Command for Status {
                             println!("New app version info: {:#?}", app_version_info);
                         }
                     }
-                    EventType::KeyEvent(key_event) => {
+                    EventType::Device(device) => {
                         if verbose {
-                            print!("Key event: ");
-                            print_keygen_event(&key_event);
+                            println!("Device event: {:#?}", device);
+                        }
+                    }
+                    EventType::RemoveDevice(device) => {
+                        if verbose {
+                            println!("Remove device event: {:#?}", device);
                         }
                     }
                 }

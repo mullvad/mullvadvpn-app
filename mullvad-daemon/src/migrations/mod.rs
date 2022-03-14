@@ -87,7 +87,12 @@ pub enum Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
+pub(crate) async fn migrate_all(
+    cache_dir: &Path,
+    settings_dir: &Path,
+    rest_handle: mullvad_rpc::rest::MullvadRestHandle,
+    daemon_tx: crate::DaemonEventSender,
+) -> Result<()> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
         .await
@@ -114,10 +119,11 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
     v2::migrate(&mut settings)?;
     v3::migrate(&mut settings)?;
     v4::migrate(&mut settings)?;
-    v5::migrate(&mut settings)?;
 
     account_history::migrate_location(cache_dir, settings_dir).await;
     account_history::migrate_formats(settings_dir, &mut settings).await?;
+
+    v5::migrate(&mut settings, rest_handle, daemon_tx).await?;
 
     if settings == old_settings {
         // Nothing changed

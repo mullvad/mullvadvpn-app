@@ -26,4 +26,4 @@ fi
 pkill -x "mullvad-gui" || true
 
 /opt/Mullvad\ VPN/resources/mullvad-setup reset-firewall || echo "Failed to reset firewall"
-/opt/Mullvad\ VPN/resources/mullvad-setup remove-wireguard-key || echo "Failed to remove leftover WireGuard key"
+/opt/Mullvad\ VPN/resources/mullvad-setup remove-device || echo "Failed to remove device from account"

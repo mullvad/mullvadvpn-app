@@ -1,6 +1,7 @@
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
+    access::AccessTokenProxy,
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
@@ -17,6 +18,7 @@ use hyper::{
     header::{self, HeaderValue},
     Method, Uri,
 };
+use mullvad_types::account::AccountToken;
 use std::{
     future::Future,
     str::FromStr,
@@ -28,6 +30,8 @@ pub use hyper::StatusCode;
 
 pub type Request = hyper::Request<hyper::Body>;
 pub type Response = hyper::Response<hyper::Body>;
+
+const USER_AGENT: &str = "mullvad-app";
 
 const TIMER_CHECK_INTERVAL: Duration = Duration::from_secs(60);
 const API_IP_CHECK_DELAY: Duration = Duration::from_secs(15 * 60);
@@ -285,6 +289,7 @@ impl RestRequest {
 
         let mut builder = http::request::Builder::new()
             .method(Method::GET)
+            .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
             .header(header::ACCEPT, HeaderValue::from_static("application/json"));
         if let Some(host) = uri.host() {
             builder = builder.header(header::HOST, HeaderValue::from_str(&host)?);
@@ -302,11 +307,11 @@ impl RestRequest {
         })
     }
 
-    /// Set the auth header with the following format: `Token $auth`.
+    /// Set the auth header with the following format: `Bearer $auth`.
     pub fn set_auth(&mut self, auth: Option<String>) -> Result<()> {
         let header = match auth {
             Some(auth) => Some(
-                HeaderValue::from_str(&format!("Token {}", auth))
+                HeaderValue::from_str(&format!("Bearer {}", auth))
                     .map_err(Error::InvalidHeaderError)?,
             ),
             None => None,
@@ -399,7 +404,16 @@ impl RequestFactory {
     }
 
     pub fn post_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<RestRequest> {
-        let mut request = self.hyper_request(path, Method::POST)?;
+        self.json_request(Method::POST, path, body)
+    }
+
+    fn json_request<S: serde::Serialize>(
+        &self,
+        method: Method,
+        path: &str,
+        body: &S,
+    ) -> Result<RestRequest> {
+        let mut request = self.hyper_request(path, method)?;
 
         let json_body = serde_json::to_string(&body)?;
         let body_length = json_body.as_bytes().len() as u64;
@@ -429,6 +443,7 @@ impl RequestFactory {
         let request = http::request::Builder::new()
             .method(method)
             .uri(uri)
+            .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
             .header(header::ACCEPT, HeaderValue::from_static("application/json"))
             .header(header::HOST, self.hostname.clone());
 
@@ -468,50 +483,79 @@ pub fn send_request(
     service: RequestServiceHandle,
     uri: &str,
     method: Method,
-    auth: Option<String>,
+    auth: Option<(AccessTokenProxy, AccountToken)>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.request(uri, method);
 
     async move {
         let mut request = request?;
-        request.set_auth(auth)?;
+        if let Some((store, account)) = &auth {
+            let access_token = store.get_token(&account).await?;
+            request.set_auth(Some(access_token))?;
+        }
         let response = service.request(request).await?;
-        parse_rest_response(response, expected_statuses).await
+        let result = parse_rest_response(response, expected_statuses).await;
+
+        if let Some((store, account)) = &auth {
+            store.check_response(&account, &result);
+        }
+
+        result
     }
 }
 
-pub fn post_request_with_json<B: serde::Serialize>(
+pub fn send_json_request<B: serde::Serialize>(
     factory: &RequestFactory,
     service: RequestServiceHandle,
     uri: &str,
+    method: Method,
     body: &B,
-    auth: Option<String>,
+    auth: Option<(AccessTokenProxy, AccountToken)>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
-    let request = factory.post_json(uri, body);
+    let request = factory.json_request(method, uri, body);
     async move {
         let mut request = request?;
-        request.set_auth(auth)?;
+        if let Some((store, account)) = &auth {
+            let access_token = store.get_token(&account).await?;
+            request.set_auth(Some(access_token))?;
+        }
         let response = service.request(request).await?;
-        parse_rest_response(response, expected_statuses).await
+        let result = parse_rest_response(response, expected_statuses).await;
+
+        if let Some((store, account)) = &auth {
+            store.check_response(&account, &result);
+        }
+
+        result
     }
 }
 
-pub async fn deserialize_body<T: serde::de::DeserializeOwned>(mut response: Response) -> Result<T> {
-    let body_length: usize = response
-        .headers()
-        .get(header::CONTENT_LENGTH)
-        .and_then(|header_value| header_value.to_str().ok())
-        .and_then(|length| length.parse::<usize>().ok())
-        .unwrap_or(0);
+pub async fn deserialize_body<T: serde::de::DeserializeOwned>(response: Response) -> Result<T> {
+    let body_length = get_body_length(&response);
+    deserialize_body_inner(response, body_length).await
+}
 
+async fn deserialize_body_inner<T: serde::de::DeserializeOwned>(
+    mut response: Response,
+    body_length: usize,
+) -> Result<T> {
     let mut body: Vec<u8> = Vec::with_capacity(body_length);
     while let Some(chunk) = response.body_mut().next().await {
         body.extend(&chunk?);
     }
 
     serde_json::from_slice(&body).map_err(Error::DeserializeError)
+}
+
+fn get_body_length(response: &Response) -> usize {
+    response
+        .headers()
+        .get(header::CONTENT_LENGTH)
+        .and_then(|header_value| header_value.to_str().ok())
+        .and_then(|length| length.parse::<usize>().ok())
+        .unwrap_or(0)
 }
 
 pub async fn parse_rest_response(
@@ -537,23 +581,27 @@ pub async fn parse_rest_response(
 }
 
 pub async fn handle_error_response<T>(response: Response) -> Result<T> {
-    let error_message = match response.status() {
+    let status = response.status();
+    let error_message = match status {
         hyper::StatusCode::NOT_FOUND => "Not found",
         hyper::StatusCode::METHOD_NOT_ALLOWED => "Method not allowed",
-        status => {
-            let err: ErrorResponse = deserialize_body(response).await?;
-
-            return Err(Error::ApiError(status, err.code));
-        }
+        status => match get_body_length(&response) {
+            0 => status.canonical_reason().unwrap_or("Unexpected error"),
+            body_length => {
+                let err: ErrorResponse = deserialize_body_inner(response, body_length).await?;
+                return Err(Error::ApiError(status, err.code));
+            }
+        },
     };
-    Err(Error::ApiError(response.status(), error_message.to_owned()))
+    Err(Error::ApiError(status, error_message.to_owned()))
 }
 
 #[derive(Clone)]
 pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
-    availability: ApiAvailabilityHandle,
+    pub availability: ApiAvailabilityHandle,
+    pub token_store: AccessTokenProxy,
 }
 
 impl MullvadRestHandle {
@@ -563,10 +611,13 @@ impl MullvadRestHandle {
         address_cache: AddressCache,
         availability: ApiAvailabilityHandle,
     ) -> Self {
+        let token_store = AccessTokenProxy::new(service.clone(), factory.clone());
+
         let handle = Self {
             service,
             factory,
             availability,
+            token_store,
         };
         if !super::API.disable_address_cache {
             handle.spawn_api_address_fetcher(address_cache);

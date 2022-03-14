@@ -44,19 +44,24 @@ service ManagementService {
 
 	// Account management
 	rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
-	rpc SetAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+	rpc LoginAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+	rpc LogoutAccount(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
 	rpc GetAccountHistory(google.protobuf.Empty) returns (AccountHistory) {}
 	rpc ClearAccountHistory(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc GetWwwAuthToken(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
 	rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
 
+	// Device management
+	rpc GetDevice(google.protobuf.Empty) returns (DeviceConfig) {}
+	rpc ListDevices(google.protobuf.StringValue) returns (DeviceList) {}
+	rpc RemoveDevice(DeviceRemoval) returns (google.protobuf.Empty) {}
+
 	// WireGuard key management
 	rpc SetWireguardRotationInterval(google.protobuf.Duration) returns (google.protobuf.Empty) {}
 	rpc ResetWireguardRotationInterval(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc GenerateWireguardKey(google.protobuf.Empty) returns (KeygenEvent) {}
+	rpc RotateWireguardKey(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
-	rpc VerifyWireguardKey(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
 
 	// Split tunneling (Linux)
 	rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
@@ -265,16 +270,15 @@ message BridgeState {
 }
 
 message Settings {
-	string account_token = 1;
-	RelaySettings relay_settings = 2;
-	BridgeSettings bridge_settings = 3;
-	BridgeState bridge_state = 4;
-	bool allow_lan = 5;
-	bool block_when_disconnected = 6;
-	bool auto_connect = 7;
-	TunnelOptions tunnel_options = 8;
-	bool show_beta_releases = 9;
-	SplitTunnelSettings split_tunnel = 10;
+	RelaySettings relay_settings = 1;
+	BridgeSettings bridge_settings = 2;
+	BridgeState bridge_state = 3;
+	bool allow_lan = 4;
+	bool block_when_disconnected = 5;
+	bool auto_connect = 6;
+	TunnelOptions tunnel_options = 7;
+	bool show_beta_releases = 8;
+	SplitTunnelSettings split_tunnel = 9;
 }
 
 message SplitTunnelSettings {
@@ -423,16 +427,6 @@ message PublicKey {
 	google.protobuf.Timestamp created = 2;
 }
 
-message KeygenEvent {
-	enum KeygenEvent {
-		NEW_KEY = 0;
-		TOO_MANY_KEYS = 1;
-		GENERATION_FAILURE = 2;
-	}
-	KeygenEvent event = 1;
-	PublicKey new_key = 2;
-}
-
 message AppVersionInfo {
     bool supported = 1;
     string latest_stable = 2;
@@ -521,10 +515,47 @@ message DaemonEvent {
 		Settings settings = 2;
 		RelayList relay_list = 3;
 		AppVersionInfo version_info = 4;
-		KeygenEvent key_event = 5;
+		DeviceEvent device = 5;
+		RemoveDeviceEvent remove_device = 6;
 	}
 }
 
 message RelayList {
 	repeated RelayListCountry countries = 1;
+}
+
+message DeviceConfig {
+	string account_token = 1;
+	Device device = 2;
+}
+
+message Device {
+	string id = 1;
+	string name = 2;
+	bytes pubkey = 3;
+	repeated DevicePort ports = 4;
+}
+
+message DevicePort {
+	string id = 1;
+}
+
+message DeviceList {
+	repeated Device devices = 1;
+}
+
+message DeviceRemoval {
+	string account_token = 1;
+	string device_id = 2;
+}
+
+message DeviceEvent {
+	DeviceConfig device = 1;
+	bool remote = 2;
+}
+
+message RemoveDeviceEvent {
+	string account_token = 1;
+	Device removed_device = 2;
+	repeated Device new_device_list = 3;
 }

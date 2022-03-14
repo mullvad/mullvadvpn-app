@@ -7,8 +7,11 @@ use jnix::{
 };
 use mullvad_daemon::EventListener;
 use mullvad_types::{
-    relay_list::RelayList, settings::Settings, states::TunnelState, version::AppVersionInfo,
-    wireguard::KeygenEvent,
+    device::{DeviceEvent, RemoveDeviceEvent},
+    relay_list::RelayList,
+    settings::Settings,
+    states::TunnelState,
+    version::AppVersionInfo,
 };
 use std::{sync::mpsc, thread};
 use talpid_types::ErrorExt;
@@ -27,11 +30,12 @@ pub enum Error {
 }
 
 enum Event {
-    KeygenEvent(KeygenEvent),
     RelayList(RelayList),
     Settings(Settings),
     Tunnel(TunnelState),
     AppVersionInfo(AppVersionInfo),
+    DeviceEvent(DeviceEvent),
+    RemoveDeviceEvent(RemoveDeviceEvent),
 }
 
 #[derive(Clone, Debug)]
@@ -44,10 +48,6 @@ impl JniEventListener {
 }
 
 impl EventListener for JniEventListener {
-    fn notify_key_event(&self, key_event: KeygenEvent) {
-        let _ = self.0.send(Event::KeygenEvent(key_event));
-    }
-
     fn notify_new_state(&self, state: TunnelState) {
         let _ = self.0.send(Event::Tunnel(state));
     }
@@ -63,16 +63,25 @@ impl EventListener for JniEventListener {
     fn notify_app_version(&self, app_version_info: AppVersionInfo) {
         let _ = self.0.send(Event::AppVersionInfo(app_version_info));
     }
+
+    fn notify_device_event(&self, event: DeviceEvent) {
+        let _ = self.0.send(Event::DeviceEvent(event));
+    }
+
+    fn notify_remove_device_event(&self, event: RemoveDeviceEvent) {
+        let _ = self.0.send(Event::RemoveDeviceEvent(event));
+    }
 }
 
 struct JniEventHandler<'env> {
     env: JnixEnv<'env>,
     mullvad_ipc_client: JObject<'env>,
     notify_app_version_info_event: JMethodID<'env>,
-    notify_keygen_event: JMethodID<'env>,
     notify_relay_list_event: JMethodID<'env>,
     notify_settings_event: JMethodID<'env>,
     notify_tunnel_event: JMethodID<'env>,
+    notify_device_event: JMethodID<'env>,
+    notify_remove_device_event: JMethodID<'env>,
     events: mpsc::Receiver<Event>,
 }
 
@@ -123,12 +132,6 @@ impl<'env> JniEventHandler<'env> {
             "notifyAppVersionInfoEvent",
             "(Lnet/mullvad/mullvadvpn/model/AppVersionInfo;)V",
         )?;
-        let notify_keygen_event = Self::get_method_id(
-            &env,
-            &class,
-            "notifyKeygenEvent",
-            "(Lnet/mullvad/mullvadvpn/model/KeygenEvent;)V",
-        )?;
         let notify_relay_list_event = Self::get_method_id(
             &env,
             &class,
@@ -147,15 +150,28 @@ impl<'env> JniEventHandler<'env> {
             "notifyTunnelStateEvent",
             "(Lnet/mullvad/mullvadvpn/model/TunnelState;)V",
         )?;
+        let notify_device_event = Self::get_method_id(
+            &env,
+            &class,
+            "notifyDeviceEvent",
+            "(Lnet/mullvad/mullvadvpn/model/DeviceEvent;)V",
+        )?;
+        let notify_remove_device_event = Self::get_method_id(
+            &env,
+            &class,
+            "notifyRemoveDeviceEvent",
+            "(Lnet/mullvad/mullvadvpn/model/RemoveDeviceEvent;)V",
+        )?;
 
         Ok(JniEventHandler {
             env,
             mullvad_ipc_client,
             notify_app_version_info_event,
-            notify_keygen_event,
             notify_relay_list_event,
             notify_settings_event,
             notify_tunnel_event,
+            notify_device_event,
+            notify_remove_device_event,
             events,
         })
     }
@@ -173,31 +189,53 @@ impl<'env> JniEventHandler<'env> {
     fn run(&mut self) {
         while let Ok(event) = self.events.recv() {
             match event {
-                Event::KeygenEvent(keygen_event) => self.handle_keygen_event(keygen_event),
                 Event::RelayList(relay_list) => self.handle_relay_list_event(relay_list),
                 Event::Settings(settings) => self.handle_settings(settings),
                 Event::Tunnel(tunnel_event) => self.handle_tunnel_event(tunnel_event),
                 Event::AppVersionInfo(app_version_info) => {
                     self.handle_app_version_info_event(app_version_info)
                 }
+                Event::DeviceEvent(device_event) => self.handle_device_event(device_event),
+                Event::RemoveDeviceEvent(device_event) => {
+                    self.handle_remove_device_event(device_event)
+                }
             }
         }
     }
 
-    fn handle_keygen_event(&self, event: KeygenEvent) {
-        let java_keygen_event = event.into_java(&self.env);
+    fn handle_device_event(&self, device_event: DeviceEvent) {
+        let java_event = device_event.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
-            self.notify_keygen_event,
+            self.notify_device_event,
             JavaType::Primitive(Primitive::Void),
-            &[JValue::Object(java_keygen_event.as_obj())],
+            &[JValue::Object(java_event.as_obj())],
         );
 
         if let Err(error) = result {
             log::error!(
                 "{}",
-                error.display_chain_with_msg("Failed to call MullvadDaemon.notifyKeygenEvent")
+                error.display_chain_with_msg("Failed to call MullvadDaemon.notifyDeviceEvent")
+            );
+        }
+    }
+
+    fn handle_remove_device_event(&self, remove_event: RemoveDeviceEvent) {
+        let java_event = remove_event.into_java(&self.env);
+
+        let result = self.env.call_method_unchecked(
+            self.mullvad_ipc_client,
+            self.notify_remove_device_event,
+            JavaType::Primitive(Primitive::Void),
+            &[JValue::Object(java_event.as_obj())],
+        );
+
+        if let Err(error) = result {
+            log::error!(
+                "{}",
+                error
+                    .display_chain_with_msg("Failed to call MullvadDaemon.notifyRemoveDeviceEvent")
             );
         }
     }

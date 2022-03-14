@@ -13,7 +13,7 @@ use std::{
     time::Duration,
 };
 
-/// Fetches relay list from <https://api.mullvad.net/v1/relays>
+/// Fetches relay list from https://api.mullvad.net/app/v1/relays
 #[derive(Clone)]
 pub struct RelayListProxy {
     handle: rest::MullvadRestHandle,
@@ -33,7 +33,7 @@ impl RelayListProxy {
         etag: Option<String>,
     ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> {
         let service = self.handle.service.clone();
-        let request = self.handle.factory.request("/v1/relays", Method::GET);
+        let request = self.handle.factory.request("app/v1/relays", Method::GET);
 
         let future = async move {
             let mut request = request?;

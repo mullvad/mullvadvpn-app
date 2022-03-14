@@ -2,7 +2,7 @@ pub use prost_types::{Duration, Timestamp};
 
 use mullvad_types::relay_constraints::Constraint;
 use std::convert::TryFrom;
-use talpid_types::ErrorExt;
+use talpid_types::{net::wireguard, ErrorExt};
 
 tonic::include_proto!("mullvad_daemon.management_interface");
 
@@ -197,22 +197,58 @@ impl From<mullvad_types::states::TunnelState> for TunnelState {
     }
 }
 
-impl From<mullvad_types::wireguard::KeygenEvent> for KeygenEvent {
-    fn from(event: mullvad_types::wireguard::KeygenEvent) -> Self {
-        use keygen_event::KeygenEvent as Event;
-        use mullvad_types::wireguard::KeygenEvent as MullvadEvent;
+impl From<mullvad_types::device::Device> for Device {
+    fn from(device: mullvad_types::device::Device) -> Self {
+        Device {
+            id: device.id,
+            name: device.name,
+            pubkey: device.pubkey.as_bytes().to_vec(),
+            ports: device.ports.into_iter().map(DevicePort::from).collect(),
+        }
+    }
+}
 
-        KeygenEvent {
-            event: match event {
-                MullvadEvent::NewKey(_) => i32::from(Event::NewKey),
-                MullvadEvent::TooManyKeys => i32::from(Event::TooManyKeys),
-                MullvadEvent::GenerationFailure => i32::from(Event::GenerationFailure),
-            },
-            new_key: if let MullvadEvent::NewKey(key) = event {
-                Some(PublicKey::from(key))
-            } else {
-                None
-            },
+impl From<mullvad_types::device::DevicePort> for DevicePort {
+    fn from(port: mullvad_types::device::DevicePort) -> Self {
+        DevicePort { id: port.id }
+    }
+}
+
+impl From<mullvad_types::device::DeviceEvent> for DeviceEvent {
+    fn from(event: mullvad_types::device::DeviceEvent) -> Self {
+        DeviceEvent {
+            device: event.device.map(|config| DeviceConfig {
+                account_token: config.token,
+                device: Some(Device::from(config.device)),
+            }),
+            remote: event.remote,
+        }
+    }
+}
+
+impl From<mullvad_types::device::RemoveDeviceEvent> for RemoveDeviceEvent {
+    fn from(event: mullvad_types::device::RemoveDeviceEvent) -> Self {
+        RemoveDeviceEvent {
+            account_token: event.account_token,
+            removed_device: Some(Device::from(event.removed_device)),
+            new_device_list: event.new_devices.into_iter().map(Device::from).collect(),
+        }
+    }
+}
+
+impl From<mullvad_types::device::DeviceConfig> for DeviceConfig {
+    fn from(device: mullvad_types::device::DeviceConfig) -> Self {
+        DeviceConfig {
+            account_token: device.token,
+            device: Some(Device::from(device.device)),
+        }
+    }
+}
+
+impl From<Vec<mullvad_types::device::Device>> for DeviceList {
+    fn from(devices: Vec<mullvad_types::device::Device>) -> Self {
+        DeviceList {
+            devices: devices.into_iter().map(Device::from).collect(),
         }
     }
 }
@@ -387,7 +423,6 @@ impl From<&mullvad_types::settings::Settings> for Settings {
         let split_tunnel = None;
 
         Self {
-            account_token: settings.get_account_token().unwrap_or_default(),
             relay_settings: Some(RelaySettings::from(settings.get_relay_settings())),
             bridge_settings: Some(BridgeSettings::from(settings.bridge_settings.clone())),
             bridge_state: Some(BridgeState::from(settings.get_bridge_state())),
@@ -689,6 +724,29 @@ pub enum FromProtobufTypeError {
     InvalidArgument(&'static str),
 }
 
+impl TryFrom<Device> for mullvad_types::device::Device {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(device: Device) -> Result<Self, Self::Error> {
+        Ok(mullvad_types::device::Device {
+            id: device.id,
+            name: device.name,
+            pubkey: bytes_to_pubkey(&device.pubkey)?,
+            ports: device
+                .ports
+                .into_iter()
+                .map(mullvad_types::device::DevicePort::from)
+                .collect(),
+        })
+    }
+}
+
+impl From<DevicePort> for mullvad_types::device::DevicePort {
+    fn from(port: DevicePort) -> Self {
+        mullvad_types::device::DevicePort { id: port.id }
+    }
+}
+
 impl TryFrom<&WireguardConstraints> for mullvad_types::relay_constraints::WireguardConstraints {
     type Error = FromProtobufTypeError;
 
@@ -929,7 +987,7 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
     type Error = FromProtobufTypeError;
 
     fn try_from(config: ConnectionConfig) -> Result<mullvad_types::ConnectionConfig, Self::Error> {
-        use talpid_types::net::{self, openvpn, wireguard};
+        use talpid_types::net::{self, openvpn};
 
         let config = config.config.ok_or(FromProtobufTypeError::InvalidArgument(
             "missing connection config",
@@ -974,14 +1032,7 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
                     "missing peer config",
                 ))?;
 
-                // Copy the public key to an array
-                if peer.public_key.len() != 32 {
-                    return Err(FromProtobufTypeError::InvalidArgument("invalid public key"));
-                }
-
-                let mut public_key = [0; 32];
-                let buffer = &peer.public_key[..public_key.len()];
-                public_key.copy_from_slice(buffer);
+                let public_key = bytes_to_pubkey(&peer.public_key)?;
 
                 let ipv4_gateway = match config.ipv4_gateway.parse() {
                     Ok(address) => address,
@@ -1037,7 +1088,7 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
                             addresses: tunnel_addresses,
                         },
                         peer: wireguard::PeerConfig {
-                            public_key: wireguard::PublicKey::from(public_key),
+                            public_key,
                             allowed_ips,
                             endpoint,
                             protocol: try_transport_protocol_from_i32(peer.protocol)?,
@@ -1050,6 +1101,15 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
             }
         }
     }
+}
+
+fn bytes_to_pubkey(bytes: &[u8]) -> Result<wireguard::PublicKey, FromProtobufTypeError> {
+    if bytes.len() != 32 {
+        return Err(FromProtobufTypeError::InvalidArgument("invalid public key"));
+    }
+    let mut public_key = [0; 32];
+    public_key.copy_from_slice(&bytes[..32]);
+    Ok(wireguard::PublicKey::from(public_key))
 }
 
 impl From<RelayLocation> for Constraint<mullvad_types::relay_constraints::LocationConstraint> {

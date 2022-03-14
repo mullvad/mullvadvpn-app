@@ -55,4 +55,12 @@ impl TunnelState {
             _ => false,
         }
     }
+
+    /// Returns true if the tunnel state is in the connected state.
+    pub fn is_connected(&self) -> bool {
+        match self {
+            TunnelState::Connected { .. } => true,
+            _ => false,
+        }
+    }
 }

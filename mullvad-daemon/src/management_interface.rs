@@ -1,4 +1,4 @@
-use crate::{account_history, settings, DaemonCommand, DaemonCommandSender, EventListener};
+use crate::{account_history, device, settings, DaemonCommand, DaemonCommandSender, EventListener};
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
@@ -370,6 +370,7 @@ impl ManagementService for ManagementServiceImpl {
     //
 
     async fn create_new_account(&self, _: Request<()>) -> ServiceResult<String> {
+        log::debug!("create_new_account");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::CreateNewAccount(tx))?;
         self.wait_for_result(rx)
@@ -378,20 +379,25 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn set_account(&self, request: Request<AccountToken>) -> ServiceResult<()> {
-        log::debug!("set_account");
+    async fn login_account(&self, request: Request<AccountToken>) -> ServiceResult<()> {
+        log::debug!("login_account");
         let account_token = request.into_inner();
-        let account_token = if account_token == "" {
-            None
-        } else {
-            Some(account_token)
-        };
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetAccount(tx, account_token))?;
+        self.send_command_to_daemon(DaemonCommand::LoginAccount(tx, account_token))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
-            .map_err(map_settings_error)
+            .map_err(map_daemon_error)
+    }
+
+    async fn logout_account(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("logout_account");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::LogoutAccount(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
     }
 
     async fn get_account_data(
@@ -479,6 +485,44 @@ impl ManagementService for ManagementServiceImpl {
             })
     }
 
+    // Device management
+    async fn get_device(&self, _: Request<()>) -> ServiceResult<types::DeviceConfig> {
+        log::debug!("get_device");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetDevice(tx))?;
+        let device = self
+            .wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)?
+            .ok_or(Status::new(Code::NotFound, "no device is set"))?;
+        Ok(Response::new(types::DeviceConfig::from(device)))
+    }
+
+    async fn list_devices(
+        &self,
+        request: Request<AccountToken>,
+    ) -> ServiceResult<types::DeviceList> {
+        log::debug!("list_devices");
+        let (tx, rx) = oneshot::channel();
+        let token = request.into_inner();
+        self.send_command_to_daemon(DaemonCommand::ListDevices(tx, token))?;
+        let device = self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
+        Ok(Response::new(types::DeviceList::from(device)))
+    }
+
+    async fn remove_device(&self, request: Request<types::DeviceRemoval>) -> ServiceResult<()> {
+        log::debug!("remove_device");
+        let (tx, rx) = oneshot::channel();
+        let removal = request.into_inner();
+        self.send_command_to_daemon(DaemonCommand::RemoveDevice(
+            tx,
+            removal.account_token,
+            removal.device_id,
+        ))?;
+        self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
+        Ok(Response::new(()))
+    }
+
     // WireGuard key management
     //
 
@@ -515,15 +559,13 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_settings_error)
     }
 
-    async fn generate_wireguard_key(&self, _: Request<()>) -> ServiceResult<types::KeygenEvent> {
-        // TODO: return error for TooManyKeys, GenerationFailure
-        // on success, simply return the new key or nil
-        log::debug!("generate_wireguard_key");
+    async fn rotate_wireguard_key(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("rotate_wireguard_key");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GenerateWireguardKey(tx))?;
+        self.send_command_to_daemon(DaemonCommand::RotateWireguardKey(tx))?;
         self.wait_for_result(rx)
             .await?
-            .map(|event| Response::new(types::KeygenEvent::from(event)))
+            .map(Response::new)
             .map_err(map_daemon_error)
     }
 
@@ -536,16 +578,6 @@ impl ManagementService for ManagementServiceImpl {
             Some(key) => Ok(Response::new(types::PublicKey::from(key))),
             None => Err(Status::not_found("no WireGuard key was found")),
         }
-    }
-
-    async fn verify_wireguard_key(&self, _: Request<()>) -> ServiceResult<bool> {
-        log::debug!("verify_wireguard_key");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::VerifyWireguardKey(tx))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
     }
 
     // Split tunneling
@@ -832,12 +864,21 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         })
     }
 
-    fn notify_key_event(&self, key_event: mullvad_types::wireguard::KeygenEvent) {
-        log::debug!("Broadcasting new wireguard key event");
+    fn notify_device_event(&self, device: mullvad_types::device::DeviceEvent) {
+        log::debug!("Broadcasting device event");
         self.notify(types::DaemonEvent {
-            event: Some(daemon_event::Event::KeyEvent(types::KeygenEvent::from(
-                key_event,
+            event: Some(daemon_event::Event::Device(types::DeviceEvent::from(
+                device,
             ))),
+        })
+    }
+
+    fn notify_remove_device_event(&self, remove_event: mullvad_types::device::RemoveDeviceEvent) {
+        log::debug!("Broadcasting remove device event");
+        self.notify(types::DaemonEvent {
+            event: Some(daemon_event::Event::RemoveDevice(
+                types::RemoveDeviceEvent::from(remove_event),
+            )),
         })
     }
 }
@@ -857,6 +898,12 @@ fn map_daemon_error(error: crate::Error) -> Status {
     match error {
         DaemonError::RestError(error) => map_rest_error(error),
         DaemonError::SettingsError(error) => map_settings_error(error),
+        DaemonError::AlreadyLoggedIn => Status::already_exists(error.to_string()),
+        DaemonError::LoginError(error) => map_device_error(error),
+        DaemonError::LogoutError(error) => map_device_error(error),
+        DaemonError::KeyRotationError(error) => map_device_error(error),
+        DaemonError::ListDevicesError(error) => map_device_error(error),
+        DaemonError::RemoveDeviceError(error) => map_device_error(error),
         #[cfg(windows)]
         DaemonError::SplitTunnelError(error) => map_split_tunnel_error(error),
         DaemonError::AccountHistory(error) => map_account_history_error(error),
@@ -926,6 +973,22 @@ fn map_settings_error(error: settings::Error) -> Status {
         settings::Error::SerializeError(..) | settings::Error::ParseError(..) => {
             Status::new(Code::Internal, error.to_string())
         }
+    }
+}
+
+/// Converts an instance of [`mullvad_daemon::device::Error`] into a tonic status.
+fn map_device_error(error: device::Error) -> Status {
+    match error {
+        device::Error::MaxDevicesReached => Status::new(Code::ResourceExhausted, error.to_string()),
+        device::Error::InvalidAccount => Status::new(Code::Unauthenticated, error.to_string()),
+        device::Error::InvalidDevice | device::Error::NoDevice => {
+            Status::new(Code::NotFound, error.to_string())
+        }
+        device::Error::DeviceIoError(ref _error) => {
+            Status::new(Code::Unavailable, error.to_string())
+        }
+        device::Error::OtherRestError(error) => map_rest_error(error),
+        _ => Status::new(Code::Unknown, error.to_string()),
     }
 }
 

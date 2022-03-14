@@ -2,6 +2,7 @@
 
 pub mod account;
 pub mod auth_failed;
+pub mod device;
 pub mod endpoint;
 pub mod location;
 pub mod relay_constraints;
