@@ -91,6 +91,11 @@ const StyledRemoveDeviceButton = styled.button({
   border: 'none',
 });
 
+const StyledRemoveSpinner = styled(ImageView)({
+  alignSelf: 'center',
+  marginTop: '10px',
+});
+
 export default function TooManyDevices() {
   const history = useHistory();
   const { fetchDevices, removeDevice, login, cancelLogin } = useAppContext();
@@ -234,7 +239,7 @@ function Device(props: IDeviceProps) {
         ]}
         close={hideConfirmation}>
         {deleting ? (
-          <ImageView source="icon-spinner" />
+          <StyledRemoveSpinner source="icon-spinner" width={60} />
         ) : (
           <>
             <ModalMessage>
