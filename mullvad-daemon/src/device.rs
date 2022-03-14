@@ -313,7 +313,7 @@ impl AccountManager {
                 let _ = tx.send(self.logout().await);
             }
             AccountManagerCommand::SetData(data, tx) => {
-                let _ = tx.send(self.set(data).await);
+                let _ = tx.send(self.set(InnerDeviceEvent::Login(data)).await);
             }
             AccountManagerCommand::GetData(tx) => {
                 let _ = tx.send(Ok(self.data.clone()));
@@ -340,7 +340,7 @@ impl AccountManager {
 
     async fn login(&mut self, token: AccountToken) -> Result<(), Error> {
         let data = self.device_service.generate_for_account(token).await?;
-        self.set(data).await?;
+        self.set(InnerDeviceEvent::Login(data)).await?;
         Ok(())
     }
 
@@ -375,12 +375,7 @@ impl AccountManager {
         })
     }
 
-    #[inline]
-    async fn set(&mut self, new_data: DeviceData) -> Result<(), Error> {
-        self.set_inner(InnerDeviceEvent::Login(new_data)).await
-    }
-
-    async fn set_inner(&mut self, event: InnerDeviceEvent) -> Result<(), Error> {
+    async fn set(&mut self, event: InnerDeviceEvent) -> Result<(), Error> {
         let data = event.data();
         if data == self.data.as_ref() {
             return Ok(());
@@ -421,7 +416,7 @@ impl AccountManager {
         let mut new_data = data.clone();
         new_data.device.pubkey = wg_data.private_key.public_key();
         new_data.wg_data = wg_data;
-        self.set_inner(InnerDeviceEvent::RotatedKey(new_data)).await
+        self.set(InnerDeviceEvent::RotatedKey(new_data)).await
     }
 
     /// Check if the device is valid for the account, and yank it if it no longer exists.
@@ -453,7 +448,7 @@ impl AccountManager {
                             device,
                             ..data.clone()
                         };
-                        self.set_inner(InnerDeviceEvent::Updated(new_data)).await?;
+                        self.set(InnerDeviceEvent::Updated(new_data)).await?;
                         Ok(ValidationResult::Updated)
                     }
                 } else {
