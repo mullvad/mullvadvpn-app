@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.tasks.factory.dependsOn
 import java.io.FileInputStream
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -104,6 +105,8 @@ android {
             }
         }
     }
+
+    project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
 }
 
 configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
@@ -129,6 +132,14 @@ tasks.register("copyExtraAssets", Copy::class) {
     from("$repoRootPath/dist-assets")
     include("relays.json")
     into(extraAssetsDirectory)
+}
+
+tasks.register("ensureJniDirectoryExist") {
+    doFirst {
+        if (!file(extraJniDirectory).exists()) {
+            throw GradleException("Missing JNI directory: $extraJniDirectory")
+        }
+    }
 }
 
 play {
