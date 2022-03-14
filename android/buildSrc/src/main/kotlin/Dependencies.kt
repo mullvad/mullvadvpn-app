@@ -23,7 +23,6 @@ object Dependencies {
             "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.AndroidX.lifecycle}"
         const val recyclerview =
             "androidx.recyclerview:recyclerview:${Versions.AndroidX.recyclerview}"
-        const val junit = "androidx.test.ext:junit:${Versions.AndroidX.junit}"
         const val espressoCore =
             "androidx.test.espresso:espresso-core:${Versions.AndroidX.espresso}"
         const val espressoContrib =
