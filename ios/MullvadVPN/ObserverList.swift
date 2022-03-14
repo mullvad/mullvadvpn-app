@@ -8,46 +8,80 @@
 
 import Foundation
 
-protocol WeakObserverBox: Equatable {
-    associatedtype Wrapped
+struct WeakBox<T> {
+    var value: T? {
+        return valueProvider()
+    }
 
-    var inner: Wrapped? { get }
+    private let valueProvider: (() -> T?)
+
+    init(_ value: T) {
+        let reference = value as AnyObject
+
+        valueProvider = { [weak reference] in
+            return reference as? T
+        }
+    }
+
+    static func == (lhs: WeakBox<T>, rhs: T) -> Bool {
+        return (lhs.value as AnyObject) === (rhs as AnyObject)
+    }
 }
 
-class ObserverList<T: WeakObserverBox> {
-    private let lock = NSRecursiveLock()
-    private var observers = [T]()
+final class ObserverList<T> {
+    private let lock = NSLock()
+    private var observers = [WeakBox<T>]()
 
     func append(_ observer: T) {
-        lock.withCriticalBlock {
-            if !self.observers.contains(observer) {
-                self.observers.append(observer)
-            }
+        lock.lock()
+
+        let hasObserver = observers.contains { box in
+            return box == observer
         }
+
+        if !hasObserver {
+            observers.append(WeakBox(observer))
+        }
+
+        lock.unlock()
     }
 
     func remove(_ observer: T) {
-        lock.withCriticalBlock {
-            self.observers.removeAll { $0 == observer }
+        lock.lock()
+
+        let index = observers.firstIndex { box in
+            return box == observer
         }
+
+        if let index = index {
+            observers.remove(at: index)
+        }
+
+        lock.unlock()
     }
 
     func forEach(_ body: (T) -> Void) {
-        lock.withCriticalBlock {
-            var discardObservers = [T]()
-            self.observers.forEach { (boxedObserver) in
-                body(boxedObserver)
+        lock.lock()
 
-                if boxedObserver.inner == nil {
-                    discardObservers.append(boxedObserver)
-                }
-            }
+        var indicesToRemove = [Int]()
+        var observersToNotify = [T]()
 
-            if !discardObservers.isEmpty {
-                self.observers.removeAll { (observer) -> Bool in
-                    return discardObservers.contains(observer)
-                }
+        for (index, box) in observers.enumerated() {
+            if let observer = box.value {
+                observersToNotify.append(observer)
+            } else {
+                indicesToRemove.append(index)
             }
+        }
+
+        for index in indicesToRemove.reversed() {
+            observers.remove(at: index)
+        }
+
+        lock.unlock()
+
+        for observer in observersToNotify {
+            body(observer)
         }
     }
 }

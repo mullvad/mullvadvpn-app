@@ -23,31 +23,6 @@ protocol AccountObserver: AnyObject {
     func accountDidLogout(_ account: Account)
 }
 
-/// A type-erasing weak container for `AccountObserver`
-private class AnyAccountObserver: AccountObserver, WeakObserverBox, Equatable {
-    private(set) weak var inner: AccountObserver?
-
-    init<T: AccountObserver>(_ inner: T) {
-        self.inner = inner
-    }
-
-    func account(_ account: Account, didUpdateExpiry expiry: Date) {
-        inner?.account(account, didUpdateExpiry: expiry)
-    }
-
-    func account(_ account: Account, didLoginWithToken token: String, expiry: Date) {
-        inner?.account(account, didLoginWithToken: token, expiry: expiry)
-    }
-
-    func accountDidLogout(_ account: Account) {
-        inner?.accountDidLogout(account)
-    }
-
-    static func == (lhs: AnyAccountObserver, rhs: AnyAccountObserver) -> Bool {
-        return lhs.inner === rhs.inner
-    }
-}
-
 /// A class that groups the account related operations
 class Account {
 
@@ -77,7 +52,7 @@ class Account {
     static let shared = Account()
 
     private let logger = Logger(label: "Account")
-    private var observerList = ObserverList<AnyAccountObserver>()
+    private var observerList = ObserverList<AccountObserver>()
 
     /// Returns true if user agreed to terms of service, otherwise false
     var isAgreedToTermsOfService: Bool {
@@ -246,12 +221,12 @@ class Account {
 
     // MARK: - Account observation
 
-    func addObserver<T: AccountObserver>(_ observer: T) {
-        observerList.append(AnyAccountObserver(observer))
+    func addObserver(_ observer: AccountObserver) {
+        observerList.append(observer)
     }
 
-    func removeObserver<T: AccountObserver>(_ observer: T) {
-        observerList.remove(AnyAccountObserver(observer))
+    func removeObserver(_ observer: AccountObserver) {
+        observerList.remove(observer)
     }
 }
 
