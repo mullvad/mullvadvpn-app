@@ -13,6 +13,7 @@ import NetworkExtension
 
 protocol VPNConnectionProtocol: NSObject {
     var status: NEVPNStatus { get }
+    var connectedDate: Date? { get }
 
     func startVPNTunnel() throws
     func startVPNTunnel(options: [String: NSObject]?) throws
@@ -86,12 +87,15 @@ class SimulatorTunnelProvider {
 
     var delegate: SimulatorTunnelProviderDelegate! {
         get {
-            lock.withCriticalBlock { _delegate }
+            lock.lock()
+            defer { lock.unlock() }
+
+            return _delegate
         }
         set {
-            lock.withCriticalBlock {
-                _delegate = newValue
-            }
+            lock.lock()
+            _delegate = newValue
+            lock.unlock()
         }
     }
 
@@ -105,52 +109,72 @@ class SimulatorTunnelProvider {
 // MARK: - NEVPNConnection stubs
 
 class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
-
     // Protocol configuration is automatically synced by `SimulatorTunnelInfo`
     fileprivate var protocolConfiguration = NEVPNProtocol()
 
     private let lock = NSRecursiveLock()
-
     private var _status: NEVPNStatus = .disconnected
+    private var _reasserting = false
+    private var _connectedDate: Date?
+
     private(set) var status: NEVPNStatus {
         get {
-            return lock.withCriticalBlock {
-                return _status
-            }
+            lock.lock()
+            defer { lock.unlock() }
+
+            return _status
         }
         set {
-            lock.withCriticalBlock {
-                if newValue != _status {
-                    _status = newValue
+            lock.lock()
 
-                    // Send notification while holding the lock. This should enable the receiver
-                    // to fetch the `SimulatorVPNConnection.status` before it changes.
-                    postStatusDidChangeNotification()
-                }
+            if _status != newValue {
+                _status = newValue
+
+                // Send notification while holding the lock. This should enable the receiver
+                // to fetch the `SimulatorVPNConnection.status` before the concurrent code gets
+                // opportunity to change it again.
+                postStatusDidChangeNotification()
             }
+
+            lock.unlock()
         }
     }
 
-    private var statusBeforeReasserting: NEVPNStatus?
-    private var _reasserting = false
     var reasserting: Bool {
         get {
-            lock.withCriticalBlock { _reasserting }
+            lock.lock()
+            defer { lock.unlock() }
+
+            return _reasserting
         }
         set {
-            lock.withCriticalBlock {
-                if newValue != _reasserting {
-                    _reasserting = newValue
+            lock.lock()
 
-                    if newValue {
-                        statusBeforeReasserting = status
-                        status = .reasserting
-                    } else if let newStatus = statusBeforeReasserting {
-                        status = newStatus
-                        statusBeforeReasserting = nil
-                    }
+            if _reasserting != newValue {
+                _reasserting = newValue
+
+                if newValue {
+                    status = .reasserting
+                } else {
+                    status = .connected
                 }
             }
+
+            lock.unlock()
+        }
+    }
+
+    private(set) var connectedDate: Date? {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+
+            return _connectedDate
+        }
+        set {
+            lock.lock()
+            _connectedDate = newValue
+            lock.unlock()
         }
     }
 
@@ -166,8 +190,10 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
         SimulatorTunnelProvider.shared.delegate.startTunnel(options: options) { (error) in
             if error == nil {
                 self.status = .connected
+                self.connectedDate = Date()
             } else {
                 self.status = .disconnected
+                self.connectedDate = nil
             }
         }
     }
@@ -177,6 +203,7 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
 
         SimulatorTunnelProvider.shared.delegate.stopTunnel(with: .userInitiated) {
             self.status = .disconnected
+            self.connectedDate = nil
         }
     }
 
@@ -238,70 +265,97 @@ class SimulatorTunnelProviderManager: VPNTunnelProviderManagerProtocol, Equatabl
     private let lock = NSLock()
     private var tunnelInfo: SimulatorTunnelInfo
     private var identifier: String {
-        lock.withCriticalBlock { tunnelInfo.identifier }
+        lock.lock()
+        defer { lock.unlock() }
+
+        return tunnelInfo.identifier
     }
 
     var isOnDemandEnabled: Bool {
         get {
-            lock.withCriticalBlock { tunnelInfo.isOnDemandEnabled }
+            lock.lock()
+            defer { lock.unlock() }
+
+            return tunnelInfo.isOnDemandEnabled
         }
         set {
-            lock.withCriticalBlock {
-                tunnelInfo.isOnDemandEnabled = newValue
-            }
+            lock.lock()
+            tunnelInfo.isOnDemandEnabled = newValue
+            lock.unlock()
         }
     }
 
     var onDemandRules: [NEOnDemandRule] {
         get {
-            lock.withCriticalBlock { tunnelInfo.onDemandRules }
+            lock.lock()
+            defer { lock.unlock() }
+
+            return tunnelInfo.onDemandRules
         }
         set {
-            lock.withCriticalBlock { tunnelInfo.onDemandRules = newValue }
+            lock.lock()
+            tunnelInfo.onDemandRules = newValue
+            lock.unlock()
         }
     }
 
     var isEnabled: Bool {
         get {
-            lock.withCriticalBlock { tunnelInfo.isEnabled }
+            lock.lock()
+            defer { lock.unlock() }
+
+            return tunnelInfo.isEnabled
         }
         set {
-            lock.withCriticalBlock {
-                tunnelInfo.isEnabled = newValue
-            }
+            lock.lock()
+            tunnelInfo.isEnabled = newValue
+            lock.unlock()
         }
     }
 
     var protocolConfiguration: NEVPNProtocol? {
         get {
-            lock.withCriticalBlock { tunnelInfo.protocolConfiguration }
+            lock.lock()
+            defer { lock.unlock() }
+
+            return tunnelInfo.protocolConfiguration
         }
         set {
-            lock.withCriticalBlock {
-                tunnelInfo.protocolConfiguration = newValue
-            }
+            lock.lock()
+            tunnelInfo.protocolConfiguration = newValue
+            lock.unlock()
         }
     }
 
     var localizedDescription: String? {
         get {
-            lock.withCriticalBlock { tunnelInfo.localizedDescription }
+            lock.lock()
+            defer { lock.unlock() }
+
+            return tunnelInfo.localizedDescription
         }
         set {
-            lock.withCriticalBlock {
-                tunnelInfo.localizedDescription = newValue
-            }
+            lock.lock()
+            tunnelInfo.localizedDescription = newValue
+            lock.unlock()
         }
     }
 
     var connection: SimulatorVPNConnection {
-        lock.withCriticalBlock { tunnelInfo.connection }
+        lock.lock()
+        defer { lock.unlock() }
+
+        return tunnelInfo.connection
     }
 
     static func loadAllFromPreferences(completionHandler: ([SimulatorTunnelProviderManager]?, Error?) -> Void) {
-        tunnelsLock.withCriticalBlock {
-            completionHandler(tunnels.map { SimulatorTunnelProviderManager(tunnelInfo: $0) }, nil)
+        Self.tunnelsLock.lock()
+        let tunnelProviders = tunnels.map { tunnelInfo in
+            return SimulatorTunnelProviderManager(tunnelInfo: tunnelInfo)
         }
+        Self.tunnelsLock.unlock()
+
+        completionHandler(tunnelProviders, nil)
     }
 
     required convenience init() {
@@ -313,39 +367,49 @@ class SimulatorTunnelProviderManager: VPNTunnelProviderManagerProtocol, Equatabl
     }
 
     func loadFromPreferences(completionHandler: (Error?) -> Void) {
-        Self.tunnelsLock.withCriticalBlock {
-            if let savedTunnel = Self.tunnels.first(where: { $0.identifier == self.identifier }) {
-                self.tunnelInfo = savedTunnel
+        var error: NEVPNError?
 
-                completionHandler(nil)
-            } else {
-                completionHandler(NEVPNError(.configurationInvalid))
-            }
+        Self.tunnelsLock.lock()
 
+        if let savedTunnel = Self.tunnels.first(where: { $0.identifier == self.identifier }) {
+            self.tunnelInfo = savedTunnel
+        } else {
+            error = NEVPNError(.configurationInvalid)
         }
+
+        Self.tunnelsLock.unlock()
+
+        completionHandler(error)
     }
 
     func saveToPreferences(completionHandler: ((Error?) -> Void)?) {
-        Self.tunnelsLock.withCriticalBlock {
-            if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
-                Self.tunnels[index] = self.tunnelInfo
-            } else {
-                Self.tunnels.append(self.tunnelInfo)
-            }
+        Self.tunnelsLock.lock()
 
-            completionHandler?(nil)
+        if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
+            Self.tunnels[index] = self.tunnelInfo
+        } else {
+            Self.tunnels.append(self.tunnelInfo)
         }
+
+        Self.tunnelsLock.unlock()
+
+        completionHandler?(nil)
     }
 
     func removeFromPreferences(completionHandler: ((Error?) -> Void)?) {
-        Self.tunnelsLock.withCriticalBlock {
-            if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
-                Self.tunnels.remove(at: index)
-                completionHandler?(nil)
-            } else {
-                completionHandler?(NEVPNError(.configurationReadWriteFailed))
-            }
+        var error: NEVPNError?
+
+        Self.tunnelsLock.lock()
+
+        if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
+            Self.tunnels.remove(at: index)
+        } else {
+            error = NEVPNError(.configurationReadWriteFailed)
         }
+
+        Self.tunnelsLock.unlock()
+
+        completionHandler?(error)
     }
 
     static func == (lhs: SimulatorTunnelProviderManager, rhs: SimulatorTunnelProviderManager) -> Bool {
