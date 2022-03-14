@@ -679,9 +679,7 @@ where
         .await
         .map_err(Error::LoadAccountHistory)?;
 
-        let target_state = if data.is_none() {
-            PersistentTargetState::force(&cache_dir, TargetState::Unsecured).await
-        } else if settings.auto_connect {
+        let target_state = if settings.auto_connect {
             log::info!("Automatically connecting since auto-connect is turned on");
             PersistentTargetState::force(&cache_dir, TargetState::Secured).await
         } else {
