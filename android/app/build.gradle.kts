@@ -185,7 +185,7 @@ dependencies {
     debugImplementation(Dependencies.AndroidX.fragmentTestning)
     androidTestImplementation(Dependencies.AndroidX.espressoContrib)
     androidTestImplementation(Dependencies.AndroidX.espressoCore)
-    androidTestImplementation(Dependencies.AndroidX.junit)
+//    androidTestImplementation(Dependencies.AndroidX.junit)
     androidTestImplementation(Dependencies.Koin.test)
     androidTestImplementation(Dependencies.Kotlin.test)
     androidTestImplementation(Dependencies.MockK.android)
