@@ -16,7 +16,6 @@ import SelectLanguagePage from '../containers/SelectLanguagePage';
 import SelectLocationPage from '../containers/SelectLocationPage';
 import SettingsPage from '../containers/SettingsPage';
 import SupportPage from '../containers/SupportPage';
-import WireguardKeysPage from '../containers/WireguardKeysPage';
 import WireguardSettingsPage from '../containers/WireguardSettingsPage';
 import { IHistoryProps, ITransitionSpecification, transitions, withHistory } from '../lib/history';
 import {
@@ -27,6 +26,8 @@ import {
 } from './ExpiredAccountAddTime';
 import { RoutePath } from '../lib/routes';
 import FilterByProvider from './FilterByProvider';
+import TooManyDevices from './TooManyDevices';
+import { DeviceRevokedView } from './DeviceRevokedView';
 
 interface IAppRoutesState {
   currentLocation: IHistoryProps['history']['location'];
@@ -77,6 +78,8 @@ class AppRouter extends React.Component<IHistoryProps, IAppRoutesState> {
               <Switch key={location.key} location={location}>
                 <Route exact path={RoutePath.launch} component={Launch} />
                 <Route exact path={RoutePath.login} component={LoginPage} />
+                <Route exact path={RoutePath.tooManyDevices} component={TooManyDevices} />
+                <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />
                 <Route exact path={RoutePath.main} component={MainView} />
                 <Route exact path={RoutePath.redeemVoucher} component={VoucherInput} />
                 <Route
@@ -92,7 +95,6 @@ class AppRouter extends React.Component<IHistoryProps, IAppRoutesState> {
                 <Route exact path={RoutePath.preferences} component={PreferencesPage} />
                 <Route exact path={RoutePath.advancedSettings} component={AdvancedSettingsPage} />
                 <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsPage} />
-                <Route exact path={RoutePath.wireguardKeys} component={WireguardKeysPage} />
                 <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettingsPage} />
                 <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
                 <Route exact path={RoutePath.support} component={SupportPage} />

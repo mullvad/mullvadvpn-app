@@ -6,15 +6,17 @@ import {
   BridgeState,
   IAccountData,
   IAppVersionInfo,
+  IDevice,
+  IDeviceConfig,
+  IDeviceRemoval,
   IDnsOptions,
   ILocation,
   IRelayList,
   ISettings,
-  IWireguardPublicKey,
-  KeygenEvent,
   RelaySettingsUpdate,
   TunnelState,
   VoucherResponse,
+  IDeviceEvent,
 } from './daemon-rpc-types';
 import { IGuiSettingsState } from './gui-settings-state';
 import { LogLevel } from './logging-types';
@@ -52,11 +54,11 @@ export interface IAppStateSnapshot {
   accountHistory?: AccountToken;
   tunnelState: TunnelState;
   settings: ISettings;
+  deviceConfig?: IDeviceConfig;
   relayListPair: IRelayListPair;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppVersionInfo;
   guiSettings: IGuiSettingsState;
-  wireguardPublicKey?: IWireguardPublicKey;
   translations: ITranslations;
   windowsSplitTunnelingApplications?: IApplication[];
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
@@ -166,12 +168,17 @@ export const ipcSchema = {
   },
   account: {
     '': notifyRenderer<IAccountData | undefined>(),
+    device: notifyRenderer<IDeviceEvent>(),
+    devices: notifyRenderer<Array<IDevice>>(),
     create: invoke<void, string>(),
     login: invoke<AccountToken, void>(),
     logout: invoke<void, void>(),
     getWwwAuthToken: invoke<void, string>(),
     submitVoucher: invoke<string, VoucherResponse>(),
     updateData: send<void>(),
+    getDevice: invoke<void, IDevice | undefined>(),
+    listDevices: invoke<AccountToken, Array<IDevice>>(),
+    removeDevice: invoke<IDeviceRemoval, void>(),
   },
   accountHistory: {
     '': notifyRenderer<AccountToken | undefined>(),
@@ -180,12 +187,6 @@ export const ipcSchema = {
   autoStart: {
     '': notifyRenderer<boolean>(),
     set: invoke<boolean, void>(),
-  },
-  wireguardKeys: {
-    publicKey: notifyRenderer<IWireguardPublicKey | undefined>(),
-    keygenEvent: notifyRenderer<KeygenEvent>(),
-    generateKey: invoke<void, KeygenEvent>(),
-    verifyKey: invoke<void, boolean>(),
   },
   problemReport: {
     collectLogs: invoke<string | undefined, string>(),

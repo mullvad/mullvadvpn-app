@@ -11,7 +11,6 @@ import { AppContext } from './context';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
-import { IWgKey } from './redux/settings/reducers';
 import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
@@ -32,16 +31,18 @@ import {
   BridgeState,
   IAccountData,
   IAppVersionInfo,
+  IDevice,
+  IDeviceConfig,
+  IDeviceRemoval,
   IDnsOptions,
   ILocation,
   ISettings,
-  IWireguardPublicKey,
-  KeygenEvent,
   liftConstraint,
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
   VoucherResponse,
+  IDeviceEvent,
 } from '../shared/daemon-rpc-types';
 import { LogLevel } from '../shared/logging-types';
 import IpcOutput from './lib/logging';
@@ -55,6 +56,8 @@ interface IPreferredLocaleDescriptor {
   name: string;
   code: string;
 }
+
+type LoginState = 'none' | 'logging in' | 'creating account' | 'too many devices';
 
 const SUPPORTED_LOCALE_LIST = [
   { name: 'Dansk', code: 'da' },
@@ -95,8 +98,10 @@ export default class AppRenderer {
   private relayListPair!: IRelayListPair;
   private tunnelState!: TunnelState;
   private settings!: ISettings;
+  private deviceConfig?: IDeviceConfig;
   private guiSettings!: IGuiSettingsState;
-  private doingLogin = false;
+  private loginState: LoginState = 'none';
+  private previousLoginState: LoginState = 'none';
   private loginScheduler = new Scheduler();
   private connectedToDaemon = false;
   private getLocationPromise?: Promise<ILocation>;
@@ -123,6 +128,15 @@ export default class AppRenderer {
       this.setAccountExpiry(newAccountData?.expiry);
     });
 
+    IpcRendererEventChannel.account.listenDevice((deviceEvent) => {
+      const oldDeviceConfig = this.deviceConfig;
+      this.handleAccountChange(deviceEvent, oldDeviceConfig?.accountToken);
+    });
+
+    IpcRendererEventChannel.account.listenDevices((devices) => {
+      this.reduxActions.account.updateDevices(devices);
+    });
+
     IpcRendererEventChannel.accountHistory.listen((newAccountHistory?: AccountToken) => {
       this.setAccountHistory(newAccountHistory);
     });
@@ -133,10 +147,7 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
-      const oldSettings = this.settings;
-
       this.setSettings(newSettings);
-      this.handleAccountChange(oldSettings.accountToken, newSettings.accountToken);
       this.updateBlockedState(this.tunnelState, newSettings.blockWhenDisconnected);
     });
 
@@ -158,14 +169,6 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.autoStart.listen((autoStart: boolean) => {
       this.storeAutoStart(autoStart);
-    });
-
-    IpcRendererEventChannel.wireguardKeys.listenPublicKey((publicKey?: IWireguardPublicKey) => {
-      this.setWireguardPublicKey(publicKey);
-    });
-
-    IpcRendererEventChannel.wireguardKeys.listenKeygenEvent((event: KeygenEvent) => {
-      this.reduxActions.settings.setWireguardKeygenEvent(event);
     });
 
     IpcRendererEventChannel.windowsSplitTunneling.listen((applications: IApplication[]) => {
@@ -201,7 +204,7 @@ export default class AppRenderer {
 
     this.setAccountExpiry(initialState.accountData?.expiry);
     this.setSettings(initialState.settings);
-    this.handleAccountChange(undefined, initialState.settings.accountToken);
+    this.handleAccountChange({ deviceConfig: initialState.deviceConfig }, undefined);
     this.setAccountHistory(initialState.accountHistory);
     this.setTunnelState(initialState.tunnelState);
     this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
@@ -211,7 +214,6 @@ export default class AppRenderer {
     this.setUpgradeVersion(initialState.upgradeVersion);
     this.setGuiSettings(initialState.guiSettings);
     this.storeAutoStart(initialState.autoStart);
-    this.setWireguardPublicKey(initialState.wireguardPublicKey);
     this.setChangelog(initialState.changelog);
 
     if (initialState.macOsScrollbarVisibility !== undefined) {
@@ -237,10 +239,7 @@ export default class AppRenderer {
 
     void this.updateLocation();
 
-    const navigationBase = this.getNavigationBase(
-      initialState.isConnected,
-      initialState.settings.accountToken,
-    );
+    const navigationBase = this.getNavigationBase();
     this.history = new History(navigationBase);
   }
 
@@ -264,24 +263,34 @@ export default class AppRenderer {
     );
   }
 
-  public async login(accountToken: AccountToken) {
+  public login = async (accountToken: AccountToken) => {
     const actions = this.reduxActions;
     actions.account.startLogin(accountToken);
 
     log.info('Logging in');
 
-    this.doingLogin = true;
+    this.previousLoginState = this.loginState;
+    this.loginState = 'logging in';
 
     try {
       await IpcRendererEventChannel.account.login(accountToken);
-      actions.account.updateAccountToken(accountToken);
-      actions.account.loggedIn();
-      this.redirectToConnect();
     } catch (e) {
       const error = e as Error;
-      actions.account.loginFailed(error);
+      if (error.message === 'Too many devices') {
+        actions.account.loginTooManyDevices(error);
+        this.loginState = 'too many devices';
+        this.history.reset(RoutePath.tooManyDevices, transitions.push);
+      } else {
+        actions.account.loginFailed(error);
+      }
     }
-  }
+  };
+
+  public cancelLogin = (): void => {
+    const reduxAccount = this.reduxActions.account;
+    reduxAccount.loggedOut();
+    this.loginState = 'none';
+  };
 
   public async logout() {
     try {
@@ -292,17 +301,22 @@ export default class AppRenderer {
     }
   }
 
+  public leaveRevokedDevice = async () => {
+    const reduxAccount = this.reduxActions.account;
+    reduxAccount.loggedOut();
+    this.resetNavigation();
+    await this.disconnectTunnel();
+  };
+
   public async createNewAccount() {
     log.info('Creating account');
 
     const actions = this.reduxActions;
     actions.account.startCreateAccount();
-    this.doingLogin = true;
+    this.loginState = 'creating account';
 
     try {
-      const accountToken = await IpcRendererEventChannel.account.create();
-      const accountExpiry = new Date().toISOString();
-      actions.account.accountCreated(accountToken, accountExpiry);
+      await IpcRendererEventChannel.account.create();
       this.redirectToConnect();
     } catch (e) {
       const error = e as Error;
@@ -316,6 +330,20 @@ export default class AppRenderer {
 
   public updateAccountData(): void {
     IpcRendererEventChannel.account.updateData();
+  }
+
+  public getDevice = (): Promise<IDevice | undefined> => {
+    return IpcRendererEventChannel.account.getDevice();
+  };
+
+  public fetchDevices = async (accountToken: AccountToken): Promise<Array<IDevice>> => {
+    const devices = await IpcRendererEventChannel.account.listDevices(accountToken);
+    this.reduxActions.account.updateDevices(devices);
+    return devices;
+  };
+
+  public removeDevice(deviceRemoval: IDeviceRemoval): Promise<void> {
+    return IpcRendererEventChannel.account.removeDevice(deviceRemoval);
   }
 
   public async connectTunnel(): Promise<void> {
@@ -423,33 +451,6 @@ export default class AppRenderer {
 
   public setUnpinnedWindow(unpinnedWindow: boolean) {
     IpcRendererEventChannel.guiSettings.setUnpinnedWindow(unpinnedWindow);
-  }
-
-  public async verifyWireguardKey(publicKey: IWgKey) {
-    const actions = this.reduxActions;
-    actions.settings.verifyWireguardKey(publicKey);
-    try {
-      const valid = await IpcRendererEventChannel.wireguardKeys.verifyKey();
-      actions.settings.completeWireguardKeyVerification(valid);
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to verify WireGuard key - ${error.message}`);
-      actions.settings.completeWireguardKeyVerification(undefined);
-    }
-  }
-
-  public async generateWireguardKey() {
-    const actions = this.reduxActions;
-    actions.settings.generateWireguardKey();
-    const keygenEvent = await IpcRendererEventChannel.wireguardKeys.generateKey();
-    actions.settings.setWireguardKeygenEvent(keygenEvent);
-  }
-
-  public async replaceWireguardKey(oldKey: IWgKey) {
-    const actions = this.reduxActions;
-    actions.settings.replaceWireguardKey(oldKey);
-    const keygenEvent = await IpcRendererEventChannel.wireguardKeys.generateKey();
-    actions.settings.setWireguardKeygenEvent(keygenEvent);
   }
 
   public getLinuxSplitTunnelingApplications() {
@@ -650,40 +651,56 @@ export default class AppRenderer {
 
   private resetNavigation() {
     if (this.history) {
-      const pathname = this.history.location.pathname;
-      const nextPath = this.getNavigationBase(this.connectedToDaemon, this.settings.accountToken);
+      const pathname = this.history.location.pathname as RoutePath;
+      const nextPath = this.getNavigationBase() as RoutePath;
 
-      // First level contains the possible next locations and the second level contains the possible
-      // current locations.
-      const navigationTransitions: {
-        [from: string]: { [to: string]: ITransitionSpecification };
-      } = {
-        '/': {
-          '/login': transitions.pop,
-          '/main': transitions.pop,
-          '*': transitions.dismiss,
-        },
-        '/login': {
-          '/': transitions.push,
-          '/main': transitions.pop,
-          '*': transitions.none,
-        },
-        '/main': {
-          '/': transitions.push,
-          '/login': transitions.push,
-          '*': transitions.dismiss,
-        },
-      };
+      if (pathname !== nextPath) {
+        // First level contains the possible next locations and the second level contains the
+        // possible current locations.
+        const navigationTransitions: Partial<
+          Record<RoutePath, Partial<Record<RoutePath | '*', ITransitionSpecification>>>
+        > = {
+          [RoutePath.launch]: {
+            [RoutePath.login]: transitions.pop,
+            [RoutePath.main]: transitions.pop,
+            '*': transitions.dismiss,
+          },
+          [RoutePath.login]: {
+            [RoutePath.launch]: transitions.push,
+            [RoutePath.main]: transitions.pop,
+            [RoutePath.deviceRevoked]: transitions.pop,
+            '*': transitions.none,
+          },
+          [RoutePath.main]: {
+            [RoutePath.launch]: transitions.push,
+            [RoutePath.login]: transitions.push,
+            [RoutePath.tooManyDevices]: transitions.push,
+            '*': transitions.dismiss,
+          },
+          [RoutePath.deviceRevoked]: {
+            '*': transitions.pop,
+          },
+        };
 
-      const transition =
-        navigationTransitions[nextPath][pathname] ?? navigationTransitions[nextPath]['*'];
-      this.history.reset(nextPath, transition);
+        const transition =
+          navigationTransitions[nextPath]?.[pathname] ?? navigationTransitions[nextPath]?.['*'];
+        this.history.reset(nextPath, transition);
+      }
     }
   }
 
-  private getNavigationBase(connectedToDaemon: boolean, accountToken?: string): RoutePath {
-    if (connectedToDaemon) {
-      return accountToken ? RoutePath.main : RoutePath.login;
+  private getNavigationBase(): RoutePath {
+    if (this.connectedToDaemon) {
+      const loginState = this.reduxStore.getState().account.status;
+      const deviceRevoked = loginState.type === 'none' && loginState.deviceRevoked;
+
+      if (deviceRevoked) {
+        return RoutePath.deviceRevoked;
+      } else if (this.deviceConfig?.accountToken) {
+        return RoutePath.main;
+      } else {
+        return RoutePath.login;
+      }
     } else {
       return RoutePath.launch;
     }
@@ -772,22 +789,49 @@ export default class AppRenderer {
     }
   }
 
-  private handleAccountChange(oldAccount?: string, newAccount?: string) {
+  private handleAccountChange(newDeviceEvent: IDeviceEvent, oldAccount?: string) {
     const reduxAccount = this.reduxActions.account;
+
+    this.deviceConfig = newDeviceEvent.deviceConfig;
+    const newAccount = newDeviceEvent.deviceConfig?.accountToken;
+    const newDevice = newDeviceEvent.deviceConfig?.device;
 
     if (oldAccount && !newAccount) {
       this.loginScheduler.cancel();
-      reduxAccount.loggedOut();
+      if (!this.reduxStore.getState().account.loggingOut && newDeviceEvent.remote) {
+        reduxAccount.deviceRevoked();
+      } else {
+        reduxAccount.loggedOut();
+      }
 
       this.resetNavigation();
-    } else if (newAccount && oldAccount !== newAccount && !this.doingLogin) {
-      reduxAccount.updateAccountToken(newAccount);
-      reduxAccount.loggedIn();
+    } else if (newAccount !== undefined && newDevice !== undefined && oldAccount !== newAccount) {
+      switch (this.loginState) {
+        case 'none':
+        case 'logging in':
+          reduxAccount.loggedIn({ accountToken: newAccount, device: newDevice });
 
-      this.resetNavigation();
+          if (this.previousLoginState === 'too many devices') {
+            this.resetNavigation();
+          } else {
+            this.redirectToConnect();
+          }
+          break;
+        case 'creating account':
+          reduxAccount.accountCreated(
+            { accountToken: newAccount, device: newDevice },
+            new Date().toISOString(),
+          );
+          break;
+      }
+
+      if (this.loginState !== 'logging in' && this.loginState !== 'creating account') {
+        this.resetNavigation();
+      }
     }
 
-    this.doingLogin = false;
+    this.previousLoginState = this.loginState;
+    this.loginState = 'none';
   }
 
   private setLocation(location: Partial<ILocation>) {
@@ -837,10 +881,6 @@ export default class AppRenderer {
 
   private storeAutoStart(autoStart: boolean) {
     this.reduxActions.settings.updateAutoStart(autoStart);
-  }
-
-  private setWireguardPublicKey(publicKey?: IWireguardPublicKey) {
-    this.reduxActions.settings.setWireguardKey(publicKey);
   }
 
   private setChangelog(changelog: IChangelog) {

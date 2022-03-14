@@ -1,5 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router';
 import { useHistory } from '../lib/history';
+import { disableDismissForRoutes, RoutePath } from '../lib/routes';
 
 interface IKeyboardNavigationProps {
   children: React.ReactElement;
@@ -9,18 +11,22 @@ interface IKeyboardNavigationProps {
 export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
   const history = useHistory();
   const [backAction, setBackAction] = useState<IBackActionConfiguration>();
+  const location = useLocation();
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        if (event.shiftKey) {
-          history.dismiss(true);
-        } else {
-          backAction?.action();
+        const path = location.pathname as RoutePath;
+        if (!disableDismissForRoutes.includes(path)) {
+          if (event.shiftKey) {
+            history.dismiss(true);
+          } else {
+            backAction?.action();
+          }
         }
       }
     },
-    [history.dismiss, backAction],
+    [history.dismiss, backAction, location.pathname],
   );
 
   useEffect(() => {

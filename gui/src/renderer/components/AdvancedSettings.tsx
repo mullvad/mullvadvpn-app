@@ -1,12 +1,8 @@
 import * as React from 'react';
-import { sprintf } from 'sprintf-js';
 import { TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import { WgKeyState } from '../redux/settings/reducers';
 import {
   StyledNavigationScrollbars,
-  StyledNoWireguardKeyError,
-  StyledNoWireguardKeyErrorContainer,
   StyledSelectorForFooter,
   StyledTunnelProtocolContainer,
 } from './AdvancedSettingsStyles';
@@ -28,7 +24,6 @@ interface IProps {
   enableIpv6: boolean;
   blockWhenDisconnected: boolean;
   tunnelProtocol?: TunnelProtocol;
-  wireguardKeyState: WgKeyState;
   setEnableIpv6: (value: boolean) => void;
   setBlockWhenDisconnected: (value: boolean) => void;
   setTunnelProtocol: (value: OptionalTunnelProtocol) => void;
@@ -49,9 +44,28 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
 
   private blockWhenDisconnectedRef = React.createRef<Switch>();
 
-  public render() {
-    const hasWireguardKey = this.props.wireguardKeyState.type === 'key-set';
+  private tunnelProtocolItems: Array<ISelectorItem<OptionalTunnelProtocol>>;
 
+  public constructor(props: IProps) {
+    super(props);
+
+    this.tunnelProtocolItems = [
+      {
+        label: messages.gettext('Automatic'),
+        value: undefined,
+      },
+      {
+        label: messages.pgettext('advanced-settings-view', 'WireGuard'),
+        value: 'wireguard',
+      },
+      {
+        label: messages.pgettext('advanced-settings-view', 'OpenVPN'),
+        value: 'openvpn',
+      },
+    ];
+  }
+
+  public render() {
     return (
       <BackAction action={this.props.onClose}>
         <Layout>
@@ -141,22 +155,10 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                   <StyledTunnelProtocolContainer>
                     <StyledSelectorForFooter
                       title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
-                      values={this.tunnelProtocolItems(hasWireguardKey)}
+                      values={this.tunnelProtocolItems}
                       value={this.props.tunnelProtocol}
                       onSelect={this.onSelectTunnelProtocol}
                     />
-                    {!hasWireguardKey && (
-                      <StyledNoWireguardKeyErrorContainer>
-                        <AriaDescription>
-                          <StyledNoWireguardKeyError>
-                            {messages.pgettext(
-                              'advanced-settings-view',
-                              'To enable WireGuard, generate a key under the "WireGuard key" setting below.',
-                            )}
-                          </StyledNoWireguardKeyError>
-                        </AriaDescription>
-                      </StyledNoWireguardKeyErrorContainer>
-                    )}
                   </StyledTunnelProtocolContainer>
                 </AriaInputGroup>
 
@@ -190,31 +192,6 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
       </BackAction>
     );
   }
-
-  private tunnelProtocolItems = (
-    hasWireguardKey: boolean,
-  ): Array<ISelectorItem<OptionalTunnelProtocol>> => {
-    return [
-      {
-        label: messages.gettext('Automatic'),
-        value: undefined,
-      },
-      {
-        label: hasWireguardKey
-          ? messages.pgettext('advanced-settings-view', 'WireGuard')
-          : sprintf('%(label)s (%(error)s)', {
-              label: messages.pgettext('advanced-settings-view', 'WireGuard'),
-              error: messages.pgettext('advanced-settings-view', 'missing key'),
-            }),
-        value: 'wireguard',
-        disabled: !hasWireguardKey,
-      },
-      {
-        label: messages.pgettext('advanced-settings-view', 'OpenVPN'),
-        value: 'openvpn',
-      },
-    ];
-  };
 
   private renderConfirmBlockWhenDisconnectedAlert = () => {
     return (

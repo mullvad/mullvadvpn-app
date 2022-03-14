@@ -44,8 +44,19 @@ export const AccountRowValue = styled(AccountRowText)(normalText, {
   color: colors.white,
 });
 
+export const DeviceRowValue = styled(AccountRowValue)({
+  textTransform: 'capitalize',
+});
+
 export const AccountOutOfTime = styled(AccountRowValue)({
   color: colors.red,
+});
+
+export const StyledSpinnerContainer = styled.div({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '8px 0',
 });
 
 export const AccountFooter = styled.div({

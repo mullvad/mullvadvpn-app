@@ -104,8 +104,9 @@ export type DaemonEvent =
   | { tunnelState: TunnelState }
   | { settings: ISettings }
   | { relayList: IRelayList }
-  | { wireguardKey: KeygenEvent }
-  | { appVersionInfo: IAppVersionInfo };
+  | { appVersionInfo: IAppVersionInfo }
+  | { device: IDeviceEvent }
+  | { deviceRemoval: Array<IDevice> };
 
 export interface ITunnelStateRelayInfo {
   endpoint: ITunnelEndpoint;
@@ -321,8 +322,28 @@ export interface IAppVersionInfo {
   suggestedIsBeta?: boolean;
 }
 
+export interface IDeviceEvent {
+  deviceConfig?: IDeviceConfig;
+  remote?: boolean;
+}
+
+export interface IDeviceConfig {
+  accountToken: AccountToken;
+  device?: IDevice;
+}
+
+export interface IDevice {
+  id: string;
+  name: string;
+  ports?: Array<string>;
+}
+
+export interface IDeviceRemoval {
+  accountToken: string;
+  deviceId: string;
+}
+
 export interface ISettings {
-  accountToken?: AccountToken;
   allowLan: boolean;
   autoConnect: boolean;
   blockWhenDisconnected: boolean;
@@ -332,18 +353,6 @@ export interface ISettings {
   bridgeSettings: BridgeSettings;
   bridgeState: BridgeState;
   splitTunnel: SplitTunnelSettings;
-}
-
-export type KeygenEvent = INewWireguardKey | KeygenFailure;
-export type KeygenFailure = 'too_many_keys' | 'generation_failure';
-
-export interface INewWireguardKey {
-  newKey: IWireguardPublicKey;
-}
-
-export interface IWireguardPublicKey {
-  key: string;
-  created: string;
 }
 
 export type BridgeState = 'auto' | 'on' | 'off';

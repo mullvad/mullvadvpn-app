@@ -27,15 +27,16 @@ import {
   DaemonEvent,
   IAccountData,
   IAppVersionInfo,
+  IDeviceConfig,
+  IDeviceRemoval,
   IDnsOptions,
   IRelayList,
   ISettings,
-  IWireguardPublicKey,
-  KeygenEvent,
   liftConstraint,
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
+  IDeviceEvent,
 } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
@@ -88,8 +89,6 @@ const windowsSplitTunneling = process.platform === 'win32' && require('./windows
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
 
-const AUTO_CONNECT_FALLBACK_DELAY = 6000;
-
 const GUI_VERSION = app.getVersion().replace('.0', '');
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
 const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
@@ -107,8 +106,6 @@ enum AppQuitStage {
   initiated,
   ready,
 }
-
-type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
 
 class ApplicationMain {
   private notificationController = new NotificationController({
@@ -145,7 +142,6 @@ class ApplicationMain {
   private tunnelStateFallbackScheduler = new Scheduler();
 
   private settings: ISettings = {
-    accountToken: undefined,
     allowLan: false,
     autoConnect: false,
     blockWhenDisconnected: false,
@@ -201,6 +197,7 @@ class ApplicationMain {
       },
     },
   };
+  private deviceConfig?: IDeviceConfig;
   private guiSettings = new GuiSettings();
   private tunnelStateExpectation?: Expectation;
 
@@ -221,8 +218,6 @@ class ApplicationMain {
   // The UI locale which is set once from onReady handler
   private locale = 'en';
 
-  private wireguardPublicKey?: IWireguardPublicKey;
-
   private accountExpiryNotificationScheduler = new Scheduler();
 
   private accountDataCache = new AccountDataCache(
@@ -239,9 +234,6 @@ class ApplicationMain {
       this.handleAccountExpiry();
     },
   );
-
-  private autoConnectOnWireguardKeyEvent = false;
-  private autoConnectFallbackScheduler = new Scheduler();
 
   private blurNavigationResetScheduler = new Scheduler();
   private backgroundThrottleScheduler = new Scheduler();
@@ -648,6 +640,16 @@ class ApplicationMain {
       return this.handleBootstrapError(error);
     }
 
+    // fetch device
+    try {
+      this.setDeviceConfig({ deviceConfig: await this.daemonRpc.getDevice() });
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to fetch device: ${error.message}`);
+
+      return this.handleBootstrapError(error);
+    }
+
     // fetch settings
     try {
       this.setSettings(await this.daemonRpc.getSettings());
@@ -705,7 +707,7 @@ class ApplicationMain {
     }
 
     // show window when account is not set
-    if (!this.settings.accountToken) {
+    if (!this.deviceConfig) {
       this.windowController?.show();
     }
   };
@@ -722,7 +724,6 @@ class ApplicationMain {
     this.daemonEventListener = undefined;
 
     this.tunnelStateFallback = undefined;
-    this.autoConnectFallbackScheduler.cancel();
 
     if (wasConnected) {
       this.connectedToDaemon = false;
@@ -775,15 +776,21 @@ class ApplicationMain {
             this.settings.relaySettings,
             this.settings.bridgeState,
           );
-        } else if ('wireguardKey' in daemonEvent) {
-          this.handleWireguardKeygenEvent(daemonEvent.wireguardKey);
         } else if ('appVersionInfo' in daemonEvent) {
           this.setLatestVersion(daemonEvent.appVersionInfo);
+        } else if ('device' in daemonEvent) {
+          this.setDeviceConfig(daemonEvent.device);
+        } else if ('deviceRemoval' in daemonEvent) {
+          if (this.windowController) {
+            IpcMainEventChannel.account.notifyDevices(
+              this.windowController.webContents,
+              daemonEvent.deviceRemoval,
+            );
+          }
         }
       },
       (error: Error) => {
         log.error(`Cannot deserialize the daemon event: ${error.message}`);
-        log.error(error.stack);
       },
     );
 
@@ -794,7 +801,11 @@ class ApplicationMain {
 
   private connectTunnel = async (): Promise<void> => {
     if (
-      connectEnabled(this.connectedToDaemon, this.settings.accountToken, this.tunnelState.state)
+      connectEnabled(
+        this.connectedToDaemon,
+        this.deviceConfig?.accountToken,
+        this.tunnelState.state,
+      )
     ) {
       this.setOptimisticTunnelState('connecting');
       await this.daemonRpc.connectTunnel();
@@ -803,7 +814,11 @@ class ApplicationMain {
 
   private reconnectTunnel = async (): Promise<void> => {
     if (
-      reconnectEnabled(this.connectedToDaemon, this.settings.accountToken, this.tunnelState.state)
+      reconnectEnabled(
+        this.connectedToDaemon,
+        this.deviceConfig?.accountToken,
+        this.tunnelState.state,
+      )
     ) {
       this.setOptimisticTunnelState('connecting');
       await this.daemonRpc.reconnectTunnel();
@@ -823,37 +838,6 @@ class ApplicationMain {
     if (this.windowController) {
       IpcMainEventChannel.accountHistory.notify(this.windowController.webContents, accountHistory);
     }
-  }
-
-  private setWireguardKey(wireguardKey?: IWireguardPublicKey) {
-    this.wireguardPublicKey = wireguardKey;
-    if (this.windowController) {
-      IpcMainEventChannel.wireguardKeys.notifyPublicKey(
-        this.windowController.webContents,
-        wireguardKey,
-      );
-    }
-
-    if (wireguardKey) {
-      this.wireguardKeygenEventAutoConnect();
-    }
-  }
-
-  private handleWireguardKeygenEvent(event: KeygenEvent) {
-    switch (event) {
-      case 'too_many_keys':
-      case 'generation_failure':
-        this.wireguardPublicKey = undefined;
-        break;
-      default:
-        this.wireguardPublicKey = event.newKey;
-    }
-
-    if (this.windowController) {
-      IpcMainEventChannel.wireguardKeys.notifyKeygenEvent(this.windowController.webContents, event);
-    }
-
-    this.wireguardKeygenEventAutoConnect();
   }
 
   // This function sets a new tunnel state as an assumed next state and saves the current state as
@@ -923,14 +907,6 @@ class ApplicationMain {
     this.settings = newSettings;
 
     this.updateTrayIcon(this.tunnelState, newSettings.blockWhenDisconnected);
-
-    // make sure to invalidate the account data cache when account tokens change
-    this.updateAccountDataOnAccountChange(oldSettings.accountToken, newSettings.accountToken);
-
-    if (oldSettings.accountToken !== newSettings.accountToken) {
-      void this.updateAccountHistory();
-      void this.fetchWireguardKey();
-    }
 
     if (oldSettings.showBetaReleases !== newSettings.showBetaReleases) {
       this.setLatestVersion(this.upgradeVersion);
@@ -1135,6 +1111,23 @@ class ApplicationMain {
     }
   }
 
+  private setDeviceConfig(deviceEvent: IDeviceEvent) {
+    const oldDeviceConfig = this.deviceConfig;
+    this.deviceConfig = deviceEvent.deviceConfig;
+
+    // make sure to invalidate the account data cache when account tokens change
+    this.updateAccountDataOnAccountChange(
+      oldDeviceConfig?.accountToken,
+      deviceEvent.deviceConfig?.accountToken,
+    );
+
+    void this.updateAccountHistory();
+
+    if (this.windowController) {
+      IpcMainEventChannel.account.notifyDevice(this.windowController.webContents, deviceEvent);
+    }
+  }
+
   private trayIconType(tunnelState: TunnelState, blockWhenDisconnected: boolean): TrayIconType {
     switch (tunnelState.state) {
       case 'connected':
@@ -1216,6 +1209,7 @@ class ApplicationMain {
       accountHistory: this.accountHistory,
       tunnelState: this.tunnelState,
       settings: this.settings,
+      deviceConfig: this.deviceConfig,
       relayListPair: {
         relays: this.processRelaysForPresentation(this.relays, this.settings.relaySettings),
         bridges: this.processBridgesForPresentation(this.relays, this.settings.bridgeState),
@@ -1223,7 +1217,6 @@ class ApplicationMain {
       currentVersion: this.currentVersion,
       upgradeVersion: this.upgradeVersion,
       guiSettings: this.guiSettings.state,
-      wireguardPublicKey: this.wireguardPublicKey,
       translations: this.translations,
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
@@ -1306,7 +1299,7 @@ class ApplicationMain {
     IpcMainEventChannel.account.handleLogout(() => this.logout());
     IpcMainEventChannel.account.handleGetWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
     IpcMainEventChannel.account.handleSubmitVoucher(async (voucherCode: string) => {
-      const currentAccountToken = this.settings.accountToken;
+      const currentAccountToken = this.deviceConfig?.accountToken;
       const response = await this.daemonRpc.submitVoucher(voucherCode);
 
       if (currentAccountToken) {
@@ -1317,19 +1310,21 @@ class ApplicationMain {
     });
     IpcMainEventChannel.account.handleUpdateData(() => this.updateAccountData());
 
+    IpcMainEventChannel.account.handleGetDevice(async () => {
+      const deviceConfig = await this.daemonRpc.getDevice();
+      return deviceConfig?.device;
+    });
+    IpcMainEventChannel.account.handleListDevices((accountToken: AccountToken) => {
+      return this.daemonRpc.listDevices(accountToken);
+    });
+    IpcMainEventChannel.account.handleRemoveDevice((deviceRemoval: IDeviceRemoval) => {
+      return this.daemonRpc.removeDevice(deviceRemoval);
+    });
+
     IpcMainEventChannel.accountHistory.handleClear(async () => {
       await this.daemonRpc.clearAccountHistory();
       void this.updateAccountHistory();
     });
-
-    IpcMainEventChannel.wireguardKeys.handleGenerateKey(async () => {
-      try {
-        return await this.daemonRpc.generateWireguardKey();
-      } catch {
-        return 'generation_failure';
-      }
-    });
-    IpcMainEventChannel.wireguardKeys.handleVerifyKey(() => this.daemonRpc.verifyWireguardKey());
 
     IpcMainEventChannel.linuxSplitTunneling.handleGetApplications(() => {
       if (linuxSplitTunneling) {
@@ -1484,27 +1479,10 @@ class ApplicationMain {
 
   private async login(accountToken: AccountToken): Promise<void> {
     try {
-      const verification = await this.verifyAccount(accountToken);
-
-      if (verification.status === 'deferred') {
-        log.warn(`Failed to get account data, logging in anyway: ${verification.error.message}`);
-      }
-
-      this.autoConnectOnWireguardKeyEvent = this.guiSettings.autoConnect;
-      await this.daemonRpc.setAccount(accountToken);
-
-      // Fallback if daemon doesn't send event.
-      if (this.autoConnectOnWireguardKeyEvent) {
-        this.autoConnectFallbackScheduler.schedule(
-          () => this.wireguardKeygenEventAutoConnect(),
-          AUTO_CONNECT_FALLBACK_DELAY,
-        );
-      }
+      await this.daemonRpc.loginAccount(accountToken);
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to login: ${error.message}`);
-
-      this.autoConnectOnWireguardKeyEvent = false;
 
       if (error instanceof InvalidAccountError) {
         throw Error(messages.gettext('Invalid account number'));
@@ -1514,21 +1492,10 @@ class ApplicationMain {
     }
   }
 
-  private wireguardKeygenEventAutoConnect() {
-    if (this.autoConnectOnWireguardKeyEvent) {
-      this.autoConnectOnWireguardKeyEvent = false;
-      this.autoConnectFallbackScheduler.cancel();
-      void this.autoConnect();
-    }
-  }
-
   private async autoConnect() {
     if (process.env.NODE_ENV === 'development') {
       log.info('Skip autoconnect in development');
-    } else if (
-      this.settings.accountToken &&
-      (!this.accountData || !hasExpired(this.accountData.expiry))
-    ) {
+    } else if (this.deviceConfig && (!this.accountData || !hasExpired(this.accountData.expiry))) {
       if (this.guiSettings.autoConnect) {
         try {
           log.info('Autoconnect the tunnel');
@@ -1548,9 +1515,8 @@ class ApplicationMain {
 
   private async logout(): Promise<void> {
     try {
-      await this.daemonRpc.setAccount();
+      await this.daemonRpc.logoutAccount();
 
-      this.autoConnectFallbackScheduler.cancel();
       this.accountExpiryNotificationScheduler.cancel();
     } catch (e) {
       const error = e as Error;
@@ -1558,22 +1524,6 @@ class ApplicationMain {
 
       throw error;
     }
-  }
-
-  private verifyAccount(accountToken: AccountToken): Promise<AccountVerification> {
-    return new Promise((resolve, reject) => {
-      this.accountDataCache.invalidate();
-      this.accountDataCache.fetch(accountToken, {
-        onFinish: () => resolve({ status: 'verified' }),
-        onError: (error) => {
-          if (error instanceof InvalidAccountError) {
-            reject(error);
-          } else {
-            resolve({ status: 'deferred', error });
-          }
-        },
-      });
-    });
   }
 
   private updateAccountDataOnAccountChange(oldAccount?: string, newAccount?: string) {
@@ -1589,8 +1539,8 @@ class ApplicationMain {
   }
 
   private updateAccountData() {
-    if (this.connectedToDaemon && this.settings.accountToken) {
-      this.accountDataCache.fetch(this.settings.accountToken);
+    if (this.connectedToDaemon && this.deviceConfig) {
+      this.accountDataCache.fetch(this.deviceConfig.accountToken);
     }
   }
 
@@ -1638,15 +1588,6 @@ class ApplicationMain {
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch the account history: ${error.message}`);
-    }
-  }
-
-  private async fetchWireguardKey(): Promise<void> {
-    try {
-      this.setWireguardKey(await this.daemonRpc.getWireguardKey());
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to fetch wireguard key: ${error.message}`);
     }
   }
 
@@ -1984,7 +1925,7 @@ class ApplicationMain {
           this.tray?.on('right-click', () =>
             this.trayIconController?.popUpContextMenu(
               this.connectedToDaemon,
-              this.settings.accountToken,
+              this.deviceConfig?.accountToken,
               this.tunnelState,
             ),
           );
@@ -2022,7 +1963,7 @@ class ApplicationMain {
   private setTrayContextMenu() {
     this.trayIconController?.setContextMenu(
       this.connectedToDaemon,
-      this.settings.accountToken,
+      this.deviceConfig?.accountToken,
       this.tunnelState,
     );
   }

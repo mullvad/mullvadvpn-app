@@ -1,7 +1,6 @@
 import { IApplication } from '../../../shared/application-types';
 import {
   BridgeState,
-  KeygenEvent,
   LiftedConstraint,
   ProxySettings,
   RelayLocation,
@@ -11,7 +10,6 @@ import {
   IpVersion,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
-import log from '../../../shared/logging';
 import { ReduxAction } from '../store';
 
 export type RelaySettingsRedux =
@@ -73,54 +71,6 @@ export interface IRelayLocationRedux {
   cities: IRelayLocationCityRedux[];
 }
 
-export interface IWgKey {
-  publicKey: string;
-  created: string;
-  valid?: boolean;
-  replacementFailure?: KeygenEvent;
-  verificationFailed?: boolean;
-}
-
-interface IWgKeySet {
-  type: 'key-set';
-  key: IWgKey;
-}
-
-interface IWgKeyNotSet {
-  type: 'key-not-set';
-}
-
-interface IWgTooManyKeys {
-  type: 'too-many-keys';
-}
-
-interface IWgKeyGenerationFailure {
-  type: 'generation-failure';
-}
-
-interface IWgKeyBeingGenerated {
-  type: 'being-generated';
-}
-
-interface IWgKeyBeingReplaced {
-  type: 'being-replaced';
-  oldKey: IWgKey;
-}
-
-interface IWgKeyBeingVerified {
-  type: 'being-verified';
-  key: IWgKey;
-}
-
-export type WgKeyState =
-  | IWgKeySet
-  | IWgKeyNotSet
-  | IWgKeyGenerationFailure
-  | IWgTooManyKeys
-  | IWgKeyBeingVerified
-  | IWgKeyBeingReplaced
-  | IWgKeyBeingGenerated;
-
 export interface ISettingsReduxState {
   autoStart: boolean;
   guiSettings: IGuiSettingsState;
@@ -140,7 +90,6 @@ export interface ISettingsReduxState {
     mtu?: number;
   };
   dns: IDnsOptions;
-  wireguardKeyState: WgKeyState;
   splitTunneling: boolean;
   splitTunnelingApplications: IApplication[];
 }
@@ -183,9 +132,6 @@ const initialState: ISettingsReduxState = {
   showBetaReleases: false,
   openVpn: {},
   wireguard: {},
-  wireguardKeyState: {
-    type: 'key-not-set',
-  },
   dns: {
     state: 'default',
     defaultOptions: {
@@ -290,42 +236,6 @@ export default function (
         bridgeState: action.bridgeState,
       };
 
-    case 'SET_WIREGUARD_KEY':
-      return {
-        ...state,
-        wireguardKeyState: setWireguardKey(action.key),
-      };
-    case 'WIREGUARD_KEYGEN_EVENT':
-      return {
-        ...state,
-        wireguardKeyState: setWireguardKeygenEvent(state, action.event),
-      };
-    case 'WIREGUARD_KEY_VERIFICATION_COMPLETE':
-      return {
-        ...state,
-        wireguardKeyState: applyKeyVerification(state.wireguardKeyState, action.verified),
-      };
-    case 'VERIFY_WIREGUARD_KEY':
-      return {
-        ...state,
-        wireguardKeyState: { type: 'being-verified', key: resetWireguardKeyErrors(action.key) },
-      };
-
-    case 'GENERATE_WIREGUARD_KEY':
-      return {
-        ...state,
-        wireguardKeyState: { type: 'being-generated' },
-      };
-
-    case 'REPLACE_WIREGUARD_KEY':
-      return {
-        ...state,
-        wireguardKeyState: {
-          type: 'being-replaced',
-          oldKey: resetWireguardKeyErrors(action.oldKey),
-        },
-      };
-
     case 'UPDATE_DNS_OPTIONS':
       return {
         ...state,
@@ -345,79 +255,6 @@ export default function (
       };
 
     default:
-      return state;
-  }
-}
-
-function setWireguardKey(key?: IWgKey): WgKeyState {
-  if (key) {
-    return {
-      type: 'key-set',
-      key,
-    };
-  } else {
-    return {
-      type: 'key-not-set',
-    };
-  }
-}
-
-function resetWireguardKeyErrors(key: IWgKey): IWgKey {
-  return {
-    publicKey: key.publicKey,
-    created: key.created,
-  };
-}
-
-function setWireguardKeygenEvent(state: ISettingsReduxState, keygenEvent: KeygenEvent): WgKeyState {
-  const oldKeyState = state.wireguardKeyState;
-  if (oldKeyState.type === 'being-replaced') {
-    switch (keygenEvent) {
-      case 'too_many_keys':
-      case 'generation_failure':
-        return {
-          type: 'key-set',
-          key: {
-            ...oldKeyState.oldKey,
-            replacementFailure: keygenEvent,
-          },
-        };
-      default:
-        break;
-    }
-  }
-  switch (keygenEvent) {
-    case 'too_many_keys':
-      return { type: 'too-many-keys' };
-    case 'generation_failure':
-      return { type: 'generation-failure' };
-    default:
-      return {
-        type: 'key-set',
-        key: {
-          publicKey: keygenEvent.newKey.key,
-          created: keygenEvent.newKey.created,
-          valid: undefined,
-        },
-      };
-  }
-}
-
-function applyKeyVerification(state: WgKeyState, verified?: boolean): WgKeyState {
-  const verificationFailed = verified === undefined ? true : undefined;
-  switch (state.type) {
-    case 'being-verified':
-      return {
-        type: 'key-set',
-        key: {
-          ...state.key,
-          valid: verified,
-          verificationFailed,
-        },
-      };
-    // drop the verification event if the key wasn't being verified.
-    default:
-      log.error("Received key verification event when key wasn't being verified");
       return state;
   }
 }

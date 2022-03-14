@@ -1,4 +1,4 @@
-import { AccountToken } from '../../../shared/daemon-rpc-types';
+import { AccountToken, IDeviceConfig, IDevice } from '../../../shared/daemon-rpc-types';
 
 interface IStartLoginAction {
   type: 'START_LOGIN';
@@ -7,11 +7,26 @@ interface IStartLoginAction {
 
 interface ILoggedInAction {
   type: 'LOGGED_IN';
+  accountToken: AccountToken;
+  deviceName?: string;
 }
 
 interface ILoginFailedAction {
   type: 'LOGIN_FAILED';
   error: Error;
+}
+
+interface ILoginTooManyDevicesAction {
+  type: 'TOO_MANY_DEVICES';
+  error: Error;
+}
+
+interface IPrepareLogoutAction {
+  type: 'PREPARE_LOG_OUT';
+}
+
+interface ICancelLogoutAction {
+  type: 'CANCEL_LOGOUT';
 }
 
 interface ILoggedOutAction {
@@ -20,6 +35,10 @@ interface ILoggedOutAction {
 
 interface IResetLoginErrorAction {
   type: 'RESET_LOGIN_ERROR';
+}
+
+interface IDeviceRevokedAction {
+  type: 'DEVICE_REVOKED';
 }
 
 interface IStartCreateAccount {
@@ -33,13 +52,18 @@ interface ICreateAccountFailed {
 
 interface IAccountCreated {
   type: 'ACCOUNT_CREATED';
-  token: AccountToken;
+  accountToken: AccountToken;
+  deviceName?: string;
   expiry: string;
+}
+
+interface IAccountSetupFinished {
+  type: 'ACCOUNT_SETUP_FINISHED';
 }
 
 interface IUpdateAccountTokenAction {
   type: 'UPDATE_ACCOUNT_TOKEN';
-  token: AccountToken;
+  accountToken: AccountToken;
 }
 
 interface IUpdateAccountHistoryAction {
@@ -52,18 +76,29 @@ interface IUpdateAccountExpiryAction {
   expiry?: string;
 }
 
+interface IUpdateDevicesAction {
+  type: 'UPDATE_DEVICES';
+  devices: Array<IDevice>;
+}
+
 export type AccountAction =
   | IStartLoginAction
   | ILoggedInAction
   | ILoginFailedAction
+  | ILoginTooManyDevicesAction
+  | IPrepareLogoutAction
+  | ICancelLogoutAction
   | ILoggedOutAction
   | IResetLoginErrorAction
+  | IDeviceRevokedAction
   | IStartCreateAccount
   | ICreateAccountFailed
   | IAccountCreated
+  | IAccountSetupFinished
   | IUpdateAccountTokenAction
   | IUpdateAccountHistoryAction
-  | IUpdateAccountExpiryAction;
+  | IUpdateAccountExpiryAction
+  | IUpdateDevicesAction;
 
 function startLogin(accountToken: AccountToken): IStartLoginAction {
   return {
@@ -72,9 +107,11 @@ function startLogin(accountToken: AccountToken): IStartLoginAction {
   };
 }
 
-function loggedIn(): ILoggedInAction {
+function loggedIn(deviceConfig: IDeviceConfig): ILoggedInAction {
   return {
     type: 'LOGGED_IN',
+    accountToken: deviceConfig.accountToken,
+    deviceName: deviceConfig.device?.name,
   };
 }
 
@@ -82,6 +119,25 @@ function loginFailed(error: Error): ILoginFailedAction {
   return {
     type: 'LOGIN_FAILED',
     error,
+  };
+}
+
+function loginTooManyDevices(error: Error): ILoginTooManyDevicesAction {
+  return {
+    type: 'TOO_MANY_DEVICES',
+    error,
+  };
+}
+
+function prepareLogout(): IPrepareLogoutAction {
+  return {
+    type: 'PREPARE_LOG_OUT',
+  };
+}
+
+function cancelLogout(): ICancelLogoutAction {
+  return {
+    type: 'CANCEL_LOGOUT',
   };
 }
 
@@ -94,6 +150,12 @@ function loggedOut(): ILoggedOutAction {
 function resetLoginError(): IResetLoginErrorAction {
   return {
     type: 'RESET_LOGIN_ERROR',
+  };
+}
+
+function deviceRevoked(): IDeviceRevokedAction {
+  return {
+    type: 'DEVICE_REVOKED',
   };
 }
 
@@ -110,18 +172,23 @@ function createAccountFailed(error: Error): ICreateAccountFailed {
   };
 }
 
-function accountCreated(token: AccountToken, expiry: string): IAccountCreated {
+function accountCreated(deviceConfig: IDeviceConfig, expiry: string): IAccountCreated {
   return {
     type: 'ACCOUNT_CREATED',
-    token,
+    accountToken: deviceConfig.accountToken,
+    deviceName: deviceConfig.device?.name,
     expiry,
   };
 }
 
-function updateAccountToken(token: AccountToken): IUpdateAccountTokenAction {
+function accountSetupFinished(): IAccountSetupFinished {
+  return { type: 'ACCOUNT_SETUP_FINISHED' };
+}
+
+function updateAccountToken(accountToken: AccountToken): IUpdateAccountTokenAction {
   return {
     type: 'UPDATE_ACCOUNT_TOKEN',
-    token,
+    accountToken,
   };
 }
 
@@ -139,16 +206,29 @@ function updateAccountExpiry(expiry?: string): IUpdateAccountExpiryAction {
   };
 }
 
+function updateDevices(devices: Array<IDevice>): IUpdateDevicesAction {
+  return {
+    type: 'UPDATE_DEVICES',
+    devices: devices.sort((a, b) => a.name.localeCompare(b.name)),
+  };
+}
+
 export default {
   startLogin,
   loggedIn,
   loginFailed,
+  loginTooManyDevices,
+  prepareLogout,
+  cancelLogout,
   loggedOut,
   resetLoginError,
+  deviceRevoked,
   startCreateAccount,
   createAccountFailed,
   accountCreated,
+  accountSetupFinished,
   updateAccountToken,
   updateAccountHistory,
   updateAccountExpiry,
+  updateDevices,
 };

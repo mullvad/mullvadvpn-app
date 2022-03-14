@@ -51,7 +51,6 @@ interface IProps {
   setWireguardMultihop: (value: boolean) => void;
   setWireguardPort: (port?: number) => void;
   setWireguardIpVersion: (ipVersion?: IpVersion) => void;
-  onViewWireguardKeys: () => void;
   onClose: () => void;
 }
 
@@ -201,15 +200,6 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
                     </AriaDescription>
                   </Cell.Footer>
                 </AriaInputGroup>
-
-                <Cell.CellButtonGroup>
-                  <Cell.CellButton onClick={this.props.onViewWireguardKeys}>
-                    <Cell.Label>
-                      {messages.pgettext('wireguard-settings-view', 'WireGuard key')}
-                    </Cell.Label>
-                    <Cell.Icon height={12} width={7} source="icon-chevron" />
-                  </Cell.CellButton>
-                </Cell.CellButtonGroup>
 
                 <AriaInputGroup>
                   <Cell.Container>

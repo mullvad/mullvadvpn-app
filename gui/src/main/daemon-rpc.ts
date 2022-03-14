@@ -36,8 +36,6 @@ import {
   TunnelType,
   IProxyEndpoint,
   ProxyType,
-  KeygenEvent,
-  IWireguardPublicKey,
   ISettings,
   ConnectionConfig,
   DaemonEvent,
@@ -48,12 +46,16 @@ import {
   VoucherResponse,
   TunnelProtocol,
   IDnsOptions,
+  IDeviceConfig,
+  IDevice,
+  IDeviceRemoval,
+  IDeviceEvent,
 } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
 
 import { ManagementServiceClient } from './management_interface/management_interface_grpc_pb';
 import * as grpcTypes from './management_interface/management_interface_pb';
-import { CommunicationError, InvalidAccountError } from './errors';
+import { CommunicationError, InvalidAccountError, TooManyDevicesError } from './errors';
 
 const NETWORK_CALL_TIMEOUT = 10000;
 const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;
@@ -257,8 +259,24 @@ export class DaemonRpc {
     return response.getValue();
   }
 
-  public async setAccount(accountToken?: AccountToken): Promise<void> {
-    await this.callString(this.client.setAccount, accountToken);
+  public async loginAccount(accountToken: AccountToken): Promise<void> {
+    try {
+      await this.callString(this.client.loginAccount, accountToken);
+    } catch (e) {
+      const error = e as grpc.ServiceError;
+      switch (error.code) {
+        case grpc.status.RESOURCE_EXHAUSTED:
+          throw new TooManyDevicesError();
+        case grpc.status.UNAUTHENTICATED:
+          throw new InvalidAccountError();
+        default:
+          throw new CommunicationError();
+      }
+    }
+  }
+
+  public async logoutAccount(): Promise<void> {
+    await this.callEmpty(this.client.logoutAccount);
   }
 
   // TODO: Custom tunnel configurations are not supported by the GUI.
@@ -438,19 +456,6 @@ export class DaemonRpc {
     return response.getValue();
   }
 
-  public async generateWireguardKey(): Promise<KeygenEvent> {
-    const response = await this.callEmpty<grpcTypes.KeygenEvent>(this.client.generateWireguardKey);
-    return convertFromKeygenEvent(response);
-  }
-
-  public async getWireguardKey(): Promise<IWireguardPublicKey> {
-    const response = await this.callEmpty<grpcTypes.PublicKey>(this.client.getWireguardKey);
-    return {
-      created: response.getCreated()!.toDate().toISOString(),
-      key: convertFromWireguardKey(response.getKey()),
-    };
-  }
-
   public async setDnsOptions(dns: IDnsOptions): Promise<void> {
     const dnsOptions = new grpcTypes.DnsOptions();
 
@@ -473,11 +478,6 @@ export class DaemonRpc {
     await this.call<grpcTypes.DnsOptions, Empty>(this.client.setDnsOptions, dnsOptions);
   }
 
-  public async verifyWireguardKey(): Promise<boolean> {
-    const response = await this.callEmpty<BoolValue>(this.client.verifyWireguardKey);
-    return response.getValue();
-  }
-
   public async getVersionInfo(): Promise<IAppVersionInfo> {
     const response = await this.callEmpty<grpcTypes.AppVersionInfo>(this.client.getVersionInfo);
     return response.toObject();
@@ -497,6 +497,37 @@ export class DaemonRpc {
 
   public async checkVolumes(): Promise<void> {
     await this.callEmpty(this.client.checkVolumes);
+  }
+
+  public async getDevice(): Promise<IDeviceConfig | undefined> {
+    try {
+      const response = await this.callEmpty<grpcTypes.DeviceConfig>(this.client.getDevice);
+      return convertFromDeviceConfig(response);
+    } catch (e) {
+      const error = e as grpc.ServiceError;
+      if (error.code === grpc.status.NOT_FOUND) {
+        return undefined;
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  public async listDevices(accountToken: AccountToken): Promise<Array<IDevice>> {
+    const response = await this.callString<grpcTypes.DeviceList>(
+      this.client.listDevices,
+      accountToken,
+    );
+
+    return response.getDevicesList().map(convertFromDevice);
+  }
+
+  public async removeDevice(deviceRemoval: IDeviceRemoval): Promise<void> {
+    const grpcDeviceRemoval = new grpcTypes.DeviceRemoval();
+    grpcDeviceRemoval.setAccountToken(deviceRemoval.accountToken);
+    grpcDeviceRemoval.setDeviceId(deviceRemoval.deviceId);
+
+    await this.call<grpcTypes.DeviceRemoval, Empty>(this.client.removeDevice, grpcDeviceRemoval);
   }
 
   private subscriptionId(): number {
@@ -1123,36 +1154,26 @@ function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
     };
   }
 
-  const keygenEvent = data.getKeyEvent();
-  if (keygenEvent !== undefined) {
-    return {
-      wireguardKey: convertFromKeygenEvent(keygenEvent),
-    };
+  const deviceConfig = data.getDevice();
+  if (deviceConfig !== undefined) {
+    return { device: convertFromDeviceEvent(deviceConfig) };
   }
 
-  return {
-    appVersionInfo: data.getVersionInfo()!.toObject(),
-  };
-}
-
-function convertFromKeygenEvent(data: grpcTypes.KeygenEvent): KeygenEvent {
-  switch (data.getEvent()) {
-    case grpcTypes.KeygenEvent.KeygenEvent.TOO_MANY_KEYS:
-      return 'too_many_keys';
-    case grpcTypes.KeygenEvent.KeygenEvent.NEW_KEY: {
-      const newKey = data.getNewKey();
-      return newKey
-        ? {
-            newKey: {
-              created: newKey.getCreated()!.toDate().toISOString(),
-              key: convertFromWireguardKey(newKey.getKey()),
-            },
-          }
-        : 'generation_failure';
-    }
-    case grpcTypes.KeygenEvent.KeygenEvent.GENERATION_FAILURE:
-      return 'generation_failure';
+  const deviceRemoval = data.getRemoveDevice();
+  if (deviceRemoval !== undefined) {
+    return { deviceRemoval: convertFromDeviceRemoval(deviceRemoval) };
   }
+
+  const versionInfo = data.getVersionInfo();
+  if (versionInfo !== undefined) {
+    return { appVersionInfo: versionInfo.toObject() };
+  }
+
+  // Handle unknown daemon events
+  const keys = Object.entries(data.toObject())
+    .filter(([, value]) => value !== undefined)
+    .map(([key]) => key);
+  throw new Error(`Unknown daemon event received containing ${keys}`);
 }
 
 function convertFromOpenVpnConstraints(
@@ -1348,6 +1369,36 @@ function convertToTransportProtocol(protocol: RelayProtocol): grpcTypes.Transpor
     case 'tcp':
       return grpcTypes.TransportProtocol.TCP;
   }
+}
+
+function convertFromDeviceEvent(deviceEvent: grpcTypes.DeviceEvent): IDeviceEvent {
+  return {
+    deviceConfig: convertFromDeviceConfig(deviceEvent.getDevice()),
+    remote: deviceEvent.getRemote(),
+  };
+}
+
+function convertFromDeviceConfig(deviceConfig?: grpcTypes.DeviceConfig): IDeviceConfig | undefined {
+  const device = deviceConfig?.getDevice();
+  return (
+    deviceConfig && {
+      accountToken: deviceConfig.getAccountToken(),
+      device: device ? convertFromDevice(device) : undefined,
+    }
+  );
+}
+
+function convertFromDeviceRemoval(deviceRemoval: grpcTypes.RemoveDeviceEvent): Array<IDevice> {
+  return deviceRemoval.getNewDeviceListList().map(convertFromDevice);
+}
+
+function convertFromDevice(device: grpcTypes.Device): IDevice {
+  const asObject = device.toObject();
+
+  return {
+    ...asObject,
+    ports: asObject.portsList.map((port) => port.id),
+  };
 }
 
 function ensureExists<T>(value: T | undefined, errorMessage: string): T {
