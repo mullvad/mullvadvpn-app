@@ -29,13 +29,7 @@ DefaultRouteMonitor::DefaultRouteMonitor
 		TWO_SECOND_INTERFERENCE
 	))
 {
-	try
-	{
-		m_bestRoute = GetBestDefaultRoute(m_family);
-	}
-	catch (...)
-	{
-	}
+	std::scoped_lock<std::mutex> lock(m_evaluationLock);
 
 	auto status = NotifyRouteChange2(AF_UNSPEC, RouteChangeCallback, this, FALSE, &m_routeNotificationHandle);
 
@@ -51,6 +45,14 @@ DefaultRouteMonitor::DefaultRouteMonitor
 	{
 		CancelMibChangeNotify2(m_routeNotificationHandle);
 		THROW_WINDOWS_ERROR(status, "Register for network interface change notifications");
+	}
+
+	try
+	{
+		m_bestRoute = GetBestDefaultRoute(m_family);
+	}
+	catch (...)
+	{
 	}
 }
 
