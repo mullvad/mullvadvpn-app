@@ -8,8 +8,8 @@
 
 import Foundation
 import struct Network.IPv4Address
-import class WireGuardKit.PublicKey
-import struct WireGuardKit.IPAddressRange
+import class WireGuardKitTypes.PublicKey
+import struct WireGuardKitTypes.IPAddressRange
 
 /// A struct that holds a tun interface configuration.
 struct InterfaceSettings: Codable, Equatable {

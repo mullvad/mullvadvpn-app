@@ -11,7 +11,7 @@ import Foundation
 import NetworkExtension
 import UIKit
 import Logging
-import class WireGuardKit.PublicKey
+import class WireGuardKitTypes.PublicKey
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.

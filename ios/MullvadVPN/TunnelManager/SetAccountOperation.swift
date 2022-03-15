@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import class WireGuardKit.PublicKey
+import class WireGuardKitTypes.PublicKey
 import Logging
 
 class SetAccountOperation: AsyncOperation {
