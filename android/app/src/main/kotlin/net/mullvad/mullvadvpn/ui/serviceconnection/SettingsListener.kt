@@ -49,9 +49,10 @@ class SettingsListener(private val connection: Messenger, eventDispatcher: Event
     }
 
     private fun handleNewSettings(newSettings: Settings) {
-        if (settings?.accountToken != newSettings.accountToken) {
-            accountNumberNotifier.notify(newSettings.accountToken)
-        }
+        // TODO: Skip until device integration is ready.
+        // if (settings?.accountToken != newSettings.accountToken) {
+        //     accountNumberNotifier.notify(newSettings.accountToken)
+        // }
 
         if (settings?.tunnelOptions?.dnsOptions != newSettings.tunnelOptions.dnsOptions) {
             dnsOptionsNotifier.notify(newSettings.tunnelOptions.dnsOptions)

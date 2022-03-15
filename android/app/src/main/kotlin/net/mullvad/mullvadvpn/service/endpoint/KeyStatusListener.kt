@@ -59,8 +59,14 @@ class KeyStatusListener(endpoint: ServiceEndpoint) {
         try {
             for (command in channel) {
                 when (command) {
-                    Command.GenerateKey -> generateKey()
-                    Command.VerifyKey -> verifyKey()
+                    Command.GenerateKey -> {
+                        // TODO: Skip until device integration is ready.
+                        // generateKey()
+                    }
+                    Command.VerifyKey -> {
+                        // TODO: Skip until device integration is ready.
+                        // verifyKey()
+                    }
                 }
             }
         } catch (exception: ClosedReceiveChannelException) {

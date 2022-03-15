@@ -61,7 +61,8 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         get() = endpoint.settingsListener.accountNumberNotifier.latestEvent
         set(value) {
             jobTracker.newBackgroundJob("setAccount") {
-                daemon.await().setAccount(value)
+                // TODO: Skip until device integration is ready.
+                // daemon.await().setAccount(value)
             }
         }
 
@@ -214,12 +215,14 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             }
         }
 
-        daemon.await().setAccount(maybeAccount)
+        // TODO: Skip until device integration is ready.
+        // daemon.await().setAccount(maybeAccount)
     }
 
     private suspend fun doLogout() {
         if (accountNumber != null) {
-            daemon.await().setAccount(null)
+            // TODO: Skip until device integration is ready.
+            // daemon.await().setAccount(null)
         }
     }
 
