@@ -174,8 +174,11 @@ mod windows {
     };
 
     const MIGRATION_DIRNAME: &str = "windows.old";
-    const MIGRATE_FILES: [(&str, bool); 2] =
-        [("settings.json", true), ("account-history.json", false)];
+    const MIGRATE_FILES: [(&str, bool); 3] = [
+        ("settings.json", true),
+        ("device.json", true),
+        ("account-history.json", false),
+    ];
 
     #[derive(err_derive::Error, Debug)]
     #[error(no_from)]
