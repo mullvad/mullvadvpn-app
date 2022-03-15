@@ -25,7 +25,7 @@ extension AddressCache.CacheUpdateResult {
 
 extension Result where Success == RelayCache.FetchResult {
     var backgroundFetchResult: UIBackgroundFetchResult {
-        switch self.asConcreteType() {
+        switch self {
         case .success(.newContent):
             return .newData
 

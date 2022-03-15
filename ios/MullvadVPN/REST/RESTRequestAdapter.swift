@@ -22,18 +22,6 @@ extension REST {
         func execute(retryStrategy: RetryStrategy = RetryStrategy.noRetry, completionHandler: @escaping CompletionHandler) -> AnyCancellable {
             return self.block(retryStrategy, completionHandler)
         }
-
-        func execute(retryStrategy: RetryStrategy = RetryStrategy.noRetry) -> Result<Success, REST.Error>.Promise {
-            return Promise { resolver in
-                let cancellable = self.execute(retryStrategy: retryStrategy) { result in
-                    resolver.resolve(value: result)
-                }
-
-                resolver.setCancelHandler {
-                    cancellable.cancel()
-                }
-            }
-        }
     }
 
 

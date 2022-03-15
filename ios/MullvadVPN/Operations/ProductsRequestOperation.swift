@@ -11,7 +11,7 @@ import StoreKit
 
 class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
     private let productIdentifiers: Set<String>
-    private var completionHandler: ((Result<SKProductsResponse, Error>) -> Void)?
+    private var completionHandler: ((OperationCompletion<SKProductsResponse, Error>) -> Void)?
 
     private let maxRetryCount = 10
     private let retryDelay: DispatchTimeInterval = .seconds(2)
@@ -20,13 +20,7 @@ class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
     private var retryTimer: DispatchSourceTimer?
     private var request: SKProductsRequest?
 
-    struct OperationCancelledError: LocalizedError {
-        var errorDescription: String? {
-            return "Operation is cancelled"
-        }
-    }
-
-    init(productIdentifiers: Set<String>, completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void) {
+    init(productIdentifiers: Set<String>, completionHandler: @escaping (OperationCompletion<SKProductsResponse, Error>) -> Void) {
         self.productIdentifiers = productIdentifiers
         self.completionHandler = completionHandler
 
@@ -36,7 +30,7 @@ class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
     override func main() {
         DispatchQueue.main.async {
             guard !self.isCancelled else {
-                self.finish(with: .failure(OperationCancelledError()))
+                self.finish(completion: .cancelled)
                 return
             }
 
@@ -65,14 +59,14 @@ class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
                 self.retryCount += 1
                 self.retry(error: error)
             } else {
-                self.finish(with: .failure(error))
+                self.finish(completion: .failure(error))
             }
         }
     }
 
     func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
         DispatchQueue.main.async {
-            self.finish(with: .success(response))
+            self.finish(completion: .success(response))
         }
     }
 
@@ -92,17 +86,17 @@ class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
         }
 
         retryTimer?.setCancelHandler { [weak self] in
-            self?.finish(with: .failure(error))
+            self?.finish(completion: .failure(error))
         }
 
         retryTimer?.schedule(wallDeadline: .now() + self.retryDelay)
         retryTimer?.activate()
     }
 
-    private func finish(with result: Result<SKProductsResponse, Error>) {
+    private func finish(completion: OperationCompletion<SKProductsResponse, Error>) {
         assert(Thread.isMainThread)
 
-        completionHandler?(result)
+        completionHandler?(completion)
         completionHandler = nil
 
         finish()

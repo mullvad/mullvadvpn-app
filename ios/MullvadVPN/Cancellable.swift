@@ -2,8 +2,8 @@
 //  Cancellable.swift
 //  MullvadVPN
 //
-//  Created by pronebird on 23/09/2021.
-//  Copyright © 2021 Mullvad VPN AB. All rights reserved.
+//  Created by pronebird on 15/03/2022.
+//  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
@@ -21,9 +21,11 @@ class AnyCancellable: Cancellable {
     }
 
     func cancel() {
-        lock.withCriticalBlock {
-            self.closure?()
-            self.closure = nil
-        }
+        lock.lock()
+        let block = closure
+        closure = nil
+        lock.unlock()
+
+        block?()
     }
 }

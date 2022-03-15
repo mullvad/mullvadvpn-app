@@ -13,8 +13,6 @@ class ExclusivityController: NSObject {
     private var operations: [String: [Operation]] = [:]
     private var categoriesByOperation: [Operation: [String]] = [:]
 
-    static let shared = ExclusivityController()
-
     func addOperation(_ operation: Operation, categories: [String]) {
         lock.withCriticalBlock {
             categories.forEach { category in
