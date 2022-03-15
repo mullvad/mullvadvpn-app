@@ -4,7 +4,7 @@ use crate::{
     tls_stream::TlsStream,
     AddressCache,
 };
-use futures::{channel::mpsc, future, StreamExt};
+use futures::{channel::mpsc, future, pin_mut, StreamExt};
 #[cfg(target_os = "android")]
 use futures::{channel::oneshot, sink::SinkExt};
 use http::uri::Scheme;
@@ -34,10 +34,11 @@ use std::{
     time::Duration,
 };
 use talpid_types::ErrorExt;
-#[cfg(target_os = "android")]
-use tokio::net::TcpSocket;
 
-use tokio::{net::TcpStream, time::timeout};
+use tokio::{
+    net::{TcpSocket, TcpStream},
+    time::timeout,
+};
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -190,23 +191,16 @@ impl HttpsConnectorWithSni {
         )
     }
 
-    #[cfg(not(target_os = "android"))]
-    async fn open_socket(addr: SocketAddr) -> std::io::Result<TcpStream> {
-        timeout(CONNECT_TIMEOUT, TcpStream::connect(addr))
-            .await
-            .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
-    }
-
-    #[cfg(target_os = "android")]
     async fn open_socket(
         addr: SocketAddr,
-        socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> std::io::Result<TcpStream> {
         let socket = match addr {
             SocketAddr::V4(_) => TcpSocket::new_v4()?,
             SocketAddr::V6(_) => TcpSocket::new_v6()?,
         };
 
+        #[cfg(target_os = "android")]
         if let Some(mut tx) = socket_bypass_tx {
             let (done_tx, done_rx) = oneshot::channel();
             let _ = tx.send((socket.as_raw_fd(), done_tx)).await;
@@ -265,6 +259,8 @@ impl Service<Uri> for HttpsConnectorWithSni {
         Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
 
     fn poll_ready(&mut self, _: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        let mut inner = self.inner.lock().unwrap();
+        inner.stream_handles.retain(|handle| !handle.is_closed());
         Poll::Ready(Ok(()))
     }
 
@@ -297,51 +293,44 @@ impl Service<Uri> for HttpsConnectorWithSni {
             // Loop until we have established a connection. This starts over if a new endpoint
             // is selected while connecting.
             let stream = loop {
+                let notify = abort_notify.notified();
                 let config = { inner.lock().unwrap().proxy_config.clone() };
-                let hostname_copy = hostname.clone();
-                let addr_copy = addr.clone();
-                let context = proxy_context.clone();
-                #[cfg(target_os = "android")]
-                let socket_bypass_tx_copy = socket_bypass_tx.clone();
-
-                let stream_fut: Pin<
-                    Box<dyn Future<Output = Result<ApiConnection, io::Error>> + Send>,
-                > = Box::pin(async move {
+                let stream_fut = async {
                     match config {
                         InnerConnectionMode::Direct => {
                             let socket = Self::open_socket(
-                                addr_copy,
+                                addr,
                                 #[cfg(target_os = "android")]
-                                socket_bypass_tx_copy,
+                                socket_bypass_tx.clone(),
                             )
                             .await?;
-                            let tls_stream =
-                                TlsStream::connect_https(socket, &hostname_copy).await?;
-                            Ok(ApiConnection::Direct(tls_stream))
+                            let tls_stream = TlsStream::connect_https(socket, &hostname).await?;
+                            Ok::<_, io::Error>(ApiConnection::Direct(tls_stream))
                         }
                         InnerConnectionMode::Proxied(proxy_config) => {
                             let socket = Self::open_socket(
                                 proxy_config.peer,
                                 #[cfg(target_os = "android")]
-                                socket_bypass_tx_copy,
+                                socket_bypass_tx.clone(),
                             )
                             .await?;
                             let proxy = ProxyClientStream::from_stream(
-                                context,
+                                proxy_context.clone(),
                                 socket,
                                 &ServerConfig::from(proxy_config),
                                 addr,
                             );
-                            let tls_stream =
-                                TlsStream::connect_https(proxy, &hostname_copy).await?;
+                            let tls_stream = TlsStream::connect_https(proxy, &hostname).await?;
                             Ok(ApiConnection::Proxied(tls_stream))
                         }
                     }
-                });
+                };
+
+                pin_mut!(stream_fut);
+                pin_mut!(notify);
 
                 // Wait for connection. Abort and retry if we switched to a different server.
-                if let future::Either::Left((stream, _)) =
-                    future::select(stream_fut, Box::pin(abort_notify.notified())).await
+                if let future::Either::Left((stream, _)) = future::select(stream_fut, notify).await
                 {
                     break stream?;
                 }
@@ -351,7 +340,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
 
             {
                 let mut inner = inner.lock().unwrap();
-                inner.stream_handles.retain(|handle| !handle.is_closed());
                 inner.stream_handles.push(socket_handle);
             }
 
