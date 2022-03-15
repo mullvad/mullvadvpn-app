@@ -42,8 +42,9 @@ mod v1;
 mod v2;
 mod v3;
 mod v4;
-// Not yet done. Add to this instead of creating v6 for now.
 mod v5;
+// Not yet done. Add to this instead of creating v7 for now.
+mod v6;
 
 const SETTINGS_FILE: &str = "settings.json";
 
@@ -124,6 +125,7 @@ pub(crate) async fn migrate_all(
     account_history::migrate_formats(settings_dir, &mut settings).await?;
 
     v5::migrate(&mut settings, rest_handle, daemon_tx).await?;
+    v6::migrate(&mut settings)?;
 
     if settings == old_settings {
         // Nothing changed
