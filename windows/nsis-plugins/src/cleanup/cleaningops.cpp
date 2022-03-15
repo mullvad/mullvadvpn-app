@@ -153,6 +153,7 @@ void MigrateCacheServiceUser()
 
 		notNamedSet->addObject(L"account-history.json");
 		notNamedSet->addObject(L"settings.json");
+		notNamedSet->addObject(L"device.json");
 
 		files.addFilter(std::move(notNamedSet));
 		files.addFilter(std::make_unique<common::fs::FilterFiles>());
