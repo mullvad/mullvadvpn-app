@@ -23,7 +23,6 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     compileSdkVersion(Versions.Android.compileSdkVersion)
-    buildToolsVersion(Versions.Android.buildToolsVersion)
 
     defaultConfig {
         applicationId = "net.mullvad.mullvadvpn"
@@ -104,6 +103,10 @@ android {
                 showExceptions = true
             }
         }
+    }
+
+    packagingOptions {
+        jniLibs.useLegacyPackaging = true
     }
 
     project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
