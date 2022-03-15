@@ -10,6 +10,7 @@ import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
+import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
 import net.mullvad.mullvadvpn.util.JobTracker
@@ -56,15 +57,6 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
     private var createdAccountExpiry: DateTime? = null
     private var oldAccountExpiry: DateTime? = null
-
-    var account: String?
-        get() = endpoint.settingsListener.accountNumberNotifier.latestEvent
-        set(value) {
-            jobTracker.newBackgroundJob("setAccount") {
-                // TODO: Skip until device integration is ready.
-                // daemon.await().setAccount(value)
-            }
-        }
 
     var loginStatus by onLoginStatusChange.notifiable()
         private set
@@ -190,39 +182,31 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun doLogin(account: String) {
-        val result = daemon.await().getAccountData(account)
+        val loginResult = daemon.await().loginAccount(account)
 
-        when (result) {
-            is GetAccountDataResult.Ok -> {
-                val expiry = DateTime.parse(result.accountData.expiry, EXPIRY_FORMAT)
+        val accountExpiryDate = loginResult
+            .takeIf { it == LoginResult.Ok }
+            .let { daemon.await().getAccountData(account) as? GetAccountDataResult.Ok }
+            ?.let { DateTime.parse(it.accountData.expiry, EXPIRY_FORMAT) }
 
-                finishLogin(account, expiry)
-            }
-            is GetAccountDataResult.RpcError -> finishLogin(account, null)
-            else -> finishLogin(null, null)
-        }
-    }
-
-    private suspend fun finishLogin(maybeAccount: String?, expiry: DateTime?) {
         synchronized(this) {
             markAccountAsNotNew()
+            accountNumber = account
+            accountExpiry = accountExpiryDate
 
-            accountNumber = maybeAccount
-            accountExpiry = expiry
-
-            loginStatus = maybeAccount?.let { account ->
-                LoginStatus(account, expiry, false)
-            }
+            loginStatus = LoginStatus(
+                account = account,
+                expiry = accountExpiryDate,
+                isNewAccount = newlyCreatedAccount,
+                loginResult
+            )
         }
-
-        // TODO: Skip until device integration is ready.
-        // daemon.await().setAccount(maybeAccount)
     }
 
     private suspend fun doLogout() {
         if (accountNumber != null) {
-            // TODO: Skip until device integration is ready.
-            // daemon.await().setAccount(null)
+            daemon.await().logoutAccount()
+            loginStatus = null
         }
     }
 
@@ -245,7 +229,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             accountNumber = newAccountNumber
 
             loginStatus = newAccountNumber?.let { account ->
-                LoginStatus(account, null, newlyCreatedAccount)
+                LoginStatus(account, null, newlyCreatedAccount, null)
             }
 
             fetchAccountExpiry()
@@ -270,7 +254,12 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
                 oldAccountExpiry = null
 
                 loginStatus = loginStatus?.let { currentStatus ->
-                    LoginStatus(currentStatus.account, newAccountExpiry, currentStatus.isNewAccount)
+                    LoginStatus(
+                        currentStatus.account,
+                        newAccountExpiry,
+                        currentStatus.isNewAccount,
+                        null
+                    )
                 }
 
                 if (accountExpiry != null && newlyCreatedAccount) {
