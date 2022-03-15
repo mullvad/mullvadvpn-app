@@ -18,7 +18,7 @@ use talpid_types::net::{self, openvpn, GenericTunnelOptions};
 /// latest version that exists in `SettingsVersion`.
 /// This should be bumped when a new version is introduced along with a migration
 /// being added to `mullvad-daemon`.
-pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V5;
+pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V6;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 #[repr(u32)]
@@ -27,6 +27,7 @@ pub enum SettingsVersion {
     V3 = 3,
     V4 = 4,
     V5 = 5,
+    V6 = 6,
 }
 
 impl<'de> Deserialize<'de> for SettingsVersion {
@@ -39,6 +40,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             v if v == SettingsVersion::V3 as u32 => Ok(SettingsVersion::V3),
             v if v == SettingsVersion::V4 as u32 => Ok(SettingsVersion::V4),
             v if v == SettingsVersion::V5 as u32 => Ok(SettingsVersion::V5),
+            v if v == SettingsVersion::V6 as u32 => Ok(SettingsVersion::V6),
             v => Err(serde::de::Error::custom(format!(
                 "{} is not a valid SettingsVersion",
                 v
