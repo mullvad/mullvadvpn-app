@@ -197,8 +197,10 @@ impl WgGoTunnel {
         _ctx: *mut libc::c_void,
     ) {
         use winapi::shared::{ifdef::NET_LUID, netioapi::ConvertInterfaceLuidToIndex};
+        use winnet::WinNetDefaultRouteChangeEventType::*;
+
         let iface_idx: u32 = match event_type {
-            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => {
+            DefaultRouteChanged => {
                 let mut iface_idx = 0u32;
                 let iface_luid = NET_LUID {
                     Value: default_route.interface_luid,
@@ -216,7 +218,9 @@ impl WgGoTunnel {
                 iface_idx
             }
             // if there is no new default route, specify 0 as the interface index
-            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteRemoved => 0,
+            DefaultRouteRemoved => 0,
+            // ignore interface updates that don't affect the interface to use
+            DefaultRouteUpdatedDetails => return,
         };
 
         wgRebindTunnelSocket(address_family.to_windows_proto_enum(), iface_idx);

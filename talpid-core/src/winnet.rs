@@ -311,7 +311,8 @@ impl Drop for WinNetCallbackHandle {
 #[repr(u16)]
 pub enum WinNetDefaultRouteChangeEventType {
     DefaultRouteChanged = 0,
-    DefaultRouteRemoved = 1,
+    DefaultRouteUpdatedDetails = 1,
+    DefaultRouteRemoved = 2,
 }
 
 pub type DefaultRouteChangedCallback = unsafe extern "system" fn(

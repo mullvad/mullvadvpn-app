@@ -168,8 +168,12 @@ enum WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE
 	// Best default route changed.
 	WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_UPDATED = 0,
 
+	// The route (gateway or interface) did not change, but
+	// interface details may have changed.
+	WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_UPDATED_DETAILS = 1,
+
 	// No default routes exist.
-	WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_REMOVED = 1,
+	WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_REMOVED = 2,
 };
 
 typedef void (WINNET_API *WinNetDefaultRouteChangedCallback)

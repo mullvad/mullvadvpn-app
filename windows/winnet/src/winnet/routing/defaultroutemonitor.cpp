@@ -47,6 +47,16 @@ DefaultRouteMonitor::DefaultRouteMonitor
 		THROW_WINDOWS_ERROR(status, "Register for network interface change notifications");
 	}
 
+	status = NotifyUnicastIpAddressChange(AF_UNSPEC, AddressChangeCallback, this,
+		FALSE, &m_addressNotificationHandle);
+
+	if (NO_ERROR != status)
+	{
+		CancelMibChangeNotify2(m_routeNotificationHandle);
+		CancelMibChangeNotify2(m_interfaceNotificationHandle);
+		THROW_WINDOWS_ERROR(status, "Register for unicast address change notifications");
+	}
+
 	try
 	{
 		m_bestRoute = GetBestDefaultRoute(m_family);
@@ -62,6 +72,7 @@ DefaultRouteMonitor::~DefaultRouteMonitor()
 	// Cancel notifications to stop triggering the BurstGuard.
 	//
 
+	CancelMibChangeNotify2(m_addressNotificationHandle);
 	CancelMibChangeNotify2(m_interfaceNotificationHandle);
 	CancelMibChangeNotify2(m_routeNotificationHandle);
 
@@ -103,6 +114,17 @@ void NETIOAPI_API_ DefaultRouteMonitor::InterfaceChangeCallback
 )
 {
 	reinterpret_cast<DefaultRouteMonitor *>(context)->m_evaluateRoutesGuard->trigger();
+}
+
+//static
+void NETIOAPI_API_ DefaultRouteMonitor::AddressChangeCallback
+(
+	void* context,
+	MIB_UNICASTIPADDRESS_ROW*,
+	MIB_NOTIFICATION_TYPE
+)
+{
+	reinterpret_cast<DefaultRouteMonitor*>(context)->m_evaluateRoutesGuard->trigger();
 }
 
 void DefaultRouteMonitor::evaluateRoutes()
@@ -172,6 +194,10 @@ void DefaultRouteMonitor::evaluateRoutesInner()
 	{
 		m_bestRoute = currentBestRoute;
 		m_callback(EventType::Updated, m_bestRoute);
+	}
+	else
+	{
+		m_callback(EventType::UpdatedDetails, m_bestRoute);
 	}
 }
 
