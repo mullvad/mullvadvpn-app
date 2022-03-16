@@ -1467,7 +1467,6 @@ where
                 error.display_chain_with_msg("Failed to move over account from old settings")
             );
         }
-        self.reconnect_tunnel();
     }
 
     #[cfg(windows)]
