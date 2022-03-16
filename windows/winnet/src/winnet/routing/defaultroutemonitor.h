@@ -57,6 +57,7 @@ private:
 	std::unique_ptr<common::BurstGuard> m_evaluateRoutesGuard;
 
 	std::optional<InterfaceAndGateway> m_bestRoute;
+	bool m_refreshCurrentRoute;
 
 	HANDLE m_routeNotificationHandle;
 	HANDLE m_interfaceNotificationHandle;
@@ -67,6 +68,8 @@ private:
 	static void NETIOAPI_API_ RouteChangeCallback(void *context, MIB_IPFORWARD_ROW2 *row, MIB_NOTIFICATION_TYPE notificationType);
 	static void NETIOAPI_API_ InterfaceChangeCallback(void *context, MIB_IPINTERFACE_ROW *row, MIB_NOTIFICATION_TYPE notificationType);
 	static void NETIOAPI_API_ AddressChangeCallback(void *context, MIB_UNICASTIPADDRESS_ROW *row, MIB_NOTIFICATION_TYPE notificationType);
+
+	void updateRefreshFlag(const NET_LUID &luid, const NET_IFINDEX &index);
 
 	void evaluateRoutes();
 	void evaluateRoutesInner();
