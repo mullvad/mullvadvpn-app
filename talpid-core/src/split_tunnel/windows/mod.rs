@@ -362,6 +362,8 @@ impl SplitTunnel {
                 }
             };
 
+            let mut previous_addresses = (None, None, None, None);
+
             while let Ok((request, response_tx)) = rx.recv() {
                 let response = match request {
                     Request::SetPaths(paths) => {
@@ -397,9 +399,27 @@ impl SplitTunnel {
                             tunnel_ipv4 = None;
                             tunnel_ipv6 = None;
                         }
-                        handle
-                            .register_ips(tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6)
-                            .map_err(Error::RegisterIps)
+                        if previous_addresses.0 == tunnel_ipv4
+                            && previous_addresses.1 == tunnel_ipv6
+                            && previous_addresses.2 == internet_ipv4
+                            && previous_addresses.3 == internet_ipv6
+                        {
+                            Ok(())
+                        } else {
+                            let result = handle
+                                .register_ips(
+                                    tunnel_ipv4,
+                                    tunnel_ipv6,
+                                    internet_ipv4,
+                                    internet_ipv6,
+                                )
+                                .map_err(Error::RegisterIps);
+                            if result.is_ok() {
+                                previous_addresses =
+                                    (tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6);
+                            }
+                            result
+                        }
                     }
                 };
                 if response_tx.send(response).is_err() {
