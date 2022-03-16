@@ -406,16 +406,19 @@ impl SplitTunnel {
                         {
                             Ok(())
                         } else {
-                            previous_addresses =
-                                (tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6);
-                            handle
+                            let result = handle
                                 .register_ips(
                                     tunnel_ipv4,
                                     tunnel_ipv6,
                                     internet_ipv4,
                                     internet_ipv6,
                                 )
-                                .map_err(Error::RegisterIps)
+                                .map_err(Error::RegisterIps);
+                            if result.is_ok() {
+                                previous_addresses =
+                                    (tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6);
+                            }
+                            result
                         }
                     }
                 };
