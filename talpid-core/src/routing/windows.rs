@@ -119,19 +119,6 @@ impl RouteManager {
         }
     }
 
-    /// Sets a callback that is called whenever the default route changes.
-    pub fn add_default_route_callback<T: 'static>(
-        &mut self,
-        callback: Option<winnet::DefaultRouteChangedCallback>,
-        context: T,
-    ) -> Result<winnet::WinNetCallbackHandle> {
-        if self.manage_tx.is_none() {
-            return Err(Error::RouteManagerDown);
-        }
-        winnet::add_default_route_change_callback(callback, context)
-            .map_err(|_| Error::FailedToAddDefaultRouteCallback)
-    }
-
     /// Stops the routing manager and invalidates the route manager - no new default route callbacks
     /// can be added
     pub fn stop(&mut self) {
