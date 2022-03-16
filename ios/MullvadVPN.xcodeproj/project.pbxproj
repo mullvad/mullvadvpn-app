@@ -109,7 +109,6 @@
 		5857F23024C843ED00CF6F47 /* ChainedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840B12464491D0044E708 /* ChainedError.swift */; };
 		5857F23424C8443700CF6F47 /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E973DD24850EB600096F90 /* AsyncOperation.swift */; };
 		5857F23824C8446700CF6F47 /* AsyncBlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */; };
-		5857F23F24C844AD00CF6F47 /* Locking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA692D23E99EFF009DC256 /* Locking.swift */; };
 		5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */; };
 		5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */; };
 		585834F824D2BC1F00A8AF56 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 585834F724D2BC1F00A8AF56 /* Logging */; };
@@ -215,11 +214,9 @@
 		58B43C1925F77DB60002C8C3 /* ConnectMainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B43C1825F77DB60002C8C3 /* ConnectMainContentView.swift */; };
 		58B67B482602079E008EF58E /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58781CD422AFBA39009B9D8E /* RelaySelector.swift */; };
 		58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B93A1226C3F13600A55733 /* TunnelState.swift */; };
-		58B93A1826C54D7E00A55733 /* Locking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA692D23E99EFF009DC256 /* Locking.swift */; };
 		58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B993B02608A34500BA7811 /* LoginContentView.swift */; };
 		58B9EB132488ED2100095626 /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB122488ED2100095626 /* AlertPresenter.swift */; };
 		58B9EB152489139B00095626 /* DisplayChainedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB142489139B00095626 /* DisplayChainedError.swift */; };
-		58BA692E23E99EFF009DC256 /* Locking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA692D23E99EFF009DC256 /* Locking.swift */; };
 		58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */; };
 		58BA791B2578F092006FAEA0 /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 58BA791A2578F092006FAEA0 /* WireGuardKit */; };
 		58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */; };
@@ -491,7 +488,6 @@
 		58B993B02608A34500BA7811 /* LoginContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginContentView.swift; sourceTree = "<group>"; };
 		58B9EB122488ED2100095626 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		58B9EB142489139B00095626 /* DisplayChainedError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayChainedError.swift; sourceTree = "<group>"; };
-		58BA692D23E99EFF009DC256 /* Locking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locking.swift; sourceTree = "<group>"; };
 		58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelProvider.swift; sourceTree = "<group>"; };
 		58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTracker.swift; sourceTree = "<group>"; };
 		58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationConfiguration.swift; sourceTree = "<group>"; };
@@ -880,7 +876,6 @@
 				58E20770274672CA00DE5D77 /* LaunchViewController.swift */,
 				58A1AA8623F43901009F7EA6 /* Location.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
-				58BA692D23E99EFF009DC256 /* Locking.swift */,
 				5815039F24D6ECF200C9C50E /* Logging */,
 				58B993B02608A34500BA7811 /* LoginContentView.swift */,
 				58CE5E65224146200008646E /* LoginViewController.swift */,
@@ -1254,7 +1249,6 @@
 				5806766D27048E5500C858CB /* KeychainMatchLimit.swift in Sources */,
 				5819C2152726CC9400D6EC38 /* DataSourceSnapshot.swift in Sources */,
 				584E96BE240FD4DB00D3334F /* Location.swift in Sources */,
-				5857F23F24C844AD00CF6F47 /* Locking.swift in Sources */,
 				5857F23424C8443700CF6F47 /* AsyncOperation.swift in Sources */,
 				585DA8A626B14F5100B8C587 /* SSLPinningURLSessionDelegate.swift in Sources */,
 				58B0A2AC238EE6D500BC001D /* IPAddress+Codable.swift in Sources */,
@@ -1287,7 +1281,6 @@
 				5891BF5125E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift in Sources */,
 				587B75412668FD7800DEF7E9 /* AccountExpiryNotificationProvider.swift in Sources */,
 				585DA89926B0329200B8C587 /* PacketTunnelStatus.swift in Sources */,
-				58BA692E23E99EFF009DC256 /* Locking.swift in Sources */,
 				5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */,
 				5840250122B1124600E4CFEC /* IPAddress+Codable.swift in Sources */,
 				5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */,
@@ -1467,7 +1460,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				5850366825A47AC700A43E93 /* IPAddressRange+Codable.swift in Sources */,
-				58B93A1826C54D7E00A55733 /* Locking.swift in Sources */,
 				58FB865F26EA2E6D00F188BC /* LogFormatting.swift in Sources */,
 				5806767A27048E8800C858CB /* Keychain.swift in Sources */,
 				585DA89726B0328000B8C587 /* TunnelIPCResponse.swift in Sources */,

@@ -26,15 +26,16 @@ struct OSLogHandler: LogHandler {
     private static let registryLock = NSLock()
 
     private static func getOSLog(subsystem: String, category: String) -> OSLog {
-        return registryLock.withCriticalBlock {
-            let key = RegistryKey(subsystem: subsystem, category: category)
-            if let log = osLogRegistry[key] {
-                return log
-            } else {
-                let newLog = OSLog(subsystem: subsystem, category: category)
-                osLogRegistry[key] = newLog
-                return newLog
-            }
+        registryLock.lock()
+        defer { registryLock.unlock() }
+
+        let key = RegistryKey(subsystem: subsystem, category: category)
+        if let log = osLogRegistry[key] {
+            return log
+        } else {
+            let newLog = OSLog(subsystem: subsystem, category: category)
+            osLogRegistry[key] = newLog
+            return newLog
         }
     }
 

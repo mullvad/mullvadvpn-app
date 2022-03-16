@@ -14,23 +14,27 @@ class ExclusivityController: NSObject {
     private var categoriesByOperation: [Operation: [String]] = [:]
 
     func addOperation(_ operation: Operation, categories: [String]) {
-        lock.withCriticalBlock {
-            categories.forEach { category in
-                addOperation(operation, category: category)
-            }
+        lock.lock()
 
-            addObserverIfNeeded(operation: operation, categories: categories)
+        categories.forEach { category in
+            addOperation(operation, category: category)
         }
+
+        addObserverIfNeeded(operation: operation, categories: categories)
+
+        lock.unlock()
     }
 
     func removeOperation(_ operation: Operation, categories: [String]) {
-        lock.withCriticalBlock {
-            categories.forEach { category in
-                removeOperation(operation, category: category)
-            }
+        lock.lock()
 
-            removeObserverIfNeeded(operation: operation, categories: categories)
+        categories.forEach { category in
+            removeOperation(operation, category: category)
         }
+
+        removeObserverIfNeeded(operation: operation, categories: categories)
+
+        lock.unlock()
     }
 
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
@@ -98,14 +102,16 @@ class ExclusivityController: NSObject {
     }
 
     private func operationDidFinish(_ operation: Operation) {
-        lock.withCriticalBlock {
-            let operationCategories = categoriesByOperation[operation] ?? []
+        lock.lock()
 
-            removeObserverIfNeeded(operation: operation, categories: operationCategories)
+        let operationCategories = categoriesByOperation[operation] ?? []
 
-            operationCategories.forEach { category in
-                removeOperation(operation, category: category)
-            }
+        removeObserverIfNeeded(operation: operation, categories: operationCategories)
+
+        operationCategories.forEach { category in
+            removeOperation(operation, category: category)
         }
+
+        lock.unlock()
     }
 }

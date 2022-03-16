@@ -19,15 +19,24 @@ class AsyncOperation: Operation {
     private var _isCancelled = false
 
     final override var isExecuting: Bool {
-        return stateLock.withCriticalBlock { _isExecuting }
+        stateLock.lock()
+        defer { stateLock.unlock() }
+
+        return _isExecuting
     }
 
     final override var isFinished: Bool {
-        return stateLock.withCriticalBlock { _isFinished }
+        stateLock.lock()
+        defer { stateLock.unlock() }
+
+        return _isFinished
     }
 
     final override var isCancelled: Bool {
-        return stateLock.withCriticalBlock { _isCancelled }
+        stateLock.lock()
+        defer { stateLock.unlock() }
+
+        return _isCancelled
     }
 
     final override var isAsynchronous: Bool {
@@ -35,9 +44,9 @@ class AsyncOperation: Operation {
     }
 
     final override func start() {
-        stateLock.withCriticalBlock {
-            setExecuting(true)
-        }
+        stateLock.lock()
+        setExecuting(true)
+        stateLock.unlock()
         main()
     }
 
@@ -46,13 +55,14 @@ class AsyncOperation: Operation {
     }
 
     override func cancel() {
-        stateLock.withCriticalBlock {
-            if !_isCancelled {
-                willChangeValue(for: \.isCancelled)
-                _isCancelled = true
-                didChangeValue(for: \.isCancelled)
-            }
+        stateLock.lock()
+        if !_isCancelled {
+            willChangeValue(for: \.isCancelled)
+            _isCancelled = true
+            didChangeValue(for: \.isCancelled)
         }
+        stateLock.unlock()
+
         super.cancel()
     }
 
