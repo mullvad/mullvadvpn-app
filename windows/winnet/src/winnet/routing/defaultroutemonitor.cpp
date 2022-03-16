@@ -32,14 +32,14 @@ DefaultRouteMonitor::DefaultRouteMonitor
 {
 	std::scoped_lock<std::mutex> lock(m_evaluationLock);
 
-	auto status = NotifyRouteChange2(AF_UNSPEC, RouteChangeCallback, this, FALSE, &m_routeNotificationHandle);
+	auto status = NotifyRouteChange2(family, RouteChangeCallback, this, FALSE, &m_routeNotificationHandle);
 
 	if (NO_ERROR != status)
 	{
 		THROW_WINDOWS_ERROR(status, "Register for route table change notifications");
 	}
 
-	status = NotifyIpInterfaceChange(AF_UNSPEC, InterfaceChangeCallback, this,
+	status = NotifyIpInterfaceChange(family, InterfaceChangeCallback, this,
 		FALSE, &m_interfaceNotificationHandle);
 
 	if (NO_ERROR != status)
@@ -48,7 +48,7 @@ DefaultRouteMonitor::DefaultRouteMonitor
 		THROW_WINDOWS_ERROR(status, "Register for network interface change notifications");
 	}
 
-	status = NotifyUnicastIpAddressChange(AF_UNSPEC, AddressChangeCallback, this,
+	status = NotifyUnicastIpAddressChange(family, AddressChangeCallback, this,
 		FALSE, &m_addressNotificationHandle);
 
 	if (NO_ERROR != status)
