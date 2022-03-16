@@ -640,6 +640,8 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
     default_route: winnet::WinNetDefaultRoute,
     ctx: *mut libc::c_void,
 ) {
+    use winnet::WinNetDefaultRouteChangeEventType::*;
+
     // Update the "internet interface" IP when best default route changes
     let ctx_mutex = &mut *(ctx as *mut Arc<Mutex<SplitTunnelDefaultRouteChangeHandlerContext>>);
     let mut ctx = ctx_mutex.lock().expect("ST route handler mutex poisoned");
@@ -652,7 +654,7 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
     };
 
     let result = match event_type {
-        winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => {
+        DefaultRouteChanged | DefaultRouteUpdatedDetails => {
             match interface_luid_to_ip(address_family, default_route.interface_luid) {
                 Ok(Some(ip)) => match IpAddr::from(ip) {
                     IpAddr::V4(addr) => ctx.internet_ipv4 = Some(addr),
@@ -684,7 +686,7 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
             ctx.register_ips()
         }
         // no default route
-        winnet::WinNetDefaultRouteChangeEventType::DefaultRouteRemoved => {
+        DefaultRouteRemoved => {
             match address_family {
                 WinNetAddrFamily::IPV4 => {
                     ctx.internet_ipv4 = None;

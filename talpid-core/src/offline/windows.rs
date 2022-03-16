@@ -122,11 +122,15 @@ impl BroadcastListener {
         _default_route: winnet::WinNetDefaultRoute,
         ctx: *mut c_void,
     ) {
+        use winnet::WinNetDefaultRouteChangeEventType::*;
+
+        if event_type == DefaultRouteUpdatedDetails {
+            // ignore changes that don't affect the route
+            return;
+        }
+
         let state_lock: &mut Arc<Mutex<SystemState>> = &mut *(ctx as *mut _);
-        let connectivity = match event_type {
-            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => true,
-            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteRemoved => false,
-        };
+        let connectivity = event_type != DefaultRouteRemoved;
         let change = match family {
             winnet::WinNetAddrFamily::IPV4 => StateChange::NetworkV4Connectivity(connectivity),
             winnet::WinNetAddrFamily::IPV6 => StateChange::NetworkV6Connectivity(connectivity),

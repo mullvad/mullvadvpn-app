@@ -22,6 +22,10 @@ public:
 		// The best default route changed.
 		Updated,
 
+		// Interface details changed; the associated interface and
+		// gateway did not.
+		UpdatedDetails,
+
 		// No default routes exist.
 		Removed,
 	};
@@ -56,11 +60,13 @@ private:
 
 	HANDLE m_routeNotificationHandle;
 	HANDLE m_interfaceNotificationHandle;
+	HANDLE m_addressNotificationHandle;
 
 	std::mutex m_evaluationLock;
 
 	static void NETIOAPI_API_ RouteChangeCallback(void *context, MIB_IPFORWARD_ROW2 *row, MIB_NOTIFICATION_TYPE notificationType);
 	static void NETIOAPI_API_ InterfaceChangeCallback(void *context, MIB_IPINTERFACE_ROW *row, MIB_NOTIFICATION_TYPE notificationType);
+	static void NETIOAPI_API_ AddressChangeCallback(void *context, MIB_UNICASTIPADDRESS_ROW *row, MIB_NOTIFICATION_TYPE notificationType);
 
 	void evaluateRoutes();
 	void evaluateRoutesInner();
