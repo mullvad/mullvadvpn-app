@@ -156,6 +156,13 @@ impl ManagementService for ManagementServiceImpl {
             .map(Response::new)
     }
 
+    async fn is_performing_post_upgrade(&self, _: Request<()>) -> ServiceResult<bool> {
+        log::debug!("is_performing_post_upgrade");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::IsPerformingPostUpgrade(tx))?;
+        Ok(Response::new(self.wait_for_result(rx).await?))
+    }
+
     // Relays and tunnel constraints
     //
 

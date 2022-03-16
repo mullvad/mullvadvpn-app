@@ -77,8 +77,8 @@ pub enum Error {
     ParseDeviceCache(#[error(source)] serde_json::Error),
     #[error(display = "Unexpected HTTP request error")]
     OtherRestError(#[error(source)] rest::Error),
-    #[error(display = "The device update task is not running")]
-    DeviceUpdaterCancelled(#[error(source)] oneshot::Canceled),
+    #[error(display = "The task was aborted")]
+    Cancelled,
     #[error(display = "The account manager is down")]
     AccountManagerDown,
 }

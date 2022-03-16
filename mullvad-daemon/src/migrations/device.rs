@@ -6,17 +6,22 @@
 //! This module is allowed to import a number of types, unlike other migration modules, as it
 //! does not modify any files directly and may safely fail.
 
-use super::v5::MigrationData;
+use super::{v5::MigrationData, MigrationComplete};
 use crate::{
     device::{self, DeviceService},
     DaemonEventSender, InternalDaemonEvent,
 };
 use mullvad_types::{account::AccountToken, device::DeviceData, wireguard::WireguardData};
+use std::time::Duration;
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
+use tokio::time::timeout;
+
+const TIMEOUT: Duration = Duration::from_secs(30);
 
 pub(crate) fn generate_device(
     migration_data: MigrationData,
+    mut migration_complete: MigrationComplete,
     rest_handle: mullvad_api::rest::MullvadRestHandle,
     daemon_tx: DaemonEventSender,
 ) {
@@ -45,9 +50,8 @@ pub(crate) fn generate_device(
                 cache_from_account(service, token).await
             }
         };
-        if let Ok(data) = result {
-            let _ = daemon_tx.send(InternalDaemonEvent::DeviceMigrationEvent(data));
-        }
+        let _ = daemon_tx.send(InternalDaemonEvent::DeviceMigrationEvent(result));
+        migration_complete.set_complete();
     });
 }
 
@@ -56,9 +60,12 @@ async fn cache_from_wireguard_key(
     token: AccountToken,
     wg_data: WireguardData,
 ) -> Result<DeviceData, device::Error> {
-    let devices = service
-        .list_devices_with_backoff(token.clone())
+    let devices = timeout(TIMEOUT, service.list_devices_with_backoff(token.clone()))
         .await
+        .map_err(|_error| {
+            log::error!("Failed to enumerate devices for account: timed out");
+            device::Error::Cancelled
+        })?
         .map_err(|error| {
             log::error!(
                 "{}",
@@ -84,9 +91,12 @@ async fn cache_from_account(
     service: DeviceService,
     token: AccountToken,
 ) -> Result<DeviceData, device::Error> {
-    service
-        .generate_for_account_with_backoff(token)
+    timeout(TIMEOUT, service.generate_for_account_with_backoff(token))
         .await
+        .map_err(|_error| {
+            log::error!("Failed to generate new device for account: timed out");
+            device::Error::Cancelled
+        })?
         .map_err(|error| {
             log::error!(
                 "{}",
