@@ -23,6 +23,8 @@ service ManagementService {
 	rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
 	rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
 
+	rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+
 	// Relays and tunnel constraints
 	rpc UpdateRelayLocations(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc UpdateRelaySettings(RelaySettingsUpdate) returns (google.protobuf.Empty) {}

@@ -293,6 +293,8 @@ pub enum DaemonCommand {
     GetWireguardKey(ResponseTx<Option<PublicKey>, Error>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
+    /// Return whether the daemon is performing post-upgrade tasks
+    IsPerformingPostUpgrade(oneshot::Sender<bool>),
     /// Get current version of the app
     GetCurrentVersion(oneshot::Sender<AppVersion>),
     /// Remove settings and clear the cache
@@ -359,7 +361,7 @@ pub(crate) enum InternalDaemonEvent {
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
     DeviceEvent(InnerDeviceEvent),
     /// Handles updates from versions without devices.
-    DeviceMigrationEvent(DeviceData),
+    DeviceMigrationEvent(Result<DeviceData, device::Error>),
     /// The split tunnel paths or state were updated.
     #[cfg(target_os = "windows")]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
@@ -580,6 +582,7 @@ pub struct Daemon<L: EventListener> {
     tx: DaemonEventSender,
     reconnection_job: Option<AbortHandle>,
     event_listener: L,
+    migration_complete: migrations::MigrationComplete,
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
@@ -642,19 +645,20 @@ where
             .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
             .await;
 
-        if let Err(error) = migrations::migrate_all(
+        let migration_complete = migrations::migrate_all(
             &cache_dir,
             &settings_dir,
             api_handle.clone(),
             internal_event_tx.clone(),
         )
         .await
-        {
+        .unwrap_or_else(|error| {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to migrate settings or cache")
             );
-        }
+            migrations::MigrationComplete::new(true)
+        });
         let settings = SettingsPersister::load(&settings_dir).await;
 
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
@@ -781,6 +785,7 @@ where
             tx: internal_event_tx,
             reconnection_job: None,
             event_listener,
+            migration_complete,
             settings,
             account_history,
             device_checker: device::TunnelStateChangeHandler::new(account_manager.clone()),
@@ -1318,6 +1323,7 @@ where
             RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx).await,
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx).await,
+            IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx).await,
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
             FactoryReset(tx) => self.on_factory_reset(tx).await,
@@ -1456,16 +1462,22 @@ where
             .notify_device_event(DeviceEvent::from(event));
     }
 
-    async fn handle_device_migration_event(&mut self, data: DeviceData) {
+    async fn handle_device_migration_event(&mut self, result: Result<DeviceData, device::Error>) {
         if let Ok(Some(_)) = self.account_manager.data().await {
             // Discard stale device
             return;
         }
-        if let Err(error) = self.account_manager.set(data).await {
+
+        let result = async { self.account_manager.set(result?).await }.await;
+
+        if let Err(error) = result {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to move over account from old settings")
             );
+            // Synthesize a logout event.
+            self.event_listener
+                .notify_device_event(DeviceEvent::revoke(false));
         }
     }
 
@@ -1520,6 +1532,11 @@ where
 
     fn on_get_state(&self, tx: oneshot::Sender<TunnelState>) {
         Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
+    }
+
+    async fn on_is_performing_post_upgrade(&self, tx: oneshot::Sender<bool>) {
+        let performing_post_upgrade = !self.migration_complete.is_complete();
+        Self::oneshot_send(tx, performing_post_upgrade, "performing post upgrade");
     }
 
     async fn on_get_current_location(&mut self, tx: oneshot::Sender<Option<GeoIpLocation>>) {
