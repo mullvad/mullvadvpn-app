@@ -49,7 +49,7 @@ class StopTunnelOperation: AsyncOperation {
 
             completionHandler(.success(()))
 
-        case .connected, .connecting:
+        case .connected, .connecting, .reconnecting:
             // Disable on-demand when stopping the tunnel to prevent it from coming back up
             tunnel.isOnDemandEnabled = false
 
