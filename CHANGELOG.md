@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add toggle for split tunneling state.
 
 ### Changed
+- Update settings format to `v6`.
+- Move WireGuard TCP obfuscation settings into `mullvad obfuscation` command in CLI.
 - Decrease the size of fonts, some icons and other design elements in the desktop app. This makes it
   possible to fit more into the same area and makes text easier to read.
 - Don't block the tunnel state machine while starting the tunnel monitor. This also means that
