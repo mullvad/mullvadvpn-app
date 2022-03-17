@@ -58,8 +58,12 @@ class SetAccountOperation: AsyncOperation {
 
             logger.debug("Unset current account token.")
 
-            deleteOldAccount(accountToken: currentAccountToken, currentPublicKey: currentPublicKey, nextPublicKey: nextPublicKey) {
-                self.setNewAccount(completionHandler: completionHandler)
+            let publicKeys = [currentPublicKey, nextPublicKey].compactMap { $0 }
+
+            deletePublicKeys(publicKeys, accountToken: currentAccountToken) {
+                self.deleteKeychainEntryAndVPNConfiguration(accountToken: currentAccountToken) {
+                    self.setNewAccount(completionHandler: completionHandler)
+                }
             }
         } else {
             setNewAccount(completionHandler: completionHandler)
@@ -75,78 +79,88 @@ class SetAccountOperation: AsyncOperation {
 
         logger.debug("Set new account token.")
 
-        switch makeTunnelSettings(accountToken: accountToken) {
-        case .success(let tunnelSettings):
-            let interfaceSettings = tunnelSettings.interface
+        // Check Keychain for leftover settings from previous installation and attempt to remove
+        // previous WirGuard keys before proceeding.
+        switch TunnelSettingsManager.load(searchTerm: .accountToken(accountToken)) {
+        case .success(let keychainEntry):
+            let interfaceSettings = keychainEntry.tunnelSettings.interface
 
-            if let newPrivateKey = interfaceSettings.nextPrivateKey {
-                // Replace key if key rotation had failed.
-                replaceOldAccountKey(
-                    accountToken: accountToken,
-                    oldPrivateKey: interfaceSettings.privateKey,
-                    newPrivateKey: newPrivateKey,
-                    completionHandler: completionHandler
-                )
-            } else if interfaceSettings.addresses.isEmpty {
-                // Push key if interface addresses were not received yet
-                pushNewAccountKey(
-                    accountToken: accountToken,
-                    publicKey: interfaceSettings.publicKey,
-                    completionHandler: completionHandler
-                )
-            } else {
-                state.tunnelInfo = TunnelInfo(
-                    token: accountToken,
-                    tunnelSettings: tunnelSettings
-                )
-                completionHandler(.success(()))
+            logger.debug("Found leftover tunnel settings in Keychain.")
+
+            let publicKeys = [interfaceSettings.publicKey, interfaceSettings.nextPrivateKey?.publicKey]
+                .compactMap { $0 }
+
+            deletePublicKeys(publicKeys, accountToken: accountToken) {
+                self.addTunnelSettingsAndPushKey(accountToken: accountToken, completionHandler: completionHandler)
             }
 
+            // Explicit return.
+            return
+
+        case .failure(.lookupEntry(.itemNotFound)):
+            break
+
         case .failure(let error):
-            logger.error(chainedError: error, message: "Failed to make new account settings.")
+            logger.error(chainedError: error, message: "Failed to read leftover tunnel settings.")
+        }
+
+        addTunnelSettingsAndPushKey(accountToken: accountToken, completionHandler: completionHandler)
+    }
+
+    private func addTunnelSettingsAndPushKey(accountToken: String, completionHandler: @escaping CompletionHandler) {
+        switch addTunnelSettings(accountToken: accountToken) {
+        case .success(let tunnelSettings):
+            self.pushNewAccountKey(
+                accountToken: accountToken,
+                publicKey: tunnelSettings.interface.publicKey,
+                completionHandler: completionHandler
+            )
+
+        case .failure(let error):
+            logger.error(chainedError: error, message: "Failed to add tunnel settings for new account.")
             completionHandler(.failure(error))
         }
     }
 
-    private func makeTunnelSettings(accountToken: String) -> Result<TunnelSettings, TunnelManager.Error> {
-        return TunnelSettingsManager.load(searchTerm: .accountToken(accountToken))
-            .mapError { TunnelManager.Error.readTunnelSettings($0) }
-            .map { $0.tunnelSettings }
+    private func addTunnelSettings(accountToken: String) -> Result<TunnelSettings, TunnelManager.Error> {
+        return TunnelSettingsManager.remove(searchTerm: .accountToken(accountToken))
             .flatMapError { error in
-                if case .readTunnelSettings(.lookupEntry(.itemNotFound)) = error {
-                    let defaultConfiguration = TunnelSettings()
-
-                    return TunnelSettingsManager
-                        .add(configuration: defaultConfiguration, account: accountToken)
-                        .mapError { .addTunnelSettings($0) }
-                        .map { defaultConfiguration }
+                if case .removeEntry(.itemNotFound) = error {
+                    return .success(())
                 } else {
-                    return .failure(error)
+                    return .failure(.removeTunnelSettings(error))
                 }
+            }
+            .flatMap { _ in
+                let defaultSettings = TunnelSettings()
+
+                return TunnelSettingsManager.add(configuration: defaultSettings, account: accountToken)
+                    .map { _ in
+                        return defaultSettings
+                    }
+                    .mapError { error in
+                        return .addTunnelSettings(error)
+                    }
             }
     }
 
-    private func deleteOldAccount(accountToken: String, currentPublicKey: PublicKey, nextPublicKey: PublicKey?, completionHandler: @escaping () -> Void) {
+    private func deletePublicKeys(_ publicKeys: [PublicKey], accountToken: String, completionHandler: @escaping () -> Void) {
         let dispatchGroup = DispatchGroup()
 
-        let keysToDelete = [currentPublicKey, nextPublicKey].compactMap { $0 }
-
-        logger.debug("Deleting \(keysToDelete.count) key(s) from old account.")
-
-        for (index, publicKey) in keysToDelete.enumerated() {
+        for (index, publicKey) in publicKeys.enumerated() {
             dispatchGroup.enter()
             _ = REST.Client.shared.deleteWireguardKey(token: accountToken, publicKey: publicKey)
                 .execute(retryStrategy: .default) { result in
                     self.queue.async {
                         switch result {
                         case .success:
-                            self.logger.info("Removed old key (\(index)) from server.")
+                            self.logger.info("Removed key (\(index)) from server.")
 
                         case .failure(.server(.pubKeyNotFound)):
-                            self.logger.debug("Old key (\(index)) was not found on server.")
+                            self.logger.debug("Key (\(index)) was not found on server.")
 
                         case .failure(let error):
-                            self.logger.error(chainedError: error, message: "Failed to delete old key (\(index)) on server.")
+                            self.logger.error(chainedError: error, message: "Failed to delete key (\(index)) on server.")
                         }
 
                         dispatchGroup.leave()
@@ -155,7 +169,7 @@ class SetAccountOperation: AsyncOperation {
         }
 
         dispatchGroup.notify(queue: queue) {
-            self.deleteKeychainEntryAndVPNConfiguration(accountToken: accountToken, completionHandler: completionHandler)
+            completionHandler()
         }
     }
 
@@ -203,25 +217,6 @@ class SetAccountOperation: AsyncOperation {
                 completionHandler()
             }
         }
-    }
-
-    private func replaceOldAccountKey(accountToken: String, oldPrivateKey: PrivateKeyWithMetadata, newPrivateKey: PrivateKeyWithMetadata, completionHandler: @escaping CompletionHandler) {
-        _ = restClient.replaceWireguardKey(token: accountToken, oldPublicKey: oldPrivateKey.publicKey, newPublicKey: newPrivateKey.publicKey)
-            .execute(retryStrategy: .default) { result in
-                self.queue.async {
-                    switch result {
-                    case .success(let associatedAddresses):
-                        self.logger.debug("Replaced old key with new key on server.")
-
-                        self.saveAssociatedAddresses(associatedAddresses, accountToken: accountToken, newPrivateKey: newPrivateKey, completionHandler: completionHandler)
-
-                    case .failure(let error):
-                        self.logger.error(chainedError: error, message: "Failed to replace old key with new key on server.")
-
-                        completionHandler(.failure(.replaceWireguardKey(error)))
-                    }
-                }
-            }
     }
 
     private func pushNewAccountKey(accountToken: String, publicKey: PublicKey, completionHandler: @escaping CompletionHandler) {
