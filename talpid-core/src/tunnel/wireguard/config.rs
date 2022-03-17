@@ -3,7 +3,7 @@ use std::{
     ffi::CString,
     net::{Ipv4Addr, Ipv6Addr},
 };
-use talpid_types::net::{wireguard, GenericTunnelOptions};
+use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, GenericTunnelOptions};
 
 /// Config required to set up a single WireGuard tunnel
 pub struct Config {
@@ -26,6 +26,8 @@ pub struct Config {
     /// Temporary switch for wireguard-nt
     #[cfg(target_os = "windows")]
     pub use_wireguard_nt: bool,
+    /// Obfuscator config to be used for reaching the relay.
+    pub obfuscator_config: Option<ObfuscatorConfig>,
 }
 
 const DEFAULT_MTU: u16 = 1380;
@@ -60,6 +62,7 @@ impl Config {
             &params.connection,
             &params.options,
             &params.generic_options,
+            params.obfuscation.clone(),
         )
     }
 
@@ -70,6 +73,7 @@ impl Config {
         connection_config: &wireguard::ConnectionConfig,
         wg_options: &wireguard::TunnelOptions,
         generic_options: &GenericTunnelOptions,
+        obfuscator_config: Option<ObfuscatorConfig>,
     ) -> Result<Config, Error> {
         if peers.is_empty() {
             return Err(Error::NoPeersSuppliedError);
@@ -114,6 +118,7 @@ impl Config {
             enable_ipv6: generic_options.enable_ipv6,
             #[cfg(target_os = "windows")]
             use_wireguard_nt: wg_options.use_wireguard_nt,
+            obfuscator_config,
         })
     }
 

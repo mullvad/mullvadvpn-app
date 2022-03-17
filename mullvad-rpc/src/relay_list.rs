@@ -4,7 +4,7 @@ use crate::rest;
 
 use hyper::{header, Method, StatusCode};
 use mullvad_types::{location, relay_list};
-use talpid_types::net::{wireguard, TransportProtocol};
+use talpid_types::net::wireguard;
 
 use std::{
     collections::BTreeMap,
@@ -182,7 +182,6 @@ impl ServerRelayList {
                 ipv4_gateway,
                 ipv6_gateway,
                 public_key,
-                protocol: TransportProtocol::Udp,
             };
 
         for mut wireguard_relay in relays {
@@ -315,6 +314,7 @@ fn relay(relay: Relay, location: location::Location) -> relay_list::Relay {
         weight: relay.weight,
         tunnels: Default::default(),
         bridges: Default::default(),
+        obfuscators: Default::default(),
         location: Some(location),
     }
 }

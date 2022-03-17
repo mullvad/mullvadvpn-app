@@ -41,8 +41,8 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::{Coordinates, GeoIpLocation},
     relay_constraints::{
-        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, RelaySettings,
-        RelaySettingsUpdate,
+        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, ObfuscationSettings,
+        RelaySettings, RelaySettingsUpdate, SelectedObfuscation,
     },
     relay_list::{Relay, RelayList},
     settings::{DnsOptions, DnsState, Settings},
@@ -154,6 +154,9 @@ pub enum Error {
 
     #[error(display = "No bridge available")]
     NoBridgeAvailable,
+
+    #[error(display = "Failed to select a compatible obfuscator")]
+    NoObfuscator,
 
     #[error(display = "No matching entry relay was found")]
     NoEntryRelayAvailable,
@@ -318,6 +321,8 @@ pub enum DaemonCommand {
     /// Notify the split tunnel monitor that a volume was mounted or dismounted
     #[cfg(target_os = "windows")]
     CheckVolumes(ResponseTx<(), Error>),
+    /// Register settings for WireGuard obfuscator
+    SetObfuscationSettings(ResponseTx<(), settings::Error>, ObfuscationSettings),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
     /// Saves the target tunnel state and enters a blocking state. The state is restored
@@ -1043,6 +1048,7 @@ where
                         let result = self
                             .create_tunnel_parameters(
                                 &exit_relay,
+                                &entry_relay,
                                 endpoint,
                                 device.token,
                                 retry_attempt,
@@ -1084,6 +1090,7 @@ where
     async fn create_tunnel_parameters(
         &mut self,
         relay: &Relay,
+        entry_relay: &Option<Relay>,
         endpoint: MullvadEndpoint,
         account_token: String,
         retry_attempt: u32,
@@ -1169,6 +1176,29 @@ where
                         wg_data.addresses.ipv6_address.ip().into(),
                     ],
                 };
+
+                let obfuscation = match self.settings.obfuscation_settings.selected_obfuscation {
+                    SelectedObfuscation::Off | SelectedObfuscation::Auto
+                        if !self
+                            .relay_selector
+                            .should_use_auto_obfuscator(retry_attempt) =>
+                    {
+                        None
+                    }
+                    _ => {
+                        let obfuscator = self
+                            .relay_selector
+                            .get_obfuscator(
+                                &self.settings.obfuscation_settings,
+                                entry_relay.as_ref().unwrap_or(relay),
+                                &endpoint,
+                                retry_attempt,
+                            )
+                            .ok_or(Error::NoObfuscator)?;
+                        Some(obfuscator)
+                    }
+                };
+
                 Ok(wireguard::TunnelParameters {
                     connection: wireguard::ConnectionConfig {
                         tunnel,
@@ -1179,6 +1209,7 @@ where
                     },
                     options: tunnel_options.wireguard.options,
                     generic_options: tunnel_options.generic,
+                    obfuscation,
                 }
                 .into())
             }
@@ -1280,6 +1311,9 @@ where
             UseWireGuardNt(tx, state) => self.on_use_wireguard_nt(tx, state).await,
             #[cfg(target_os = "windows")]
             CheckVolumes(tx) => self.on_check_volumes(tx).await,
+            SetObfuscationSettings(tx, settings) => {
+                self.on_set_obfuscation_settings(tx, settings).await
+            }
             Shutdown => self.trigger_shutdown_event(),
             PrepareRestart => self.on_prepare_restart(),
             #[cfg(target_os = "android")]
@@ -2211,6 +2245,30 @@ where
                     e.display_chain_with_msg("Failed to set new bridge settings")
                 );
                 Self::oneshot_send(tx, Err(e), "set_bridge_settings");
+            }
+        }
+    }
+
+    async fn on_set_obfuscation_settings(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        new_settings: ObfuscationSettings,
+    ) {
+        match self.settings.set_obfuscation_settings(new_settings).await {
+            Ok(settings_changed) => {
+                if settings_changed {
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
+                    self.reconnect_tunnel();
+                }
+                Self::oneshot_send(tx, Ok(()), "set_obfuscation_settings");
+            }
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to set obfuscation settings")
+                );
+                Self::oneshot_send(tx, Err(err), "set_obfuscation_settings");
             }
         }
     }
