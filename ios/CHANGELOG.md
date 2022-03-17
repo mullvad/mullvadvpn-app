@@ -23,6 +23,13 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Delete leftover settings in Keychain during login. WireGuard keys will be removed from 
+  server too if old settings can be read. This is usually the case when uninstalling the app and 
+  then reinstalling it without logging out first.
+
+
+## [2022.1] - 2022-02-15
 ### Added
 - Show privacy overlay when entering app switcher.
 - Add option to block malware.
