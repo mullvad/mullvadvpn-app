@@ -24,6 +24,13 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add tunnel monitor when establishing tunnel connection. Picks next relay every 15 seconds until 
+  any inbound traffic received. This should also keep the tunnel in connecting or reconnecting state 
+  until the tunnel monitor determined that connection is functional.
+
+
+## [2022.1] - 2022-02-15
+### Added
 - Show privacy overlay when entering app switcher.
 - Add option to block malware.
 
