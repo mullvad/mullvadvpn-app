@@ -24,9 +24,14 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add tunnel monitor when establishing tunnel connection. Picks next relay every 15 seconds until 
-  any inbound traffic received. This should also keep the tunnel in connecting or reconnecting state 
+- Add tunnel monitor when establishing tunnel connection. Picks next relay every 15 seconds until
+  any inbound traffic received. This should also keep the tunnel in connecting or reconnecting state
   until the tunnel monitor determined that connection is functional.
+
+### Changed
+- Delete leftover settings in Keychain during login. WireGuard keys will be removed from
+  server too if old settings can be read. This is usually the case when uninstalling the app and
+  then reinstalling it without logging out first.
 
 
 ## [2022.1] - 2022-02-15
