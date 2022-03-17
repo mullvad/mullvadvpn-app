@@ -3130,7 +3130,7 @@ dependencies = [
  "triggered",
  "trust-dns-server",
  "tun",
- "udp-over-tcp",
+ "udp-over-tcp 0.1.0 (git+https://github.com/mullvad/udp-over-tcp?rev=1e27324362ed123b61fa2062b1599e5f9d569796)",
  "uuid",
  "which",
  "widestring 0.5.1",
@@ -3632,6 +3632,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "tunnel-obfuscation"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "err-derive",
+ "futures",
+ "talpid-types",
+ "tokio",
+ "udp-over-tcp 0.1.0 (git+https://github.com/mullvad/udp-over-tcp?rev=27b9519b63244736b6f3c7c4af60976c88dc6b95)",
+]
+
+[[package]]
 name = "typenum"
 version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3654,6 +3666,21 @@ dependencies = [
  "lazy_static",
  "log",
  "nix 0.20.2",
+ "structopt",
+ "tokio",
+]
+
+[[package]]
+name = "udp-over-tcp"
+version = "0.1.0"
+source = "git+https://github.com/mullvad/udp-over-tcp?rev=27b9519b63244736b6f3c7c4af60976c88dc6b95#27b9519b63244736b6f3c7c4af60976c88dc6b95"
+dependencies = [
+ "env_logger 0.8.4",
+ "err-context",
+ "futures",
+ "lazy_static",
+ "log",
+ "nix 0.23.1",
  "structopt",
  "tokio",
 ]

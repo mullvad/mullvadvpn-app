@@ -1,0 +1,14 @@
+[package]
+name = "tunnel-obfuscation"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-trait = "0.1"
+err-derive = "0.3.0"
+futures = "0.3.5"
+tokio = { version = "1.7", features = ["rt-multi-thread", "macros", "net", "io-util"] }
+talpid-types = { path = "../talpid-types" }
+udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "27b9519b63244736b6f3c7c4af60976c88dc6b95" }
