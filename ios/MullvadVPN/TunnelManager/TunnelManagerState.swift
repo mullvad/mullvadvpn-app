@@ -9,17 +9,10 @@
 import Foundation
 import NetworkExtension
 
-// Switch to stabs on simulator
-#if targetEnvironment(simulator)
-typealias TunnelProviderManagerType = SimulatorTunnelProviderManager
-#else
-typealias TunnelProviderManagerType = NETunnelProviderManager
-#endif
-
 protocol TunnelManagerStateDelegate: AnyObject {
     func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelInfo newTunnelInfo: TunnelInfo?)
-    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelState newTunnelState: TunnelState)
-    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelProvider newTunnelProvider: TunnelProviderManagerType?, shouldRefreshTunnelState: Bool)
+    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelStatus newTunnelStatus: TunnelStatus)
+    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelProvider newTunnelObject: Tunnel?, shouldRefreshTunnelState: Bool)
 }
 
 extension TunnelManager {
@@ -31,8 +24,12 @@ extension TunnelManager {
         private let queueMarkerKey = DispatchSpecificKey<Bool>()
 
         private var _tunnelInfo: TunnelInfo?
-        private var _tunnelProvider: TunnelProviderManagerType?
-        private var _tunnelState: TunnelState = .disconnected
+        private var _tunnelObject: Tunnel?
+        private var _tunnelStatus = TunnelStatus(
+            isNetworkReachable: false,
+            connectingDate: nil,
+            state: .disconnected
+        )
 
         var tunnelInfo: TunnelInfo? {
             get {
@@ -51,24 +48,24 @@ extension TunnelManager {
             }
         }
 
-        var tunnelProvider: TunnelProviderManagerType? {
+        var tunnel: Tunnel? {
             return performBlock {
-                return _tunnelProvider
+                return _tunnelObject
             }
         }
 
-        var tunnelState: TunnelState {
+        var tunnelStatus: TunnelStatus {
             get {
                 return performBlock {
-                    return _tunnelState
+                    return _tunnelStatus
                 }
             }
             set {
                 performBlock {
-                    if _tunnelState != newValue {
-                        _tunnelState = newValue
+                    if _tunnelStatus != newValue {
+                        _tunnelStatus = newValue
 
-                        delegate?.tunnelManagerState(self, didChangeTunnelState: newValue)
+                        delegate?.tunnelManagerState(self, didChangeTunnelStatus: newValue)
                     }
                 }
             }
@@ -84,12 +81,12 @@ extension TunnelManager {
             queue.setSpecific(key: queueMarkerKey, value: nil)
         }
 
-        func setTunnelProvider(_ newTunnelProvider: TunnelProviderManagerType?, shouldRefreshTunnelState: Bool) {
+        func setTunnel(_ newTunnelObject: Tunnel?, shouldRefreshTunnelState: Bool) {
             performBlock {
-                if _tunnelProvider != newTunnelProvider {
-                    _tunnelProvider = newTunnelProvider
+                if _tunnelObject != newTunnelObject {
+                    _tunnelObject = newTunnelObject
 
-                    delegate?.tunnelManagerState(self, didChangeTunnelProvider: newTunnelProvider, shouldRefreshTunnelState: shouldRefreshTunnelState)
+                    delegate?.tunnelManagerState(self, didChangeTunnelProvider: newTunnelObject, shouldRefreshTunnelState: shouldRefreshTunnelState)
                 }
             }
         }

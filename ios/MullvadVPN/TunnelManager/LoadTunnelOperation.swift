@@ -118,7 +118,7 @@ class LoadTunnelOperation: AsyncOperation {
             let tunnelInfo = TunnelInfo(token: accountToken, tunnelSettings: keychainEntry.tunnelSettings)
 
             state.tunnelInfo = tunnelInfo
-            state.setTunnelProvider(tunnelProvider, shouldRefreshTunnelState: true)
+            state.setTunnel(Tunnel(tunnelProvider: tunnelProvider), shouldRefreshTunnelState: true)
 
             completionHandler(.success(()))
 

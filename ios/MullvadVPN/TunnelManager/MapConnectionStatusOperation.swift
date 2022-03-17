@@ -43,31 +43,49 @@ class MapConnectionStatusOperation: AsyncOperation {
     }
 
     private func execute() {
-        guard let tunnelProvider = state.tunnelProvider, !isCancelled else {
+        guard let tunnel = state.tunnel, !isCancelled else {
             finish()
             return
         }
 
-        let tunnelState = state.tunnelState
+        let tunnelState = state.tunnelStatus.state
 
         switch connectionStatus {
         case .connecting:
             switch tunnelState {
             case .connecting(.some(_)):
-                logger.debug("Ignore repeating connecting state.")
+                break
             default:
-                state.tunnelState = .connecting(nil)
+                state.tunnelStatus.state = .connecting(nil)
             }
 
-        case .reasserting:
-            let session = TunnelIPC.Session(connection: tunnelProvider.connection)
+            let session = TunnelIPC.Session(tunnel: tunnel)
 
-            request = session.getTunnelConnectionInfo { [weak self] completion in
+            request = session.getTunnelStatus { [weak self] completion in
                 guard let self = self else { return }
 
                 self.queue.async {
-                    if case .success(.some(let connectionInfo)) = completion, !self.isCancelled {
-                        self.state.tunnelState = .reconnecting(connectionInfo)
+                    if case .success(let packetTunnelStatus) = completion, !self.isCancelled {
+                        self.state.tunnelStatus.update(from: packetTunnelStatus) { relay in
+                            return .connecting(relay)
+                        }
+                    }
+
+                    self.finish()
+                }
+            }
+
+        case .reasserting:
+            let session = TunnelIPC.Session(tunnel: tunnel)
+
+            request = session.getTunnelStatus { [weak self] completion in
+                guard let self = self else { return }
+
+                self.queue.async {
+                    if case .success(let packetTunnelStatus) = completion, !self.isCancelled {
+                        self.state.tunnelStatus.update(from: packetTunnelStatus) { relay in
+                            return relay.map { .reconnecting($0) }
+                        }
                     }
 
                     self.finish()
@@ -77,14 +95,16 @@ class MapConnectionStatusOperation: AsyncOperation {
             return
 
         case .connected:
-            let session = TunnelIPC.Session(connection: tunnelProvider.connection)
+            let session = TunnelIPC.Session(tunnel: tunnel)
 
-            request = session.getTunnelConnectionInfo { [weak self] completion in
+            request = session.getTunnelStatus { [weak self] completion in
                 guard let self = self else { return }
 
                 self.queue.async {
-                    if case .success(.some(let connectionInfo)) = completion, !self.isCancelled {
-                        self.state.tunnelState = .connected(connectionInfo)
+                    if case .success(let packetTunnelStatus) = completion, !self.isCancelled {
+                        self.state.tunnelStatus.update(from: packetTunnelStatus) { relay in
+                            return relay.map { .connected($0) }
+                        }
                     }
 
                     self.finish()
@@ -101,13 +121,13 @@ class MapConnectionStatusOperation: AsyncOperation {
             case .disconnecting(.reconnect):
                 logger.debug("Restart the tunnel on disconnect.")
 
-                state.tunnelState = .pendingReconnect
+                state.tunnelStatus.reset(to: .pendingReconnect)
 
                 startTunnelHandler?()
                 startTunnelHandler = nil
 
             default:
-                state.tunnelState = .disconnected
+                state.tunnelStatus.reset(to: .disconnected)
             }
 
         case .disconnecting:
@@ -115,11 +135,11 @@ class MapConnectionStatusOperation: AsyncOperation {
             case .disconnecting:
                 break
             default:
-                state.tunnelState = .disconnecting(.nothing)
+                state.tunnelStatus.reset(to: .disconnecting(.nothing))
             }
 
         case .invalid:
-            state.tunnelState = .disconnected
+            state.tunnelStatus.reset(to: .disconnected)
 
         @unknown default:
             logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")

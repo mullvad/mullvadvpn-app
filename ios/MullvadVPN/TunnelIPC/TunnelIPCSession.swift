@@ -13,20 +13,20 @@ extension TunnelIPC {
     /// Wrapper class around `NETunnelProviderSession` that provides convenient interface for
     /// interacting with the Packet Tunnel process.
     final class Session {
-        private let connection: VPNConnectionProtocol
+        private let tunnel: Tunnel
         private let queue = DispatchQueue(label: "TunnelIPC.SessionQueue")
         private let operationQueue = OperationQueue()
 
-        init(connection: VPNConnectionProtocol) {
-            self.connection = connection
+        init(tunnel: Tunnel) {
+            self.tunnel = tunnel
         }
 
         func reloadTunnelSettings(completionHandler: @escaping (OperationCompletion<(), TunnelIPC.Error>) -> Void) -> Cancellable {
             let operation = RequestOperation(
                 queue: queue,
-                connection: connection,
+                tunnel: tunnel,
                 request: .reloadTunnelSettings,
-                options: TunnelIPC.RequestOptions(waitIfReasserting: true),
+                options: TunnelIPC.RequestOptions(),
                 completionHandler: completionHandler
             )
 
@@ -37,12 +37,12 @@ extension TunnelIPC {
             }
         }
 
-        func getTunnelConnectionInfo(completionHandler: @escaping (OperationCompletion<TunnelConnectionInfo?, TunnelIPC.Error>) -> Void) -> Cancellable {
-            let operation = RequestOperation<TunnelConnectionInfo?>(
+        func getTunnelStatus(completionHandler: @escaping (OperationCompletion<PacketTunnelStatus, TunnelIPC.Error>) -> Void) -> Cancellable {
+            let operation = RequestOperation<PacketTunnelStatus>(
                 queue: queue,
-                connection: connection,
-                request: .tunnelConnectionInfo,
-                options: TunnelIPC.RequestOptions(waitIfReasserting: false),
+                tunnel: tunnel,
+                request: .getTunnelStatus,
+                options: TunnelIPC.RequestOptions(),
                 completionHandler: completionHandler
             )
 

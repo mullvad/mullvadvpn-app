@@ -14,7 +14,7 @@ import Logging
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
-    private var connectionInfo: TunnelConnectionInfo?
+    private var tunnelStatus = PacketTunnelStatus()
     private let providerLogger = Logger(label: "SimulatorTunnelProviderHost")
     private let stateQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
 
@@ -31,9 +31,9 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             }
 
             if let appSelectorResult = appSelectorResult.flattenValue {
-                self.connectionInfo = appSelectorResult.tunnelConnectionInfo
+                self.tunnelStatus.tunnelRelay = appSelectorResult.packetTunnelRelay
             } else {
-                self.connectionInfo = self.pickRelay()?.tunnelConnectionInfo
+                self.tunnelStatus.tunnelRelay = self.pickRelay()?.packetTunnelRelay
             }
 
             completionHandler(nil)
@@ -42,41 +42,41 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         stateQueue.async {
-            self.connectionInfo = nil
+            self.tunnelStatus = PacketTunnelStatus()
 
             completionHandler()
         }
     }
 
     override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
-        Result { try TunnelIPC.Coding.decodeRequest(messageData) }
-            .asPromise()
-            .receive(on: stateQueue)
-            .onFailure { error in
+        stateQueue.async {
+            let request: TunnelIPC.Request
+            do {
+                request = try TunnelIPC.Coding.decodeRequest(messageData)
+            } catch {
                 self.providerLogger.error(chainedError: AnyChainedError(error), message: "Failed to decode the IPC request.")
+                completionHandler?(nil)
+                return
             }
-            .success()
-            .mapThen(defaultValue: nil) { request in
-                switch request {
-                case .tunnelConnectionInfo:
-                    return Result { try TunnelIPC.Coding.encodeResponse(self.connectionInfo) }
-                        .asPromise()
-                        .onFailure { error in
-                            self.providerLogger.error(chainedError: AnyChainedError(error), message: "Failed to encode tunnel connection info IPC response.")
-                        }
-                        .success()
 
-                case .reloadTunnelSettings:
-                    self.reasserting = true
-                    self.connectionInfo = self.pickRelay()?.tunnelConnectionInfo
-                    self.reasserting = false
+            var response: Data?
 
-                    return .resolved(nil)
+            switch request {
+            case .getTunnelStatus:
+                do {
+                    response = try TunnelIPC.Coding.encodeResponse(self.tunnelStatus)
+                } catch {
+                    self.providerLogger.error(chainedError: AnyChainedError(error), message: "Failed to encode tunnel status IPC response.")
                 }
+
+            case .reloadTunnelSettings:
+                self.reasserting = true
+                self.tunnelStatus.tunnelRelay = self.pickRelay()?.packetTunnelRelay
+                self.reasserting = false
             }
-            .observe { completion in
-                completionHandler?(completion.unwrappedValue ?? nil)
-            }
+
+            completionHandler?(response)
+        }
     }
 
     private func pickRelay() -> RelaySelectorResult? {
@@ -93,13 +93,13 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                     constraints: entry.tunnelSettings.relayConstraints
                 )
             case .failure(let error):
-                self.providerLogger.error(chainedError: error, message: "Failed to load tunnel settings when picking relay")
+                self.providerLogger.error(chainedError: error, message: "Failed to load tunnel settings when picking relay.")
 
                 return nil
             }
 
         case .failure(let error):
-            self.providerLogger.error(chainedError: error, message: "Failed to read relays when picking relay")
+            self.providerLogger.error(chainedError: error, message: "Failed to read relays when picking relay.")
             return nil
         }
     }

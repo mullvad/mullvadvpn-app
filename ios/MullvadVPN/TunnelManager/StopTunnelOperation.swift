@@ -38,27 +38,27 @@ class StopTunnelOperation: AsyncOperation {
             return
         }
 
-        guard let tunnelProvider = state.tunnelProvider else {
+        guard let tunnel = state.tunnel else {
             completionHandler(.failure(.unsetAccount))
             return
         }
 
-        switch self.state.tunnelState {
+        switch self.state.tunnelStatus.state {
         case .disconnecting(.reconnect):
-            state.tunnelState = .disconnecting(.nothing)
+            state.tunnelStatus.state = .disconnecting(.nothing)
 
             completionHandler(.success(()))
 
-        case .connected, .connecting:
+        case .connected, .connecting, .reconnecting:
             // Disable on-demand when stopping the tunnel to prevent it from coming back up
-            tunnelProvider.isOnDemandEnabled = false
+            tunnel.isOnDemandEnabled = false
 
-            tunnelProvider.saveToPreferences { error in
+            tunnel.saveToPreferences { error in
                 self.queue.async {
                     if let error = error {
                         completionHandler(.failure(.saveVPNConfiguration(error)))
                     } else {
-                        tunnelProvider.connection.stopVPNTunnel()
+                        tunnel.stop()
                         completionHandler(.success(()))
                     }
                 }

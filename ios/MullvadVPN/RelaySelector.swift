@@ -21,12 +21,12 @@ private struct RelayWithLocation {
 }
 
 extension RelaySelectorResult {
-    var tunnelConnectionInfo: TunnelConnectionInfo {
-        return TunnelConnectionInfo(
-            ipv4Relay: self.endpoint.ipv4Relay,
-            ipv6Relay: self.endpoint.ipv6Relay,
-            hostname: self.relay.hostname,
-            location: self.location
+    var packetTunnelRelay: PacketTunnelRelay {
+        return PacketTunnelRelay(
+            ipv4Relay: endpoint.ipv4Relay,
+            ipv6Relay: endpoint.ipv6Relay,
+            hostname: relay.hostname,
+            location: location
         )
     }
 }

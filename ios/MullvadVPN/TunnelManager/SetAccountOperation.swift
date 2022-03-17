@@ -165,7 +165,7 @@ class SetAccountOperation: AsyncOperation {
         willDeleteVPNConfigurationHandler = nil
 
         // Reset tunnel state to disconnected
-        state.tunnelState = .disconnected
+        state.tunnelStatus.reset(to: .disconnected)
 
         // Remove tunnel info
         state.tunnelInfo = nil
@@ -182,13 +182,13 @@ class SetAccountOperation: AsyncOperation {
         }
 
         // Finish immediately if tunnel provider is not set.
-        guard let tunnelProvider = state.tunnelProvider else {
+        guard let tunnel = state.tunnel else {
             completionHandler()
             return
         }
 
         // Remove VPN configuration
-        tunnelProvider.removeFromPreferences { error in
+        tunnel.removeFromPreferences { error in
             self.queue.async {
                 // Ignore error but log it
                 if let error = error {
@@ -198,7 +198,7 @@ class SetAccountOperation: AsyncOperation {
                     )
                 }
 
-                self.state.setTunnelProvider(nil, shouldRefreshTunnelState: false)
+                self.state.setTunnel(nil, shouldRefreshTunnelState: false)
 
                 completionHandler()
             }

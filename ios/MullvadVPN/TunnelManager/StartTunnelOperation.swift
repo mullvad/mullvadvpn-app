@@ -48,9 +48,9 @@ class StartTunnelOperation: AsyncOperation {
             return
         }
 
-        switch self.state.tunnelState {
+        switch self.state.tunnelStatus.state {
         case .disconnecting(.nothing):
-            self.state.tunnelState = .disconnecting(.reconnect)
+            self.state.tunnelStatus.state = .disconnecting(.reconnect)
 
             completionHandler(.success(()))
 
@@ -114,8 +114,8 @@ class StartTunnelOperation: AsyncOperation {
 
         encodeErrorHandler = nil
 
-        state.setTunnelProvider(tunnelProvider, shouldRefreshTunnelState: false)
-        state.tunnelState = .connecting(selectorResult.tunnelConnectionInfo)
+        state.setTunnel(Tunnel(tunnelProvider: tunnelProvider), shouldRefreshTunnelState: false)
+        state.tunnelStatus.reset(to: .connecting(selectorResult.packetTunnelRelay))
 
         try tunnelProvider.connection.startVPNTunnel(options: tunnelOptions.rawOptions())
     }

@@ -14,15 +14,15 @@ extension TunnelIPC {
         /// Request the tunnel to reload settings.
         case reloadTunnelSettings
 
-        /// Request the tunnel connection info.
-        case tunnelConnectionInfo
+        /// Request the tunnel status.
+        case getTunnelStatus
 
         var description: String {
             switch self {
             case .reloadTunnelSettings:
                 return "reloadTunnelSettings"
-            case .tunnelConnectionInfo:
-                return "tunnelConnectionInfo"
+            case .getTunnelStatus:
+                return "getTunnelStatus"
             }
         }
 
