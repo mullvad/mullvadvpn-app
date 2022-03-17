@@ -179,9 +179,9 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 
 [[package]]
 name = "bitflags"
-version = "1.2.1"
+version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
+checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
 name = "block-buffer"
@@ -1890,19 +1890,6 @@ dependencies = [
 
 [[package]]
 name = "nix"
-version = "0.20.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5e06129fb611568ef4e868c14b326274959aa70ff7776e9d55323531c374945"
-dependencies = [
- "bitflags",
- "cc",
- "cfg-if 1.0.0",
- "libc",
- "memoffset",
-]
-
-[[package]]
-name = "nix"
 version = "0.22.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4916f159ed8e5de0082076562152a76b7a1f64a01fd9d1e0fea002c37624faf"
@@ -3130,7 +3117,7 @@ dependencies = [
  "triggered",
  "trust-dns-server",
  "tun",
- "udp-over-tcp 0.1.0 (git+https://github.com/mullvad/udp-over-tcp?rev=1e27324362ed123b61fa2062b1599e5f9d569796)",
+ "tunnel-obfuscation",
  "uuid",
  "which",
  "widestring 0.5.1",
@@ -3286,9 +3273,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.14.0"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70e992e41e0d2fb9f755b37446f20900f64446ef54874f40a60c78f021ac6144"
+checksum = "c2c2416fdedca8443ae44b4527de1ea633af61d8f7169ffa6e72c5b53d24efcc"
 dependencies = [
  "autocfg",
  "bytes",
@@ -3316,9 +3303,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-macros"
-version = "1.6.0"
+version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9efc1aba077437943f7515666aa2b882dfabfbfdf89c819ea75a8d6e9eaba5e"
+checksum = "154794c8f499c2619acd19e839294703e9e32e7630ef5f46ea80d4ef0fbee5eb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3640,7 +3627,7 @@ dependencies = [
  "futures",
  "talpid-types",
  "tokio",
- "udp-over-tcp 0.1.0 (git+https://github.com/mullvad/udp-over-tcp?rev=27b9519b63244736b6f3c7c4af60976c88dc6b95)",
+ "udp-over-tcp",
 ]
 
 [[package]]
@@ -3654,21 +3641,6 @@ name = "ucd-trie"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56dee185309b50d1f11bfedef0fe6d036842e3fb77413abef29f8f8d1c5d4c1c"
-
-[[package]]
-name = "udp-over-tcp"
-version = "0.1.0"
-source = "git+https://github.com/mullvad/udp-over-tcp?rev=1e27324362ed123b61fa2062b1599e5f9d569796#1e27324362ed123b61fa2062b1599e5f9d569796"
-dependencies = [
- "env_logger 0.8.4",
- "err-context",
- "futures",
- "lazy_static",
- "log",
- "nix 0.20.2",
- "structopt",
- "tokio",
-]
 
 [[package]]
 name = "udp-over-tcp"
