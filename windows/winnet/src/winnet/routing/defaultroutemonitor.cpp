@@ -23,6 +23,7 @@ DefaultRouteMonitor::DefaultRouteMonitor
 	: m_family(family)
 	, m_callback(callback)
 	, m_logSink(logSink)
+	, m_refreshCurrentRoute(false)
 	, m_evaluateRoutesGuard(std::make_unique<common::BurstGuard>(
 		std::bind(&DefaultRouteMonitor::evaluateRoutes, this),
 		POINT_TWO_SECOND_BURST,
@@ -31,20 +32,30 @@ DefaultRouteMonitor::DefaultRouteMonitor
 {
 	std::scoped_lock<std::mutex> lock(m_evaluationLock);
 
-	auto status = NotifyRouteChange2(AF_UNSPEC, RouteChangeCallback, this, FALSE, &m_routeNotificationHandle);
+	auto status = NotifyRouteChange2(family, RouteChangeCallback, this, FALSE, &m_routeNotificationHandle);
 
 	if (NO_ERROR != status)
 	{
 		THROW_WINDOWS_ERROR(status, "Register for route table change notifications");
 	}
 
-	status = NotifyIpInterfaceChange(AF_UNSPEC, InterfaceChangeCallback, this,
+	status = NotifyIpInterfaceChange(family, InterfaceChangeCallback, this,
 		FALSE, &m_interfaceNotificationHandle);
 
 	if (NO_ERROR != status)
 	{
 		CancelMibChangeNotify2(m_routeNotificationHandle);
 		THROW_WINDOWS_ERROR(status, "Register for network interface change notifications");
+	}
+
+	status = NotifyUnicastIpAddressChange(family, AddressChangeCallback, this,
+		FALSE, &m_addressNotificationHandle);
+
+	if (NO_ERROR != status)
+	{
+		CancelMibChangeNotify2(m_routeNotificationHandle);
+		CancelMibChangeNotify2(m_interfaceNotificationHandle);
+		THROW_WINDOWS_ERROR(status, "Register for unicast address change notifications");
 	}
 
 	try
@@ -62,6 +73,7 @@ DefaultRouteMonitor::~DefaultRouteMonitor()
 	// Cancel notifications to stop triggering the BurstGuard.
 	//
 
+	CancelMibChangeNotify2(m_addressNotificationHandle);
 	CancelMibChangeNotify2(m_interfaceNotificationHandle);
 	CancelMibChangeNotify2(m_routeNotificationHandle);
 
@@ -91,18 +103,62 @@ void NETIOAPI_API_ DefaultRouteMonitor::RouteChangeCallback
 		return;
 	}
 
-	reinterpret_cast<DefaultRouteMonitor *>(context)->m_evaluateRoutesGuard->trigger();
+	const auto monitor = reinterpret_cast<DefaultRouteMonitor*>(context);
+	monitor->updateRefreshFlag(row->InterfaceLuid, row->InterfaceIndex);
+	monitor->m_evaluateRoutesGuard->trigger();
 }
 
 //static
 void NETIOAPI_API_ DefaultRouteMonitor::InterfaceChangeCallback
 (
 	void *context,
-	MIB_IPINTERFACE_ROW *,
+	MIB_IPINTERFACE_ROW *row,
 	MIB_NOTIFICATION_TYPE
 )
 {
-	reinterpret_cast<DefaultRouteMonitor *>(context)->m_evaluateRoutesGuard->trigger();
+	const auto monitor = reinterpret_cast<DefaultRouteMonitor*>(context);
+	monitor->updateRefreshFlag(row->InterfaceLuid, row->InterfaceIndex);
+	monitor->m_evaluateRoutesGuard->trigger();
+}
+
+//static
+void NETIOAPI_API_ DefaultRouteMonitor::AddressChangeCallback
+(
+	void *context,
+	MIB_UNICASTIPADDRESS_ROW *row,
+	MIB_NOTIFICATION_TYPE
+)
+{
+	const auto monitor = reinterpret_cast<DefaultRouteMonitor*>(context);
+	monitor->updateRefreshFlag(row->InterfaceLuid, row->InterfaceIndex);
+	monitor->m_evaluateRoutesGuard->trigger();
+}
+
+void DefaultRouteMonitor::updateRefreshFlag(const NET_LUID &luid, const NET_IFINDEX &index)
+{
+	std::scoped_lock<std::mutex> lock(m_evaluationLock);
+
+	if (!m_bestRoute.has_value())
+	{
+		return;
+	}
+
+	if (luid.Value == m_bestRoute->iface.Value)
+	{
+		m_refreshCurrentRoute = true;
+		return;
+	}
+
+	if (luid.Value != 0)
+	{
+		return;
+	}
+
+	NET_IFINDEX defaultInterfaceIndex = 0;
+	const auto routeLuid = &m_bestRoute->iface;
+	ConvertInterfaceLuidToIndex(routeLuid, &defaultInterfaceIndex);
+	m_refreshCurrentRoute = index == defaultInterfaceIndex ||
+		(defaultInterfaceIndex == NET_IFINDEX_UNSPECIFIED);
 }
 
 void DefaultRouteMonitor::evaluateRoutes()
@@ -127,6 +183,9 @@ void DefaultRouteMonitor::evaluateRoutes()
 void DefaultRouteMonitor::evaluateRoutesInner()
 {
 	std::optional<InterfaceAndGateway> currentBestRoute;
+
+	bool refreshCurrent = m_refreshCurrentRoute;
+	m_refreshCurrentRoute = false;
 
 	try
 	{
@@ -172,6 +231,17 @@ void DefaultRouteMonitor::evaluateRoutesInner()
 	{
 		m_bestRoute = currentBestRoute;
 		m_callback(EventType::Updated, m_bestRoute);
+
+		return;
+	}
+
+	//
+	// Interface details may have changed.
+	//
+
+	if (refreshCurrent)
+	{
+		m_callback(EventType::UpdatedDetails, m_bestRoute);
 	}
 }
 

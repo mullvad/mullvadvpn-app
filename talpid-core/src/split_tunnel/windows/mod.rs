@@ -133,17 +133,20 @@ impl Drop for QuitEvent {
 
 enum Request {
     SetPaths(Vec<OsString>),
-    RegisterIps(
-        Option<Ipv4Addr>,
-        Option<Ipv6Addr>,
-        Option<Ipv4Addr>,
-        Option<Ipv6Addr>,
-    ),
+    RegisterIps(InterfaceAddresses),
 }
 type RequestResponseTx = sync_mpsc::Sender<Result<(), Error>>;
 type RequestTx = sync_mpsc::Sender<(Request, RequestResponseTx)>;
 
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
+
+#[derive(Default, PartialEq, Clone)]
+struct InterfaceAddresses {
+    tunnel_ipv4: Option<Ipv4Addr>,
+    tunnel_ipv6: Option<Ipv6Addr>,
+    internet_ipv4: Option<Ipv4Addr>,
+    internet_ipv6: Option<Ipv6Addr>,
+}
 
 struct EventThreadContext {
     handle: Arc<driver::DeviceHandle>,
@@ -362,6 +365,8 @@ impl SplitTunnel {
                 }
             };
 
+            let mut previous_addresses = InterfaceAddresses::default();
+
             while let Ok((request, response_tx)) = rx.recv() {
                 let response = match request {
                     Request::SetPaths(paths) => {
@@ -387,19 +392,27 @@ impl SplitTunnel {
 
                         result
                     }
-                    Request::RegisterIps(
-                        mut tunnel_ipv4,
-                        mut tunnel_ipv6,
-                        internet_ipv4,
-                        internet_ipv6,
-                    ) => {
-                        if internet_ipv4.is_none() && internet_ipv6.is_none() {
-                            tunnel_ipv4 = None;
-                            tunnel_ipv6 = None;
+                    Request::RegisterIps(mut ips) => {
+                        if ips.internet_ipv4.is_none() && ips.internet_ipv6.is_none() {
+                            ips.tunnel_ipv4 = None;
+                            ips.tunnel_ipv6 = None;
                         }
-                        handle
-                            .register_ips(tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6)
-                            .map_err(Error::RegisterIps)
+                        if previous_addresses == ips {
+                            Ok(())
+                        } else {
+                            let result = handle
+                                .register_ips(
+                                    ips.tunnel_ipv4,
+                                    ips.tunnel_ipv6,
+                                    ips.internet_ipv4,
+                                    ips.internet_ipv6,
+                                )
+                                .map_err(Error::RegisterIps);
+                            if result.is_ok() {
+                                previous_addresses = ips;
+                            }
+                            result
+                        }
                     }
                 };
                 if response_tx.send(response).is_err() {
@@ -548,7 +561,7 @@ impl SplitTunnel {
     /// Instructs the driver to stop redirecting tunnel traffic and INADDR_ANY.
     pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
         self._route_change_callback = None;
-        self.send_request(Request::RegisterIps(None, None, None, None))
+        self.send_request(Request::RegisterIps(InterfaceAddresses::default()))
     }
 }
 
@@ -574,10 +587,7 @@ impl Drop for SplitTunnel {
 struct SplitTunnelDefaultRouteChangeHandlerContext {
     request_tx: RequestTx,
     pub daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
-    pub tunnel_ipv4: Option<Ipv4Addr>,
-    pub tunnel_ipv6: Option<Ipv6Addr>,
-    pub internet_ipv4: Option<Ipv4Addr>,
-    pub internet_ipv6: Option<Ipv6Addr>,
+    pub addresses: InterfaceAddresses,
 }
 
 impl SplitTunnelDefaultRouteChangeHandlerContext {
@@ -590,22 +600,19 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
         SplitTunnelDefaultRouteChangeHandlerContext {
             request_tx,
             daemon_tx,
-            tunnel_ipv4,
-            tunnel_ipv6,
-            internet_ipv4: None,
-            internet_ipv6: None,
+            addresses: InterfaceAddresses {
+                tunnel_ipv4,
+                tunnel_ipv6,
+                internet_ipv4: None,
+                internet_ipv6: None,
+            },
         }
     }
 
     pub fn register_ips(&self) -> Result<(), Error> {
         SplitTunnel::send_request_inner(
             &self.request_tx,
-            Request::RegisterIps(
-                self.tunnel_ipv4,
-                self.tunnel_ipv6,
-                self.internet_ipv4,
-                self.internet_ipv6,
-            ),
+            Request::RegisterIps(self.addresses.clone()),
         )
     }
 
@@ -624,10 +631,10 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
             .map_err(Error::LuidToIp)?
             .flatten();
 
-        self.internet_ipv4 = internet_ipv4
+        self.addresses.internet_ipv4 = internet_ipv4
             .map(|addr| Ipv4Addr::try_from(addr).map_err(|_| Error::IpParseError))
             .transpose()?;
-        self.internet_ipv6 = internet_ipv6
+        self.addresses.internet_ipv6 = internet_ipv6
             .map(|addr| Ipv6Addr::try_from(addr).map_err(|_| Error::IpParseError))
             .transpose()?;
         Ok(())
@@ -640,6 +647,8 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
     default_route: winnet::WinNetDefaultRoute,
     ctx: *mut libc::c_void,
 ) {
+    use winnet::WinNetDefaultRouteChangeEventType::*;
+
     // Update the "internet interface" IP when best default route changes
     let ctx_mutex = &mut *(ctx as *mut Arc<Mutex<SplitTunnelDefaultRouteChangeHandlerContext>>);
     let mut ctx = ctx_mutex.lock().expect("ST route handler mutex poisoned");
@@ -652,20 +661,20 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
     };
 
     let result = match event_type {
-        winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => {
+        DefaultRouteChanged | DefaultRouteUpdatedDetails => {
             match interface_luid_to_ip(address_family, default_route.interface_luid) {
                 Ok(Some(ip)) => match IpAddr::from(ip) {
-                    IpAddr::V4(addr) => ctx.internet_ipv4 = Some(addr),
-                    IpAddr::V6(addr) => ctx.internet_ipv6 = Some(addr),
+                    IpAddr::V4(addr) => ctx.addresses.internet_ipv4 = Some(addr),
+                    IpAddr::V6(addr) => ctx.addresses.internet_ipv6 = Some(addr),
                 },
                 Ok(None) => {
                     log::warn!("Failed to obtain default route interface address");
                     match address_family {
                         WinNetAddrFamily::IPV4 => {
-                            ctx.internet_ipv4 = None;
+                            ctx.addresses.internet_ipv4 = None;
                         }
                         WinNetAddrFamily::IPV6 => {
-                            ctx.internet_ipv6 = None;
+                            ctx.addresses.internet_ipv6 = None;
                         }
                     }
                 }
@@ -684,13 +693,13 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
             ctx.register_ips()
         }
         // no default route
-        winnet::WinNetDefaultRouteChangeEventType::DefaultRouteRemoved => {
+        DefaultRouteRemoved => {
             match address_family {
                 WinNetAddrFamily::IPV4 => {
-                    ctx.internet_ipv4 = None;
+                    ctx.addresses.internet_ipv4 = None;
                 }
                 WinNetAddrFamily::IPV6 => {
-                    ctx.internet_ipv6 = None;
+                    ctx.addresses.internet_ipv6 = None;
                 }
             }
             ctx.register_ips()

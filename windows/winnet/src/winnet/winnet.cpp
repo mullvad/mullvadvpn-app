@@ -395,6 +395,7 @@ WinNet_RegisterDefaultRouteChangedCallback(
 			static const std::pair<from_t, to_t> eventTypeMap[] =
 			{
 				{ from_t::Updated, WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_UPDATED },
+				{ from_t::UpdatedDetails, WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_UPDATED_DETAILS },
 				{ from_t::Removed, WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_REMOVED }
 			};
 
@@ -418,11 +419,16 @@ WinNet_RegisterDefaultRouteChangedCallback(
 			// Determine which LUID and gateway to forward.
 			//
 
-			if (RouteManager::DefaultRouteChangedEventType::Updated == eventType)
+			switch (eventType)
 			{
-				const auto ips = winnet::ConvertNativeAddresses(&route.value().gateway, 1);
-				defaultRoute.gateway = ips[0];
-				defaultRoute.interfaceLuid = route.value().iface.Value;
+				case RouteManager::DefaultRouteChangedEventType::Updated:
+				case RouteManager::DefaultRouteChangedEventType::UpdatedDetails:
+				{
+					const auto ips = winnet::ConvertNativeAddresses(&route.value().gateway, 1);
+					defaultRoute.gateway = ips[0];
+					defaultRoute.interfaceLuid = route.value().iface.Value;
+					break;
+				}
 			}
 
 			//
