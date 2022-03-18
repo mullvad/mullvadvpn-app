@@ -42,6 +42,18 @@ impl From<talpid_types::net::TunnelEndpoint> for TunnelEndpoint {
                     net::proxy::ProxyType::Custom => i32::from(ProxyType::Custom),
                 },
             }),
+            obfuscation: endpoint
+                .obfuscation
+                .map(|obfuscation_endpoint| ObfuscationEndpoint {
+                    address: obfuscation_endpoint.endpoint.address.ip().to_string(),
+                    port: u32::from(obfuscation_endpoint.endpoint.address.port()),
+                    protocol: i32::from(TransportProtocol::from(
+                        obfuscation_endpoint.endpoint.protocol,
+                    )),
+                    obfuscation_type: match obfuscation_endpoint.obfuscation_type {
+                        net::ObfuscationType::Udp2Tcp => i32::from(ObfuscationType::Udp2tcp),
+                    },
+                }),
             entry_endpoint: endpoint.entry_endpoint.map(|entry| Endpoint {
                 address: entry.address.to_string(),
                 protocol: i32::from(TransportProtocol::from(entry.protocol)),
@@ -308,7 +320,6 @@ impl From<mullvad_types::ConnectionConfig> for ConnectionConfig {
                                 .map(|address| address.to_string())
                                 .collect(),
                             endpoint: config.peer.endpoint.to_string(),
-                            protocol: i32::from(TransportProtocol::from(config.peer.protocol)),
                         }),
                         ipv4_gateway: config.ipv4_gateway.to_string(),
                         ipv6_gateway: config
@@ -431,6 +442,7 @@ impl From<&mullvad_types::settings::Settings> for Settings {
             auto_connect: settings.auto_connect,
             tunnel_options: Some(TunnelOptions::from(&settings.tunnel_options)),
             show_beta_releases: settings.show_beta_releases,
+            obfuscation_settings: Some(ObfuscationSettings::from(&settings.obfuscation_settings)),
             split_tunnel,
         }
     }
@@ -445,6 +457,31 @@ impl From<mullvad_types::relay_constraints::BridgeState> for BridgeState {
                 BridgeState::On => bridge_state::State::On,
                 BridgeState::Off => bridge_state::State::Off,
             }),
+        }
+    }
+}
+
+impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for ObfuscationSettings {
+    fn from(settings: &mullvad_types::relay_constraints::ObfuscationSettings) -> Self {
+        use mullvad_types::relay_constraints::SelectedObfuscation;
+        let selected_obfuscation = i32::from(match settings.selected_obfuscation {
+            SelectedObfuscation::Auto => obfuscation_settings::SelectedObfuscation::Auto,
+            SelectedObfuscation::Off => obfuscation_settings::SelectedObfuscation::Off,
+            SelectedObfuscation::Udp2Tcp => obfuscation_settings::SelectedObfuscation::Udp2tcp,
+        });
+        Self {
+            selected_obfuscation,
+            udp2tcp: Some(Udp2TcpObfuscationSettings::from(&settings.udp2tcp)),
+        }
+    }
+}
+
+impl From<&mullvad_types::relay_constraints::Udp2TcpObfuscationSettings>
+    for Udp2TcpObfuscationSettings
+{
+    fn from(settings: &mullvad_types::relay_constraints::Udp2TcpObfuscationSettings) -> Self {
+        Self {
+            port: u32::from(settings.port.unwrap_or(0)),
         }
     }
 }
@@ -529,11 +566,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
                     }),
 
                     wireguard_constraints: Some(WireguardConstraints {
-                        port: constraints
-                            .wireguard_constraints
-                            .port
-                            .option()
-                            .map(TransportPort::from),
+                        port: u32::from(constraints.wireguard_constraints.port.unwrap_or(0)),
                         ip_version: constraints
                             .wireguard_constraints
                             .ip_version
@@ -756,10 +789,6 @@ impl TryFrom<&WireguardConstraints> for mullvad_types::relay_constraints::Wiregu
         use mullvad_types::relay_constraints as mullvad_constraints;
         use talpid_types::net;
 
-        let wireguard_transport_port = match &constraints.port {
-            Some(port) => Some(mullvad_constraints::TransportPort::try_from(port.clone())?),
-            None => None,
-        };
         let ip_version = match &constraints.ip_version {
             Some(constraint) => match IpVersion::from_i32(constraint.protocol) {
                 Some(IpVersion::V4) => Some(net::IpVersion::V4),
@@ -774,7 +803,11 @@ impl TryFrom<&WireguardConstraints> for mullvad_types::relay_constraints::Wiregu
         };
 
         Ok(mullvad_constraints::WireguardConstraints {
-            port: Constraint::from(wireguard_transport_port),
+            port: if constraints.port == 0 {
+                Constraint::Any
+            } else {
+                Constraint::Only(constraints.port as u16)
+            },
             ip_version: Constraint::from(ip_version),
             use_multihop: constraints.use_multihop,
             entry_location: constraints
@@ -1091,7 +1124,6 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
                             public_key,
                             allowed_ips,
                             endpoint,
-                            protocol: try_transport_protocol_from_i32(peer.protocol)?,
                         },
                         exit_peer: None,
                         ipv4_gateway,
@@ -1201,6 +1233,58 @@ impl TryFrom<BridgeSettings> for mullvad_types::relay_constraints::BridgeSetting
                 Ok(mullvad_constraints::BridgeSettings::Custom(proxy_settings))
             }
         }
+    }
+}
+
+impl TryFrom<ObfuscationSettings> for mullvad_types::relay_constraints::ObfuscationSettings {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(settings: ObfuscationSettings) -> Result<Self, Self::Error> {
+        use mullvad_types::relay_constraints::SelectedObfuscation;
+        use obfuscation_settings::SelectedObfuscation as IpcSelectedObfuscation;
+        let selected_obfuscation =
+            match IpcSelectedObfuscation::from_i32(settings.selected_obfuscation) {
+                Some(IpcSelectedObfuscation::Auto) => SelectedObfuscation::Auto,
+                Some(IpcSelectedObfuscation::Off) => SelectedObfuscation::Off,
+                Some(IpcSelectedObfuscation::Udp2tcp) => SelectedObfuscation::Udp2Tcp,
+                None => {
+                    return Err(FromProtobufTypeError::InvalidArgument(
+                        "invalid selected obfuscator",
+                    ));
+                }
+            };
+
+        let udp2tcp = match settings.udp2tcp {
+            Some(settings) => {
+                mullvad_types::relay_constraints::Udp2TcpObfuscationSettings::try_from(&settings)?
+            }
+            None => {
+                return Err(FromProtobufTypeError::InvalidArgument(
+                    "invalid selected obfuscator",
+                ));
+            }
+        };
+
+        Ok(Self {
+            selected_obfuscation,
+            udp2tcp,
+        })
+    }
+}
+
+impl TryFrom<&Udp2TcpObfuscationSettings>
+    for mullvad_types::relay_constraints::Udp2TcpObfuscationSettings
+{
+    type Error = FromProtobufTypeError;
+
+    fn try_from(settings: &Udp2TcpObfuscationSettings) -> Result<Self, Self::Error> {
+        Ok(Self {
+            port: if settings.port == 0 {
+                Constraint::Any
+            } else {
+                Constraint::Only(settings.port as u16)
+            },
+        })
     }
 }
 

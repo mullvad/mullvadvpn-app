@@ -83,6 +83,9 @@ pub struct Relay {
     #[serde(skip_serializing_if = "RelayBridges::is_empty", default)]
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridges: RelayBridges,
+    #[serde(skip_serializing_if = "RelayObfuscators::is_empty", default)]
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub obfuscators: RelayObfuscators,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub location: Option<Location>,
 }
@@ -141,23 +144,15 @@ pub struct WireguardEndpointData {
     pub ipv6_gateway: Ipv6Addr,
     /// The peer's public key
     pub public_key: wireguard::PublicKey,
-    #[serde(default = "default_wg_transport")]
-    #[serde(skip)]
-    pub protocol: TransportProtocol,
-}
-
-fn default_wg_transport() -> TransportProtocol {
-    TransportProtocol::Udp
 }
 
 impl fmt::Display for WireguardEndpointData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(
             f,
-            "gateways {} - {} {} port_ranges {{ {} }} public_key {}",
+            "gateways {} - {} port_ranges {{ {} }} public_key {}",
             self.ipv4_gateway,
             self.ipv6_gateway,
-            self.protocol,
             self.port_ranges
                 .iter()
                 .map(|range| format!("[{} - {}]", range.0, range.1))
@@ -202,4 +197,25 @@ impl ShadowsocksEndpointData {
             cipher: self.cipher.clone(),
         })
     }
+}
+
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[serde(default)]
+pub struct RelayObfuscators {
+    pub udp2tcp: Vec<Udp2TcpEndpointData>,
+}
+
+impl RelayObfuscators {
+    pub fn is_empty(&self) -> bool {
+        self.udp2tcp.is_empty()
+    }
+
+    pub fn clear(&mut self) {
+        self.udp2tcp.clear();
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct Udp2TcpEndpointData {
+    pub port: u16,
 }
