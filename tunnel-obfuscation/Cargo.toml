@@ -1,0 +1,15 @@
+[package]
+name = "tunnel-obfuscation"
+version = "0.1.0"
+authors = ["Mullvad VPN"]
+description = "Provides different types of obfuscation layers for WireGuard"
+license = "GPL-3.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-trait = "0.1"
+err-derive = "0.3.0"
+futures = "0.3.5"
+tokio = { version = "1.8", features = ["rt-multi-thread", "macros", "net", "io-util"] }
+udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "27b9519b63244736b6f3c7c4af60976c88dc6b95" }
