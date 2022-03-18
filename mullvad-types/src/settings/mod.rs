@@ -1,7 +1,8 @@
 use crate::{
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
-        RelayConstraints, RelaySettings, RelaySettingsUpdate,
+        ObfuscationSettings, RelayConstraints, RelaySettings, RelaySettingsUpdate,
+        SelectedObfuscation,
     },
     wireguard,
 };
@@ -65,6 +66,8 @@ pub struct Settings {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_settings: BridgeSettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
+    pub obfuscation_settings: ObfuscationSettings,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     bridge_state: BridgeState,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
@@ -104,6 +107,10 @@ impl Default for Settings {
                 ..Default::default()
             }),
             bridge_settings: BridgeSettings::Normal(BridgeConstraints::default()),
+            obfuscation_settings: ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Off,
+                ..Default::default()
+            },
             bridge_state: BridgeState::Auto,
             allow_lan: false,
             block_when_disconnected: false,

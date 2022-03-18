@@ -426,7 +426,7 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(default)]
 pub struct WireguardConstraints {
-    pub port: Constraint<TransportPort>,
+    pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
     pub use_multihop: bool,
     pub entry_location: Constraint<LocationConstraint>,
@@ -436,13 +436,7 @@ impl fmt::Display for WireguardConstraints {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self.port {
             Constraint::Any => write!(f, "any port")?,
-            Constraint::Only(port) => {
-                match port.port {
-                    Constraint::Any => write!(f, "any port")?,
-                    Constraint::Only(port) => write!(f, "port {}", port)?,
-                }
-                write!(f, " over {}", port.protocol)?;
-            }
+            Constraint::Only(port) => write!(f, "port {}", port)?,
         }
         write!(f, " over ")?;
         match self.ip_version {
@@ -468,6 +462,75 @@ pub enum BridgeSettings {
     /// Let the relay selection algorithm decide on bridges, based on the relay list.
     Normal(BridgeConstraints),
     Custom(ProxySettings),
+}
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SelectedObfuscation {
+    Auto,
+    Off,
+    Udp2Tcp,
+}
+
+impl Default for SelectedObfuscation {
+    fn default() -> Self {
+        SelectedObfuscation::Off
+    }
+}
+
+impl fmt::Display for SelectedObfuscation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                SelectedObfuscation::Auto => "auto",
+                SelectedObfuscation::Off => "off",
+                SelectedObfuscation::Udp2Tcp => "udp2tcp",
+            }
+        )
+    }
+}
+
+#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct Udp2TcpObfuscationSettings {
+    pub port: Constraint<u16>,
+}
+
+impl fmt::Display for Udp2TcpObfuscationSettings {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "port: {}",
+            match self.port {
+                Constraint::Any => "any".to_string(),
+                Constraint::Only(port) => port.to_string(),
+            }
+        )?;
+        Ok(())
+    }
+}
+
+/// Contains obfuscation settings
+#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[serde(default)]
+pub struct ObfuscationSettings {
+    pub selected_obfuscation: SelectedObfuscation,
+    pub udp2tcp: Udp2TcpObfuscationSettings,
+}
+
+impl fmt::Display for ObfuscationSettings {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "selected obfuscation: ")?;
+        match self.selected_obfuscation {
+            SelectedObfuscation::Auto => write!(f, "auto")?,
+            SelectedObfuscation::Off => write!(f, "off")?,
+            SelectedObfuscation::Udp2Tcp => write!(f, "Udp2Tcp ({})", self.udp2tcp)?,
+        };
+        Ok(())
+    }
 }
 
 /// Limits the set of bridge servers to use in `mullvad-daemon`.

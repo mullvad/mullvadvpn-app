@@ -5,7 +5,10 @@ use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing::{self, RequiredRoute, RouteManagerHandle};
 #[cfg(windows)]
 use futures::{channel::mpsc, StreamExt};
-use futures::{channel::oneshot, future::abortable};
+use futures::{
+    channel::oneshot,
+    future::{abortable, AbortHandle as FutureAbortHandle},
+};
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
@@ -16,14 +19,16 @@ use std::env;
 use std::io;
 use std::{
     convert::Infallible,
-    net::{IpAddr, SocketAddr},
+    net::IpAddr,
     path::Path,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
 };
 #[cfg(windows)]
 use talpid_types::BoxedError;
-use talpid_types::{net::TransportProtocol, ErrorExt};
-use udp_over_tcp::{TcpOptions, Udp2Tcp};
+use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
+use tunnel_obfuscation::{
+    create_obfuscator, Error as ObfuscationError, Settings as ObfuscationSettings, Udp2TcpSettings,
+};
 
 /// WireGuard config data-types
 pub mod config;
@@ -56,13 +61,13 @@ pub enum Error {
     #[error(display = "Tunnel failed")]
     TunnelError(#[error(source)] TunnelError),
 
-    /// Failed to set up Udp2Tcp
-    #[error(display = "Failed to start UDP-over-TCP proxy")]
-    Udp2TcpError(#[error(source)] udp_over_tcp::udp2tcp::ConnectError),
+    /// Failed to create tunnel obfuscator
+    #[error(display = "Failed to create tunnel obfuscator")]
+    CreateObfuscatorError(#[error(source)] ObfuscationError),
 
-    /// Failed to obtain the local UDP socket address
-    #[error(display = "Failed obtain local address for the UDP socket in Udp2Tcp")]
-    GetLocalUdpAddress(#[error(source)] std::io::Error),
+    /// Failed to run tunnel obfuscator
+    #[error(display = "Tunnel obfuscator failed")]
+    ObfuscatorError(#[error(source)] ObfuscationError),
 
     /// Failed to set up connectivity monitor
     #[error(display = "Connectivity monitor failed")]
@@ -93,7 +98,24 @@ pub struct WireguardMonitor {
     >,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
     pinger_stop_sender: sync_mpsc::Sender<()>,
-    _tcp_proxies: Vec<TcpProxy>,
+    _obfuscator: Option<ObfuscatorHandle>,
+}
+
+/// Simple wrapper that automatically cancels the future which runs an obfuscator.
+struct ObfuscatorHandle {
+    abort_handle: FutureAbortHandle,
+}
+
+impl ObfuscatorHandle {
+    pub fn new(abort_handle: FutureAbortHandle) -> Self {
+        Self { abort_handle }
+    }
+}
+
+impl Drop for ObfuscatorHandle {
+    fn drop(&mut self) {
+        self.abort_handle.abort();
+    }
 }
 
 #[cfg(target_os = "linux")]
@@ -108,52 +130,51 @@ lazy_static! {
         .unwrap_or(false);
 }
 
-struct TcpProxy {
-    local_addr: SocketAddr,
-    abort_handle: futures::future::AbortHandle,
-}
+fn maybe_create_obfuscator(
+    runtime: &tokio::runtime::Handle,
+    config: &mut Config,
+    close_msg_sender: sync_mpsc::Sender<CloseMsg>,
+) -> Result<Option<ObfuscatorHandle>> {
+    // There are one or two peers.
+    // The first one is always the entry relay.
+    let mut first_peer = config.peers.get_mut(0).expect("missing peer");
 
-impl TcpProxy {
-    pub fn new(runtime: &tokio::runtime::Handle, endpoint: SocketAddr) -> Result<Self> {
-        let listen_addr = if endpoint.is_ipv4() {
-            SocketAddr::new("127.0.0.1".parse().unwrap(), 0)
-        } else {
-            SocketAddr::new("::1".parse().unwrap(), 0)
-        };
-
-        let udp2tcp = runtime
-            .block_on(Udp2Tcp::new(
-                listen_addr,
-                endpoint,
-                TcpOptions {
+    if let Some(ref obfuscator_config) = config.obfuscator_config {
+        match obfuscator_config {
+            ObfuscatorConfig::Udp2Tcp { endpoint } => {
+                log::trace!("Connecting to Udp2Tcp endpoint {:?}", *endpoint);
+                let settings = Udp2TcpSettings {
+                    peer: *endpoint,
                     #[cfg(target_os = "linux")]
                     fwmark: Some(crate::linux::TUNNEL_FW_MARK),
-                    ..TcpOptions::default()
-                },
-            ))
-            .map_err(Error::Udp2TcpError)?;
-        let local_addr = udp2tcp
-            .local_udp_addr()
-            .map_err(Error::GetLocalUdpAddress)?;
-
-        let (udp2tcp_future, abort_handle) = abortable(udp2tcp.run());
-        runtime.spawn(udp2tcp_future);
-
-        Ok(Self {
-            local_addr,
-            abort_handle,
-        })
+                };
+                let obfuscator = runtime
+                    .block_on(create_obfuscator(&ObfuscationSettings::Udp2Tcp(settings)))
+                    .map_err(Error::CreateObfuscatorError)?;
+                let endpoint = obfuscator.endpoint();
+                log::trace!("Patching first WireGuard peer to become {:?}", endpoint);
+                first_peer.endpoint = endpoint;
+                let (runner, abort_handle) = abortable(async move {
+                    match obfuscator.run().await {
+                        Ok(_) => {
+                            let _ = close_msg_sender.send(CloseMsg::ObfuscatorExpired);
+                        }
+                        Err(error) => {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg("Obfuscation controller failed")
+                            );
+                            let _ = close_msg_sender
+                                .send(CloseMsg::ObfuscatorFailed(Error::ObfuscatorError(error)));
+                        }
+                    }
+                });
+                runtime.spawn(runner);
+                return Ok(Some(ObfuscatorHandle::new(abort_handle)));
+            }
+        }
     }
-
-    pub fn local_udp_addr(&self) -> SocketAddr {
-        self.local_addr
-    }
-}
-
-impl Drop for TcpProxy {
-    fn drop(&mut self) {
-        self.abort_handle.abort();
-    }
+    Ok(None)
 }
 
 impl WireguardMonitor {
@@ -175,19 +196,11 @@ impl WireguardMonitor {
         retry_attempt: u32,
         tunnel_close_rx: oneshot::Receiver<()>,
     ) -> Result<WireguardMonitor> {
-        let mut tcp_proxies = vec![];
-        let mut endpoint_addrs = vec![];
+        let endpoint_addrs: Vec<IpAddr> =
+            config.peers.iter().map(|peer| peer.endpoint.ip()).collect();
+        let (close_msg_sender, close_msg_receiver) = sync_mpsc::channel();
 
-        for peer in &mut config.peers {
-            endpoint_addrs.push(peer.endpoint.ip());
-            if peer.protocol == TransportProtocol::Tcp {
-                let udp2tcp = TcpProxy::new(&runtime, peer.endpoint.clone())?;
-
-                // Replace remote peer with proxy
-                peer.endpoint = udp2tcp.local_udp_addr();
-                tcp_proxies.push(udp2tcp);
-            }
-        }
+        let obfuscator = maybe_create_obfuscator(&runtime, &mut config, close_msg_sender.clone())?;
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, mut setup_done_rx) = mpsc::channel(0);
@@ -203,7 +216,6 @@ impl WireguardMonitor {
         let iface_name = tunnel.get_interface_name().to_string();
 
         let event_callback = Box::new(on_event.clone());
-        let (close_msg_sender, close_msg_receiver) = sync_mpsc::channel();
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
         let monitor = WireguardMonitor {
             runtime: runtime.clone(),
@@ -211,7 +223,7 @@ impl WireguardMonitor {
             event_callback,
             close_msg_receiver,
             pinger_stop_sender: pinger_tx,
-            _tcp_proxies: tcp_proxies,
+            _obfuscator: obfuscator,
         };
 
         let gateway = config.ipv4_gateway;
@@ -413,8 +425,9 @@ impl WireguardMonitor {
     pub fn wait(mut self) -> Result<()> {
         let wait_result = match self.close_msg_receiver.recv() {
             Ok(CloseMsg::PingErr) => Err(Error::TimeoutError),
-            Ok(CloseMsg::Stop) => Ok(()),
+            Ok(CloseMsg::Stop) | Ok(CloseMsg::ObfuscatorExpired) => Ok(()),
             Ok(CloseMsg::SetupError(error)) => Err(error),
+            Ok(CloseMsg::ObfuscatorFailed(error)) => Err(error),
             Err(_) => Ok(()),
         };
 
@@ -570,6 +583,8 @@ enum CloseMsg {
     Stop,
     PingErr,
     SetupError(Error),
+    ObfuscatorExpired,
+    ObfuscatorFailed(Error),
 }
 
 pub(crate) trait Tunnel: Send {
