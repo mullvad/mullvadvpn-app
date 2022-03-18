@@ -60,6 +60,7 @@ impl CustomTunnelEndpoint {
                 connection,
                 options: tunnel_options.wireguard.options.clone(),
                 generic_options: tunnel_options.generic.clone(),
+                obfuscation: None,
             }
             .into(),
         };
