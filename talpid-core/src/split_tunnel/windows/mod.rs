@@ -620,13 +620,27 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
         // Identify IP address that gives us Internet access
         let internet_ipv4 = get_best_default_route(WinNetAddrFamily::IPV4)
             .map_err(Error::ObtainDefaultRoute)?
-            .map(|route| interface_luid_to_ip(WinNetAddrFamily::IPV4, route.interface_luid))
+            .map(|route| {
+                interface_luid_to_ip(WinNetAddrFamily::IPV4, route.interface_luid).map(|ip| {
+                    ip.or_else(|| {
+                        log::warn!("No IPv4 address was found for the default route interface");
+                        None
+                    })
+                })
+            })
             .transpose()
             .map_err(Error::LuidToIp)?
             .flatten();
         let internet_ipv6 = get_best_default_route(WinNetAddrFamily::IPV6)
             .map_err(Error::ObtainDefaultRoute)?
-            .map(|route| interface_luid_to_ip(WinNetAddrFamily::IPV6, route.interface_luid))
+            .map(|route| {
+                interface_luid_to_ip(WinNetAddrFamily::IPV6, route.interface_luid).map(|ip| {
+                    ip.or_else(|| {
+                        log::warn!("No IPv6 address was found for the default route interface");
+                        None
+                    })
+                })
+            })
             .transpose()
             .map_err(Error::LuidToIp)?
             .flatten();
