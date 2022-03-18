@@ -17,6 +17,7 @@ pub struct TunnelParameters {
     pub connection: ConnectionConfig,
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
+    pub obfuscation: Option<super::obfuscation::ObfuscatorConfig>,
 }
 
 /// Connection-specific configuration in [`TunnelParameters`].
@@ -34,14 +35,14 @@ impl ConnectionConfig {
     pub fn get_endpoint(&self) -> Endpoint {
         Endpoint {
             address: self.peer.endpoint,
-            protocol: self.peer.protocol,
+            protocol: TransportProtocol::Udp,
         }
     }
 
     pub fn get_exit_endpoint(&self) -> Option<Endpoint> {
         self.exit_peer.as_ref().map(|peer| Endpoint {
             address: peer.endpoint,
-            protocol: peer.protocol,
+            protocol: TransportProtocol::Udp,
         })
     }
 }
@@ -54,14 +55,6 @@ pub struct PeerConfig {
     pub allowed_ips: Vec<IpNetwork>,
     /// IP address of the WireGuard server.
     pub endpoint: SocketAddr,
-    /// Transport protocol. WireGuard only supports UDP directly.
-    /// If this is set to TCP, then traffic is proxied using [udp_over_tcp](https://github.com/mullvad/udp-over-tcp).
-    #[serde(default = "default_peer_transport")]
-    pub protocol: TransportProtocol,
-}
-
-fn default_peer_transport() -> TransportProtocol {
-    TransportProtocol::Udp
 }
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]

@@ -1,7 +1,7 @@
 #[cfg(not(target_os = "android"))]
 use futures::TryFutureExt;
 use mullvad_types::{
-    relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
+    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
     settings::{DnsOptions, Settings},
     wireguard::RotationInterval,
 };
@@ -318,6 +318,18 @@ impl SettingsPersister {
         } else {
             false
         }
+    }
+
+    pub async fn set_obfuscation_settings(
+        &mut self,
+        obfuscation_settings: ObfuscationSettings,
+    ) -> Result<bool, Error> {
+        let should_save = Self::update_field(
+            &mut self.settings.obfuscation_settings,
+            obfuscation_settings,
+        );
+
+        self.update(should_save).await
     }
 
     async fn update(&mut self, should_save: bool) -> Result<bool, Error> {
