@@ -20,21 +20,24 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
     override func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         stateQueue.async {
-            let tunnelOptions = PacketTunnelOptions(rawOptions: options ?? [:])
-            let appSelectorResult = Result { try tunnelOptions.getSelectorResult() }
+            var selectorResult: RelaySelectorResult?
 
-            if let error = appSelectorResult.error {
+            do {
+                let tunnelOptions = PacketTunnelOptions(rawOptions: options ?? [:])
+
+                selectorResult = try tunnelOptions.getSelectorResult()
+            } catch {
                 self.providerLogger.error(
                     chainedError: AnyChainedError(error),
                     message: "Failed to decode relay selector result passed from the app. Will continue by picking new relay."
                 )
             }
 
-            if let appSelectorResult = appSelectorResult.flattenValue {
-                self.tunnelStatus.tunnelRelay = appSelectorResult.packetTunnelRelay
-            } else {
-                self.tunnelStatus.tunnelRelay = self.pickRelay()?.packetTunnelRelay
+            if selectorResult == nil {
+                selectorResult = self.pickRelay()
             }
+
+            self.tunnelStatus.tunnelRelay = selectorResult?.packetTunnelRelay
 
             completionHandler(nil)
         }
@@ -80,9 +83,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     }
 
     private func pickRelay() -> RelaySelectorResult? {
-        guard let result = RelayCache.Tracker.shared.read().await().unwrappedValue else { return nil }
-
-        switch result {
+        switch RelayCache.Tracker.shared.readAndWait() {
         case .success(let cachedRelays):
             let keychainReference = self.protocolConfiguration.passwordReference!
 
