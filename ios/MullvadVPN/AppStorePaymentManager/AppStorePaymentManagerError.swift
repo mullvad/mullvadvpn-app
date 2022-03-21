@@ -14,6 +14,9 @@ extension AppStorePaymentManager {
         /// Failure to find the account token associated with the transaction.
         case noAccountSet
 
+        /// Failure to validate the account token.
+        case validateAccount(REST.Error)
+
         /// Failure to handle payment transaction. Contains error returned by StoreKit.
         case storePayment(Swift.Error)
 
@@ -27,6 +30,8 @@ extension AppStorePaymentManager {
             switch self {
             case .noAccountSet:
                 return "Account is not set"
+            case .validateAccount:
+                return "Account validation error"
             case .storePayment:
                 return "Store payment error"
             case .readReceipt:

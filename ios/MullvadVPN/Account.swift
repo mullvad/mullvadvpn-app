@@ -259,7 +259,7 @@ extension Account: AppStorePaymentObserver {
         paymentManager.addPaymentObserver(self)
     }
 
-    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String?, didFailWithError error: AppStorePaymentManager.Error) {
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction?, payment: SKPayment, accountToken: String?, didFailWithError error: AppStorePaymentManager.Error) {
         // no-op
     }
 

@@ -109,12 +109,33 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     }
 
     func addPayment(_ payment: SKPayment, for accountToken: String) {
-        if Thread.isMainThread {
-            _addPayment(payment, for: accountToken)
-        } else {
-            DispatchQueue.main.async {
-                self._addPayment(payment, for: accountToken)
+        var cancellableTask: Cancellable?
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Validate account token") {
+            cancellableTask?.cancel()
+        }
+
+        // Validate account token before adding new payment to the queue.
+        cancellableTask = REST.Client.shared.getAccountExpiry(token: accountToken, retryStrategy: .default) { result in
+            dispatchPrecondition(condition: .onQueue(.main))
+
+            switch result {
+            case .success:
+                self.associateAccountToken(accountToken, and: payment)
+                self.paymentQueue.add(payment)
+
+            case .failure(let error):
+                self.observerList.forEach { observer in
+                    observer.appStorePaymentManager(
+                        self,
+                        transaction: nil,
+                        payment: payment,
+                        accountToken: accountToken,
+                        didFailWithError: .validateAccount(error)
+                    )
+                }
             }
+
+            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
     }
 
@@ -140,13 +161,6 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         } else {
             return classDelegate?.appStorePaymentManager(self, didRequestAccountTokenFor: payment)
         }
-    }
-
-    private func _addPayment(_ payment: SKPayment, for accountToken: String) {
-        assert(Thread.isMainThread)
-
-        associateAccountToken(accountToken, and: payment)
-        paymentQueue.add(payment)
     }
 
     private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool, completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, Error>) -> Void) -> Cancellable {
@@ -207,18 +221,20 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         paymentQueue.finishTransaction(transaction)
 
         if let accountToken = deassociateAccountToken(transaction.payment) {
-            observerList.forEach { (observer) in
+            observerList.forEach { observer in
                 observer.appStorePaymentManager(
                     self,
                     transaction: transaction,
+                    payment: transaction.payment,
                     accountToken: accountToken,
                     didFailWithError: .storePayment(transaction.error!))
             }
         } else {
-            observerList.forEach { (observer) in
+            observerList.forEach { observer in
                 observer.appStorePaymentManager(
                     self,
                     transaction: transaction,
+                    payment: transaction.payment,
                     accountToken: nil,
                     didFailWithError: .noAccountSet)
             }
@@ -227,10 +243,11 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     private func didFinishOrRestorePurchase(transaction: SKPaymentTransaction) {
         guard let accountToken = deassociateAccountToken(transaction.payment) else {
-            observerList.forEach { (observer) in
+            observerList.forEach { observer in
                 observer.appStorePaymentManager(
                     self,
                     transaction: transaction,
+                    payment: transaction.payment,
                     accountToken: nil,
                     didFailWithError: .noAccountSet)
             }
@@ -255,6 +272,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                     observer.appStorePaymentManager(
                         self,
                         transaction: transaction,
+                        payment: transaction.payment,
                         accountToken: accountToken,
                         didFailWithError: error)
                 }
