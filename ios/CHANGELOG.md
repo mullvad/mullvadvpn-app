@@ -32,6 +32,9 @@ Line wrap the file at 100 chars.                                              Th
 - Delete leftover settings in Keychain during login. WireGuard keys will be removed from
   server too if old settings can be read. This is usually the case when uninstalling the app and
   then reinstalling it without logging out first.
+- Validate account token before charging user (in-app purchases). Safeguards from trying to add 
+  credits on accounts that no longer exist on our backend. Usually the case with newly created 
+  accounts that went stale.
 
 
 ## [2022.1] - 2022-02-15
