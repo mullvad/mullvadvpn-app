@@ -14,7 +14,7 @@ import Logging
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
-    private var tunnelStatus = PacketTunnelStatus()
+    private var tunnelStatus = PacketTunnelStatus(isNetworkReachable: true, connectingDate: nil, tunnelRelay: nil)
     private let providerLogger = Logger(label: "SimulatorTunnelProviderHost")
     private let stateQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
 
@@ -42,7 +42,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         stateQueue.async {
-            self.tunnelStatus = PacketTunnelStatus()
+            self.tunnelStatus = PacketTunnelStatus(isNetworkReachable: true, connectingDate: nil, tunnelRelay: nil)
 
             completionHandler()
         }
