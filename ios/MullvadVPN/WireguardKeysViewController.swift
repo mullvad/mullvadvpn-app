@@ -213,8 +213,11 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
 
         verifyKeyCancellable?.cancel()
 
-        verifyKeyCancellable = REST.Client.shared.getWireguardKey(token: tunnelInfo.token, publicKey: tunnelInfo.tunnelSettings.interface.publicKey)
-            .execute(retryStrategy: .default) { [weak self] result in
+        verifyKeyCancellable = REST.Client.shared.getWireguardKey(
+            token: tunnelInfo.token,
+            publicKey: tunnelInfo.tunnelSettings.interface.publicKey,
+            retryStrategy: .default
+        ) { [weak self] result in
                 guard let self = self else { return }
 
                 DispatchQueue.main.async {

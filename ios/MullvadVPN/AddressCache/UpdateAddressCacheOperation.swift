@@ -79,8 +79,7 @@ extension AddressCache {
                 return
             }
 
-            restCancellationHandle = restClient.getAddressList()
-                .execute(retryStrategy: .default) { restResult in
+            restCancellationHandle = restClient.getAddressList(retryStrategy: .default) { restResult in
                     self.queue.async {
                         switch restResult {
                         case .success(let newEndpoints):

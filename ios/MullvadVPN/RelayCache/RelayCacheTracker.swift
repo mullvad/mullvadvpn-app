@@ -428,23 +428,22 @@ fileprivate class UpdateRelaysOperation: AsyncOperation {
     }
 
     private func downloadRelays(previouslyCachedRelays: RelayCache.CachedRelays?) {
-        downloadCancellable = REST.Client.shared.getRelays(etag: previouslyCachedRelays?.etag)
-            .execute { [weak self] result in
-                guard let self = self else { return }
+        downloadCancellable = REST.Client.shared.getRelays(etag: previouslyCachedRelays?.etag, retryStrategy: .noRetry) { [weak self] result in
+            guard let self = self else { return }
 
-                self.dispatchQueue.async {
-                    switch result {
-                    case .success(.newContent(let etag, let relays)):
-                        self.didReceiveNewRelays(etag: etag, relays: relays)
+            self.dispatchQueue.async {
+                switch result {
+                case .success(.newContent(let etag, let relays)):
+                    self.didReceiveNewRelays(etag: etag, relays: relays)
 
-                    case .success(.notModified):
-                        self.didReceiveNotModified(previouslyCachedRelays: previouslyCachedRelays!)
+                case .success(.notModified):
+                    self.didReceiveNotModified(previouslyCachedRelays: previouslyCachedRelays!)
 
-                    case .failure(let error):
-                        self.didFailToDownloadRelays(error: error)
-                    }
+                case .failure(let error):
+                    self.didFailToDownloadRelays(error: error)
                 }
             }
+        }
     }
 
     private func shouldDownloadRelaysOnReadFailure(_ error: RelayCache.Error) -> Bool {

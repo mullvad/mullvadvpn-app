@@ -325,8 +325,10 @@ private class SendAppStoreReceiptOperation: AsyncOperation {
     }
 
     private func sendReceipt(_ receiptData: Data) {
-        submitReceiptCancellable = restClient.createApplePayment(token: self.accountToken, receiptString: receiptData)
-            .execute { result in
+        submitReceiptCancellable = restClient.createApplePayment(
+            token: self.accountToken,
+            receiptString: receiptData,
+            retryStrategy: .noRetry) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let response):
