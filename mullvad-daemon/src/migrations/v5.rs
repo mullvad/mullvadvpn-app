@@ -57,14 +57,6 @@ impl Default for SelectedObfuscation {
 }
 
 // ======================================================
-
-/// This is an open ended migration. There is no v6 yet!
-/// The migrations performed by this function are still backwards compatible.
-/// The JSON coming out of this migration can be read by any v5 compatible daemon.
-///
-/// When further migrations are needed, add them here and if they are not backwards
-/// compatible then create v6 and "close" this migration for further modification.
-///
 /// # Changes to the format
 ///
 /// The ability to disable WireGuard multihop while preserving the entry location was added.
@@ -80,6 +72,11 @@ impl Default for SelectedObfuscation {
 /// sending the `DeviceMigrationEvent` event to the daemon. Because this is fallible, it can
 /// result in the account token and private key being lost. This should not be not critical since
 /// the account token is also stored in the account history.
+///
+/// Additionally, the WireGuard protocol constraint, if set to be using TCP, is migrated into
+/// having an active Udp2Tcp obfuscator. The protocol constraint is then removed from WireGuard
+/// settings since all WireGuard traffic is UDP.
+
 pub(crate) async fn migrate(
     settings: &mut serde_json::Value,
     rest_handle: mullvad_rpc::rest::MullvadRestHandle,
