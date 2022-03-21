@@ -1,4 +1,7 @@
 /* No comment provided by engineer. */
+"INVALID_ACCOUNT_ERROR" = "Cannot add credit to invalid account.";
+
+/* No comment provided by engineer. */
 "NO_ACCOUNT_SET_ERROR" = "Internal error: account is not set";
 
 /* No comment provided by engineer. */
@@ -15,3 +18,6 @@
 
 /* No comment provided by engineer. */
 "SEND_RECEIPT_RECOVERY_SUGGESTION" = "Please retry by using the \"Restore purchases\" button.";
+
+/* No comment provided by engineer. */
+"VALIDATE_ACCOUNT_ERROR" = "Failed to validate account token: %@";

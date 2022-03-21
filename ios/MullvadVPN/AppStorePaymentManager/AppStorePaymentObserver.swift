@@ -10,9 +10,11 @@ import Foundation
 import StoreKit
 
 protocol AppStorePaymentObserver: AnyObject {
+
     func appStorePaymentManager(
         _ manager: AppStorePaymentManager,
-        transaction: SKPaymentTransaction,
+        transaction: SKPaymentTransaction?,
+        payment: SKPayment,
         accountToken: String?,
         didFailWithError error: AppStorePaymentManager.Error)
 
