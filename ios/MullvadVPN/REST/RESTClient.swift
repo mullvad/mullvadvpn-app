@@ -58,7 +58,7 @@ extension REST {
         // MARK: - Public
 
         func createAccount(retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<AccountResponse, REST.Error>) -> Void) -> AnyCancellable {
-            return scheduleOperation(retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
+            return scheduleOperation(name: "create-account", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 let request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "accounts")
 
                 let dataTask = self.dataTask(request: request) { responseResult in
@@ -80,7 +80,7 @@ extension REST {
         }
 
         func getAddressList(retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<[AnyIPEndpoint], REST.Error>) -> Void) -> AnyCancellable {
-            return scheduleOperation(retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
+            return scheduleOperation(name: "get-api-addrs", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 let request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .get, path: "api-addrs")
 
                 let dataTask = self.dataTask(request: request) { responseResult in
@@ -101,7 +101,7 @@ extension REST {
         }
 
         func getRelays(etag: String?, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<ServerRelaysCacheResponse, REST.Error>) -> Void) -> AnyCancellable {
-            return scheduleOperation(retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
+            return scheduleOperation(name: "get-relays", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .get, path: "relays")
                 if let etag = etag {
                     Self.setETagHeader(etag: etag, request: &request)
@@ -131,7 +131,7 @@ extension REST {
         }
 
         func getAccountExpiry(token: String, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<AccountResponse, REST.Error>) -> Void) -> AnyCancellable {
-            return scheduleOperation(retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
+            return scheduleOperation(name: "get-account-expiry", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .get, path: "me")
 
                 Self.setAuthenticationToken(token: token, request: &request)
@@ -154,7 +154,7 @@ extension REST {
         }
 
         func getWireguardKey(token: String, publicKey: PublicKey, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<WireguardAddressesResponse, REST.Error>) -> Void) -> AnyCancellable {
-            return scheduleOperation(retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
+            return scheduleOperation(name: "get-wireguard-key", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 let urlEncodedPublicKey = publicKey.base64Key
                     .addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
 
@@ -180,7 +180,7 @@ extension REST {
         }
 
         func pushWireguardKey(token: String, publicKey: PublicKey, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<WireguardAddressesResponse, REST.Error>) -> Void) -> AnyCancellable {
-            return scheduleOperation(retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
+            return scheduleOperation(name: "push-wireguard-key", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "wireguard-keys")
                 let body = PushWireguardKeyRequest(pubkey: publicKey.rawValue)
 
@@ -210,7 +210,7 @@ extension REST {
         }
 
         func replaceWireguardKey(token: String, oldPublicKey: PublicKey, newPublicKey: PublicKey, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<WireguardAddressesResponse, REST.Error>) -> Void) -> AnyCancellable {
-            return scheduleOperation(retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
+            return scheduleOperation(name: "replace-wireguard-key", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "replace-wireguard-key")
                 let body = ReplaceWireguardKeyRequest(old: oldPublicKey.rawValue, new: newPublicKey.rawValue)
 
@@ -240,7 +240,7 @@ extension REST {
         }
 
         func deleteWireguardKey(token: String, publicKey: PublicKey, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<(), REST.Error>) -> Void) -> AnyCancellable {
-            return scheduleOperation(retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
+            return scheduleOperation(name: "delete-wireguard-key", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 let urlEncodedPublicKey = publicKey.base64Key
                     .addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
 
@@ -267,7 +267,7 @@ extension REST {
         }
 
         func createApplePayment(token: String, receiptString: Data, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<CreateApplePaymentResponse, REST.Error>) -> Void) -> AnyCancellable {
-            return scheduleOperation(retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
+            return scheduleOperation(name: "create-apple-payment", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "create-apple-payment")
                 let body = CreateApplePaymentRequest(receiptString: receiptString)
 
@@ -303,7 +303,7 @@ extension REST {
         }
 
         func sendProblemReport(_ body: ProblemReportRequest, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<(), REST.Error>) -> Void) -> AnyCancellable {
-            return scheduleOperation(retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
+            return scheduleOperation(name: "send-problem-report", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "problem-report")
 
                 do {
@@ -330,8 +330,9 @@ extension REST {
 
         // MARK: - Private
 
-        private func scheduleOperation<Response>(retryStrategy: REST.RetryStrategy, completionHandler: @escaping NetworkOperation<Response>.CompletionHandler, taskGenerator: @escaping NetworkOperation<Response>.Generator) -> AnyCancellable {
+        private func scheduleOperation<Response>(name: String, retryStrategy: REST.RetryStrategy, completionHandler: @escaping NetworkOperation<Response>.CompletionHandler, taskGenerator: @escaping NetworkOperation<Response>.Generator) -> AnyCancellable {
             let operation = NetworkOperation(
+                name: name,
                 networkTaskGenerator: taskGenerator,
                 addressCacheStore: addressCacheStore,
                 retryStrategy: retryStrategy,
