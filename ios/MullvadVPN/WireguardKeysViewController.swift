@@ -218,23 +218,21 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             publicKey: tunnelInfo.tunnelSettings.interface.publicKey,
             retryStrategy: .default
         ) { [weak self] result in
-                guard let self = self else { return }
+            guard let self = self else { return }
 
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success:
-                        self.updateViewState(.verifiedKey(true))
+            switch result {
+            case .success:
+                self.updateViewState(.verifiedKey(true))
 
-                    case .failure(let error):
-                        if case .server(.pubKeyNotFound) = error {
-                            self.updateViewState(.verifiedKey(false))
-                        } else {
-                            self.showKeyVerificationFailureAlert(error)
-                            self.updateViewState(.default)
-                        }
-                    }
+            case .failure(let error):
+                if case .server(.pubKeyNotFound) = error {
+                    self.updateViewState(.verifiedKey(false))
+                } else {
+                    self.showKeyVerificationFailureAlert(error)
+                    self.updateViewState(.default)
                 }
             }
+        }
     }
 
     private func regeneratePrivateKey() {

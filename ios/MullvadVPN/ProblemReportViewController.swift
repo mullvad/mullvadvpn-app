@@ -598,9 +598,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         willSendProblemReport()
 
         _ = REST.Client.shared.sendProblemReport(request, retryStrategy: .default) { result in
-            DispatchQueue.main.async {
-                self.didSendProblemReport(viewModel: viewModel, result: result)
-            }
+            self.didSendProblemReport(viewModel: viewModel, result: result)
         }
     }
 

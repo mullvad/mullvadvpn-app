@@ -101,28 +101,26 @@ class Account {
     func loginWithNewAccount(completionHandler: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
         let operation = AsyncBlockOperation { operation in
             _ = REST.Client.shared.createAccount(retryStrategy: .noRetry) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let response):
-                        self.setupTunnel(accountToken: response.token, expiry: response.expires) { error in
-                            if let error = error {
-                                completionHandler(.failure(error))
-                            } else {
-                                self.observerList.forEach { observer in
-                                    observer.account(self, didLoginWithToken: response.token, expiry: response.expires)
-                                }
-
-                                completionHandler(.success(response))
+                switch result {
+                case .success(let response):
+                    self.setupTunnel(accountToken: response.token, expiry: response.expires) { error in
+                        if let error = error {
+                            completionHandler(.failure(error))
+                        } else {
+                            self.observerList.forEach { observer in
+                                observer.account(self, didLoginWithToken: response.token, expiry: response.expires)
                             }
 
-                            operation.finish()
+                            completionHandler(.success(response))
                         }
-
-                    case .failure(let error):
-                        completionHandler(.failure(.createAccount(error)))
 
                         operation.finish()
                     }
+
+                case .failure(let error):
+                    completionHandler(.failure(.createAccount(error)))
+
+                    operation.finish()
                 }
             }
         }
@@ -135,25 +133,23 @@ class Account {
     func login(accountToken: String, completionHandler: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
         let operation = AsyncBlockOperation { operation in
             _ = REST.Client.shared.getAccountExpiry(token: accountToken, retryStrategy: .default) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let response):
-                        self.setupTunnel(accountToken: response.token, expiry: response.expires) { error in
-                            if let error = error {
-                                completionHandler(.failure(error))
-                            } else {
-                                self.observerList.forEach { observer in
-                                    observer.account(self, didLoginWithToken: response.token, expiry: response.expires)
-                                }
-                                completionHandler(.success(response))
+                switch result {
+                case .success(let response):
+                    self.setupTunnel(accountToken: response.token, expiry: response.expires) { error in
+                        if let error = error {
+                            completionHandler(.failure(error))
+                        } else {
+                            self.observerList.forEach { observer in
+                                observer.account(self, didLoginWithToken: response.token, expiry: response.expires)
                             }
-                            operation.finish()
+                            completionHandler(.success(response))
                         }
-
-                    case .failure(let error):
-                        completionHandler(.failure(.verifyAccount(error)))
                         operation.finish()
                     }
+
+                case .failure(let error):
+                    completionHandler(.failure(.verifyAccount(error)))
+                    operation.finish()
                 }
             }
         }

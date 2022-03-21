@@ -307,18 +307,16 @@ private class SendAppStoreReceiptOperation: AsyncOperation {
     override func main() {
         DispatchQueue.main.async {
             self.fetchReceiptCancellable = AppStoreReceipt.fetch(forceRefresh: self.forceRefresh, receiptProperties: self.receiptProperties) { completion in
-                DispatchQueue.main.async {
-                    switch completion {
-                    case .success(let receiptData):
-                        self.sendReceipt(receiptData)
+                switch completion {
+                case .success(let receiptData):
+                    self.sendReceipt(receiptData)
 
-                    case .failure(let error):
-                        self.logger.error(chainedError: error, message: "Failed to fetch the AppStore receipt.")
-                        self.finish(completion: .failure(.readReceipt(error)))
+                case .failure(let error):
+                    self.logger.error(chainedError: error, message: "Failed to fetch the AppStore receipt.")
+                    self.finish(completion: .failure(.readReceipt(error)))
 
-                    case .cancelled:
-                        self.finish(completion: .cancelled)
-                    }
+                case .cancelled:
+                    self.finish(completion: .cancelled)
                 }
             }
         }
@@ -329,16 +327,14 @@ private class SendAppStoreReceiptOperation: AsyncOperation {
             token: self.accountToken,
             receiptString: receiptData,
             retryStrategy: .noRetry) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let response):
-                        self.logger.info("AppStore receipt was processed. Time added: \(response.timeAdded), New expiry: \(response.newExpiry.logFormatDate())")
-                        self.finish(completion: .success(response))
+                switch result {
+                case .success(let response):
+                    self.logger.info("AppStore receipt was processed. Time added: \(response.timeAdded), New expiry: \(response.newExpiry.logFormatDate())")
+                    self.finish(completion: .success(response))
 
-                    case .failure(let error):
-                        self.logger.error(chainedError: error, message: "Failed to send the AppStore receipt.")
-                        self.finish(completion: .failure(.sendReceipt(error)))
-                    }
+                case .failure(let error):
+                    self.logger.error(chainedError: error, message: "Failed to send the AppStore receipt.")
+                    self.finish(completion: .failure(.sendReceipt(error)))
                 }
             }
     }
