@@ -34,7 +34,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
 
     private var publicKeyPeriodicUpdateTimer: DispatchSourceTimer?
     private var copyToPasteboardWork: DispatchWorkItem?
-    private var verifyKeyCancellable: AnyCancellable?
+    private var verifyKeyCancellable: Cancellable?
 
     private let alertPresenter = AlertPresenter()
     private var state: WireguardKeysViewState = .default {

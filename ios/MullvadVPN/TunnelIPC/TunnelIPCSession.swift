@@ -32,9 +32,7 @@ extension TunnelIPC {
 
             operationQueue.addOperation(operation)
 
-            return AnyCancellable {
-                operation.cancel()
-            }
+            return operation
         }
 
         func getTunnelStatus(completionHandler: @escaping (OperationCompletion<PacketTunnelStatus, TunnelIPC.Error>) -> Void) -> Cancellable {
@@ -48,9 +46,7 @@ extension TunnelIPC {
 
             operationQueue.addOperation(operation)
 
-            return AnyCancellable {
-                operation.cancel()
-            }
+            return operation
         }
     }
 }

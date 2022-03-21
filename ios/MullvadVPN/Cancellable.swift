@@ -12,20 +12,4 @@ protocol Cancellable {
     func cancel()
 }
 
-class AnyCancellable: Cancellable {
-    private var closure: (() -> Void)?
-    private let lock = NSLock()
-
-    init(_ block: @escaping () -> Void) {
-        self.closure = block
-    }
-
-    func cancel() {
-        lock.lock()
-        let block = closure
-        closure = nil
-        lock.unlock()
-
-        block?()
-    }
-}
+extension Operation: Cancellable {}

@@ -98,7 +98,7 @@ extension RelayCache {
             }
         }
 
-        func updateRelays(completionHandler: @escaping (OperationCompletion<RelayCache.FetchResult, RelayCache.Error>) -> Void) -> AnyCancellable {
+        func updateRelays(completionHandler: @escaping (OperationCompletion<RelayCache.FetchResult, RelayCache.Error>) -> Void) -> Cancellable {
             let operation = UpdateRelaysOperation(
                 dispatchQueue: stateQueue,
                 restClient: REST.Client.shared,
@@ -126,9 +126,7 @@ extension RelayCache {
 
             operationQueue.addOperation(operation)
 
-            return AnyCancellable {
-                operation.cancel()
-            }
+            return operation
         }
 
         func read(completionHandler: @escaping (Result<CachedRelays, RelayCache.Error>) -> Void) {
@@ -318,7 +316,7 @@ fileprivate class UpdateRelaysOperation: AsyncOperation {
 
     private let updateHandler: UpdateHandler
     private var completionHandler: CompletionHandler?
-    private var downloadCancellable: AnyCancellable?
+    private var downloadCancellable: Cancellable?
 
     init(dispatchQueue: DispatchQueue,
          restClient: REST.Client,

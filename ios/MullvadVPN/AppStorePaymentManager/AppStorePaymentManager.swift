@@ -97,7 +97,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     // MARK: - Products and payments
 
-    func requestProducts(with productIdentifiers: Set<AppStoreSubscription>, completionHandler: @escaping (OperationCompletion<SKProductsResponse, Swift.Error>) -> Void) -> AnyCancellable {
+    func requestProducts(with productIdentifiers: Set<AppStoreSubscription>, completionHandler: @escaping (OperationCompletion<SKProductsResponse, Swift.Error>) -> Void) -> Cancellable {
         let productIdentifiers = productIdentifiers.productIdentifiersSet
         let operation = ProductsRequestOperation(productIdentifiers: productIdentifiers, completionHandler: completionHandler)
 
@@ -105,9 +105,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
         operationQueue.addOperation(operation)
 
-        return AnyCancellable {
-            operation.cancel()
-        }
+        return operation
     }
 
     func addPayment(_ payment: SKPayment, for accountToken: String) {
@@ -120,7 +118,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
     }
 
-    func restorePurchases(for accountToken: String, completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, AppStorePaymentManager.Error>) -> Void) -> AnyCancellable {
+    func restorePurchases(for accountToken: String, completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, AppStorePaymentManager.Error>) -> Void) -> Cancellable {
         return sendAppStoreReceipt(accountToken: accountToken, forceRefresh: true, completionHandler: completionHandler)
     }
 
@@ -151,7 +149,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         paymentQueue.add(payment)
     }
 
-    private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool, completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, Error>) -> Void) -> AnyCancellable {
+    private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool, completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, Error>) -> Void) -> Cancellable {
         let operation = SendAppStoreReceiptOperation(restClient: REST.Client.shared, accountToken: accountToken, forceRefresh: forceRefresh, receiptProperties: nil) { completion in
             completionHandler(completion)
         }
@@ -168,9 +166,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
         operationQueue.addOperation(operation)
 
-        return AnyCancellable {
-            operation.cancel()
-        }
+        return operation
     }
 
     private func handleTransactions(_ transactions: [SKPaymentTransaction]) {
@@ -279,8 +275,8 @@ private class SendAppStoreReceiptOperation: AsyncOperation {
     private let forceRefresh: Bool
     private let receiptProperties: [String: Any]?
     private var completionHandler: CompletionHandler?
-    private var fetchReceiptCancellable: AnyCancellable?
-    private var submitReceiptCancellable: AnyCancellable?
+    private var fetchReceiptCancellable: Cancellable?
+    private var submitReceiptCancellable: Cancellable?
 
     private let logger = Logger(label: "AppStorePaymentManager.SendAppStoreReceiptOperation")
 

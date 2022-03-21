@@ -45,7 +45,7 @@ enum AppStoreReceipt {
 
     /// Read AppStore receipt from disk or refresh it from AppStore if it's missing.
     /// This call may trigger a sign in with AppStore prompt to appear.
-    static func fetch(forceRefresh: Bool = false, receiptProperties: [String: Any]? = nil, completionHandler: @escaping (OperationCompletion<Data, Error>) -> Void) -> AnyCancellable {
+    static func fetch(forceRefresh: Bool = false, receiptProperties: [String: Any]? = nil, completionHandler: @escaping (OperationCompletion<Data, Error>) -> Void) -> Cancellable {
         let operation = FetchAppStoreReceiptOperation(
             dispatchQueue: dispatchQueue,
             forceRefresh: forceRefresh,
@@ -63,9 +63,7 @@ enum AppStoreReceipt {
 
         operationQueue.addOperation(operation)
 
-        return AnyCancellable {
-            operation.cancel()
-        }
+        return operation
     }
 }
 
