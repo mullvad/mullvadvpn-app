@@ -29,14 +29,14 @@ pub struct TransportPort {
 }
 
 /// Contains obfuscation settings
-#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct ObfuscationSettings {
     pub selected_obfuscation: SelectedObfuscation,
     pub udp2tcp: Udp2TcpObfuscationSettings,
 }
 
-#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Udp2TcpObfuscationSettings {
     pub port: Constraint<u16>,
@@ -48,12 +48,6 @@ pub enum SelectedObfuscation {
     Auto,
     Off,
     Udp2Tcp,
-}
-
-impl Default for SelectedObfuscation {
-    fn default() -> Self {
-        SelectedObfuscation::Auto
-    }
 }
 
 // ======================================================
