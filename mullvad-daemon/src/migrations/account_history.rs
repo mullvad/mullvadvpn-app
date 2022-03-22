@@ -185,8 +185,9 @@ fn try_format_v2(bytes: &[u8]) -> Option<(AccountToken, Option<WireguardData>)> 
     serde_json::from_slice(bytes)
         .map(|entries: Vec<AccountEntry>| {
             entries
-                .first()
-                .map(|entry| (entry.account.clone(), entry.wireguard.clone()))
+                .into_iter()
+                .next()
+                .map(|entry| (entry.account, entry.wireguard))
         })
         .unwrap_or(None)
 }
@@ -197,7 +198,7 @@ fn try_format_v1(bytes: &[u8]) -> Option<AccountToken> {
         accounts: Vec<AccountToken>,
     }
     serde_json::from_slice(bytes)
-        .map(|old_format: OldFormat| old_format.accounts.first().cloned())
+        .map(|old_format: OldFormat| old_format.accounts.into_iter().next())
         .unwrap_or(None)
 }
 
