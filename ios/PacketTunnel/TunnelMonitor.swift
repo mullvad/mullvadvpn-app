@@ -34,6 +34,7 @@ final class TunnelMonitor {
     private var firstAttemptDate: Date?
     private var lastAttemptDate: Date?
     private var lastError: Pinger.Error?
+    private var isStarted = false
     private var isPinging = false
 
     private var logger = Logger(label: "TunnelMonitor")
@@ -81,14 +82,15 @@ final class TunnelMonitor {
     }
 
     private func startNoQueue(address pingAddress: IPv4Address) {
-        if address == nil {
-            logger.debug("Start tunnel monitor with address: \(pingAddress).")
-        } else {
+        if isStarted {
             logger.debug("Restart tunnel monitor with address: \(pingAddress).")
+        } else {
+            logger.debug("Start tunnel monitor with address: \(pingAddress).")
         }
 
         stopNoQueue(forRestart: true)
 
+        isStarted = true
         address = pingAddress
         networkBytesReceived = 0
         firstAttemptDate = Date()
@@ -106,10 +108,11 @@ final class TunnelMonitor {
     }
 
     private func stopNoQueue(forRestart: Bool) {
-        if !forRestart {
+        if isStarted && !forRestart {
             logger.debug("Stop tunnel monitor.")
         }
 
+        isStarted = false
         address = nil
         firstAttemptDate = nil
         lastAttemptDate = nil
