@@ -276,18 +276,35 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     private func updateLocation(animated: Bool) {
         switch tunnelState {
         case .connecting(let tunnelRelay):
+            removeLocationMarker()
+
             if let tunnelRelay = tunnelRelay {
                 setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated)
             } else {
                 unsetLocation(animated: animated)
             }
 
-        case .connected(let tunnelRelay), .reconnecting(let tunnelRelay):
+        case .reconnecting(let tunnelRelay):
+            removeLocationMarker()
+            setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated)
+
+        case .connected(let tunnelRelay):
+            addLocationMarker(coordinate: tunnelRelay.location.geoCoordinate)
             setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated)
 
         case .disconnected, .disconnecting, .pendingReconnect:
+            removeLocationMarker()
             unsetLocation(animated: animated)
         }
+    }
+
+    private func addLocationMarker(coordinate: CLLocationCoordinate2D) {
+        locationMarker.coordinate = coordinate
+        mainContentView.mapView.addAnnotation(locationMarker)
+    }
+
+    private func removeLocationMarker() {
+        mainContentView.mapView.removeAnnotation(locationMarker)
     }
 
     private func setLocation(coordinate: CLLocationCoordinate2D, animated: Bool) {
@@ -298,8 +315,6 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         let markerOffset = locationMarkerOffset()
         let region = computeCoordinateRegion(centerCoordinate: coordinate, centerOffsetInPoints: markerOffset)
 
-        locationMarker.coordinate = coordinate
-        mainContentView.mapView.addAnnotation(locationMarker)
         mainContentView.mapView.setRegion(region, animated: animated)
 
         self.lastLocation = coordinate
@@ -313,7 +328,6 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
         let span = MKCoordinateSpan(latitudeDelta: 90, longitudeDelta: 90)
         let region = MKCoordinateRegion(center: coordinate, span: span)
-        mainContentView.mapView.removeAnnotation(locationMarker)
         mainContentView.mapView.setRegion(region, animated: animated)
 
         self.lastLocation = coordinate
