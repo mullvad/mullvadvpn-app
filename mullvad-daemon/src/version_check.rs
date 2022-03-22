@@ -151,15 +151,15 @@ impl VersionUpdaterHandle {
 
 impl VersionUpdater {
     pub fn new(
-        mut rpc_handle: MullvadRestHandle,
+        mut api_handle: MullvadRestHandle,
         availability_handle: ApiAvailabilityHandle,
         cache_dir: PathBuf,
         update_sender: DaemonEventSender<AppVersionInfo>,
         last_app_version_info: Option<AppVersionInfo>,
         show_beta_releases: bool,
     ) -> (Self, VersionUpdaterHandle) {
-        rpc_handle.factory.timeout = DOWNLOAD_TIMEOUT;
-        let version_proxy = AppVersionProxy::new(rpc_handle);
+        api_handle.factory.timeout = DOWNLOAD_TIMEOUT;
+        let version_proxy = AppVersionProxy::new(api_handle);
         let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         let (tx, rx) = mpsc::channel(1);
         let platform_version = talpid_platform_metadata::short_version();

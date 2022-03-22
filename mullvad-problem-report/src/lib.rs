@@ -293,7 +293,7 @@ async fn send_problem_report_inner(
 ) -> Result<(), Error> {
     let metadata =
         ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
-    let rpc_runtime = mullvad_api::MullvadRpcRuntime::with_cache(
+    let api_runtime = mullvad_api::Runtime::with_cache(
         cache_dir,
         false,
         #[cfg(target_os = "android")]
@@ -302,8 +302,8 @@ async fn send_problem_report_inner(
     .await
     .map_err(Error::CreateRpcClientError)?;
 
-    let rpc_client = mullvad_api::ProblemReportProxy::new(
-        rpc_runtime
+    let api_client = mullvad_api::ProblemReportProxy::new(
+        api_runtime
             .mullvad_rest_handle(
                 ApiConnectionMode::try_from_cache(cache_dir)
                     .await
@@ -314,7 +314,7 @@ async fn send_problem_report_inner(
     );
 
     for _attempt in 0..MAX_SEND_ATTEMPTS {
-        match rpc_client
+        match api_client
             .problem_report(user_email, user_message, &report_content, &metadata)
             .await
         {
