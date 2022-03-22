@@ -106,12 +106,13 @@ fn try_format_v2(bytes: &[u8]) -> Option<(AccountToken, serde_json::Value)> {
         pub wireguard: serde_json::Value,
     }
     serde_json::from_slice(bytes)
-        .map(|entries: Vec<AccountEntry>| {
+        .ok()
+        .and_then(|entries: Vec<AccountEntry>| {
             entries
-                .first()
-                .map(|entry| (entry.account.clone(), entry.wireguard.clone()))
+                .into_iter()
+                .next()
+                .map(|entry| (entry.account, entry.wireguard))
         })
-        .unwrap_or(None)
 }
 
 fn try_format_v1(bytes: &[u8]) -> Option<AccountToken> {
@@ -120,8 +121,8 @@ fn try_format_v1(bytes: &[u8]) -> Option<AccountToken> {
         accounts: Vec<AccountToken>,
     }
     serde_json::from_slice(bytes)
-        .map(|old_format: OldFormat| old_format.accounts.first().cloned())
-        .unwrap_or(None)
+        .ok()
+        .and_then(|old_format: OldFormat| old_format.accounts.into_iter().next())
 }
 
 #[cfg(test)]
