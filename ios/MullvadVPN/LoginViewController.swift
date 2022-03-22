@@ -144,11 +144,17 @@ class LoginViewController: UIViewController, RootContainment {
         return false
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom {
+            updateCreateButtonEnabled()
+        }
+    }
+
     // MARK: - Public
 
     func reset() {
-        loginState = .default
         contentView.accountInputGroup.clearToken()
+        loginState = .default
         updateKeyboardToolbar()
     }
 
@@ -160,8 +166,11 @@ class LoginViewController: UIViewController, RootContainment {
             loginState = .default
         }
 
-        // Enable the log in button in the keyboard toolbar
+        // Enable the log in button in the keyboard toolbar.
         updateKeyboardToolbar()
+
+        // Update "create account" button state.
+        updateCreateButtonEnabled()
     }
 
     // MARK: - Actions
@@ -206,24 +215,17 @@ class LoginViewController: UIViewController, RootContainment {
     private func loginStateDidChange() {
         contentView.accountInputGroup.setLoginState(loginState, animated: true)
 
-        // Keep the settings button disabled to prevent user from going to settings while
-        // authentication or during the delay after the successful login and transition to the main
-        // controller.
         switch loginState {
         case .authenticating:
             contentView.activityIndicator.startAnimating()
-            contentView.createAccountButton.isEnabled = false
 
-        case .success:
-            contentView.activityIndicator.stopAnimating()
-
-        case .default, .failure:
-            contentView.createAccountButton.isEnabled = true
+        case .success, .default, .failure:
             contentView.activityIndicator.stopAnimating()
         }
 
         updateDisplayedMessage()
         updateStatusIcon()
+        updateCreateButtonEnabled()
     }
 
     private func updateStatusIcon() {
@@ -267,6 +269,27 @@ class LoginViewController: UIViewController, RootContainment {
 
     private func updateKeyboardToolbar() {
         accountInputAccessoryLoginButton.isEnabled = canBeginLogin()
+    }
+
+    private func updateCreateButtonEnabled() {
+        let isEnabled: Bool
+
+        switch loginState {
+        case .failure, .default:
+            // Disable "Create account" button on iPad as user types in the account token,
+            // however leave it enabled on iPhone to avoid confusion to why it's being disabled
+            // since it's likely overlayed by keyboard.
+            if case .pad = self.traitCollection.userInterfaceIdiom {
+                isEnabled = contentView.accountInputGroup.textField.text?.isEmpty ?? true
+            } else {
+                isEnabled = true
+            }
+
+        case .success, .authenticating:
+            isEnabled = false
+        }
+
+        contentView.createAccountButton.isEnabled = isEnabled
     }
 
     private func canBeginLogin() -> Bool {
