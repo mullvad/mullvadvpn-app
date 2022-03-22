@@ -356,7 +356,7 @@ impl AccountManager {
         Ok(())
     }
 
-    async fn logout_inner(&mut self) -> tokio::task::JoinHandle<()> {
+    fn logout_inner(&mut self) -> tokio::task::JoinHandle<()> {
         let prev_data = self.data.take();
         let service = self.device_service.clone();
 
@@ -392,7 +392,7 @@ impl AccountManager {
         {
             // Remove the existing device if its ID differs. Otherwise, only update
             // the data.
-            self.logout_inner().await;
+            self.logout_inner();
         }
 
         self.data = data.cloned();
