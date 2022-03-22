@@ -1,5 +1,5 @@
 use clap::{crate_authors, crate_description, crate_name, App};
-use mullvad_api::{proxy::ApiConnectionMode, MullvadRpcRuntime};
+use mullvad_api::{self, proxy::ApiConnectionMode};
 use mullvad_management_interface::new_rpc_client;
 use mullvad_types::version::ParsedAppVersion;
 use std::{path::PathBuf, process, time::Duration};
@@ -168,12 +168,12 @@ async fn remove_device() -> Result<(), Error> {
         .await
         .map_err(Error::ReadDeviceCacheError)?;
     if let Some(device) = data {
-        let rpc_runtime = MullvadRpcRuntime::with_cache(&cache_path, false)
+        let api_runtime = mullvad_api::Runtime::with_cache(&cache_path, false)
             .await
             .map_err(Error::RpcInitializationError)?;
 
         let proxy = mullvad_api::DevicesProxy::new(
-            rpc_runtime
+            api_runtime
                 .mullvad_rest_handle(
                     ApiConnectionMode::try_from_cache(&cache_path)
                         .await

@@ -975,11 +975,11 @@ impl AccountService {
 }
 
 pub fn spawn_account_service(
-    rpc_handle: MullvadRestHandle,
+    api_handle: MullvadRestHandle,
     token: Option<String>,
     api_availability: ApiAvailabilityHandle,
 ) -> AccountService {
-    let accounts_proxy = AccountsProxy::new(rpc_handle);
+    let accounts_proxy = AccountsProxy::new(api_handle);
     api_availability.pause_background();
 
     let api_availability_copy = api_availability.clone();
