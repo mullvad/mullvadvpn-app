@@ -600,10 +600,10 @@ private extension TunnelState {
             case .disconnected, .disconnecting(.nothing):
                 return [.connect]
 
-            case .disconnecting(.reconnect), .pendingReconnect:
+            case .connecting, .pendingReconnect, .disconnecting(.reconnect):
                 return [.cancel]
 
-            case .connecting, .connected, .reconnecting:
+            case .connected, .reconnecting:
                 return [.disconnect]
             }
 
