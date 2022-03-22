@@ -3,7 +3,7 @@
 
 use chrono::{DateTime, Local};
 use ipnetwork::IpNetwork;
-use mullvad_rpc::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle};
+use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle};
 use mullvad_types::{
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     location::{Coordinates, Location},

@@ -4,7 +4,7 @@ use futures::{
     future::{Fuse, FusedFuture},
     Future, FutureExt, SinkExt, StreamExt,
 };
-use mullvad_rpc::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, RelayListProxy};
+use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, RelayListProxy};
 use mullvad_types::relay_list::RelayList;
 use parking_lot::Mutex;
 use std::{
@@ -114,7 +114,7 @@ impl RelayListUpdater {
 
     async fn consume_new_relay_list(
         &mut self,
-        result: Result<Option<RelayList>, mullvad_rpc::Error>,
+        result: Result<Option<RelayList>, mullvad_api::Error>,
     ) {
         match result {
             Ok(Some(relay_list)) => {
@@ -151,13 +151,13 @@ impl RelayListUpdater {
         api_handle: ApiAvailabilityHandle,
         rpc_handle: RelayListProxy,
         tag: Option<String>,
-    ) -> impl Future<Output = Result<Option<RelayList>, mullvad_rpc::Error>> + 'static {
+    ) -> impl Future<Output = Result<Option<RelayList>, mullvad_api::Error>> + 'static {
         let download_futures = move || {
             let available = api_handle.wait_background();
             let req = rpc_handle.relay_list(tag.clone());
             async move {
                 available.await?;
-                req.await.map_err(mullvad_rpc::Error::from)
+                req.await.map_err(mullvad_api::Error::from)
             }
         };
 

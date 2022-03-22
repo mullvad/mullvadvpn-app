@@ -1,6 +1,6 @@
 use clap::{crate_authors, crate_description, crate_name, App};
+use mullvad_api::{proxy::ApiConnectionMode, MullvadRpcRuntime};
 use mullvad_management_interface::new_rpc_client;
-use mullvad_rpc::{proxy::ApiConnectionMode, MullvadRpcRuntime};
 use mullvad_types::version::ParsedAppVersion;
 use std::{path::PathBuf, process, time::Duration};
 use talpid_core::{
@@ -61,10 +61,10 @@ pub enum Error {
     FirewallError(#[error(source)] firewall::Error),
 
     #[error(display = "Failed to initialize mullvad RPC runtime")]
-    RpcInitializationError(#[error(source)] mullvad_rpc::Error),
+    RpcInitializationError(#[error(source)] mullvad_api::Error),
 
     #[error(display = "Failed to remove device from account")]
-    RemoveDeviceError(#[error(source)] mullvad_rpc::rest::Error),
+    RemoveDeviceError(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "Failed to obtain settings directory path")]
     SettingsPathError(#[error(source)] SettingsPathErrorType),
@@ -172,7 +172,7 @@ async fn remove_device() -> Result<(), Error> {
             .await
             .map_err(Error::RpcInitializationError)?;
 
-        let proxy = mullvad_rpc::DevicesProxy::new(
+        let proxy = mullvad_api::DevicesProxy::new(
             rpc_runtime
                 .mullvad_rest_handle(
                     ApiConnectionMode::try_from_cache(&cache_path)

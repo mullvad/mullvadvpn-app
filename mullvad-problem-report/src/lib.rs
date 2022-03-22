@@ -1,7 +1,7 @@
 #![deny(rust_2018_idioms)]
 
 use lazy_static::lazy_static;
-use mullvad_rpc::proxy::ApiConnectionMode;
+use mullvad_api::proxy::ApiConnectionMode;
 use regex::Regex;
 use std::{
     borrow::Cow,
@@ -64,10 +64,10 @@ pub enum Error {
     },
 
     #[error(display = "Unable to create REST client")]
-    CreateRpcClientError(#[error(source)] mullvad_rpc::Error),
+    CreateRpcClientError(#[error(source)] mullvad_api::Error),
 
     #[error(display = "Failed to send problem report")]
-    SendProblemReportError(#[error(source)] mullvad_rpc::rest::Error),
+    SendProblemReportError(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "Failed to send problem report {} times", MAX_SEND_ATTEMPTS)]
     SendFailedTooManyTimes,
@@ -293,7 +293,7 @@ async fn send_problem_report_inner(
 ) -> Result<(), Error> {
     let metadata =
         ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
-    let rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
+    let rpc_runtime = mullvad_api::MullvadRpcRuntime::with_cache(
         cache_dir,
         false,
         #[cfg(target_os = "android")]
@@ -302,7 +302,7 @@ async fn send_problem_report_inner(
     .await
     .map_err(Error::CreateRpcClientError)?;
 
-    let rpc_client = mullvad_rpc::ProblemReportProxy::new(
+    let rpc_client = mullvad_api::ProblemReportProxy::new(
         rpc_runtime
             .mullvad_rest_handle(
                 ApiConnectionMode::try_from_cache(cache_dir)

@@ -18,11 +18,11 @@ use jnix::{
     },
     FromJava, IntoJava, JnixEnv,
 };
+use mullvad_api::{rest::Error as RestError, StatusCode};
 use mullvad_daemon::{
     device, exception_logging, logging, runtime::new_runtime_builder, version, Daemon,
     DaemonCommandChannel,
 };
-use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::{
     account::{AccountData, VoucherSubmission},
     settings::DnsOptions,
@@ -180,8 +180,8 @@ impl From<daemon_interface::Error> for VoucherSubmissionError {
         match error {
             daemon_interface::Error::RpcError(RestError::ApiError(_, code)) => {
                 match code.as_str() {
-                    mullvad_rpc::INVALID_VOUCHER => VoucherSubmissionError::InvalidVoucher,
-                    mullvad_rpc::VOUCHER_USED => VoucherSubmissionError::VoucherAlreadyUsed,
+                    mullvad_api::INVALID_VOUCHER => VoucherSubmissionError::InvalidVoucher,
+                    mullvad_api::VOUCHER_USED => VoucherSubmissionError::VoucherAlreadyUsed,
                     _ => VoucherSubmissionError::RpcError,
                 }
             }

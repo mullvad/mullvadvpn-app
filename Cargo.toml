@@ -9,7 +9,7 @@ members = [
     "mullvad-jni",
     "mullvad-paths",
     "mullvad-types",
-    "mullvad-rpc",
+    "mullvad-api",
     "mullvad-exclude",
     "talpid-openvpn-plugin",
     "talpid-core",

@@ -1,5 +1,5 @@
 use futures::join;
-use mullvad_rpc::{
+use mullvad_api::{
     self,
     rest::{Error, RequestServiceHandle},
 };
@@ -48,9 +48,9 @@ async fn send_location_request_internal(
     service: RequestServiceHandle,
 ) -> Result<AmIMullvad, Error> {
     let future_service = service.clone();
-    let request = mullvad_rpc::rest::RestRequest::get(uri)?;
+    let request = mullvad_api::rest::RestRequest::get(uri)?;
     let response = future_service.request(request).await?;
-    mullvad_rpc::rest::deserialize_body(response).await
+    mullvad_api::rest::deserialize_body(response).await
 }
 
 fn log_network_error(err: Error, version: &'static str) {

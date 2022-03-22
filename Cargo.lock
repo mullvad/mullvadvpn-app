@@ -1556,6 +1556,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-api"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "err-derive",
+ "futures",
+ "http",
+ "hyper",
+ "hyper-rustls",
+ "ipnetwork",
+ "lazy_static",
+ "log",
+ "mullvad-types",
+ "rand 0.7.3",
+ "regex",
+ "rustls-pemfile",
+ "serde",
+ "serde_json",
+ "shadowsocks",
+ "talpid-types",
+ "tokio",
+ "tokio-rustls",
+ "tokio-stream",
+ "urlencoding",
+ "webpki 0.21.4",
+]
+
+[[package]]
 name = "mullvad-cli"
 version = "2022.1.0"
 dependencies = [
@@ -1598,9 +1626,9 @@ dependencies = [
  "libc",
  "log",
  "log-panics",
+ "mullvad-api",
  "mullvad-management-interface",
  "mullvad-paths",
- "mullvad-rpc",
  "mullvad-types",
  "nix 0.23.1",
  "parking_lot 0.11.2",
@@ -1640,10 +1668,10 @@ dependencies = [
  "lazy_static",
  "log",
  "log-panics",
+ "mullvad-api",
  "mullvad-daemon",
  "mullvad-paths",
  "mullvad-problem-report",
- "mullvad-rpc",
  "mullvad-types",
  "nix 0.23.1",
  "rand 0.7.3",
@@ -1693,8 +1721,8 @@ dependencies = [
  "err-derive",
  "lazy_static",
  "log",
+ "mullvad-api",
  "mullvad-paths",
- "mullvad-rpc",
  "regex",
  "talpid-platform-metadata",
  "talpid-types",
@@ -1705,34 +1733,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mullvad-rpc"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "err-derive",
- "futures",
- "http",
- "hyper",
- "hyper-rustls",
- "ipnetwork",
- "lazy_static",
- "log",
- "mullvad-types",
- "rand 0.7.3",
- "regex",
- "rustls-pemfile",
- "serde",
- "serde_json",
- "shadowsocks",
- "talpid-types",
- "tokio",
- "tokio-rustls",
- "tokio-stream",
- "urlencoding",
- "webpki 0.21.4",
-]
-
-[[package]]
 name = "mullvad-setup"
 version = "2022.1.0"
 dependencies = [
@@ -1740,10 +1740,10 @@ dependencies = [
  "env_logger 0.8.4",
  "err-derive",
  "lazy_static",
+ "mullvad-api",
  "mullvad-daemon",
  "mullvad-management-interface",
  "mullvad-paths",
- "mullvad-rpc",
  "mullvad-types",
  "talpid-core",
  "talpid-types",

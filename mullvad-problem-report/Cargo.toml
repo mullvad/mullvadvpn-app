@@ -19,7 +19,7 @@ uuid = { version = "0.8", features = ["v4"] }
 tokio = { version = "1.8", features = ["rt"] }
 
 mullvad-paths = { path = "../mullvad-paths" }
-mullvad-rpc = { path = "../mullvad-rpc" }
+mullvad-api = { path = "../mullvad-api" }
 talpid-types = { path = "../talpid-types" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 

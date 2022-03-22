@@ -3,12 +3,12 @@ use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
 };
+use mullvad_api::{rest::Error as RestError, StatusCode};
 use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, Status,
 };
 use mullvad_paths;
-use mullvad_rpc::{rest::Error as RestError, StatusCode};
 #[cfg(not(target_os = "android"))]
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
@@ -935,9 +935,9 @@ fn map_split_tunnel_error(error: talpid_core::split_tunnel::Error) -> Status {
 fn map_rest_voucher_error(error: RestError) -> Status {
     match error {
         RestError::ApiError(StatusCode::BAD_REQUEST, message) => match &message.as_str() {
-            &mullvad_rpc::INVALID_VOUCHER => Status::new(Code::NotFound, INVALID_VOUCHER_MESSAGE),
+            &mullvad_api::INVALID_VOUCHER => Status::new(Code::NotFound, INVALID_VOUCHER_MESSAGE),
 
-            &mullvad_rpc::VOUCHER_USED => {
+            &mullvad_api::VOUCHER_USED => {
                 Status::new(Code::ResourceExhausted, USED_VOUCHER_MESSAGE)
             }
 

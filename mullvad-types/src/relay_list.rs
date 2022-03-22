@@ -15,7 +15,7 @@ use talpid_types::net::{
 };
 
 /// Stores a list of relays for each country obtained from the API using
-/// `mullvad_rpc::RelayListProxy`. This can also be passed to frontends.
+/// `mullvad_api::RelayListProxy`. This can also be passed to frontends.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
@@ -59,7 +59,7 @@ pub struct RelayListCity {
 }
 
 /// Stores information for a relay returned by the API at `v1/relays` using
-/// `mullvad_rpc::RelayListProxy`.
+/// `mullvad_api::RelayListProxy`.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
@@ -168,7 +168,7 @@ impl fmt::Display for WireguardEndpointData {
     }
 }
 
-/// Used by `mullvad_rpc::RelayListProxy` to store bridge servers for a [`Relay`].
+/// Used by `mullvad_api::RelayListProxy` to store bridge servers for a [`Relay`].
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct RelayBridges {

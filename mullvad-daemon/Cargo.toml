@@ -31,7 +31,7 @@ uuid = { version = "0.8", features = ["v4"] }
 
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-types = { path = "../mullvad-types" }
-mullvad-rpc = { path = "../mullvad-rpc" }
+mullvad-api = { path = "../mullvad-api" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }

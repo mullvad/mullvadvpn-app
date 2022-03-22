@@ -7,7 +7,7 @@ use futures::{
     stream::FusedStream,
     FutureExt, SinkExt, StreamExt, TryFutureExt,
 };
-use mullvad_rpc::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, AppVersionProxy};
+use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, AppVersionProxy};
 use mullvad_types::version::{AppVersionInfo, ParsedAppVersion};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -82,10 +82,10 @@ pub enum Error {
     Deserialize(#[error(source)] serde_json::Error),
 
     #[error(display = "Failed to check the latest app version")]
-    Download(#[error(source)] mullvad_rpc::rest::Error),
+    Download(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "API availability check failed")]
-    ApiCheck(#[error(source)] mullvad_rpc::availability::Error),
+    ApiCheck(#[error(source)] mullvad_api::availability::Error),
 
     #[error(display = "Clearing version check cache due to a version mismatch")]
     CacheVersionMismatch,
@@ -185,7 +185,7 @@ impl VersionUpdater {
         &mut self,
         done_tx: oneshot::Sender<AppVersionInfo>,
     ) -> std::pin::Pin<
-        Box<dyn Future<Output = Result<mullvad_rpc::AppVersionResponse, Error>> + Send + 'static>,
+        Box<dyn Future<Output = Result<mullvad_api::AppVersionResponse, Error>> + Send + 'static>,
     > {
         self.internal_done_tx = Some(done_tx);
 
@@ -225,7 +225,7 @@ impl VersionUpdater {
     fn create_update_background_future(
         &self,
     ) -> std::pin::Pin<
-        Box<dyn Future<Output = Result<mullvad_rpc::AppVersionResponse, Error>> + Send + 'static>,
+        Box<dyn Future<Output = Result<mullvad_api::AppVersionResponse, Error>> + Send + 'static>,
     > {
         let api_handle = self.availability_handle.clone();
         let version_proxy = self.version_proxy.clone();
@@ -277,7 +277,7 @@ impl VersionUpdater {
 
     fn response_to_version_info(
         &mut self,
-        response: mullvad_rpc::AppVersionResponse,
+        response: mullvad_api::AppVersionResponse,
     ) -> AppVersionInfo {
         let suggested_upgrade = Self::suggested_upgrade(
             &*APP_VERSION,

@@ -31,7 +31,7 @@ use futures::{
     future::{abortable, AbortHandle, Future},
     StreamExt,
 };
-use mullvad_rpc::{
+use mullvad_api::{
     availability::ApiAvailabilityHandle,
     proxy::{ApiConnectionMode, ProxyConfig},
 };
@@ -109,13 +109,13 @@ pub enum Error {
     InitIoEventLoop(#[error(source)] io::Error),
 
     #[error(display = "Unable to create RPC client")]
-    InitRpcFactory(#[error(source)] mullvad_rpc::Error),
+    InitRpcFactory(#[error(source)] mullvad_api::Error),
 
     #[error(display = "REST request failed")]
-    RestError(#[error(source)] mullvad_rpc::rest::Error),
+    RestError(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "API availability check failed")]
-    ApiCheckError(#[error(source)] mullvad_rpc::availability::Error),
+    ApiCheckError(#[error(source)] mullvad_api::availability::Error),
 
     #[error(display = "Unable to load account history")]
     LoadAccountHistory(#[error(source)] account_history::Error),
@@ -224,7 +224,7 @@ pub enum DaemonCommand {
     CreateNewAccount(ResponseTx<String, Error>),
     /// Request the metadata for an account.
     GetAccountData(
-        ResponseTx<AccountData, mullvad_rpc::rest::Error>,
+        ResponseTx<AccountData, mullvad_api::rest::Error>,
         AccountToken,
     ),
     /// Request www auth token for an account
@@ -572,8 +572,8 @@ pub struct Daemon<L: EventListener> {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
-    rpc_runtime: mullvad_rpc::MullvadRpcRuntime,
-    rpc_handle: mullvad_rpc::rest::MullvadRestHandle,
+    rpc_runtime: mullvad_api::MullvadRpcRuntime,
+    rpc_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
@@ -606,11 +606,11 @@ where
             exclusion_gid::set_exclusion_gid().map_err(Error::GroupIdError)?
         };
 
-        mullvad_rpc::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
+        mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
 
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
 
-        let rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
+        let rpc_runtime = mullvad_api::MullvadRpcRuntime::with_cache(
             &cache_dir,
             true,
             #[cfg(target_os = "android")]
@@ -884,7 +884,7 @@ where
     ) -> (
         L,
         Vec<Pin<Box<dyn Future<Output = ()>>>>,
-        mullvad_rpc::MullvadRpcRuntime,
+        mullvad_api::MullvadRpcRuntime,
         tunnel_state_machine::JoinHandle,
     ) {
         let Daemon {
@@ -1294,7 +1294,7 @@ where
 
     /// Returns the next API connection mode to use for reaching the API.
     ///
-    /// When `mullvad-rpc` fails to contact the API, it requests a new connection mode
+    /// When `mullvad-api` fails to contact the API, it requests a new connection mode
     /// from this function, which will be used for future requests. The API can be
     /// connected to either directly (i.e., [`ApiConnectionMode::Direct`]) or from
     /// a bridge ([`ApiConnectionMode::Proxied`]).
@@ -1567,7 +1567,7 @@ where
 
     async fn on_get_account_data(
         &mut self,
-        tx: ResponseTx<AccountData, mullvad_rpc::rest::Error>,
+        tx: ResponseTx<AccountData, mullvad_api::rest::Error>,
         account_token: AccountToken,
     ) {
         let account = self.account_manager.account_service.clone();
@@ -2404,7 +2404,7 @@ where
     #[cfg(target_os = "android")]
     fn create_bypass_tx(
         event_sender: &DaemonEventSender,
-    ) -> Option<mpsc::Sender<mullvad_rpc::SocketBypassRequest>> {
+    ) -> Option<mpsc::Sender<mullvad_api::SocketBypassRequest>> {
         let (bypass_tx, mut bypass_rx) = mpsc::channel(1);
         let daemon_tx = event_sender.to_specialized_sender();
         tokio::spawn(async move {
