@@ -63,7 +63,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     private var tunnelState: TunnelState = .disconnected {
         didSet {
             setNeedsHeaderBarStyleAppearanceUpdate()
-            updateTunnelConnectionInfo()
+            updateTunnelRelay()
             updateUserInterfaceForTunnelStateChange()
 
             // Avoid unnecessary animations, particularly when this property is changed from inside
@@ -216,7 +216,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             .paragraphStyle: paragraphStyle])
     }
 
-    private func updateTunnelConnectionInfo() {
+    private func updateTunnelRelay() {
         switch tunnelState {
         case .connecting(let tunnelRelay):
             setTunnelRelay(tunnelRelay)
