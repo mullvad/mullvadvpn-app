@@ -33,6 +33,15 @@ class ConnectMainContentView: UIView {
     let cityLabel = makeBoldTextLabel(ofSize: 34)
     let countryLabel = makeBoldTextLabel(ofSize: 34)
 
+    let activityIndicator: SpinnerActivityIndicatorView = {
+        let activityIndicator = SpinnerActivityIndicatorView(style: .large)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.tintColor = .white
+        activityIndicator.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        activityIndicator.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        return activityIndicator
+    }()
+
     let locationContainerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -136,6 +145,7 @@ class ConnectMainContentView: UIView {
         locationContainerView.addSubview(cityLabel)
         locationContainerView.addSubview(countryLabel)
 
+        containerView.addSubview(activityIndicator)
         containerView.addSubview(locationContainerView)
         containerView.addSubview(connectionPanel)
         containerView.addSubview(buttonsStackView)
@@ -151,6 +161,9 @@ class ConnectMainContentView: UIView {
             locationContainerView.topAnchor.constraint(greaterThanOrEqualTo: containerView.topAnchor),
             locationContainerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             locationContainerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+
+            activityIndicator.centerXAnchor.constraint(equalTo: mapView.centerXAnchor),
+            locationContainerView.topAnchor.constraint(equalTo: activityIndicator.bottomAnchor, constant: 22),
 
             secureLabel.topAnchor.constraint(equalTo: locationContainerView.topAnchor),
             secureLabel.leadingAnchor.constraint(equalTo: locationContainerView.leadingAnchor),

@@ -191,7 +191,17 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             comment: ""
         )
 
+        updateActivitySpinner()
         updateTraitDependentViews()
+    }
+
+    private func updateActivitySpinner() {
+        switch tunnelState {
+        case .pendingReconnect, .connecting, .reconnecting:
+            mainContentView.activityIndicator.startAnimating()
+        case .connected, .disconnecting, .disconnected:
+            mainContentView.activityIndicator.stopAnimating()
+        }
     }
 
     private func updateTraitDependentViews() {
@@ -241,20 +251,11 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     private func locationMarkerOffset() -> CGPoint {
-        // The spacing between the secure label and the marker
-        let markerSecureLabelSpacing = CGFloat(22)
+        // Compute the activity indicator frame within the view coordinate system.
+        let activityIndicatorFrame = mainContentView.activityIndicator.convert(mainContentView.activityIndicator.bounds, to: view)
 
-        // Compute the secure label's frame within the view coordinate system
-        let secureLabelFrame = mainContentView.secureLabel.convert(mainContentView.secureLabel.bounds, to: view)
-
-        // The marker's center coincides with the geo coordinate
-        let markerAnchorOffsetInPoints = locationMarkerSecureImage.size.height * 0.5
-
-        // Compute the distance from the top of the label's frame to the center of the map
-        let secureLabelDistanceToMapCenterY = secureLabelFrame.minY - mainContentView.mapView.frame.midY
-
-        // Compute the marker offset needed to position it above the secure label
-        let offsetY = secureLabelDistanceToMapCenterY - markerAnchorOffsetInPoints - markerSecureLabelSpacing
+        // Compute the offset to align the marker on the map with activity indicator.
+        let offsetY = activityIndicatorFrame.midY - mainContentView.mapView.frame.midY
 
         return CGPoint(x: 0, y: offsetY)
     }
