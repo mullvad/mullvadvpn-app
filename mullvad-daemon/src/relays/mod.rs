@@ -1640,12 +1640,9 @@ mod test {
                 )
                 .expect("Failed to get Tcp2Udp endpoint");
 
-            assert!(matches!(
-                obfs_config,
-                ObfuscatorConfig::Udp2Tcp { .. }
-            ));
+            assert!(matches!(obfs_config, ObfuscatorConfig::Udp2Tcp { .. }));
 
-            let ObfuscatorConfig::Udp2Tcp{endpoint} = obfs_config;
+            let ObfuscatorConfig::Udp2Tcp { endpoint } = obfs_config;
             assert!(TCP2UDP_PORTS.contains(&endpoint.port()));
         }
     }
