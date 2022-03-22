@@ -139,16 +139,15 @@ async fn migrate_inner(settings: &mut serde_json::Value) -> Result<Option<Migrat
             let port_constraint: Constraint<TransportPort> =
                 serde_json::from_value(port.clone()).map_err(Error::ParseError)?;
             if let Some(transport_port) = port_constraint.option() {
-                let (port, obfuscation_settings) =
-                    match (transport_port.protocol, transport_port.port) {
-                        (TransportProtocol::Udp, port) => (serde_json::json!(port), None),
-                        (TransportProtocol::Tcp, port) => (
-                            serde_json::json!(Constraint::<u16>::Any),
-                            Some(serde_json::json!(create_migrated_obfuscation_settings(
-                                port
-                            ))),
-                        ),
-                    };
+                let (port, obfuscation_settings) = match transport_port.protocol {
+                    TransportProtocol::Udp => (serde_json::json!(transport_port.port), None),
+                    TransportProtocol::Tcp => (
+                        serde_json::json!(Constraint::<u16>::Any),
+                        Some(serde_json::json!(create_migrated_obfuscation_settings(
+                            transport_port.port
+                        ))),
+                    ),
+                };
                 wireguard_constraints["port"] = port;
                 if let Some(obfuscation_settings) = obfuscation_settings {
                     settings["obfuscation_settings"] = obfuscation_settings;
