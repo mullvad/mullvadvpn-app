@@ -8,7 +8,7 @@
 //! Migration modules may NOT import and use structs that may
 //! change. Because then a later change to the current code can break
 //! old migrations. The only items a settings migration module may import
-//! are anything from `std`, `jnix` and the following:
+//! are anything from `std`, `jnix`, `serde` and the following:
 //!
 //! ```ignore
 //! use super::{Error, Result};

@@ -1583,7 +1583,6 @@ name = "mullvad-daemon"
 version = "2022.1.0"
 dependencies = [
  "android_logger",
- "base64",
  "cfg-if 1.0.0",
  "chrono",
  "clap 3.0.14",
@@ -1619,7 +1618,6 @@ dependencies = [
  "winapi 0.3.9",
  "windows-service",
  "winres",
- "x25519-dalek",
 ]
 
 [[package]]

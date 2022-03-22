@@ -36,9 +36,6 @@ talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 
-x25519-dalek = { version = "1.1", features = ["std", "u64_backend"], default-features = false }
-base64 = "0.13"
-
 [target.'cfg(not(target_os="android"))'.dependencies]
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 

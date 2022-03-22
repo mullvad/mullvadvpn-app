@@ -1,8 +1,7 @@
 use super::{Error, Result};
-use chrono::{offset::Utc, DateTime};
 use mullvad_types::account::AccountToken;
 use regex::Regex;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::Deserialize;
 use std::path::Path;
 use talpid_types::ErrorExt;
 use tokio::{
@@ -12,82 +11,6 @@ use tokio::{
 
 // ======================================================
 // Section for vendoring types.
-
-#[derive(Serialize, Deserialize, Clone, PartialEq)]
-pub struct WireguardData {
-    pub private_key: PrivateKey,
-    pub addresses: AssociatedAddresses,
-    #[serde(default = "Utc::now")]
-    pub created: DateTime<Utc>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct AssociatedAddresses {
-    pub ipv4_address: ipnetwork::Ipv4Network,
-    pub ipv6_address: ipnetwork::Ipv6Network,
-}
-
-#[derive(Clone)]
-pub struct PrivateKey(x25519_dalek::StaticSecret);
-
-impl std::cmp::PartialEq for PrivateKey {
-    fn eq(&self, other: &PrivateKey) -> bool {
-        self.0.to_bytes() == other.0.to_bytes()
-    }
-}
-
-impl From<[u8; 32]> for PrivateKey {
-    fn from(bytes: [u8; 32]) -> Self {
-        Self(x25519_dalek::StaticSecret::from(bytes))
-    }
-}
-
-impl Serialize for PrivateKey {
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serialize_key(&self.0.to_bytes(), serializer)
-    }
-}
-
-fn serialize_key<S>(key: &[u8; 32], serializer: S) -> std::result::Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    serializer.serialize_str(&base64::encode(&key))
-}
-
-impl<'de> Deserialize<'de> for PrivateKey {
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserialize_key(deserializer)
-    }
-}
-
-fn deserialize_key<'de, D, K>(deserializer: D) -> std::result::Result<K, D::Error>
-where
-    D: Deserializer<'de>,
-    K: From<[u8; 32]>,
-{
-    use serde::de::Error;
-
-    String::deserialize(deserializer)
-        .and_then(|string| base64::decode(&string).map_err(|err| Error::custom(err.to_string())))
-        .and_then(|buffer| {
-            let mut key = [0u8; 32];
-            if buffer.len() != 32 {
-                return Err(Error::custom(format!(
-                    "Key has unexpected length: {}",
-                    buffer.len()
-                )));
-            }
-            key.copy_from_slice(&buffer);
-            Ok(From::from(key))
-        })
-}
 
 // ======================================================
 
@@ -160,7 +83,7 @@ fn migrate_formats_inner(
     settings: &mut serde_json::Value,
 ) -> Result<AccountToken> {
     if let Some((token, wg_data)) = try_format_v2(account_bytes) {
-        settings["wireguard"] = serde_json::json!(wg_data);
+        settings["wireguard"] = wg_data;
         Ok(token)
     } else if let Some(token) = try_format_v1(account_bytes) {
         Ok(token)
@@ -176,11 +99,11 @@ fn is_format_v3(bytes: &[u8]) -> bool {
     }
 }
 
-fn try_format_v2(bytes: &[u8]) -> Option<(AccountToken, Option<WireguardData>)> {
+fn try_format_v2(bytes: &[u8]) -> Option<(AccountToken, serde_json::Value)> {
     #[derive(Deserialize, Clone)]
     pub struct AccountEntry {
         pub account: AccountToken,
-        pub wireguard: Option<WireguardData>,
+        pub wireguard: serde_json::Value,
     }
     serde_json::from_slice(bytes)
         .map(|entries: Vec<AccountEntry>| {
