@@ -1516,6 +1516,21 @@ mod test {
         },
     };
 
+    const WIREGUARD_SINGLEHOP_CONSTRAINTS: RelayConstraints = RelayConstraints {
+        location: Constraint::Any,
+        providers: Constraint::Any,
+        wireguard_constraints: WireguardConstraints {
+            use_multihop: false,
+            port: Constraint::Any,
+            ip_version: Constraint::Any,
+            entry_location: Constraint::Any,
+        },
+        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+        openvpn_constraints: OpenVpnConstraints {
+            port: Constraint::Any,
+        },
+    };
+
     #[test]
     fn test_selecting_wireguard_location_will_consider_multihop() {
         let relay_selector = new_relay_selector();
@@ -1528,53 +1543,111 @@ mod test {
     }
 
     #[test]
-    fn test_selecting_wg_multihop_tcp() {
-        // TODO: Select multihop endpoints using a udp-over-tcp obfuscation constraint for the entry
-        // endpoint
-        // TODO: Verify that entry endpoint uses udp-over-tcp obfuscation
-        // TODO: Verify that exit endpoint uses a plain UDP transport
+    fn test_selecting_wg_endpoint_with_udp2tcp_obfuscation() {
+        let relay_selector = new_relay_selector();
+
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0)
+            .expect("Failed to get relay when tunnel constraints are set to default WireGuard constraints");
+
+        assert!(result.entry_relay.is_none());
+        assert!(matches!(result.endpoint, MullvadEndpoint::Wireguard { .. }));
+
+        let obfs_settings = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+            ..ObfuscationSettings::default()
+        };
+
+        let obfs_config = relay_selector.get_obfuscator(
+            &obfs_settings,
+            &result.exit_relay,
+            result.endpoint.unwrap_wireguard(),
+            0,
+        );
+
+        assert!(matches!(
+            obfs_config.unwrap(),
+            ObfuscatorConfig::Udp2Tcp { .. }
+        ));
     }
 
     #[test]
-    fn test_selecting_wg_tcp() {
-        // TODO: Select WireGuard endpoint using a udp-over-tcp obfuscation constraint
-        // TODO: Verify that endpoint uses udp-over-tcp obfuscation
+    fn test_selecting_wg_endpoint_with_auto_obfuscation() {
+        let relay_selector = new_relay_selector();
+
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0)
+            .expect("Failed to get relay when tunnel constraints are set to default WireGuard constraints");
+
+        assert!(result.entry_relay.is_none());
+        assert!(matches!(result.endpoint, MullvadEndpoint::Wireguard { .. }));
+
+        let obfs_settings = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Auto,
+            ..ObfuscationSettings::default()
+        };
+
+        assert!(relay_selector
+            .get_obfuscator(
+                &obfs_settings,
+                &result.exit_relay,
+                result.endpoint.unwrap_wireguard(),
+                0,
+            )
+            .is_none());
+
+        assert!(relay_selector
+            .get_obfuscator(
+                &obfs_settings,
+                &result.exit_relay,
+                result.endpoint.unwrap_wireguard(),
+                1,
+            )
+            .is_none());
+
+        assert!(relay_selector
+            .get_obfuscator(
+                &obfs_settings,
+                &result.exit_relay,
+                result.endpoint.unwrap_wireguard(),
+                2,
+            )
+            .is_some());
     }
 
     #[test]
-    fn test_selecting_wg_multihop_ports() {
-        // TODO: Fix this test
-        // let mut relay_constraints = WIREGUARD_MULTIHOP_CONSTRAINTS.clone();
-        // let relay_selector = new_relay_selector();
+    fn test_selected_endpoints_use_correct_port_ranges() {
+        let relay_selector = new_relay_selector();
 
-        // const INVALID_UDP_PORTS: [u16; 2] = [80, 443];
-        // for attempt in 0..1000 {
-        //     let result = relay_selector
-        //         .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, attempt, true)
-        //         .expect("Failed to get WireGuard TCP multihop relay");
-        //     assert!(!INVALID_UDP_PORTS.contains(&result.endpoint.to_endpoint().address.port()));
-        //     assert_eq!(
-        //         result.endpoint.unwrap_wireguard().peer.protocol,
-        //         TransportProtocol::Udp
-        //     );
-        // }
+        const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
 
-        // relay_constraints.wireguard_constraints.port = Constraint::Only(TransportPort {
-        //     port: Constraint::Any,
-        //     protocol: TransportProtocol::Tcp,
-        // });
+        let obfs_settings = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+            ..ObfuscationSettings::default()
+        };
 
-        // const VALID_TCP_PORTS: [u16; 3] = [80, 443, 5001];
-        // for attempt in 0..1000 {
-        //     let result = relay_selector
-        //         .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, attempt, true)
-        //         .expect("Failed to get WireGuard TCP multihop relay");
-        //     assert!(VALID_TCP_PORTS.contains(&result.endpoint.to_endpoint().address.port()));
-        //     assert_eq!(
-        //         result.endpoint.unwrap_wireguard().peer.protocol,
-        //         TransportProtocol::Tcp
-        //     );
-        // }
+        for attempt in 0..1000 {
+            let result = relay_selector
+                .get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, attempt)
+                .expect("Failed to select a WireGuard relay");
+            assert!(result.entry_relay.is_none());
+            assert!(!TCP2UDP_PORTS.contains(&result.endpoint.to_endpoint().address.port()));
+
+            let obfs_config = relay_selector
+                .get_obfuscator(
+                    &obfs_settings,
+                    &result.exit_relay,
+                    result.endpoint.unwrap_wireguard(),
+                    attempt,
+                )
+                .expect("Failed to get Tcp2Udp endpoint");
+
+            assert!(matches!(
+                obfs_config,
+                ObfuscatorConfig::Udp2Tcp { .. }
+            ));
+
+            let ObfuscatorConfig::Udp2Tcp{endpoint} = obfs_config;
+            assert!(TCP2UDP_PORTS.contains(&endpoint.port()));
+        }
     }
 
     #[test]
