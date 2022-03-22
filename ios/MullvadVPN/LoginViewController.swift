@@ -215,7 +215,7 @@ class LoginViewController: UIViewController, RootContainment {
             contentView.createAccountButton.isEnabled = false
 
         case .success:
-            break
+            contentView.activityIndicator.stopAnimating()
 
         case .default, .failure:
             contentView.createAccountButton.isEnabled = true
