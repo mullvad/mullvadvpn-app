@@ -48,13 +48,16 @@ pub enum Error {
     ListMounts(#[error(source)] io::Error),
 }
 
-/// Manages PIDs to exclude from the tunnel.
+/// Manages PIDs in the Linux Cgroup excluded from the VPN tunnel.
 pub struct PidManager {
     net_cls_path: PathBuf,
 }
 
 impl PidManager {
-    /// Create object to manage split-tunnel PIDs.
+    /// Creates a new PID Cgroup manager.
+    ///
+    /// Finds the corresponding Cgroup to use. Will mount a `net_cls` filesystem
+    /// if none exists.
     pub fn new() -> Result<PidManager, Error> {
         let manager = PidManager {
             net_cls_path: Self::create_cgroup()?,
@@ -101,7 +104,7 @@ impl PidManager {
             .map_err(Error::SetCGroupClassId)
     }
 
-    /// Add a PID to exclude from the tunnel.
+    /// Add a PID to the Cgroup to have it excluded from the tunnel.
     pub fn add(&self, pid: i32) -> Result<(), Error> {
         let exclusions_path = self
             .net_cls_path
@@ -118,7 +121,7 @@ impl PidManager {
             .map_err(Error::AddCGroupPid)
     }
 
-    /// Remove a PID from processes to exclude from the tunnel.
+    /// Remove a PID from the Cgroup to have it included in the tunnel.
     pub fn remove(&self, pid: i32) -> Result<(), Error> {
         // FIXME: We remove PIDs from our cgroup here by adding
         //        them to the parent cgroup. This seems wrong.
@@ -134,7 +137,7 @@ impl PidManager {
             .map_err(Error::RemoveCGroupPid)
     }
 
-    /// Return a list of PIDs that are excluded from the tunnel.
+    /// Return a list of all PIDs currently in the Cgroup excluded from the tunnel.
     pub fn list(&self) -> Result<Vec<i32>, Error> {
         let exclusions_path = self
             .net_cls_path
@@ -155,7 +158,7 @@ impl PidManager {
         result.map_err(Error::ListCGroupPids)
     }
 
-    /// Clear list of PIDs to exclude from the tunnel.
+    /// Removes all PIDs from the Cgroup.
     pub fn clear(&self) -> Result<(), Error> {
         // TODO: reuse file handle
         let pids = self.list()?;
