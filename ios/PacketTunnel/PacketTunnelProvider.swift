@@ -42,11 +42,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private var tunnelMonitor: TunnelMonitor!
 
     /// Tunnel status.
-    private var tunnelStatus = PacketTunnelStatus(
-        isNetworkReachable: true,
-        connectingDate: nil,
-        tunnelRelay: nil
-    )
+    private var tunnelStatus = PacketTunnelStatus()
 
     override init() {
         let pid = ProcessInfo.processInfo.processIdentifier

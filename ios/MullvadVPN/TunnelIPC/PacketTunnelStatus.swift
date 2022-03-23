@@ -11,7 +11,7 @@ import Foundation
 /// A struct that holds packet tunnel process status.
 struct PacketTunnelStatus: Codable, Equatable {
     /// Flag indicating whether network is reachable.
-    var isNetworkReachable: Bool
+    var isNetworkReachable: Bool = true
 
     /// When the packet tunnel started connecting.
     var connectingDate: Date?
