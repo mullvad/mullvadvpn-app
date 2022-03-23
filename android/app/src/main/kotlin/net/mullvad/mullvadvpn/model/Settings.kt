@@ -5,7 +5,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Settings(
-    val accountToken: String?,
     val relaySettings: RelaySettings,
     val allowLan: Boolean,
     val autoConnect: Boolean,

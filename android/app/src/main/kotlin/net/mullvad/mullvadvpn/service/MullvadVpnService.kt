@@ -201,7 +201,8 @@ class MullvadVpnService : TalpidVpnService() {
             if (settings != null) {
                 handlePendingAction(settings)
             } else {
-                restart()
+                // TODO: Skip until device integration is ready.
+                // restart()
             }
         }
     }
@@ -231,11 +232,12 @@ class MullvadVpnService : TalpidVpnService() {
     private fun handlePendingAction(settings: Settings) {
         when (pendingAction) {
             PendingAction.Connect -> {
-                if (settings.accountToken != null) {
-                    connectionProxy.connect()
-                } else {
-                    openUi()
-                }
+                // TODO: Skip until device integration is ready.
+                // if (settings.accountToken != null) {
+                //     connectionProxy.connect()
+                // } else {
+                //     openUi()
+                // }
             }
             PendingAction.Disconnect -> connectionProxy.disconnect()
             null -> return

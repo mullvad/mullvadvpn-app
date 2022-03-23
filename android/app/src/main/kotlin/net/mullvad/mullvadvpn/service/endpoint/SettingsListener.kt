@@ -94,9 +94,10 @@ class SettingsListener(endpoint: ServiceEndpoint) {
     private fun handleNewSettings(newSettings: Settings?) {
         if (newSettings != null) {
             synchronized(this) {
-                if (settings?.accountToken != newSettings.accountToken) {
-                    accountNumberNotifier.notify(newSettings.accountToken)
-                }
+                // TODO: Skip until device integration is ready.
+                // if (settings?.accountToken != newSettings.accountToken) {
+                //     accountNumberNotifier.notify(newSettings.accountToken)
+                // }
 
                 if (settings?.tunnelOptions?.dnsOptions != newSettings.tunnelOptions.dnsOptions) {
                     dnsOptionsNotifier.notify(newSettings.tunnelOptions.dnsOptions)
