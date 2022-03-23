@@ -8,7 +8,7 @@
 //! Migration modules may NOT import and use structs that may
 //! change. Because then a later change to the current code can break
 //! old migrations. The only items a settings migration module may import
-//! are anything from `std`, `jnix` and the following:
+//! are anything from `std`, `jnix`, `serde` and the following:
 //!
 //! ```ignore
 //! use super::{Error, Result};
@@ -38,6 +38,7 @@ use tokio::{
 };
 
 mod account_history;
+mod device;
 mod v1;
 mod v2;
 mod v3;
@@ -123,7 +124,11 @@ pub(crate) async fn migrate_all(
     account_history::migrate_location(cache_dir, settings_dir).await;
     account_history::migrate_formats(settings_dir, &mut settings).await?;
 
-    v5::migrate(&mut settings, rest_handle, daemon_tx).await?;
+    let migration_data = v5::migrate(&mut settings).await?;
+
+    if let Some(migration_data) = migration_data {
+        device::generate_device(migration_data, rest_handle, daemon_tx);
+    }
 
     if settings == old_settings {
         // Nothing changed

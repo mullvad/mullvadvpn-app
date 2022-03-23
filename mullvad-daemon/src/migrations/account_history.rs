@@ -1,12 +1,18 @@
 use super::{Error, Result};
-use mullvad_types::{account::AccountToken, wireguard::WireguardData};
+use mullvad_types::account::AccountToken;
 use regex::Regex;
+use serde::Deserialize;
 use std::path::Path;
 use talpid_types::ErrorExt;
 use tokio::{
     fs,
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
 };
+
+// ======================================================
+// Section for vendoring types.
+
+// ======================================================
 
 const ACCOUNT_HISTORY_FILE: &str = "account-history.json";
 
@@ -77,7 +83,7 @@ fn migrate_formats_inner(
     settings: &mut serde_json::Value,
 ) -> Result<AccountToken> {
     if let Some((token, wg_data)) = try_format_v2(account_bytes) {
-        settings["wireguard"] = serde_json::json!(wg_data);
+        settings["wireguard"] = wg_data;
         Ok(token)
     } else if let Some(token) = try_format_v1(account_bytes) {
         Ok(token)
@@ -93,19 +99,20 @@ fn is_format_v3(bytes: &[u8]) -> bool {
     }
 }
 
-fn try_format_v2(bytes: &[u8]) -> Option<(AccountToken, Option<WireguardData>)> {
-    #[derive(Serialize, Deserialize, Clone, Debug)]
+fn try_format_v2(bytes: &[u8]) -> Option<(AccountToken, serde_json::Value)> {
+    #[derive(Deserialize, Clone)]
     pub struct AccountEntry {
         pub account: AccountToken,
-        pub wireguard: Option<WireguardData>,
+        pub wireguard: serde_json::Value,
     }
     serde_json::from_slice(bytes)
-        .map(|entries: Vec<AccountEntry>| {
+        .ok()
+        .and_then(|entries: Vec<AccountEntry>| {
             entries
-                .first()
-                .map(|entry| (entry.account.clone(), entry.wireguard.clone()))
+                .into_iter()
+                .next()
+                .map(|entry| (entry.account, entry.wireguard))
         })
-        .unwrap_or(None)
 }
 
 fn try_format_v1(bytes: &[u8]) -> Option<AccountToken> {
@@ -114,8 +121,8 @@ fn try_format_v1(bytes: &[u8]) -> Option<AccountToken> {
         accounts: Vec<AccountToken>,
     }
     serde_json::from_slice(bytes)
-        .map(|old_format: OldFormat| old_format.accounts.first().cloned())
-        .unwrap_or(None)
+        .ok()
+        .and_then(|old_format: OldFormat| old_format.accounts.into_iter().next())
 }
 
 #[cfg(test)]
