@@ -1,6 +1,6 @@
 use std::{
     env, fs,
-    io::{self, BufRead, BufReader, BufWriter, Write},
+    io::{self, BufRead, BufReader, Write},
     path::PathBuf,
 };
 use talpid_types::cgroup::{find_net_cls_mount, SPLIT_TUNNEL_CGROUP_NAME};
@@ -108,18 +108,14 @@ impl PidManager {
             .join(SPLIT_TUNNEL_CGROUP_NAME)
             .join("cgroup.procs");
 
-        let file = fs::OpenOptions::new()
+        let mut file = fs::OpenOptions::new()
             .write(true)
             .create(true)
             .open(exclusions_path)
             .map_err(Error::AddCGroupPid)?;
 
-        let mut writer = BufWriter::new(file);
-
-        writer
-            .write_all(pid.to_string().as_bytes())
-            .map_err(Error::AddCGroupPid)?;
-        Ok(())
+        file.write_all(pid.to_string().as_bytes())
+            .map_err(Error::AddCGroupPid)
     }
 
     /// Remove a PID from processes to exclude from the tunnel.
