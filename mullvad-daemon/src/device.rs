@@ -4,7 +4,7 @@ use futures::{
     future::{abortable, AbortHandle},
     stream::StreamExt,
 };
-use mullvad_rpc::{
+use mullvad_api::{
     availability::ApiAvailabilityHandle,
     rest::{self, Error as RestError, MullvadRestHandle},
     AccountsProxy, DevicesProxy,
@@ -975,11 +975,11 @@ impl AccountService {
 }
 
 pub fn spawn_account_service(
-    rpc_handle: MullvadRestHandle,
+    api_handle: MullvadRestHandle,
     token: Option<String>,
     api_availability: ApiAvailabilityHandle,
 ) -> AccountService {
-    let accounts_proxy = AccountsProxy::new(rpc_handle);
+    let accounts_proxy = AccountsProxy::new(api_handle);
     api_availability.pause_background();
 
     let api_availability_copy = api_availability.clone();
@@ -1011,7 +1011,7 @@ pub fn spawn_account_service(
 }
 
 fn handle_expiry_result_inner(
-    result: &Result<chrono::DateTime<chrono::Utc>, mullvad_rpc::rest::Error>,
+    result: &Result<chrono::DateTime<chrono::Utc>, mullvad_api::rest::Error>,
     api_availability: &ApiAvailabilityHandle,
 ) -> bool {
     match result {
@@ -1023,8 +1023,8 @@ fn handle_expiry_result_inner(
             api_availability.pause_background();
             true
         }
-        Err(mullvad_rpc::rest::Error::ApiError(_status, code)) => {
-            if code == mullvad_rpc::INVALID_ACCOUNT {
+        Err(mullvad_api::rest::Error::ApiError(_status, code)) => {
+            if code == mullvad_api::INVALID_ACCOUNT {
                 api_availability.pause_background();
                 return true;
             }
@@ -1047,9 +1047,9 @@ fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
         Err(error) => {
             if let RestError::ApiError(status, code) = error {
                 *status != rest::StatusCode::NOT_FOUND
-                    && code != mullvad_rpc::INVALID_ACCOUNT
-                    && code != mullvad_rpc::MAX_DEVICES_REACHED
-                    && code != mullvad_rpc::PUBKEY_IN_USE
+                    && code != mullvad_api::INVALID_ACCOUNT
+                    && code != mullvad_api::MAX_DEVICES_REACHED
+                    && code != mullvad_api::PUBKEY_IN_USE
             } else {
                 true
             }
@@ -1064,8 +1064,8 @@ fn map_rest_error(error: rest::Error) -> Error {
                 return Error::InvalidDevice;
             }
             match code.as_str() {
-                mullvad_rpc::INVALID_ACCOUNT => Error::InvalidAccount,
-                mullvad_rpc::MAX_DEVICES_REACHED => Error::MaxDevicesReached,
+                mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,
+                mullvad_api::MAX_DEVICES_REACHED => Error::MaxDevicesReached,
                 _ => Error::OtherRestError(error),
             }
         }

@@ -23,7 +23,7 @@ tokio = { version = "1.8", features =  ["rt-multi-thread"] }
 
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }
-mullvad-rpc = { path = "../mullvad-rpc" }
+mullvad-api = { path = "../mullvad-api" }
 mullvad-types = { path = "../mullvad-types" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }

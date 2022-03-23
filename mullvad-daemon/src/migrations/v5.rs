@@ -36,7 +36,7 @@ use talpid_types::ErrorExt;
 /// the account token is also stored in the account history.
 pub(crate) async fn migrate(
     settings: &mut serde_json::Value,
-    rest_handle: mullvad_rpc::rest::MullvadRestHandle,
+    rest_handle: mullvad_api::rest::MullvadRestHandle,
     daemon_tx: DaemonEventSender,
 ) -> Result<()> {
     let migration_data = migrate_inner(settings).await?;

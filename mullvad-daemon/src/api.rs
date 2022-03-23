@@ -3,7 +3,7 @@ use futures::{
     channel::{mpsc, oneshot},
     stream, Stream, StreamExt,
 };
-use mullvad_rpc::{proxy::ApiConnectionMode, ApiEndpointUpdateCallback};
+use mullvad_api::{proxy::ApiConnectionMode, ApiEndpointUpdateCallback};
 use std::{
     net::SocketAddr,
     sync::{Arc, Mutex, Weak},
@@ -65,7 +65,7 @@ pub(crate) fn create_api_config_provider(
 
 /// Notifies the tunnel state machine that the API (real or proxied) endpoint has
 /// changed. [ApiEndpointUpdaterHandle::callback()] creates a callback that may
-/// be passed to the `mullvad-rpc` runtime.
+/// be passed to the `mullvad-api` runtime.
 pub(super) struct ApiEndpointUpdaterHandle {
     tunnel_cmd_tx: Arc<Mutex<Option<Weak<mpsc::UnboundedSender<TunnelCommand>>>>>,
 }

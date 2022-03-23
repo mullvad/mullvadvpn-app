@@ -3,7 +3,7 @@
 
 use chrono::{DateTime, Local};
 use ipnetwork::IpNetwork;
-use mullvad_rpc::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle};
+use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle};
 use mullvad_types::{
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     location::{Coordinates, Location},
@@ -211,7 +211,7 @@ impl RelaySelector {
     /// Returns a new `RelaySelector` backed by relays cached on disk. Use the `update` method
     /// to refresh the relay list from the internet.
     pub fn new(
-        rpc_handle: MullvadRestHandle,
+        api_handle: MullvadRestHandle,
         on_update: impl Fn(&RelayList) + Send + 'static,
         resource_dir: &Path,
         cache_dir: &Path,
@@ -236,7 +236,7 @@ impl RelaySelector {
         let parsed_relays = Arc::new(Mutex::new(unsynchronized_parsed_relays));
 
         let updater = RelayListUpdater::new(
-            rpc_handle,
+            api_handle,
             cache_path,
             parsed_relays.clone(),
             Box::new(on_update),

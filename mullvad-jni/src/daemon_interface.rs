@@ -25,7 +25,7 @@ pub enum Error {
     NoSender,
 
     #[error(display = "Error performing RPC with the remote API")]
-    RpcError(#[error(source)] mullvad_rpc::rest::Error),
+    RpcError(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "Failed to update settings")]
     SettingsError,

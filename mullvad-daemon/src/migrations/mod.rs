@@ -90,7 +90,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub(crate) async fn migrate_all(
     cache_dir: &Path,
     settings_dir: &Path,
-    rest_handle: mullvad_rpc::rest::MullvadRestHandle,
+    rest_handle: mullvad_api::rest::MullvadRestHandle,
     daemon_tx: crate::DaemonEventSender,
 ) -> Result<()> {
     #[cfg(windows)]

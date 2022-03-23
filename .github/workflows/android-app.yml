@@ -5,11 +5,11 @@ on:
         paths:
             - .github/workflows/android-app.yml
             - android/**
+            - mullvad-api/**
             - mullvad-daemon/**
             - mullvad-jni/**
             - mullvad-paths/**
             - mullvad-problem-report/**
-            - mullvad-rpc/**
             - mullvad-types/**
             - talpid-core/**
             - talpid-platform-metadata/**

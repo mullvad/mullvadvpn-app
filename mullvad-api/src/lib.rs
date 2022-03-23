@@ -124,8 +124,8 @@ impl ApiEndpoint {
     }
 }
 
-/// A type that helps with the creation of RPC connections.
-pub struct MullvadRpcRuntime {
+/// A type that helps with the creation of API connections.
+pub struct Runtime {
     handle: tokio::runtime::Handle,
     pub address_cache: AddressCache,
     api_availability: availability::ApiAvailability,
@@ -158,8 +158,8 @@ where
     type AcceptedNewEndpoint = T;
 }
 
-impl MullvadRpcRuntime {
-    /// Create a new `MullvadRpcRuntime`.
+impl Runtime {
+    /// Create a new `Runtime`.
     pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
         Self::new_inner(
             handle,
@@ -172,7 +172,7 @@ impl MullvadRpcRuntime {
         handle: tokio::runtime::Handle,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
-        Ok(MullvadRpcRuntime {
+        Ok(Runtime {
             handle,
             address_cache: AddressCache::new(None)?,
             api_availability: ApiAvailability::new(availability::State::default()),
@@ -181,7 +181,7 @@ impl MullvadRpcRuntime {
         })
     }
 
-    /// Create a new `MullvadRpcRuntime` using the specified directories.
+    /// Create a new `Runtime` using the specified directories.
     /// Try to use the cache directory first, and fall back on the bundled address otherwise.
     pub async fn with_cache(
         cache_dir: &Path,
@@ -219,7 +219,7 @@ impl MullvadRpcRuntime {
             }
         };
 
-        Ok(MullvadRpcRuntime {
+        Ok(Runtime {
             handle,
             address_cache,
             api_availability: ApiAvailability::new(availability::State::default()),

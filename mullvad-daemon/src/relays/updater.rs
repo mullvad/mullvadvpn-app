@@ -4,7 +4,7 @@ use futures::{
     future::{Fuse, FusedFuture},
     Future, FutureExt, SinkExt, StreamExt,
 };
-use mullvad_rpc::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, RelayListProxy};
+use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, RelayListProxy};
 use mullvad_types::relay_list::RelayList;
 use parking_lot::Mutex;
 use std::{
@@ -41,7 +41,7 @@ impl RelayListUpdaterHandle {
 }
 
 pub struct RelayListUpdater {
-    rpc_client: RelayListProxy,
+    api_client: RelayListProxy,
     cache_path: PathBuf,
     parsed_relays: Arc<Mutex<ParsedRelays>>,
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
@@ -51,16 +51,16 @@ pub struct RelayListUpdater {
 
 impl RelayListUpdater {
     pub(super) fn new(
-        rpc_handle: MullvadRestHandle,
+        api_handle: MullvadRestHandle,
         cache_path: PathBuf,
         parsed_relays: Arc<Mutex<ParsedRelays>>,
         on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
         api_availability: ApiAvailabilityHandle,
     ) -> RelayListUpdaterHandle {
         let (tx, cmd_rx) = mpsc::channel(1);
-        let rpc_client = RelayListProxy::new(rpc_handle);
+        let api_client = RelayListProxy::new(api_handle);
         let updater = RelayListUpdater {
-            rpc_client,
+            api_client,
             cache_path,
             parsed_relays,
             on_update,
@@ -86,7 +86,7 @@ impl RelayListUpdater {
                 _check_update = ticker.select_next_some() => {
                     if download_future.is_terminated() && self.should_update() {
                         let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
-                        download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.rpc_client.clone(), tag).fuse());
+                        download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
                         self.earliest_next_try = Instant::now() + UPDATE_INTERVAL;
                     }
                 },
@@ -99,7 +99,7 @@ impl RelayListUpdater {
                     match cmd {
                         Some(()) => {
                             let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
-                            download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.rpc_client.clone(), tag).fuse());
+                            download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
                         },
                         None => {
                             log::trace!("Relay list updater shutting down");
@@ -114,7 +114,7 @@ impl RelayListUpdater {
 
     async fn consume_new_relay_list(
         &mut self,
-        result: Result<Option<RelayList>, mullvad_rpc::Error>,
+        result: Result<Option<RelayList>, mullvad_api::Error>,
     ) {
         match result {
             Ok(Some(relay_list)) => {
@@ -149,15 +149,15 @@ impl RelayListUpdater {
 
     fn download_relay_list(
         api_handle: ApiAvailabilityHandle,
-        rpc_handle: RelayListProxy,
+        proxy: RelayListProxy,
         tag: Option<String>,
-    ) -> impl Future<Output = Result<Option<RelayList>, mullvad_rpc::Error>> + 'static {
+    ) -> impl Future<Output = Result<Option<RelayList>, mullvad_api::Error>> + 'static {
         let download_futures = move || {
             let available = api_handle.wait_background();
-            let req = rpc_handle.relay_list(tag.clone());
+            let req = proxy.relay_list(tag.clone());
             async move {
                 available.await?;
-                req.await.map_err(mullvad_rpc::Error::from)
+                req.await.map_err(mullvad_api::Error::from)
             }
         };
 

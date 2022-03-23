@@ -31,7 +31,7 @@ use futures::{
     future::{abortable, AbortHandle, Future},
     StreamExt,
 };
-use mullvad_rpc::{
+use mullvad_api::{
     availability::ApiAvailabilityHandle,
     proxy::{ApiConnectionMode, ProxyConfig},
 };
@@ -109,13 +109,13 @@ pub enum Error {
     InitIoEventLoop(#[error(source)] io::Error),
 
     #[error(display = "Unable to create RPC client")]
-    InitRpcFactory(#[error(source)] mullvad_rpc::Error),
+    InitRpcFactory(#[error(source)] mullvad_api::Error),
 
     #[error(display = "REST request failed")]
-    RestError(#[error(source)] mullvad_rpc::rest::Error),
+    RestError(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "API availability check failed")]
-    ApiCheckError(#[error(source)] mullvad_rpc::availability::Error),
+    ApiCheckError(#[error(source)] mullvad_api::availability::Error),
 
     #[error(display = "Unable to load account history")]
     LoadAccountHistory(#[error(source)] account_history::Error),
@@ -224,7 +224,7 @@ pub enum DaemonCommand {
     CreateNewAccount(ResponseTx<String, Error>),
     /// Request the metadata for an account.
     GetAccountData(
-        ResponseTx<AccountData, mullvad_rpc::rest::Error>,
+        ResponseTx<AccountData, mullvad_api::rest::Error>,
         AccountToken,
     ),
     /// Request www auth token for an account
@@ -572,8 +572,8 @@ pub struct Daemon<L: EventListener> {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
-    rpc_runtime: mullvad_rpc::MullvadRpcRuntime,
-    rpc_handle: mullvad_rpc::rest::MullvadRestHandle,
+    api_runtime: mullvad_api::Runtime,
+    api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
@@ -606,11 +606,11 @@ where
             exclusion_gid::set_exclusion_gid().map_err(Error::GroupIdError)?
         };
 
-        mullvad_rpc::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
+        mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
 
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
 
-        let rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
+        let api_runtime = mullvad_api::Runtime::with_cache(
             &cache_dir,
             true,
             #[cfg(target_os = "android")]
@@ -619,7 +619,7 @@ where
         .await
         .map_err(Error::InitRpcFactory)?;
 
-        let api_availability = rpc_runtime.availability_handle();
+        let api_availability = api_runtime.availability_handle();
         api_availability.suspend();
 
         let endpoint_updater = api::ApiEndpointUpdaterHandle::new();
@@ -628,14 +628,14 @@ where
             internal_event_tx.to_specialized_sender(),
             ApiConnectionMode::Direct,
         );
-        let rpc_handle = rpc_runtime
+        let api_handle = api_runtime
             .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
             .await;
 
         if let Err(error) = migrations::migrate_all(
             &cache_dir,
             &settings_dir,
-            rpc_handle.clone(),
+            api_handle.clone(),
             internal_event_tx.clone(),
         )
         .await
@@ -652,7 +652,7 @@ where
         };
 
         let account_manager = device::AccountManager::spawn(
-            rpc_handle.clone(),
+            api_handle.clone(),
             api_availability.clone(),
             &settings_dir,
             settings
@@ -699,7 +699,7 @@ where
         };
 
         let initial_api_endpoint =
-            api::get_allowed_endpoint(rpc_runtime.address_cache.get_address().await);
+            api::get_allowed_endpoint(api_runtime.address_cache.get_address().await);
 
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
@@ -739,7 +739,7 @@ where
         };
 
         let relay_selector = relays::RelaySelector::new(
-            rpc_handle.clone(),
+            api_handle.clone(),
             on_relay_list_update,
             &resource_dir,
             &cache_dir,
@@ -748,7 +748,7 @@ where
 
         let app_version_info = version_check::load_cache(&cache_dir).await;
         let (version_updater, version_updater_handle) = version_check::VersionUpdater::new(
-            rpc_handle.clone(),
+            api_handle.clone(),
             api_availability.clone(),
             cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
@@ -775,8 +775,8 @@ where
             account_history,
             device_checker: device::TunnelStateChangeHandler::new(account_manager.clone()),
             account_manager,
-            rpc_runtime,
-            rpc_handle,
+            api_runtime,
+            api_handle,
             version_updater_handle,
             relay_selector,
             last_generated_relay: None,
@@ -858,7 +858,7 @@ where
     }
 
     async fn finalize(self) {
-        let (event_listener, shutdown_tasks, rpc_runtime, tunnel_state_machine_handle) =
+        let (event_listener, shutdown_tasks, api_runtime, tunnel_state_machine_handle) =
             self.shutdown();
         for future in shutdown_tasks {
             future.await;
@@ -866,8 +866,8 @@ where
 
         tunnel_state_machine_handle.try_join().await;
 
-        mem::drop(event_listener);
-        mem::drop(rpc_runtime);
+        drop(event_listener);
+        drop(api_runtime);
 
         #[cfg(any(target_os = "macos", target_os = "linux"))]
         if let Err(err) = fs::remove_file(mullvad_paths::get_rpc_socket_path()).await {
@@ -884,13 +884,13 @@ where
     ) -> (
         L,
         Vec<Pin<Box<dyn Future<Output = ()>>>>,
-        mullvad_rpc::MullvadRpcRuntime,
+        mullvad_api::Runtime,
         tunnel_state_machine::JoinHandle,
     ) {
         let Daemon {
             event_listener,
             mut shutdown_tasks,
-            rpc_runtime,
+            api_runtime,
             tunnel_state_machine_handle,
             target_state,
             account_manager,
@@ -903,7 +903,7 @@ where
         (
             event_listener,
             shutdown_tasks,
-            rpc_runtime,
+            api_runtime,
             tunnel_state_machine_handle,
         )
     }
@@ -999,7 +999,7 @@ where
         match (&self.tunnel_state, &tunnel_state_transition) {
             // only reset the API sockets if when connected or leaving the connected state
             (&TunnelState::Connected { .. }, _) | (_, &TunnelStateTransition::Connected(_)) => {
-                self.rpc_handle.service().reset().await;
+                self.api_handle.service().reset().await;
             }
             _ => (),
         };
@@ -1294,7 +1294,7 @@ where
 
     /// Returns the next API connection mode to use for reaching the API.
     ///
-    /// When `mullvad-rpc` fails to contact the API, it requests a new connection mode
+    /// When `mullvad-api` fails to contact the API, it requests a new connection mode
     /// from this function, which will be used for future requests. The API can be
     /// connected to either directly (i.e., [`ApiConnectionMode::Direct`]) or from
     /// a bridge ([`ApiConnectionMode::Proxied`]).
@@ -1500,9 +1500,9 @@ where
     }
 
     async fn get_geo_location(&mut self) -> impl Future<Output = Result<GeoIpLocation, ()>> {
-        let rpc_service = self.rpc_runtime.rest_handle().await;
+        let rest_service = self.api_runtime.rest_handle().await;
         async {
-            geoip::send_location_request(rpc_service)
+            geoip::send_location_request(rest_service)
                 .await
                 .map_err(|e| {
                     log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
@@ -1567,7 +1567,7 @@ where
 
     async fn on_get_account_data(
         &mut self,
-        tx: ResponseTx<AccountData, mullvad_rpc::rest::Error>,
+        tx: ResponseTx<AccountData, mullvad_api::rest::Error>,
         account_token: AccountToken,
     ) {
         let account = self.account_manager.account_service.clone();
@@ -2404,7 +2404,7 @@ where
     #[cfg(target_os = "android")]
     fn create_bypass_tx(
         event_sender: &DaemonEventSender,
-    ) -> Option<mpsc::Sender<mullvad_rpc::SocketBypassRequest>> {
+    ) -> Option<mpsc::Sender<mullvad_api::SocketBypassRequest>> {
         let (bypass_tx, mut bypass_rx) = mpsc::channel(1);
         let daemon_tx = event_sender.to_specialized_sender();
         tokio::spawn(async move {
@@ -2454,7 +2454,7 @@ where
     }
 
     fn connect_tunnel(&mut self) {
-        self.rpc_runtime.availability_handle().resume_background();
+        self.api_runtime.availability_handle().resume_background();
         self.send_tunnel_command(TunnelCommand::Connect);
     }
 
