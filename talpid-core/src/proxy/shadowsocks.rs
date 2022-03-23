@@ -186,17 +186,14 @@ impl ShadowsocksProxyMonitor {
                     error.display_chain_with_msg("Failed to initialize PidManager"),
                 )
             })?;
-            let i32_pids = subproc
-                .pids()
-                .iter()
-                .map(|pid| *pid as i32)
-                .collect::<Vec<_>>();
-            excluded_pids.add_list(&i32_pids).map_err(|error| {
-                Error::new(
-                    ErrorKind::Other,
-                    error.display_chain_with_msg("Failed to exclude Shadowsocks process"),
-                )
-            })?;
+            for pid in subproc.pids() {
+                excluded_pids.add(pid as i32).map_err(|error| {
+                    Error::new(
+                        ErrorKind::Other,
+                        error.display_chain_with_msg("Failed to exclude Shadowsocks process"),
+                    )
+                })?;
+            }
         }
 
         match Self::get_bound_port(File::open(&logfile)?, &subproc) {

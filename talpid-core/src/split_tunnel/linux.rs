@@ -103,11 +103,6 @@ impl PidManager {
 
     /// Add a PID to exclude from the tunnel.
     pub fn add(&self, pid: i32) -> Result<(), Error> {
-        self.add_list(&[pid])
-    }
-
-    /// Add PIDs to exclude from the tunnel.
-    pub fn add_list<T: Into<i32> + ToString>(&self, pids: &[T]) -> Result<(), Error> {
         let exclusions_path = self
             .net_cls_path
             .join(SPLIT_TUNNEL_CGROUP_NAME)
@@ -121,12 +116,9 @@ impl PidManager {
 
         let mut writer = BufWriter::new(file);
 
-        for pid in pids {
-            writer
-                .write_all(pid.to_string().as_bytes())
-                .map_err(Error::AddCGroupPid)?;
-        }
-
+        writer
+            .write_all(pid.to_string().as_bytes())
+            .map_err(Error::AddCGroupPid)?;
         Ok(())
     }
 
