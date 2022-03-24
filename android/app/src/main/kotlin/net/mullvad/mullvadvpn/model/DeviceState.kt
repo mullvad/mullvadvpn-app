@@ -17,6 +17,10 @@ sealed class DeviceState : Parcelable {
         return this is InitialState
     }
 
+    fun deviceName(): String? {
+        return (this as? DeviceRegistered)?.deviceConfig?.device?.name
+    }
+
     fun token(): String? {
         return (this as? DeviceRegistered)?.deviceConfig?.token
     }
