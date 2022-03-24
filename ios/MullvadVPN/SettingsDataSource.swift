@@ -46,6 +46,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
         case wireguardKey
         case version
         case problemReport
+        case faq
     }
 
     private var snapshot = DataSourceSnapshot<Section, Item>()
@@ -88,7 +89,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
 
         newSnapshot.appendSections([.version, .problemReport])
         newSnapshot.appendItems([.version], in: .version)
-        newSnapshot.appendItems([.problemReport], in: .problemReport)
+        newSnapshot.appendItems([.problemReport, .faq], in: .problemReport)
 
         snapshot = newSnapshot
     }
@@ -153,6 +154,16 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.setCustomDisclosureIndicator()
 
             return cell
+
+        case .faq:
+            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
+            cell.titleLabel.text = NSLocalizedString("FAQ_AND_GUIDES_CELL_LABEL", tableName: "Settings", value: "FAQ & Guides", comment: "")
+            cell.detailTitleLabel.text = nil
+            cell.accessibilityIdentifier = nil
+            cell.unsetCustomDisclosureIndicator()
+
+            return cell
+
         }
     }
 
