@@ -693,10 +693,12 @@ impl RelaySelector {
 
         let relay = if let Some(location) = location {
             let location = location.into();
-            matching_relays.sort_by_cached_key(|relay| {
-                (relay.location.as_ref().unwrap().distance_from(&location) * 1000.0) as i64
+            matching_relays.sort_by_cached_key(|relay: &Relay| {
+                relay.location.as_ref().unwrap().distance_from(&location) as usize
             });
-            matching_relays.get(0)
+            let max_weight = matching_relays.len();
+            let weight_fn = |index, _relay: &Relay| (max_weight - index) as u64;
+            self.pick_random_relay_fn(&matching_relays, weight_fn)
         } else {
             self.pick_random_relay(&matching_relays)
         };
@@ -927,12 +929,26 @@ impl RelaySelector {
         Some(filtered_relay)
     }
 
+    /// Picks a relay using [Self::pick_random_relay_fn], using the `weight` member of each relay
+    /// as the weight function.
+    fn pick_random_relay<'a>(&self, relays: &'a [Relay]) -> Option<&'a Relay> {
+        self.pick_random_relay_fn(relays, |_index, relay| relay.weight)
+    }
+
     /// Pick a random relay from the given slice. Will return `None` if the given slice is empty.
     /// If all of the relays have a weight of 0, one will be picked at random without bias,
     /// otherwise roulette wheel selection will be used to pick only relays with non-zero
     /// weights.
-    fn pick_random_relay<'a>(&self, relays: &'a [Relay]) -> Option<&'a Relay> {
-        let total_weight: u64 = relays.iter().map(|relay| relay.weight).sum();
+    fn pick_random_relay_fn<'a>(
+        &self,
+        relays: &'a [Relay],
+        weight_fn: impl Fn(usize, &Relay) -> u64,
+    ) -> Option<&'a Relay> {
+        let total_weight: u64 = relays
+            .iter()
+            .enumerate()
+            .map(|(index, relay)| weight_fn(index, relay))
+            .sum();
         let mut rng = rand::thread_rng();
         if total_weight == 0 {
             relays.choose(&mut rng)
@@ -943,10 +959,12 @@ impl RelaySelector {
             Some(
                 relays
                     .iter()
-                    .find(|relay| {
-                        i = i.saturating_sub(relay.weight);
+                    .enumerate()
+                    .find(|(index, relay)| {
+                        i = i.saturating_sub(weight_fn(*index, relay));
                         i == 0
                     })
+                    .map(|(_, relay)| relay)
                     .expect("At least one relay must've had a weight above 0"),
             )
         }
