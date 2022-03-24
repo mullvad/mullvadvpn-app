@@ -1178,7 +1178,8 @@ where
                 };
 
                 let obfuscation = match self.settings.obfuscation_settings.selected_obfuscation {
-                    SelectedObfuscation::Off | SelectedObfuscation::Auto
+                    SelectedObfuscation::Off => None,
+                    SelectedObfuscation::Auto
                         if !self
                             .relay_selector
                             .should_use_auto_obfuscator(retry_attempt) =>
