@@ -46,14 +46,11 @@ impl Udp2Tcp {
         let instance = Udp2TcpImpl::new(
             listen_addr,
             settings.peer,
-            #[cfg(target_os = "linux")]
             TcpOptions {
-                recv_buffer_size: None,
-                send_buffer_size: None,
+                #[cfg(target_os = "linux")]
                 fwmark: settings.fwmark,
+                ..TcpOptions::default()
             },
-            #[cfg(not(target_os = "linux"))]
-            TcpOptions::default(),
         )
         .await
         .map_err(Error::CreateObfuscator)?;

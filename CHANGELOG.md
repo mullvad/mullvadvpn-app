@@ -51,6 +51,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix scrollbar no longer responsive and usable when covered by other elements.
 - Improve tunnel bypass for the API sometimes not working in the connecting state.
 - Fix resource leak caused by location check.
+- Fix issue where sockets didn't close after disconnecting from WireGuard servers over TCP
+  by updating `udp-over-tcp` to 0.2.
 
 #### Windows
 - Fix "Open Mullvad VPN" tray context menu item not working after toggling unpinned window setting.

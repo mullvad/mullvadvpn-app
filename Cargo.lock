@@ -3643,10 +3643,9 @@ checksum = "56dee185309b50d1f11bfedef0fe6d036842e3fb77413abef29f8f8d1c5d4c1c"
 
 [[package]]
 name = "udp-over-tcp"
-version = "0.1.0"
-source = "git+https://github.com/mullvad/udp-over-tcp?rev=27b9519b63244736b6f3c7c4af60976c88dc6b95#27b9519b63244736b6f3c7c4af60976c88dc6b95"
+version = "0.2.0"
+source = "git+https://github.com/mullvad/udp-over-tcp?rev=572827e69debc80d281ae1e184050feeee458792#572827e69debc80d281ae1e184050feeee458792"
 dependencies = [
- "env_logger 0.8.4",
  "err-context",
  "futures",
  "lazy_static",
