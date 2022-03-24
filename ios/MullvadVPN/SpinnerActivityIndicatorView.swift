@@ -23,7 +23,7 @@ class SpinnerActivityIndicatorView: UIView {
             case .medium:
                 return .init(width: 20, height: 20)
             case .large:
-                return .init(width: 48, height: 48)
+                return .init(width: 60, height: 60)
             }
         }
 
@@ -32,7 +32,7 @@ class SpinnerActivityIndicatorView: UIView {
             case .small, .medium:
                 return 2
             case .large:
-                return 6
+                return 8
             }
         }
     }

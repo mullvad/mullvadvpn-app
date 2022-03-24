@@ -39,6 +39,8 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     private var lastLocation: CLLocationCoordinate2D?
     private let locationMarker = MKPointAnnotation()
 
+    private var mapRegionAnimationDidEnd: (() -> Void)?
+
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
@@ -63,7 +65,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     private var tunnelState: TunnelState = .disconnected {
         didSet {
             setNeedsHeaderBarStyleAppearanceUpdate()
-            updateTunnelConnectionInfo()
+            updateTunnelRelay()
             updateUserInterfaceForTunnelStateChange()
 
             // Avoid unnecessary animations, particularly when this property is changed from inside
@@ -206,7 +208,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             .paragraphStyle: paragraphStyle])
     }
 
-    private func updateTunnelConnectionInfo() {
+    private func updateTunnelRelay() {
         switch tunnelState {
         case .connecting(let tunnelRelay):
             setTunnelRelay(tunnelRelay)
@@ -241,20 +243,11 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     private func locationMarkerOffset() -> CGPoint {
-        // The spacing between the secure label and the marker
-        let markerSecureLabelSpacing = CGFloat(22)
+        // Compute the activity indicator frame within the view coordinate system.
+        let activityIndicatorFrame = mainContentView.activityIndicator.convert(mainContentView.activityIndicator.bounds, to: view)
 
-        // Compute the secure label's frame within the view coordinate system
-        let secureLabelFrame = mainContentView.secureLabel.convert(mainContentView.secureLabel.bounds, to: view)
-
-        // The marker's center coincides with the geo coordinate
-        let markerAnchorOffsetInPoints = locationMarkerSecureImage.size.height * 0.5
-
-        // Compute the distance from the top of the label's frame to the center of the map
-        let secureLabelDistanceToMapCenterY = secureLabelFrame.minY - mainContentView.mapView.frame.midY
-
-        // Compute the marker offset needed to position it above the secure label
-        let offsetY = secureLabelDistanceToMapCenterY - markerAnchorOffsetInPoints - markerSecureLabelSpacing
+        // Compute the offset to align the marker on the map with activity indicator.
+        let offsetY = activityIndicatorFrame.midY - mainContentView.mapView.frame.midY
 
         return CGPoint(x: 0, y: offsetY)
     }
@@ -275,44 +268,77 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     private func updateLocation(animated: Bool) {
         switch tunnelState {
         case .connecting(let tunnelRelay):
+            removeLocationMarker()
+            mainContentView.activityIndicator.startAnimating()
+
             if let tunnelRelay = tunnelRelay {
                 setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated)
             } else {
                 unsetLocation(animated: animated)
             }
 
-        case .connected(let tunnelRelay), .reconnecting(let tunnelRelay):
+        case .reconnecting(let tunnelRelay):
+            removeLocationMarker()
+            mainContentView.activityIndicator.startAnimating()
+
             setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated)
 
-        case .disconnected, .disconnecting, .pendingReconnect:
+        case .connected(let tunnelRelay):
+            setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated) { [weak self] in
+                self?.mainContentView.activityIndicator.stopAnimating()
+                self?.addLocationMarker(coordinate: tunnelRelay.location.geoCoordinate)
+            }
+
+        case .pendingReconnect:
+            removeLocationMarker()
+            mainContentView.activityIndicator.startAnimating()
+
+        case .disconnected, .disconnecting:
+            removeLocationMarker()
+            mainContentView.activityIndicator.stopAnimating()
+
             unsetLocation(animated: animated)
         }
     }
 
-    private func setLocation(coordinate: CLLocationCoordinate2D, animated: Bool) {
-        if let lastLocation = self.lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
+    private func addLocationMarker(coordinate: CLLocationCoordinate2D) {
+        locationMarker.coordinate = coordinate
+        mainContentView.mapView.addAnnotation(locationMarker)
+    }
+
+    private func removeLocationMarker() {
+        mainContentView.mapView.removeAnnotation(locationMarker)
+    }
+
+    private func setLocation(coordinate: CLLocationCoordinate2D, animated: Bool, animationDidEnd: (() -> Void)? = nil) {
+        if let lastLocation = lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
+            mapRegionAnimationDidEnd = nil
+            animationDidEnd?()
             return
         }
+
+        mapRegionAnimationDidEnd = animationDidEnd
 
         let markerOffset = locationMarkerOffset()
         let region = computeCoordinateRegion(centerCoordinate: coordinate, centerOffsetInPoints: markerOffset)
 
-        locationMarker.coordinate = coordinate
-        mainContentView.mapView.addAnnotation(locationMarker)
         mainContentView.mapView.setRegion(region, animated: animated)
 
         self.lastLocation = coordinate
     }
 
-    private func unsetLocation(animated: Bool) {
+    private func unsetLocation(animated: Bool, animationDidEnd: (() -> Void)? = nil) {
         let coordinate = CLLocationCoordinate2D(latitude: 0, longitude: 0)
-        if let lastLocation = self.lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
+        if let lastLocation = lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
+            mapRegionAnimationDidEnd = nil
+            animationDidEnd?()
             return
         }
 
+        mapRegionAnimationDidEnd = animationDidEnd
+
         let span = MKCoordinateSpan(latitudeDelta: 90, longitudeDelta: 90)
         let region = MKCoordinateRegion(center: coordinate, span: span)
-        mainContentView.mapView.removeAnnotation(locationMarker)
         mainContentView.mapView.setRegion(region, animated: animated)
 
         self.lastLocation = coordinate
@@ -394,6 +420,17 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             return view
         }
         return nil
+    }
+
+    func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
+        print("mapView regionWillChangeAnimated: \(animated)")
+    }
+
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        print("mapView regionDidChangeAnimated: \(animated)")
+
+        mapRegionAnimationDidEnd?()
+        mapRegionAnimationDidEnd = nil
     }
 
     // MARK: - Private
@@ -600,10 +637,10 @@ private extension TunnelState {
             case .disconnected, .disconnecting(.nothing):
                 return [.connect]
 
-            case .disconnecting(.reconnect), .pendingReconnect:
+            case .connecting, .pendingReconnect, .disconnecting(.reconnect):
                 return [.cancel]
 
-            case .connecting, .connected, .reconnecting:
+            case .connected, .reconnecting:
                 return [.disconnect]
             }
 
