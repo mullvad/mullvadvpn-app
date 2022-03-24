@@ -8,17 +8,15 @@
 
 import UIKit
 
-extension AddressCache.CacheUpdateResult {
+extension OperationCompletion where Success == AddressCache.CacheUpdateResult {
     var backgroundFetchResult: UIBackgroundFetchResult {
         switch self {
+        case .success(.finished):
+            return .newData
+        case .success(.throttled), .cancelled:
+            return .noData
         case .failure:
             return .failed
-        case .throttled:
-            return .noData
-        case .success:
-            return .newData
-        case .cancelled:
-            return .noData
         }
     }
 }
