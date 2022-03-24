@@ -36,13 +36,15 @@ extension REST {
         private var retryCount = 0
 
         private let logger = Logger(label: "REST.NetworkOperation")
-        private let loggerMetadata: Logger.Metadata = ["requestID": .string(UUID().uuidString)]
+        private let loggerMetadata: Logger.Metadata
 
-        init(networkTaskGenerator: @escaping Generator, addressCacheStore: AddressCache.Store, retryStrategy: RetryStrategy, completionHandler: @escaping CompletionHandler) {
+        init(name: String, networkTaskGenerator: @escaping Generator, addressCacheStore: AddressCache.Store, retryStrategy: RetryStrategy, completionHandler: @escaping CompletionHandler) {
             self.networkTaskGenerator = networkTaskGenerator
             self.addressCacheStore = addressCacheStore
             self.retryStrategy = retryStrategy
             self.completionHandler = completionHandler
+
+            loggerMetadata = ["requestID": .string(UUID().uuidString), "name": .string(name)]
         }
 
         override func cancel() {

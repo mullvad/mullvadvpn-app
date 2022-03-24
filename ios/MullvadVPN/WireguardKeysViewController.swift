@@ -33,8 +33,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     }()
 
     private var publicKeyPeriodicUpdateTimer: DispatchSourceTimer?
-    private var copyToPasteboardCancellationToken: PromiseCancellationToken?
-    private var verifyKeyCancellationToken: PromiseCancellationToken?
+    private var copyToPasteboardWork: DispatchWorkItem?
+    private var verifyKeyCancellable: Cancellable?
 
     private let alertPresenter = AlertPresenter()
     private var state: WireguardKeysViewState = .default {
@@ -124,14 +124,15 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             string: NSLocalizedString("COPIED_TO_PASTEBOARD_LABEL", tableName: "WireguardKeys", comment: ""),
             animated: true)
 
-        Promise.deferred { TunnelManager.shared.tunnelInfo?.tunnelSettings }
-            .delay(by: .seconds(3), timerType: .walltime, queue: .main)
-            .storeCancellationToken(in: &copyToPasteboardCancellationToken)
-            .observe { [weak self] completion in
-                guard let tunnelSettings = completion.unwrappedValue else { return }
+        let workItem = DispatchWorkItem { [weak self] in
+            let tunnelSettings = TunnelManager.shared.tunnelInfo?.tunnelSettings
 
-                self?.updatePublicKey(tunnelSettings: tunnelSettings, animated: true)
-            }
+            self?.updatePublicKey(tunnelSettings: tunnelSettings, animated: true)
+        }
+
+        DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(3), execute: workItem)
+        copyToPasteboardWork?.cancel()
+        copyToPasteboardWork = workItem
     }
 
     @objc private func handleRegenerateKey(_ sender: Any) {
@@ -210,28 +211,28 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
 
         self.updateViewState(.verifyingKey)
 
-        REST.Client.shared.getWireguardKey(token: tunnelInfo.token, publicKey: tunnelInfo.tunnelSettings.interface.publicKey)
-            .execute(retryStrategy: .default)
-            .map { _ in
-                return true
-            }
-            .flatMapError { error -> Result<Bool, REST.Error> in
+        verifyKeyCancellable?.cancel()
+
+        verifyKeyCancellable = REST.Client.shared.getWireguardKey(
+            token: tunnelInfo.token,
+            publicKey: tunnelInfo.tunnelSettings.interface.publicKey,
+            retryStrategy: .default
+        ) { [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success:
+                self.updateViewState(.verifiedKey(true))
+
+            case .failure(let error):
                 if case .server(.pubKeyNotFound) = error {
-                    return .success(false)
+                    self.updateViewState(.verifiedKey(false))
                 } else {
-                    return .failure(error)
+                    self.showKeyVerificationFailureAlert(error)
+                    self.updateViewState(.default)
                 }
             }
-            .receive(on: .main)
-            .storeCancellationToken(in: &verifyKeyCancellationToken)
-            .onSuccess { [weak self] isValid in
-                self?.updateViewState(.verifiedKey(isValid))
-            }
-            .onFailure { [weak self] error in
-                self?.showKeyVerificationFailureAlert(error)
-                self?.updateViewState(.default)
-            }
-            .observe { _ in }
+        }
     }
 
     private func regeneratePrivateKey() {

@@ -83,7 +83,7 @@ extension AddressCache {
             }
         }
 
-        func updateEndpoints(completionHandler: ((_ result: CacheUpdateResult) -> Void)? = nil) -> AnyCancellable {
+        func updateEndpoints(completionHandler: ((_ result: CacheUpdateResult) -> Void)? = nil) -> Cancellable {
             let operation = UpdateAddressCacheOperation(
                 queue: stateQueue,
                 restClient: restClient,
@@ -106,9 +106,7 @@ extension AddressCache {
 
             operationQueue.addOperation(operation)
 
-            return AnyCancellable {
-                operation.cancel()
-            }
+            return operation
         }
 
         private func scheduleEndpointsUpdate(startTime: DispatchWallTime) {

@@ -90,11 +90,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         RelayCache.Tracker.shared.addObserver(self)
 
         // Load initial relays
-        RelayCache.Tracker.shared.read()
-            .receive(on: .main)
-            .observe { completion in
-                guard let result = completion.unwrappedValue else { return }
-
+        RelayCache.Tracker.shared.read { result in
+            DispatchQueue.main.async {
                 switch result {
                 case .success(let cachedRelays):
                     self.cachedRelays = cachedRelays
@@ -102,6 +99,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 case .failure(let error):
                     self.logger?.error(chainedError: error, message: "Failed to load initial relays")
                 }
+            }
         }
 
         // Load tunnels
@@ -119,10 +117,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 case .migrateTunnelSettings(_), .readTunnelSettings(_):
                     // Forget that user was logged in since tunnel settings are likely corrupt
                     // or missing.
-                    Account.shared.forget()
-                        .observe { _ in
-                            self.didFinishInitialization()
-                        }
+                    Account.shared.forget {
+                        self.didFinishInitialization()
+                    }
 
                 default:
                     fatalError("Unexpected error coming from loadTunnel()")
@@ -195,27 +192,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         let updateRelaysOperation = AsyncBlockOperation { operation in
-            var cancellationToken: PromiseCancellationToken?
-
-            RelayCache.Tracker.shared.updateRelays()
-                .storeCancellationToken(in: &cancellationToken)
-                .observe { completion in
-                    switch completion.unwrappedValue {
-                    case .success(let result):
-                        self.logger?.debug("Finished updating relays: \(result)")
-                    case .failure(let error):
-                        self.logger?.error(chainedError: error, message: "Failed to update relays")
-                    case .none:
-                        break
-                    }
-
-                    relaysFetchResult = completion.unwrappedValue?.backgroundFetchResult
-
-                    operation.finish()
+            let cancellable = RelayCache.Tracker.shared.updateRelays { completion in
+                switch completion {
+                case .success(let result):
+                    self.logger?.debug("Finished updating relays: \(result)")
+                case .failure(let error):
+                    self.logger?.error(chainedError: error, message: "Failed to update relays")
+                case .cancelled:
+                    break
                 }
 
+                relaysFetchResult = completion.result?.backgroundFetchResult
+
+                operation.finish()
+            }
+
             operation.addCancellationBlock {
-                cancellationToken?.cancel()
+                cancellable.cancel()
             }
         }
 
@@ -277,28 +270,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     @available(iOS 13.0, *)
     private func scheduleBackgroundTasks() {
-        if case .finished(let result) = RelayCache.Tracker.shared.scheduleAppRefreshTask().await() {
-            switch result {
-            case .success:
-                self.logger?.debug("Scheduled app refresh task")
-            case .failure(let error):
-                self.logger?.error(chainedError: error, message: "Could not schedule app refresh task")
-            }
+        switch RelayCache.Tracker.shared.scheduleAppRefreshTask() {
+        case .success:
+            self.logger?.debug("Scheduled app refresh task.")
+        case .failure(let error):
+            self.logger?.error(chainedError: error, message: "Could not schedule app refresh task.")
         }
 
         switch TunnelManager.shared.scheduleBackgroundTask() {
         case .success:
             self.logger?.debug("Scheduled private key rotation task")
         case .failure(let error):
-            self.logger?.error(chainedError: error, message: "Could not schedule private key rotation task")
+            self.logger?.error(chainedError: error, message: "Could not schedule private key rotation task.")
         }
 
         do {
             try addressCacheTracker.scheduleBackgroundTask()
 
-            self.logger?.debug("Scheduled address cache update task")
+            self.logger?.debug("Scheduled address cache update task.")
         } catch {
-            self.logger?.error(chainedError: AnyChainedError(error), message: "Could not schedule address cache update task")
+            self.logger?.error(chainedError: AnyChainedError(error), message: "Could not schedule address cache update task.")
         }
 
     }
@@ -571,39 +562,37 @@ extension AppDelegate: LoginViewControllerDelegate {
     func loginViewController(_ controller: LoginViewController, loginWithAccountToken accountToken: String, completion: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
         self.rootContainer?.setEnableSettingsButton(false)
 
-        Account.shared.login(with: accountToken)
-            .onSuccess { _ in
+        Account.shared.login(accountToken: accountToken) { result in
+            switch result {
+            case .success:
                 self.logger?.debug("Logged in with existing token")
                 // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
-            }
-            .onFailure { error in
+
+            case .failure(let error):
                 self.logger?.error(chainedError: error, message: "Failed to log in with existing account")
                 self.rootContainer?.setEnableSettingsButton(true)
             }
-            .observe { promiseCompletion in
-                guard let result = promiseCompletion.unwrappedValue else { return }
 
-                completion(result)
-            }
+            completion(result)
+        }
     }
 
     func loginViewControllerLoginWithNewAccount(_ controller: LoginViewController, completion: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
         self.rootContainer?.setEnableSettingsButton(false)
 
-        Account.shared.loginWithNewAccount()
-            .onSuccess { _ in
+        Account.shared.loginWithNewAccount { result in
+            switch result {
+            case .success:
                 self.logger?.debug("Logged in with new account token")
                 // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
-            }
-            .onFailure { error in
+
+            case .failure(let error):
                 self.logger?.error(chainedError: error, message: "Failed to log in with new account")
                 self.rootContainer?.setEnableSettingsButton(true)
             }
-            .observe { promiseCompletion in
-                guard let result = promiseCompletion.unwrappedValue else { return }
 
-                completion(result)
-            }
+            completion(result)
+        }
     }
 
     func loginViewControllerDidLogin(_ controller: LoginViewController) {

@@ -158,13 +158,12 @@ class ReplaceKeyOperation: AsyncOperation {
 
         logger.debug("Replacing old key with new key on server...")
 
-        let requestAdapter = self.restClient.replaceWireguardKey(
+        restRequest = self.restClient.replaceWireguardKey(
             token: tunnelInfo.token,
             oldPublicKey: oldPublicKey,
-            newPublicKey: newPrivateKey.publicKey
-        )
-
-        restRequest = requestAdapter.execute(retryStrategy: .default) { result in
+            newPublicKey: newPrivateKey.publicKey,
+            retryStrategy: .default
+        ) { result in
             self.queue.async {
                 self.didReceiveResponse(
                     result: result,

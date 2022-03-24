@@ -149,23 +149,22 @@ class SetAccountOperation: AsyncOperation {
 
         for (index, publicKey) in publicKeys.enumerated() {
             dispatchGroup.enter()
-            _ = REST.Client.shared.deleteWireguardKey(token: accountToken, publicKey: publicKey)
-                .execute(retryStrategy: .default) { result in
-                    self.queue.async {
-                        switch result {
-                        case .success:
-                            self.logger.info("Removed key (\(index)) from server.")
+            _ = REST.Client.shared.deleteWireguardKey(token: accountToken, publicKey: publicKey, retryStrategy: .default) { result in
+                self.queue.async {
+                    switch result {
+                    case .success:
+                        self.logger.info("Removed key (\(index)) from server.")
 
-                        case .failure(.server(.pubKeyNotFound)):
-                            self.logger.debug("Key (\(index)) was not found on server.")
+                    case .failure(.server(.pubKeyNotFound)):
+                        self.logger.debug("Key (\(index)) was not found on server.")
 
-                        case .failure(let error):
-                            self.logger.error(chainedError: error, message: "Failed to delete key (\(index)) on server.")
-                        }
-
-                        dispatchGroup.leave()
+                    case .failure(let error):
+                        self.logger.error(chainedError: error, message: "Failed to delete key (\(index)) on server.")
                     }
+
+                    dispatchGroup.leave()
                 }
+            }
         }
 
         dispatchGroup.notify(queue: queue) {
@@ -220,22 +219,21 @@ class SetAccountOperation: AsyncOperation {
     }
 
     private func pushNewAccountKey(accountToken: String, publicKey: PublicKey, completionHandler: @escaping CompletionHandler) {
-        _ = restClient.pushWireguardKey(token: accountToken, publicKey: publicKey)
-            .execute(retryStrategy: .default) { result in
-                self.queue.async {
-                    switch result {
-                    case .success(let associatedAddresses):
-                        self.logger.debug("Pushed new key to server.")
+        _ = restClient.pushWireguardKey(token: accountToken, publicKey: publicKey, retryStrategy: .default) { result in
+            self.queue.async {
+                switch result {
+                case .success(let associatedAddresses):
+                    self.logger.debug("Pushed new key to server.")
 
-                        self.saveAssociatedAddresses(associatedAddresses, accountToken: accountToken, newPrivateKey: nil, completionHandler: completionHandler)
+                    self.saveAssociatedAddresses(associatedAddresses, accountToken: accountToken, newPrivateKey: nil, completionHandler: completionHandler)
 
-                    case .failure(let error):
-                        self.logger.error(chainedError: error, message: "Failed to push new key to server.")
+                case .failure(let error):
+                    self.logger.error(chainedError: error, message: "Failed to push new key to server.")
 
-                        completionHandler(.failure(.pushWireguardKey(error)))
-                    }
+                    completionHandler(.failure(.pushWireguardKey(error)))
                 }
             }
+        }
     }
 
     private func saveAssociatedAddresses(_ associatedAddresses: REST.WireguardAddressesResponse, accountToken: String, newPrivateKey: PrivateKeyWithMetadata?, completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void) {

@@ -22,7 +22,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         return contentView
     }()
 
-    private var copyToPasteboardCancellationToken: PromiseCancellationToken?
+    private var copyToPasteboardWork: DispatchWorkItem?
 
     private var pendingPayment: SKPayment?
     private let alertPresenter = AlertPresenter()
@@ -120,26 +120,25 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
         purchaseButtonInteractionRestriction.increase(animated: true)
 
-        AppStorePaymentManager.shared.requestProducts(with: [inAppPurchase])
-            .receive(on: .main)
-            .observe { [weak self] completion in
-                guard let self = self else { return }
+        _ = AppStorePaymentManager.shared.requestProducts(with: [inAppPurchase]) { [weak self] completion in
+            guard let self = self else { return }
 
-                if let result = completion.unwrappedValue {
-                    switch result {
-                    case .success(let response):
-                        if let product = response.products.first {
-                            self.setProduct(product, animated: true)
-                        }
-
-                    case .failure(let error):
-                        self.didFailLoadingProducts(with: error)
-                    }
+            switch completion {
+            case .success(let response):
+                if let product = response.products.first {
+                    self.setProduct(product, animated: true)
                 }
 
-                self.contentView.purchaseButton.isLoading = false
-                self.purchaseButtonInteractionRestriction.decrease(animated: true)
+            case .failure(let error):
+                self.didFailLoadingProducts(with: error)
+
+            case .cancelled:
+                break
             }
+
+            self.contentView.purchaseButton.isLoading = false
+            self.purchaseButtonInteractionRestriction.decrease(animated: true)
+        }
     }
 
     private func setProduct(_ product: SKProduct, animated: Bool) {
@@ -233,7 +232,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
-    private func showLogoutConfirmation(completion: @escaping (Bool) -> Void, animated: Bool) {
+    private func showLogoutConfirmation(animated: Bool, completion: @escaping (Bool) -> Void) {
         let alertController = UIAlertController(
             title: NSLocalizedString(
                 "LOGOUT_CONFIRMATION_ALERT_TITLE",
@@ -294,13 +293,13 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         )
 
         alertPresenter.enqueue(alertController, presentingController: self) {
-            Account.shared.logout()
-                .receive(on: .main, after: .seconds(1), timerType: .deadline)
-                .observe { _ in
+            Account.shared.logout {
+                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
                     alertController.dismiss(animated: true) {
                         self.delegate?.accountViewControllerDidLogout(self)
                     }
                 }
+            }
         }
     }
 
@@ -361,11 +360,11 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
     // MARK: - Actions
 
     @objc private func doLogout() {
-        showLogoutConfirmation(completion: { (confirmed) in
+        showLogoutConfirmation(animated: true) { confirmed in
             if confirmed {
                 self.confirmLogout()
             }
-        }, animated: true)
+        }
     }
 
     private func copyAccountToken() {
@@ -377,14 +376,16 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
             comment: "Message, temporarily displayed in place account token, after copying the account token to pasteboard on tap."
         )
 
-        Promise.deferred { Account.shared.formattedToken }
-            .delay(by: .seconds(3), timerType: .walltime, queue: .main)
-            .storeCancellationToken(in: &copyToPasteboardCancellationToken)
-            .observe { [weak self] completion in
-                guard let formattedToken = completion.unwrappedValue else { return }
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let formattedToken = Account.shared.formattedToken else { return }
 
-                self?.contentView.accountTokenRowView.value = formattedToken
-            }
+            self?.contentView.accountTokenRowView.value = formattedToken
+        }
+
+        copyToPasteboardWork?.cancel()
+        copyToPasteboardWork = workItem
+
+        DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(3), execute: workItem)
     }
 
     @objc private func doPurchase() {
@@ -403,12 +404,12 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
         compoundInteractionRestriction.increase(animated: true)
 
-        AppStorePaymentManager.shared.restorePurchases(for: accountToken)
-            .receive(on: .main)
-            .onSuccess { response in
+        _ = AppStorePaymentManager.shared.restorePurchases(for: accountToken) { completion in
+            switch completion {
+            case .success(let response):
                 self.showTimeAddedConfirmationAlert(with: response, context: .restoration)
-            }
-            .onFailure { error in
+
+            case .failure(let error):
                 let alertController = UIAlertController(
                     title: NSLocalizedString(
                         "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
@@ -428,10 +429,13 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
                     ), style: .cancel)
                 )
                 self.alertPresenter.enqueue(alertController, presentingController: self)
+
+            case .cancelled:
+                break
             }
-            .observe { _ in
-                self.compoundInteractionRestriction.decrease(animated: true)
-            }
+
+            self.compoundInteractionRestriction.decrease(animated: true)
+        }
     }
 
 }

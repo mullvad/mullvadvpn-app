@@ -28,6 +28,8 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         return queue
     }()
 
+    private let exclusivityController = ExclusivityController()
+
     private let paymentQueue: SKPaymentQueue
     private var observerList = ObserverList<AppStorePaymentObserver>()
 
@@ -95,20 +97,15 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     // MARK: - Products and payments
 
-    func requestProducts(with productIdentifiers: Set<AppStoreSubscription>) -> Result<SKProductsResponse, Swift.Error>.Promise {
-        return Promise { resolver in
-            let productIdentifiers = productIdentifiers.productIdentifiersSet
-            let operation = ProductsRequestOperation(productIdentifiers: productIdentifiers) { result in
-                resolver.resolve(value: result)
-            }
+    func requestProducts(with productIdentifiers: Set<AppStoreSubscription>, completionHandler: @escaping (OperationCompletion<SKProductsResponse, Swift.Error>) -> Void) -> Cancellable {
+        let productIdentifiers = productIdentifiers.productIdentifiersSet
+        let operation = ProductsRequestOperation(productIdentifiers: productIdentifiers, completionHandler: completionHandler)
 
-            resolver.setCancelHandler {
-                operation.cancel()
-            }
+        exclusivityController.addOperation(operation, categories: [OperationCategory.productsRequest])
 
-            ExclusivityController.shared.addOperation(operation, categories: [OperationCategory.productsRequest])
-            self.operationQueue.addOperation(operation)
-        }
+        operationQueue.addOperation(operation)
+
+        return operation
     }
 
     func addPayment(_ payment: SKPayment, for accountToken: String) {
@@ -121,9 +118,8 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
     }
 
-    func restorePurchases(for accountToken: String) -> Result<REST.CreateApplePaymentResponse, AppStorePaymentManager.Error>.Promise {
-        return sendAppStoreReceipt(accountToken: accountToken, forceRefresh: true)
-            .requestBackgroundTime(taskName: "AppStorePaymentManager.restorePurchases")
+    func restorePurchases(for accountToken: String, completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, AppStorePaymentManager.Error>) -> Void) -> Cancellable {
+        return sendAppStoreReceipt(accountToken: accountToken, forceRefresh: true, completionHandler: completionHandler)
     }
 
 
@@ -153,26 +149,24 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         paymentQueue.add(payment)
     }
 
-    private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool) -> Result<REST.CreateApplePaymentResponse, Error>.Promise {
-        return AppStoreReceipt.fetch(forceRefresh: forceRefresh)
-            .mapError { error in
-                self.logger.error(chainedError: error, message: "Failed to fetch the AppStore receipt")
+    private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool, completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, Error>) -> Void) -> Cancellable {
+        let operation = SendAppStoreReceiptOperation(restClient: REST.Client.shared, accountToken: accountToken, forceRefresh: forceRefresh, receiptProperties: nil) { completion in
+            completionHandler(completion)
+        }
 
-                return .readReceipt(error)
-            }
-            .mapThen { receiptData in
-                return REST.Client.shared.createApplePayment(token: accountToken, receiptString: receiptData)
-                    .execute()
-                    .mapError { error in
-                        self.logger.error(chainedError: error, message: "Failed to upload the AppStore receipt")
+        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Send AppStore receipt") {
+            operation.cancel()
+        }
 
-                        return .sendReceipt(error)
-                    }
-                    .onSuccess{ response in
-                        self.logger.info("AppStore receipt was processed. Time added: \(response.timeAdded), New expiry: \(response.newExpiry.logFormatDate())")
-                    }
-            }
-            .run(on: operationQueue, categories: [OperationCategory.sendAppStoreReceipt])
+        operation.completionBlock = {
+            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
+        }
+
+        exclusivityController.addOperation(operation, categories: [OperationCategory.sendAppStoreReceipt])
+
+        operationQueue.addOperation(operation)
+
+        return operation
     }
 
     private func handleTransactions(_ transactions: [SKPaymentTransaction]) {
@@ -232,32 +226,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     }
 
     private func didFinishOrRestorePurchase(transaction: SKPaymentTransaction) {
-        if let accountToken = deassociateAccountToken(transaction.payment) {
-            sendAppStoreReceipt(accountToken: accountToken, forceRefresh: false)
-                .receive(on: .main)
-                .onSuccess { response in
-                    self.paymentQueue.finishTransaction(transaction)
-
-                    self.observerList.forEach { (observer) in
-                        observer.appStorePaymentManager(
-                            self,
-                            transaction: transaction,
-                            accountToken: accountToken,
-                            didFinishWithResponse: response)
-                    }
-                }
-                .onFailure { error in
-                    self.observerList.forEach { (observer) in
-                        observer.appStorePaymentManager(
-                            self,
-                            transaction: transaction,
-                            accountToken: accountToken,
-                            didFailWithError: error)
-                    }
-                }
-                .requestBackgroundTime(taskName: "AppStorePaymentManager.didFinishOrRestorePurchase")
-                .observe { _ in }
-        } else {
+        guard let accountToken = deassociateAccountToken(transaction.payment) else {
             observerList.forEach { (observer) in
                 observer.appStorePaymentManager(
                     self,
@@ -265,7 +234,112 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                     accountToken: nil,
                     didFailWithError: .noAccountSet)
             }
+            return
+        }
+
+        _ = sendAppStoreReceipt(accountToken: accountToken, forceRefresh: false) { completion in
+            switch completion {
+            case .success(let response):
+                self.paymentQueue.finishTransaction(transaction)
+
+                self.observerList.forEach { observer in
+                    observer.appStorePaymentManager(
+                        self,
+                        transaction: transaction,
+                        accountToken: accountToken,
+                        didFinishWithResponse: response)
+                }
+
+            case .failure(let error):
+                self.observerList.forEach { observer in
+                    observer.appStorePaymentManager(
+                        self,
+                        transaction: transaction,
+                        accountToken: accountToken,
+                        didFailWithError: error)
+                }
+
+            case .cancelled:
+                break
+            }
         }
     }
 
+}
+
+private class SendAppStoreReceiptOperation: AsyncOperation {
+    typealias CompletionHandler = (OperationCompletion<REST.CreateApplePaymentResponse, AppStorePaymentManager.Error>) -> Void
+
+    private let restClient: REST.Client
+    private let accountToken: String
+    private let forceRefresh: Bool
+    private let receiptProperties: [String: Any]?
+    private var completionHandler: CompletionHandler?
+    private var fetchReceiptCancellable: Cancellable?
+    private var submitReceiptCancellable: Cancellable?
+
+    private let logger = Logger(label: "AppStorePaymentManager.SendAppStoreReceiptOperation")
+
+    init(restClient: REST.Client, accountToken: String, forceRefresh: Bool, receiptProperties: [String: Any]?, completionHandler: @escaping CompletionHandler) {
+        self.restClient = restClient
+        self.accountToken = accountToken
+        self.forceRefresh = forceRefresh
+        self.receiptProperties = receiptProperties
+        self.completionHandler = completionHandler
+    }
+
+    override func cancel() {
+        super.cancel()
+
+        DispatchQueue.main.async {
+            self.fetchReceiptCancellable?.cancel()
+            self.fetchReceiptCancellable = nil
+
+            self.submitReceiptCancellable?.cancel()
+            self.submitReceiptCancellable = nil
+        }
+    }
+
+    override func main() {
+        DispatchQueue.main.async {
+            self.fetchReceiptCancellable = AppStoreReceipt.fetch(forceRefresh: self.forceRefresh, receiptProperties: self.receiptProperties) { completion in
+                switch completion {
+                case .success(let receiptData):
+                    self.sendReceipt(receiptData)
+
+                case .failure(let error):
+                    self.logger.error(chainedError: error, message: "Failed to fetch the AppStore receipt.")
+                    self.finish(completion: .failure(.readReceipt(error)))
+
+                case .cancelled:
+                    self.finish(completion: .cancelled)
+                }
+            }
+        }
+    }
+
+    private func sendReceipt(_ receiptData: Data) {
+        submitReceiptCancellable = restClient.createApplePayment(
+            token: self.accountToken,
+            receiptString: receiptData,
+            retryStrategy: .noRetry) { result in
+                switch result {
+                case .success(let response):
+                    self.logger.info("AppStore receipt was processed. Time added: \(response.timeAdded), New expiry: \(response.newExpiry.logFormatDate())")
+                    self.finish(completion: .success(response))
+
+                case .failure(let error):
+                    self.logger.error(chainedError: error, message: "Failed to send the AppStore receipt.")
+                    self.finish(completion: .failure(.sendReceipt(error)))
+                }
+            }
+    }
+
+    private func finish(completion: OperationCompletion<REST.CreateApplePaymentResponse, AppStorePaymentManager.Error>) {
+        let block = completionHandler
+        completionHandler = nil
+
+        block?(completion)
+        finish()
+    }
 }

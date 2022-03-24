@@ -57,13 +57,13 @@ extension REST {
 
         // MARK: - Public
 
-        func createAccount() -> REST.RequestAdapter<AccountResponse> {
-            return makeAdapter { endpoint, completionHandler in
+        func createAccount(retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<AccountResponse, REST.Error>) -> Void) -> Cancellable {
+            return scheduleOperation(name: "create-account", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 let request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "accounts")
 
                 let dataTask = self.dataTask(request: request) { responseResult in
                     let restResult = responseResult
-                        .mapError(self.mapNetworkError)
+                        .mapError(Self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<AccountResponse, REST.Error> in
                             if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(AccountResponse.self, from: data)
@@ -72,19 +72,19 @@ extension REST {
                             }
                         }
 
-                    completionHandler(restResult)
+                    finishOperation(restResult)
                 }
 
                 return .success(dataTask)
             }
         }
 
-        func getAddressList() -> REST.RequestAdapter<[AnyIPEndpoint]> {
-            return makeAdapter { endpoint, completionHandler in
+        func getAddressList(retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<[AnyIPEndpoint], REST.Error>) -> Void) -> Cancellable {
+            return scheduleOperation(name: "get-api-addrs", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 let request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .get, path: "api-addrs")
 
                 let dataTask = self.dataTask(request: request) { responseResult in
-                    let restResult = responseResult.mapError(self.mapNetworkError)
+                    let restResult = responseResult.mapError(Self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<[AnyIPEndpoint], REST.Error> in
                             if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse([AnyIPEndpoint].self, from: data)
@@ -93,22 +93,22 @@ extension REST {
                             }
                         }
 
-                    completionHandler(restResult)
+                    finishOperation(restResult)
                 }
 
                 return .success(dataTask)
             }
         }
 
-        func getRelays(etag: String?) -> REST.RequestAdapter<ServerRelaysCacheResponse> {
-            return makeAdapter { endpoint, completionHandler in
+        func getRelays(etag: String?, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<ServerRelaysCacheResponse, REST.Error>) -> Void) -> Cancellable {
+            return scheduleOperation(name: "get-relays", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .get, path: "relays")
                 if let etag = etag {
                     Self.setETagHeader(etag: etag, request: &request)
                 }
 
                 let dataTask = self.dataTask(request: request) { restResponse in
-                    let restResult = restResponse.mapError(self.mapNetworkError)
+                    let restResult = restResponse.mapError(Self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<ServerRelaysCacheResponse, REST.Error> in
                             if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(ServerRelaysResponse.self, from: data)
@@ -123,21 +123,21 @@ extension REST {
                             }
                         }
 
-                    completionHandler(restResult)
+                    finishOperation(restResult)
                 }
 
                 return .success(dataTask)
             }
         }
 
-        func getAccountExpiry(token: String) -> REST.RequestAdapter<AccountResponse> {
-            return makeAdapter { endpoint, completionHandler in
+        func getAccountExpiry(token: String, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<AccountResponse, REST.Error>) -> Void) -> Cancellable {
+            return scheduleOperation(name: "get-account-expiry", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .get, path: "me")
 
                 Self.setAuthenticationToken(token: token, request: &request)
 
                 let dataTask = self.dataTask(request: request) { restResponse in
-                    let restResult = restResponse.mapError(self.mapNetworkError)
+                    let restResult = restResponse.mapError(Self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<AccountResponse, REST.Error> in
                             if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(AccountResponse.self, from: data)
@@ -146,15 +146,15 @@ extension REST {
                             }
                         }
 
-                    completionHandler(restResult)
+                    finishOperation(restResult)
                 }
 
                 return .success(dataTask)
             }
         }
 
-        func getWireguardKey(token: String, publicKey: PublicKey) -> REST.RequestAdapter<WireguardAddressesResponse> {
-            return makeAdapter { endpoint, completionHandler in
+        func getWireguardKey(token: String, publicKey: PublicKey, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<WireguardAddressesResponse, REST.Error>) -> Void) -> Cancellable {
+            return scheduleOperation(name: "get-wireguard-key", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 let urlEncodedPublicKey = publicKey.base64Key
                     .addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
 
@@ -164,7 +164,7 @@ extension REST {
                 Self.setAuthenticationToken(token: token, request: &request)
 
                 let dataTask = self.dataTask(request: request) { restResponse in
-                    let restResult = restResponse.mapError(self.mapNetworkError)
+                    let restResult = restResponse.mapError(Self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<WireguardAddressesResponse, REST.Error> in
                             if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
@@ -172,15 +172,15 @@ extension REST {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
                             }
                         }
-                    completionHandler(restResult)
+                    finishOperation(restResult)
                 }
 
                 return .success(dataTask)
             }
         }
 
-        func pushWireguardKey(token: String, publicKey: PublicKey) -> REST.RequestAdapter<WireguardAddressesResponse> {
-            return makeAdapter { endpoint, completionHandler in
+        func pushWireguardKey(token: String, publicKey: PublicKey, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<WireguardAddressesResponse, REST.Error>) -> Void) -> Cancellable {
+            return scheduleOperation(name: "push-wireguard-key", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "wireguard-keys")
                 let body = PushWireguardKeyRequest(pubkey: publicKey.rawValue)
 
@@ -193,7 +193,7 @@ extension REST {
                 }
 
                 let dataTask = self.dataTask(request: request) { restResponse in
-                    let restResult = restResponse.mapError(self.mapNetworkError)
+                    let restResult = restResponse.mapError(Self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<WireguardAddressesResponse, REST.Error> in
                             if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
@@ -202,15 +202,15 @@ extension REST {
                             }
                         }
 
-                    completionHandler(restResult)
+                    finishOperation(restResult)
                 }
 
                 return .success(dataTask)
             }
         }
 
-        func replaceWireguardKey(token: String, oldPublicKey: PublicKey, newPublicKey: PublicKey) -> REST.RequestAdapter<WireguardAddressesResponse> {
-            return makeAdapter { endpoint, completionHandler in
+        func replaceWireguardKey(token: String, oldPublicKey: PublicKey, newPublicKey: PublicKey, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<WireguardAddressesResponse, REST.Error>) -> Void) -> Cancellable {
+            return scheduleOperation(name: "replace-wireguard-key", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "replace-wireguard-key")
                 let body = ReplaceWireguardKeyRequest(old: oldPublicKey.rawValue, new: newPublicKey.rawValue)
 
@@ -223,7 +223,7 @@ extension REST {
                 }
 
                 let dataTask = self.dataTask(request: request) { restResponse in
-                    let restResult = restResponse.mapError(self.mapNetworkError)
+                    let restResult = restResponse.mapError(Self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<WireguardAddressesResponse, REST.Error> in
                             if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return Self.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
@@ -232,15 +232,15 @@ extension REST {
                             }
                         }
 
-                    completionHandler(restResult)
+                    finishOperation(restResult)
                 }
 
                 return .success(dataTask)
             }
         }
 
-        func deleteWireguardKey(token: String, publicKey: PublicKey) -> REST.RequestAdapter<()> {
-            return makeAdapter { endpoint, completionHandler in
+        func deleteWireguardKey(token: String, publicKey: PublicKey, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<(), REST.Error>) -> Void) -> Cancellable {
+            return scheduleOperation(name: "delete-wireguard-key", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 let urlEncodedPublicKey = publicKey.base64Key
                     .addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
 
@@ -250,7 +250,7 @@ extension REST {
                 Self.setAuthenticationToken(token: token, request: &request)
 
                 let dataTask = self.dataTask(request: request) { restResponse in
-                    let restResult = restResponse.mapError(self.mapNetworkError)
+                    let restResult = restResponse.mapError(Self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<(), REST.Error> in
                             if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return .success(())
@@ -259,15 +259,15 @@ extension REST {
                             }
                         }
 
-                    completionHandler(restResult)
+                    finishOperation(restResult)
                 }
 
                 return .success(dataTask)
             }
         }
 
-        func createApplePayment(token: String, receiptString: Data) -> REST.RequestAdapter<CreateApplePaymentResponse> {
-            return makeAdapter { endpoint, completionHandler in
+        func createApplePayment(token: String, receiptString: Data, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<CreateApplePaymentResponse, REST.Error>) -> Void) -> Cancellable {
+            return scheduleOperation(name: "create-apple-payment", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "create-apple-payment")
                 let body = CreateApplePaymentRequest(receiptString: receiptString)
 
@@ -280,7 +280,7 @@ extension REST {
                 }
 
                 let dataTask = self.dataTask(request: request) { restResponse in
-                    let restResult = restResponse.mapError(self.mapNetworkError)
+                    let restResult = restResponse.mapError(Self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<CreateApplePaymentResponse, REST.Error> in
                             if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return REST.Client.decodeSuccessResponse(CreateApplePaymentRawResponse.self, from: data)
@@ -295,15 +295,15 @@ extension REST {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
                             }
                         }
-                    completionHandler(restResult)
+                    finishOperation(restResult)
                 }
 
                 return .success(dataTask)
             }
         }
 
-        func sendProblemReport(_ body: ProblemReportRequest) -> REST.RequestAdapter<()> {
-            return makeAdapter { endpoint, completionHandler in
+        func sendProblemReport(_ body: ProblemReportRequest, retryStrategy: REST.RetryStrategy, completionHandler: @escaping (Result<(), REST.Error>) -> Void) -> Cancellable {
+            return scheduleOperation(name: "send-problem-report", retryStrategy: retryStrategy, completionHandler: completionHandler) { endpoint, finishOperation in
                 var request = self.createURLRequestWithEndpoint(endpoint: endpoint, method: .post, path: "problem-report")
 
                 do {
@@ -313,7 +313,7 @@ extension REST {
                 }
 
                 let dataTask = self.dataTask(request: request) { restResponse in
-                    let restResult = restResponse.mapError(self.mapNetworkError)
+                    let restResult = restResponse.mapError(Self.mapNetworkError)
                         .flatMap { httpResponse, data -> Result<(), REST.Error> in
                             if HTTPStatus.isSuccess(httpResponse.statusCode) {
                                 return .success(())
@@ -321,7 +321,7 @@ extension REST {
                                 return Self.decodeErrorResponseAndMapToServerError(from: data)
                             }
                         }
-                    completionHandler(restResult)
+                    finishOperation(restResult)
                 }
 
                 return .success(dataTask)
@@ -330,32 +330,18 @@ extension REST {
 
         // MARK: - Private
 
-        /// A private helper that parses the JSON response into the given `Decodable` type.
-        private static func decodeSuccessResponse<T: Decodable>(_ type: T.Type, from data: Data) -> Result<T, REST.Error> {
-            return Result { try REST.Coding.makeJSONDecoder().decode(type, from: data) }
-            .mapError { error in
-                return .decodeSuccessResponse(error)
-            }
-        }
+        private func scheduleOperation<Response>(name: String, retryStrategy: REST.RetryStrategy, completionHandler: @escaping NetworkOperation<Response>.CompletionHandler, taskGenerator: @escaping NetworkOperation<Response>.Generator) -> Cancellable {
+            let operation = NetworkOperation(
+                name: name,
+                networkTaskGenerator: taskGenerator,
+                addressCacheStore: addressCacheStore,
+                retryStrategy: retryStrategy,
+                completionHandler: completionHandler
+            )
 
-        /// A private helper that parses the JSON response in case of error (Any HTTP code except 2xx)
-        private static func decodeErrorResponse(from data: Data) -> Result<ServerErrorResponse, REST.Error> {
-            return Result { () -> ServerErrorResponse in
-                return try REST.Coding.makeJSONDecoder().decode(ServerErrorResponse.self, from: data)
-            }.mapError { error in
-                return .decodeErrorResponse(error)
-            }
-        }
+            operationQueue.addOperation(operation)
 
-        private static func decodeErrorResponseAndMapToServerError<T>(from data: Data) -> Result<T, REST.Error> {
-            return Self.decodeErrorResponse(from: data)
-                .flatMap { serverError in
-                    return .failure(.server(serverError))
-                }
-        }
-
-        private func mapNetworkError(_ error: URLError) -> REST.Error {
-            return .network(error)
+            return operation
         }
 
         private func dataTask(request: URLRequest, completion: @escaping (Result<(HTTPURLResponse, Data), URLError>) -> Void) -> URLSessionDataTask {
@@ -375,23 +361,6 @@ extension REST {
                     }
                 }
             }
-        }
-
-        private static func setHTTPBody<T: Encodable>(value: T, request: inout URLRequest) throws {
-            request.httpBody = try REST.Coding.makeJSONEncoder().encode(value)
-        }
-
-        private static func setETagHeader(etag: String, request: inout URLRequest) {
-            var etag = etag
-            // Enforce weak validator to account for some backend caching quirks.
-            if etag.starts(with: "\"") {
-                etag.insert(contentsOf: "W/", at: etag.startIndex)
-            }
-            request.setValue(etag, forHTTPHeaderField: HTTPHeader.ifNoneMatch)
-        }
-
-        private static func setAuthenticationToken(token: String, request: inout URLRequest) {
-            request.addValue("Token \(token)", forHTTPHeaderField: HTTPHeader.authorization)
         }
 
         private func createURLRequestWithEndpoint(endpoint: AnyIPEndpoint, method: HTTPMethod, path: String) -> URLRequest {
@@ -415,23 +384,50 @@ extension REST {
             return request
         }
 
-        private func makeAdapter<T>(_ networkTaskGenerator: @escaping NetworkOperation<T>.Generator) -> REST.RequestAdapter<T> {
-            return REST.RequestAdapter { retryStrategy, completionHandler in
-                let operation = NetworkOperation(
-                    networkTaskGenerator: networkTaskGenerator,
-                    addressCacheStore: self.addressCacheStore,
-                    retryStrategy: retryStrategy,
-                    completionHandler: completionHandler
-                )
-
-                self.operationQueue.addOperation(operation)
-
-                return AnyCancellable {
-                    operation.cancel()
-                }
+        /// Parse JSON response into the given `Decodable` type.
+        private static func decodeSuccessResponse<T: Decodable>(_ type: T.Type, from data: Data) -> Result<T, REST.Error> {
+            return Result { try REST.Coding.makeJSONDecoder().decode(type, from: data) }
+            .mapError { error in
+                return .decodeSuccessResponse(error)
             }
         }
 
+        /// Parse JSON response in case of error (Any HTTP code except 2xx).
+        private static func decodeErrorResponse(from data: Data) -> Result<ServerErrorResponse, REST.Error> {
+            return Result { () -> ServerErrorResponse in
+                return try REST.Coding.makeJSONDecoder().decode(ServerErrorResponse.self, from: data)
+            }.mapError { error in
+                return .decodeErrorResponse(error)
+            }
+        }
+
+        private static func decodeErrorResponseAndMapToServerError<T>(from data: Data) -> Result<T, REST.Error> {
+            return Self.decodeErrorResponse(from: data)
+                .flatMap { serverError in
+                    return .failure(.server(serverError))
+                }
+        }
+
+        private static func mapNetworkError(_ error: URLError) -> REST.Error {
+            return .network(error)
+        }
+
+        private static func setHTTPBody<T: Encodable>(value: T, request: inout URLRequest) throws {
+            request.httpBody = try REST.Coding.makeJSONEncoder().encode(value)
+        }
+
+        private static func setETagHeader(etag: String, request: inout URLRequest) {
+            var etag = etag
+            // Enforce weak validator to account for some backend caching quirks.
+            if etag.starts(with: "\"") {
+                etag.insert(contentsOf: "W/", at: etag.startIndex)
+            }
+            request.setValue(etag, forHTTPHeaderField: HTTPHeader.ifNoneMatch)
+        }
+
+        private static func setAuthenticationToken(token: String, request: inout URLRequest) {
+            request.addValue("Token \(token)", forHTTPHeaderField: HTTPHeader.authorization)
+        }
     }
 
     // MARK: - Response types

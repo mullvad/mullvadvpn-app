@@ -426,9 +426,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
 
         operationQueue.addOperation(operation)
 
-        return AnyCancellable {
-            operation.cancel()
-        }
+        return operation
     }
 
     func setRelayConstraints(_ newConstraints: RelayConstraints, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
