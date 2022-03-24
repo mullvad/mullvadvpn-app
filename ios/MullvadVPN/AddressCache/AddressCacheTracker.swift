@@ -83,16 +83,16 @@ extension AddressCache {
             }
         }
 
-        func updateEndpoints(completionHandler: ((_ result: CacheUpdateResult) -> Void)? = nil) -> Cancellable {
+        func updateEndpoints(completionHandler: ((_ completion: OperationCompletion<CacheUpdateResult, Error>) -> Void)? = nil) -> Cancellable {
             let operation = UpdateAddressCacheOperation(
                 queue: stateQueue,
                 restClient: restClient,
                 store: store,
                 updateInterval: Self.updateInterval,
-                completionHandler: { [weak self] result in
-                    self?.handleCacheUpdateResult(result)
+                completionHandler: { [weak self] completion in
+                    self?.handleCacheUpdateCompletion(completion)
 
-                    completionHandler?(result)
+                    completionHandler?(completion)
                 }
             )
 
@@ -144,19 +144,21 @@ extension AddressCache {
             }
         }
 
-        private func handleCacheUpdateResult(_ result: AddressCache.CacheUpdateResult) {
-            switch result {
-            case .success:
-                logger.debug("Finished updating address cache")
+        private func handleCacheUpdateCompletion(_ completion: OperationCompletion<AddressCache.CacheUpdateResult, Error>) {
+            switch completion {
+            case .success(let updateResult):
+                switch updateResult {
+                case .finished:
+                    logger.debug("Finished updating address cache")
+                case .throttled:
+                    logger.debug("Address cache update was throttled")
+                }
+
                 lastFailureAttemptDate = nil
 
             case .failure(let error):
                 logger.error(chainedError: AnyChainedError(error), message: "Failed to update address cache")
                 lastFailureAttemptDate = Date()
-
-            case .throttled:
-                logger.debug("Address cache update was throttled")
-                lastFailureAttemptDate = nil
 
             case .cancelled:
                 logger.debug("Address cache update was cancelled")
