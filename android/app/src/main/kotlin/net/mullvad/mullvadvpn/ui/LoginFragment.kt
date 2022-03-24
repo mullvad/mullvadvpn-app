@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.Button
@@ -77,14 +78,14 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
             }
         }
 
-        accountCache.onLoginStatusChange.subscribe(this) { status ->
+        accountCache.onLoginStatusChange.subscribe(this, false) { status ->
             jobTracker.newUiJob("updateLoginStatus") {
                 loginStatus = status
 
-                if (status == null) {
-                    if (state == State.LoggingIn || state == State.CreatingAccount) {
-                        loginFailure()
-                    }
+                if (status == null && state == State.CreatingAccount) {
+                    loginFailure(null)
+                } else if (status?.loginResult != LoginResult.Ok) {
+                    loginFailure(status?.loginResult)
                 } else {
                     if (state == State.Starting) {
                         openNextScreen()
@@ -201,11 +202,17 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
         }
     }
 
-    private fun loginFailure() {
-        val description = when (state) {
-            State.LoggingIn -> R.string.login_fail_description
-            State.CreatingAccount -> R.string.failed_to_create_account
-            State.Idle, State.Starting -> return
+    // TODO: This error handling and its messages will change once a VM is introduced in a later
+    //  commit related to the ongoing device adaption.
+    private fun loginFailure(loginResult: LoginResult?) {
+        val description = when {
+            loginResult == LoginResult.MaxDevicesReached -> "Too many devices"
+            loginResult == LoginResult.RpcError -> "An error occurred"
+            loginResult == LoginResult.OtherError -> "An error occurred"
+            loginResult == LoginResult.InvalidAccount ->
+                resources.getText(R.string.login_fail_description)
+            state == State.CreatingAccount -> resources.getText(R.string.failed_to_create_account)
+            else -> return
         }
 
         state = State.Idle
