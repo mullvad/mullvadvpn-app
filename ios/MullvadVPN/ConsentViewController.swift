@@ -9,8 +9,6 @@
 import SafariServices
 import UIKit
 
-private let kPrivacyPolicyURL = URL(string: "https://mullvad.net/en/help/privacy-policy/?hide_nav")!
-
 class ConsentViewController: UIViewController, RootContainment, SFSafariViewControllerDelegate {
 
     var completionHandler: ((UIViewController) -> Void)?
@@ -51,7 +49,7 @@ class ConsentViewController: UIViewController, RootContainment, SFSafariViewCont
     // MARK: - Actions
 
     @objc private func handlePrivacyPolicyButton(_ sender: Any) {
-        let safariController = SFSafariViewController(url: kPrivacyPolicyURL)
+        let safariController = SFSafariViewController(url: ApplicationConfiguration.privacyPolicyURL)
         safariController.delegate = self
 
         present(safariController, animated: true)
