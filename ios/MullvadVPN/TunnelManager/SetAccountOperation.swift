@@ -155,6 +155,9 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
 
                     case .failure(let error):
                         self.logger.error(chainedError: error, message: "Failed to delete key (\(index)) on server.")
+
+                    case .cancelled:
+                        self.logger.debug("Cancelled public key deletion.")
                     }
 
                     dispatchGroup.leave()
@@ -226,6 +229,11 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
                     self.logger.error(chainedError: error, message: "Failed to push new key to server.")
 
                     completionHandler(.failure(.pushWireguardKey(error)))
+
+                case .cancelled:
+                    self.logger.debug("Cancelled new key push to server.")
+
+                    completionHandler(.cancelled)
                 }
             }
         }

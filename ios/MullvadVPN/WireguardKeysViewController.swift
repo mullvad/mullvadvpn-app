@@ -209,7 +209,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     private func verifyKey() {
         guard let tunnelInfo = TunnelManager.shared.tunnelInfo else { return }
 
-        self.updateViewState(.verifyingKey)
+        updateViewState(.verifyingKey)
 
         verifyKeyCancellable?.cancel()
 
@@ -231,6 +231,9 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
                     self.showKeyVerificationFailureAlert(error)
                     self.updateViewState(.default)
                 }
+
+            case .cancelled:
+                break
             }
         }
     }
