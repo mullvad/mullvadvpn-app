@@ -43,7 +43,6 @@ mod v1;
 mod v2;
 mod v3;
 mod v4;
-// Not yet done. Add to this instead of creating v6 for now.
 mod v5;
 
 const SETTINGS_FILE: &str = "settings.json";

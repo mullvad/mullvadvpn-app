@@ -13,7 +13,7 @@ use mullvad_paths;
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::AccountToken,
-    relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
+    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
     relay_list::RelayList,
     settings::Settings,
     states::{TargetState, TunnelState},
@@ -171,7 +171,8 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         log::debug!("update_relay_settings");
         let (tx, rx) = oneshot::channel();
-        let constraints_update = RelaySettingsUpdate::try_from(request.into_inner())?;
+        let constraints_update =
+            RelaySettingsUpdate::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
 
         let message = DaemonCommand::UpdateRelaySettings(tx, constraints_update);
         self.send_command_to_daemon(message)?;
@@ -226,7 +227,8 @@ impl ManagementService for ManagementServiceImpl {
         &self,
         request: Request<types::BridgeSettings>,
     ) -> ServiceResult<()> {
-        let settings = BridgeSettings::try_from(request.into_inner())?;
+        let settings =
+            BridgeSettings::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
 
         log::debug!("set_bridge_settings({:?})", settings);
 
@@ -238,8 +240,24 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_settings_error)
     }
 
+    async fn set_obfuscation_settings(
+        &self,
+        request: Request<types::ObfuscationSettings>,
+    ) -> ServiceResult<()> {
+        let settings =
+            ObfuscationSettings::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
+        log::debug!("set_obfuscation_settings({:?})", settings);
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetObfuscationSettings(tx, settings))?;
+        let settings_result = self.wait_for_result(rx).await?;
+        settings_result
+            .map(Response::new)
+            .map_err(map_settings_error)
+    }
+
     async fn set_bridge_state(&self, request: Request<types::BridgeState>) -> ServiceResult<()> {
-        let bridge_state = BridgeState::try_from(request.into_inner())?;
+        let bridge_state =
+            BridgeState::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
 
         log::debug!("set_bridge_state({:?})", bridge_state);
         let (tx, rx) = oneshot::channel();
@@ -350,7 +368,7 @@ impl ManagementService for ManagementServiceImpl {
 
     #[cfg(not(target_os = "android"))]
     async fn set_dns_options(&self, request: Request<types::DnsOptions>) -> ServiceResult<()> {
-        let options = DnsOptions::try_from(request.into_inner())?;
+        let options = DnsOptions::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
         log::debug!("set_dns_options({:?})", options);
 
         let (tx, rx) = oneshot::channel();
@@ -1001,5 +1019,11 @@ fn map_account_history_error(error: account_history::Error) -> Status {
         account_history::Error::Serialize(..) | account_history::Error::WriteCancelled(..) => {
             Status::new(Code::Internal, error.to_string())
         }
+    }
+}
+
+fn map_protobuf_type_err(err: types::FromProtobufTypeError) -> Status {
+    match err {
+        types::FromProtobufTypeError::InvalidArgument(err) => Status::invalid_argument(err),
     }
 }

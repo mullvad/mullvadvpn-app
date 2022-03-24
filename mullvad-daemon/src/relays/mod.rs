@@ -9,21 +9,25 @@ use mullvad_types::{
     location::{Coordinates, Location},
     relay_constraints::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
-        OpenVpnConstraints, Providers, RelayConstraints, Set, TransportPort, WireguardConstraints,
+        ObfuscationSettings, OpenVpnConstraints, Providers, RelayConstraints, SelectedObfuscation,
+        Set, TransportPort, Udp2TcpObfuscationSettings, WireguardConstraints,
     },
-    relay_list::{Relay, RelayList, WireguardEndpointData},
+    relay_list::{Relay, RelayList, Udp2TcpEndpointData},
 };
 use parking_lot::Mutex;
 use rand::{self, seq::SliceRandom, Rng};
 use std::{
     io,
-    net::IpAddr,
+    net::{IpAddr, SocketAddr},
     path::Path,
     sync::Arc,
     time::{self, SystemTime},
 };
 use talpid_types::{
-    net::{openvpn::ProxySettings, wireguard, IpVersion, TransportProtocol, TunnelType},
+    net::{
+        obfuscation::ObfuscatorConfig, openvpn::ProxySettings, wireguard, IpVersion,
+        TransportProtocol, TunnelType,
+    },
     ErrorExt,
 };
 
@@ -43,13 +47,11 @@ const RELAYS_FILENAME: &str = "relays.json";
 const DEFAULT_WIREGUARD_PORT: u16 = 51820;
 const WIREGUARD_EXIT_CONSTRAINTS: WireguardMatcher = WireguardMatcher {
     peer: None,
-    port: Constraint::Only(TransportPort {
-        protocol: TransportProtocol::Udp,
-        port: Constraint::Only(DEFAULT_WIREGUARD_PORT),
-    }),
+    port: Constraint::Only(DEFAULT_WIREGUARD_PORT),
     ip_version: Constraint::Only(IpVersion::V4),
 };
-const WIREGUARD_TCP_PORTS: [(u16, u16); 3] = [(80, 80), (443, 443), (5001, 5001)];
+
+const UDP2TCP_PORTS: [u16; 3] = [80, 443, 5001];
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -105,8 +107,25 @@ impl ParsedRelays {
                         latitude,
                         longitude,
                     });
+
                     Self::filter_invalid_relays(&mut relay_with_location);
-                    Self::tack_on_wireguard_tcp_relays(&mut relay_with_location.tunnels.wireguard);
+
+                    // TODO: The WireGuard data is incorrectly modelled.
+                    // Using a vector here suggests that a relay may use multiple key pairs at a
+                    // time. This is incorrect and will never be the case.
+                    //
+                    // Currently, the `wireguard` vector will have 0 or 1 entries.
+                    // This should be changed into e.g. using an Option<_> instead.
+                    //
+
+                    if !relay.tunnels.wireguard.is_empty() {
+                        for port in UDP2TCP_PORTS {
+                            relay_with_location
+                                .obfuscators
+                                .udp2tcp
+                                .push(Udp2TcpEndpointData { port });
+                        }
+                    }
 
                     relays.push(relay_with_location);
                 }
@@ -148,25 +167,6 @@ impl ParsedRelays {
                 total_wireguard_endpoints
             );
         }
-    }
-
-    /// Add synthesized WireGuard TCP endpoints to a relay
-    fn tack_on_wireguard_tcp_relays(endpoints: &mut Vec<WireguardEndpointData>) {
-        *endpoints = endpoints
-            .iter()
-            .cloned()
-            .map(|udp_endpoint| {
-                [
-                    WireguardEndpointData {
-                        protocol: TransportProtocol::Tcp,
-                        port_ranges: WIREGUARD_TCP_PORTS.to_vec(),
-                        ..udp_endpoint.clone()
-                    },
-                    udp_endpoint,
-                ]
-            })
-            .flatten()
-            .collect();
     }
 
     pub fn from_file(path: impl AsRef<Path>) -> Result<Self, Error> {
@@ -570,11 +570,7 @@ impl RelaySelector {
                 }
 
                 if relay_constraints.wireguard_constraints.port.is_any() {
-                    relay_constraints.wireguard_constraints.port =
-                        Constraint::Only(TransportPort {
-                            protocol: preferred_protocol,
-                            port: preferred_port,
-                        });
+                    relay_constraints.wireguard_constraints.port = preferred_port;
                 }
 
                 relay_constraints.tunnel_protocol = Constraint::Only(preferred_tunnel);
@@ -607,10 +603,7 @@ impl RelaySelector {
         };
 
         if relay_constraints.wireguard_constraints.port.is_any() {
-            relay_constraints.wireguard_constraints.port = Constraint::Only(TransportPort {
-                port: preferred_port,
-                protocol: TransportProtocol::Udp,
-            });
+            relay_constraints.wireguard_constraints.port = preferred_port;
         }
 
         relay_constraints.tunnel_protocol = Constraint::Only(preferred_tunnel);
@@ -713,6 +706,85 @@ impl RelaySelector {
         })
     }
 
+    pub fn get_obfuscator(
+        &self,
+        obfuscation_settings: &ObfuscationSettings,
+        relay: &Relay,
+        endpoint: &MullvadWireguardEndpoint,
+        retry_attempt: u32,
+    ) -> Option<ObfuscatorConfig> {
+        match obfuscation_settings.selected_obfuscation {
+            SelectedObfuscation::Auto => {
+                self.get_auto_obfuscator(obfuscation_settings, relay, endpoint, retry_attempt)
+            }
+            SelectedObfuscation::Off => None,
+            SelectedObfuscation::Udp2Tcp => self.get_udp2tcp_obfuscator(
+                &obfuscation_settings.udp2tcp,
+                relay,
+                endpoint,
+                retry_attempt,
+            ),
+        }
+    }
+
+    fn get_auto_obfuscator(
+        &self,
+        obfuscation_settings: &ObfuscationSettings,
+        relay: &Relay,
+        endpoint: &MullvadWireguardEndpoint,
+        retry_attempt: u32,
+    ) -> Option<ObfuscatorConfig> {
+        if !self.should_use_auto_obfuscator(retry_attempt) {
+            return None;
+        }
+        // TODO FIX: The third obfuscator entry will never be chosen
+        // Because get_auto_obfuscator_retry_attempt() returns [0, 1]
+        // And the udp2tcp endpoints are defined in a vector with entries [0, 1, 2]
+        self.get_udp2tcp_obfuscator(
+            &obfuscation_settings.udp2tcp,
+            relay,
+            endpoint,
+            self.get_auto_obfuscator_retry_attempt(retry_attempt)
+                .unwrap(),
+        )
+    }
+
+    pub fn should_use_auto_obfuscator(&self, retry_attempt: u32) -> bool {
+        self.get_auto_obfuscator_retry_attempt(retry_attempt)
+            .is_some()
+    }
+
+    fn get_auto_obfuscator_retry_attempt(&self, retry_attempt: u32) -> Option<u32> {
+        match retry_attempt % 4 {
+            0 | 1 => None,
+            filtered_retry => Some(filtered_retry - 2),
+        }
+    }
+
+    fn get_udp2tcp_obfuscator(
+        &self,
+        obfuscation_settings: &Udp2TcpObfuscationSettings,
+        relay: &Relay,
+        _endpoint: &MullvadWireguardEndpoint,
+        retry_attempt: u32,
+    ) -> Option<ObfuscatorConfig> {
+        let udp2tcp_endpoint = if obfuscation_settings.port.is_only() {
+            relay
+                .obfuscators
+                .udp2tcp
+                .iter()
+                .find(|&candidate| obfuscation_settings.port.matches_eq(&candidate.port))
+        } else {
+            relay
+                .obfuscators
+                .udp2tcp
+                .get(retry_attempt as usize % relay.obfuscators.udp2tcp.len())
+        };
+        udp2tcp_endpoint.map(|udp2tcp_endpoint| ObfuscatorConfig::Udp2Tcp {
+            endpoint: SocketAddr::new(relay.ipv4_addr_in.into(), udp2tcp_endpoint.port),
+        })
+    }
+
     /// Returns preferred constraints
     #[allow(unused_variables)]
     fn preferred_tunnel_constraints(
@@ -773,18 +845,14 @@ impl RelaySelector {
         }
     }
 
-    fn preferred_wireguard_port(retry_attempt: u32) -> Constraint<TransportPort> {
+    fn preferred_wireguard_port(retry_attempt: u32) -> Constraint<u16> {
         // This ensures that if after the first 2 failed attempts the daemon does not
         // connect, then afterwards 2 of each 4 successive attempts will try to connect
         // on port 53.
-        let port = match retry_attempt % 4 {
+        match retry_attempt % 4 {
             0 | 1 => Constraint::Any,
             _ => Constraint::Only(53),
-        };
-        Constraint::Only(TransportPort {
-            port,
-            protocol: TransportProtocol::Udp,
-        })
+        }
     }
 
     fn preferred_openvpn_constraints(retry_attempt: u32) -> (Constraint<u16>, TransportProtocol) {
@@ -963,7 +1031,7 @@ mod test {
         relay_constraints::RelayConstraints,
         relay_list::{
             OpenVpnEndpointData, Relay, RelayBridges, RelayListCity, RelayListCountry,
-            RelayTunnels, WireguardEndpointData,
+            RelayObfuscators, RelayTunnels, WireguardEndpointData,
         },
     };
     use talpid_types::net::wireguard::PublicKey;
@@ -999,12 +1067,14 @@ mod test {
                                                 ipv4_gateway: "10.64.0.1".parse().unwrap(),
                                                 ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
                                                 public_key: PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
-                                                protocol: TransportProtocol::Udp,
                                             },
                                         ],
                                     },
                                     bridges: RelayBridges {
                                         shadowsocks: vec![],
+                                    },
+                                    obfuscators: RelayObfuscators {
+                                        udp2tcp: vec![],
                                     },
                                     location: None,
                                 },
@@ -1025,12 +1095,14 @@ mod test {
                                                 ipv4_gateway: "10.64.0.1".parse().unwrap(),
                                                 ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
                                                 public_key: PublicKey::from_base64("veGD6/aEY6sMfN3Ls7YWPmNgu3AheO7nQqsFT47YSws=").unwrap(),
-                                                protocol: TransportProtocol::Udp,
                                             },
                                         ],
                                     },
                                     bridges: RelayBridges {
                                         shadowsocks: vec![],
+                                    },
+                                    obfuscators: RelayObfuscators {
+                                        udp2tcp: vec![],
                                     },
                                     location: None,
                                 },
@@ -1063,6 +1135,9 @@ mod test {
                                     bridges: RelayBridges {
                                         shadowsocks: vec![],
                                     },
+                                    obfuscators: RelayObfuscators {
+                                        udp2tcp: vec![],
+                                    },
                                     location: None,
                                 },
                                 Relay {
@@ -1082,12 +1157,14 @@ mod test {
                                                 ipv4_gateway: "10.64.0.1".parse().unwrap(),
                                                 ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
                                                 public_key: PublicKey::from_base64("veGD6/aEY6sMfN3Ls7YWPmNgu3AheO7nQqsFT47YSws=").unwrap(),
-                                                protocol: TransportProtocol::Udp,
                                             },
                                         ],
                                     },
                                     bridges: RelayBridges {
                                         shadowsocks: vec![],
+                                    },
+                                    obfuscators: RelayObfuscators {
+                                        udp2tcp: vec![],
                                     },
                                     location: None,
                                 },
@@ -1109,6 +1186,9 @@ mod test {
                                     },
                                     bridges: RelayBridges {
                                         shadowsocks: vec![],
+                                    },
+                                    obfuscators: RelayObfuscators {
+                                        udp2tcp: vec![],
                                     },
                                     location: None,
                                 }
@@ -1436,102 +1516,134 @@ mod test {
         },
     };
 
+    const WIREGUARD_SINGLEHOP_CONSTRAINTS: RelayConstraints = RelayConstraints {
+        location: Constraint::Any,
+        providers: Constraint::Any,
+        wireguard_constraints: WireguardConstraints {
+            use_multihop: false,
+            port: Constraint::Any,
+            ip_version: Constraint::Any,
+            entry_location: Constraint::Any,
+        },
+        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+        openvpn_constraints: OpenVpnConstraints {
+            port: Constraint::Any,
+        },
+    };
+
     #[test]
     fn test_selecting_wireguard_location_will_consider_multihop() {
         let relay_selector = new_relay_selector();
 
         let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_MULTIHOP_CONSTRAINTS, BridgeState::Off, 0)
-
-            .expect("Failed to get relay when tunnel constraints are set to Any and retrying the selection");
+            .expect("Failed to get relay when tunnel constraints are set to default WireGuard multihop constraints");
 
         assert!(result.entry_relay.is_some());
-        let endpoint = result.endpoint.unwrap_wireguard();
-        assert!(matches!(endpoint.peer.protocol, TransportProtocol::Udp));
-        assert!(matches!(
-            endpoint.exit_peer.as_ref().unwrap().protocol,
-            TransportProtocol::Udp
-        ));
+        // TODO: Verify that neither endpoint is using obfuscation for retry attempt 0
     }
 
     #[test]
-    fn test_selecting_wg_multihop_tcp() {
-        let mut relay_constraints = WIREGUARD_MULTIHOP_CONSTRAINTS.clone();
-        relay_constraints.wireguard_constraints.port = Constraint::Only(TransportPort {
-            port: Constraint::Any,
-            protocol: TransportProtocol::Tcp,
-        });
-
+    fn test_selecting_wg_endpoint_with_udp2tcp_obfuscation() {
         let relay_selector = new_relay_selector();
 
-        let result = relay_selector
-            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0)
-            .expect("Failed to get WireGuard TCP multihop relay");
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0)
+            .expect("Failed to get relay when tunnel constraints are set to default WireGuard constraints");
 
-        assert!(result.entry_relay.is_some());
-        let endpoint = result.endpoint.unwrap_wireguard();
-        assert!(matches!(endpoint.peer.protocol, TransportProtocol::Tcp));
-        assert!(matches!(
-            endpoint.exit_peer.as_ref().unwrap().protocol,
-            TransportProtocol::Udp
-        ));
-    }
+        assert!(result.entry_relay.is_none());
+        assert!(matches!(result.endpoint, MullvadEndpoint::Wireguard { .. }));
 
-    #[test]
-    fn test_selecting_wg_tcp() {
-        let relay_constraints = RelayConstraints {
-            wireguard_constraints: WireguardConstraints {
-                port: Constraint::Only(TransportPort {
-                    port: Constraint::Any,
-                    protocol: TransportProtocol::Tcp,
-                }),
-                ..WireguardConstraints::default()
-            },
-            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-            ..RelayConstraints::default()
+        let obfs_settings = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+            ..ObfuscationSettings::default()
         };
 
-        let relay_selector = new_relay_selector();
+        let obfs_config = relay_selector.get_obfuscator(
+            &obfs_settings,
+            &result.exit_relay,
+            result.endpoint.unwrap_wireguard(),
+            0,
+        );
 
-        let result = relay_selector
-            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0)
-            .expect("Failed to get WireGuard TCP relay");
-        let endpoint = result.endpoint.unwrap_wireguard();
-        assert!(matches!(endpoint.peer.protocol, TransportProtocol::Tcp));
-        assert!(endpoint.exit_peer.is_none());
+        assert!(matches!(
+            obfs_config.unwrap(),
+            ObfuscatorConfig::Udp2Tcp { .. }
+        ));
     }
 
     #[test]
-    fn test_selecting_wg_multihop_ports() {
-        let mut relay_constraints = WIREGUARD_MULTIHOP_CONSTRAINTS.clone();
+    fn test_selecting_wg_endpoint_with_auto_obfuscation() {
         let relay_selector = new_relay_selector();
 
-        const INVALID_UDP_PORTS: [u16; 2] = [80, 443];
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0)
+            .expect("Failed to get relay when tunnel constraints are set to default WireGuard constraints");
+
+        assert!(result.entry_relay.is_none());
+        assert!(matches!(result.endpoint, MullvadEndpoint::Wireguard { .. }));
+
+        let obfs_settings = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Auto,
+            ..ObfuscationSettings::default()
+        };
+
+        assert!(relay_selector
+            .get_obfuscator(
+                &obfs_settings,
+                &result.exit_relay,
+                result.endpoint.unwrap_wireguard(),
+                0,
+            )
+            .is_none());
+
+        assert!(relay_selector
+            .get_obfuscator(
+                &obfs_settings,
+                &result.exit_relay,
+                result.endpoint.unwrap_wireguard(),
+                1,
+            )
+            .is_none());
+
+        assert!(relay_selector
+            .get_obfuscator(
+                &obfs_settings,
+                &result.exit_relay,
+                result.endpoint.unwrap_wireguard(),
+                2,
+            )
+            .is_some());
+    }
+
+    #[test]
+    fn test_selected_endpoints_use_correct_port_ranges() {
+        let relay_selector = new_relay_selector();
+
+        const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
+
+        let obfs_settings = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+            ..ObfuscationSettings::default()
+        };
+
         for attempt in 0..1000 {
             let result = relay_selector
-                .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, attempt)
-                .expect("Failed to get WireGuard TCP multihop relay");
-            assert!(!INVALID_UDP_PORTS.contains(&result.endpoint.to_endpoint().address.port()));
-            assert_eq!(
-                result.endpoint.unwrap_wireguard().peer.protocol,
-                TransportProtocol::Udp
-            );
-        }
+                .get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, attempt)
+                .expect("Failed to select a WireGuard relay");
+            assert!(result.entry_relay.is_none());
+            assert!(!TCP2UDP_PORTS.contains(&result.endpoint.to_endpoint().address.port()));
 
-        relay_constraints.wireguard_constraints.port = Constraint::Only(TransportPort {
-            port: Constraint::Any,
-            protocol: TransportProtocol::Tcp,
-        });
+            let obfs_config = relay_selector
+                .get_obfuscator(
+                    &obfs_settings,
+                    &result.exit_relay,
+                    result.endpoint.unwrap_wireguard(),
+                    attempt,
+                )
+                .expect("Failed to get Tcp2Udp endpoint");
 
-        const VALID_TCP_PORTS: [u16; 3] = [80, 443, 5001];
-        for attempt in 0..1000 {
-            let result = relay_selector
-                .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, attempt)
-                .expect("Failed to get WireGuard TCP multihop relay");
-            assert!(VALID_TCP_PORTS.contains(&result.endpoint.to_endpoint().address.port()));
-            assert_eq!(
-                result.endpoint.unwrap_wireguard().peer.protocol,
-                TransportProtocol::Tcp
-            );
+            assert!(matches!(obfs_config, ObfuscatorConfig::Udp2Tcp { .. }));
+
+            let ObfuscatorConfig::Udp2Tcp { endpoint } = obfs_config;
+            assert!(TCP2UDP_PORTS.contains(&endpoint.port()));
         }
     }
 

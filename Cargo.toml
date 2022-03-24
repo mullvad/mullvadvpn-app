@@ -16,6 +16,7 @@ members = [
     "talpid-dbus",
     "talpid-platform-metadata",
     "mullvad-management-interface",
+    "tunnel-obfuscation",
 ]
 exclude = ["dist-assets/binaries/shadowsocks-rust"]
 

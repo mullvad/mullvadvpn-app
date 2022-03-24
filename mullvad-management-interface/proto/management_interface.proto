@@ -30,6 +30,7 @@ service ManagementService {
 	rpc GetCurrentLocation(google.protobuf.Empty) returns (GeoIpLocation) {}
 	rpc SetBridgeSettings(BridgeSettings) returns (google.protobuf.Empty) {}
 	rpc SetBridgeState(BridgeState) returns (google.protobuf.Empty) {}
+	rpc SetObfuscationSettings(ObfuscationSettings) returns (google.protobuf.Empty) {}
 
 	// Settings
 	rpc GetSettings(google.protobuf.Empty) returns (Settings) {}
@@ -190,7 +191,19 @@ message TunnelEndpoint {
 	TransportProtocol protocol = 2;
 	TunnelType tunnel_type = 3;
 	ProxyEndpoint proxy = 4;
-	Endpoint entry_endpoint = 5;
+	ObfuscationEndpoint obfuscation = 5;
+	Endpoint entry_endpoint = 6;
+}
+
+enum ObfuscationType {
+	UDP2TCP = 0;
+}
+
+message ObfuscationEndpoint {
+	string address = 1;
+	uint32 port = 2;
+	TransportProtocol protocol = 3;
+	ObfuscationType obfuscation_type = 4;
 }
 
 enum ProxyType {
@@ -269,6 +282,20 @@ message BridgeState {
 	State state = 1;
 }
 
+message Udp2TcpObfuscationSettings {
+  uint32 port = 1;
+}
+
+message ObfuscationSettings {
+  enum SelectedObfuscation {
+    AUTO = 0;
+    OFF = 1;
+	UDP2TCP = 2;
+  }
+  SelectedObfuscation selected_obfuscation = 1;
+  Udp2TcpObfuscationSettings udp2tcp = 2;
+}
+
 message Settings {
 	RelaySettings relay_settings = 1;
 	BridgeSettings bridge_settings = 2;
@@ -279,6 +306,7 @@ message Settings {
 	TunnelOptions tunnel_options = 7;
 	bool show_beta_releases = 8;
 	SplitTunnelSettings split_tunnel = 9;
+	ObfuscationSettings obfuscation_settings = 10;
 }
 
 message SplitTunnelSettings {
@@ -341,7 +369,7 @@ message IpVersionConstraint {
 }
 
 message WireguardConstraints {
-	TransportPort port = 1;
+	uint32 port = 1;
 	IpVersionConstraint ip_version = 2;
 	bool use_multihop = 3;
 	RelayLocation entry_location = 4;
@@ -368,7 +396,6 @@ message ConnectionConfig {
 			bytes public_key = 1;
 			repeated string allowed_ips = 2;
 			string endpoint = 3;
-			TransportProtocol protocol = 4;
 		}
 
 		TunnelConfig tunnel = 1;

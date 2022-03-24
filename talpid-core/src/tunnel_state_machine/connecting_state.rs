@@ -479,7 +479,7 @@ fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
     use tunnel::wireguard::{Error, TunnelError};
 
     match error {
-        tunnel::Error::WireguardTunnelMonitoringError(Error::Udp2TcpError(_)) => true,
+        tunnel::Error::WireguardTunnelMonitoringError(Error::CreateObfuscatorError(_)) => true,
 
         #[cfg(not(windows))]
         tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(

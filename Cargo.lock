@@ -1890,19 +1890,6 @@ dependencies = [
 
 [[package]]
 name = "nix"
-version = "0.20.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5e06129fb611568ef4e868c14b326274959aa70ff7776e9d55323531c374945"
-dependencies = [
- "bitflags",
- "cc",
- "cfg-if 1.0.0",
- "libc",
- "memoffset",
-]
-
-[[package]]
-name = "nix"
 version = "0.22.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4916f159ed8e5de0082076562152a76b7a1f64a01fd9d1e0fea002c37624faf"
@@ -3130,7 +3117,7 @@ dependencies = [
  "triggered",
  "trust-dns-server",
  "tun",
- "udp-over-tcp",
+ "tunnel-obfuscation",
  "uuid",
  "which",
  "widestring 0.5.1",
@@ -3632,6 +3619,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "tunnel-obfuscation"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "err-derive",
+ "futures",
+ "tokio",
+ "udp-over-tcp",
+]
+
+[[package]]
 name = "typenum"
 version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3646,14 +3644,14 @@ checksum = "56dee185309b50d1f11bfedef0fe6d036842e3fb77413abef29f8f8d1c5d4c1c"
 [[package]]
 name = "udp-over-tcp"
 version = "0.1.0"
-source = "git+https://github.com/mullvad/udp-over-tcp?rev=1e27324362ed123b61fa2062b1599e5f9d569796#1e27324362ed123b61fa2062b1599e5f9d569796"
+source = "git+https://github.com/mullvad/udp-over-tcp?rev=27b9519b63244736b6f3c7c4af60976c88dc6b95#27b9519b63244736b6f3c7c4af60976c88dc6b95"
 dependencies = [
  "env_logger 0.8.4",
  "err-context",
  "futures",
  "lazy_static",
  "log",
- "nix 0.20.2",
+ "nix 0.23.1",
  "structopt",
  "tokio",
 ]

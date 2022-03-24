@@ -31,7 +31,7 @@ chrono = "0.4.19"
 tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
 rand = "0.7"
-udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "1e27324362ed123b61fa2062b1599e5f9d569796" }
+tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 socket2 = { version = "0.4.2", features = ["all"] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
