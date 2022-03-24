@@ -38,6 +38,7 @@ jobs:
             matrix:
                 rust: [stable, beta, nightly]
 
+        continue-on-error: ${{ matrix.rust == 'nightly' }}
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
