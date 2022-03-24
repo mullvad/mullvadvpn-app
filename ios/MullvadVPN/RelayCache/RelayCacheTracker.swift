@@ -429,6 +429,10 @@ fileprivate class UpdateRelaysOperation: ResultOperation<RelayCache.FetchResult,
 
                 case .failure(let error):
                     self.didFailToDownloadRelays(error: error)
+
+                case .cancelled:
+                    self.logger.debug("Cancelled relays download.")
+                    self.finish(completion: .cancelled)
                 }
             }
         }

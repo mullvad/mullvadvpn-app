@@ -64,15 +64,15 @@ extension AddressCache {
                 return
             }
 
-            requestTask = restClient.getAddressList(retryStrategy: .default) { result in
+            requestTask = restClient.getAddressList(retryStrategy: .default) { completion in
                 self.queue.async {
-                    self.handleResponse(result)
+                    self.handleResponse(completion)
                 }
             }
         }
 
-        private func handleResponse(_ result: Result<[AnyIPEndpoint], REST.Error>) {
-            switch result {
+        private func handleResponse(_ completion: OperationCompletion<[AnyIPEndpoint], REST.Error>) {
+            switch completion {
             case .success(let newEndpoints):
                 self.store.setEndpoints(newEndpoints) { error in
                     if let error = error {
@@ -88,6 +88,9 @@ extension AddressCache {
                 } else {
                     self.finish(completion: .failure(error))
                 }
+
+            case .cancelled:
+                self.finish(completion: .cancelled)
             }
         }
     }

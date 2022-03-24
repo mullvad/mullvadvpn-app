@@ -121,6 +121,9 @@ class Account {
                     completionHandler(.failure(.createAccount(error)))
 
                     operation.finish()
+
+                case .cancelled:
+                    operation.finish()
                 }
             }
         }
@@ -149,6 +152,9 @@ class Account {
 
                 case .failure(let error):
                     completionHandler(.failure(.verifyAccount(error)))
+                    operation.finish()
+
+                case .cancelled:
                     operation.finish()
                 }
             }
@@ -200,22 +206,25 @@ class Account {
                     return
                 }
 
-                _ = REST.Client.shared.getAccountExpiry(token: token, retryStrategy: .default) { result in
-                        switch result {
-                        case .success(let response):
-                            if self.expiry != response.expires {
-                                self.expiry = response.expires
-                                self.observerList.forEach { (observer) in
-                                    observer.account(self, didUpdateExpiry: response.expires)
-                                }
+                _ = REST.Client.shared.getAccountExpiry(token: token, retryStrategy: .default) { completion in
+                    switch completion {
+                    case .success(let response):
+                        if self.expiry != response.expires {
+                            self.expiry = response.expires
+                            self.observerList.forEach { (observer) in
+                                observer.account(self, didUpdateExpiry: response.expires)
                             }
-
-                        case .failure(let error):
-                            self.logger.error(chainedError: error, message: "Failed to update account expiry.")
                         }
 
-                        operation.finish()
+                    case .failure(let error):
+                        self.logger.error(chainedError: error, message: "Failed to update account expiry.")
+
+                    case .cancelled:
+                        self.logger.debug("Account expiry update was cancelled.")
                     }
+
+                    operation.finish()
+                }
             }
         }
 

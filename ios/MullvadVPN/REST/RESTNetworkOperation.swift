@@ -22,13 +22,11 @@ extension REST {
         case failImmediately
     }
 
-    class NetworkOperation<Success>: AsyncOperation {
-        typealias CompletionHandler = (Result<Success, REST.Error>) -> Void
-        typealias Generator = (AnyIPEndpoint, @escaping CompletionHandler) -> Result<URLSessionTask, REST.Error>
+    class NetworkOperation<Success>: ResultOperation<Success, REST.Error> {
+        typealias Generator = (AnyIPEndpoint, @escaping (Result<Success, REST.Error>) -> Void) -> Result<URLSessionTask, REST.Error>
 
         private let networkTaskGenerator: Generator
         private let addressCacheStore: AddressCache.Store
-        private var completionHandler: CompletionHandler?
         private var sessionTask: URLSessionTask?
 
         private let retryStrategy: RetryStrategy
@@ -38,13 +36,14 @@ extension REST {
         private let logger = Logger(label: "REST.NetworkOperation")
         private let loggerMetadata: Logger.Metadata
 
-        init(name: String, networkTaskGenerator: @escaping Generator, addressCacheStore: AddressCache.Store, retryStrategy: RetryStrategy, completionHandler: @escaping CompletionHandler) {
+        init(taskIdentifier: UInt32, name: String, networkTaskGenerator: @escaping Generator, addressCacheStore: AddressCache.Store, retryStrategy: RetryStrategy, completionHandler: @escaping CompletionHandler) {
             self.networkTaskGenerator = networkTaskGenerator
             self.addressCacheStore = addressCacheStore
             self.retryStrategy = retryStrategy
-            self.completionHandler = completionHandler
 
-            loggerMetadata = ["requestID": .string(UUID().uuidString), "name": .string(name)]
+            loggerMetadata = ["taskIdentifier": .stringConvertible(taskIdentifier), "name": .string(name)]
+
+            super.init(completionQueue: .main, completionHandler: completionHandler)
         }
 
         override func cancel() {
@@ -63,15 +62,15 @@ extension REST {
             DispatchQueue.main.async {
                 // Finish immediately if operation was cancelled before execution
                 guard !self.isCancelled else {
-                    self.finish(with: .failure(Self.cancellationError))
+                    self.finish(completion: .cancelled)
                     return
                 }
 
                 // Get current endpoint
                 self.addressCacheStore.getCurrentEndpoint { endpoint in
                     DispatchQueue.main.async {
-                        self.sendRequest(endpoint: endpoint) { [weak self] result in
-                            self?.finish(with: result)
+                        self.sendRequest(endpoint: endpoint) { [weak self] completion in
+                            self?.finish(completion: completion)
                         }
                     }
                 }
@@ -81,7 +80,7 @@ extension REST {
         private func sendRequest(endpoint: AnyIPEndpoint, completionHandler: @escaping CompletionHandler) {
             // Handle operation cancellation
             guard !isCancelled else {
-                completionHandler(.failure(Self.cancellationError))
+                completionHandler(.cancelled)
                 return
             }
 
@@ -108,7 +107,7 @@ extension REST {
 
         private func handleResponse(endpoint: AnyIPEndpoint, result: Result<Success, REST.Error>, completionHandler: @escaping CompletionHandler) {
             guard case .failure(let error) = result else {
-                completionHandler(result)
+                completionHandler(OperationCompletion(result: result))
                 return
             }
 
@@ -129,14 +128,14 @@ extension REST {
 
             case .failImmediately:
                 // Fail immediately in case of other errors, like server errors
-                completionHandler(result)
+                completionHandler(OperationCompletion(result: result))
             }
         }
 
         private func retryRequest(endpoint: AnyIPEndpoint, previousResult: Result<Success, REST.Error>, completionHandler: @escaping CompletionHandler) {
             // Handle operation cancellation
             guard !isCancelled else {
-                completionHandler(.failure(Self.cancellationError))
+                completionHandler(.cancelled)
                 return
             }
 
@@ -147,7 +146,7 @@ extension REST {
             guard retryCount < retryStrategy.maxRetryCount else {
                 logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))", metadata: loggerMetadata)
 
-                completionHandler(previousResult)
+                completionHandler(OperationCompletion(result: previousResult))
                 return
             }
 
@@ -165,18 +164,11 @@ extension REST {
             }
 
             retryTimer?.setCancelHandler {
-                completionHandler(.failure(Self.cancellationError))
+                completionHandler(.cancelled)
             }
 
             retryTimer?.schedule(wallDeadline: .now() + retryStrategy.retryDelay)
             retryTimer?.activate()
-        }
-
-        private func finish(with result: Result<Success, REST.Error>) {
-            completionHandler?(result)
-            completionHandler = nil
-
-            finish()
         }
 
         private static func evaluateError(_ error: REST.Error) -> RetryAction {
@@ -194,10 +186,6 @@ extension REST {
             default:
                 return .useNextEndpoint
             }
-        }
-
-        private static var cancellationError: REST.Error {
-            return .network(URLError(.cancelled))
         }
     }
 

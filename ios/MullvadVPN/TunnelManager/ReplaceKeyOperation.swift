@@ -158,10 +158,10 @@ class ReplaceKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, Tunn
             oldPublicKey: oldPublicKey,
             newPublicKey: newPrivateKey.publicKey,
             retryStrategy: .default
-        ) { result in
+        ) { completion in
             self.queue.async {
                 self.didReceiveResponse(
-                    result: result,
+                    completion: completion,
                     accountToken: tunnelInfo.token,
                     newPrivateKey: newPrivateKey,
                     completionHandler: completionHandler
@@ -170,8 +170,8 @@ class ReplaceKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, Tunn
         }
     }
 
-    private func didReceiveResponse(result: Result<REST.WireguardAddressesResponse, REST.Error>, accountToken: String, newPrivateKey: PrivateKeyWithMetadata, completionHandler: @escaping CompletionHandler) {
-        switch result {
+    private func didReceiveResponse(completion: OperationCompletion<REST.WireguardAddressesResponse, REST.Error>, accountToken: String, newPrivateKey: PrivateKeyWithMetadata, completionHandler: @escaping CompletionHandler) {
+        switch completion {
         case .success(let associatedAddresses):
             logger.debug("Replaced old key with new key on server.")
 
@@ -203,6 +203,11 @@ class ReplaceKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, Tunn
             logger.error(chainedError: restError, message: "Failed to replace old key with new key on server.")
 
             completionHandler(.failure(.replaceWireguardKey(restError)))
+
+        case .cancelled:
+            logger.debug("Cancelled replace key request.")
+
+            completionHandler(.cancelled)
         }
     }
 }
