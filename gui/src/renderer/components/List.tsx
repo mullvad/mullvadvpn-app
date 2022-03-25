@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Scheduler } from '../../shared/scheduler';
 import Accordion from './Accordion';
 
 export const stringValueAsKey = (value: string): string => value;
@@ -28,6 +29,8 @@ export default function List<T>(props: ListProps<T>) {
   // Skip add transition on first render when initial items are added.
   const skipAddTransition = useRef(props.skipInitialAddTransition ?? false);
 
+  const removeFallbackSchedulers = useRef<Record<string, Scheduler>>({});
+
   useEffect(() => {
     setDisplayItems((prevItems) => {
       if (props.skipRemoveTransition) {
@@ -46,8 +49,30 @@ export default function List<T>(props: ListProps<T>) {
   }, []);
 
   const onRemoved = useCallback((key: string) => {
+    removeFallbackSchedulers.current[key].cancel();
+    delete removeFallbackSchedulers.current[key];
+
     setDisplayItems((items) => items.filter((item) => item.key !== key));
   }, []);
+
+  useEffect(() => {
+    // Add scheduled item removal if `onTransitionEnd` doesn't trigger for some reason.
+    displayItems
+      .filter((item) => item.removing && removeFallbackSchedulers.current[item.key] === undefined)
+      .forEach((item) => {
+        const scheduler = new Scheduler();
+        scheduler.schedule(() => onRemoved(item.key), 400);
+        removeFallbackSchedulers.current[item.key] = scheduler;
+      });
+  }, [displayItems]);
+
+  useEffect(
+    () => () => {
+      // Cancel all schedulers on unmount
+      Object.values(removeFallbackSchedulers).forEach((scheduler) => scheduler.cancel());
+    },
+    [],
+  );
 
   return (
     <>
