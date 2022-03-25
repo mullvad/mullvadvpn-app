@@ -413,7 +413,7 @@ impl WireguardMonitor {
                 #[cfg(not(windows))]
                 tun_provider,
                 #[cfg(not(windows))]
-                Self::get_tunnel_destinations(config),
+                Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes),
                 #[cfg(windows)]
                 setup_done_tx,
             )
@@ -536,6 +536,7 @@ impl WireguardMonitor {
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
         Self::get_tunnel_destinations(config)
             .filter(|allowed_ip| allowed_ip.prefix() == 0)
+            .flat_map(Self::replace_default_prefixes)
             .map(move |allowed_ip| {
                 if allowed_ip.is_ipv4() {
                     RequiredRoute::new(allowed_ip, node_v4.clone())
@@ -547,26 +548,28 @@ impl WireguardMonitor {
 
     /// Return routes for all allowed IPs.
     fn get_tunnel_destinations(config: &Config) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
-        let routes = config
+        config
             .peers
             .iter()
             .flat_map(|peer| peer.allowed_ips.iter())
-            .cloned();
+            .cloned()
+    }
 
+    /// Replace default (0-prefix) routes with more specific routes.
+    fn replace_default_prefixes(network: ipnetwork::IpNetwork) -> Vec<ipnetwork::IpNetwork> {
         #[cfg(not(target_os = "linux"))]
-        let routes = routes.flat_map(|allowed_ip| {
-            if allowed_ip.prefix() == 0 {
-                if allowed_ip.is_ipv4() {
-                    vec!["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()]
-                } else {
-                    vec!["8000::/1".parse().unwrap(), "::/1".parse().unwrap()]
-                }
+        if network.prefix() == 0 {
+            if network.is_ipv4() {
+                vec!["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()]
             } else {
-                vec![allowed_ip]
+                vec!["8000::/1".parse().unwrap(), "::/1".parse().unwrap()]
             }
-        });
+        } else {
+            vec![network]
+        }
 
-        routes
+        #[cfg(target_os = "linux")]
+        vec![network]
     }
 
     fn tunnel_metadata(interface_name: &str, config: &Config) -> TunnelMetadata {
