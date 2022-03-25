@@ -162,8 +162,9 @@ pub async fn spawn(
 pub enum TunnelCommand {
     /// Enable or disable LAN access in the firewall.
     AllowLan(bool),
-    /// Endpoint that should never be blocked.
-    /// If an error occurs, the sender is dropped.
+    /// Endpoint that should never be blocked. `()` is sent to the
+    /// channel after attempting to set the firewall policy, regardless
+    /// of whether it succeeded.
     AllowEndpoint(AllowedEndpoint, oneshot::Sender<()>),
     /// Set DNS servers to use.
     Dns(Option<Vec<IpAddr>>),

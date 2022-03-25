@@ -99,13 +99,10 @@ impl ApiEndpointUpdaterHandle {
                     get_allowed_endpoint(address.clone()),
                     result_tx,
                 ));
-                if result_rx.await.is_ok() {
-                    log::debug!("API endpoint: {}", address);
-                    true
-                } else {
-                    log::error!("Failed to update allowed endpoint");
-                    false
-                }
+                // Wait for the firewall policy to be updated.
+                let _ = result_rx.await;
+                log::debug!("API endpoint: {}", address);
+                true
             }
         }
     }
