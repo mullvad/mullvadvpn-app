@@ -53,6 +53,8 @@ const WIREGUARD_EXIT_CONSTRAINTS: WireguardMatcher = WireguardMatcher {
 
 const UDP2TCP_PORTS: [u16; 3] = [80, 443, 5001];
 
+const BRIDGE_PROXIMITY_BIAS: u32 = 3;
+
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -697,7 +699,10 @@ impl RelaySelector {
                 relay.location.as_ref().unwrap().distance_from(&location) as usize
             });
             let max_weight = matching_relays.len();
-            let weight_fn = |index, _relay: &Relay| (max_weight - index) as u64;
+            let weight_fn = |index, _relay: &Relay| {
+                let w = (max_weight - index) as u64;
+                w.saturating_pow(BRIDGE_PROXIMITY_BIAS)
+            };
             self.pick_random_relay_fn(&matching_relays, weight_fn)
         } else {
             self.pick_random_relay(&matching_relays)
