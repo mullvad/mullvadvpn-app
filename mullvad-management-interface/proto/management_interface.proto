@@ -233,6 +233,7 @@ message GeoIpLocation {
 	string hostname = 8;
 	string bridge_hostname = 9;
 	string entry_hostname = 10;
+	string obfuscator_hostname = 11;
 }
 
 message BridgeSettings {

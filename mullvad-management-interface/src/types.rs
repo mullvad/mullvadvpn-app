@@ -19,6 +19,7 @@ impl From<mullvad_types::location::GeoIpLocation> for GeoIpLocation {
             hostname: geoip.hostname.unwrap_or_default(),
             bridge_hostname: geoip.bridge_hostname.unwrap_or_default(),
             entry_hostname: geoip.entry_hostname.unwrap_or_default(),
+            obfuscator_hostname: geoip.obfuscator_hostname.unwrap_or_default(),
         }
     }
 }
