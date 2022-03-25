@@ -3,16 +3,15 @@ package net.mullvad.mullvadvpn.util
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView.Adapter
-import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlin.properties.Delegates.observable
 
 class AdapterWithHeader<H : ViewHolder>(
-    val adapter: Adapter<H>,
+    val adapter: RecyclerView.Adapter<H>,
     val headerLayoutId: Int
-) : Adapter<HeaderOrHolder<H>>() {
-    private val observer = object : AdapterDataObserver() {
+) : RecyclerView.Adapter<HeaderOrHolder<H>>() {
+    private val observer = object : RecyclerView.AdapterDataObserver() {
         override fun onChanged() {
             notifyDataSetChanged()
         }

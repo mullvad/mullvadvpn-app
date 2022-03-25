@@ -41,9 +41,11 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             tunnelState = this@OutOfTimeFragment.tunnelState
         }
 
-        view.findViewById<TextView>(R.id.account_credit_has_expired).text =
-            parentActivity.getString(R.string.account_credit_has_expired) + " " +
+        view.findViewById<TextView>(R.id.account_credit_has_expired).text = buildString {
+            append(parentActivity.getString(R.string.account_credit_has_expired))
+            append(" ")
             parentActivity.getString(R.string.add_time_to_account)
+        }
 
         disconnectButton = view.findViewById<Button>(R.id.disconnect).apply {
             setOnClickAction("disconnect", jobTracker) {

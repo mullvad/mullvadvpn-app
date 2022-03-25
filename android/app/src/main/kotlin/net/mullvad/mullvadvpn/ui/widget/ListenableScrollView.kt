@@ -19,7 +19,7 @@ class ListenableScrollView : ScrollView, ListenableScrollableView {
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
         super(context, attributes, defaultStyleAttribute) {
-        }
+    }
 
     constructor(
         context: Context,

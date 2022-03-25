@@ -17,6 +17,7 @@ abstract class ListItemView @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs, defStyleAttr, defStyleRes) {
     @get:LayoutRes
     protected abstract val layoutRes: Int
+
     @get:DimenRes
     protected abstract val heightRes: Int?
     protected lateinit var itemData: ListItemData

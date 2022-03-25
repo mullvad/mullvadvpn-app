@@ -26,6 +26,7 @@ class SplitTunnelingViewModel(
     dispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val listItemsSink = MutableSharedFlow<List<ListItemData>>(replay = 1)
+
     // read-only public view
     val listItems: SharedFlow<List<ListItemData>> = listItemsSink.asSharedFlow()
 

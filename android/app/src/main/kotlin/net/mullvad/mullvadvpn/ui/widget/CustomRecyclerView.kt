@@ -19,7 +19,7 @@ class CustomRecyclerView : RecyclerView, ListenableScrollableView {
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
         super(context, attributes, defaultStyleAttribute) {
-        }
+    }
 
     init {
         itemAnimator = customItemAnimator.apply {

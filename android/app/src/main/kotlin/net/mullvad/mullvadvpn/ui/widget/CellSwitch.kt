@@ -158,14 +158,16 @@ class CellSwitch : LinearLayout {
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {}
+        super(context, attributes, defaultStyleAttribute) {
+    }
 
     constructor(
         context: Context,
         attributes: AttributeSet,
         defaultStyleAttribute: Int,
         defaultStyleResource: Int
-    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {}
+    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {
+    }
 
     init {
         setBackground(resources.getDrawable(R.drawable.cell_switch_background, null))

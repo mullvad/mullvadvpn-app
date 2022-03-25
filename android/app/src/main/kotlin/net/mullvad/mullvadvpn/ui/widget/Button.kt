@@ -73,7 +73,9 @@ open class Button : FrameLayout {
 
     var label: CharSequence
         get() = button.text
-        set(value) { button.text = value }
+        set(value) {
+            button.text = value
+        }
 
     var showSpinner = false
 
@@ -85,8 +87,8 @@ open class Button : FrameLayout {
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
         super(context, attributes, defaultStyleAttribute) {
-            loadAttributes(attributes)
-        }
+        loadAttributes(attributes)
+    }
 
     constructor(
         context: Context,

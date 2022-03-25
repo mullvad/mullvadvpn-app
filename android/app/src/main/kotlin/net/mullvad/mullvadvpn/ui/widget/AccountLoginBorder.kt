@@ -77,7 +77,8 @@ class AccountLoginBorder : RelativeLayout {
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {}
+        super(context, attributes, defaultStyleAttribute) {
+    }
 
     constructor(
         context: Context,

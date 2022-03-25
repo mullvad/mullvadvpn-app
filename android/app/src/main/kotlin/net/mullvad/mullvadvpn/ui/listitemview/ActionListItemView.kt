@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.ui.listitemview
 import android.content.Context
 import android.content.res.Resources
 import android.util.AttributeSet
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView

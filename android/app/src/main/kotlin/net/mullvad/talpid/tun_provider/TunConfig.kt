@@ -1,7 +1,6 @@
 package net.mullvad.talpid.tun_provider
 
 import java.net.InetAddress
-import java.util.ArrayList
 
 data class TunConfig(
     val addresses: ArrayList<InetAddress>,
