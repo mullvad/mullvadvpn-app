@@ -38,6 +38,12 @@ extension ApplicationConfiguration {
         return [mainApplicationLogFileURL, packetTunnelLogFileURL].compactMap { $0 }
     }
 
+    /// Privacy policy URL.
+    static let privacyPolicyURL = URL(string: "https://mullvad.net/help/privacy-policy/")!
+
+    /// FAQ & Guides URL.
+    static let faqAndGuidesURL = URL(string: "https://mullvad.net/help/tag/mullvad-app/")!
+
     /// Default API endpoint
     static let defaultAPIEndpoint = AnyIPEndpoint(string: "193.138.218.78:443")!
 

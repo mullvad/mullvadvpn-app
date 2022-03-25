@@ -7,13 +7,14 @@
 //
 
 import Foundation
+import SafariServices
 import UIKit
 
 protocol SettingsViewControllerDelegate: AnyObject {
     func settingsViewControllerDidFinish(_ controller: SettingsViewController)
 }
 
-class SettingsViewController: UITableViewController, SettingsDataSourceDelegate {
+class SettingsViewController: UITableViewController, SettingsDataSourceDelegate, SFSafariViewControllerDelegate {
 
     weak var delegate: SettingsViewControllerDelegate?
 
@@ -56,13 +57,27 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
     // MARK: - SettingsDataSourceDelegate
 
     func settingsDataSource(_ dataSource: SettingsDataSource, didSelectItem item: SettingsDataSource.Item) {
-        guard let route = item.navigationRoute else { return }
+        if let route = item.navigationRoute {
+            let settingsNavigationController = navigationController as? SettingsNavigationController
 
-        let settingsNavigationController = navigationController as? SettingsNavigationController
+            settingsNavigationController?.navigate(to: route, animated: true)
+        } else if case .faq = item {
+            let safariViewController = SFSafariViewController(url: ApplicationConfiguration.faqAndGuidesURL)
+            safariViewController.delegate = self
 
-        settingsNavigationController?.navigate(to: route, animated: true)
+            present(safariViewController, animated: true)
+        }
     }
 
+    // MARK: - SFSafariViewControllerDelegate
+
+    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        controller.dismiss(animated: true)
+    }
+
+    func safariViewControllerWillOpenInBrowser(_ controller: SFSafariViewController) {
+        controller.dismiss(animated: false)
+    }
 }
 
 extension SettingsDataSource.Item {
@@ -78,6 +93,8 @@ extension SettingsDataSource.Item {
             return nil
         case .problemReport:
             return .problemReport
+        case .faq:
+            return nil
         }
     }
 }

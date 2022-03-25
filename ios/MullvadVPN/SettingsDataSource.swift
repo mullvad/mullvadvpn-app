@@ -46,6 +46,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
         case wireguardKey
         case version
         case problemReport
+        case faq
     }
 
     private var snapshot = DataSourceSnapshot<Section, Item>()
@@ -88,7 +89,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
 
         newSnapshot.appendSections([.version, .problemReport])
         newSnapshot.appendItems([.version], in: .version)
-        newSnapshot.appendItems([.problemReport], in: .problemReport)
+        newSnapshot.appendItems([.problemReport, .faq], in: .problemReport)
 
         snapshot = newSnapshot
     }
@@ -114,7 +115,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.titleLabel.text = NSLocalizedString("ACCOUNT_CELL_LABEL", tableName: "Settings", value: "Account", comment: "")
             cell.accountExpiryDate = Account.shared.expiry
             cell.accessibilityIdentifier = "AccountCell"
-            cell.setCustomDisclosureIndicator()
+            cell.disclosureType = .chevron
 
             return cell
 
@@ -123,7 +124,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.titleLabel.text = NSLocalizedString("PREFERENCES_CELL_LABEL", tableName: "Settings", value: "Preferences", comment: "")
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = nil
-            cell.setCustomDisclosureIndicator()
+            cell.disclosureType = .chevron
 
             return cell
 
@@ -132,7 +133,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.titleLabel.text = NSLocalizedString("WIREGUARD_KEY_CELL_LABEL", tableName: "Settings", value: "WireGuard key", comment: "")
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = "WireGuardKeyCell"
-            cell.setCustomDisclosureIndicator()
+            cell.disclosureType = .chevron
 
             return cell
 
@@ -141,7 +142,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.titleLabel.text = NSLocalizedString("APP_VERSION_CELL_LABEL", tableName: "Settings", value: "App version", comment: "")
             cell.detailTitleLabel.text = Bundle.main.productVersion
             cell.accessibilityIdentifier = nil
-            cell.unsetCustomDisclosureIndicator()
+            cell.disclosureType = .none
 
             return cell
 
@@ -150,9 +151,19 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.titleLabel.text = NSLocalizedString("REPORT_PROBLEM_CELL_LABEL", tableName: "Settings", value: "Report a problem", comment: "")
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = nil
-            cell.setCustomDisclosureIndicator()
+            cell.disclosureType = .chevron
 
             return cell
+
+        case .faq:
+            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
+            cell.titleLabel.text = NSLocalizedString("FAQ_AND_GUIDES_CELL_LABEL", tableName: "Settings", value: "FAQ & Guides", comment: "")
+            cell.detailTitleLabel.text = nil
+            cell.accessibilityIdentifier = nil
+            cell.disclosureType = .externalLink
+
+            return cell
+
         }
     }
 

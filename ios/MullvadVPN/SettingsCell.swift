@@ -8,18 +8,47 @@
 
 import UIKit
 
+enum SettingsDisclosureType {
+    case none
+    case chevron
+    case externalLink
+
+    var image: UIImage? {
+        switch self {
+        case .none:
+            return nil
+        case .chevron:
+            return UIImage(named: "IconChevron")
+        case .externalLink:
+            return UIImage(named: "IconExtlink")
+        }
+    }
+}
+
 class SettingsCell: UITableViewCell {
 
     let titleLabel = UILabel()
     let detailTitleLabel = UILabel()
+    let disclosureImageView = UIImageView(image: nil)
 
-    lazy var customDisclosureIndicator: UIImageView = {
-        let disclosureImage = UIImage(named: "IconChevron")?
-            .backport_withTintColor(UIColor.Cell.disclosureIndicatorColor, renderingMode: .alwaysOriginal)
+    var disclosureType: SettingsDisclosureType = .none {
+        didSet {
+            accessoryType = .none
 
-        return UIImageView(image: disclosureImage)
-    }()
+            let image = disclosureType.image?.backport_withTintColor(
+                UIColor.Cell.disclosureIndicatorColor,
+                renderingMode: .alwaysOriginal
+            )
 
+            if let image = image {
+                disclosureImageView.image = image
+                disclosureImageView.sizeToFit()
+                accessoryView = disclosureImageView
+            } else {
+                accessoryView = nil
+            }
+        }
+    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -92,16 +121,6 @@ class SettingsCell: UITableViewCell {
 
         // Set layout margins for cell content
         contentView.layoutMargins = UIMetrics.settingsCellLayoutMargins
-    }
-
-    func setCustomDisclosureIndicator() {
-        accessoryType = .none
-        accessoryView = customDisclosureIndicator
-    }
-
-    func unsetCustomDisclosureIndicator() {
-        accessoryView = nil
-        accessoryType = .none
     }
 
     /// On iOS 12, standard edit and reorder controls do not respect layout margins.
