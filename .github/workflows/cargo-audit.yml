@@ -1,4 +1,4 @@
-name: Audit Rust dependencies CI
+name: Rust - Audit dependencies
 on:
     pull_request:
         paths:
