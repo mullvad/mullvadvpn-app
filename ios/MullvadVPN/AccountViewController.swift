@@ -319,7 +319,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
     // MARK: - AppStorePaymentObserver
 
-    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String?, didFailWithError error: AppStorePaymentManager.Error) {
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction?, payment: SKPayment, accountToken: String?, didFailWithError error: AppStorePaymentManager.Error) {
         let alertController = UIAlertController(
             title: NSLocalizedString(
                 "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
@@ -343,7 +343,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
         alertPresenter.enqueue(alertController, presentingController: self)
 
-        if transaction.payment == pendingPayment {
+        if payment == pendingPayment {
             compoundInteractionRestriction.decrease(animated: true)
         }
     }

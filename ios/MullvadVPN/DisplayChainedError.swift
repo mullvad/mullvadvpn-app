@@ -343,6 +343,31 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
                 comment: ""
             )
 
+        case .validateAccount(let restError):
+            let reason = restError.errorChainDescription ?? ""
+
+            if case .server(.invalidAccount) = restError {
+                return String(
+                    format: NSLocalizedString(
+                        "INVALID_ACCOUNT_ERROR",
+                        tableName: "AppStorePaymentManager",
+                        value: "Cannot add credit to invalid account.",
+                        comment: ""
+                    ), reason
+                )
+            } else {
+                let reason = restError.errorChainDescription ?? ""
+
+                return String(
+                    format: NSLocalizedString(
+                        "VALIDATE_ACCOUNT_ERROR",
+                        tableName: "AppStorePaymentManager",
+                        value: "Failed to validate account token: %@",
+                        comment: ""
+                    ), reason
+                )
+            }
+
         case .readReceipt(let readReceiptError):
             switch readReceiptError {
             case .refresh(let storeError):
