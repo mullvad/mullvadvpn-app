@@ -74,6 +74,10 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate,
     func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
         controller.dismiss(animated: true)
     }
+
+    func safariViewControllerWillOpenInBrowser(_ controller: SFSafariViewController) {
+        controller.dismiss(animated: false)
+    }
 }
 
 extension SettingsDataSource.Item {

@@ -65,4 +65,7 @@ class ConsentViewController: UIViewController, RootContainment, SFSafariViewCont
         controller.dismiss(animated: true)
     }
 
+    func safariViewControllerWillOpenInBrowser(_ controller: SFSafariViewController) {
+        controller.dismiss(animated: false)
+    }
 }
