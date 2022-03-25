@@ -115,7 +115,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.titleLabel.text = NSLocalizedString("ACCOUNT_CELL_LABEL", tableName: "Settings", value: "Account", comment: "")
             cell.accountExpiryDate = Account.shared.expiry
             cell.accessibilityIdentifier = "AccountCell"
-            cell.setCustomDisclosureIndicator()
+            cell.disclosureType = .chevron
 
             return cell
 
@@ -124,7 +124,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.titleLabel.text = NSLocalizedString("PREFERENCES_CELL_LABEL", tableName: "Settings", value: "Preferences", comment: "")
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = nil
-            cell.setCustomDisclosureIndicator()
+            cell.disclosureType = .chevron
 
             return cell
 
@@ -133,7 +133,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.titleLabel.text = NSLocalizedString("WIREGUARD_KEY_CELL_LABEL", tableName: "Settings", value: "WireGuard key", comment: "")
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = "WireGuardKeyCell"
-            cell.setCustomDisclosureIndicator()
+            cell.disclosureType = .chevron
 
             return cell
 
@@ -142,7 +142,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.titleLabel.text = NSLocalizedString("APP_VERSION_CELL_LABEL", tableName: "Settings", value: "App version", comment: "")
             cell.detailTitleLabel.text = Bundle.main.productVersion
             cell.accessibilityIdentifier = nil
-            cell.unsetCustomDisclosureIndicator()
+            cell.disclosureType = .none
 
             return cell
 
@@ -151,7 +151,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.titleLabel.text = NSLocalizedString("REPORT_PROBLEM_CELL_LABEL", tableName: "Settings", value: "Report a problem", comment: "")
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = nil
-            cell.setCustomDisclosureIndicator()
+            cell.disclosureType = .chevron
 
             return cell
 
@@ -160,7 +160,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
             cell.titleLabel.text = NSLocalizedString("FAQ_AND_GUIDES_CELL_LABEL", tableName: "Settings", value: "FAQ & Guides", comment: "")
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = nil
-            cell.unsetCustomDisclosureIndicator()
+            cell.disclosureType = .externalLink
 
             return cell
 
