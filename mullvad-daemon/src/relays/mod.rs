@@ -646,7 +646,7 @@ impl RelaySelector {
     }
 
     pub fn get_auto_proxy_settings<T: Into<Coordinates>>(
-        &mut self,
+        &self,
         bridge_constraints: &InternalBridgeConstraints,
         location: Option<T>,
         retry_attempt: u32,
@@ -674,7 +674,7 @@ impl RelaySelector {
     }
 
     pub fn get_proxy_settings<T: Into<Coordinates>>(
-        &mut self,
+        &self,
         constraints: &InternalBridgeConstraints,
         location: Option<T>,
     ) -> Option<(ProxySettings, Relay)> {
@@ -712,7 +712,7 @@ impl RelaySelector {
         relay: &Relay,
         endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
-    ) -> Option<ObfuscatorConfig> {
+    ) -> Option<(ObfuscatorConfig, Relay)> {
         match obfuscation_settings.selected_obfuscation {
             SelectedObfuscation::Auto => {
                 self.get_auto_obfuscator(obfuscation_settings, relay, endpoint, retry_attempt)
@@ -733,7 +733,7 @@ impl RelaySelector {
         relay: &Relay,
         endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
-    ) -> Option<ObfuscatorConfig> {
+    ) -> Option<(ObfuscatorConfig, Relay)> {
         if !self.should_use_auto_obfuscator(retry_attempt) {
             return None;
         }
@@ -767,7 +767,7 @@ impl RelaySelector {
         relay: &Relay,
         _endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
-    ) -> Option<ObfuscatorConfig> {
+    ) -> Option<(ObfuscatorConfig, Relay)> {
         let udp2tcp_endpoint = if obfuscation_settings.port.is_only() {
             relay
                 .obfuscators
@@ -780,8 +780,13 @@ impl RelaySelector {
                 .udp2tcp
                 .get(retry_attempt as usize % relay.obfuscators.udp2tcp.len())
         };
-        udp2tcp_endpoint.map(|udp2tcp_endpoint| ObfuscatorConfig::Udp2Tcp {
-            endpoint: SocketAddr::new(relay.ipv4_addr_in.into(), udp2tcp_endpoint.port),
+        udp2tcp_endpoint.map(|udp2tcp_endpoint| {
+            (
+                ObfuscatorConfig::Udp2Tcp {
+                    endpoint: SocketAddr::new(relay.ipv4_addr_in.into(), udp2tcp_endpoint.port),
+                },
+                relay.clone(),
+            )
         })
     }
 
@@ -1557,15 +1562,17 @@ mod test {
             ..ObfuscationSettings::default()
         };
 
-        let obfs_config = relay_selector.get_obfuscator(
-            &obfs_settings,
-            &result.exit_relay,
-            result.endpoint.unwrap_wireguard(),
-            0,
-        );
+        let (obfs_config, _obfs_relay) = relay_selector
+            .get_obfuscator(
+                &obfs_settings,
+                &result.exit_relay,
+                result.endpoint.unwrap_wireguard(),
+                0,
+            )
+            .unwrap();
 
         assert!(matches!(
-            obfs_config.unwrap(),
+            obfs_config,
             ObfuscatorConfig::Udp2Tcp { .. }
         ));
     }
@@ -1631,7 +1638,7 @@ mod test {
             assert!(result.entry_relay.is_none());
             assert!(!TCP2UDP_PORTS.contains(&result.endpoint.to_endpoint().address.port()));
 
-            let obfs_config = relay_selector
+            let (obfs_config, _obfs_relay) = relay_selector
                 .get_obfuscator(
                     &obfs_settings,
                     &result.exit_relay,
