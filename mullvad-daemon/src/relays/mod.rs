@@ -53,6 +53,9 @@ const WIREGUARD_EXIT_CONSTRAINTS: WireguardMatcher = WireguardMatcher {
 
 const UDP2TCP_PORTS: [u16; 3] = [80, 443, 5001];
 
+/// How much to favor bridges that are closer to the selected relay location. Each
+/// bridge is assigned a base weight based on its rank order proximity to the location.
+/// Its final weight equals `(base weight) ^ BRIDGE_PROXIMITY_BIAS`.
 const BRIDGE_PROXIMITY_BIAS: u32 = 3;
 
 #[derive(err_derive::Error, Debug)]
