@@ -279,10 +279,17 @@ final class TunnelManager: TunnelManagerStateDelegate {
                 self.logger.error(chainedError: error, message: "Failed to reconnect the tunnel.")
             }
 
-            // Refresh tunnel status since reasserting may not be lowered until the tunnel is fully
+            // Refresh tunnel status only when connecting or reasserting to pick up the next relay,
+            // since both states may persist for a long period of time until the tunnel is fully
             // connected.
-            self.logger.debug("Refresh tunnel status due to reconnect.")
-            self.refreshTunnelStatus()
+            switch self.tunnelState {
+            case .connecting, .reconnecting:
+                self.logger.debug("Refresh tunnel status due to reconnect.")
+                self.refreshTunnelStatus()
+
+            default:
+                break
+            }
 
             DispatchQueue.main.async {
                 completionHandler?()
