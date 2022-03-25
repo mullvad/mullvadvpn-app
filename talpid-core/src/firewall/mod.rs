@@ -152,12 +152,13 @@ impl fmt::Display for FirewallPolicy {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
+                allowed_endpoint,
                 ..
             } => {
                 if let Some(tunnel) = tunnel {
                     write!(
                         f,
-                        "Connecting to {} over \"{}\" (ip: {}, v4 gw: {}, v6 gw: {:?}), {} LAN",
+                        "Connecting to {} over \"{}\" (ip: {}, v4 gw: {}, v6 gw: {:?}), {} LAN. Allowing endpoint {}",
                         peer_endpoint,
                         tunnel.interface,
                         tunnel
@@ -168,14 +169,16 @@ impl fmt::Display for FirewallPolicy {
                             .join(","),
                         tunnel.ipv4_gateway,
                         tunnel.ipv6_gateway,
-                        if *allow_lan { "Allowing" } else { "Blocking" }
+                        if *allow_lan { "Allowing" } else { "Blocking" },
+                        allowed_endpoint,
                     )
                 } else {
                     write!(
                         f,
-                        "Connecting to {}, {} LAN, interface: none",
+                        "Connecting to {}, {} LAN, interface: none. Allowing endpoint {}",
                         peer_endpoint,
-                        if *allow_lan { "Allowing" } else { "Blocking" }
+                        if *allow_lan { "Allowing" } else { "Blocking" },
+                        allowed_endpoint,
                     )
                 }
             }
