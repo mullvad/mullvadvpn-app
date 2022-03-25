@@ -212,9 +212,7 @@ impl ConnectedState {
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 shared_values.allowed_endpoint = endpoint;
-                if let Err(_) = tx.send(()) {
-                    log::error!("The AllowEndpoint receiver was dropped");
-                }
+                let _ = tx.send(());
                 SameState(self.into())
             }
             Some(TunnelCommand::Dns(servers)) => match shared_values.set_dns_servers(servers) {

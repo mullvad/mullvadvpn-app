@@ -154,9 +154,7 @@ impl TunnelState for DisconnectedState {
                     shared_values.allowed_endpoint = endpoint;
                     Self::set_firewall_policy(shared_values, true);
                 }
-                if let Err(_) = tx.send(()) {
-                    log::error!("The AllowEndpoint receiver was dropped");
-                }
+                let _ = tx.send(());
                 SameState(self.into())
             }
             Some(TunnelCommand::Dns(servers)) => {

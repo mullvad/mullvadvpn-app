@@ -29,9 +29,7 @@ impl DisconnectingState {
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                     shared_values.allowed_endpoint = endpoint;
-                    if let Err(_) = tx.send(()) {
-                        log::error!("The AllowEndpoint receiver was dropped");
-                    }
+                    let _ = tx.send(());
                     AfterDisconnect::Nothing
                 }
                 Some(TunnelCommand::Dns(servers)) => {
@@ -67,9 +65,7 @@ impl DisconnectingState {
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                     shared_values.allowed_endpoint = endpoint;
-                    if let Err(_) = tx.send(()) {
-                        log::error!("The AllowEndpoint receiver was dropped");
-                    }
+                    let _ = tx.send(());
                     AfterDisconnect::Block(reason)
                 }
                 Some(TunnelCommand::Dns(servers)) => {
@@ -110,9 +106,7 @@ impl DisconnectingState {
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                     shared_values.allowed_endpoint = endpoint;
-                    if let Err(_) = tx.send(()) {
-                        log::error!("The AllowEndpoint receiver was dropped");
-                    }
+                    let _ = tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Some(TunnelCommand::Dns(servers)) => {
