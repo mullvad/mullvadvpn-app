@@ -154,6 +154,8 @@ pub struct GeoIpLocation {
     pub bridge_hostname: Option<String>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub entry_hostname: Option<String>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub obfuscator_hostname: Option<String>,
 }
 
 impl From<AmIMullvad> for GeoIpLocation {
@@ -174,6 +176,7 @@ impl From<AmIMullvad> for GeoIpLocation {
             hostname: None,
             bridge_hostname: None,
             entry_hostname: None,
+            obfuscator_hostname: None,
         }
     }
 }
