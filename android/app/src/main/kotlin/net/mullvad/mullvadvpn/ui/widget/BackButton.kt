@@ -27,8 +27,8 @@ class BackButton : LinearLayout {
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
         super(context, attributes, defaultStyleAttribute) {
-            loadAttributes(attributes)
-        }
+        loadAttributes(attributes)
+    }
 
     constructor(
         context: Context,

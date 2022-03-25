@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.model
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntDef
 import androidx.annotation.StringRes
-import java.lang.IllegalArgumentException
 
 data class ListItemData
 private constructor(
@@ -23,11 +22,14 @@ private constructor(
 
     class Builder(private val identifier: String) {
         var text: String? = null
+
         @StringRes
         var textRes: Int? = null
+
         @DrawableRes
         var iconRes: Int? = null
         var isSelected: Boolean = false
+
         @ItemType
         var type: Int = 0
         var widget: WidgetState? = null

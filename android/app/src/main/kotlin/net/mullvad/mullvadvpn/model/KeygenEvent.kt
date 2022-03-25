@@ -10,7 +10,7 @@ sealed class KeygenEvent : Parcelable {
         val verified: Boolean?,
         val replacementFailure: KeygenFailure?
     ) : KeygenEvent() {
-        constructor(publicKey: PublicKey) : this (publicKey, null, null)
+        constructor(publicKey: PublicKey) : this(publicKey, null, null)
     }
 
     @Parcelize

@@ -59,7 +59,7 @@ class AppVersionCell : UrlCell {
         attributes: AttributeSet? = null,
         defaultStyleAttribute: Int = 0,
         defaultStyleResource: Int = 0
-    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {}
+    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource)
 
     init {
         cell.addView(warningIcon, 0)

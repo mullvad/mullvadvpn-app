@@ -13,13 +13,12 @@ class CustomRecyclerView : RecyclerView, ListenableScrollableView {
 
     override var onScrollListener: ((Int, Int, Int, Int) -> Unit)? = null
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}
+    constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {
-        }
+        super(context, attributes, defaultStyleAttribute)
 
     init {
         itemAnimator = customItemAnimator.apply {

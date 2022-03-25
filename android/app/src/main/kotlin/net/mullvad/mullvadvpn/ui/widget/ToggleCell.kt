@@ -10,25 +10,29 @@ class ToggleCell : Cell {
 
     var state
         get() = toggle.state
-        set(value) { toggle.state = value }
+        set(value) {
+            toggle.state = value
+        }
 
     var listener
         get() = toggle.listener
-        set(value) { toggle.listener = value }
+        set(value) {
+            toggle.listener = value
+        }
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}
+    constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {}
+        super(context, attributes, defaultStyleAttribute)
 
     constructor(
         context: Context,
         attributes: AttributeSet,
         defaultStyleAttribute: Int,
         defaultStyleResource: Int
-    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {}
+    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource)
 
     init {
         onClickListener = { toggle() }

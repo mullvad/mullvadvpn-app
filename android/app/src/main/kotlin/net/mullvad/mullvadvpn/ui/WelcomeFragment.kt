@@ -38,9 +38,11 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             setOnClickListener { copyAccountTokenToClipboard() }
         }
 
-        view.findViewById<TextView>(R.id.pay_to_start_using).text =
-            parentActivity.getString(R.string.pay_to_start_using) + " " +
-            parentActivity.getString(R.string.add_time_to_account)
+        view.findViewById<TextView>(R.id.pay_to_start_using).text = buildString {
+            append(parentActivity.getString(R.string.pay_to_start_using))
+            append(" ")
+            append(parentActivity.getString(R.string.add_time_to_account))
+        }
 
         sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
             newAccount = true

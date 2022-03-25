@@ -19,19 +19,27 @@ class SettingsListener(private val connection: Messenger, eventDispatcher: Event
 
     var account: String?
         get() = accountNumberNotifier.latestEvent
-        set(value) { connection.send(Request.SetAccount(value).message) }
+        set(value) {
+            connection.send(Request.SetAccount(value).message)
+        }
 
     var allowLan: Boolean
         get() = settingsNotifier.latestEvent?.allowLan ?: false
-        set(value) { connection.send(Request.SetAllowLan(value).message) }
+        set(value) {
+            connection.send(Request.SetAllowLan(value).message)
+        }
 
     var autoConnect: Boolean
         get() = settingsNotifier.latestEvent?.autoConnect ?: false
-        set(value) { connection.send(Request.SetAutoConnect(value).message) }
+        set(value) {
+            connection.send(Request.SetAutoConnect(value).message)
+        }
 
     var wireguardMtu: Int?
         get() = settingsNotifier.latestEvent?.tunnelOptions?.wireguard?.options?.mtu
-        set(value) { connection.send(Request.SetWireGuardMtu(value).message) }
+        set(value) {
+            connection.send(Request.SetWireGuardMtu(value).message)
+        }
 
     init {
         eventDispatcher.registerHandler(Event.SettingsUpdate::class, ::handleNewEvent)

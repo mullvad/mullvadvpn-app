@@ -23,7 +23,10 @@ fun <T> SendChannel<T>.safeOffer(element: T): Boolean {
 fun Animation.transitionFinished(): Flow<Unit> = callbackFlow<Unit> {
     val transitionAnimationListener = object : Animation.AnimationListener {
         override fun onAnimationStart(animation: Animation?) {}
-        override fun onAnimationEnd(animation: Animation?) { safeOffer(Unit) }
+        override fun onAnimationEnd(animation: Animation?) {
+            safeOffer(Unit)
+        }
+
         override fun onAnimationRepeat(animation: Animation?) {}
     }
     setAnimationListener(transitionAnimationListener)

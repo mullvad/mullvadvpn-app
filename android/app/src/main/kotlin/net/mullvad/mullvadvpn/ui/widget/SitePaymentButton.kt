@@ -6,19 +6,19 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 
 class SitePaymentButton : UrlButton {
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}
+    constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {}
+        super(context, attributes, defaultStyleAttribute)
 
     constructor(
         context: Context,
         attributes: AttributeSet,
         defaultStyleAttribute: Int,
         defaultStyleResource: Int
-    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {}
+    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource)
 
     var newAccount by observable(false) { _, _, isNewAccount ->
         if (isNewAccount) {
