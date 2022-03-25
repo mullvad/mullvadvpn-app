@@ -323,13 +323,11 @@ impl ConnectingState {
                 if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
                     self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
                 } else {
-                    let next_state = self.reset_firewall(shared_values);
-                    return next_state;
+                    self.reset_firewall(shared_values)
                 }
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 if shared_values.allowed_endpoint != endpoint {
-                    shared_values.allowed_endpoint = endpoint;
                     if let Err(error) = Self::set_firewall_policy(
                         shared_values,
                         &self.tunnel_parameters,
@@ -340,9 +338,7 @@ impl ConnectingState {
                             AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
                         );
                     }
-                    let next_state = self.reset_firewall(shared_values);
-                    let _ = tx.send(());
-                    return next_state;
+                    shared_values.allowed_endpoint = endpoint;
                 }
                 if let Err(_) = tx.send(()) {
                     log::error!("The AllowEndpoint receiver was dropped");
