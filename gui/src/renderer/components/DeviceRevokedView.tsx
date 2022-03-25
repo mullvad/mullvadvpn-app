@@ -78,8 +78,15 @@ export function DeviceRevokedView() {
             <StyledMessage>
               {messages.pgettext(
                 'device-management',
-                'You have removed this device from your list of active devices. To connect with this device again, log in.',
+                'You have removed this device. To connect again, you will need to log back in.',
               )}
+            </StyledMessage>
+            <StyledMessage>
+              {tunnelState.state !== 'disconnected' &&
+                messages.pgettext(
+                  'device-management',
+                  'Going to login will unblock the Internet on this device.',
+                )}
             </StyledMessage>
           </StyledBody>
 
