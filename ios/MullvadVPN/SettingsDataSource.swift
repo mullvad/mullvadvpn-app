@@ -203,7 +203,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
 
     func account(_ account: Account, didUpdateExpiry expiry: Date) {
         tableView?.performBatchUpdates {
-            if let indexPath = snapshot.indexPathForItem(.version) {
+            if let indexPath = snapshot.indexPathForItem(.account) {
                 tableView?.reloadRows(at: [indexPath], with: .none)
             }
         }
