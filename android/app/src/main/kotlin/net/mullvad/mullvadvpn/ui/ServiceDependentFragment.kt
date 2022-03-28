@@ -84,8 +84,7 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
                     onSafelyStop()
                     onSafelyStart()
                 }
-                else -> {
-                }
+                else -> Unit
             }
         }
     }
@@ -101,8 +100,7 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
                     state = State.LostConnection
                     leaveFragment()
                 }
-                else -> {
-                }
+                else -> Unit
             }
         }
     }
@@ -133,8 +131,7 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
                     state = State.Active
                     onSafelyStart()
                 }
-                else -> {
-                }
+                else -> Unit
             }
         }
     }
@@ -145,8 +142,7 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
                 State.Initialized, State.Stopped, State.Active -> {
                     onSafelySaveInstanceState(instanceState)
                 }
-                else -> {
-                }
+                else -> Unit
             }
         }
     }
@@ -158,8 +154,7 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
                     onSafelyStop()
                     state = State.Stopped
                 }
-                else -> {
-                }
+                else -> Unit
             }
         }
 
@@ -170,8 +165,7 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
         synchronized(this) {
             when (state) {
                 State.Initialized, State.Stopped, State.Active -> onSafelyDestroyView()
-                else -> {
-                }
+                else -> Unit
             }
         }
 
