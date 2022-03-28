@@ -84,15 +84,9 @@ class AsyncOperation: Operation {
             didChangeValue(for: \.isFinished)
 
             stateLock.unlock()
-
-            operationDidFinish()
         } else {
             stateLock.unlock()
         }
-    }
-
-    func operationDidFinish() {
-        // Override in subclasses
     }
 
     private func setExecuting(_ value: Bool) {
