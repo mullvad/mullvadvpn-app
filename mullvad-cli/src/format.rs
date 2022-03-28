@@ -41,7 +41,7 @@ pub fn print_state(state: &TunnelState) {
 fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
     let tunnel_type = TunnelType::from_i32(endpoint.tunnel_type).expect("invalid tunnel protocol");
     let mut out = format!(
-        "{} {} over {}",
+        "{} {}/{}",
         match tunnel_type {
             TunnelType::Wireguard => "WireGuard",
             TunnelType::Openvpn => "OpenVPN",
@@ -57,7 +57,7 @@ fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
             if let Some(ref proxy) = endpoint.proxy {
                 write!(
                     &mut out,
-                    " via {} {} over {}",
+                    " via {} {}/{}",
                     match ProxyType::from_i32(proxy.proxy_type).expect("invalid proxy type") {
                         ProxyType::Shadowsocks => "Shadowsocks",
                         ProxyType::Custom => "custom bridge",
@@ -75,7 +75,7 @@ fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
             if let Some(ref entry_endpoint) = endpoint.entry_endpoint {
                 write!(
                     &mut out,
-                    " via {} over {}",
+                    " via {}/{}",
                     entry_endpoint.address,
                     format_protocol(
                         TransportProtocol::from_i32(entry_endpoint.protocol)
@@ -87,7 +87,7 @@ fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
             if let Some(ref obfuscation) = endpoint.obfuscation {
                 write!(
                     &mut out,
-                    " via {} {}:{} over {}",
+                    " via {} {}:{}/{}",
                     match ObfuscationType::from_i32(obfuscation.obfuscation_type)
                         .expect("invalid obfuscation type")
                     {
