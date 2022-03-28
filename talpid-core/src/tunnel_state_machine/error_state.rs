@@ -155,15 +155,14 @@ impl TunnelState for ErrorState {
 
                     #[cfg(target_os = "android")]
                     if !Self::create_blocking_tun(shared_values) {
+                        let _ = tx.send(());
                         return NewState(Self::enter(
                             shared_values,
                             ErrorStateCause::SetFirewallPolicyError(FirewallPolicyError::Generic),
                         ));
                     }
                 }
-                if let Err(_) = tx.send(()) {
-                    log::error!("The AllowEndpoint receiver was dropped");
-                }
+                let _ = tx.send(());
                 SameState(self.into())
             }
             Some(TunnelCommand::Dns(servers)) => {
