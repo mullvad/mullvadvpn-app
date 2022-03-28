@@ -20,9 +20,8 @@ extension TunnelIPC {
         var timeout: TimeInterval = 5
     }
 
-    final class RequestOperation<Output>: AsyncOperation {
+    final class RequestOperation<Output>: ResultOperation<Output, TunnelIPC.Error> {
         typealias DecoderHandler = (Data?) -> Result<Output, TunnelIPC.Error>
-        typealias CompletionHandler = (OperationCompletion<Output, TunnelIPC.Error>) -> Void
 
         private let queue: DispatchQueue
 
@@ -31,7 +30,6 @@ extension TunnelIPC {
         private let options: RequestOptions
 
         private let decoderHandler: DecoderHandler
-        private var completionHandler: CompletionHandler?
 
         private var statusObserver: Tunnel.StatusBlockObserver?
         private var timeoutWork: DispatchWorkItem?
@@ -53,12 +51,24 @@ extension TunnelIPC {
             self.options = options
 
             self.decoderHandler = decoderHandler
-            self.completionHandler = completionHandler
+
+            super.init(completionQueue: queue, completionHandler: completionHandler)
         }
 
         override func main() {
             queue.async {
-                self.execute()
+                guard !self.isCancelled else {
+                    self.completeOperation(completion: .cancelled)
+                    return
+                }
+
+                self.setTimeoutTimer(connectingStateWaitDelay: 0)
+
+                self.statusObserver = self.tunnel.addBlockObserver(queue: self.queue) { [weak self] tunnel, status in
+                    self?.handleVPNStatus(status)
+                }
+
+                self.handleVPNStatus(self.tunnel.status)
             }
         }
 
@@ -70,21 +80,6 @@ extension TunnelIPC {
                     self.completeOperation(completion: .cancelled)
                 }
             }
-        }
-
-        private func execute() {
-            guard !isCancelled else {
-                completeOperation(completion: .cancelled)
-                return
-            }
-
-            setTimeoutTimer(connectingStateWaitDelay: 0)
-
-            statusObserver = tunnel.addBlockObserver(queue: queue) { [weak self] tunnel, status in
-                self?.handleVPNStatus(status)
-            }
-
-            handleVPNStatus(tunnel.status)
         }
 
         private func removeVPNStatusObserver() {
@@ -211,12 +206,8 @@ extension TunnelIPC {
             timeoutWork?.cancel()
             waitForConnectingStateWork?.cancel()
 
-            // Call completion handler.
-            completionHandler?(completion)
-            completionHandler = nil
-
             // Finish operation.
-            finish()
+            finish(completion: completion)
         }
     }
 }
