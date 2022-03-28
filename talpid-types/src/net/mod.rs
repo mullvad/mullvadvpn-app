@@ -150,11 +150,7 @@ impl fmt::Display for TunnelEndpoint {
         match self.tunnel_type {
             TunnelType::OpenVpn => {
                 if let Some(ref proxy) = self.proxy {
-                    write!(
-                        f,
-                        " via {} {} over {}",
-                        proxy.proxy_type, proxy.endpoint.address, proxy.endpoint.protocol
-                    )?;
+                    write!(f, " via {} {}", proxy.proxy_type, proxy.endpoint)?;
                 }
             }
             TunnelType::Wireguard => {
@@ -246,7 +242,7 @@ impl Endpoint {
 
 impl fmt::Display for Endpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{} over {}", self.address, self.protocol)
+        write!(f, "{}/{}", self.address, self.protocol)
     }
 }
 

@@ -401,7 +401,7 @@ impl fmt::Display for OpenVpnConstraints {
                     Constraint::Any => write!(f, "any port")?,
                     Constraint::Only(port) => write!(f, "port {}", port)?,
                 }
-                write!(f, " over {}", port.protocol)
+                write!(f, "/{}", port.protocol)
             }
         }
     }
