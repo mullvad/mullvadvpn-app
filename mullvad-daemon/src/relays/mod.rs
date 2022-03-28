@@ -650,6 +650,7 @@ impl RelaySelector {
         entry_endpoint.exit_peer = Some(exit_peer.clone());
     }
 
+    #[cfg(not(target_os = "android"))]
     pub fn get_auto_proxy_settings<T: Into<Coordinates>>(
         &self,
         bridge_constraints: &InternalBridgeConstraints,
@@ -668,6 +669,7 @@ impl RelaySelector {
         self.get_proxy_settings(bridge_constraints, location)
     }
 
+    #[cfg(not(target_os = "android"))]
     pub fn should_use_bridge(&self, retry_attempt: u32) -> bool {
         // shouldn't use a bridge for the first 3 times
         retry_attempt > 3 &&
@@ -1597,10 +1599,7 @@ mod test {
             )
             .unwrap();
 
-        assert!(matches!(
-            obfs_config,
-            ObfuscatorConfig::Udp2Tcp { .. }
-        ));
+        assert!(matches!(obfs_config, ObfuscatorConfig::Udp2Tcp { .. }));
     }
 
     #[test]

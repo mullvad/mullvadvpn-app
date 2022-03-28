@@ -74,10 +74,12 @@ use talpid_core::{
 };
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
+#[cfg(not(target_os = "android"))]
+use talpid_types::net::openvpn;
 use talpid_types::{
     net::{
-        openvpn::{self, ProxySettings},
-        wireguard, TransportProtocol, TunnelEndpoint, TunnelParameters, TunnelType,
+        openvpn::ProxySettings, wireguard, TransportProtocol, TunnelEndpoint, TunnelParameters,
+        TunnelType,
     },
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
@@ -1078,6 +1080,8 @@ where
             log::error!("No account token configured");
         }
     }
+
+    #[cfg_attr(target_os = "android", allow(unused_variables))]
     async fn create_tunnel_parameters(
         &mut self,
         relay: &Relay,
@@ -1089,6 +1093,7 @@ where
         let tunnel_options = self.settings.tunnel_options.clone();
         let location = relay.location.as_ref().expect("Relay has no location set");
         match endpoint {
+            #[cfg(not(target_os = "android"))]
             MullvadEndpoint::OpenVpn(endpoint) => {
                 let (bridge_settings, bridge_relay) =
                     self.generate_bridge_parameters(&location, retry_attempt)?;
@@ -1109,6 +1114,10 @@ where
                     proxy: bridge_settings,
                 }
                 .into())
+            }
+            #[cfg(target_os = "android")]
+            MullvadEndpoint::OpenVpn(endpoint) => {
+                unreachable!("OpenVPN is not supported on Android");
             }
             MullvadEndpoint::Wireguard(endpoint) => {
                 let wg_data = self
@@ -1580,6 +1589,7 @@ where
                 bridge_hostname = None;
                 location = exit.location.as_ref().cloned().unwrap();
             }
+            #[cfg(not(target_os = "android"))]
             LastSelectedRelays::OpenVpn { relay, bridge } => {
                 hostname = relay.hostname.clone();
                 bridge_hostname = take_hostname(bridge);
@@ -2722,6 +2732,7 @@ impl LastSelectedRelays {
                 let first_hop = obfuscator.as_ref().or(entry.as_ref()).unwrap_or(exit);
                 first_hop.location.clone()
             }
+            #[cfg(not(target_os = "android"))]
             Self::OpenVpn { relay, bridge } => {
                 let first_hop = bridge.as_ref().unwrap_or(relay);
                 first_hop.location.clone()
