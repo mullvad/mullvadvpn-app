@@ -62,8 +62,4 @@ class AccountCell : NavigateCell {
     init {
         cell.addView(remainingTimeLabel, cell.childCount - 1)
     }
-
-    private fun getRemainingText(pluralId: Int, quantity: Int): String {
-        return resources.getQuantityString(pluralId, quantity, quantity)
-    }
 }
