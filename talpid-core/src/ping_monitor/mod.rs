@@ -1,5 +1,5 @@
 #[cfg(any(target_os = "android"))]
-#[path = "unix.rs"]
+#[path = "android.rs"]
 mod imp;
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
@@ -19,11 +19,11 @@ pub trait Pinger: Send {
 /// Create a new pinger
 pub fn new_pinger(
     addr: std::net::Ipv4Addr,
-    #[cfg(not(target_os = "windows"))] interface_name: String,
+    #[cfg(any(target_os = "linux", target_os = "macos"))] interface_name: String,
 ) -> Result<Box<dyn Pinger>, Error> {
     Ok(Box::new(imp::Pinger::new(
         addr,
-        #[cfg(not(target_os = "windows"))]
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
         interface_name,
     )?))
 }
