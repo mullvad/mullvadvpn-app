@@ -137,13 +137,6 @@ class AccountLogin : RelativeLayout {
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
         super(context, attributes, defaultStyleAttribute)
 
-    constructor(
-        context: Context,
-        attributes: AttributeSet,
-        defaultStyleAttribute: Int,
-        defaultStyleResource: Int
-    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource)
-
     init {
         border.elevation = elevation + 0.1f
 

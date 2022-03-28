@@ -13,13 +13,6 @@ class SitePaymentButton : UrlButton {
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
         super(context, attributes, defaultStyleAttribute)
 
-    constructor(
-        context: Context,
-        attributes: AttributeSet,
-        defaultStyleAttribute: Int,
-        defaultStyleResource: Int
-    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource)
-
     var newAccount by observable(false) { _, _, isNewAccount ->
         if (isNewAccount) {
             label = context.getString(R.string.buy_credit)

@@ -59,13 +59,6 @@ class AccountCell : NavigateCell {
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
         super(context, attributes, defaultStyleAttribute)
 
-    constructor(
-        context: Context,
-        attributes: AttributeSet,
-        defaultStyleAttribute: Int,
-        defaultStyleResource: Int
-    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource)
-
     init {
         cell.addView(remainingTimeLabel, cell.childCount - 1)
     }
