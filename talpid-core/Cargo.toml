@@ -32,9 +32,11 @@ tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
 rand = "0.7"
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
-socket2 = { version = "0.4.2", features = ["all"] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
+byteorder = "1"
+internet-checksum = "0.2"
+socket2 = { version = "0.4.2", features = ["all"] }
 parity-tokio-ipc = "0.9"
 triggered = "0.1.1"
 tonic = "0.5"
@@ -57,13 +59,11 @@ netlink-packet-utils = "0.4"
 netlink-packet-route = "0.8"
 netlink-proto = "0.7"
 netlink-sys = "0.7"
-byteorder = "1"
 nftnl = { version = "0.6.2", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.2", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
 tun = "0.5.1"
 talpid-dbus = { path = "../talpid-dbus" }
-internet-checksum = "0.2"
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -75,8 +75,6 @@ subslice = "0.2"
 
 
 [target.'cfg(windows)'.dependencies]
-byteorder = "1"
-internet-checksum = "0.2"
 widestring = "0.5"
 winreg = { version = "0.7", features = ["transactions"] }
 winapi = { version = "0.3.6", features = ["combaseapi", "handleapi", "ifdef", "libloaderapi", "netioapi", "psapi", "stringapiset", "synchapi", "tlhelp32", "winbase", "winioctl", "winuser", "dbt"] }

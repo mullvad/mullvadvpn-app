@@ -229,7 +229,7 @@ impl WireguardMonitor {
         let gateway = config.ipv4_gateway;
         let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
-            #[cfg(not(target_os = "windows"))]
+            #[cfg(any(target_os = "macos", target_os = "linux"))]
             iface_name.clone(),
             Arc::downgrade(&monitor.tunnel),
             pinger_rx,
