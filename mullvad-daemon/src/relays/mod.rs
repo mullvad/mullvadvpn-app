@@ -1597,10 +1597,7 @@ mod test {
             )
             .unwrap();
 
-        assert!(matches!(
-            obfs_config,
-            ObfuscatorConfig::Udp2Tcp { .. }
-        ));
+        assert!(matches!(obfs_config, ObfuscatorConfig::Udp2Tcp { .. }));
     }
 
     #[test]
