@@ -1,8 +1,8 @@
-#[cfg(any(target_os = "android", target_os = "macos"))]
+#[cfg(any(target_os = "android"))]
 #[path = "unix.rs"]
 mod imp;
 
-#[cfg(any(target_os = "windows", target_os = "linux"))]
+#[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 #[path = "icmp.rs"]
 mod imp;
 

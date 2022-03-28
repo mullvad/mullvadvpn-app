@@ -30,6 +30,16 @@ pub enum Error {
     #[error(display = "Failed to write to socket")]
     WriteError(#[error(source)] io::Error),
 
+    /// Failed to get device index
+    #[cfg(target_os = "macos")]
+    #[error(display = "Failed to obtain device index")]
+    DeviceIdxError(nix::errno::Errno),
+
+    /// Failed to bind socket to device by index
+    #[cfg(target_os = "macos")]
+    #[error(display = "Failed to bind socket to device by index")]
+    BindSocketByDeviceError(io::Error),
+
     /// ICMP buffer too small
     #[error(display = "ICMP message buffer too small")]
     BufferTooSmall,
@@ -49,7 +59,10 @@ pub struct Pinger {
 }
 
 impl Pinger {
-    pub fn new(addr: Ipv4Addr, #[cfg(target_os = "linux")] interface_name: String) -> Result<Self> {
+    pub fn new(
+        addr: Ipv4Addr,
+        #[cfg(not(target_os = "windows"))] interface_name: String,
+    ) -> Result<Self> {
         let addr = SocketAddr::new(addr.into(), 0);
         let sock = Socket::new(Domain::IPV4, Type::RAW, Some(Protocol::ICMPV4))
             .map_err(Error::OpenError)?;
@@ -59,12 +72,27 @@ impl Pinger {
         sock.bind_device(Some(interface_name.as_bytes()))
             .map_err(Error::SocketOptError)?;
 
+        #[cfg(target_os = "macos")]
+        Self::set_device_index(&sock, &interface_name)?;
+
         Ok(Self {
             sock,
             addr,
             id: rand::random(),
             seq: 0,
         })
+    }
+
+    #[cfg(target_os = "macos")]
+    fn set_device_index(socket: &Socket, interface_name: &str) -> Result<()> {
+        let index = nix::net::if_::if_nametoindex(interface_name).map_err(Error::DeviceIdxError)?;
+        // Asserting that `index` is non-zero since otherwise `if_nametoindex` would have return
+        // an error
+        socket
+            .bind_device_by_index(std::num::NonZeroU32::new(index))
+            .map_err(Error::BindSocketByDeviceError)?;
+
+        Ok(())
     }
 
     fn send_ping_request(&mut self, message: &[u8], destination: SocketAddr) -> Result<()> {
