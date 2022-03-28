@@ -320,6 +320,11 @@ private class SendAppStoreReceiptOperation: AsyncOperation {
 
     override func main() {
         DispatchQueue.main.async {
+            guard !self.isCancelled else {
+                self.finish(completion: .cancelled)
+                return
+            }
+
             self.fetchReceiptCancellable = AppStoreReceipt.fetch(forceRefresh: self.forceRefresh, receiptProperties: self.receiptProperties) { completion in
                 switch completion {
                 case .success(let receiptData):
