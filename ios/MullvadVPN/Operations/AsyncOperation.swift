@@ -71,7 +71,7 @@ class AsyncOperation: Operation {
         super.cancel()
     }
 
-    final func finish() {
+    func finish() {
         stateLock.lock()
 
         if _isExecuting {
