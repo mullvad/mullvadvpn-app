@@ -24,6 +24,14 @@ class AsyncBlockOperation: AsyncOperation {
         executionBlock = nil
     }
 
+    override func finish() {
+        stateLock.lock()
+        cancellationBlocks.removeAll()
+        stateLock.unlock()
+
+        super.finish()
+    }
+
     override func cancel() {
         super.cancel()
 
@@ -39,7 +47,6 @@ class AsyncBlockOperation: AsyncOperation {
 
     func addCancellationBlock(_ block: @escaping () -> Void) {
         stateLock.lock()
-
         if isCancelled {
             stateLock.unlock()
             block()
@@ -47,11 +54,5 @@ class AsyncBlockOperation: AsyncOperation {
             cancellationBlocks.append(block)
             stateLock.unlock()
         }
-    }
-
-    override func operationDidFinish() {
-        stateLock.lock()
-        cancellationBlocks.removeAll()
-        stateLock.unlock()
     }
 }
