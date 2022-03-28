@@ -192,7 +192,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         let updateRelaysOperation = AsyncBlockOperation { operation in
-            let cancellable = RelayCache.Tracker.shared.updateRelays { completion in
+            let handle = RelayCache.Tracker.shared.updateRelays { completion in
                 switch completion {
                 case .success(let result):
                     self.logger?.debug("Finished updating relays: \(result)")
@@ -208,7 +208,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
 
             operation.addCancellationBlock {
-                cancellable.cancel()
+                handle.cancel()
             }
         }
 
