@@ -9,13 +9,10 @@
 import Foundation
 import Logging
 
-class LoadTunnelOperation: AsyncOperation {
-    typealias CompletionHandler = (OperationCompletion<(), TunnelManager.Error>) -> Void
-
+class LoadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
     private let queue: DispatchQueue
     private let accountToken: String?
     private let state: TunnelManager.State
-    private var completionHandler: CompletionHandler?
 
     private let logger = Logger(label: "TunnelManager.LoadTunnelOperation")
 
@@ -23,16 +20,14 @@ class LoadTunnelOperation: AsyncOperation {
         self.queue = queue
         self.state = state
         self.accountToken = accountToken
-        self.completionHandler = completionHandler
+
+        super.init(completionQueue: queue, completionHandler: completionHandler)
     }
 
     override func main() {
         queue.async {
             self.execute { completion in
-                self.completionHandler?(completion)
-                self.completionHandler = nil
-
-                self.finish()
+                self.finish(completion: completion)
             }
         }
     }

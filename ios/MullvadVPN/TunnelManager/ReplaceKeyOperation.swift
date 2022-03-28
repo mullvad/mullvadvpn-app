@@ -9,9 +9,7 @@
 import Foundation
 import Logging
 
-class ReplaceKeyOperation: AsyncOperation {
-    typealias CompletionHandler = (OperationCompletion<TunnelManager.KeyRotationResult, TunnelManager.Error>) -> Void
-
+class ReplaceKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, TunnelManager.Error> {
     private let queue: DispatchQueue
     private let state: TunnelManager.State
 
@@ -77,16 +75,13 @@ class ReplaceKeyOperation: AsyncOperation {
         self.restClient = restClient
         self.rotationInterval = rotationInterval
 
-        self.completionHandler = completionHandler
+        super.init(completionQueue: queue, completionHandler: completionHandler)
     }
 
     override func main() {
         queue.async {
             self.execute { completion in
-                self.completionHandler?(completion)
-                self.completionHandler = nil
-
-                self.finish()
+                self.finish(completion: completion)
             }
         }
     }

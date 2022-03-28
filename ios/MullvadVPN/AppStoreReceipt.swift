@@ -67,19 +67,18 @@ enum AppStoreReceipt {
     }
 }
 
-fileprivate class FetchAppStoreReceiptOperation: AsyncOperation, SKRequestDelegate {
+fileprivate class FetchAppStoreReceiptOperation: ResultOperation<Data, AppStoreReceipt.Error>, SKRequestDelegate {
+    private let dispatchQueue: DispatchQueue
     private var request: SKReceiptRefreshRequest?
     private let receiptProperties: [String: Any]?
     private let forceRefresh: Bool
 
-    private let dispatchQueue: DispatchQueue
-    private var completionHandler: ((OperationCompletion<Data, AppStoreReceipt.Error>) -> Void)?
-
-    init(dispatchQueue: DispatchQueue, forceRefresh: Bool, receiptProperties: [String: Any]?, completionHandler: @escaping (OperationCompletion<Data, AppStoreReceipt.Error>) -> Void) {
+    init(dispatchQueue: DispatchQueue, forceRefresh: Bool, receiptProperties: [String: Any]?, completionHandler: @escaping (Completion) -> Void) {
         self.dispatchQueue = dispatchQueue
         self.forceRefresh = forceRefresh
         self.receiptProperties = receiptProperties
-        self.completionHandler = completionHandler
+
+        super.init(completionQueue: .main, completionHandler: completionHandler)
     }
 
     override func main() {
@@ -170,17 +169,6 @@ fileprivate class FetchAppStoreReceiptOperation: AsyncOperation, SKRequestDelega
                 return .io(error)
             }
         }
-    }
-
-    private func finish(completion: OperationCompletion<Data, AppStoreReceipt.Error>) {
-        let block = completionHandler
-        completionHandler = nil
-
-        DispatchQueue.main.async {
-            block?(completion)
-        }
-
-        finish()
     }
 
 }
