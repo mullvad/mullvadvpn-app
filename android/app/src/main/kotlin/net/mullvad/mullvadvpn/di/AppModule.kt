@@ -17,7 +17,7 @@ import org.koin.dsl.onClose
 val appModule = module {
 
     single<PackageManager> { androidContext().packageManager }
-    single<String> (named(SELF_PACKAGE_NAME)) { androidContext().packageName }
+    single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
 
     scope(named(APPS_SCOPE)) {
         viewModel { SplitTunnelingViewModel(get(), get(), Dispatchers.Default) }

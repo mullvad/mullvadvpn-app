@@ -120,26 +120,22 @@ class AccountLogin : RelativeLayout {
 
     var onLogin: ((String) -> Unit)?
         get() = input.onLogin
-        set(value) { input.onLogin = value }
+        set(value) {
+            input.onLogin = value
+        }
 
     var onClearHistory: (() -> Unit)?
         get() = historyAdapter.onRemoveEntry
-        set(value) { historyAdapter.onRemoveEntry = value }
+        set(value) {
+            historyAdapter.onRemoveEntry = value
+        }
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}
+    constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {}
-
-    constructor(
-        context: Context,
-        attributes: AttributeSet,
-        defaultStyleAttribute: Int,
-        defaultStyleResource: Int
-    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {
-    }
+        super(context, attributes, defaultStyleAttribute)
 
     init {
         border.elevation = elevation + 0.1f

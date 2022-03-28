@@ -7,19 +7,12 @@ import net.mullvad.mullvadvpn.ui.RedeemVoucherDialogFragment
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class RedeemVoucherButton : Button {
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}
+    constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {}
-
-    constructor(
-        context: Context,
-        attributes: AttributeSet,
-        defaultStyleAttribute: Int,
-        defaultStyleResource: Int
-    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {}
+        super(context, attributes, defaultStyleAttribute)
 
     fun prepare(
         fragmentManager: FragmentManager?,

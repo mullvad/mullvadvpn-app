@@ -28,19 +28,19 @@ class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, @ListItemData.ItemType viewType: Int):
         ListItemsAdapter.ViewHolder {
-            return ViewHolder(
-                when (viewType) {
-                    ListItemData.DIVIDER -> DividerGroupListItemView(parent.context)
-                    ListItemData.PROGRESS -> ProgressListItemView(parent.context)
-                    ListItemData.PLAIN -> PlainListItemView(parent.context)
-                    ListItemData.ACTION -> ActionListItemView(parent.context)
-                    ListItemData.APPLICATION -> ApplicationListItemView(parent.context)
-                    ListItemData.DOUBLE_ACTION -> TwoActionListItemView(parent.context)
-                    else ->
-                        throw IllegalArgumentException("View type '$viewType' is not supported")
-                }
-            )
-        }
+        return ViewHolder(
+            when (viewType) {
+                ListItemData.DIVIDER -> DividerGroupListItemView(parent.context)
+                ListItemData.PROGRESS -> ProgressListItemView(parent.context)
+                ListItemData.PLAIN -> PlainListItemView(parent.context)
+                ListItemData.ACTION -> ActionListItemView(parent.context)
+                ListItemData.APPLICATION -> ApplicationListItemView(parent.context)
+                ListItemData.DOUBLE_ACTION -> TwoActionListItemView(parent.context)
+                else ->
+                    throw IllegalArgumentException("View type '$viewType' is not supported")
+            }
+        )
+    }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         (holder.itemView as ListItemView).update(getItem(position))

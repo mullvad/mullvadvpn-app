@@ -52,25 +52,14 @@ class AccountCell : NavigateCell {
         }
     }
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}
+    constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {}
-
-    constructor(
-        context: Context,
-        attributes: AttributeSet,
-        defaultStyleAttribute: Int,
-        defaultStyleResource: Int
-    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {}
+        super(context, attributes, defaultStyleAttribute)
 
     init {
         cell.addView(remainingTimeLabel, cell.childCount - 1)
-    }
-
-    private fun getRemainingText(pluralId: Int, quantity: Int): String {
-        return resources.getQuantityString(pluralId, quantity, quantity)
     }
 }

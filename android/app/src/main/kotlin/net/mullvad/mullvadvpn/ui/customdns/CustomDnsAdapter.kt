@@ -30,8 +30,9 @@ class CustomDnsAdapter(
 
     private var editingPosition: Int? = null
 
-    private var activeCustomDnsServers by observable<List<InetAddress>>(emptyList()) {
-        _, _, servers ->
+    private var activeCustomDnsServers by observable<List<InetAddress>>(
+        emptyList()
+    ) { _, _, servers ->
         if (servers != cachedCustomDnsServers) {
             cachedCustomDnsServers = servers.toMutableList()
             notifyDataSetChanged()

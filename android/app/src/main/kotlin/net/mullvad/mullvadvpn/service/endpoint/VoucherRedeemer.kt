@@ -8,7 +8,6 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
-import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 
 class VoucherRedeemer(private val endpoint: ServiceEndpoint) {
     private val daemon
