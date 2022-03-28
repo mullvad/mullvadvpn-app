@@ -15,17 +15,15 @@ pub enum Error {
 /// A pinger that sends ICMP requests without waiting for responses
 pub struct Pinger {
     addr: Ipv4Addr,
-    interface_name: String,
     processes: Vec<duct::Handle>,
 }
 
 impl Pinger {
     /// Creates a new pinger that will send ICMP requests only through the specified interface
-    pub fn new(addr: Ipv4Addr, interface_name: String) -> Result<Self, Error> {
+    pub fn new(addr: Ipv4Addr) -> Result<Self, Error> {
         Ok(Self {
             processes: vec![],
             addr,
-            interface_name,
         })
     }
 
@@ -45,7 +43,7 @@ impl super::Pinger for Pinger {
     fn send_icmp(&mut self) -> Result<(), Error> {
         self.try_deplete_process_list();
 
-        let cmd = ping_cmd(self.addr, 1, &self.interface_name);
+        let cmd = ping_cmd(self.addr, 1);
         let handle = cmd.start().map_err(Error::PingError)?;
         self.processes.push(handle);
         Ok(())
@@ -77,32 +75,10 @@ impl Drop for Pinger {
     }
 }
 
-fn ping_cmd(ip: Ipv4Addr, timeout_secs: u16, interface: &str) -> duct::Expression {
-    let mut args = vec!["-n", "-i", "1"];
-
-    let timeout_flag = if cfg!(target_os = "linux") || cfg!(target_os = "android") {
-        "-w"
-    } else {
-        "-t"
-    };
+fn ping_cmd(ip: Ipv4Addr, timeout_secs: u16) -> duct::Expression {
     let timeout_secs = timeout_secs.to_string();
-
-    args.extend_from_slice(&[timeout_flag, &timeout_secs]);
-
-    let interface_flag = if cfg!(target_os = "linux") {
-        Some("-I")
-    } else if cfg!(target_os = "macos") {
-        Some("-b")
-    } else {
-        None
-    };
-
-    if let Some(interface_flag) = interface_flag {
-        args.extend_from_slice(&[interface_flag, interface]);
-    }
-
     let ip = ip.to_string();
-    args.push(&ip);
+    let args = ["-n", "-i", "1", "-w", &timeout_secs, &ip];
 
     duct::cmd("ping", args)
         .stdin_null()

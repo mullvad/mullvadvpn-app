@@ -81,13 +81,13 @@ pub struct ConnectivityMonitor {
 impl ConnectivityMonitor {
     pub(super) fn new(
         addr: Ipv4Addr,
-        #[cfg(not(target_os = "windows"))] interface: String,
+        #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
         tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
         close_receiver: mpsc::Receiver<()>,
     ) -> Result<Self, Error> {
         let pinger = new_pinger(
             addr,
-            #[cfg(not(target_os = "windows"))]
+            #[cfg(any(target_os = "macos", target_os = "linux"))]
             interface,
         )
         .map_err(Error::PingError)?;
