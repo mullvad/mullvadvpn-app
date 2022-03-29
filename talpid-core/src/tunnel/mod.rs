@@ -156,7 +156,9 @@ impl TunnelMonitor {
             TunnelParameters::OpenVpn(params) => {
                 if let Some(proxy) = &params.proxy {
                     match proxy {
-                        openvpn_types::ProxySettings::Shadowsocks(..) => "sslocal.exe",
+                        openvpn_types::ProxySettings::Shadowsocks(..) => {
+                            return std::env::current_exe().unwrap()
+                        }
                         _ => "openvpn.exe",
                     }
                 } else {

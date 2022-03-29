@@ -1,20 +1,22 @@
-use std::sync::mpsc;
+use async_trait::async_trait;
+use futures::{channel::mpsc, StreamExt};
 
 use super::{ProxyMonitor, ProxyMonitorCloseHandle, Result, WaitResult};
 
 pub struct NoopProxyMonitor {
-    tx: mpsc::Sender<()>,
-    rx: mpsc::Receiver<()>,
+    tx: mpsc::UnboundedSender<()>,
+    rx: mpsc::UnboundedReceiver<()>,
     port: u16,
 }
 
 impl NoopProxyMonitor {
     pub fn start(port: u16) -> Result<Self> {
-        let (tx, rx) = mpsc::channel();
+        let (tx, rx) = mpsc::unbounded();
         Ok(NoopProxyMonitor { tx, rx, port })
     }
 }
 
+#[async_trait]
 impl ProxyMonitor for NoopProxyMonitor {
     fn close_handle(&mut self) -> Box<dyn ProxyMonitorCloseHandle> {
         Box::new(NoopProxyMonitorCloseHandle {
@@ -22,8 +24,8 @@ impl ProxyMonitor for NoopProxyMonitor {
         })
     }
 
-    fn wait(self: Box<Self>) -> Result<WaitResult> {
-        let _ = self.rx.recv();
+    async fn wait(mut self: Box<Self>) -> Result<WaitResult> {
+        let _ = self.rx.next().await;
         Ok(WaitResult::ProperShutdown)
     }
 
@@ -33,12 +35,12 @@ impl ProxyMonitor for NoopProxyMonitor {
 }
 
 struct NoopProxyMonitorCloseHandle {
-    tx: mpsc::Sender<()>,
+    tx: mpsc::UnboundedSender<()>,
 }
 
 impl ProxyMonitorCloseHandle for NoopProxyMonitorCloseHandle {
     fn close(self: Box<Self>) -> Result<()> {
-        let _ = self.tx.send(());
+        let _ = self.tx.unbounded_send(());
         Ok(())
     }
 }

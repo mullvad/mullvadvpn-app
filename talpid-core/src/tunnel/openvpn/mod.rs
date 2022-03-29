@@ -280,7 +280,13 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             log_dir,
         };
 
-        let proxy_monitor = Self::start_proxy(&params.proxy, &proxy_resources)?;
+        let runtime = tokio::runtime::Builder::new_multi_thread()
+            .worker_threads(1)
+            .enable_all()
+            .build()
+            .map_err(Error::RuntimeError)?;
+
+        let proxy_monitor = runtime.block_on(Self::start_proxy(&params.proxy, &proxy_resources))?;
 
         #[cfg(windows)]
         let dll = wintun::WintunDll::instance(resource_dir).map_err(Error::WintunDllError)?;
@@ -321,7 +327,8 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
 
-        Self::new_internal(
+        Self::new_internal_with_runtime(
+            runtime,
             cmd,
             event_server_abort_tx.clone(),
             event_server_abort_rx,
@@ -363,7 +370,8 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
 }
 
 impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
-    fn new_internal<L>(
+    fn new_internal_with_runtime<L>(
+        runtime: tokio::runtime::Runtime,
         mut cmd: C,
         event_server_abort_tx: triggered::Trigger,
         event_server_abort_rx: triggered::Listener,
@@ -385,12 +393,6 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         } else {
             format!("/tmp/talpid-openvpn-{}", uuid)
         };
-
-        let runtime = tokio::runtime::Builder::new_multi_thread()
-            .worker_threads(1)
-            .enable_all()
-            .build()
-            .map_err(Error::RuntimeError)?;
 
         let server_join_handle = runtime
             .block_on(event_server::start(
@@ -486,13 +488,17 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
                 Proxy(proxy::Result<proxy::WaitResult>),
             }
 
+            let handle = self.runtime.handle().clone();
+
             thread::spawn(move || {
                 tx_tunnel.send(Stopped::Tunnel(self.wait_tunnel())).unwrap();
                 let _ = proxy_close_handle.close();
             });
 
             thread::spawn(move || {
-                tx_proxy.send(Stopped::Proxy(proxy_monitor.wait())).unwrap();
+                tx_proxy
+                    .send(Stopped::Proxy(handle.block_on(proxy_monitor.wait())))
+                    .unwrap();
                 let _ = tunnel_close_handle.close();
             });
 
@@ -627,13 +633,14 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
     }
 
     /// Starts a proxy service, as applicable.
-    fn start_proxy(
+    async fn start_proxy(
         proxy_settings: &Option<openvpn::ProxySettings>,
         proxy_resources: &ProxyResourceData,
     ) -> Result<Option<Box<dyn ProxyMonitor>>> {
         if let Some(ref settings) = proxy_settings {
-            let proxy_monitor =
-                proxy::start_proxy(settings, proxy_resources).map_err(Error::StartProxyError)?;
+            let proxy_monitor = proxy::start_proxy(settings, proxy_resources)
+                .await
+                .map_err(Error::StartProxyError)?;
             return Ok(Some(proxy_monitor));
         }
         Ok(None)
@@ -1215,12 +1222,50 @@ mod tests {
         }
     }
 
+    fn new_monitor<L>(
+        cmd: TestOpenVpnBuilder,
+        event_server_abort_tx: triggered::Trigger,
+        event_server_abort_rx: triggered::Listener,
+        on_event: L,
+        plugin_path: PathBuf,
+        log_path: Option<PathBuf>,
+        user_pass_file: mktemp::TempFile,
+        proxy_auth_file: Option<mktemp::TempFile>,
+        proxy_monitor: Option<Box<dyn ProxyMonitor>>,
+        tunnel_close_rx: oneshot::Receiver<()>,
+        #[cfg(windows)] wintun: Box<dyn WintunContext>,
+    ) -> Result<OpenVpnMonitor<TestOpenVpnBuilder>>
+    where
+        L: event_server::OpenvpnEventProxy + Send + Sync + 'static,
+    {
+        let runtime = tokio::runtime::Builder::new_multi_thread()
+            .worker_threads(1)
+            .enable_all()
+            .build()
+            .map_err(Error::RuntimeError)?;
+        OpenVpnMonitor::new_internal_with_runtime(
+            runtime,
+            cmd,
+            event_server_abort_tx,
+            event_server_abort_rx,
+            on_event,
+            plugin_path,
+            log_path,
+            user_pass_file,
+            proxy_auth_file,
+            proxy_monitor,
+            tunnel_close_rx,
+            #[cfg(windows)]
+            wintun,
+        )
+    }
+
     #[test]
     fn sets_plugin() {
         let builder = TestOpenVpnBuilder::default();
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
         let (_close_tx, close_rx) = oneshot::channel();
-        let _ = OpenVpnMonitor::new_internal(
+        let _ = new_monitor(
             builder.clone(),
             event_server_abort_tx,
             event_server_abort_rx,
@@ -1245,7 +1290,7 @@ mod tests {
         let builder = TestOpenVpnBuilder::default();
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
         let (_close_tx, close_rx) = oneshot::channel();
-        let _ = OpenVpnMonitor::new_internal(
+        let _ = new_monitor(
             builder.clone(),
             event_server_abort_tx,
             event_server_abort_rx,
@@ -1271,7 +1316,7 @@ mod tests {
         builder.process_handle = Some(TestProcessHandle(0));
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
         let (_close_tx, close_rx) = oneshot::channel();
-        let testee = OpenVpnMonitor::new_internal(
+        let testee = new_monitor(
             builder,
             event_server_abort_tx,
             event_server_abort_rx,
@@ -1295,7 +1340,7 @@ mod tests {
         builder.process_handle = Some(TestProcessHandle(1));
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
         let (_close_tx, close_rx) = oneshot::channel();
-        let testee = OpenVpnMonitor::new_internal(
+        let testee = new_monitor(
             builder,
             event_server_abort_tx,
             event_server_abort_rx,
@@ -1319,7 +1364,7 @@ mod tests {
         builder.process_handle = Some(TestProcessHandle(1));
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
         let (_close_tx, close_rx) = oneshot::channel();
-        let testee = OpenVpnMonitor::new_internal(
+        let testee = new_monitor(
             builder,
             event_server_abort_tx,
             event_server_abort_rx,
@@ -1343,7 +1388,7 @@ mod tests {
         let builder = TestOpenVpnBuilder::default();
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
         let (_close_tx, close_rx) = oneshot::channel();
-        let result = OpenVpnMonitor::new_internal(
+        let result = new_monitor(
             builder,
             event_server_abort_tx,
             event_server_abort_rx,
