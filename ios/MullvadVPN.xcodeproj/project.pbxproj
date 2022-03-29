@@ -135,6 +135,7 @@
 		585DA8A326B14E0D00B8C587 /* ServerRelaysResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA88326B0270700B8C587 /* ServerRelaysResponse.swift */; };
 		585DA8A526B14EE000B8C587 /* PacketTunnelStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA89826B0329200B8C587 /* PacketTunnelStatus.swift */; };
 		585DA8A626B14F5100B8C587 /* SSLPinningURLSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */; };
+		585E820327F3285E00939F0E /* SendAppStoreReceiptOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585E820227F3285E00939F0E /* SendAppStoreReceiptOperation.swift */; };
 		5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */; };
 		58655DCE27DA0A5D00911834 /* TunnelMonitorConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58655DCD27DA0A5D00911834 /* TunnelMonitorConfiguration.swift */; };
 		58655DCF27DA0A5D00911834 /* TunnelMonitorConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58655DCD27DA0A5D00911834 /* TunnelMonitorConfiguration.swift */; };
@@ -424,6 +425,7 @@
 		585DA89226B0323E00B8C587 /* TunnelIPCRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelIPCRequest.swift; sourceTree = "<group>"; };
 		585DA89526B0328000B8C587 /* TunnelIPCResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelIPCResponse.swift; sourceTree = "<group>"; };
 		585DA89826B0329200B8C587 /* PacketTunnelStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelStatus.swift; sourceTree = "<group>"; };
+		585E820227F3285E00939F0E /* SendAppStoreReceiptOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAppStoreReceiptOperation.swift; sourceTree = "<group>"; };
 		5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslucentButtonBlurView.swift; sourceTree = "<group>"; };
 		58655DCD27DA0A5D00911834 /* TunnelMonitorConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorConfiguration.swift; sourceTree = "<group>"; };
 		5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MullvadVPN.entitlements; sourceTree = "<group>"; };
@@ -715,6 +717,7 @@
 				58FB865426E8BF3100F188BC /* AppStorePaymentManagerError.swift */,
 				5846227226E22A160035F7C2 /* AppStorePaymentObserver.swift */,
 				5846227026E229F20035F7C2 /* AppStoreSubscription.swift */,
+				585E820227F3285E00939F0E /* SendAppStoreReceiptOperation.swift */,
 			);
 			path = AppStorePaymentManager;
 			sourceTree = "<group>";
@@ -1367,6 +1370,7 @@
 				58781CC922AE7CA8009B9D8E /* RelayConstraints.swift in Sources */,
 				584E96BC240FD4DA00D3334F /* Location.swift in Sources */,
 				581503A124D6F01F00C9C50E /* LogRotation.swift in Sources */,
+				585E820327F3285E00939F0E /* SendAppStoreReceiptOperation.swift in Sources */,
 				584B17AB27637DE40057F3B8 /* ReloadTunnelOperation.swift in Sources */,
 				5820676426E771DB00655B05 /* TunnelManagerError.swift in Sources */,
 				585B4B8726D9098900555C4C /* TunnelErrorNotificationProvider.swift in Sources */,
