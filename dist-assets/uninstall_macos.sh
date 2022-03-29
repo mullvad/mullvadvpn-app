@@ -22,8 +22,8 @@ sudo dscl . -delete /groups/mullvad-exclusion || echo "Failed to remove 'mullvad
 
 
 echo "Resetting firewall"
-sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup reset-firewall
-sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup remove-device
+sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup reset-firewall || echo "Failed to reset firewall"
+sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup remove-device || echo "Failed to remove device from account"
 
 echo "Removing zsh shell completion symlink ..."
 sudo rm -f /usr/local/share/zsh/site-functions/_mullvad
