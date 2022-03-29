@@ -566,7 +566,11 @@ class ApplicationMain {
 
       if (process.env.NODE_ENV === 'development') {
         await this.installDevTools();
-        this.windowController.window.webContents.openDevTools({ mode: 'detach' });
+
+        // The devtools doesn't open on Windows if openDevTools is called without a delay here.
+        this.windowController.window.once('ready-to-show', () => {
+          this.windowController?.window?.webContents.openDevTools({ mode: 'detach' });
+        });
       }
 
       switch (process.platform) {
