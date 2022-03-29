@@ -1,9 +1,13 @@
 package net.mullvad.mullvadvpn.service
 
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceConfig
 import net.mullvad.mullvadvpn.model.DeviceEvent
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
@@ -22,7 +26,6 @@ import net.mullvad.talpid.util.EventNotifier
 class MullvadDaemon(vpnService: MullvadVpnService) {
     protected var daemonInterfaceAddress = 0L
 
-    var onDeviceChange = EventNotifier<DeviceConfig?>(null)
     var onDeviceRemoved = EventNotifier<RemoveDeviceEvent?>(null)
     val onSettingsChange = EventNotifier<Settings?>(null)
     var onTunnelStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected)
@@ -32,12 +35,17 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
     var onRelayListChange: ((RelayList) -> Unit)? = null
     var onDaemonStopped: (() -> Unit)? = null
 
+    private val _deviceStateUpdates = MutableSharedFlow<DeviceState>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val deviceStateUpdates = _deviceStateUpdates.asSharedFlow()
+
     init {
         System.loadLibrary("mullvad_jni")
         initialize(vpnService, vpnService.cacheDir.absolutePath, vpnService.filesDir.absolutePath)
 
         onSettingsChange.notify(getSettings())
-        onDeviceChange.notify(getDevice())
 
         onTunnelStateChange.notify(getState() ?: TunnelState.Disconnected)
     }
@@ -120,8 +128,8 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
 
     fun getDevice(): DeviceConfig? = getDevice(daemonInterfaceAddress)
 
-    fun removeDevice(accountToken: String?, device: Device) {
-        removeDevice(daemonInterfaceAddress, accountToken, device.id)
+    fun removeDevice(accountToken: String, deviceId: String): RemoveDeviceResult {
+        return removeDevice(daemonInterfaceAddress, accountToken, deviceId)
     }
 
     fun setAllowLan(allowLan: Boolean) {
@@ -251,7 +259,7 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
     }
 
     private fun notifyDeviceEvent(event: DeviceEvent) {
-        onDeviceChange.notify(event.device)
+        _deviceStateUpdates.tryEmit(DeviceState.fromDeviceConfig(event.device))
     }
 
     private fun notifyRemoveDeviceEvent(event: RemoveDeviceEvent) {

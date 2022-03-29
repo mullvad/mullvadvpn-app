@@ -8,9 +8,12 @@ import android.widget.ImageButton
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.mullvadvpn.ui.widget.AccountCell
 import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
@@ -26,10 +29,12 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
     private var active = false
 
     private var accountCache: AccountCache? = null
+    private var deviceRepository: DeviceRepository? = null
     private var versionInfoCache: AppVersionInfoCache? = null
 
     override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
         accountCache = serviceConnection.accountCache
+        deviceRepository = serviceConnection.deviceRepository
         versionInfoCache = serviceConnection.appVersionInfoCache
 
         if (active) {
@@ -39,6 +44,7 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
 
     override fun onNoServiceConnection() {
         accountCache = null
+        deviceRepository = null
         versionInfoCache = null
     }
 
@@ -102,9 +108,10 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
         versionInfoCache?.onUpdate = null
 
         accountCache?.apply {
-            onAccountNumberChange.unsubscribe(this@SettingsFragment)
             onAccountExpiryChange.unsubscribe(this@SettingsFragment)
         }
+
+        jobTracker.cancelAllJobs()
 
         super.onStop()
     }
@@ -116,12 +123,6 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
 
     private fun configureListeners() {
         accountCache?.apply {
-            onAccountNumberChange.subscribe(this@SettingsFragment) { account ->
-                jobTracker.newUiJob("updateLoggedInStatus") {
-                    updateLoggedInStatus(account != null)
-                }
-            }
-
             onAccountExpiryChange.subscribe(this@SettingsFragment) { expiry ->
                 jobTracker.newUiJob("updateAccountInfo") {
                     accountMenu.accountExpiry = expiry
@@ -129,6 +130,16 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
             }
 
             fetchAccountExpiry()
+        }
+
+        jobTracker.newUiJob("updateLoggedInStatus") {
+            deviceRepository?.let { repository ->
+                repository.deviceState
+                    .onEach { state -> if (state.isInitialState()) repository.refreshDeviceState() }
+                    .collect { device ->
+                        updateLoggedInStatus(device is DeviceState.DeviceRegistered)
+                    }
+            }
         }
 
         versionInfoCache?.onUpdate = {

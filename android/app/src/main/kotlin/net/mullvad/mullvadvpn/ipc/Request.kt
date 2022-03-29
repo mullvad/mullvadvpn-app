@@ -42,6 +42,9 @@ sealed class Request : Message.RequestMessage() {
     data class Login(val account: String?) : Request()
 
     @Parcelize
+    object RefreshDeviceState : Request()
+
+    @Parcelize
     object Logout : Request()
 
     @Parcelize

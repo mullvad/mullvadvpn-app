@@ -4,6 +4,7 @@ import android.os.Message as RawMessage
 import android.os.Messenger
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
@@ -27,6 +28,9 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize
     data class CurrentVersion(val version: String?) : Event()
+
+    @Parcelize
+    data class DeviceStateEvent(val newState: DeviceState) : Event()
 
     @Parcelize
     data class ListenerReady(val connection: Messenger, val listenerId: Int) : Event()

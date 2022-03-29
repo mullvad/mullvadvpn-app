@@ -204,10 +204,8 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun doLogout() {
-        if (accountNumber != null) {
-            daemon.await().logoutAccount()
-            loginStatus = null
-        }
+        daemon.await().logoutAccount()
+        loginStatus = null
     }
 
     private fun fetchAccountHistory() {

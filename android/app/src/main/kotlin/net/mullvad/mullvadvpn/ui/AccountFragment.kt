@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
 import java.text.DateFormat
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
@@ -93,10 +95,14 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     override fun onSafelyStart() {
-        accountCache.onAccountNumberChange.subscribe(this) { accountNumber ->
-            jobTracker.newUiJob("updateAccountNumber") {
-                accountNumberView.information = accountNumber
-            }
+        jobTracker.newUiJob("updateAccountNumber") {
+            deviceRepository.deviceState
+                .onEach { state ->
+                    if (state.isInitialState()) deviceRepository.refreshDeviceState()
+                }
+                .collect {
+                    accountNumberView.information = it.token()
+                }
         }
 
         accountCache.onAccountExpiryChange.subscribe(this) { accountExpiry ->
@@ -124,8 +130,8 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     override fun onSafelyStop() {
-        accountCache.onAccountNumberChange.unsubscribe(this)
         accountCache.onAccountExpiryChange.unsubscribe(this)
+        jobTracker.cancelAllJobs()
     }
 
     override fun onSafelyDestroyView() {
