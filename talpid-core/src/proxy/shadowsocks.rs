@@ -15,7 +15,7 @@ use shadowsocks_service::{
     },
 };
 
-use super::{ProxyMonitor, ProxyMonitorCloseHandle, ProxyResourceData, WaitResult};
+use super::{Error, ProxyMonitor, ProxyMonitorCloseHandle, ProxyResourceData};
 use talpid_types::{net::openvpn::ShadowsocksProxySettings, ErrorExt};
 
 pub struct ShadowsocksProxyMonitor {
@@ -28,7 +28,11 @@ impl ShadowsocksProxyMonitor {
     pub async fn start(
         settings: &ShadowsocksProxySettings,
         _resource_data: &ProxyResourceData,
-    ) -> io::Result<Self> {
+    ) -> super::Result<Self> {
+        Self::start_inner(settings).await.map_err(Error::Io)
+    }
+
+    async fn start_inner(settings: &ShadowsocksProxySettings) -> io::Result<Self> {
         // TODO: Patch shadowsocks so the bound address can be obtained afterwards.
         let addr = SocketAddrV4::new(Ipv4Addr::LOCALHOST, 0);
         let sock = Socket::new(
@@ -103,20 +107,18 @@ impl ProxyMonitor for ShadowsocksProxyMonitor {
         })
     }
 
-    async fn wait(mut self: Box<Self>) -> io::Result<WaitResult> {
+    async fn wait(mut self: Box<Self>) -> super::Result<()> {
         match self.server_join_handle.await {
-            Ok(Err(Aborted)) => Ok(WaitResult::ProperShutdown),
+            Ok(Err(Aborted)) => Ok(()),
 
-            Err(join_err) if join_err.is_cancelled() => Ok(WaitResult::ProperShutdown),
-            Err(_) => Ok(WaitResult::UnexpectedExit(
+            Err(join_err) if join_err.is_cancelled() => Ok(()),
+            Err(_) => Err(Error::UnexpectedExit(
                 "Shadowsocks task panicked".to_string(),
             )),
 
             Ok(Ok(result)) => match result {
-                Ok(()) => Ok(WaitResult::UnexpectedExit(
-                    "Exited without error".to_string(),
-                )),
-                Err(error) => Ok(WaitResult::UnexpectedExit(format!(
+                Ok(()) => Err(Error::UnexpectedExit("Exited without error".to_string())),
+                Err(error) => Err(Error::UnexpectedExit(format!(
                     "Error: {}",
                     error.display_chain()
                 ))),
@@ -134,7 +136,7 @@ struct ShadowsocksProxyMonitorCloseHandle {
 }
 
 impl ProxyMonitorCloseHandle for ShadowsocksProxyMonitorCloseHandle {
-    fn close(self: Box<Self>) -> io::Result<()> {
+    fn close(self: Box<Self>) -> super::Result<()> {
         self.server_abort_handle.abort();
         Ok(())
     }

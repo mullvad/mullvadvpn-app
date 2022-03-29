@@ -1,17 +1,21 @@
 mod noop;
 mod shadowsocks;
 
-pub use std::io::Result;
-
 use self::shadowsocks::ShadowsocksProxyMonitor;
 use async_trait::async_trait;
-use std::{fmt, path::PathBuf};
+use std::{fmt, io, path::PathBuf};
 use talpid_types::net::openvpn;
 
-pub enum WaitResult {
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Monitor exited unexpectedly: {}", _0)]
     UnexpectedExit(String),
-    ProperShutdown,
+
+    #[error(display = "I/O error")]
+    Io(io::Error),
 }
+
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[async_trait]
 pub trait ProxyMonitor: Send {
@@ -19,7 +23,7 @@ pub trait ProxyMonitor: Send {
     fn close_handle(&mut self) -> Box<dyn ProxyMonitorCloseHandle>;
 
     /// Consume monitor and wait for proxy service to shut down.
-    async fn wait(self: Box<Self>) -> Result<WaitResult>;
+    async fn wait(self: Box<Self>) -> Result<()>;
 
     /// The port bound to.
     fn port(&self) -> u16;
