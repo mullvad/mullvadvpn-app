@@ -119,7 +119,7 @@ pub enum Error {
 
     /// Failures related to the proxy service.
     #[error(display = "Unable to start the proxy service")]
-    StartProxyError(#[error(source)] io::Error),
+    StartProxyError(#[error(source)] proxy::Error),
 
     /// Error while monitoring proxy service
     #[error(display = "Error while monitoring proxy service")]
@@ -495,7 +495,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
             enum Stopped {
                 Tunnel(Result<()>),
-                Proxy(proxy::Result<proxy::WaitResult>),
+                Proxy(proxy::Result<()>),
             }
 
             let handle = self.runtime.handle().clone();
@@ -517,18 +517,10 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
             match result {
                 Stopped::Tunnel(tunnel_result) => tunnel_result,
-                Stopped::Proxy(proxy_result) => {
-                    // The proxy should never exit before openvpn.
-                    match proxy_result {
-                        Ok(proxy::WaitResult::ProperShutdown) => {
-                            Err(Error::ProxyExited("No details".to_owned()))
-                        }
-                        Ok(proxy::WaitResult::UnexpectedExit(details)) => {
-                            Err(Error::ProxyExited(details))
-                        }
-                        Err(err) => Err(err).map_err(Error::MonitorProxyError),
-                    }
-                }
+                Stopped::Proxy(proxy_result) => proxy_result.map_err(|error| match error {
+                    proxy::Error::UnexpectedExit(details) => Error::ProxyExited(details),
+                    proxy::Error::Io(error) => Error::MonitorProxyError(error),
+                }),
             }
         } else {
             // No proxy active, wait only for the tunnel.

@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use futures::{channel::mpsc, StreamExt};
 
-use super::{ProxyMonitor, ProxyMonitorCloseHandle, Result, WaitResult};
+use super::{ProxyMonitor, ProxyMonitorCloseHandle, Result};
 
 pub struct NoopProxyMonitor {
     tx: mpsc::UnboundedSender<()>,
@@ -24,9 +24,9 @@ impl ProxyMonitor for NoopProxyMonitor {
         })
     }
 
-    async fn wait(mut self: Box<Self>) -> Result<WaitResult> {
+    async fn wait(mut self: Box<Self>) -> Result<()> {
         let _ = self.rx.next().await;
-        Ok(WaitResult::ProperShutdown)
+        Ok(())
     }
 
     fn port(&self) -> u16 {
