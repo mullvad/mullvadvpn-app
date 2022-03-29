@@ -4,6 +4,7 @@ mod shadowsocks;
 pub use std::io::Result;
 
 use self::shadowsocks::ShadowsocksProxyMonitor;
+use async_trait::async_trait;
 use std::{fmt, path::PathBuf};
 use talpid_types::net::openvpn;
 
@@ -12,12 +13,13 @@ pub enum WaitResult {
     ProperShutdown,
 }
 
+#[async_trait]
 pub trait ProxyMonitor: Send {
     /// Create a handle than can be used to ask the proxy service to shut down.
     fn close_handle(&mut self) -> Box<dyn ProxyMonitorCloseHandle>;
 
     /// Consume monitor and wait for proxy service to shut down.
-    fn wait(self: Box<Self>) -> Result<WaitResult>;
+    async fn wait(self: Box<Self>) -> Result<WaitResult>;
 
     /// The port bound to.
     fn port(&self) -> u16;
@@ -41,7 +43,7 @@ pub struct ProxyResourceData {
     pub log_dir: Option<PathBuf>,
 }
 
-pub fn start_proxy(
+pub async fn start_proxy(
     settings: &openvpn::ProxySettings,
     resource_data: &ProxyResourceData,
 ) -> Result<Box<dyn ProxyMonitor>> {
@@ -59,7 +61,7 @@ pub fn start_proxy(
             )?))
         }
         openvpn::ProxySettings::Shadowsocks(ss_settings) => Ok(Box::new(
-            ShadowsocksProxyMonitor::start(ss_settings, resource_data)?,
+            ShadowsocksProxyMonitor::start(ss_settings, resource_data).await?,
         )),
     }
 }
