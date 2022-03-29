@@ -241,6 +241,16 @@ impl WintunContext for WintunContextImpl {
     }
 }
 
+#[cfg(windows)]
+impl WintunContextImpl {
+    fn alias(&self) -> Result<U16CString> {
+        self.adapter
+            .adapter()
+            .name()
+            .map_err(Error::WintunFindAlias)
+    }
+}
+
 impl OpenVpnMonitor<OpenVpnCommand> {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
     /// path.
@@ -289,26 +299,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let proxy_monitor = runtime.block_on(Self::start_proxy(&params.proxy, &proxy_resources))?;
 
         #[cfg(windows)]
-        let dll = wintun::WintunDll::instance(resource_dir).map_err(Error::WintunDllError)?;
-        #[cfg(windows)]
-        let wintun_logger = dll.activate_logging();
-
-        #[cfg(windows)]
-        let (wintun_adapter, _reboot_required) = wintun::TemporaryWintunAdapter::create(
-            dll.clone(),
-            &*ADAPTER_ALIAS,
-            &*ADAPTER_POOL,
-            Some(ADAPTER_GUID.clone()),
-        )
-        .map_err(Error::WintunCreateAdapterError)?;
-
-        #[cfg(windows)]
-        let adapter_alias = wintun_adapter
-            .adapter()
-            .name()
-            .map_err(Error::WintunFindAlias)?;
-        #[cfg(windows)]
-        log::debug!("Adapter alias: {}", adapter_alias.to_string_lossy());
+        let wintun = Self::new_wintun_context(params, resource_dir)?;
 
         let cmd = Self::create_openvpn_cmd(
             params,
@@ -317,7 +308,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             resource_dir,
             &proxy_monitor,
             #[cfg(windows)]
-            adapter_alias.to_os_string(),
+            wintun.alias()?.to_os_string(),
         )?;
 
         let plugin_path = Self::get_plugin_path(resource_dir)?;
@@ -349,12 +340,31 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             proxy_monitor,
             tunnel_close_rx,
             #[cfg(windows)]
-            Box::new(WintunContextImpl {
-                adapter: wintun_adapter,
-                wait_v6_interface: params.generic_options.enable_ipv6,
-                _logger: wintun_logger,
-            }),
+            Box::new(wintun),
         )
+    }
+
+    #[cfg(windows)]
+    fn new_wintun_context(
+        params: &openvpn::TunnelParameters,
+        resource_dir: &Path,
+    ) -> Result<WintunContextImpl> {
+        let dll = wintun::WintunDll::instance(resource_dir).map_err(Error::WintunDllError)?;
+        let wintun_logger = dll.activate_logging();
+
+        let (wintun_adapter, _reboot_required) = wintun::TemporaryWintunAdapter::create(
+            dll.clone(),
+            &*ADAPTER_ALIAS,
+            &*ADAPTER_POOL,
+            Some(ADAPTER_GUID.clone()),
+        )
+        .map_err(Error::WintunCreateAdapterError)?;
+
+        Ok(WintunContextImpl {
+            adapter: wintun_adapter,
+            wait_v6_interface: params.generic_options.enable_ipv6,
+            _logger: wintun_logger,
+        })
     }
 }
 
