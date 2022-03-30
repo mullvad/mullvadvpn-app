@@ -18,7 +18,7 @@ import * as path from 'path';
 import util from 'util';
 import config from '../config.json';
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
-import { IApplication } from '../shared/application-types';
+import { IWindowsApplication } from '../shared/application-types';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import {
   AccountToken,
@@ -241,7 +241,7 @@ class ApplicationMain {
   private rendererLog?: Logger;
   private translations: ITranslations = { locale: this.locale };
 
-  private windowsSplitTunnelingApplications?: IApplication[];
+  private windowsSplitTunnelingApplications?: IWindowsApplication[];
 
   private macOsScrollbarVisibility?: MacOsScrollbarVisibility;
 
@@ -1385,6 +1385,16 @@ class ApplicationMain {
         return this.daemonRpc.removeSplitTunnelingApplication(
           typeof application === 'string' ? application : application.absolutepath,
         );
+      } else {
+        throw Error(
+          'windowsSplitTunneling.handleRemoveApplication function called without being imported',
+        );
+      }
+    });
+    IpcMainEventChannel.windowsSplitTunneling.handleDeleteApplication((application) => {
+      if (windowsSplitTunneling) {
+        this.guiSettings.deleteBrowsedForSplitTunnelingApplications(application.absolutepath);
+        return windowsSplitTunneling.removeApplicationFromCache(application);
       } else {
         throw Error(
           'windowsSplitTunneling.handleRemoveApplication function called without being imported',

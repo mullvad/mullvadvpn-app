@@ -1,6 +1,6 @@
 import { BridgeState, IDnsOptions } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
-import { IApplication } from '../../../shared/application-types';
+import { IWindowsApplication } from '../../../shared/application-types';
 import { BridgeSettingsRedux, IRelayLocationRedux, RelaySettingsRedux } from './reducers';
 
 export interface IUpdateGuiSettingsAction {
@@ -80,7 +80,7 @@ export interface IUpdateSplitTunnelingStateAction {
 
 export interface ISetSplitTunnelingApplicationsAction {
   type: 'SET_SPLIT_TUNNELING_APPLICATIONS';
-  applications: IApplication[];
+  applications: IWindowsApplication[];
 }
 
 export type SettingsAction =
@@ -211,7 +211,7 @@ function updateSplitTunnelingState(enabled: boolean): IUpdateSplitTunnelingState
 }
 
 function setSplitTunnelingApplications(
-  applications: IApplication[],
+  applications: IWindowsApplication[],
 ): ISetSplitTunnelingApplicationsAction {
   return {
     type: 'SET_SPLIT_TUNNELING_APPLICATIONS',
