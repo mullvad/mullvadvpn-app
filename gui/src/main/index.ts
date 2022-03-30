@@ -197,6 +197,8 @@ class ApplicationMain {
           blockAds: false,
           blockTrackers: false,
           blockMalware: false,
+          blockAdultContent: false,
+          blockGambling: false,
         },
         customOptions: {
           addresses: [],

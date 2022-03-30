@@ -49,7 +49,9 @@ export default function CustomDnsSettings() {
       dns.state === 'custom' ||
       (!dns.defaultOptions.blockAds &&
         !dns.defaultOptions.blockTrackers &&
-        !dns.defaultOptions.blockMalware),
+        !dns.defaultOptions.blockMalware &&
+        !dns.defaultOptions.blockAdultContent &&
+        !dns.defaultOptions.blockGambling),
     [dns],
   );
 
@@ -281,32 +283,19 @@ export default function CustomDnsSettings() {
 }
 
 function DisabledMessage() {
-  const blockAdsFeatureName = messages.pgettext('preferences-view', 'Block ads');
-  const blockTrackersFeatureName = messages.pgettext('preferences-view', 'Block trackers');
-  const blockMalwareFeatureName = messages.pgettext('preferences-view', 'Block malware');
   const preferencesPageName = messages.pgettext('preferences-nav', 'Preferences');
 
   // TRANSLATORS: This is displayed when either or both of the block ads/trackers settings are
   // TRANSLATORS: turned on which makes the custom DNS setting disabled. The text enclosed in "**"
   // TRANSLATORS: will appear bold.
   // TRANSLATORS: Available placeholders:
-  // TRANSLATORS: %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
-  // TRANSLATORS: %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
-  // TRANSLATORS: %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
   // TRANSLATORS: %(preferencesPageName)s - The page title showed on top in the preferences page.
   const customDnsDisabledMessage = messages.pgettext(
     'preferences-view',
-    'Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting.',
+    'Disable all content blockers (under %(preferencesPageName)s) to activate this setting.',
   );
 
-  return formatMarkdown(
-    sprintf(customDnsDisabledMessage, {
-      blockAdsFeatureName,
-      blockTrackersFeatureName,
-      blockMalwareFeatureName,
-      preferencesPageName,
-    }),
-  );
+  return formatMarkdown(sprintf(customDnsDisabledMessage, { preferencesPageName }));
 }
 
 interface ICellListItemProps {
