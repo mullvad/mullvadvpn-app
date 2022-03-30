@@ -32,7 +32,7 @@ tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
 rand = "0.7"
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
-shadowsocks-service = { version = "1.12", default-features = false, features = ["local", "stream-cipher"] }
+shadowsocks-service = { git = "https://github.com/shadowsocks/shadowsocks-rust", rev = "7388ddfb7d36d5b84908c476daabc91c8b065a37", default-features = false, features = ["local", "stream-cipher"] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 byteorder = "1"
