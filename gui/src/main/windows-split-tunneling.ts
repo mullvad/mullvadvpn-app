@@ -1,7 +1,7 @@
 import { app, shell } from 'electron';
 import fs from 'fs';
 import path from 'path';
-import { IApplication } from '../shared/application-types';
+import { IWindowsApplication } from '../shared/application-types';
 import log from '../shared/logging';
 import {
   ArrayValue,
@@ -35,6 +35,7 @@ interface ShortcutDetails {
   target: string;
   name: string;
   args?: string;
+  deletable: boolean;
 }
 
 type RvaToOffset = (rva: number) => Promise<number>;
@@ -58,9 +59,9 @@ const APPLICATION_ALLOW_LIST = [
 // Cache of all previously scanned shortcuts.
 const shortcutCache: Record<string, ShortcutDetails> = {};
 // Cache of all previously scanned applications.
-const applicationCache: Record<string, IApplication> = {};
+const applicationCache: Record<string, IWindowsApplication> = {};
 // List of shortcuts that have been added manually by the user.
-const additionalShortcuts: ShortcutDetails[] = [];
+let additionalShortcuts: ShortcutDetails[] = [];
 
 // Finds applications by searching through the startmenu for shortcuts with and exe-file as target.
 // If applicationPaths has a value, the returned applications are only the ones corresponding to
@@ -68,7 +69,7 @@ const additionalShortcuts: ShortcutDetails[] = [];
 export async function getApplications(options: {
   applicationPaths?: string[];
   updateCaches?: boolean;
-}): Promise<{ fromCache: boolean; applications: IApplication[] }> {
+}): Promise<{ fromCache: boolean; applications: IWindowsApplication[] }> {
   const cacheIsEmpty = Object.keys(shortcutCache).length === 0;
 
   if (options.updateCaches || cacheIsEmpty) {
@@ -105,12 +106,23 @@ export async function addApplicationPathToCache(applicationPath: string): Promis
   const parsedPath = path.parse(applicationPath);
   if (parsedPath.ext === '.lnk') {
     const shortcutDetiails = shell.readShortcutLink(path.resolve(applicationPath));
-    additionalShortcuts.push({ ...shortcutDetiails, name: path.parse(applicationPath).name });
+    additionalShortcuts.push({
+      ...shortcutDetiails,
+      name: path.parse(applicationPath).name,
+      deletable: true,
+    });
     return shortcutDetiails.target;
   } else {
     await addApplicationToAdditionalShortcuts(applicationPath);
     return applicationPath;
   }
+}
+
+export function removeApplicationFromCache(application: IWindowsApplication): void {
+  additionalShortcuts = additionalShortcuts.filter(
+    (shortcut) => shortcut.target !== application.absolutepath,
+  );
+  delete applicationCache[application.absolutepath.toLowerCase()];
 }
 
 // Reads the start-menu directories and adds all shortcuts, targeting applications using networking,
@@ -158,6 +170,7 @@ async function addApplicationToAdditionalShortcuts(applicationPath: string): Pro
     additionalShortcuts.push({
       target: applicationPath,
       name: (await getProgramName(applicationPath)) ?? path.parse(applicationPath).name,
+      deletable: true,
     });
   }
 }
@@ -231,11 +244,12 @@ function removeDuplicates(shortcuts: ShortcutDetails[]): ShortcutDetails[] {
 
 async function convertToSplitTunnelingApplication(
   shortcut: ShortcutDetails,
-): Promise<IApplication> {
+): Promise<IWindowsApplication> {
   return {
     absolutepath: shortcut.target,
     name: shortcut.name,
     icon: await retrieveIcon(shortcut.target),
+    deletable: shortcut.deletable,
   };
 }
 
