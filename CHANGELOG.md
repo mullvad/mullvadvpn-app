@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Extend DNS blocking with the following new categories: "Adult content" and "gambling".
 - Obfuscate traffic to the Mullvad API using bridges if it cannot be reached directly.
 - Add device management to desktop app. This simplifies knowing which device is which and adds the
   option to log out other devices when there are already 5 connected when logging in.
