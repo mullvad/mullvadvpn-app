@@ -4,6 +4,7 @@ import android.os.Looper
 import android.os.Messenger
 import android.os.RemoteException
 import android.util.Log
+import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.di.SERVICE_CONNECTION_SCOPE
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
@@ -35,6 +36,8 @@ class ServiceConnection(
     val accountCache = AccountCache(connection, dispatcher)
     val authTokenCache = AuthTokenCache(connection, dispatcher)
     val connectionProxy = ConnectionProxy(connection, dispatcher)
+    val deviceRepository =
+        DeviceRepository(ServiceConnectionDeviceDataSource(connection, dispatcher), MainScope())
     val keyStatusListener = KeyStatusListener(connection, dispatcher)
     val locationInfoCache = LocationInfoCache(dispatcher)
     val settingsListener = SettingsListener(connection, dispatcher)

@@ -58,6 +58,8 @@ class ServiceEndpoint(
     val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
     val voucherRedeemer = VoucherRedeemer(this)
 
+    private val deviceRepositoryBackend = DaemonDeviceDataSource(this)
+
     init {
         dispatcher.apply {
             registerHandler(Request.RegisterListener::class) { request ->
@@ -79,6 +81,7 @@ class ServiceEndpoint(
         authTokenCache.onDestroy()
         connectionProxy.onDestroy()
         customDns.onDestroy()
+        deviceRepositoryBackend.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         relayListListener.onDestroy()

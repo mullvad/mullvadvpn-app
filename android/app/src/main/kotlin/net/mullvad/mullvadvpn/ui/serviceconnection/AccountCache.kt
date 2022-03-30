@@ -9,7 +9,6 @@ import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 
 class AccountCache(private val connection: Messenger, eventDispatcher: EventDispatcher) {
-    val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
     val onAccountHistoryChange = EventNotifier<String?>(null)
     val onLoginStatusChange = EventNotifier<LoginStatus?>(null)
@@ -25,8 +24,6 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
 
             registerHandler(Event.LoginStatus::class) { event ->
                 loginStatus = event.status
-
-                onAccountNumberChange.notifyIfChanged(loginStatus?.account)
                 onAccountExpiryChange.notifyIfChanged(loginStatus?.expiry)
             }
         }
@@ -59,7 +56,6 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
     }
 
     fun onDestroy() {
-        onAccountNumberChange.unsubscribeAll()
         onAccountExpiryChange.unsubscribeAll()
         onAccountHistoryChange.unsubscribeAll()
         onLoginStatusChange.unsubscribeAll()

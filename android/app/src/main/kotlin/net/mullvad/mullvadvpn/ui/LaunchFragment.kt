@@ -4,18 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onSubscription
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.DeviceState
+import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 
 class LaunchFragment : ServiceAwareFragment() {
-    private val hasAccountToken = CompletableDeferred<Boolean>()
-
-    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
-        serviceConnection.settingsListener.accountNumberNotifier.subscribe(this) { accountToken ->
-            hasAccountToken.complete(accountToken != null)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,25 +27,27 @@ class LaunchFragment : ServiceAwareFragment() {
         return view
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        jobTracker.newUiJob("advanceToNextScreen") {
-            advanceToNextScreen()
-        }
-    }
-
     override fun onStop() {
         jobTracker.cancelJob("advanceToNextScreen")
-
         super.onStop()
     }
 
-    private suspend fun advanceToNextScreen() {
-        if (hasAccountToken.await()) {
-            advanceToConnectScreen()
-        } else {
-            advanceToLoginScreen()
+    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
+        advanceToNextScreen(serviceConnection.deviceRepository)
+    }
+
+    private fun advanceToNextScreen(deviceRepository: DeviceRepository) {
+        jobTracker.newUiJob("advanceToNextScreen") {
+            deviceRepository.deviceState
+                .onSubscription { deviceRepository.refreshDeviceState() }
+                .first { state -> state.isInitialState().not() }
+                .let { deviceState ->
+                    when (deviceState) {
+                        is DeviceState.DeviceRegistered -> advanceToConnectScreen()
+                        is DeviceState.DeviceNotRegistered -> advanceToLoginScreen()
+                        else -> Unit
+                    }
+                }
         }
     }
 
