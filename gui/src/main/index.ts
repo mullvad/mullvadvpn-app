@@ -18,7 +18,7 @@ import * as path from 'path';
 import util from 'util';
 import config from '../config.json';
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
-import { IApplication } from '../shared/application-types';
+import { IWindowsApplication } from '../shared/application-types';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import {
   AccountToken,
@@ -241,7 +241,7 @@ class ApplicationMain {
   private rendererLog?: Logger;
   private translations: ITranslations = { locale: this.locale };
 
-  private windowsSplitTunnelingApplications?: IApplication[];
+  private windowsSplitTunnelingApplications?: IWindowsApplication[];
 
   private macOsScrollbarVisibility?: MacOsScrollbarVisibility;
 
@@ -1331,66 +1331,40 @@ class ApplicationMain {
     });
 
     IpcMainEventChannel.linuxSplitTunneling.handleGetApplications(() => {
-      if (linuxSplitTunneling) {
-        return linuxSplitTunneling.getApplications(this.locale);
-      } else {
-        throw Error('linuxSplitTunneling.getApplications function called without being imported');
-      }
+      return linuxSplitTunneling.getApplications(this.locale);
     });
     IpcMainEventChannel.windowsSplitTunneling.handleGetApplications((updateCaches: boolean) => {
-      if (windowsSplitTunneling) {
-        return windowsSplitTunneling.getApplications({
-          updateCaches,
-        });
-      } else {
-        throw Error('windowsSplitTunneling.getApplications function called without being imported');
-      }
+      return windowsSplitTunneling.getApplications({ updateCaches });
     });
     IpcMainEventChannel.linuxSplitTunneling.handleLaunchApplication((application) => {
-      if (linuxSplitTunneling) {
-        return linuxSplitTunneling.launchApplication(application);
-      } else {
-        throw Error('linuxSplitTunneling.launchApplication function called without being imported');
-      }
+      return linuxSplitTunneling.launchApplication(application);
     });
 
     IpcMainEventChannel.windowsSplitTunneling.handleSetState((enabled) => {
-      if (windowsSplitTunneling) {
-        return this.daemonRpc.setSplitTunnelingState(enabled);
-      } else {
-        throw Error('windowsSplitTunneling.setState function called without being imported');
-      }
+      return this.daemonRpc.setSplitTunnelingState(enabled);
     });
     IpcMainEventChannel.windowsSplitTunneling.handleAddApplication(async (application) => {
-      if (windowsSplitTunneling) {
-        // If the applications is a string (path) it's an application picked with the file picker
-        // that we want to add to the list of additional applications.
-        if (typeof application === 'string') {
-          this.guiSettings.addBrowsedForSplitTunnelingApplications(application);
-          const applicationPath = await windowsSplitTunneling.addApplicationPathToCache(
-            application,
-          );
-          await this.daemonRpc.addSplitTunnelingApplication(applicationPath);
-        } else {
-          await this.daemonRpc.addSplitTunnelingApplication(application.absolutepath);
-        }
+      // If the applications is a string (path) it's an application picked with the file picker
+      // that we want to add to the list of additional applications.
+      if (typeof application === 'string') {
+        this.guiSettings.addBrowsedForSplitTunnelingApplications(application);
+        const applicationPath = await windowsSplitTunneling.addApplicationPathToCache(application);
+        await this.daemonRpc.addSplitTunnelingApplication(applicationPath);
       } else {
-        throw Error(
-          'windowsSplitTunneling.handleAddApplication function called without being imported',
-        );
+        await this.daemonRpc.addSplitTunnelingApplication(application.absolutepath);
       }
     });
     IpcMainEventChannel.windowsSplitTunneling.handleRemoveApplication((application) => {
-      if (windowsSplitTunneling) {
-        return this.daemonRpc.removeSplitTunnelingApplication(
-          typeof application === 'string' ? application : application.absolutepath,
-        );
-      } else {
-        throw Error(
-          'windowsSplitTunneling.handleRemoveApplication function called without being imported',
-        );
-      }
+      return this.daemonRpc.removeSplitTunnelingApplication(
+        typeof application === 'string' ? application : application.absolutepath,
+      );
     });
+    IpcMainEventChannel.windowsSplitTunneling.handleForgetManuallyAddedApplication(
+      (application) => {
+        this.guiSettings.deleteBrowsedForSplitTunnelingApplications(application.absolutepath);
+        return windowsSplitTunneling.removeApplicationFromCache(application);
+      },
+    );
 
     IpcMainEventChannel.problemReport.handleCollectLogs((toRedact) => {
       const id = randomUUID();

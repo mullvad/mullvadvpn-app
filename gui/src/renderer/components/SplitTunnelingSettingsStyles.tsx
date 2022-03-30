@@ -49,7 +49,7 @@ export const StyledIcon = styled(Cell.UntintedIcon)(disabledApplication, {
 });
 
 export const StyledActionIcon = styled(ImageView)({
-  marginLeft: '6px',
+  marginLeft: '8px',
 });
 
 export const StyledCellWarningIcon = styled(Cell.Icon)({

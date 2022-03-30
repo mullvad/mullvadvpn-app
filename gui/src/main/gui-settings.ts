@@ -90,6 +90,15 @@ export default class GuiSettings {
     });
   }
 
+  public deleteBrowsedForSplitTunnelingApplications(path: string) {
+    this.changeStateAndNotify({
+      ...this.stateValue,
+      browsedForSplitTunnelingApplications: this.browsedForSplitTunnelingApplications.filter(
+        (application) => application !== path,
+      ),
+    });
+  }
+
   get browsedForSplitTunnelingApplications(): Array<string> {
     return this.stateValue.browsedForSplitTunnelingApplications;
   }

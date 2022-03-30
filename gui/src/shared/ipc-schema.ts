@@ -1,5 +1,5 @@
 import { GetTextTranslations } from 'gettext-parser';
-import { IApplication, ILinuxSplitTunnelingApplication } from './application-types';
+import { IWindowsApplication, ILinuxSplitTunnelingApplication } from './application-types';
 import {
   AccountToken,
   BridgeSettings,
@@ -60,7 +60,7 @@ export interface IAppStateSnapshot {
   upgradeVersion: IAppVersionInfo;
   guiSettings: IGuiSettingsState;
   translations: ITranslations;
-  windowsSplitTunnelingApplications?: IApplication[];
+  windowsSplitTunnelingApplications?: IWindowsApplication[];
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
   changelog: IChangelog;
 }
@@ -201,10 +201,11 @@ export const ipcSchema = {
     launchApplication: invoke<ILinuxSplitTunnelingApplication | string, LaunchApplicationResult>(),
   },
   windowsSplitTunneling: {
-    '': notifyRenderer<IApplication[]>(),
+    '': notifyRenderer<IWindowsApplication[]>(),
     setState: invoke<boolean, void>(),
-    getApplications: invoke<boolean, { fromCache: boolean; applications: IApplication[] }>(),
-    addApplication: invoke<IApplication | string, void>(),
-    removeApplication: invoke<IApplication | string, void>(),
+    getApplications: invoke<boolean, { fromCache: boolean; applications: IWindowsApplication[] }>(),
+    addApplication: invoke<IWindowsApplication | string, void>(),
+    removeApplication: invoke<IWindowsApplication, void>(),
+    forgetManuallyAddedApplication: invoke<IWindowsApplication, void>(),
   },
 };

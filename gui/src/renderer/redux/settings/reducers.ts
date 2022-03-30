@@ -1,4 +1,4 @@
-import { IApplication } from '../../../shared/application-types';
+import { IWindowsApplication } from '../../../shared/application-types';
 import {
   BridgeState,
   LiftedConstraint,
@@ -91,7 +91,7 @@ export interface ISettingsReduxState {
   };
   dns: IDnsOptions;
   splitTunneling: boolean;
-  splitTunnelingApplications: IApplication[];
+  splitTunnelingApplications: IWindowsApplication[];
 }
 
 const initialState: ISettingsReduxState = {

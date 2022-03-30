@@ -16,7 +16,7 @@ import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
 
 import { IChangelog, ICurrentAppVersionInfo } from '../shared/ipc-types';
-import { IApplication, ILinuxSplitTunnelingApplication } from '../shared/application-types';
+import { IWindowsApplication, ILinuxSplitTunnelingApplication } from '../shared/application-types';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { messages, relayLocations } from '../shared/gettext';
 import log, { ConsoleOutput } from '../shared/logging';
@@ -171,7 +171,7 @@ export default class AppRenderer {
       this.storeAutoStart(autoStart);
     });
 
-    IpcRendererEventChannel.windowsSplitTunneling.listen((applications: IApplication[]) => {
+    IpcRendererEventChannel.windowsSplitTunneling.listen((applications: IWindowsApplication[]) => {
       this.reduxActions.settings.setSplitTunnelingApplications(applications);
     });
 
@@ -471,12 +471,18 @@ export default class AppRenderer {
     return IpcRendererEventChannel.windowsSplitTunneling.setState(enabled);
   };
 
-  public addSplitTunnelingApplication(application: IApplication | string): Promise<void> {
+  public addSplitTunnelingApplication(application: IWindowsApplication | string): Promise<void> {
     return IpcRendererEventChannel.windowsSplitTunneling.addApplication(application);
   }
 
-  public removeSplitTunnelingApplication(application: IApplication | string) {
+  public removeSplitTunnelingApplication(application: IWindowsApplication) {
     void IpcRendererEventChannel.windowsSplitTunneling.removeApplication(application);
+  }
+
+  public forgetManuallyAddedSplitTunnelingApplication(application: IWindowsApplication) {
+    return IpcRendererEventChannel.windowsSplitTunneling.forgetManuallyAddedApplication(
+      application,
+    );
   }
 
   public collectProblemReport(toRedact?: string): Promise<string> {
