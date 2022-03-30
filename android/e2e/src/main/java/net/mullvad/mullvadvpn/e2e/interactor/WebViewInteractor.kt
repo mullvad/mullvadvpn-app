@@ -34,9 +34,9 @@ class WebViewInteractor(
         // Wait for view to expand after click.
         Thread.sleep(1000)
 
-        val wireGuardIpv4Connection = webView.findObjects(By.clazz(View::class.java))
-            .first { it.text?.startsWith("WireGuard") == true }
-        val wireGuardIpv4Address = wireGuardIpv4Connection.text.split("\n")[2]
+        val wireGuardIpv4ConnectionRow = webView.findObjects(By.clazz(View::class.java))
+            .first { it.text?.endsWith("(WireGuard)") == true }
+        val wireGuardIpv4Address = wireGuardIpv4ConnectionRow.text.split(" ")[0].trim()
         return ConnCheckState(stateText.text == CONNECTION_CHECK_IS_CONNECTED, wireGuardIpv4Address)
     }
 
