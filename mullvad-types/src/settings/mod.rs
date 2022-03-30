@@ -262,6 +262,8 @@ pub struct DefaultDnsOptions {
     pub block_ads: bool,
     pub block_trackers: bool,
     pub block_malware: bool,
+    pub block_adult_content: bool,
+    pub block_gambling: bool,
 }
 
 /// Custom DNS config
