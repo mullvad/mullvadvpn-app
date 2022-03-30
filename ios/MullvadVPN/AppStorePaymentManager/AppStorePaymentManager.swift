@@ -175,9 +175,13 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     }
 
     private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool, completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, Error>) -> Void) -> Cancellable {
-        let operation = SendAppStoreReceiptOperation(restClient: REST.Client.shared, accountToken: accountToken, forceRefresh: forceRefresh, receiptProperties: nil) { completion in
-            completionHandler(completion)
-        }
+        let operation = SendAppStoreReceiptOperation(
+            restClient: REST.Client.shared,
+            accountToken: accountToken,
+            forceRefresh: forceRefresh,
+            receiptProperties: nil,
+            completionHandler: completionHandler
+        )
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Send AppStore receipt") {
             operation.cancel()
