@@ -392,20 +392,13 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
             .build()
             .map_err(Error::RuntimeError)?;
 
-        let (start_tx, start_rx) = mpsc::channel();
-        let server_join_handle = runtime.spawn(event_server::start(
-            ipc_path.clone(),
-            start_tx,
-            on_event,
-            event_server_abort_rx,
-        ));
-        if let Err(_) = start_rx.recv() {
-            return Err(runtime
-                .block_on(server_join_handle)
-                .expect("Failed to resolve quit handle future")
-                .map_err(Error::EventDispatcherError)
-                .unwrap_err());
-        }
+        let server_join_handle = runtime
+            .block_on(event_server::start(
+                ipc_path.clone(),
+                on_event,
+                event_server_abort_rx,
+            ))
+            .map_err(Error::EventDispatcherError)?;
 
         #[cfg(windows)]
         let wintun = Arc::new(wintun);
@@ -1060,22 +1053,21 @@ mod event_server {
 
     pub async fn start<L>(
         ipc_path: String,
-        server_start_tx: std::sync::mpsc::Sender<()>,
         event_proxy: L,
         abort_rx: triggered::Listener,
-    ) -> std::result::Result<(), Error>
+    ) -> std::result::Result<tokio::task::JoinHandle<Result<(), Error>>, Error>
     where
         L: OpenvpnEventProxy + Sync + Send + 'static,
     {
         let endpoint = IpcEndpoint::new(ipc_path);
         let incoming = endpoint.incoming().map_err(Error::StartServer)?;
-        let _ = server_start_tx.send(());
-
-        Server::builder()
-            .add_service(OpenvpnEventProxyServer::new(event_proxy))
-            .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
-            .await
-            .map_err(Error::TonicError)
+        Ok(tokio::spawn(async move {
+            Server::builder()
+                .add_service(OpenvpnEventProxyServer::new(event_proxy))
+                .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
+                .await
+                .map_err(Error::TonicError)
+        }))
     }
 
     #[derive(Debug)]
