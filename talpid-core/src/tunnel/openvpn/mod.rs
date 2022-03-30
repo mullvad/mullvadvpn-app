@@ -290,11 +290,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             log_dir,
         };
 
-        let runtime = tokio::runtime::Builder::new_multi_thread()
-            .worker_threads(1)
-            .enable_all()
-            .build()
-            .map_err(Error::RuntimeError)?;
+        let runtime = new_runtime()?;
 
         let proxy_monitor = runtime.block_on(Self::start_proxy(&params.proxy, &proxy_resources))?;
 
@@ -1119,6 +1115,14 @@ mod event_server {
     }
 }
 
+fn new_runtime() -> Result<tokio::runtime::Runtime> {
+    tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(2)
+        .enable_all()
+        .build()
+        .map_err(Error::RuntimeError)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1240,13 +1244,8 @@ mod tests {
     where
         L: event_server::OpenvpnEventProxy + Send + Sync + 'static,
     {
-        let runtime = tokio::runtime::Builder::new_multi_thread()
-            .worker_threads(1)
-            .enable_all()
-            .build()
-            .map_err(Error::RuntimeError)?;
         OpenVpnMonitor::new_internal_with_runtime(
-            runtime,
+            new_runtime()?,
             cmd,
             event_server_abort_tx,
             event_server_abort_rx,
