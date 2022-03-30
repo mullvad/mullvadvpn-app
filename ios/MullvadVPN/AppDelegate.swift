@@ -213,23 +213,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         let rotatePrivateKeyOperation = AsyncBlockOperation { operation in
-            let handle = TunnelManager.shared.rotatePrivateKey { rotationResult, error in
-                if let error = error {
-                    self.logger?.error(chainedError: error, message: "Failed to rotate the key")
-
-                    rotatePrivateKeyFetchResult = .failed
-                } else if let rotationResult = rotationResult {
-                    self.logger?.debug("Finished rotating the key: \(rotationResult)")
-
-                    switch rotationResult {
-                    case .throttled:
-                        rotatePrivateKeyFetchResult = .noData
-
-                    case .finished:
-                        rotatePrivateKeyFetchResult = .newData
-                    }
+            let handle = TunnelManager.shared.rotatePrivateKey { completion in
+                switch completion {
+                case .success(let rotationResult):
+                    self.logger?.debug("Finished rotating the key: \(rotationResult).")
+                case .failure(let error):
+                    self.logger?.error(chainedError: error, message: "Failed to rotate the key.")
+                case .cancelled:
+                    break
                 }
 
+                rotatePrivateKeyFetchResult = completion.backgroundFetchResult
                 operation.finish()
             }
 

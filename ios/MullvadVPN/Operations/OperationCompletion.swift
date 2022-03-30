@@ -13,6 +13,14 @@ enum OperationCompletion<Success, Failure: Error> {
     case success(Success)
     case failure(Failure)
 
+    var isSuccess: Bool {
+        if case .success = self {
+            return true
+        } else {
+            return false
+        }
+    }
+
     var error: Failure? {
         if case .failure(let error) = self {
             return error

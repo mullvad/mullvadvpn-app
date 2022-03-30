@@ -145,9 +145,9 @@ final class TunnelManager: TunnelManagerStateDelegate {
         timer.setEventHandler { [weak self] in
             guard let self = self else { return }
 
-            _ = self.rotatePrivateKey { rotationResult, error in
+            _ = self.rotatePrivateKey { completion in
                 self.stateQueue.async {
-                    if let scheduleDate = self.handlePrivateKeyRotationCompletion(result: rotationResult, error: error) {
+                    if let scheduleDate = self.handlePrivateKeyRotationCompletion(completion) {
                         guard self.isRunningPeriodicPrivateKeyRotation else { return }
 
                         self.schedulePrivateKeyRotationTimer(scheduleDate)
@@ -385,41 +385,36 @@ final class TunnelManager: TunnelManagerStateDelegate {
         operationQueue.addOperation(operation)
     }
 
-    func rotatePrivateKey(completionHandler: @escaping (KeyRotationResult?, TunnelManager.Error?) -> Void) -> Cancellable {
+    func rotatePrivateKey(completionHandler: @escaping (OperationCompletion<KeyRotationResult, TunnelManager.Error>) -> Void) -> Cancellable {
         let operation = ReplaceKeyOperation.operationForKeyRotation(
             queue: stateQueue,
             state: state,
             restClient: restClient,
-            rotationInterval: TunnelManagerConfiguration.privateKeyRotationInterval) { [weak self] completion in
-                guard let self = self else { return }
+            rotationInterval: TunnelManagerConfiguration.privateKeyRotationInterval
+        ) { [weak self] completion in
+            guard let self = self else { return }
 
-                dispatchPrecondition(condition: .onQueue(self.stateQueue))
+            dispatchPrecondition(condition: .onQueue(self.stateQueue))
 
-                var rotationResult: KeyRotationResult?
-                var rotationError: TunnelManager.Error?
+            switch completion {
+            case .success:
+                self.reconnectTunnel {
+                    completionHandler(completion)
+                }
 
-                switch completion {
-                case .success(let result):
-                    rotationResult = result
+            case .failure(let error):
+                self.logger.error(chainedError: error, message: "Failed to rotate private key.")
 
-                    self.reconnectTunnel {
-                        completionHandler(rotationResult, rotationError)
-                    }
+                DispatchQueue.main.async {
+                    completionHandler(completion)
+                }
 
-                case .failure(let error):
-                    rotationError = error
-                    self.logger.error(chainedError: error, message: "Failed to rotate private key.")
-
-                    DispatchQueue.main.async {
-                        completionHandler(rotationResult, rotationError)
-                    }
-
-                case .cancelled:
-                    DispatchQueue.main.async {
-                        completionHandler(rotationResult, rotationError)
-                    }
+            case .cancelled:
+                DispatchQueue.main.async {
+                    completionHandler(completion)
                 }
             }
+        }
 
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Rotate private key") {
             operation.cancel()
@@ -787,8 +782,8 @@ extension TunnelManager {
     private func handleBackgroundTask(_ task: BGProcessingTask) {
         logger.debug("Start private key rotation task")
 
-        let request = rotatePrivateKey { rotationResult, error in
-            if let scheduleDate = self.handlePrivateKeyRotationCompletion(result: rotationResult, error: error) {
+        let cancellableTask = rotatePrivateKey { completion in
+            if let scheduleDate = self.handlePrivateKeyRotationCompletion(completion) {
                 // Schedule next background task
                 switch self.submitBackgroundTask(at: scheduleDate) {
                 case .success:
@@ -800,32 +795,35 @@ extension TunnelManager {
             }
 
             // Complete current task
-            task.setTaskCompleted(success: error == nil)
+            task.setTaskCompleted(success: completion.isSuccess)
         }
 
         task.expirationHandler = {
-            request.cancel()
+            cancellableTask.cancel()
         }
     }
 }
 
 extension TunnelManager {
-    fileprivate func handlePrivateKeyRotationCompletion(result: KeyRotationResult?, error: TunnelManager.Error?) -> Date? {
-        if let error = error {
-            logger.error(chainedError: error, message: "Failed to rotate private key")
-
-            return nextRetryScheduleDate(error)
-        } else if let result = result {
+    fileprivate func handlePrivateKeyRotationCompletion(_ completion: OperationCompletion<KeyRotationResult, TunnelManager.Error>) -> Date? {
+        switch completion {
+        case .success(let result):
             switch result {
             case .finished:
-                logger.debug("Finished private key rotation")
+                logger.debug("Finished private key rotation.")
             case .throttled:
-                logger.debug("Private key was already rotated earlier")
+                logger.debug("Private key was already rotated earlier.")
             }
 
             return nextScheduleDate(result)
-        } else {
-            logger.debug("Private key rotation was cancelled")
+
+        case .failure(let error):
+            logger.error(chainedError: error, message: "Failed to rotate private key.")
+
+            return nextRetryScheduleDate(error)
+
+        case .cancelled:
+            logger.debug("Private key rotation was cancelled.")
 
             return Date(timeIntervalSinceNow: TunnelManagerConfiguration.privateKeyRotationFailureRetryInterval)
         }
