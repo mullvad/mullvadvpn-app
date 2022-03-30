@@ -69,7 +69,7 @@ export default function List<T>(props: ListProps<T>) {
   useEffect(
     () => () => {
       // Cancel all schedulers on unmount
-      Object.values(removeFallbackSchedulers).forEach((scheduler) => scheduler.cancel());
+      Object.values(removeFallbackSchedulers.current).forEach((scheduler) => scheduler.cancel());
     },
     [],
   );
