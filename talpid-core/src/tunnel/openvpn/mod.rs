@@ -314,7 +314,8 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
 
-        Self::new_internal_with_runtime(
+        let handle = runtime.handle().clone();
+        handle.block_on(Self::new_internal_with_runtime(
             runtime,
             cmd,
             event_server_abort_tx.clone(),
@@ -337,7 +338,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             tunnel_close_rx,
             #[cfg(windows)]
             Box::new(wintun),
-        )
+        ))
     }
 
     #[cfg(windows)]
@@ -376,7 +377,7 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
 }
 
 impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
-    fn new_internal_with_runtime<L>(
+    async fn new_internal_with_runtime<L>(
         runtime: tokio::runtime::Runtime,
         mut cmd: C,
         event_server_abort_tx: triggered::Trigger,
@@ -393,19 +394,8 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
     where
         L: event_server::OpenvpnEventProxy + Send + Sync + 'static,
     {
-        let uuid = uuid::Uuid::new_v4().to_string();
-        let ipc_path = if cfg!(windows) {
-            format!("//./pipe/talpid-openvpn-{}", uuid)
-        } else {
-            format!("/tmp/talpid-openvpn-{}", uuid)
-        };
-
-        let server_join_handle = runtime
-            .block_on(event_server::start(
-                ipc_path.clone(),
-                on_event,
-                event_server_abort_rx,
-            ))
+        let (server_join_handle, ipc_path) = event_server::start(on_event, event_server_abort_rx)
+            .await
             .map_err(Error::EventDispatcherError)?;
 
         #[cfg(windows)]
@@ -418,9 +408,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
             #[cfg(windows)]
             wintun.clone(),
         ));
-        let spawn_task = runtime.spawn(spawn_task);
-
-        let handle = runtime.handle().clone();
+        let spawn_task = tokio::spawn(spawn_task);
 
         let monitor = OpenVpnMonitor {
             spawn_task: Some(spawn_task),
@@ -440,7 +428,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         };
 
         let close_handle = monitor.close_handle();
-        handle.spawn(async move {
+        tokio::spawn(async move {
             if tunnel_close_rx.await.is_ok() {
                 tokio::task::spawn_blocking(move || {
                     if let Err(error) = close_handle.close() {
@@ -1057,22 +1045,31 @@ mod event_server {
     }
 
     pub async fn start<L>(
-        ipc_path: String,
         event_proxy: L,
         abort_rx: triggered::Listener,
-    ) -> std::result::Result<tokio::task::JoinHandle<Result<(), Error>>, Error>
+    ) -> std::result::Result<(tokio::task::JoinHandle<Result<(), Error>>, String), Error>
     where
         L: OpenvpnEventProxy + Sync + Send + 'static,
     {
-        let endpoint = IpcEndpoint::new(ipc_path);
+        let uuid = uuid::Uuid::new_v4().to_string();
+        let ipc_path = if cfg!(windows) {
+            format!("//./pipe/talpid-openvpn-{}", uuid)
+        } else {
+            format!("/tmp/talpid-openvpn-{}", uuid)
+        };
+
+        let endpoint = IpcEndpoint::new(ipc_path.clone());
         let incoming = endpoint.incoming().map_err(Error::StartServer)?;
-        Ok(tokio::spawn(async move {
-            Server::builder()
-                .add_service(OpenvpnEventProxyServer::new(event_proxy))
-                .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
-                .await
-                .map_err(Error::TonicError)
-        }))
+        Ok((
+            tokio::spawn(async move {
+                Server::builder()
+                    .add_service(OpenvpnEventProxyServer::new(event_proxy))
+                    .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
+                    .await
+                    .map_err(Error::TonicError)
+            }),
+            ipc_path,
+        ))
     }
 
     #[derive(Debug)]
@@ -1244,8 +1241,10 @@ mod tests {
     where
         L: event_server::OpenvpnEventProxy + Send + Sync + 'static,
     {
-        OpenVpnMonitor::new_internal_with_runtime(
-            new_runtime()?,
+        let runtime = new_runtime()?;
+        let handle = runtime.handle().clone();
+        handle.block_on(OpenVpnMonitor::new_internal_with_runtime(
+            runtime,
             cmd,
             event_server_abort_tx,
             event_server_abort_rx,
@@ -1258,7 +1257,7 @@ mod tests {
             tunnel_close_rx,
             #[cfg(windows)]
             wintun,
-        )
+        ))
     }
 
     #[test]
