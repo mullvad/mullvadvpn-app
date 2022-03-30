@@ -21,15 +21,26 @@ extension OperationCompletion where Success == AddressCache.CacheUpdateResult {
     }
 }
 
-extension Result where Success == RelayCache.FetchResult {
+extension OperationCompletion where Success == TunnelManager.KeyRotationResult {
+    var backgroundFetchResult: UIBackgroundFetchResult {
+        switch self {
+        case .success(.finished):
+            return .newData
+        case .success(.throttled), .cancelled:
+            return .noData
+        case .failure:
+            return .failed
+        }
+    }
+}
+
+extension OperationCompletion where Success == RelayCache.FetchResult {
     var backgroundFetchResult: UIBackgroundFetchResult {
         switch self {
         case .success(.newContent):
             return .newData
-
-        case .success(.throttled), .success(.sameContent):
+        case .success(.throttled), .success(.sameContent), .cancelled:
             return .noData
-
         case .failure:
             return .failed
         }

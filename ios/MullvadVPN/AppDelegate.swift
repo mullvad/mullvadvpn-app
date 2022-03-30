@@ -181,8 +181,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let operationQueue = OperationQueue()
 
         let updateAddressCacheOperation = AsyncBlockOperation { operation in
-            let handle = self.addressCacheTracker.updateEndpoints { result in
-                addressCacheFetchResult = result.backgroundFetchResult
+            let handle = self.addressCacheTracker.updateEndpoints { completion in
+                addressCacheFetchResult = completion.backgroundFetchResult
                 operation.finish()
             }
 
@@ -195,15 +195,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let handle = RelayCache.Tracker.shared.updateRelays { completion in
                 switch completion {
                 case .success(let result):
-                    self.logger?.debug("Finished updating relays: \(result)")
+                    self.logger?.debug("Finished updating relays: \(result).")
                 case .failure(let error):
-                    self.logger?.error(chainedError: error, message: "Failed to update relays")
+                    self.logger?.error(chainedError: error, message: "Failed to update relays.")
                 case .cancelled:
                     break
                 }
 
-                relaysFetchResult = completion.result?.backgroundFetchResult
-
+                relaysFetchResult = completion.backgroundFetchResult
                 operation.finish()
             }
 
