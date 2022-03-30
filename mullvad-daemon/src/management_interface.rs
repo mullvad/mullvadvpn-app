@@ -516,6 +516,16 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(types::DeviceConfig::from(device)))
     }
 
+    async fn update_device(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("update_device");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::UpdateDevice(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)
+            .map(Response::new)
+    }
+
     async fn list_devices(
         &self,
         request: Request<AccountToken>,
@@ -922,6 +932,7 @@ fn map_daemon_error(error: crate::Error) -> Status {
         DaemonError::KeyRotationError(error) => map_device_error(error),
         DaemonError::ListDevicesError(error) => map_device_error(error),
         DaemonError::RemoveDeviceError(error) => map_device_error(error),
+        DaemonError::UpdateDeviceError(error) => map_device_error(error),
         #[cfg(windows)]
         DaemonError::SplitTunnelError(error) => map_split_tunnel_error(error),
         DaemonError::AccountHistory(error) => map_account_history_error(error),
