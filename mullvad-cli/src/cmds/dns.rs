@@ -40,6 +40,18 @@ impl Command for Dns {
                                     .long("block-malware")
                                     .takes_value(false)
                                     .help("Block domains known to be used by malware"),
+                            )
+                            .arg(
+                                clap::Arg::new("block adult content")
+                                    .long("block-adult-content")
+                                    .takes_value(false)
+                                    .help("Block domains known to be used for adult content"),
+                            )
+                            .arg(
+                                clap::Arg::new("block gambling")
+                                    .long("block-gambling")
+                                    .takes_value(false)
+                                    .help("Block domains known to be used for gambling"),
                             ),
                     )
                     .subcommand(
@@ -63,6 +75,8 @@ impl Command for Dns {
                         matches.is_present("block ads"),
                         matches.is_present("block trackers"),
                         matches.is_present("block malware"),
+                        matches.is_present("block adult content"),
+                        matches.is_present("block gambling"),
                     )
                     .await
                 }
@@ -90,6 +104,8 @@ impl Dns {
         block_ads: bool,
         block_trackers: bool,
         block_malware: bool,
+        block_adult_content: bool,
+        block_gambling: bool,
     ) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let settings = rpc.get_settings(()).await?.into_inner();
@@ -99,6 +115,8 @@ impl Dns {
                 block_ads,
                 block_trackers,
                 block_malware,
+                block_adult_content,
+                block_gambling,
             }),
             ..settings.tunnel_options.unwrap().dns_options.unwrap()
         })
@@ -145,6 +163,11 @@ impl Dns {
                 println!("Block ads: {}", options.default_options.block_ads);
                 println!("Block trackers: {}", options.default_options.block_trackers);
                 println!("Block malware: {}", options.default_options.block_malware);
+                println!(
+                    "Block adult content: {}",
+                    options.default_options.block_adult_content
+                );
+                println!("Block gambling: {}", options.default_options.block_gambling);
             }
             DnsState::Custom => {
                 println!("Custom DNS: yes\nServers:");
