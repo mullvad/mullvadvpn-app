@@ -80,7 +80,7 @@ impl ShadowsocksProxyMonitor {
 
         let (fut, server_abort_handle) = abortable(async move {
             let _ = sock;
-            let result = srv.run().await;
+            let result = srv.wait_until_exit().await;
             if let Err(error) = &result {
                 log::error!(
                     "{}",
