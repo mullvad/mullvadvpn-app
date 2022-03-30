@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onSubscription
+import kotlinx.coroutines.flow.onEach
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
@@ -39,7 +39,9 @@ class LaunchFragment : ServiceAwareFragment() {
     private fun advanceToNextScreen(deviceRepository: DeviceRepository) {
         jobTracker.newUiJob("advanceToNextScreen") {
             deviceRepository.deviceState
-                .onSubscription { deviceRepository.refreshDeviceState() }
+                .onEach { state ->
+                    if (state.isInitialState()) deviceRepository.refreshDeviceState()
+                }
                 .first { state -> state.isInitialState().not() }
                 .let { deviceState ->
                     when (deviceState) {
