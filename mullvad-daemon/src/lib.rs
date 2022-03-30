@@ -140,6 +140,9 @@ pub enum Error {
     #[error(display = "Failed to remove device")]
     RemoveDeviceError(#[error(source)] device::Error),
 
+    #[error(display = "Failed to update device")]
+    UpdateDeviceError(#[error(source)] device::Error),
+
     #[cfg(target_os = "linux")]
     #[error(display = "Unable to initialize split tunneling")]
     InitSplitTunneling(#[error(source)] split_tunnel::Error),
@@ -251,6 +254,8 @@ pub enum DaemonCommand {
     LogoutAccount(ResponseTx<(), Error>),
     /// Return the current device configuration, if there is one.
     GetDevice(ResponseTx<Option<DeviceConfig>, Error>),
+    /// Update/check the current device, if there is one.
+    UpdateDevice(ResponseTx<(), Error>),
     /// Return all the devices for a given account token.
     ListDevices(ResponseTx<Vec<Device>, Error>, AccountToken),
     /// Remove device from a given account.
@@ -1283,6 +1288,7 @@ where
             LoginAccount(tx, account_token) => self.on_login_account(tx, account_token).await,
             LogoutAccount(tx) => self.on_logout_account(tx).await,
             GetDevice(tx) => self.on_get_device(tx).await,
+            UpdateDevice(tx) => self.on_update_device(tx).await,
             ListDevices(tx, account_token) => self.on_list_devices(tx, account_token).await,
             RemoveDevice(tx, account_token, device_id) => {
                 self.on_remove_device(tx, account_token, device_id).await
@@ -1739,17 +1745,6 @@ where
     async fn on_get_device(&mut self, tx: ResponseTx<Option<DeviceConfig>, Error>) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
-            // Make sure the device is updated
-            match account_manager.validate_device().await {
-                Ok(_) | Err(device::Error::NoDevice) => (),
-                Err(error) => {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to update device data")
-                    );
-                }
-            }
-
             Self::oneshot_send(
                 tx,
                 Ok(account_manager
@@ -1758,6 +1753,21 @@ where
                     .unwrap_or(None)
                     .map(DeviceConfig::from)),
                 "get_device response",
+            );
+        });
+    }
+
+    async fn on_update_device(&mut self, tx: ResponseTx<(), Error>) {
+        let account_manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            let result = match account_manager.validate_device().await {
+                Ok(_) | Err(device::Error::NoDevice) => Ok(()),
+                Err(error) => Err(error),
+            };
+            Self::oneshot_send(
+                tx,
+                result.map_err(Error::UpdateDeviceError),
+                "update_device response",
             );
         });
     }
