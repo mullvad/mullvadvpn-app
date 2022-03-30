@@ -437,6 +437,8 @@ message DefaultDnsOptions {
 	bool block_ads = 1;
 	bool block_trackers = 2;
 	bool block_malware = 3;
+	bool block_adult_content = 4;
+	bool block_gambling = 5;
 }
 
 message CustomDnsOptions {
