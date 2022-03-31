@@ -150,7 +150,7 @@ Examples:
   or any process running as `root`, and incoming matching traffic.
 1. Connecting to the same VPN server, but via a bridge. The bridge is at IP `e.f.g.h` and the
   proxy service listens on TCP port `443` - Allow traffic to `e.f.g.h:443/TCP` for
-  `sslocal.exe` or any process running as `root`, and incoming matching
+  `mullvad-daemon.exe` or any process running as `root`, and incoming matching
   traffic. Do not allow any direct communication with the VPN server.
 1. Connecting to `a.b.c.d` port `1234` using WireGuard: Allow `a.b.c.d:1234/UDP` for
   `mullvad-daemon.exe` or any process running as `root`.
