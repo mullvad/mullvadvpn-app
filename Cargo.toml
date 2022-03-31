@@ -18,7 +18,6 @@ members = [
     "mullvad-management-interface",
     "tunnel-obfuscation",
 ]
-exclude = ["dist-assets/binaries/shadowsocks-rust"]
 
 [profile.release]
 opt-level = 3
