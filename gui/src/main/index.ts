@@ -198,6 +198,7 @@ class ApplicationMain {
     },
   };
   private deviceConfig?: IDeviceConfig;
+  private hasReceivedDeviceConfig = false;
   private guiSettings = new GuiSettings();
   private tunnelStateExpectation?: Expectation;
 
@@ -647,6 +648,9 @@ class ApplicationMain {
     // fetch device
     try {
       this.setDeviceConfig({ deviceConfig: await this.daemonRpc.getDevice() });
+      void this.daemonRpc
+        .updateDevice()
+        .catch((error: Error) => log.warn(`Failed to update device info: ${error.message}`));
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch device: ${error.message}`);
@@ -1118,6 +1122,7 @@ class ApplicationMain {
   private setDeviceConfig(deviceEvent: IDeviceEvent) {
     const oldDeviceConfig = this.deviceConfig;
     this.deviceConfig = deviceEvent.deviceConfig;
+    this.hasReceivedDeviceConfig = true;
 
     // make sure to invalidate the account data cache when account tokens change
     this.updateAccountDataOnAccountChange(
@@ -1214,6 +1219,7 @@ class ApplicationMain {
       tunnelState: this.tunnelState,
       settings: this.settings,
       deviceConfig: this.deviceConfig,
+      hasReceivedDeviceConfig: this.hasReceivedDeviceConfig,
       relayListPair: {
         relays: this.processRelaysForPresentation(this.relays, this.settings.relaySettings),
         bridges: this.processBridgesForPresentation(this.relays, this.settings.bridgeState),
