@@ -99,6 +99,7 @@ export default class AppRenderer {
   private tunnelState!: TunnelState;
   private settings!: ISettings;
   private deviceConfig?: IDeviceConfig;
+  private hasReceivedDeviceConfig = false;
   private guiSettings!: IGuiSettingsState;
   private loginState: LoginState = 'none';
   private previousLoginState: LoginState = 'none';
@@ -130,6 +131,7 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.account.listenDevice((deviceEvent) => {
       const oldDeviceConfig = this.deviceConfig;
+      this.hasReceivedDeviceConfig = true;
       this.handleAccountChange(deviceEvent, oldDeviceConfig?.accountToken);
     });
 
@@ -205,6 +207,7 @@ export default class AppRenderer {
     this.setAccountExpiry(initialState.accountData?.expiry);
     this.setSettings(initialState.settings);
     this.handleAccountChange({ deviceConfig: initialState.deviceConfig }, undefined);
+    this.hasReceivedDeviceConfig = initialState.hasReceivedDeviceConfig;
     this.setAccountHistory(initialState.accountHistory);
     this.setTunnelState(initialState.tunnelState);
     this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
@@ -696,7 +699,7 @@ export default class AppRenderer {
   }
 
   private getNavigationBase(): RoutePath {
-    if (this.connectedToDaemon) {
+    if (this.connectedToDaemon && this.hasReceivedDeviceConfig) {
       const loginState = this.reduxStore.getState().account.status;
       const deviceRevoked = loginState.type === 'none' && loginState.deviceRevoked;
 
