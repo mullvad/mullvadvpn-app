@@ -1079,10 +1079,6 @@ msgid "%(location)s (%(info)s)"
 msgstr ""
 
 msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr ""
-
-msgctxt "select-location-view"
 msgid "Entry"
 msgstr ""
 
@@ -1105,6 +1101,10 @@ msgstr ""
 #. Heading in select location view
 msgctxt "select-location-view"
 msgid "Select location"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr ""
 
 msgctxt "select-location-view"
