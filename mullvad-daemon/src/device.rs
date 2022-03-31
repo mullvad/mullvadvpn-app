@@ -19,7 +19,7 @@ use std::{
     path::Path,
     sync::{
         atomic::{AtomicBool, Ordering},
-        Arc,
+        Arc, Mutex,
     },
     time::{Duration, SystemTime},
 };
@@ -156,7 +156,6 @@ enum AccountManagerCommand {
     Login(AccountToken, ResponseTx<()>),
     Logout(ResponseTx<()>),
     SetData(DeviceData, ResponseTx<()>),
-    GetData(ResponseTx<Option<DeviceData>>),
     RotateKey(ResponseTx<()>),
     SetRotationInterval(RotationInterval, ResponseTx<()>),
     GetRotationInterval(ResponseTx<RotationInterval>),
@@ -168,11 +167,16 @@ enum AccountManagerCommand {
 #[derive(Clone)]
 pub(crate) struct AccountManagerHandle {
     cmd_tx: mpsc::UnboundedSender<AccountManagerCommand>,
+    data: Arc<Mutex<Option<DeviceData>>>,
     pub account_service: AccountService,
     pub device_service: DeviceService,
 }
 
 impl AccountManagerHandle {
+    pub fn data(&self) -> Option<DeviceData> {
+        self.data.lock().unwrap().clone()
+    }
+
     pub async fn login(&self, token: AccountToken) -> Result<(), Error> {
         self.send_command(|tx| AccountManagerCommand::Login(token, tx))
             .await
@@ -185,11 +189,6 @@ impl AccountManagerHandle {
 
     pub async fn set(&self, data: DeviceData) -> Result<(), Error> {
         self.send_command(|tx| AccountManagerCommand::SetData(data, tx))
-            .await
-    }
-
-    pub async fn data(&self) -> Result<Option<DeviceData>, Error> {
-        self.send_command(|tx| AccountManagerCommand::GetData(tx))
             .await
     }
 
@@ -246,7 +245,7 @@ impl AccountManagerHandle {
 pub(crate) struct AccountManager {
     cacher: DeviceCacher,
     device_service: DeviceService,
-    data: Option<DeviceData>,
+    data: Arc<Mutex<Option<DeviceData>>>,
     rotation_interval: RotationInterval,
     listeners: Vec<Box<dyn Sender<InnerDeviceEvent> + Send>>,
     last_validation: Option<SystemTime>,
@@ -259,18 +258,19 @@ impl AccountManager {
         settings_dir: &Path,
         initial_rotation_interval: RotationInterval,
     ) -> Result<AccountManagerHandle, Error> {
-        let (cacher, data) = DeviceCacher::new(settings_dir).await?;
-        let token = data.as_ref().map(|state| state.token.clone());
+        let (cacher, account_data) = DeviceCacher::new(settings_dir).await?;
+        let token = account_data.as_ref().map(|state| state.token.clone());
         let account_service =
             spawn_account_service(rest_handle.clone(), token, api_availability.clone());
 
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
+        let data = Arc::new(Mutex::new(account_data));
 
         let device_service = DeviceService::new(rest_handle, api_availability);
         let manager = AccountManager {
             cacher,
             device_service: device_service.clone(),
-            data,
+            data: data.clone(),
             rotation_interval: initial_rotation_interval,
             listeners: vec![],
             last_validation: None,
@@ -278,6 +278,7 @@ impl AccountManager {
 
         tokio::spawn(manager.run(cmd_rx));
         let handle = AccountManagerHandle {
+            data,
             cmd_tx,
             account_service,
             device_service,
@@ -315,9 +316,6 @@ impl AccountManager {
             AccountManagerCommand::SetData(data, tx) => {
                 let _ = tx.send(self.set(InnerDeviceEvent::Login(data)).await);
             }
-            AccountManagerCommand::GetData(tx) => {
-                let _ = tx.send(Ok(self.data.clone()));
-            }
             AccountManagerCommand::RotateKey(tx) => {
                 let _ = tx.send(self.rotate_key().await);
             }
@@ -344,8 +342,12 @@ impl AccountManager {
         Ok(())
     }
 
+    fn clone_data(&self) -> Option<DeviceData> {
+        self.data.lock().unwrap().clone()
+    }
+
     async fn logout(&mut self) -> Result<(), Error> {
-        if self.data.is_some() {
+        if self.data.lock().unwrap().is_some() {
             self.cacher.write(None).await?;
             let _ = tokio::time::timeout(LOGOUT_TIMEOUT, self.logout_inner()).await;
 
@@ -357,7 +359,7 @@ impl AccountManager {
     }
 
     fn logout_inner(&mut self) -> tokio::task::JoinHandle<()> {
-        let prev_data = self.data.take();
+        let prev_data = self.data.lock().unwrap().take();
         let service = self.device_service.clone();
 
         tokio::spawn(async move {
@@ -377,17 +379,18 @@ impl AccountManager {
 
     async fn set(&mut self, event: InnerDeviceEvent) -> Result<(), Error> {
         let data = event.data();
-        if data == self.data.as_ref() {
+        let current_data = self.clone_data();
+        if data == current_data.as_ref() {
             return Ok(());
         }
 
         self.cacher.write(data).await?;
         self.last_validation = None;
 
-        if self
-            .data
+        if current_data
             .as_ref()
-            .map(|current| data.as_ref().map(|d| &d.device.id) != Some(&current.device.id))
+            .zip(data.as_ref())
+            .map(|(current_data, new_data)| current_data.device.id == new_data.device.id)
             .unwrap_or(false)
         {
             // Remove the existing device if its ID differs. Otherwise, only update
@@ -395,7 +398,7 @@ impl AccountManager {
             self.logout_inner();
         }
 
-        self.data = data.cloned();
+        *self.data.lock().unwrap() = data.cloned();
 
         self.listeners
             .retain(|listener| listener.send(event.clone()).is_ok());
@@ -405,18 +408,16 @@ impl AccountManager {
 
     async fn rotate_key(&mut self) -> Result<(), Error> {
         // TODO: Update all data opportunistically?
-        let data = self.data.as_ref().ok_or(Error::NoDevice)?;
+        let mut data = self.clone_data().ok_or(Error::NoDevice)?;
 
         let wg_data = self
             .device_service
             .rotate_key(data.token.clone(), data.device.id.clone())
             .await?;
 
-        // Copy the data to keep a predictable state if an error occurs.
-        let mut new_data = data.clone();
-        new_data.device.pubkey = wg_data.private_key.public_key();
-        new_data.wg_data = wg_data;
-        self.set(InnerDeviceEvent::RotatedKey(new_data)).await
+        data.device.pubkey = wg_data.private_key.public_key();
+        data.wg_data = wg_data;
+        self.set(InnerDeviceEvent::RotatedKey(data)).await
     }
 
     /// Check if the device is valid for the account, and yank it if it no longer exists.
@@ -429,7 +430,7 @@ impl AccountManager {
             return Ok(result);
         }
 
-        let data = self.data.as_ref().ok_or(Error::NoDevice)?;
+        let data = self.clone_data().ok_or(Error::NoDevice)?;
 
         match self
             .device_service
@@ -461,7 +462,7 @@ impl AccountManager {
                 log::debug!("The current device is no longer valid for this account");
 
                 self.cacher.write(None).await?;
-                self.data = None;
+                *self.data.lock().unwrap() = None;
 
                 let event = InnerDeviceEvent::Revoked;
                 self.listeners
@@ -474,7 +475,7 @@ impl AccountManager {
     }
 
     fn cached_validation(&mut self) -> Option<ValidationResult> {
-        if self.data.is_none() {
+        if self.data.lock().unwrap().is_none() {
             return None;
         }
 
@@ -508,7 +509,7 @@ impl KeyUpdater {
     async fn spawn(handle: AccountManagerHandle) -> Result<(), Error> {
         let (tx, rx) = mpsc::unbounded();
         handle.receive_events(tx).await?;
-        let data = handle.data().await?;
+        let data = handle.data();
         let mut key_rotator = KeyUpdater { handle, rx, data };
 
         tokio::spawn(async move {
