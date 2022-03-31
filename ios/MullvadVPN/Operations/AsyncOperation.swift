@@ -45,9 +45,14 @@ class AsyncOperation: Operation {
 
     final override func start() {
         stateLock.lock()
-        setExecuting(true)
-        stateLock.unlock()
-        main()
+        if _isCancelled {
+            stateLock.unlock()
+            finish()
+        } else {
+            setExecuting(true)
+            stateLock.unlock()
+            main()
+        }
     }
 
     override func main() {
@@ -66,7 +71,7 @@ class AsyncOperation: Operation {
         super.cancel()
     }
 
-    final func finish() {
+    func finish() {
         stateLock.lock()
 
         if _isExecuting {
@@ -79,15 +84,9 @@ class AsyncOperation: Operation {
             didChangeValue(for: \.isFinished)
 
             stateLock.unlock()
-
-            operationDidFinish()
         } else {
             stateLock.unlock()
         }
-    }
-
-    func operationDidFinish() {
-        // Override in subclasses
     }
 
     private func setExecuting(_ value: Bool) {
