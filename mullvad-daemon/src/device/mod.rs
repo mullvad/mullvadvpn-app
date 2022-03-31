@@ -1,8 +1,9 @@
 use chrono::{DateTime, Utc};
 use futures::{
     channel::{mpsc, oneshot},
-    future::{abortable, AbortHandle},
+    future::{abortable, AbortHandle, Fuse, FusedFuture},
     stream::StreamExt,
+    FutureExt,
 };
 use mullvad_api::{
     availability::ApiAvailabilityHandle,
@@ -36,6 +37,8 @@ use tokio::{
     fs,
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
 };
+
+mod api;
 
 /// How often to check whether the key has expired.
 /// A short interval is used in case the computer is ever suspended.
@@ -77,8 +80,13 @@ pub enum Error {
     ParseDeviceCache(#[error(source)] serde_json::Error),
     #[error(display = "Unexpected HTTP request error")]
     OtherRestError(#[error(source)] rest::Error),
-    #[error(display = "The task was aborted")]
-    Cancelled,
+    #[error(display = "The device update task is not running")]
+    DeviceUpdaterCancelled(#[error(source)] oneshot::Canceled),
+    /// Intended to be broadcast to requesters
+    #[error(display = "Broadcast error")]
+    ResponseFailure(#[error(source)] Arc<Error>),
+    #[error(display = "Account changed during operation")]
+    AccountChange,
     #[error(display = "The account manager is down")]
     AccountManagerDown,
 }
@@ -139,6 +147,7 @@ impl Error {
     }
 }
 
+#[derive(Clone)]
 pub enum ValidationResult {
     /// The device and key were valid.
     Valid,
@@ -148,6 +157,8 @@ pub enum ValidationResult {
     Updated,
     /// The device was not found remotely and was removed from the cache.
     Removed,
+    /// Failed to reach the API
+    Unknown,
 }
 
 type ResponseTx<T> = oneshot::Sender<Result<T, Error>>;
@@ -243,6 +254,8 @@ impl AccountManagerHandle {
     }
 }
 
+// type ApiFuture<T> =
+
 pub(crate) struct AccountManager {
     cacher: DeviceCacher,
     device_service: DeviceService,
@@ -250,6 +263,8 @@ pub(crate) struct AccountManager {
     rotation_interval: RotationInterval,
     listeners: Vec<Box<dyn Sender<InnerDeviceEvent> + Send>>,
     last_validation: Option<SystemTime>,
+    validation_requests: Vec<ResponseTx<ValidationResult>>,
+    rotation_requests: Vec<ResponseTx<()>>,
 }
 
 impl AccountManager {
@@ -274,6 +289,8 @@ impl AccountManager {
             rotation_interval: initial_rotation_interval,
             listeners: vec![],
             last_validation: None,
+            validation_requests: vec![],
+            rotation_requests: vec![],
         };
 
         tokio::spawn(manager.run(cmd_rx));
@@ -288,13 +305,90 @@ impl AccountManager {
 
     async fn run(mut self, mut cmd_rx: mpsc::UnboundedReceiver<AccountManagerCommand>) {
         let mut shutdown_tx = None;
-        while let Some(cmd) = cmd_rx.next().await {
-            match cmd {
-                AccountManagerCommand::Shutdown(tx) => {
-                    shutdown_tx = Some(tx);
-                    break;
+        let mut current_api_call = api::CurrentApiCall::new();
+
+        loop {
+            let key_check_timer = self.key_check_timer().fuse();
+            futures::pin_mut!(key_check_timer);
+
+            futures::select! {
+                api_result = current_api_call => {
+                    self.consume_api_result(api_result, &mut current_api_call).await;
                 }
-                other => self.service_command(other).await,
+
+
+                _key_check_time = key_check_timer => {
+                    if !current_api_call.is_validating() {
+                        if let Some(rotation) = self.spawn_timed_key_rotation() {
+                            current_api_call.set_timed_rotation(Box::pin(rotation));
+                        }
+                    }
+                }
+
+
+                cmd = cmd_rx.next() => {
+                    match cmd {
+                        Some(AccountManagerCommand::Shutdown(tx)) => {
+                            shutdown_tx = Some(tx);
+                            break;
+                        }
+                        Some(AccountManagerCommand::Login(token, tx)) => {
+                            let job = self.device_service
+                                .generate_for_account(token);
+
+                            current_api_call.set_login(Box::pin(job), tx);
+                        }
+                        Some(AccountManagerCommand::Logout(tx)) => {
+                            current_api_call.clear();
+                            self.logout(tx).await;
+                        }
+                        Some(AccountManagerCommand::SetData(data, tx)) => {
+                            let _ = tx.send(self.set(InnerDeviceEvent::Login(data)).await);
+                        }
+                        Some(AccountManagerCommand::GetData(tx)) => {
+                            if current_api_call.is_logging_in() {
+                                let _ = tx.send(Err(Error::AccountChange));
+                                continue
+                            }
+                            let _ = tx.send(Ok(self.data.clone()));
+                        }
+                        Some(AccountManagerCommand::RotateKey(tx)) => {
+                            if current_api_call.is_logging_in() {
+                                let _ = tx.send(Err(Error::AccountChange));
+                                continue
+                            }
+                            if current_api_call.is_validating() {
+                                self.rotation_requests.push(tx);
+                                continue
+                            }
+                            match self.initiate_key_rotation() {
+                                Ok(api_call) => {
+                                    current_api_call.set_oneshot_rotation(Box::pin(api_call))
+                                },
+                                Err(err) =>  {
+                                    let _ = tx.send(Err(err));
+                                }
+                            }
+                        }
+                        Some(AccountManagerCommand::SetRotationInterval(interval, tx)) => {
+                            self.rotation_interval = interval;
+                            let _ = tx.send(Ok(()));
+                        }
+                        Some(AccountManagerCommand::GetRotationInterval(tx)) => {
+                            let _ = tx.send(Ok(self.rotation_interval));
+                        }
+                        Some(AccountManagerCommand::ValidateDevice(tx)) => {
+                            self.handle_validation_request(tx, &mut current_api_call);
+                        }
+                        Some(AccountManagerCommand::ReceiveEvents(events_tx, tx)) => {
+                            let _ = tx.send(Ok(self.listeners.push(events_tx)));
+                        },
+                        None => {
+                            break;
+                        }
+                    }
+                }
+
             }
         }
         self.shutdown().await;
@@ -304,75 +398,251 @@ impl AccountManager {
         log::debug!("Account manager has stopped");
     }
 
-    async fn service_command(&mut self, cmd: AccountManagerCommand) {
-        match cmd {
-            AccountManagerCommand::Login(token, tx) => {
-                let _ = tx.send(self.login(token).await);
+    fn handle_validation_request(
+        &mut self,
+        tx: ResponseTx<ValidationResult>,
+        current_api_call: &mut api::CurrentApiCall,
+    ) {
+        if current_api_call.is_logging_in() {
+            let _ = tx.send(Err(Error::AccountChange));
+            return;
+        }
+        if current_api_call.is_validating() {
+            self.validation_requests.push(tx);
+            return;
+        }
+        if let Some(result) = self.cached_validation() {
+            let _ = tx.send(Ok(result));
+            return;
+        }
+
+        match self.validation_call() {
+            Ok(call) => {
+                current_api_call.set_validation(Box::pin(call));
+                self.validation_requests.push(tx);
             }
-            AccountManagerCommand::Logout(tx) => {
-                let _ = tx.send(self.logout().await);
+            Err(err) => {
+                let _ = tx.send(Err(err));
             }
-            AccountManagerCommand::SetData(data, tx) => {
-                let _ = tx.send(self.set(InnerDeviceEvent::Login(data)).await);
-            }
-            AccountManagerCommand::GetData(tx) => {
-                let _ = tx.send(Ok(self.data.clone()));
-            }
-            AccountManagerCommand::RotateKey(tx) => {
-                let _ = tx.send(self.rotate_key().await);
-            }
-            AccountManagerCommand::SetRotationInterval(interval, tx) => {
-                self.rotation_interval = interval;
-                let _ = tx.send(Ok(()));
-            }
-            AccountManagerCommand::GetRotationInterval(tx) => {
-                let _ = tx.send(Ok(self.rotation_interval));
-            }
-            AccountManagerCommand::ValidateDevice(tx) => {
-                let _ = tx.send(self.validate_device().await);
-            }
-            AccountManagerCommand::ReceiveEvents(events_tx, tx) => {
-                let _ = tx.send(Ok(self.listeners.push(events_tx)));
-            }
-            AccountManagerCommand::Shutdown(_) => unreachable!("shutdown is handled earlier"),
         }
     }
 
-    async fn login(&mut self, token: AccountToken) -> Result<(), Error> {
-        let data = self.device_service.generate_for_account(token).await?;
-        self.set(InnerDeviceEvent::Login(data)).await?;
-        Ok(())
-    }
-
-    async fn logout(&mut self) -> Result<(), Error> {
-        if self.data.is_some() {
-            self.cacher.write(None).await?;
-            let _ = tokio::time::timeout(LOGOUT_TIMEOUT, self.logout_inner()).await;
-
-            let event = InnerDeviceEvent::Logout;
-            self.listeners
-                .retain(|listener| listener.send(event.clone()).is_ok());
+    async fn consume_api_result(
+        &mut self,
+        result: api::ApiResult,
+        api_call: &mut api::CurrentApiCall,
+    ) {
+        use api::ApiResult::*;
+        match result {
+            Login(data, tx) => self.consume_login(data, tx).await,
+            Rotation(rotation_response) => self.consume_rotation_result(rotation_response).await,
+            Validation(data_response) => self.consume_validation(data_response, api_call).await,
         }
-        Ok(())
     }
 
-    fn logout_inner(&mut self) -> tokio::task::JoinHandle<()> {
-        let prev_data = self.data.take();
-        let service = self.device_service.clone();
+    async fn consume_login(
+        &mut self,
+        device_response: Result<DeviceData, Error>,
+        tx: ResponseTx<()>,
+    ) {
+        let _ = tx.send(async { self.set(InnerDeviceEvent::Login(device_response?)).await }.await);
+    }
 
-        tokio::spawn(async move {
-            if let Some(data) = prev_data {
-                if let Err(error) = service
-                    .remove_device_with_backoff(data.token, data.device.id)
-                    .await
-                {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to remove a previous device")
-                    );
+    async fn consume_validation(
+        &mut self,
+        response: Result<Device, Error>,
+        api_call: &mut api::CurrentApiCall,
+    ) {
+        let current_data = match self.data.as_ref() {
+            Some(data) => data,
+            None => {
+                // TODO: Consider panicking here
+                self.validation_requests = vec![];
+                self.rotation_requests = vec![];
+                log::error!("Received a validation response whilst having no device data");
+                return;
+            }
+        };
+
+        match response {
+            Ok(new_device_data) => {
+                if new_device_data.pubkey == current_data.device.pubkey {
+                    let new_data = DeviceData {
+                        device: new_device_data,
+                        ..current_data.clone()
+                    };
+
+                    match self.set(InnerDeviceEvent::Updated(new_data)).await {
+                        Ok(_) => {
+                            Self::drain_requests(&mut self.validation_requests, || {
+                                Ok(ValidationResult::Valid)
+                            });
+                        }
+                        Err(err) => {
+                            log::error!("Failed to save device data to disk");
+                            let cloneable_err = Arc::new(err);
+                            Self::drain_requests(&mut self.validation_requests, || {
+                                Err(Error::ResponseFailure(cloneable_err.clone()))
+                            });
+                        }
+                    }
                 }
             }
-        })
+            Err(Error::InvalidAccount) => {
+                self.invalidate_current_data(|| Error::InvalidAccount).await;
+            }
+            Err(Error::InvalidDevice) => {
+                self.invalidate_current_data(|| Error::InvalidDevice).await;
+            }
+            Err(err) => {
+                log::error!("Failed to validate device: {}", err);
+                let cloneable_err = Arc::new(err);
+                Self::drain_requests(&mut self.validation_requests, || {
+                    Err(Error::ResponseFailure(cloneable_err.clone()))
+                });
+            }
+        }
+
+        if !self.rotation_requests.is_empty() || !self.validation_requests.is_empty() {
+            if let Some(updated_data) = self.data.as_ref() {
+                let device_service = self.device_service.clone();
+                let token = updated_data.token.clone();
+                let device_id = updated_data.device.id.clone();
+                api_call.set_oneshot_rotation(Box::pin(async move {
+                    device_service.rotate_key(token, device_id).await
+                }));
+            }
+        }
+    }
+
+    async fn consume_rotation_result(&mut self, api_result: Result<WireguardData, Error>) {
+        let mut device_data = match self.data.clone() {
+            Some(data) => data,
+            None => {
+                // TODO: Consider panicking here
+                log::error!("Received a key rotation result whilst having no data");
+                return;
+            }
+        };
+
+        match api_result {
+            Ok(wg_data) => {
+                device_data.device.pubkey = wg_data.private_key.public_key();
+                device_data.wg_data = wg_data;
+                match self.set(InnerDeviceEvent::RotatedKey(device_data)).await {
+                    Ok(_) => {
+                        Self::drain_requests(&mut self.rotation_requests, || Ok(()));
+
+                        Self::drain_requests(&mut self.validation_requests, || {
+                            Ok(ValidationResult::RotatedKey)
+                        });
+                    }
+                    Err(err) => {
+                        self.drain_requests_with_err(err);
+                    }
+                }
+            }
+            Err(Error::InvalidAccount) => {
+                self.invalidate_current_data(|| Error::InvalidAccount).await;
+            }
+            Err(Error::InvalidDevice) => {
+                self.invalidate_current_data(|| Error::InvalidDevice).await;
+            }
+            Err(err) => {
+                self.drain_requests_with_err(err);
+            }
+        }
+    }
+
+    fn drain_requests_with_err(&mut self, err: Error) {
+        let cloneable_err = Arc::new(err);
+        Self::drain_requests(&mut self.rotation_requests, || {
+            Err(Error::ResponseFailure(cloneable_err.clone()))
+        });
+        Self::drain_requests(&mut self.validation_requests, || {
+            Err(Error::ResponseFailure(cloneable_err.clone()))
+        });
+    }
+
+    fn drain_requests<T>(requests: &mut Vec<ResponseTx<T>>, result: impl Fn() -> Result<T, Error>) {
+        for req in requests.drain(0..) {
+            let _ = req.send(result());
+        }
+    }
+
+    fn spawn_timed_key_rotation(
+        &self,
+    ) -> Option<impl Future<Output = Result<WireguardData, Error>> + Send + 'static> {
+        let data = self.data.as_ref()?;
+
+        if (chrono::Utc::now()
+            .signed_duration_since(data.wg_data.created)
+            .num_seconds() as u64)
+            < self.rotation_interval.as_duration().as_secs()
+        {
+            let device_service = self.device_service.clone();
+            let account_token = data.token.clone();
+            let device_id = data.token.clone();
+
+            Some(async move {
+                device_service
+                    .rotate_key_with_backoff(account_token, device_id)
+                    .await
+            })
+        } else {
+            None
+        }
+    }
+
+    async fn invalidate_current_data(&mut self, err_constructor: impl Fn() -> Error) {
+        if let Err(err) = self.cacher.write(None).await {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to save device data to disk")
+            );
+        }
+        self.data = None;
+
+        Self::drain_requests(&mut self.validation_requests, || Err(err_constructor()));
+        Self::drain_requests(&mut self.rotation_requests, || Err(err_constructor()));
+
+        self.listeners
+            .retain(|listener| listener.send(InnerDeviceEvent::Revoked).is_ok());
+    }
+
+    async fn logout(&mut self, tx: ResponseTx<()>) {
+        if let Some(data) = self.data.take() {
+            if let Err(err) = self.cacher.write(None).await {
+                let _ = tx.send(Err(err));
+                return;
+            }
+
+            let logout_call = self.logout_api_call(data);
+
+            self.listeners
+                .retain(|listener| listener.send(InnerDeviceEvent::Logout).is_ok());
+
+            tokio::spawn(async move {
+                let _ = tokio::time::timeout(LOGOUT_TIMEOUT, logout_call).await;
+                let _ = tx.send(Ok(()));
+            });
+        }
+    }
+
+    fn logout_api_call(&self, data: DeviceData) -> impl Future<Output = ()> + 'static {
+        let service = self.device_service.clone();
+
+        async move {
+            if let Err(error) = service
+                .remove_device_with_backoff(data.token, data.device.id)
+                .await
+            {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to logout device")
+                );
+            }
+        }
     }
 
     async fn set(&mut self, event: InnerDeviceEvent) -> Result<(), Error> {
@@ -384,15 +654,14 @@ impl AccountManager {
         self.cacher.write(data).await?;
         self.last_validation = None;
 
-        if self
+        if let Some(old_data) = self
             .data
-            .as_ref()
-            .map(|current| data.as_ref().map(|d| &d.device.id) != Some(&current.device.id))
-            .unwrap_or(false)
+            .take()
+            .filter(|old_data| data.as_ref().map(|d| &d.device.id) != Some(&old_data.device.id))
         {
             // Remove the existing device if its ID differs. Otherwise, only update
             // the data.
-            self.logout_inner();
+            tokio::spawn(self.logout_api_call(old_data));
         }
 
         self.data = data.cloned();
@@ -403,74 +672,35 @@ impl AccountManager {
         Ok(())
     }
 
-    async fn rotate_key(&mut self) -> Result<(), Error> {
-        // TODO: Update all data opportunistically?
-        let data = self.data.as_ref().ok_or(Error::NoDevice)?;
-
-        let wg_data = self
-            .device_service
-            .rotate_key(data.token.clone(), data.device.id.clone())
-            .await?;
-
-        // Copy the data to keep a predictable state if an error occurs.
-        let mut new_data = data.clone();
-        new_data.device.pubkey = wg_data.private_key.public_key();
-        new_data.wg_data = wg_data;
-        self.set(InnerDeviceEvent::RotatedKey(new_data)).await
+    fn initiate_key_rotation(
+        &self,
+    ) -> Result<impl Future<Output = Result<WireguardData, Error>>, Error> {
+        let data = self.data.clone().ok_or(Error::NoDevice)?;
+        let device_service = self.device_service.clone();
+        Ok(async move { device_service.rotate_key(data.token, data.device.id).await })
     }
 
-    /// Check if the device is valid for the account, and yank it if it no longer exists.
-    /// This also updates any associated data and returns whether it changed.
-    async fn validate_device(&mut self) -> Result<ValidationResult, Error> {
-        log::debug!("Checking whether the device is still valid");
-
-        if let Some(result) = self.cached_validation() {
-            log::debug!("The current device is still valid");
-            return Ok(result);
+    fn key_check_timer(&self) -> impl FusedFuture<Output = ()> + 'static {
+        match &self.data {
+            Some(_) => tokio::time::sleep(KEY_CHECK_INTERVAL).fuse(),
+            None => Fuse::terminated(),
         }
+    }
 
-        let data = self.data.as_ref().ok_or(Error::NoDevice)?;
+    fn fetch_device_data(
+        &self,
+        old_data: &DeviceData,
+    ) -> impl Future<Output = Result<Device, Error>> {
+        let device_service = self.device_service.clone();
+        let account_token = old_data.token.clone();
+        let device_id = old_data.device.id.clone();
+        async move { device_service.get(account_token, device_id).await }
+    }
 
-        match self
-            .device_service
-            .get(data.token.clone(), data.device.id.clone())
-            .await
-        {
-            Ok(device) => {
-                if device.pubkey == data.device.pubkey {
-                    if device == data.device {
-                        log::debug!("The current device is still valid");
-                        Ok(ValidationResult::Valid)
-                    } else {
-                        log::debug!("Updating data for the current device");
-                        // Copy the data to keep a predictable state if an error occurs.
-                        let new_data = DeviceData {
-                            device,
-                            ..data.clone()
-                        };
-                        self.set(InnerDeviceEvent::Updated(new_data)).await?;
-                        Ok(ValidationResult::Updated)
-                    }
-                } else {
-                    log::debug!("Rotating invalid WireGuard key");
-                    self.rotate_key().await?;
-                    Ok(ValidationResult::RotatedKey)
-                }
-            }
-            Err(Error::InvalidAccount) | Err(Error::InvalidDevice) => {
-                log::debug!("The current device is no longer valid for this account");
-
-                self.cacher.write(None).await?;
-                self.data = None;
-
-                let event = InnerDeviceEvent::Revoked;
-                self.listeners
-                    .retain(|listener| listener.send(event.clone()).is_ok());
-
-                Ok(ValidationResult::Removed)
-            }
-            Err(error) => Err(error),
-        }
+    fn validation_call(&self) -> Result<impl Future<Output = Result<Device, Error>>, Error> {
+        let old_data = self.data.clone().ok_or(Error::NoDevice)?;
+        let device_request = self.fetch_device_data(&old_data);
+        Ok(async move { device_request.await })
     }
 
     fn cached_validation(&mut self) -> Option<ValidationResult> {
@@ -624,31 +854,36 @@ impl DeviceService {
     }
 
     /// Generate a new device for a given token
-    pub async fn generate_for_account(&self, token: AccountToken) -> Result<DeviceData, Error> {
+    pub fn generate_for_account(
+        &self,
+        token: AccountToken,
+    ) -> impl Future<Output = Result<DeviceData, Error>> + Send {
         let private_key = PrivateKey::new_from_random();
         let pubkey = private_key.public_key();
 
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         let token_copy = token.clone();
-        let (device, addresses) = retry_future_n(
-            move || proxy.create(token_copy.clone(), pubkey.clone()),
-            move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
-        )
-        .await
-        .map_err(map_rest_error)?;
+        async move {
+            let (device, addresses) = retry_future_n(
+                move || proxy.create(token_copy.clone(), pubkey.clone()),
+                move |result| should_retry(result, &api_handle),
+                constant_interval(RETRY_ACTION_INTERVAL),
+                RETRY_ACTION_MAX_RETRIES,
+            )
+            .await
+            .map_err(map_rest_error)?;
 
-        Ok(DeviceData {
-            token,
-            device,
-            wg_data: WireguardData {
-                private_key,
-                addresses,
-                created: Utc::now(),
-            },
-        })
+            Ok(DeviceData {
+                token,
+                device,
+                wg_data: WireguardData {
+                    private_key,
+                    addresses,
+                    created: Utc::now(),
+                },
+            })
+        }
     }
 
     pub async fn generate_for_account_with_backoff(
