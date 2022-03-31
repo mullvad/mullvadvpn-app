@@ -84,7 +84,7 @@ your checkout, you can find our developer keys on [Mullvad's Open Source page].
 ### Binaries submodule
 
 This repository has a git submodule at `dist-assets/binaries`. This submodule contains binaries and
-build scripts for third party code we need to bundle with the app. Such as OpenVPN, Shadowsocks
+build scripts for third party code we need to bundle with the app. Such as OpenVPN, Wintun
 etc.
 
 This submodule conforms to the same integrity/security standards as this repository. Every merge
@@ -391,11 +391,11 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
     cargo build
     ```
 
-1. Copy the OpenVPN and Shadowsocks binaries, and our plugin for it, to the directory we will
+1. Copy the OpenVPN binaries, and our plugin for it, to the directory we will
    use as resource directory. If you want to use any other directory, you would need to copy
    even more files.
    ```bash
-   cp dist-assets/binaries/<platform>/{openvpn, sslocal}[.exe] dist-assets/
+   cp dist-assets/binaries/<platform>/openvpn[.exe] dist-assets/
    cp target/debug/*talpid_openvpn_plugin* dist-assets/
    ```
 
