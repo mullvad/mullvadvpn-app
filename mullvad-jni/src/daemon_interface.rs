@@ -222,6 +222,16 @@ impl DaemonInterface {
             .map_err(Error::from)
     }
 
+    pub fn update_device(&self) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::UpdateDevice(tx))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
+    }
+
     pub fn list_devices(&self, account_token: String) -> Result<Vec<Device>> {
         let (tx, rx) = oneshot::channel();
 

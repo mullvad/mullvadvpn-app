@@ -135,6 +135,9 @@ impl Account {
 
     async fn get(&self, verbose: bool) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
+
+        let _ = rpc.update_device(()).await;
+
         let device = rpc
             .get_device(())
             .await

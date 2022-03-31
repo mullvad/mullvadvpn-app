@@ -55,6 +55,7 @@ service ManagementService {
 
 	// Device management
 	rpc GetDevice(google.protobuf.Empty) returns (DeviceConfig) {}
+	rpc UpdateDevice(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc ListDevices(google.protobuf.StringValue) returns (DeviceList) {}
 	rpc RemoveDevice(DeviceRemoval) returns (google.protobuf.Empty) {}
 

@@ -828,6 +828,23 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getDevi
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateDevice(
+    _: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+) {
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        if let Err(error) = daemon_interface.update_device() {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to update device")
+            );
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_listDevices<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,

@@ -128,6 +128,8 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
 
     fun getDevice(): DeviceConfig? = getDevice(daemonInterfaceAddress)
 
+    fun updateDevice() = updateDevice(daemonInterfaceAddress)
+
     fun removeDevice(accountToken: String, deviceId: String): RemoveDeviceResult {
         return removeDevice(daemonInterfaceAddress, accountToken, deviceId)
     }
@@ -215,6 +217,7 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
     ): List<Device>?
 
     private external fun getDevice(daemonInterfaceAddress: Long): DeviceConfig?
+    private external fun updateDevice(daemonInterfaceAddress: Long)
     private external fun removeDevice(
         daemonInterfaceAddress: Long,
         accountToken: String?,
