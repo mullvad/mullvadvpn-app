@@ -1012,7 +1012,7 @@ where
         match (&self.tunnel_state, &tunnel_state_transition) {
             // only reset the API sockets if when connected or leaving the connected state
             (&TunnelState::Connected { .. }, _) | (_, &TunnelStateTransition::Connected(_)) => {
-                self.api_handle.service().reset().await;
+                self.api_handle.service().reset();
             }
             _ => (),
         };
@@ -1290,8 +1290,8 @@ where
             SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher).await,
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
-            LoginAccount(tx, account_token) => self.on_login_account(tx, account_token).await,
-            LogoutAccount(tx) => self.on_logout_account(tx).await,
+            LoginAccount(tx, account_token) => self.on_login_account(tx, account_token),
+            LogoutAccount(tx) => self.on_logout_account(tx),
             GetDevice(tx) => self.on_get_device(tx).await,
             UpdateDevice(tx) => self.on_update_device(tx).await,
             ListDevices(tx, account_token) => self.on_list_devices(tx, account_token).await,
@@ -1732,7 +1732,7 @@ where
         self.relay_selector.update().await;
     }
 
-    async fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_token: String) {
+    fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_token: String) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             let result = async {
@@ -1745,7 +1745,7 @@ where
         });
     }
 
-    async fn on_logout_account(&mut self, tx: ResponseTx<(), Error>) {
+    fn on_logout_account(&mut self, tx: ResponseTx<(), Error>) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             let result = async {
