@@ -244,7 +244,7 @@ pub struct RequestServiceHandle {
 
 impl RequestServiceHandle {
     /// Resets the corresponding RequestService, dropping all in-flight requests.
-    pub async fn reset(&self) {
+    pub fn reset(&self) {
         let _ = self.tx.unbounded_send(RequestCommand::Reset);
     }
 
