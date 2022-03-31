@@ -3,7 +3,11 @@ import { useSelector } from 'react-redux';
 import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import { IApplication, ILinuxSplitTunnelingApplication } from '../../shared/application-types';
+import {
+  IApplication,
+  ILinuxSplitTunnelingApplication,
+  IWindowsApplication,
+} from '../../shared/application-types';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { useAsyncEffect } from '../lib/utilityHooks';
@@ -153,6 +157,13 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
 
   const hideBrowseFailureDialog = useCallback(() => setBrowseError(undefined), []);
 
+  const rowRenderer = useCallback(
+    (application: ILinuxSplitTunnelingApplication) => (
+      <LinuxApplicationRow application={application} onSelect={launchApplication} />
+    ),
+    [launchApplication],
+  );
+
   return (
     <>
       <SettingsHeader>
@@ -166,11 +177,7 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
       </SettingsHeader>
 
       <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
-      <ApplicationList
-        applications={filteredApplications}
-        onSelect={launchApplication}
-        rowComponent={LinuxApplicationRow}
-      />
+      <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
 
       <StyledBrowseButton onClick={launchWithFilePicker}>
         {messages.pgettext('split-tunneling-view', 'Find another app')}
@@ -287,6 +294,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
   const {
     addSplitTunnelingApplication,
     removeSplitTunnelingApplication,
+    forgetManuallyAddedSplitTunnelingApplication,
     getWindowsSplitTunnelingApplications,
     setSplitTunnelingState,
   } = useAppContext();
@@ -296,7 +304,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
   );
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [applications, setApplications] = useState<IApplication[]>();
+  const [applications, setApplications] = useState<IWindowsApplication[]>();
   useAsyncEffect(async () => {
     const { fromCache, applications } = await getWindowsSplitTunnelingApplications();
     setApplications(applications);
@@ -327,7 +335,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
   }, [applications, splitTunnelingApplications, searchTerm]);
 
   const addApplication = useCallback(
-    async (application: IApplication | string) => {
+    async (application: IWindowsApplication | string) => {
       if (!splitTunnelingEnabled) {
         await setSplitTunnelingState(true);
       }
@@ -337,7 +345,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
   );
 
   const addApplicationAndUpdate = useCallback(
-    async (application: IApplication | string) => {
+    async (application: IWindowsApplication | string) => {
       await addApplication(application);
       const { applications } = await getWindowsSplitTunnelingApplications();
       setApplications(applications);
@@ -345,8 +353,17 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
     [addApplication, getWindowsSplitTunnelingApplications],
   );
 
+  const forgetManuallyAddedApplicationAndUpdate = useCallback(
+    async (application: IWindowsApplication) => {
+      await forgetManuallyAddedSplitTunnelingApplication(application);
+      const { applications } = await getWindowsSplitTunnelingApplications();
+      setApplications(applications);
+    },
+    [forgetManuallyAddedSplitTunnelingApplication, getWindowsSplitTunnelingApplications],
+  );
+
   const removeApplication = useCallback(
-    async (application: IApplication) => {
+    async (application: IWindowsApplication) => {
       if (!splitTunnelingEnabled) {
         await setSplitTunnelingState(true);
       }
@@ -366,6 +383,27 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
     props.scrollToTop();
     await filePickerCallback();
   }, [filePickerCallback, props.scrollToTop]);
+
+  const excludedRowRenderer = useCallback(
+    (application: IWindowsApplication) => (
+      <WindowsApplicationRow application={application} onRemove={removeApplication} />
+    ),
+    [removeApplication],
+  );
+
+  const includedRowRenderer = useCallback(
+    (application: IWindowsApplication) => {
+      const onForget = application.deletable ? forgetManuallyAddedApplicationAndUpdate : undefined;
+      return (
+        <WindowsApplicationRow
+          application={application}
+          onAdd={addApplication}
+          onDelete={onForget}
+        />
+      );
+    },
+    [addApplication, forgetManuallyAddedApplicationAndUpdate],
+  );
 
   const showSplitSection = splitTunnelingEnabled && filteredSplitApplications.length > 0;
   const showNonSplitSection =
@@ -396,8 +434,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
           </Cell.SectionTitle>
           <ApplicationList
             applications={filteredSplitApplications}
-            onRemove={removeApplication}
-            rowComponent={ApplicationRow}
+            rowRenderer={excludedRowRenderer}
           />
         </Cell.Section>
       </Accordion>
@@ -409,8 +446,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
           </Cell.SectionTitle>
           <ApplicationList
             applications={filteredNonSplitApplications}
-            onSelect={addApplication}
-            rowComponent={ApplicationRow}
+            rowRenderer={includedRowRenderer}
           />
         </Cell.Section>
       </Accordion>
@@ -442,9 +478,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
 
 interface IApplicationListProps<T extends IApplication> {
   applications: T[] | undefined;
-  onSelect?: (application: T) => void;
-  onRemove?: (application: T) => void;
-  rowComponent: React.ComponentType<IApplicationRowProps<T>>;
+  rowRenderer: (application: T) => React.ReactElement;
 }
 
 function ApplicationList<T extends IApplication>(props: IApplicationListProps<T>) {
@@ -458,14 +492,7 @@ function ApplicationList<T extends IApplication>(props: IApplicationListProps<T>
     return (
       <StyledListContainer>
         <List items={props.applications} getKey={applicationGetKey}>
-          {(application) => (
-            <props.rowComponent
-              key={application.absolutepath}
-              application={application}
-              onSelect={props.onSelect}
-              onRemove={props.onRemove}
-            />
-          )}
+          {props.rowRenderer}
         </List>
       </StyledListContainer>
     );
@@ -476,20 +503,25 @@ function applicationGetKey<T extends IApplication>(application: T): string {
   return application.absolutepath;
 }
 
-interface IApplicationRowProps<T extends IApplication> {
-  application: T;
-  onSelect?: (application: T) => void;
-  onRemove?: (application: T) => void;
+interface IWindowsApplicationRowProps {
+  application: IWindowsApplication;
+  onAdd?: (application: IWindowsApplication) => void;
+  onRemove?: (application: IWindowsApplication) => void;
+  onDelete?: (application: IWindowsApplication) => void;
 }
 
-function ApplicationRow<T extends IApplication>(props: IApplicationRowProps<T>) {
-  const onSelect = useCallback(() => {
-    props.onSelect?.(props.application);
-  }, [props.onSelect, props.application]);
+function WindowsApplicationRow(props: IWindowsApplicationRowProps) {
+  const onAdd = useCallback(() => {
+    props.onAdd?.(props.application);
+  }, [props.onAdd, props.application]);
 
   const onRemove = useCallback(() => {
     props.onRemove?.(props.application);
   }, [props.onRemove, props.application]);
+
+  const onDelete = useCallback(() => {
+    props.onDelete?.(props.application);
+  }, [props.onDelete, props.application]);
 
   return (
     <Cell.CellButton>
@@ -499,11 +531,20 @@ function ApplicationRow<T extends IApplication>(props: IApplicationRowProps<T>) 
         <StyledIconPlaceholder />
       )}
       <StyledCellLabel>{props.application.name}</StyledCellLabel>
-      {props.onSelect && (
+      {props.onDelete && (
+        <StyledActionIcon
+          source="icon-close"
+          width={18}
+          onClick={onDelete}
+          tintColor={colors.white40}
+          tintHoverColor={colors.white60}
+        />
+      )}
+      {props.onAdd && (
         <StyledActionIcon
           source="icon-add"
           width={18}
-          onClick={onSelect}
+          onClick={onAdd}
           tintColor={colors.white40}
           tintHoverColor={colors.white60}
         />

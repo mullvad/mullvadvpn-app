@@ -6,6 +6,10 @@ export interface IApplication {
   icon?: string;
 }
 
+export interface IWindowsApplication extends IApplication {
+  deletable: boolean;
+}
+
 export interface ILinuxApplication extends IApplication {
   exec: string;
   type: string;
