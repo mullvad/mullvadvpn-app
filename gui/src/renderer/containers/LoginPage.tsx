@@ -13,11 +13,14 @@ const mapStateToProps = (state: IReduxState) => {
 
   const showBlockMessage = tunnelState.state === 'error' || blockWhenDisconnected;
 
+  const isPerformingPostUpgrade = state.userInterface.isPerformingPostUpgrade;
+
   return {
     accountToken,
     accountHistory,
     loginState: status,
     showBlockMessage,
+    isPerformingPostUpgrade,
   };
 };
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
