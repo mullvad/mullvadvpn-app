@@ -31,6 +31,7 @@ class ResultOperation<Success, Failure: Error>: AsyncOperation {
         super.init()
     }
 
+    @available(*, unavailable)
     override func finish() {
         // Propagate cancellation if finish() is called directly from start().
         if isCancelled {
