@@ -20,7 +20,7 @@ use talpid_types::{net::openvpn::ShadowsocksProxySettings, ErrorExt};
 
 pub struct ShadowsocksProxyMonitor {
     port: u16,
-    server_join_handle: JoinHandle<Result<io::Result<()>, Aborted>>,
+    server_join_handle: Option<JoinHandle<Result<io::Result<()>, Aborted>>>,
     server_abort_handle: AbortHandle,
 }
 
@@ -93,9 +93,15 @@ impl ShadowsocksProxyMonitor {
 
         Ok(Self {
             port: bound_addr.port(),
-            server_join_handle,
+            server_join_handle: Some(server_join_handle),
             server_abort_handle,
         })
+    }
+}
+
+impl Drop for ShadowsocksProxyMonitor {
+    fn drop(&mut self) {
+        self.server_abort_handle.abort();
     }
 }
 
@@ -108,21 +114,25 @@ impl ProxyMonitor for ShadowsocksProxyMonitor {
     }
 
     async fn wait(mut self: Box<Self>) -> super::Result<()> {
-        match self.server_join_handle.await {
-            Ok(Err(Aborted)) => Ok(()),
+        if let Some(join_handle) = self.server_join_handle.take() {
+            match join_handle.await {
+                Ok(Err(Aborted)) => Ok(()),
 
-            Err(join_err) if join_err.is_cancelled() => Ok(()),
-            Err(_) => Err(Error::UnexpectedExit(
-                "Shadowsocks task panicked".to_string(),
-            )),
+                Err(join_err) if join_err.is_cancelled() => Ok(()),
+                Err(_) => Err(Error::UnexpectedExit(
+                    "Shadowsocks task panicked".to_string(),
+                )),
 
-            Ok(Ok(result)) => match result {
-                Ok(()) => Err(Error::UnexpectedExit("Exited without error".to_string())),
-                Err(error) => Err(Error::UnexpectedExit(format!(
-                    "Error: {}",
-                    error.display_chain()
-                ))),
-            },
+                Ok(Ok(result)) => match result {
+                    Ok(()) => Err(Error::UnexpectedExit("Exited without error".to_string())),
+                    Err(error) => Err(Error::UnexpectedExit(format!(
+                        "Error: {}",
+                        error.display_chain()
+                    ))),
+                },
+            }
+        } else {
+            Ok(())
         }
     }
 
