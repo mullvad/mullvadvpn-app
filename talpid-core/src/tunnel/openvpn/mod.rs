@@ -1250,7 +1250,8 @@ mod tests {
         L: event_server::OpenvpnEventProxy + Send + Sync + 'static,
     {
         let runtime = new_runtime()?;
-        runtime.block_on(OpenVpnMonitor::new_internal_with_runtime(
+        let handle = runtime.handle().clone();
+        handle.block_on(OpenVpnMonitor::new_internal_with_runtime(
             new_runtime()?,
             cmd,
             event_server_abort_tx,
