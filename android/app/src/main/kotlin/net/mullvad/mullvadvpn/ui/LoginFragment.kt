@@ -8,22 +8,24 @@ import android.view.ViewGroup
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.delay
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.model.LoginResult
-import net.mullvad.mullvadvpn.model.LoginStatus
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
-import net.mullvad.mullvadvpn.ui.widget.Button
+import net.mullvad.mullvadvpn.ui.widget.HeaderBar
+import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 
-class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), NavigationBarPainter {
-    companion object {
-        private enum class State {
-            Starting,
-            Idle,
-            LoggingIn,
-            CreatingAccount,
-        }
-    }
+class LoginFragment :
+    ServiceDependentFragment(OnNoService.GoToLaunchScreen),
+    NavigationBarPainter {
+
+    private lateinit var loginViewModel: LoginViewModel
 
     private lateinit var title: TextView
     private lateinit var subtitle: TextView
@@ -33,9 +35,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
     private lateinit var accountLogin: AccountLogin
     private lateinit var scrollArea: ScrollView
     private lateinit var background: View
-
-    private var loginStatus: LoginStatus? = null
-    private var state = State.Starting
+    private lateinit var headerBar: HeaderBar
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -44,19 +44,25 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
     ): View {
         val view = inflater.inflate(R.layout.login, container, false)
 
+        headerBar = view.findViewById(R.id.header_bar)
         title = view.findViewById(R.id.title)
         subtitle = view.findViewById(R.id.subtitle)
         loggingInStatus = view.findViewById(R.id.logging_in_status)
         loggedInStatus = view.findViewById(R.id.logged_in_status)
         loginFailStatus = view.findViewById(R.id.login_fail_status)
 
-        accountLogin = view.findViewById<AccountLogin>(R.id.account_login).apply {
-            onLogin = { accountToken -> login(accountToken) }
-            onClearHistory = { -> accountCache.clearAccountHistory() }
+        val factory = LoginViewModel.Factory(requireActivity().application)
+        loginViewModel = ViewModelProvider(this, factory)[LoginViewModel::class.java].apply {
+            updateAccountCacheInstance(accountCache)
         }
 
-        view.findViewById<Button>(R.id.create_account)
-            .setOnClickAction("createAccount", jobTracker) { createAccount() }
+        accountLogin = view.findViewById<AccountLogin>(R.id.account_login).apply {
+            onLogin = loginViewModel::login
+            onClearHistory = loginViewModel::clearAccountHistory
+        }
+
+        view.findViewById<net.mullvad.mullvadvpn.ui.widget.Button>(R.id.create_account)
+            .setOnClickAction("createAccount", jobTracker, loginViewModel::createAccount)
 
         scrollArea = view.findViewById(R.id.scroll_area)
 
@@ -69,33 +75,26 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
         return view
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setupLifecycleSubscriptionsToViewModel()
+    }
+
+    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
+        super.onNewServiceConnection(serviceConnection)
+        if (this::loginViewModel.isInitialized) {
+            loginViewModel.updateAccountCacheInstance(accountCache)
+        }
+    }
+
+    override fun onNoServiceConnection() {
+        super.onNoServiceConnection()
+        if (this::loginViewModel.isInitialized) {
+            loginViewModel.updateAccountCacheInstance(null)
+        }
+    }
+
     override fun onSafelyStart() {
-        accountLogin.state = LoginState.Initial
-
-        accountCache.onAccountHistoryChange.subscribe(this) { history ->
-            jobTracker.newUiJob("updateHistory") {
-                accountLogin.accountHistory = history
-            }
-        }
-
-        accountCache.onLoginStatusChange.subscribe(this, false) { status ->
-            jobTracker.newUiJob("updateLoginStatus") {
-                loginStatus = status
-
-                if (status == null && state == State.CreatingAccount) {
-                    loginFailure(null)
-                } else if (status?.loginResult != LoginResult.Ok) {
-                    loginFailure(status?.loginResult)
-                } else {
-                    if (state == State.Starting) {
-                        openNextScreen()
-                    } else {
-                        loggedIn()
-                    }
-                }
-            }
-        }
-
         parentActivity.backButtonHandler = {
             if (accountLogin.hasFocus) {
                 background.requestFocus()
@@ -104,8 +103,6 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
                 false
             }
         }
-
-        state = State.Idle
     }
 
     override fun onResume() {
@@ -114,37 +111,86 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
     }
 
     override fun onSafelyStop() {
-        jobTracker.cancelJob("advanceToNextScreen")
-        accountCache.onAccountHistoryChange.unsubscribe(this)
-        accountCache.onLoginStatusChange.unsubscribe(this)
         parentActivity.backButtonHandler = null
     }
 
-    private fun scrollToShow(view: View) {
-        val rectangle = Rect(0, 0, view.width, view.height)
-
-        scrollArea.requestChildRectangleOnScreen(view, rectangle, false)
+    private fun setupLifecycleSubscriptionsToViewModel() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                launch {
+                    loginViewModel.accountHistory.collect { history ->
+                        accountLogin.accountHistory = history
+                    }
+                }
+                launch {
+                    loginViewModel.uiState.collect { uiState -> updateUi(uiState) }
+                }
+            }
+        }
     }
 
-    private suspend fun createAccount() {
-        state = State.CreatingAccount
+    private fun updateUi(uiState: LoginViewModel.LoginUiState) {
+        when (uiState) {
+            is LoginViewModel.LoginUiState.Default -> {
+                showDefault()
+            }
 
-        title.setText(R.string.logging_in_title)
-        subtitle.setText(R.string.creating_new_account)
+            is LoginViewModel.LoginUiState.Success -> {
+                openFragment(
+                    if (uiState.isOutOfTime) {
+                        OutOfTimeFragment()
+                    } else {
+                        ConnectFragment()
+                    }
+                )
+            }
 
-        loggingInStatus.visibility = View.VISIBLE
-        loginFailStatus.visibility = View.GONE
-        loggedInStatus.visibility = View.GONE
+            is LoginViewModel.LoginUiState.AccountCreated -> {
+                openFragment(WelcomeFragment())
+            }
 
+            is LoginViewModel.LoginUiState.CreatingAccount -> {
+                showCreatingAccount()
+            }
+
+            is LoginViewModel.LoginUiState.Loading -> {
+                showLoading()
+            }
+
+            is LoginViewModel.LoginUiState.InvalidAccountError -> {
+                loginFailure(resources.getString(R.string.login_fail_description))
+            }
+
+            is LoginViewModel.LoginUiState.TooManyDevicesError -> {
+                // TODO: Switch to TooManyDevicesFragment
+                loginFailure("Too many devices!")
+            }
+
+            is LoginViewModel.LoginUiState.UnableToCreateAccountError -> {
+                loginFailure(resources.getString(R.string.failed_to_create_account))
+            }
+
+            is LoginViewModel.LoginUiState.OtherError -> {
+                loginFailure(uiState.errorMessage)
+            }
+        }
+    }
+
+    private fun openFragment(fragment: Fragment) {
+        parentFragmentManager.beginTransaction().apply {
+            replace(R.id.main_fragment, fragment)
+            commit()
+        }
+    }
+
+    private fun showDefault() {
+        accountLogin.state = LoginState.Initial
+        headerBar.tunnelState = null
+        paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
+    }
+
+    private fun showLoading() {
         accountLogin.state = LoginState.InProgress
-
-        scrollToShow(loggingInStatus)
-
-        accountCache.createNewAccount()
-    }
-
-    private fun login(accountToken: String) {
-        state = State.LoggingIn
 
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.logging_in_description)
@@ -158,65 +204,22 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
         accountLogin.state = LoginState.InProgress
 
         scrollToShow(loggingInStatus)
-
-        accountCache.login(accountToken)
     }
 
-    private suspend fun loggedIn() {
-        if (loginStatus?.isNewAccount ?: false) {
-            showLoggedInMessage(resources.getString(R.string.account_created))
-        } else {
-            showLoggedInMessage("")
-        }
+    private fun showCreatingAccount() {
+        title.setText(R.string.logging_in_title)
+        subtitle.setText(R.string.creating_new_account)
 
-        delay(1000)
-        openNextScreen()
-    }
-
-    private fun showLoggedInMessage(subtitleMessage: String) {
-        title.setText(R.string.logged_in_title)
-        subtitle.setText(subtitleMessage)
-
-        loggingInStatus.visibility = View.GONE
+        loggingInStatus.visibility = View.VISIBLE
         loginFailStatus.visibility = View.GONE
-        loggedInStatus.visibility = View.VISIBLE
+        loggedInStatus.visibility = View.GONE
 
-        accountLogin.state = LoginState.Success
+        accountLogin.state = LoginState.InProgress
 
-        scrollToShow(loggedInStatus)
+        scrollToShow(loggingInStatus)
     }
 
-    private fun openNextScreen() {
-        val status = loginStatus
-
-        val fragment = when {
-            status == null -> return
-            status.isNewAccount -> WelcomeFragment()
-            status.isExpired -> OutOfTimeFragment()
-            else -> ConnectFragment()
-        }
-
-        parentFragmentManager.beginTransaction().apply {
-            replace(R.id.main_fragment, fragment)
-            commit()
-        }
-    }
-
-    // TODO: This error handling and its messages will change once a VM is introduced in a later
-    //  commit related to the ongoing device adaption.
-    private fun loginFailure(loginResult: LoginResult?) {
-        val description = when {
-            loginResult == LoginResult.MaxDevicesReached -> "Too many devices"
-            loginResult == LoginResult.RpcError -> "An error occurred"
-            loginResult == LoginResult.OtherError -> "An error occurred"
-            loginResult == LoginResult.InvalidAccount ->
-                resources.getText(R.string.login_fail_description)
-            state == State.CreatingAccount -> resources.getText(R.string.failed_to_create_account)
-            else -> return
-        }
-
-        state = State.Idle
-
+    private fun loginFailure(description: String) {
         title.setText(R.string.login_fail_title)
         subtitle.setText(description)
 
@@ -227,5 +230,10 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
         accountLogin.state = LoginState.Failure
 
         scrollToShow(accountLogin)
+    }
+
+    private fun scrollToShow(view: View) {
+        val rectangle = Rect(0, 0, view.width, view.height)
+        scrollArea.requestChildRectangleOnScreen(view, rectangle, false)
     }
 }
