@@ -183,6 +183,8 @@ class Account {
                 self.observerList.forEach { (observer) in
                     observer.accountDidLogout(self)
                 }
+
+                completionHandler()
                 operation.finish()
             }
         }
