@@ -51,6 +51,7 @@ interface IProps {
   updateAccountToken: (accountToken: AccountToken) => void;
   clearAccountHistory: () => Promise<void>;
   createNewAccount: () => void;
+  isPerformingPostUpgrade?: boolean;
 }
 
 interface IState {
@@ -149,6 +150,10 @@ export default class Login extends React.Component<IProps, IState> {
   };
 
   private formTitle() {
+    if (this.props.isPerformingPostUpgrade) {
+      return messages.pgettext('login-view', 'Upgrading...');
+    }
+
     switch (this.props.loginState.type) {
       case 'logging in':
       case 'too many devices':
@@ -169,6 +174,10 @@ export default class Login extends React.Component<IProps, IState> {
   }
 
   private formSubtitle() {
+    if (this.props.isPerformingPostUpgrade) {
+      return messages.pgettext('login-view', 'Finishing upgrade.');
+    }
+
     switch (this.props.loginState.type) {
       case 'failed':
         return this.props.loginState.method === 'existing_account'
@@ -199,6 +208,10 @@ export default class Login extends React.Component<IProps, IState> {
   }
 
   private getStatusIconPath(): string | undefined {
+    if (this.props.isPerformingPostUpgrade) {
+      return 'icon-spinner';
+    }
+
     switch (this.props.loginState.type) {
       case 'logging in':
         return 'icon-spinner';
@@ -213,6 +226,7 @@ export default class Login extends React.Component<IProps, IState> {
 
   private allowInteraction() {
     return (
+      !this.props.isPerformingPostUpgrade &&
       this.props.loginState.type !== 'logging in' &&
       this.props.loginState.type !== 'ok' &&
       this.props.loginState.type !== 'too many devices'
@@ -291,7 +305,9 @@ export default class Login extends React.Component<IProps, IState> {
                 messages.pgettext('accessibility', 'Login')
               }>
               <StyledInputSubmitIcon
-                visible={this.props.loginState.type !== 'logging in'}
+                visible={
+                  this.props.loginState.type !== 'logging in' && !this.props.isPerformingPostUpgrade
+                }
                 source="icon-arrow"
                 height={16}
                 width={24}

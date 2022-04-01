@@ -499,6 +499,11 @@ export class DaemonRpc {
     await this.callEmpty(this.client.checkVolumes);
   }
 
+  public async isPerformingPostUpgrade(): Promise<boolean> {
+    const response = await this.callEmpty<BoolValue>(this.client.isPerformingPostUpgrade);
+    return response.getValue();
+  }
+
   public async getDevice(): Promise<IDeviceConfig | undefined> {
     try {
       const response = await this.callEmpty<grpcTypes.DeviceConfig>(this.client.getDevice);

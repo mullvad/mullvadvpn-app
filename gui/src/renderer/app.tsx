@@ -125,6 +125,10 @@ export default class AppRenderer {
       this.onDaemonDisconnected();
     });
 
+    IpcRendererEventChannel.daemon.listenIsPerformingPostUpgrade((isPerformingPostUpgrade) => {
+      this.setIsPerformingPostUpgrade(isPerformingPostUpgrade);
+    });
+
     IpcRendererEventChannel.account.listen((newAccountData?: IAccountData) => {
       this.setAccountExpiry(newAccountData?.expiry);
     });
@@ -206,6 +210,7 @@ export default class AppRenderer {
 
     this.setAccountExpiry(initialState.accountData?.expiry);
     this.setSettings(initialState.settings);
+    this.setIsPerformingPostUpgrade(initialState.isPerformingPostUpgrade);
     this.handleAccountChange({ deviceConfig: initialState.deviceConfig }, undefined);
     this.hasReceivedDeviceConfig = initialState.hasReceivedDeviceConfig;
     this.setAccountHistory(initialState.accountHistory);
@@ -771,6 +776,10 @@ export default class AppRenderer {
 
     this.setRelaySettings(newSettings.relaySettings);
     this.setBridgeSettings(newSettings.bridgeSettings);
+  }
+
+  private setIsPerformingPostUpgrade(isPerformingPostUpgrade?: boolean) {
+    this.reduxActions.userInterface.setIsPerformingPostUpgrade(isPerformingPostUpgrade);
   }
 
   private updateBlockedState(tunnelState: TunnelState, blockWhenDisconnected: boolean) {

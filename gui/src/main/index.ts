@@ -127,6 +127,7 @@ class ApplicationMain {
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;
   private connectedToDaemon = false;
+  private isPerformingPostUpgrade?: boolean;
   private quitStage = AppQuitStage.unready;
 
   private accountData?: IAccountData = undefined;
@@ -623,6 +624,24 @@ class ApplicationMain {
       log.error(`Failed to subscribe: ${error.message}`);
 
       return this.handleBootstrapError(error);
+    }
+
+    if (this.isPerformingPostUpgrade === undefined) {
+      // check if daemon is performing post upgrade tasks the first time it's connected to
+      try {
+        this.isPerformingPostUpgrade = await this.daemonRpc.isPerformingPostUpgrade();
+        if (this.windowController) {
+          IpcMainEventChannel.daemon.notifyIsPerformingPostUpgrade(
+            this.windowController.webContents,
+            this.isPerformingPostUpgrade,
+          );
+        }
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to check if daemon is performing post upgrade tasks: ${error.message}`);
+
+        return this.handleBootstrapError(error);
+      }
     }
 
     // fetch account history
@@ -1218,6 +1237,7 @@ class ApplicationMain {
       accountHistory: this.accountHistory,
       tunnelState: this.tunnelState,
       settings: this.settings,
+      isPerformingPostUpgrade: this.isPerformingPostUpgrade,
       deviceConfig: this.deviceConfig,
       hasReceivedDeviceConfig: this.hasReceivedDeviceConfig,
       relayListPair: {
