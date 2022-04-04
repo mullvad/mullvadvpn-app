@@ -55,6 +55,7 @@ export interface IAppStateSnapshot {
   tunnelState: TunnelState;
   settings: ISettings;
   deviceConfig?: IDeviceConfig;
+  hasReceivedDeviceConfig: boolean;
   relayListPair: IRelayListPair;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppVersionInfo;

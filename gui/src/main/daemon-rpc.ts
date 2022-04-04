@@ -513,6 +513,10 @@ export class DaemonRpc {
     }
   }
 
+  public async updateDevice(): Promise<void> {
+    await this.callEmpty(this.client.updateDevice);
+  }
+
   public async listDevices(accountToken: AccountToken): Promise<Array<IDevice>> {
     const response = await this.callString<grpcTypes.DeviceList>(
       this.client.listDevices,
