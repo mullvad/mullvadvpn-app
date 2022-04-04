@@ -138,6 +138,11 @@ mod test {
   "accounts": ["1234", "4567"]
 }
 "#;
+    pub const ACCOUNT_HISTORY_V1_EMPTY: &str = r#"
+{
+  "accounts": []
+}
+"#;
     pub const ACCOUNT_HISTORY_V2: &str = r#"
 [
   {
@@ -163,6 +168,7 @@ mod test {
     }
   }
 ]"#;
+    pub const ACCOUNT_HISTORY_V2_EMPTY: &str = r#"[]"#;
     pub const ACCOUNT_HISTORY_V3: &str = r#"123456"#;
 
     pub const OLD_SETTINGS: &str = r#"
@@ -331,7 +337,7 @@ mod test {
 
     #[test]
     fn test_v2() {
-        assert!(super::try_format_v2(ACCOUNT_HISTORY_V1.as_bytes()).is_none());
+        assert!(super::try_format_v2(ACCOUNT_HISTORY_V1.as_bytes()).is_err());
 
         let mut old_settings = serde_json::from_str(OLD_SETTINGS).unwrap();
         let new_settings: serde_json::Value = serde_json::from_str(NEW_SETTINGS).unwrap();
@@ -341,12 +347,22 @@ mod test {
             super::migrate_formats_inner(ACCOUNT_HISTORY_V2.as_bytes(), &mut old_settings).unwrap();
 
         assert_eq!(&old_settings, &new_settings);
-        assert_eq!(token, "1234");
+        assert_eq!(token, Some("1234".to_string()));
+
+        // Test whether empty histories are handled correctly
+        let mut old_settings = serde_json::from_str(OLD_SETTINGS).unwrap();
+        let token =
+            super::migrate_formats_inner(ACCOUNT_HISTORY_V2_EMPTY.as_bytes(), &mut old_settings)
+                .unwrap();
+        assert_eq!(&old_settings, &old_settings);
+        assert_eq!(token, None);
     }
 
     #[test]
     fn test_v1() {
-        let token = super::try_format_v1(ACCOUNT_HISTORY_V1.as_bytes());
+        let token = super::try_format_v1(ACCOUNT_HISTORY_V1.as_bytes()).unwrap();
         assert_eq!(token, Some("1234".to_string()));
+        let token = super::try_format_v1(ACCOUNT_HISTORY_V1_EMPTY.as_bytes()).unwrap();
+        assert_eq!(token, None);
     }
 }
