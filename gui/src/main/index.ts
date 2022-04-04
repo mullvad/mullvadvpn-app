@@ -16,10 +16,12 @@ import {
 import fs from 'fs';
 import * as path from 'path';
 import util from 'util';
+
 import config from '../config.json';
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import { IWindowsApplication } from '../shared/application-types';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
+import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
 import {
   AccountToken,
   BridgeSettings,
@@ -28,6 +30,7 @@ import {
   IAccountData,
   IAppVersionInfo,
   IDeviceConfig,
+  IDeviceEvent,
   IDeviceRemoval,
   IDnsOptions,
   IRelayList,
@@ -36,15 +39,13 @@ import {
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
-  IDeviceEvent,
 } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
+import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
+import { IChangelog, ICurrentAppVersionInfo } from '../shared/ipc-types';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
-import { readChangelog } from './changelog';
-import { IpcMainEventChannel } from './ipc-event-channel';
-import { IChangelog, ICurrentAppVersionInfo } from '../shared/ipc-types';
 import {
   AccountExpiredNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
@@ -55,11 +56,14 @@ import {
 import { Scheduler } from '../shared/scheduler';
 import AccountDataCache from './account-data-cache';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
+import { readChangelog } from './changelog';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import { InvalidAccountError } from './errors';
 import Expectation from './expectation';
 import GuiSettings from './gui-settings';
+import { IpcMainEventChannel } from './ipc-event-channel';
 import { findIconPath } from './linux-desktop-entry';
+import { loadTranslations } from './load-translations';
 import {
   backupLogFile,
   cleanUpLogDirectory,
@@ -70,15 +74,12 @@ import {
   IpcInput,
   OLD_LOG_FILES,
 } from './logging';
-import { loadTranslations } from './load-translations';
 import NotificationController from './notification-controller';
 import { isMacOs11OrNewer } from './platform-version';
 import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController from './window-controller';
-import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
-import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
 
 const execAsync = util.promisify(exec);
 

@@ -1,4 +1,5 @@
 import Gettext from 'node-gettext';
+
 import { LocalizationContexts } from './localization-contexts';
 import log from './logging';
 

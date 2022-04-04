@@ -1,5 +1,7 @@
 import * as React from 'react';
+
 import { formatDate, hasExpired } from '../../shared/account-expiry';
+import { AccountToken, IDevice } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import {
   AccountContainer,
@@ -10,22 +12,20 @@ import {
   AccountRows,
   AccountRowValue,
   DeviceRowValue,
-  StyledSpinnerContainer,
   StyledBuyCreditButton,
   StyledContainer,
   StyledRedeemVoucherButton,
+  StyledSpinnerContainer,
 } from './AccountStyles';
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
+import ImageView from './ImageView';
+import { BackAction } from './KeyboardNavigation';
 import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-
-import { AccountToken, IDevice } from '../../shared/daemon-rpc-types';
-import ImageView from './ImageView';
-import { BackAction } from './KeyboardNavigation';
 
 interface IProps {
   deviceName?: string;

@@ -1,53 +1,54 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { sprintf } from 'sprintf-js';
+
 import { colors } from '../../config.json';
-import { messages } from '../../shared/gettext';
 import {
   IApplication,
   ILinuxSplitTunnelingApplication,
   IWindowsApplication,
 } from '../../shared/application-types';
+import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { useAsyncEffect } from '../lib/utilityHooks';
+import { formatMarkdown } from '../markdown-formatter';
 import { IReduxState } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import ImageView from './ImageView';
+import { BackAction } from './KeyboardNavigation';
 import { Layout } from './Layout';
 import List from './List';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
-  StyledPageCover,
-  StyledContainer,
-  StyledNavigationScrollbars,
-  StyledContent,
-  StyledCellButton,
-  StyledIcon,
-  StyledCellLabel,
-  StyledIconPlaceholder,
-  StyledSpinnerRow,
-  StyledBrowseButton,
-  StyledSearchInput,
-  StyledClearButton,
-  StyledSearchIcon,
-  StyledClearIcon,
-  StyledNoResultText,
-  StyledSearchContainer,
-  StyledNoResult,
   StyledActionIcon,
+  StyledBrowseButton,
+  StyledCellButton,
+  StyledCellLabel,
   StyledCellWarningIcon,
-  StyledListContainer,
-  StyledHeaderTitleContainer,
+  StyledClearButton,
+  StyledClearIcon,
+  StyledContainer,
+  StyledContent,
   StyledHeaderTitle,
+  StyledHeaderTitleContainer,
+  StyledIcon,
+  StyledIconPlaceholder,
+  StyledListContainer,
+  StyledNavigationScrollbars,
+  StyledNoResult,
+  StyledNoResultText,
+  StyledPageCover,
+  StyledSearchContainer,
+  StyledSearchIcon,
+  StyledSearchInput,
+  StyledSpinnerRow,
 } from './SplitTunnelingSettingsStyles';
-import { formatMarkdown } from '../markdown-formatter';
-import { BackAction } from './KeyboardNavigation';
 import Switch from './Switch';
 
 export default function SplitTunneling() {

@@ -1,10 +1,17 @@
 import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
+
 import { colors } from '../../config.json';
+import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { useAppContext } from '../context';
 import { formatAccountToken } from '../lib/account';
+import { formatMarkdown } from '../markdown-formatter';
+import { LoginState } from '../redux/account/reducers';
+import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
+import { AriaControlGroup, AriaControlled, AriaControls } from './AriaGroup';
 import { Brand, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
@@ -32,13 +39,6 @@ import {
   StyledTitle,
   StyledTopInfo,
 } from './LoginStyles';
-
-import { AccountToken } from '../../shared/daemon-rpc-types';
-import { LoginState } from '../redux/account/reducers';
-import { AriaControlGroup, AriaControlled, AriaControls } from './AriaGroup';
-import { useSelector } from '../redux/store';
-import { useAppContext } from '../context';
-import { formatMarkdown } from '../markdown-formatter';
 
 interface IProps {
   accountToken?: AccountToken;

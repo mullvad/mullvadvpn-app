@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { sprintf } from 'sprintf-js';
+
 import { messages, relayLocations } from '../../shared/gettext';
 import log from '../../shared/logging';
 import Connect from '../components/Connect';

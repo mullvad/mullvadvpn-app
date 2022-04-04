@@ -1,9 +1,13 @@
 import * as React from 'react';
+
 import { links } from '../../config.json';
+import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { ISupportReportForm } from '../redux/support/actions';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
+import { BackAction } from './KeyboardNavigation';
 import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
@@ -19,16 +23,12 @@ import {
   StyledForm,
   StyledFormEmailRow,
   StyledFormMessageRow,
+  StyledMessageInput,
   StyledSendStatus,
   StyledSentMessage,
   StyledStatusIcon,
   StyledThanks,
-  StyledMessageInput,
 } from './SupportStyles';
-
-import { AccountToken } from '../../shared/daemon-rpc-types';
-import { ISupportReportForm } from '../redux/support/actions';
-import { BackAction } from './KeyboardNavigation';
 
 enum SendState {
   initial,

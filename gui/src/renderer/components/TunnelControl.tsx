@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
+
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../shared/gettext';
 import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';

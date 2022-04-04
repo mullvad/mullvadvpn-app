@@ -1,8 +1,9 @@
 import { exec as execAsync } from 'child_process';
-import { Menu, nativeImage, NativeImage, Tray } from 'electron';
+import { Menu, NativeImage, nativeImage, Tray } from 'electron';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
+
 import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
 import { AccountToken, TunnelState } from '../shared/daemon-rpc-types';
 import { messages } from '../shared/gettext';

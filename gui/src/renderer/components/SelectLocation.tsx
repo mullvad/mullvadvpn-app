@@ -1,19 +1,21 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
+
 import { colors } from '../../config.json';
 import { LiftedConstraint, RelayLocation, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
 import { CustomScrollbarsRef } from './CustomScrollbars';
-import { EntryLocations, ExitLocations } from './Locations';
 import ImageView from './ImageView';
+import { BackAction } from './KeyboardNavigation';
 import { Layout } from './Layout';
 import LocationList, {
   DisabledReason,
   LocationSelection,
   LocationSelectionType,
 } from './LocationList';
+import { EntryLocations, ExitLocations } from './Locations';
 import {
   NavigationBar,
   NavigationContainer,
@@ -23,21 +25,20 @@ import {
 } from './NavigationBar';
 import { ScopeBarItem } from './ScopeBar';
 import {
+  StyledClearProvidersButton,
   StyledContainer,
   StyledContent,
-  StyledFilterIconButton,
+  StyledFilterByProviderButton,
   StyledFilterContainer,
+  StyledFilterIconButton,
   StyledFilterMenu,
   StyledNavigationBarAttachment,
-  StyledScopeBar,
-  StyledFilterByProviderButton,
-  StyledProvidersCount,
   StyledProviderCountRow,
-  StyledClearProvidersButton,
+  StyledProvidersCount,
+  StyledScopeBar,
   StyledSettingsHeader,
 } from './SelectLocationStyles';
 import { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { BackAction } from './KeyboardNavigation';
 
 interface IProps {
   locale: string;

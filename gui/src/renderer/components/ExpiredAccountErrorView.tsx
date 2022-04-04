@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
+
 import { links } from '../../config.json';
 import { AccountToken, TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';

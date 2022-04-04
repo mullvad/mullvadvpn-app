@@ -1,6 +1,6 @@
+import { IWindowsApplication } from '../../../shared/application-types';
 import { BridgeState, IDnsOptions } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
-import { IWindowsApplication } from '../../../shared/application-types';
 import { BridgeSettingsRedux, IRelayLocationRedux, RelaySettingsRedux } from './reducers';
 
 export interface IUpdateGuiSettingsAction {

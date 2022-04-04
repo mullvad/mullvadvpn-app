@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { RelayLocation } from '../../shared/daemon-rpc-types';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import LocationList, {

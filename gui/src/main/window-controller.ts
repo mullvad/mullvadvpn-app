@@ -1,4 +1,5 @@
 import { BrowserWindow, Display, screen, Tray, WebContents } from 'electron';
+
 import { IWindowShapeParameters } from '../shared/ipc-types';
 import { Scheduler } from '../shared/scheduler';
 import { IpcMainEventChannel } from './ipc-event-channel';

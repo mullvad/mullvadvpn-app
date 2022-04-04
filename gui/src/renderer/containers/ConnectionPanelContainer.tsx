@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 import { ITunnelEndpoint, parseSocketAddress } from '../../shared/daemon-rpc-types';
 import ConnectionPanel, {
   IBridgeData,

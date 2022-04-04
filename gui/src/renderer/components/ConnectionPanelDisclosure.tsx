@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import { normalText } from './common-styles';
 import ImageView from './ImageView';

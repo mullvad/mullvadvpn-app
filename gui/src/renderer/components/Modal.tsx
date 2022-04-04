@@ -1,10 +1,11 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
-import CustomScrollbars from './CustomScrollbars';
 import { tinyText } from './common-styles';
+import CustomScrollbars from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 

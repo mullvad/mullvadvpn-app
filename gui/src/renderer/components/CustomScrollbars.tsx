@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
 import { MacOsScrollbarVisibility } from '../../shared/ipc-schema';
 import { Scheduler } from '../../shared/scheduler';
 import { useSelector } from '../redux/store';

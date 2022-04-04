@@ -1,15 +1,16 @@
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
+import { bigText, smallText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';
-import { Container } from './Layout';
 import ImageView from './ImageView';
+import { Container } from './Layout';
 import { Layout } from './Layout';
-import { bigText, smallText } from './common-styles';
 
 export const StyledHeader = styled(DefaultHeaderBar)({
   flex: 0,

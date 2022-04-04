@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+
 import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';

@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
+
 import { TunnelProtocol } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import AdvancedSettings from '../components/AdvancedSettings';
-
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';

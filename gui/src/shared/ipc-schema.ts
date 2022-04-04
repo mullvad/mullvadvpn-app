@@ -1,5 +1,6 @@
 import { GetTextTranslations } from 'gettext-parser';
-import { IWindowsApplication, ILinuxSplitTunnelingApplication } from './application-types';
+
+import { ILinuxSplitTunnelingApplication, IWindowsApplication } from './application-types';
 import {
   AccountToken,
   BridgeSettings,
@@ -8,6 +9,7 @@ import {
   IAppVersionInfo,
   IDevice,
   IDeviceConfig,
+  IDeviceEvent,
   IDeviceRemoval,
   IDnsOptions,
   ILocation,
@@ -16,7 +18,6 @@ import {
   RelaySettingsUpdate,
   TunnelState,
   VoucherResponse,
-  IDeviceEvent,
 } from './daemon-rpc-types';
 import { IGuiSettingsState } from './gui-settings-state';
 import { LogLevel } from './logging-types';

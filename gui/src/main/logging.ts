@@ -1,8 +1,9 @@
 import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
+
+import { ILogInput, ILogOutput, LogLevel } from '../shared/logging-types';
 import { IpcMainEventChannel } from './ipc-event-channel';
-import { LogLevel, ILogInput, ILogOutput } from '../shared/logging-types';
 
 export const OLD_LOG_FILES = ['main.log', 'renderer.log', 'frontend.log'];
 

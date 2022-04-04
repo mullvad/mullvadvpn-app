@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import {
   ProxyType,

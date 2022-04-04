@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { Scheduler } from '../../shared/scheduler';
 import Accordion from './Accordion';
 

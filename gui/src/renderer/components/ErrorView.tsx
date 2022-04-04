@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import { HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';

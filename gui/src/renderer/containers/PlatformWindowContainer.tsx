@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
-import PlatformWindow from '../components/PlatformWindow';
 
+import PlatformWindow from '../components/PlatformWindow';
 import { IReduxState } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => ({

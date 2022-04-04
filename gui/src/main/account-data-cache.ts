@@ -1,6 +1,6 @@
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import { AccountToken, IAccountData, VoucherResponse } from '../shared/daemon-rpc-types';
-import { DateComponent, dateByAddingComponent } from '../shared/date-helper';
+import { dateByAddingComponent, DateComponent } from '../shared/date-helper';
 import log from '../shared/logging';
 import { Scheduler } from '../shared/scheduler';
 import { InvalidAccountError } from './errors';

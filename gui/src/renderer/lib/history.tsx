@@ -1,6 +1,7 @@
-import { Location, Action, LocationDescriptorObject, History as OriginalHistory } from 'history';
+import { Action, History as OriginalHistory, Location, LocationDescriptorObject } from 'history';
 import React from 'react';
 import { RouteComponentProps, useHistory as useReactRouterHistory, withRouter } from 'react-router';
+
 import { GeneratedRoutePath, RoutePath } from './routes';
 
 export interface ITransitionSpecification {

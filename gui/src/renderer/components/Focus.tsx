@@ -2,6 +2,7 @@ import React, { useImperativeHandle, useState } from 'react';
 import { useLocation } from 'react-router';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
+
 import { messages } from '../../shared/gettext';
 
 const FOCUS_FALLBACK_CLASS = 'focus-fallback';

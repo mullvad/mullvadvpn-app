@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import {
   compareRelayLocation,
@@ -10,8 +11,8 @@ import {
 } from '../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../shared/gettext';
 import {
-  IRelayLocationRedux,
   IRelayLocationCityRedux,
+  IRelayLocationRedux,
   IRelayLocationRelayRedux,
 } from '../redux/settings/reducers';
 import * as Cell from './cell';

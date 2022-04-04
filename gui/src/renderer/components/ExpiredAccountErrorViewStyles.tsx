@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';

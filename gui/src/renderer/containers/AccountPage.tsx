@@ -1,12 +1,12 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 import { links } from '../../config.json';
 import Account from '../components/Account';
-
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
-import { IReduxState, ReduxDispatch } from '../redux/store';
 import accountActions from '../redux/account/actions';
+import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => ({
   deviceName: state.account.deviceName,

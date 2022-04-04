@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
+
 import { colors } from '../../config.json';
 import { IDnsOptions } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';

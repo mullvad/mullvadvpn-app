@@ -1,6 +1,7 @@
 import React, { useCallback, useRef } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';

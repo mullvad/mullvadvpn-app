@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+
 import Settings from '../components/Settings';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';

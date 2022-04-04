@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
+
 import { colors } from '../../../config.json';
 import { CellDisabledContext } from './Container';
 import { CellSectionContext } from './Section';
