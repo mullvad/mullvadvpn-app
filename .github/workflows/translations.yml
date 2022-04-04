@@ -16,19 +16,19 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
-            - name: Install Node.js
-              uses: actions/setup-node@v2
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v3
               with:
-                node-version: '14'
+                  node-version: '16.9.1'
+                  cache: 'npm'
+                  cache-dependency-path: gui/package-lock.json
 
             - name: Update NPM
               run: npm i -g npm
 
-            - name: Install and cache JS dependencies
-              uses: bahmutov/npm-install@v1
-              with:
-                  working-directory: gui
-                  install-command: npm ci
+            - name: Install JS dependencies
+              working-directory: gui
+              run: npm ci
 
             - name: Install nightly Rust
               uses: ATiltedTree/setup-rust@v1.0.4
