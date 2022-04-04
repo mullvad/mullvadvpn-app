@@ -64,7 +64,7 @@ module.exports = {
     },
   },
   ignorePatterns: ['test/*', 'scripts/*'],
-  plugins: ['prettier'],
+  plugins: ['prettier', 'simple-import-sort'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
@@ -93,6 +93,7 @@ module.exports = {
     'react/jsx-no-bind': 'error',
     '@typescript-eslint/naming-convention': ['error', ...namingConvention],
     '@typescript-eslint/ban-ts-comment': ['error', { 'ts-ignore': false }],
+    'simple-import-sort/imports': 'error',
 
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
