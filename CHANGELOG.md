@@ -54,6 +54,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix resource leak caused by location check.
 - Fix issue where sockets didn't close after disconnecting from WireGuard servers over TCP
   by updating `udp-over-tcp` to 0.2.
+- Parse old account history formats correctly when they are empty.
 
 #### Windows
 - Fix "Open Mullvad VPN" tray context menu item not working after toggling unpinned window setting.
