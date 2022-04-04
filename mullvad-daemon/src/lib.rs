@@ -1468,10 +1468,7 @@ where
             return;
         }
 
-        let result = match result {
-            Ok(data) => self.account_manager.set(data).await,
-            Err(error) => Err(error),
-        };
+        let result = async { self.account_manager.set(result?).await }.await;
 
         if let Err(error) = result {
             log::error!(
