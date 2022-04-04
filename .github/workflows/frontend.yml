@@ -37,6 +37,7 @@ jobs:
               run: npm ci
 
             - name: Check formatting
+              if: matrix.os == 'ubuntu-latest'
               working-directory: gui
               run: npm run lint
 
