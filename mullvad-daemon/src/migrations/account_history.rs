@@ -5,7 +5,7 @@ use serde::Deserialize;
 use std::path::Path;
 use talpid_types::ErrorExt;
 use tokio::{
-    fs,
+    fs::{self, File},
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
 };
 
@@ -63,29 +63,21 @@ pub async fn migrate_formats(settings_dir: &Path, settings: &mut serde_json::Val
     if is_format_v3(&bytes) {
         return Ok(());
     }
-
-    let token = migrate_formats_inner(&bytes, settings)?;
-
-    file.set_len(0).await.map_err(Error::WriteHistoryError)?;
-    file.seek(io::SeekFrom::Start(0))
-        .await
-        .map_err(Error::WriteHistoryError)?;
-    file.write_all(token.as_bytes())
-        .await
-        .map_err(Error::WriteHistoryError)?;
-    file.sync_all().await.map_err(Error::WriteHistoryError)?;
-
-    Ok(())
+    write_format_v3(file, migrate_formats_inner(&bytes, settings)?).await
 }
 
 fn migrate_formats_inner(
     account_bytes: &[u8],
     settings: &mut serde_json::Value,
-) -> Result<AccountToken> {
-    if let Some((token, wg_data)) = try_format_v2(account_bytes) {
-        settings["wireguard"] = wg_data;
-        Ok(token)
-    } else if let Some(token) = try_format_v1(account_bytes) {
+) -> Result<Option<AccountToken>> {
+    if let Ok(result) = try_format_v2(account_bytes) {
+        if let Some((token, wg_data)) = result {
+            settings["wireguard"] = wg_data;
+            Ok(Some(token))
+        } else {
+            Ok(None)
+        }
+    } else if let Ok(token) = try_format_v1(account_bytes) {
         Ok(token)
     } else {
         Err(Error::ParseHistoryError)
@@ -99,30 +91,42 @@ fn is_format_v3(bytes: &[u8]) -> bool {
     }
 }
 
-fn try_format_v2(bytes: &[u8]) -> Option<(AccountToken, serde_json::Value)> {
+async fn write_format_v3(mut file: File, token: Option<AccountToken>) -> Result<()> {
+    file.set_len(0).await.map_err(Error::WriteHistoryError)?;
+    file.seek(io::SeekFrom::Start(0))
+        .await
+        .map_err(Error::WriteHistoryError)?;
+    if let Some(token) = token {
+        file.write_all(token.as_bytes())
+            .await
+            .map_err(Error::WriteHistoryError)?;
+    }
+    file.sync_all().await.map_err(Error::WriteHistoryError)
+}
+
+fn try_format_v2(bytes: &[u8]) -> Result<Option<(AccountToken, serde_json::Value)>> {
     #[derive(Deserialize, Clone)]
     pub struct AccountEntry {
         pub account: AccountToken,
         pub wireguard: serde_json::Value,
     }
-    serde_json::from_slice(bytes)
-        .ok()
-        .and_then(|entries: Vec<AccountEntry>| {
-            entries
-                .into_iter()
-                .next()
-                .map(|entry| (entry.account, entry.wireguard))
-        })
+    Ok(serde_json::from_slice::<'_, Vec<AccountEntry>>(bytes)
+        .map_err(|_error| Error::ParseHistoryError)?
+        .into_iter()
+        .next()
+        .map(|entry| (entry.account, entry.wireguard)))
 }
 
-fn try_format_v1(bytes: &[u8]) -> Option<AccountToken> {
+fn try_format_v1(bytes: &[u8]) -> Result<Option<AccountToken>> {
     #[derive(Deserialize)]
     struct OldFormat {
         accounts: Vec<AccountToken>,
     }
-    serde_json::from_slice(bytes)
-        .ok()
-        .and_then(|old_format: OldFormat| old_format.accounts.into_iter().next())
+    Ok(serde_json::from_slice::<'_, OldFormat>(bytes)
+        .map_err(|_error| Error::ParseHistoryError)?
+        .accounts
+        .into_iter()
+        .next())
 }
 
 #[cfg(test)]
