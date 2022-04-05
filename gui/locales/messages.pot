@@ -676,6 +676,10 @@ msgid "Failed to create account"
 msgstr ""
 
 msgctxt "login-view"
+msgid "Finishing upgrade."
+msgstr ""
+
+msgctxt "login-view"
 msgid "Logged in"
 msgstr ""
 
@@ -707,6 +711,10 @@ msgstr ""
 
 msgctxt "login-view"
 msgid "Unknown error"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Upgrading..."
 msgstr ""
 
 msgctxt "login-view"
