@@ -34,5 +34,10 @@
     "red45": "rgba(227, 64, 57, 0.45)",
     "green90": "rgba(68, 173, 77, 0.9)",
     "green40": "rgba(68, 173, 77, 0.4)"
+  },
+  "strings": {
+    "wireguard": "WireGuard",
+    "openvpn": "OpenVPN",
+    "splitTunneling": "Split tunneling"
   }
 }

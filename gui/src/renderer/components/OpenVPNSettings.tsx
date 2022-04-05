@@ -2,6 +2,7 @@ import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
+import { strings } from '../../config.json';
 import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { formatMarkdown } from '../markdown-formatter';
@@ -94,10 +95,13 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
               <NavigationBar>
                 <NavigationItems>
                   <TitleBarItem>
-                    {
+                    {sprintf(
                       // TRANSLATORS: Title label in navigation bar
-                      messages.pgettext('openvpn-settings-nav', 'OpenVPN settings')
-                    }
+                      // TRANSLATORS: Available placeholders:
+                      // TRANSLATORS: %(openvpn)s - Will be replaced with "OpenVPN"
+                      messages.pgettext('openvpn-settings-nav', '%(openvpn)s settings'),
+                      { openvpn: strings.openvpn },
+                    )}
                   </TitleBarItem>
                 </NavigationItems>
               </NavigationBar>
@@ -105,7 +109,13 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
               <StyledNavigationScrollbars>
                 <SettingsHeader>
                   <HeaderTitle>
-                    {messages.pgettext('openvpn-settings-view', 'OpenVPN settings')}
+                    {sprintf(
+                      // TRANSLATORS: %(openvpn)s will be replaced with "OpenVPN"
+                      messages.pgettext('openvpn-settings-view', '%(openvpn)s settings'),
+                      {
+                        openvpn: strings.openvpn,
+                      },
+                    )}
                   </HeaderTitle>
                 </SettingsHeader>
 
@@ -206,13 +216,15 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
                         {sprintf(
                           // TRANSLATORS: The hint displayed below the Mssfix input field.
                           // TRANSLATORS: Available placeholders:
+                          // TRANSLATORS: %(openvpn)s - will be replaced with "OpenVPN"
                           // TRANSLATORS: %(max)d - the maximum possible mssfix value
                           // TRANSLATORS: %(min)d - the minimum possible mssfix value
                           messages.pgettext(
                             'openvpn-settings-view',
-                            'Set OpenVPN MSS value. Valid range: %(min)d - %(max)d.',
+                            'Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d.',
                           ),
                           {
+                            openvpn: strings.openvpn,
                             min: MIN_MSSFIX_VALUE,
                             max: MAX_MSSFIX_VALUE,
                           },
@@ -298,29 +310,53 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
     switch (this.props.bridgeModeAvailablity) {
       case BridgeModeAvailability.blockedDueToTunnelProtocol:
         return formatMarkdown(
-          // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
-          // TRANSLATORS: available.
-          messages.pgettext(
-            'openvpn-settings-view',
-            'To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**.',
+          sprintf(
+            // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
+            // TRANSLATORS: available.
+            // TRANSLATORS: Available placeholders:
+            // TRANSLATORS: %(tunnelProtocol)s - the name of the tunnel protocol setting
+            // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
+            messages.pgettext(
+              'openvpn-settings-view',
+              'To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**.',
+            ),
+            {
+              tunnelProtocol: messages.pgettext('advanced-settings-view', 'Tunnel protocol'),
+              openvpn: strings.openvpn,
+            },
           ),
         );
       case BridgeModeAvailability.blockedDueToTransportProtocol:
         return formatMarkdown(
-          // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
-          // TRANSLATORS: available.
-          messages.pgettext(
-            'openvpn-settings-view',
-            'To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**.',
+          sprintf(
+            // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
+            // TRANSLATORS: available.
+            // TRANSLATORS: Available placeholders:
+            // TRANSLATORS: %(transportProtocol)s - the name of the transport protocol setting
+            // TRANSLATORS: %(automat)s - the translation of "Automatic"
+            // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
+            messages.pgettext(
+              'openvpn-settings-view',
+              'To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**.',
+            ),
+            {
+              transportProtocol: messages.pgettext('openvpn-settings-view', 'Transport protocol'),
+              automatic: messages.gettext('Automatic'),
+              tcp: messages.gettext('TCP'),
+            },
           ),
         );
       case BridgeModeAvailability.available:
-        // This line is here to prevent prettier from moving up the next line.
-        // TRANSLATORS: This is used as a description for the bridge mode
-        // TRANSLATORS: setting.
-        return messages.pgettext(
-          'openvpn-settings-view',
-          'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder.',
+        return sprintf(
+          // TRANSLATORS: This is used as a description for the bridge mode
+          // TRANSLATORS: setting.
+          // TRANSLATORS: Available placeholders:
+          // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
+          messages.pgettext(
+            'openvpn-settings-view',
+            'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder.',
+          ),
+          { openvpn: strings.openvpn },
         );
     }
   }

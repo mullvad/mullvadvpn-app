@@ -1,5 +1,7 @@
 import * as React from 'react';
+import { sprintf } from 'sprintf-js';
 
+import { strings } from '../../config.json';
 import { TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import {
@@ -56,11 +58,11 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
         value: undefined,
       },
       {
-        label: messages.pgettext('advanced-settings-view', 'WireGuard'),
+        label: strings.wireguard,
         value: 'wireguard',
       },
       {
-        label: messages.pgettext('advanced-settings-view', 'OpenVPN'),
+        label: strings.openvpn,
         value: 'openvpn',
       },
     ];
@@ -146,7 +148,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                 {(window.env.platform === 'linux' || window.env.platform === 'win32') && (
                   <Cell.CellButtonGroup>
                     <Cell.CellButton onClick={this.props.onViewSplitTunneling}>
-                      <Cell.Label>Split tunneling</Cell.Label>
+                      <Cell.Label>{strings.splitTunneling}</Cell.Label>
                       <Cell.Icon height={12} width={7} source="icon-chevron" />
                     </Cell.CellButton>
                   </Cell.CellButtonGroup>
@@ -168,7 +170,11 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                     onClick={this.props.onViewWireguardSettings}
                     disabled={this.props.tunnelProtocol === 'openvpn'}>
                     <Cell.Label>
-                      {messages.pgettext('advanced-settings-view', 'WireGuard settings')}
+                      {sprintf(
+                        // TRANSLATORS: %(wireguard)s will be replaced with the string "WireGuard"
+                        messages.pgettext('advanced-settings-view', '%(wireguard)s settings'),
+                        { wireguard: strings.wireguard },
+                      )}
                     </Cell.Label>
                     <Cell.Icon height={12} width={7} source="icon-chevron" />
                   </Cell.CellButton>
@@ -177,7 +183,11 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                     onClick={this.props.onViewOpenVpnSettings}
                     disabled={this.props.tunnelProtocol === 'wireguard'}>
                     <Cell.Label>
-                      {messages.pgettext('advanced-settings-view', 'OpenVPN settings')}
+                      {sprintf(
+                        // TRANSLATORS: %(openvpn)s will be replaced with the string "OpenVPN"
+                        messages.pgettext('advanced-settings-view', '%(openvpn)s settings'),
+                        { openvpn: strings.openvpn },
+                      )}
                     </Cell.Label>
                     <Cell.Icon height={12} width={7} source="icon-chevron" />
                   </Cell.CellButton>

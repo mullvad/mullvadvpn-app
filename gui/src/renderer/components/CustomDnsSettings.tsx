@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { colors } from '../../config.json';
+import { colors, strings } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { IpAddress } from '../lib/ip';
@@ -415,9 +415,18 @@ function ConfirmationDialog(props: IConfirmationDialogProps) {
         </AppButton.BlueButton>,
       ]}
       close={props.abort}
-      message={messages.pgettext(
-        'advanced-settings-view',
-        'The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the "Tunnel protocol" (in Advanced settings) to WireGuard.',
+      message={sprintf(
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(tunnelProtocol)s - the name of the tunnel protocol setting
+        // TRANSLATORS: %(wireguard)s - will be replaced with "WireGuard"
+        messages.pgettext(
+          'advanced-settings-view',
+          'The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the "%(tunnelProtocol)s" (in Advanced settings) to %(wireguard)s.',
+        ),
+        {
+          wireguard: strings.wireguard,
+          tunnelProtocol: messages.pgettext('advanced-settings-view', 'Tunnel protocol'),
+        },
       )}></ModalAlert>
   );
 }
