@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { sprintf } from 'sprintf-js';
 
-import { colors } from '../../config.json';
+import { colors, strings } from '../../config.json';
 import {
   IApplication,
   ILinuxSplitTunnelingApplication,
@@ -67,7 +67,7 @@ export default function SplitTunneling() {
             <NavigationContainer>
               <NavigationBar>
                 <NavigationItems>
-                  <TitleBarItem>Split tunneling</TitleBarItem>
+                  <TitleBarItem>{strings.splitTunneling}</TitleBarItem>
                 </NavigationItems>
               </NavigationBar>
 
@@ -168,7 +168,7 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
   return (
     <>
       <SettingsHeader>
-        <HeaderTitle>Split tunneling</HeaderTitle>
+        <HeaderTitle>{strings.splitTunneling}</HeaderTitle>
         <HeaderSubTitle>
           {messages.pgettext(
             'split-tunneling-view',
@@ -415,7 +415,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
     <>
       <SettingsHeader>
         <StyledHeaderTitleContainer>
-          <StyledHeaderTitle>Split tunneling</StyledHeaderTitle>
+          <StyledHeaderTitle>{strings.splitTunneling}</StyledHeaderTitle>
           <Switch isOn={splitTunnelingEnabled} onChange={setSplitTunnelingState} />
         </StyledHeaderTitleContainer>
         <HeaderSubTitle>

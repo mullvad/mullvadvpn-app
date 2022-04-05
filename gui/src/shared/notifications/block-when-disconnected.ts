@@ -1,3 +1,6 @@
+import { sprintf } from 'sprintf-js';
+
+import { strings } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { TunnelState } from '../daemon-rpc-types';
 import { InAppNotification, InAppNotificationProvider } from './notification';
@@ -22,9 +25,12 @@ export class BlockWhenDisconnectedNotificationProvider implements InAppNotificat
   public getInAppNotification(): InAppNotification {
     let subtitle = messages.pgettext('in-app-notifications', '"Always require VPN" is enabled.');
     if (this.context.hasExcludedApps) {
-      subtitle = `${subtitle} ${messages.pgettext(
-        'notifications',
-        'The apps excluded with split tunneling might not work properly right now.',
+      subtitle = `${subtitle} ${sprintf(
+        messages.pgettext(
+          'notifications',
+          'The apps excluded with %(splitTunneling)s might not work properly right now.',
+        ),
+        { splitTunneling: strings.splitTunneling.toLowerCase() },
       )}`;
     }
 

@@ -1,3 +1,6 @@
+import { sprintf } from 'sprintf-js';
+
+import { strings } from '../../config.json';
 import { hasExpired } from '../account-expiry';
 import { AuthFailureKind, parseAuthFailure } from '../auth-failure';
 import { IErrorState, TunnelParameterError, TunnelState } from '../daemon-rpc-types';
@@ -24,9 +27,12 @@ export class ErrorNotificationProvider
     if (this.context.tunnelState.state === 'error') {
       let message = getMessage(this.context.tunnelState.details, this.context.accountExpiry);
       if (!this.context.tunnelState.details.blockFailure && this.context.hasExcludedApps) {
-        message = `${message} ${messages.pgettext(
-          'notifications',
-          'The apps excluded with split tunneling might not work properly right now.',
+        message = `${message} ${sprintf(
+          messages.pgettext(
+            'notifications',
+            'The apps excluded with %(splitTunneling)s might not work properly right now.',
+          ),
+          { splitTunneling: strings.splitTunneling.toLowerCase() },
         )}`;
       }
 
@@ -43,9 +49,12 @@ export class ErrorNotificationProvider
     if (this.context.tunnelState.state === 'error') {
       let subtitle = getMessage(this.context.tunnelState.details, this.context.accountExpiry);
       if (!this.context.tunnelState.details.blockFailure && this.context.hasExcludedApps) {
-        subtitle = `${subtitle} ${messages.pgettext(
-          'notifications',
-          'The apps excluded with split tunneling might not work properly right now.',
+        subtitle = `${subtitle} ${sprintf(
+          messages.pgettext(
+            'notifications',
+            'The apps excluded with %(splitTunneling)s might not work properly right now.',
+          ),
+          { splitTunneling: strings.splitTunneling.toLowerCase() },
         )}`;
       }
 
@@ -157,9 +166,14 @@ function getTunnelParameterMessage(err: TunnelParameterError): string {
         'No servers in your selected location match your settings.',
       );
     case 'no_wireguard_key':
-      return messages.pgettext(
-        'notifications',
-        'Valid WireGuard key is missing. Manage keys under Advanced settings.',
+      return sprintf(
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(wireguard)s - will be replaced with "WireGuard"
+        messages.pgettext(
+          'notifications',
+          'Valid %(wireguard)s key is missing. Manage keys under Advanced settings.',
+        ),
+        { wireguard: strings.wireguard },
       );
     case 'custom_tunnel_host_resultion_error':
       return messages.pgettext(

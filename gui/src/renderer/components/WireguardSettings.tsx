@@ -2,6 +2,7 @@ import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
+import { strings } from '../../config.json';
 import { IpVersion } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
@@ -104,10 +105,13 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
               <NavigationBar>
                 <NavigationItems>
                   <TitleBarItem>
-                    {
+                    {sprintf(
                       // TRANSLATORS: Title label in navigation bar
-                      messages.pgettext('wireguard-settings-nav', 'WireGuard settings')
-                    }
+                      // TRANSLATORS: Available placeholders:
+                      // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+                      messages.pgettext('wireguard-settings-nav', '%(wireguard)s settings'),
+                      { wireguard: strings.wireguard },
+                    )}
                   </TitleBarItem>
                 </NavigationItems>
               </NavigationBar>
@@ -115,7 +119,12 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
               <StyledNavigationScrollbars>
                 <SettingsHeader>
                   <HeaderTitle>
-                    {messages.pgettext('wireguard-settings-view', 'WireGuard settings')}
+                    {sprintf(
+                      // TRANSLATORS: Available placeholders:
+                      // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+                      messages.pgettext('wireguard-settings-view', '%(wireguard)s settings'),
+                      { wireguard: strings.wireguard },
+                    )}
                   </HeaderTitle>
                 </SettingsHeader>
 
@@ -165,13 +174,16 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
                   <Cell.Footer>
                     <AriaDescription>
                       <Cell.FooterText>
-                        {
+                        {sprintf(
                           // TRANSLATORS: Description for multihop settings toggle.
+                          // TRANSLATORS: Available placeholders:
+                          // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
                           messages.pgettext(
                             'advanced-settings-view',
-                            'Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace.',
-                          )
-                        }
+                            'Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace.',
+                          ),
+                          { wireguard: strings.wireguard },
+                        )}
                       </Cell.FooterText>
                     </AriaDescription>
                   </Cell.Footer>
@@ -190,13 +202,16 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
                   <Cell.Footer>
                     <AriaDescription>
                       <Cell.FooterText>
-                        {
+                        {sprintf(
                           // TRANSLATORS: The hint displayed below the WireGuard IP version selector.
+                          // TRANSLATORS: Available placeholders:
+                          // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
                           messages.pgettext(
                             'wireguard-settings-view',
-                            'This allows access to WireGuard for devices that only support IPv6.',
-                          )
-                        }
+                            'This allows access to %(wireguard)s for devices that only support IPv6.',
+                          ),
+                          { wireguard: strings.wireguard },
+                        )}
                       </Cell.FooterText>
                     </AriaDescription>
                   </Cell.Footer>
@@ -228,13 +243,15 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
                         {sprintf(
                           // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
                           // TRANSLATORS: Available placeholders:
+                          // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
                           // TRANSLATORS: %(max)d - the maximum possible wireguard mtu value
                           // TRANSLATORS: %(min)d - the minimum possible wireguard mtu value
                           messages.pgettext(
                             'wireguard-settings-view',
-                            'Set WireGuard MTU value. Valid range: %(min)d - %(max)d.',
+                            'Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d.',
                           ),
                           {
+                            wireguard: strings.wireguard,
                             min: MIN_WIREGUARD_MTU_VALUE,
                             max: MAX_WIREGUARD_MTU_VALUE,
                           },
