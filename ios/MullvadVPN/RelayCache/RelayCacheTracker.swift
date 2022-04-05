@@ -267,23 +267,18 @@ extension RelayCache.Tracker {
         logger.debug("Start app refresh task.")
 
         let cancellable = self.updateRelays { completion in
-            let isTaskCompleted: Bool
-
             switch completion {
             case .success(let fetchResult):
                 self.logger.debug("Finished updating relays in app refresh task: \(fetchResult).")
-                isTaskCompleted = true
 
             case .failure(let error):
                 self.logger.error(chainedError: error, message: "Failed to update relays in app refresh task.")
-                isTaskCompleted = false
 
             case .cancelled:
                 self.logger.debug("App refresh task was cancelled.")
-                isTaskCompleted = false
             }
 
-            task.setTaskCompleted(success: isTaskCompleted)
+            task.setTaskCompleted(success: completion.isSuccess)
         }
 
         task.expirationHandler = {

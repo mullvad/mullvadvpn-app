@@ -181,8 +181,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let operationQueue = OperationQueue()
 
         let updateAddressCacheOperation = AsyncBlockOperation { operation in
-            let handle = self.addressCacheTracker.updateEndpoints { result in
-                addressCacheFetchResult = result.backgroundFetchResult
+            let handle = self.addressCacheTracker.updateEndpoints { completion in
+                addressCacheFetchResult = completion.backgroundFetchResult
                 operation.finish()
             }
 
@@ -195,15 +195,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let handle = RelayCache.Tracker.shared.updateRelays { completion in
                 switch completion {
                 case .success(let result):
-                    self.logger?.debug("Finished updating relays: \(result)")
+                    self.logger?.debug("Finished updating relays: \(result).")
                 case .failure(let error):
-                    self.logger?.error(chainedError: error, message: "Failed to update relays")
+                    self.logger?.error(chainedError: error, message: "Failed to update relays.")
                 case .cancelled:
                     break
                 }
 
-                relaysFetchResult = completion.result?.backgroundFetchResult
-
+                relaysFetchResult = completion.backgroundFetchResult
                 operation.finish()
             }
 
@@ -213,23 +212,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         let rotatePrivateKeyOperation = AsyncBlockOperation { operation in
-            let handle = TunnelManager.shared.rotatePrivateKey { rotationResult, error in
-                if let error = error {
-                    self.logger?.error(chainedError: error, message: "Failed to rotate the key")
-
-                    rotatePrivateKeyFetchResult = .failed
-                } else if let rotationResult = rotationResult {
-                    self.logger?.debug("Finished rotating the key: \(rotationResult)")
-
-                    switch rotationResult {
-                    case .throttled:
-                        rotatePrivateKeyFetchResult = .noData
-
-                    case .finished:
-                        rotatePrivateKeyFetchResult = .newData
-                    }
+            let handle = TunnelManager.shared.rotatePrivateKey { completion in
+                switch completion {
+                case .success(let rotationResult):
+                    self.logger?.debug("Finished rotating the key: \(rotationResult).")
+                case .failure(let error):
+                    self.logger?.error(chainedError: error, message: "Failed to rotate the key.")
+                case .cancelled:
+                    break
                 }
 
+                rotatePrivateKeyFetchResult = completion.backgroundFetchResult
                 operation.finish()
             }
 

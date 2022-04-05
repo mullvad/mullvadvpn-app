@@ -149,19 +149,19 @@ extension AddressCache {
             case .success(let updateResult):
                 switch updateResult {
                 case .finished:
-                    logger.debug("Finished updating address cache")
+                    logger.debug("Finished updating address cache.")
                 case .throttled:
-                    logger.debug("Address cache update was throttled")
+                    logger.debug("Address cache update was throttled.")
                 }
 
                 lastFailureAttemptDate = nil
 
             case .failure(let error):
-                logger.error(chainedError: AnyChainedError(error), message: "Failed to update address cache")
+                logger.error(chainedError: AnyChainedError(error), message: "Failed to update address cache.")
                 lastFailureAttemptDate = Date()
 
             case .cancelled:
-                logger.debug("Address cache update was cancelled")
+                logger.debug("Address cache update was cancelled.")
                 lastFailureAttemptDate = Date()
             }
         }
@@ -208,7 +208,7 @@ extension AddressCache.Tracker {
     private func handleBackgroundTask(_ task: BGProcessingTask) {
         logger.debug("Start address cache update task")
 
-        let cancellable = updateEndpoints { result in
+        let cancellable = updateEndpoints { completion in
             do {
                 // Schedule next background task
                 try self.scheduleBackgroundTask()
@@ -216,7 +216,7 @@ extension AddressCache.Tracker {
                 self.logger.error(chainedError: AnyChainedError(error), message: "Failed to schedule next address cache update task")
             }
 
-            task.setTaskCompleted(success: result.isTaskCompleted)
+            task.setTaskCompleted(success: completion.isSuccess)
         }
 
         task.expirationHandler = {

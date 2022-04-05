@@ -95,14 +95,3 @@ extension AddressCache {
         }
     }
 }
-
-extension OperationCompletion where Success == AddressCache.CacheUpdateResult {
-    var isTaskCompleted: Bool {
-        switch self {
-        case .success:
-            return true
-        case .cancelled, .failure:
-            return false
-        }
-    }
-}
