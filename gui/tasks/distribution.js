@@ -83,7 +83,6 @@ const config = {
         to: '.',
       },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
-      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'sslocal')), to: '.' },
       { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
       { from: distAssets('shell-completions/_mullvad'), to: '.' },
       { from: distAssets('shell-completions/mullvad.fish'), to: '.' },
@@ -140,7 +139,6 @@ const config = {
         to: '.',
       },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
-      { from: distAssets('binaries/x86_64-pc-windows-msvc/sslocal.exe'), to: '.' },
       { from: root('build/lib/x86_64-pc-windows-msvc/libwg.dll'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/wintun/wintun.dll'), to: '.' },
       {
@@ -162,7 +160,6 @@ const config = {
       { from: distAssets('mullvad-setup'), to: '.' },
       { from: distAssets('libtalpid_openvpn_plugin.so'), to: '.' },
       { from: distAssets('binaries/x86_64-unknown-linux-gnu/openvpn'), to: '.' },
-      { from: distAssets('binaries/x86_64-unknown-linux-gnu/sslocal'), to: '.' },
       { from: distAssets('linux/mullvad-daemon.conf'), to: '.' },
       { from: distAssets('linux/mullvad-daemon.service'), to: '.' },
     ],

@@ -122,7 +122,7 @@ impl TunnelMonitor {
 
         match tunnel_parameters {
             #[cfg(not(target_os = "android"))]
-            TunnelParameters::OpenVpn(config) => Self::start_openvpn_tunnel(
+            TunnelParameters::OpenVpn(config) => runtime.block_on(Self::start_openvpn_tunnel(
                 &config,
                 log_file,
                 resource_dir,
@@ -130,7 +130,7 @@ impl TunnelMonitor {
                 tunnel_close_rx,
                 #[cfg(target_os = "linux")]
                 route_manager,
-            ),
+            )),
             #[cfg(target_os = "android")]
             TunnelParameters::OpenVpn(_) => Err(Error::UnsupportedPlatform),
 
@@ -156,7 +156,9 @@ impl TunnelMonitor {
             TunnelParameters::OpenVpn(params) => {
                 if let Some(proxy) = &params.proxy {
                     match proxy {
-                        openvpn_types::ProxySettings::Shadowsocks(..) => "sslocal.exe",
+                        openvpn_types::ProxySettings::Shadowsocks(..) => {
+                            return std::env::current_exe().unwrap()
+                        }
                         _ => "openvpn.exe",
                     }
                 } else {
@@ -204,7 +206,7 @@ impl TunnelMonitor {
     }
 
     #[cfg(not(target_os = "android"))]
-    fn start_openvpn_tunnel<L>(
+    async fn start_openvpn_tunnel<L>(
         config: &openvpn_types::TunnelParameters,
         log: Option<PathBuf>,
         resource_dir: &Path,
@@ -226,7 +228,8 @@ impl TunnelMonitor {
             tunnel_close_rx,
             #[cfg(target_os = "linux")]
             route_manager,
-        )?;
+        )
+        .await?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::OpenVpn(monitor),
         })
