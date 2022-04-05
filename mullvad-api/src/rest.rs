@@ -22,7 +22,7 @@ use std::{
     future::Future,
     str::FromStr,
     sync::{Arc, Weak},
-    time::{Duration, Instant},
+    time::Duration,
 };
 use talpid_types::ErrorExt;
 
@@ -33,8 +33,7 @@ pub type Response = hyper::Response<hyper::Body>;
 
 const USER_AGENT: &str = "mullvad-app";
 
-const TIMER_CHECK_INTERVAL: Duration = Duration::from_secs(60);
-const API_IP_CHECK_DELAY: Duration = Duration::from_secs(15 * 60);
+const API_IP_CHECK_INITIAL: Duration = Duration::from_secs(15 * 60);
 const API_IP_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
 const API_IP_CHECK_ERROR_INTERVAL: Duration = Duration::from_secs(15 * 60);
 
@@ -625,50 +624,41 @@ impl MullvadRestHandle {
         let availability = self.availability.clone();
 
         tokio::spawn(async move {
-            // always start the fetch after 15 minutes
             let api_proxy = crate::ApiProxy::new(handle);
-            let mut next_check = Instant::now() + API_IP_CHECK_DELAY;
-
-            let next_error_check = || Instant::now() + API_IP_CHECK_ERROR_INTERVAL;
-            let next_regular_check = || Instant::now() + API_IP_CHECK_INTERVAL;
-
-            let mut interval = tokio::time::interval_at(next_check.into(), TIMER_CHECK_INTERVAL);
+            let mut next_delay = API_IP_CHECK_INITIAL;
 
             loop {
-                interval.tick().await;
-                if next_check < Instant::now() {
-                    if let Err(error) = availability.wait_background().await {
-                        log::error!("Failed while waiting for API: {}", error);
-                        next_check = next_error_check();
-                        continue;
-                    }
-                    match api_proxy.clone().get_api_addrs().await {
-                        Ok(new_addrs) => {
-                            if let Some(addr) = new_addrs.get(0) {
-                                log::debug!(
-                                    "Fetched new API address {:?}. Fetching again in {} hours",
-                                    addr,
-                                    API_IP_CHECK_INTERVAL.as_secs() / (60 * 60)
-                                );
-                                if let Err(err) = address_cache.set_address(*addr).await {
-                                    log::error!(
-                                        "Failed to save newly updated API address: {}",
-                                        err
-                                    );
-                                }
-                            } else {
-                                log::error!("API returned no API addresses");
-                            }
-                            next_check = next_regular_check();
-                        }
-                        Err(err) => {
-                            log::error!(
-                                "Failed to fetch new API addresses: {}. Retrying in {} seconds",
-                                err,
-                                API_IP_CHECK_ERROR_INTERVAL.as_secs()
+                talpid_time::sleep(next_delay).await;
+
+                if let Err(error) = availability.wait_background().await {
+                    log::error!("Failed while waiting for API: {}", error);
+                    continue;
+                }
+                match api_proxy.clone().get_api_addrs().await {
+                    Ok(new_addrs) => {
+                        if let Some(addr) = new_addrs.get(0) {
+                            log::debug!(
+                                "Fetched new API address {:?}. Fetching again in {} hours",
+                                addr,
+                                API_IP_CHECK_INTERVAL.as_secs() / (60 * 60)
                             );
-                            next_check = next_error_check();
+                            if let Err(err) = address_cache.set_address(*addr).await {
+                                log::error!("Failed to save newly updated API address: {}", err);
+                            }
+                        } else {
+                            log::error!("API returned no API addresses");
                         }
+
+                        next_delay = API_IP_CHECK_INTERVAL;
+                    }
+                    Err(err) => {
+                        log::error!(
+                            "Failed to fetch new API addresses: {}. Retrying in {} seconds",
+                            err,
+                            API_IP_CHECK_ERROR_INTERVAL.as_secs()
+                        );
+
+                        next_delay = API_IP_CHECK_ERROR_INTERVAL;
                     }
                 }
             }

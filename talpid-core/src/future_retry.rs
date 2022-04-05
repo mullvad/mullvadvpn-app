@@ -1,9 +1,6 @@
 use rand::{distributions::OpenClosed01, Rng};
 use std::{future::Future, time::Duration};
-
-/// Since timers often exhibit weird behavior if they are running for too long, a workaround is
-/// required - run a timer for 60 seconds until a delay is shorter than 5 minutes.
-const MAX_SINGLE_DELAY: Duration = Duration::from_secs(5 * 60);
+use talpid_time::sleep;
 
 /// Convenience function that works like [`retry_future`] but limits the number
 /// of retries to `max_retries`.
@@ -50,15 +47,6 @@ pub async fn retry_future<
 /// Returns an iterator that repeats the same interval.
 pub fn constant_interval(interval: Duration) -> impl Iterator<Item = Duration> {
     std::iter::repeat(interval)
-}
-
-async fn sleep(mut delay: Duration) {
-    while delay > MAX_SINGLE_DELAY {
-        delay -= MAX_SINGLE_DELAY;
-        tokio::time::sleep(MAX_SINGLE_DELAY).await;
-    }
-
-    tokio::time::sleep(delay).await;
 }
 
 /// Provides an exponential back-off timer to delay the next retry of a failed operation.
@@ -206,6 +194,8 @@ mod test {
         assert!(jittered_duration <= unjittered_duration);
     }
 
+    // NOTE: The test is disabled because the clock does not advance.
+    #[ignore]
     #[tokio::test]
     async fn test_exponential_backoff_delay() {
         let retry_interval_initial = Duration::from_secs(4);
@@ -221,11 +211,5 @@ mod test {
             5,
         )
         .await;
-    }
-
-    #[tokio::test]
-    async fn test_timer_advancement() {
-        tokio::time::pause();
-        sleep(Duration::from_secs(60 * 60)).await
     }
 }

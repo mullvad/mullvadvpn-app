@@ -10,7 +10,7 @@ use parking_lot::Mutex;
 use std::{
     path::{Path, PathBuf},
     sync::Arc,
-    time::{Duration, Instant, SystemTime},
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 use talpid_core::future_retry::{retry_future, ExponentialBackoff, Jittered};
 use talpid_types::ErrorExt;
@@ -45,7 +45,7 @@ pub struct RelayListUpdater {
     cache_path: PathBuf,
     parsed_relays: Arc<Mutex<ParsedRelays>>,
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
-    earliest_next_try: Instant,
+    last_check: SystemTime,
     api_availability: ApiAvailabilityHandle,
 }
 
@@ -64,7 +64,7 @@ impl RelayListUpdater {
             cache_path,
             parsed_relays,
             on_update,
-            earliest_next_try: Instant::now() + UPDATE_INTERVAL,
+            last_check: UNIX_EPOCH,
             api_availability,
         };
 
@@ -74,20 +74,17 @@ impl RelayListUpdater {
     }
 
     async fn run(mut self, mut cmd_rx: mpsc::Receiver<()>) {
-        let mut check_interval = tokio::time::interval_at(
-            (Instant::now() + UPDATE_CHECK_INTERVAL).into(),
-            UPDATE_CHECK_INTERVAL,
-        );
-        check_interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
-        let mut ticker = tokio_stream::wrappers::IntervalStream::new(check_interval).fuse();
         let mut download_future = Box::pin(Fuse::terminated());
         loop {
+            let next_check = tokio::time::sleep(UPDATE_CHECK_INTERVAL).fuse();
+            tokio::pin!(next_check);
+
             futures::select! {
-                _check_update = ticker.select_next_some() => {
+                _check_update = next_check => {
                     if download_future.is_terminated() && self.should_update() {
                         let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
                         download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
-                        self.earliest_next_try = Instant::now() + UPDATE_INTERVAL;
+                        self.last_check = SystemTime::now();
                     }
                 },
 
@@ -100,6 +97,7 @@ impl RelayListUpdater {
                         Some(()) => {
                             let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
                             download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
+                            self.last_check = SystemTime::now();
                         },
                         None => {
                             log::trace!("Relay list updater shutting down");
@@ -123,23 +121,18 @@ impl RelayListUpdater {
                 }
             }
             Ok(None) => log::debug!("Relay list is up-to-date"),
-            Err(err) => {
-                log::error!(
-                    "Failed to fetch new relay list: {}. Will retry in {} minutes",
-                    err,
-                    self.earliest_next_try
-                        .saturating_duration_since(Instant::now())
-                        .as_secs()
-                        / 60
-                );
-            }
+            Err(error) => log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to fetch new relay list")
+            ),
         }
     }
 
     /// Returns true if the current parsed_relays is older than UPDATE_INTERVAL
     fn should_update(&mut self) -> bool {
-        match SystemTime::now().duration_since(self.parsed_relays.lock().last_updated()) {
-            Ok(duration) => duration > UPDATE_INTERVAL && self.earliest_next_try <= Instant::now(),
+        let last_check = std::cmp::max(self.parsed_relays.lock().last_updated(), self.last_check);
+        match SystemTime::now().duration_since(last_check) {
+            Ok(duration) => duration >= UPDATE_INTERVAL,
             // If the clock is skewed we have no idea by how much or when the last update
             // actually was, better download again to get in sync and get a `last_updated`
             // timestamp corresponding to the new time.
