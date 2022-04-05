@@ -8,39 +8,37 @@
 
 import Foundation
 
-class ReloadTunnelOperation: AsyncOperation {
-    typealias CompletionHandler = (OperationCompletion<(), TunnelManager.Error>) -> Void
-
+class ReloadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
     private let queue: DispatchQueue
     private let state: TunnelManager.State
-    private var request: Cancellable?
-    private var completionHandler: CompletionHandler?
+    private var cancellableTask: Cancellable?
 
     init(queue: DispatchQueue, state: TunnelManager.State, completionHandler: @escaping CompletionHandler) {
         self.queue = queue
         self.state = state
-        self.completionHandler = completionHandler
+
+        super.init(completionQueue: queue, completionHandler: completionHandler)
     }
 
     override func main() {
         queue.async {
             guard !self.isCancelled else {
-                self.completeOperation(completion: .cancelled)
+                self.finish(completion: .cancelled)
                 return
             }
 
             guard let tunnel = self.state.tunnel else {
-                self.completeOperation(completion: .failure(.unsetAccount))
+                self.finish(completion: .failure(.unsetAccount))
                 return
             }
 
             let session = TunnelIPC.Session(tunnel: tunnel)
 
-            self.request = session.reloadTunnelSettings { [weak self] completion in
+            self.cancellableTask = session.reloadTunnelSettings { [weak self] completion in
                 guard let self = self else { return }
 
                 self.queue.async {
-                    self.completeOperation(completion: completion.mapError { .reloadTunnel($0) })
+                    self.finish(completion: completion.mapError { .reloadTunnel($0) })
                 }
             }
         }
@@ -50,15 +48,8 @@ class ReloadTunnelOperation: AsyncOperation {
         super.cancel()
 
         queue.async {
-            self.request?.cancel()
+            self.cancellableTask?.cancel()
+            self.cancellableTask = nil
         }
     }
-
-    private func completeOperation(completion: OperationCompletion<(), TunnelManager.Error>) {
-        completionHandler?(completion)
-        completionHandler = nil
-
-        finish()
-    }
-
 }

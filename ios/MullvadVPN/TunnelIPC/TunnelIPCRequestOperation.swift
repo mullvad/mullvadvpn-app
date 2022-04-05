@@ -20,9 +20,8 @@ extension TunnelIPC {
         var timeout: TimeInterval = 5
     }
 
-    final class RequestOperation<Output>: AsyncOperation {
+    final class RequestOperation<Output>: ResultOperation<Output, TunnelIPC.Error> {
         typealias DecoderHandler = (Data?) -> Result<Output, TunnelIPC.Error>
-        typealias CompletionHandler = (OperationCompletion<Output, TunnelIPC.Error>) -> Void
 
         private let queue: DispatchQueue
 
@@ -31,7 +30,6 @@ extension TunnelIPC {
         private let options: RequestOptions
 
         private let decoderHandler: DecoderHandler
-        private var completionHandler: CompletionHandler?
 
         private var statusObserver: Tunnel.StatusBlockObserver?
         private var timeoutWork: DispatchWorkItem?
@@ -53,12 +51,24 @@ extension TunnelIPC {
             self.options = options
 
             self.decoderHandler = decoderHandler
-            self.completionHandler = completionHandler
+
+            super.init(completionQueue: queue, completionHandler: completionHandler)
         }
 
         override func main() {
             queue.async {
-                self.execute()
+                guard !self.isCancelled else {
+                    self.finish(completion: .cancelled)
+                    return
+                }
+
+                self.setTimeoutTimer(connectingStateWaitDelay: 0)
+
+                self.statusObserver = self.tunnel.addBlockObserver(queue: self.queue) { [weak self] tunnel, status in
+                    self?.handleVPNStatus(status)
+                }
+
+                self.handleVPNStatus(self.tunnel.status)
             }
         }
 
@@ -67,24 +77,21 @@ extension TunnelIPC {
 
             queue.async {
                 if self.isExecuting {
-                    self.completeOperation(completion: .cancelled)
+                    self.finish(completion: .cancelled)
                 }
             }
         }
 
-        private func execute() {
-            guard !isCancelled else {
-                completeOperation(completion: .cancelled)
-                return
-            }
+        override func finish(completion: Completion) {
+            // Release status observer.
+            removeVPNStatusObserver()
 
-            setTimeoutTimer(connectingStateWaitDelay: 0)
+            // Cancel pending work.
+            timeoutWork?.cancel()
+            waitForConnectingStateWork?.cancel()
 
-            statusObserver = tunnel.addBlockObserver(queue: queue) { [weak self] tunnel, status in
-                self?.handleVPNStatus(status)
-            }
-
-            handleVPNStatus(tunnel.status)
+            // Finish operation.
+            super.finish(completion: completion)
         }
 
         private func removeVPNStatusObserver() {
@@ -94,7 +101,7 @@ extension TunnelIPC {
 
         private func setTimeoutTimer(connectingStateWaitDelay: TimeInterval) {
             let workItem = DispatchWorkItem { [weak self] in
-                self?.completeOperation(completion: .failure(.send(.timeout)))
+                self?.finish(completion: .failure(.send(.timeout)))
             }
 
             // Cancel pending timeout work.
@@ -127,7 +134,7 @@ extension TunnelIPC {
                 sendRequest()
 
             case .invalid, .disconnecting, .disconnected:
-                completeOperation(completion: .failure(.send(.tunnelDown(status))))
+                finish(completion: .failure(.send(.tunnelDown(status))))
 
             @unknown default:
                 break
@@ -183,7 +190,7 @@ extension TunnelIPC {
             do {
                 messageData = try TunnelIPC.Coding.encodeRequest(request)
             } catch {
-                completeOperation(completion: .failure(.encoding(error)))
+                finish(completion: .failure(.encoding(error)))
                 return
             }
 
@@ -195,28 +202,12 @@ extension TunnelIPC {
                     self.queue.async {
                         let decodingResult = self.decoderHandler(responseData)
 
-                        self.completeOperation(completion: OperationCompletion(result: decodingResult))
+                        self.finish(completion: OperationCompletion(result: decodingResult))
                     }
                 }
             } catch {
-                completeOperation(completion: .failure(.send(.system(error))))
+                finish(completion: .failure(.send(.system(error))))
             }
-        }
-
-        private func completeOperation(completion: OperationCompletion<Output, TunnelIPC.Error>) {
-            // Release status observer.
-            removeVPNStatusObserver()
-
-            // Cancel pending work.
-            timeoutWork?.cancel()
-            waitForConnectingStateWork?.cancel()
-
-            // Call completion handler.
-            completionHandler?(completion)
-            completionHandler = nil
-
-            // Finish operation.
-            finish()
         }
     }
 }

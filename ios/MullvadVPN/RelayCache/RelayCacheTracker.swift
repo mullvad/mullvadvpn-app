@@ -303,9 +303,8 @@ extension RelayCache.Tracker {
     }
 }
 
-fileprivate class UpdateRelaysOperation: AsyncOperation {
+fileprivate class UpdateRelaysOperation: ResultOperation<RelayCache.FetchResult, RelayCache.Error> {
     typealias UpdateHandler = (RelayCache.CachedRelays) -> Void
-    typealias CompletionHandler = (OperationCompletion<RelayCache.FetchResult, RelayCache.Error>) -> Void
 
     private let dispatchQueue: DispatchQueue
     private let restClient: REST.Client
@@ -315,7 +314,6 @@ fileprivate class UpdateRelaysOperation: AsyncOperation {
     private let logger = Logger(label: "RelayCacheTracker.UpdateRelaysOperation")
 
     private let updateHandler: UpdateHandler
-    private var completionHandler: CompletionHandler?
     private var downloadCancellable: Cancellable?
 
     init(dispatchQueue: DispatchQueue,
@@ -329,7 +327,8 @@ fileprivate class UpdateRelaysOperation: AsyncOperation {
         self.cacheFileURL = cacheFileURL
         self.relayUpdateInterval = relayUpdateInterval
         self.updateHandler = updateHandler
-        self.completionHandler = completionHandler
+
+        super.init(completionQueue: dispatchQueue, completionHandler: completionHandler)
     }
 
     override func main() {
@@ -368,15 +367,6 @@ fileprivate class UpdateRelaysOperation: AsyncOperation {
         dispatchQueue.async {
             self.downloadCancellable?.cancel()
         }
-    }
-
-    private func finish(completion: OperationCompletion<RelayCache.FetchResult, RelayCache.Error>) {
-        let block = completionHandler
-        completionHandler = nil
-
-        block?(completion)
-
-        finish()
     }
 
     private func didReceiveNewRelays(etag: String?, relays: REST.ServerRelaysResponse) {
@@ -439,6 +429,10 @@ fileprivate class UpdateRelaysOperation: AsyncOperation {
 
                 case .failure(let error):
                     self.didFailToDownloadRelays(error: error)
+
+                case .cancelled:
+                    self.logger.debug("Cancelled relays download.")
+                    self.finish(completion: .cancelled)
                 }
             }
         }

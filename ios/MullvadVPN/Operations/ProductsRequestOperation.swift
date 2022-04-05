@@ -9,9 +9,8 @@
 import Foundation
 import StoreKit
 
-class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
+class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>, SKProductsRequestDelegate {
     private let productIdentifiers: Set<String>
-    private var completionHandler: ((OperationCompletion<SKProductsResponse, Error>) -> Void)?
 
     private let maxRetryCount = 10
     private let retryDelay: DispatchTimeInterval = .seconds(2)
@@ -20,11 +19,10 @@ class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
     private var retryTimer: DispatchSourceTimer?
     private var request: SKProductsRequest?
 
-    init(productIdentifiers: Set<String>, completionHandler: @escaping (OperationCompletion<SKProductsResponse, Error>) -> Void) {
+    init(productIdentifiers: Set<String>, completionHandler: @escaping CompletionHandler) {
         self.productIdentifiers = productIdentifiers
-        self.completionHandler = completionHandler
 
-        super.init()
+        super.init(completionQueue: .main, completionHandler: completionHandler)
     }
 
     override func main() {
@@ -65,9 +63,7 @@ class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
     }
 
     func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
-        DispatchQueue.main.async {
-            self.finish(completion: .success(response))
-        }
+        finish(completion: .success(response))
     }
 
     // MARK: - Private
@@ -91,14 +87,5 @@ class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
 
         retryTimer?.schedule(wallDeadline: .now() + self.retryDelay)
         retryTimer?.activate()
-    }
-
-    private func finish(completion: OperationCompletion<SKProductsResponse, Error>) {
-        assert(Thread.isMainThread)
-
-        completionHandler?(completion)
-        completionHandler = nil
-
-        finish()
     }
 }

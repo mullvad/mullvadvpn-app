@@ -10,9 +10,8 @@ import Foundation
 import class WireGuardKitTypes.PublicKey
 import Logging
 
-class SetAccountOperation: AsyncOperation {
+class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
     typealias WillDeleteVPNConfigurationHandler = () -> Void
-    typealias CompletionHandler = (OperationCompletion<(), TunnelManager.Error>) -> Void
 
     private let queue: DispatchQueue
     private let state: TunnelManager.State
@@ -20,8 +19,6 @@ class SetAccountOperation: AsyncOperation {
     private let accountToken: String?
 
     private var willDeleteVPNConfigurationHandler: WillDeleteVPNConfigurationHandler?
-    private var completionHandler: CompletionHandler?
-
     private let logger = Logger(label: "TunnelManager.SetAccountOperation")
 
     init(queue: DispatchQueue, state: TunnelManager.State, restClient: REST.Client, accountToken: String?, willDeleteVPNConfigurationHandler: @escaping WillDeleteVPNConfigurationHandler, completionHandler: @escaping CompletionHandler) {
@@ -30,16 +27,14 @@ class SetAccountOperation: AsyncOperation {
         self.restClient = restClient
         self.accountToken = accountToken
         self.willDeleteVPNConfigurationHandler = willDeleteVPNConfigurationHandler
-        self.completionHandler = completionHandler
+
+        super.init(completionQueue: queue, completionHandler: completionHandler)
     }
 
     override func main() {
         queue.async {
             self.execute { completion in
-                self.completionHandler?(completion)
-                self.completionHandler = nil
-
-                self.finish()
+                self.finish(completion: completion)
             }
         }
     }
@@ -160,6 +155,9 @@ class SetAccountOperation: AsyncOperation {
 
                     case .failure(let error):
                         self.logger.error(chainedError: error, message: "Failed to delete key (\(index)) on server.")
+
+                    case .cancelled:
+                        self.logger.debug("Cancelled public key deletion.")
                     }
 
                     dispatchGroup.leave()
@@ -231,6 +229,11 @@ class SetAccountOperation: AsyncOperation {
                     self.logger.error(chainedError: error, message: "Failed to push new key to server.")
 
                     completionHandler(.failure(.pushWireguardKey(error)))
+
+                case .cancelled:
+                    self.logger.debug("Cancelled new key push to server.")
+
+                    completionHandler(.cancelled)
                 }
             }
         }

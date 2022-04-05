@@ -568,8 +568,8 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         navigationItem.setHidesBackButton(true, animated: true)
     }
 
-    private func didSendProblemReport(viewModel: ViewModel, result: Result<(), REST.Error>) {
-        switch result {
+    private func didSendProblemReport(viewModel: ViewModel, completion: OperationCompletion<(), REST.Error>) {
+        switch completion {
         case .success:
             submissionOverlayView.state = .sent(viewModel.email)
 
@@ -578,6 +578,9 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
         case .failure(let error):
             submissionOverlayView.state = .failure(error)
+
+        case .cancelled:
+            submissionOverlayView.state = .failure(.network(URLError(.cancelled)))
         }
 
         navigationItem.setHidesBackButton(false, animated: true)
@@ -597,8 +600,8 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
         willSendProblemReport()
 
-        _ = REST.Client.shared.sendProblemReport(request, retryStrategy: .default) { result in
-            self.didSendProblemReport(viewModel: viewModel, result: result)
+        _ = REST.Client.shared.sendProblemReport(request, retryStrategy: .default) { completion in
+            self.didSendProblemReport(viewModel: viewModel, completion: completion)
         }
     }
 

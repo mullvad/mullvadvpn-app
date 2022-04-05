@@ -8,57 +8,45 @@
 
 import Foundation
 
-class SetTunnelSettingsOperation: AsyncOperation {
+class SetTunnelSettingsOperation: ResultOperation<(), TunnelManager.Error> {
     typealias ModificationHandler = (inout TunnelSettings) -> Void
-    typealias CompletionHandler = (OperationCompletion<(), TunnelManager.Error>) -> Void
 
     private let queue: DispatchQueue
     private let state: TunnelManager.State
     private let modificationBlock: ModificationHandler
-    private var completionHandler: CompletionHandler?
 
     init(queue: DispatchQueue, state: TunnelManager.State, modificationBlock: @escaping ModificationHandler, completionHandler: @escaping CompletionHandler) {
         self.queue = queue
         self.state = state
         self.modificationBlock = modificationBlock
-        self.completionHandler = completionHandler
+
+        super.init(completionQueue: queue, completionHandler: completionHandler)
     }
 
     override func main() {
         queue.async {
-            self.execute { completion in
-                self.completionHandler?(completion)
-                self.completionHandler = nil
-
-                self.finish()
+            guard !self.isCancelled else {
+                self.finish(completion: .cancelled)
+                return
             }
-        }
-    }
 
-    private func execute(completionHandler: CompletionHandler) {
-        guard !isCancelled else {
-            completionHandler(.cancelled)
-            return
-        }
+            guard let accountToken = self.state.tunnelInfo?.token else {
+                self.finish(completion: .failure(.unsetAccount))
+                return
+            }
 
-        guard let accountToken = state.tunnelInfo?.token else {
-            completionHandler(.failure(.unsetAccount))
-            return
-        }
+            let result = TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { tunnelSettings in
+                self.modificationBlock(&tunnelSettings)
+            }
 
-        let result = TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { tunnelSettings in
-            self.modificationBlock(&tunnelSettings)
-        }
+            switch result {
+            case .success(let newTunnelSettings):
+                self.state.tunnelInfo?.tunnelSettings = newTunnelSettings
+                self.finish(completion: .success(()))
 
-        switch result {
-        case .success(let newTunnelSettings):
-            state.tunnelInfo?.tunnelSettings = newTunnelSettings
-
-            completionHandler(.success(()))
-
-        case .failure(let error):
-            completionHandler(.failure(.updateTunnelSettings(error)))
-
+            case .failure(let error):
+                self.finish(completion: .failure(.updateTunnelSettings(error)))
+            }
         }
     }
 }

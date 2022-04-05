@@ -11,52 +11,28 @@ import Foundation
 extension AddressCache {
 
     enum CacheUpdateResult {
-        /// Operation was cancelled.
-        case cancelled
-
         /// Address cache update was throttled as it was requested too early.
         case throttled(_ lastUpdateDate: Date)
 
-        /// Failure to update address cache.
-        case failure(Error)
-
         /// Address cache is successfully updated.
-        case success
-
-        var isTaskCompleted: Bool {
-            switch self {
-            case .cancelled, .failure:
-                return false
-            case .success, .throttled:
-                return true
-            }
-        }
+        case finished
     }
 
-    class UpdateAddressCacheOperation: AsyncOperation {
-        typealias CompletionHandler = (_ result: CacheUpdateResult) -> Void
-
+    class UpdateAddressCacheOperation: ResultOperation<CacheUpdateResult, Error> {
         private let queue: DispatchQueue
         private let restClient: REST.Client
         private let store: AddressCache.Store
         private let updateInterval: TimeInterval
 
-        private var completionHandler: CompletionHandler?
-        private var restCancellationHandle: Cancellable?
+        private var requestTask: Cancellable?
 
         init(queue: DispatchQueue, restClient: REST.Client, store: AddressCache.Store, updateInterval: TimeInterval, completionHandler: CompletionHandler?) {
             self.queue = queue
             self.restClient = restClient
             self.store = store
             self.updateInterval = updateInterval
-            self.completionHandler = completionHandler
-        }
 
-        override func cancel() {
-            queue.async {
-                super.cancel()
-                self.restCancellationHandle?.cancel()
-            }
+            super.init(completionQueue: queue, completionHandler: completionHandler)
         }
 
         override func main() {
@@ -65,9 +41,18 @@ extension AddressCache {
             }
         }
 
+        override func cancel() {
+            super.cancel()
+
+            queue.async {
+                self.requestTask?.cancel()
+                self.requestTask = nil
+            }
+        }
+
         private func startUpdate() {
             guard !isCancelled else {
-                completeOperation(with: .cancelled)
+                finish(completion: .cancelled)
                 return
             }
 
@@ -75,40 +60,49 @@ extension AddressCache {
             let nextUpdate = Date(timeInterval: updateInterval, since: lastUpdate)
 
             guard nextUpdate <= Date() else {
-                completeOperation(with: .throttled(lastUpdate))
+                finish(completion: .success(.throttled(lastUpdate)))
                 return
             }
 
-            restCancellationHandle = restClient.getAddressList(retryStrategy: .default) { restResult in
-                    self.queue.async {
-                        switch restResult {
-                        case .success(let newEndpoints):
-                            self.store.setEndpoints(newEndpoints) { error in
-                                self.queue.async {
-                                    if let error = error {
-                                        self.completeOperation(with: .failure(error))
-                                    } else {
-                                        self.completeOperation(with: .success)
-                                    }
-                                }
-                            }
-
-                        case .failure(let error):
-                            if case URLError.cancelled = error {
-                                self.completeOperation(with: .cancelled)
-                            } else {
-                                self.completeOperation(with: .failure(error))
-                            }
-                        }
-                    }
+            requestTask = restClient.getAddressList(retryStrategy: .default) { completion in
+                self.queue.async {
+                    self.handleResponse(completion)
                 }
+            }
         }
 
-        private func completeOperation(with result: CacheUpdateResult) {
-            completionHandler?(result)
-            completionHandler = nil
+        private func handleResponse(_ completion: OperationCompletion<[AnyIPEndpoint], REST.Error>) {
+            switch completion {
+            case .success(let newEndpoints):
+                self.store.setEndpoints(newEndpoints) { error in
+                    if let error = error {
+                        self.finish(completion: .failure(error))
+                    } else {
+                        self.finish(completion: .success(.finished))
+                    }
+                }
 
-            finish()
+            case .failure(let error):
+                if case URLError.cancelled = error {
+                    self.finish(completion: .cancelled)
+                } else {
+                    self.finish(completion: .failure(error))
+                }
+
+            case .cancelled:
+                self.finish(completion: .cancelled)
+            }
+        }
+    }
+}
+
+extension OperationCompletion where Success == AddressCache.CacheUpdateResult {
+    var isTaskCompleted: Bool {
+        switch self {
+        case .success:
+            return true
+        case .cancelled, .failure:
+            return false
         }
     }
 }

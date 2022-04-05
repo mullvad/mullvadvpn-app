@@ -9,9 +9,7 @@
 import Foundation
 import Logging
 
-class ReplaceKeyOperation: AsyncOperation {
-    typealias CompletionHandler = (OperationCompletion<TunnelManager.KeyRotationResult, TunnelManager.Error>) -> Void
-
+class ReplaceKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, TunnelManager.Error> {
     private let queue: DispatchQueue
     private let state: TunnelManager.State
 
@@ -77,16 +75,13 @@ class ReplaceKeyOperation: AsyncOperation {
         self.restClient = restClient
         self.rotationInterval = rotationInterval
 
-        self.completionHandler = completionHandler
+        super.init(completionQueue: queue, completionHandler: completionHandler)
     }
 
     override func main() {
         queue.async {
             self.execute { completion in
-                self.completionHandler?(completion)
-                self.completionHandler = nil
-
-                self.finish()
+                self.finish(completion: completion)
             }
         }
     }
@@ -163,10 +158,10 @@ class ReplaceKeyOperation: AsyncOperation {
             oldPublicKey: oldPublicKey,
             newPublicKey: newPrivateKey.publicKey,
             retryStrategy: .default
-        ) { result in
+        ) { completion in
             self.queue.async {
                 self.didReceiveResponse(
-                    result: result,
+                    completion: completion,
                     accountToken: tunnelInfo.token,
                     newPrivateKey: newPrivateKey,
                     completionHandler: completionHandler
@@ -175,8 +170,8 @@ class ReplaceKeyOperation: AsyncOperation {
         }
     }
 
-    private func didReceiveResponse(result: Result<REST.WireguardAddressesResponse, REST.Error>, accountToken: String, newPrivateKey: PrivateKeyWithMetadata, completionHandler: @escaping CompletionHandler) {
-        switch result {
+    private func didReceiveResponse(completion: OperationCompletion<REST.WireguardAddressesResponse, REST.Error>, accountToken: String, newPrivateKey: PrivateKeyWithMetadata, completionHandler: @escaping CompletionHandler) {
+        switch completion {
         case .success(let associatedAddresses):
             logger.debug("Replaced old key with new key on server.")
 
@@ -208,6 +203,11 @@ class ReplaceKeyOperation: AsyncOperation {
             logger.error(chainedError: restError, message: "Failed to replace old key with new key on server.")
 
             completionHandler(.failure(.replaceWireguardKey(restError)))
+
+        case .cancelled:
+            logger.debug("Cancelled replace key request.")
+
+            completionHandler(.cancelled)
         }
     }
 }

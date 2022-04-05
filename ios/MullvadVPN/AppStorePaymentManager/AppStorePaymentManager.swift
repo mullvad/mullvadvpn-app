@@ -133,6 +133,17 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                         didFailWithError: .validateAccount(error)
                     )
                 }
+
+            case .cancelled:
+                self.observerList.forEach { observer in
+                    observer.appStorePaymentManager(
+                        self,
+                        transaction: nil,
+                        payment: payment,
+                        accountToken: accountToken,
+                        didFailWithError: .validateAccount(.network(URLError(.cancelled)))
+                    )
+                }
             }
 
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
@@ -283,81 +294,4 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
     }
 
-}
-
-private class SendAppStoreReceiptOperation: AsyncOperation {
-    typealias CompletionHandler = (OperationCompletion<REST.CreateApplePaymentResponse, AppStorePaymentManager.Error>) -> Void
-
-    private let restClient: REST.Client
-    private let accountToken: String
-    private let forceRefresh: Bool
-    private let receiptProperties: [String: Any]?
-    private var completionHandler: CompletionHandler?
-    private var fetchReceiptCancellable: Cancellable?
-    private var submitReceiptCancellable: Cancellable?
-
-    private let logger = Logger(label: "AppStorePaymentManager.SendAppStoreReceiptOperation")
-
-    init(restClient: REST.Client, accountToken: String, forceRefresh: Bool, receiptProperties: [String: Any]?, completionHandler: @escaping CompletionHandler) {
-        self.restClient = restClient
-        self.accountToken = accountToken
-        self.forceRefresh = forceRefresh
-        self.receiptProperties = receiptProperties
-        self.completionHandler = completionHandler
-    }
-
-    override func cancel() {
-        super.cancel()
-
-        DispatchQueue.main.async {
-            self.fetchReceiptCancellable?.cancel()
-            self.fetchReceiptCancellable = nil
-
-            self.submitReceiptCancellable?.cancel()
-            self.submitReceiptCancellable = nil
-        }
-    }
-
-    override func main() {
-        DispatchQueue.main.async {
-            self.fetchReceiptCancellable = AppStoreReceipt.fetch(forceRefresh: self.forceRefresh, receiptProperties: self.receiptProperties) { completion in
-                switch completion {
-                case .success(let receiptData):
-                    self.sendReceipt(receiptData)
-
-                case .failure(let error):
-                    self.logger.error(chainedError: error, message: "Failed to fetch the AppStore receipt.")
-                    self.finish(completion: .failure(.readReceipt(error)))
-
-                case .cancelled:
-                    self.finish(completion: .cancelled)
-                }
-            }
-        }
-    }
-
-    private func sendReceipt(_ receiptData: Data) {
-        submitReceiptCancellable = restClient.createApplePayment(
-            token: self.accountToken,
-            receiptString: receiptData,
-            retryStrategy: .noRetry) { result in
-                switch result {
-                case .success(let response):
-                    self.logger.info("AppStore receipt was processed. Time added: \(response.timeAdded), New expiry: \(response.newExpiry.logFormatDate())")
-                    self.finish(completion: .success(response))
-
-                case .failure(let error):
-                    self.logger.error(chainedError: error, message: "Failed to send the AppStore receipt.")
-                    self.finish(completion: .failure(.sendReceipt(error)))
-                }
-            }
-    }
-
-    private func finish(completion: OperationCompletion<REST.CreateApplePaymentResponse, AppStorePaymentManager.Error>) {
-        let block = completionHandler
-        completionHandler = nil
-
-        block?(completion)
-        finish()
-    }
 }
