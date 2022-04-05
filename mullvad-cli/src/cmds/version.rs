@@ -20,27 +20,33 @@ impl Command for Version {
             .await
             .map_err(|error| Error::RpcFailedExt("Failed to obtain current version", error))?
             .into_inner();
-        println!("Current version: {}", current_version);
+        println!("{:21}: {}", "Current version", current_version);
         let version_info = rpc
             .get_version_info(())
             .await
             .map_err(|error| Error::RpcFailedExt("Failed to obtain version info", error))?
             .into_inner();
-        println!("\tIs supported: {}", version_info.supported);
+        println!("{:21}: {}", "Is supported", version_info.supported);
 
         if !version_info.suggested_upgrade.is_empty() {
-            println!("\tSuggested update: {}", version_info.suggested_upgrade);
+            println!(
+                "{:21}: {}",
+                "Suggested upgrade", version_info.suggested_upgrade
+            );
         } else {
-            println!("\tNo newer version is available");
+            println!("{:21}: none", "Suggested upgrade");
         }
 
         if !version_info.latest_stable.is_empty() {
-            println!("\tLatest stable version: {}", version_info.latest_stable);
+            println!(
+                "{:21}: {}",
+                "Latest stable version", version_info.latest_stable
+            );
         }
 
         let settings = rpc.get_settings(()).await?.into_inner();
         if settings.show_beta_releases {
-            println!("\tLatest beta version: {}", version_info.latest_beta);
+            println!("{:21}: {}", "Latest beta version", version_info.latest_beta);
         };
 
         Ok(())
