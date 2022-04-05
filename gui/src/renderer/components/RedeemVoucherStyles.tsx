@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import { normalText, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';

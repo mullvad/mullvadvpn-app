@@ -1,6 +1,6 @@
 import { hasExpired } from '../account-expiry';
 import { AuthFailureKind, parseAuthFailure } from '../auth-failure';
-import { IErrorState, TunnelState, TunnelParameterError } from '../daemon-rpc-types';
+import { IErrorState, TunnelParameterError, TunnelState } from '../daemon-rpc-types';
 import { messages } from '../gettext';
 import {
   InAppNotification,

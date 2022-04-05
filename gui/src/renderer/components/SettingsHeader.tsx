@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import { hugeText, tinyText } from './common-styles';
 

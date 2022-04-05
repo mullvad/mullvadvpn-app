@@ -1,5 +1,5 @@
-import { RelaySettingsRedux } from '../redux/settings/reducers';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
+import { RelaySettingsRedux } from '../redux/settings/reducers';
 
 export function createWireguardRelayUpdater(
   relaySettings: RelaySettingsRedux,

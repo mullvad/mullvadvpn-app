@@ -1,11 +1,15 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
+
 import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { formatMarkdown } from '../markdown-formatter';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
+import Selector, { ISelectorItem } from './cell/Selector';
+import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import {
@@ -15,10 +19,7 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
-import Selector, { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import { formatMarkdown } from '../markdown-formatter';
-import { BackAction } from './KeyboardNavigation';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;

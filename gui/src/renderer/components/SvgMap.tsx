@@ -4,9 +4,8 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
 
 import geographyData from '../../../assets/geo/geometry.json';
-import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines.json';
-
 import geometryTreeData from '../../../assets/geo/geometry.rbush.json';
+import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines.json';
 import statesProvincesLinesTreeData from '../../../assets/geo/states-provinces-lines.rbush.json';
 
 interface IGeometryLeaf extends rbush.BBox {

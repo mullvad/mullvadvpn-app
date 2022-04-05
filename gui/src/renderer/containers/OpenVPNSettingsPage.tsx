@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
+
 import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import OpenVPNSettings, { BridgeModeAvailability } from '../components/OpenVPNSettings';
-
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
 import { RelaySettingsRedux } from '../redux/settings/reducers';

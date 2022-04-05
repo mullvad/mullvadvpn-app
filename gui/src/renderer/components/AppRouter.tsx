@@ -1,12 +1,7 @@
 import { Action } from 'history';
 import * as React from 'react';
 import { Route, Switch } from 'react-router';
-import Launch from './Launch';
-import KeyboardNavigation from './KeyboardNavigation';
-import MainView from './MainView';
-import Focus, { IFocusHandle } from './Focus';
-import SplitTunnelingSettings from './SplitTunnelingSettings';
-import TransitionContainer, { TransitionView } from './TransitionContainer';
+
 import AccountPage from '../containers/AccountPage';
 import AdvancedSettingsPage from '../containers/AdvancedSettingsPage';
 import LoginPage from '../containers/LoginPage';
@@ -18,16 +13,22 @@ import SettingsPage from '../containers/SettingsPage';
 import SupportPage from '../containers/SupportPage';
 import WireguardSettingsPage from '../containers/WireguardSettingsPage';
 import { IHistoryProps, ITransitionSpecification, transitions, withHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
+import { DeviceRevokedView } from './DeviceRevokedView';
 import {
   SetupFinished,
   TimeAdded,
   VoucherInput,
   VoucherVerificationSuccess,
 } from './ExpiredAccountAddTime';
-import { RoutePath } from '../lib/routes';
 import FilterByProvider from './FilterByProvider';
+import Focus, { IFocusHandle } from './Focus';
+import KeyboardNavigation from './KeyboardNavigation';
+import Launch from './Launch';
+import MainView from './MainView';
+import SplitTunnelingSettings from './SplitTunnelingSettings';
 import TooManyDevices from './TooManyDevices';
-import { DeviceRevokedView } from './DeviceRevokedView';
+import TransitionContainer, { TransitionView } from './TransitionContainer';
 
 interface IAppRoutesState {
   currentLocation: IHistoryProps['history']['location'];

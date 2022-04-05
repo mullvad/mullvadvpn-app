@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
 import { ITransitionSpecification } from '../lib/history';
 
 interface ITransitioningViewProps {

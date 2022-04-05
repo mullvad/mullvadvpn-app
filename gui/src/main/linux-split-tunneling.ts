@@ -1,17 +1,18 @@
 import argvSplit from 'argv-split';
 import child_process from 'child_process';
 import path from 'path';
+
 import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
 import { messages } from '../shared/gettext';
 import { LaunchApplicationResult } from '../shared/ipc-schema';
 import { Scheduler } from '../shared/scheduler';
 import {
-  getDesktopEntries,
-  readDesktopEntry,
-  findIconPath,
-  getImageDataUrl,
-  shouldShowApplication,
   DesktopEntry,
+  findIconPath,
+  getDesktopEntries,
+  getImageDataUrl,
+  readDesktopEntry,
+  shouldShowApplication,
 } from './linux-desktop-entry';
 
 const PROBLEMATIC_APPLICATIONS = {

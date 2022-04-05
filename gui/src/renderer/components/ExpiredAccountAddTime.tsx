@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
-import { useSelector } from '../redux/store';
+import { useParams } from 'react-router';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
-import { links, colors } from '../../config.json';
+
+import { colors, links } from '../../config.json';
 import { formatDate } from '../../shared/account-expiry';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
@@ -11,6 +12,7 @@ import useActions from '../lib/actionsHook';
 import { transitions, useHistory } from '../lib/history';
 import { generateRoutePath, RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
+import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { hugeText, tinyText } from './common-styles';
@@ -24,7 +26,6 @@ import {
   RedeemVoucherResponse,
   RedeemVoucherSubmitButton,
 } from './RedeemVoucher';
-import { useParams } from 'react-router';
 
 export const StyledHeader = styled(DefaultHeaderBar)({
   flex: 0,

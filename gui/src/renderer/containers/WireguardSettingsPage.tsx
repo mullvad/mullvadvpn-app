@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
+
 import { IpVersion } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import WireguardSettings from '../components/WireguardSettings';
-
 import withAppContext, { IAppContext } from '../context';
 import { createWireguardRelayUpdater } from '../lib/constraint-updater';
 import { IHistoryProps, withHistory } from '../lib/history';

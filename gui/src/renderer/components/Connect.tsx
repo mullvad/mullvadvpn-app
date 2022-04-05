@@ -1,8 +1,9 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
 import { hasExpired } from '../../shared/account-expiry';
-import NotificationArea from '../components/NotificationArea';
 import { AuthFailureKind, parseAuthFailure } from '../../shared/auth-failure';
+import NotificationArea from '../components/NotificationArea';
 import { LoginState } from '../redux/account/reducers';
 import { IConnectionReduxState } from '../redux/connection/reducers';
 import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';

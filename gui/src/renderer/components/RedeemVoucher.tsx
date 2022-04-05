@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState } from 'react';
-import { useSelector } from '../redux/store';
 import { sprintf } from 'sprintf-js';
+
 import { formatDate } from '../../shared/account-expiry';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { formatRelativeDate } from '../../shared/date-helper';
@@ -8,6 +8,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import accountActions from '../redux/account/actions';
+import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { ModalAlert } from './Modal';

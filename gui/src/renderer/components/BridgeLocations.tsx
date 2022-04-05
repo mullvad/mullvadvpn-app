@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';

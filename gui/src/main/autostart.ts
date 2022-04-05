@@ -1,6 +1,7 @@
 import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
+
 import log from '../shared/logging';
 import { getDesktopEntries } from './linux-desktop-entry';
 

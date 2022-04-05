@@ -1,6 +1,7 @@
 import styled from 'styled-components';
-import { NavigationScrollbars } from './NavigationBar';
+
 import Selector from './cell/Selector';
+import { NavigationScrollbars } from './NavigationBar';
 
 export const StyledSelectorContainer = styled.div({
   flex: 0,

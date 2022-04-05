@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+
 import { IDnsOptions } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import Preferences from '../components/Preferences';

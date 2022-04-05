@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import SvgMap from './SvgMap';
 
 // Higher zoom level is more zoomed in

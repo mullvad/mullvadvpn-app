@@ -1,4 +1,4 @@
-import { DateComponent, DateType, formatRelativeDate, dateByAddingComponent } from './date-helper';
+import { dateByAddingComponent, DateComponent, DateType, formatRelativeDate } from './date-helper';
 import { capitalize } from './string-helpers';
 
 export function hasExpired(expiry: DateType): boolean {

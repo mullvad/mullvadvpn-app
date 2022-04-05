@@ -2,29 +2,7 @@ import { batch, Provider } from 'react-redux';
 import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
 
-import AppRouter from './components/AppRouter';
-import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
-import ErrorBoundary from './components/ErrorBoundary';
-import PlatformWindowContainer from './containers/PlatformWindowContainer';
-import { AppContext } from './context';
-
-import accountActions from './redux/account/actions';
-import connectionActions from './redux/connection/actions';
-import settingsActions from './redux/settings/actions';
-import configureStore from './redux/store';
-import userInterfaceActions from './redux/userinterface/actions';
-import versionActions from './redux/version/actions';
-
-import { IChangelog, ICurrentAppVersionInfo } from '../shared/ipc-types';
-import { IWindowsApplication, ILinuxSplitTunnelingApplication } from '../shared/application-types';
-import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
-import { messages, relayLocations } from '../shared/gettext';
-import log, { ConsoleOutput } from '../shared/logging';
-import { IRelayListPair, LaunchApplicationResult } from '../shared/ipc-schema';
-import { Scheduler } from '../shared/scheduler';
-import History, { ITransitionSpecification, transitions } from './lib/history';
-import { loadTranslations } from './lib/load-translations';
-
+import { ILinuxSplitTunnelingApplication, IWindowsApplication } from '../shared/application-types';
 import {
   AccountToken,
   BridgeSettings,
@@ -33,6 +11,7 @@ import {
   IAppVersionInfo,
   IDevice,
   IDeviceConfig,
+  IDeviceEvent,
   IDeviceRemoval,
   IDnsOptions,
   ILocation,
@@ -42,13 +21,31 @@ import {
   RelaySettingsUpdate,
   TunnelState,
   VoucherResponse,
-  IDeviceEvent,
 } from '../shared/daemon-rpc-types';
+import { messages, relayLocations } from '../shared/gettext';
+import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
+import { IRelayListPair, LaunchApplicationResult } from '../shared/ipc-schema';
+import { IChangelog, ICurrentAppVersionInfo } from '../shared/ipc-types';
+import log, { ConsoleOutput } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
+import { Scheduler } from '../shared/scheduler';
+import AppRouter from './components/AppRouter';
+import { Changelog } from './components/Changelog';
+import ErrorBoundary from './components/ErrorBoundary';
+import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
+import { ModalContainer } from './components/Modal';
+import PlatformWindowContainer from './containers/PlatformWindowContainer';
+import { AppContext } from './context';
+import History, { ITransitionSpecification, transitions } from './lib/history';
+import { loadTranslations } from './lib/load-translations';
 import IpcOutput from './lib/logging';
 import { RoutePath } from './lib/routes';
-import { Changelog } from './components/Changelog';
-import { ModalContainer } from './components/Modal';
+import accountActions from './redux/account/actions';
+import connectionActions from './redux/connection/actions';
+import settingsActions from './redux/settings/actions';
+import configureStore from './redux/store';
+import userInterfaceActions from './redux/userinterface/actions';
+import versionActions from './redux/version/actions';
 
 const IpcRendererEventChannel = window.ipc;
 

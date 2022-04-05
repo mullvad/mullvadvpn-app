@@ -2,8 +2,8 @@ import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import {
   InAppNotification,
-  SystemNotification,
   InAppNotificationProvider,
+  SystemNotification,
   SystemNotificationProvider,
 } from './notification';
 

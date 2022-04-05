@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+
 import { supportEmail } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';

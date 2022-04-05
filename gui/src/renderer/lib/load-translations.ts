@@ -1,5 +1,6 @@
 import { GetTextTranslations } from 'gettext-parser';
 import Gettext from 'node-gettext';
+
 import log from '../../shared/logging';
 
 const SOURCE_LANGUAGE = 'en';

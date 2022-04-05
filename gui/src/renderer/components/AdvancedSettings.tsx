@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import {
@@ -9,14 +10,14 @@ import {
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
+import { ISelectorItem } from './cell/Selector';
 import CustomDnsSettings from './CustomDnsSettings';
+import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
-import { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import Switch from './Switch';
-import { BackAction } from './KeyboardNavigation';
 
 type OptionalTunnelProtocol = TunnelProtocol | undefined;
 

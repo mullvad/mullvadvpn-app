@@ -2,6 +2,7 @@ import fs from 'fs';
 import { GetTextTranslations, po } from 'gettext-parser';
 import Gettext from 'node-gettext';
 import path from 'path';
+
 import log from '../shared/logging';
 
 const SOURCE_LANGUAGE = 'en';

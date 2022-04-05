@@ -1,10 +1,13 @@
 import * as React from 'react';
+
 import { colors, links } from '../../config.json';
-import { hasExpired, formatRemainingTime } from '../../shared/account-expiry';
+import { formatRemainingTime, hasExpired } from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
 import History from '../lib/history';
+import { LoginState } from '../redux/account/reducers';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './cell';
+import { BackAction } from './KeyboardNavigation';
 import { Layout } from './Layout';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
@@ -18,9 +21,6 @@ import {
   StyledQuitButton,
   StyledSettingsContent,
 } from './SettingsStyles';
-
-import { LoginState } from '../redux/account/reducers';
-import { BackAction } from './KeyboardNavigation';
 
 export interface IProps {
   preferredLocaleDisplayName: string;

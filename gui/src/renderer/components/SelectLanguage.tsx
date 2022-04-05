@@ -1,9 +1,12 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { AriaInputGroup } from './AriaGroup';
+import Selector, { ISelectorItem } from './cell/Selector';
 import { CustomScrollbarsRef } from './CustomScrollbars';
+import { BackAction } from './KeyboardNavigation';
 import { Container, Layout } from './Layout';
 import {
   NavigationBar,
@@ -12,9 +15,7 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
-import Selector, { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import { BackAction } from './KeyboardNavigation';
 
 interface IProps {
   preferredLocale: string;

@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useLayoutEffect, useRef } from 'react';
+
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import useActions from '../lib/actionsHook';
@@ -12,8 +13,8 @@ import {
   StyledBackBarItemButton,
   StyledBackBarItemIcon,
   StyledNavigationBar,
-  StyledNavigationItems,
   StyledNavigationBarSeparator,
+  StyledNavigationItems,
   StyledTitleBarItemLabel,
 } from './NavigationBarStyles';
 

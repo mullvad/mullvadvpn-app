@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 import { buttonText } from './common-styles';
 
 export const StyledLabel = styled.span(buttonText, (props: { textOffset: number }) => ({

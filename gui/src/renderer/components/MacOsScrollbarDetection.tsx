@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import useActions from '../lib/actionsHook';
-import userInterface from '../redux/userinterface/actions';
-import { useSelector } from '../redux/store';
+
 import { MacOsScrollbarVisibility } from '../../shared/ipc-schema';
+import useActions from '../lib/actionsHook';
+import { useSelector } from '../redux/store';
+import userInterface from '../redux/userinterface/actions';
 
 const StyledContainer = styled.div({
   position: 'absolute',

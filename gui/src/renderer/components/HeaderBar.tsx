@@ -1,14 +1,15 @@
 import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
 import { IReduxState } from '../redux/store';
 import { FocusFallback } from './Focus';
 import ImageView from './ImageView';
-import { RoutePath } from '../lib/routes';
 
 export enum HeaderBarStyle {
   default = 'default',

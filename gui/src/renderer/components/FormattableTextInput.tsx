@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
+
 import { useCombinedRefs } from '../lib/utilityHooks';
 
 interface IFormattableTextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {

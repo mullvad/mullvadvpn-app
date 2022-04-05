@@ -1,12 +1,13 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+
 import { colors } from '../../../config.json';
-import { normalText } from '../common-styles';
-import { CellDisabledContext, Container } from './Container';
-import StandaloneSwitch from '../Switch';
-import ImageView from '../ImageView';
 import { useBoolean } from '../../lib/utilityHooks';
+import { normalText } from '../common-styles';
+import ImageView from '../ImageView';
 import { BackAction } from '../KeyboardNavigation';
+import StandaloneSwitch from '../Switch';
+import { CellDisabledContext, Container } from './Container';
 
 export const Switch = React.forwardRef(function SwitchT(
   props: StandaloneSwitch['props'],

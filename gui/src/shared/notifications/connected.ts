@@ -1,4 +1,5 @@
 import { sprintf } from 'sprintf-js';
+
 import { messages } from '../../shared/gettext';
 import { TunnelState } from '../daemon-rpc-types';
 import { SystemNotificationProvider } from './notification';

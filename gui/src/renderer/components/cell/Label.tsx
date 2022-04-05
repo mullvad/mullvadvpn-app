@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
+
 import { colors } from '../../../config.json';
 import { buttonText, tinyText } from '../common-styles';
 import ImageView, { IImageViewProps } from '../ImageView';

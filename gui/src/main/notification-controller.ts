@@ -1,6 +1,7 @@
-import { app, nativeImage, NativeImage, Notification } from 'electron';
+import { app, NativeImage, nativeImage, Notification } from 'electron';
 import os from 'os';
 import path from 'path';
+
 import { TunnelState } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
 import {

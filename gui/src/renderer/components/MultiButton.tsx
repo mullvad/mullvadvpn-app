@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+
 import * as AppButton from './AppButton';
 
 const SIDE_BUTTON_WIDTH = 50;

@@ -1,13 +1,13 @@
 import { IWindowsApplication } from '../../../shared/application-types';
 import {
   BridgeState,
+  IDnsOptions,
+  IpVersion,
   LiftedConstraint,
   ProxySettings,
   RelayLocation,
   RelayProtocol,
   TunnelProtocol,
-  IDnsOptions,
-  IpVersion,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { ReduxAction } from '../store';

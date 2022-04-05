@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+
 import SelectLanguage from '../components/SelectLanguage';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';

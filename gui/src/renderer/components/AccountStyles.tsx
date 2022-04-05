@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import { normalText, tinyText } from './common-styles';

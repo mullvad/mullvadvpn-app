@@ -1,11 +1,14 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
+
 import { IpVersion } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
+import Selector, { ISelectorItem } from './cell/Selector';
+import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import {
@@ -15,10 +18,8 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
-import Selector, { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import Switch from './Switch';
-import { BackAction } from './KeyboardNavigation';
 
 const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;

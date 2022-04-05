@@ -1,4 +1,4 @@
-import { AccountToken, IDeviceConfig, IDevice } from '../../../shared/daemon-rpc-types';
+import { AccountToken, IDevice, IDeviceConfig } from '../../../shared/daemon-rpc-types';
 
 interface IStartLoginAction {
   type: 'START_LOGIN';

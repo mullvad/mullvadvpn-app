@@ -1,34 +1,35 @@
 import { app, shell } from 'electron';
 import fs from 'fs';
 import path from 'path';
+
 import { IWindowsApplication } from '../shared/application-types';
 import log from '../shared/logging';
 import {
   ArrayValue,
   DOS_HEADER,
+  DWORD,
   IMAGE_DATA_DIRECTORY,
   IMAGE_DIRECTORY_ENTRY_IMPORT,
+  IMAGE_DIRECTORY_ENTRY_RESOURCE,
   IMAGE_FILE_HEADER,
   IMAGE_IMPORT_MODULE_DIRECTORY,
   IMAGE_NT_HEADERS,
   IMAGE_NT_HEADERS64,
-  ImageNtHeadersUnion,
   IMAGE_OPTIONAL_HEADER32,
+  IMAGE_RESOURCE_DIRECTORY,
+  IMAGE_RESOURCE_DIRECTORY_DATA_ENTRY,
+  IMAGE_RESOURCE_DIRECTORY_ID_ENTRY,
+  ImageNtHeadersUnion,
   ImageOptionalHeaderUnion,
   PrimitiveValue,
   rvaToOffset as rvaToOffsetImpl,
-  StructValue,
-  Value,
-  DWORD,
-  IMAGE_DIRECTORY_ENTRY_RESOURCE,
-  IMAGE_RESOURCE_DIRECTORY,
-  IMAGE_RESOURCE_DIRECTORY_DATA_ENTRY,
-  VS_VERSIONINFO,
   STRING_FILE_INFO,
   STRING_TABLE,
-  StructWrapper,
   STRING_TABLE_STRING,
-  IMAGE_RESOURCE_DIRECTORY_ID_ENTRY,
+  StructValue,
+  StructWrapper,
+  Value,
+  VS_VERSIONINFO,
 } from './windows-pe-parser';
 
 interface ShortcutDetails {

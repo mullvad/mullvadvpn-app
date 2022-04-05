@@ -1,11 +1,11 @@
 import { connect } from 'react-redux';
+
 import log from '../../shared/logging';
 import ExpiredAccountErrorView from '../components/ExpiredAccountErrorView';
-import { IHistoryProps, withHistory } from '../lib/history';
-
 import withAppContext, { IAppContext } from '../context';
-import { IReduxState, ReduxDispatch } from '../redux/store';
+import { IHistoryProps, withHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
+import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => ({
   accountToken: state.account.accountToken,

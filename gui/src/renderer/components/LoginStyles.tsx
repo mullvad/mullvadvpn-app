@@ -1,9 +1,10 @@
 import styled from 'styled-components';
+
 import { colors } from '../../config.json';
-import ImageView from './ImageView';
 import * as Cell from './cell';
 import { hugeText, largeText, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
+import ImageView from './ImageView';
 
 export const StyledAccountDropdownContainer = styled.ul({
   display: 'flex',
