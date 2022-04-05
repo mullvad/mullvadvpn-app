@@ -1,0 +1,14 @@
+# file options
+--exclude Build, .spm, MullvadVPNScreenshots/SnapshotHelper.swift
+
+# general options
+--swiftversion 5.5
+
+# format options
+--indent 4
+--maxwidth 100
+--wraparguments before-first
+--wrapcollections before-first
+--wrapternary before-operators
+--redundanttype inferred
+--disable initCoderUnavailable, redundantReturn, unusedArguments, redundantRawValues, preferKeyPath
