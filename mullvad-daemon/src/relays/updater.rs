@@ -10,7 +10,7 @@ use parking_lot::Mutex;
 use std::{
     path::{Path, PathBuf},
     sync::Arc,
-    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 use talpid_core::future_retry::{retry_future, ExponentialBackoff, Jittered};
 use talpid_types::ErrorExt;
@@ -74,16 +74,13 @@ impl RelayListUpdater {
     }
 
     async fn run(mut self, mut cmd_rx: mpsc::Receiver<()>) {
-        let mut check_interval = tokio::time::interval_at(
-            (Instant::now() + UPDATE_CHECK_INTERVAL).into(),
-            UPDATE_CHECK_INTERVAL,
-        );
-        check_interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
-        let mut ticker = tokio_stream::wrappers::IntervalStream::new(check_interval).fuse();
         let mut download_future = Box::pin(Fuse::terminated());
         loop {
+            let next_check = tokio::time::sleep(UPDATE_CHECK_INTERVAL).fuse();
+            tokio::pin!(next_check);
+
             futures::select! {
-                _check_update = ticker.select_next_some() => {
+                _check_update = next_check => {
                     if download_future.is_terminated() && self.should_update() {
                         let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
                         download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
