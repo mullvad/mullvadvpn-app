@@ -15,7 +15,6 @@ pub mod logging;
 #[cfg(not(target_os = "android"))]
 pub mod management_interface;
 mod migrations;
-mod relays;
 #[cfg(not(target_os = "android"))]
 pub mod rpc_uniqueness_check;
 pub mod runtime;
@@ -35,6 +34,7 @@ use mullvad_api::{
     availability::ApiAvailabilityHandle,
     proxy::{ApiConnectionMode, ProxyConfig},
 };
+use mullvad_relay_selector::{RelaySelector, RelaySelectorResult};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     device::{Device, DeviceConfig, DeviceData, DeviceEvent, DeviceId, RemoveDeviceEvent},
@@ -592,7 +592,7 @@ pub struct Daemon<L: EventListener> {
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
-    relay_selector: relays::RelaySelector,
+    relay_selector: RelaySelector,
     last_generated_relays: Option<LastSelectedRelays>,
     app_version_info: Option<AppVersionInfo>,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
@@ -754,7 +754,7 @@ where
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
 
-        let relay_selector = relays::RelaySelector::new(
+        let relay_selector = RelaySelector::new(
             api_handle.clone(),
             on_relay_list_update,
             &resource_dir,
@@ -1053,7 +1053,7 @@ where
                             retry_attempt,
                         )
                         .ok();
-                    if let Some(relays::RelaySelectorResult {
+                    if let Some(RelaySelectorResult {
                         exit_relay,
                         entry_relay,
                         endpoint,
