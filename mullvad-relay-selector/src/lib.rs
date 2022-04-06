@@ -3,7 +3,6 @@
 
 use chrono::{DateTime, Local};
 use ipnetwork::IpNetwork;
-use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle};
 use mullvad_types::{
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     location::{Coordinates, Location},
@@ -31,13 +30,10 @@ use talpid_types::{
     ErrorExt,
 };
 
-use self::{
-    matcher::{RelayMatcher, TunnelMatcher, WireguardMatcher},
-    updater::{RelayListUpdater, RelayListUpdaterHandle},
-};
+use self::matcher::{RelayMatcher, TunnelMatcher, WireguardMatcher};
 
 mod matcher;
-mod updater;
+pub mod updater;
 
 const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
 const RELAYS_FILENAME: &str = "relays.json";
@@ -205,21 +201,14 @@ impl ParsedRelays {
     }
 }
 
+#[derive(Clone)]
 pub struct RelaySelector {
     parsed_relays: Arc<Mutex<ParsedRelays>>,
-    updater: Option<RelayListUpdaterHandle>,
 }
 
 impl RelaySelector {
-    /// Returns a new `RelaySelector` backed by relays cached on disk. Use the `update` method
-    /// to refresh the relay list from the internet.
-    pub fn new(
-        api_handle: MullvadRestHandle,
-        on_update: impl Fn(&RelayList) + Send + 'static,
-        resource_dir: &Path,
-        cache_dir: &Path,
-        api_availability: ApiAvailabilityHandle,
-    ) -> Self {
+    /// Returns a new `RelaySelector` backed by relays cached on disk.
+    pub fn new(resource_dir: &Path, cache_dir: &Path) -> Self {
         let cache_path = cache_dir.join(RELAYS_FILENAME);
         let resource_path = resource_dir.join(RELAYS_FILENAME);
         let unsynchronized_parsed_relays = Self::read_relays_from_disk(&cache_path, &resource_path)
@@ -238,32 +227,7 @@ impl RelaySelector {
         );
         let parsed_relays = Arc::new(Mutex::new(unsynchronized_parsed_relays));
 
-        let updater = RelayListUpdater::new(
-            api_handle,
-            cache_path,
-            parsed_relays.clone(),
-            Box::new(on_update),
-            api_availability,
-        );
-
-        RelaySelector {
-            parsed_relays,
-            updater: Some(updater),
-        }
-    }
-
-    /// Download the newest relay list.
-    pub async fn update(&self) {
-        if let Some(mut updater) = self.updater.clone() {
-            if let Err(err) = updater.update_relay_list().await {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg(
-                        "Unable to send update command to relay list updater"
-                    )
-                );
-            }
-        }
+        RelaySelector { parsed_relays }
     }
 
     /// Returns all countries and cities. The cities in the object returned does not have any
@@ -1237,7 +1201,6 @@ mod test {
                 RELAYS.clone(),
                 SystemTime::now(),
             ))),
-            updater: None,
         }
     }
 
