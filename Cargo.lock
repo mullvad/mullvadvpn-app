@@ -1713,6 +1713,7 @@ dependencies = [
  "mullvad-api",
  "mullvad-management-interface",
  "mullvad-paths",
+ "mullvad-relay-selector",
  "mullvad-types",
  "nix 0.23.1",
  "parking_lot 0.11.2",
@@ -1815,6 +1816,28 @@ dependencies = [
  "uuid",
  "winapi 0.3.9",
  "winres",
+]
+
+[[package]]
+name = "mullvad-relay-selector"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "err-derive",
+ "futures",
+ "ipnetwork",
+ "lazy_static",
+ "log",
+ "mullvad-api",
+ "mullvad-types",
+ "parking_lot 0.11.2",
+ "rand 0.7.3",
+ "serde",
+ "serde_json",
+ "talpid-core",
+ "talpid-types",
+ "tokio",
+ "tokio-stream",
 ]
 
 [[package]]

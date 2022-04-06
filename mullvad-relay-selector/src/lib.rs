@@ -31,11 +31,9 @@ use talpid_types::{
     ErrorExt,
 };
 
-use crate::relays::updater::RelayListUpdater;
-
 use self::{
     matcher::{RelayMatcher, TunnelMatcher, WireguardMatcher},
-    updater::RelayListUpdaterHandle,
+    updater::{RelayListUpdater, RelayListUpdaterHandle},
 };
 
 mod matcher;
