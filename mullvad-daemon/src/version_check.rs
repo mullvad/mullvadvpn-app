@@ -14,7 +14,7 @@ use std::{
     future::Future,
     io,
     path::{Path, PathBuf},
-    time::{Duration, Instant},
+    time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
@@ -103,7 +103,7 @@ pub(crate) struct VersionUpdater {
     update_sender: DaemonEventSender<AppVersionInfo>,
     last_app_version_info: Option<AppVersionInfo>,
     platform_version: String,
-    next_update_time: Instant,
+    previous_update: SystemTime,
     show_beta_releases: bool,
     rx: Option<mpsc::Receiver<VersionUpdaterCommand>>,
     availability_handle: ApiAvailabilityHandle,
@@ -171,7 +171,7 @@ impl VersionUpdater {
                 update_sender,
                 last_app_version_info,
                 platform_version,
-                next_update_time: Instant::now(),
+                previous_update: std::time::UNIX_EPOCH,
                 show_beta_releases,
                 rx: Some(rx),
                 availability_handle,
@@ -401,7 +401,11 @@ impl VersionUpdater {
                         continue;
                     }
 
-                    if Instant::now() > self.next_update_time {
+                    let should_update = match SystemTime::now().duration_since(self.previous_update) {
+                        Ok(duration) => duration >= UPDATE_INTERVAL,
+                        Err(_) => true,
+                    };
+                    if should_update {
                         let download_future = self.create_update_background_future().fuse();
                         version_check = download_future;
                     } else {
@@ -414,7 +418,7 @@ impl VersionUpdater {
                     if rx.is_terminated() || self.update_sender.is_closed() {
                         return;
                     }
-                    self.next_update_time = Instant::now() + UPDATE_INTERVAL;
+                    self.previous_update = SystemTime::now();
 
                     match response {
                         Ok(version_info_response) => {
