@@ -32,11 +32,18 @@ pub struct RelayListUpdaterHandle {
 }
 
 impl RelayListUpdaterHandle {
-    pub async fn update_relay_list(&mut self) -> Result<(), Error> {
-        self.tx
+    pub async fn update(&mut self) {
+        if let Err(error) = self
+            .tx
             .send(())
             .await
             .map_err(|_| Error::DownloaderShutDown)
+        {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Unable to send update command to relay list updater")
+            );
+        }
     }
 }
 
@@ -50,20 +57,20 @@ pub struct RelayListUpdater {
 }
 
 impl RelayListUpdater {
-    pub(super) fn new(
+    pub fn new(
+        selector: super::RelaySelector,
         api_handle: MullvadRestHandle,
-        cache_path: PathBuf,
-        parsed_relays: Arc<Mutex<ParsedRelays>>,
-        on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
-        api_availability: ApiAvailabilityHandle,
+        cache_dir: &Path,
+        on_update: impl Fn(&RelayList) + Send + 'static,
     ) -> RelayListUpdaterHandle {
         let (tx, cmd_rx) = mpsc::channel(1);
+        let api_availability = api_handle.availability.clone();
         let api_client = RelayListProxy::new(api_handle);
         let updater = RelayListUpdater {
             api_client,
-            cache_path,
-            parsed_relays,
-            on_update,
+            cache_path: cache_dir.join(super::RELAYS_FILENAME),
+            parsed_relays: selector.parsed_relays.clone(),
+            on_update: Box::new(on_update),
             last_check: UNIX_EPOCH,
             api_availability,
         };

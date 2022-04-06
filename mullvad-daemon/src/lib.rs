@@ -34,7 +34,10 @@ use mullvad_api::{
     availability::ApiAvailabilityHandle,
     proxy::{ApiConnectionMode, ProxyConfig},
 };
-use mullvad_relay_selector::{RelaySelector, RelaySelectorResult};
+use mullvad_relay_selector::{
+    updater::{RelayListUpdater, RelayListUpdaterHandle},
+    RelaySelector, RelaySelectorResult,
+};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     device::{Device, DeviceConfig, DeviceData, DeviceEvent, DeviceId, RemoveDeviceEvent},
@@ -593,6 +596,7 @@ pub struct Daemon<L: EventListener> {
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
     relay_selector: RelaySelector,
+    relay_list_updater: RelayListUpdaterHandle,
     last_generated_relays: Option<LastSelectedRelays>,
     app_version_info: Option<AppVersionInfo>,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
@@ -754,12 +758,12 @@ where
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
 
-        let relay_selector = RelaySelector::new(
+        let relay_selector = RelaySelector::new(&resource_dir, &cache_dir);
+        let mut relay_list_updater = RelayListUpdater::new(
+            relay_selector.clone(),
             api_handle.clone(),
-            on_relay_list_update,
-            &resource_dir,
             &cache_dir,
-            api_availability.clone(),
+            on_relay_list_update,
         );
 
         let app_version_info = version_check::load_cache(&cache_dir).await;
@@ -774,7 +778,7 @@ where
         tokio::spawn(version_updater.run());
 
         // Attempt to download a fresh relay list
-        relay_selector.update().await;
+        relay_list_updater.update().await;
 
         let daemon = Daemon {
             tunnel_command_tx,
@@ -796,6 +800,7 @@ where
             api_handle,
             version_updater_handle,
             relay_selector,
+            relay_list_updater,
             last_generated_relays: None,
             app_version_info,
             shutdown_tasks: vec![],
@@ -1740,7 +1745,7 @@ where
     }
 
     async fn on_update_relay_locations(&mut self) {
-        self.relay_selector.update().await;
+        self.relay_list_updater.update().await;
     }
 
     fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_token: String) {
