@@ -298,6 +298,12 @@
 		58FEAFB92750DA2F003C1625 /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEAFB82750DA2F003C1625 /* AddressCache.swift */; };
 		58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB45260A028D00A621A8 /* GeoJSON.swift */; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
+		75C71DBA27FF2569006C784B /* Intents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75C71DB927FF2569006C784B /* Intents.framework */; };
+		75C71DBD27FF2569006C784B /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C71DBC27FF2569006C784B /* IntentHandler.swift */; };
+		75C71DC127FF2569006C784B /* ToggleTunnel.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 75C71DB827FF2569006C784B /* ToggleTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		75C71DC627FF2575006C784B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 75C71DC527FF2575006C784B /* Intents.intentdefinition */; };
+		75C71DC727FF2575006C784B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 75C71DC527FF2575006C784B /* Intents.intentdefinition */; };
+		75C71DCA27FF25ED006C784B /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75C71DC927FF25ED006C784B /* NetworkExtension.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -329,6 +335,13 @@
 			remoteGlobalIDString = 58FBDA9722A519BC00EB69A3;
 			remoteInfo = WireGuardGoBridge;
 		};
+		75C71DBF27FF2569006C784B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 75C71DB727FF2569006C784B;
+			remoteInfo = ToggleTunnel;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -338,6 +351,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				75C71DC127FF2569006C784B /* ToggleTunnel.appex in Embed App Extensions */,
 				58CE5E81224146470008646E /* PacketTunnel.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
@@ -571,6 +585,13 @@
 		58FEAFB82750DA2F003C1625 /* AddressCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCache.swift; sourceTree = "<group>"; };
 		58FEEB45260A028D00A621A8 /* GeoJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoJSON.swift; sourceTree = "<group>"; };
 		58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyboardResponder.swift; sourceTree = "<group>"; };
+		75C71DB827FF2569006C784B /* ToggleTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ToggleTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		75C71DB927FF2569006C784B /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
+		75C71DBC27FF2569006C784B /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
+		75C71DBE27FF2569006C784B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		75C71DC527FF2575006C784B /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
+		75C71DC827FF25ED006C784B /* ToggleTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ToggleTunnel.entitlements; sourceTree = "<group>"; };
+		75C71DC927FF25ED006C784B /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -608,12 +629,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		75C71DB527FF2569006C784B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				75C71DBA27FF2569006C784B /* Intents.framework in Frameworks */,
+				75C71DCA27FF25ED006C784B /* NetworkExtension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		0E15C74FDCF763609B367486 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				75C71DC927FF25ED006C784B /* NetworkExtension.framework */,
+				75C71DB927FF2569006C784B /* Intents.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -801,6 +833,7 @@
 			children = (
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
+				75C71DBB27FF2569006C784B /* ToggleTunnel */,
 				0E15C74FDCF763609B367486 /* Frameworks */,
 				586ADD4323FC13AD00CE9E87 /* GeoJSON */,
 				582CFEE1269448160072883A /* Localizations */,
@@ -819,6 +852,7 @@
 				58CE5E79224146470008646E /* PacketTunnel.appex */,
 				58B0A2A0238EE67E00BC001D /* MullvadVPNTests.xctest */,
 				58D0C79323F1CE7000FE9BA7 /* MullvadVPNScreenshots.xctest */,
+				75C71DB827FF2569006C784B /* ToggleTunnel.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1003,6 +1037,17 @@
 			path = Keychain;
 			sourceTree = "<group>";
 		};
+		75C71DBB27FF2569006C784B /* ToggleTunnel */ = {
+			isa = PBXGroup;
+			children = (
+				75C71DC827FF25ED006C784B /* ToggleTunnel.entitlements */,
+				75C71DBC27FF2569006C784B /* IntentHandler.swift */,
+				75C71DC527FF2575006C784B /* Intents.intentdefinition */,
+				75C71DBE27FF2569006C784B /* Info.plist */,
+			);
+			path = ToggleTunnel;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
@@ -1058,6 +1103,7 @@
 			);
 			dependencies = (
 				58CE5E80224146470008646E /* PBXTargetDependency */,
+				75C71DC027FF2569006C784B /* PBXTargetDependency */,
 			);
 			name = MullvadVPN;
 			packageProductDependencies = (
@@ -1108,13 +1154,30 @@
 			productReference = 58D0C79323F1CE7000FE9BA7 /* MullvadVPNScreenshots.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		75C71DB727FF2569006C784B /* ToggleTunnel */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 75C71DC427FF2569006C784B /* Build configuration list for PBXNativeTarget "ToggleTunnel" */;
+			buildPhases = (
+				75C71DB427FF2569006C784B /* Sources */,
+				75C71DB527FF2569006C784B /* Frameworks */,
+				75C71DB627FF2569006C784B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ToggleTunnel;
+			productName = ToggleTunnel;
+			productReference = 75C71DB827FF2569006C784B /* ToggleTunnel.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		58CE5E58224146200008646E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1130;
+				LastSwiftUpdateCheck = 1330;
 				LastUpgradeCheck = 1250;
 				ORGANIZATIONNAME = "Mullvad VPN AB";
 				TargetAttributes = {
@@ -1149,6 +1212,9 @@
 					58FBDA9722A519BC00EB69A3 = {
 						CreatedOnToolsVersion = 10.2.1;
 					};
+					75C71DB727FF2569006C784B = {
+						CreatedOnToolsVersion = 13.3;
+					};
 				};
 			};
 			buildConfigurationList = 58CE5E5B224146200008646E /* Build configuration list for PBXProject "MullvadVPN" */;
@@ -1173,6 +1239,7 @@
 				58CE5E78224146470008646E /* PacketTunnel */,
 				58B0A29F238EE67E00BC001D /* MullvadVPNTests */,
 				58D0C79223F1CE7000FE9BA7 /* MullvadVPNScreenshots */,
+				75C71DB727FF2569006C784B /* ToggleTunnel */,
 			);
 		};
 /* End PBXProject section */
@@ -1228,6 +1295,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		58D0C79123F1CE7000FE9BA7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		75C71DB627FF2569006C784B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1418,6 +1492,7 @@
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
 				58FB865526E8BF3100F188BC /* AppStorePaymentManagerError.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
+				75C71DC627FF2575006C784B /* Intents.intentdefinition in Sources */,
 				580EE22424B3243100F9D8A1 /* AsyncBlockOperation.swift in Sources */,
 				588527B6276B58B300BAA373 /* SetTunnelSettingsOperation.swift in Sources */,
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
@@ -1521,6 +1596,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		75C71DB427FF2569006C784B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				75C71DC727FF2575006C784B /* Intents.intentdefinition in Sources */,
+				75C71DBD27FF2569006C784B /* IntentHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1543,6 +1627,11 @@
 			isa = PBXTargetDependency;
 			target = 58FBDA9722A519BC00EB69A3 /* WireGuardGoBridge */;
 			targetProxy = 58FBDAA122A52A6800EB69A3 /* PBXContainerItemProxy */;
+		};
+		75C71DC027FF2569006C784B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 75C71DB727FF2569006C784B /* ToggleTunnel */;
+			targetProxy = 75C71DBF27FF2569006C784B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2041,6 +2130,66 @@
 			};
 			name = Release;
 		};
+		75C71DC227FF2569006C784B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = ToggleTunnel/ToggleTunnel.entitlements;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ToggleTunnel/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ToggleTunnel;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Mullvad VPN AB. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.ToggleTunnel;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		75C71DC327FF2569006C784B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = ToggleTunnel/ToggleTunnel.entitlements;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ToggleTunnel/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ToggleTunnel;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Mullvad VPN AB. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.ToggleTunnel;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2094,6 +2243,15 @@
 			buildConfigurations = (
 				58FBDA9822A519BC00EB69A3 /* Debug */,
 				58FBDA9922A519BC00EB69A3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		75C71DC427FF2569006C784B /* Build configuration list for PBXNativeTarget "ToggleTunnel" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				75C71DC227FF2569006C784B /* Debug */,
+				75C71DC327FF2569006C784B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
