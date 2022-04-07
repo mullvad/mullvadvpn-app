@@ -274,6 +274,16 @@ msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr ""
 
+#. %(openvpn)s will be replaced with the string "OpenVPN"
+msgctxt "advanced-settings-view"
+msgid "%(openvpn)s settings"
+msgstr ""
+
+#. %(wireguard)s will be replaced with the string "WireGuard"
+msgctxt "advanced-settings-view"
+msgid "%(wireguard)s settings"
+msgstr ""
+
 msgctxt "advanced-settings-view"
 msgid "Add a server"
 msgstr ""
@@ -320,24 +330,21 @@ msgid "If you disconnect or quit the app, this setting will block your internet.
 msgstr ""
 
 #. Description for multihop settings toggle.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "advanced-settings-view"
-msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN"
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN settings"
+msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
 msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr ""
 
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(wireguard)s - will be replaced with "WireGuard"
 msgctxt "advanced-settings-view"
-msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
+msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -346,14 +353,6 @@ msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Use custom DNS server"
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard"
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard settings"
 msgstr ""
 
 msgctxt "auth-failure"
@@ -792,7 +791,7 @@ msgid "Reconnecting"
 msgstr ""
 
 msgctxt "notifications"
-msgid "The apps excluded with split tunneling might not work properly right now."
+msgid "The apps excluded with %(splitTunneling)s might not work properly right now."
 msgstr ""
 
 msgctxt "notifications"
@@ -843,8 +842,10 @@ msgctxt "notifications"
 msgid "Upgrade"
 msgstr ""
 
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with "WireGuard"
 msgctxt "notifications"
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
 msgstr ""
 
 msgctxt "notifications"
@@ -857,8 +858,15 @@ msgid "Your privacy might be at risk with this unsupported app version. Please u
 msgstr ""
 
 #. Title label in navigation bar
+#. Available placeholders:
+#. %(openvpn)s - Will be replaced with "OpenVPN"
 msgctxt "openvpn-settings-nav"
-msgid "OpenVPN settings"
+msgid "%(openvpn)s settings"
+msgstr ""
+
+#. %(openvpn)s will be replaced with "OpenVPN"
+msgctxt "openvpn-settings-view"
+msgid "%(openvpn)s settings"
 msgstr ""
 
 #. The title for the port selector section.
@@ -875,36 +883,42 @@ msgstr ""
 
 #. This is used as a description for the bridge mode
 #. setting.
+#. Available placeholders:
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder."
 msgstr ""
 
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr ""
 
-msgctxt "openvpn-settings-view"
-msgid "OpenVPN settings"
-msgstr ""
-
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
+#. %(openvpn)s - will be replaced with "OpenVPN"
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
 msgctxt "openvpn-settings-view"
-msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
 msgstr ""
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
+#. Available placeholders:
+#. %(transportProtocol)s - the name of the transport protocol setting
+#. %(automat)s - the translation of "Automatic"
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
+msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
 msgstr ""
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
+msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
 msgstr ""
 
 #. This is used to instruct users how to make UDP mode
@@ -1336,8 +1350,16 @@ msgid "Switch location"
 msgstr ""
 
 #. Title label in navigation bar
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-nav"
-msgid "WireGuard settings"
+msgid "%(wireguard)s settings"
+msgstr ""
+
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
+msgctxt "wireguard-settings-view"
+msgid "%(wireguard)s settings"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -1354,10 +1376,11 @@ msgstr ""
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
 msgctxt "wireguard-settings-view"
-msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr ""
 
 #. The hint displayed below the WireGuard port selector.
@@ -1366,12 +1389,10 @@ msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr ""
 
 #. The hint displayed below the WireGuard IP version selector.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "WireGuard settings"
+msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr ""
 
 msgid "Account authentication failed."
@@ -1482,6 +1503,9 @@ msgstr ""
 msgid "Secured"
 msgstr ""
 
+msgid "Set WireGuard MTU value. Valid range: %d - %d."
+msgstr ""
+
 msgid "Show system apps"
 msgstr ""
 
@@ -1521,6 +1545,9 @@ msgstr ""
 msgid "VPN tunnel status"
 msgstr ""
 
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr ""
+
 msgid "Verify key"
 msgstr ""
 
@@ -1528,6 +1555,9 @@ msgid "Virtual adapter error"
 msgstr ""
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr ""
+
+msgid "WireGuard"
 msgstr ""
 
 msgid "WireGuard MTU"

@@ -141,10 +141,11 @@ def structure_locations(locations):
 
     country = countries[country_code]
     cities = country["cities"]
-    if city_code not in cities:
-      cities[city_code] = city_name
-    else:
-      print("There are multiple entries for {} in {}".format(city_name, country_name))
+    if location_key != "se-bet":
+      if city_code not in cities:
+        cities[city_code] = city_name
+      else:
+        print("There are multiple entries for {} in {}".format(city_name, country_name))
 
   return countries
 
