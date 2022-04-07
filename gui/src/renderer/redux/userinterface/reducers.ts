@@ -11,6 +11,7 @@ export interface IUserInterfaceReduxState {
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
   connectedToDaemon: boolean;
   changelog: IChangelog;
+  isPerformingPostUpgrade: boolean;
 }
 
 const initialState: IUserInterfaceReduxState = {
@@ -21,6 +22,7 @@ const initialState: IUserInterfaceReduxState = {
   macOsScrollbarVisibility: undefined,
   connectedToDaemon: false,
   changelog: [],
+  isPerformingPostUpgrade: false,
 };
 
 export default function (
@@ -62,6 +64,12 @@ export default function (
       return {
         ...state,
         changelog: action.changelog,
+      };
+
+    case 'SET_IS_PERFORMING_POST_UPGRADE':
+      return {
+        ...state,
+        isPerformingPostUpgrade: action.isPerformingPostUpgrade,
       };
 
     default:

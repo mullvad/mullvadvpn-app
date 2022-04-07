@@ -55,6 +55,7 @@ export interface IAppStateSnapshot {
   accountHistory?: AccountToken;
   tunnelState: TunnelState;
   settings: ISettings;
+  isPerformingPostUpgrade: boolean;
   deviceConfig?: IDeviceConfig;
   hasReceivedDeviceConfig: boolean;
   relayListPair: IRelayListPair;
@@ -119,6 +120,7 @@ export const ipcSchema = {
     reset: notifyRenderer<void>(),
   },
   daemon: {
+    isPerformingPostUpgrade: notifyRenderer<boolean>(),
     connected: notifyRenderer<void>(),
     disconnected: notifyRenderer<void>(),
   },

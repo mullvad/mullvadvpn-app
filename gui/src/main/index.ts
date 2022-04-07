@@ -128,6 +128,7 @@ class ApplicationMain {
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;
   private connectedToDaemon = false;
+  private isPerformingPostUpgrade = false;
   private quitStage = AppQuitStage.unready;
 
   private accountData?: IAccountData = undefined;
@@ -626,6 +627,18 @@ class ApplicationMain {
       return this.handleBootstrapError(error);
     }
 
+    if (firstDaemonConnection) {
+      // check if daemon is performing post upgrade tasks the first time it's connected to
+      try {
+        await this.performPostUpgradeCheck();
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to check if daemon is performing post upgrade tasks: ${error.message}`);
+
+        return this.handleBootstrapError(error);
+      }
+    }
+
     // fetch account history
     try {
       this.setAccountHistory(await this.daemonRpc.getAccountHistory());
@@ -806,6 +819,17 @@ class ApplicationMain {
     this.daemonRpc.subscribeDaemonEventListener(daemonEventListener);
 
     return daemonEventListener;
+  }
+
+  private async performPostUpgradeCheck(): Promise<void> {
+    const oldValue = this.isPerformingPostUpgrade;
+    this.isPerformingPostUpgrade = await this.daemonRpc.isPerformingPostUpgrade();
+    if (this.windowController && this.isPerformingPostUpgrade !== oldValue) {
+      IpcMainEventChannel.daemon.notifyIsPerformingPostUpgrade(
+        this.windowController.webContents,
+        this.isPerformingPostUpgrade,
+      );
+    }
   }
 
   private connectTunnel = async (): Promise<void> => {
@@ -1125,6 +1149,10 @@ class ApplicationMain {
     this.deviceConfig = deviceEvent.deviceConfig;
     this.hasReceivedDeviceConfig = true;
 
+    if (this.isPerformingPostUpgrade) {
+      void this.performPostUpgradeCheck();
+    }
+
     // make sure to invalidate the account data cache when account tokens change
     this.updateAccountDataOnAccountChange(
       oldDeviceConfig?.accountToken,
@@ -1219,6 +1247,7 @@ class ApplicationMain {
       accountHistory: this.accountHistory,
       tunnelState: this.tunnelState,
       settings: this.settings,
+      isPerformingPostUpgrade: this.isPerformingPostUpgrade,
       deviceConfig: this.deviceConfig,
       hasReceivedDeviceConfig: this.hasReceivedDeviceConfig,
       relayListPair: {
