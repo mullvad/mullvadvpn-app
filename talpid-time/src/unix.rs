@@ -1,17 +1,14 @@
 use libc::{clock_gettime, clockid_t, timespec};
 use std::{mem::MaybeUninit, time::Duration};
 
-const NSEC_PER_SEC: u32 = 1000000000;
+const NSEC_PER_SEC: i64 = 1000000000;
 
 #[cfg(target_os = "macos")]
 const CLOCK_ID: clockid_t = libc::CLOCK_MONOTONIC;
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(any(target_os = "linux", target_os = "android"))]
 const CLOCK_ID: clockid_t = libc::CLOCK_BOOTTIME;
 
-/// This implements functions similar to [std::time::Instant].
-/// Unlike that type, this one is guaranteed to include time spent
-/// in sleep/suspend.
 #[derive(Clone, Copy)]
 pub struct Instant {
     t: timespec,
@@ -30,12 +27,12 @@ impl Instant {
         let (tv_sec, tv_nsec) = if self.t.tv_nsec < earlier.t.tv_nsec {
             (
                 self.t.tv_sec - earlier.t.tv_sec - 1,
-                NSEC_PER_SEC - (earlier.t.tv_nsec as u32) + (self.t.tv_nsec as u32),
+                NSEC_PER_SEC - earlier.t.tv_nsec + self.t.tv_nsec,
             )
         } else {
             (
                 self.t.tv_sec - earlier.t.tv_sec,
-                (self.t.tv_nsec - earlier.t.tv_nsec) as u32,
+                self.t.tv_nsec - earlier.t.tv_nsec,
             )
         };
 
@@ -43,7 +40,7 @@ impl Instant {
             return None;
         }
 
-        Some(Duration::new(tv_sec as _, tv_nsec))
+        Some(Duration::new(tv_sec as _, tv_nsec as _))
     }
 
     pub fn duration_since(&self, earlier: Instant) -> Duration {
