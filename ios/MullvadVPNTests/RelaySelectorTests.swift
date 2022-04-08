@@ -60,7 +60,7 @@ private let sampleRelays = REST.ServerRelaysResponse(
     wireguard: REST.ServerWireguardTunnels(
         ipv4Gateway: .loopback,
         ipv6Gateway: .loopback,
-        portRanges: [53...53],
+        portRanges: [[53, 53]],
         relays: [
             REST.ServerRelay(
                 hostname: "es1-wireguard",

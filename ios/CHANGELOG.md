@@ -37,6 +37,9 @@ Line wrap the file at 100 chars.                                              Th
   credits on accounts that no longer exist on our backend. Usually the case with newly created 
   accounts that went stale.
 
+### Fixed
+- Improve random port distribution. Should be less biased towards port 53.
+
 
 ## [2022.1] - 2022-02-15
 ### Added
