@@ -33,6 +33,7 @@ lazy_static = "1.1.0"
 
 mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
+talpid-time = { path = "../talpid-time" }
 
 shadowsocks = { git = "https://github.com/shadowsocks/shadowsocks-rust", rev = "7388ddfb7d36d5b84908c476daabc91c8b065a37", default-features = false, features = ["stream-cipher"] }
 

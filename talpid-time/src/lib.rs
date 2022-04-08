@@ -12,7 +12,7 @@ pub use inner::Instant;
 
 const MAX_SLEEP_INTERVAL: Duration = Duration::from_secs(60);
 
-/// `sleep` function that includes time spent in system sleep or suspension.
+/// Waits for the specified interval while taking into account system sleep or suspension.
 /// The accuracy is to within about one minute.
 pub async fn sleep(duration: Duration) {
     let started = Instant::now();

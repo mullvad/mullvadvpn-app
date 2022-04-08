@@ -1,21 +1,6 @@
-use futures::future::{self, Either};
 use rand::{distributions::OpenClosed01, Rng};
-use std::{
-    future::Future,
-    time::{Duration, SystemTime},
-};
-
-/// Since timers often exhibit weird behavior if they are running for too long, a workaround is
-/// required - run a timer for 60 seconds until a delay is shorter than 5 minutes.
-const MAX_SINGLE_DELAY: Duration = Duration::from_secs(5 * 60);
-
-/// For long-running timers, use wall-clock time in addition to monotonic time. Otherwise,
-/// they will complete far too seldom on machines spending lots of time in suspended mode/
-/// hibernation.
-const WALL_CLOCK_THRESHOLD: Duration = Duration::from_secs(15 * 60);
-
-/// How often to check whether the interval has elapsed according to wall-clock time.
-const CLOCK_CHECK_INTERVAL: Duration = Duration::from_secs(1 * 60);
+use std::{future::Future, time::Duration};
+use talpid_time::sleep;
 
 /// Convenience function that works like [`retry_future`] but limits the number
 /// of retries to `max_retries`.
@@ -62,50 +47,6 @@ pub async fn retry_future<
 /// Returns an iterator that repeats the same interval.
 pub fn constant_interval(interval: Duration) -> impl Iterator<Item = Duration> {
     std::iter::repeat(interval)
-}
-
-async fn sleep(delay: Duration) {
-    let clock_timer = if delay >= WALL_CLOCK_THRESHOLD {
-        Either::Left(clock_sleep(delay))
-    } else {
-        Either::Right(future::pending())
-    };
-
-    let monotonic_timer = monotonic_sleep(delay);
-
-    tokio::pin!(clock_timer);
-    tokio::pin!(monotonic_timer);
-
-    future::select(clock_timer, monotonic_timer).await;
-}
-
-async fn monotonic_sleep(mut delay: Duration) {
-    while delay > MAX_SINGLE_DELAY {
-        delay -= MAX_SINGLE_DELAY;
-        tokio::time::sleep(MAX_SINGLE_DELAY).await;
-    }
-    tokio::time::sleep(delay).await
-}
-
-async fn clock_sleep(delay: Duration) {
-    let started = SystemTime::now();
-
-    loop {
-        tokio::time::sleep(CLOCK_CHECK_INTERVAL).await;
-
-        match SystemTime::now().duration_since(started) {
-            Ok(duration) => {
-                if duration >= delay {
-                    // Done
-                    break;
-                }
-            }
-
-            // If the `started` time is later than the current time, assume we're done
-            // and hope for the best.
-            Err(_) => break,
-        }
-    }
 }
 
 /// Provides an exponential back-off timer to delay the next retry of a failed operation.
@@ -253,6 +194,8 @@ mod test {
         assert!(jittered_duration <= unjittered_duration);
     }
 
+    // NOTE: The test is disabled because the clock does not advance.
+    #[ignore]
     #[tokio::test]
     async fn test_exponential_backoff_delay() {
         let retry_interval_initial = Duration::from_secs(4);
@@ -268,11 +211,5 @@ mod test {
             5,
         )
         .await;
-    }
-
-    #[tokio::test]
-    async fn test_timer_advancement() {
-        tokio::time::pause();
-        sleep(Duration::from_secs(60 * 60)).await
     }
 }

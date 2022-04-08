@@ -22,7 +22,7 @@ use std::{
     future::Future,
     str::FromStr,
     sync::{Arc, Weak},
-    time::{Duration, SystemTime},
+    time::Duration,
 };
 use talpid_types::ErrorExt;
 
@@ -33,7 +33,6 @@ pub type Response = hyper::Response<hyper::Body>;
 
 const USER_AGENT: &str = "mullvad-app";
 
-const TIMER_CHECK_INTERVAL: Duration = Duration::from_secs(5 * 60);
 const API_IP_CHECK_INITIAL: Duration = Duration::from_secs(15 * 60);
 const API_IP_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
 const API_IP_CHECK_ERROR_INTERVAL: Duration = Duration::from_secs(15 * 60);
@@ -627,18 +626,9 @@ impl MullvadRestHandle {
         tokio::spawn(async move {
             let api_proxy = crate::ApiProxy::new(handle);
             let mut next_delay = API_IP_CHECK_INITIAL;
-            let mut prev_check = SystemTime::now();
 
             loop {
-                tokio::time::sleep(TIMER_CHECK_INTERVAL).await;
-
-                if SystemTime::now()
-                    .duration_since(prev_check)
-                    .unwrap_or(Duration::MAX)
-                    < next_delay
-                {
-                    continue;
-                }
+                talpid_time::sleep(next_delay).await;
 
                 if let Err(error) = availability.wait_background().await {
                     log::error!("Failed while waiting for API: {}", error);
@@ -660,7 +650,6 @@ impl MullvadRestHandle {
                         }
 
                         next_delay = API_IP_CHECK_INTERVAL;
-                        prev_check = SystemTime::now();
                     }
                     Err(err) => {
                         log::error!(
@@ -670,7 +659,6 @@ impl MullvadRestHandle {
                         );
 
                         next_delay = API_IP_CHECK_ERROR_INTERVAL;
-                        prev_check = SystemTime::now();
                     }
                 }
             }
