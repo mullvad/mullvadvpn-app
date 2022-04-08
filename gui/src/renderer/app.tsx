@@ -986,8 +986,10 @@ export default class AppRenderer {
           const city = country?.cities.find((location) => location.code === constraint.hostname[1]);
 
           let entryHostname: string | undefined;
+          const multihopConstraint = relaySettings.normal.wireguardConstraints.useMultihop;
           const entryLocationConstraint = relaySettings.normal.wireguardConstraints.entryLocation;
           if (
+            multihopConstraint &&
             entryLocationConstraint !== 'any' &&
             'hostname' in entryLocationConstraint.only &&
             entryLocationConstraint.only.hostname.length === 3
