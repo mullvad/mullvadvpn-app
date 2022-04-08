@@ -15,10 +15,6 @@ impl Instant {
         }
     }
 
-    pub fn checked_duration_since(&self, earlier: Instant) -> Option<Duration> {
-        self.t.checked_duration_since(earlier.t)
-    }
-
     pub fn duration_since(&self, earlier: Instant) -> Duration {
         self.t.saturating_duration_since(earlier.t)
     }

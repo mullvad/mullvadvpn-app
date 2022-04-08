@@ -22,7 +22,7 @@ impl Instant {
         Self { t: now() }
     }
 
-    pub fn checked_duration_since(&self, earlier: Instant) -> Option<Duration> {
+    fn checked_duration_since(&self, earlier: Instant) -> Option<Duration> {
         // Assumptions:
         // * `tv_sec >= 0`
         // * `tv_nsec < NSEC_PER_SEC`
