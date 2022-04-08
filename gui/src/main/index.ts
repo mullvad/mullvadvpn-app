@@ -524,6 +524,7 @@ class ApplicationMain {
       await this.trayIconController.updateTheme();
 
       this.setTrayContextMenu();
+      this.trayIconController?.setTooltip(this.connectedToDaemon, this.tunnelState);
 
       if (process.platform === 'win32') {
         nativeTheme.on('updated', async () => {
@@ -753,6 +754,7 @@ class ApplicationMain {
       // update the tray icon to indicate that the computer is not secure anymore
       this.updateTrayIcon({ state: 'disconnected' }, false);
       this.setTrayContextMenu();
+      this.trayIconController?.setTooltip(this.connectedToDaemon, this.tunnelState);
 
       // notify renderer process
       if (this.windowController) {
@@ -918,6 +920,7 @@ class ApplicationMain {
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
 
     this.setTrayContextMenu();
+    this.trayIconController?.setTooltip(this.connectedToDaemon, this.tunnelState);
 
     this.notificationController.notifyTunnelState(
       newState,
@@ -1665,6 +1668,7 @@ class ApplicationMain {
     };
 
     this.setTrayContextMenu();
+    this.trayIconController?.setTooltip(this.connectedToDaemon, this.tunnelState);
   }
 
   private blockPermissionRequests() {

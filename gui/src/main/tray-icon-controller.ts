@@ -5,8 +5,8 @@ import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
 
 import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
-import { AccountToken, TunnelState } from '../shared/daemon-rpc-types';
-import { messages } from '../shared/gettext';
+import { AccountToken, ILocation, TunnelState } from '../shared/daemon-rpc-types';
+import { messages, relayLocations } from '../shared/gettext';
 import log from '../shared/logging';
 import KeyframeAnimation from './keyframe-animation';
 import WindowController from './window-controller';
@@ -114,6 +114,11 @@ export default class TrayIconController {
     }
   }
 
+  public setTooltip(connectedToDaemon: boolean, tunnelState: TunnelState) {
+    const tooltip = this.createTooltipText(connectedToDaemon, tunnelState);
+    this.tray?.setToolTip(tooltip);
+  }
+
   public popUpContextMenu(
     connectedToDaemon: boolean,
     accountToken: AccountToken | undefined,
@@ -122,6 +127,51 @@ export default class TrayIconController {
     this.tray.popUpContextMenu(
       this.createContextMenu(connectedToDaemon, accountToken, tunnelState),
     );
+  }
+
+  private createTooltipText(connectedToDaemon: boolean, tunnelState: TunnelState): string {
+    if (!connectedToDaemon) {
+      return messages.pgettext('tray-icon-context-menu', 'Disconnected from system service');
+    }
+
+    switch (tunnelState.state) {
+      case 'disconnected':
+        return messages.gettext('Disconnected');
+      case 'disconnecting':
+        return messages.gettext('Disconnecting');
+      case 'connecting': {
+        const location = this.createLocationString(tunnelState.details?.location);
+        return location
+          ? sprintf(messages.pgettext('tray-icon-tooltip', 'Connecting. %(location)s'), {
+              location,
+            })
+          : messages.gettext('Connecting');
+      }
+      case 'connected': {
+        const location = this.createLocationString(tunnelState.details.location);
+        return location
+          ? sprintf(messages.pgettext('tray-icon-tooltip', 'Connected. %(location)s'), {
+              location,
+            })
+          : messages.gettext('Connected');
+      }
+    }
+
+    return 'Mullvad VPN';
+  }
+
+  private createLocationString(location?: ILocation): string | undefined {
+    if (location === undefined) {
+      return undefined;
+    }
+
+    const country = relayLocations.gettext(location.country);
+    return location.city
+      ? sprintf(messages.pgettext('tray-icon-tooltip', '%(city)s, %(country)s'), {
+          city: relayLocations.gettext(location.city),
+          country,
+        })
+      : country;
   }
 
   private initAnimation() {
