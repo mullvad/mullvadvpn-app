@@ -15,6 +15,7 @@ members = [
     "talpid-core",
     "talpid-dbus",
     "talpid-platform-metadata",
+    "talpid-time",
     "mullvad-management-interface",
     "tunnel-obfuscation",
 ]
