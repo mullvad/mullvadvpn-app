@@ -2,7 +2,7 @@
 name = "talpid-time"
 version = "0.1.0"
 authors = ["Mullvad VPN"]
-description = "Platform metadata detection functions"
+description = "Time functions"
 license = "GPL-3.0"
 edition = "2021"
 publish = false
