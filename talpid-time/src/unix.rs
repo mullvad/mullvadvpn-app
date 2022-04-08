@@ -1,13 +1,13 @@
-use libc::{c_long, clock_gettime, clockid_t, time_t, timespec};
+use libc::{clock_gettime, clockid_t, timespec};
 use std::{mem::MaybeUninit, time::Duration};
 
 const NSEC_PER_SEC: u32 = 1000000000;
 
 #[cfg(target_os = "macos")]
-const CLOCK_ID: clockid_t = CLOCK_MONOTONIC;
+const CLOCK_ID: clockid_t = libc::CLOCK_MONOTONIC;
 
 #[cfg(not(target_os = "macos"))]
-const CLOCK_ID: clockid_t = CLOCK_REALTIME;
+const CLOCK_ID: clockid_t = libc::CLOCK_BOOTTIME;
 
 /// This implements functions similar to [std::time::Instant].
 /// Unlike that type, this one is guaranteed to include time spent
