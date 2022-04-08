@@ -14,7 +14,7 @@ use std::{
     future::Future,
     io,
     path::{Path, PathBuf},
-    time::{Duration, SystemTime},
+    time::Duration,
 };
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
