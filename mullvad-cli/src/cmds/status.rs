@@ -20,35 +20,43 @@ impl Command for Status {
                     .short('l')
                     .help("Prints the current location and IP. Based on GeoIP lookups"),
             )
-            .subcommand(
-                clap::App::new("listen")
-                    .about("Listen for VPN tunnel state changes")
-                    .arg(
-                        clap::Arg::new("verbose")
-                            .short('v')
-                            .help("Enables verbose output"),
-                    ),
+            .arg(
+                clap::Arg::new("debug")
+                    .long("debug")
+                    .global(true)
+                    .help("Enables verbose output"),
             )
+            .subcommand(clap::App::new("listen").about("Listen for VPN tunnel state changes"))
     }
 
     async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
+        let debug = matches.is_present("debug");
+
         let mut rpc = new_rpc_client().await?;
         let state = rpc.get_tunnel_state(()).await?.into_inner();
 
-        format::print_state(&state);
+        if debug {
+            println!("Tunnel state: {:#?}", state);
+        } else {
+            format::print_state(&state);
+        }
+
         if matches.is_present("location") {
             print_location(&mut rpc).await?;
         }
 
-        if let Some(listen_matches) = matches.subcommand_matches("listen") {
-            let verbose = listen_matches.is_present("verbose");
-
+        if matches.subcommand_matches("listen").is_some() {
             let mut events = rpc.events_listen(()).await?.into_inner();
 
             while let Some(event) = events.message().await? {
                 match event.event.unwrap() {
                     EventType::TunnelState(new_state) => {
-                        format::print_state(&new_state);
+                        if debug {
+                            println!("New tunnel state: {:#?}", new_state);
+                        } else {
+                            format::print_state(&new_state);
+                        }
+
                         use mullvad_management_interface::types::tunnel_state::State::*;
                         match new_state.state.unwrap() {
                             Connected(..) | Disconnected(..) => {
@@ -60,27 +68,27 @@ impl Command for Status {
                         }
                     }
                     EventType::Settings(settings) => {
-                        if verbose {
+                        if debug {
                             println!("New settings: {:#?}", settings);
                         }
                     }
                     EventType::RelayList(relay_list) => {
-                        if verbose {
+                        if debug {
                             println!("New relay list: {:#?}", relay_list);
                         }
                     }
                     EventType::VersionInfo(app_version_info) => {
-                        if verbose {
+                        if debug {
                             println!("New app version info: {:#?}", app_version_info);
                         }
                     }
                     EventType::Device(device) => {
-                        if verbose {
+                        if debug {
                             println!("Device event: {:#?}", device);
                         }
                     }
                     EventType::RemoveDevice(device) => {
-                        if verbose {
+                        if debug {
                             println!("Remove device event: {:#?}", device);
                         }
                     }
