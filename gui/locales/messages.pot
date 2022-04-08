@@ -99,6 +99,12 @@ msgstr ""
 msgid "Connect"
 msgstr ""
 
+msgid "Connected"
+msgstr ""
+
+msgid "Connecting"
+msgstr ""
+
 msgid "CREATING SECURE CONNECTION"
 msgstr ""
 
@@ -109,6 +115,12 @@ msgid "Disable"
 msgstr ""
 
 msgid "Disconnect"
+msgstr ""
+
+msgid "Disconnected"
+msgstr ""
+
+msgid "Disconnecting"
 msgstr ""
 
 msgid "Dismiss"
@@ -1338,7 +1350,23 @@ msgid "Your email (optional)"
 msgstr ""
 
 msgctxt "tray-icon-context-menu"
+msgid "Disconnected from system service"
+msgstr ""
+
+msgctxt "tray-icon-context-menu"
 msgid "Open %(mullvadVpn)s"
+msgstr ""
+
+msgctxt "tray-icon-tooltip"
+msgid "%(city)s, %(country)s"
+msgstr ""
+
+msgctxt "tray-icon-tooltip"
+msgid "Connected. %(location)s"
+msgstr ""
+
+msgctxt "tray-icon-tooltip"
+msgid "Connecting. %(location)s"
 msgstr ""
 
 msgctxt "tunnel-control"
@@ -1429,9 +1457,6 @@ msgid "Critical error (your attention is required)"
 msgstr ""
 
 msgid "Custom DNS server addresses %s are invalid"
-msgstr ""
-
-msgid "Disconnecting"
 msgstr ""
 
 msgid "Enable"
