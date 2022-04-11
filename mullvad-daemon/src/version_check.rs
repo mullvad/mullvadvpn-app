@@ -14,7 +14,7 @@ use std::{
     future::Future,
     io,
     path::{Path, PathBuf},
-    time::{Duration, Instant},
+    time::Duration,
 };
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
@@ -28,11 +28,7 @@ lazy_static::lazy_static! {
 }
 
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
-/// How often the updater should wake up to check the in-memory cache.
-/// This exist to prevent problems around sleeping. If you set it to sleep
-/// for `UPDATE_INTERVAL` directly and the computer is suspended, that clock
-/// won't tick, and the next update will be after 24 hours of the computer being *on*.
-const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 5);
+
 /// Wait this long until next check after a successful check
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
 /// Wait this long until next try if an update failed
@@ -103,7 +99,6 @@ pub(crate) struct VersionUpdater {
     update_sender: DaemonEventSender<AppVersionInfo>,
     last_app_version_info: Option<AppVersionInfo>,
     platform_version: String,
-    next_update_time: Instant,
     show_beta_releases: bool,
     rx: Option<mpsc::Receiver<VersionUpdaterCommand>>,
     availability_handle: ApiAvailabilityHandle,
@@ -171,7 +166,6 @@ impl VersionUpdater {
                 update_sender,
                 last_app_version_info,
                 platform_version,
-                next_update_time: Instant::now(),
                 show_beta_releases,
                 rx: Some(rx),
                 availability_handle,
@@ -341,7 +335,7 @@ impl VersionUpdater {
 
     pub async fn run(mut self) {
         let mut rx = self.rx.take().unwrap().fuse();
-        let next_delay = || Box::pin(tokio::time::sleep(UPDATE_CHECK_INTERVAL)).fuse();
+        let next_delay = || Box::pin(talpid_time::sleep(UPDATE_INTERVAL)).fuse();
         let mut check_delay = next_delay();
         let mut version_check = futures::future::Fuse::terminated();
 
@@ -400,21 +394,13 @@ impl VersionUpdater {
                         // Sync check in progress
                         continue;
                     }
-
-                    if Instant::now() > self.next_update_time {
-                        let download_future = self.create_update_background_future().fuse();
-                        version_check = download_future;
-                    } else {
-                        check_delay = next_delay();
-                    }
-
+                    version_check = self.create_update_background_future().fuse();
                 },
 
                 response = version_check => {
                     if rx.is_terminated() || self.update_sender.is_closed() {
                         return;
                     }
-                    self.next_update_time = Instant::now() + UPDATE_INTERVAL;
 
                     match response {
                         Ok(version_info_response) => {
