@@ -34,7 +34,7 @@ extension REST {
     struct ServerWireguardTunnels: Codable {
         let ipv4Gateway: IPv4Address
         let ipv6Gateway: IPv6Address
-        let portRanges: [ClosedRange<UInt16>]
+        let portRanges: [[UInt16]]
         let relays: [ServerRelay]
     }
 

@@ -8,6 +8,7 @@
 
 import Foundation
 import Network
+import Logging
 
 struct RelaySelectorResult: Codable {
     var endpoint: MullvadEndpoint
@@ -38,16 +39,16 @@ extension RelaySelector {
     static func evaluate(relays: REST.ServerRelaysResponse, constraints: RelayConstraints) -> RelaySelectorResult? {
         let filteredRelays = applyConstraints(constraints, relays: Self.parseRelaysResponse(relays))
 
-        guard let relayWithLocation = pickRandomRelay(relays: filteredRelays) else {
-            return nil
-        }
-
-        guard let port = relays.wireguard.portRanges.randomElement()?.randomElement() else {
-            return nil
-        }
+        guard let relayWithLocation = pickRandomRelay(relays: filteredRelays),
+              let port = pickRandomPort(rawPortRanges: relays.wireguard.portRanges) else {
+                  return nil
+              }
 
         let endpoint = MullvadEndpoint(
-            ipv4Relay: IPv4Endpoint(ip: relayWithLocation.relay.ipv4AddrIn, port: port),
+            ipv4Relay: IPv4Endpoint(
+                ip: relayWithLocation.relay.ipv4AddrIn,
+                port: port
+            ),
             ipv6Relay: nil,
             ipv4Gateway: relays.wireguard.ipv4Gateway,
             ipv6Gateway: relays.wireguard.ipv6Gateway,
@@ -113,6 +114,45 @@ extension RelaySelector {
         precondition(randomRelay != nil, "At least one relay must've had a weight above 0")
 
         return randomRelay
+    }
+
+    private static func pickRandomPort(rawPortRanges: [[UInt16]]) -> UInt16? {
+        let portRanges = parseRawPortRanges(rawPortRanges)
+        let portAmount = portRanges.reduce(0) { partialResult, closedRange in
+            return partialResult + closedRange.count
+        }
+
+        guard var portIndex = (0..<portAmount).randomElement() else {
+            return nil
+        }
+
+        for range in portRanges {
+            if portIndex < range.count {
+                return UInt16(portIndex) + range.lowerBound
+            } else {
+                portIndex -= range.count
+            }
+        }
+
+        let logger = Logger(label: "RelaySelector")
+        logger.error("Port selection algorithm is broken!")
+
+        return nil
+    }
+
+    private static func parseRawPortRanges(_ rawPortRanges: [[UInt16]]) -> [ClosedRange<UInt16>] {
+        return rawPortRanges.compactMap { inputRange -> ClosedRange<UInt16>? in
+            guard inputRange.count == 2 else { return nil }
+
+            let startPort = inputRange[0]
+            let endPort = inputRange[1]
+
+            if startPort <= endPort {
+                return (startPort...endPort)
+            } else {
+                return nil
+            }
+        }
     }
 
     private static func parseRelaysResponse(_ response: REST.ServerRelaysResponse) -> [RelayWithLocation] {
