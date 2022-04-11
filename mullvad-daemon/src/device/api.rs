@@ -43,6 +43,10 @@ impl CurrentApiCall {
         }
     }
 
+    pub fn is_idle(&self) -> bool {
+        self.current_call.is_none()
+    }
+
     pub fn is_logging_in(&self) -> bool {
         use Call::*;
         match &self.current_call {
