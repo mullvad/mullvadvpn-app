@@ -1,18 +1,14 @@
-use chrono::{DateTime, Utc};
 use futures::{
     channel::{mpsc, oneshot},
-    future::{abortable, AbortHandle, Fuse, FusedFuture},
+    future::{Fuse, FusedFuture},
     stream::StreamExt,
     FutureExt,
 };
-use mullvad_api::{
-    availability::ApiAvailabilityHandle,
-    rest::{self, Error as RestError, MullvadRestHandle},
-    AccountsProxy, DevicesProxy,
-};
+
+use mullvad_api::{availability::ApiAvailabilityHandle, rest};
 use mullvad_types::{
-    account::{AccountToken, VoucherSubmission},
-    device::{Device, DeviceData, DeviceEvent, DeviceId},
+    account::AccountToken,
+    device::{Device, DeviceData, DeviceEvent},
     wireguard::{RotationInterval, WireguardData},
 };
 use std::{
@@ -24,21 +20,16 @@ use std::{
     },
     time::{Duration, SystemTime},
 };
-use talpid_core::{
-    future_retry::{constant_interval, retry_future, retry_future_n, ExponentialBackoff, Jittered},
-    mpsc::Sender,
-};
-use talpid_types::{
-    net::{wireguard::PrivateKey, TunnelType},
-    tunnel::TunnelStateTransition,
-    ErrorExt,
-};
+use talpid_core::mpsc::Sender;
+use talpid_types::{net::TunnelType, tunnel::TunnelStateTransition, ErrorExt};
 use tokio::{
     fs,
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
 };
 
 mod api;
+mod service;
+pub use service::{spawn_account_service, AccountService, DeviceService};
 
 /// How often to check whether the key has expired.
 /// A short interval is used in case the computer is ever suspended.
@@ -46,13 +37,6 @@ const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(5 * 60);
 
 /// File that used to store account and device data.
 const DEVICE_CACHE_FILENAME: &str = "device.json";
-
-const RETRY_ACTION_INTERVAL: Duration = Duration::ZERO;
-const RETRY_ACTION_MAX_RETRIES: usize = 2;
-
-const RETRY_BACKOFF_INTERVAL_INITIAL: Duration = Duration::from_secs(4);
-const RETRY_BACKOFF_INTERVAL_FACTOR: u32 = 5;
-const RETRY_BACKOFF_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
 
 /// How long to keep the known status for [AccountManagerHandle::validate_device].
 const VALIDITY_CACHE_TIMEOUT: Duration = Duration::from_secs(10);
@@ -81,7 +65,7 @@ pub enum Error {
     #[error(display = "Unexpected HTTP request error")]
     OtherRestError(#[error(source)] rest::Error),
     #[error(display = "The device update task is not running")]
-    DeviceUpdaterCancelled(#[error(source)] oneshot::Canceled),
+    Cancelled,
     /// Intended to be broadcast to requesters
     #[error(display = "Broadcast error")]
     ResponseFailure(#[error(source)] Arc<Error>),
@@ -126,15 +110,6 @@ impl InnerDeviceEvent {
             InnerDeviceEvent::Logout | InnerDeviceEvent::Revoked => None,
         }
     }
-
-    fn into_data(self) -> Option<DeviceData> {
-        match self {
-            InnerDeviceEvent::Login(data) => Some(data),
-            InnerDeviceEvent::Updated(data) => Some(data),
-            InnerDeviceEvent::RotatedKey(data) => Some(data),
-            InnerDeviceEvent::Logout | InnerDeviceEvent::Revoked => None,
-        }
-    }
 }
 
 impl Error {
@@ -170,7 +145,6 @@ enum AccountManagerCommand {
     GetData(ResponseTx<Option<DeviceData>>),
     RotateKey(ResponseTx<()>),
     SetRotationInterval(RotationInterval, ResponseTx<()>),
-    GetRotationInterval(ResponseTx<RotationInterval>),
     ValidateDevice(ResponseTx<ValidationResult>),
     ReceiveEvents(Box<dyn Sender<InnerDeviceEvent> + Send>, ResponseTx<()>),
     Shutdown(oneshot::Sender<()>),
@@ -214,11 +188,6 @@ impl AccountManagerHandle {
             .await
     }
 
-    pub async fn rotation_interval(&self) -> Result<RotationInterval, Error> {
-        self.send_command(|tx| AccountManagerCommand::GetRotationInterval(tx))
-            .await
-    }
-
     pub async fn validate_device(&self) -> Result<ValidationResult, Error> {
         self.send_command(|tx| AccountManagerCommand::ValidateDevice(tx))
             .await
@@ -253,8 +222,6 @@ impl AccountManagerHandle {
         rx.await.map_err(|_| Error::AccountManagerDown)?
     }
 }
-
-// type ApiFuture<T> =
 
 pub(crate) struct AccountManager {
     cacher: DeviceCacher,
@@ -299,23 +266,20 @@ impl AccountManager {
             account_service,
             device_service,
         };
-        KeyUpdater::spawn(handle.clone()).await?;
         Ok(handle)
     }
 
     async fn run(mut self, mut cmd_rx: mpsc::UnboundedReceiver<AccountManagerCommand>) {
         let mut shutdown_tx = None;
         let mut current_api_call = api::CurrentApiCall::new();
+        let key_check_timer = self.key_check_timer();
+        futures::pin_mut!(key_check_timer);
 
         loop {
-            let key_check_timer = self.key_check_timer().fuse();
-            futures::pin_mut!(key_check_timer);
-
             futures::select! {
                 api_result = current_api_call => {
                     self.consume_api_result(api_result, &mut current_api_call).await;
                 }
-
 
                 _key_check_time = key_check_timer => {
                     if !current_api_call.is_validating() {
@@ -324,7 +288,6 @@ impl AccountManager {
                         }
                     }
                 }
-
 
                 cmd = cmd_rx.next() => {
                     match cmd {
@@ -335,7 +298,6 @@ impl AccountManager {
                         Some(AccountManagerCommand::Login(token, tx)) => {
                             let job = self.device_service
                                 .generate_for_account(token);
-
                             current_api_call.set_login(Box::pin(job), tx);
                         }
                         Some(AccountManagerCommand::Logout(tx)) => {
@@ -374,9 +336,6 @@ impl AccountManager {
                             self.rotation_interval = interval;
                             let _ = tx.send(Ok(()));
                         }
-                        Some(AccountManagerCommand::GetRotationInterval(tx)) => {
-                            let _ = tx.send(Ok(self.rotation_interval));
-                        }
                         Some(AccountManagerCommand::ValidateDevice(tx)) => {
                             self.handle_validation_request(tx, &mut current_api_call);
                         }
@@ -389,6 +348,10 @@ impl AccountManager {
                     }
                 }
 
+            }
+
+            if key_check_timer.is_terminated() {
+                key_check_timer.set(self.key_check_timer());
             }
         }
         self.shutdown().await;
@@ -575,11 +538,11 @@ impl AccountManager {
     ) -> Option<impl Future<Output = Result<WireguardData, Error>> + Send + 'static> {
         let data = self.data.as_ref()?;
 
-        if (chrono::Utc::now()
+        let key_age = chrono::Utc::now()
             .signed_duration_since(data.wg_data.created)
-            .num_seconds() as u64)
-            < self.rotation_interval.as_duration().as_secs()
-        {
+            .num_seconds() as u64;
+
+        if key_age > self.rotation_interval.as_duration().as_secs() {
             let device_service = self.device_service.clone();
             let account_token = data.token.clone();
             let device_id = data.token.clone();
@@ -727,336 +690,6 @@ impl AccountManager {
         self.cacher.finalize().await;
     }
 }
-
-struct KeyUpdater {
-    handle: AccountManagerHandle,
-    rx: mpsc::UnboundedReceiver<InnerDeviceEvent>,
-    data: Option<DeviceData>,
-}
-
-impl KeyUpdater {
-    async fn spawn(handle: AccountManagerHandle) -> Result<(), Error> {
-        let (tx, rx) = mpsc::unbounded();
-        handle.receive_events(tx).await?;
-        let data = handle.data().await?;
-        let mut key_rotator = KeyUpdater { handle, rx, data };
-
-        tokio::spawn(async move {
-            loop {
-                tokio::time::sleep(KEY_CHECK_INTERVAL).await;
-
-                if let Err(error) = key_rotator.check_key_validity().await {
-                    if let Error::AccountManagerDown = error {
-                        break;
-                    }
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Stopping key rotation task due to an error")
-                    );
-                    break;
-                }
-            }
-            log::debug!("Stopping key updater");
-        });
-
-        Ok(())
-    }
-
-    async fn check_key_validity(&mut self) -> Result<(), Error> {
-        let rotation_interval = self.handle.rotation_interval().await?;
-        let data = self.wait_for_data().await?;
-
-        if (chrono::Utc::now()
-            .signed_duration_since(data.wg_data.created)
-            .num_seconds() as u64)
-            < rotation_interval.as_duration().as_secs()
-        {
-            return Ok(());
-        }
-
-        let mut data = data.clone();
-
-        let rotation_fut = self
-            .handle
-            .device_service
-            .rotate_key_with_backoff(data.token.clone(), data.device.id.clone());
-
-        match futures::future::select(Box::pin(rotation_fut), self.rx.next()).await {
-            futures::future::Either::Left((Ok(wg_data), _)) => {
-                log::debug!("Rotating WireGuard key");
-                data.device.pubkey = wg_data.private_key.public_key();
-                data.wg_data = wg_data;
-                self.handle.set(data).await?;
-            }
-            futures::future::Either::Left((Err(error), _)) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Stopping key rotation due to an error")
-                );
-
-                // Forget the current device. Key rotation will restart when
-                // it is updated in any way.
-                self.data = None;
-            }
-            futures::future::Either::Right((event, _)) => {
-                // Abort key rotation if the device changed
-                if let Some(event) = event {
-                    self.data = event.into_data();
-                } else {
-                    return Err(Error::AccountManagerDown);
-                }
-            }
-        }
-
-        Ok(())
-    }
-
-    async fn wait_for_data(&mut self) -> Result<&DeviceData, Error> {
-        while let Ok(item) = self.rx.try_next() {
-            match item {
-                Some(event) => {
-                    self.data = event.into_data();
-                }
-                None => return Err(Error::AccountManagerDown),
-            }
-        }
-
-        match self.data {
-            Some(ref data) => Ok(data),
-            None => loop {
-                let event = self.rx.next().await;
-                match event {
-                    Some(event) => {
-                        if let Some(data) = event.into_data() {
-                            self.data = Some(data);
-                            break Ok(self.data.as_ref().unwrap());
-                        }
-                    }
-                    None => break Err(Error::AccountManagerDown),
-                }
-            },
-        }
-    }
-}
-
-#[derive(Clone)]
-pub struct DeviceService {
-    api_availability: ApiAvailabilityHandle,
-    proxy: DevicesProxy,
-}
-
-impl DeviceService {
-    pub fn new(handle: rest::MullvadRestHandle, api_availability: ApiAvailabilityHandle) -> Self {
-        Self {
-            proxy: DevicesProxy::new(handle),
-            api_availability,
-        }
-    }
-
-    /// Generate a new device for a given token
-    pub fn generate_for_account(
-        &self,
-        token: AccountToken,
-    ) -> impl Future<Output = Result<DeviceData, Error>> + Send {
-        let private_key = PrivateKey::new_from_random();
-        let pubkey = private_key.public_key();
-
-        let proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-        let token_copy = token.clone();
-        async move {
-            let (device, addresses) = retry_future_n(
-                move || proxy.create(token_copy.clone(), pubkey.clone()),
-                move |result| should_retry(result, &api_handle),
-                constant_interval(RETRY_ACTION_INTERVAL),
-                RETRY_ACTION_MAX_RETRIES,
-            )
-            .await
-            .map_err(map_rest_error)?;
-
-            Ok(DeviceData {
-                token,
-                device,
-                wg_data: WireguardData {
-                    private_key,
-                    addresses,
-                    created: Utc::now(),
-                },
-            })
-        }
-    }
-
-    pub async fn generate_for_account_with_backoff(
-        &self,
-        token: AccountToken,
-    ) -> Result<DeviceData, Error> {
-        let private_key = PrivateKey::new_from_random();
-        let pubkey = private_key.public_key();
-
-        let proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-        let token_copy = token.clone();
-        let (device, addresses) = retry_future(
-            move || api_handle.when_online(proxy.create(token_copy.clone(), pubkey.clone())),
-            should_retry_backoff,
-            retry_strategy(),
-        )
-        .await
-        .map_err(map_rest_error)?;
-
-        Ok(DeviceData {
-            token,
-            device,
-            wg_data: WireguardData {
-                private_key,
-                addresses,
-                created: Utc::now(),
-            },
-        })
-    }
-
-    pub async fn remove_device(&self, token: AccountToken, device: DeviceId) -> Result<(), Error> {
-        let proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-        retry_future_n(
-            move || proxy.remove(token.clone(), device.clone()),
-            move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
-        )
-        .await
-        .map_err(map_rest_error)?;
-        Ok(())
-    }
-
-    pub async fn remove_device_with_backoff(
-        &self,
-        token: AccountToken,
-        device: DeviceId,
-    ) -> Result<(), Error> {
-        let proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-
-        let retry_strategy = Jittered::jitter(
-            ExponentialBackoff::new(
-                RETRY_BACKOFF_INTERVAL_INITIAL,
-                RETRY_BACKOFF_INTERVAL_FACTOR,
-            ), // Not setting a maximum interval
-        );
-
-        retry_future(
-            // NOTE: Not honoring "paused" state, because the account may have no time on it.
-            move || api_handle.when_online(proxy.remove(token.clone(), device.clone())),
-            should_retry_backoff,
-            retry_strategy,
-        )
-        .await
-        .map_err(map_rest_error)?;
-
-        Ok(())
-    }
-
-    pub async fn rotate_key(
-        &self,
-        token: AccountToken,
-        device: DeviceId,
-    ) -> Result<WireguardData, Error> {
-        let private_key = PrivateKey::new_from_random();
-
-        let proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-        let pubkey = private_key.public_key();
-        let addresses = retry_future_n(
-            move || proxy.replace_wg_key(token.clone(), device.clone(), pubkey.clone()),
-            move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
-        )
-        .await
-        .map_err(map_rest_error)?;
-
-        Ok(WireguardData {
-            private_key,
-            addresses,
-            created: Utc::now(),
-        })
-    }
-
-    pub async fn rotate_key_with_backoff(
-        &self,
-        token: AccountToken,
-        device: DeviceId,
-    ) -> Result<WireguardData, Error> {
-        let private_key = PrivateKey::new_from_random();
-
-        let proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-        let pubkey = private_key.public_key();
-
-        let addresses = retry_future(
-            move || {
-                api_handle.when_bg_resumes(proxy.replace_wg_key(
-                    token.clone(),
-                    device.clone(),
-                    pubkey.clone(),
-                ))
-            },
-            should_retry_backoff,
-            retry_strategy(),
-        )
-        .await
-        .map_err(map_rest_error)?;
-
-        Ok(WireguardData {
-            private_key,
-            addresses,
-            created: Utc::now(),
-        })
-    }
-
-    pub async fn list_devices(&self, token: AccountToken) -> Result<Vec<Device>, Error> {
-        let proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-        retry_future_n(
-            move || proxy.list(token.clone()),
-            move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
-        )
-        .await
-        .map_err(map_rest_error)
-    }
-
-    pub async fn list_devices_with_backoff(
-        &self,
-        token: AccountToken,
-    ) -> Result<Vec<Device>, Error> {
-        let proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-
-        retry_future(
-            move || api_handle.when_online(proxy.list(token.clone())),
-            should_retry_backoff,
-            retry_strategy(),
-        )
-        .await
-        .map_err(map_rest_error)
-    }
-
-    pub async fn get(&self, token: AccountToken, device: DeviceId) -> Result<Device, Error> {
-        let proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-        retry_future_n(
-            move || proxy.get(token.clone(), device.clone()),
-            move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
-        )
-        .await
-        .map_err(map_rest_error)
-    }
-}
-
 pub struct DeviceCacher {
     file: io::BufWriter<fs::File>,
     path: std::path::PathBuf,
@@ -1137,187 +770,6 @@ impl DeviceCacher {
         let _ = tokio::task::spawn_blocking(move || drop(std_file)).await;
     }
 }
-
-#[derive(Clone)]
-pub struct AccountService {
-    api_availability: ApiAvailabilityHandle,
-    initial_check_abort_handle: AbortHandle,
-    proxy: AccountsProxy,
-}
-
-impl AccountService {
-    pub fn create_account(&self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
-        let mut proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-        retry_future_n(
-            move || proxy.create_account(),
-            move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
-        )
-    }
-
-    pub fn get_www_auth_token(
-        &self,
-        account: AccountToken,
-    ) -> impl Future<Output = Result<String, rest::Error>> {
-        let proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-        retry_future_n(
-            move || proxy.get_www_auth_token(account.clone()),
-            move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
-        )
-    }
-
-    pub async fn check_expiry(&self, token: AccountToken) -> Result<DateTime<Utc>, rest::Error> {
-        let proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-        let result = retry_future_n(
-            move || proxy.get_expiry(token.clone()),
-            move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
-        )
-        .await;
-        if handle_expiry_result_inner(&result, &self.api_availability) {
-            self.initial_check_abort_handle.abort();
-        }
-        result
-    }
-
-    pub async fn submit_voucher(
-        &mut self,
-        account_token: AccountToken,
-        voucher: String,
-    ) -> Result<VoucherSubmission, rest::Error> {
-        let mut proxy = self.proxy.clone();
-        let api_handle = self.api_availability.clone();
-        let result = retry_future_n(
-            move || proxy.submit_voucher(account_token.clone(), voucher.clone()),
-            move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
-        )
-        .await;
-        if result.is_ok() {
-            self.initial_check_abort_handle.abort();
-            self.api_availability.resume_background();
-        }
-        result
-    }
-}
-
-pub fn spawn_account_service(
-    api_handle: MullvadRestHandle,
-    token: Option<String>,
-    api_availability: ApiAvailabilityHandle,
-) -> AccountService {
-    let accounts_proxy = AccountsProxy::new(api_handle);
-    api_availability.pause_background();
-
-    let api_availability_copy = api_availability.clone();
-    let accounts_proxy_copy = accounts_proxy.clone();
-
-    let (future, initial_check_abort_handle) = abortable(async move {
-        let token = if let Some(token) = token {
-            token
-        } else {
-            api_availability.pause_background();
-            return;
-        };
-
-        let future_generator = move || {
-            let expiry_fut = api_availability.when_online(accounts_proxy.get_expiry(token.clone()));
-            let api_availability_copy = api_availability.clone();
-            async move { handle_expiry_result_inner(&expiry_fut.await, &api_availability_copy) }
-        };
-        let should_retry = move |state_was_updated: &bool| -> bool { !*state_was_updated };
-        retry_future(future_generator, should_retry, retry_strategy()).await;
-    });
-    tokio::spawn(future);
-
-    AccountService {
-        api_availability: api_availability_copy,
-        initial_check_abort_handle,
-        proxy: accounts_proxy_copy,
-    }
-}
-
-fn handle_expiry_result_inner(
-    result: &Result<chrono::DateTime<chrono::Utc>, mullvad_api::rest::Error>,
-    api_availability: &ApiAvailabilityHandle,
-) -> bool {
-    match result {
-        Ok(_expiry) if *_expiry >= chrono::Utc::now() => {
-            api_availability.resume_background();
-            true
-        }
-        Ok(_expiry) => {
-            api_availability.pause_background();
-            true
-        }
-        Err(mullvad_api::rest::Error::ApiError(_status, code)) => {
-            if code == mullvad_api::INVALID_ACCOUNT {
-                api_availability.pause_background();
-                return true;
-            }
-            false
-        }
-        Err(_) => false,
-    }
-}
-
-fn should_retry<T>(result: &Result<T, RestError>, api_handle: &ApiAvailabilityHandle) -> bool {
-    match result {
-        Err(error) if error.is_network_error() => !api_handle.get_state().is_offline(),
-        _ => false,
-    }
-}
-
-fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
-    match result {
-        Ok(_) => false,
-        Err(error) => {
-            if let RestError::ApiError(status, code) = error {
-                *status != rest::StatusCode::NOT_FOUND
-                    && code != mullvad_api::INVALID_ACCOUNT
-                    && code != mullvad_api::MAX_DEVICES_REACHED
-                    && code != mullvad_api::PUBKEY_IN_USE
-            } else {
-                true
-            }
-        }
-    }
-}
-
-fn map_rest_error(error: rest::Error) -> Error {
-    match error {
-        RestError::ApiError(status, ref code) => {
-            if status == rest::StatusCode::NOT_FOUND {
-                return Error::InvalidDevice;
-            }
-            match code.as_str() {
-                mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,
-                mullvad_api::MAX_DEVICES_REACHED => Error::MaxDevicesReached,
-                _ => Error::OtherRestError(error),
-            }
-        }
-        error => Error::OtherRestError(error),
-    }
-}
-
-fn retry_strategy() -> Jittered<ExponentialBackoff> {
-    Jittered::jitter(
-        ExponentialBackoff::new(
-            RETRY_BACKOFF_INTERVAL_INITIAL,
-            RETRY_BACKOFF_INTERVAL_FACTOR,
-        )
-        .max_delay(RETRY_BACKOFF_INTERVAL_MAX),
-    )
-}
-
 /// Checks if the current device is valid if a WireGuard tunnel cannot be set up
 /// after multiple attempts.
 pub(crate) struct TunnelStateChangeHandler {

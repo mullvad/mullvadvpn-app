@@ -10,7 +10,7 @@ use mullvad_types::{
     relay_constraints::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
         ObfuscationSettings, OpenVpnConstraints, Providers, RelayConstraints, SelectedObfuscation,
-        Set, TransportPort, Udp2TcpObfuscationSettings, WireguardConstraints, RelaySettings, BridgeSettings,
+        Set, TransportPort, Udp2TcpObfuscationSettings, WireguardConstraints,
     },
     relay_list::{Relay, RelayList, Udp2TcpEndpointData},
 };
