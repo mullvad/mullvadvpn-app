@@ -43,6 +43,14 @@ impl CurrentApiCall {
         }
     }
 
+    pub fn is_running_timed_totation(&self) -> bool {
+        matches!(&self.current_call, Some(Call::TimerKeyRotation(_)))
+    }
+
+    pub fn is_idle(&self) -> bool {
+        self.current_call.is_none()
+    }
+
     pub fn is_logging_in(&self) -> bool {
         use Call::*;
         match &self.current_call {
@@ -60,8 +68,8 @@ impl Future for CurrentApiCall {
         cx: &mut std::task::Context<'_>,
     ) -> std::task::Poll<Self::Output> {
         match self.current_call.as_mut() {
-            Some(mut call) => {
-                let result = Pin::new(&mut call).poll(cx);
+            Some(call) => {
+                let result = Pin::new(call).poll(cx);
                 if result.is_ready() {
                     self.current_call = None;
                 }
@@ -97,21 +105,16 @@ impl futures::Future for Call {
         use Call::*;
         match &mut *self {
             Login(call, tx) => {
-                futures::pin_mut!(call);
-                if let std::task::Poll::Ready(response) = call.poll(cx) {
+                if let std::task::Poll::Ready(response) = Pin::new(call).poll(cx) {
                     std::task::Poll::Ready(ApiResult::Login(response, tx.take().unwrap()))
                 } else {
                     std::task::Poll::Pending
                 }
             }
             TimerKeyRotation(call) | OneshotKeyRotation(call) => {
-                futures::pin_mut!(call);
-                call.poll(cx).map(ApiResult::Rotation)
+                Pin::new(call).poll(cx).map(ApiResult::Rotation)
             }
-            Validation(call) => {
-                futures::pin_mut!(call);
-                call.poll(cx).map(ApiResult::Validation)
-            }
+            Validation(call) => Pin::new(call).poll(cx).map(ApiResult::Validation),
         }
     }
 }
