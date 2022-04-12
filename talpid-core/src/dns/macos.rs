@@ -1,6 +1,6 @@
 use parking_lot::Mutex;
 use std::{
-    collections::HashMap,
+    collections::{BTreeSet, HashMap},
     fmt,
     net::{AddrParseError, IpAddr},
     sync::{mpsc as sync_mpsc, Arc},
@@ -131,6 +131,10 @@ impl DnsSettings {
             .unwrap_or(Vec::new())
     }
 
+    pub fn address_set(&self) -> BTreeSet<String> {
+        BTreeSet::from_iter(self.server_addresses().into_iter())
+    }
+
     pub fn interface_config(&self, interface_path: &str) -> Result<Vec<IpAddr>> {
         let addresses = self
             .server_addresses()
@@ -241,7 +245,7 @@ impl super::DnsMonitorT for DnsMonitor {
                 }
             }
             Some(state) => {
-                if servers != state.dns_settings.server_addresses() {
+                if BTreeSet::from_iter(servers.into_iter()) != state.dns_settings.address_set() {
                     for service_path in state.backup.keys() {
                         settings.save(&self.store, service_path.as_str())?;
                     }
@@ -387,7 +391,7 @@ fn dns_change_callback_internal(
                 true
             }
             Some(new_settings) => {
-                if new_settings.dict != state.dns_settings.dict {
+                if new_settings.address_set() != state.dns_settings.address_set() {
                     log::debug!("Detected DNS change for {}", *path);
                     state.backup.insert(path.to_string(), Some(new_settings));
                     true
