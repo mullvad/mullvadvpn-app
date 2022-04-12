@@ -1,7 +1,7 @@
-use libc::{clock_gettime, clockid_t, timespec};
+use libc::{c_long, clock_gettime, clockid_t, timespec};
 use std::{mem::MaybeUninit, time::Duration};
 
-const NSEC_PER_SEC: i64 = 1000000000;
+const NSEC_PER_SEC: c_long = 1000000000;
 
 #[cfg(target_os = "macos")]
 const CLOCK_ID: clockid_t = libc::CLOCK_MONOTONIC;
