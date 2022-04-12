@@ -1,6 +1,12 @@
 # Mullvad VPN desktop and mobile app
 
-Welcome to the Mullvad VPN client app. This repository contains all the source code for the
+Welcome to the Mullvad VPN client app source code repository.
+This is the VPN client software for the Mullvad VPN service.
+For more information about the service, please visit our website,
+[mullvad.net](https://mullvad.net) (Also accessible via Tor on our
+[onion service](http://o54hon2e2vj6c7m3aqqu6uyece65by3vgoxxhlqlsvkmacw6a7m7kiad.onion/)).
+
+This repository contains all the source code for the
 desktop and mobile versions of the app. For desktop this includes the system service/daemon
 ([`mullvad-daemon`](mullvad-daemon/)), a graphical user interface ([GUI](gui/)) and a
 command line interface ([CLI](mullvad-cli/)). The Android app uses the same backing
