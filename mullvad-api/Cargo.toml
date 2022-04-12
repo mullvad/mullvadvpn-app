@@ -35,7 +35,7 @@ mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
 
-shadowsocks = { git = "https://github.com/shadowsocks/shadowsocks-rust", rev = "7388ddfb7d36d5b84908c476daabc91c8b065a37", default-features = false, features = ["stream-cipher"] }
+shadowsocks = { version = "1.14.2", default-features = false, features = ["stream-cipher"] }
 
 [target.'cfg(target_os="macos")'.dependencies]
 tokio-stream = { version = "0.1", features = ["io-util"] }
