@@ -1661,7 +1661,6 @@ mod test {
                 .get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, attempt)
                 .expect("Failed to select a WireGuard relay");
             assert!(result.entry_relay.is_none());
-            assert!(!TCP2UDP_PORTS.contains(&result.endpoint.to_endpoint().address.port()));
 
             let (obfs_config, _obfs_relay) = relay_selector
                 .get_obfuscator(
