@@ -16,10 +16,14 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
-            - name: Setup Node.js environment
+            - name: Read .nvmrc
+              run: echo ::set-output name=NODE_VERSION::$(cat .nvmrc)
+              id: nvm
+
+            - name: Setup Node.js ${{ steps.nvm.outputs.NODE_VERSION }}
               uses: actions/setup-node@v3
               with:
-                  node-version: '16.9.1'
+                  node-version: ${{ steps.nvm.outputs.NODE_VERSION }}
                   cache: 'npm'
                   cache-dependency-path: gui/package-lock.json
 
