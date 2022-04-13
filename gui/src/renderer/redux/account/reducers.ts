@@ -48,7 +48,6 @@ export default function (
       return {
         ...state,
         status: { type: 'failed', method: 'existing_account', error: action.error },
-        accountToken: undefined,
       };
     case 'TOO_MANY_DEVICES':
       return {
