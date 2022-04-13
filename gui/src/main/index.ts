@@ -310,6 +310,7 @@ class ApplicationMain {
     app.on('ready', this.onReady);
     app.on('window-all-closed', () => app.quit());
     app.on('before-quit', this.onBeforeQuit);
+    app.on('quit', this.onQuit);
   }
 
   private addSecondInstanceEventHandler() {
@@ -379,6 +380,14 @@ class ApplicationMain {
   private onActivate = () => {
     if (this.windowController) {
       this.windowController.show();
+    }
+  };
+
+  // This is a last try to disconnect and quit gracefully if the app quits without having received
+  // the before-quit event.
+  private onQuit = async () => {
+    if (this.quitStage !== AppQuitStage.ready) {
+      await this.prepareToQuit();
     }
   };
 
