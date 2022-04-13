@@ -41,7 +41,7 @@
     "@types/google-protobuf": "^3.7.2",
     "@types/history": "^4.7.8",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^16.10.1",
+    "@types/node": "^16.11.26",
     "@types/node-gettext": "^3.0.1",
     "@types/rbush": "^2.0.2",
     "@types/react": "^16.9.56",
