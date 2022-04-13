@@ -24,7 +24,7 @@ interface IProps {
   onReconnect: () => void;
 }
 
-type MarkerOrSpinner = 'marker' | 'spinner';
+type MarkerOrSpinner = 'marker' | 'spinner' | 'none';
 
 const StyledMap = styled(Map)({
   position: 'absolute',
@@ -155,35 +155,24 @@ export default class Connect extends React.Component<IProps, IState> {
   }
 
   private getMapProps(): Map['props'] {
-    const {
-      longitude,
-      latitude,
-      status: { state },
-    } = this.props.connection;
+    const mapCenter = this.getMapCenter();
 
-    // when the user location is known
-    if (typeof longitude === 'number' && typeof latitude === 'number') {
-      return {
-        center: [longitude, latitude],
-        // do not show the marker when connecting or reconnecting
-        showMarker: this.showMarkerOrSpinner() === 'marker',
-        markerStyle: this.getMarkerStyle(),
-        // zoom in when connected
-        zoomLevel: state === 'connected' ? ZoomLevel.high : ZoomLevel.medium,
-        // a magic offset to align marker with spinner
-        offset: [0, 123],
-      };
-    } else {
-      return {
-        center: [0, 0],
-        showMarker: false,
-        markerStyle: MarkerStyle.unsecure,
-        // show the world when user location is not known
-        zoomLevel: ZoomLevel.low,
-        // remove the offset since the marker is hidden
-        offset: [0, 0],
-      };
-    }
+    return {
+      center: mapCenter ?? [0, 0],
+      showMarker: this.showMarkerOrSpinner() === 'marker',
+      markerStyle: this.getMarkerStyle(),
+      zoomLevel: this.getZoomLevel(),
+      // a magic offset to align marker with spinner
+      offset: [0, mapCenter ? 123 : 0],
+    };
+  }
+
+  private getMapCenter(): [number, number] | undefined {
+    const { longitude, latitude } = this.props.connection;
+
+    return typeof longitude === 'number' && typeof latitude === 'number'
+      ? [longitude, latitude]
+      : undefined;
   }
 
   private getMarkerStyle(): MarkerStyle {
@@ -209,8 +198,29 @@ export default class Connect extends React.Component<IProps, IState> {
   }
 
   private showMarkerOrSpinner(): MarkerOrSpinner {
-    const status = this.props.connection.status;
+    if (!this.getMapCenter()) {
+      return 'none';
+    }
 
-    return status.state === 'connecting' || status.state === 'disconnecting' ? 'spinner' : 'marker';
+    switch (this.props.connection.status.state) {
+      case 'error':
+        return 'none';
+      case 'connecting':
+      case 'disconnecting':
+        return 'spinner';
+      case 'connected':
+      case 'disconnected':
+        return 'marker';
+    }
+  }
+
+  private getZoomLevel(): ZoomLevel {
+    const { longitude, latitude, status } = this.props.connection;
+
+    if (typeof longitude === 'number' && typeof latitude === 'number') {
+      return status.state === 'connected' ? ZoomLevel.high : ZoomLevel.medium;
+    } else {
+      return ZoomLevel.low;
+    }
   }
 }
