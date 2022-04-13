@@ -16,7 +16,11 @@ impl Command for Obfuscation {
 
     fn clap_subcommand(&self) -> clap::App<'static> {
         clap::App::new(self.name())
-            .about("Manage use of obfuscators")
+            .about(
+                "Manage use of obfuscation protocols for WireGuard. \
+                Can make WireGuard traffic look like something else on the network. \
+                Helps circumvent censorship and to establish a tunnel when on restricted networks",
+            )
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(create_obfuscation_set_subcommand())
             .subcommand(create_obfuscation_get_subcommand())
@@ -105,7 +109,10 @@ fn create_obfuscation_set_subcommand() -> clap::App<'static> {
         .subcommand(
             clap::App::new("mode").about("Set obfuscation mode").arg(
                 clap::Arg::new("mode")
-                    .help("Specifies what kind of obfuscation should be used, if any")
+                    .help(
+                        "Specifies if obfuscation should be used with WireGuard connections. \
+                        And if so, what obfuscation protocol it should use.",
+                    )
                     .required(true)
                     .index(1)
                     .possible_values(&["auto", "off", "udp2tcp"]),

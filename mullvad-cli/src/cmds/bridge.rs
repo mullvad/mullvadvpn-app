@@ -18,7 +18,11 @@ impl Command for Bridge {
 
     fn clap_subcommand(&self) -> clap::App<'static> {
         clap::App::new(self.name())
-            .about("Manage use of bridges")
+            .about(
+                "Manage use of bridges, socks proxies and Shadowsocks for OpenVPN. \
+                Can make OpenVPN tunnels use Shadowsocks via one of the Mullvad bridge servers. \
+                Can also make OpenVPN connect through any custom SOCKS5 proxy",
+            )
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(create_bridge_set_subcommand())
             .subcommand(clap::App::new("get").about("Get current bridge settings and state"))
