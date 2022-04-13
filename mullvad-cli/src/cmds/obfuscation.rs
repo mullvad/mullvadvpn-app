@@ -29,7 +29,7 @@ impl Command for Obfuscation {
     async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
             Some(("set", set_matches)) => Self::handle_set(set_matches).await,
-            Some(("get", get_matches)) => Self::handle_get(get_matches).await,
+            Some(("get", _get_matches)) => Self::handle_get().await,
             _ => unreachable!("unhandled command"),
         }
     }
@@ -50,7 +50,7 @@ impl Obfuscation {
                 };
                 Self::set_obfuscation_settings(&mut rpc, &settings).await?;
             }
-            Some(("udp2tcp-settings", settings_matches)) => {
+            Some(("udp2tcp", settings_matches)) => {
                 let port: String = settings_matches.value_of_t_or_exit("port");
                 let mut rpc = new_rpc_client().await?;
                 let mut settings = Self::get_obfuscation_settings(&mut rpc).await?;
@@ -68,13 +68,14 @@ impl Obfuscation {
         Ok(())
     }
 
-    async fn handle_get(matches: &clap::ArgMatches) -> Result<()> {
+    async fn handle_get() -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        let settings = Self::get_obfuscation_settings(&mut rpc).await?;
-        match matches.subcommand() {
-            Some(("udp2tcp-settings", _)) => println!("Udp2Tcp: {}", settings.udp2tcp),
-            _ => println!("Current settings: {}", settings),
-        }
+        let obfuscation_settings = Self::get_obfuscation_settings(&mut rpc).await?;
+        println!(
+            "Obfuscation mode: {}",
+            obfuscation_settings.selected_obfuscation
+        );
+        println!("udp2tcp settings: {}", obfuscation_settings.udp2tcp);
         Ok(())
     }
 
@@ -119,7 +120,7 @@ fn create_obfuscation_set_subcommand() -> clap::App<'static> {
             ),
         )
         .subcommand(
-            clap::App::new("udp2tcp-settings")
+            clap::App::new("udp2tcp")
                 .about("Specifies the config for the udp2tcp obfuscator")
                 .setting(clap::AppSettings::ArgRequiredElseHelp)
                 .arg(
@@ -132,10 +133,5 @@ fn create_obfuscation_set_subcommand() -> clap::App<'static> {
 }
 
 fn create_obfuscation_get_subcommand() -> clap::App<'static> {
-    clap::App::new("get")
-        .about("Get obfuscation settings")
-        .subcommand(
-            clap::App::new("udp2tcp-settings")
-                .about("Specifies the config for the udp2tcp obfuscator"),
-        )
+    clap::App::new("get").about("Get current obfuscation settings")
 }
