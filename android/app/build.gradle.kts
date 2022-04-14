@@ -181,7 +181,6 @@ dependencies {
     testImplementation(Dependencies.junit)
     testImplementation(Dependencies.turbine)
 
-
     // UI test dependencies
     debugImplementation(Dependencies.AndroidX.fragmentTestning)
     androidTestImplementation(Dependencies.AndroidX.espressoContrib)
