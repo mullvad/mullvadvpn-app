@@ -2,6 +2,7 @@ import { Action, History as OriginalHistory, Location, LocationDescriptorObject 
 import React from 'react';
 import { RouteComponentProps, useHistory as useReactRouterHistory, withRouter } from 'react-router';
 
+import { IHistoryObject } from '../../shared/ipc-types';
 import { GeneratedRoutePath, RoutePath } from './routes';
 
 export interface ITransitionSpecification {
@@ -59,6 +60,15 @@ export default class History {
 
   public constructor(location: LocationDescriptor<S>, state?: S) {
     this.entries = [this.createLocation(location, state)];
+  }
+
+  public static fromSavedHistory(savedHistory: IHistoryObject): History {
+    const history = new History(RoutePath.launch);
+    history.entries = savedHistory.entries;
+    history.index = savedHistory.index;
+    history.lastAction = savedHistory.lastAction;
+
+    return history;
   }
 
   public get location(): Location<S> {
@@ -124,6 +134,14 @@ export default class History {
   // implementation would handle any string as expected.
   public get asHistory(): OriginalHistory {
     return this as OriginalHistory;
+  }
+
+  public get asObject(): IHistoryObject {
+    return {
+      entries: this.entries,
+      index: this.index,
+      lastAction: this.lastAction,
+    };
   }
 
   public block(): never {

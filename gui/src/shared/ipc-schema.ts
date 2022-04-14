@@ -27,7 +27,12 @@ interface ILogEntry {
   message: string;
 }
 import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
-import { IChangelog, ICurrentAppVersionInfo, IWindowShapeParameters } from './ipc-types';
+import {
+  IChangelog,
+  ICurrentAppVersionInfo,
+  IHistoryObject,
+  IWindowShapeParameters,
+} from './ipc-types';
 
 export interface ITranslations {
   locale: string;
@@ -66,6 +71,7 @@ export interface IAppStateSnapshot {
   windowsSplitTunnelingApplications?: IWindowsApplication[];
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
   changelog: IChangelog;
+  navigationHistory?: IHistoryObject;
 }
 
 // The different types of requests are:
@@ -118,6 +124,7 @@ export const ipcSchema = {
   },
   navigation: {
     reset: notifyRenderer<void>(),
+    setHistory: send<IHistoryObject>(),
   },
   daemon: {
     isPerformingPostUpgrade: notifyRenderer<boolean>(),

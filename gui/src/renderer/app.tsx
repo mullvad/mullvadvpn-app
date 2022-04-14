@@ -25,7 +25,7 @@ import {
 import { messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IRelayListPair, LaunchApplicationResult } from '../shared/ipc-schema';
-import { IChangelog, ICurrentAppVersionInfo } from '../shared/ipc-types';
+import { IChangelog, ICurrentAppVersionInfo, IHistoryObject } from '../shared/ipc-types';
 import log, { ConsoleOutput } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import { Scheduler } from '../shared/scheduler';
@@ -208,7 +208,11 @@ export default class AppRenderer {
     this.setAccountExpiry(initialState.accountData?.expiry);
     this.setSettings(initialState.settings);
     this.setIsPerformingPostUpgrade(initialState.isPerformingPostUpgrade);
-    this.handleAccountChange({ deviceConfig: initialState.deviceConfig }, undefined);
+    this.handleAccountChange(
+      { deviceConfig: initialState.deviceConfig },
+      undefined,
+      initialState.navigationHistory !== undefined,
+    );
     this.hasReceivedDeviceConfig = initialState.hasReceivedDeviceConfig;
     this.setAccountHistory(initialState.accountHistory);
     this.setTunnelState(initialState.tunnelState);
@@ -244,8 +248,12 @@ export default class AppRenderer {
 
     void this.updateLocation();
 
-    const navigationBase = this.getNavigationBase();
-    this.history = new History(navigationBase);
+    if (initialState.navigationHistory) {
+      this.history = History.fromSavedHistory(initialState.navigationHistory);
+    } else {
+      const navigationBase = this.getNavigationBase();
+      this.history = new History(navigationBase);
+    }
   }
 
   public renderView() {
@@ -555,6 +563,10 @@ export default class AppRenderer {
     IpcRendererEventChannel.currentVersion.displayedChangelog();
   };
 
+  public setNavigationHistory(history: IHistoryObject) {
+    IpcRendererEventChannel.navigation.setHistory(history);
+  }
+
   // Make sure that the content height is correct and log if it isn't. This is mostly for debugging
   // purposes since there's a bug in Electron that causes the app height to be another value than
   // the one we have set.
@@ -804,7 +816,11 @@ export default class AppRenderer {
     }
   }
 
-  private handleAccountChange(newDeviceEvent: IDeviceEvent, oldAccount?: string) {
+  private handleAccountChange(
+    newDeviceEvent: IDeviceEvent,
+    oldAccount?: string,
+    preventRedirectToConnect?: boolean,
+  ) {
     const reduxAccount = this.reduxActions.account;
 
     this.deviceConfig = newDeviceEvent.deviceConfig;
@@ -828,7 +844,7 @@ export default class AppRenderer {
 
           if (this.previousLoginState === 'too many devices') {
             this.resetNavigation();
-          } else {
+          } else if (!preventRedirectToConnect) {
             this.redirectToConnect();
           }
           break;
