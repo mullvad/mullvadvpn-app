@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import android.app.Application
+import androidx.annotation.RestrictTo
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -55,9 +56,9 @@ class LoginViewModel(
         accountCache?.login(accountToken)
     }
 
-    override fun onCleared() {
-        accountCache?.onAccountHistoryChange?.unsubscribe(this)
-        accountCache?.onLoginStatusChange?.unsubscribe(this)
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public override fun onCleared() {
+        accountCache?.unsubscribe()
     }
 
     private fun AccountCache.subscribe() {
