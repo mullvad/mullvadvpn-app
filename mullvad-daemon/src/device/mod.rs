@@ -118,16 +118,6 @@ impl Error {
     }
 }
 
-#[derive(Clone)]
-pub enum ValidationResult {
-    /// The device and key were valid.
-    Valid,
-    /// The device was valid but the key was replaced
-    RotatedKey,
-    /// The device was valid but one or more fields, such as ports, were replaced
-    Updated,
-}
-
 type ResponseTx<T> = oneshot::Sender<Result<T, Error>>;
 
 enum AccountManagerCommand {
@@ -137,7 +127,7 @@ enum AccountManagerCommand {
     GetData(ResponseTx<Option<DeviceData>>),
     RotateKey(ResponseTx<()>),
     SetRotationInterval(RotationInterval, ResponseTx<()>),
-    ValidateDevice(ResponseTx<ValidationResult>),
+    ValidateDevice(ResponseTx<()>),
     ReceiveEvents(Box<dyn Sender<InnerDeviceEvent> + Send>, ResponseTx<()>),
     Shutdown(oneshot::Sender<()>),
 }
@@ -180,7 +170,7 @@ impl AccountManagerHandle {
             .await
     }
 
-    pub async fn validate_device(&self) -> Result<ValidationResult, Error> {
+    pub async fn validate_device(&self) -> Result<(), Error> {
         self.send_command(|tx| AccountManagerCommand::ValidateDevice(tx))
             .await
     }
@@ -222,7 +212,7 @@ pub(crate) struct AccountManager {
     rotation_interval: RotationInterval,
     listeners: Vec<Box<dyn Sender<InnerDeviceEvent> + Send>>,
     last_validation: Option<SystemTime>,
-    validation_requests: Vec<ResponseTx<ValidationResult>>,
+    validation_requests: Vec<ResponseTx<()>>,
     rotation_requests: Vec<ResponseTx<()>>,
 }
 
@@ -348,7 +338,7 @@ impl AccountManager {
 
     fn handle_validation_request(
         &mut self,
-        tx: ResponseTx<ValidationResult>,
+        tx: ResponseTx<()>,
         current_api_call: &mut api::CurrentApiCall,
     ) {
         if current_api_call.is_logging_in() {
@@ -359,8 +349,8 @@ impl AccountManager {
             self.validation_requests.push(tx);
             return;
         }
-        if let Some(result) = self.cached_validation() {
-            let _ = tx.send(Ok(result));
+        if self.cached_validation() {
+            let _ = tx.send(Ok(()));
             return;
         }
 
@@ -421,9 +411,7 @@ impl AccountManager {
 
                     match self.set(InnerDeviceEvent::Updated(new_data)).await {
                         Ok(_) => {
-                            Self::drain_requests(&mut self.validation_requests, || {
-                                Ok(ValidationResult::Valid)
-                            });
+                            Self::drain_requests(&mut self.validation_requests, || Ok(()));
                         }
                         Err(err) => {
                             log::error!("Failed to save device data to disk");
@@ -479,9 +467,7 @@ impl AccountManager {
                     Ok(_) => {
                         Self::drain_requests(&mut self.rotation_requests, || Ok(()));
 
-                        Self::drain_requests(&mut self.validation_requests, || {
-                            Ok(ValidationResult::RotatedKey)
-                        });
+                        Self::drain_requests(&mut self.validation_requests, || Ok(()));
                     }
                     Err(err) => {
                         self.drain_requests_with_err(err);
@@ -567,7 +553,7 @@ impl AccountManager {
         tokio::spawn(async move {
             let timeout = tokio::time::sleep(LOGOUT_TIMEOUT).fuse();
             futures::pin_mut!(timeout);
-            futures::select!{
+            futures::select! {
                 _timeout = timeout => {
                     let _ = tx.send(Ok(()));
                     logout_call.await
@@ -669,9 +655,9 @@ impl AccountManager {
         Ok(async move { device_request.await })
     }
 
-    fn cached_validation(&mut self) -> Option<ValidationResult> {
+    fn cached_validation(&mut self) -> bool {
         if self.data.is_none() {
-            return None;
+            return false;
         }
 
         let now = SystemTime::now();
@@ -682,11 +668,11 @@ impl AccountManager {
             .unwrap_or(VALIDITY_CACHE_TIMEOUT);
 
         if elapsed >= VALIDITY_CACHE_TIMEOUT {
-            self.last_validation = Some(now);
-            return None;
+            self.last_validation = None;
+            return false;
         }
 
-        Some(ValidationResult::Valid)
+        true
     }
 
     async fn shutdown(self) {
