@@ -125,6 +125,7 @@ enum AccountManagerCommand {
     Logout(ResponseTx<()>),
     SetData(DeviceData, ResponseTx<()>),
     GetData(ResponseTx<Option<DeviceData>>),
+    GetDataAfterLogin(ResponseTx<Option<DeviceData>>),
     RotateKey(ResponseTx<()>),
     SetRotationInterval(RotationInterval, ResponseTx<()>),
     ValidateDevice(ResponseTx<()>),
@@ -157,6 +158,11 @@ impl AccountManagerHandle {
 
     pub async fn data(&self) -> Result<Option<DeviceData>, Error> {
         self.send_command(|tx| AccountManagerCommand::GetData(tx))
+            .await
+    }
+
+    pub async fn data_after_login(&self) -> Result<Option<DeviceData>, Error> {
+        self.send_command(|tx| AccountManagerCommand::GetDataAfterLogin(tx))
             .await
     }
 
@@ -214,6 +220,7 @@ pub(crate) struct AccountManager {
     last_validation: Option<SystemTime>,
     validation_requests: Vec<ResponseTx<()>>,
     rotation_requests: Vec<ResponseTx<()>>,
+    data_requests: Vec<ResponseTx<Option<DeviceData>>>,
 }
 
 impl AccountManager {
@@ -240,6 +247,7 @@ impl AccountManager {
             last_validation: None,
             validation_requests: vec![],
             rotation_requests: vec![],
+            data_requests: vec![],
         };
 
         tokio::spawn(manager.run(cmd_rx));
@@ -282,6 +290,13 @@ impl AccountManager {
                         Some(AccountManagerCommand::GetData(tx)) => {
                             let _ = tx.send(Ok(self.data.clone()));
                         }
+                        Some(AccountManagerCommand::GetDataAfterLogin(tx)) => {
+                            if current_api_call.is_logging_in() {
+                                self.data_requests.push(tx);
+                            } else {
+                                let _ = tx.send(Ok(self.data.clone()));
+                            }
+                        }
                         Some(AccountManagerCommand::RotateKey(tx)) => {
                             if current_api_call.is_logging_in() {
                                 let _ = tx.send(Err(Error::AccountChange));
@@ -315,6 +330,7 @@ impl AccountManager {
                         Some(AccountManagerCommand::ReceiveEvents(events_tx, tx)) => {
                             let _ = tx.send(Ok(self.listeners.push(events_tx)));
                         },
+
                         None => {
                             break;
                         }
@@ -383,6 +399,8 @@ impl AccountManager {
         tx: ResponseTx<()>,
     ) {
         let _ = tx.send(async { self.set(InnerDeviceEvent::Login(device_response?)).await }.await);
+        let data = self.data.clone();
+        Self::drain_requests(&mut self.data_requests, || Ok(data.clone()));
     }
 
     async fn consume_validation(
@@ -532,6 +550,7 @@ impl AccountManager {
     }
 
     async fn logout(&mut self, tx: ResponseTx<()>) {
+        self.data_requests = vec![];
         let data = match self.data.take() {
             Some(it) => it,
             _ => return,
