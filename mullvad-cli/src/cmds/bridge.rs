@@ -21,7 +21,8 @@ impl Command for Bridge {
             .about(
                 "Manage use of bridges, socks proxies and Shadowsocks for OpenVPN. \
                 Can make OpenVPN tunnels use Shadowsocks via one of the Mullvad bridge servers. \
-                Can also make OpenVPN connect through any custom SOCKS5 proxy",
+                Can also make OpenVPN connect through any custom SOCKS5 proxy. \
+                These settings also affect how the app reaches the API over Shadowsocks.",
             )
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(create_bridge_set_subcommand())
