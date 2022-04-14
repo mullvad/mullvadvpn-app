@@ -1667,7 +1667,7 @@ class ApplicationMain {
 
       const window = await this.createWindow();
 
-      this.windowController.destroy();
+      this.windowController.close();
       this.windowController = new WindowController(
         window,
         this.tray,
