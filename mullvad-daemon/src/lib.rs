@@ -1463,7 +1463,7 @@ where
     }
 
     async fn handle_device_migration_event(&mut self, result: Result<DeviceData, device::Error>) {
-        if let Ok(Some(_)) = self.account_manager.data().await {
+        if let Ok(Some(_)) = self.account_manager.data_after_login().await {
             // Discard stale device
             return;
         }
