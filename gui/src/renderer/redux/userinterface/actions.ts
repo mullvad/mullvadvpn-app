@@ -1,5 +1,5 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
-import { IChangelog } from '../../../shared/ipc-types';
+import { IChangelog, ScrollPositions } from '../../../shared/ipc-types';
 
 export interface IUpdateLocaleAction {
   type: 'UPDATE_LOCALE';
@@ -18,6 +18,11 @@ export interface IUpdateConnectionInfoOpenAction {
 export interface ISetWindowFocusedAction {
   type: 'SET_WINDOW_FOCUSED';
   focused: boolean;
+}
+
+export interface ISetScrollPositions {
+  type: 'SET_SCROLL_POSITIONS';
+  scrollPositions: ScrollPositions;
 }
 
 export interface IAddScrollPosition {
@@ -56,6 +61,7 @@ export type UserInterfaceAction =
   | IUpdateWindowArrowPositionAction
   | IUpdateConnectionInfoOpenAction
   | ISetWindowFocusedAction
+  | ISetScrollPositions
   | IAddScrollPosition
   | IRemoveScrollPosition
   | ISetMacOsScrollbarVisibility
@@ -87,6 +93,13 @@ function setWindowFocused(focused: boolean): ISetWindowFocusedAction {
   return {
     type: 'SET_WINDOW_FOCUSED',
     focused,
+  };
+}
+
+function setScrollPositions(scrollPositions: ScrollPositions): ISetScrollPositions {
+  return {
+    type: 'SET_SCROLL_POSITIONS',
+    scrollPositions,
   };
 }
 
@@ -140,6 +153,7 @@ export default {
   updateWindowArrowPosition,
   toggleConnectionPanel,
   setWindowFocused,
+  setScrollPositions,
   addScrollPosition,
   removeScrollPosition,
   setMacOsScrollbarVisibility,

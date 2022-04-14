@@ -32,6 +32,7 @@ import {
   ICurrentAppVersionInfo,
   IHistoryObject,
   IWindowShapeParameters,
+  ScrollPositions,
 } from './ipc-types';
 
 export interface ITranslations {
@@ -72,6 +73,7 @@ export interface IAppStateSnapshot {
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
   changelog: IChangelog;
   navigationHistory?: IHistoryObject;
+  scrollPositions: ScrollPositions;
 }
 
 // The different types of requests are:
@@ -125,6 +127,7 @@ export const ipcSchema = {
   navigation: {
     reset: notifyRenderer<void>(),
     setHistory: send<IHistoryObject>(),
+    setScrollPositions: send<ScrollPositions>(),
   },
   daemon: {
     isPerformingPostUpgrade: notifyRenderer<boolean>(),

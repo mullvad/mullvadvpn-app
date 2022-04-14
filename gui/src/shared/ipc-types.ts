@@ -18,3 +18,5 @@ export interface IHistoryObject {
   index: number;
   lastAction: Action;
 }
+
+export type ScrollPositions = Record<string, [number, number]>;

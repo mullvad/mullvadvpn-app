@@ -1,7 +1,8 @@
-import React, { useCallback, useContext, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react';
 
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { useHistory } from '../lib/history';
 import { useCombinedRefs } from '../lib/utilityHooks';
@@ -114,18 +115,20 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
 ) {
   const history = useHistory();
   const { onScroll } = useContext(NavigationScrollContext);
+  const { setScrollPositions } = useAppContext();
 
   const ref = useRef<CustomScrollbarsRef>();
   const combinedRefs = useCombinedRefs(forwardedRef, ref);
 
   const { addScrollPosition, removeScrollPosition } = useActions(userInterface);
-  const scrollPosition = useSelector(
-    (state) => state.userInterface.scrollPosition[history.location.pathname],
-  );
+  const scrollPositions = useSelector((state) => state.userInterface.scrollPosition);
+
+  useEffect(() => setScrollPositions(scrollPositions), [scrollPositions]);
 
   useLayoutEffect(() => {
     const path = history.location.pathname;
 
+    const scrollPosition = scrollPositions[history.location.pathname];
     if (history.action === 'POP' && scrollPosition) {
       ref.current?.scrollTo(...scrollPosition);
       removeScrollPosition(path);

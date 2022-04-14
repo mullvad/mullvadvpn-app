@@ -43,7 +43,12 @@ import {
 import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
-import { IChangelog, ICurrentAppVersionInfo, IHistoryObject } from '../shared/ipc-types';
+import {
+  IChangelog,
+  ICurrentAppVersionInfo,
+  IHistoryObject,
+  ScrollPositions,
+} from '../shared/ipc-types';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import {
@@ -253,6 +258,7 @@ class ApplicationMain {
   private changelog?: IChangelog;
 
   private navigationHistory?: IHistoryObject;
+  private scrollPositions: ScrollPositions = {};
 
   public run() {
     // Remove window animations to combat window flickering when opening window. Can be removed when
@@ -1276,6 +1282,7 @@ class ApplicationMain {
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
       changelog: this.changelog ?? [],
       navigationHistory: this.navigationHistory,
+      scrollPositions: this.scrollPositions,
     }));
 
     IpcMainEventChannel.settings.handleSetAllowLan((allowLan: boolean) =>
@@ -1491,6 +1498,9 @@ class ApplicationMain {
 
     IpcMainEventChannel.navigation.handleSetHistory((history) => {
       this.navigationHistory = history;
+    });
+    IpcMainEventChannel.navigation.handleSetScrollPositions((scrollPositions) => {
+      this.scrollPositions = scrollPositions;
     });
 
     if (windowsSplitTunneling) {
