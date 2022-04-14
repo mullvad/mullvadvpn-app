@@ -12,7 +12,7 @@ impl Command for SplitTunnel {
         clap::App::new(self.name())
             .about(
                 "Manage split tunneling. To launch applications outside \
-                    the tunnel, use the program 'mullvad-exclude'.",
+                    the tunnel, use the program 'mullvad-exclude' instead of this command.",
             )
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(create_pid_subcommand())
