@@ -16,7 +16,7 @@ const securedDisplayStyleColorMap = {
   [SecuredDisplayStyle.securing]: colors.white,
   [SecuredDisplayStyle.unsecuring]: colors.white,
   [SecuredDisplayStyle.secured]: colors.green,
-  [SecuredDisplayStyle.blocked]: colors.green,
+  [SecuredDisplayStyle.blocked]: colors.white,
   [SecuredDisplayStyle.unsecured]: colors.red,
   [SecuredDisplayStyle.failedToSecure]: colors.red,
 };
