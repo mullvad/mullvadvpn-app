@@ -1463,22 +1463,25 @@ where
     }
 
     async fn handle_device_migration_event(&mut self, result: Result<DeviceData, device::Error>) {
-        if let Ok(Some(_)) = self.account_manager.data().await {
-            // Discard stale device
-            return;
-        }
+        let account_manager = self.account_manager.clone();
+        let event_listener = self.event_listener.clone();
+        tokio::spawn(async move {
+            if let Ok(Some(_)) = account_manager.data_after_login().await {
+                // Discard stale device
+                return;
+            }
 
-        let result = async { self.account_manager.set(result?).await }.await;
+            let result = async { account_manager.set(result?).await }.await;
 
-        if let Err(error) = result {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to move over account from old settings")
-            );
-            // Synthesize a logout event.
-            self.event_listener
-                .notify_device_event(DeviceEvent::revoke(false));
-        }
+            if let Err(error) = result {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to move over account from old settings")
+                );
+                // Synthesize a logout event.
+                event_listener.notify_device_event(DeviceEvent::revoke(false));
+            }
+        });
     }
 
     #[cfg(windows)]
