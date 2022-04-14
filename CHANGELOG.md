@@ -47,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
   to the main view. To navigate back to the main view Shift+Escape can be used.
 - Update Electron from 16.0.4 to 18.0.3.
 - Randomize bridge selection with a bias in favor of close bridges.
+- Make login field keep previous value when submitting an incorrect account number in desktop app.
 
 ### Fixed
 - Fix the sometimes incorrect time added text after adding time to the account.
