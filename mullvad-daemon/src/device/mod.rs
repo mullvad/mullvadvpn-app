@@ -280,7 +280,6 @@ impl AccountManager {
                             let _ = tx.send(self.set(InnerDeviceEvent::Login(data)).await);
                         }
                         Some(AccountManagerCommand::GetData(tx)) => {
-
                             let _ = tx.send(Ok(self.data.clone()));
                         }
                         Some(AccountManagerCommand::RotateKey(tx)) => {
@@ -394,10 +393,7 @@ impl AccountManager {
         let current_data = match self.data.as_ref() {
             Some(data) => data,
             None => {
-                self.validation_requests = vec![];
-                self.rotation_requests = vec![];
-                log::error!("Received a validation response whilst having no device data");
-                return;
+                panic!("Received a validation response whilst having no device data");
             }
         };
 
@@ -454,8 +450,7 @@ impl AccountManager {
         let mut device_data = match self.data.clone() {
             Some(data) => data,
             None => {
-                log::error!("Received a key rotation result whilst having no data");
-                return;
+                panic!("Received a key rotation result whilst having no data");
             }
         };
 
