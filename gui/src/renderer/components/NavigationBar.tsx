@@ -123,7 +123,19 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
   const { addScrollPosition, removeScrollPosition } = useActions(userInterface);
   const scrollPositions = useSelector((state) => state.userInterface.scrollPosition);
 
-  useEffect(() => setScrollPositions(scrollPositions), [scrollPositions]);
+  useEffect(() => {
+    const path = history.location.pathname;
+    const beforeunload = () => {
+      if (ref.current) {
+        const scrollPosition = ref.current.getScrollPosition();
+        setScrollPositions({ ...scrollPositions, [path]: scrollPosition });
+      }
+    };
+
+    window.addEventListener('beforeunload', beforeunload);
+
+    return () => window.removeEventListener('beforeunload', beforeunload);
+  }, [scrollPositions]);
 
   useLayoutEffect(() => {
     const path = history.location.pathname;

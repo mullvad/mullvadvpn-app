@@ -256,6 +256,8 @@ export default class AppRenderer {
     this.reduxActions.userInterface.setScrollPositions(initialState.scrollPositions);
 
     if (initialState.navigationHistory) {
+      // Set last action to POP to trigger automatic scrolling to saved coordinates.
+      initialState.navigationHistory.lastAction = 'POP';
       this.history = History.fromSavedHistory(initialState.navigationHistory);
     } else {
       const navigationBase = this.getNavigationBase();
