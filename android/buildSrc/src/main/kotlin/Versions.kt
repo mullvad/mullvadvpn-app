@@ -8,6 +8,7 @@ object Versions {
     const val kotlinx = "1.5.2"
     const val leakCanary = "2.8.1"
     const val mockk = "1.12.3"
+    const val turbine = "0.7.0"
 
     object Android {
         const val compileSdkVersion = 31
