@@ -83,43 +83,9 @@ extension AddressCache {
         init(cacheFileURL: URL, prebundledCacheFileURL: URL) {
             self.cacheFileURL = cacheFileURL
             self.prebundledCacheFileURL = prebundledCacheFileURL
-            self.cachedAddresses = Self.defaultCachedAddresses
+            cachedAddresses = Self.defaultCachedAddresses
 
-            switch readFromCacheLocationWithFallback() {
-            case .success(let readResult):
-                if readResult.cachedAddresses.endpoints.isEmpty {
-                    logger.debug("Read empty cache from \(readResult.source). Fallback to default API endpoint.")
-
-                    cachedAddresses = Self.defaultCachedAddresses
-
-                    logger.debug("Initialized cache with default API endpoint.")
-                } else {
-                    switch readResult.source {
-                    case .disk:
-                        cachedAddresses = readResult.cachedAddresses
-
-                    case .bundle:
-                        var addresses = readResult.cachedAddresses
-                        addresses.endpoints.shuffle()
-                        cachedAddresses = addresses
-
-                        logger.debug("Persist address list read from bundle.")
-
-                        if case .failure(let error) = writeToDisk() {
-                            logger.error(chainedError: error, message: "Failed to persist address cache after reading it from bundle.")
-                        }
-                    }
-
-                    logger.debug("Initialized cache from \(readResult.source) with \(cachedAddresses.endpoints.count) endpoint(s).")
-                }
-
-            case .failure(let error):
-                logger.error(chainedError: error, message: "Failed to read address cache. Fallback to default API endpoint.")
-
-                cachedAddresses = Self.defaultCachedAddresses
-
-                logger.debug("Initialized cache with default API endpoint.")
-            }
+            initializeStore()
         }
 
         func getCurrentEndpoint() -> AnyIPEndpoint {
@@ -185,6 +151,44 @@ extension AddressCache {
             defer { nslock.unlock() }
 
             return cachedAddresses.updatedAt
+        }
+
+        private func initializeStore() {
+            switch readFromCacheLocationWithFallback() {
+            case .success(let readResult):
+                if readResult.cachedAddresses.endpoints.isEmpty {
+                    logger.debug("Read empty cache from \(readResult.source). Fallback to default API endpoint.")
+
+                    cachedAddresses = Self.defaultCachedAddresses
+
+                    logger.debug("Initialized cache with default API endpoint.")
+                } else {
+                    switch readResult.source {
+                    case .disk:
+                        cachedAddresses = readResult.cachedAddresses
+
+                    case .bundle:
+                        var addresses = readResult.cachedAddresses
+                        addresses.endpoints.shuffle()
+                        cachedAddresses = addresses
+
+                        logger.debug("Persist address list read from bundle.")
+
+                        if case .failure(let error) = writeToDisk() {
+                            logger.error(chainedError: error, message: "Failed to persist address cache after reading it from bundle.")
+                        }
+                    }
+
+                    logger.debug("Initialized cache from \(readResult.source) with \(cachedAddresses.endpoints.count) endpoint(s).")
+                }
+
+            case .failure(let error):
+                logger.error(chainedError: error, message: "Failed to read address cache. Fallback to default API endpoint.")
+
+                cachedAddresses = Self.defaultCachedAddresses
+
+                logger.debug("Initialized cache with default API endpoint.")
+            }
         }
 
         private func readFromCacheLocationWithFallback() -> Result<ReadResult, AddressCache.StoreError> {
