@@ -76,8 +76,8 @@ extension AddressCache {
         /// The location of pre-bundled address cache file.
         private let prebundledCacheFileURL: URL
 
-        /// Queue used for synchronizing access to instance members.
-        private let stateQueue = DispatchQueue(label: "AddressCacheStoreQueue")
+        /// Lock used for synchronizing access to instance members.
+        private let nslock = NSLock()
 
         /// Designated initializer
         init(cacheFileURL: URL, prebundledCacheFileURL: URL) {
@@ -105,7 +105,7 @@ extension AddressCache {
 
                         logger.debug("Persist address list read from bundle.")
 
-                        if case .failure(let error) = self.writeToDisk() {
+                        if case .failure(let error) = writeToDisk() {
                             logger.error(chainedError: error, message: "Failed to persist address cache after reading it from bundle.")
                         }
                     }
@@ -122,77 +122,69 @@ extension AddressCache {
             }
         }
 
-        func getCurrentEndpoint(_ completionHandler: @escaping (AnyIPEndpoint) -> Void) {
-            stateQueue.async {
-                let currentEndpoint = self.cachedAddresses.endpoints.first!
-
-                completionHandler(currentEndpoint)
-            }
+        func getCurrentEndpoint() -> AnyIPEndpoint {
+            nslock.lock()
+            defer { nslock.unlock() }
+            return cachedAddresses.endpoints.first!
         }
 
-        func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint, completionHandler: @escaping (AnyIPEndpoint) -> Void) {
-            stateQueue.async {
-                var currentEndpoint = self.cachedAddresses.endpoints.first!
+        func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
+            nslock.lock()
+            defer { nslock.unlock() }
 
-                if failedEndpoint == currentEndpoint {
-                    self.cachedAddresses.endpoints.removeFirst()
-                    self.cachedAddresses.endpoints.append(failedEndpoint)
+            var currentEndpoint = cachedAddresses.endpoints.first!
 
-                    currentEndpoint = self.cachedAddresses.endpoints.first!
+            if failedEndpoint == currentEndpoint {
+                cachedAddresses.endpoints.removeFirst()
+                cachedAddresses.endpoints.append(failedEndpoint)
 
-                    self.logger.debug("Failed to communicate using \(failedEndpoint). Next endpoint: \(currentEndpoint)")
+                currentEndpoint = cachedAddresses.endpoints.first!
 
-                    if case .failure(let error) = self.writeToDisk() {
-                        self.logger.error(chainedError: error, message: "Failed to write address cache after selecting next endpoint.")
-                    }
+                logger.debug("Failed to communicate using \(failedEndpoint). Next endpoint: \(currentEndpoint)")
+
+                if case .failure(let error) = writeToDisk() {
+                    logger.error(chainedError: error, message: "Failed to write address cache after selecting next endpoint.")
+                }
+            }
+
+            return currentEndpoint
+        }
+
+        func setEndpoints(_ endpoints: [AnyIPEndpoint]) -> Result<Void, AddressCache.StoreError> {
+            nslock.lock()
+            defer { nslock.unlock() }
+
+            guard !endpoints.isEmpty else {
+                return .failure(.emptyAddressList)
+            }
+
+            if Set(cachedAddresses.endpoints) == Set(endpoints) {
+                cachedAddresses.updatedAt = Date()
+            } else {
+                // Shuffle new endpoints
+                var newEndpoints = endpoints.shuffled()
+
+                // Move current endpoint to the top of the list
+                let currentEndpoint = cachedAddresses.endpoints.first!
+                if let index = newEndpoints.firstIndex(of: currentEndpoint) {
+                    newEndpoints.remove(at: index)
+                    newEndpoints.insert(currentEndpoint, at: 0)
                 }
 
-                completionHandler(currentEndpoint)
+                cachedAddresses = CachedAddresses(
+                    updatedAt: Date(),
+                    endpoints: newEndpoints
+                )
             }
+
+            return writeToDisk()
         }
 
-        func setEndpoints(_ endpoints: [AnyIPEndpoint], completionHandler: @escaping (AddressCache.StoreError?) -> Void) {
-            stateQueue.async {
-                guard !endpoints.isEmpty else {
-                    completionHandler(.emptyAddressList)
-                    return
-                }
+        func getLastUpdateDate() -> Date {
+            nslock.lock()
+            defer { nslock.unlock() }
 
-                if Set(self.cachedAddresses.endpoints) == Set(endpoints) {
-                    self.cachedAddresses.updatedAt = Date()
-                } else {
-                    // Shuffle new endpoints
-                    var newEndpoints = endpoints.shuffled()
-
-                    // Move current endpoint to the top of the list
-                    let currentEndpoint = self.cachedAddresses.endpoints.first!
-                    if let index = newEndpoints.firstIndex(of: currentEndpoint) {
-                        newEndpoints.remove(at: index)
-                        newEndpoints.insert(currentEndpoint, at: 0)
-                    }
-
-                    self.cachedAddresses = CachedAddresses(
-                        updatedAt: Date(),
-                        endpoints: newEndpoints
-                    )
-                }
-
-                let writeResult = self.writeToDisk()
-
-                completionHandler(writeResult.error)
-            }
-        }
-
-        func getLastUpdateDate(_ completionHandler: @escaping (Date) -> Void) {
-            stateQueue.async {
-                completionHandler(self.cachedAddresses.updatedAt)
-            }
-        }
-
-        func getLastUpdateDateAndWait() -> Date {
-            return stateQueue.sync {
-                return self.cachedAddresses.updatedAt
-            }
+            return cachedAddresses.updatedAt
         }
 
         private func readFromCacheLocationWithFallback() -> Result<ReadResult, AddressCache.StoreError> {

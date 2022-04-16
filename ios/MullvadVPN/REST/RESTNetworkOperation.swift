@@ -67,12 +67,10 @@ extension REST {
                 }
 
                 // Get current endpoint
-                self.addressCacheStore.getCurrentEndpoint { endpoint in
-                    DispatchQueue.main.async {
-                        self.sendRequest(endpoint: endpoint) { [weak self] completion in
-                            self?.finish(completion: completion)
-                        }
-                    }
+                let endpoint = self.addressCacheStore.getCurrentEndpoint()
+
+                self.sendRequest(endpoint: endpoint) { [weak self] completion in
+                    self?.finish(completion: completion)
                 }
             }
         }
@@ -116,11 +114,9 @@ extension REST {
             switch Self.evaluateError(error) {
             case .useNextEndpoint:
                 // Pick next endpoint in the event of network error
-                addressCacheStore.selectNextEndpoint(endpoint) { nextEndpoint in
-                    DispatchQueue.main.async {
-                        self.retryRequest(endpoint: nextEndpoint, previousResult: result, completionHandler: completionHandler)
-                    }
-                }
+                let nextEndpoint = addressCacheStore.selectNextEndpoint(endpoint)
+                
+                retryRequest(endpoint: nextEndpoint, previousResult: result, completionHandler: completionHandler)
 
             case .useCurrentEndpoint:
                 // Retry request using the same endpoint otherwise

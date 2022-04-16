@@ -56,7 +56,7 @@ extension AddressCache {
                 return
             }
 
-            let lastUpdate = store.getLastUpdateDateAndWait()
+            let lastUpdate = store.getLastUpdateDate()
             let nextUpdate = Date(timeInterval: updateInterval, since: lastUpdate)
 
             guard nextUpdate <= Date() else {
@@ -74,12 +74,11 @@ extension AddressCache {
         private func handleResponse(_ completion: OperationCompletion<[AnyIPEndpoint], REST.Error>) {
             switch completion {
             case .success(let newEndpoints):
-                self.store.setEndpoints(newEndpoints) { error in
-                    if let error = error {
-                        self.finish(completion: .failure(error))
-                    } else {
-                        self.finish(completion: .success(.finished))
-                    }
+                switch store.setEndpoints(newEndpoints) {
+                case .success:
+                    self.finish(completion: .success(.finished))
+                case .failure(let error):
+                    self.finish(completion: .failure(error))
                 }
 
             case .failure(let error):

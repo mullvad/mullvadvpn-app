@@ -138,7 +138,7 @@ extension AddressCache {
             if let lastFailureAttemptDate = lastFailureAttemptDate {
                 return Date(timeInterval: Self.retryInterval, since: lastFailureAttemptDate)
             } else {
-                let updatedAt = store.getLastUpdateDateAndWait()
+                let updatedAt = store.getLastUpdateDate()
 
                 return Date(timeInterval: Self.updateInterval, since: updatedAt)
             }
