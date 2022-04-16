@@ -17,6 +17,7 @@ class ResultOperation<Success, Failure: Error>: AsyncOperation {
     private var completionValue: Completion?
     private let completionQueue: DispatchQueue?
     private var completionHandler: CompletionHandler?
+    private var pendingFinish = false
 
     var completion: Completion? {
         stateLock.lock()
@@ -33,32 +34,38 @@ class ResultOperation<Success, Failure: Error>: AsyncOperation {
 
     @available(*, unavailable)
     override func finish() {
-        // Propagate cancellation if finish() is called directly from start().
-        if isCancelled {
-            finish(completion: .cancelled)
-        } else {
-            preconditionFailure("Use finish(completion:) to finish operation.")
-        }
+        _finish()
     }
 
     func finish(completion: Completion) {
         stateLock.lock()
+        if completionValue == nil {
+            completionValue = completion
+        }
+        stateLock.unlock()
 
+        _finish()
+    }
+
+    private func _finish() {
+        stateLock.lock()
         // Bail if operation is already finishing.
-        guard completionValue == nil else {
+        guard !pendingFinish else {
             stateLock.unlock()
             return
         }
 
-        // Store completion value.
-        completionValue = completion
+        // Mark that operation is pending finish.
+        pendingFinish = true
 
         // Copy completion handler.
-        let completionHandler: CompletionHandler? = self.completionHandler
+        let completionHandler = self.completionHandler
 
         // Unset completion handler.
         self.completionHandler = nil
 
+        // Copy completion value.
+        let completion = completionValue ?? .cancelled
         stateLock.unlock()
 
         let block = {
