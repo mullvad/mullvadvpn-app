@@ -135,9 +135,6 @@ extension REST {
                 return
             }
 
-            // Increment retry count
-            retryCount += 1
-
             // Check if retry count is not exceeded.
             guard retryCount < retryStrategy.maxRetryCount else {
                 logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))", metadata: loggerMetadata)
@@ -145,6 +142,9 @@ extension REST {
                 completionHandler(OperationCompletion(result: previousResult))
                 return
             }
+
+            // Increment retry count
+            retryCount += 1
 
             // Retry immediatly if retry delay is set to .never
             guard retryStrategy.retryDelay != .never else {
