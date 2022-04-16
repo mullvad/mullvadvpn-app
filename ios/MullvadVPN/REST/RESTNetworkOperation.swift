@@ -113,14 +113,16 @@ extension REST {
 
             switch Self.evaluateError(error) {
             case .useNextEndpoint:
-                // Pick next endpoint in the event of network error
+                // Pick next endpoint in the event of network error.
                 let nextEndpoint = addressCacheStore.selectNextEndpoint(endpoint)
                 
                 retryRequest(endpoint: nextEndpoint, previousResult: result, completionHandler: completionHandler)
 
             case .useCurrentEndpoint:
-                // Retry request using the same endpoint otherwise
-                retryRequest(endpoint: endpoint, previousResult: result, completionHandler: completionHandler)
+                // Retry request using current endpoint.
+                let currentEndpoint = addressCacheStore.getCurrentEndpoint()
+                
+                retryRequest(endpoint: currentEndpoint, previousResult: result, completionHandler: completionHandler)
 
             case .failImmediately:
                 // Fail immediately in case of other errors, like server errors
