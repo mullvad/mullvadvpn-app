@@ -40,8 +40,8 @@ export default function ConnectionPanelDisclosure(props: IProps) {
       <Caption open={props.pointsUp}>{props.children}</Caption>
       <Chevron
         source={props.pointsUp ? 'icon-chevron-up' : 'icon-chevron-down'}
-        width={24}
-        height={24}
+        width={22}
+        height={22}
         tintColor={colors.white40}
       />
     </Container>

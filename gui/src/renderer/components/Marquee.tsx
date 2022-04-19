@@ -9,6 +9,8 @@ const Container = styled.div({
 
 const Text = styled.span({}, (props: { overflow: number; alignRight: boolean }) => ({
   display: 'inline-block',
+  // Prevents Container from adding 2px below the text.
+  verticalAlign: 'middle',
   whiteSpace: 'nowrap',
   willChange: 'transform',
   transform: props.alignRight ? `translate(${-props.overflow}px)` : 'translate(0)',
