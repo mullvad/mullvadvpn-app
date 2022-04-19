@@ -253,6 +253,8 @@ impl TunnelStateMachine {
             route_manager
                 .handle()
                 .map_err(Error::InitRouteManagerError)?,
+            #[cfg(target_os = "macos")]
+            command_tx.clone(),
         )
         .map_err(Error::InitDnsMonitorError)?;
 

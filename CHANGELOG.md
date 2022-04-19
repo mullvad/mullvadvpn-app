@@ -66,6 +66,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix navigation resetting to main view when toggling the unpinned window setting.
 - Log splitting event reason correctly.
 
+#### macOS
+- Fix thrashing due to DNS config monitoring.
+
 ### Security
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected

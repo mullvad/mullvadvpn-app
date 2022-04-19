@@ -3,6 +3,12 @@ use crate::routing::RouteManagerHandle;
 use std::net::IpAddr;
 
 #[cfg(target_os = "macos")]
+use {
+    crate::tunnel_state_machine::TunnelCommand, futures::channel::mpsc::UnboundedSender,
+    std::sync::Weak,
+};
+
+#[cfg(target_os = "macos")]
 #[path = "macos.rs"]
 mod imp;
 
@@ -33,6 +39,7 @@ impl DnsMonitor {
     pub fn new(
         #[cfg(target_os = "linux")] handle: tokio::runtime::Handle,
         #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
+        #[cfg(target_os = "macos")] tx: Weak<UnboundedSender<TunnelCommand>>,
     ) -> Result<Self, Error> {
         Ok(DnsMonitor {
             inner: imp::DnsMonitor::new(
@@ -40,6 +47,8 @@ impl DnsMonitor {
                 handle,
                 #[cfg(target_os = "linux")]
                 route_manager,
+                #[cfg(target_os = "macos")]
+                tx,
             )?,
         })
     }
@@ -75,14 +84,11 @@ impl DnsMonitor {
 trait DnsMonitorT: Sized {
     type Error: std::error::Error;
 
-    #[cfg(target_os = "linux")]
     fn new(
-        handle: tokio::runtime::Handle,
-        route_manager: RouteManagerHandle,
+        #[cfg(target_os = "linux")] handle: tokio::runtime::Handle,
+        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
+        #[cfg(target_os = "macos")] tx: Weak<UnboundedSender<TunnelCommand>>,
     ) -> Result<Self, Self::Error>;
-
-    #[cfg(not(target_os = "linux"))]
-    fn new() -> Result<Self, Self::Error>;
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Self::Error>;
 
