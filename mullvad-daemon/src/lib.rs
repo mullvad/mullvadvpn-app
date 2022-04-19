@@ -36,7 +36,7 @@ use mullvad_api::{
 };
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
-    RelaySelector, RelaySelectorResult,
+    RelaySelector, RelaySelectorResult, SelectedBridge, SelectedRelay, SelectorConfig,
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -44,8 +44,9 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::{Coordinates, GeoIpLocation},
     relay_constraints::{
-        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, ObfuscationSettings,
-        RelaySettings, RelaySettingsUpdate, SelectedObfuscation,
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints,
+        ObfuscationSettings, RelayConstraints, RelaySettings, RelaySettingsUpdate,
+        SelectedObfuscation,
     },
     relay_list::{Relay, RelayList},
     settings::{DnsOptions, DnsState, Settings},
@@ -758,7 +759,9 @@ where
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
 
-        let relay_selector = RelaySelector::new(&resource_dir, &cache_dir);
+        let initial_selector_config = new_selector_config(&settings);
+        let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
+
         let mut relay_list_updater = RelayListUpdater::new(
             relay_selector.clone(),
             api_handle.clone(),
@@ -1039,8 +1042,8 @@ where
         retry_attempt: u32,
     ) {
         if let Ok(Some(device)) = self.account_manager.data().await {
-            let result = match self.settings.get_relay_settings() {
-                RelaySettings::CustomTunnelEndpoint(custom_relay) => {
+            let result = match self.relay_selector.get_relay(retry_attempt) {
+                Ok(SelectedRelay::Custom(custom_relay)) => {
                     custom_relay
                         // TODO(emilsp): generate proxy settings for custom tunnels
                         .to_tunnel_parameters(self.settings.tunnel_options.clone(), None)
@@ -1049,52 +1052,30 @@ where
                             ParameterGenerationError::CustomTunnelHostResultionError
                         })
                 }
-                RelaySettings::Normal(constraints) => {
-                    let endpoint = self
-                        .relay_selector
-                        .get_tunnel_endpoint(
-                            &constraints,
-                            self.settings.get_bridge_state(),
+                Ok(SelectedRelay::Normal(constraints)) => {
+                    let result = self
+                        .create_tunnel_parameters(
+                            &constraints.exit_relay,
+                            &constraints.entry_relay,
+                            constraints.endpoint,
+                            device.token,
                             retry_attempt,
                         )
-                        .ok();
-                    if let Some(RelaySelectorResult {
-                        exit_relay,
-                        entry_relay,
-                        endpoint,
-                    }) = endpoint
-                    {
-                        let result = self
-                            .create_tunnel_parameters(
-                                &exit_relay,
-                                &entry_relay,
-                                endpoint,
-                                device.token,
-                                retry_attempt,
-                            )
-                            .await;
-                        match result {
-                            Ok(result) => Ok(result),
-                            Err(Error::NoKeyAvailable) => {
-                                Err(ParameterGenerationError::NoWireguardKey)
-                            }
-                            Err(Error::NoBridgeAvailable) => {
-                                Err(ParameterGenerationError::NoMatchingBridgeRelay)
-                            }
-                            Err(err) => {
-                                log::error!(
-                                    "{}",
-                                    err.display_chain_with_msg(
-                                        "Failed to generate tunnel parameters"
-                                    )
-                                );
-                                Err(ParameterGenerationError::NoMatchingRelay)
-                            }
+                        .await;
+                    result.map_err(|error| match error {
+                        Error::NoKeyAvailable => ParameterGenerationError::NoWireguardKey,
+                        Error::NoBridgeAvailable => ParameterGenerationError::NoMatchingBridgeRelay,
+                        error => {
+                            log::error!(
+                                "{}",
+                                error
+                                    .display_chain_with_msg("Failed to generate tunnel parameters")
+                            );
+                            ParameterGenerationError::NoMatchingRelay
                         }
-                    } else {
-                        Err(ParameterGenerationError::NoMatchingRelay)
-                    }
+                    })
                 }
+                Err(_error) => Err(ParameterGenerationError::NoMatchingRelay),
             };
             if tunnel_parameters_tx.send(result).is_err() {
                 log::error!("Failed to send tunnel parameters");
@@ -1118,8 +1099,17 @@ where
         match endpoint {
             #[cfg(not(target_os = "android"))]
             MullvadEndpoint::OpenVpn(endpoint) => {
-                let (bridge_settings, bridge_relay) =
-                    self.generate_bridge_parameters(&location, retry_attempt)?;
+                let (bridge_settings, bridge_relay) = match self
+                    .relay_selector
+                    .get_bridge(location, retry_attempt)
+                    .map_err(|_error| Error::NoBridgeAvailable)?
+                {
+                    Some(SelectedBridge::Normal(bridge)) => {
+                        (Some(bridge.settings), Some(bridge.relay))
+                    }
+                    Some(SelectedBridge::Custom(settings)) => (Some(settings), None),
+                    None => (None, None),
+                };
 
                 self.last_generated_relays = Some(LastSelectedRelays::OpenVpn {
                     relay: relay.clone(),
@@ -1158,38 +1148,18 @@ where
                     ],
                 };
 
-                let selected_obfuscator =
-                    match self.settings.obfuscation_settings.selected_obfuscation {
-                        SelectedObfuscation::Off => None,
-                        SelectedObfuscation::Auto
-                            if !self
-                                .relay_selector
-                                .should_use_auto_obfuscator(retry_attempt) =>
-                        {
-                            None
-                        }
-                        _ => {
-                            let (obfuscator_config, obfuscator_relay) = self
-                                .relay_selector
-                                .get_obfuscator(
-                                    &self.settings.obfuscation_settings,
-                                    entry_relay.as_ref().unwrap_or(relay),
-                                    &endpoint,
-                                    retry_attempt,
-                                )
-                                .ok_or(Error::NoObfuscator)?;
-                            Some((obfuscator_config, obfuscator_relay))
-                        }
-                    };
-                let (obfuscation, obfuscator_relay) = match selected_obfuscator {
-                    Some((obfuscation, relay)) => (Some(obfuscation), Some(relay)),
-                    None => (None, None),
-                };
+                let obfuscator_relay = entry_relay.as_ref().unwrap_or(relay);
+                let selected_obfuscator = self
+                    .relay_selector
+                    .get_obfuscator(obfuscator_relay, &endpoint, retry_attempt)
+                    .map_err(|_error| Error::NoObfuscator)?;
 
                 self.last_generated_relays = Some(LastSelectedRelays::WireGuard {
                     wg_entry: entry_relay.clone(),
                     wg_exit: relay.clone(),
-                    obfuscator: obfuscator_relay,
+                    obfuscator: selected_obfuscator
+                        .as_ref()
+                        .map(|_| obfuscator_relay.clone()),
                 });
 
                 Ok(wireguard::TunnelParameters {
@@ -1202,65 +1172,11 @@ where
                     },
                     options: tunnel_options.wireguard.options,
                     generic_options: tunnel_options.generic,
-                    obfuscation,
+                    obfuscation: selected_obfuscator,
                 }
                 .into())
             }
         }
-    }
-
-    /// Generates bridge parameters for the chosen OpenVpn tunnel relay
-    #[cfg(not(target_os = "android"))]
-    fn generate_bridge_parameters(
-        &self,
-        location: &mullvad_types::location::Location,
-        retry_attempt: u32,
-    ) -> Result<(Option<ProxySettings>, Option<Relay>), Error> {
-        let result = match &self.settings.bridge_settings {
-            BridgeSettings::Normal(settings) => {
-                let bridge_constraints = InternalBridgeConstraints {
-                    location: settings.location.clone(),
-                    providers: settings.providers.clone(),
-                    // FIXME: This is temporary while talpid-core only supports TCP proxies
-                    transport_protocol: Constraint::Only(TransportProtocol::Tcp),
-                };
-                match self.settings.get_bridge_state() {
-                    BridgeState::On => {
-                        let (bridge_settings, bridge_relay) = self
-                            .relay_selector
-                            .get_proxy_settings(&bridge_constraints, Some(location))
-                            .ok_or(Error::NoBridgeAvailable)?;
-                        (Some(bridge_settings), Some(bridge_relay))
-                    }
-                    BridgeState::Auto => {
-                        if let Some((bridge_settings, bridge_relay)) =
-                            self.relay_selector.get_auto_proxy_settings(
-                                &bridge_constraints,
-                                Some(location),
-                                retry_attempt,
-                            )
-                        {
-                            (Some(bridge_settings), Some(bridge_relay))
-                        } else {
-                            (None, None)
-                        }
-                    }
-                    BridgeState::Off => (None, None),
-                }
-            }
-            BridgeSettings::Custom(bridge_settings) => match self.settings.get_bridge_state() {
-                BridgeState::On => (Some(bridge_settings.clone()), None),
-                BridgeState::Auto => {
-                    if self.relay_selector.should_use_bridge(retry_attempt) {
-                        (Some(bridge_settings.clone()), None)
-                    } else {
-                        (None, None)
-                    }
-                }
-                BridgeState::Off => (None, None),
-            },
-        };
-        Ok(result)
     }
 
     fn schedule_reconnect(&mut self, delay: Duration) {
@@ -2182,6 +2098,8 @@ where
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
+                    self.relay_selector
+                        .set_config(new_selector_config(&self.settings));
                     log::info!("Initiating tunnel restart because the relay settings changed");
                     self.reconnect_tunnel();
                 }
@@ -2319,6 +2237,8 @@ where
                 if settings_changes {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
+                    self.relay_selector
+                        .set_config(new_selector_config(&self.settings));
                     self.reconnect_tunnel();
                 };
                 Self::oneshot_send(tx, Ok(()), "set_bridge_settings");
@@ -2344,6 +2264,8 @@ where
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
+                    self.relay_selector
+                        .set_config(new_selector_config(&self.settings));
                     self.reconnect_tunnel();
                 }
                 Self::oneshot_send(tx, Ok(()), "set_obfuscation_settings");
@@ -2368,6 +2290,8 @@ where
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
+                    self.relay_selector
+                        .set_config(new_selector_config(&self.settings));
                     log::info!("Initiating tunnel restart because bridge state changed");
                     self.reconnect_tunnel();
                 }
@@ -2781,6 +2705,15 @@ impl LastSelectedRelays {
             }
         };
         first_hop_location.map(Coordinates::from)
+    }
+}
+
+fn new_selector_config(settings: &Settings) -> SelectorConfig {
+    SelectorConfig {
+        relay_settings: settings.get_relay_settings(),
+        bridge_state: settings.get_bridge_state(),
+        bridge_settings: settings.bridge_settings.clone(),
+        obfuscation_settings: settings.obfuscation_settings.clone(),
     }
 }
 

@@ -7,11 +7,12 @@ use mullvad_types::{
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     location::{Coordinates, Location},
     relay_constraints::{
-        BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
-        ObfuscationSettings, OpenVpnConstraints, Providers, RelayConstraints, SelectedObfuscation,
-        Set, TransportPort, Udp2TcpObfuscationSettings, WireguardConstraints,
+        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint,
+        Match, ObfuscationSettings, OpenVpnConstraints, Providers, RelayConstraints, RelaySettings,
+        SelectedObfuscation, Set, TransportPort, Udp2TcpObfuscationSettings, WireguardConstraints,
     },
     relay_list::{Relay, RelayList, Udp2TcpEndpointData},
+    CustomTunnelEndpoint,
 };
 use parking_lot::Mutex;
 use rand::{self, seq::SliceRandom, Rng};
@@ -63,6 +64,12 @@ pub enum Error {
 
     #[error(display = "No relays matching current constraints")]
     NoRelay,
+
+    #[error(display = "No bridges matching current constraints")]
+    NoBridge,
+
+    #[error(display = "No obfuscators matching current constraints")]
+    NoObfuscator,
 
     #[error(display = "Failure in serialization of the relay list")]
     Serialize(#[error(source)] serde_json::Error),
@@ -202,13 +209,22 @@ impl ParsedRelays {
 }
 
 #[derive(Clone)]
+pub struct SelectorConfig {
+    pub relay_settings: RelaySettings,
+    pub bridge_state: BridgeState,
+    pub bridge_settings: BridgeSettings,
+    pub obfuscation_settings: ObfuscationSettings,
+}
+
+#[derive(Clone)]
 pub struct RelaySelector {
+    config: Arc<Mutex<SelectorConfig>>,
     parsed_relays: Arc<Mutex<ParsedRelays>>,
 }
 
 impl RelaySelector {
     /// Returns a new `RelaySelector` backed by relays cached on disk.
-    pub fn new(resource_dir: &Path, cache_dir: &Path) -> Self {
+    pub fn new(config: SelectorConfig, resource_dir: &Path, cache_dir: &Path) -> Self {
         let cache_path = cache_dir.join(RELAYS_FILENAME);
         let resource_path = resource_dir.join(RELAYS_FILENAME);
         let unsynchronized_parsed_relays = Self::read_relays_from_disk(&cache_path, &resource_path)
@@ -225,9 +241,15 @@ impl RelaySelector {
             DateTime::<Local>::from(unsynchronized_parsed_relays.last_updated())
                 .format(DATE_TIME_FORMAT_STR)
         );
-        let parsed_relays = Arc::new(Mutex::new(unsynchronized_parsed_relays));
 
-        RelaySelector { parsed_relays }
+        RelaySelector {
+            config: Arc::new(Mutex::new(config)),
+            parsed_relays: Arc::new(Mutex::new(unsynchronized_parsed_relays)),
+        }
+    }
+
+    pub fn set_config(&mut self, config: SelectorConfig) {
+        *self.config.lock() = config;
     }
 
     /// Returns all countries and cities. The cities in the object returned does not have any
@@ -236,9 +258,22 @@ impl RelaySelector {
         self.parsed_relays.lock().locations().clone()
     }
 
+    /// Returns a random relay and relay endpoint matching the current constraints.
+    pub fn get_relay(&self, retry_attempt: u32) -> Result<SelectedRelay, Error> {
+        let config = self.config.lock();
+        match &config.relay_settings {
+            RelaySettings::CustomTunnelEndpoint(custom_relay) => {
+                Ok(SelectedRelay::Custom(custom_relay.clone()))
+            }
+            RelaySettings::Normal(constraints) => self
+                .get_tunnel_endpoint(&constraints, config.bridge_state, retry_attempt)
+                .map(SelectedRelay::Normal),
+        }
+    }
+
     /// Returns a random relay and relay endpoint matching the given constraints and with
     /// preferences applied.
-    pub fn get_tunnel_endpoint(
+    fn get_tunnel_endpoint(
         &self,
         relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
@@ -612,8 +647,59 @@ impl RelaySelector {
         entry_endpoint.exit_peer = Some(exit_peer.clone());
     }
 
+    pub fn get_bridge(
+        &self,
+        location: &mullvad_types::location::Location,
+        retry_attempt: u32,
+    ) -> Result<Option<SelectedBridge>, Error> {
+        let config = self.config.lock();
+        match &config.bridge_settings {
+            BridgeSettings::Normal(settings) => {
+                let bridge_constraints = InternalBridgeConstraints {
+                    location: settings.location.clone(),
+                    providers: settings.providers.clone(),
+                    // FIXME: This is temporary while talpid-core only supports TCP proxies
+                    transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+                };
+                match config.bridge_state {
+                    BridgeState::On => {
+                        let (settings, relay) = self
+                            .get_proxy_settings(&bridge_constraints, Some(location))
+                            .ok_or(Error::NoBridge)?;
+                        Ok(Some(SelectedBridge::Normal(NormalSelectedBridge {
+                            settings,
+                            relay,
+                        })))
+                    }
+                    BridgeState::Auto => {
+                        if let Some((settings, relay)) = self.get_auto_proxy_settings(
+                            &bridge_constraints,
+                            Some(location),
+                            retry_attempt,
+                        ) {
+                            Ok(Some(SelectedBridge::Normal(NormalSelectedBridge {
+                                settings,
+                                relay,
+                            })))
+                        } else {
+                            Ok(None)
+                        }
+                    }
+                    BridgeState::Off => Ok(None),
+                }
+            }
+            BridgeSettings::Custom(bridge_settings) => match config.bridge_state {
+                BridgeState::On => Ok(Some(SelectedBridge::Custom(bridge_settings.clone()))),
+                BridgeState::Auto if self.should_use_bridge(retry_attempt) => {
+                    Ok(Some(SelectedBridge::Custom(bridge_settings.clone())))
+                }
+                BridgeState::Auto | BridgeState::Off => Ok(None),
+            },
+        }
+    }
+
     #[cfg(not(target_os = "android"))]
-    pub fn get_auto_proxy_settings<T: Into<Coordinates>>(
+    fn get_auto_proxy_settings<T: Into<Coordinates>>(
         &self,
         bridge_constraints: &InternalBridgeConstraints,
         location: Option<T>,
@@ -632,7 +718,7 @@ impl RelaySelector {
     }
 
     #[cfg(not(target_os = "android"))]
-    pub fn should_use_bridge(&self, retry_attempt: u32) -> bool {
+    fn should_use_bridge(&self, retry_attempt: u32) -> bool {
         // shouldn't use a bridge for the first 3 times
         retry_attempt > 3 &&
             // i.e. 4th and 5th with bridge, 6th & 7th without
@@ -642,7 +728,7 @@ impl RelaySelector {
             (retry_attempt % 4) < 2
     }
 
-    pub fn get_proxy_settings<T: Into<Coordinates>>(
+    fn get_proxy_settings<T: Into<Coordinates>>(
         &self,
         constraints: &InternalBridgeConstraints,
         location: Option<T>,
@@ -682,22 +768,29 @@ impl RelaySelector {
 
     pub fn get_obfuscator(
         &self,
-        obfuscation_settings: &ObfuscationSettings,
         relay: &Relay,
         endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
-    ) -> Option<(ObfuscatorConfig, Relay)> {
-        match obfuscation_settings.selected_obfuscation {
-            SelectedObfuscation::Auto => {
-                self.get_auto_obfuscator(obfuscation_settings, relay, endpoint, retry_attempt)
-            }
-            SelectedObfuscation::Off => None,
-            SelectedObfuscation::Udp2Tcp => self.get_udp2tcp_obfuscator(
-                &obfuscation_settings.udp2tcp,
+    ) -> Result<Option<ObfuscatorConfig>, Error> {
+        let config = self.config.lock();
+
+        match &config.obfuscation_settings.selected_obfuscation {
+            SelectedObfuscation::Auto => Ok(self.get_auto_obfuscator(
+                &config.obfuscation_settings,
                 relay,
                 endpoint,
                 retry_attempt,
-            ),
+            )),
+            SelectedObfuscation::Off => Ok(None),
+            SelectedObfuscation::Udp2Tcp => Ok(Some(
+                self.get_udp2tcp_obfuscator(
+                    &config.obfuscation_settings.udp2tcp,
+                    relay,
+                    endpoint,
+                    retry_attempt,
+                )
+                .ok_or(Error::NoObfuscator)?,
+            )),
         }
     }
 
@@ -707,7 +800,7 @@ impl RelaySelector {
         relay: &Relay,
         endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
-    ) -> Option<(ObfuscatorConfig, Relay)> {
+    ) -> Option<ObfuscatorConfig> {
         if !self.should_use_auto_obfuscator(retry_attempt) {
             return None;
         }
@@ -723,7 +816,7 @@ impl RelaySelector {
         )
     }
 
-    pub fn should_use_auto_obfuscator(&self, retry_attempt: u32) -> bool {
+    fn should_use_auto_obfuscator(&self, retry_attempt: u32) -> bool {
         self.get_auto_obfuscator_retry_attempt(retry_attempt)
             .is_some()
     }
@@ -741,7 +834,7 @@ impl RelaySelector {
         relay: &Relay,
         _endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
-    ) -> Option<(ObfuscatorConfig, Relay)> {
+    ) -> Option<ObfuscatorConfig> {
         let udp2tcp_endpoint = if obfuscation_settings.port.is_only() {
             relay
                 .obfuscators
@@ -754,13 +847,8 @@ impl RelaySelector {
                 .udp2tcp
                 .get(retry_attempt as usize % relay.obfuscators.udp2tcp.len())
         };
-        udp2tcp_endpoint.map(|udp2tcp_endpoint| {
-            (
-                ObfuscatorConfig::Udp2Tcp {
-                    endpoint: SocketAddr::new(relay.ipv4_addr_in.into(), udp2tcp_endpoint.port),
-                },
-                relay.clone(),
-            )
+        udp2tcp_endpoint.map(|udp2tcp_endpoint| ObfuscatorConfig::Udp2Tcp {
+            endpoint: SocketAddr::new(relay.ipv4_addr_in.into(), udp2tcp_endpoint.port),
         })
     }
 
@@ -988,6 +1076,24 @@ impl RelaySelector {
             Ok(bundled_relays)
         }
     }
+}
+
+#[derive(Debug)]
+pub enum SelectedBridge {
+    Normal(NormalSelectedBridge),
+    Custom(ProxySettings),
+}
+
+#[derive(Debug)]
+pub struct NormalSelectedBridge {
+    pub settings: ProxySettings,
+    pub relay: Relay,
+}
+
+#[derive(Debug)]
+pub enum SelectedRelay {
+    Normal(RelaySelectorResult),
+    Custom(CustomTunnelEndpoint),
 }
 
 #[derive(Debug)]
