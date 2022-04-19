@@ -109,7 +109,9 @@ class LoginViewModelTest {
             skipDefaultItem()
             loginViewModel.login("")
             assertEquals(LoginViewModel.LoginUiState.Loading, awaitItem())
-            capturedLoginStatusNotifierCallback.captured.invoke(DummyLoginStatus.INVALID_ACCOUNT_ERROR)
+            capturedLoginStatusNotifierCallback.captured.invoke(
+                DummyLoginStatus.INVALID_ACCOUNT_ERROR
+            )
             assertEquals(LoginViewModel.LoginUiState.InvalidAccountError, awaitItem())
         }
     }
