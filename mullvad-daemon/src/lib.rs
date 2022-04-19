@@ -1012,7 +1012,7 @@ where
         match (&self.tunnel_state, &tunnel_state_transition) {
             // only reset the API sockets if when connected or leaving the connected state
             (&TunnelState::Connected { .. }, _) | (_, &TunnelStateTransition::Connected(_)) => {
-                self.api_handle.service().reset().await;
+                self.api_handle.service().reset();
             }
             _ => (),
         };
@@ -1290,8 +1290,8 @@ where
             SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher).await,
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
-            LoginAccount(tx, account_token) => self.on_login_account(tx, account_token).await,
-            LogoutAccount(tx) => self.on_logout_account(tx).await,
+            LoginAccount(tx, account_token) => self.on_login_account(tx, account_token),
+            LogoutAccount(tx) => self.on_logout_account(tx),
             GetDevice(tx) => self.on_get_device(tx).await,
             UpdateDevice(tx) => self.on_update_device(tx).await,
             ListDevices(tx, account_token) => self.on_list_devices(tx, account_token).await,
@@ -1463,22 +1463,25 @@ where
     }
 
     async fn handle_device_migration_event(&mut self, result: Result<DeviceData, device::Error>) {
-        if let Ok(Some(_)) = self.account_manager.data().await {
-            // Discard stale device
-            return;
-        }
+        let account_manager = self.account_manager.clone();
+        let event_listener = self.event_listener.clone();
+        tokio::spawn(async move {
+            if let Ok(Some(_)) = account_manager.data_after_login().await {
+                // Discard stale device
+                return;
+            }
 
-        let result = async { self.account_manager.set(result?).await }.await;
+            let result = async { account_manager.set(result?).await }.await;
 
-        if let Err(error) = result {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to move over account from old settings")
-            );
-            // Synthesize a logout event.
-            self.event_listener
-                .notify_device_event(DeviceEvent::revoke(false));
-        }
+            if let Err(error) = result {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to move over account from old settings")
+                );
+                // Synthesize a logout event.
+                event_listener.notify_device_event(DeviceEvent::revoke(false));
+            }
+        });
     }
 
     #[cfg(windows)]
@@ -1732,7 +1735,7 @@ where
         self.relay_selector.update().await;
     }
 
-    async fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_token: String) {
+    fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_token: String) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             let result = async {
@@ -1745,7 +1748,7 @@ where
         });
     }
 
-    async fn on_logout_account(&mut self, tx: ResponseTx<(), Error>) {
+    fn on_logout_account(&mut self, tx: ResponseTx<(), Error>) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             let result = async {
