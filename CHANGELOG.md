@@ -64,6 +64,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix apps not always visible in split tunneling view after browsing for an app and then removing it
   from the excluded applications.
 
+#### macOS
+- Fix thrashing due to DNS config monitoring.
+
 ### Security
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected
