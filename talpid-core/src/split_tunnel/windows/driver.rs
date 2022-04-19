@@ -3,6 +3,7 @@ use super::windows::{
     ProcessAccess, ProcessSnapshot,
 };
 use crate::windows::as_uninit_byte_slice;
+use bitflags::bitflags;
 use memoffset::offset_of;
 use std::{
     cell::RefCell,
@@ -84,6 +85,28 @@ pub enum DriverState {
     Terminating = 5,
 }
 
+#[derive(err_derive::Error, Debug)]
+#[error(display = "Unknown driver state: {}", _0)]
+pub struct UnknownDriverState(u64);
+
+impl TryFrom<u64> for DriverState {
+    type Error = UnknownDriverState;
+
+    fn try_from(state: u64) -> Result<Self, Self::Error> {
+        use DriverState::*;
+
+        match state {
+            e if e == None as u64 => Ok(None),
+            e if e == Started as u64 => Ok(Started),
+            e if e == Initialized as u64 => Ok(Initialized),
+            e if e == Ready as u64 => Ok(Ready),
+            e if e == Engaged as u64 => Ok(Engaged),
+            e if e == Terminating as u64 => Ok(Terminating),
+            other => Err(UnknownDriverState(other)),
+        }
+    }
+}
+
 #[repr(u32)]
 #[derive(Clone, Copy)]
 #[allow(dead_code)]
@@ -96,8 +119,27 @@ pub enum EventId {
     ErrorStopSplittingProcess,
 
     ErrorMessage,
+}
 
-    Unknown,
+#[derive(err_derive::Error, Debug)]
+#[error(display = "Unknown event id: {}", _0)]
+pub struct UnknownEventId(u32);
+
+impl TryFrom<u32> for EventId {
+    type Error = UnknownEventId;
+
+    fn try_from(event: u32) -> Result<Self, Self::Error> {
+        use EventId::*;
+
+        match event {
+            e if e == StartSplittingProcess as u32 => Ok(StartSplittingProcess),
+            e if e == StopSplittingProcess as u32 => Ok(StopSplittingProcess),
+            e if e == ErrorStartSplittingProcess as u32 => Ok(ErrorStartSplittingProcess),
+            e if e == ErrorStopSplittingProcess as u32 => Ok(ErrorStopSplittingProcess),
+            e if e == ErrorMessage as u32 => Ok(ErrorMessage),
+            other => Err(UnknownEventId(other)),
+        }
+    }
 }
 
 pub enum EventBody {
@@ -116,12 +158,13 @@ pub enum EventBody {
     },
 }
 
-#[repr(u32)]
-#[derive(Debug)]
-#[allow(dead_code)]
-pub enum SplittingChangeReason {
-    ByInheritance = 0,
-    ByConfig = 1,
+bitflags! {
+    pub struct SplittingChangeReason: u32 {
+        const BY_INHERITANCE = 1;
+        const BY_CONFIG = 2;
+        const PROCESS_ARRIVING = 4;
+        const PROCESS_DEPARTING = 8;
+    }
 }
 
 pub struct DeviceHandle {
@@ -308,7 +351,10 @@ impl DeviceHandle {
         )?
         .unwrap();
 
-        Ok(unsafe { deserialize_buffer(&buffer) })
+        let raw_state: u64 = unsafe { deserialize_buffer(&buffer[0..size_of::<u64>()]) };
+
+        Ok(DriverState::try_from(raw_state)
+            .map_err(|error| io::Error::new(io::ErrorKind::Other, error))?)
     }
 
     pub fn set_config<T: AsRef<OsStr>>(&self, apps: &[T]) -> io::Result<()> {
@@ -597,161 +643,121 @@ fn serialize_process_tree(processes: Vec<ProcessInfo>) -> Result<Vec<MaybeUninit
 struct EventHeader {
     event_id: EventId,
     event_size: usize,
-    event_data: [u8; 1],
+    event_data: [u8; 0],
 }
 
 #[repr(C)]
 struct SplittingEventHeader {
     process_id: usize,
-    reason: SplittingChangeReason,
+    reason: u32,
     image_name_length: u16,
-    image_name_data: [u16; 1],
+    image_name_data: [u16; 0],
 }
 
 #[repr(C)]
 struct SplittingErrorEventHeader {
     process_id: usize,
     image_name_length: u16,
-    image_name_data: [u16; 1],
+    image_name_data: [u16; 0],
 }
 
 #[repr(C)]
 struct ErrorMessageEventHeader {
     status: NTSTATUS,
     error_message_length: u16,
-    error_message_data: [u16; 1],
+    error_message_data: [u16; 0],
 }
 
-pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
-    let mut raw_event_id = 0u32;
-    unsafe {
-        ptr::copy_nonoverlapping(
-            &buffer[0],
-            &mut raw_event_id as *mut _ as *mut u8,
-            mem::size_of::<u32>(),
-        )
-    };
-    if raw_event_id >= EventId::Unknown as u32 {
-        return None;
-    }
+/// Parses an event returned by the ST driver.
+///
+/// # Panics
+///
+/// This may panic if `buffer` contains invalid data.
+pub fn parse_event_buffer(buffer: &[u8]) -> Option<(EventId, EventBody)> {
+    // SAFETY: This panics if `buffer` is too small.
+    let raw_event_id: u32 = unsafe { deserialize_buffer(&buffer[0..mem::size_of::<u32>()]) };
+    let _event_id = EventId::try_from(raw_event_id)
+        .map_err(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to parse ST event buffer")
+            );
+            error
+        })
+        .ok()?;
 
-    let mut event_header: EventHeader = unsafe { mem::zeroed() };
-    unsafe {
-        ptr::copy_nonoverlapping(
-            &buffer[0],
-            &mut event_header as *mut _ as *mut u8,
-            offset_of!(EventHeader, event_data),
-        )
-    };
+    // SAFETY: The event id is known to be valid.
+    let event_header: EventHeader =
+        unsafe { deserialize_buffer(&buffer[0..offset_of!(EventHeader, event_data)]) };
+
+    let (_, buffer) = buffer.split_at(offset_of!(EventHeader, event_data));
 
     match event_header.event_id {
         EventId::StartSplittingProcess | EventId::StopSplittingProcess => {
-            let mut event: SplittingEventHeader = unsafe { mem::zeroed() };
-            unsafe {
-                ptr::copy_nonoverlapping(
-                    &buffer[offset_of!(EventHeader, event_data)],
-                    &mut event as *mut _ as *mut u8,
-                    offset_of!(SplittingEventHeader, image_name_data),
-                )
+            // SAFETY: This will panic if the buffer is too small to contain the message.
+            let event: SplittingEventHeader = unsafe {
+                deserialize_buffer(&buffer[0..offset_of!(SplittingEventHeader, image_name_data)])
             };
-
-            let mut image_name = Vec::new();
-            image_name.resize(
-                event.image_name_length as usize / mem::size_of::<u16>(),
-                0u16,
+            let string_byte_offset = offset_of!(SplittingEventHeader, image_name_data);
+            let image = buffer_to_osstring(
+                &buffer
+                    [string_byte_offset..(string_byte_offset + event.image_name_length as usize)],
             );
-
-            let string_byte_offset = offset_of!(EventHeader, event_data)
-                + offset_of!(SplittingEventHeader, image_name_data);
-
-            unsafe {
-                ptr::copy_nonoverlapping(
-                    &buffer[string_byte_offset] as *const _ as *const u16,
-                    image_name.as_mut_ptr(),
-                    image_name.len(),
-                )
-            };
 
             Some((
                 event_header.event_id,
                 EventBody::SplittingEvent {
                     process_id: event.process_id,
-                    reason: event.reason,
-                    image: OsStringExt::from_wide(&image_name),
+                    reason: SplittingChangeReason::from_bits(event.reason).unwrap_or_else(|| {
+                        log::error!("Dropping unknown bits from splitting change reason. Original reason: {:b}", event.reason);
+                        SplittingChangeReason::from_bits_truncate(event.reason)
+                    }),
+                    image,
                 },
             ))
         }
         EventId::ErrorStartSplittingProcess | EventId::ErrorStopSplittingProcess => {
-            let mut event: SplittingErrorEventHeader = unsafe { mem::zeroed() };
-            unsafe {
-                ptr::copy_nonoverlapping(
-                    &buffer[offset_of!(EventHeader, event_data)],
-                    &mut event as *mut _ as *mut u8,
-                    offset_of!(SplittingErrorEventHeader, image_name_data),
+            // SAFETY: This will panic if the buffer is too small to contain the message.
+            let event: SplittingErrorEventHeader = unsafe {
+                deserialize_buffer(
+                    &buffer[0..offset_of!(SplittingErrorEventHeader, image_name_data)],
                 )
             };
-
-            let mut image_name = Vec::new();
-            image_name.resize(
-                event.image_name_length as usize / mem::size_of::<u16>(),
-                0u16,
+            let string_byte_offset = offset_of!(SplittingErrorEventHeader, image_name_data);
+            let image = buffer_to_osstring(
+                &buffer
+                    [string_byte_offset..(string_byte_offset + event.image_name_length as usize)],
             );
-
-            let string_byte_offset = offset_of!(EventHeader, event_data)
-                + offset_of!(SplittingErrorEventHeader, image_name_data);
-
-            unsafe {
-                ptr::copy_nonoverlapping(
-                    &buffer[string_byte_offset] as *const _ as *const u16,
-                    image_name.as_mut_ptr(),
-                    image_name.len(),
-                )
-            };
 
             Some((
                 event_header.event_id,
                 EventBody::SplittingError {
                     process_id: event.process_id,
-                    image: OsStringExt::from_wide(&image_name),
+                    image,
                 },
             ))
         }
         EventId::ErrorMessage => {
-            let mut event: ErrorMessageEventHeader = unsafe { mem::zeroed() };
-            unsafe {
-                ptr::copy_nonoverlapping(
-                    &buffer[offset_of!(EventHeader, event_data)],
-                    &mut event as *mut _ as *mut u8,
-                    offset_of!(ErrorMessageEventHeader, error_message_data),
+            // SAFETY: This will panic if the buffer is too small to contain the message.
+            let event: ErrorMessageEventHeader = unsafe {
+                deserialize_buffer(
+                    &buffer[0..offset_of!(ErrorMessageEventHeader, error_message_data)],
                 )
             };
-
-            let mut error_message = Vec::new();
-            error_message.resize(
-                event.error_message_length as usize / mem::size_of::<u16>(),
-                0u16,
+            let string_byte_offset = offset_of!(ErrorMessageEventHeader, error_message_data);
+            let message = buffer_to_osstring(
+                &buffer[string_byte_offset
+                    ..(string_byte_offset + event.error_message_length as usize)],
             );
-
-            let string_byte_offset = offset_of!(EventHeader, event_data)
-                + offset_of!(ErrorMessageEventHeader, error_message_data);
-
-            unsafe {
-                ptr::copy_nonoverlapping(
-                    &buffer[string_byte_offset] as *const _ as *const u16,
-                    error_message.as_mut_ptr(),
-                    error_message.len(),
-                )
-            };
 
             Some((
                 event_header.event_id,
                 EventBody::ErrorMessage {
                     status: event.status,
-                    message: OsStringExt::from_wide(&error_message),
+                    message,
                 },
             ))
         }
-        EventId::Unknown => None,
     }
 }
 
@@ -938,11 +944,40 @@ pub unsafe fn device_io_control_buffer_async(
     Ok(())
 }
 
-/// Creates a new instance of an arbitrary type from a byte buffer.
-pub unsafe fn deserialize_buffer<T: Sized>(buffer: &Vec<u8>) -> T {
-    let mut instance: T = mem::zeroed();
-    ptr::copy_nonoverlapping(buffer.as_ptr() as *const T, &mut instance as *mut _, 1);
-    instance
+/// Reads the value from `buffer`, zeroing any remaining bytes.
+///
+/// # Safety
+///
+/// The caller must ensure that `T` is initialized by the byte buffer.
+///
+/// # Panics
+///
+/// This panics if `buffer` is larger than `T`.
+unsafe fn deserialize_buffer<T>(buffer: &[u8]) -> T {
+    assert!(buffer.len() <= mem::size_of::<T>());
+
+    let mut instance = MaybeUninit::zeroed();
+    ptr::copy_nonoverlapping(
+        buffer.as_ptr(),
+        instance.as_mut_ptr() as *mut u8,
+        buffer.len(),
+    );
+    instance.assume_init()
+}
+
+fn buffer_to_osstring(buffer: &[u8]) -> OsString {
+    let mut out_buf = Vec::new();
+    out_buf.resize((buffer.len() + 1) / mem::size_of::<u16>(), 0u16);
+
+    // SAFETY: `out_buf` contains enough bytes to store all of `buffer`.
+    unsafe {
+        ptr::copy_nonoverlapping(
+            buffer as *const _ as *const u16,
+            out_buf.as_mut_ptr(),
+            out_buf.len(),
+        )
+    };
+    OsStringExt::from_wide(&out_buf)
 }
 
 /// Inserts a string into `buffer` at a given `byte_offset`.
