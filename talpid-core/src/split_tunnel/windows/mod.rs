@@ -283,7 +283,6 @@ impl SplitTunnel {
                         "Stop splitting process"
                     }
                     EventId::ErrorMessage => "ErrorMessage",
-                    _ => "Unknown event ID",
                 };
 
                 match event_body {
