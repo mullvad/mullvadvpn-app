@@ -17,7 +17,6 @@ class ReplaceKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, Tunn
     private var restRequest: Cancellable?
 
     private let rotationInterval: TimeInterval?
-    private var completionHandler: CompletionHandler?
 
     private let logger = Logger(label: "TunnelManager.ReplaceKeyOperation")
 
