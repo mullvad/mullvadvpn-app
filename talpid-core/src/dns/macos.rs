@@ -125,7 +125,7 @@ impl State {
                     }
                     Some(new_settings) => {
                         if new_settings.address_set() != expected_settings.address_set() {
-                            let servers = expected_settings.server_addresses().join(",");
+                            let servers = new_settings.server_addresses().join(",");
                             log::debug!("Detected DNS change [{}] for {}", servers, *path);
                             self.backup.insert(path.to_string(), Some(new_settings));
                             true
