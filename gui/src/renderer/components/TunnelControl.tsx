@@ -31,7 +31,6 @@ const SwitchLocationButton = styled(AppButton.TransparentButton)({
 const Secured = styled(SecuredLabel)(normalText, {
   fontWeight: 700,
   lineHeight: '22px',
-  marginBottom: '2px',
 });
 
 const Footer = styled.div({
@@ -60,7 +59,6 @@ const Wrapper = styled.div({
 const Location = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  marginBottom: 2,
 });
 
 const LocationRow = styled.div({

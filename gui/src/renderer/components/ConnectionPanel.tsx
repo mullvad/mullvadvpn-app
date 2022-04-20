@@ -76,6 +76,7 @@ const Header = styled.div({
   alignSelf: 'start',
   display: 'flex',
   alignItems: 'center',
+  width: '100%',
 });
 
 export default class ConnectionPanel extends React.Component<IProps> {
