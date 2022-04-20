@@ -1,5 +1,6 @@
 object Dependencies {
     const val androidMaterial = "com.google.android.material:material:${Versions.Android.material}"
+    const val androidVolley = "com.android.volley:volley:${Versions.Android.volley}"
     const val commonsValidator = "commons-validator:commons-validator:${Versions.commonsValidator}"
     const val jodaTime = "joda-time:joda-time:${Versions.jodaTime}"
     const val junit = "junit:junit:${Versions.junit}"
@@ -22,11 +23,20 @@ object Dependencies {
             "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.AndroidX.lifecycle}"
         const val recyclerview =
             "androidx.recyclerview:recyclerview:${Versions.AndroidX.recyclerview}"
-        const val junit = "androidx.test.ext:junit:${Versions.AndroidX.junit}"
         const val espressoCore =
             "androidx.test.espresso:espresso-core:${Versions.AndroidX.espresso}"
         const val espressoContrib =
             "androidx.test.espresso:espresso-contrib:${Versions.AndroidX.espresso}"
+        const val testCore =
+            "androidx.test:core:${Versions.AndroidX.test}"
+        const val testRunner =
+            "androidx.test:runner:${Versions.AndroidX.test}"
+        const val testRules =
+            "androidx.test:rules:${Versions.AndroidX.test}"
+        const val testUiAutomator =
+            "androidx.test.uiautomator:uiautomator:${Versions.AndroidX.uiautomator}"
+        const val testOrchestrator =
+            "androidx.test:orchestrator:${Versions.AndroidX.test}"
     }
 
     object Koin {
@@ -59,6 +69,7 @@ object Dependencies {
     object Plugin {
         const val android = "com.android.tools.build:gradle:${Versions.Plugin.android}"
         const val androidApplicationId = "com.android.application"
+        const val androidTestId = "com.android.test"
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"
         const val playPublisherId = "com.github.triplet.play"

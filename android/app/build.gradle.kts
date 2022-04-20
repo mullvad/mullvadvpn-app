@@ -68,6 +68,7 @@ android {
             assets.srcDirs(extraAssetsDirectory)
             jniLibs.srcDirs(extraJniDirectory)
             java.srcDirs("src/main/kotlin/")
+            java.srcDirs("src/debug/kotlin/")
         }
 
         getByName("test") {
@@ -185,7 +186,6 @@ dependencies {
     debugImplementation(Dependencies.AndroidX.fragmentTestning)
     androidTestImplementation(Dependencies.AndroidX.espressoContrib)
     androidTestImplementation(Dependencies.AndroidX.espressoCore)
-    androidTestImplementation(Dependencies.AndroidX.junit)
     androidTestImplementation(Dependencies.Koin.test)
     androidTestImplementation(Dependencies.Kotlin.test)
     androidTestImplementation(Dependencies.MockK.android)
