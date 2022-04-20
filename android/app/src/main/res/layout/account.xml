@@ -42,6 +42,13 @@
                           android:lines="1"
                           android:text="@string/settings_account"
                           style="@style/SettingsExpandedHeader" />
+                <net.mullvad.mullvadvpn.ui.widget.InformationView android:id="@+id/device_name"
+                                                                  android:layout_width="match_parent"
+                                                                  android:layout_height="wrap_content"
+                                                                  android:paddingHorizontal="@dimen/side_margin"
+                                                                  android:paddingVertical="@dimen/half_vertical_space"
+                                                                  mullvad:description="@string/device_name"
+                                                                  mullvad:whenMissing="hide" />
                 <net.mullvad.mullvadvpn.ui.widget.CopyableInformationView android:id="@+id/account_number"
                                                                           android:layout_width="match_parent"
                                                                           android:layout_height="wrap_content"

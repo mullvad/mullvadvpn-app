@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.SharingStarted.Companion.Lazily
+import kotlinx.coroutines.flow.SharingStarted.Companion.Eagerly
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.model.DeviceState
 
@@ -12,7 +12,7 @@ class DeviceRepository(
     val deviceState = dataSource.deviceStateUpdates
         .stateIn(
             externalScope,
-            Lazily,
+            Eagerly,
             DeviceState.InitialState
         )
 

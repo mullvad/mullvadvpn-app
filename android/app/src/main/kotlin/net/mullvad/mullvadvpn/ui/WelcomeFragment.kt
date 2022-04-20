@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
@@ -57,7 +58,11 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyStart() {
-        updateAccountNumber(deviceRepository.deviceState.value.token())
+        jobTracker.newUiJob("updateAccountNumber") {
+            deviceRepository.deviceState.collect { state ->
+                updateAccountNumber(state.token())
+            }
+        }
 
         accountCache.onAccountExpiryChange.subscribe(this) { expiry ->
             checkExpiry(expiry)
@@ -76,6 +81,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     override fun onSafelyStop() {
         accountCache.onAccountExpiryChange.unsubscribe(this)
         jobTracker.cancelJob("pollAccountData")
+        jobTracker.cancelJob("updateAccountNumber")
     }
 
     private fun updateAccountNumber(rawAccountNumber: String?) {

@@ -179,6 +179,7 @@ dependencies {
     testImplementation(Dependencies.KotlinX.coroutinesTest)
     testImplementation(Dependencies.MockK.core)
     testImplementation(Dependencies.junit)
+    testImplementation(Dependencies.turbine)
 
     // UI test dependencies
     debugImplementation(Dependencies.AndroidX.fragmentTestning)
