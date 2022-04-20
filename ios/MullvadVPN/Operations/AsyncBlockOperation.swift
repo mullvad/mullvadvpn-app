@@ -20,13 +20,18 @@ class AsyncBlockOperation: AsyncOperation {
     }
 
     override func main() {
-        executionBlock?(self)
+        stateLock.lock()
+        let block = executionBlock
         executionBlock = nil
+        stateLock.unlock()
+
+        block?(self)
     }
 
     override func finish() {
         stateLock.lock()
         cancellationBlocks.removeAll()
+        executionBlock = nil
         stateLock.unlock()
 
         super.finish()
@@ -56,3 +61,4 @@ class AsyncBlockOperation: AsyncOperation {
         }
     }
 }
+
