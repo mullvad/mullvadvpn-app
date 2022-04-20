@@ -63,6 +63,10 @@ const Location = styled.div({
   marginBottom: 2,
 });
 
+const LocationRow = styled.div({
+  height: '36px',
+});
+
 const StyledMarquee = styled(Marquee)(hugeText, {
   lineHeight: '36px',
   overflow: 'hidden',
@@ -99,8 +103,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
             <Body>
               <Secured displayStyle={SecuredDisplayStyle.securing} />
               <Location>
-                {this.renderCity()}
                 {this.renderCountry()}
+                {this.renderCity()}
               </Location>
               <ConnectionPanelContainer />
             </Body>
@@ -116,8 +120,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
             <Body>
               <Secured displayStyle={SecuredDisplayStyle.secured} />
               <Location>
-                {this.renderCity()}
                 {this.renderCountry()}
+                {this.renderCity()}
               </Location>
               <ConnectionPanelContainer />
             </Body>
@@ -163,7 +167,10 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
           <Wrapper>
             <Body>
               <Secured displayStyle={SecuredDisplayStyle.unsecuring} />
-              <Location>{this.renderCountry()}</Location>
+              <Location>
+                {this.renderCountry()}
+                <LocationRow />
+              </Location>
             </Body>
             <Footer>
               {this.selectLocationButton()}
@@ -180,7 +187,10 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
           <Wrapper>
             <Body>
               <Secured displayStyle={displayStyle} />
-              <Location>{this.renderCountry()}</Location>
+              <Location>
+                {this.renderCountry()}
+                <LocationRow />
+              </Location>
             </Body>
             <Footer>
               {this.selectLocationButton()}
@@ -197,13 +207,21 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
 
   private renderCity() {
     const city = this.props.city === undefined ? '' : relayLocations.gettext(this.props.city);
-    return <StyledMarquee>{city}</StyledMarquee>;
+    return (
+      <LocationRow>
+        <StyledMarquee>{city}</StyledMarquee>
+      </LocationRow>
+    );
   }
 
   private renderCountry() {
     const country =
       this.props.country === undefined ? '' : relayLocations.gettext(this.props.country);
-    return <StyledMarquee>{country}</StyledMarquee>;
+    return (
+      <LocationRow>
+        <StyledMarquee>{country}</StyledMarquee>
+      </LocationRow>
+    );
   }
 
   private switchLocationButton() {
