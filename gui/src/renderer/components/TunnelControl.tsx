@@ -103,8 +103,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
             <Body>
               <Secured displayStyle={SecuredDisplayStyle.securing} />
               <Location>
-                {this.renderCity()}
                 {this.renderCountry()}
+                {this.renderCity()}
               </Location>
               <ConnectionPanelContainer />
             </Body>
@@ -120,8 +120,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
             <Body>
               <Secured displayStyle={SecuredDisplayStyle.secured} />
               <Location>
-                {this.renderCity()}
                 {this.renderCountry()}
+                {this.renderCity()}
               </Location>
               <ConnectionPanelContainer />
             </Body>
@@ -168,8 +168,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
             <Body>
               <Secured displayStyle={SecuredDisplayStyle.unsecuring} />
               <Location>
-                <LocationRow />
                 {this.renderCountry()}
+                <LocationRow />
               </Location>
             </Body>
             <Footer>
@@ -188,8 +188,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
             <Body>
               <Secured displayStyle={displayStyle} />
               <Location>
-                <LocationRow />
                 {this.renderCountry()}
+                <LocationRow />
               </Location>
             </Body>
             <Footer>
