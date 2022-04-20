@@ -63,6 +63,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix "Open Mullvad VPN" tray context menu item not working after toggling unpinned window setting.
 - Fix apps not always visible in split tunneling view after browsing for an app and then removing it
   from the excluded applications.
+- Fix navigation resetting to main view when toggling the unpinned window setting.
 
 ### Security
 #### Android

@@ -42,6 +42,9 @@ export default function (
     case 'SET_WINDOW_FOCUSED':
       return { ...state, windowFocused: action.focused };
 
+    case 'SET_SCROLL_POSITIONS':
+      return { ...state, scrollPosition: action.scrollPositions };
+
     case 'ADD_SCROLL_POSITION':
       return {
         ...state,

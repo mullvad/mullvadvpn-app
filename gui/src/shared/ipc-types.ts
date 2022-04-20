@@ -1,3 +1,5 @@
+import { Action, Location } from 'history';
+
 export interface ICurrentAppVersionInfo {
   gui: string;
   daemon?: string;
@@ -10,3 +12,11 @@ export interface IWindowShapeParameters {
 }
 
 export type IChangelog = Array<string>;
+
+export interface IHistoryObject {
+  entries: Location<unknown>[];
+  index: number;
+  lastAction: Action;
+}
+
+export type ScrollPositions = Record<string, [number, number]>;

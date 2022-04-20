@@ -12,6 +12,7 @@ import SelectLocationPage from '../containers/SelectLocationPage';
 import SettingsPage from '../containers/SettingsPage';
 import SupportPage from '../containers/SupportPage';
 import WireguardSettingsPage from '../containers/WireguardSettingsPage';
+import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, ITransitionSpecification, transitions, withHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { DeviceRevokedView } from './DeviceRevokedView';
@@ -36,12 +37,12 @@ interface IAppRoutesState {
   action?: Action;
 }
 
-class AppRouter extends React.Component<IHistoryProps, IAppRoutesState> {
+class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesState> {
   private unobserveHistory?: () => void;
 
   private focusRef = React.createRef<IFocusHandle>();
 
-  constructor(props: IHistoryProps) {
+  constructor(props: IHistoryProps & IAppContext) {
     super(props);
 
     this.state = {
@@ -54,6 +55,7 @@ class AppRouter extends React.Component<IHistoryProps, IAppRoutesState> {
     // React throttles updates, so it's impossible to capture the intermediate navigation without
     // listening to the history directly.
     this.unobserveHistory = this.props.history.listen((location, action, transition) => {
+      this.props.app.setNavigationHistory(this.props.history.asObject);
       this.setState({
         currentLocation: location,
         transition,
@@ -114,6 +116,6 @@ class AppRouter extends React.Component<IHistoryProps, IAppRoutesState> {
   };
 }
 
-const AppRoutesWithRouter = withHistory(AppRouter);
+const AppRoutesWithRouter = withAppContext(withHistory(AppRouter));
 
 export default AppRoutesWithRouter;

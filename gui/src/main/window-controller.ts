@@ -192,9 +192,11 @@ export default class WindowController {
     this.notifyUpdateWindowShape();
   }
 
-  public destroy() {
+  public close() {
     if (this.window && !this.window.isDestroyed()) {
-      this.window.destroy();
+      this.window.webContents.closeDevTools();
+      this.window.closable = true;
+      this.window.close();
     }
   }
 
