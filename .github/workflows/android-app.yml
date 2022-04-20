@@ -51,7 +51,7 @@ jobs:
               if: steps.cache-native-libs.outputs.cache-hit != 'true'
               uses: ATiltedTree/setup-rust@v1.0.4
               with:
-                  rust-version: stable
+                  rust-version: 1.60.0
                   targets: x86_64-linux-android
 
             - name: Configure Go
