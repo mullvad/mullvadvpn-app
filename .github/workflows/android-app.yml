@@ -49,10 +49,10 @@ jobs:
 
             - name: Configure Rust
               if: steps.cache-native-libs.outputs.cache-hit != 'true'
-              uses: ATiltedTree/setup-rust@v1.0.4
+              uses: actions-rs/toolchain@v1
               with:
-                  rust-version: stable
-                  targets: x86_64-linux-android
+                  toolchain: stable
+                  target: x86_64-linux-android
 
             - name: Configure Go
               if: steps.cache-native-libs.outputs.cache-hit != 'true'
