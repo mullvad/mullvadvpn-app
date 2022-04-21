@@ -22,15 +22,8 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
-            - name: Setup Node.js environment
-              uses: actions/setup-node@v3
-              with:
-                  node-version-file: '.nvmrc'
-                  cache: 'npm'
-                  cache-dependency-path: gui/package-lock.json
-
-            - name: Update NPM
-              run: npm i -g npm
+            - name: Setup Volta
+              uses: volta-cli/action@v1
 
             - name: Install dependencies
               working-directory: gui
