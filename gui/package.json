@@ -98,7 +98,11 @@
     "pack:linux": "gulp pack-linux"
   },
   "engines": {
-    "node": ">=12",
-    "npm": ">=6.12"
+    "node": ">=16",
+    "npm": ">=8.3"
+  },
+  "volta": {
+    "node": "16.13.2",
+    "npm": "8.7.0"
   }
 }
