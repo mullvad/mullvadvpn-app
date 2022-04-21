@@ -103,9 +103,6 @@ build_ref() {
 
   # Make sure we have the latest Rust and Node toolchains before the build
   rustup update
-  if command -v nvm > /dev/null; then
-      nvm install --latest-npm
-  fi
 
   BUILD_ARGS=(--optimize --sign)
   if [[ "$(uname -s)" == "Darwin" ]]; then
