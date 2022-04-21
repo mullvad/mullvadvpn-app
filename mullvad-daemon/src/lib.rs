@@ -362,8 +362,6 @@ pub(crate) enum InternalDaemonEvent {
     TriggerShutdown,
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
-    /// Request from REST client to use a different API endpoint.
-    GenerateApiConnectionMode(api::ApiConnectionModeRequest),
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
     DeviceEvent(InnerDeviceEvent),
     /// Handles updates from versions without devices.
@@ -394,12 +392,6 @@ impl From<DaemonCommand> for InternalDaemonEvent {
 impl From<AppVersionInfo> for InternalDaemonEvent {
     fn from(command: AppVersionInfo) -> Self {
         InternalDaemonEvent::NewAppVersionInfo(command)
-    }
-}
-
-impl From<api::ApiConnectionModeRequest> for InternalDaemonEvent {
-    fn from(request: api::ApiConnectionModeRequest) -> Self {
-        InternalDaemonEvent::GenerateApiConnectionMode(request)
     }
 }
 
@@ -644,10 +636,8 @@ where
 
         let endpoint_updater = api::ApiEndpointUpdaterHandle::new();
 
-        let proxy_provider = api::create_api_config_provider(
-            internal_event_tx.to_specialized_sender(),
-            ApiConnectionMode::Direct,
-        );
+        let (proxy_provider, proxy_provider_handle) =
+            api::ApiConnectionModeProvider::new(cache_dir.clone());
         let api_handle = api_runtime
             .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
             .await;
@@ -761,6 +751,8 @@ where
 
         let initial_selector_config = new_selector_config(&settings);
         let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
+
+        proxy_provider_handle.set_relay_selector(relay_selector.clone());
 
         let mut relay_list_updater = RelayListUpdater::new(
             relay_selector.clone(),
@@ -951,9 +943,6 @@ where
             TriggerShutdown => self.trigger_shutdown_event(),
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info)
-            }
-            GenerateApiConnectionMode(request) => {
-                self.handle_generate_api_connection_mode(request).await
             }
             DeviceEvent(event) => self.handle_device_event(event).await,
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event).await,
@@ -1289,77 +1278,6 @@ where
     fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
         self.app_version_info = Some(app_version_info.clone());
         self.event_listener.notify_app_version(app_version_info);
-    }
-
-    /// Returns the next API connection mode to use for reaching the API.
-    ///
-    /// When `mullvad-api` fails to contact the API, it requests a new connection mode
-    /// from this function, which will be used for future requests. The API can be
-    /// connected to either directly (i.e., [`ApiConnectionMode::Direct`]) or from
-    /// a bridge ([`ApiConnectionMode::Proxied`]).
-    ///
-    /// * Every 3rd attempt returns [`ApiConnectionMode::Direct`] (i.e., no bridge).
-    /// * For any other attempt, this function returns a configuration for the bridge that is
-    ///   closest to the selected relay location[^note] and matches all bridge constraints.
-    /// * When no matching bridge is found, e.g. if the selected hosting providers don't match any
-    ///   bridge, [`ApiConnectionMode::Direct`] is returned.
-    ///
-    /// [^note]: The "selected relay location" is the location of the last relay that
-    ///    the daemon connected to, or, if no relay was connected to, the "midpoint" of
-    ///    all relays that match the selected relay location constraint.
-    async fn handle_generate_api_connection_mode(
-        &mut self,
-        request: api::ApiConnectionModeRequest,
-    ) {
-        let location = self
-            .last_generated_relays
-            .as_ref()
-            .and_then(LastSelectedRelays::first_hop_coordinates)
-            .or_else(|| {
-                if let RelaySettings::Normal(settings) = self.settings.get_relay_settings() {
-                    self.relay_selector.get_relay_midpoint(&settings)
-                } else {
-                    None
-                }
-            });
-        let bridge = if request.retry_attempt % 3 > 0 {
-            let constraints = match &self.settings.bridge_settings {
-                BridgeSettings::Normal(settings) => InternalBridgeConstraints {
-                    location: settings.location.clone(),
-                    providers: settings.providers.clone(),
-                    transport_protocol: Constraint::Only(TransportProtocol::Tcp),
-                },
-                _ => InternalBridgeConstraints {
-                    location: Constraint::Any,
-                    providers: Constraint::Any,
-                    transport_protocol: Constraint::Only(TransportProtocol::Tcp),
-                },
-            };
-            self.relay_selector
-                .get_proxy_settings(&constraints, location)
-        } else {
-            None
-        };
-        let config = match bridge {
-            Some((settings, _relay)) => match settings {
-                ProxySettings::Shadowsocks(ss_settings) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(ss_settings))
-                }
-                _ => {
-                    log::error!("Received unexpected proxy settings type");
-                    ApiConnectionMode::Direct
-                }
-            },
-            None => ApiConnectionMode::Direct,
-        };
-
-        if let Err(error) = config.save(&self.cache_dir).await {
-            log::debug!(
-                "{}",
-                error.display_chain_with_msg("Failed to save API endpoint")
-            );
-        }
-        let _ = request.response_tx.send(config);
     }
 
     async fn handle_device_event(&mut self, event: InnerDeviceEvent) {

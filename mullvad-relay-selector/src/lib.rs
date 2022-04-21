@@ -671,21 +671,12 @@ impl RelaySelector {
                             relay,
                         })))
                     }
-                    BridgeState::Auto => {
-                        if let Some((settings, relay)) = self.get_auto_proxy_settings(
-                            &bridge_constraints,
-                            Some(location),
-                            retry_attempt,
-                        ) {
-                            Ok(Some(SelectedBridge::Normal(NormalSelectedBridge {
-                                settings,
-                                relay,
-                            })))
-                        } else {
-                            Ok(None)
-                        }
-                    }
-                    BridgeState::Off => Ok(None),
+                    BridgeState::Auto if self.should_use_bridge(retry_attempt) => Ok(self
+                        .get_proxy_settings(&bridge_constraints, Some(location))
+                        .map(|(settings, relay)| {
+                            SelectedBridge::Normal(NormalSelectedBridge { settings, relay })
+                        })),
+                    BridgeState::Auto | BridgeState::Off => Ok(None),
                 }
             }
             BridgeSettings::Custom(bridge_settings) => match config.bridge_state {
@@ -698,23 +689,30 @@ impl RelaySelector {
         }
     }
 
-    #[cfg(not(target_os = "android"))]
-    fn get_auto_proxy_settings<T: Into<Coordinates>>(
-        &self,
-        bridge_constraints: &InternalBridgeConstraints,
-        location: Option<T>,
-        retry_attempt: u32,
-    ) -> Option<(ProxySettings, Relay)> {
-        if !self.should_use_bridge(retry_attempt) {
-            return None;
-        }
+    /// Returns a bridge based on the relay and bridge constraints, ignoring the bridge state.
+    pub fn get_api_bridge(&self) -> Option<ProxySettings> {
+        let config = self.config.lock();
 
-        // For now, only TCP tunnels are supported.
-        if let Constraint::Only(TransportProtocol::Udp) = bridge_constraints.transport_protocol {
-            return None;
-        }
+        let near_location = match &config.relay_settings {
+            RelaySettings::Normal(settings) => self.get_relay_midpoint(settings),
+            _ => None,
+        };
 
-        self.get_proxy_settings(bridge_constraints, location)
+        let constraints = match &config.bridge_settings {
+            BridgeSettings::Normal(settings) => InternalBridgeConstraints {
+                location: settings.location.clone(),
+                providers: settings.providers.clone(),
+                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+            },
+            BridgeSettings::Custom(_bridge_settings) => InternalBridgeConstraints {
+                location: Constraint::Any,
+                providers: Constraint::Any,
+                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+            },
+        };
+
+        self.get_proxy_settings(&constraints, near_location)
+            .map(|(settings, _relay)| settings)
     }
 
     #[cfg(not(target_os = "android"))]
