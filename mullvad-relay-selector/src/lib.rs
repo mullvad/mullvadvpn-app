@@ -272,7 +272,9 @@ impl RelaySelector {
                 let relay =
                     self.get_tunnel_endpoint(&constraints, config.bridge_state, retry_attempt)?;
                 let bridge = match relay.endpoint {
-                    MullvadEndpoint::OpenVpn(_endpoint) => {
+                    MullvadEndpoint::OpenVpn(endpoint)
+                        if endpoint.protocol == TransportProtocol::Tcp =>
+                    {
                         let location = relay
                             .exit_relay
                             .location
@@ -280,7 +282,7 @@ impl RelaySelector {
                             .expect("Relay has no location set");
                         self.get_bridge_for(config, location, retry_attempt)?
                     }
-                    MullvadEndpoint::Wireguard(ref _endpoint) => None,
+                    _ => None,
                 };
                 Ok((SelectedRelay::Normal(relay), bridge))
             }
@@ -687,7 +689,7 @@ impl RelaySelector {
                             relay,
                         })))
                     }
-                    BridgeState::Auto if self.should_use_bridge(retry_attempt) => Ok(self
+                    BridgeState::Auto if Self::should_use_bridge(retry_attempt) => Ok(self
                         .get_proxy_settings(&bridge_constraints, Some(location))
                         .map(|(settings, relay)| {
                             SelectedBridge::Normal(NormalSelectedBridge { settings, relay })
@@ -697,7 +699,7 @@ impl RelaySelector {
             }
             BridgeSettings::Custom(bridge_settings) => match config.bridge_state {
                 BridgeState::On => Ok(Some(SelectedBridge::Custom(bridge_settings.clone()))),
-                BridgeState::Auto if self.should_use_bridge(retry_attempt) => {
+                BridgeState::Auto if Self::should_use_bridge(retry_attempt) => {
                     Ok(Some(SelectedBridge::Custom(bridge_settings.clone())))
                 }
                 BridgeState::Auto | BridgeState::Off => Ok(None),
@@ -731,8 +733,7 @@ impl RelaySelector {
             .map(|(settings, _relay)| settings)
     }
 
-    #[cfg(not(target_os = "android"))]
-    fn should_use_bridge(&self, retry_attempt: u32) -> bool {
+    fn should_use_bridge(retry_attempt: u32) -> bool {
         // shouldn't use a bridge for the first 3 times
         retry_attempt > 3 &&
             // i.e. 4th and 5th with bridge, 6th & 7th without
@@ -940,15 +941,16 @@ impl RelaySelector {
         // Prefer UDP by default. But if that has failed a couple of times, then try TCP port
         // 443, which works for many with UDP problems. After that, just alternate
         // between protocols.
-        // If the tunnel type constraint is set OpenVpn, from the 4th attempt onwards, every two
-        // retry attempts OpenVpn constraints should be set to TCP as a bridge will be used,
-        // and to UDP for the next two attempts. If the tunnel type is specified to be _Any_
+        // If the tunnel type constraint is set OpenVpn, from the 4th attempt onwards, the first
+        // two retry attempts OpenVpn constraints should be set to TCP as a bridge will be used,
+        // and to UDP or TCP for the next two attempts. If the tunnel type is specified to be _Any_
         // and on not-Windows, the first two tries are used for WireGuard and don't
         // affect counting here.
         match retry_attempt {
             0 | 1 => (Constraint::Any, TransportProtocol::Udp),
             2 | 3 => (Constraint::Only(443), TransportProtocol::Tcp),
-            attempt if attempt % 2 == 0 => (Constraint::Any, TransportProtocol::Udp),
+            attempt if attempt % 4 < 2 => (Constraint::Any, TransportProtocol::Tcp),
+            attempt if attempt % 4 == 2 => (Constraint::Any, TransportProtocol::Udp),
             _ => (Constraint::Any, TransportProtocol::Tcp),
         }
     }
