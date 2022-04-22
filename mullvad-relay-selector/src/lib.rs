@@ -1127,7 +1127,7 @@ impl RelaySelectorResult {
 mod test {
     use super::*;
     use mullvad_types::{
-        relay_constraints::RelayConstraints,
+        relay_constraints::{BridgeConstraints, RelayConstraints},
         relay_list::{
             OpenVpnEndpointData, Relay, RelayBridges, RelayListCity, RelayListCountry,
             RelayObfuscators, RelayTunnels, WireguardEndpointData,
@@ -1305,6 +1305,18 @@ mod test {
                 RELAYS.clone(),
                 SystemTime::now(),
             ))),
+            config: Arc::new(Mutex::new(SelectorConfig {
+                relay_settings: RelaySettings::Normal(RelayConstraints {
+                    location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
+                    ..Default::default()
+                }),
+                bridge_settings: BridgeSettings::Normal(BridgeConstraints::default()),
+                obfuscation_settings: ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Off,
+                    ..Default::default()
+                },
+                bridge_state: BridgeState::Auto,
+            })),
         }
     }
 
@@ -1650,18 +1662,14 @@ mod test {
         assert!(result.entry_relay.is_none());
         assert!(matches!(result.endpoint, MullvadEndpoint::Wireguard { .. }));
 
-        let obfs_settings = ObfuscationSettings {
+        relay_selector.config.lock().obfuscation_settings = ObfuscationSettings {
             selected_obfuscation: SelectedObfuscation::Udp2Tcp,
             ..ObfuscationSettings::default()
         };
 
-        let (obfs_config, _obfs_relay) = relay_selector
-            .get_obfuscator(
-                &obfs_settings,
-                &result.exit_relay,
-                result.endpoint.unwrap_wireguard(),
-                0,
-            )
+        let obfs_config = relay_selector
+            .get_obfuscator(&result.exit_relay, result.endpoint.unwrap_wireguard(), 0)
+            .unwrap()
             .unwrap();
 
         assert!(matches!(obfs_config, ObfuscatorConfig::Udp2Tcp { .. }));
@@ -1677,36 +1685,24 @@ mod test {
         assert!(result.entry_relay.is_none());
         assert!(matches!(result.endpoint, MullvadEndpoint::Wireguard { .. }));
 
-        let obfs_settings = ObfuscationSettings {
+        relay_selector.config.lock().obfuscation_settings = ObfuscationSettings {
             selected_obfuscation: SelectedObfuscation::Auto,
             ..ObfuscationSettings::default()
         };
 
         assert!(relay_selector
-            .get_obfuscator(
-                &obfs_settings,
-                &result.exit_relay,
-                result.endpoint.unwrap_wireguard(),
-                0,
-            )
+            .get_obfuscator(&result.exit_relay, result.endpoint.unwrap_wireguard(), 0,)
+            .unwrap()
             .is_none());
 
         assert!(relay_selector
-            .get_obfuscator(
-                &obfs_settings,
-                &result.exit_relay,
-                result.endpoint.unwrap_wireguard(),
-                1,
-            )
+            .get_obfuscator(&result.exit_relay, result.endpoint.unwrap_wireguard(), 1,)
+            .unwrap()
             .is_none());
 
         assert!(relay_selector
-            .get_obfuscator(
-                &obfs_settings,
-                &result.exit_relay,
-                result.endpoint.unwrap_wireguard(),
-                2,
-            )
+            .get_obfuscator(&result.exit_relay, result.endpoint.unwrap_wireguard(), 2,)
+            .unwrap()
             .is_some());
     }
 
@@ -1716,7 +1712,7 @@ mod test {
 
         const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
 
-        let obfs_settings = ObfuscationSettings {
+        relay_selector.config.lock().obfuscation_settings = ObfuscationSettings {
             selected_obfuscation: SelectedObfuscation::Udp2Tcp,
             ..ObfuscationSettings::default()
         };
@@ -1727,13 +1723,13 @@ mod test {
                 .expect("Failed to select a WireGuard relay");
             assert!(result.entry_relay.is_none());
 
-            let (obfs_config, _obfs_relay) = relay_selector
+            let obfs_config = relay_selector
                 .get_obfuscator(
-                    &obfs_settings,
                     &result.exit_relay,
                     result.endpoint.unwrap_wireguard(),
                     attempt,
                 )
+                .unwrap()
                 .expect("Failed to get Tcp2Udp endpoint");
 
             assert!(matches!(obfs_config, ObfuscatorConfig::Udp2Tcp { .. }));
