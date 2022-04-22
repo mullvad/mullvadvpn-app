@@ -59,6 +59,7 @@ Line wrap the file at 100 chars.                                              Th
   by updating `udp-over-tcp` to 0.2.
 - Parse old account history formats correctly when they are empty.
 - Use suspend-aware timers for relay list updates and version checks on all platforms.
+- Don't attempt to use bridges when using OpenVPN over UDP and bridge mode is set to auto.
 
 #### Windows
 - Fix "Open Mullvad VPN" tray context menu item not working after toggling unpinned window setting.
