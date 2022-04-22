@@ -75,13 +75,10 @@ relay location will be used.
 ### Selecting a bridge endpoint between filtered relays
 
 When filtering bridge endpoints by location, if multiple bridge endpoints match the specified
-constraints then currently the one which is geographically closest to the selected tunnel relay
-would be selected. Ideally, rather than always picking the closest one given the same constraints
-and tunnel endpoint, a different but still geographically close bridge endpoint would be selected if
-the daemon failed to connect to the first ones initially. If bridge state is set to _On_, then a
-bridge is always selected and used. If it's set to _auto_, a bridge will only be tried after 3
-failed attempts at connecting without a bridge and only if the relay constraints allow for a bridge
-to be selected.
+constraints then endpoints which are geographically closer to the selected tunnel relay are more
+likely to be selected. If bridge state is set to _On_, then a bridge is always selected and used.
+If it's set to _auto_, a bridge will only be tried after 3 failed attempts at connecting without a
+bridge and only if the relay constraints allow for a bridge to be selected.
 
 ### Bridge caveats
 
