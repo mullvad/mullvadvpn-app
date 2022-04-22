@@ -275,29 +275,21 @@ storePassword = keystore-password
    versions that we target are specified in `package.json` in the `volta` section. Those versions
    will be used automatically if volta is installed and setup.
 
-   To install Volta, run:
+   To install Volta on Linux and macOS, run:
    ```
    cargo install --git https://github.com/volta-cli/volta
    volta setup
    ```
    or follow the their instructions: https://github.com/volta-cli/volta.
 
+   #### Windows
+   Install the `msi` hosted here: https://github.com/volta-cli/volta.
+
 
    If installing Node.js manually then the latest version of npm can be installed by running:
    ```
    npm install -g npm
    ```
-   #### macOS
-   ```bash
-   brew install node
-   ```
-
-   #### Linux
-   Just download and unpack the `node-v16.xxxx.tar.xz` tarball and add its `bin` directory to your
-   `PATH`.
-
-   #### Windows
-   Download the Node.js installer from the official website.
 
 1. Install Go (ideally version `1.16`) by following the [official
    instructions](https://golang.org/doc/install).  Newer versions may work
