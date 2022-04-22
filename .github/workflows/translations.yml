@@ -16,15 +16,20 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
-            - name: Setup Node.js environment
-              uses: actions/setup-node@v3
-              with:
-                  node-version-file: '.nvmrc'
-                  cache: 'npm'
-                  cache-dependency-path: gui/package-lock.json
+            - name: Setup volta
+              uses: volta-cli/action@v1
 
-            - name: Update NPM
-              run: npm i -g npm
+            - name: Get npm cache directory path
+              id: npm-cache-dir-path
+              run: echo "::set-output name=dir::$(npm config get cache)"
+
+            - name: Cache npm dependencies
+              uses: actions/cache@v3
+              with:
+                path: ${{ steps.npm-cache-dir-path.outputs.dir }}
+                key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                  ${{ runner.os }}-npm-
 
             - name: Install JS dependencies
               working-directory: gui
