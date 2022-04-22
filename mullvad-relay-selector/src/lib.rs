@@ -733,7 +733,6 @@ impl RelaySelector {
             .map(|(settings, _relay)| settings)
     }
 
-    #[cfg(not(target_os = "android"))]
     fn should_use_bridge(retry_attempt: u32) -> bool {
         // shouldn't use a bridge for the first 3 times
         retry_attempt > 3 &&
