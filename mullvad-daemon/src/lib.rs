@@ -30,24 +30,17 @@ use futures::{
     future::{abortable, AbortHandle, Future},
     StreamExt,
 };
-use mullvad_api::{
-    availability::ApiAvailabilityHandle,
-    proxy::{ApiConnectionMode, ProxyConfig},
-};
+use mullvad_api::availability::ApiAvailabilityHandle;
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
-    RelaySelector, RelaySelectorResult, SelectedBridge, SelectedRelay, SelectorConfig,
+    RelaySelector, SelectedBridge, SelectedRelay, SelectorConfig,
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     device::{Device, DeviceConfig, DeviceData, DeviceEvent, DeviceId, RemoveDeviceEvent},
     endpoint::MullvadEndpoint,
-    location::{Coordinates, GeoIpLocation},
-    relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints,
-        ObfuscationSettings, RelayConstraints, RelaySettings, RelaySettingsUpdate,
-        SelectedObfuscation,
-    },
+    location::GeoIpLocation,
+    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
     relay_list::{Relay, RelayList},
     settings::{DnsOptions, DnsState, Settings},
     states::{TargetState, TunnelState},
@@ -81,10 +74,7 @@ use talpid_types::android::AndroidContext;
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn;
 use talpid_types::{
-    net::{
-        openvpn::ProxySettings, wireguard, TransportProtocol, TunnelEndpoint, TunnelParameters,
-        TunnelType,
-    },
+    net::{wireguard, TunnelEndpoint, TunnelParameters, TunnelType},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
@@ -594,7 +584,6 @@ pub struct Daemon<L: EventListener> {
     app_version_info: Option<AppVersionInfo>,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
     tunnel_state_machine_handle: tunnel_state_machine::JoinHandle,
-    cache_dir: PathBuf,
     #[cfg(target_os = "windows")]
     volume_update_tx: mpsc::UnboundedSender<()>,
 }
@@ -800,7 +789,6 @@ where
             app_version_info,
             shutdown_tasks: vec![],
             tunnel_state_machine_handle,
-            cache_dir,
             #[cfg(target_os = "windows")]
             volume_update_tx,
         };
@@ -2603,27 +2591,6 @@ enum LastSelectedRelays {
     ///     client -> bridge -> relay -> internet
     #[cfg(not(target_os = "android"))]
     OpenVpn { relay: Relay, bridge: Option<Relay> },
-}
-
-impl LastSelectedRelays {
-    fn first_hop_coordinates(&self) -> Option<Coordinates> {
-        let first_hop_location = match &self {
-            Self::WireGuard {
-                wg_entry: entry,
-                wg_exit: exit,
-                obfuscator,
-            } => {
-                let first_hop = obfuscator.as_ref().or(entry.as_ref()).unwrap_or(exit);
-                first_hop.location.clone()
-            }
-            #[cfg(not(target_os = "android"))]
-            Self::OpenVpn { relay, bridge } => {
-                let first_hop = bridge.as_ref().unwrap_or(relay);
-                first_hop.location.clone()
-            }
-        };
-        first_hop_location.map(Coordinates::from)
-    }
 }
 
 fn new_selector_config(settings: &Settings) -> SelectorConfig {
