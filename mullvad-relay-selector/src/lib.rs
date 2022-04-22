@@ -14,7 +14,7 @@ use mullvad_types::{
     relay_list::{Relay, RelayList, Udp2TcpEndpointData},
     CustomTunnelEndpoint,
 };
-use parking_lot::Mutex;
+use parking_lot::{Mutex, MutexGuard};
 use rand::{self, seq::SliceRandom, Rng};
 use std::{
     io,
@@ -259,15 +259,31 @@ impl RelaySelector {
     }
 
     /// Returns a random relay and relay endpoint matching the current constraints.
-    pub fn get_relay(&self, retry_attempt: u32) -> Result<SelectedRelay, Error> {
+    pub fn get_relay(
+        &self,
+        retry_attempt: u32,
+    ) -> Result<(SelectedRelay, Option<SelectedBridge>), Error> {
         let config = self.config.lock();
         match &config.relay_settings {
             RelaySettings::CustomTunnelEndpoint(custom_relay) => {
-                Ok(SelectedRelay::Custom(custom_relay.clone()))
+                Ok((SelectedRelay::Custom(custom_relay.clone()), None))
             }
-            RelaySettings::Normal(constraints) => self
-                .get_tunnel_endpoint(&constraints, config.bridge_state, retry_attempt)
-                .map(SelectedRelay::Normal),
+            RelaySettings::Normal(constraints) => {
+                let relay =
+                    self.get_tunnel_endpoint(&constraints, config.bridge_state, retry_attempt)?;
+                let bridge = match relay.endpoint {
+                    MullvadEndpoint::OpenVpn(_endpoint) => {
+                        let location = relay
+                            .exit_relay
+                            .location
+                            .as_ref()
+                            .expect("Relay has no location set");
+                        self.get_bridge_for(config, location, retry_attempt)?
+                    }
+                    MullvadEndpoint::Wireguard(ref _endpoint) => None,
+                };
+                Ok((SelectedRelay::Normal(relay), bridge))
+            }
         }
     }
 
@@ -647,12 +663,12 @@ impl RelaySelector {
         entry_endpoint.exit_peer = Some(exit_peer.clone());
     }
 
-    pub fn get_bridge(
+    fn get_bridge_for(
         &self,
+        config: MutexGuard<'_, SelectorConfig>,
         location: &mullvad_types::location::Location,
         retry_attempt: u32,
     ) -> Result<Option<SelectedBridge>, Error> {
-        let config = self.config.lock();
         match &config.bridge_settings {
             BridgeSettings::Normal(settings) => {
                 let bridge_constraints = InternalBridgeConstraints {
@@ -690,7 +706,7 @@ impl RelaySelector {
     }
 
     /// Returns a bridge based on the relay and bridge constraints, ignoring the bridge state.
-    pub fn get_api_bridge(&self) -> Option<ProxySettings> {
+    pub fn get_bridge_forced(&self) -> Option<ProxySettings> {
         let config = self.config.lock();
 
         let near_location = match &config.relay_settings {

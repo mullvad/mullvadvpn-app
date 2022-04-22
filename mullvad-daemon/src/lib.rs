@@ -1018,47 +1018,54 @@ where
         >,
         retry_attempt: u32,
     ) {
-        if let Ok(Some(device)) = self.account_manager.data().await {
-            let result = match self.relay_selector.get_relay(retry_attempt) {
-                Ok(SelectedRelay::Custom(custom_relay)) => {
-                    custom_relay
-                        // TODO(emilsp): generate proxy settings for custom tunnels
-                        .to_tunnel_parameters(self.settings.tunnel_options.clone(), None)
-                        .map_err(|e| {
-                            log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
-                            ParameterGenerationError::CustomTunnelHostResultionError
-                        })
-                }
-                Ok(SelectedRelay::Normal(constraints)) => {
-                    let result = self
-                        .create_tunnel_parameters(
-                            &constraints.exit_relay,
-                            &constraints.entry_relay,
-                            constraints.endpoint,
-                            device.token,
-                            retry_attempt,
-                        )
-                        .await;
-                    result.map_err(|error| match error {
-                        Error::NoKeyAvailable => ParameterGenerationError::NoWireguardKey,
-                        Error::NoBridgeAvailable => ParameterGenerationError::NoMatchingBridgeRelay,
-                        error => {
-                            log::error!(
-                                "{}",
-                                error
-                                    .display_chain_with_msg("Failed to generate tunnel parameters")
-                            );
-                            ParameterGenerationError::NoMatchingRelay
-                        }
-                    })
-                }
-                Err(_error) => Err(ParameterGenerationError::NoMatchingRelay),
-            };
-            if tunnel_parameters_tx.send(result).is_err() {
-                log::error!("Failed to send tunnel parameters");
+        let data = match self.account_manager.data().await {
+            Ok(Some(data)) => data,
+            _ => {
+                log::error!("No account token configured");
+                return;
             }
-        } else {
-            log::error!("No account token configured");
+        };
+
+        let result = match self.relay_selector.get_relay(retry_attempt) {
+            Ok((SelectedRelay::Custom(custom_relay), _bridge)) => {
+                custom_relay
+                    // TODO(emilsp): generate proxy settings for custom tunnels
+                    .to_tunnel_parameters(self.settings.tunnel_options.clone(), None)
+                    .map_err(|e| {
+                        log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
+                        ParameterGenerationError::CustomTunnelHostResultionError
+                    })
+            }
+            Ok((SelectedRelay::Normal(constraints), bridge)) => {
+                let result = self
+                    .create_tunnel_parameters(
+                        &constraints.exit_relay,
+                        &constraints.entry_relay,
+                        constraints.endpoint,
+                        bridge,
+                        data,
+                        retry_attempt,
+                    )
+                    .await;
+                result.map_err(|error| match error {
+                    Error::NoKeyAvailable => ParameterGenerationError::NoWireguardKey,
+                    Error::NoBridgeAvailable => ParameterGenerationError::NoMatchingBridgeRelay,
+                    error => {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to generate tunnel parameters")
+                        );
+                        ParameterGenerationError::NoMatchingRelay
+                    }
+                })
+            }
+            Err(mullvad_relay_selector::Error::NoBridge) => {
+                Err(ParameterGenerationError::NoMatchingBridgeRelay)
+            }
+            Err(_error) => Err(ParameterGenerationError::NoMatchingRelay),
+        };
+        if tunnel_parameters_tx.send(result).is_err() {
+            log::error!("Failed to send tunnel parameters");
         }
     }
 
@@ -1068,19 +1075,15 @@ where
         relay: &Relay,
         entry_relay: &Option<Relay>,
         endpoint: MullvadEndpoint,
-        account_token: String,
+        bridge: Option<SelectedBridge>,
+        device: DeviceData,
         retry_attempt: u32,
     ) -> Result<TunnelParameters, Error> {
         let tunnel_options = self.settings.tunnel_options.clone();
-        let location = relay.location.as_ref().expect("Relay has no location set");
         match endpoint {
             #[cfg(not(target_os = "android"))]
             MullvadEndpoint::OpenVpn(endpoint) => {
-                let (bridge_settings, bridge_relay) = match self
-                    .relay_selector
-                    .get_bridge(location, retry_attempt)
-                    .map_err(|_error| Error::NoBridgeAvailable)?
-                {
+                let (bridge_settings, bridge_relay) = match bridge {
                     Some(SelectedBridge::Normal(bridge)) => {
                         (Some(bridge.settings), Some(bridge.relay))
                     }
@@ -1094,11 +1097,7 @@ where
                 });
 
                 Ok(openvpn::TunnelParameters {
-                    config: openvpn::ConnectionConfig::new(
-                        endpoint,
-                        account_token,
-                        "-".to_string(),
-                    ),
+                    config: openvpn::ConnectionConfig::new(endpoint, device.token, "-".to_string()),
                     options: tunnel_options.openvpn,
                     generic_options: tunnel_options.generic,
                     proxy: bridge_settings,
@@ -1110,18 +1109,11 @@ where
                 unreachable!("OpenVPN is not supported on Android");
             }
             MullvadEndpoint::Wireguard(endpoint) => {
-                let wg_data = self
-                    .account_manager
-                    .data()
-                    .await
-                    .map_err(|_| Error::NoKeyAvailable)?
-                    .map(|device| device.wg_data)
-                    .ok_or(Error::NoKeyAvailable)?;
                 let tunnel = wireguard::TunnelConfig {
-                    private_key: wg_data.private_key,
+                    private_key: device.wg_data.private_key,
                     addresses: vec![
-                        wg_data.addresses.ipv4_address.ip().into(),
-                        wg_data.addresses.ipv6_address.ip().into(),
+                        device.wg_data.addresses.ipv4_address.ip().into(),
+                        device.wg_data.addresses.ipv6_address.ip().into(),
                     ],
                 };
 

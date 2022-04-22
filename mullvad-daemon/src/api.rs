@@ -78,7 +78,7 @@ impl Stream for ApiConnectionModeProvider {
 
         let config = if Self::should_use_bridge(self.retry_attempt) {
             selector
-                .get_api_bridge()
+                .get_bridge_forced()
                 .map(|settings| match settings {
                     ProxySettings::Shadowsocks(ss_settings) => {
                         ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(ss_settings))
