@@ -744,7 +744,7 @@ where
         let mut relay_list_updater = RelayListUpdater::new(
             relay_selector.clone(),
             api_handle.clone(),
-            cache_dir.to_path_buf(),
+            &cache_dir,
             on_relay_list_update,
         );
 

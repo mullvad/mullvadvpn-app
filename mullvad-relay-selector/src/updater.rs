@@ -60,7 +60,7 @@ impl RelayListUpdater {
     pub fn new(
         selector: super::RelaySelector,
         api_handle: MullvadRestHandle,
-        cache_path: PathBuf,
+        cache_dir: &Path,
         on_update: impl Fn(&RelayList) + Send + 'static,
     ) -> RelayListUpdaterHandle {
         let (tx, cmd_rx) = mpsc::channel(1);
@@ -68,7 +68,7 @@ impl RelayListUpdater {
         let api_client = RelayListProxy::new(api_handle);
         let updater = RelayListUpdater {
             api_client,
-            cache_path,
+            cache_path: cache_dir.join(super::RELAYS_FILENAME),
             parsed_relays: selector.parsed_relays.clone(),
             on_update: Box::new(on_update),
             last_check: UNIX_EPOCH,
