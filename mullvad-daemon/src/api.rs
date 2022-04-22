@@ -27,10 +27,10 @@ use talpid_types::{
 /// or from a bridge ([`ApiConnectionMode::Proxied`]).
 ///
 /// * Every 3rd attempt returns [`ApiConnectionMode::Direct`].
-/// * Any other attempt returns a configuration for the bridge that is closest to the
-///   selected relay location and matches all bridge constraints.
-/// * When no matching bridge is found, e.g. if the selected hosting providers don't
-///   match any bridge, [`ApiConnectionMode::Direct`] is returned.
+/// * Any other attempt returns a configuration for the bridge that is closest to the selected relay
+///   location and matches all bridge constraints.
+/// * When no matching bridge is found, e.g. if the selected hosting providers don't match any
+///   bridge, [`ApiConnectionMode::Direct`] is returned.
 pub struct ApiConnectionModeProvider {
     cache_dir: PathBuf,
 
