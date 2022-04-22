@@ -45,7 +45,7 @@ function log_info {
 RUSTC_VERSION=$(rustc --version)
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 
-PRODUCT_VERSION=$(node -p "require('./gui/package.json').version" | sed -Ee 's/\.0//g')
+PRODUCT_VERSION=$(cd gui/; node -p "require('./package.json').version" | sed -Ee 's/\.0//g')
 
 # If compiler optimization and artifact compression should be turned on or not
 OPTIMIZE="false"
