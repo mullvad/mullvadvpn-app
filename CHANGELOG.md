@@ -74,6 +74,10 @@ Line wrap the file at 100 chars.                                              Th
 - Prevent location request responses from being received outside the tunnel when in the connected
   state.
 
+#### Windows
+- Update split tunnel driver to 1.2.1.0. This fixes potential DNS leaks seen when excluding at least
+  one application.
+
 
 ## [android/2022.1] - 2022-03-01
 Identical to android/2022.1-beta3 except for a few updated translations.
