@@ -271,12 +271,17 @@ storePassword = keystore-password
 
 1. *This can be skipped for Android builds*.
 
-   Get the latest version 16 release of Node.js and the latest version of npm. The Node.js version
-   is specified in `.nvmrc` and can be installed by running the following from any directory within
-   this repository:
+   Any Node.js version above 16 and the latest npm version should work. The exact Node.js and NPM
+   versions that we target are specified in `package.json` in the `volta` section. Those versions
+   will be used automatically if volta is installed and setup.
+
+   To install Volta, run:
    ```
-   nvm install --latest-npm
+   cargo install --git https://github.com/volta-cli/volta
+   volta setup
    ```
+   or follow the their instructions: https://github.com/volta-cli/volta.
+
 
    If installing Node.js manually then the latest version of npm can be installed by running:
    ```
