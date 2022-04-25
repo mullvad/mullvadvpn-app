@@ -262,11 +262,18 @@ impl RelaySelector {
     pub fn get_relay(
         &self,
         retry_attempt: u32,
-    ) -> Result<(SelectedRelay, Option<SelectedBridge>), Error> {
+    ) -> Result<
+        (
+            SelectedRelay,
+            Option<SelectedBridge>,
+            Option<SelectedObfuscator>,
+        ),
+        Error,
+    > {
         let config = self.config.lock();
         match &config.relay_settings {
             RelaySettings::CustomTunnelEndpoint(custom_relay) => {
-                Ok((SelectedRelay::Custom(custom_relay.clone()), None))
+                Ok((SelectedRelay::Custom(custom_relay.clone()), None, None))
             }
             RelaySettings::Normal(constraints) => {
                 let relay =
@@ -280,11 +287,24 @@ impl RelaySelector {
                             .location
                             .as_ref()
                             .expect("Relay has no location set");
-                        self.get_bridge_for(config, location, retry_attempt)?
+                        self.get_bridge_for(&config, location, retry_attempt)?
                     }
                     _ => None,
                 };
-                Ok((SelectedRelay::Normal(relay), bridge))
+                let obfuscator = match relay.endpoint {
+                    MullvadEndpoint::Wireguard(ref endpoint) => {
+                        let obfuscator_relay =
+                            relay.entry_relay.as_ref().unwrap_or(&relay.exit_relay);
+                        self.get_obfuscator_inner(
+                            &config,
+                            obfuscator_relay,
+                            &endpoint,
+                            retry_attempt,
+                        )?
+                    }
+                    _ => None,
+                };
+                Ok((SelectedRelay::Normal(relay), bridge, obfuscator))
             }
         }
     }
@@ -667,7 +687,7 @@ impl RelaySelector {
 
     fn get_bridge_for(
         &self,
-        config: MutexGuard<'_, SelectorConfig>,
+        config: &MutexGuard<'_, SelectorConfig>,
         location: &mullvad_types::location::Location,
         retry_attempt: u32,
     ) -> Result<Option<SelectedBridge>, Error> {
@@ -786,9 +806,17 @@ impl RelaySelector {
         relay: &Relay,
         endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
-    ) -> Result<Option<ObfuscatorConfig>, Error> {
-        let config = self.config.lock();
+    ) -> Result<Option<SelectedObfuscator>, Error> {
+        self.get_obfuscator_inner(&self.config.lock(), relay, endpoint, retry_attempt)
+    }
 
+    fn get_obfuscator_inner(
+        &self,
+        config: &MutexGuard<'_, SelectorConfig>,
+        relay: &Relay,
+        endpoint: &MullvadWireguardEndpoint,
+        retry_attempt: u32,
+    ) -> Result<Option<SelectedObfuscator>, Error> {
         match &config.obfuscation_settings.selected_obfuscation {
             SelectedObfuscation::Auto => Ok(self.get_auto_obfuscator(
                 &config.obfuscation_settings,
@@ -815,7 +843,7 @@ impl RelaySelector {
         relay: &Relay,
         endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
-    ) -> Option<ObfuscatorConfig> {
+    ) -> Option<SelectedObfuscator> {
         if !self.should_use_auto_obfuscator(retry_attempt) {
             return None;
         }
@@ -849,7 +877,7 @@ impl RelaySelector {
         relay: &Relay,
         _endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
-    ) -> Option<ObfuscatorConfig> {
+    ) -> Option<SelectedObfuscator> {
         let udp2tcp_endpoint = if obfuscation_settings.port.is_only() {
             relay
                 .obfuscators
@@ -862,9 +890,14 @@ impl RelaySelector {
                 .udp2tcp
                 .get(retry_attempt as usize % relay.obfuscators.udp2tcp.len())
         };
-        udp2tcp_endpoint.map(|udp2tcp_endpoint| ObfuscatorConfig::Udp2Tcp {
-            endpoint: SocketAddr::new(relay.ipv4_addr_in.into(), udp2tcp_endpoint.port),
-        })
+        udp2tcp_endpoint
+            .map(|udp2tcp_endpoint| ObfuscatorConfig::Udp2Tcp {
+                endpoint: SocketAddr::new(relay.ipv4_addr_in.into(), udp2tcp_endpoint.port),
+            })
+            .map(|config| SelectedObfuscator {
+                config,
+                relay: relay.clone(),
+            })
     }
 
     /// Returns preferred constraints
@@ -1117,6 +1150,12 @@ pub struct NormalSelectedRelay {
     pub exit_relay: Relay,
     pub endpoint: MullvadEndpoint,
     pub entry_relay: Option<Relay>,
+}
+
+#[derive(Debug)]
+pub struct SelectedObfuscator {
+    pub config: ObfuscatorConfig,
+    pub relay: Relay,
 }
 
 impl NormalSelectedRelay {
@@ -1690,7 +1729,13 @@ mod test {
             .unwrap()
             .unwrap();
 
-        assert!(matches!(obfs_config, ObfuscatorConfig::Udp2Tcp { .. }));
+        assert!(matches!(
+            obfs_config,
+            SelectedObfuscator {
+                config: ObfuscatorConfig::Udp2Tcp { .. },
+                ..
+            }
+        ));
     }
 
     #[test]
@@ -1750,9 +1795,18 @@ mod test {
                 .unwrap()
                 .expect("Failed to get Tcp2Udp endpoint");
 
-            assert!(matches!(obfs_config, ObfuscatorConfig::Udp2Tcp { .. }));
+            assert!(matches!(
+                obfs_config,
+                SelectedObfuscator {
+                    config: ObfuscatorConfig::Udp2Tcp { .. },
+                    ..
+                }
+            ));
 
-            let ObfuscatorConfig::Udp2Tcp { endpoint } = obfs_config;
+            let SelectedObfuscator {
+                config: ObfuscatorConfig::Udp2Tcp { endpoint },
+                ..
+            } = obfs_config;
             assert!(TCP2UDP_PORTS.contains(&endpoint.port()));
         }
     }
