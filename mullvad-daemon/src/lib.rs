@@ -33,7 +33,7 @@ use futures::{
 use mullvad_api::availability::ApiAvailabilityHandle;
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
-    RelaySelector, SelectedBridge, SelectedRelay, SelectorConfig,
+    RelaySelector, SelectedBridge, SelectedObfuscator, SelectedRelay, SelectorConfig,
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -155,9 +155,6 @@ pub enum Error {
 
     #[error(display = "No bridge available")]
     NoBridgeAvailable,
-
-    #[error(display = "Failed to select a compatible obfuscator")]
-    NoObfuscator,
 
     #[error(display = "No matching entry relay was found")]
     NoEntryRelayAvailable,
@@ -1028,7 +1025,7 @@ where
         };
 
         let result = match self.relay_selector.get_relay(retry_attempt) {
-            Ok((SelectedRelay::Custom(custom_relay), _bridge)) => {
+            Ok((SelectedRelay::Custom(custom_relay), _bridge, _obfsucator)) => {
                 custom_relay
                     // TODO(emilsp): generate proxy settings for custom tunnels
                     .to_tunnel_parameters(self.settings.tunnel_options.clone(), None)
@@ -1037,15 +1034,15 @@ where
                         ParameterGenerationError::CustomTunnelHostResultionError
                     })
             }
-            Ok((SelectedRelay::Normal(constraints), bridge)) => {
+            Ok((SelectedRelay::Normal(constraints), bridge, obfuscator)) => {
                 let result = self
                     .create_tunnel_parameters(
                         &constraints.exit_relay,
                         &constraints.entry_relay,
                         constraints.endpoint,
                         bridge,
+                        obfuscator,
                         data,
-                        retry_attempt,
                     )
                     .await;
                 result.map_err(|error| match error {
@@ -1077,8 +1074,8 @@ where
         entry_relay: &Option<Relay>,
         endpoint: MullvadEndpoint,
         bridge: Option<SelectedBridge>,
+        obfuscator: Option<SelectedObfuscator>,
         device: DeviceData,
-        retry_attempt: u32,
     ) -> Result<TunnelParameters, Error> {
         let tunnel_options = self.settings.tunnel_options.clone();
         match endpoint {
@@ -1118,18 +1115,15 @@ where
                     ],
                 };
 
-                let obfuscator_relay = entry_relay.as_ref().unwrap_or(relay);
-                let selected_obfuscator = self
-                    .relay_selector
-                    .get_obfuscator(obfuscator_relay, &endpoint, retry_attempt)
-                    .map_err(|_error| Error::NoObfuscator)?;
+                let (obfuscator_relay, obfuscator_config) = match obfuscator {
+                    Some(obfuscator) => (Some(obfuscator.relay), Some(obfuscator.config)),
+                    None => (None, None),
+                };
 
                 self.last_generated_relays = Some(LastSelectedRelays::WireGuard {
                     wg_entry: entry_relay.clone(),
                     wg_exit: relay.clone(),
-                    obfuscator: selected_obfuscator
-                        .as_ref()
-                        .map(|_| obfuscator_relay.clone()),
+                    obfuscator: obfuscator_relay,
                 });
 
                 Ok(wireguard::TunnelParameters {
@@ -1142,7 +1136,7 @@ where
                     },
                     options: tunnel_options.wireguard.options,
                     generic_options: tunnel_options.generic,
-                    obfuscation: selected_obfuscator,
+                    obfuscation: obfuscator_config,
                 }
                 .into())
             }
