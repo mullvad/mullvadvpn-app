@@ -68,6 +68,9 @@ android {
             assets.srcDirs(extraAssetsDirectory)
             jniLibs.srcDirs(extraJniDirectory)
             java.srcDirs("src/main/kotlin/")
+        }
+
+        getByName("debug") {
             java.srcDirs("src/debug/kotlin/")
         }
 
