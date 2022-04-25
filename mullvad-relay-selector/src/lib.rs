@@ -296,7 +296,7 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-    ) -> Result<RelaySelectorResult, Error> {
+    ) -> Result<NormalSelectedRelay, Error> {
         match relay_constraints.tunnel_protocol {
             Constraint::Only(TunnelType::OpenVpn) => self.get_openvpn_endpoint(
                 &relay_constraints.location,
@@ -355,7 +355,7 @@ impl RelaySelector {
         openvpn_constraints: OpenVpnConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-    ) -> Result<RelaySelectorResult, Error> {
+    ) -> Result<NormalSelectedRelay, Error> {
         let mut relay_matcher = RelayMatcher {
             location: location.clone(),
             providers: providers.clone(),
@@ -405,7 +405,7 @@ impl RelaySelector {
         &self,
         mut entry_matcher: RelayMatcher<WireguardMatcher>,
         exit_location: Constraint<LocationConstraint>,
-    ) -> Result<RelaySelectorResult, Error> {
+    ) -> Result<NormalSelectedRelay, Error> {
         let mut exit_matcher = RelayMatcher {
             location: exit_location,
             tunnel: WIREGUARD_EXIT_CONSTRAINTS.clone().into(),
@@ -445,7 +445,7 @@ impl RelaySelector {
             exit_relay.hostname,
             exit_endpoint.to_endpoint().address.ip(),
         );
-        let result = RelaySelectorResult::wireguard_multihop_endpoint(
+        let result = NormalSelectedRelay::wireguard_multihop_endpoint(
             exit_relay,
             entry_endpoint,
             entry_relay,
@@ -461,7 +461,7 @@ impl RelaySelector {
         providers: &Constraint<Providers>,
         wireguard_constraints: &WireguardConstraints,
         retry_attempt: u32,
-    ) -> Result<RelaySelectorResult, Error> {
+    ) -> Result<NormalSelectedRelay, Error> {
         let mut entry_relay_matcher = RelayMatcher {
             location: location.clone(),
             providers: providers.clone(),
@@ -495,7 +495,7 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-    ) -> Result<RelaySelectorResult, Error> {
+    ) -> Result<NormalSelectedRelay, Error> {
         let preferred_constraints =
             self.preferred_constraints(&relay_constraints, bridge_state, retry_attempt);
         let original_matcher: RelayMatcher<_> = relay_constraints.clone().into();
@@ -959,7 +959,7 @@ impl RelaySelector {
     fn get_tunnel_endpoint_internal<T: TunnelMatcher>(
         &self,
         matcher: &RelayMatcher<T>,
-    ) -> Result<RelaySelectorResult, Error> {
+    ) -> Result<NormalSelectedRelay, Error> {
         let matching_relays: Vec<Relay> = self
             .parsed_relays
             .lock()
@@ -977,7 +977,7 @@ impl RelaySelector {
                     .map(|endpoint| endpoint.to_endpoint().address.ip())
                     .unwrap_or(IpAddr::from(selected_relay.ipv4_addr_in));
                 log::info!("Selected relay {} at {}", selected_relay.hostname, addr_in);
-                endpoint.map(|endpoint| RelaySelectorResult::new(endpoint, selected_relay.clone()))
+                endpoint.map(|endpoint| NormalSelectedRelay::new(endpoint, selected_relay.clone()))
             })
             .ok_or(Error::NoRelay)
     }
@@ -1108,18 +1108,18 @@ pub struct NormalSelectedBridge {
 
 #[derive(Debug)]
 pub enum SelectedRelay {
-    Normal(RelaySelectorResult),
+    Normal(NormalSelectedRelay),
     Custom(CustomTunnelEndpoint),
 }
 
 #[derive(Debug)]
-pub struct RelaySelectorResult {
+pub struct NormalSelectedRelay {
     pub exit_relay: Relay,
     pub endpoint: MullvadEndpoint,
     pub entry_relay: Option<Relay>,
 }
 
-impl RelaySelectorResult {
+impl NormalSelectedRelay {
     fn new(endpoint: MullvadEndpoint, exit_relay: Relay) -> Self {
         Self {
             exit_relay,
@@ -1490,7 +1490,7 @@ mod test {
         relay_constraints.wireguard_constraints.entry_location = Constraint::Only(location_general);
 
         // The entry must not equal the exit
-        let RelaySelectorResult {
+        let NormalSelectedRelay {
             exit_relay,
             endpoint,
             ..
