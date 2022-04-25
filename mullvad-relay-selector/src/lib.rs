@@ -743,7 +743,7 @@ impl RelaySelector {
             (retry_attempt % 4) < 2
     }
 
-    pub fn get_proxy_settings<T: Into<Coordinates>>(
+    fn get_proxy_settings<T: Into<Coordinates>>(
         &self,
         constraints: &InternalBridgeConstraints,
         location: Option<T>,
