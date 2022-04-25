@@ -181,6 +181,44 @@ export default class Preferences extends React.Component<IProps, IState> {
                         />
                       </AriaInput>
                     </Cell.Container>
+                  </AriaInputGroup>
+                  <StyledSeparator />
+                  <AriaInputGroup>
+                    <Cell.Container disabled={this.props.dns.state === 'custom'}>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Block adult content')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch
+                          isOn={
+                            this.props.dns.state === 'default' &&
+                            this.props.dns.defaultOptions.blockAdultContent
+                          }
+                          onChange={this.setBlockAdultContent}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                  </AriaInputGroup>
+                  <StyledSeparator />
+                  <AriaInputGroup>
+                    <Cell.Container disabled={this.props.dns.state === 'custom'}>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Block gambling')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch
+                          isOn={
+                            this.props.dns.state === 'default' &&
+                            this.props.dns.defaultOptions.blockGambling
+                          }
+                          onChange={this.setBlockGambling}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
                     {this.props.dns.state === 'custom' && <CustomDnsEnabledFooter />}
                   </AriaInputGroup>
 
@@ -400,6 +438,26 @@ export default class Preferences extends React.Component<IProps, IState> {
       defaultOptions: {
         ...this.props.dns.defaultOptions,
         blockMalware: enabled,
+      },
+    });
+  };
+
+  private setBlockAdultContent = async (enabled: boolean) => {
+    await this.props.setDnsOptions({
+      ...this.props.dns,
+      defaultOptions: {
+        ...this.props.dns.defaultOptions,
+        blockAdultContent: enabled,
+      },
+    });
+  };
+
+  private setBlockGambling = async (enabled: boolean) => {
+    await this.props.setDnsOptions({
+      ...this.props.dns,
+      defaultOptions: {
+        ...this.props.dns.defaultOptions,
+        blockGambling: enabled,
       },
     });
   };

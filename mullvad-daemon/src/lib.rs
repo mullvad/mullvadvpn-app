@@ -95,9 +95,11 @@ const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
 /// we compute the resolver IP to use based on these constants. The last
 /// byte can be ORed together to combine multiple block lists.
 const DNS_BLOCKING_IP_BASE: Ipv4Addr = Ipv4Addr::new(100, 64, 0, 0);
-const DNS_AD_BLOCKING_IP_BIT: u8 = 0b001;
-const DNS_TRACKER_BLOCKING_IP_BIT: u8 = 0b010;
-const DNS_MALWARE_BLOCKING_IP_BIT: u8 = 0b100;
+const DNS_AD_BLOCKING_IP_BIT: u8 = 1 << 0; // 0b00000001
+const DNS_TRACKER_BLOCKING_IP_BIT: u8 = 1 << 1; // 0b00000010
+const DNS_MALWARE_BLOCKING_IP_BIT: u8 = 1 << 2; // 0b00000100
+const DNS_ADULT_BLOCKING_IP_BIT: u8 = 1 << 3; // 0b00001000
+const DNS_GAMBLING_BLOCKING_IP_BIT: u8 = 1 << 4; // 0b00010000
 
 pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
 
@@ -825,6 +827,12 @@ where
                 }
                 if options.default_options.block_malware {
                     last_byte |= DNS_MALWARE_BLOCKING_IP_BIT;
+                }
+                if options.default_options.block_adult_content {
+                    last_byte |= DNS_ADULT_BLOCKING_IP_BIT;
+                }
+                if options.default_options.block_gambling {
+                    last_byte |= DNS_GAMBLING_BLOCKING_IP_BIT;
                 }
 
                 if last_byte != 0 {
