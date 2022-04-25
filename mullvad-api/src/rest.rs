@@ -256,6 +256,13 @@ impl RequestServiceHandle {
             .map_err(|_| Error::SendError)?;
         completion_rx.await.map_err(|_| Error::ReceiveError)?
     }
+
+    /// Forcibly update the connection mode.
+    pub async fn next_api_endpoint(&self) -> Result<()> {
+        self.tx
+            .unbounded_send(RequestCommand::NextApiConfig)
+            .map_err(|_| Error::SendError)
+    }
 }
 
 #[derive(Debug)]
