@@ -93,8 +93,7 @@ pub enum Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-/// Returns whether there is any background work remaining
-/// after `migrate_all` has returned.
+/// Returns whether there is any background work remaining.
 #[derive(Clone)]
 pub(crate) struct MigrationComplete(Arc<AtomicBool>);
 
@@ -112,12 +111,13 @@ impl MigrationComplete {
     }
 }
 
+/// Contains discarded data that may be useful for later work.
+pub(crate) type MigrationData = v5::MigrationData;
+
 pub(crate) async fn migrate_all(
     cache_dir: &Path,
     settings_dir: &Path,
-    rest_handle: mullvad_api::rest::MullvadRestHandle,
-    daemon_tx: crate::DaemonEventSender,
-) -> Result<MigrationComplete> {
+) -> Result<Option<MigrationData>> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
         .await
@@ -126,7 +126,7 @@ pub(crate) async fn migrate_all(
     let path = settings_dir.join(SETTINGS_FILE);
 
     if !path.is_file() {
-        return Ok(MigrationComplete::new(true));
+        return Ok(None);
     }
 
     let settings_bytes = fs::read(&path).await.map_err(Error::ReadError)?;
@@ -149,22 +149,10 @@ pub(crate) async fn migrate_all(
     account_history::migrate_formats(settings_dir, &mut settings).await?;
 
     let migration_data = v5::migrate(&mut settings).await?;
-    let mut migration_complete = MigrationComplete::new(false);
-
-    if let Some(migration_data) = migration_data {
-        device::generate_device(
-            migration_data,
-            migration_complete.clone(),
-            rest_handle,
-            daemon_tx,
-        );
-    } else {
-        migration_complete.set_complete();
-    }
 
     if settings == old_settings {
         // Nothing changed
-        return Ok(migration_complete);
+        return Ok(migration_data);
     }
 
     let buffer = serde_json::to_string_pretty(&settings).map_err(Error::SerializeError)?;
@@ -188,7 +176,22 @@ pub(crate) async fn migrate_all(
 
     log::debug!("Migrated settings. Wrote settings to {}", path.display());
 
-    Ok(migration_complete)
+    Ok(migration_data)
+}
+
+pub(crate) fn migrate_device(
+    migration_data: MigrationData,
+    rest_handle: mullvad_api::rest::MullvadRestHandle,
+    daemon_tx: crate::DaemonEventSender,
+) -> MigrationComplete {
+    let migration_complete = MigrationComplete::new(false);
+    device::generate_device(
+        migration_data,
+        migration_complete.clone(),
+        rest_handle,
+        daemon_tx,
+    );
+    migration_complete
 }
 
 #[cfg(windows)]
