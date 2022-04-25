@@ -625,30 +625,35 @@ where
 
         let endpoint_updater = api::ApiEndpointUpdaterHandle::new();
 
+        let migration_data = migrations::migrate_all(&cache_dir, &settings_dir)
+            .await
+            .unwrap_or_else(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to migrate settings or cache")
+                );
+                None
+            });
+        let settings = SettingsPersister::load(&settings_dir).await;
+
+        let initial_selector_config = new_selector_config(&settings);
+        let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
+
         let (proxy_provider, proxy_provider_handle) =
             api::ApiConnectionModeProvider::new(cache_dir.clone());
+        proxy_provider_handle.set_relay_selector(relay_selector.clone());
         let api_handle = api_runtime
             .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
             .await;
 
-        let migration_complete = migrations::migrate_all(
-            &cache_dir,
-            &settings_dir,
-            api_handle.clone(),
-            internal_event_tx.clone(),
-        )
-        .await
-        .unwrap_or_else(|error| {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to migrate settings or cache")
-            );
+        let migration_complete = if let Some(migration_data) = migration_data {
+            migrations::migrate_device(
+                migration_data,
+                api_handle.clone(),
+                internal_event_tx.clone(),
+            )
+        } else {
             migrations::MigrationComplete::new(true)
-        });
-        let settings = SettingsPersister::load(&settings_dir).await;
-
-        let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
-            tx: internal_event_tx.clone(),
         };
 
         let account_manager = device::AccountManager::spawn(
@@ -700,7 +705,9 @@ where
 
         let initial_api_endpoint =
             api::get_allowed_endpoint(api_runtime.address_cache.get_address().await);
-
+        let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
+            tx: internal_event_tx.clone(),
+        };
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
@@ -737,11 +744,6 @@ where
         let on_relay_list_update = move |relay_list: &RelayList| {
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
-
-        let initial_selector_config = new_selector_config(&settings);
-        let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
-
-        proxy_provider_handle.set_relay_selector(relay_selector.clone());
 
         let mut relay_list_updater = RelayListUpdater::new(
             relay_selector.clone(),
