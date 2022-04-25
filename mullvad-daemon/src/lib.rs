@@ -2138,6 +2138,9 @@ where
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
                         .set_config(new_selector_config(&self.settings));
+                    if let Err(error) = self.api_handle.service().next_api_endpoint().await {
+                        log::error!("Failed to rotate API endpoint: {}", error);
+                    }
                     self.reconnect_tunnel();
                 };
                 Self::oneshot_send(tx, Ok(()), "set_bridge_settings");
