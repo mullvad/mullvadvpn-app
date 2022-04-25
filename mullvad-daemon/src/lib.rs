@@ -639,9 +639,8 @@ where
         let initial_selector_config = new_selector_config(&settings);
         let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
 
-        let (proxy_provider, proxy_provider_handle) =
-            api::ApiConnectionModeProvider::new(cache_dir.clone());
-        proxy_provider_handle.set_relay_selector(relay_selector.clone());
+        let proxy_provider =
+            api::ApiConnectionModeProvider::new(cache_dir.clone(), relay_selector.clone());
         let api_handle = api_runtime
             .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
             .await;

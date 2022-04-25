@@ -34,9 +34,7 @@ use talpid_types::{
 pub struct ApiConnectionModeProvider {
     cache_dir: PathBuf,
 
-    selector_rx: Option<oneshot::Receiver<RelaySelector>>,
-
-    relay_selector: Option<RelaySelector>,
+    relay_selector: RelaySelector,
     retry_attempt: u32,
 
     current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
@@ -49,18 +47,6 @@ impl Stream for ApiConnectionModeProvider {
         mut self: Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
     ) -> Poll<Option<Self::Item>> {
-        // First, obtain a relay selector handle
-        // Until we have obtained the handle, just return `ApiConnectionMode::Direct`.
-        if let Some(rx) = self.selector_rx.as_mut() {
-            match rx.try_recv() {
-                Ok(Some(selector)) => {
-                    self.selector_rx = None;
-                    self.relay_selector = Some(selector);
-                }
-                Ok(None) | Err(_) => return Poll::Ready(Some(ApiConnectionMode::Direct)),
-            }
-        }
-
         // Poll the current task
         if let Some(task) = self.current_task.as_mut() {
             return match task.as_mut().poll(cx) {
@@ -73,11 +59,8 @@ impl Stream for ApiConnectionModeProvider {
         }
 
         // Create a new task.
-        // Unwrapping is safe since we must have a handle at this point.
-        let selector = self.relay_selector.as_ref().unwrap();
-
         let config = if Self::should_use_bridge(self.retry_attempt) {
-            selector
+            self.relay_selector
                 .get_bridge_forced()
                 .map(|settings| match settings {
                     ProxySettings::Shadowsocks(ss_settings) => {
@@ -111,37 +94,19 @@ impl Stream for ApiConnectionModeProvider {
 }
 
 impl ApiConnectionModeProvider {
-    pub(crate) fn new(cache_dir: PathBuf) -> (Self, ApiConnectionModeProviderHandle) {
-        let (selector_tx, selector_rx) = oneshot::channel();
+    pub(crate) fn new(cache_dir: PathBuf, relay_selector: RelaySelector) -> Self {
+        Self {
+            cache_dir,
 
-        (
-            Self {
-                cache_dir,
+            relay_selector,
+            retry_attempt: 0,
 
-                selector_rx: Some(selector_rx),
-
-                relay_selector: None,
-                retry_attempt: 0,
-
-                current_task: None,
-            },
-            ApiConnectionModeProviderHandle { tx: selector_tx },
-        )
+            current_task: None,
+        }
     }
 
     fn should_use_bridge(retry_attempt: u32) -> bool {
         retry_attempt % 3 > 0
-    }
-}
-
-/// Used to initialize [ApiConnectionModeProvider]'s relay selector handle.
-pub(crate) struct ApiConnectionModeProviderHandle {
-    tx: oneshot::Sender<RelaySelector>,
-}
-
-impl ApiConnectionModeProviderHandle {
-    pub fn set_relay_selector(self, selector: RelaySelector) {
-        let _ = self.tx.send(selector);
     }
 }
 
