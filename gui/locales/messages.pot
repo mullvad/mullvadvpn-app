@@ -969,23 +969,19 @@ msgid "Block ads"
 msgstr ""
 
 msgctxt "preferences-view"
+msgid "Block adult content"
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Block gambling"
+msgstr ""
+
+msgctxt "preferences-view"
 msgid "Block malware"
 msgstr ""
 
 msgctxt "preferences-view"
 msgid "Block trackers"
-msgstr ""
-
-#. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
-#. Available placeholders:
-#. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
-#. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
-#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
-#. %(preferencesPageName)s - The page title showed on top in the preferences page.
-msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
 msgstr ""
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
@@ -995,6 +991,15 @@ msgstr ""
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "preferences-view"
 msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
+msgstr ""
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "preferences-view"
+msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr ""
 
 msgctxt "preferences-view"
