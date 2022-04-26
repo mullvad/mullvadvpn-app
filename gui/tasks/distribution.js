@@ -66,6 +66,7 @@ const config = {
       target: 'pkg',
       arch: getMacArch(),
     },
+    singleArchFiles: 'node_modules/nseventmonitor/lib/binding/Release/**',
     artifactName: 'MullvadVPN-${version}.${ext}',
     category: 'public.app-category.tools',
     icon: distAssets('icon-macos.icns'),
