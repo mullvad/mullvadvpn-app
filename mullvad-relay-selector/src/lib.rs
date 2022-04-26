@@ -690,12 +690,6 @@ impl RelaySelector {
             }
         };
 
-        if relay_constraints.wireguard_constraints.port.is_any() {
-            relay_constraints.wireguard_constraints.port = preferred_port;
-        }
-
-        relay_constraints.tunnel_protocol = Constraint::Only(preferred_tunnel);
-
         relay_constraints
     }
 
