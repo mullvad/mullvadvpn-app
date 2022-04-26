@@ -1,66 +1,113 @@
-use crate::DaemonEventSender;
 use futures::{
     channel::{mpsc, oneshot},
-    stream, Stream, StreamExt,
+    Future, Stream,
 };
-use mullvad_api::{proxy::ApiConnectionMode, ApiEndpointUpdateCallback};
+use mullvad_api::{
+    proxy::{ApiConnectionMode, ProxyConfig},
+    ApiEndpointUpdateCallback,
+};
+use mullvad_relay_selector::RelaySelector;
 use std::{
     net::SocketAddr,
+    path::PathBuf,
+    pin::Pin,
     sync::{Arc, Mutex, Weak},
+    task::Poll,
 };
-use talpid_core::{mpsc::Sender, tunnel_state_machine::TunnelCommand};
+use talpid_core::tunnel_state_machine::TunnelCommand;
 use talpid_types::{
-    net::{AllowedEndpoint, Endpoint, TransportProtocol},
+    net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint, TransportProtocol},
     ErrorExt,
 };
 
-pub(crate) struct ApiConnectionModeRequest {
-    pub response_tx: oneshot::Sender<ApiConnectionMode>,
-    pub retry_attempt: u32,
+/// A stream that returns the next API connection mode to use for reaching the API.
+///
+/// When `mullvad-api` fails to contact the API, it requests a new connection mode.
+/// The API can be connected to either directly (i.e., [`ApiConnectionMode::Direct`])
+/// or from a bridge ([`ApiConnectionMode::Proxied`]).
+///
+/// * Every 3rd attempt returns [`ApiConnectionMode::Direct`].
+/// * Any other attempt returns a configuration for the bridge that is closest to the selected relay
+///   location and matches all bridge constraints.
+/// * When no matching bridge is found, e.g. if the selected hosting providers don't match any
+///   bridge, [`ApiConnectionMode::Direct`] is returned.
+pub struct ApiConnectionModeProvider {
+    cache_dir: PathBuf,
+
+    relay_selector: RelaySelector,
+    retry_attempt: u32,
+
+    current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
 }
 
-/// Returns a stream that returns the next API bridge to try.
-/// `initial_config` refers to the first config returned by the stream. The daemon is not notified
-/// of this.
-pub(crate) fn create_api_config_provider(
-    daemon_sender: DaemonEventSender<ApiConnectionModeRequest>,
-    initial_config: ApiConnectionMode,
-) -> impl Stream<Item = ApiConnectionMode> + Unpin {
-    struct Context {
-        attempt: u32,
-        daemon_sender: DaemonEventSender<ApiConnectionModeRequest>,
+impl Stream for ApiConnectionModeProvider {
+    type Item = ApiConnectionMode;
+
+    fn poll_next(
+        mut self: Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> Poll<Option<Self::Item>> {
+        // Poll the current task
+        if let Some(task) = self.current_task.as_mut() {
+            return match task.as_mut().poll(cx) {
+                Poll::Ready(mode) => {
+                    self.current_task = None;
+                    Poll::Ready(Some(mode))
+                }
+                Poll::Pending => Poll::Pending,
+            };
+        }
+
+        // Create a new task.
+        let config = if Self::should_use_bridge(self.retry_attempt) {
+            self.relay_selector
+                .get_bridge_forced()
+                .map(|settings| match settings {
+                    ProxySettings::Shadowsocks(ss_settings) => {
+                        ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(ss_settings))
+                    }
+                    _ => {
+                        log::error!("Received unexpected proxy settings type");
+                        ApiConnectionMode::Direct
+                    }
+                })
+                .unwrap_or(ApiConnectionMode::Direct)
+        } else {
+            ApiConnectionMode::Direct
+        };
+
+        self.retry_attempt = self.retry_attempt.wrapping_add(1);
+
+        let cache_dir = self.cache_dir.clone();
+        self.current_task = Some(Box::pin(async move {
+            if let Err(error) = config.save(&cache_dir).await {
+                log::debug!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to save API endpoint")
+                );
+            }
+            config
+        }));
+
+        return self.poll_next(cx);
+    }
+}
+
+impl ApiConnectionModeProvider {
+    pub(crate) fn new(cache_dir: PathBuf, relay_selector: RelaySelector) -> Self {
+        Self {
+            cache_dir,
+
+            relay_selector,
+            retry_attempt: 0,
+
+            current_task: None,
+        }
     }
 
-    let ctx = Context {
-        attempt: 1,
-        daemon_sender,
-    };
-
-    Box::pin(
-        stream::once(async move { initial_config }).chain(stream::unfold(
-            ctx,
-            |mut ctx| async move {
-                ctx.attempt = ctx.attempt.wrapping_add(1);
-                let (response_tx, response_rx) = oneshot::channel();
-
-                let _ = ctx.daemon_sender.send(ApiConnectionModeRequest {
-                    response_tx,
-                    retry_attempt: ctx.attempt,
-                });
-
-                let new_config = response_rx.await.unwrap_or_else(|error| {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to receive API proxy config")
-                    );
-                    // Fall back on unbridged connection
-                    ApiConnectionMode::Direct
-                });
-
-                Some((new_config, ctx))
-            },
-        )),
-    )
+    fn should_use_bridge(retry_attempt: u32) -> bool {
+        retry_attempt % 3 > 0
+    }
 }
 
 /// Notifies the tunnel state machine that the API (real or proxied) endpoint has
