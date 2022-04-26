@@ -39,9 +39,13 @@ impl DevicesProxy {
         #[derive(serde::Serialize)]
         struct DeviceSubmission {
             pubkey: wireguard::PublicKey,
+            hijack_dns: bool,
         }
 
-        let submission = DeviceSubmission { pubkey };
+        let submission = DeviceSubmission {
+            pubkey,
+            hijack_dns: false,
+        };
 
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
