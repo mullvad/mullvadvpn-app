@@ -43,7 +43,7 @@ pub const SILENCED_CRATES: &[&str] = &[
     "trust_dns_server",
     "trust_dns_resolver",
 ];
-const SLIGHTLY_SILENCED_CRATES: &[&str] = &["mnl", "nftnl"];
+const SLIGHTLY_SILENCED_CRATES: &[&str] = &["mnl", "nftnl", "udp_over_tcp"];
 
 const COLORS: ColoredLevelConfig = ColoredLevelConfig {
     error: Color::Red,
