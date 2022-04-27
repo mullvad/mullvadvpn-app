@@ -8,8 +8,7 @@ import org.joda.time.DateTime
 data class LoginStatus(
     val account: String,
     val expiry: DateTime?,
-    val isNewAccount: Boolean,
-    val loginResult: LoginResult?
+    val isNewAccount: Boolean
 ) : Parcelable {
     val isExpired: Boolean
         get() = expiry != null && expiry.isAfterNow()
