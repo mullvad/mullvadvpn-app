@@ -66,49 +66,54 @@ pub struct ApiAvailabilityHandle {
 
 impl ApiAvailabilityHandle {
     pub fn suspend(&self) {
-        log::debug!("Suspending API requests");
         let mut state = self.state.lock().unwrap();
         if !state.suspended {
+            log::debug!("Suspending API requests");
+
             state.suspended = true;
             let _ = self.tx.send(*state);
         }
     }
 
     pub fn unsuspend(&self) {
-        log::debug!("Unsuspending API requests");
         let mut state = self.state.lock().unwrap();
         if state.suspended {
+            log::debug!("Unsuspending API requests");
+
             state.suspended = false;
             let _ = self.tx.send(*state);
         }
     }
 
     pub fn pause_background(&self) {
-        log::debug!("Pausing background API requests");
         let mut state = self.state.lock().unwrap();
         if !state.pause_background {
+            log::debug!("Pausing background API requests");
+
             state.pause_background = true;
             let _ = self.tx.send(*state);
         }
     }
 
     pub fn resume_background(&self) {
-        log::debug!("Resuming background API requests");
         let mut state = self.state.lock().unwrap();
         if state.pause_background {
+            log::debug!("Resuming background API requests");
+
             state.pause_background = false;
             let _ = self.tx.send(*state);
         }
     }
 
     pub fn set_offline(&self, offline: bool) {
-        if offline {
-            log::debug!("Pausing API requests due to being offline");
-        } else {
-            log::debug!("Resuming API requests due to coming online");
-        }
         let mut state = self.state.lock().unwrap();
         if state.offline != offline {
+            if offline {
+                log::debug!("Pausing API requests due to being offline");
+            } else {
+                log::debug!("Resuming API requests due to coming online");
+            }
+
             state.offline = offline;
             let _ = self.tx.send(*state);
         }
