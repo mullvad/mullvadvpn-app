@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.ipc
 import android.os.Message as RawMessage
 import android.os.Messenger
 import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
@@ -16,6 +17,9 @@ import net.mullvad.mullvadvpn.model.VoucherSubmissionResult as VoucherSubmission
 // Events that can be sent from the service
 sealed class Event : Message.EventMessage() {
     protected override val messageKey = MESSAGE_KEY
+
+    @Parcelize
+    data class AccountCreationEvent(val result: AccountCreationResult) : Event()
 
     @Parcelize
     data class AccountHistory(val history: String?) : Event()

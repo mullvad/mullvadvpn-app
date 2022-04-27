@@ -9,6 +9,7 @@ import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.LoginStatus
@@ -179,6 +180,16 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         createdAccountExpiry = null
 
         daemon.await().createNewAccount()
+            .let { newAccountNumber ->
+                if (newAccountNumber != null) {
+                    AccountCreationResult.Success(newAccountNumber)
+                } else {
+                    AccountCreationResult.Failure
+                }
+            }
+            .also { result ->
+                endpoint.sendEvent(Event.AccountCreationEvent(result))
+            }
     }
 
     private suspend fun doLogin(account: String) {

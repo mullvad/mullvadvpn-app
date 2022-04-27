@@ -5,8 +5,11 @@ import androidx.annotation.RestrictTo
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 
@@ -47,8 +50,15 @@ class LoginViewModel(
     }
 
     fun createAccount() {
-        _uiState.value = LoginUiState.CreatingAccount
-        accountCache?.createNewAccount()
+        accountCache?.apply {
+            _uiState.value = LoginUiState.CreatingAccount
+
+            viewModelScope.launch {
+                _uiState.value = accountCreationEvents.first().mapToUiState()
+            }
+
+            createNewAccount()
+        }
     }
 
     fun login(accountToken: String) {
