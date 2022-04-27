@@ -3,6 +3,7 @@
 
 use chrono::{DateTime, Local};
 use ipnetwork::IpNetwork;
+use matcher::AnyTunnelMatcher;
 use mullvad_types::{
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     location::{Coordinates, Location},
@@ -508,6 +509,84 @@ impl RelaySelector {
         self.get_wireguard_multi_hop_endpoint(entry_relay_matcher, location.clone())
     }
 
+    /// Like [Self::get_tunnel_endpoint_internal] but also selects an entry endpoint if applicable.
+    fn get_multihop_tunnel_endpoint_internal(
+        &self,
+        relay_constraints: &RelayConstraints,
+    ) -> Result<NormalSelectedRelay, Error> {
+        let mut matcher: RelayMatcher<AnyTunnelMatcher> = relay_constraints.clone().into();
+
+        let mut selected_entry_relay = None;
+        let mut selected_entry_endpoint = None;
+        let mut entry_matcher = RelayMatcher {
+            location: relay_constraints
+                .wireguard_constraints
+                .entry_location
+                .clone(),
+            ..matcher.clone()
+        }
+        .to_wireguard_matcher();
+
+        // Pick the entry relay first if its location constraint is a subset of the exit location.
+        if relay_constraints.wireguard_constraints.use_multihop {
+            matcher.tunnel.wireguard = WIREGUARD_EXIT_CONSTRAINTS.clone().into();
+            if relay_constraints
+                .wireguard_constraints
+                .entry_location
+                .is_subset(&matcher.location)
+            {
+                if let Ok((entry_relay, entry_endpoint)) = self.get_entry_endpoint(&entry_matcher) {
+                    matcher.tunnel.wireguard.peer = Some(entry_relay.clone());
+                    selected_entry_relay = Some(entry_relay);
+                    selected_entry_endpoint = Some(entry_endpoint);
+                }
+            }
+        }
+
+        let mut selected_relay = self.get_tunnel_endpoint_internal(&matcher)?;
+
+        // Pick the entry relay last if its location constraint is NOT a subset of the exit
+        // location.
+        if matches!(selected_relay.endpoint, MullvadEndpoint::Wireguard(..))
+            && relay_constraints.wireguard_constraints.use_multihop
+        {
+            if !relay_constraints
+                .wireguard_constraints
+                .entry_location
+                .is_subset(&matcher.location)
+            {
+                entry_matcher.tunnel.peer = Some(selected_relay.exit_relay.clone());
+                if let Ok((entry_relay, entry_endpoint)) = self.get_entry_endpoint(&entry_matcher) {
+                    selected_entry_relay = Some(entry_relay);
+                    selected_entry_endpoint = Some(entry_endpoint);
+                }
+            }
+
+            match (selected_entry_endpoint, selected_entry_relay) {
+                (Some(mut entry_endpoint), Some(entry_relay)) => {
+                    Self::set_entry_peers(
+                        &selected_relay.endpoint.unwrap_wireguard().peer,
+                        &mut entry_endpoint,
+                    );
+
+                    log::info!(
+                        "Selected entry relay {} at {} going through {} at {}",
+                        entry_relay.hostname,
+                        entry_endpoint.peer.endpoint.ip(),
+                        selected_relay.exit_relay.hostname,
+                        selected_relay.endpoint.to_endpoint().address.ip(),
+                    );
+
+                    selected_relay.endpoint = MullvadEndpoint::Wireguard(entry_endpoint);
+                    selected_relay.entry_relay = Some(entry_relay);
+                }
+                _ => return Err(Error::NoRelay),
+            }
+        }
+
+        Ok(selected_relay)
+    }
+
     /// Returns a tunnel endpoint of any type, should only be used when the user hasn't specified a
     /// tunnel protocol.
     fn get_any_tunnel_endpoint(
@@ -518,53 +597,22 @@ impl RelaySelector {
     ) -> Result<NormalSelectedRelay, Error> {
         let preferred_constraints =
             self.preferred_constraints(&relay_constraints, bridge_state, retry_attempt);
-        let original_matcher: RelayMatcher<_> = relay_constraints.clone().into();
 
-        let preferred_tunnel_protocol = preferred_constraints.tunnel_protocol;
-        let preferred_matcher: RelayMatcher<_> = preferred_constraints.into();
-
-        match preferred_tunnel_protocol {
-            Constraint::Only(TunnelType::Wireguard)
-                if relay_constraints.wireguard_constraints.use_multihop =>
-            {
-                let exit_location = relay_constraints.location.clone();
-                let mut preferred_entry_matcher = preferred_matcher.to_wireguard_matcher();
-                preferred_entry_matcher.location = relay_constraints
-                    .wireguard_constraints
-                    .entry_location
-                    .clone();
-                let mut original_entry_matcher = original_matcher.to_wireguard_matcher();
-                original_entry_matcher.location = relay_constraints
-                    .wireguard_constraints
-                    .entry_location
-                    .clone();
-                self.get_wireguard_multi_hop_endpoint(
-                    preferred_entry_matcher,
-                    exit_location.clone(),
-                )
-                .or_else(|_| {
-                    self.get_wireguard_multi_hop_endpoint(original_entry_matcher, exit_location)
-                })
-            }
-
-            _ => {
-                if let Ok(result) = self.get_tunnel_endpoint_internal(&preferred_matcher) {
-                    log::debug!(
-                        "Relay matched on highest preference for retry attempt {}",
-                        retry_attempt
-                    );
-                    Ok(result)
-                } else if let Ok(result) = self.get_tunnel_endpoint_internal(&original_matcher) {
-                    log::debug!(
-                        "Relay matched on second preference for retry attempt {}",
-                        retry_attempt
-                    );
-                    Ok(result)
-                } else {
-                    log::warn!("No relays matching {}", &relay_constraints);
-                    Err(Error::NoRelay)
-                }
-            }
+        if let Ok(result) = self.get_multihop_tunnel_endpoint_internal(&preferred_constraints) {
+            log::debug!(
+                "Relay matched on highest preference for retry attempt {}",
+                retry_attempt
+            );
+            Ok(result)
+        } else if let Ok(result) = self.get_multihop_tunnel_endpoint_internal(&relay_constraints) {
+            log::debug!(
+                "Relay matched on second preference for retry attempt {}",
+                retry_attempt
+            );
+            Ok(result)
+        } else {
+            log::warn!("No relays matching {}", &relay_constraints);
+            Err(Error::NoRelay)
         }
     }
 
@@ -641,12 +689,6 @@ impl RelaySelector {
                 }
             }
         };
-
-        if relay_constraints.wireguard_constraints.port.is_any() {
-            relay_constraints.wireguard_constraints.port = preferred_port;
-        }
-
-        relay_constraints.tunnel_protocol = Constraint::Only(preferred_tunnel);
 
         relay_constraints
     }

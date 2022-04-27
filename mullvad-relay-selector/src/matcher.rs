@@ -109,13 +109,13 @@ pub type OpenVpnMatcher = OpenVpnConstraints;
 
 #[derive(Clone)]
 pub struct AnyTunnelMatcher {
-    wireguard: WireguardMatcher,
-    openvpn: OpenVpnMatcher,
+    pub wireguard: WireguardMatcher,
+    pub openvpn: OpenVpnMatcher,
     /// in the case that a user hasn't specified a tunnel protocol, the relay
     /// selector might still construct preferred constraints that do select a
     /// specific tunnel protocol, which is why the tunnel type may be specified
     /// in the `AnyTunnelMatcher`.
-    tunnel_type: Constraint<TunnelType>,
+    pub tunnel_type: Constraint<TunnelType>,
 }
 
 impl TunnelMatcher for AnyTunnelMatcher {

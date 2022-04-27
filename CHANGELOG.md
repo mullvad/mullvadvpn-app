@@ -60,6 +60,9 @@ Line wrap the file at 100 chars.                                              Th
 - Parse old account history formats correctly when they are empty.
 - Use suspend-aware timers for relay list updates and version checks on all platforms.
 - Don't attempt to use bridges when using OpenVPN over UDP and bridge mode is set to auto.
+- Use the entry endpoint when the relay selector fails to find a relay using the preferred
+  constraints and the tunnel protocol is "any". Previously, the entry endpoint was ignored in this
+  case.
 
 #### Windows
 - Fix "Open Mullvad VPN" tray context menu item not working after toggling unpinned window setting.
