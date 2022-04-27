@@ -4,6 +4,7 @@ import android.os.Message as RawMessage
 import android.os.Messenger
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.AccountCreationResult
+import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -22,6 +23,9 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize
     data class AccountCreationEvent(val result: AccountCreationResult) : Event()
+
+    @Parcelize
+    data class AccountExpiryEvent(val expiry: AccountExpiry) : Event()
 
     @Parcelize
     data class AccountHistoryEvent(val history: AccountHistory) : Event()
