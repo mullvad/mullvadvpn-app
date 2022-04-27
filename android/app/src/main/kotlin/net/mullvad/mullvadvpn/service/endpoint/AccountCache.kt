@@ -10,6 +10,7 @@ import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.AccountCreationResult
+import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.LoginStatus
@@ -44,7 +45,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
-    val onAccountHistoryChange = EventNotifier<String?>(null)
+    val onAccountHistoryChange = EventNotifier<AccountHistory>(AccountHistory.Missing)
     val onLoginStatusChange = EventNotifier<LoginStatus?>(null)
 
     var newlyCreatedAccount = false
@@ -68,7 +69,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         }
 
         onAccountHistoryChange.subscribe(this) { history ->
-            endpoint.sendEvent(Event.AccountHistory(history))
+            endpoint.sendEvent(Event.AccountHistoryEvent(history))
         }
 
         onLoginStatusChange.subscribe(this) { status ->
@@ -224,7 +225,11 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     private fun fetchAccountHistory() {
         jobTracker.newBackgroundJob("fetchHistory") {
             daemon.await().getAccountHistory().let { history ->
-                accountHistory = history
+                accountHistory = if (history != null) {
+                    AccountHistory.Available(history)
+                } else {
+                    AccountHistory.Missing
+                }
             }
         }
     }
