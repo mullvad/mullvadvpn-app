@@ -307,7 +307,8 @@ impl AccountManager {
                             }
                             match self.initiate_key_rotation() {
                                 Ok(api_call) => {
-                                    current_api_call.set_oneshot_rotation(Box::pin(api_call))
+                                    current_api_call.set_oneshot_rotation(Box::pin(api_call));
+                                    self.rotation_requests.push(tx);
                                 },
                                 Err(err) =>  {
                                     let _ = tx.send(Err(err));
