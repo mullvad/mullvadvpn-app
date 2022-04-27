@@ -595,7 +595,7 @@ impl AccountManager {
         self.last_validation = None;
 
         if let Some(old_data) = self.data.take() {
-            if data.as_ref().map(|d| &d.device.id) == Some(&old_data.device.id) {
+            if data.as_ref().map(|d| &d.device.id) != Some(&old_data.device.id) {
                 tokio::spawn(self.logout_api_call(old_data));
             }
         }
