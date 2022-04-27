@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 
@@ -62,8 +63,15 @@ class LoginViewModel(
     }
 
     fun login(accountToken: String) {
-        _uiState.value = LoginUiState.Loading
-        accountCache?.login(accountToken)
+        accountCache?.apply {
+            _uiState.value = LoginUiState.Loading
+
+            viewModelScope.launch {
+                _uiState.value = loginEvents.first().result.mapToUiState()
+            }
+
+            login(accountToken)
+        }
     }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
@@ -75,26 +83,21 @@ class LoginViewModel(
         onAccountHistoryChange.subscribe(this) { history ->
             _accountHistory.value = history
         }
+    }
 
-        onLoginStatusChange.subscribe(this, startWithLatestEvent = false) { status ->
-            _uiState.value = when {
-                status == null -> {
-                    LoginUiState.Default
-                }
-                status.isNewAccount -> {
-                    LoginUiState.AccountCreated
-                }
-                else -> {
-                    when (status.loginResult) {
-                        LoginResult.Ok -> LoginUiState.Success(false)
-                        LoginResult.InvalidAccount -> LoginUiState.InvalidAccountError
-                        LoginResult.MaxDevicesReached -> LoginUiState.TooManyDevicesError
-                        else -> LoginUiState.OtherError(
-                            errorMessage = status.loginResult?.toString() ?: ""
-                        )
-                    }
-                }
-            }
+    private fun AccountCreationResult.mapToUiState(): LoginUiState {
+        return when (this) {
+            is AccountCreationResult.Success -> LoginUiState.AccountCreated
+            AccountCreationResult.Failure -> LoginUiState.UnableToCreateAccountError
+        }
+    }
+
+    private fun LoginResult.mapToUiState(): LoginUiState {
+        return when (this) {
+            LoginResult.Ok -> LoginUiState.Success(false)
+            LoginResult.InvalidAccount -> LoginUiState.InvalidAccountError
+            LoginResult.MaxDevicesReached -> LoginUiState.TooManyDevicesError
+            else -> LoginUiState.OtherError(errorMessage = this.toString())
         }
     }
 

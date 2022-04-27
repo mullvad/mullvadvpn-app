@@ -26,6 +26,12 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
     )
     val accountCreationEvents = _accountCreationEvents.asSharedFlow()
 
+    private val _loginEvents = MutableSharedFlow<Event.LoginEvent>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val loginEvents = _loginEvents.asSharedFlow()
+
     init {
         eventDispatcher.apply {
             registerHandler(Event.AccountHistory::class) { event ->
@@ -39,6 +45,10 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
 
             registerHandler(Event.AccountCreationEvent::class) { event ->
                 _accountCreationEvents.tryEmit(event.result)
+            }
+
+            registerHandler(Event.LoginEvent::class) { event ->
+                _loginEvents.tryEmit(event)
             }
         }
     }

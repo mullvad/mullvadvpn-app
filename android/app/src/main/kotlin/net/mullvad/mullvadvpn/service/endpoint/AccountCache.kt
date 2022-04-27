@@ -193,7 +193,9 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun doLogin(account: String) {
-        val loginResult = daemon.await().loginAccount(account)
+        val loginResult = daemon.await().loginAccount(account).also { result ->
+            endpoint.sendEvent(Event.LoginEvent(result))
+        }
 
         val accountExpiryDate = loginResult
             .takeIf { it == LoginResult.Ok }
@@ -208,8 +210,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             loginStatus = LoginStatus(
                 account = account,
                 expiry = accountExpiryDate,
-                isNewAccount = newlyCreatedAccount,
-                loginResult
+                isNewAccount = newlyCreatedAccount
             )
         }
     }
@@ -239,7 +240,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             accountNumber = newAccountNumber
 
             loginStatus = newAccountNumber?.let { account ->
-                LoginStatus(account, null, newlyCreatedAccount, null)
+                LoginStatus(account, null, newlyCreatedAccount)
             }
 
             fetchAccountExpiry()
@@ -267,8 +268,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
                     LoginStatus(
                         currentStatus.account,
                         newAccountExpiry,
-                        currentStatus.isNewAccount,
-                        null
+                        currentStatus.isNewAccount
                     )
                 }
 
