@@ -307,7 +307,8 @@ impl AccountManager {
                             }
                             match self.initiate_key_rotation() {
                                 Ok(api_call) => {
-                                    current_api_call.set_oneshot_rotation(Box::pin(api_call))
+                                    current_api_call.set_oneshot_rotation(Box::pin(api_call));
+                                    self.rotation_requests.push(tx);
                                 },
                                 Err(err) =>  {
                                     let _ = tx.send(Err(err));
@@ -594,7 +595,7 @@ impl AccountManager {
         self.last_validation = None;
 
         if let Some(old_data) = self.data.take() {
-            if data.as_ref().map(|d| &d.device.id) == Some(&old_data.device.id) {
+            if data.as_ref().map(|d| &d.device.id) != Some(&old_data.device.id) {
                 tokio::spawn(self.logout_api_call(old_data));
             }
         }
