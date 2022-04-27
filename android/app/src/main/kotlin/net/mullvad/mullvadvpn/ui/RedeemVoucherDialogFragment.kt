@@ -13,6 +13,7 @@ import android.view.ViewGroup.LayoutParams
 import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.VoucherSubmissionError
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
@@ -49,19 +50,19 @@ class RedeemVoucherDialogFragment : DialogFragment() {
         parentActivity = context as MainActivity
 
         parentActivity.serviceNotifier.subscribe(this) { connection ->
-            accountCache?.onAccountExpiryChange?.unsubscribe(this@RedeemVoucherDialogFragment)
-
-            accountCache = connection?.accountCache?.apply {
-                onAccountExpiryChange
-                    .subscribe(this@RedeemVoucherDialogFragment) { newAccountExpiry ->
-                        accountExpiry = newAccountExpiry
-                    }
-            }
-
+            accountCache = connection?.accountCache
             voucherRedeemer = connection?.voucherRedeemer
-
-            updateRedeemButton()
         }
+
+        accountCache?.apply {
+            jobTracker.newUiJob("updateExpiry") {
+                accountCache?.accountExpiryState?.collect { state ->
+                    accountExpiry = state.date()
+                }
+            }
+        }
+
+        updateRedeemButton()
     }
 
     override fun onCreateView(
@@ -121,6 +122,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     }
 
     override fun onDetach() {
+        jobTracker.cancelJob("updateExpiry")
         parentActivity.serviceNotifier.unsubscribe(this)
 
         super.onDetach()

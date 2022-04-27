@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -107,10 +108,6 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
         active = false
         versionInfoCache?.onUpdate = null
 
-        accountCache?.apply {
-            onAccountExpiryChange.unsubscribe(this@SettingsFragment)
-        }
-
         jobTracker.cancelAllJobs()
 
         super.onStop()
@@ -123,10 +120,12 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
 
     private fun configureListeners() {
         accountCache?.apply {
-            onAccountExpiryChange.subscribe(this@SettingsFragment) { expiry ->
-                jobTracker.newUiJob("updateAccountInfo") {
-                    accountMenu.accountExpiry = expiry
-                }
+            jobTracker.newUiJob("updateAccountExpiry") {
+                accountExpiryState
+                    .map { state -> state.date() }
+                    .collect { expiryDate ->
+                        accountMenu.accountExpiry = expiryDate
+                    }
             }
 
             fetchAccountExpiry()

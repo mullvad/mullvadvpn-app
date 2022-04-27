@@ -3,18 +3,20 @@ package net.mullvad.mullvadvpn.ui.serviceconnection
 import android.os.Messenger
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.AccountCreationResult
+import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 
 class AccountCache(private val connection: Messenger, eventDispatcher: EventDispatcher) {
-    val onAccountExpiryChange = EventNotifier<DateTime?>(null)
     val onLoginStatusChange = EventNotifier<LoginStatus?>(null)
 
     private var loginStatus by onLoginStatusChange.notifiable()
@@ -24,6 +26,9 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     val accountCreationEvents = _accountCreationEvents.asSharedFlow()
+
+    private val _accountExpiryState = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
+    val accountExpiryState = _accountExpiryState.asStateFlow()
 
     private val _accountHistoryEvents = MutableSharedFlow<AccountHistory>(
         extraBufferCapacity = 1,
@@ -45,7 +50,6 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
 
             registerHandler(Event.LoginStatus::class) { event ->
                 loginStatus = event.status
-                onAccountExpiryChange.notifyIfChanged(loginStatus?.expiry)
             }
 
             registerHandler(Event.AccountCreationEvent::class) { event ->
@@ -54,6 +58,10 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
 
             registerHandler(Event.LoginEvent::class) { event ->
                 _loginEvents.tryEmit(event)
+            }
+
+            registerHandler(Event.AccountExpiryEvent::class) { event ->
+                _accountExpiryState.tryEmit(event.expiry)
             }
         }
     }
@@ -89,7 +97,6 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
     }
 
     fun onDestroy() {
-        onAccountExpiryChange.unsubscribeAll()
         onLoginStatusChange.unsubscribeAll()
     }
 }

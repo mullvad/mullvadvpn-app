@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
 import java.text.DateFormat
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -117,11 +118,13 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
                 }
         }
 
-        accountCache.onAccountExpiryChange.subscribe(this) { accountExpiry ->
-            jobTracker.newUiJob("updateAccountExpiry") {
-                currentAccountExpiry = accountExpiry
-                updateAccountExpiry(accountExpiry)
-            }
+        jobTracker.newUiJob("updateAccountExpiry") {
+            accountCache.accountExpiryState
+                .map { state -> state.date() }
+                .collect { expiryDate ->
+                    currentAccountExpiry = expiryDate
+                    updateAccountExpiry(expiryDate)
+                }
         }
 
         connectionProxy.onUiStateChange.subscribe(this) { uiState ->
@@ -139,10 +142,10 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         sitePaymentButton.updateAuthTokenCache(authTokenCache)
+        accountCache.fetchAccountExpiry()
     }
 
     override fun onSafelyStop() {
-        accountCache.onAccountExpiryChange.unsubscribe(this)
         jobTracker.cancelAllJobs()
     }
 
