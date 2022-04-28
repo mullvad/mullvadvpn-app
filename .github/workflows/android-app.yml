@@ -58,7 +58,7 @@ jobs:
               if: steps.cache-native-libs.outputs.cache-hit != 'true'
               uses: actions/setup-go@v3
               with:
-                  go-version: 1.16
+                  go-version: 1.18.1
 
             - name: Configure Android NDK
               if: steps.cache-native-libs.outputs.cache-hit != 'true'
