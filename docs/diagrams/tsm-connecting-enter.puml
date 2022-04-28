@@ -1,0 +1,26 @@
+@startuml
+hide empty description
+scale 800
+
+state "Entering connecting state" as enter_connecting
+state "Check offline state" as offline
+state "Generate tunnel parameters" as ask_gen_parameters
+state "Set firewall policy" as set_firewall
+state "Spawn tunnel" as spawn_tunnel
+state "Connecting state" as connecting_state
+state "Enter error state" as enter_error
+
+[*] --> enter_connecting
+enter_connecting --> offline : Check offline state
+offline --> ask_gen_parameters : Host is not offline
+offline --> enter_error : Host is offline
+ask_gen_parameters --> set_firewall : Successfully generated parameters
+ask_gen_parameters --> enter_error : Failed to generate tunnel parameters
+set_firewall --> spawn_tunnel : Successfully set firewall policy
+set_firewall --> enter_error : Failed to set firewall policy
+spawn_tunnel -> connecting_state : Start a tunnel monitor and enter connecting state
+
+
+@enduml
+
+state "Starting a tunnel"
