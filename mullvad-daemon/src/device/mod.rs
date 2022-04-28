@@ -550,6 +550,7 @@ impl AccountManager {
     async fn logout(&mut self, tx: ResponseTx<()>) {
         Self::drain_requests(&mut self.data_requests, || Err(Error::AccountChange));
         if self.data.is_none() {
+            let _ = tx.send(Ok(()));
             return;
         }
         if let Err(err) = self.cacher.write(None).await {
