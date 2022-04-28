@@ -343,15 +343,16 @@ function getMacArch() {
 }
 
 // Replace '-' between components with a tilde to make the version comparison understand that
-// YYYY.NN > YYYY.NN-betaN > YYYY.NN-betaN-dev-HHHHHH.
+// YYYY.NN-dev-HHHHHH > YYYY.NN > YYYY.NN-betaN-dev-HHHHHH > YYYY.NN-betaN.
 function getDebVersion() {
   const { major, minor, prerelease } = parseSemver(version);
-  const versionParts = [`${major}.${minor}`];
   if (prerelease[0]) {
-    // Replace first '-' with a '~' since the first one is the one between 'betaN' and 'dev-hash'.
-    versionParts.push(prerelease[0].replace('-', '~'));
+    if (prerelease[0].toLowerCase().startsWith('beta')) {
+      return `${major}.${minor}~${prerelease[0]}`;
+    }
+    return `${major}.${minor}-${prerelease[0]}`;
   }
-  return versionParts.join('~');
+  return `${major}.${minor}`;
 }
 
 packWin.displayName = 'builder-win';
