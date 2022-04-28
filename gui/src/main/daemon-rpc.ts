@@ -27,6 +27,7 @@ import {
   IDnsOptions,
   IErrorState,
   ILocation,
+  IObfuscationEndpoint,
   IOpenVpnConstraints,
   IOpenVpnTunnelData,
   IProxyEndpoint,
@@ -40,6 +41,7 @@ import {
   ITunnelStateRelayInfo,
   IWireguardConstraints,
   IWireguardTunnelData,
+  ObfuscationType,
   ProxySettings,
   ProxyType,
   RelayLocation,
@@ -899,6 +901,9 @@ function convertFromTunnelStateRelayInfo(
         tunnelType: convertFromTunnelType(state.tunnelEndpoint.tunnelType),
         protocol: convertFromTransportProtocol(state.tunnelEndpoint.protocol),
         proxy: state.tunnelEndpoint.proxy && convertFromProxyEndpoint(state.tunnelEndpoint.proxy),
+        obfuscationEndpoint:
+          state.tunnelEndpoint.obfuscation &&
+          convertFromObfuscationEndpoint(state.tunnelEndpoint.obfuscation),
         entryEndpoint:
           state.tunnelEndpoint.entryEndpoint &&
           convertFromEntryEndpoint(state.tunnelEndpoint.entryEndpoint),
@@ -927,6 +932,20 @@ function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObjec
     ...proxyEndpoint,
     protocol: convertFromTransportProtocol(proxyEndpoint.protocol),
     proxyType: proxyTypeMap[proxyEndpoint.proxyType],
+  };
+}
+
+function convertFromObfuscationEndpoint(
+  obfuscationEndpoint: grpcTypes.ObfuscationEndpoint.AsObject,
+): IObfuscationEndpoint {
+  const obfuscationTypes: Record<grpcTypes.ObfuscationType, ObfuscationType> = {
+    [grpcTypes.ObfuscationType.UDP2TCP]: 'udp2tcp',
+  };
+
+  return {
+    ...obfuscationEndpoint,
+    protocol: convertFromTransportProtocol(obfuscationEndpoint.protocol),
+    obfuscationType: obfuscationTypes[obfuscationEndpoint.obfuscationType],
   };
 }
 

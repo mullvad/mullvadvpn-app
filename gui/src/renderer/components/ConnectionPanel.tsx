@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import {
+  ObfuscationType,
   ProxyType,
   proxyTypeToString,
   RelayProtocol,
@@ -29,6 +30,10 @@ export interface IBridgeData extends IEndpoint {
   bridgeType: ProxyType;
 }
 
+export interface IObfuscationData extends IEndpoint {
+  obfuscationType: ObfuscationType;
+}
+
 export interface IOutAddress {
   ipv4?: string;
   ipv6?: string;
@@ -43,6 +48,7 @@ interface IProps {
   entryLocationInAddress?: IInAddress;
   bridgeInfo?: IBridgeData;
   outAddress?: IOutAddress;
+  obfuscationEndpoint?: IObfuscationData;
   onToggle: () => void;
   className?: string;
 }
@@ -126,10 +132,12 @@ export default class ConnectionPanel extends React.Component<IProps> {
     );
   }
 
-  private getEntryPoint() {
-    const { inAddress, entryLocationInAddress, bridgeInfo } = this.props;
+  private getEntryPoint(): IEndpoint | undefined {
+    const { obfuscationEndpoint, inAddress, entryLocationInAddress, bridgeInfo } = this.props;
 
-    if (entryLocationInAddress && inAddress) {
+    if (obfuscationEndpoint) {
+      return obfuscationEndpoint;
+    } else if (entryLocationInAddress && inAddress) {
       return entryLocationInAddress;
     } else if (bridgeInfo && inAddress) {
       return bridgeInfo;

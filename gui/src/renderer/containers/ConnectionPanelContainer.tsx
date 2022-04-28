@@ -5,6 +5,7 @@ import { ITunnelEndpoint, parseSocketAddress } from '../../shared/daemon-rpc-typ
 import ConnectionPanel, {
   IBridgeData,
   IInAddress,
+  IObfuscationData,
   IOutAddress,
 } from '../components/ConnectionPanel';
 import { IReduxState, ReduxDispatch } from '../redux/store';
@@ -50,6 +51,21 @@ function tunnelEndpointToBridgeData(endpoint: ITunnelEndpoint): IBridgeData | un
   };
 }
 
+function tunnelEndpointToObfuscationEndpoint(
+  endpoint: ITunnelEndpoint,
+): IObfuscationData | undefined {
+  if (!endpoint.obfuscationEndpoint) {
+    return undefined;
+  }
+
+  return {
+    ip: endpoint.obfuscationEndpoint.address,
+    port: endpoint.obfuscationEndpoint.port,
+    protocol: endpoint.obfuscationEndpoint.protocol,
+    obfuscationType: endpoint.obfuscationEndpoint.obfuscationType,
+  };
+}
+
 const mapStateToProps = (state: IReduxState) => {
   const status = state.connection.status;
 
@@ -73,6 +89,11 @@ const mapStateToProps = (state: IReduxState) => {
       ? tunnelEndpointToBridgeData(status.details.endpoint)
       : undefined;
 
+  const obfuscationEndpoint: IObfuscationData | undefined =
+    (status.state === 'connecting' || status.state === 'connected') && status.details
+      ? tunnelEndpointToObfuscationEndpoint(status.details.endpoint)
+      : undefined;
+
   return {
     isOpen: state.userInterface.connectionPanelVisible,
     hostname: state.connection.hostname,
@@ -82,6 +103,7 @@ const mapStateToProps = (state: IReduxState) => {
     entryLocationInAddress,
     bridgeInfo,
     outAddress,
+    obfuscationEndpoint,
   };
 };
 
