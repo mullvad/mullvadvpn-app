@@ -1,0 +1,28 @@
+@startuml
+hide empty description
+scale 800
+
+title Execution of ""update_relay_settings"" RPC when relay settings have changed, but the key is invalid.
+
+participant "Management interface" as management_interface
+participant "Daemon" as daemon
+participant "Settings" as settings
+participant "Relay selector" as relay_selector
+participant "Tunnel state machine" as tsm
+participant "Account manager" as account_manager
+
+management_interface -> daemon : Incoming RPC
+daemon -> settings : Update relay settings
+daemon -> management_interface : Return save result to RPC
+daemon -> management_interface : Publish new settings to all subscribers
+daemon -> relay_selector : Update relay constraints
+daemon -> tsm : Reconnect tunnel
+tsm -> daemon : Request new tunnel parameters
+daemon -> tsm : Send tunnel parameters
+tsm -> daemon : Publish connecting state
+daemon -> management_interface : Publish connecting state
+daemon -> account_manager : Asynchronously verify account state
+account_manager -> daemon : Publish new device state
+daemon -> management_interface : Publish new device state
+
+@enduml
