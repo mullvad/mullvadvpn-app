@@ -107,6 +107,8 @@ impl ConnectivityMonitor {
     // checks if the tunnel has ever worked. Intended to check if a connection to a tunnel is
     // successfull at the start of a connection.
     pub(super) fn establish_connectivity(&mut self, retry_attempt: u32) -> Result<bool, Error> {
+        // Send initial ping to prod WireGuard into connecting.
+        self.pinger.send_icmp().map_err(Error::PingError)?;
         self.establish_connectivity_inner(
             retry_attempt,
             ESTABLISH_TIMEOUT,
