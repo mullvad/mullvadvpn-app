@@ -39,6 +39,7 @@ jobs:
               uses: actions-rs/toolchain@v1.0.6
               with:
                 toolchain: stable
+                default: true
 
             - name: Extract messages from desktop GUI
               working-directory: gui/locales

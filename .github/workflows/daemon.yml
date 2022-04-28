@@ -51,6 +51,7 @@ jobs:
               uses: actions-rs/toolchain@v1.0.6
               with:
                   toolchain: ${{ matrix.rust }}
+                  default: true
 
             - name: Install Go
               uses: actions/setup-go@v2.1.3
@@ -73,6 +74,7 @@ jobs:
               uses: actions-rs/toolchain@v1.0.6
               with:
                   toolchain: stable
+                  default: true
 
             - name: Install Go
               uses: actions/setup-go@v2.1.3
@@ -114,6 +116,7 @@ jobs:
               uses: actions-rs/toolchain@v1.0.6
               with:
                   toolchain: stable
+                  default: true
 
             - name: Install Go
               uses: actions/setup-go@v2.1.3

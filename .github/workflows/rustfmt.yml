@@ -20,6 +20,7 @@ jobs:
               with:
                 toolchain: nightly
                 components: rustfmt
+                default: true
 
             - name: Check formatting
               run: |
