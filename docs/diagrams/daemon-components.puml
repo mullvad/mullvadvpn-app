@@ -1,0 +1,66 @@
+@startuml
+hide empty description
+scale 10000
+
+left to right direction
+!pragma layout elk
+
+
+component "Mullvad daemon" as mullvad_daemon {
+  () "Management interface" as management_interface
+  () "Mullvad API" as mullvad_api
+
+  node "Daemon" as daemon {
+    [Settings] as settings #yellow
+    [Account history] as account_history #yellow
+    [Various state around tunnels and relays] #yellow
+  }
+
+  node "Tunnel state machine" as tsm {
+    [Firewall] as firewall #yellow
+    [DNS] as dns #yellow
+    [Routing] as routing
+    [Tunnel] as tunnel
+    [Offline monitor] as offline_monitor
+  }
+
+  [Account manager] as account_manager
+  [Mullvad API client] as rest_service
+  [Relay list updater] as relay_list_updater
+  [Version updater] as version_updater
+  [Relay selector] as relay_selector #yellow
+}
+
+legend
+  Yellow components are shared synchronously (via a mutex).
+end legend
+
+
+management_interface -> daemon : Incoming RPCs
+
+daemon -> tsm : Sets target tunnel state
+tsm -> daemon : "Notifies of changes to tunnel state, gets tunnel connection config"
+tsm -> daemon : Get tunnel connection config
+daemon -> relay_selector : Select a relay for a connection
+daemon -> rest_service : Change API availability
+daemon -> relay_list_updater : Force relay list update
+daemon -> version_updater : Fetch current version
+daemon -> account_manager : Fetch account data
+daemon -> account_manager : Fetch device data and WG key
+
+relay_list_updater -> relay_selector : Update relay list
+account_manager -> daemon : Account/device events
+
+
+rest_service -> relay_selector : Select bridge relay for API connection
+rest_service -> tsm : Unblock API endpoint
+rest_service -> mullvad_api : Send requests to our web service
+
+relay_list_updater -> rest_service : Fetch relay list from API
+version_updater -> rest_service : Fetch latest app versions
+account_manager -> rest_service : Fetch account data
+account_manager -> rest_service : Fetch device data, rotate keys
+
+
+@enduml
+
