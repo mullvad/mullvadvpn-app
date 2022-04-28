@@ -1,0 +1,48 @@
+   Execution of ""set_allow_lan"" RPC
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+                                                           Execution of ""set_allow_lan"" RPC
+
+     ┌────────────────────┐            ┌──────┐          ┌────────┐                      ┌────────────────────┐          ┌────────────────────────┐
+     │Management interface│            │Daemon│          │Settings│                      │Tunnel state machine│          │Daemon event subscribers│
+     └─────────┬──────────┘            └──┬───┘          └───┬────┘                      └─────────┬──────────┘          └───────────┬────────────┘
+               │       Incoming RPC       │                  │                                     │                                 │
+               │ ─────────────────────────>                  │                                     │                                 │
+               │                          │                  │                                     │                                 │
+               │                          │   Save settings  │                                     │                                 │
+               │                          │ ─────────────────>                                     │                                 │
+               │                          │                  │                                     │                                 │
+               │ Return save result to RPC│                  │                                     │                                 │
+               │ <─────────────────────────                  │                                     │                                 │
+               │                          │                  │                                     │                                 │
+               │                          │                  │       Publish new settings to all subscribers                         │
+               │                          │ ─────────────────────────────────────────────────────────────────────────────────────────>
+               │                          │                  │                                     │                                 │
+               │                          │ Send new __allow lan__ setting to TSM if it was changed│                                 │
+               │                          │ ───────────────────────────────────────────────────────>                                 │
+     ┌─────────┴──────────┐            ┌──┴───┐          ┌───┴────┐                      ┌─────────┴──────────┐          ┌───────────┴────────────┐
+     │Management interface│            │Daemon│          │Settings│                      │Tunnel state machine│          │Daemon event subscribers│
+     └────────────────────┘            └──────┘          └────────┘                      └────────────────────┘          └────────────────────────┘
+
+@startuml
+hide empty description
+scale 800
+
+title Execution of ""set_allow_lan"" RPC
+
+participant "Management interface" as management_interface
+participant "Daemon" as daemon
+participant "Settings" as settings
+participant "Tunnel state machine" as tsm
+participant "Daemon event subscribers" as subscribers
+
+management_interface -> daemon : Incoming RPC
+daemon -> settings : Save settings
+daemon -> management_interface : Return save result to RPC
+daemon ->  subscribers : Publish new settings to all subscribers
+daemon -> tsm : Send new __allow lan__ setting to TSM if it was changed
+
+
+@enduml
+

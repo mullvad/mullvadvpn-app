@@ -1,0 +1,50 @@
+
+     Welcome to PlantUML!
+
+     If you use this software, you accept its license.
+     (details by typing license keyword)
+
+     You can start with a simple UML Diagram like:
+
+     Bob->Alice: Hello
+
+     Or
+
+     class Example
+
+     You will find more information about PlantUML syntax on https://plantuml.com
+
+
+
+
+
+@startuml
+hide empty description
+scale 800
+
+state "Entering connecting state" as enter_connecting 
+state "Check offline state" as offline
+state "Generate tunnel parameters" as ask_gen_parameters
+state "Set firewall policy" as set_firewall
+state "Spawn tunnel" as spawn_tunnel
+state "Connecting state" as connecting_state
+state "Enter error state" as enter_error
+state "Starting a tunnel in a separate thread" as starting_tunnel
+
+[*] --> enter_connecting 
+enter_connecting --> offline : Check offline state
+offline --> ask_gen_parameters : Host is not offline
+offline --> enter_error : Host is offline
+ask_gen_parameters --> set_firewall : Successfully generated parameters
+ask_gen_parameters --> enter_error : Failed to generate tunnel parameters
+set_firewall --> spawn_tunnel : Successfully set firewall policy
+set_firewall --> enter_error : Failed to set firewall policy
+spawn_tunnel --> connecting_state : Successfully spawned tunnel
+spawn_tunnel -> starting_tunnel : Start tunnel thread
+starting_tunnel -> enter_error : Failed to start tunnel
+starting_tunnel -> connecting_state : Send tunnel event to connecting state
+
+
+@enduml
+
+state "Starting a tunnel"

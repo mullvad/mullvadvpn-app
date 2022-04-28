@@ -1,0 +1,72 @@
+   Execution of ""update_relay_settings"" RPC when relay settings have changed, but the key is invalid.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+                                                Execution of ""update_relay_settings"" RPC when relay settings have changed, but the key is invalid.
+
+     ┌────────────────────┐            ┌──────┐              ┌────────┐          ┌──────────────┐          ┌────────────────────┐          ┌───────────────┐          ┌────────────────────────┐
+     │Management interface│            │Daemon│              │Settings│          │Relay selector│          │Tunnel state machine│          │Account manager│          │Daemon event subscribers│
+     └─────────┬──────────┘            └──┬───┘              └───┬────┘          └──────┬───────┘          └─────────┬──────────┘          └───────┬───────┘          └───────────┬────────────┘
+               │       Incoming RPC       │                      │                      │                            │                             │                              │
+               │ ─────────────────────────>                      │                      │                            │                             │                              │
+               │                          │                      │                      │                            │                             │                              │
+               │                          │ Update relay settings│                      │                            │                             │                              │
+               │                          │ ─────────────────────>                      │                            │                             │                              │
+               │                          │                      │                      │                            │                             │                              │
+               │ Return save result to RPC│                      │                      │                            │                             │                              │
+               │ <─────────────────────────                      │                      │                            │                             │                              │
+               │                          │                      │                      │                            │                             │                              │
+               │                          │                      │                      │  Publish new settings to all subscribers                 │                              │
+               │                          │ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────>
+               │                          │                      │                      │                            │                             │                              │
+               │                          │           Update relay constraints          │                            │                             │                              │
+               │                          │ ────────────────────────────────────────────>                            │                             │                              │
+               │                          │                      │                      │                            │                             │                              │
+               │                          │                      │      Reconnect tunnel│                            │                             │                              │
+               │                          │ ─────────────────────────────────────────────────────────────────────────>                             │                              │
+               │                          │                      │                      │                            │                             │                              │
+               │                          │                      │Request new tunnel parameters                      │                             │                              │
+               │                          │ <─────────────────────────────────────────────────────────────────────────                             │                              │
+               │                          │                      │                      │                            │                             │                              │
+               │                          │                      │   Send tunnel parameters                          │                             │                              │
+               │                          │ ─────────────────────────────────────────────────────────────────────────>                             │                              │
+               │                          │                      │                      │                            │                             │                              │
+               │                          │                      │  Publish connecting state                         │                             │                              │
+               │                          │ <─────────────────────────────────────────────────────────────────────────                             │                              │
+               │                          │                      │                      │                            │                             │                              │
+               │                          │                      │           Asynchronously verify account state     │                             │                              │
+               │                          │ ──────────────────────────────────────────────────────────────────────────────────────────────────────>│                              │
+               │                          │                      │                      │                            │                             │                              │
+               │                          │                      │                      │          Publish new tunnel state                        │                              │
+               │                          │ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────>
+     ┌─────────┴──────────┐            ┌──┴───┐              ┌───┴────┐          ┌──────┴───────┐          ┌─────────┴──────────┐          ┌───────┴───────┐          ┌───────────┴────────────┐
+     │Management interface│            │Daemon│              │Settings│          │Relay selector│          │Tunnel state machine│          │Account manager│          │Daemon event subscribers│
+     └────────────────────┘            └──────┘              └────────┘          └──────────────┘          └────────────────────┘          └───────────────┘          └────────────────────────┘
+
+@startuml
+hide empty description
+scale 800
+
+title Execution of ""update_relay_settings"" RPC when relay settings have changed, but the key is invalid.
+
+participant "Management interface" as management_interface
+participant "Daemon" as daemon
+participant "Settings" as settings
+participant "Relay selector" as relay_selector
+participant "Tunnel state machine" as tsm
+participant "Account manager" as account_manager
+participant "Daemon event subscribers" as subscribers
+
+management_interface -> daemon : Incoming RPC
+daemon -> settings : Update relay settings
+daemon -> management_interface : Return save result to RPC
+daemon ->  subscribers : Publish new settings to all subscribers
+daemon -> relay_selector : Update relay constraints
+daemon -> tsm : Reconnect tunnel
+tsm -> daemon : Request new tunnel parameters
+daemon -> tsm : Send tunnel parameters
+tsm -> daemon : Publish connecting state
+daemon -> account_manager : Asynchronously verify account state
+daemon -> subscribers : Publish new tunnel state
+
+@enduml
