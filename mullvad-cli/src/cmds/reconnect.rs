@@ -34,7 +34,7 @@ impl Command for Reconnect {
             if let Some(mut receiver) = receiver_option {
                 while let Some(state) = receiver.next().await {
                     let state = state?;
-                    format::print_state(&state);
+                    format::print_state(&state, false);
                     match state.state.unwrap() {
                         State::Connected(_) => return Ok(()),
                         State::Error(_) => return Err(Error::CommandFailed("reconnect")),

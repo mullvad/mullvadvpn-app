@@ -5,107 +5,149 @@ use mullvad_management_interface::types::{
     },
     tunnel_state,
     tunnel_state::State::*,
-    ErrorState, ObfuscationType, ProxyType, TransportProtocol, TunnelEndpoint, TunnelState,
+    ErrorState, ObfuscationType, ProxyType, TransportProtocol, TunnelState, TunnelStateRelayInfo,
     TunnelType,
 };
 use mullvad_types::auth_failed::AuthFailed;
-use std::fmt::Write;
 
-pub fn print_state(state: &TunnelState) {
-    print!("Tunnel status: ");
+pub fn print_state(state: &TunnelState, verbose: bool) {
     match state.state.as_ref().unwrap() {
         Error(error) => print_error_state(error.error_state.as_ref().unwrap()),
         Connected(tunnel_state::Connected { relay_info }) => {
-            let endpoint = relay_info
-                .as_ref()
-                .unwrap()
-                .tunnel_endpoint
-                .as_ref()
-                .unwrap();
-            println!("Connected to {}", format_endpoint(&endpoint));
+            println!(
+                "Connected to {}",
+                format_relay_connection(relay_info.as_ref().unwrap(), verbose)
+            );
         }
         Connecting(tunnel_state::Connecting { relay_info }) => {
-            let endpoint = relay_info
-                .as_ref()
-                .unwrap()
-                .tunnel_endpoint
-                .as_ref()
-                .unwrap();
-            println!("Connecting to {}...", format_endpoint(&endpoint));
+            let ellipsis = if !verbose { "..." } else { "" };
+            println!(
+                "Connecting to {}{ellipsis}",
+                format_relay_connection(relay_info.as_ref().unwrap(), verbose)
+            );
         }
         Disconnected(_) => println!("Disconnected"),
         Disconnecting(_) => println!("Disconnecting..."),
     }
 }
 
-fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
-    let tunnel_type = TunnelType::from_i32(endpoint.tunnel_type).expect("invalid tunnel protocol");
-    let mut out = format!(
-        "{} {}/{}",
-        match tunnel_type {
+fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> String {
+    let endpoint = relay_info.tunnel_endpoint.as_ref().unwrap();
+    let location = &relay_info.location.as_ref().unwrap();
+
+    let prefix_separator = if verbose { "\n\t" } else { " " };
+    let mut obfuscator_overlaps = false;
+
+    let exit_endpoint = {
+        let mut address = endpoint.address.as_str();
+        let mut protocol = endpoint.protocol;
+        if let Some(obfuscator) = endpoint.obfuscation.as_ref() {
+            if location.hostname == location.obfuscator_hostname {
+                obfuscator_overlaps = true;
+                address = &obfuscator.address;
+                protocol = obfuscator.protocol;
+            }
+        };
+
+        let exit = format_endpoint(
+            &location.hostname,
+            protocol,
+            Some(address).filter(|_| verbose),
+        );
+        format!("{exit} in {}, {}", &location.city, &location.country)
+    };
+
+    let first_hop = endpoint.entry_endpoint.as_ref().map(|entry| {
+        let mut address = entry.address.as_str();
+        let mut protocol = entry.protocol;
+        if let Some(obfuscator) = endpoint.obfuscation.as_ref() {
+            obfuscator_overlaps = true;
+            if location.entry_hostname == location.obfuscator_hostname {
+                address = &obfuscator.address;
+                protocol = obfuscator.protocol;
+            }
+        };
+
+        let endpoint = format_endpoint(
+            &location.entry_hostname,
+            protocol,
+            Some(address).filter(|_| verbose),
+        );
+        format!("{prefix_separator}via {endpoint}")
+    });
+
+    let obfuscator = endpoint.obfuscation.as_ref().map(|obfuscator| {
+        if !obfuscator_overlaps {
+            let endpoint_str = format_endpoint(
+                &location.obfuscator_hostname,
+                obfuscator.protocol,
+                Some(obfuscator.address.as_str()).filter(|_| verbose),
+            );
+            format!("{prefix_separator}obfuscated via {endpoint_str}")
+        } else {
+            String::new()
+        }
+    });
+
+    let bridge = endpoint.proxy.as_ref().map(|proxy| {
+        let proxy_endpoint = format_endpoint(
+            &location.bridge_hostname,
+            proxy.protocol,
+            Some(proxy.address.as_str()).filter(|_| verbose),
+        );
+
+        format!("{prefix_separator}via {proxy_endpoint}")
+    });
+    let tunnel_type = if verbose {
+        let tunnel = match TunnelType::from_i32(endpoint.tunnel_type).expect("invalid tunnel type")
+        {
             TunnelType::Wireguard => "WireGuard",
             TunnelType::Openvpn => "OpenVPN",
-        },
-        endpoint.address,
-        format_protocol(
-            TransportProtocol::from_i32(endpoint.protocol).expect("invalid transport protocol")
-        ),
-    );
+        };
 
-    match tunnel_type {
-        TunnelType::Openvpn => {
-            if let Some(ref proxy) = endpoint.proxy {
-                write!(
-                    &mut out,
-                    " via {} {}/{}",
-                    match ProxyType::from_i32(proxy.proxy_type).expect("invalid proxy type") {
-                        ProxyType::Shadowsocks => "Shadowsocks",
-                        ProxyType::Custom => "custom bridge",
-                    },
-                    proxy.address,
-                    format_protocol(
-                        TransportProtocol::from_i32(proxy.protocol)
-                            .expect("invalid transport protocol")
-                    ),
-                )
-                .unwrap();
-            }
+        format!("\nTunnel type: {tunnel}")
+    } else {
+        String::new()
+    };
+
+    let mut bridge_type = String::new();
+    let mut obfuscator_type = String::new();
+    if verbose {
+        if let Some(bridge) = endpoint.proxy.as_ref() {
+            let bridge = match ProxyType::from_i32(bridge.proxy_type).expect("invalid proxy type") {
+                ProxyType::Shadowsocks => "Shadowsocks",
+                ProxyType::Custom => "custom bridge",
+            };
+            bridge_type = format!("\nBridge type: {}", bridge);
         }
-        TunnelType::Wireguard => {
-            if let Some(ref entry_endpoint) = endpoint.entry_endpoint {
-                write!(
-                    &mut out,
-                    " via {}/{}",
-                    entry_endpoint.address,
-                    format_protocol(
-                        TransportProtocol::from_i32(entry_endpoint.protocol)
-                            .expect("invalid transport protocol")
-                    )
-                )
-                .unwrap();
-            }
-            if let Some(ref obfuscation) = endpoint.obfuscation {
-                write!(
-                    &mut out,
-                    " via {} {}:{}/{}",
-                    match ObfuscationType::from_i32(obfuscation.obfuscation_type)
-                        .expect("invalid obfuscation type")
-                    {
-                        ObfuscationType::Udp2tcp => "Udp2Tcp",
-                    },
-                    obfuscation.address,
-                    obfuscation.port,
-                    format_protocol(
-                        TransportProtocol::from_i32(obfuscation.protocol)
-                            .expect("invalid transport protocol")
-                    )
-                )
-                .unwrap();
-            }
+        if let Some(obfuscator) = endpoint.obfuscation.as_ref() {
+            let obfuscation = convert_obfuscator_type(obfuscator.obfuscation_type);
+            obfuscator_type = format!("\nObfuscator: {obfuscation}");
         }
     }
 
-    out
+    format!(
+        "{exit_endpoint}{first_hop}{bridge}{obfuscator}{tunnel_type}{bridge_type}{obfuscator_type}",
+        first_hop = first_hop.unwrap_or(String::new()),
+        bridge = bridge.unwrap_or(String::new()),
+        obfuscator = obfuscator.unwrap_or(String::new()),
+    )
+}
+
+fn convert_obfuscator_type(obfuscator: i32) -> &'static str {
+    match ObfuscationType::from_i32(obfuscator).expect("invalid obfuscator type") {
+        ObfuscationType::Udp2tcp => "Udp2Tcp",
+    }
+}
+
+fn format_endpoint(hostname: &String, protocol_enum: i32, addr: Option<&str>) -> String {
+    let protocol = format_protocol(
+        TransportProtocol::from_i32(protocol_enum).expect("invalid transport protocol"),
+    );
+    let sockaddr_suffix = addr
+        .map(|addr| format!(" ({addr}/{protocol})"))
+        .unwrap_or_else(String::new);
+    format!("{hostname}{sockaddr_suffix}")
 }
 
 fn print_error_state(error_state: &ErrorState) {
