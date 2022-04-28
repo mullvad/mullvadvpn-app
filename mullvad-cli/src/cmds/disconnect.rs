@@ -34,7 +34,7 @@ impl Command for Disconnect {
             if let Some(mut receiver) = receiver_option {
                 while let Some(state) = receiver.next().await {
                     let state = state?;
-                    format::print_state(&state);
+                    format::print_state(&state, false);
                     match state.state.unwrap() {
                         Disconnected(_) => return Ok(()),
                         _ => {}
