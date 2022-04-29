@@ -415,7 +415,8 @@ impl AccountManager {
 
         match response {
             Ok(new_device_data) => {
-                if new_device_data.pubkey == current_data.device.pubkey {
+                let current_pubkey = current_data.wg_data.private_key.public_key();
+                if new_device_data.pubkey == current_pubkey {
                     let new_data = DeviceData {
                         device: new_device_data,
                         ..current_data.clone()
@@ -463,12 +464,10 @@ impl AccountManager {
     }
 
     async fn consume_rotation_result(&mut self, api_result: Result<WireguardData, Error>) {
-        let mut device_data = match self.data.clone() {
-            Some(data) => data,
-            None => {
-                panic!("Received a key rotation result whilst having no data");
-            }
-        };
+        let mut device_data = self
+            .data
+            .clone()
+            .expect("Received a key rotation result whilst having no data");
 
         match api_result {
             Ok(wg_data) => {
