@@ -1288,6 +1288,13 @@ where
                 log::info!("Disconnecting because account token was cleared");
                 self.set_target_state(TargetState::Unsecured).await;
             }
+            InnerDeviceEvent::Revoked => {
+                // If we're currently in a secured state, reconnect to make sure we immediately
+                // enter the error state.
+                if *self.target_state == TargetState::Secured {
+                    self.connect_tunnel();
+                }
+            }
             InnerDeviceEvent::RotatedKey(_) => {
                 if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
                     self.schedule_reconnect(WG_RECONNECT_DELAY);
