@@ -145,9 +145,9 @@ fn format_endpoint(hostname: &String, protocol_enum: i32, addr: Option<&str>) ->
         TransportProtocol::from_i32(protocol_enum).expect("invalid transport protocol"),
     );
     let sockaddr_suffix = addr
-        .map(|addr| format!(" ({addr})"))
+        .map(|addr| format!(" ({addr}/{protocol})"))
         .unwrap_or_else(String::new);
-    format!("{hostname}/{protocol}{sockaddr_suffix}")
+    format!("{hostname}{sockaddr_suffix}")
 }
 
 fn print_error_state(error_state: &ErrorState) {
