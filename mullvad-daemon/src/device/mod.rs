@@ -549,19 +549,22 @@ impl AccountManager {
 
     async fn logout(&mut self, tx: ResponseTx<()>) {
         Self::drain_requests(&mut self.data_requests, || Err(Error::AccountChange));
-        let data = match self.data.take() {
-            Some(it) => it,
-            _ => return,
-        };
+        if self.data.is_none() {
+            let _ = tx.send(Ok(()));
+            return;
+        }
         if let Err(err) = self.cacher.write(None).await {
             let _ = tx.send(Err(err));
             return;
         }
 
+        // Cannot panic: `data.is_none() == false`.
+        let old_data = self.data.take().unwrap();
+
         self.listeners
             .retain(|listener| listener.send(InnerDeviceEvent::Logout).is_ok());
 
-        let logout_call = tokio::spawn(Box::pin(self.logout_api_call(data)));
+        let logout_call = tokio::spawn(Box::pin(self.logout_api_call(old_data)));
 
         tokio::spawn(async move {
             let _response = tokio::time::timeout(LOGOUT_TIMEOUT, logout_call).await;
