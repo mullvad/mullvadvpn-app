@@ -20,9 +20,9 @@ rustup target add \
     armv7-linux-androideabi
 
 # Install golang
-GOLANG_VERSION="1.16"
+GOLANG_VERSION="1.18.1"
 # Checksum from: https://golang.org/dl/
-GOLANG_HASH="013a489ebb3e24ef3d915abe5b94c3286c070dfe0818d5bca8108f1d6e8440d2"
+GOLANG_HASH="b3b815f47ababac13810fc6021eb73d65478e0b2db4b09d348eefad9581a2334"
 cd "$HOME"
 curl -sf -L -o go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
 echo "$GOLANG_HASH go.tgz" | sha256sum -c
