@@ -65,13 +65,36 @@ impl fmt::Display for DevicePort {
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct DeviceData {
     pub token: AccountToken,
-    pub device: Device,
+    pub device: InnerDevice,
     pub wg_data: wireguard::WireguardData,
 }
 
 impl From<DeviceData> for Device {
     fn from(data: DeviceData) -> Device {
-        data.device
+        Device {
+            id: data.device.id,
+            name: data.device.name,
+            pubkey: data.wg_data.private_key.public_key(),
+            ports: data.device.ports,
+        }
+    }
+}
+
+/// Device data used by [DeviceData].
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct InnerDevice {
+    pub id: DeviceId,
+    pub name: DeviceName,
+    pub ports: Vec<DevicePort>,
+}
+
+impl From<Device> for InnerDevice {
+    fn from(device: Device) -> Self {
+        InnerDevice {
+            id: device.id,
+            name: device.name,
+            ports: device.ports,
+        }
     }
 }
 
@@ -87,8 +110,8 @@ pub struct DeviceConfig {
 impl From<DeviceData> for DeviceConfig {
     fn from(data: DeviceData) -> DeviceConfig {
         DeviceConfig {
-            token: data.token,
-            device: data.device,
+            token: data.token.clone(),
+            device: Device::from(data),
         }
     }
 }
@@ -114,10 +137,7 @@ impl DeviceEvent {
 
     pub fn from_device(data: DeviceData, remote: bool) -> DeviceEvent {
         DeviceEvent {
-            device: Some(DeviceConfig {
-                token: data.token,
-                device: data.device,
-            }),
+            device: Some(DeviceConfig::from(data)),
             remote,
         }
     }
