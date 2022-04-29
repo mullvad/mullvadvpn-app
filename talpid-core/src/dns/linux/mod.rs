@@ -118,7 +118,7 @@ impl DnsMonitorHolder {
                         systemd_resolved::SystemdDbusError::NoSystemdResolved(_),
                     ) => (),
                     other_error => {
-                        log::debug!("NetworkManager is not being used because {}", other_error)
+                        log::debug!("NetworkManager is being used because {}", other_error)
                     }
                 }
                 NetworkManager::new().map(DnsMonitorHolder::NetworkManager)
