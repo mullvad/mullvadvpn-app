@@ -7,7 +7,7 @@ use futures::{
 use mullvad_api::{availability::ApiAvailabilityHandle, rest};
 use mullvad_types::{
     account::AccountToken,
-    device::{Device, DeviceData, DeviceEvent},
+    device::{Device, DeviceData, DeviceEvent, InnerDevice},
     wireguard::{RotationInterval, WireguardData},
 };
 use std::{
@@ -418,7 +418,7 @@ impl AccountManager {
                 let current_pubkey = current_data.wg_data.private_key.public_key();
                 if new_device_data.pubkey == current_pubkey {
                     let new_data = DeviceData {
-                        device: new_device_data,
+                        device: InnerDevice::from(new_device_data),
                         ..current_data.clone()
                     };
 
@@ -471,7 +471,6 @@ impl AccountManager {
 
         match api_result {
             Ok(wg_data) => {
-                device_data.device.pubkey = wg_data.private_key.public_key();
                 device_data.wg_data = wg_data;
                 match self.set(InnerDeviceEvent::RotatedKey(device_data)).await {
                     Ok(_) => {

@@ -11,7 +11,11 @@ use crate::{
     device::{self, DeviceService},
     DaemonEventSender, InternalDaemonEvent,
 };
-use mullvad_types::{account::AccountToken, device::DeviceData, wireguard::WireguardData};
+use mullvad_types::{
+    account::AccountToken,
+    device::{DeviceData, InnerDevice},
+    wireguard::WireguardData,
+};
 use std::time::Duration;
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
@@ -78,7 +82,7 @@ async fn cache_from_wireguard_key(
         if device.pubkey == wg_data.private_key.public_key() {
             return Ok(DeviceData {
                 token,
-                device,
+                device: InnerDevice::from(device),
                 wg_data,
             });
         }

@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use futures::future::{abortable, AbortHandle};
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
-    device::{Device, DeviceData, DeviceId},
+    device::{Device, DeviceData, DeviceId, InnerDevice},
     wireguard::WireguardData,
 };
 use talpid_types::net::wireguard::PrivateKey;
@@ -62,7 +62,7 @@ impl DeviceService {
 
             Ok(DeviceData {
                 token,
-                device,
+                device: InnerDevice::from(device),
                 wg_data: WireguardData {
                     private_key,
                     addresses,
@@ -92,7 +92,7 @@ impl DeviceService {
 
         Ok(DeviceData {
             token,
-            device,
+            device: InnerDevice::from(device),
             wg_data: WireguardData {
                 private_key,
                 addresses,
