@@ -63,4 +63,12 @@ impl TunnelState {
             _ => false,
         }
     }
+
+    /// Returns true if the tunnel state is in the disconnected state.
+    pub fn is_disconnected(&self) -> bool {
+        match self {
+            TunnelState::Disconnected => true,
+            _ => false,
+        }
+    }
 }

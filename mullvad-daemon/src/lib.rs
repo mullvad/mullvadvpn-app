@@ -970,6 +970,16 @@ where
         }
 
         log::debug!("New tunnel state: {:?}", tunnel_state);
+
+        match tunnel_state {
+            TunnelState::Disconnected => {
+                self.api_handle.availability.reset_inactivity_timer();
+            }
+            _ => {
+                self.api_handle.availability.stop_inactivity_timer();
+            }
+        }
+
         match tunnel_state {
             TunnelState::Disconnected => self.state.disconnected(),
             TunnelState::Error(ref error_state) => {
@@ -1172,6 +1182,11 @@ where
             log::trace!("Dropping daemon command because the daemon is shutting down",);
             return;
         }
+
+        if self.tunnel_state.is_disconnected() {
+            self.api_handle.availability.reset_inactivity_timer();
+        }
+
         match command {
             SetTargetState(tx, state) => self.on_set_target_state(tx, state).await,
             Reconnect(tx) => self.on_reconnect(tx),
