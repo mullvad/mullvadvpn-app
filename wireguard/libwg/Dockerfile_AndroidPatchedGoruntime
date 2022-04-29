@@ -27,8 +27,8 @@ RUN cd /tmp && \
 ENV ANDROID_NDK_HOME="/opt/android/android-ndk-r20b"
 ENV NDK_TOOLCHAIN_DIR="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
 
-ENV GOLANG_VERSION 1.16
-ENV GOLANG_HASH 013a489ebb3e24ef3d915abe5b94c3286c070dfe0818d5bca8108f1d6e8440d2
+ENV GOLANG_VERSION 1.18.1
+ENV GOLANG_HASH b3b815f47ababac13810fc6021eb73d65478e0b2db4b09d348eefad9581a2334
 
 # Install Go-lang and patch it to use the appropriate monotonic clock
 COPY goruntime-boottime-over-monotonic.diff /opt/goruntime-boottime-over-monotonic.diff
