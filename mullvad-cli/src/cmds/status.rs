@@ -29,7 +29,7 @@ impl Command for Status {
                 clap::Arg::new("debug")
                     .long("debug")
                     .global(true)
-                    .help("Enables verbose output"),
+                    .help("Enables debug output"),
             )
             .subcommand(clap::App::new("listen").about("Listen for VPN tunnel state changes"))
     }
