@@ -422,6 +422,12 @@ impl AccountManager {
                         ..current_data.clone()
                     };
 
+                    if Some(&new_data) != self.data.as_ref() {
+                        log::debug!("Updating data for the current device");
+                    } else {
+                        log::debug!("The current device is still valid");
+                    }
+
                     match self.set(InnerDeviceEvent::Updated(new_data)).await {
                         Ok(_) => {
                             Self::drain_requests(&mut self.validation_requests, || Ok(()));
@@ -434,6 +440,8 @@ impl AccountManager {
                             });
                         }
                     }
+                } else {
+                    log::debug!("Rotating invalid WireGuard key for device");
                 }
             }
             Err(Error::InvalidAccount) => {
