@@ -20,7 +20,7 @@ extension REST.Error: DisplayChainedError {
             return String(
                 format: NSLocalizedString(
                     "NETWORK_ERROR",
-                    tableName: "RESTClient",
+                    tableName: "REST",
                     value: "Network error: %@",
                     comment: "Network error. Use %@ placeholder to place localized failure description."
                 ),
@@ -33,7 +33,7 @@ extension REST.Error: DisplayChainedError {
                 return String(
                     format: NSLocalizedString(
                         "SERVER_ERROR",
-                        tableName: "RESTClient",
+                        tableName: "REST",
                         value: "Server error: %@",
                         comment: "Server error. Use %@ placeholder to place localized failure description."
                     ),
@@ -43,21 +43,21 @@ extension REST.Error: DisplayChainedError {
         case .encodePayload:
             return NSLocalizedString(
                 "SERVER_REQUEST_ENCODING_ERROR",
-                tableName: "RESTClient",
+                tableName: "REST",
                 value: "Server request encoding error",
                 comment: "Failure to encode the server request."
             )
         case .decodeSuccessResponse:
             return NSLocalizedString(
                 "SERVER_SUCCESS_RESPONSE_DECODING_ERROR",
-                tableName: "RESTClient",
+                tableName: "REST",
                 value: "Server success response decoding error",
                 comment: "Failure to decode the server success response."
             )
         case .decodeErrorResponse:
             return NSLocalizedString(
                 "SERVER_FAILURE_RESPONSE_DECODING_ERROR",
-                tableName: "RESTClient",
+                tableName: "REST",
                 value: "Server error response decoding error",
                 comment: "Failure to decode the server failure response."
             )

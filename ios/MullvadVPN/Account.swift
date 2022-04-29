@@ -60,6 +60,8 @@ class Account {
         return operationQueue
     }()
 
+    private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
+
     /// Returns true if user agreed to terms of service, otherwise false
     var isAgreedToTermsOfService: Bool {
         return UserDefaults.standard.bool(forKey: UserDefaultsKeys.isAgreedToTermsOfService.rawValue)
@@ -100,7 +102,7 @@ class Account {
 
     func loginWithNewAccount(completionHandler: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
         let operation = AsyncBlockOperation { operation in
-            _ = REST.Client.shared.createAccount(retryStrategy: .noRetry) { result in
+            _ = self.apiProxy.createAccount(retryStrategy: .noRetry) { result in
                 switch result {
                 case .success(let response):
                     self.setupTunnel(accountToken: response.token, expiry: response.expires) { error in
@@ -135,7 +137,7 @@ class Account {
     /// application preferences.
     func login(accountToken: String, completionHandler: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
         let operation = AsyncBlockOperation { operation in
-            _ = REST.Client.shared.getAccountExpiry(token: accountToken, retryStrategy: .default) { result in
+            _ = self.apiProxy.getAccountExpiry(accountNumber: accountToken, retryStrategy: .default) { result in
                 switch result {
                 case .success(let response):
                     self.setupTunnel(accountToken: response.token, expiry: response.expires) { error in
@@ -206,7 +208,7 @@ class Account {
                     return
                 }
 
-                _ = REST.Client.shared.getAccountExpiry(token: token, retryStrategy: .default) { completion in
+                _ = self.apiProxy.getAccountExpiry(accountNumber: token, retryStrategy: .default) { completion in
                     switch completion {
                     case .success(let response):
                         if self.expiry != response.expires {

@@ -10,7 +10,7 @@ import Foundation
 
 extension REST {
 
-    /// An error type returned by `REST.Client`
+    /// An error type returned by REST API classes.
     enum Error: ChainedError {
         /// A failure to encode the payload
         case encodePayload(Swift.Error)
@@ -50,6 +50,7 @@ extension REST {
             case invalidAccount = "INVALID_ACCOUNT"
             case keyLimitReached = "KEY_LIMIT_REACHED"
             case pubKeyNotFound = "PUBKEY_NOT_FOUND"
+            case invalidAccessToken = "INVALID_ACCESS_TOKEN"
 
             static func ~= (pattern: Self, value: REST.ServerErrorResponse) -> Bool {
                 return pattern.rawValue == value.code
@@ -65,6 +66,9 @@ extension REST {
         static var pubKeyNotFound: Code {
             return .pubKeyNotFound
         }
+        static var invalidAccessToken: Code {
+            return .invalidAccessToken
+        }
 
         let code: String
         let error: String?
@@ -74,19 +78,32 @@ extension REST {
             case Code.keyLimitReached.rawValue:
                 return NSLocalizedString(
                     "KEY_LIMIT_REACHED_ERROR_DESCRIPTION",
-                    tableName: "RESTClient",
+                    tableName: "REST",
                     value: "Too many WireGuard keys in use.",
                     comment: ""
                 )
             case Code.invalidAccount.rawValue:
                 return NSLocalizedString(
                     "INVALID_ACCOUNT_ERROR_DESCRIPTION",
-                    tableName: "RESTClient",
+                    tableName: "REST",
                     value: "Invalid account.",
                     comment: ""
                 )
+
+            case Code.invalidAccessToken.rawValue:
+                return NSLocalizedString(
+                    "INVALID_ACCESS_TOKEN_ERROR_DESCRIPTION",
+                    tableName: "REST",
+                    value: "Invalid access token.",
+                    comment: "")
             default:
-                return nil
+                let localizedString = NSLocalizedString(
+                    "UNKNOWN_ERROR_DESCRIPTION",
+                    tableName: "REST",
+                    value: "Unknown error: %@",
+                    comment: "Use %@ placeholder to place the error code into the localized string."
+                )
+                return String(format: localizedString, code)
             }
         }
 
@@ -95,7 +112,7 @@ extension REST {
             case Code.keyLimitReached.rawValue:
                 return NSLocalizedString(
                     "KEY_LIMIT_REACHED_ERROR_RECOVERY_SUGGESTION",
-                    tableName: "RESTClient",
+                    tableName: "REST",
                     value: "Please visit the website to revoke a key before login is possible.",
                     comment: ""
                 )

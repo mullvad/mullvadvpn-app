@@ -47,12 +47,12 @@ final class TunnelManager: TunnelManagerStateDelegate {
     }
 
     static let shared: TunnelManager = {
-        return TunnelManager(restClient: REST.Client.shared)
+        return TunnelManager(apiProxy: REST.ProxyFactory.shared.createAPIProxy())
     }()
 
     // MARK: - Internal variables
 
-    private let restClient: REST.Client
+    private let apiProxy: REST.APIProxy
 
     private let logger = Logger(label: "TunnelManager")
     private let stateQueue = DispatchQueue(label: "TunnelManager.stateQueue")
@@ -80,8 +80,8 @@ final class TunnelManager: TunnelManagerStateDelegate {
         return state.tunnelStatus.state
     }
 
-    private init(restClient: REST.Client) {
-        self.restClient = restClient
+    private init(apiProxy: REST.APIProxy) {
+        self.apiProxy = apiProxy
         self.state = TunnelManager.State(queue: stateQueue)
         self.state.delegate = self
 
@@ -350,7 +350,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
     }
 
     func regeneratePrivateKey(completionHandler: ((TunnelManager.Error?) -> Void)? = nil) {
-        let operation = ReplaceKeyOperation.operationForKeyRegeneration(queue: stateQueue, state: state, restClient: restClient) { [weak self] completion in
+        let operation = ReplaceKeyOperation.operationForKeyRegeneration(queue: stateQueue, state: state, apiProxy: apiProxy) { [weak self] completion in
             guard let self = self else { return }
 
             dispatchPrecondition(condition: .onQueue(self.stateQueue))
@@ -389,7 +389,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
         let operation = ReplaceKeyOperation.operationForKeyRotation(
             queue: stateQueue,
             state: state,
-            restClient: restClient,
+            apiProxy: apiProxy,
             rotationInterval: TunnelManagerConfiguration.privateKeyRotationInterval
         ) { [weak self] completion in
             guard let self = self else { return }
@@ -573,7 +573,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
         return SetAccountOperation(
             queue: stateQueue,
             state: state,
-            restClient: restClient,
+            apiProxy: apiProxy,
             accountToken: accountToken,
             willDeleteVPNConfigurationHandler: { [weak self] in
                 guard let self = self else { return }

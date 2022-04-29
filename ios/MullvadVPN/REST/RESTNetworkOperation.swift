@@ -10,24 +10,19 @@ import Foundation
 import Logging
 
 extension REST {
-
-    enum RetryAction {
-        /// Retry request using next endpoint.
-        case useNextEndpoint
-
-        /// Retry request using current endpoint.
-        case useCurrentEndpoint
-
-        /// Fail immediately.
-        case failImmediately
-    }
-
     class NetworkOperation<Success>: ResultOperation<Success, REST.Error> {
-        typealias Generator = (AnyIPEndpoint, @escaping (Result<Success, REST.Error>) -> Void) -> Result<URLSessionTask, REST.Error>
+        private let requestHandler: AnyRequestHandler
+        private let responseHandler: AnyResponseHandler<Success>
 
-        private let networkTaskGenerator: Generator
+        private let dispatchQueue: DispatchQueue
+        private let urlSession: URLSession
         private let addressCacheStore: AddressCache.Store
-        private var sessionTask: URLSessionTask?
+
+        private var networkTask: URLSessionTask?
+        private var authorizationTask: Cancellable?
+
+        private var requiresAuthorization = false
+        private var retryInvalidAccessTokenError = true
 
         private let retryStrategy: RetryStrategy
         private var retryTimer: DispatchSourceTimer?
@@ -36,155 +31,236 @@ extension REST {
         private let logger = Logger(label: "REST.NetworkOperation")
         private let loggerMetadata: Logger.Metadata
 
-        init(taskIdentifier: UInt32, name: String, networkTaskGenerator: @escaping Generator, addressCacheStore: AddressCache.Store, retryStrategy: RetryStrategy, completionHandler: @escaping CompletionHandler) {
-            self.networkTaskGenerator = networkTaskGenerator
-            self.addressCacheStore = addressCacheStore
+        init(
+            name: String,
+            dispatchQueue: DispatchQueue,
+            configuration: ProxyConfiguration,
+            retryStrategy: RetryStrategy,
+            requestHandler: AnyRequestHandler,
+            responseHandler: AnyResponseHandler<Success>,
+            completionHandler: @escaping CompletionHandler
+        )
+        {
+            self.dispatchQueue = dispatchQueue
+            self.urlSession = configuration.session
+            self.addressCacheStore = configuration.addressCacheStore
             self.retryStrategy = retryStrategy
+            self.requestHandler = requestHandler
+            self.responseHandler = responseHandler
 
-            loggerMetadata = ["taskIdentifier": .stringConvertible(taskIdentifier), "name": .string(name)]
+            loggerMetadata = ["name": .string(name)]
 
             super.init(completionQueue: .main, completionHandler: completionHandler)
         }
 
         override func cancel() {
-            DispatchQueue.main.async {
-                super.cancel()
+            super.cancel()
 
-                // Cancel pending retry
+            dispatchQueue.async {
                 self.retryTimer?.cancel()
+                self.networkTask?.cancel()
+                self.authorizationTask?.cancel()
 
-                // Cancel active network task
-                self.sessionTask?.cancel()
+                self.retryTimer = nil
+                self.networkTask = nil
+                self.authorizationTask = nil
             }
         }
 
         override func main() {
-            DispatchQueue.main.async {
-                // Finish immediately if operation was cancelled before execution
-                guard !self.isCancelled else {
-                    self.finish(completion: .cancelled)
-                    return
-                }
-
-                // Get current endpoint
-                self.addressCacheStore.getCurrentEndpoint { endpoint in
-                    DispatchQueue.main.async {
-                        self.sendRequest(endpoint: endpoint) { [weak self] completion in
-                            self?.finish(completion: completion)
-                        }
-                    }
-                }
+            dispatchQueue.async {
+                self.startRequest()
             }
         }
 
-        private func sendRequest(endpoint: AnyIPEndpoint, completionHandler: @escaping CompletionHandler) {
-            // Handle operation cancellation
+        private func startRequest() {
+            dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
             guard !isCancelled else {
-                completionHandler(.cancelled)
+                finish(completion: .cancelled)
                 return
             }
 
-            // Create network task and execute it
-            let taskResult = networkTaskGenerator(endpoint) { [weak self] result in
-                DispatchQueue.main.async {
-                    self?.handleResponse(endpoint: endpoint, result: result, completionHandler: completionHandler)
+            let authorizationResult = requestHandler.requestAuthorization { completion in
+                self.dispatchQueue.async {
+                    assert(self.requiresAuthorization, "Illegal use of completion handler.")
+
+                    switch completion {
+                    case .success(let authorization):
+                        self.didReceiveAuthorization(authorization)
+
+                    case .failure(let error):
+                        self.didFailToRequestAuthorization(error)
+
+                    case .cancelled:
+                        self.finish(completion: .cancelled)
+                    }
                 }
             }
 
-            switch taskResult {
-            case .success(let dataTask):
-                logger.debug("Executing request using \(endpoint)", metadata: loggerMetadata)
+            switch authorizationResult {
+            case .pending(let task):
+                requiresAuthorization = true
+                authorizationTask = task
 
-                sessionTask = dataTask
-                dataTask.resume()
+            case .noRequirement:
+                requiresAuthorization = false
+                didReceiveAuthorization(nil)
+            }
+        }
+
+        private func didReceiveAuthorization(_ authorization: REST.Authorization?) {
+            dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+            guard !isCancelled else {
+                finish(completion: .cancelled)
+                return
+            }
+
+            let endpoint = self.addressCacheStore.getCurrentEndpoint()
+
+            let result = requestHandler.createURLRequest(
+                endpoint: endpoint,
+                authorization: authorization
+            )
+
+            switch result {
+            case .success(let request):
+                didReceiveURLRequest(request, endpoint: endpoint)
 
             case .failure(let error):
-                logger.error(chainedError: error, message: "Failed to create data task", metadata: loggerMetadata)
-
-                completionHandler(.failure(error))
+                didFailToCreateURLRequest(error)
             }
         }
 
-        private func handleResponse(endpoint: AnyIPEndpoint, result: Result<Success, REST.Error>, completionHandler: @escaping CompletionHandler) {
-            guard case .failure(let error) = result else {
-                completionHandler(OperationCompletion(result: result))
-                return
-            }
+        private func didFailToRequestAuthorization(_ error: REST.Error) {
+            dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            logger.debug("Failed to perform request to \(endpoint)", metadata: self.loggerMetadata)
+            logger.error(
+                chainedError: error,
+                message: "Failed to request authorization.",
+                metadata: loggerMetadata
+            )
 
-            switch Self.evaluateError(error) {
-            case .useNextEndpoint:
-                // Pick next endpoint in the event of network error
-                addressCacheStore.selectNextEndpoint(endpoint) { nextEndpoint in
-                    DispatchQueue.main.async {
-                        self.retryRequest(endpoint: nextEndpoint, previousResult: result, completionHandler: completionHandler)
+            finish(completion: .failure(error))
+        }
+
+        private func didReceiveURLRequest(_ urlRequest: URLRequest, endpoint: AnyIPEndpoint) {
+            dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+            logger.debug(
+                "Executing request using \(endpoint).",
+                metadata: loggerMetadata
+            )
+
+            networkTask = urlSession.dataTask(with: urlRequest) { [weak self] data, response, error in
+                guard let self = self else { return }
+
+                self.dispatchQueue.async {
+                    if let error = error {
+                        let urlError = error as! URLError
+
+                        self.didReceiveURLError(urlError, endpoint: endpoint)
+                    } else {
+                        let httpResponse = response as! HTTPURLResponse
+                        let data = data ?? Data()
+
+                        self.didReceiveURLResponse(httpResponse, data: data, endpoint: endpoint)
                     }
                 }
-
-            case .useCurrentEndpoint:
-                // Retry request using the same endpoint otherwise
-                retryRequest(endpoint: endpoint, previousResult: result, completionHandler: completionHandler)
-
-            case .failImmediately:
-                // Fail immediately in case of other errors, like server errors
-                completionHandler(OperationCompletion(result: result))
             }
+
+            networkTask?.resume()
         }
 
-        private func retryRequest(endpoint: AnyIPEndpoint, previousResult: Result<Success, REST.Error>, completionHandler: @escaping CompletionHandler) {
-            // Handle operation cancellation
-            guard !isCancelled else {
-                completionHandler(.cancelled)
+        private func didFailToCreateURLRequest(_ error: REST.Error) {
+            dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+            logger.error(
+                chainedError: error,
+                message: "Failed to create URLRequest.",
+                metadata: loggerMetadata
+            )
+
+            finish(completion: .failure(error))
+        }
+
+        private func didReceiveURLError(_ urlError: URLError, endpoint: AnyIPEndpoint) {
+            dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+            switch urlError.code {
+            case .cancelled:
+                finish(completion: .cancelled)
                 return
+
+            case .notConnectedToInternet, .internationalRoamingOff, .callIsActive:
+                break
+
+            default:
+                _ = addressCacheStore.selectNextEndpoint(endpoint)
             }
 
-            // Increment retry count
-            retryCount += 1
+            logger.error(
+                chainedError: AnyChainedError(urlError),
+                message: "Failed to perform request to \(endpoint).",
+                metadata: loggerMetadata
+            )
 
             // Check if retry count is not exceeded.
             guard retryCount < retryStrategy.maxRetryCount else {
-                logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))", metadata: loggerMetadata)
+                if retryStrategy.maxRetryCount > 0 {
+                    logger.debug(
+                        "Ran out of retry attempts (\(retryStrategy.maxRetryCount))",
+                        metadata: loggerMetadata
+                    )
+                }
 
-                completionHandler(OperationCompletion(result: previousResult))
+                finish(completion: OperationCompletion(result: .failure(.network(urlError))))
                 return
             }
 
-            // Retry immediatly if retry delay is set to .never
+            // Increment retry count.
+            retryCount += 1
+
+            // Retry immediatly if retry delay is set to never.
             guard retryStrategy.retryDelay != .never else {
-                sendRequest(endpoint: endpoint, completionHandler: completionHandler)
+                startRequest()
                 return
             }
 
-            // Create timer to delay retry
-            retryTimer = DispatchSource.makeTimerSource(queue: .main)
+            // Create timer to delay retry.
+            let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
 
-            retryTimer?.setEventHandler { [weak self] in
-                self?.sendRequest(endpoint: endpoint, completionHandler: completionHandler)
+            timer.setEventHandler { [weak self] in
+                self?.startRequest()
             }
 
-            retryTimer?.setCancelHandler {
-                completionHandler(.cancelled)
+            timer.setCancelHandler { [weak self] in
+                self?.finish(completion: .cancelled)
             }
 
-            retryTimer?.schedule(wallDeadline: .now() + retryStrategy.retryDelay)
-            retryTimer?.activate()
+            timer.schedule(wallDeadline: .now() + retryStrategy.retryDelay)
+            timer.activate()
+
+            retryTimer = timer
         }
 
-        private static func evaluateError(_ error: REST.Error) -> RetryAction {
-            guard case .network(let networkError) = error else {
-                return .failImmediately
-            }
+        private func didReceiveURLResponse(_ response: HTTPURLResponse, data: Data, endpoint: AnyIPEndpoint) {
+            dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            switch networkError.code {
-            case .cancelled:
-                return .failImmediately
+            let result = responseHandler.handleURLResponse(response, data: data)
 
-            case .notConnectedToInternet, .internationalRoamingOff, .callIsActive:
-                return .useCurrentEndpoint
-
-            default:
-                return .useNextEndpoint
+            if case .server(.invalidAccessToken) = result.error,
+                requiresAuthorization, retryInvalidAccessTokenError
+            {
+                logger.debug(
+                    "Received invalid access token error. Retry once.",
+                    metadata: loggerMetadata
+                )
+                retryInvalidAccessTokenError = false
+                startRequest()
+            } else {
+                finish(completion: OperationCompletion(result: result))
             }
         }
     }

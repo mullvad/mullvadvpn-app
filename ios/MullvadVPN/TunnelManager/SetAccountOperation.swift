@@ -15,16 +15,24 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
 
     private let queue: DispatchQueue
     private let state: TunnelManager.State
-    private let restClient: REST.Client
+    private let apiProxy: REST.APIProxy
     private let accountToken: String?
 
     private var willDeleteVPNConfigurationHandler: WillDeleteVPNConfigurationHandler?
     private let logger = Logger(label: "TunnelManager.SetAccountOperation")
 
-    init(queue: DispatchQueue, state: TunnelManager.State, restClient: REST.Client, accountToken: String?, willDeleteVPNConfigurationHandler: @escaping WillDeleteVPNConfigurationHandler, completionHandler: @escaping CompletionHandler) {
+    init(
+        queue: DispatchQueue,
+        state: TunnelManager.State,
+        apiProxy: REST.APIProxy,
+        accountToken: String?,
+        willDeleteVPNConfigurationHandler: @escaping WillDeleteVPNConfigurationHandler,
+        completionHandler: @escaping CompletionHandler
+    )
+    {
         self.queue = queue
         self.state = state
-        self.restClient = restClient
+        self.apiProxy = apiProxy
         self.accountToken = accountToken
         self.willDeleteVPNConfigurationHandler = willDeleteVPNConfigurationHandler
 
@@ -144,7 +152,7 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
 
         for (index, publicKey) in publicKeys.enumerated() {
             dispatchGroup.enter()
-            _ = REST.Client.shared.deleteWireguardKey(token: accountToken, publicKey: publicKey, retryStrategy: .default) { result in
+            _ = apiProxy.deleteWireguardKey(accountNumber: accountToken, publicKey: publicKey, retryStrategy: .default) { result in
                 self.queue.async {
                     switch result {
                     case .success:
@@ -217,7 +225,7 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
     }
 
     private func pushNewAccountKey(accountToken: String, publicKey: PublicKey, completionHandler: @escaping CompletionHandler) {
-        _ = restClient.pushWireguardKey(token: accountToken, publicKey: publicKey, retryStrategy: .default) { result in
+        _ = apiProxy.pushWireguardKey(accountNumber: accountToken, publicKey: publicKey, retryStrategy: .default) { result in
             self.queue.async {
                 switch result {
                 case .success(let associatedAddresses):

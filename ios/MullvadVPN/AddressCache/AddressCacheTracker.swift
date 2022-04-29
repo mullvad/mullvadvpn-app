@@ -21,8 +21,8 @@ extension AddressCache {
         /// Logger.
         private let logger = Logger(label: "AddressCache.Tracker")
 
-        /// REST client
-        private let restClient: REST.Client
+        /// REST API proxy.
+        private let apiProxy: REST.APIProxy
 
         /// Store.
         private let store: AddressCache.Store
@@ -47,8 +47,8 @@ extension AddressCache {
         private let stateQueue = DispatchQueue(label: "AddressCache.Tracker.stateQueue")
 
         /// Designated initializer
-        init(restClient: REST.Client, store: AddressCache.Store) {
-            self.restClient = restClient
+        init(apiProxy: REST.APIProxy, store: AddressCache.Store) {
+            self.apiProxy = apiProxy
             self.store = store
         }
 
@@ -86,7 +86,7 @@ extension AddressCache {
         func updateEndpoints(completionHandler: ((_ completion: OperationCompletion<CacheUpdateResult, Error>) -> Void)? = nil) -> Cancellable {
             let operation = UpdateAddressCacheOperation(
                 queue: stateQueue,
-                restClient: restClient,
+                apiProxy: apiProxy,
                 store: store,
                 updateInterval: Self.updateInterval,
                 completionHandler: { [weak self] completion in
@@ -138,7 +138,7 @@ extension AddressCache {
             if let lastFailureAttemptDate = lastFailureAttemptDate {
                 return Date(timeInterval: Self.retryInterval, since: lastFailureAttemptDate)
             } else {
-                let updatedAt = store.getLastUpdateDateAndWait()
+                let updatedAt = store.getLastUpdateDate()
 
                 return Date(timeInterval: Self.updateInterval, since: updatedAt)
             }

@@ -103,6 +103,12 @@
 		5850367F25A481D800A43E93 /* IPAddressRange+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */; };
 		5850368C25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B35322BB87C4003C19AD /* PrivateKeyWithMetadata.swift */; };
 		5850368D25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B35322BB87C4003C19AD /* PrivateKeyWithMetadata.swift */; };
+		58554F73280AFA5A00013055 /* RESTAuthenticationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */; };
+		58554F75280AFAE900013055 /* RESTResponseDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F74280AFAE900013055 /* RESTResponseDecoder.swift */; };
+		58554F77280AFD5C00013055 /* RESTTaskIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */; };
+		58554F79280B037400013055 /* RESTAccessTokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F78280B037400013055 /* RESTAccessTokenManager.swift */; };
+		58554F7B280B125F00013055 /* RESTAccountsProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F7A280B125F00013055 /* RESTAccountsProxy.swift */; };
+		58554F7D280D6FE000013055 /* RESTURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F7C280D6FE000013055 /* RESTURLSession.swift */; };
 		58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		5856D13727450A8A00DFD627 /* UIImage+TintColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5856D13627450A8A00DFD627 /* UIImage+TintColor.swift */; };
@@ -180,6 +186,9 @@
 		58871D2325D535D2002297FA /* IPAddressRange+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */; };
 		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
 		5888AD87227B17950051EB06 /* SelectLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationViewController.swift */; };
+		588BCF24280FE43D009ADCEC /* RESTDevicesProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588BCF23280FE43D009ADCEC /* RESTDevicesProxy.swift */; };
+		588BCF26280FE79A009ADCEC /* RESTProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588BCF25280FE79A009ADCEC /* RESTProxy.swift */; };
+		588BCF282816D664009ADCEC /* RESTResponseHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588BCF272816D664009ADCEC /* RESTResponseHandler.swift */; };
 		588D2FE3248AC27F00E313F7 /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E973DD24850EB600096F90 /* AsyncOperation.swift */; };
 		58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */; };
 		58907D9524D17B4E00CFC3F5 /* DisconnectSplitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */; };
@@ -212,6 +221,8 @@
 		58B0A2AD238EE6EC00BC001D /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
 		58B3F30F2742708B00A2DD38 /* HeaderBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B3F30E2742708B00A2DD38 /* HeaderBarButton.swift */; };
 		58B43C1925F77DB60002C8C3 /* ConnectMainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B43C1825F77DB60002C8C3 /* ConnectMainContentView.swift */; };
+		58B5A895280AACC4009FDE99 /* RESTRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A894280AACC4009FDE99 /* RESTRequestFactory.swift */; };
+		58B5A899280AB0D7009FDE99 /* RESTAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A898280AB0D7009FDE99 /* RESTAuthorization.swift */; };
 		58B67B482602079E008EF58E /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58781CD422AFBA39009B9D8E /* RelaySelector.swift */; };
 		58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B93A1226C3F13600A55733 /* TunnelState.swift */; };
 		58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B993B02608A34500BA7811 /* LoginContentView.swift */; };
@@ -224,7 +235,7 @@
 		58BFA5CD22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */; };
 		58CAF4EF26025954007C5886 /* SimulatorTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */; };
-		58CB0EE024B86751001EF0D8 /* RESTClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CB0EDF24B86751001EF0D8 /* RESTClient.swift */; };
+		58CB0EE024B86751001EF0D8 /* RESTAPIProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CB0EDF24B86751001EF0D8 /* RESTAPIProxy.swift */; };
 		58CC40EF24A601900019D96E /* ObserverList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CC40EE24A601900019D96E /* ObserverList.swift */; };
 		58CCA010224249A1004F3011 /* ConnectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA00F224249A1004F3011 /* ConnectViewController.swift */; };
 		58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA01122424D11004F3011 /* SettingsViewController.swift */; };
@@ -261,7 +272,7 @@
 		58F558E32695D1D800F630D0 /* Preferences.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558E12695D1D800F630D0 /* Preferences.strings */; };
 		58F558E62695D1F200F630D0 /* ProblemReport.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558E42695D1F200F630D0 /* ProblemReport.strings */; };
 		58F558E92695D20F00F630D0 /* SelectLocation.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558E72695D20F00F630D0 /* SelectLocation.strings */; };
-		58F558EC2695D26A00F630D0 /* RESTClient.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558EA2695D26A00F630D0 /* RESTClient.strings */; };
+		58F558EC2695D26A00F630D0 /* REST.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558EA2695D26A00F630D0 /* REST.strings */; };
 		58F558EF2695D50D00F630D0 /* ProblemReportReview.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558ED2695D50D00F630D0 /* ProblemReportReview.strings */; };
 		58F558F92696EB1C00F630D0 /* StoreKitErrors.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558F32696EB1C00F630D0 /* StoreKitErrors.strings */; };
 		58F558FA2696EB1C00F630D0 /* TunnelManager.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558F52696EB1C00F630D0 /* TunnelManager.strings */; };
@@ -278,6 +289,8 @@
 		58F840B22464491D0044E708 /* ChainedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840B12464491D0044E708 /* ChainedError.swift */; };
 		58F840B32464491D0044E708 /* ChainedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840B12464491D0044E708 /* ChainedError.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
+		58F97A1B280EEBC00050C2FC /* RESTProxyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F97A1A280EEBC00050C2FC /* RESTProxyFactory.swift */; };
+		58F97A1E280FDE230050C2FC /* RESTRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F97A1D280FDE230050C2FC /* RESTRequestHandler.swift */; };
 		58FAEDEF245069C700CB0F5B /* KeychainAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */; };
 		58FAEDF1245069CA00CB0F5B /* KeychainAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */; };
 		58FAEDF4245088B300CB0F5B /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
@@ -410,6 +423,12 @@
 		584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDNSTextCell.swift; sourceTree = "<group>"; };
 		584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Markdown.swift"; sourceTree = "<group>"; };
 		5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPAddressRange+Codable.swift"; sourceTree = "<group>"; };
+		58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAuthenticationProxy.swift; sourceTree = "<group>"; };
+		58554F74280AFAE900013055 /* RESTResponseDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTResponseDecoder.swift; sourceTree = "<group>"; };
+		58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTaskIdentifier.swift; sourceTree = "<group>"; };
+		58554F78280B037400013055 /* RESTAccessTokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAccessTokenManager.swift; sourceTree = "<group>"; };
+		58554F7A280B125F00013055 /* RESTAccountsProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAccountsProxy.swift; sourceTree = "<group>"; };
+		58554F7C280D6FE000013055 /* RESTURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTURLSession.swift; sourceTree = "<group>"; };
 		58561C98239A5D1500BD6B5E /* IPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPEndpoint.swift; sourceTree = "<group>"; };
 		5856D13627450A8A00DFD627 /* UIImage+TintColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+TintColor.swift"; sourceTree = "<group>"; };
 		5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationHeaderView.swift; sourceTree = "<group>"; };
@@ -463,6 +482,9 @@
 		588527B5276B58B300BAA373 /* SetTunnelSettingsOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetTunnelSettingsOperation.swift; sourceTree = "<group>"; };
 		5888AD82227B11080051EB06 /* SelectLocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationCell.swift; sourceTree = "<group>"; };
 		5888AD86227B17950051EB06 /* SelectLocationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationViewController.swift; sourceTree = "<group>"; };
+		588BCF23280FE43D009ADCEC /* RESTDevicesProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTDevicesProxy.swift; sourceTree = "<group>"; };
+		588BCF25280FE79A009ADCEC /* RESTProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTProxy.swift; sourceTree = "<group>"; };
+		588BCF272816D664009ADCEC /* RESTResponseHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTResponseHandler.swift; sourceTree = "<group>"; };
 		58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEProviderStopReason+Debug.swift"; sourceTree = "<group>"; };
 		58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisconnectSplitButton.swift; sourceTree = "<group>"; };
 		5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+ProductVersion.swift"; sourceTree = "<group>"; };
@@ -485,6 +507,8 @@
 		58B0A2A4238EE67E00BC001D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58B3F30E2742708B00A2DD38 /* HeaderBarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBarButton.swift; sourceTree = "<group>"; };
 		58B43C1825F77DB60002C8C3 /* ConnectMainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectMainContentView.swift; sourceTree = "<group>"; };
+		58B5A894280AACC4009FDE99 /* RESTRequestFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTRequestFactory.swift; sourceTree = "<group>"; };
+		58B5A898280AB0D7009FDE99 /* RESTAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAuthorization.swift; sourceTree = "<group>"; };
 		58B93A1226C3F13600A55733 /* TunnelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelState.swift; sourceTree = "<group>"; };
 		58B993B02608A34500BA7811 /* LoginContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginContentView.swift; sourceTree = "<group>"; };
 		58B9EB122488ED2100095626 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
@@ -494,7 +518,7 @@
 		58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationConfiguration.swift; sourceTree = "<group>"; };
 		58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInputGroupView.swift; sourceTree = "<group>"; };
 		58C6B35322BB87C4003C19AD /* PrivateKeyWithMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateKeyWithMetadata.swift; sourceTree = "<group>"; };
-		58CB0EDF24B86751001EF0D8 /* RESTClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTClient.swift; sourceTree = "<group>"; };
+		58CB0EDF24B86751001EF0D8 /* RESTAPIProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAPIProxy.swift; sourceTree = "<group>"; };
 		58CC40EE24A601900019D96E /* ObserverList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObserverList.swift; sourceTree = "<group>"; };
 		58CCA00F224249A1004F3011 /* ConnectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectViewController.swift; sourceTree = "<group>"; };
 		58CCA01122424D11004F3011 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
@@ -538,7 +562,7 @@
 		58F558E22695D1D800F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Preferences.strings; sourceTree = "<group>"; };
 		58F558E52695D1F200F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ProblemReport.strings; sourceTree = "<group>"; };
 		58F558E82695D20F00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/SelectLocation.strings; sourceTree = "<group>"; };
-		58F558EB2695D26A00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/RESTClient.strings; sourceTree = "<group>"; };
+		58F558EB2695D26A00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/REST.strings; sourceTree = "<group>"; };
 		58F558EE2695D50D00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ProblemReportReview.strings; sourceTree = "<group>"; };
 		58F558F42696EB1C00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/StoreKitErrors.strings; sourceTree = "<group>"; };
 		58F558F62696EB1C00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/TunnelManager.strings; sourceTree = "<group>"; };
@@ -554,6 +578,8 @@
 		58F7D26427EB50A300E4D821 /* ResultOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultOperation.swift; sourceTree = "<group>"; };
 		58F840B12464491D0044E708 /* ChainedError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainedError.swift; sourceTree = "<group>"; };
 		58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportReviewViewController.swift; sourceTree = "<group>"; };
+		58F97A1A280EEBC00050C2FC /* RESTProxyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTProxyFactory.swift; sourceTree = "<group>"; };
+		58F97A1D280FDE230050C2FC /* RESTRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTRequestHandler.swift; sourceTree = "<group>"; };
 		58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainAttributes.swift; sourceTree = "<group>"; };
 		58FAEDF6245088E100CB0F5B /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
 		58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainMatchLimit.swift; sourceTree = "<group>"; };
@@ -695,7 +721,7 @@
 				587B7543266922BF00DEF7E9 /* Localizable.strings */,
 				58F558DE2695BD3E00F630D0 /* Login.strings */,
 				58F559052697002000F630D0 /* Main.strings */,
-				58F558EA2695D26A00F630D0 /* RESTClient.strings */,
+				58F558EA2695D26A00F630D0 /* REST.strings */,
 				58F558E12695D1D800F630D0 /* Preferences.strings */,
 				58F558E42695D1F200F630D0 /* ProblemReport.strings */,
 				58F558ED2695D50D00F630D0 /* ProblemReportReview.strings */,
@@ -740,11 +766,24 @@
 			children = (
 				5820674F26E6514100655B05 /* HTTP.swift */,
 				5820674D26E6510200655B05 /* REST.swift */,
-				58CB0EDF24B86751001EF0D8 /* RESTClient.swift */,
+				58554F78280B037400013055 /* RESTAccessTokenManager.swift */,
+				58554F7A280B125F00013055 /* RESTAccountsProxy.swift */,
+				58CB0EDF24B86751001EF0D8 /* RESTAPIProxy.swift */,
+				58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */,
+				58B5A898280AB0D7009FDE99 /* RESTAuthorization.swift */,
 				585DA88926B027A300B8C587 /* RESTCoding.swift */,
+				588BCF23280FE43D009ADCEC /* RESTDevicesProxy.swift */,
 				585DA88626B0277200B8C587 /* RESTError.swift */,
 				58095C522760EEC700890776 /* RESTNetworkOperation.swift */,
+				588BCF25280FE79A009ADCEC /* RESTProxy.swift */,
+				58F97A1A280EEBC00050C2FC /* RESTProxyFactory.swift */,
+				58B5A894280AACC4009FDE99 /* RESTRequestFactory.swift */,
+				58F97A1D280FDE230050C2FC /* RESTRequestHandler.swift */,
+				58554F74280AFAE900013055 /* RESTResponseDecoder.swift */,
+				588BCF272816D664009ADCEC /* RESTResponseHandler.swift */,
 				58095C582762155700890776 /* RESTRetryStrategy.swift */,
+				58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */,
+				58554F7C280D6FE000013055 /* RESTURLSession.swift */,
 				585DA88326B0270700B8C587 /* ServerRelaysResponse.swift */,
 				584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */,
 			);
@@ -1214,7 +1253,7 @@
 				58F5590E2697002100F630D0 /* Main.strings in Resources */,
 				58F558FE2696F09100F630D0 /* KeyboardNavigation.strings in Resources */,
 				581FC4FA2695ACE100AA97BA /* Account.strings in Resources */,
-				58F558EC2695D26A00F630D0 /* RESTClient.strings in Resources */,
+				58F558EC2695D26A00F630D0 /* REST.strings in Resources */,
 				582CFEEA269463B80072883A /* Settings.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1312,6 +1351,8 @@
 				5875960726F36B3A00BF6711 /* TunnelIPCError.swift in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
 				58CCA010224249A1004F3011 /* ConnectViewController.swift in Sources */,
+				588BCF282816D664009ADCEC /* RESTResponseHandler.swift in Sources */,
+				58554F77280AFD5C00013055 /* RESTTaskIdentifier.swift in Sources */,
 				58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */,
 				582BB1B1229569620055B6EF /* CustomNavigationBar.swift in Sources */,
 				58B3F30F2742708B00A2DD38 /* HeaderBarButton.swift in Sources */,
@@ -1335,10 +1376,11 @@
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
 				585DA87A26B024F900B8C587 /* RelayCacheError.swift in Sources */,
 				5856D13727450A8A00DFD627 /* UIImage+TintColor.swift in Sources */,
-				58CB0EE024B86751001EF0D8 /* RESTClient.swift in Sources */,
+				58CB0EE024B86751001EF0D8 /* RESTAPIProxy.swift in Sources */,
 				58095C532760EEC700890776 /* RESTNetworkOperation.swift in Sources */,
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
 				582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */,
+				58554F7D280D6FE000013055 /* RESTURLSession.swift in Sources */,
 				5846227726E22A7C0035F7C2 /* AppStorePaymentManagerDelegate.swift in Sources */,
 				5871FB8325498CA20051A0A4 /* Swizzle.swift in Sources */,
 				58EF581125D69DB400AEBA94 /* StatusImageView.swift in Sources */,
@@ -1357,6 +1399,7 @@
 				5806767927048E8800C858CB /* Keychain.swift in Sources */,
 				588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
+				58F97A1B280EEBC00050C2FC /* RESTProxyFactory.swift in Sources */,
 				58095C592762155700890776 /* RESTRetryStrategy.swift in Sources */,
 				5840250422B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */,
 				58CC40EF24A601900019D96E /* ObserverList.swift in Sources */,
@@ -1364,11 +1407,13 @@
 				5820674E26E6510200655B05 /* REST.swift in Sources */,
 				5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */,
 				58F7CA882692E34000FC59FD /* WireguardKeysContentView.swift in Sources */,
+				58554F7B280B125F00013055 /* RESTAccountsProxy.swift in Sources */,
 				5801C9A527A14B2A0031566A /* TunnelManagerState.swift in Sources */,
 				58095C4B2760B4F200890776 /* AddressCacheStoreError.swift in Sources */,
 				5868585524054096000B8131 /* AppButton.swift in Sources */,
 				58781CC922AE7CA8009B9D8E /* RelayConstraints.swift in Sources */,
 				584E96BC240FD4DA00D3334F /* Location.swift in Sources */,
+				58554F73280AFA5A00013055 /* RESTAuthenticationProxy.swift in Sources */,
 				581503A124D6F01F00C9C50E /* LogRotation.swift in Sources */,
 				585E820327F3285E00939F0E /* SendAppStoreReceiptOperation.swift in Sources */,
 				584B17AB27637DE40057F3B8 /* ReloadTunnelOperation.swift in Sources */,
@@ -1393,6 +1438,7 @@
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
 				585DA89326B0323E00B8C587 /* TunnelIPCRequest.swift in Sources */,
 				5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */,
+				588BCF26280FE79A009ADCEC /* RESTProxy.swift in Sources */,
 				5820676826E79E7B00655B05 /* Result+UIBackgroundFetchResult.swift in Sources */,
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
@@ -1423,12 +1469,14 @@
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
 				58B9EB152489139B00095626 /* DisplayChainedError.swift in Sources */,
 				587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */,
+				58554F79280B037400013055 /* RESTAccessTokenManager.swift in Sources */,
 				58F2E144276A13F300A79513 /* StartTunnelOperation.swift in Sources */,
 				5868BD33261DCD2600E6027F /* CustomSplitViewController.swift in Sources */,
 				5806766E27048E5600C858CB /* KeychainMatchLimit.swift in Sources */,
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
 				586E54FB27A2DF6D0029B88B /* TunnelIPCRequestOperation.swift in Sources */,
 				584592612639B4A200EF967F /* ConsentContentView.swift in Sources */,
+				58B5A895280AACC4009FDE99 /* RESTRequestFactory.swift in Sources */,
 				584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */,
 				5875960A26F371FC00BF6711 /* TunnelIPCSession.swift in Sources */,
 				58FB865E26EA284E00F188BC /* LogFormatting.swift in Sources */,
@@ -1444,14 +1492,18 @@
 				581503A324D6F1EC00C9C50E /* ChainedError+Logger.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
 				584D26C4270C855B004EA533 /* PreferencesDataSource.swift in Sources */,
+				58B5A899280AB0D7009FDE99 /* RESTAuthorization.swift in Sources */,
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58B43C1925F77DB60002C8C3 /* ConnectMainContentView.swift in Sources */,
 				58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
+				58554F75280AFAE900013055 /* RESTResponseDecoder.swift in Sources */,
+				58F97A1E280FDE230050C2FC /* RESTRequestHandler.swift in Sources */,
 				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
 				58F840B22464491D0044E708 /* ChainedError.swift in Sources */,
 				58FAEDFF24533A7000CB0F5B /* KeychainReturn.swift in Sources */,
+				588BCF24280FE43D009ADCEC /* RESTDevicesProxy.swift in Sources */,
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
 				587EB67027143B6500123C75 /* DataSourceSnapshot.swift in Sources */,
 				585DA88A26B027A300B8C587 /* RESTCoding.swift in Sources */,
@@ -1619,12 +1671,12 @@
 			name = SelectLocation.strings;
 			sourceTree = "<group>";
 		};
-		58F558EA2695D26A00F630D0 /* RESTClient.strings */ = {
+		58F558EA2695D26A00F630D0 /* REST.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
 				58F558EB2695D26A00F630D0 /* en */,
 			);
-			name = RESTClient.strings;
+			name = REST.strings;
 			sourceTree = "<group>";
 		};
 		58F558ED2695D50D00F630D0 /* ProblemReportReview.strings */ = {
