@@ -43,17 +43,19 @@ RUN cd /tmp && \
 ENV ANDROID_NDK_HOME="/opt/android/android-ndk-r20b" \
     NDK_TOOLCHAIN_DIR="/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin"
 
-# Install Go
+# Install golang
+ENV GOLANG_VERSION 1.16
+# Checksum from: https://go.dev/dl/
+ENV GOLANG_HASH 013a489ebb3e24ef3d915abe5b94c3286c070dfe0818d5bca8108f1d6e8440d2
 COPY goruntime-boottime-over-monotonic.diff /tmp/goruntime-boottime-over-monotonic.diff
-
 RUN cd /tmp && \
-    curl -sf -L -O https://go.dev/dl/go1.16.linux-amd64.tar.gz && \
-    echo "013a489ebb3e24ef3d915abe5b94c3286c070dfe0818d5bca8108f1d6e8440d2 go1.16.linux-amd64.tar.gz" | sha256sum -c && \
+    curl -sf -L -o go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
+    echo "$GOLANG_HASH go.tgz" | sha256sum -c && \
     cd /opt && \
-    tar -xzf /tmp/go1.16.linux-amd64.tar.gz && \
+    tar -xzf /tmp/go.tgz && \
     patch -p1 -f -N -r- -d "/opt/go" < /tmp/goruntime-boottime-over-monotonic.diff && \
     mkdir /opt/go/go-path && \
-    rm /tmp/goruntime-boottime-over-monotonic.diff /tmp/go1.16.linux-amd64.tar.gz
+    rm /tmp/goruntime-boottime-over-monotonic.diff /tmp/go.tgz
 
 ENV GOROOT=/opt/go GOPATH=/opt/go/go-path PATH=${PATH}:/opt/go/bin
 
