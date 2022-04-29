@@ -21,7 +21,7 @@ rustup target add \
 
 # Install Go
 cd "$HOME"
-curl -sf -L -O https://golang.org/dl/go1.16.linux-amd64.tar.gz
+curl -sf -L -O https://go.dev/dl/go1.16.linux-amd64.tar.gz
 echo "013a489ebb3e24ef3d915abe5b94c3286c070dfe0818d5bca8108f1d6e8440d2 go1.16.linux-amd64.tar.gz" | sha256sum -c
 tar -xzvf go1.16.linux-amd64.tar.gz
 patch -p1 -f -N -r- -d "$HOME/go" < "$REPO_DIR/wireguard/libwg/goruntime-boottime-over-monotonic.diff"
