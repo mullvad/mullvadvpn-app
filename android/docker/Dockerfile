@@ -44,9 +44,9 @@ ENV ANDROID_NDK_HOME="/opt/android/android-ndk-r20b" \
     NDK_TOOLCHAIN_DIR="/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin"
 
 # Install golang
-ENV GOLANG_VERSION 1.16
+ENV GOLANG_VERSION 1.18.1
 # Checksum from: https://go.dev/dl/
-ENV GOLANG_HASH 013a489ebb3e24ef3d915abe5b94c3286c070dfe0818d5bca8108f1d6e8440d2
+ENV GOLANG_HASH b3b815f47ababac13810fc6021eb73d65478e0b2db4b09d348eefad9581a2334
 COPY goruntime-boottime-over-monotonic.diff /tmp/goruntime-boottime-over-monotonic.diff
 RUN cd /tmp && \
     curl -sf -L -o go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
