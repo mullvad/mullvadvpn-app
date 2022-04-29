@@ -309,7 +309,7 @@ function getSubtitle(devices?: Array<IDevice>): string | undefined {
     if (devices.length === 5) {
       return messages.pgettext(
         'device-management',
-        'You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device’s Account settings.',
+        'Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.',
       );
     } else {
       return messages.pgettext(

@@ -534,6 +534,10 @@ msgctxt "device-management"
 msgid "Log out anyway"
 msgstr ""
 
+msgctxt "device-management"
+msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
+msgstr ""
+
 #. Page title informing user that enough devices has been removed to continue
 #. login process.
 msgctxt "device-management"
@@ -567,10 +571,6 @@ msgstr ""
 
 msgctxt "device-management"
 msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr ""
-
-msgctxt "device-management"
-msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device’s Account settings."
 msgstr ""
 
 #. The message displayed to the user in case of critical error in the GUI
