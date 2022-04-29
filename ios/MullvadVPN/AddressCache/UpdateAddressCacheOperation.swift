@@ -20,15 +20,15 @@ extension AddressCache {
 
     class UpdateAddressCacheOperation: ResultOperation<CacheUpdateResult, Error> {
         private let queue: DispatchQueue
-        private let restClient: REST.Client
+        private let apiProxy: REST.APIProxy
         private let store: AddressCache.Store
         private let updateInterval: TimeInterval
 
         private var requestTask: Cancellable?
 
-        init(queue: DispatchQueue, restClient: REST.Client, store: AddressCache.Store, updateInterval: TimeInterval, completionHandler: CompletionHandler?) {
+        init(queue: DispatchQueue, apiProxy: REST.APIProxy, store: AddressCache.Store, updateInterval: TimeInterval, completionHandler: CompletionHandler?) {
             self.queue = queue
-            self.restClient = restClient
+            self.apiProxy = apiProxy
             self.store = store
             self.updateInterval = updateInterval
 
@@ -64,7 +64,7 @@ extension AddressCache {
                 return
             }
 
-            requestTask = restClient.getAddressList(retryStrategy: .default) { completion in
+            requestTask = apiProxy.getAddressList(retryStrategy: .default) { completion in
                 self.queue.async {
                     self.handleResponse(completion)
                 }

@@ -101,7 +101,7 @@ extension RelayCache {
         func updateRelays(completionHandler: @escaping (OperationCompletion<RelayCache.FetchResult, RelayCache.Error>) -> Void) -> Cancellable {
             let operation = UpdateRelaysOperation(
                 dispatchQueue: stateQueue,
-                restClient: REST.Client.shared,
+                apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
                 cacheFileURL: self.cacheFileURL,
                 relayUpdateInterval: Self.relayUpdateInterval,
                 updateHandler: { [weak self] newCachedRelays in
@@ -302,7 +302,7 @@ fileprivate class UpdateRelaysOperation: ResultOperation<RelayCache.FetchResult,
     typealias UpdateHandler = (RelayCache.CachedRelays) -> Void
 
     private let dispatchQueue: DispatchQueue
-    private let restClient: REST.Client
+    private let apiProxy: REST.APIProxy
     private let cacheFileURL: URL
     private let relayUpdateInterval: TimeInterval
 
@@ -312,13 +312,13 @@ fileprivate class UpdateRelaysOperation: ResultOperation<RelayCache.FetchResult,
     private var downloadCancellable: Cancellable?
 
     init(dispatchQueue: DispatchQueue,
-         restClient: REST.Client,
+         apiProxy: REST.APIProxy,
          cacheFileURL: URL,
          relayUpdateInterval: TimeInterval,
          updateHandler: @escaping UpdateHandler,
          completionHandler: @escaping CompletionHandler) {
         self.dispatchQueue = dispatchQueue
-        self.restClient = restClient
+        self.apiProxy = apiProxy
         self.cacheFileURL = cacheFileURL
         self.relayUpdateInterval = relayUpdateInterval
         self.updateHandler = updateHandler
@@ -411,7 +411,7 @@ fileprivate class UpdateRelaysOperation: ResultOperation<RelayCache.FetchResult,
     }
 
     private func downloadRelays(previouslyCachedRelays: RelayCache.CachedRelays?) {
-        downloadCancellable = REST.Client.shared.getRelays(etag: previouslyCachedRelays?.etag, retryStrategy: .noRetry) { [weak self] result in
+        downloadCancellable = apiProxy.getRelays(etag: previouslyCachedRelays?.etag, retryStrategy: .noRetry) { [weak self] result in
             guard let self = self else { return }
 
             self.dispatchQueue.async {

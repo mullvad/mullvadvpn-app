@@ -47,6 +47,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         return .lightContent
     }
 
+    private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -213,8 +215,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
 
         verifyKeyCancellable?.cancel()
 
-        verifyKeyCancellable = REST.Client.shared.getWireguardKey(
-            token: tunnelInfo.token,
+        verifyKeyCancellable = apiProxy.getWireguardKey(
+            accountNumber: tunnelInfo.token,
             publicKey: tunnelInfo.tunnelSettings.interface.publicKey,
             retryStrategy: .default
         ) { [weak self] result in

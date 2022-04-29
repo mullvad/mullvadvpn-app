@@ -10,6 +10,8 @@ import UIKit
 
 class ProblemReportViewController: UIViewController, UITextFieldDelegate, ConditionalNavigation {
 
+    private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
+
     private var textViewKeyboardResponder: AutomaticKeyboardResponder?
     private var scrollViewKeyboardResponder: AutomaticKeyboardResponder?
 
@@ -600,7 +602,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
         willSendProblemReport()
 
-        _ = REST.Client.shared.sendProblemReport(request, retryStrategy: .default) { completion in
+        _ = apiProxy.sendProblemReport(request, retryStrategy: .default) { completion in
             self.didSendProblemReport(viewModel: viewModel, completion: completion)
         }
     }

@@ -28,6 +28,8 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         return queue
     }()
 
+    private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
+
     private let exclusivityController = ExclusivityController()
 
     private let paymentQueue: SKPaymentQueue
@@ -115,7 +117,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
 
         // Validate account token before adding new payment to the queue.
-        cancellableTask = REST.Client.shared.getAccountExpiry(token: accountToken, retryStrategy: .default) { result in
+        cancellableTask = apiProxy.getAccountExpiry(accountNumber: accountToken, retryStrategy: .default) { result in
             dispatchPrecondition(condition: .onQueue(.main))
 
             switch result {
@@ -176,7 +178,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool, completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, Error>) -> Void) -> Cancellable {
         let operation = SendAppStoreReceiptOperation(
-            restClient: REST.Client.shared,
+            apiProxy: apiProxy,
             accountToken: accountToken,
             forceRefresh: forceRefresh,
             receiptProperties: nil,

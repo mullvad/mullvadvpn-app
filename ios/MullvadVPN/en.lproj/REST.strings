@@ -21,3 +21,6 @@
 
 /* Failure to decode the server success response. */
 "SERVER_SUCCESS_RESPONSE_DECODING_ERROR" = "Server success response decoding error";
+
+/* Use %@ placeholder to place the error code into the localized string. */
+"UNKNOWN_ERROR_DESCRIPTION" = "Unknown error: %@";

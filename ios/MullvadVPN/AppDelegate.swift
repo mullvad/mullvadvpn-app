@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private lazy var addressCacheTracker: AddressCache.Tracker = {
         return AddressCache.Tracker(
-            restClient: REST.Client.shared,
+            apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
             store: AddressCache.Store.shared
         )
     }()
