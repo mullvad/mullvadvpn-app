@@ -61,7 +61,7 @@ impl Command for Status {
                         if debug {
                             println!("New tunnel state: {:#?}", new_state);
                         } else {
-                            format::print_state(&new_state, false);
+                            format::print_state(&new_state, verbose);
                         }
 
                         use mullvad_management_interface::types::tunnel_state::State::*;
