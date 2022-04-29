@@ -49,10 +49,11 @@ jobs:
 
             - name: Configure Rust
               if: steps.cache-native-libs.outputs.cache-hit != 'true'
-              uses: actions-rs/toolchain@v1
+              uses: actions-rs/toolchain@v1.0.6
               with:
                   toolchain: stable
                   target: x86_64-linux-android
+                  default: true
 
             - name: Configure Go
               if: steps.cache-native-libs.outputs.cache-hit != 'true'

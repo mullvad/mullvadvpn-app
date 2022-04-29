@@ -15,9 +15,10 @@ jobs:
               uses: actions/checkout@v2
 
             - name: Install Rust
-              uses: ATiltedTree/setup-rust@v1.0.4
+              uses: actions-rs/toolchain@v1.0.6
               with:
-                rust-version: stable
+                toolchain: stable
+                default: true
 
             - name: Build and test translations converter tool
               working-directory: android/translations-converter
