@@ -362,7 +362,7 @@ impl AccountManager {
             self.validation_requests.push(tx);
             return;
         }
-        if self.cached_validation() {
+        if !self.needs_validation() {
             let _ = tx.send(Ok(()));
             return;
         }
@@ -668,9 +668,9 @@ impl AccountManager {
         Ok(async move { device_request.await })
     }
 
-    fn cached_validation(&mut self) -> bool {
+    fn needs_validation(&mut self) -> bool {
         if self.data.is_none() {
-            return false;
+            return true;
         }
 
         let now = SystemTime::now();
@@ -681,11 +681,11 @@ impl AccountManager {
             .unwrap_or(VALIDITY_CACHE_TIMEOUT);
 
         if elapsed >= VALIDITY_CACHE_TIMEOUT {
-            self.last_validation = None;
-            return false;
+            self.last_validation = Some(now);
+            return true;
         }
 
-        true
+        false
     }
 
     async fn shutdown(self) {
