@@ -231,6 +231,10 @@ msgid "Login"
 msgstr ""
 
 msgctxt "accessibility"
+msgid "More information"
+msgstr ""
+
+msgctxt "accessibility"
 msgid "Opens externally"
 msgstr ""
 
@@ -1060,6 +1064,34 @@ msgstr ""
 
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Warning: This might cause issues on certain websites, services, and programs."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain known ad domains."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
 msgstr ""
 
 msgctxt "redeem-voucher-alert"
