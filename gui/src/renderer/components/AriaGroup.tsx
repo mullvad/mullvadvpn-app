@@ -29,11 +29,15 @@ export function AriaControlGroup(props: IAriaGroupProps) {
 }
 
 interface IAriaDescriptionContext {
+  describedId: string;
   descriptionId?: string;
   setHasDescription: (value: boolean) => void;
 }
 
 const AriaDescriptionContext = React.createContext<IAriaDescriptionContext>({
+  get describedId(): string {
+    throw new Error('Missing AriaDescriptionContext.Provider');
+  },
   setHasDescription(_value) {
     throw new Error('Missing AriaDescriptionContext.Provider');
   },
@@ -45,6 +49,7 @@ export function AriaDescriptionGroup(props: IAriaGroupProps) {
 
   const contextValue = useMemo(
     () => ({
+      describedId: `${id}-described`,
       descriptionId: hasDescription ? `${id}-description` : undefined,
       setHasDescription,
     }),
@@ -137,9 +142,10 @@ export function AriaLabel(props: IAriaElementProps) {
 }
 
 export function AriaDescribed(props: IAriaElementProps) {
-  const { descriptionId } = useContext(AriaDescriptionContext);
+  const { describedId, descriptionId } = useContext(AriaDescriptionContext);
 
   return React.cloneElement(props.children, {
+    id: describedId,
     'aria-describedby': descriptionId,
   });
 }
@@ -155,4 +161,9 @@ export function AriaDescription(props: IAriaElementProps) {
   return React.cloneElement(props.children, {
     id: descriptionId,
   });
+}
+
+export function AriaDetails(props: IAriaElementProps) {
+  const { describedId } = useContext(AriaDescriptionContext);
+  return React.cloneElement(props.children, { 'aria-details': describedId });
 }
