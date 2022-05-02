@@ -302,12 +302,6 @@ pub struct AccountsProxy {
     handle: rest::MullvadRestHandle,
 }
 
-#[derive(serde::Deserialize)]
-struct AccountResponse {
-    number: AccountToken,
-    expiry: DateTime<Utc>,
-}
-
 impl AccountsProxy {
     pub fn new(handle: rest::MullvadRestHandle) -> Self {
         Self { handle }
@@ -317,6 +311,11 @@ impl AccountsProxy {
         &self,
         account: AccountToken,
     ) -> impl Future<Output = Result<DateTime<Utc>, rest::Error>> {
+        #[derive(serde::Deserialize)]
+        struct AccountExpiryResponse {
+            expiry: DateTime<Utc>,
+        }
+
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
@@ -331,12 +330,17 @@ impl AccountsProxy {
             )
             .await;
 
-            let account: AccountResponse = rest::deserialize_body(response?).await?;
+            let account: AccountExpiryResponse = rest::deserialize_body(response?).await?;
             Ok(account.expiry)
         }
     }
 
     pub fn create_account(&mut self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
+        #[derive(serde::Deserialize)]
+        struct AccountCreationResponse {
+            number: AccountToken,
+        }
+
         let service = self.handle.service.clone();
         let response = rest::send_request(
             &self.handle.factory,
@@ -348,7 +352,7 @@ impl AccountsProxy {
         );
 
         async move {
-            let account: AccountResponse = rest::deserialize_body(response.await?).await?;
+            let account: AccountCreationResponse = rest::deserialize_body(response.await?).await?;
             Ok(account.number)
         }
     }
