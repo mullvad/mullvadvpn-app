@@ -4,12 +4,12 @@ use chrono::{DateTime, Utc};
 use futures::future::{abortable, AbortHandle};
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
-    device::{Device, DeviceData, DeviceId, InnerDevice},
+    device::{Device, DeviceId},
     wireguard::WireguardData,
 };
 use talpid_types::net::wireguard::PrivateKey;
 
-use super::Error;
+use super::{Error, PrivateAccountAndDevice, PrivateDevice};
 use mullvad_api::{
     availability::ApiAvailabilityHandle,
     rest::{self, Error as RestError, MullvadRestHandle},
@@ -42,14 +42,14 @@ impl DeviceService {
     /// Generate a new device for a given token
     pub fn generate_for_account(
         &self,
-        token: AccountToken,
-    ) -> impl Future<Output = Result<DeviceData, Error>> + Send {
+        account_token: AccountToken,
+    ) -> impl Future<Output = Result<PrivateAccountAndDevice, Error>> + Send {
         let private_key = PrivateKey::new_from_random();
         let pubkey = private_key.public_key();
 
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
-        let token_copy = token.clone();
+        let token_copy = account_token.clone();
         async move {
             let (device, addresses) = retry_future_n(
                 move || proxy.create(token_copy.clone(), pubkey.clone()),
@@ -60,28 +60,30 @@ impl DeviceService {
             .await
             .map_err(map_rest_error)?;
 
-            Ok(DeviceData {
-                token,
-                device: InnerDevice::from(device),
-                wg_data: WireguardData {
-                    private_key,
-                    addresses,
-                    created: Utc::now(),
-                },
+            Ok(PrivateAccountAndDevice {
+                account_token,
+                device: PrivateDevice::try_from_device(
+                    device,
+                    WireguardData {
+                        private_key,
+                        addresses,
+                        created: Utc::now(),
+                    },
+                )?,
             })
         }
     }
 
     pub async fn generate_for_account_with_backoff(
         &self,
-        token: AccountToken,
-    ) -> Result<DeviceData, Error> {
+        account_token: AccountToken,
+    ) -> Result<PrivateAccountAndDevice, Error> {
         let private_key = PrivateKey::new_from_random();
         let pubkey = private_key.public_key();
 
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
-        let token_copy = token.clone();
+        let token_copy = account_token.clone();
         let (device, addresses) = retry_future(
             move || api_handle.when_online(proxy.create(token_copy.clone(), pubkey.clone())),
             should_retry_backoff,
@@ -90,14 +92,16 @@ impl DeviceService {
         .await
         .map_err(map_rest_error)?;
 
-        Ok(DeviceData {
-            token,
-            device: InnerDevice::from(device),
-            wg_data: WireguardData {
-                private_key,
-                addresses,
-                created: Utc::now(),
-            },
+        Ok(PrivateAccountAndDevice {
+            account_token,
+            device: PrivateDevice::try_from_device(
+                device,
+                WireguardData {
+                    private_key,
+                    addresses,
+                    created: Utc::now(),
+                },
+            )?,
         })
     }
 

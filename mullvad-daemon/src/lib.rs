@@ -25,7 +25,7 @@ pub mod version;
 mod version_check;
 
 use crate::target_state::PersistentTargetState;
-use device::InnerDeviceEvent;
+use device::{PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Future},
@@ -38,7 +38,7 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    device::{Device, DeviceConfig, DeviceData, DeviceEvent, DeviceId, RemoveDeviceEvent},
+    device::{AccountAndDevice, Device, DeviceEvent, DeviceId, RemoveDeviceEvent},
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
@@ -236,7 +236,7 @@ pub enum DaemonCommand {
     /// Log out of the current account and remove the device, if they exist.
     LogoutAccount(ResponseTx<(), Error>),
     /// Return the current device configuration, if there is one.
-    GetDevice(ResponseTx<Option<DeviceConfig>, Error>),
+    GetDevice(ResponseTx<Option<AccountAndDevice>, Error>),
     /// Update/check the current device, if there is one.
     UpdateDevice(ResponseTx<(), Error>),
     /// Return all the devices for a given account token.
@@ -340,9 +340,9 @@ pub(crate) enum InternalDaemonEvent {
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
-    DeviceEvent(InnerDeviceEvent),
+    DeviceEvent(PrivateDeviceEvent),
     /// Handles updates from versions without devices.
-    DeviceMigrationEvent(Result<DeviceData, device::Error>),
+    DeviceMigrationEvent(Result<PrivateAccountAndDevice, device::Error>),
     /// The split tunnel paths or state were updated.
     #[cfg(target_os = "windows")]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
@@ -372,8 +372,8 @@ impl From<AppVersionInfo> for InternalDaemonEvent {
     }
 }
 
-impl From<InnerDeviceEvent> for InternalDaemonEvent {
-    fn from(event: InnerDeviceEvent) -> Self {
+impl From<PrivateDeviceEvent> for InternalDaemonEvent {
+    fn from(event: PrivateDeviceEvent) -> Self {
         InternalDaemonEvent::DeviceEvent(event)
     }
 }
@@ -665,7 +665,7 @@ where
 
         let account_history = account_history::AccountHistory::new(
             &settings_dir,
-            data.as_ref().map(|device| device.token.clone()),
+            data.as_ref().map(|device| device.account_token.clone()),
         )
         .await
         .map_err(Error::LoadAccountHistory)?;
@@ -1032,7 +1032,7 @@ where
         endpoint: MullvadEndpoint,
         bridge: Option<SelectedBridge>,
         obfuscator: Option<SelectedObfuscator>,
-        device: DeviceData,
+        device: PrivateAccountAndDevice,
     ) -> Result<TunnelParameters, Error> {
         let tunnel_options = self.settings.tunnel_options.clone();
         match endpoint {
@@ -1052,7 +1052,11 @@ where
                 });
 
                 Ok(openvpn::TunnelParameters {
-                    config: openvpn::ConnectionConfig::new(endpoint, device.token, "-".to_string()),
+                    config: openvpn::ConnectionConfig::new(
+                        endpoint,
+                        device.account_token,
+                        "-".to_string(),
+                    ),
                     options: tunnel_options.openvpn,
                     generic_options: tunnel_options.generic,
                     proxy: bridge_settings,
@@ -1065,10 +1069,10 @@ where
             }
             MullvadEndpoint::Wireguard(endpoint) => {
                 let tunnel = wireguard::TunnelConfig {
-                    private_key: device.wg_data.private_key,
+                    private_key: device.device.wg_data.private_key,
                     addresses: vec![
-                        device.wg_data.addresses.ipv4_address.ip().into(),
-                        device.wg_data.addresses.ipv6_address.ip().into(),
+                        device.device.wg_data.addresses.ipv4_address.ip().into(),
+                        device.device.wg_data.addresses.ipv6_address.ip().into(),
                     ],
                 };
 
@@ -1217,10 +1221,10 @@ where
         self.event_listener.notify_app_version(app_version_info);
     }
 
-    async fn handle_device_event(&mut self, event: InnerDeviceEvent) {
+    async fn handle_device_event(&mut self, event: PrivateDeviceEvent) {
         match &event {
-            InnerDeviceEvent::Login(device) => {
-                if let Err(error) = self.account_history.set(device.token.clone()).await {
+            PrivateDeviceEvent::Login(device) => {
+                if let Err(error) = self.account_history.set(device.account_token.clone()).await {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Failed to update account history")
@@ -1231,18 +1235,18 @@ where
                     self.reconnect_tunnel();
                 }
             }
-            InnerDeviceEvent::Logout => {
+            PrivateDeviceEvent::Logout => {
                 log::info!("Disconnecting because account token was cleared");
                 self.set_target_state(TargetState::Unsecured).await;
             }
-            InnerDeviceEvent::Revoked => {
+            PrivateDeviceEvent::Revoked => {
                 // If we're currently in a secured state, reconnect to make sure we immediately
                 // enter the error state.
                 if *self.target_state == TargetState::Secured {
                     self.connect_tunnel();
                 }
             }
-            InnerDeviceEvent::RotatedKey(_) => {
+            PrivateDeviceEvent::RotatedKey(_) => {
                 if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
                     self.schedule_reconnect(WG_RECONNECT_DELAY);
                 }
@@ -1253,7 +1257,10 @@ where
             .notify_device_event(DeviceEvent::from(event));
     }
 
-    async fn handle_device_migration_event(&mut self, result: Result<DeviceData, device::Error>) {
+    async fn handle_device_migration_event(
+        &mut self,
+        result: Result<PrivateAccountAndDevice, device::Error>,
+    ) {
         let account_manager = self.account_manager.clone();
         let event_listener = self.event_listener.clone();
         tokio::spawn(async move {
@@ -1479,7 +1486,7 @@ where
             let future = self
                 .account_manager
                 .account_service
-                .get_www_auth_token(device.token);
+                .get_www_auth_token(device.account_token);
             tokio::spawn(async {
                 Self::oneshot_send(
                     tx,
@@ -1507,7 +1514,7 @@ where
                 Self::oneshot_send(
                     tx,
                     account
-                        .submit_voucher(device.token, voucher)
+                        .submit_voucher(device.account_token, voucher)
                         .await
                         .map_err(Error::RestError),
                     "submit_voucher response",
@@ -1552,7 +1559,7 @@ where
         });
     }
 
-    async fn on_get_device(&mut self, tx: ResponseTx<Option<DeviceConfig>, Error>) {
+    async fn on_get_device(&mut self, tx: ResponseTx<Option<AccountAndDevice>, Error>) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
@@ -1561,7 +1568,7 @@ where
                     .data()
                     .await
                     .unwrap_or(None)
-                    .map(DeviceConfig::from)),
+                    .map(AccountAndDevice::from)),
                 "get_device response",
             );
         });
@@ -2290,8 +2297,8 @@ where
     }
 
     async fn on_get_wireguard_key(&self, tx: ResponseTx<Option<PublicKey>, Error>) {
-        let result = if let Ok(Some(device)) = self.account_manager.data().await {
-            Ok(Some(device.wg_data.get_public_key()))
+        let result = if let Ok(Some(config)) = self.account_manager.data().await {
+            Ok(Some(config.device.wg_data.get_public_key()))
         } else {
             Err(Error::NoAccountToken)
         };

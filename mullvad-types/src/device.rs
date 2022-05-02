@@ -1,4 +1,4 @@
-use crate::{account::AccountToken, wireguard};
+use crate::account::AccountToken;
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
@@ -61,57 +61,20 @@ impl fmt::Display for DevicePort {
     }
 }
 
-/// A complete device configuration.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
-pub struct DeviceData {
-    pub token: AccountToken,
-    pub device: InnerDevice,
-    pub wg_data: wireguard::WireguardData,
-}
-
-impl From<DeviceData> for Device {
-    fn from(data: DeviceData) -> Device {
-        Device {
-            id: data.device.id,
-            name: data.device.name,
-            pubkey: data.wg_data.private_key.public_key(),
-            ports: data.device.ports,
-        }
-    }
-}
-
-/// Device data used by [DeviceData].
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
-pub struct InnerDevice {
-    pub id: DeviceId,
-    pub name: DeviceName,
-    pub ports: Vec<DevicePort>,
-}
-
-impl From<Device> for InnerDevice {
-    fn from(device: Device) -> Self {
-        InnerDevice {
-            id: device.id,
-            name: device.name,
-            ports: device.ports,
-        }
-    }
-}
-
-/// [`DeviceData`] excluding the private key.
+/// A [Device] and its associated account token.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-pub struct DeviceConfig {
-    pub token: AccountToken,
+pub struct AccountAndDevice {
+    pub account_token: AccountToken,
     pub device: Device,
 }
 
-impl From<DeviceData> for DeviceConfig {
-    fn from(data: DeviceData) -> DeviceConfig {
-        DeviceConfig {
-            token: data.token.clone(),
-            device: Device::from(data),
+impl AccountAndDevice {
+    pub fn new(account_token: AccountToken, device: Device) -> Self {
+        Self {
+            account_token,
+            device,
         }
     }
 }
@@ -122,22 +85,19 @@ impl From<DeviceData> for DeviceConfig {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct DeviceEvent {
     /// Device that was affected.
-    pub device: Option<DeviceConfig>,
+    pub device: Option<AccountAndDevice>,
     /// Indicates whether the change was initiated remotely or by the daemon.
     pub remote: bool,
 }
 
 impl DeviceEvent {
-    pub fn new(data: Option<DeviceData>, remote: bool) -> DeviceEvent {
-        DeviceEvent {
-            device: data.map(DeviceConfig::from),
-            remote,
-        }
+    pub fn new(device: Option<AccountAndDevice>, remote: bool) -> DeviceEvent {
+        DeviceEvent { device, remote }
     }
 
-    pub fn from_device(data: DeviceData, remote: bool) -> DeviceEvent {
+    pub fn from_device(device: AccountAndDevice, remote: bool) -> DeviceEvent {
         DeviceEvent {
-            device: Some(DeviceConfig::from(data)),
+            device: Some(device),
             remote,
         }
     }

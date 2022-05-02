@@ -8,14 +8,10 @@
 
 use super::{v5::MigrationData, MigrationComplete};
 use crate::{
-    device::{self, DeviceService},
+    device::{self, DeviceService, PrivateAccountAndDevice, PrivateDevice},
     DaemonEventSender, InternalDaemonEvent,
 };
-use mullvad_types::{
-    account::AccountToken,
-    device::{DeviceData, InnerDevice},
-    wireguard::WireguardData,
-};
+use mullvad_types::{account::AccountToken, wireguard::WireguardData};
 use std::time::Duration;
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
@@ -61,51 +57,56 @@ pub(crate) fn generate_device(
 
 async fn cache_from_wireguard_key(
     service: DeviceService,
-    token: AccountToken,
+    account_token: AccountToken,
     wg_data: WireguardData,
-) -> Result<DeviceData, device::Error> {
-    let devices = timeout(TIMEOUT, service.list_devices_with_backoff(token.clone()))
-        .await
-        .map_err(|_error| {
-            log::error!("Failed to enumerate devices for account: timed out");
-            device::Error::Cancelled
-        })?
-        .map_err(|error| {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to enumerate devices for account")
-            );
-            error
-        })?;
+) -> Result<PrivateAccountAndDevice, device::Error> {
+    let devices = timeout(
+        TIMEOUT,
+        service.list_devices_with_backoff(account_token.clone()),
+    )
+    .await
+    .map_err(|_error| {
+        log::error!("Failed to enumerate devices for account: timed out");
+        device::Error::Cancelled
+    })?
+    .map_err(|error| {
+        log::error!(
+            "{}",
+            error.display_chain_with_msg("Failed to enumerate devices for account")
+        );
+        error
+    })?;
 
     for device in devices.into_iter() {
         if device.pubkey == wg_data.private_key.public_key() {
-            return Ok(DeviceData {
-                token,
-                device: InnerDevice::from(device),
-                wg_data,
+            return Ok(PrivateAccountAndDevice {
+                account_token,
+                device: PrivateDevice::try_from_device(device, wg_data)?,
             });
         }
     }
     log::info!("The existing WireGuard key is not valid; generating a new device");
-    cache_from_account(service, token).await
+    cache_from_account(service, account_token).await
 }
 
 async fn cache_from_account(
     service: DeviceService,
-    token: AccountToken,
-) -> Result<DeviceData, device::Error> {
-    timeout(TIMEOUT, service.generate_for_account_with_backoff(token))
-        .await
-        .map_err(|_error| {
-            log::error!("Failed to generate new device for account: timed out");
-            device::Error::Cancelled
-        })?
-        .map_err(|error| {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to generate new device for account")
-            );
-            error
-        })
+    account_token: AccountToken,
+) -> Result<PrivateAccountAndDevice, device::Error> {
+    timeout(
+        TIMEOUT,
+        service.generate_for_account_with_backoff(account_token),
+    )
+    .await
+    .map_err(|_error| {
+        log::error!("Failed to generate new device for account: timed out");
+        device::Error::Cancelled
+    })?
+    .map_err(|error| {
+        log::error!(
+            "{}",
+            error.display_chain_with_msg("Failed to generate new device for account")
+        );
+        error
+    })
 }
