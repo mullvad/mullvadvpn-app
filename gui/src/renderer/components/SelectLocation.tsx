@@ -28,10 +28,7 @@ import {
   StyledClearProvidersButton,
   StyledContainer,
   StyledContent,
-  StyledFilterByProviderButton,
-  StyledFilterContainer,
   StyledFilterIconButton,
-  StyledFilterMenu,
   StyledNavigationBarAttachment,
   StyledProviderCountRow,
   StyledProvidersCount,
@@ -51,7 +48,7 @@ interface IProps {
   tunnelProtocol: LiftedConstraint<TunnelProtocol>;
   providers: string[];
   onClose: () => void;
-  onViewFilterByProvider: () => void;
+  onViewFilter: () => void;
   onSelectExitLocation: (location: RelayLocation) => void;
   onSelectEntryLocation: (location: RelayLocation) => void;
   onSelectBridgeLocation: (location: RelayLocation) => void;
@@ -65,7 +62,6 @@ enum LocationScope {
 }
 
 interface IState {
-  showFilterMenu: boolean;
   headingHeight: number;
   locationScope: LocationScope;
 }
@@ -76,7 +72,7 @@ interface ISelectLocationSnapshot {
 }
 
 export default class SelectLocation extends React.Component<IProps, IState> {
-  public state = { showFilterMenu: false, headingHeight: 0, locationScope: LocationScope.exit };
+  public state = { headingHeight: 0, locationScope: LocationScope.exit };
 
   private scrollView = React.createRef<CustomScrollbarsRef>();
   private spacePreAllocationViewRef = React.createRef<SpacePreAllocationView>();
@@ -90,7 +86,6 @@ export default class SelectLocation extends React.Component<IProps, IState> {
 
   private snapshotByScope: Partial<Record<LocationScope, ISelectLocationSnapshot>> = {};
 
-  private filterButtonRef = React.createRef<HTMLDivElement>();
   private headerRef = React.createRef<HTMLHeadingElement>();
 
   public componentDidMount() {
@@ -134,7 +129,7 @@ export default class SelectLocation extends React.Component<IProps, IState> {
   public render() {
     return (
       <BackAction icon="close" action={this.props.onClose}>
-        <Layout onClick={this.onClickAnywhere}>
+        <Layout>
           <StyledContainer>
             <NavigationContainer>
               <NavigationBar>
@@ -146,26 +141,17 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                     }
                   </TitleBarItem>
 
-                  <StyledFilterContainer ref={this.filterButtonRef}>
-                    <StyledFilterIconButton
-                      onClick={this.toggleFilterMenu}
-                      aria-label={messages.gettext('Filter')}>
-                      <ImageView
-                        source="icon-filter-round"
-                        tintColor={colors.white40}
-                        tintHoverColor={colors.white60}
-                        height={24}
-                        width={24}
-                      />
-                    </StyledFilterIconButton>
-                    {this.state.showFilterMenu && (
-                      <StyledFilterMenu>
-                        <StyledFilterByProviderButton onClick={this.props.onViewFilterByProvider}>
-                          {messages.pgettext('select-location-view', 'Filter by provider')}
-                        </StyledFilterByProviderButton>
-                      </StyledFilterMenu>
-                    )}
-                  </StyledFilterContainer>
+                  <StyledFilterIconButton
+                    onClick={this.props.onViewFilter}
+                    aria-label={messages.gettext('Filter')}>
+                    <ImageView
+                      source="icon-filter-round"
+                      tintColor={colors.white40}
+                      tintHoverColor={colors.white60}
+                      height={24}
+                      width={24}
+                    />
+                  </StyledFilterIconButton>
                 </NavigationItems>
               </NavigationBar>
               <NavigationScrollbars ref={this.scrollView}>
@@ -412,21 +398,6 @@ export default class SelectLocation extends React.Component<IProps, IState> {
     locationRect.height += expandedContentHeight;
     this.spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
     this.scrollView.current?.scrollIntoView(locationRect);
-  };
-
-  private toggleFilterMenu = () => {
-    this.setState((state) => ({
-      showFilterMenu: !state.showFilterMenu,
-    }));
-  };
-
-  private onClickAnywhere = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (
-      this.state.showFilterMenu &&
-      !this.filterButtonRef.current?.contains(event.target as HTMLElement)
-    ) {
-      this.setState({ showFilterMenu: false });
-    }
   };
 }
 
