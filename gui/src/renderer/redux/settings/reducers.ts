@@ -56,6 +56,7 @@ export interface IRelayLocationRelayRedux {
   ipv4AddrIn: string;
   includeInCountry: boolean;
   active: boolean;
+  owned: boolean;
   weight: number;
 }
 
