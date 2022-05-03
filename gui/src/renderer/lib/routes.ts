@@ -22,7 +22,7 @@ export enum RoutePath {
   splitTunneling = '/settings/advanced/split-tunneling',
   support = '/settings/support',
   selectLocation = '/select-location',
-  filterByProvider = '/select-location/filter-by-provider',
+  filter = '/select-location/filter',
 }
 
 export const disableDismissForRoutes = [

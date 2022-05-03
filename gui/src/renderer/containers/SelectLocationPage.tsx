@@ -76,7 +76,7 @@ const mapStateToProps = (state: IReduxState, props: IHistoryProps & IAppContext)
 const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
     onClose: () => props.history.dismiss(),
-    onViewFilterByProvider: () => props.history.push(RoutePath.filterByProvider),
+    onViewFilterByProvider: () => props.history.push(RoutePath.filter),
     onSelectExitLocation: async (relayLocation: RelayLocation) => {
       // dismiss the view first
       props.history.dismiss();
