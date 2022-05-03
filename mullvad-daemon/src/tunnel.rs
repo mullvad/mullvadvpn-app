@@ -46,6 +46,7 @@ struct InnerParametersGenerator {
 }
 
 struct AuthDetails {
+    #[cfg(not(target_os = "android"))]
     openvpn_user: String,
     wg_data: WireguardData,
 }
@@ -145,6 +146,7 @@ impl ParametersGenerator {
                     Some(self_) => {
                         self_.lock().unwrap().auth_details =
                             event.into_data().map(|data| AuthDetails {
+                                #[cfg(not(target_os = "android"))]
                                 openvpn_user: data.token,
                                 wg_data: data.wg_data,
                             });
@@ -165,6 +167,7 @@ impl ParametersGenerator {
                 Error::NoAuthDetails
             })?
             .map(|data| AuthDetails {
+                #[cfg(not(target_os = "android"))]
                 openvpn_user: data.token,
                 wg_data: data.wg_data,
             });
