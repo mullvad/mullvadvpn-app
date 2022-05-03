@@ -29,42 +29,13 @@ export const StyledNavigationBarAttachment = styled.div({}, (props: { top: numbe
   zIndex: 1,
 }));
 
-export const StyledFilterContainer = styled.div({
-  display: 'flex',
-  position: 'relative',
-  justifySelf: 'end',
-});
-
 export const StyledFilterIconButton = styled.button({
+  justifySelf: 'end',
   borderWidth: 0,
   padding: 0,
   margin: 0,
   cursor: 'default',
   backgroundColor: 'transparent',
-});
-
-export const StyledFilterMenu = styled.div({
-  position: 'absolute',
-  top: 'calc(100% + 4px)',
-  right: '0',
-  borderRadius: '4px',
-  backgroundColor: colors.darkBlue,
-  overflow: 'hidden',
-  zIndex: 2,
-});
-
-export const StyledFilterByProviderButton = styled.button(tinyText, {
-  borderWidth: 0,
-  margin: 0,
-  cursor: 'default',
-  color: colors.white,
-  padding: '7px 15px',
-  whiteSpace: 'nowrap',
-  borderRadius: 0,
-  backgroundColor: colors.blue,
-  ':hover': {
-    backgroundColor: colors.blue80,
-  },
 });
 
 export const StyledSettingsHeader = styled(SettingsHeader)({
