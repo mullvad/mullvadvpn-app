@@ -97,11 +97,20 @@ impl From<InnerDeviceEvent> for DeviceEvent {
 }
 
 impl InnerDeviceEvent {
-    fn data(&self) -> Option<&DeviceData> {
+    pub fn data(&self) -> Option<&DeviceData> {
         match self {
             InnerDeviceEvent::Login(data) => Some(&data),
             InnerDeviceEvent::Updated(data) => Some(&data),
             InnerDeviceEvent::RotatedKey(data) => Some(&data),
+            InnerDeviceEvent::Logout | InnerDeviceEvent::Revoked => None,
+        }
+    }
+
+    pub fn into_data(self) -> Option<DeviceData> {
+        match self {
+            InnerDeviceEvent::Login(data) => Some(data),
+            InnerDeviceEvent::Updated(data) => Some(data),
+            InnerDeviceEvent::RotatedKey(data) => Some(data),
             InnerDeviceEvent::Logout | InnerDeviceEvent::Revoked => None,
         }
     }
