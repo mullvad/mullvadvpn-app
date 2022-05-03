@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginResult
-import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -44,9 +43,6 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize
     data class ListenerReady(val connection: Messenger, val listenerId: Int) : Event()
-
-    @Parcelize
-    data class LoginStatus(val status: LoginStatusData?) : Event()
 
     @Parcelize
     data class LoginEvent(val result: LoginResult) : Event()

@@ -13,7 +13,6 @@ import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
-import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
@@ -38,18 +37,11 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<AccountExpiry>(AccountExpiry.Missing)
     val onAccountHistoryChange = EventNotifier<AccountHistory>(AccountHistory.Missing)
-    val onLoginStatusChange = EventNotifier<LoginStatus?>(null)
-
-    var newlyCreatedAccount = false
-        private set
 
     private val jobTracker = JobTracker()
 
     private var accountExpiry by onAccountExpiryChange.notifiable()
     private var accountHistory by onAccountHistoryChange.notifiable()
-
-    var loginStatus by onLoginStatusChange.notifiable()
-        private set
 
     init {
         jobTracker.newBackgroundJob("autoFetchAccountExpiry") {
@@ -61,10 +53,6 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
         onAccountHistoryChange.subscribe(this) { history ->
             endpoint.sendEvent(Event.AccountHistoryEvent(history))
-        }
-
-        onLoginStatusChange.subscribe(this) { status ->
-            endpoint.sendEvent(Event.LoginStatus(status))
         }
 
         onAccountExpiryChange.subscribe(this) {
@@ -116,7 +104,6 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         onAccountNumberChange.unsubscribeAll()
         onAccountExpiryChange.unsubscribeAll()
         onAccountHistoryChange.unsubscribeAll()
-        onLoginStatusChange.unsubscribeAll()
 
         commandChannel.close()
     }
@@ -165,27 +152,19 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         daemon.await().loginAccount(account).also { result ->
             endpoint.sendEvent(Event.LoginEvent(result))
         }
-
-        synchronized(this) {
-            loginStatus = LoginStatus(account)
-        }
     }
 
     private suspend fun doLogout() {
         daemon.await().logoutAccount()
-        loginStatus = null
         accountHistory = fetchAccountHistory()
     }
 
-    // TODO: Refactor in later commit.
-    private fun fetchAccountHistory() {
-        jobTracker.newBackgroundJob("fetchHistory") {
-            daemon.await().getAccountHistory().let { history ->
-                accountHistory = if (history != null) {
-                    AccountHistory.Available(history)
-                } else {
-                    AccountHistory.Missing
-                }
+    private suspend fun fetchAccountHistory(): AccountHistory {
+        return daemon.await().getAccountHistory().let { history ->
+            if (history != null) {
+                AccountHistory.Available(history)
+            } else {
+                AccountHistory.Missing
             }
         }
     }

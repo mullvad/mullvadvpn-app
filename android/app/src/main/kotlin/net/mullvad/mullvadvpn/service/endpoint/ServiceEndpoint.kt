@@ -134,7 +134,6 @@ class ServiceEndpoint(
 
             val initialEvents = mutableListOf(
                 Event.TunnelStateChange(connectionProxy.state),
-                Event.LoginStatus(accountCache.onLoginStatusChange.latestEvent),
                 Event.AccountHistoryEvent(accountCache.onAccountHistoryChange.latestEvent),
                 Event.SettingsUpdate(settingsListener.settings),
                 Event.NewLocation(locationInfoCache.location),

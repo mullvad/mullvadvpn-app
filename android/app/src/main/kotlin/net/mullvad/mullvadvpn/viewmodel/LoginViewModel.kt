@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import android.app.Application
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -45,8 +44,6 @@ class LoginViewModel(
     // Ensures the view model has an up-to-date instance of account cache. This is an intermediate
     // solution due to limitations in the current app architecture.
     fun updateAccountCacheInstance(newAccountCache: AccountCache?) {
-        accountCache?.onLoginStatusChange?.unsubscribe(this)
-
         accountCache = newAccountCache?.apply {
             viewModelScope.launch {
                 accountHistoryEvents.collect {
@@ -84,11 +81,6 @@ class LoginViewModel(
 
             login(accountToken)
         }
-    }
-
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public override fun onCleared() {
-        accountCache?.onLoginStatusChange?.unsubscribe(this)
     }
 
     private fun AccountCreationResult.mapToUiState(): LoginUiState {
