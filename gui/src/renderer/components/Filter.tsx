@@ -1,12 +1,15 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
-import { useSelector } from '../redux/store';
+import { useBoolean } from '../lib/utilityHooks';
+import { IReduxState, useSelector } from '../redux/store';
+import Accordion from './Accordion';
 import * as AppButton from './AppButton';
+import * as Cell from './cell';
 import { normalText } from './common-styles';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
@@ -34,77 +37,24 @@ const StyledFooter = styled.div({
   padding: '18px 22px 22px',
 });
 
-enum Selection {
-  all,
-  some,
-  none,
-}
-
-export default function FilterByProvider() {
+export default function Filter() {
   const history = useHistory();
   const { updateRelaySettings } = useAppContext();
 
-  const serverList = useSelector((state) =>
-    state.settings.relayLocations.concat(
-      state.settings.bridgeState === 'on' ? state.settings.bridgeLocations : [],
-    ),
-  );
-  const providerConstraint = useSelector((state) => {
-    if ('normal' in state.settings.relaySettings) {
-      return state.settings.relaySettings.normal.providers;
-    } else {
-      return [];
-    }
-  });
-
-  const [providers, setProviders] = useState(() => {
-    const providers = serverList.flatMap((country) =>
-      country.cities.flatMap((city) => city.relays.map((relay) => relay.provider)),
-    );
-    const uniqueProviders = removeDuplicates(providers).sort((a, b) => a.localeCompare(b));
-
-    return Object.fromEntries(
-      uniqueProviders.map((provider) => [
-        provider,
-        providerConstraint.length === 0 || providerConstraint.includes(provider),
-      ]),
-    );
-  });
-
-  const selectionStatus = useMemo(() => {
-    if (Object.values(providers).every((value) => value)) {
-      return Selection.all;
-    } else if (Object.values(providers).every((value) => !value)) {
-      return Selection.none;
-    } else {
-      return Selection.some;
-    }
-  }, [providers]);
-
-  const onCheck = useCallback((provider: string) => {
-    setProviders((providers) => ({ ...providers, [provider]: !providers[provider] }));
-  }, []);
-
-  const toggleAll = useCallback(() => {
-    setProviders((providers) =>
-      Object.fromEntries(
-        Object.keys(providers).map((provider) => [provider, selectionStatus !== Selection.all]),
-      ),
-    );
-  }, [selectionStatus]);
+  const initialProviders = useSelector(providersSelector);
+  const [providers, setProviders] = useState<Record<string, boolean>>(initialProviders);
 
   const onApply = useCallback(async () => {
-    const selectedProviders =
-      selectionStatus === Selection.all
-        ? []
-        : Object.entries(providers)
-            .filter(([, selected]) => selected)
-            .map(([provider]) => provider);
-
+    // If all providers are selected it's represented as an empty array.
+    const selectedProviders = Object.values(providers).every((provider) => provider)
+      ? []
+      : Object.entries(providers)
+          .filter(([, selected]) => selected)
+          .map(([name]) => name);
     await updateRelaySettings({ normal: { providers: selectedProviders } });
 
     history.pop();
-  }, [providers, history, updateRelaySettings, selectionStatus]);
+  }, [providers, history, updateRelaySettings]);
 
   return (
     <BackAction action={history.pop}>
@@ -116,30 +66,18 @@ export default function FilterByProvider() {
                 <TitleBarItem>
                   {
                     // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('filter-nav', 'Filter by provider')
+                    messages.pgettext('filter-nav', 'Filter')
                   }
                 </TitleBarItem>
               </NavigationItems>
             </NavigationBar>
             <StyledNavigationScrollbars>
-              <ProviderRow
-                provider={messages.pgettext('filter-view', 'All providers')}
-                bold
-                checked={selectionStatus === Selection.all}
-                onCheck={toggleAll}
-              />
-              {Object.entries(providers).map(([provider, checked]) => (
-                <ProviderRow
-                  key={provider}
-                  provider={provider}
-                  checked={checked}
-                  onCheck={onCheck}
-                />
-              ))}
+              <FilterByProvider providers={providers} setProviders={setProviders} />
+              <FilterByOwnership />
             </StyledNavigationScrollbars>
             <StyledFooter>
               <AppButton.GreenButton
-                disabled={selectionStatus === Selection.none}
+                disabled={Object.values(providers).every((provider) => !provider)}
                 onClick={onApply}>
                 {messages.gettext('Apply')}
               </AppButton.GreenButton>
@@ -148,6 +86,77 @@ export default function FilterByProvider() {
         </StyledContainer>
       </Layout>
     </BackAction>
+  );
+}
+
+function providersSelector(state: IReduxState): Record<string, boolean> {
+  const providerConstraint =
+    'normal' in state.settings.relaySettings ? state.settings.relaySettings.normal.providers : [];
+
+  const relays = state.settings.relayLocations.concat(
+    state.settings.bridgeState === 'on' ? state.settings.bridgeLocations : [],
+  );
+  const providers = relays.flatMap((country) =>
+    country.cities.flatMap((city) => city.relays.map((relay) => relay.provider)),
+  );
+  const uniqueProviders = removeDuplicates(providers).sort((a, b) => a.localeCompare(b));
+
+  // Empty containt array means that all providers are selected. No selection isn't possible.
+  return Object.fromEntries(
+    uniqueProviders.map((provider) => [
+      provider,
+      providerConstraint.length === 0 || providerConstraint.includes(provider),
+    ]),
+  );
+}
+
+function FilterByOwnership() {
+  return null;
+}
+
+interface IFilterByProviderProps {
+  providers: Record<string, boolean>;
+  setProviders: (providers: (previous: Record<string, boolean>) => Record<string, boolean>) => void;
+}
+
+function FilterByProvider(props: IFilterByProviderProps) {
+  const [expanded, , , toggleExpanded] = useBoolean(false);
+
+  const onToggle = useCallback(
+    (provider: string) =>
+      props.setProviders((providers) => ({ ...providers, [provider]: !providers[provider] })),
+    [props.setProviders],
+  );
+
+  const toggleAll = useCallback(() => {
+    props.setProviders((providers) => {
+      const shouldSelect = !Object.values(providers).every((value) => value);
+      return Object.fromEntries(Object.keys(providers).map((provider) => [provider, shouldSelect]));
+    });
+  }, []);
+
+  return (
+    <>
+      <Cell.CellButton onClick={toggleExpanded}>
+        <Cell.Label>{messages.pgettext('filter-view', 'Providers')}</Cell.Label>
+        <ImageView
+          tintColor={colors.white80}
+          source={expanded ? 'icon-chevron-up' : 'icon-chevron-down'}
+          height={24}
+        />
+      </Cell.CellButton>
+      <Accordion expanded={expanded}>
+        <CheckboxRow
+          label={messages.pgettext('filter-view', 'All providers')}
+          bold
+          checked={Object.values(props.providers).every((value) => value)}
+          onChange={toggleAll}
+        />
+        {Object.entries(props.providers).map(([provider, checked]) => (
+          <CheckboxRow key={provider} label={provider} checked={checked} onChange={onToggle} />
+        ))}
+      </Accordion>
+    </>
   );
 }
 
@@ -180,22 +189,22 @@ const StyledRowTitle = styled.label(normalText, (props: IStyledRowTitleProps) =>
   marginLeft: '22px',
 }));
 
-interface IProviderRowProps extends IStyledRowTitleProps {
-  provider: string;
+interface ICheckboxRowProps extends IStyledRowTitleProps {
+  label: string;
   checked: boolean;
-  onCheck: (provider: string) => void;
+  onChange: (provider: string) => void;
 }
 
-function ProviderRow(props: IProviderRowProps) {
-  const onCheck = useCallback(() => props.onCheck(props.provider), [props.onCheck, props.provider]);
+function CheckboxRow(props: ICheckboxRowProps) {
+  const onToggle = useCallback(() => props.onChange(props.label), [props.onChange, props.label]);
 
   return (
-    <StyledRow onClick={onCheck}>
-      <StyledCheckbox role="checkbox" aria-label={props.provider} aria-checked={props.checked}>
+    <StyledRow onClick={onToggle}>
+      <StyledCheckbox role="checkbox" aria-label={props.label} aria-checked={props.checked}>
         {props.checked && <ImageView source="icon-tick" width={18} tintColor={colors.green} />}
       </StyledCheckbox>
       <StyledRowTitle aria-hidden bold={props.bold}>
-        {props.provider}
+        {props.label}
       </StyledRowTitle>
     </StyledRow>
   );
