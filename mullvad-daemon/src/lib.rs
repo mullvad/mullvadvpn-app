@@ -21,6 +21,7 @@ pub mod rpc_uniqueness_check;
 pub mod runtime;
 pub mod settings;
 mod target_state;
+mod tunnel;
 pub mod version;
 mod version_check;
 
@@ -34,15 +35,14 @@ use futures::{
 use mullvad_api::availability::ApiAvailabilityHandle;
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
-    RelaySelector, SelectedBridge, SelectedObfuscator, SelectedRelay, SelectorConfig,
+    RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     device::{AccountAndDevice, Device, DeviceEvent, DeviceId, RemoveDeviceEvent},
-    endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
-    relay_list::{Relay, RelayList},
+    relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
@@ -60,22 +60,20 @@ use std::{
     mem,
     path::PathBuf,
     pin::Pin,
-    sync::{mpsc as sync_mpsc, Arc, Weak},
+    sync::{Arc, Weak},
     time::Duration,
 };
 #[cfg(any(target_os = "linux", windows))]
 use talpid_core::split_tunnel;
 use talpid_core::{
     mpsc::Sender,
-    tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
+    tunnel_state_machine::{self, TunnelCommand},
 };
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
-#[cfg(not(target_os = "android"))]
-use talpid_types::net::openvpn;
 use talpid_types::{
-    net::{wireguard, TunnelEndpoint, TunnelParameters, TunnelType},
-    tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
+    net::{TunnelEndpoint, TunnelType},
+    tunnel::{ErrorStateCause, TunnelStateTransition},
     ErrorExt,
 };
 #[cfg(not(target_os = "android"))]
@@ -139,15 +137,6 @@ pub enum Error {
 
     #[error(display = "An account is already set")]
     AlreadyLoggedIn,
-
-    #[error(display = "No wireguard private key available")]
-    NoKeyAvailable,
-
-    #[error(display = "No bridge available")]
-    NoBridgeAvailable,
-
-    #[error(display = "No matching entry relay was found")]
-    NoEntryRelayAvailable,
 
     #[error(display = "No account token is set")]
     NoAccountToken,
@@ -328,11 +317,6 @@ pub enum DaemonCommand {
 pub(crate) enum InternalDaemonEvent {
     /// Tunnel has changed state.
     TunnelStateTransition(TunnelStateTransition),
-    /// Request from the `MullvadTunnelParametersGenerator` to obtain a new relay.
-    GenerateTunnelParameters(
-        sync_mpsc::Sender<Result<TunnelParameters, ParameterGenerationError>>,
-        u32,
-    ),
     /// A command sent to the daemon.
     Command(DaemonCommand),
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
@@ -567,7 +551,7 @@ pub struct Daemon<L: EventListener> {
     version_updater_handle: version_check::VersionUpdaterHandle,
     relay_selector: RelaySelector,
     relay_list_updater: RelayListUpdaterHandle,
-    last_generated_relays: Option<LastSelectedRelays>,
+    parameters_generator: tunnel::ParametersGenerator,
     app_version_info: Option<AppVersionInfo>,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
     tunnel_state_machine_handle: tunnel_state_machine::JoinHandle,
@@ -691,9 +675,11 @@ where
 
         let initial_api_endpoint =
             api::get_allowed_endpoint(api_runtime.address_cache.get_address().await);
-        let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
-            tx: internal_event_tx.clone(),
-        };
+        let parameters_generator = tunnel::ParametersGenerator::new(
+            account_manager.clone(),
+            relay_selector.clone(),
+            settings.tunnel_options.clone(),
+        );
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
@@ -707,7 +693,7 @@ where
                 #[cfg(windows)]
                 exclude_paths,
             },
-            tunnel_parameters_generator,
+            parameters_generator.clone(),
             log_dir,
             resource_dir.clone(),
             internal_event_tx.to_specialized_sender(),
@@ -773,7 +759,7 @@ where
             version_updater_handle,
             relay_selector,
             relay_list_updater,
-            last_generated_relays: None,
+            parameters_generator,
             app_version_info,
             shutdown_tasks: vec![],
             tunnel_state_machine_handle,
@@ -868,10 +854,6 @@ where
             TunnelStateTransition(transition) => {
                 self.handle_tunnel_state_transition(transition).await
             }
-            GenerateTunnelParameters(tunnel_parameters_tx, retry_attempt) => {
-                self.handle_generate_tunnel_parameters(&tunnel_parameters_tx, retry_attempt)
-                    .await
-            }
             Command(command) => self.handle_command(command).await,
             TriggerShutdown => self.trigger_shutdown_event(),
             NewAppVersionInfo(app_version_info) => {
@@ -897,11 +879,11 @@ where
             TunnelStateTransition::Disconnected => TunnelState::Disconnected,
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
                 endpoint,
-                location: self.build_location_from_relay(),
+                location: self.parameters_generator.get_last_location(),
             },
             TunnelStateTransition::Connected(endpoint) => TunnelState::Connected {
                 endpoint,
-                location: self.build_location_from_relay(),
+                location: self.parameters_generator.get_last_location(),
             },
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
@@ -964,144 +946,6 @@ where
             }
             _ => (),
         };
-    }
-
-    async fn handle_generate_tunnel_parameters(
-        &mut self,
-        tunnel_parameters_tx: &sync_mpsc::Sender<
-            Result<TunnelParameters, ParameterGenerationError>,
-        >,
-        retry_attempt: u32,
-    ) {
-        let data = match self.account_manager.data().await {
-            Ok(Some(data)) => data,
-            _ => {
-                log::error!("No account token configured");
-                return;
-            }
-        };
-
-        let result = match self.relay_selector.get_relay(retry_attempt) {
-            Ok((SelectedRelay::Custom(custom_relay), _bridge, _obfsucator)) => {
-                custom_relay
-                    // TODO(emilsp): generate proxy settings for custom tunnels
-                    .to_tunnel_parameters(self.settings.tunnel_options.clone(), None)
-                    .map_err(|e| {
-                        log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
-                        ParameterGenerationError::CustomTunnelHostResultionError
-                    })
-            }
-            Ok((SelectedRelay::Normal(constraints), bridge, obfuscator)) => {
-                let result = self
-                    .create_tunnel_parameters(
-                        &constraints.exit_relay,
-                        &constraints.entry_relay,
-                        constraints.endpoint,
-                        bridge,
-                        obfuscator,
-                        data,
-                    )
-                    .await;
-                result.map_err(|error| match error {
-                    Error::NoKeyAvailable => ParameterGenerationError::NoWireguardKey,
-                    Error::NoBridgeAvailable => ParameterGenerationError::NoMatchingBridgeRelay,
-                    error => {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg("Failed to generate tunnel parameters")
-                        );
-                        ParameterGenerationError::NoMatchingRelay
-                    }
-                })
-            }
-            Err(mullvad_relay_selector::Error::NoBridge) => {
-                Err(ParameterGenerationError::NoMatchingBridgeRelay)
-            }
-            Err(_error) => Err(ParameterGenerationError::NoMatchingRelay),
-        };
-        if tunnel_parameters_tx.send(result).is_err() {
-            log::error!("Failed to send tunnel parameters");
-        }
-    }
-
-    #[cfg_attr(target_os = "android", allow(unused_variables))]
-    async fn create_tunnel_parameters(
-        &mut self,
-        relay: &Relay,
-        entry_relay: &Option<Relay>,
-        endpoint: MullvadEndpoint,
-        bridge: Option<SelectedBridge>,
-        obfuscator: Option<SelectedObfuscator>,
-        device: PrivateAccountAndDevice,
-    ) -> Result<TunnelParameters, Error> {
-        let tunnel_options = self.settings.tunnel_options.clone();
-        match endpoint {
-            #[cfg(not(target_os = "android"))]
-            MullvadEndpoint::OpenVpn(endpoint) => {
-                let (bridge_settings, bridge_relay) = match bridge {
-                    Some(SelectedBridge::Normal(bridge)) => {
-                        (Some(bridge.settings), Some(bridge.relay))
-                    }
-                    Some(SelectedBridge::Custom(settings)) => (Some(settings), None),
-                    None => (None, None),
-                };
-
-                self.last_generated_relays = Some(LastSelectedRelays::OpenVpn {
-                    relay: relay.clone(),
-                    bridge: bridge_relay,
-                });
-
-                Ok(openvpn::TunnelParameters {
-                    config: openvpn::ConnectionConfig::new(
-                        endpoint,
-                        device.account_token,
-                        "-".to_string(),
-                    ),
-                    options: tunnel_options.openvpn,
-                    generic_options: tunnel_options.generic,
-                    proxy: bridge_settings,
-                }
-                .into())
-            }
-            #[cfg(target_os = "android")]
-            MullvadEndpoint::OpenVpn(endpoint) => {
-                unreachable!("OpenVPN is not supported on Android");
-            }
-            MullvadEndpoint::Wireguard(endpoint) => {
-                let tunnel = wireguard::TunnelConfig {
-                    private_key: device.device.wg_data.private_key,
-                    addresses: vec![
-                        device.device.wg_data.addresses.ipv4_address.ip().into(),
-                        device.device.wg_data.addresses.ipv6_address.ip().into(),
-                    ],
-                };
-
-                let (obfuscator_relay, obfuscator_config) = match obfuscator {
-                    Some(obfuscator) => (Some(obfuscator.relay), Some(obfuscator.config)),
-                    None => (None, None),
-                };
-
-                self.last_generated_relays = Some(LastSelectedRelays::WireGuard {
-                    wg_entry: entry_relay.clone(),
-                    wg_exit: relay.clone(),
-                    obfuscator: obfuscator_relay,
-                });
-
-                Ok(wireguard::TunnelParameters {
-                    connection: wireguard::ConnectionConfig {
-                        tunnel,
-                        peer: endpoint.peer,
-                        exit_peer: endpoint.exit_peer,
-                        ipv4_gateway: endpoint.ipv4_gateway,
-                        ipv6_gateway: Some(endpoint.ipv6_gateway),
-                    },
-                    options: tunnel_options.wireguard.options,
-                    generic_options: tunnel_options.generic,
-                    obfuscation: obfuscator_config,
-                }
-                .into())
-            }
-        }
     }
 
     fn schedule_reconnect(&mut self, delay: Duration) {
@@ -1353,9 +1197,11 @@ where
             Connecting { location, .. } => {
                 Self::oneshot_send(tx, location.clone(), "current location")
             }
-            Disconnecting(..) => {
-                Self::oneshot_send(tx, self.build_location_from_relay(), "current location")
-            }
+            Disconnecting(..) => Self::oneshot_send(
+                tx,
+                self.parameters_generator.get_last_location(),
+                "current location",
+            ),
             Connected { location, .. } => {
                 let relay_location = location.clone();
                 let location_future = self.get_geo_location().await;
@@ -1388,53 +1234,6 @@ where
                     log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
                 })
         }
-    }
-
-    fn build_location_from_relay(&self) -> Option<GeoIpLocation> {
-        let relays = self.last_generated_relays.as_ref()?;
-        let hostname;
-        let bridge_hostname;
-        let entry_hostname;
-        let obfuscator_hostname;
-        let location;
-        let take_hostname =
-            |relay: &Option<Relay>| relay.as_ref().map(|relay| relay.hostname.clone());
-
-        match relays {
-            LastSelectedRelays::WireGuard {
-                wg_entry: entry,
-                wg_exit: exit,
-                obfuscator,
-            } => {
-                entry_hostname = take_hostname(entry);
-                hostname = exit.hostname.clone();
-                obfuscator_hostname = take_hostname(obfuscator);
-                bridge_hostname = None;
-                location = exit.location.as_ref().cloned().unwrap();
-            }
-            #[cfg(not(target_os = "android"))]
-            LastSelectedRelays::OpenVpn { relay, bridge } => {
-                hostname = relay.hostname.clone();
-                bridge_hostname = take_hostname(bridge);
-                entry_hostname = None;
-                obfuscator_hostname = None;
-                location = relay.location.as_ref().cloned().unwrap();
-            }
-        };
-
-        Some(GeoIpLocation {
-            ipv4: None,
-            ipv6: None,
-            country: location.country,
-            city: Some(location.city),
-            latitude: location.latitude,
-            longitude: location.longitude,
-            mullvad_exit_ip: true,
-            hostname: Some(hostname),
-            bridge_hostname,
-            entry_hostname,
-            obfuscator_hostname,
-        })
     }
 
     async fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
@@ -1930,6 +1729,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "use_wireguard_nt response");
                 if settings_changed {
+                    self.parameters_generator
+                        .set_tunnel_options(&self.settings.tunnel_options);
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
@@ -2079,6 +1880,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response");
                 if settings_changed {
+                    self.parameters_generator
+                        .set_tunnel_options(&self.settings.tunnel_options);
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     if let Some(TunnelType::OpenVpn) = self.get_connected_tunnel_type() {
@@ -2186,6 +1989,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_enable_ipv6 response");
                 if settings_changed {
+                    self.parameters_generator
+                        .set_tunnel_options(&self.settings.tunnel_options);
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     log::info!("Initiating tunnel restart because the enable IPv6 setting changed");
@@ -2212,6 +2017,8 @@ where
                     let settings = self.settings.to_settings();
                     let resolvers =
                         dns::addresses_from_options(&settings.tunnel_options.dns_options);
+                    self.parameters_generator
+                        .set_tunnel_options(&settings.tunnel_options);
                     self.event_listener.notify_settings(settings);
                     self.send_tunnel_command(TunnelCommand::Dns(resolvers));
                 }
@@ -2233,6 +2040,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_mtu response");
                 if settings_changed {
+                    self.parameters_generator
+                        .set_tunnel_options(&self.settings.tunnel_options);
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
@@ -2273,6 +2082,8 @@ where
                             error.display_chain_with_msg("Failed to update rotation interval")
                         );
                     }
+                    self.parameters_generator
+                        .set_tunnel_options(&self.settings.tunnel_options);
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                 }
@@ -2507,57 +2318,6 @@ impl DaemonShutdownHandle {
     pub fn shutdown(&self) {
         let _ = self.tx.send(InternalDaemonEvent::TriggerShutdown);
     }
-}
-
-struct MullvadTunnelParametersGenerator {
-    tx: DaemonEventSender,
-}
-
-impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
-    fn generate(
-        &mut self,
-        retry_attempt: u32,
-    ) -> Result<TunnelParameters, ParameterGenerationError> {
-        let (response_tx, response_rx) = sync_mpsc::channel();
-        if self
-            .tx
-            .send(InternalDaemonEvent::GenerateTunnelParameters(
-                response_tx,
-                retry_attempt,
-            ))
-            .is_err()
-        {
-            log::error!("Failed to send daemon command to generate tunnel parameters!");
-            return Err(ParameterGenerationError::NoMatchingRelay);
-        }
-
-        match response_rx.recv() {
-            Ok(result) => result,
-            Err(_) => {
-                log::error!("Failed to receive tunnel parameter generation result!");
-                Err(ParameterGenerationError::NoMatchingRelay)
-            }
-        }
-    }
-}
-
-/// Contains all relays that were selected last time when tunnel parameters were generated.
-enum LastSelectedRelays {
-    /// Represents all relays generated for a WireGuard tunnel.
-    /// The traffic flow can look like this:
-    ///     client -> obfuscator -> entry -> exit -> internet
-    /// But for most users, it will look like this:
-    ///     client -> entry -> internet
-    WireGuard {
-        wg_entry: Option<Relay>,
-        wg_exit: Relay,
-        obfuscator: Option<Relay>,
-    },
-    /// Represents all relays generated for an OpenVPN tunnel.
-    /// The traffic flows like this:
-    ///     client -> bridge -> relay -> internet
-    #[cfg(not(target_os = "android"))]
-    OpenVpn { relay: Relay, bridge: Option<Relay> },
 }
 
 fn new_selector_config(settings: &Settings) -> SelectorConfig {
