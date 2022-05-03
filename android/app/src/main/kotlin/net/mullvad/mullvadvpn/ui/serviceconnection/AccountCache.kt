@@ -74,6 +74,10 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
         connection.send(Request.FetchAccountExpiry.message)
     }
 
+    fun fetchAccountHistory() {
+        connection.send(Request.FetchAccountHistory.message)
+    }
+
     fun invalidateAccountExpiry(accountExpiryToInvalidate: DateTime) {
         val request = Request.InvalidateAccountExpiry(accountExpiryToInvalidate)
 

@@ -30,6 +30,9 @@ sealed class Request : Message.RequestMessage() {
     object FetchAccountExpiry : Request()
 
     @Parcelize
+    object FetchAccountHistory : Request()
+
+    @Parcelize
     object FetchAuthToken : Request()
 
     @Parcelize

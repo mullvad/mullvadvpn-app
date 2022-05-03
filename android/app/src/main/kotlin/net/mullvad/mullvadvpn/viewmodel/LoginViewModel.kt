@@ -53,6 +53,8 @@ class LoginViewModel(
                     _accountHistory.value = it
                 }
             }
+
+            fetchAccountHistory()
         }
     }
 
