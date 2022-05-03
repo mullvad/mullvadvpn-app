@@ -488,16 +488,16 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "出错了。请发送电子邮件到 %(email)s，与我们联系"
 
 #. Title label in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Filter by provider"
 msgstr "按提供商筛选"
 
 #. Back button in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Select location"
 msgstr "选择位置"
 
-msgctxt "filter-by-provider-view"
+msgctxt "filter-view"
 msgid "All providers"
 msgstr "所有提供商"
 

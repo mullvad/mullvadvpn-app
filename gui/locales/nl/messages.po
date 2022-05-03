@@ -499,16 +499,16 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Er is iets misgelopen. Neem contact met ons op via %(email)s"
 
 #. Title label in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Filter by provider"
 msgstr "Filteren op provider"
 
 #. Back button in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Select location"
 msgstr "Locatie selecteren"
 
-msgctxt "filter-by-provider-view"
+msgctxt "filter-view"
 msgid "All providers"
 msgstr "Alle providers"
 

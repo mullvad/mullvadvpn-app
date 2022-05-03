@@ -499,16 +499,16 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Jokin meni vikaan. Ota meihin yhteyttä osoitteeseen %(email)s"
 
 #. Title label in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Filter by provider"
 msgstr "Suodata palveluntarjoajan mukaan"
 
 #. Back button in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Select location"
 msgstr "Valitse sijainti"
 
-msgctxt "filter-by-provider-view"
+msgctxt "filter-view"
 msgid "All providers"
 msgstr "Kaikki palveluntarjoajat"
 

@@ -488,16 +488,16 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "문제가 발생했습니다. %(email)s(으)로 연락주세요."
 
 #. Title label in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Filter by provider"
 msgstr "제공업체별 필터링"
 
 #. Back button in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Select location"
 msgstr "위치 선택"
 
-msgctxt "filter-by-provider-view"
+msgctxt "filter-view"
 msgid "All providers"
 msgstr "모든 제공업체"
 

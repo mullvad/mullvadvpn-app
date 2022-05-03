@@ -499,16 +499,16 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Noget gik galt. Kontakt os på %(email)s"
 
 #. Title label in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Filter by provider"
 msgstr "Filtrer efter udbyder"
 
 #. Back button in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Select location"
 msgstr "Vælg placering"
 
-msgctxt "filter-by-provider-view"
+msgctxt "filter-view"
 msgid "All providers"
 msgstr "Alle udbydere"
 

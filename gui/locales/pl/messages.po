@@ -521,16 +521,16 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Coś poszło nie tak. Skontaktuj się z nami pod adresem %(email)s"
 
 #. Title label in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Filter by provider"
 msgstr "Filtruj wg dostawcy"
 
 #. Back button in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Select location"
 msgstr "Wybierz lokalizację"
 
-msgctxt "filter-by-provider-view"
+msgctxt "filter-view"
 msgid "All providers"
 msgstr "Wszyscy dostawcy"
 
