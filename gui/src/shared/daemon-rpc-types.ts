@@ -248,6 +248,7 @@ export interface IRelayListHostname {
   includeInCountry: boolean;
   active: boolean;
   weight: number;
+  owned: boolean;
   tunnels?: IRelayTunnels;
   bridges?: IRelayBridges;
 }
