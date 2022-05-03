@@ -84,9 +84,10 @@ class LoginViewModel(
     }
 
     private fun AccountCreationResult.mapToUiState(): LoginUiState {
-        return when (this) {
-            is AccountCreationResult.Success -> LoginUiState.AccountCreated
-            AccountCreationResult.Failure -> LoginUiState.UnableToCreateAccountError
+        return if (this is AccountCreationResult.Success) {
+            LoginUiState.AccountCreated
+        } else {
+            LoginUiState.UnableToCreateAccountError
         }
     }
 
