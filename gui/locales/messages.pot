@@ -585,11 +585,11 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr ""
 
 #. Title label in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Filter by provider"
 msgstr ""
 
-msgctxt "filter-by-provider-view"
+msgctxt "filter-view"
 msgid "All providers"
 msgstr ""
 

@@ -116,14 +116,14 @@ export default function FilterByProvider() {
                 <TitleBarItem>
                   {
                     // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('filter-by-provider-nav', 'Filter by provider')
+                    messages.pgettext('filter-nav', 'Filter by provider')
                   }
                 </TitleBarItem>
               </NavigationItems>
             </NavigationBar>
             <StyledNavigationScrollbars>
               <ProviderRow
-                provider={messages.pgettext('filter-by-provider-view', 'All providers')}
+                provider={messages.pgettext('filter-view', 'All providers')}
                 bold
                 checked={selectionStatus === Selection.all}
                 onCheck={toggleAll}

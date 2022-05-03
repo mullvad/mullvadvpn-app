@@ -488,16 +488,16 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "တစ်စုံတစ်ခု မှားနေပါသည်။ %(email)s မှတစ်ဆင့် ကျွန်ုပ်တို့ထံ ဆက်သွယ်ပေးပါ"
 
 #. Title label in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Filter by provider"
 msgstr "ပံ့ပိုးသူအလိုက် စစ်ထုတ်ရန်"
 
 #. Back button in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Select location"
 msgstr "တည်နေရာ ရွေးရန်"
 
-msgctxt "filter-by-provider-view"
+msgctxt "filter-view"
 msgid "All providers"
 msgstr "ပံ့ပိုးသူအားလုံး"
 
