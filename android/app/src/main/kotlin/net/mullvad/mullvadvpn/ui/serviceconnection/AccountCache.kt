@@ -12,14 +12,9 @@ import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
-import net.mullvad.mullvadvpn.model.LoginStatus
-import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 
 class AccountCache(private val connection: Messenger, eventDispatcher: EventDispatcher) {
-    val onLoginStatusChange = EventNotifier<LoginStatus?>(null)
-
-    private var loginStatus by onLoginStatusChange.notifiable()
 
     private val _accountCreationEvents = MutableSharedFlow<AccountCreationResult>(
         extraBufferCapacity = 1,
@@ -44,24 +39,20 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
 
     init {
         eventDispatcher.apply {
-            registerHandler(Event.AccountHistoryEvent::class) { event ->
-                _accountHistoryEvents.tryEmit(event.history)
-            }
-
-            registerHandler(Event.LoginStatus::class) { event ->
-                loginStatus = event.status
-            }
-
             registerHandler(Event.AccountCreationEvent::class) { event ->
                 _accountCreationEvents.tryEmit(event.result)
             }
 
-            registerHandler(Event.LoginEvent::class) { event ->
-                _loginEvents.tryEmit(event)
-            }
-
             registerHandler(Event.AccountExpiryEvent::class) { event ->
                 _accountExpiryState.tryEmit(event.expiry)
+            }
+
+            registerHandler(Event.AccountHistoryEvent::class) { event ->
+                _accountHistoryEvents.tryEmit(event.history)
+            }
+
+            registerHandler(Event.LoginEvent::class) { event ->
+                _loginEvents.tryEmit(event)
             }
         }
     }
@@ -94,9 +85,5 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
 
     fun clearAccountHistory() {
         connection.send(Request.ClearAccountHistory.message)
-    }
-
-    fun onDestroy() {
-        onLoginStatusChange.unsubscribeAll()
     }
 }
