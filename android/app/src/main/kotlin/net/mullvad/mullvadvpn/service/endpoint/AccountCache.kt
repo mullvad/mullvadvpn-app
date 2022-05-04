@@ -87,10 +87,6 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
                 }
             }
 
-            registerHandler(Request.InvalidateAccountExpiry::class) { request ->
-                // TODO: Implement account expiry invalidation if still required.
-            }
-
             registerHandler(Request.ClearAccountHistory::class) { _ ->
                 clearAccountHistory()
             }

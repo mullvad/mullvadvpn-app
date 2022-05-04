@@ -145,10 +145,6 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
     private fun handleAddedTime(timeAdded: Long) {
         if (timeAdded > 0) {
-            accountExpiry?.let { oldAccountExpiry ->
-                accountCache?.invalidateAccountExpiry(oldAccountExpiry)
-            }
-
             dismiss()
         }
     }
