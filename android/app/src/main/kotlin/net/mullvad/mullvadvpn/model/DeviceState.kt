@@ -8,7 +8,7 @@ sealed class DeviceState : Parcelable {
     object InitialState : DeviceState()
 
     @Parcelize
-    data class DeviceRegistered(val deviceConfig: DeviceConfig) : DeviceState()
+    data class DeviceRegistered(val deviceConfig: AccountAndDevice) : DeviceState()
 
     @Parcelize
     object DeviceNotRegistered : DeviceState()
@@ -26,7 +26,7 @@ sealed class DeviceState : Parcelable {
     }
 
     companion object {
-        fun fromDeviceConfig(deviceConfig: DeviceConfig?): DeviceState {
+        fun fromDeviceConfig(deviceConfig: AccountAndDevice?): DeviceState {
             return deviceConfig?.let { DeviceRegistered(it) } ?: DeviceNotRegistered
         }
     }
