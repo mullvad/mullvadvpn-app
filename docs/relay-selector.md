@@ -35,6 +35,7 @@ Endpoints may be filtered by:
   like WireGuard
 - entry port
 - location (country, city, hostname)
+- provider
 
 ### Default constraints for tunnel endpoints
 
@@ -67,10 +68,14 @@ relay is picked, then a random endpoint that matches the constraints from the re
 
 ## Bridge endpoint constraints
 
-Currently, the only explicit constraints for bridges is the location, and the transport protocol is
-supposedly inferred by the selected bridge- but for now, the daemon only supports TCP bridges, so
-only TCP bridges are being selected. If no location constraint is specified explicitly, then the
-relay location will be used.
+The explicit constraints are:
+
+- location
+- provider
+
+The transport protocol is supposedly inferred by the selected bridge- but for now, the daemon only
+supports TCP bridges, so only TCP bridges are being selected. If no location constraint is specified
+explicitly, then the relay location will be used.
 
 ### Selecting a bridge endpoint between filtered relays
 
