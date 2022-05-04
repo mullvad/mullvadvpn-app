@@ -7,6 +7,7 @@ extern crate serde;
 pub mod account_history;
 mod api;
 pub mod device;
+mod dns;
 pub mod exception_logging;
 #[cfg(target_os = "macos")]
 pub mod exclusion_gid;
@@ -42,7 +43,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
     relay_list::{Relay, RelayList},
-    settings::{DnsOptions, DnsState, Settings},
+    settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
     wireguard::{PublicKey, RotationInterval},
@@ -57,7 +58,6 @@ use std::{collections::HashSet, ffi::OsString};
 use std::{
     marker::PhantomData,
     mem,
-    net::{IpAddr, Ipv4Addr},
     path::PathBuf,
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Weak},
@@ -84,16 +84,6 @@ use tokio::io;
 
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
-
-/// When we want to block certain contents with the help of DNS server side,
-/// we compute the resolver IP to use based on these constants. The last
-/// byte can be ORed together to combine multiple block lists.
-const DNS_BLOCKING_IP_BASE: Ipv4Addr = Ipv4Addr::new(100, 64, 0, 0);
-const DNS_AD_BLOCKING_IP_BIT: u8 = 1 << 0; // 0b00000001
-const DNS_TRACKER_BLOCKING_IP_BIT: u8 = 1 << 1; // 0b00000010
-const DNS_MALWARE_BLOCKING_IP_BIT: u8 = 1 << 2; // 0b00000100
-const DNS_ADULT_BLOCKING_IP_BIT: u8 = 1 << 3; // 0b00001000
-const DNS_GAMBLING_BLOCKING_IP_BIT: u8 = 1 << 4; // 0b00010000
 
 pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
 
@@ -711,7 +701,7 @@ where
             tunnel_state_machine::InitialTunnelState {
                 allow_lan: settings.allow_lan,
                 block_when_disconnected: settings.block_when_disconnected,
-                dns_servers: Self::get_dns_resolvers(&settings.tunnel_options.dns_options),
+                dns_servers: dns::addresses_from_options(&settings.tunnel_options.dns_options),
                 allowed_endpoint: initial_api_endpoint,
                 reset_firewall: *target_state != TargetState::Secured,
                 #[cfg(windows)]
@@ -794,49 +784,6 @@ where
         api_availability.unsuspend();
 
         Ok(daemon)
-    }
-
-    /// Get which special DNS resolvers to use. Returns `None` when no special resolvers
-    /// are requested and the tunnel default gateway should be used.
-    fn get_dns_resolvers(options: &DnsOptions) -> Option<Vec<IpAddr>> {
-        match options.state {
-            DnsState::Default => {
-                // Check if we should use a custom blocking DNS resolver.
-                // And if so, compute the IP.
-                let mut last_byte: u8 = 0;
-
-                if options.default_options.block_ads {
-                    last_byte |= DNS_AD_BLOCKING_IP_BIT;
-                }
-                if options.default_options.block_trackers {
-                    last_byte |= DNS_TRACKER_BLOCKING_IP_BIT;
-                }
-                if options.default_options.block_malware {
-                    last_byte |= DNS_MALWARE_BLOCKING_IP_BIT;
-                }
-                if options.default_options.block_adult_content {
-                    last_byte |= DNS_ADULT_BLOCKING_IP_BIT;
-                }
-                if options.default_options.block_gambling {
-                    last_byte |= DNS_GAMBLING_BLOCKING_IP_BIT;
-                }
-
-                if last_byte != 0 {
-                    let mut dns_ip = DNS_BLOCKING_IP_BASE.octets();
-                    dns_ip[dns_ip.len() - 1] |= last_byte;
-                    Some(vec![IpAddr::V4(Ipv4Addr::from(dns_ip))])
-                } else {
-                    None
-                }
-            }
-            DnsState::Custom => {
-                if options.custom_options.addresses.is_empty() {
-                    None
-                } else {
-                    Some(options.custom_options.addresses.clone())
-                }
-            }
-        }
     }
 
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
@@ -2256,7 +2203,8 @@ where
                 Self::oneshot_send(tx, Ok(()), "set_dns_options response");
                 if settings_changed {
                     let settings = self.settings.to_settings();
-                    let resolvers = Self::get_dns_resolvers(&settings.tunnel_options.dns_options);
+                    let resolvers =
+                        dns::addresses_from_options(&settings.tunnel_options.dns_options);
                     self.event_listener.notify_settings(settings);
                     self.send_tunnel_command(TunnelCommand::Dns(resolvers));
                 }
