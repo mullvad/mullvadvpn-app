@@ -88,7 +88,9 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             }
 
             registerHandler(Request.ClearAccountHistory::class) { _ ->
-                clearAccountHistory()
+                jobTracker.newBackgroundJob("clearAccountHistory") {
+                    clearAccountHistory()
+                }
             }
         }
     }
@@ -108,14 +110,6 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         return daemon.await().deviceStateUpdates.value.token()
     }
 
-    // TODO: Refactor in later commit.
-    private fun clearAccountHistory() {
-        jobTracker.newBackgroundJob("clearAccountHistory") {
-            daemon.await().clearAccountHistory()
-            accountHistory = fetchAccountHistory()
-        }
-    }
-
     private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
         try {
             for (command in channel) {
@@ -128,6 +122,11 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         } catch (exception: ClosedReceiveChannelException) {
             // Command channel was closed, stop the actor
         }
+    }
+
+    private suspend fun clearAccountHistory() {
+        daemon.await().clearAccountHistory()
+        accountHistory = fetchAccountHistory()
     }
 
     private suspend fun doCreateAccount() {
