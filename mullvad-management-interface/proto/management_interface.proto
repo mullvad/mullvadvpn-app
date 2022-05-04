@@ -239,10 +239,17 @@ message GeoIpLocation {
 	string obfuscator_hostname = 11;
 }
 
+enum Ownership {
+	ANY = 0;
+	MULLVAD_OWNED = 1;
+	RENTED = 2;
+}
+
 message BridgeSettings {
 	message BridgeConstraints {
 		RelayLocation location = 1;
 		repeated string providers = 2;
+		Ownership ownership = 3;
 	}
 
 	message LocalProxySettings {
@@ -335,6 +342,7 @@ message NormalRelaySettings {
 	TunnelTypeConstraint tunnel_type = 3;
 	WireguardConstraints wireguard_constraints = 4;
 	OpenvpnConstraints openvpn_constraints = 5;
+	Ownership ownership = 6;
 }
 
 // Constraints are only updated for fields that are provided
@@ -344,6 +352,7 @@ message NormalRelaySettingsUpdate {
 	TunnelTypeUpdate tunnel_type = 3;
 	WireguardConstraints wireguard_constraints = 4;
 	OpenvpnConstraints openvpn_constraints = 5;
+	OwnershipUpdate ownership = 6;
 }
 
 message ProviderUpdate {
@@ -361,6 +370,10 @@ message TransportPort {
 
 message OpenvpnConstraints {
 	TransportPort port = 1;
+}
+
+message OwnershipUpdate {
+	Ownership ownership = 1;
 }
 
 enum IpVersion {

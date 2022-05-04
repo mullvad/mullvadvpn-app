@@ -501,6 +501,7 @@ impl From<mullvad_types::relay_constraints::BridgeSettings> for BridgeSettings {
                         .option()
                         .map(RelayLocation::from),
                     providers: convert_providers_constraint(&constraints.providers),
+                    ownership: convert_ownership_constraint(&constraints.ownership) as i32,
                 })
             }
             MullvadBridgeSettings::Custom(proxy_settings) => match proxy_settings {
@@ -553,6 +554,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
                 relay_settings::Endpoint::Normal(NormalRelaySettings {
                     location: constraints.location.option().map(RelayLocation::from),
                     providers: convert_providers_constraint(&constraints.providers),
+                    ownership: convert_ownership_constraint(&constraints.ownership) as i32,
                     tunnel_type: match constraints.tunnel_protocol {
                         Constraint::Any => None,
                         Constraint::Only(talpid_net::TunnelType::Wireguard) => {
@@ -878,6 +880,7 @@ impl TryFrom<RelaySettings> for mullvad_types::relay_constraints::RelaySettings 
                     .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from)
                     .unwrap_or(Constraint::Any);
                 let providers = try_providers_constraint_from_proto(&settings.providers)?;
+                let ownership = try_ownership_constraint_from_i32(settings.ownership)?;
                 let tunnel_protocol = settings
                     .tunnel_type
                     .map(Constraint::<net::TunnelType>::try_from)
@@ -899,6 +902,7 @@ impl TryFrom<RelaySettings> for mullvad_types::relay_constraints::RelaySettings 
                     mullvad_constraints::RelayConstraints {
                         location,
                         providers,
+                        ownership,
                         tunnel_protocol,
                         wireguard_constraints,
                         openvpn_constraints,
@@ -958,6 +962,13 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                 } else {
                     None
                 };
+                let ownership = if let Some(ref ownership_update) = settings.ownership {
+                    Some(try_ownership_constraint_from_i32(
+                        ownership_update.ownership,
+                    )?)
+                } else {
+                    None
+                };
                 let tunnel_protocol = if let Some(update) = settings.tunnel_type {
                     Some(
                         update
@@ -989,6 +1000,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                     mullvad_constraints::RelayConstraintsUpdate {
                         location,
                         providers,
+                        ownership,
                         tunnel_protocol,
                         wireguard_constraints,
                         openvpn_constraints,
@@ -1187,11 +1199,13 @@ impl TryFrom<BridgeSettings> for mullvad_types::relay_constraints::BridgeSetting
                     }
                 };
                 let providers = try_providers_constraint_from_proto(&constraints.providers)?;
+                let ownership = try_ownership_constraint_from_i32(constraints.ownership)?;
 
                 Ok(mullvad_constraints::BridgeSettings::Normal(
                     mullvad_constraints::BridgeConstraints {
                         location,
                         providers,
+                        ownership,
                     },
                 ))
             }
@@ -1475,12 +1489,48 @@ pub fn try_providers_constraint_from_proto(
     }
 }
 
+pub fn try_ownership_constraint_from_i32(
+    ownership: i32,
+) -> Result<Constraint<mullvad_types::relay_constraints::Ownership>, FromProtobufTypeError> {
+    Ownership::from_i32(ownership)
+        .map(ownership_constraint_from_proto)
+        .ok_or(FromProtobufTypeError::InvalidArgument(
+            "invalid ownership argument",
+        ))
+}
+
+pub fn ownership_constraint_from_proto(
+    ownership: Ownership,
+) -> Constraint<mullvad_types::relay_constraints::Ownership> {
+    use mullvad_types::relay_constraints::Ownership as MullvadOwnership;
+
+    match ownership {
+        Ownership::Any => Constraint::Any,
+        Ownership::MullvadOwned => Constraint::Only(MullvadOwnership::MullvadOwned),
+        Ownership::Rented => Constraint::Only(MullvadOwnership::Rented),
+    }
+}
+
 fn convert_providers_constraint(
     providers: &Constraint<mullvad_types::relay_constraints::Providers>,
 ) -> Vec<String> {
     match providers.as_ref() {
         Constraint::Any => vec![],
         Constraint::Only(providers) => Vec::from(providers.clone()),
+    }
+}
+
+fn convert_ownership_constraint(
+    ownership: &Constraint<mullvad_types::relay_constraints::Ownership>,
+) -> Ownership {
+    use mullvad_types::relay_constraints::Ownership as MullvadOwnership;
+
+    match ownership.as_ref() {
+        Constraint::Any => Ownership::Any,
+        Constraint::Only(ownership) => match ownership {
+            MullvadOwnership::MullvadOwned => Ownership::MullvadOwned,
+            MullvadOwnership::Rented => Ownership::Rented,
+        },
     }
 }
 

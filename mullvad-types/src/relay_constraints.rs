@@ -185,6 +185,8 @@ pub struct RelayConstraints {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub providers: Constraint<Providers>,
     #[cfg_attr(target_os = "android", jnix(skip))]
+    pub ownership: Constraint<Ownership>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_protocol: Constraint<TunnelType>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub wireguard_constraints: WireguardConstraints,
@@ -199,6 +201,7 @@ impl Default for RelayConstraints {
             tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
             location: Constraint::default(),
             providers: Constraint::default(),
+            ownership: Constraint::default(),
             wireguard_constraints: WireguardConstraints::default(),
             openvpn_constraints: OpenVpnConstraints::default(),
         }
@@ -210,6 +213,7 @@ impl RelayConstraints {
         RelayConstraints {
             location: update.location.unwrap_or_else(|| self.location.clone()),
             providers: update.providers.unwrap_or_else(|| self.providers.clone()),
+            ownership: update.ownership.unwrap_or_else(|| self.ownership.clone()),
             tunnel_protocol: update
                 .tunnel_protocol
                 .unwrap_or_else(|| self.tunnel_protocol.clone()),
@@ -250,8 +254,14 @@ impl fmt::Display for RelayConstraints {
         }
         write!(f, " using ")?;
         match self.providers {
-            Constraint::Any => write!(f, "any provider"),
-            Constraint::Only(ref constraint) => constraint.fmt(f),
+            Constraint::Any => write!(f, "any provider")?,
+            Constraint::Only(ref constraint) => constraint.fmt(f)?,
+        }
+        match self.ownership {
+            Constraint::Any => Ok(()),
+            Constraint::Only(ref constraint) => {
+                write!(f, " and {}", constraint)
+            }
         }
     }
 }
@@ -314,6 +324,31 @@ impl Set<LocationConstraint> for LocationConstraint {
                 }
                 LocationConstraint::Hostname(..) => self == other,
             },
+        }
+    }
+}
+
+/// Limits the set of servers to choose based on ownership.
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub enum Ownership {
+    MullvadOwned,
+    Rented,
+}
+
+impl Match<Relay> for Ownership {
+    fn matches(&self, relay: &Relay) -> bool {
+        match self {
+            Ownership::MullvadOwned => relay.owned,
+            Ownership::Rented => !relay.owned,
+        }
+    }
+}
+
+impl fmt::Display for Ownership {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            Ownership::MullvadOwned => write!(f, "Mullvad-owned servers"),
+            Ownership::Rented => write!(f, "rented servers"),
         }
     }
 }
@@ -519,6 +554,7 @@ pub struct ObfuscationSettings {
 pub struct BridgeConstraints {
     pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
+    pub ownership: Constraint<Ownership>,
 }
 
 impl fmt::Display for BridgeConstraints {
@@ -529,8 +565,14 @@ impl fmt::Display for BridgeConstraints {
         }
         write!(f, " using ")?;
         match self.providers {
-            Constraint::Any => write!(f, "any provider"),
-            Constraint::Only(ref constraint) => constraint.fmt(f),
+            Constraint::Any => write!(f, "any provider")?,
+            Constraint::Only(ref constraint) => constraint.fmt(f)?,
+        }
+        match self.ownership {
+            Constraint::Any => Ok(()),
+            Constraint::Only(ref constraint) => {
+                write!(f, " and {}", constraint)
+            }
         }
     }
 }
@@ -562,6 +604,7 @@ impl fmt::Display for BridgeState {
 pub struct InternalBridgeConstraints {
     pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
+    pub ownership: Constraint<Ownership>,
     pub transport_protocol: Constraint<TransportProtocol>,
 }
 
@@ -612,6 +655,8 @@ pub struct RelayConstraintsUpdate {
     pub location: Option<Constraint<LocationConstraint>>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub providers: Option<Constraint<Providers>>,
+    #[cfg_attr(target_os = "android", jnix(default))]
+    pub ownership: Option<Constraint<Ownership>>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub tunnel_protocol: Option<Constraint<TunnelType>>,
     #[cfg_attr(target_os = "android", jnix(default))]
