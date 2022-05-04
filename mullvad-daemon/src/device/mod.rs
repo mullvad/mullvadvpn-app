@@ -693,23 +693,10 @@ pub struct DeviceCacher {
 
 impl DeviceCacher {
     pub async fn new(settings_dir: &Path) -> Result<(DeviceCacher, Option<DeviceData>), Error> {
-        let mut options = std::fs::OpenOptions::new();
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::OpenOptionsExt;
-            options.mode(0o600);
-        }
-        #[cfg(windows)]
-        {
-            use std::os::windows::fs::OpenOptionsExt;
-            // exclusive access
-            options.share_mode(0);
-        }
-
         let path = settings_dir.join(DEVICE_CACHE_FILENAME);
         let cache_exists = path.is_file();
 
-        let mut file = fs::OpenOptions::from(options)
+        let mut file = fs::OpenOptions::from(Self::file_options())
             .write(true)
             .read(true)
             .create(true)
@@ -721,7 +708,13 @@ impl DeviceCacher {
             let mut buffer = String::new();
             reader.read_to_string(&mut buffer).await?;
             if !buffer.is_empty() {
-                serde_json::from_str(&buffer)?
+                serde_json::from_str(&buffer).unwrap_or_else(|error| {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Wiping device config due to an error")
+                    );
+                    None
+                })
             } else {
                 None
             }
@@ -736,6 +729,22 @@ impl DeviceCacher {
             },
             device,
         ))
+    }
+
+    fn file_options() -> std::fs::OpenOptions {
+        let mut options = std::fs::OpenOptions::new();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        #[cfg(windows)]
+        {
+            use std::os::windows::fs::OpenOptionsExt;
+            // exclusive access
+            options.share_mode(0);
+        }
+        options
     }
 
     pub async fn write(&mut self, device: Option<&DeviceData>) -> Result<(), Error> {
