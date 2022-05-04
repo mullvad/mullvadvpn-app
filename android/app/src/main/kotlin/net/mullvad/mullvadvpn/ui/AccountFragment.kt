@@ -137,10 +137,6 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        oldAccountExpiry?.let { expiry ->
-            accountCache.invalidateAccountExpiry(expiry)
-        }
-
         sitePaymentButton.updateAuthTokenCache(authTokenCache)
         accountCache.fetchAccountExpiry()
     }
@@ -156,7 +152,6 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private fun checkForAddedTime() {
         currentAccountExpiry?.let { expiry ->
             oldAccountExpiry = expiry
-            accountCache.invalidateAccountExpiry(expiry)
         }
     }
 

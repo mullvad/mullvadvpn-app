@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
-import org.joda.time.DateTime
 
 class AccountCache(private val connection: Messenger, eventDispatcher: EventDispatcher) {
 
@@ -75,12 +74,6 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
 
     fun fetchAccountHistory() {
         connection.send(Request.FetchAccountHistory.message)
-    }
-
-    fun invalidateAccountExpiry(accountExpiryToInvalidate: DateTime) {
-        val request = Request.InvalidateAccountExpiry(accountExpiryToInvalidate)
-
-        connection.send(request.message)
     }
 
     fun clearAccountHistory() {

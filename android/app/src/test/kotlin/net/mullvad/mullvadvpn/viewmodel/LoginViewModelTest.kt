@@ -108,7 +108,10 @@ class LoginViewModelTest {
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
             assertEquals(LoginViewModel.LoginUiState.Loading, awaitItem())
             loginTestEvents.emit(Event.LoginEvent(LoginResult.RpcError))
-            assertEquals(LoginViewModel.LoginUiState.OtherError(EXPECTED_RPC_ERROR_MESSAGE), awaitItem())
+            assertEquals(
+                LoginViewModel.LoginUiState.OtherError(EXPECTED_RPC_ERROR_MESSAGE),
+                awaitItem()
+            )
         }
     }
 
@@ -120,7 +123,10 @@ class LoginViewModelTest {
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
             assertEquals(LoginViewModel.LoginUiState.Loading, awaitItem())
             loginTestEvents.emit(Event.LoginEvent(LoginResult.OtherError))
-            assertEquals(LoginViewModel.LoginUiState.OtherError(EXPECTED_OTHER_ERROR_MESSAGE), awaitItem())
+            assertEquals(
+                LoginViewModel.LoginUiState.OtherError(EXPECTED_OTHER_ERROR_MESSAGE),
+                awaitItem()
+            )
         }
     }
 
