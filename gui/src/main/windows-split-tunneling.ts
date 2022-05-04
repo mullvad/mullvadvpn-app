@@ -559,13 +559,25 @@ async function parseStrings(
   let currentStringOffset = stringsOffset;
   while (currentStringOffset < stringTableEnd) {
     const stringValue = await Value.fromFile(fileHandle, currentStringOffset, STRING_TABLE_STRING);
+    const structSize = stringValue.get('wLength').value();
     const valueSize = (stringValue.get('wValueLength').value() - 1) * 2;
 
     const szKeyOffset = currentStringOffset + stringValue.size;
     const { value: szKey, endOffset } = await readString(fileHandle, szKeyOffset, 'ucs2');
 
     const valueOffset = alignDword(endOffset);
-    const { buffer } = await fileHandle.read(Buffer.alloc(valueSize), 0, valueSize, valueOffset);
+    // Some programs specify the value size in bytes instead of words resulting in reading double
+    // the length. To make sure we don't read beyond the end offset we calculate the max size to
+    // read. The last value is the null termination character.
+    const calculatedValueMaxSize = structSize - (valueOffset - currentStringOffset) - 2;
+    const valueReadSize = Math.min(valueSize, calculatedValueMaxSize);
+
+    const { buffer } = await fileHandle.read(
+      Buffer.alloc(valueReadSize),
+      0,
+      valueReadSize,
+      valueOffset,
+    );
     const value = buffer.toString('ucs2');
 
     strings.set(szKey, value);
