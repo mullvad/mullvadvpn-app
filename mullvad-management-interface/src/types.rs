@@ -249,8 +249,8 @@ impl From<mullvad_types::device::RemoveDeviceEvent> for RemoveDeviceEvent {
     }
 }
 
-impl From<mullvad_types::device::DeviceConfig> for DeviceConfig {
-    fn from(device: mullvad_types::device::DeviceConfig) -> Self {
+impl From<mullvad_types::device::AccountAndDevice> for DeviceConfig {
+    fn from(device: mullvad_types::device::AccountAndDevice) -> Self {
         DeviceConfig {
             account_token: device.account_token,
             device: Some(Device::from(device.device)),

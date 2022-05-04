@@ -65,12 +65,12 @@ impl fmt::Display for DevicePort {
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-pub struct DeviceConfig {
+pub struct AccountAndDevice {
     pub account_token: AccountToken,
     pub device: Device,
 }
 
-impl DeviceConfig {
+impl AccountAndDevice {
     pub fn new(account_token: AccountToken, device: Device) -> Self {
         Self {
             account_token,
@@ -85,17 +85,17 @@ impl DeviceConfig {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct DeviceEvent {
     /// Device that was affected.
-    pub device: Option<DeviceConfig>,
+    pub device: Option<AccountAndDevice>,
     /// Indicates whether the change was initiated remotely or by the daemon.
     pub remote: bool,
 }
 
 impl DeviceEvent {
-    pub fn new(device: Option<DeviceConfig>, remote: bool) -> DeviceEvent {
+    pub fn new(device: Option<AccountAndDevice>, remote: bool) -> DeviceEvent {
         DeviceEvent { device, remote }
     }
 
-    pub fn from_device(device: DeviceConfig, remote: bool) -> DeviceEvent {
+    pub fn from_device(device: AccountAndDevice, remote: bool) -> DeviceEvent {
         DeviceEvent {
             device: Some(device),
             remote,

@@ -24,7 +24,7 @@ pub mod version;
 mod version_check;
 
 use crate::target_state::PersistentTargetState;
-use device::{PrivateDeviceConfig, PrivateDeviceEvent};
+use device::{PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Future},
@@ -37,7 +37,7 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    device::{Device, DeviceConfig, DeviceEvent, DeviceId, RemoveDeviceEvent},
+    device::{AccountAndDevice, Device, DeviceEvent, DeviceId, RemoveDeviceEvent},
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
@@ -246,7 +246,7 @@ pub enum DaemonCommand {
     /// Log out of the current account and remove the device, if they exist.
     LogoutAccount(ResponseTx<(), Error>),
     /// Return the current device configuration, if there is one.
-    GetDevice(ResponseTx<Option<DeviceConfig>, Error>),
+    GetDevice(ResponseTx<Option<AccountAndDevice>, Error>),
     /// Update/check the current device, if there is one.
     UpdateDevice(ResponseTx<(), Error>),
     /// Return all the devices for a given account token.
@@ -352,7 +352,7 @@ pub(crate) enum InternalDaemonEvent {
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
     DeviceEvent(PrivateDeviceEvent),
     /// Handles updates from versions without devices.
-    DeviceMigrationEvent(Result<PrivateDeviceConfig, device::Error>),
+    DeviceMigrationEvent(Result<PrivateAccountAndDevice, device::Error>),
     /// The split tunnel paths or state were updated.
     #[cfg(target_os = "windows")]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
@@ -1085,7 +1085,7 @@ where
         endpoint: MullvadEndpoint,
         bridge: Option<SelectedBridge>,
         obfuscator: Option<SelectedObfuscator>,
-        device: PrivateDeviceConfig,
+        device: PrivateAccountAndDevice,
     ) -> Result<TunnelParameters, Error> {
         let tunnel_options = self.settings.tunnel_options.clone();
         match endpoint {
@@ -1312,7 +1312,7 @@ where
 
     async fn handle_device_migration_event(
         &mut self,
-        result: Result<PrivateDeviceConfig, device::Error>,
+        result: Result<PrivateAccountAndDevice, device::Error>,
     ) {
         let account_manager = self.account_manager.clone();
         let event_listener = self.event_listener.clone();
@@ -1612,7 +1612,7 @@ where
         });
     }
 
-    async fn on_get_device(&mut self, tx: ResponseTx<Option<DeviceConfig>, Error>) {
+    async fn on_get_device(&mut self, tx: ResponseTx<Option<AccountAndDevice>, Error>) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
@@ -1621,7 +1621,7 @@ where
                     .data()
                     .await
                     .unwrap_or(None)
-                    .map(DeviceConfig::from)),
+                    .map(AccountAndDevice::from)),
                 "get_device response",
             );
         });

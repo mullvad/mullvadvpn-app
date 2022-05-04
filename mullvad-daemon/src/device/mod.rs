@@ -7,7 +7,7 @@ use futures::{
 use mullvad_api::{availability::ApiAvailabilityHandle, rest};
 use mullvad_types::{
     account::AccountToken,
-    device::{Device, DeviceConfig, DeviceEvent, DeviceId, DeviceName, DevicePort},
+    device::{AccountAndDevice, Device, DeviceEvent, DeviceId, DeviceName, DevicePort},
     wireguard::{self, RotationInterval, WireguardData},
 };
 use std::{
@@ -72,14 +72,14 @@ pub enum Error {
 
 /// Same as [PrivateDevice] but also contains the associated account token.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
-pub struct PrivateDeviceConfig {
+pub struct PrivateAccountAndDevice {
     pub account_token: AccountToken,
     pub device: PrivateDevice,
 }
 
-impl From<PrivateDeviceConfig> for DeviceConfig {
-    fn from(config: PrivateDeviceConfig) -> Self {
-        DeviceConfig {
+impl From<PrivateAccountAndDevice> for AccountAndDevice {
+    fn from(config: PrivateAccountAndDevice) -> Self {
+        AccountAndDevice {
             account_token: config.account_token,
             device: Device::from(config.device),
         }
@@ -142,11 +142,11 @@ pub(crate) enum PrivateDeviceEvent {
     /// The device was removed due to user (or daemon) action.
     Logout,
     /// Logged in to a new device.
-    Login(PrivateDeviceConfig),
+    Login(PrivateAccountAndDevice),
     /// The device was updated remotely, but not its key.
-    Updated(PrivateDeviceConfig),
+    Updated(PrivateAccountAndDevice),
     /// The key was rotated.
-    RotatedKey(PrivateDeviceConfig),
+    RotatedKey(PrivateAccountAndDevice),
     /// Device was removed because it was not found remotely.
     Revoked,
 }
@@ -156,13 +156,13 @@ impl From<PrivateDeviceEvent> for DeviceEvent {
         match event {
             PrivateDeviceEvent::Logout => DeviceEvent::revoke(false),
             PrivateDeviceEvent::Login(config) => {
-                DeviceEvent::from_device(DeviceConfig::from(config), false)
+                DeviceEvent::from_device(AccountAndDevice::from(config), false)
             }
             PrivateDeviceEvent::Updated(config) => {
-                DeviceEvent::from_device(DeviceConfig::from(config), true)
+                DeviceEvent::from_device(AccountAndDevice::from(config), true)
             }
             PrivateDeviceEvent::RotatedKey(config) => {
-                DeviceEvent::from_device(DeviceConfig::from(config), false)
+                DeviceEvent::from_device(AccountAndDevice::from(config), false)
             }
             PrivateDeviceEvent::Revoked => DeviceEvent::revoke(true),
         }
@@ -170,7 +170,7 @@ impl From<PrivateDeviceEvent> for DeviceEvent {
 }
 
 impl PrivateDeviceEvent {
-    fn data(&self) -> Option<&PrivateDeviceConfig> {
+    fn data(&self) -> Option<&PrivateAccountAndDevice> {
         match self {
             PrivateDeviceEvent::Login(config) => Some(config),
             PrivateDeviceEvent::Updated(config) => Some(config),
@@ -195,9 +195,9 @@ type ResponseTx<T> = oneshot::Sender<Result<T, Error>>;
 enum AccountManagerCommand {
     Login(AccountToken, ResponseTx<()>),
     Logout(ResponseTx<()>),
-    SetData(PrivateDeviceConfig, ResponseTx<()>),
-    GetData(ResponseTx<Option<PrivateDeviceConfig>>),
-    GetDataAfterLogin(ResponseTx<Option<PrivateDeviceConfig>>),
+    SetData(PrivateAccountAndDevice, ResponseTx<()>),
+    GetData(ResponseTx<Option<PrivateAccountAndDevice>>),
+    GetDataAfterLogin(ResponseTx<Option<PrivateAccountAndDevice>>),
     RotateKey(ResponseTx<()>),
     SetRotationInterval(RotationInterval, ResponseTx<()>),
     ValidateDevice(ResponseTx<()>),
@@ -223,17 +223,17 @@ impl AccountManagerHandle {
             .await
     }
 
-    pub async fn set(&self, data: PrivateDeviceConfig) -> Result<(), Error> {
+    pub async fn set(&self, data: PrivateAccountAndDevice) -> Result<(), Error> {
         self.send_command(|tx| AccountManagerCommand::SetData(data, tx))
             .await
     }
 
-    pub async fn data(&self) -> Result<Option<PrivateDeviceConfig>, Error> {
+    pub async fn data(&self) -> Result<Option<PrivateAccountAndDevice>, Error> {
         self.send_command(|tx| AccountManagerCommand::GetData(tx))
             .await
     }
 
-    pub async fn data_after_login(&self) -> Result<Option<PrivateDeviceConfig>, Error> {
+    pub async fn data_after_login(&self) -> Result<Option<PrivateAccountAndDevice>, Error> {
         self.send_command(|tx| AccountManagerCommand::GetDataAfterLogin(tx))
             .await
     }
@@ -286,13 +286,13 @@ impl AccountManagerHandle {
 pub(crate) struct AccountManager {
     cacher: DeviceCacher,
     device_service: DeviceService,
-    data: Option<PrivateDeviceConfig>,
+    data: Option<PrivateAccountAndDevice>,
     rotation_interval: RotationInterval,
     listeners: Vec<Box<dyn Sender<PrivateDeviceEvent> + Send>>,
     last_validation: Option<SystemTime>,
     validation_requests: Vec<ResponseTx<()>>,
     rotation_requests: Vec<ResponseTx<()>>,
-    data_requests: Vec<ResponseTx<Option<PrivateDeviceConfig>>>,
+    data_requests: Vec<ResponseTx<Option<PrivateAccountAndDevice>>>,
 }
 
 impl AccountManager {
@@ -466,7 +466,7 @@ impl AccountManager {
 
     async fn consume_login(
         &mut self,
-        device_response: Result<PrivateDeviceConfig, Error>,
+        device_response: Result<PrivateAccountAndDevice, Error>,
         tx: ResponseTx<()>,
     ) {
         let _ =
@@ -653,7 +653,7 @@ impl AccountManager {
         });
     }
 
-    fn logout_api_call(&self, data: PrivateDeviceConfig) -> impl Future<Output = ()> + 'static {
+    fn logout_api_call(&self, data: PrivateAccountAndDevice) -> impl Future<Output = ()> + 'static {
         let service = self.device_service.clone();
 
         async move {
@@ -733,7 +733,7 @@ impl AccountManager {
 
     fn fetch_device_config(
         &self,
-        old_config: &PrivateDeviceConfig,
+        old_config: &PrivateAccountAndDevice,
     ) -> impl Future<Output = Result<Device, Error>> {
         let device_service = self.device_service.clone();
         let account_token = old_config.account_token.clone();
@@ -779,7 +779,7 @@ pub struct DeviceCacher {
 impl DeviceCacher {
     pub async fn new(
         settings_dir: &Path,
-    ) -> Result<(DeviceCacher, Option<PrivateDeviceConfig>), Error> {
+    ) -> Result<(DeviceCacher, Option<PrivateAccountAndDevice>), Error> {
         let mut options = std::fs::OpenOptions::new();
         #[cfg(unix)]
         {
@@ -803,7 +803,7 @@ impl DeviceCacher {
             .open(&path)
             .await?;
 
-        let device: Option<PrivateDeviceConfig> = if cache_exists {
+        let device: Option<PrivateAccountAndDevice> = if cache_exists {
             let mut reader = io::BufReader::new(&mut file);
             let mut buffer = String::new();
             reader.read_to_string(&mut buffer).await?;
@@ -825,7 +825,7 @@ impl DeviceCacher {
         ))
     }
 
-    pub async fn write(&mut self, device: Option<&PrivateDeviceConfig>) -> Result<(), Error> {
+    pub async fn write(&mut self, device: Option<&PrivateAccountAndDevice>) -> Result<(), Error> {
         let data = serde_json::to_vec_pretty(&device).unwrap();
 
         self.file.get_mut().set_len(0).await?;

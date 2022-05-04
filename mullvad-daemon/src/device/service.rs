@@ -9,7 +9,7 @@ use mullvad_types::{
 };
 use talpid_types::net::wireguard::PrivateKey;
 
-use super::{Error, PrivateDevice, PrivateDeviceConfig};
+use super::{Error, PrivateAccountAndDevice, PrivateDevice};
 use mullvad_api::{
     availability::ApiAvailabilityHandle,
     rest::{self, Error as RestError, MullvadRestHandle},
@@ -43,7 +43,7 @@ impl DeviceService {
     pub fn generate_for_account(
         &self,
         account_token: AccountToken,
-    ) -> impl Future<Output = Result<PrivateDeviceConfig, Error>> + Send {
+    ) -> impl Future<Output = Result<PrivateAccountAndDevice, Error>> + Send {
         let private_key = PrivateKey::new_from_random();
         let pubkey = private_key.public_key();
 
@@ -60,7 +60,7 @@ impl DeviceService {
             .await
             .map_err(map_rest_error)?;
 
-            Ok(PrivateDeviceConfig {
+            Ok(PrivateAccountAndDevice {
                 account_token,
                 device: PrivateDevice::try_from_device(
                     device,
@@ -77,7 +77,7 @@ impl DeviceService {
     pub async fn generate_for_account_with_backoff(
         &self,
         account_token: AccountToken,
-    ) -> Result<PrivateDeviceConfig, Error> {
+    ) -> Result<PrivateAccountAndDevice, Error> {
         let private_key = PrivateKey::new_from_random();
         let pubkey = private_key.public_key();
 
@@ -92,7 +92,7 @@ impl DeviceService {
         .await
         .map_err(map_rest_error)?;
 
-        Ok(PrivateDeviceConfig {
+        Ok(PrivateAccountAndDevice {
             account_token,
             device: PrivateDevice::try_from_device(
                 device,
