@@ -7,6 +7,7 @@ extern crate serde;
 pub mod account_history;
 mod api;
 pub mod device;
+mod dns;
 pub mod exception_logging;
 #[cfg(target_os = "macos")]
 pub mod exclusion_gid;
@@ -700,7 +701,7 @@ where
             tunnel_state_machine::InitialTunnelState {
                 allow_lan: settings.allow_lan,
                 block_when_disconnected: settings.block_when_disconnected,
-                dns_servers: settings.tunnel_options.dns_options.to_addresses(),
+                dns_servers: dns::addresses_from_options(&settings.tunnel_options.dns_options),
                 allowed_endpoint: initial_api_endpoint,
                 reset_firewall: *target_state != TargetState::Secured,
                 #[cfg(windows)]
@@ -2202,7 +2203,8 @@ where
                 Self::oneshot_send(tx, Ok(()), "set_dns_options response");
                 if settings_changed {
                     let settings = self.settings.to_settings();
-                    let resolvers = settings.tunnel_options.dns_options.to_addresses();
+                    let resolvers =
+                        dns::addresses_from_options(&settings.tunnel_options.dns_options);
                     self.event_listener.notify_settings(settings);
                     self.send_tunnel_command(TunnelCommand::Dns(resolvers));
                 }
