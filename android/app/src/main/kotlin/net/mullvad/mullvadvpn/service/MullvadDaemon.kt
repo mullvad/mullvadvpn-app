@@ -262,7 +262,7 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
     }
 
     private fun notifyDeviceEvent(event: DeviceEvent) {
-        _deviceStateUpdates.tryEmit(DeviceState.fromDeviceConfig(event.device))
+        _deviceStateUpdates.tryEmit(DeviceState.from(event.device))
     }
 
     private fun notifyRemoveDeviceEvent(event: RemoveDeviceEvent) {

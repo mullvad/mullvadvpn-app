@@ -32,8 +32,8 @@ class DaemonDeviceDataSource(
         endpoint.dispatcher.registerHandler(Request.RefreshDeviceState::class) {
             tracker.newBackgroundJob("refreshDeviceJob") {
                 daemon.getDevice()
-                    .let { deviceConfig ->
-                        Event.DeviceStateEvent(DeviceState.fromDeviceConfig(deviceConfig))
+                    .let { accountAndDevice ->
+                        Event.DeviceStateEvent(DeviceState.from(accountAndDevice))
                     }
                     .also { event -> endpoint.sendEvent(event) }
             }
