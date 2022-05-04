@@ -229,7 +229,17 @@ impl AccountManager {
         settings_dir: &Path,
         initial_rotation_interval: RotationInterval,
     ) -> Result<AccountManagerHandle, Error> {
-        let (cacher, data) = DeviceCacher::new(settings_dir).await?;
+        let (cacher, data) = match DeviceCacher::new(settings_dir).await {
+            Ok(result) => Ok(result),
+            Err(error @ Error::ParseDeviceCache(_)) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Wiping device config due to an error")
+                );
+                DeviceCacher::truncate(settings_dir).await
+            }
+            error => error,
+        }?;
         let token = data.as_ref().map(|state| state.token.clone());
         let account_service =
             spawn_account_service(rest_handle.clone(), token, api_availability.clone());
@@ -693,23 +703,10 @@ pub struct DeviceCacher {
 
 impl DeviceCacher {
     pub async fn new(settings_dir: &Path) -> Result<(DeviceCacher, Option<DeviceData>), Error> {
-        let mut options = std::fs::OpenOptions::new();
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::OpenOptionsExt;
-            options.mode(0o600);
-        }
-        #[cfg(windows)]
-        {
-            use std::os::windows::fs::OpenOptionsExt;
-            // exclusive access
-            options.share_mode(0);
-        }
-
         let path = settings_dir.join(DEVICE_CACHE_FILENAME);
         let cache_exists = path.is_file();
 
-        let mut file = fs::OpenOptions::from(options)
+        let mut file = fs::OpenOptions::from(Self::file_options())
             .write(true)
             .read(true)
             .create(true)
@@ -736,6 +733,40 @@ impl DeviceCacher {
             },
             device,
         ))
+    }
+
+    async fn truncate(settings_dir: &Path) -> Result<(DeviceCacher, Option<DeviceData>), Error> {
+        let path = settings_dir.join(DEVICE_CACHE_FILENAME);
+        let file = fs::OpenOptions::from(Self::file_options())
+            .write(true)
+            .read(true)
+            .create(true)
+            .truncate(true)
+            .open(&path)
+            .await?;
+        Ok((
+            DeviceCacher {
+                file: io::BufWriter::new(file),
+                path,
+            },
+            None,
+        ))
+    }
+
+    fn file_options() -> std::fs::OpenOptions {
+        let mut options = std::fs::OpenOptions::new();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        #[cfg(windows)]
+        {
+            use std::os::windows::fs::OpenOptionsExt;
+            // exclusive access
+            options.share_mode(0);
+        }
+        options
     }
 
     pub async fn write(&mut self, device: Option<&DeviceData>) -> Result<(), Error> {
