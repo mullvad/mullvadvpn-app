@@ -24,7 +24,7 @@ pub mod version;
 mod version_check;
 
 use crate::target_state::PersistentTargetState;
-use device::{InnerDeviceConfig, InnerDeviceEvent};
+use device::{PrivateDeviceConfig, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Future},
@@ -350,9 +350,9 @@ pub(crate) enum InternalDaemonEvent {
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
-    DeviceEvent(InnerDeviceEvent),
+    DeviceEvent(PrivateDeviceEvent),
     /// Handles updates from versions without devices.
-    DeviceMigrationEvent(Result<InnerDeviceConfig, device::Error>),
+    DeviceMigrationEvent(Result<PrivateDeviceConfig, device::Error>),
     /// The split tunnel paths or state were updated.
     #[cfg(target_os = "windows")]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
@@ -382,8 +382,8 @@ impl From<AppVersionInfo> for InternalDaemonEvent {
     }
 }
 
-impl From<InnerDeviceEvent> for InternalDaemonEvent {
-    fn from(event: InnerDeviceEvent) -> Self {
+impl From<PrivateDeviceEvent> for InternalDaemonEvent {
+    fn from(event: PrivateDeviceEvent) -> Self {
         InternalDaemonEvent::DeviceEvent(event)
     }
 }
@@ -1085,7 +1085,7 @@ where
         endpoint: MullvadEndpoint,
         bridge: Option<SelectedBridge>,
         obfuscator: Option<SelectedObfuscator>,
-        device: InnerDeviceConfig,
+        device: PrivateDeviceConfig,
     ) -> Result<TunnelParameters, Error> {
         let tunnel_options = self.settings.tunnel_options.clone();
         match endpoint {
@@ -1274,9 +1274,9 @@ where
         self.event_listener.notify_app_version(app_version_info);
     }
 
-    async fn handle_device_event(&mut self, event: InnerDeviceEvent) {
+    async fn handle_device_event(&mut self, event: PrivateDeviceEvent) {
         match &event {
-            InnerDeviceEvent::Login(device) => {
+            PrivateDeviceEvent::Login(device) => {
                 if let Err(error) = self.account_history.set(device.account_token.clone()).await {
                     log::error!(
                         "{}",
@@ -1288,18 +1288,18 @@ where
                     self.reconnect_tunnel();
                 }
             }
-            InnerDeviceEvent::Logout => {
+            PrivateDeviceEvent::Logout => {
                 log::info!("Disconnecting because account token was cleared");
                 self.set_target_state(TargetState::Unsecured).await;
             }
-            InnerDeviceEvent::Revoked => {
+            PrivateDeviceEvent::Revoked => {
                 // If we're currently in a secured state, reconnect to make sure we immediately
                 // enter the error state.
                 if *self.target_state == TargetState::Secured {
                     self.connect_tunnel();
                 }
             }
-            InnerDeviceEvent::RotatedKey(_) => {
+            PrivateDeviceEvent::RotatedKey(_) => {
                 if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
                     self.schedule_reconnect(WG_RECONNECT_DELAY);
                 }
@@ -1312,7 +1312,7 @@ where
 
     async fn handle_device_migration_event(
         &mut self,
-        result: Result<InnerDeviceConfig, device::Error>,
+        result: Result<PrivateDeviceConfig, device::Error>,
     ) {
         let account_manager = self.account_manager.clone();
         let event_listener = self.event_listener.clone();

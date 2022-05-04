@@ -8,7 +8,7 @@
 
 use super::{v5::MigrationData, MigrationComplete};
 use crate::{
-    device::{self, DeviceService, InnerDevice, InnerDeviceConfig},
+    device::{self, DeviceService, PrivateDevice, PrivateDeviceConfig},
     DaemonEventSender, InternalDaemonEvent,
 };
 use mullvad_types::{account::AccountToken, wireguard::WireguardData};
@@ -59,7 +59,7 @@ async fn cache_from_wireguard_key(
     service: DeviceService,
     account_token: AccountToken,
     wg_data: WireguardData,
-) -> Result<InnerDeviceConfig, device::Error> {
+) -> Result<PrivateDeviceConfig, device::Error> {
     let devices = timeout(
         TIMEOUT,
         service.list_devices_with_backoff(account_token.clone()),
@@ -79,9 +79,9 @@ async fn cache_from_wireguard_key(
 
     for device in devices.into_iter() {
         if device.pubkey == wg_data.private_key.public_key() {
-            return Ok(InnerDeviceConfig {
+            return Ok(PrivateDeviceConfig {
                 account_token,
-                device: InnerDevice::try_from_device(device, wg_data)?,
+                device: PrivateDevice::try_from_device(device, wg_data)?,
             });
         }
     }
@@ -92,7 +92,7 @@ async fn cache_from_wireguard_key(
 async fn cache_from_account(
     service: DeviceService,
     account_token: AccountToken,
-) -> Result<InnerDeviceConfig, device::Error> {
+) -> Result<PrivateDeviceConfig, device::Error> {
     timeout(
         TIMEOUT,
         service.generate_for_account_with_backoff(account_token),
