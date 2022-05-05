@@ -7,8 +7,8 @@ use futures::{
 use mullvad_api::{availability::ApiAvailabilityHandle, rest};
 use mullvad_types::{
     account::AccountToken,
-    device::{Device, DeviceData, DeviceEvent},
-    wireguard::{RotationInterval, WireguardData},
+    device::{AccountAndDevice, Device, DeviceEvent, DeviceId, DeviceName, DevicePort},
+    wireguard::{self, RotationInterval, WireguardData},
 };
 use std::{
     future::Future,
@@ -28,7 +28,7 @@ use tokio::{
 
 mod api;
 mod service;
-pub use service::{spawn_account_service, AccountService, DeviceService};
+pub(crate) use service::{AccountService, DeviceService};
 
 /// File that used to store account and device data.
 const DEVICE_CACHE_FILENAME: &str = "device.json";
@@ -70,39 +70,112 @@ pub enum Error {
     AccountManagerDown,
 }
 
-#[derive(Clone)]
-pub(crate) enum InnerDeviceEvent {
-    /// The device was removed due to user (or daemon) action.
-    Logout,
-    /// Logged in to a new device.
-    Login(DeviceData),
-    /// The device was updated remotely, but not its key.
-    Updated(DeviceData),
-    /// The key was rotated.
-    RotatedKey(DeviceData),
-    /// Device was removed because it was not found remotely.
-    Revoked,
+/// Same as [PrivateDevice] but also contains the associated account token.
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct PrivateAccountAndDevice {
+    pub account_token: AccountToken,
+    pub device: PrivateDevice,
 }
 
-impl From<InnerDeviceEvent> for DeviceEvent {
-    fn from(event: InnerDeviceEvent) -> DeviceEvent {
-        match event {
-            InnerDeviceEvent::Logout => DeviceEvent::revoke(false),
-            InnerDeviceEvent::Login(data) => DeviceEvent::from_device(data, false),
-            InnerDeviceEvent::Updated(data) => DeviceEvent::from_device(data, true),
-            InnerDeviceEvent::RotatedKey(data) => DeviceEvent::from_device(data, false),
-            InnerDeviceEvent::Revoked => DeviceEvent::revoke(true),
+impl From<PrivateAccountAndDevice> for AccountAndDevice {
+    fn from(config: PrivateAccountAndDevice) -> Self {
+        AccountAndDevice {
+            account_token: config.account_token,
+            device: Device::from(config.device),
         }
     }
 }
 
-impl InnerDeviceEvent {
-    fn data(&self) -> Option<&DeviceData> {
+/// Device type that contains private data.
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct PrivateDevice {
+    pub id: DeviceId,
+    pub name: DeviceName,
+    pub wg_data: wireguard::WireguardData,
+    pub ports: Vec<DevicePort>,
+}
+
+impl PrivateDevice {
+    /// Construct a private device from a `WireguardData` and a `Device`. Fails if the pubkey of
+    /// `device` does not match that of `wg_data`.
+    pub fn try_from_device(
+        device: Device,
+        wg_data: wireguard::WireguardData,
+    ) -> Result<Self, Error> {
+        if device.pubkey != wg_data.private_key.public_key() {
+            return Err(Error::InvalidDevice);
+        }
+        Ok(Self {
+            id: device.id,
+            name: device.name,
+            wg_data,
+            ports: device.ports,
+        })
+    }
+
+    /// Update all device details that are present in both types. Fails if the pubkey of `device`
+    /// does not match that of `wg_data`.
+    fn update(&mut self, device: Device) -> Result<(), Error> {
+        if device.pubkey != self.wg_data.private_key.public_key() {
+            return Err(Error::InvalidDevice);
+        }
+        self.id = device.id;
+        self.ports = device.ports;
+        self.name = device.name;
+        Ok(())
+    }
+}
+
+impl From<PrivateDevice> for Device {
+    fn from(device: PrivateDevice) -> Self {
+        Device {
+            id: device.id,
+            ports: device.ports,
+            pubkey: device.wg_data.private_key.public_key(),
+            name: device.name,
+        }
+    }
+}
+
+#[derive(Clone)]
+pub(crate) enum PrivateDeviceEvent {
+    /// The device was removed due to user (or daemon) action.
+    Logout,
+    /// Logged in to a new device.
+    Login(PrivateAccountAndDevice),
+    /// The device was updated remotely, but not its key.
+    Updated(PrivateAccountAndDevice),
+    /// The key was rotated.
+    RotatedKey(PrivateAccountAndDevice),
+    /// Device was removed because it was not found remotely.
+    Revoked,
+}
+
+impl From<PrivateDeviceEvent> for DeviceEvent {
+    fn from(event: PrivateDeviceEvent) -> DeviceEvent {
+        match event {
+            PrivateDeviceEvent::Logout => DeviceEvent::revoke(false),
+            PrivateDeviceEvent::Login(config) => {
+                DeviceEvent::from_device(AccountAndDevice::from(config), false)
+            }
+            PrivateDeviceEvent::Updated(config) => {
+                DeviceEvent::from_device(AccountAndDevice::from(config), true)
+            }
+            PrivateDeviceEvent::RotatedKey(config) => {
+                DeviceEvent::from_device(AccountAndDevice::from(config), false)
+            }
+            PrivateDeviceEvent::Revoked => DeviceEvent::revoke(true),
+        }
+    }
+}
+
+impl PrivateDeviceEvent {
+    fn data(&self) -> Option<&PrivateAccountAndDevice> {
         match self {
-            InnerDeviceEvent::Login(data) => Some(&data),
-            InnerDeviceEvent::Updated(data) => Some(&data),
-            InnerDeviceEvent::RotatedKey(data) => Some(&data),
-            InnerDeviceEvent::Logout | InnerDeviceEvent::Revoked => None,
+            PrivateDeviceEvent::Login(config) => Some(config),
+            PrivateDeviceEvent::Updated(config) => Some(config),
+            PrivateDeviceEvent::RotatedKey(config) => Some(config),
+            PrivateDeviceEvent::Logout | PrivateDeviceEvent::Revoked => None,
         }
     }
 }
@@ -122,13 +195,13 @@ type ResponseTx<T> = oneshot::Sender<Result<T, Error>>;
 enum AccountManagerCommand {
     Login(AccountToken, ResponseTx<()>),
     Logout(ResponseTx<()>),
-    SetData(DeviceData, ResponseTx<()>),
-    GetData(ResponseTx<Option<DeviceData>>),
-    GetDataAfterLogin(ResponseTx<Option<DeviceData>>),
+    SetData(PrivateAccountAndDevice, ResponseTx<()>),
+    GetData(ResponseTx<Option<PrivateAccountAndDevice>>),
+    GetDataAfterLogin(ResponseTx<Option<PrivateAccountAndDevice>>),
     RotateKey(ResponseTx<()>),
     SetRotationInterval(RotationInterval, ResponseTx<()>),
     ValidateDevice(ResponseTx<()>),
-    ReceiveEvents(Box<dyn Sender<InnerDeviceEvent> + Send>, ResponseTx<()>),
+    ReceiveEvents(Box<dyn Sender<PrivateDeviceEvent> + Send>, ResponseTx<()>),
     Shutdown(oneshot::Sender<()>),
 }
 
@@ -150,17 +223,17 @@ impl AccountManagerHandle {
             .await
     }
 
-    pub async fn set(&self, data: DeviceData) -> Result<(), Error> {
+    pub async fn set(&self, data: PrivateAccountAndDevice) -> Result<(), Error> {
         self.send_command(|tx| AccountManagerCommand::SetData(data, tx))
             .await
     }
 
-    pub async fn data(&self) -> Result<Option<DeviceData>, Error> {
+    pub async fn data(&self) -> Result<Option<PrivateAccountAndDevice>, Error> {
         self.send_command(|tx| AccountManagerCommand::GetData(tx))
             .await
     }
 
-    pub async fn data_after_login(&self) -> Result<Option<DeviceData>, Error> {
+    pub async fn data_after_login(&self) -> Result<Option<PrivateAccountAndDevice>, Error> {
         self.send_command(|tx| AccountManagerCommand::GetDataAfterLogin(tx))
             .await
     }
@@ -182,7 +255,7 @@ impl AccountManagerHandle {
 
     pub async fn receive_events(
         &self,
-        events_tx: impl Sender<InnerDeviceEvent> + Send + 'static,
+        events_tx: impl Sender<PrivateDeviceEvent> + Send + 'static,
     ) -> Result<(), Error> {
         self.send_command(|tx| {
             AccountManagerCommand::ReceiveEvents(Box::new(events_tx) as Box<_>, tx)
@@ -213,13 +286,13 @@ impl AccountManagerHandle {
 pub(crate) struct AccountManager {
     cacher: DeviceCacher,
     device_service: DeviceService,
-    data: Option<DeviceData>,
+    data: Option<PrivateAccountAndDevice>,
     rotation_interval: RotationInterval,
-    listeners: Vec<Box<dyn Sender<InnerDeviceEvent> + Send>>,
+    listeners: Vec<Box<dyn Sender<PrivateDeviceEvent> + Send>>,
     last_validation: Option<SystemTime>,
     validation_requests: Vec<ResponseTx<()>>,
     rotation_requests: Vec<ResponseTx<()>>,
-    data_requests: Vec<ResponseTx<Option<DeviceData>>>,
+    data_requests: Vec<ResponseTx<Option<PrivateAccountAndDevice>>>,
 }
 
 impl AccountManager {
@@ -230,9 +303,9 @@ impl AccountManager {
         initial_rotation_interval: RotationInterval,
     ) -> Result<AccountManagerHandle, Error> {
         let (cacher, data) = DeviceCacher::new(settings_dir).await?;
-        let token = data.as_ref().map(|state| state.token.clone());
+        let token = data.as_ref().map(|state| state.account_token.clone());
         let account_service =
-            spawn_account_service(rest_handle.clone(), token, api_availability.clone());
+            service::spawn_account_service(rest_handle.clone(), token, api_availability.clone());
 
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
@@ -284,7 +357,7 @@ impl AccountManager {
                             self.logout(tx).await;
                         }
                         Some(AccountManagerCommand::SetData(data, tx)) => {
-                            let _ = tx.send(self.set(InnerDeviceEvent::Login(data)).await);
+                            let _ = tx.send(self.set(PrivateDeviceEvent::Login(data)).await);
                         }
                         Some(AccountManagerCommand::GetData(tx)) => {
                             let _ = tx.send(Ok(self.data.clone()));
@@ -362,7 +435,7 @@ impl AccountManager {
             self.validation_requests.push(tx);
             return;
         }
-        if self.cached_validation() {
+        if !self.needs_validation() {
             let _ = tx.send(Ok(()));
             return;
         }
@@ -393,10 +466,11 @@ impl AccountManager {
 
     async fn consume_login(
         &mut self,
-        device_response: Result<DeviceData, Error>,
+        device_response: Result<PrivateAccountAndDevice, Error>,
         tx: ResponseTx<()>,
     ) {
-        let _ = tx.send(async { self.set(InnerDeviceEvent::Login(device_response?)).await }.await);
+        let _ =
+            tx.send(async { self.set(PrivateDeviceEvent::Login(device_response?)).await }.await);
         let data = self.data.clone();
         Self::drain_requests(&mut self.data_requests, || Ok(data.clone()));
     }
@@ -406,7 +480,7 @@ impl AccountManager {
         response: Result<Device, Error>,
         api_call: &mut api::CurrentApiCall,
     ) {
-        let current_data = match self.data.as_ref() {
+        let current_config = match self.data.as_ref() {
             Some(data) => data,
             None => {
                 panic!("Received a validation response whilst having no device data");
@@ -414,14 +488,22 @@ impl AccountManager {
         };
 
         match response {
-            Ok(new_device_data) => {
-                if new_device_data.pubkey == current_data.device.pubkey {
-                    let new_data = DeviceData {
-                        device: new_device_data,
-                        ..current_data.clone()
-                    };
+            Ok(new_device) => {
+                let current_pubkey = current_config.device.wg_data.private_key.public_key();
+                if new_device.pubkey == current_pubkey {
+                    let mut new_data = current_config.clone();
+                    new_data
+                        .device
+                        .update(new_device)
+                        .expect("pubkey must match privkey");
 
-                    match self.set(InnerDeviceEvent::Updated(new_data)).await {
+                    if Some(&new_data) != self.data.as_ref() {
+                        log::debug!("Updating data for the current device");
+                    } else {
+                        log::debug!("The current device is still valid");
+                    }
+
+                    match self.set(PrivateDeviceEvent::Updated(new_data)).await {
                         Ok(_) => {
                             Self::drain_requests(&mut self.validation_requests, || Ok(()));
                         }
@@ -433,6 +515,8 @@ impl AccountManager {
                             });
                         }
                     }
+                } else {
+                    log::debug!("Rotating invalid WireGuard key for device");
                 }
             }
             Err(Error::InvalidAccount) => {
@@ -451,10 +535,10 @@ impl AccountManager {
         }
 
         if !self.rotation_requests.is_empty() || !self.validation_requests.is_empty() {
-            if let Some(updated_data) = self.data.as_ref() {
+            if let Some(updated_config) = self.data.as_ref() {
                 let device_service = self.device_service.clone();
-                let token = updated_data.token.clone();
-                let device_id = updated_data.device.id.clone();
+                let token = updated_config.account_token.clone();
+                let device_id = updated_config.device.id.clone();
                 api_call.set_oneshot_rotation(Box::pin(async move {
                     device_service.rotate_key(token, device_id).await
                 }));
@@ -463,18 +547,15 @@ impl AccountManager {
     }
 
     async fn consume_rotation_result(&mut self, api_result: Result<WireguardData, Error>) {
-        let mut device_data = match self.data.clone() {
-            Some(data) => data,
-            None => {
-                panic!("Received a key rotation result whilst having no data");
-            }
-        };
+        let mut config = self
+            .data
+            .clone()
+            .expect("Received a key rotation result whilst having no data");
 
         match api_result {
             Ok(wg_data) => {
-                device_data.device.pubkey = wg_data.private_key.public_key();
-                device_data.wg_data = wg_data;
-                match self.set(InnerDeviceEvent::RotatedKey(device_data)).await {
+                config.device.wg_data = wg_data;
+                match self.set(PrivateDeviceEvent::RotatedKey(config)).await {
                     Ok(_) => {
                         Self::drain_requests(&mut self.rotation_requests, || Ok(()));
 
@@ -516,12 +597,12 @@ impl AccountManager {
     fn spawn_timed_key_rotation(
         &self,
     ) -> Option<impl Future<Output = Result<WireguardData, Error>> + Send + 'static> {
-        let data = self.data.as_ref()?;
-        let key_rotation_timer = self.key_rotation_timer(data.wg_data.created);
+        let config = self.data.as_ref()?;
+        let key_rotation_timer = self.key_rotation_timer(config.device.wg_data.created);
 
         let device_service = self.device_service.clone();
-        let account_token = data.token.clone();
-        let device_id = data.device.id.clone();
+        let account_token = config.account_token.clone();
+        let device_id = config.device.id.clone();
 
         Some(async move {
             key_rotation_timer.await;
@@ -544,7 +625,7 @@ impl AccountManager {
         Self::drain_requests(&mut self.rotation_requests, || Err(err_constructor()));
 
         self.listeners
-            .retain(|listener| listener.send(InnerDeviceEvent::Revoked).is_ok());
+            .retain(|listener| listener.send(PrivateDeviceEvent::Revoked).is_ok());
     }
 
     async fn logout(&mut self, tx: ResponseTx<()>) {
@@ -559,12 +640,12 @@ impl AccountManager {
         }
 
         // Cannot panic: `data.is_none() == false`.
-        let old_data = self.data.take().unwrap();
+        let old_config = self.data.take().unwrap();
 
         self.listeners
-            .retain(|listener| listener.send(InnerDeviceEvent::Logout).is_ok());
+            .retain(|listener| listener.send(PrivateDeviceEvent::Logout).is_ok());
 
-        let logout_call = tokio::spawn(Box::pin(self.logout_api_call(old_data)));
+        let logout_call = tokio::spawn(Box::pin(self.logout_api_call(old_config)));
 
         tokio::spawn(async move {
             let _response = tokio::time::timeout(LOGOUT_TIMEOUT, logout_call).await;
@@ -572,12 +653,12 @@ impl AccountManager {
         });
     }
 
-    fn logout_api_call(&self, data: DeviceData) -> impl Future<Output = ()> + 'static {
+    fn logout_api_call(&self, data: PrivateAccountAndDevice) -> impl Future<Output = ()> + 'static {
         let service = self.device_service.clone();
 
         async move {
             if let Err(error) = service
-                .remove_device_with_backoff(data.token, data.device.id)
+                .remove_device_with_backoff(data.account_token, data.device.id)
                 .await
             {
                 log::error!(
@@ -588,7 +669,7 @@ impl AccountManager {
         }
     }
 
-    async fn set(&mut self, event: InnerDeviceEvent) -> Result<(), Error> {
+    async fn set(&mut self, event: PrivateDeviceEvent) -> Result<(), Error> {
         let data = event.data();
         if data == self.data.as_ref() {
             return Ok(());
@@ -597,9 +678,9 @@ impl AccountManager {
         self.cacher.write(data).await?;
         self.last_validation = None;
 
-        if let Some(old_data) = self.data.take() {
-            if data.as_ref().map(|d| &d.device.id) != Some(&old_data.device.id) {
-                tokio::spawn(self.logout_api_call(old_data));
+        if let Some(old_config) = self.data.take() {
+            if data.as_ref().map(|d| &d.device.id) != Some(&old_config.device.id) {
+                tokio::spawn(self.logout_api_call(old_config));
             }
         }
 
@@ -616,7 +697,11 @@ impl AccountManager {
     ) -> Result<impl Future<Output = Result<WireguardData, Error>>, Error> {
         let data = self.data.clone().ok_or(Error::NoDevice)?;
         let device_service = self.device_service.clone();
-        Ok(async move { device_service.rotate_key(data.token, data.device.id).await })
+        Ok(async move {
+            device_service
+                .rotate_key(data.account_token, data.device.id)
+                .await
+        })
     }
 
     fn key_rotation_timer(&self, key_created: DateTime<Utc>) -> impl Future<Output = ()> + 'static {
@@ -646,25 +731,25 @@ impl AccountManager {
         }
     }
 
-    fn fetch_device_data(
+    fn fetch_device_config(
         &self,
-        old_data: &DeviceData,
+        old_config: &PrivateAccountAndDevice,
     ) -> impl Future<Output = Result<Device, Error>> {
         let device_service = self.device_service.clone();
-        let account_token = old_data.token.clone();
-        let device_id = old_data.device.id.clone();
+        let account_token = old_config.account_token.clone();
+        let device_id = old_config.device.id.clone();
         async move { device_service.get(account_token, device_id).await }
     }
 
     fn validation_call(&self) -> Result<impl Future<Output = Result<Device, Error>>, Error> {
-        let old_data = self.data.as_ref().ok_or(Error::NoDevice)?;
-        let device_request = self.fetch_device_data(old_data);
+        let old_config = self.data.as_ref().ok_or(Error::NoDevice)?;
+        let device_request = self.fetch_device_config(old_config);
         Ok(async move { device_request.await })
     }
 
-    fn cached_validation(&mut self) -> bool {
+    fn needs_validation(&mut self) -> bool {
         if self.data.is_none() {
-            return false;
+            return true;
         }
 
         let now = SystemTime::now();
@@ -675,11 +760,11 @@ impl AccountManager {
             .unwrap_or(VALIDITY_CACHE_TIMEOUT);
 
         if elapsed >= VALIDITY_CACHE_TIMEOUT {
-            self.last_validation = None;
-            return false;
+            self.last_validation = Some(now);
+            return true;
         }
 
-        true
+        false
     }
 
     async fn shutdown(self) {
@@ -692,7 +777,9 @@ pub struct DeviceCacher {
 }
 
 impl DeviceCacher {
-    pub async fn new(settings_dir: &Path) -> Result<(DeviceCacher, Option<DeviceData>), Error> {
+    pub async fn new(
+        settings_dir: &Path,
+    ) -> Result<(DeviceCacher, Option<PrivateAccountAndDevice>), Error> {
         let path = settings_dir.join(DEVICE_CACHE_FILENAME);
         let cache_exists = path.is_file();
 
@@ -703,7 +790,7 @@ impl DeviceCacher {
             .open(&path)
             .await?;
 
-        let device: Option<DeviceData> = if cache_exists {
+        let device: Option<PrivateAccountAndDevice> = if cache_exists {
             let mut reader = io::BufReader::new(&mut file);
             let mut buffer = String::new();
             reader.read_to_string(&mut buffer).await?;
@@ -747,7 +834,7 @@ impl DeviceCacher {
         options
     }
 
-    pub async fn write(&mut self, device: Option<&DeviceData>) -> Result<(), Error> {
+    pub async fn write(&mut self, device: Option<&PrivateAccountAndDevice>) -> Result<(), Error> {
         let data = serde_json::to_vec_pretty(&device).unwrap();
 
         self.file.get_mut().set_len(0).await?;

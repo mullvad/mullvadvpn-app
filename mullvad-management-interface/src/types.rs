@@ -231,7 +231,7 @@ impl From<mullvad_types::device::DeviceEvent> for DeviceEvent {
     fn from(event: mullvad_types::device::DeviceEvent) -> Self {
         DeviceEvent {
             device: event.device.map(|config| DeviceConfig {
-                account_token: config.token,
+                account_token: config.account_token,
                 device: Some(Device::from(config.device)),
             }),
             remote: event.remote,
@@ -249,10 +249,10 @@ impl From<mullvad_types::device::RemoveDeviceEvent> for RemoveDeviceEvent {
     }
 }
 
-impl From<mullvad_types::device::DeviceConfig> for DeviceConfig {
-    fn from(device: mullvad_types::device::DeviceConfig) -> Self {
+impl From<mullvad_types::device::AccountAndDevice> for DeviceConfig {
+    fn from(device: mullvad_types::device::AccountAndDevice) -> Self {
         DeviceConfig {
-            account_token: device.token,
+            account_token: device.account_token,
             device: Some(Device::from(device.device)),
         }
     }

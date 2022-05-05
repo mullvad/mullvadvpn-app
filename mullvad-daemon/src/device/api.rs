@@ -1,13 +1,11 @@
 use std::pin::Pin;
 
 use futures::{future::FusedFuture, Future};
-use mullvad_types::{
-    device::{Device, DeviceData},
-    wireguard::WireguardData,
-};
+use mullvad_types::{device::Device, wireguard::WireguardData};
 
-use super::{Error, ResponseTx};
-pub struct CurrentApiCall {
+use super::{Error, PrivateAccountAndDevice, ResponseTx};
+
+pub(crate) struct CurrentApiCall {
     current_call: Option<Call>,
 }
 
@@ -20,7 +18,7 @@ impl CurrentApiCall {
         self.current_call = None;
     }
 
-    pub fn set_login(&mut self, login: ApiCall<DeviceData>, tx: ResponseTx<()>) {
+    pub fn set_login(&mut self, login: ApiCall<PrivateAccountAndDevice>, tx: ResponseTx<()>) {
         self.current_call = Some(Call::Login(login, Some(tx)));
     }
 
@@ -89,7 +87,7 @@ impl FusedFuture for CurrentApiCall {
 type ApiCall<T> = Pin<Box<dyn Future<Output = Result<T, Error>> + Send>>;
 
 enum Call {
-    Login(ApiCall<DeviceData>, Option<ResponseTx<()>>),
+    Login(ApiCall<PrivateAccountAndDevice>, Option<ResponseTx<()>>),
     TimerKeyRotation(ApiCall<WireguardData>),
     OneshotKeyRotation(ApiCall<WireguardData>),
     Validation(ApiCall<Device>),
@@ -119,8 +117,8 @@ impl futures::Future for Call {
     }
 }
 
-pub enum ApiResult {
-    Login(Result<DeviceData, Error>, ResponseTx<()>),
+pub(crate) enum ApiResult {
+    Login(Result<PrivateAccountAndDevice, Error>, ResponseTx<()>),
     Rotation(Result<WireguardData, Error>),
     Validation(Result<Device, Error>),
 }

@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class DeviceConfig(
-    val token: String,
+data class AccountAndDevice(
+    val account_token: String,
     val device: Device
 ) : Parcelable
