@@ -15,6 +15,11 @@ impl Command for Status {
         clap::App::new(self.name())
             .about("View the state of the VPN tunnel")
             .arg(
+                clap::Arg::new("verbose")
+                    .short('v')
+                    .help("Enables verbose output"),
+            )
+            .arg(
                 clap::Arg::new("location")
                     .long("location")
                     .short('l')
@@ -24,13 +29,15 @@ impl Command for Status {
                 clap::Arg::new("debug")
                     .long("debug")
                     .global(true)
-                    .help("Enables verbose output"),
+                    .help("Enables debug output"),
             )
             .subcommand(clap::App::new("listen").about("Listen for VPN tunnel state changes"))
     }
 
     async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         let debug = matches.is_present("debug");
+        let verbose = matches.is_present("verbose");
+        let show_full_location = matches.is_present("location");
 
         let mut rpc = new_rpc_client().await?;
         let state = rpc.get_tunnel_state(()).await?.into_inner();
@@ -38,10 +45,10 @@ impl Command for Status {
         if debug {
             println!("Tunnel state: {:#?}", state);
         } else {
-            format::print_state(&state);
+            format::print_state(&state, verbose);
         }
 
-        if matches.is_present("location") {
+        if show_full_location {
             print_location(&mut rpc).await?;
         }
 
@@ -54,13 +61,13 @@ impl Command for Status {
                         if debug {
                             println!("New tunnel state: {:#?}", new_state);
                         } else {
-                            format::print_state(&new_state);
+                            format::print_state(&new_state, verbose);
                         }
 
                         use mullvad_management_interface::types::tunnel_state::State::*;
                         match new_state.state.unwrap() {
                             Connected(..) | Disconnected(..) => {
-                                if matches.is_present("location") {
+                                if show_full_location {
                                     print_location(&mut rpc).await?;
                                 }
                             }
@@ -113,21 +120,12 @@ async fn print_location(rpc: &mut ManagementServiceClient) -> Result<()> {
             }
         }
     };
-    if !location.hostname.is_empty() {
-        println!("Relay: {}", location.hostname);
-    }
     if !location.ipv4.is_empty() {
         println!("IPv4: {}", location.ipv4);
     }
     if !location.ipv6.is_empty() {
         println!("IPv6: {}", location.ipv6);
     }
-
-    print!("Location: ");
-    if !location.city.is_empty() {
-        print!("{}, ", location.city);
-    }
-    println!("{}", location.country);
 
     println!(
         "Position: {:.5}°N, {:.5}°W",
