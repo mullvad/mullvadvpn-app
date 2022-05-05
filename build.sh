@@ -316,10 +316,10 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
 
     if [[ "$SIGN" == "true" ]]; then
         CPP_BINARIES=(
-            windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll
-            windows/windns/bin/x64-$CPP_BUILD_MODE/windns.dll
-            windows/winnet/bin/x64-$CPP_BUILD_MODE/winnet.dll
-            windows/driverlogic/bin/x64-$CPP_BUILD_MODE/driverlogic.exe
+            "windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll"
+            "windows/windns/bin/x64-$CPP_BUILD_MODE/windns.dll"
+            "windows/winnet/bin/x64-$CPP_BUILD_MODE/winnet.dll"
+            "windows/driverlogic/bin/x64-$CPP_BUILD_MODE/driverlogic.exe"
             # The nsis plugin is always built in 32 bit release mode
             windows/nsis-plugins/bin/Win32-Release/*.dll
         )
