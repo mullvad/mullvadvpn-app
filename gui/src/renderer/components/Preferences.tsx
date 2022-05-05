@@ -1,17 +1,16 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { colors } from '../../config.json';
 import { IDnsOptions } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { formatMarkdown } from '../markdown-formatter';
 import * as AppButton from './AppButton';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
+import { AriaDescription, AriaDetails, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
-import ImageView from './ImageView';
+import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout } from './Layout';
-import { ModalAlert, ModalAlertType } from './Modal';
+import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import {
   NavigationBar,
   NavigationContainer,
@@ -19,7 +18,12 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
-import { StyledContainer, StyledContent, StyledSeparator } from './PreferencesStyles';
+import {
+  StyledContainer,
+  StyledContent,
+  StyledInfoIcon,
+  StyledSeparator,
+} from './PreferencesStyles';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 export interface IProps {
@@ -76,10 +80,17 @@ export default class Preferences extends React.Component<IProps, IState> {
 
                 <StyledContent>
                   <Cell.CellButton onClick={this.showKillSwitchInfo}>
-                    <Cell.InputLabel>
-                      {messages.pgettext('preferences-view', 'Kill switch')}
-                    </Cell.InputLabel>
-                    <ImageView source="icon-info" width={18} tintColor={colors.white} />
+                    <AriaInputGroup>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Kill switch')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <StyledInfoIcon />
+                      <AriaInput>
+                        <Cell.Switch isOn disabled />
+                      </AriaInput>
+                    </AriaInputGroup>
                   </Cell.CellButton>
                   <StyledSeparator height={20} />
 
@@ -133,6 +144,22 @@ export default class Preferences extends React.Component<IProps, IState> {
                           {messages.pgettext('preferences-view', 'Block ads')}
                         </Cell.InputLabel>
                       </AriaLabel>
+                      <AriaDetails>
+                        <InfoButton>
+                          <ModalMessage>
+                            {messages.pgettext(
+                              'preferences-view',
+                              'When enabled, this feature stops the device from contacting certain known ad domains.',
+                            )}
+                          </ModalMessage>
+                          <ModalMessage>
+                            {messages.pgettext(
+                              'preferences-view',
+                              'Warning: This might cause issues on certain websites, services, and programs.',
+                            )}
+                          </ModalMessage>
+                        </InfoButton>
+                      </AriaDetails>
                       <AriaInput>
                         <Cell.Switch
                           isOn={
@@ -152,6 +179,22 @@ export default class Preferences extends React.Component<IProps, IState> {
                           {messages.pgettext('preferences-view', 'Block trackers')}
                         </Cell.InputLabel>
                       </AriaLabel>
+                      <AriaDetails>
+                        <InfoButton>
+                          <ModalMessage>
+                            {messages.pgettext(
+                              'preferences-view',
+                              'When enabled, this feature stops the device from contacting certain domains known to track users.',
+                            )}
+                          </ModalMessage>
+                          <ModalMessage>
+                            {messages.pgettext(
+                              'preferences-view',
+                              'Warning: This might cause issues on certain websites, services, and programs.',
+                            )}
+                          </ModalMessage>
+                        </InfoButton>
+                      </AriaDetails>
                       <AriaInput>
                         <Cell.Switch
                           isOn={
@@ -171,6 +214,22 @@ export default class Preferences extends React.Component<IProps, IState> {
                           {messages.pgettext('preferences-view', 'Block malware')}
                         </Cell.InputLabel>
                       </AriaLabel>
+                      <AriaDetails>
+                        <InfoButton>
+                          <ModalMessage>
+                            {messages.pgettext(
+                              'preferences-view',
+                              'When enabled, this feature stops the device from contacting certain domains known to host malware.',
+                            )}
+                          </ModalMessage>
+                          <ModalMessage>
+                            {messages.pgettext(
+                              'preferences-view',
+                              'Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection.',
+                            )}
+                          </ModalMessage>
+                        </InfoButton>
+                      </AriaDetails>
                       <AriaInput>
                         <Cell.Switch
                           isOn={
@@ -190,6 +249,14 @@ export default class Preferences extends React.Component<IProps, IState> {
                           {messages.pgettext('preferences-view', 'Block adult content')}
                         </Cell.InputLabel>
                       </AriaLabel>
+                      <AriaDetails>
+                        <InfoButton
+                          message={messages.pgettext(
+                            'preferences-view',
+                            'When enabled, this feature stops the device from contacting certain websites and services known to host adult content.',
+                          )}
+                        />
+                      </AriaDetails>
                       <AriaInput>
                         <Cell.Switch
                           isOn={
@@ -209,6 +276,14 @@ export default class Preferences extends React.Component<IProps, IState> {
                           {messages.pgettext('preferences-view', 'Block gambling')}
                         </Cell.InputLabel>
                       </AriaLabel>
+                      <AriaDetails>
+                        <InfoButton
+                          message={messages.pgettext(
+                            'preferences-view',
+                            'When enabled, this feature stops the device from contacting certain websites and services known to host gambling content.',
+                          )}
+                        />
+                      </AriaDetails>
                       <AriaInput>
                         <Cell.Switch
                           isOn={
