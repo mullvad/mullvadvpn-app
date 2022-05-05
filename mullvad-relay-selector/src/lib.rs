@@ -1727,6 +1727,7 @@ mod test {
     const WIREGUARD_MULTIHOP_CONSTRAINTS: RelayConstraints = RelayConstraints {
         location: Constraint::Any,
         providers: Constraint::Any,
+        ownership: Constraint::Any,
         wireguard_constraints: WireguardConstraints {
             use_multihop: true,
             port: Constraint::Any,
@@ -1742,6 +1743,7 @@ mod test {
     const WIREGUARD_SINGLEHOP_CONSTRAINTS: RelayConstraints = RelayConstraints {
         location: Constraint::Any,
         providers: Constraint::Any,
+        ownership: Constraint::Any,
         wireguard_constraints: WireguardConstraints {
             use_multihop: false,
             port: Constraint::Any,
