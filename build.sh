@@ -380,7 +380,17 @@ popd
 
 SEMVER_VERSION=$(echo "$PRODUCT_VERSION" | sed -Ee 's/($|-.*)/.0\1/g')
 for semver_path in dist/*"$SEMVER_VERSION"*; do
-    product_path=$(echo "$semver_path" | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
+    # If there is a tag for this commit then we append that to the produced binaries
+    # We don't want to change the actual PRODUCT_VERSION as metadata in the form of +<metadata> is ignored by electron builder etc
+    # `git tag --points-at` defaults to point at HEAD
+    TAG=$(git tag --points-at)
+    if [[ -n $TAG ]]; then
+        # Remove disallowed version characters from the tag
+        TAG=${TAG//[^0-9a-z_-]/}
+        product_path=$(echo "$semver_path" | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION+$TAG/g")
+    else
+        product_path=$(echo "$semver_path" | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
+    fi
     log_info "Moving $semver_path -> $product_path"
     mv "$semver_path" "$product_path"
 
