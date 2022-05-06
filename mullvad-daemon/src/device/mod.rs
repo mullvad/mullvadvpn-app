@@ -4,7 +4,7 @@ use futures::{
     stream::StreamExt,
 };
 
-use mullvad_api::{availability::ApiAvailabilityHandle, rest};
+use mullvad_api::rest;
 use mullvad_types::{
     account::AccountToken,
     device::{AccountAndDevice, Device, DeviceEvent, DeviceId, DeviceName, DevicePort},
@@ -201,7 +201,6 @@ enum AccountManagerCommand {
     RotateKey(ResponseTx<()>),
     SetRotationInterval(RotationInterval, ResponseTx<()>),
     ValidateDevice(ResponseTx<()>),
-    ReceiveEvents(Box<dyn Sender<PrivateDeviceEvent> + Send>, ResponseTx<()>),
     Shutdown(oneshot::Sender<()>),
 }
 
@@ -253,16 +252,6 @@ impl AccountManagerHandle {
             .await
     }
 
-    pub async fn receive_events(
-        &self,
-        events_tx: impl Sender<PrivateDeviceEvent> + Send + 'static,
-    ) -> Result<(), Error> {
-        self.send_command(|tx| {
-            AccountManagerCommand::ReceiveEvents(Box::new(events_tx) as Box<_>, tx)
-        })
-        .await
-    }
-
     pub async fn shutdown(self) {
         let (tx, rx) = oneshot::channel();
         let _ = self
@@ -298,12 +287,13 @@ pub(crate) struct AccountManager {
 impl AccountManager {
     pub async fn spawn(
         rest_handle: rest::MullvadRestHandle,
-        api_availability: ApiAvailabilityHandle,
         settings_dir: &Path,
         initial_rotation_interval: RotationInterval,
+        listener_tx: impl Sender<PrivateDeviceEvent> + Send + 'static,
     ) -> Result<AccountManagerHandle, Error> {
         let (cacher, data) = DeviceCacher::new(settings_dir).await?;
         let token = data.as_ref().map(|state| state.account_token.clone());
+        let api_availability = rest_handle.availability.clone();
         let account_service =
             service::spawn_account_service(rest_handle.clone(), token, api_availability.clone());
 
@@ -315,7 +305,7 @@ impl AccountManager {
             device_service: device_service.clone(),
             data,
             rotation_interval: initial_rotation_interval,
-            listeners: vec![],
+            listeners: vec![Box::new(listener_tx)],
             last_validation: None,
             validation_requests: vec![],
             rotation_requests: vec![],
@@ -397,9 +387,6 @@ impl AccountManager {
                         }
                         Some(AccountManagerCommand::ValidateDevice(tx)) => {
                             self.handle_validation_request(tx, &mut current_api_call);
-                        }
-                        Some(AccountManagerCommand::ReceiveEvents(events_tx, tx)) => {
-                            let _ = tx.send(Ok(self.listeners.push(events_tx)));
                         },
 
                         None => {

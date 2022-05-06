@@ -599,20 +599,16 @@ where
 
         let account_manager = device::AccountManager::spawn(
             api_handle.clone(),
-            api_availability.clone(),
             &settings_dir,
             settings
                 .tunnel_options
                 .wireguard
                 .rotation_interval
                 .unwrap_or_default(),
+            internal_event_tx.to_specialized_sender(),
         )
         .await
         .map_err(Error::LoadAccountManager)?;
-        account_manager
-            .receive_events(internal_event_tx.to_specialized_sender())
-            .await
-            .map_err(Error::LoadAccountManager)?;
         let data = account_manager
             .data()
             .await
