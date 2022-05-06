@@ -146,6 +146,34 @@ impl DeviceService {
         Ok(())
     }
 
+    /// Same as [Self::remove_device] but returns the removed device and all remaining devices on
+    /// success.
+    pub async fn take_device(
+        &self,
+        account_token: AccountToken,
+        device_id: DeviceId,
+    ) -> Result<(Device, Vec<Device>), Error> {
+        let mut devices = self.list_devices(account_token.clone()).await?;
+        self.remove_device(account_token, device_id.clone()).await?;
+        if let Some(index) = devices.iter().position(|device| device.id == device_id) {
+            Ok((devices.swap_remove(index), devices))
+        } else {
+            // You would only end up here if the API service successfully removed a device that
+            // was previously not included in the list returned by it, which should be impossible.
+            // Just return a bogus device in its place.
+            log::error!("List did not contain the revoked device");
+            Ok((
+                Device {
+                    id: device_id,
+                    name: "unknown device".to_string(),
+                    pubkey: talpid_types::net::wireguard::PublicKey::from([0u8; 32]),
+                    ports: vec![],
+                },
+                devices,
+            ))
+        }
+    }
+
     pub async fn rotate_key(
         &self,
         token: AccountToken,
