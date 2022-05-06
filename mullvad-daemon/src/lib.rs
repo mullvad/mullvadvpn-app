@@ -34,7 +34,6 @@ use futures::{
     future::{abortable, AbortHandle, Future},
     StreamExt,
 };
-use mullvad_api::availability::ApiAvailabilityHandle;
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
@@ -557,7 +556,7 @@ where
             &cache_dir,
             true,
             #[cfg(target_os = "android")]
-            Self::create_bypass_tx(&internal_event_tx),
+            api::create_bypass_tx(&internal_event_tx),
         )
         .await
         .map_err(Error::InitRpcFactory)?;
@@ -673,7 +672,7 @@ where
 
         endpoint_updater.set_tunnel_command_tx(Arc::downgrade(&tunnel_command_tx));
 
-        Self::forward_offline_state(api_availability.clone(), offline_state_rx).await;
+        api::forward_offline_state(api_availability.clone(), offline_state_rx);
 
         let relay_list_listener = event_listener.clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
@@ -2084,39 +2083,6 @@ where
                 self.send_tunnel_command(TunnelCommand::BypassSocket(fd, tx));
             }
         }
-    }
-
-    #[cfg(target_os = "android")]
-    fn create_bypass_tx(
-        event_sender: &DaemonEventSender,
-    ) -> Option<mpsc::Sender<mullvad_api::SocketBypassRequest>> {
-        let (bypass_tx, mut bypass_rx) = mpsc::channel(1);
-        let daemon_tx = event_sender.to_specialized_sender();
-        tokio::spawn(async move {
-            while let Some((raw_fd, done_tx)) = bypass_rx.next().await {
-                if let Err(_) = daemon_tx.send(DaemonCommand::BypassSocket(raw_fd, done_tx)) {
-                    log::error!("Can't send socket bypass request to daemon");
-                    break;
-                }
-            }
-        });
-        Some(bypass_tx)
-    }
-
-    async fn forward_offline_state(
-        api_availability: ApiAvailabilityHandle,
-        mut offline_state_rx: mpsc::UnboundedReceiver<bool>,
-    ) {
-        let initial_state = offline_state_rx
-            .next()
-            .await
-            .expect("missing initial offline state");
-        api_availability.set_offline(initial_state);
-        tokio::spawn(async move {
-            while let Some(is_offline) = offline_state_rx.next().await {
-                api_availability.set_offline(is_offline);
-            }
-        });
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
