@@ -23,7 +23,7 @@ pub enum Error {
     #[error(display = "Not logged in on a valid device")]
     NoAuthDetails,
 
-    #[error(display = "No bridge available")]
+    #[error(display = "No relay available")]
     NoRelayAvailable,
 
     #[error(display = "No bridge available")]
