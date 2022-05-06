@@ -6,6 +6,8 @@ extern crate serde;
 
 pub mod account_history;
 mod api;
+#[cfg(not(target_os = "android"))]
+mod cleanup;
 pub mod device;
 mod dns;
 pub mod exception_logging;
@@ -51,8 +53,6 @@ use mullvad_types::{
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
-#[cfg(not(target_os = "android"))]
-use std::path::Path;
 #[cfg(target_os = "windows")]
 use std::{collections::HashSet, ffi::OsString};
 use std::{
@@ -76,7 +76,7 @@ use talpid_types::{
     tunnel::{ErrorStateCause, TunnelStateTransition},
     ErrorExt,
 };
-#[cfg(not(target_os = "android"))]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 use tokio::fs;
 use tokio::io;
 
@@ -150,41 +150,12 @@ pub enum Error {
     #[error(display = "Account history error")]
     AccountHistory(#[error(source)] account_history::Error),
 
-    #[error(display = "Failed to clear cache directory")]
-    ClearCacheError,
-
-    #[error(display = "Failed to clear logs directory")]
-    ClearLogsError,
-
-    #[error(display = "Failed to clear account history")]
-    ClearAccountHistoryError(#[error(source)] account_history::Error),
-
-    #[error(display = "Failed to clear settings")]
-    ClearSettingsError(#[error(source)] settings::Error),
+    #[cfg(not(target_os = "android"))]
+    #[error(display = "Factory reset partially failed: {}", _0)]
+    FactoryResetError(&'static str),
 
     #[error(display = "Tunnel state machine error")]
     TunnelError(#[error(source)] tunnel_state_machine::Error),
-
-    #[error(display = "Failed to remove directory {}", _0)]
-    RemoveDirError(String, #[error(source)] io::Error),
-
-    #[error(display = "Failed to create directory {}", _0)]
-    CreateDirError(String, #[error(source)] io::Error),
-
-    #[error(display = "Failed to get path")]
-    PathError(#[error(source)] mullvad_paths::Error),
-
-    #[cfg(target_os = "windows")]
-    #[error(display = "Failed to get file type info")]
-    FileTypeError(#[error(source)] io::Error),
-
-    #[cfg(target_os = "windows")]
-    #[error(display = "Failed to get dir entry")]
-    FileEntryError(#[error(source)] io::Error),
-
-    #[cfg(target_os = "windows")]
-    #[error(display = "Failed to read dir entries")]
-    ReadDirError(#[error(source)] io::Error),
 
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
@@ -1515,7 +1486,6 @@ where
                 "{}",
                 error.display_chain_with_msg("Failed to clear device cache")
             );
-            last_error = Err(Error::LogoutError(error));
         }
 
         if let Err(error) = self.account_history.clear().await {
@@ -1523,32 +1493,26 @@ where
                 "{}",
                 error.display_chain_with_msg("Failed to clear account history")
             );
-            last_error = Err(Error::ClearAccountHistoryError(error));
+            last_error = Err(Error::FactoryResetError("Failed to clear account history"));
         }
 
         if let Err(e) = self.settings.reset().await {
             log::error!("Failed to reset settings: {}", e);
-            last_error = Err(Error::ClearSettingsError(e));
+            last_error = Err(Error::FactoryResetError("Failed to reset settings"));
         }
 
         // Shut the daemon down.
         self.trigger_shutdown_event();
 
         self.shutdown_tasks.push(Box::pin(async move {
-            if let Err(e) = Self::clear_cache_directory().await {
+            if let Err(e) = cleanup::clear_directories().await {
                 log::error!(
                     "{}",
-                    e.display_chain_with_msg("Failed to clear cache directory")
+                    e.display_chain_with_msg("Failed to clear cache and log directories")
                 );
-                last_error = Err(Error::ClearCacheError);
-            }
-
-            if let Err(e) = Self::clear_log_directory().await {
-                log::error!(
-                    "{}",
-                    e.display_chain_with_msg("Failed to clear log directory")
-                );
-                last_error = Err(Error::ClearLogsError);
+                last_error = Err(Error::FactoryResetError(
+                    "Failed to clear cache and log directories",
+                ));
             }
             Self::oneshot_send(tx, last_error, "factory_reset response");
         }));
@@ -2249,58 +2213,6 @@ where
         self.tunnel_command_tx
             .unbounded_send(command)
             .expect("Tunnel state machine has stopped");
-    }
-
-    #[cfg(not(target_os = "android"))]
-    async fn clear_log_directory() -> Result<(), Error> {
-        let log_dir = mullvad_paths::get_log_dir().map_err(Error::PathError)?;
-        Self::clear_directory(&log_dir).await
-    }
-
-    #[cfg(not(target_os = "android"))]
-    async fn clear_cache_directory() -> Result<(), Error> {
-        let cache_dir = mullvad_paths::cache_dir().map_err(Error::PathError)?;
-        Self::clear_directory(&cache_dir).await
-    }
-
-    #[cfg(not(target_os = "android"))]
-    async fn clear_directory(path: &Path) -> Result<(), Error> {
-        #[cfg(not(target_os = "windows"))]
-        {
-            fs::remove_dir_all(path)
-                .await
-                .map_err(|e| Error::RemoveDirError(path.display().to_string(), e))?;
-            fs::create_dir_all(path)
-                .await
-                .map_err(|e| Error::CreateDirError(path.display().to_string(), e))
-        }
-        #[cfg(target_os = "windows")]
-        {
-            let mut dir = fs::read_dir(&path).await.map_err(Error::ReadDirError)?;
-
-            let mut result = Ok(());
-
-            while let Some(entry) = dir.next_entry().await.map_err(Error::FileEntryError)? {
-                let entry_type = match entry.file_type().await {
-                    Ok(entry_type) => entry_type,
-                    Err(error) => {
-                        result = result.and(Err(Error::FileTypeError(error)));
-                        continue;
-                    }
-                };
-
-                let removal = if entry_type.is_file() || entry_type.is_symlink() {
-                    fs::remove_file(entry.path()).await
-                } else {
-                    fs::remove_dir_all(entry.path()).await
-                };
-                result = result.and(
-                    removal
-                        .map_err(|e| Error::RemoveDirError(entry.path().display().to_string(), e)),
-                );
-            }
-            result
-        }
     }
 
     pub fn shutdown_handle(&self) -> DaemonShutdownHandle {
