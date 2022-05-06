@@ -1,8 +1,11 @@
+#[cfg(target_os = "android")]
+use crate::{DaemonCommand, DaemonEventSender};
 use futures::{
     channel::{mpsc, oneshot},
-    Future, Stream,
+    Future, Stream, StreamExt,
 };
 use mullvad_api::{
+    availability::ApiAvailabilityHandle,
     proxy::{ApiConnectionMode, ProxyConfig},
     ApiEndpointUpdateCallback,
 };
@@ -14,6 +17,8 @@ use std::{
     sync::{Arc, Mutex, Weak},
     task::Poll,
 };
+#[cfg(target_os = "android")]
+use talpid_core::mpsc::Sender;
 use talpid_core::tunnel_state_machine::TunnelCommand;
 use talpid_types::{
     net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint, TransportProtocol},
@@ -174,4 +179,37 @@ pub(super) fn get_allowed_endpoint(api_address: SocketAddr) -> AllowedEndpoint {
         clients,
         endpoint,
     }
+}
+
+pub(crate) fn forward_offline_state(
+    api_availability: ApiAvailabilityHandle,
+    mut offline_state_rx: mpsc::UnboundedReceiver<bool>,
+) {
+    tokio::spawn(async move {
+        let initial_state = offline_state_rx
+            .next()
+            .await
+            .expect("missing initial offline state");
+        api_availability.set_offline(initial_state);
+        while let Some(is_offline) = offline_state_rx.next().await {
+            api_availability.set_offline(is_offline);
+        }
+    });
+}
+
+#[cfg(target_os = "android")]
+pub(crate) fn create_bypass_tx(
+    event_sender: &DaemonEventSender,
+) -> Option<mpsc::Sender<mullvad_api::SocketBypassRequest>> {
+    let (bypass_tx, mut bypass_rx) = mpsc::channel(1);
+    let daemon_tx = event_sender.to_specialized_sender();
+    tokio::spawn(async move {
+        while let Some((raw_fd, done_tx)) = bypass_rx.next().await {
+            if let Err(_) = daemon_tx.send(DaemonCommand::BypassSocket(raw_fd, done_tx)) {
+                log::error!("Can't send socket bypass request to daemon");
+                break;
+            }
+        }
+    });
+    Some(bypass_tx)
 }
