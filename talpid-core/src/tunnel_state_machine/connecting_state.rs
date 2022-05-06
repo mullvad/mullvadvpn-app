@@ -528,10 +528,11 @@ impl TunnelState for ConnectingState {
         if shared_values.is_offline {
             return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
         }
-        match shared_values
-            .tunnel_parameters_generator
-            .generate(retry_attempt)
-        {
+        match shared_values.runtime.block_on(
+            shared_values
+                .tunnel_parameters_generator
+                .generate(retry_attempt),
+        ) {
             Err(err) => {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
             }

@@ -1,10 +1,13 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    future::Future,
+    pin::Pin,
+    sync::{Arc, Mutex},
+};
 
-use futures::{channel::mpsc, StreamExt};
 use mullvad_relay_selector::{RelaySelector, SelectedBridge, SelectedObfuscator, SelectedRelay};
 use mullvad_types::{
-    endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::Relay, settings::TunnelOptions,
-    wireguard::WireguardData,
+    device::DeviceData, endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::Relay,
+    settings::TunnelOptions,
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 use talpid_types::{
@@ -39,16 +42,10 @@ pub(crate) struct ParametersGenerator(Arc<Mutex<InnerParametersGenerator>>);
 struct InnerParametersGenerator {
     relay_selector: RelaySelector,
     tunnel_options: TunnelOptions,
-    auth_details: Option<AuthDetails>,
+    account_manager: AccountManagerHandle,
 
     // TODO: Move this to `RelaySelector`?
     last_generated_relays: Option<LastSelectedRelays>,
-}
-
-struct AuthDetails {
-    #[cfg(not(target_os = "android"))]
-    openvpn_user: String,
-    wg_data: WireguardData,
 }
 
 impl ParametersGenerator {
@@ -62,12 +59,10 @@ impl ParametersGenerator {
             tunnel_options,
             relay_selector,
 
-            auth_details: None,
+            account_manager,
 
             last_generated_relays: None,
         })));
-
-        self_.spawn_auth_updater(account_manager).await?;
 
         Ok(self_)
     }
@@ -127,59 +122,11 @@ impl ParametersGenerator {
             obfuscator_hostname,
         })
     }
-
-    async fn spawn_auth_updater(&self, account_manager: AccountManagerHandle) -> Result<(), Error> {
-        let (device_event_tx, mut device_event_rx) = mpsc::unbounded();
-
-        let account_manager_copy = account_manager.clone();
-
-        let self_ = Arc::downgrade(&self.0);
-
-        tokio::spawn(async move {
-            account_manager
-                .receive_events(device_event_tx)
-                .await
-                .expect("failed to register event listener");
-
-            while let Some(event) = device_event_rx.next().await {
-                match self_.upgrade() {
-                    Some(self_) => {
-                        self_.lock().unwrap().auth_details =
-                            event.into_data().map(|data| AuthDetails {
-                                #[cfg(not(target_os = "android"))]
-                                openvpn_user: data.token,
-                                wg_data: data.wg_data,
-                            });
-                    }
-                    None => return,
-                }
-            }
-        });
-
-        self.0.lock().unwrap().auth_details = account_manager_copy
-            .data()
-            .await
-            .map_err(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to initialize device")
-                );
-                Error::NoAuthDetails
-            })?
-            .map(|data| AuthDetails {
-                #[cfg(not(target_os = "android"))]
-                openvpn_user: data.token,
-                wg_data: data.wg_data,
-            });
-
-        Ok(())
-    }
 }
 
 impl InnerParametersGenerator {
-    fn generate(&mut self, retry_attempt: u32) -> Result<TunnelParameters, Error> {
-        let _auth_details = self.auth_details.as_ref().ok_or(Error::NoAuthDetails)?;
-
+    async fn generate(&mut self, retry_attempt: u32) -> Result<TunnelParameters, Error> {
+        let _data = self.device().await?;
         match self.relay_selector.get_relay(retry_attempt) {
             Ok((SelectedRelay::Custom(custom_relay), _bridge, _obfsucator)) => {
                 custom_relay
@@ -190,21 +137,23 @@ impl InnerParametersGenerator {
                         Error::ResolveCustomHostnameError
                     })
             }
-            Ok((SelectedRelay::Normal(constraints), bridge, obfuscator)) => self
-                .create_tunnel_parameters(
+            Ok((SelectedRelay::Normal(constraints), bridge, obfuscator)) => {
+                self.create_tunnel_parameters(
                     &constraints.exit_relay,
                     &constraints.entry_relay,
                     constraints.endpoint,
                     bridge,
                     obfuscator,
-                ),
+                )
+                .await
+            }
             Err(mullvad_relay_selector::Error::NoBridge) => Err(Error::NoBridgeAvailable),
             Err(_error) => Err(Error::NoRelayAvailable),
         }
     }
 
     #[cfg_attr(target_os = "android", allow(unused_variables))]
-    fn create_tunnel_parameters(
+    async fn create_tunnel_parameters(
         &mut self,
         relay: &Relay,
         entry_relay: &Option<Relay>,
@@ -212,8 +161,7 @@ impl InnerParametersGenerator {
         bridge: Option<SelectedBridge>,
         obfuscator: Option<SelectedObfuscator>,
     ) -> Result<TunnelParameters, Error> {
-        let auth_details = self.auth_details.as_ref().ok_or(Error::NoAuthDetails)?;
-
+        let data = self.device().await?;
         match endpoint {
             #[cfg(not(target_os = "android"))]
             MullvadEndpoint::OpenVpn(endpoint) => {
@@ -231,11 +179,7 @@ impl InnerParametersGenerator {
                 });
 
                 Ok(openvpn::TunnelParameters {
-                    config: openvpn::ConnectionConfig::new(
-                        endpoint,
-                        auth_details.openvpn_user.clone(),
-                        "-".to_string(),
-                    ),
+                    config: openvpn::ConnectionConfig::new(endpoint, data.token, "-".to_string()),
                     options: self.tunnel_options.openvpn.clone(),
                     generic_options: self.tunnel_options.generic.clone(),
                     proxy: bridge_settings,
@@ -248,10 +192,10 @@ impl InnerParametersGenerator {
             }
             MullvadEndpoint::Wireguard(endpoint) => {
                 let tunnel = wireguard::TunnelConfig {
-                    private_key: auth_details.wg_data.private_key.clone(),
+                    private_key: data.wg_data.private_key,
                     addresses: vec![
-                        auth_details.wg_data.addresses.ipv4_address.ip().into(),
-                        auth_details.wg_data.addresses.ipv6_address.ip().into(),
+                        data.wg_data.addresses.ipv4_address.ip().into(),
+                        data.wg_data.addresses.ipv6_address.ip().into(),
                     ],
                 };
 
@@ -282,26 +226,41 @@ impl InnerParametersGenerator {
             }
         }
     }
+
+    async fn device(&self) -> Result<DeviceData, Error> {
+        self.account_manager
+            .data()
+            .await
+            .ok()
+            .flatten()
+            .ok_or(Error::NoAuthDetails)
+    }
 }
 
 impl TunnelParametersGenerator for ParametersGenerator {
     fn generate(
         &mut self,
         retry_attempt: u32,
-    ) -> Result<TunnelParameters, ParameterGenerationError> {
-        let mut inner = self.0.lock().unwrap();
-        inner.generate(retry_attempt).map_err(|error| match error {
-            Error::NoBridgeAvailable => ParameterGenerationError::NoMatchingBridgeRelay,
-            Error::ResolveCustomHostnameError => {
-                ParameterGenerationError::CustomTunnelHostResultionError
-            }
-            error => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to generate tunnel parameters")
-                );
-                ParameterGenerationError::NoMatchingRelay
-            }
+    ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>> {
+        let generator = self.0.clone();
+        Box::pin(async move {
+            let mut inner = generator.lock().unwrap();
+            inner
+                .generate(retry_attempt)
+                .await
+                .map_err(|error| match error {
+                    Error::NoBridgeAvailable => ParameterGenerationError::NoMatchingBridgeRelay,
+                    Error::ResolveCustomHostnameError => {
+                        ParameterGenerationError::CustomTunnelHostResultionError
+                    }
+                    error => {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to generate tunnel parameters")
+                        );
+                        ParameterGenerationError::NoMatchingRelay
+                    }
+                })
         })
     }
 }
