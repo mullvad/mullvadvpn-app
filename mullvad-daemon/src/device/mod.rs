@@ -862,6 +862,7 @@ impl DeviceCacher {
         let _ = tokio::task::spawn_blocking(move || drop(std_file)).await;
     }
 }
+
 /// Checks if the current device is valid if a WireGuard tunnel cannot be set up
 /// after multiple attempts.
 pub(crate) struct TunnelStateChangeHandler {

@@ -1376,50 +1376,28 @@ where
     async fn on_remove_device(
         &mut self,
         tx: ResponseTx<(), Error>,
-        token: AccountToken,
+        account_token: AccountToken,
         device_id: DeviceId,
     ) {
         let device_service = self.account_manager.device_service.clone();
         let event_listener = self.event_listener.clone();
 
         tokio::spawn(async move {
-            let mut devices = match device_service
-                .list_devices(token.clone())
+            let result = device_service
+                .remove_device(account_token.clone(), device_id)
                 .await
-                .map_err(Error::ListDevicesError)
-            {
-                Ok(devices) => devices,
-                Err(error) => {
-                    Self::oneshot_send(tx, Err(error), "remove_device response");
-                    return;
-                }
-            };
-            if let Err(error) = device_service
-                .remove_device(token.clone(), device_id.clone())
-                .await
-                .map_err(Error::RemoveDeviceError)
-            {
-                Self::oneshot_send(tx, Err(error), "remove_device response");
-                return;
-            };
-            let removed_device =
-                if let Some(index) = devices.iter().position(|device| device.id == device_id) {
-                    devices.swap_remove(index)
-                } else {
-                    log::error!("List did not contain the revoked device");
-                    Device {
-                        id: device_id,
-                        name: "unknown device".to_string(),
-                        pubkey: talpid_types::net::wireguard::PublicKey::from([0u8; 32]),
-                        ports: vec![],
-                    }
-                };
-            event_listener.notify_remove_device_event(RemoveDeviceEvent {
-                account_token: token,
-                removed_device,
-                new_devices: devices,
-            });
-            Self::oneshot_send(tx, Ok(()), "remove_device response");
+                .map(move |(removed_device, new_devices)| {
+                    event_listener.notify_remove_device_event(RemoveDeviceEvent {
+                        account_token,
+                        removed_device,
+                        new_devices,
+                    });
+                });
+            Self::oneshot_send(
+                tx,
+                result.map_err(Error::RemoveDeviceError),
+                "remove_device response",
+            );
         });
     }
 
