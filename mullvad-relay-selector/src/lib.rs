@@ -1296,7 +1296,7 @@ mod test {
                                     ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
                                     include_in_country: true,
                                     active: true,
-                                    owned: true,
+                                    owned: false,
                                     provider: "31173".to_string(),
                                     weight: 1,
                                     tunnels: RelayTunnels {
@@ -1893,5 +1893,36 @@ mod test {
         relay_selector
             .get_tunnel_endpoint(&constraints, BridgeState::Off, 0)
             .expect_err("Successfully selected a relay that should be filtered");
+    }
+
+    #[test]
+    fn test_ownership() {
+        let relay_selector = new_relay_selector();
+        let mut constraints = RelayConstraints::default();
+        for i in 0..10 {
+            constraints.ownership = Constraint::Only(Ownership::MullvadOwned);
+            let relay = relay_selector
+                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i)
+                .unwrap();
+            assert!(matches!(
+                relay,
+                NormalSelectedRelay {
+                    exit_relay: Relay { owned: true, .. },
+                    ..
+                }
+            ));
+
+            constraints.ownership = Constraint::Only(Ownership::Rented);
+            let relay = relay_selector
+                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i)
+                .unwrap();
+            assert!(matches!(
+                relay,
+                NormalSelectedRelay {
+                    exit_relay: Relay { owned: false, .. },
+                    ..
+                }
+            ));
+        }
     }
 }
