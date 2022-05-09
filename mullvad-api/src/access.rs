@@ -10,7 +10,7 @@ use std::{
 };
 use talpid_types::ErrorExt;
 
-pub const AUTH_URL_PREFIX: &str = "auth/v1-beta1";
+pub const AUTH_URL_PREFIX: &str = "auth/v1";
 
 #[derive(Clone)]
 pub struct AccessTokenProxy {

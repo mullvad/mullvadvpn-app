@@ -55,7 +55,7 @@ pub const PUBKEY_IN_USE: &str = "PUBKEY_IN_USE";
 
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 
-const ACCOUNTS_URL_PREFIX: &str = "accounts/v1-beta1";
+const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
 
 lazy_static::lazy_static! {
