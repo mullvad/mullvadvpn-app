@@ -285,12 +285,14 @@ pub(crate) struct AccountManager {
 }
 
 impl AccountManager {
+    /// Starts the account manager actor and returns a handle to it as well as the
+    /// current device.
     pub async fn spawn(
         rest_handle: rest::MullvadRestHandle,
         settings_dir: &Path,
         initial_rotation_interval: RotationInterval,
         listener_tx: impl Sender<PrivateDeviceEvent> + Send + 'static,
-    ) -> Result<AccountManagerHandle, Error> {
+    ) -> Result<(AccountManagerHandle, Option<PrivateAccountAndDevice>), Error> {
         let (cacher, data) = DeviceCacher::new(settings_dir).await?;
         let token = data.as_ref().map(|state| state.account_token.clone());
         let api_availability = rest_handle.availability.clone();
@@ -303,7 +305,7 @@ impl AccountManager {
         let manager = AccountManager {
             cacher,
             device_service: device_service.clone(),
-            data,
+            data: data.clone(),
             rotation_interval: initial_rotation_interval,
             listeners: vec![Box::new(listener_tx)],
             last_validation: None,
@@ -318,7 +320,7 @@ impl AccountManager {
             account_service,
             device_service,
         };
-        Ok(handle)
+        Ok((handle, data))
     }
 
     async fn run(mut self, mut cmd_rx: mpsc::UnboundedReceiver<AccountManagerCommand>) {

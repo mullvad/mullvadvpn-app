@@ -597,7 +597,7 @@ where
             migrations::MigrationComplete::new(true)
         };
 
-        let account_manager = device::AccountManager::spawn(
+        let (account_manager, data) = device::AccountManager::spawn(
             api_handle.clone(),
             &settings_dir,
             settings
@@ -609,10 +609,6 @@ where
         )
         .await
         .map_err(Error::LoadAccountManager)?;
-        let data = account_manager
-            .data()
-            .await
-            .map_err(Error::LoadAccountManager)?;
 
         let account_history = account_history::AccountHistory::new(
             &settings_dir,
