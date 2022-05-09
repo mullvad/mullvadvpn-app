@@ -54,6 +54,7 @@ Line wrap the file at 100 chars.                                              Th
 - Decrease the time it takes to connect to WireGuard relays by sending an ICMP packet immediately.
 - Pause API interactions when the daemon has not been used for 3 days.
 - Simplified output of `mullvad status` command.
+- Lowered default MTU to 1280 on Android.
 
 ### Fixed
 - Fix the sometimes incorrect time added text after adding time to the account.
