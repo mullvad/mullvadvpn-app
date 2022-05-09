@@ -32,9 +32,11 @@ use futures::{
 use std::os::unix::io::RawFd;
 use std::{
     collections::HashSet,
+    future::Future,
     io,
     net::IpAddr,
     path::PathBuf,
+    pin::Pin,
     sync::{Arc, Mutex},
     time::Duration,
 };
@@ -366,7 +368,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
     fn generate(
         &mut self,
         retry_attempt: u32,
-    ) -> Result<TunnelParameters, ParameterGenerationError>;
+    ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>>;
 }
 
 /// Values that are common to all tunnel states.

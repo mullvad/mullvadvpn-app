@@ -170,7 +170,7 @@ impl From<PrivateDeviceEvent> for DeviceEvent {
 }
 
 impl PrivateDeviceEvent {
-    fn data(&self) -> Option<&PrivateAccountAndDevice> {
+    pub fn data(&self) -> Option<&PrivateAccountAndDevice> {
         match self {
             PrivateDeviceEvent::Login(config) => Some(config),
             PrivateDeviceEvent::Updated(config) => Some(config),
