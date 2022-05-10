@@ -63,6 +63,9 @@ msgid_plural "%d hours ago"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "Any"
+msgstr ""
+
 msgid "Apply"
 msgstr ""
 
@@ -586,11 +589,35 @@ msgstr ""
 
 #. Title label in navigation bar
 msgctxt "filter-nav"
-msgid "Filter by provider"
+msgid "Filter"
 msgstr ""
 
 msgctxt "filter-view"
 msgid "All providers"
+msgstr ""
+
+msgctxt "filter-view"
+msgid "Mullvad owned only"
+msgstr ""
+
+msgctxt "filter-view"
+msgid "Owned"
+msgstr ""
+
+msgctxt "filter-view"
+msgid "Ownership"
+msgstr ""
+
+msgctxt "filter-view"
+msgid "Providers"
+msgstr ""
+
+msgctxt "filter-view"
+msgid "Rented"
+msgstr ""
+
+msgctxt "filter-view"
+msgid "Rented only"
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -1155,10 +1182,6 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "Exit"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Filter by provider"
 msgstr ""
 
 msgctxt "select-location-view"
