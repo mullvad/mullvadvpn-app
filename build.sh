@@ -316,10 +316,10 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
 
     if [[ "$SIGN" == "true" ]]; then
         CPP_BINARIES=(
-            windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll
-            windows/windns/bin/x64-$CPP_BUILD_MODE/windns.dll
-            windows/winnet/bin/x64-$CPP_BUILD_MODE/winnet.dll
-            windows/driverlogic/bin/x64-$CPP_BUILD_MODE/driverlogic.exe
+            "windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll"
+            "windows/windns/bin/x64-$CPP_BUILD_MODE/windns.dll"
+            "windows/winnet/bin/x64-$CPP_BUILD_MODE/winnet.dll"
+            "windows/driverlogic/bin/x64-$CPP_BUILD_MODE/driverlogic.exe"
             # The nsis plugin is always built in 32 bit release mode
             windows/nsis-plugins/bin/Win32-Release/*.dll
         )
@@ -379,8 +379,17 @@ esac
 popd
 
 SEMVER_VERSION=$(echo "$PRODUCT_VERSION" | sed -Ee 's/($|-.*)/.0\1/g')
+# `git tag --points-at` defaults to point at HEAD
+current_head_commit_tag=$(git tag --points-at)
 for semver_path in dist/*"$SEMVER_VERSION"*; do
-    product_path=$(echo "$semver_path" | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
+    # If there is a tag for this commit then we append that to the produced artifacts
+    # We don't want to change the actual PRODUCT_VERSION as metadata in the form of +<metadata> is ignored by electron builder etc
+    version_suffix=""
+    if [[ -n "$current_head_commit_tag" ]]; then
+        # Remove disallowed version characters from the tag
+        version_suffix="+${current_head_commit_tag//[^0-9a-z_-]/}"
+    fi
+    product_path=$(echo "$semver_path" | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION$version_suffix/g")
     log_info "Moving $semver_path -> $product_path"
     mv "$semver_path" "$product_path"
 
