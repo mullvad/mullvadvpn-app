@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add tray icon tooltip with connection info in desktop app.
 - Add relay and bridge constraints for restricting relay selection to rented or Mullvad-owned
   relays.
+- Add option to filter relays by ownership in the desktop apps.
 
 #### Windows
 - Detect mounting and dismounting of volumes, such as VeraCrypt volumes or USB drives,
