@@ -1,8 +1,8 @@
 use mullvad_types::{
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     relay_constraints::{
-        Constraint, LocationConstraint, Match, OpenVpnConstraints, Providers, RelayConstraints,
-        WireguardConstraints,
+        Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Providers,
+        RelayConstraints, WireguardConstraints,
     },
     relay_list::{Relay, RelayTunnels, WireguardEndpointData},
 };
@@ -14,6 +14,7 @@ use talpid_types::net::{all_of_the_internet, wireguard, IpVersion, TunnelType};
 pub struct RelayMatcher<T: TunnelMatcher> {
     pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
+    pub ownership: Constraint<Ownership>,
     pub tunnel: T,
 }
 
@@ -22,6 +23,7 @@ impl From<RelayConstraints> for RelayMatcher<AnyTunnelMatcher> {
         Self {
             location: constraints.location,
             providers: constraints.providers,
+            ownership: constraints.ownership,
             tunnel: AnyTunnelMatcher {
                 wireguard: constraints.wireguard_constraints.into(),
                 openvpn: constraints.openvpn_constraints,
@@ -37,6 +39,7 @@ impl RelayMatcher<AnyTunnelMatcher> {
             tunnel: self.tunnel.wireguard,
             location: self.location,
             providers: self.providers,
+            ownership: self.ownership,
         }
     }
 }
@@ -51,7 +54,10 @@ impl<T: TunnelMatcher> RelayMatcher<T> {
     /// Filter a relay and its endpoints based on constraints.
     /// Only matching endpoints are included in the returned Relay.
     pub fn filter_matching_relay(&self, relay: &Relay) -> Option<Relay> {
-        if !self.location.matches(relay) || !self.providers.matches(relay) {
+        if !self.location.matches(relay)
+            || !self.providers.matches(relay)
+            || !self.ownership.matches(relay)
+        {
             return None;
         }
 

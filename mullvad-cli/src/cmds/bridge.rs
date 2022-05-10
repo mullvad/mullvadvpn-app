@@ -59,6 +59,19 @@ fn create_bridge_set_subcommand() -> clap::App<'static> {
                         .required(true),
                 ),
         )
+        .subcommand(
+            clap::App::new("ownership")
+                .about(
+                    "Filters bridges based on ownership. The 'list' \
+                       command shows the available relays and whether they're rented.",
+                )
+                .arg(
+                    clap::Arg::new("ownership")
+                        .help("Ownership preference, or 'any' for no preference.")
+                        .possible_values(&["any", "owned", "rented"])
+                        .required(true),
+                ),
+        )
         .subcommand(location::get_subcommand().about(
             "Set country or city to select bridge relays from. Use the 'list' \
              command to show available alternatives.",
@@ -186,6 +199,9 @@ impl Bridge {
             Some(("provider", provider_matches)) => {
                 Self::handle_set_bridge_provider(provider_matches).await
             }
+            Some(("ownership", ownership_matches)) => {
+                Self::handle_set_bridge_ownership(ownership_matches).await
+            }
             Some(("custom", custom_matches)) => {
                 Self::handle_bridge_set_custom_settings(custom_matches).await
             }
@@ -220,7 +236,12 @@ impl Bridge {
     }
 
     async fn handle_set_bridge_location(matches: &clap::ArgMatches) -> Result<()> {
-        Self::update_bridge_settings(Some(location::get_constraint_from_args(matches)), None).await
+        Self::update_bridge_settings(
+            Some(location::get_constraint_from_args(matches)),
+            None,
+            None,
+        )
+        .await
     }
 
     async fn handle_set_bridge_provider(matches: &clap::ArgMatches) -> Result<()> {
@@ -231,12 +252,19 @@ impl Bridge {
             providers
         };
 
-        Self::update_bridge_settings(None, Some(providers)).await
+        Self::update_bridge_settings(None, Some(providers), None).await
+    }
+
+    async fn handle_set_bridge_ownership(matches: &clap::ArgMatches) -> Result<()> {
+        let ownership =
+            super::relay::parse_ownership_constraint(matches.value_of("ownership").unwrap());
+        Self::update_bridge_settings(None, None, Some(ownership)).await
     }
 
     async fn update_bridge_settings(
         location: Option<types::RelayLocation>,
         providers: Option<Vec<String>>,
+        ownership: Option<types::Ownership>,
     ) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let settings = rpc.get_settings(()).await?.into_inner();
@@ -251,6 +279,9 @@ impl Bridge {
                     constraints.providers =
                         types::try_providers_constraint_from_proto(&new_providers).unwrap();
                 }
+                if let Some(new_ownership) = ownership {
+                    constraints.ownership = types::ownership_constraint_from_proto(new_ownership);
+                }
                 constraints
             }
             _ => {
@@ -258,10 +289,14 @@ impl Bridge {
                 let providers =
                     types::try_providers_constraint_from_proto(&providers.unwrap_or_default())
                         .unwrap();
+                let ownership = ownership
+                    .map(types::ownership_constraint_from_proto)
+                    .unwrap_or_default();
 
                 BridgeConstraints {
                     location,
                     providers,
+                    ownership,
                 }
             }
         };
@@ -433,8 +468,13 @@ impl Bridge {
                     city.name, city.code, city.latitude, city.longitude
                 );
                 for relay in &city.relays {
+                    let ownership = if relay.owned {
+                        "Mullvad-owned"
+                    } else {
+                        "rented"
+                    };
                     println!(
-                        "\t\t{} ({}) - hosted by {}",
+                        "\t\t{} ({}) - hosted by {} ({ownership})",
                         relay.hostname, relay.ipv4_addr_in, relay.provider
                     );
                 }

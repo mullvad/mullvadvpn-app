@@ -29,6 +29,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add device management to desktop app. This simplifies knowing which device is which and adds the
   option to log out other devices when there are already 5 connected when logging in.
 - Add tray icon tooltip with connection info in desktop app.
+- Add relay and bridge constraints for restricting relay selection to rented or Mullvad-owned
+  relays.
 
 #### Windows
 - Detect mounting and dismounting of volumes, such as VeraCrypt volumes or USB drives,

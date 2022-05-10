@@ -11,10 +11,10 @@
 
 The relay selector's main purpose is to pick a single Mullvad relay from a list of relays taking
 into account certain user-configurable criteria.  Relays can be filtered by their _location_
-(country, city, hostname) and by the protocols and ports they support (transport protocol, tunnel
-protocol, port).  The constraints are user specified and stored in the settings.  The default value
-for location constraints restricts relay selection to relays from Sweden. The default protocol
-constraints default to _auto_, which implies specific behavior.
+(country, city, hostname), by the protocols and ports they support (transport protocol, tunnel
+protocol, port), and by other constraints.  The constraints are user specified and stored in the
+settings. The default value for location constraints restricts relay selection to relays from Sweden.
+The default protocol constraints default to _auto_, which implies specific behavior.
 
 Generally, the filtering process consists of going through each relay in our relay list and
 removing relay and endpoint combinations that do not match the constraints outlined above. The
@@ -35,6 +35,8 @@ Endpoints may be filtered by:
   like WireGuard
 - entry port
 - location (country, city, hostname)
+- provider
+- ownership (Mullvad-owned or rented)
 
 ### Default constraints for tunnel endpoints
 
@@ -67,10 +69,15 @@ relay is picked, then a random endpoint that matches the constraints from the re
 
 ## Bridge endpoint constraints
 
-Currently, the only explicit constraints for bridges is the location, and the transport protocol is
-supposedly inferred by the selected bridge- but for now, the daemon only supports TCP bridges, so
-only TCP bridges are being selected. If no location constraint is specified explicitly, then the
-relay location will be used.
+The explicit constraints are:
+
+- location
+- provider
+- ownership
+
+The transport protocol is supposedly inferred by the selected bridge- but for now, the daemon only
+supports TCP bridges, so only TCP bridges are being selected. If no location constraint is specified
+explicitly, then the relay location will be used.
 
 ### Selecting a bridge endpoint between filtered relays
 

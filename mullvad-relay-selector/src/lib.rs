@@ -9,8 +9,9 @@ use mullvad_types::{
     location::{Coordinates, Location},
     relay_constraints::{
         BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint,
-        Match, ObfuscationSettings, OpenVpnConstraints, Providers, RelayConstraints, RelaySettings,
-        SelectedObfuscation, Set, TransportPort, Udp2TcpObfuscationSettings, WireguardConstraints,
+        Match, ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
+        RelaySettings, SelectedObfuscation, Set, TransportPort, Udp2TcpObfuscationSettings,
+        WireguardConstraints,
     },
     relay_list::{Relay, RelayList, Udp2TcpEndpointData},
     CustomTunnelEndpoint,
@@ -322,6 +323,7 @@ impl RelaySelector {
             Constraint::Only(TunnelType::OpenVpn) => self.get_openvpn_endpoint(
                 &relay_constraints.location,
                 &relay_constraints.providers,
+                &relay_constraints.ownership,
                 relay_constraints.openvpn_constraints.clone(),
                 bridge_state,
                 retry_attempt,
@@ -330,6 +332,7 @@ impl RelaySelector {
             Constraint::Only(TunnelType::Wireguard) => self.get_wireguard_endpoint(
                 &relay_constraints.location,
                 &relay_constraints.providers,
+                &relay_constraints.ownership,
                 &relay_constraints.wireguard_constraints,
                 retry_attempt,
             ),
@@ -373,6 +376,7 @@ impl RelaySelector {
         &self,
         location: &Constraint<LocationConstraint>,
         providers: &Constraint<Providers>,
+        ownership: &Constraint<Ownership>,
         openvpn_constraints: OpenVpnConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
@@ -380,6 +384,7 @@ impl RelaySelector {
         let mut relay_matcher = RelayMatcher {
             location: location.clone(),
             providers: providers.clone(),
+            ownership: ownership.clone(),
             tunnel: openvpn_constraints,
         };
 
@@ -480,12 +485,14 @@ impl RelaySelector {
         &self,
         location: &Constraint<LocationConstraint>,
         providers: &Constraint<Providers>,
+        ownership: &Constraint<Ownership>,
         wireguard_constraints: &WireguardConstraints,
         retry_attempt: u32,
     ) -> Result<NormalSelectedRelay, Error> {
         let mut entry_relay_matcher = RelayMatcher {
             location: location.clone(),
             providers: providers.clone(),
+            ownership: ownership.clone(),
             tunnel: wireguard_constraints.clone().into(),
         };
 
@@ -628,6 +635,7 @@ impl RelaySelector {
                 retry_attempt,
                 &original_constraints.location,
                 &original_constraints.providers,
+                &original_constraints.ownership,
             );
 
         let mut relay_constraints = original_constraints.clone();
@@ -738,6 +746,7 @@ impl RelaySelector {
                 let bridge_constraints = InternalBridgeConstraints {
                     location: settings.location.clone(),
                     providers: settings.providers.clone(),
+                    ownership: settings.ownership.clone(),
                     // FIXME: This is temporary while talpid-core only supports TCP proxies
                     transport_protocol: Constraint::Only(TransportProtocol::Tcp),
                 };
@@ -782,11 +791,13 @@ impl RelaySelector {
             BridgeSettings::Normal(settings) => InternalBridgeConstraints {
                 location: settings.location.clone(),
                 providers: settings.providers.clone(),
+                ownership: settings.ownership.clone(),
                 transport_protocol: Constraint::Only(TransportProtocol::Tcp),
             },
             BridgeSettings::Custom(_bridge_settings) => InternalBridgeConstraints {
                 location: Constraint::Any,
                 providers: Constraint::Any,
+                ownership: Constraint::Any,
                 transport_protocol: Constraint::Only(TransportProtocol::Tcp),
             },
         };
@@ -949,6 +960,7 @@ impl RelaySelector {
         retry_attempt: u32,
         location_constraint: &Constraint<LocationConstraint>,
         providers_constraint: &Constraint<Providers>,
+        ownership_constraint: &Constraint<Ownership>,
     ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
         #[cfg(target_os = "windows")]
         {
@@ -958,6 +970,7 @@ impl RelaySelector {
                         && !relay.tunnels.openvpn.is_empty()
                         && location_constraint.matches(relay)
                         && providers_constraint.matches(relay)
+                        && ownership_constraint.matches(relay)
                 });
             if location_supports_openvpn {
                 let (preferred_port, preferred_protocol) =
@@ -971,6 +984,7 @@ impl RelaySelector {
                 && !relay.tunnels.wireguard.is_empty()
                 && location_constraint.matches(relay)
                 && providers_constraint.matches(relay)
+                && ownership_constraint.matches(relay)
         });
         // If location does not support WireGuard, defer to preferred OpenVPN tunnel
         // constraints
@@ -1061,10 +1075,10 @@ impl RelaySelector {
         relay: &Relay,
         constraints: &InternalBridgeConstraints,
     ) -> Option<Relay> {
-        if !constraints.location.matches(relay) {
-            return None;
-        }
-        if !constraints.providers.matches(relay) {
+        if !constraints.location.matches(relay)
+            || !constraints.providers.matches(relay)
+            || !constraints.ownership.matches(relay)
+        {
             return None;
         }
 
@@ -1282,7 +1296,7 @@ mod test {
                                     ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
                                     include_in_country: true,
                                     active: true,
-                                    owned: true,
+                                    owned: false,
                                     provider: "31173".to_string(),
                                     weight: 1,
                                     tunnels: RelayTunnels {
@@ -1713,6 +1727,7 @@ mod test {
     const WIREGUARD_MULTIHOP_CONSTRAINTS: RelayConstraints = RelayConstraints {
         location: Constraint::Any,
         providers: Constraint::Any,
+        ownership: Constraint::Any,
         wireguard_constraints: WireguardConstraints {
             use_multihop: true,
             port: Constraint::Any,
@@ -1728,6 +1743,7 @@ mod test {
     const WIREGUARD_SINGLEHOP_CONSTRAINTS: RelayConstraints = RelayConstraints {
         location: Constraint::Any,
         providers: Constraint::Any,
+        ownership: Constraint::Any,
         wireguard_constraints: WireguardConstraints {
             use_multihop: false,
             port: Constraint::Any,
@@ -1877,5 +1893,36 @@ mod test {
         relay_selector
             .get_tunnel_endpoint(&constraints, BridgeState::Off, 0)
             .expect_err("Successfully selected a relay that should be filtered");
+    }
+
+    #[test]
+    fn test_ownership() {
+        let relay_selector = new_relay_selector();
+        let mut constraints = RelayConstraints::default();
+        for i in 0..10 {
+            constraints.ownership = Constraint::Only(Ownership::MullvadOwned);
+            let relay = relay_selector
+                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i)
+                .unwrap();
+            assert!(matches!(
+                relay,
+                NormalSelectedRelay {
+                    exit_relay: Relay { owned: true, .. },
+                    ..
+                }
+            ));
+
+            constraints.ownership = Constraint::Only(Ownership::Rented);
+            let relay = relay_selector
+                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i)
+                .unwrap();
+            assert!(matches!(
+                relay,
+                NormalSelectedRelay {
+                    exit_relay: Relay { owned: false, .. },
+                    ..
+                }
+            ));
+        }
     }
 }
