@@ -59,7 +59,9 @@ jobs:
                   go-version: 1.16
 
             - name: Install build dependencies
-              run: sudo apt-get install libdbus-1-dev
+              run: |
+                sudo apt-get update
+                sudo apt-get install libdbus-1-dev
 
             - name: Build and test crates
               run: ./ci/check-rust.sh
