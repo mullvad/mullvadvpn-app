@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add option to filter relays by ownership in the desktop apps.
+
 ### Changed
 #### Android
 - Lowered default MTU to 1280 on Android.
