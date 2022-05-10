@@ -43,14 +43,14 @@ export const StyledSettingsHeader = styled(SettingsHeader)({
   paddingBottom: '11px',
 });
 
-export const StyledProviderCountRow = styled.div({
+export const StyledFilterRow = styled.div({
   ...tinyText,
   color: colors.white,
   marginLeft: '6px',
   marginBottom: '8px',
 });
 
-export const StyledProvidersCount = styled.div({
+export const StyledFilter = styled.div({
   ...tinyText,
   display: 'inline-flex',
   alignItems: 'center',
@@ -61,7 +61,7 @@ export const StyledProvidersCount = styled.div({
   color: colors.white,
 });
 
-export const StyledClearProvidersButton = styled.div({
+export const StyledClearFilterButton = styled.div({
   display: 'inline-block',
   borderWidth: 0,
   padding: 0,

@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
 import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
-import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
+import { LiftedConstraint, Ownership, RelayLocation } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import SelectLocation from '../components/SelectLocation';
@@ -44,6 +44,7 @@ const mapStateToProps = (state: IReduxState, props: IHistoryProps & IAppContext)
     ((tunnelProtocol === 'any' || tunnelProtocol === 'wireguard') && multihopEnabled);
 
   const providers = 'normal' in relaySettings ? relaySettings.normal.providers : [];
+  const ownership = 'normal' in relaySettings ? relaySettings.normal.ownership : Ownership.any;
 
   return {
     locale: state.userInterface.locale,
@@ -55,6 +56,7 @@ const mapStateToProps = (state: IReduxState, props: IHistoryProps & IAppContext)
     allowEntrySelection,
     tunnelProtocol,
     providers,
+    ownership,
 
     onSelectEntryLocation: async (entryLocation: RelayLocation) => {
       // dismiss the view first
@@ -117,6 +119,9 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
     },
     onClearProviders: async () => {
       await props.app.updateRelaySettings({ normal: { providers: [] } });
+    },
+    onClearOwnership: async () => {
+      await props.app.updateRelaySettings({ normal: { ownership: Ownership.any } });
     },
   };
 };
