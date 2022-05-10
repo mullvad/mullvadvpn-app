@@ -2,7 +2,12 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { colors } from '../../config.json';
-import { LiftedConstraint, RelayLocation, TunnelProtocol } from '../../shared/daemon-rpc-types';
+import {
+  LiftedConstraint,
+  Ownership,
+  RelayLocation,
+  TunnelProtocol,
+} from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
@@ -25,13 +30,13 @@ import {
 } from './NavigationBar';
 import { ScopeBarItem } from './ScopeBar';
 import {
-  StyledClearProvidersButton,
+  StyledClearFilterButton,
   StyledContainer,
   StyledContent,
+  StyledFilter,
   StyledFilterIconButton,
+  StyledFilterRow,
   StyledNavigationBarAttachment,
-  StyledProviderCountRow,
-  StyledProvidersCount,
   StyledScopeBar,
   StyledSettingsHeader,
 } from './SelectLocationStyles';
@@ -47,6 +52,7 @@ interface IProps {
   allowEntrySelection: boolean;
   tunnelProtocol: LiftedConstraint<TunnelProtocol>;
   providers: string[];
+  ownership: Ownership;
   onClose: () => void;
   onViewFilter: () => void;
   onSelectExitLocation: (location: RelayLocation) => void;
@@ -54,6 +60,7 @@ interface IProps {
   onSelectBridgeLocation: (location: RelayLocation) => void;
   onSelectClosestToExit: () => void;
   onClearProviders: () => void;
+  onClearOwnership: () => void;
 }
 
 enum LocationScope {
@@ -127,6 +134,9 @@ export default class SelectLocation extends React.Component<IProps, IState> {
   }
 
   public render() {
+    const showOwnershipFilter = this.props.ownership !== Ownership.any;
+    const showProvidersFilter = this.props.providers.length > 0;
+    const showFilters = showOwnershipFilter || showProvidersFilter;
     return (
       <BackAction icon="close" action={this.props.onClose}>
         <Layout>
@@ -167,32 +177,52 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                       {this.renderHeaderSubtitle()}
                     </StyledSettingsHeader>
 
-                    {this.props.providers.length > 0 && (
-                      <StyledProviderCountRow>
+                    {showFilters && (
+                      <StyledFilterRow>
                         {messages.pgettext('select-location-view', 'Filtered:')}
-                        <StyledProvidersCount>
-                          {sprintf(
-                            messages.pgettext(
-                              'select-location-view',
-                              'Providers: %(numberOfProviders)d',
-                            ),
-                            {
-                              numberOfProviders: this.props.providers.length,
-                            },
-                          )}
-                          <StyledClearProvidersButton
-                            aria-label={messages.gettext('Clear')}
-                            onClick={this.props.onClearProviders}>
-                            <ImageView
-                              height={16}
-                              width={16}
-                              source="icon-close"
-                              tintColor={colors.white60}
-                              tintHoverColor={colors.white80}
-                            />
-                          </StyledClearProvidersButton>
-                        </StyledProvidersCount>
-                      </StyledProviderCountRow>
+
+                        {showOwnershipFilter && (
+                          <StyledFilter>
+                            {this.ownershipFilterLabel()}
+                            <StyledClearFilterButton
+                              aria-label={messages.gettext('Clear')}
+                              onClick={this.props.onClearOwnership}>
+                              <ImageView
+                                height={16}
+                                width={16}
+                                source="icon-close"
+                                tintColor={colors.white60}
+                                tintHoverColor={colors.white80}
+                              />
+                            </StyledClearFilterButton>
+                          </StyledFilter>
+                        )}
+
+                        {showProvidersFilter && (
+                          <StyledFilter>
+                            {sprintf(
+                              messages.pgettext(
+                                'select-location-view',
+                                'Providers: %(numberOfProviders)d',
+                              ),
+                              {
+                                numberOfProviders: this.props.providers.length,
+                              },
+                            )}
+                            <StyledClearFilterButton
+                              aria-label={messages.gettext('Clear')}
+                              onClick={this.props.onClearProviders}>
+                              <ImageView
+                                height={16}
+                                width={16}
+                                source="icon-close"
+                                tintColor={colors.white60}
+                                tintHoverColor={colors.white80}
+                              />
+                            </StyledClearFilterButton>
+                          </StyledFilter>
+                        )}
+                      </StyledFilterRow>
                     )}
                     {this.props.allowEntrySelection && (
                       <StyledScopeBar
@@ -225,6 +255,17 @@ export default class SelectLocation extends React.Component<IProps, IState> {
       this.scrollToPosition(...snapshot.scrollPosition);
     } else {
       this.scrollToSelectedCell();
+    }
+  }
+
+  private ownershipFilterLabel(): string {
+    switch (this.props.ownership) {
+      case Ownership.mullvadOwned:
+        return messages.pgettext('filter-view', 'Owned');
+      case Ownership.rented:
+        return messages.pgettext('filter-view', 'Rented');
+      default:
+        throw new Error('Only owned and rented should make label visible');
     }
   }
 
