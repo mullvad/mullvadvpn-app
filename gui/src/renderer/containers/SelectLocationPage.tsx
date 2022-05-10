@@ -51,8 +51,8 @@ const mapStateToProps = (state: IReduxState, props: IHistoryProps & IAppContext)
     selectedExitLocation,
     selectedEntryLocation,
     selectedBridgeLocation,
-    relayLocations: filterLocationsByProvider(state.settings.relayLocations, providers),
-    bridgeLocations: filterLocationsByProvider(state.settings.bridgeLocations, providers),
+    relayLocations: filterLocations(state.settings.relayLocations, providers, ownership),
+    bridgeLocations: filterLocations(state.settings.bridgeLocations, providers, ownership),
     allowEntrySelection,
     tunnelProtocol,
     providers,
@@ -126,23 +126,61 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
   };
 };
 
+function filterLocations(
+  locations: IRelayLocationRedux[],
+  providers: string[],
+  ownership: Ownership,
+): IRelayLocationRedux[] {
+  const locationsFilteredByOwnership = filterLocationsByOwnership(locations, ownership);
+  const locationsFilteredByProvider = filterLocationsByProvider(
+    locationsFilteredByOwnership,
+    providers,
+  );
+
+  return locationsFilteredByProvider;
+}
+
+function filterLocationsByOwnership(
+  locations: IRelayLocationRedux[],
+  ownership: Ownership,
+): IRelayLocationRedux[] {
+  if (ownership === Ownership.any) {
+    return locations;
+  }
+
+  const expectOwned = ownership === Ownership.mullvadOwned;
+  return locations
+    .map((country) => ({
+      ...country,
+      cities: country.cities
+        .map((city) => ({
+          ...city,
+          relays: city.relays.filter((relay) => relay.owned === expectOwned),
+        }))
+        .filter((city) => city.relays.length > 0),
+    }))
+    .filter((country) => country.cities.length > 0);
+}
+
 function filterLocationsByProvider(
   locations: IRelayLocationRedux[],
   providers: string[],
 ): IRelayLocationRedux[] {
-  return providers.length === 0
-    ? locations
-    : locations
-        .map((country) => ({
-          ...country,
-          cities: country.cities
-            .map((city) => ({
-              ...city,
-              relays: city.relays.filter((relay) => providers.includes(relay.provider)),
-            }))
-            .filter((city) => city.relays.length > 0),
+  if (providers.length === 0) {
+    return locations;
+  }
+
+  return locations
+    .map((country) => ({
+      ...country,
+      cities: country.cities
+        .map((city) => ({
+          ...city,
+          relays: city.relays.filter((relay) => providers.includes(relay.provider)),
         }))
-        .filter((country) => country.cities.length > 0);
+        .filter((city) => city.relays.length > 0),
+    }))
+    .filter((country) => country.cities.length > 0);
 }
 
 export default withAppContext(
