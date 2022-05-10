@@ -44,6 +44,7 @@ import {
   LoggedInDeviceState,
   LoggedOutDeviceState,
   ObfuscationType,
+  Ownership,
   ProxySettings,
   ProxyType,
   RelayLocation,
@@ -324,6 +325,12 @@ export class DaemonRpc {
         const providerUpdate = new grpcTypes.ProviderUpdate();
         providerUpdate.setProvidersList(settingsUpdate.providers);
         normalUpdate.setProviders(providerUpdate);
+      }
+
+      if (settingsUpdate.ownership !== undefined) {
+        const ownershipUpdate = new grpcTypes.OwnershipUpdate();
+        ownershipUpdate.setOwnership(convertToOwnership(settingsUpdate.ownership));
+        normalUpdate.setOwnership(ownershipUpdate);
       }
 
       grpcRelaySettings.setNormal(normalUpdate);
@@ -1014,6 +1021,7 @@ function convertFromRelaySettings(
           : 'any';
         const tunnelProtocol = convertFromTunnelTypeConstraint(normal.getTunnelType()!);
         const providers = normal.getProvidersList();
+        const ownership = convertFromOwnership(normal.getOwnership());
         const openvpnConstraints = convertFromOpenVpnConstraints(normal.getOpenvpnConstraints()!);
         const wireguardConstraints = convertFromWireguardConstraints(
           normal.getWireguardConstraints()!,
@@ -1024,6 +1032,7 @@ function convertFromRelaySettings(
             location,
             tunnelProtocol,
             providers,
+            ownership,
             wireguardConstraints,
             openvpnConstraints,
           },
@@ -1043,10 +1052,12 @@ function convertFromBridgeSettings(
     const grpcLocation = normalSettings.location;
     const location = grpcLocation ? { only: convertFromLocation(grpcLocation) } : 'any';
     const providers = normalSettings.providersList;
+    const ownership = convertFromOwnership(normalSettings.ownership);
     return {
       normal: {
         location,
         providers,
+        ownership,
       },
     };
   }
@@ -1208,6 +1219,28 @@ function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
     .filter(([, value]) => value !== undefined)
     .map(([key]) => key);
   throw new Error(`Unknown daemon event received containing ${keys}`);
+}
+
+function convertFromOwnership(ownership: grpcTypes.Ownership): Ownership {
+  switch (ownership) {
+    case grpcTypes.Ownership.ANY:
+      return Ownership.any;
+    case grpcTypes.Ownership.MULLVAD_OWNED:
+      return Ownership.mullvadOwned;
+    case grpcTypes.Ownership.RENTED:
+      return Ownership.rented;
+  }
+}
+
+function convertToOwnership(ownership: Ownership): grpcTypes.Ownership {
+  switch (ownership) {
+    case Ownership.any:
+      return grpcTypes.Ownership.ANY;
+    case Ownership.mullvadOwned:
+      return grpcTypes.Ownership.MULLVAD_OWNED;
+    case Ownership.rented:
+      return grpcTypes.Ownership.RENTED;
+  }
 }
 
 function convertFromOpenVpnConstraints(

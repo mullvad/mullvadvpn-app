@@ -1,4 +1,4 @@
-import { BridgeSettings, IBridgeConstraints } from './daemon-rpc-types';
+import { BridgeSettings, IBridgeConstraints, Ownership } from './daemon-rpc-types';
 import makeLocationBuilder, { ILocationBuilder } from './relay-location-builder';
 
 export default class BridgeSettingsBuilder {
@@ -10,6 +10,7 @@ export default class BridgeSettingsBuilder {
         normal: {
           location: this.payload.location,
           providers: this.payload.providers ?? [],
+          ownership: this.payload.ownership ?? Ownership.any,
         },
       };
     } else {

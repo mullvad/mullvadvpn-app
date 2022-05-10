@@ -4,6 +4,7 @@ import {
   IDnsOptions,
   IpVersion,
   LiftedConstraint,
+  Ownership,
   ProxySettings,
   RelayLocation,
   RelayProtocol,
@@ -18,6 +19,7 @@ export type RelaySettingsRedux =
         tunnelProtocol: LiftedConstraint<TunnelProtocol>;
         location: LiftedConstraint<RelayLocation>;
         providers: string[];
+        ownership: Ownership;
         openvpn: {
           port: LiftedConstraint<number>;
           protocol: LiftedConstraint<RelayProtocol>;
@@ -111,6 +113,7 @@ const initialState: ISettingsReduxState = {
       location: 'any',
       tunnelProtocol: 'any',
       providers: [],
+      ownership: Ownership.any,
       wireguard: { port: 'any', ipVersion: 'any', useMultihop: false, entryLocation: 'any' },
       openvpn: {
         port: 'any',
