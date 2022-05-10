@@ -543,6 +543,7 @@ impl AccountManager {
 
         match api_result {
             Ok(wg_data) => {
+                log::debug!("Replacing WireGuard key");
                 config.device.wg_data = wg_data;
                 match self.set(PrivateDeviceEvent::RotatedKey(config)).await {
                     Ok(_) => {
@@ -602,6 +603,8 @@ impl AccountManager {
     }
 
     async fn invalidate_current_data(&mut self, err_constructor: impl Fn() -> Error) {
+        log::debug!("Invalidating the current device");
+
         if let Err(err) = self.cacher.write(None).await {
             log::error!(
                 "{}",
