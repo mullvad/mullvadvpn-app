@@ -842,6 +842,7 @@ impl DeviceCacher {
     pub async fn new(settings_dir: &Path) -> Result<(DeviceCacher, PrivateDeviceState), Error> {
         let path = settings_dir.join(DEVICE_CACHE_FILENAME);
         let cache_exists = path.is_file();
+        let mut should_save = false;
 
         let mut file = fs::OpenOptions::from(Self::file_options())
             .write(true)
@@ -856,6 +857,7 @@ impl DeviceCacher {
             reader.read_to_string(&mut buffer).await?;
             if !buffer.is_empty() {
                 serde_json::from_str(&buffer).unwrap_or_else(|error| {
+                    should_save = true;
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Wiping device config due to an error")
@@ -863,19 +865,24 @@ impl DeviceCacher {
                     PrivateDeviceState::LoggedOut
                 })
             } else {
+                should_save = true;
                 PrivateDeviceState::LoggedOut
             }
         } else {
+            should_save = true;
             PrivateDeviceState::LoggedOut
         };
 
-        Ok((
-            DeviceCacher {
-                file: io::BufWriter::new(file),
-                path,
-            },
-            device,
-        ))
+        let mut store = DeviceCacher {
+            file: io::BufWriter::new(file),
+            path,
+        };
+
+        if should_save {
+            store.write(&device).await?;
+        }
+
+        Ok((store, device))
     }
 
     fn file_options() -> std::fs::OpenOptions {
