@@ -70,6 +70,7 @@ upload_pdb() {
 
 build_ref() {
   ref=$1
+  tag=${2:-""}
 
   current_hash="$(git rev-parse $ref^{commit})"
   if [ -f "$LAST_BUILT_DIR/$current_hash" ]; then
@@ -125,6 +126,19 @@ build_ref() {
       ;;
   esac
 
+  # If there is a tag for this commit then we append that to the produced artifacts
+  # A version suffix should only be created if there is a tag for this commit and it is not a release build
+  if [[ -n "$tag" ]]; then
+      # Remove disallowed version characters from the tag
+      version_suffix="+${tag//[^0-9a-z_-]/}"
+      # Will only match paths that include *-dev-* which means release builds will not be included
+      for artifact_path in dist/MullvadVPN-*-dev-*.{deb,rpm,exe,pkg,apk,aab}; do
+          extension="${artifact_path##*.}"
+          filename="${artifact_path%.*}"
+          mv "$artifact_path" "${filename}${version_suffix}.${extension}"
+      done
+  fi
+
   (cd dist/ && upload) || return 0
   case "$(uname -s)" in
     MINGW*|MSYS_NT*)
@@ -145,7 +159,7 @@ while true; do
   tags=( $(git tag) )
 
   for tag in "${tags[@]}"; do
-    build_ref "refs/tags/$tag"
+    build_ref "refs/tags/$tag" "$tag"
   done
 
   for branch in "${BRANCHES_TO_BUILD[@]}"; do
