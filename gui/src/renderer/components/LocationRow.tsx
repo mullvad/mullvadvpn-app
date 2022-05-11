@@ -11,13 +11,15 @@ import ChevronButton from './ChevronButton';
 import { normalText } from './common-styles';
 import RelayStatusIndicator from './RelayStatusIndicator';
 
-interface IContainerProps {
+interface IButtonColorProps {
   selected: boolean;
   disabled: boolean;
   location: RelayLocation;
 }
 
-const Container = styled(Cell.Container)((props: IContainerProps) => {
+const buttonColor = (props: IButtonColorProps) => {
+  console.log(props.location, 'city' in props.location);
+
   const background =
     'hostname' in props.location
       ? colors.blue20
@@ -27,10 +29,6 @@ const Container = styled(Cell.Container)((props: IContainerProps) => {
   const backgroundHover = 'country' in props.location ? colors.blue80 : colors.blue80;
 
   return {
-    display: 'flex',
-    // The actual padding is 22px except for the tick icon which has 18.
-    paddingLeft: '18px',
-    marginBottom: '1px',
     backgroundColor: props.selected ? colors.green : background,
     ':not(:disabled):hover': {
       backgroundColor: props.selected
@@ -40,10 +38,17 @@ const Container = styled(Cell.Container)((props: IContainerProps) => {
         : backgroundHover,
     },
   };
+};
+
+const Container = styled(Cell.Container)({
+  display: 'flex',
+  padding: 0,
+  marginBottom: '1px',
+  background: 'none',
 });
 
-const Button = styled.button((props: { location: RelayLocation }) => {
-  const paddingLeft = 'hostname' in props.location ? 32 : 'city' in props.location ? 16 : 0;
+const Button = styled.button(buttonColor, (props: { location: RelayLocation }) => {
+  const paddingLeft = 'hostname' in props.location ? 50 : 'city' in props.location ? 34 : 18;
 
   return {
     display: 'flex',
@@ -51,14 +56,28 @@ const Button = styled.button((props: { location: RelayLocation }) => {
     minHeight: '44px',
     flex: 1,
     border: 'none',
-    background: 'none',
-    padding: `0 0 0 ${paddingLeft}px`,
+    padding: `0 10px 0 ${paddingLeft}px`,
     margin: 0,
   };
 });
 
-const StyledChevronButton = styled(ChevronButton)({
-  marginLeft: '18px',
+const StyledChevronButton = styled(ChevronButton)(buttonColor, {
+  position: 'relative',
+  alignSelf: 'stretch',
+  paddingLeft: '22px',
+  paddingRight: '22px',
+
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    margin: 'auto',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    height: '50%',
+    width: '1px',
+    backgroundColor: colors.darkBlue,
+  },
 });
 
 const Label = styled(Cell.Label)(normalText, {
@@ -104,14 +123,11 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
 
   return (
     <>
-      <Container
-        ref={ref}
-        selected={props.selected}
-        disabled={props.disabled}
-        location={props.location}>
+      <Container ref={ref}>
         <Button
           ref={buttonRef}
           onClick={handleClick}
+          selected={props.selected}
           location={props.location}
           disabled={props.disabled}>
           <RelayStatusIndicator active={props.active} selected={props.selected} />
@@ -121,6 +137,9 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
           <StyledChevronButton
             onClick={toggleCollapse}
             up={props.expanded ?? false}
+            selected={props.selected}
+            disabled={props.disabled}
+            location={props.location}
             aria-label={sprintf(
               props.expanded
                 ? messages.pgettext('accessibility', 'Collapse %(location)s')
