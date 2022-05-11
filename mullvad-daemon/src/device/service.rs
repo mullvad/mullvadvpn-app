@@ -422,6 +422,7 @@ fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
         Err(error) => {
             if let RestError::ApiError(status, code) = error {
                 *status != rest::StatusCode::NOT_FOUND
+                    && code != mullvad_api::DEVICE_NOT_FOUND
                     && code != mullvad_api::INVALID_ACCOUNT
                     && code != mullvad_api::MAX_DEVICES_REACHED
                     && code != mullvad_api::PUBKEY_IN_USE
@@ -434,16 +435,12 @@ fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
 
 fn map_rest_error(error: rest::Error) -> Error {
     match error {
-        RestError::ApiError(status, ref code) => {
-            if status == rest::StatusCode::NOT_FOUND {
-                return Error::InvalidDevice;
-            }
-            match code.as_str() {
-                mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,
-                mullvad_api::MAX_DEVICES_REACHED => Error::MaxDevicesReached,
-                _ => Error::OtherRestError(error),
-            }
-        }
+        RestError::ApiError(_status, ref code) => match code.as_str() {
+            mullvad_api::DEVICE_NOT_FOUND => Error::InvalidDevice,
+            mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,
+            mullvad_api::MAX_DEVICES_REACHED => Error::MaxDevicesReached,
+            _ => Error::OtherRestError(error),
+        },
         error => Error::OtherRestError(error),
     }
 }
