@@ -56,7 +56,7 @@ service ManagementService {
 	rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
 
 	// Device management
-	rpc GetDevice(google.protobuf.Empty) returns (DeviceConfig) {}
+	rpc GetDevice(google.protobuf.Empty) returns (DeviceState) {}
 	rpc UpdateDevice(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc ListDevices(google.protobuf.StringValue) returns (DeviceList) {}
 	rpc RemoveDevice(DeviceRemoval) returns (google.protobuf.Empty) {}
@@ -570,7 +570,7 @@ message RelayList {
 	repeated RelayListCountry countries = 1;
 }
 
-message DeviceConfig {
+message AccountAndDevice {
 	string account_token = 1;
 	Device device = 2;
 }
@@ -595,9 +595,26 @@ message DeviceRemoval {
 	string device_id = 2;
 }
 
+message DeviceState {
+	enum State {
+		LOGGED_IN = 0;
+		LOGGED_OUT = 1;
+		REVOKED = 2;
+	}
+	State state = 1;
+	AccountAndDevice device = 2;
+}
+
 message DeviceEvent {
-	DeviceConfig device = 1;
-	bool remote = 2;
+	enum Cause {
+		LOGGED_IN = 0;
+		LOGGED_OUT = 1;
+		REVOKED = 2;
+		UPDATED = 3;
+		ROTATED_KEY = 4;
+	}
+	Cause cause = 1;
+	DeviceState new_state = 2;
 }
 
 message RemoveDeviceEvent {

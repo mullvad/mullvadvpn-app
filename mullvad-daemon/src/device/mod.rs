@@ -7,7 +7,10 @@ use futures::{
 use mullvad_api::rest;
 use mullvad_types::{
     account::AccountToken,
-    device::{AccountAndDevice, Device, DeviceEvent, DeviceId, DeviceName, DevicePort},
+    device::{
+        AccountAndDevice, Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceName, DevicePort,
+        DeviceState,
+    },
     wireguard::{self, RotationInterval, WireguardData},
 };
 use std::{
@@ -121,6 +124,16 @@ impl PrivateDeviceState {
     }
 }
 
+impl From<PrivateDeviceState> for DeviceState {
+    fn from(state: PrivateDeviceState) -> Self {
+        match state {
+            PrivateDeviceState::LoggedIn(dev) => DeviceState::LoggedIn(AccountAndDevice::from(dev)),
+            PrivateDeviceState::LoggedOut => DeviceState::LoggedOut,
+            PrivateDeviceState::Revoked => DeviceState::Revoked,
+        }
+    }
+}
+
 /// Same as [PrivateDevice] but also contains the associated account token.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct PrivateAccountAndDevice {
@@ -190,32 +203,30 @@ impl From<PrivateDevice> for Device {
 
 #[derive(Clone)]
 pub(crate) enum PrivateDeviceEvent {
+    /// Logged in on a new device.
+    Login(PrivateAccountAndDevice),
     /// The device was removed due to user (or daemon) action.
     Logout,
-    /// Logged in to a new device.
-    Login(PrivateAccountAndDevice),
+    /// Device was removed because it was not found remotely.
+    Revoked,
     /// The device was updated remotely, but not its key.
     Updated(PrivateAccountAndDevice),
     /// The key was rotated.
     RotatedKey(PrivateAccountAndDevice),
-    /// Device was removed because it was not found remotely.
-    Revoked,
 }
 
 impl From<PrivateDeviceEvent> for DeviceEvent {
     fn from(event: PrivateDeviceEvent) -> DeviceEvent {
-        match event {
-            PrivateDeviceEvent::Logout => DeviceEvent::revoke(false),
-            PrivateDeviceEvent::Login(config) => {
-                DeviceEvent::from_device(AccountAndDevice::from(config), false)
-            }
-            PrivateDeviceEvent::Updated(config) => {
-                DeviceEvent::from_device(AccountAndDevice::from(config), true)
-            }
-            PrivateDeviceEvent::RotatedKey(config) => {
-                DeviceEvent::from_device(AccountAndDevice::from(config), false)
-            }
-            PrivateDeviceEvent::Revoked => DeviceEvent::revoke(true),
+        let cause = match event {
+            PrivateDeviceEvent::Login(_) => DeviceEventCause::LoggedIn,
+            PrivateDeviceEvent::Logout => DeviceEventCause::LoggedOut,
+            PrivateDeviceEvent::Revoked => DeviceEventCause::Revoked,
+            PrivateDeviceEvent::Updated(_) => DeviceEventCause::Updated,
+            PrivateDeviceEvent::RotatedKey(_) => DeviceEventCause::RotatedKey,
+        };
+        DeviceEvent {
+            cause,
+            new_state: DeviceState::from(event.state()),
         }
     }
 }
