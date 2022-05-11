@@ -1,0 +1,6 @@
+Cargo.lock
+gui/package-lock.json
+ci/trusted_keys.pub
+ci/locked_down_files.txt
+ci/verify-locked-down-signatures.sh
+.github/workflows/verify-locked-down-signatures.yml
