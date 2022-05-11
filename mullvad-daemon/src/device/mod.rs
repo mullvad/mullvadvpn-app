@@ -806,8 +806,7 @@ impl AccountManager {
 
     fn validation_call(&self) -> Result<impl Future<Output = Result<Device, Error>>, Error> {
         let old_config = self.data.device().ok_or(Error::NoDevice)?;
-        let device_request = self.fetch_device_config(old_config);
-        Ok(async move { device_request.await })
+        Ok(self.fetch_device_config(old_config))
     }
 
     fn needs_validation(&mut self) -> bool {
