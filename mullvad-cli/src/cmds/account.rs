@@ -7,7 +7,8 @@ use mullvad_management_interface::{
 use mullvad_types::{account::AccountToken, device::Device};
 use std::io::{self, Write};
 
-const NOT_LOGGED_IN_ERROR: &str = "Not logged in to any account";
+const NOT_LOGGED_IN_MESSAGE: &str = "Not logged in on any account";
+const REVOKED_MESSAGE: &str = "The current device has been revoked";
 const DEVICE_NOT_FOUND_ERROR: &str = "There is no such device";
 const INVALID_ACCOUNT_ERROR: &str = "The account does not exist";
 const TOO_MANY_DEVICES_ERROR: &str =
@@ -138,37 +139,45 @@ impl Account {
 
         let _ = rpc.update_device(()).await;
 
-        let device = rpc
+        let state = rpc
             .get_device(())
             .await
-            .map_err(|error| match error.code() {
-                Code::NotFound => Error::Other(NOT_LOGGED_IN_ERROR),
-                _other => map_device_error(error),
-            })?
+            .map_err(map_device_error)?
             .into_inner();
-        if !device.account_token.is_empty() {
-            println!("Mullvad account: {}", device.account_token);
-            let inner_device = Device::try_from(device.device.unwrap()).unwrap();
-            println!("Device name    : {}", inner_device.pretty_name());
-            if verbose {
-                println!("Device id      : {}", inner_device.id);
-                println!("Device pubkey  : {}", inner_device.pubkey);
-                for port in inner_device.ports {
-                    println!("Device port    : {}", port);
+
+        use types::device_state::State;
+
+        match State::from_i32(state.state).unwrap() {
+            State::LoggedIn => {
+                let device = state.device.expect("Device must be provided if logged in");
+                println!("Mullvad account: {}", device.account_token);
+                let inner_device = Device::try_from(device.device.unwrap()).unwrap();
+                println!("Device name    : {}", inner_device.pretty_name());
+                if verbose {
+                    println!("Device id      : {}", inner_device.id);
+                    println!("Device pubkey  : {}", inner_device.pubkey);
+                    for port in inner_device.ports {
+                        println!("Device port    : {}", port);
+                    }
                 }
+                let expiry = rpc
+                    .get_account_data(device.account_token)
+                    .await
+                    .map_err(|error| Error::RpcFailedExt("Failed to fetch account data", error))?
+                    .into_inner();
+                println!(
+                    "Expires at     : {}",
+                    Self::format_expiry(&expiry.expiry.unwrap())
+                );
             }
-            let expiry = rpc
-                .get_account_data(device.account_token)
-                .await
-                .map_err(|error| Error::RpcFailedExt("Failed to fetch account data", error))?
-                .into_inner();
-            println!(
-                "Expires at     : {}",
-                Self::format_expiry(&expiry.expiry.unwrap())
-            );
-        } else {
-            println!("No account configured");
+            State::LoggedOut => {
+                println!("{}", NOT_LOGGED_IN_MESSAGE);
+            }
+            State::Revoked => {
+                println!("{}", REVOKED_MESSAGE);
+            }
         }
+
         Ok(())
     }
 
@@ -241,17 +250,15 @@ impl Account {
         match matches.value_of("account").map(str::to_string) {
             Some(token) => Ok(token),
             None => {
-                let device = rpc
+                let state = rpc
                     .get_device(())
                     .await
-                    .map_err(|error| match error.code() {
-                        mullvad_management_interface::Code::NotFound => {
-                            Error::Other("Log in or specify an account")
-                        }
-                        _ => Error::RpcFailedExt("Failed to obtain device", error),
-                    })?
+                    .map_err(|error| Error::RpcFailedExt("Failed to obtain device", error))?
                     .into_inner();
-                Ok(device.account_token)
+                if state.state != types::device_state::State::LoggedIn as i32 {
+                    return Err(Error::Other("Log in or specify an account"));
+                }
+                Ok(state.device.unwrap().account_token)
             }
         }
     }

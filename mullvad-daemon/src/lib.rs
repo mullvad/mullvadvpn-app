@@ -40,7 +40,7 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    device::{AccountAndDevice, Device, DeviceEvent, DeviceId, RemoveDeviceEvent},
+    device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
     relay_list::RelayList,
@@ -194,8 +194,8 @@ pub enum DaemonCommand {
     LoginAccount(ResponseTx<(), Error>, AccountToken),
     /// Log out of the current account and remove the device, if they exist.
     LogoutAccount(ResponseTx<(), Error>),
-    /// Return the current device configuration, if there is one.
-    GetDevice(ResponseTx<Option<AccountAndDevice>, Error>),
+    /// Return the current device configuration.
+    GetDevice(ResponseTx<DeviceState, Error>),
     /// Update/check the current device, if there is one.
     UpdateDevice(ResponseTx<(), Error>),
     /// Return all the devices for a given account token.
@@ -1087,7 +1087,10 @@ where
                     error.display_chain_with_msg("Failed to move over account from old settings")
                 );
                 // Synthesize a logout event.
-                event_listener.notify_device_event(DeviceEvent::revoke(false));
+                event_listener.notify_device_event(DeviceEvent {
+                    cause: DeviceEventCause::LoggedOut,
+                    new_state: DeviceState::LoggedOut,
+                });
             }
         });
     }
@@ -1326,17 +1329,16 @@ where
         });
     }
 
-    async fn on_get_device(&mut self, tx: ResponseTx<Option<AccountAndDevice>, Error>) {
+    async fn on_get_device(&mut self, tx: ResponseTx<DeviceState, Error>) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
                 tx,
-                Ok(account_manager
+                account_manager
                     .data()
                     .await
-                    .map(|s| s.into_device())
-                    .unwrap_or(None)
-                    .map(AccountAndDevice::from)),
+                    .map_err(|_| Error::NoAccountToken)
+                    .map(DeviceState::from),
                 "get_device response",
             );
         });
