@@ -102,6 +102,7 @@ export default function TooManyDevices() {
   const { removeDevice, login, cancelLogin } = useAppContext();
   const accountToken = useSelector((state) => state.account.accountToken)!;
   const devices = useSelector((state) => state.account.devices);
+  const loginState = useSelector((state) => state.account.status);
 
   const onRemoveDevice = useCallback(
     async (deviceId: string) => {
@@ -119,6 +120,8 @@ export default function TooManyDevices() {
   const iconSource = getIconSource(devices);
   const title = getTitle(devices);
   const subtitle = getSubtitle(devices);
+
+  const continueButtonDisabled = devices.length === 5 || loginState.type !== 'too many devices';
 
   return (
     <ModalContainer>
@@ -145,7 +148,7 @@ export default function TooManyDevices() {
             {devices !== undefined && (
               <StyledFooter>
                 <AppButton.ButtonGroup>
-                  <AppButton.GreenButton onClick={continueLogin} disabled={devices.length === 5}>
+                  <AppButton.GreenButton onClick={continueLogin} disabled={continueButtonDisabled}>
                     {
                       // TRANSLATORS: Button for continuing login process.
                       messages.pgettext('device-management', 'Continue with login')
