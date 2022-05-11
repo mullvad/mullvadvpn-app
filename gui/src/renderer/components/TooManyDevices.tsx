@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -99,7 +99,7 @@ const StyledRemoveSpinner = styled(ImageView)({
 
 export default function TooManyDevices() {
   const history = useHistory();
-  const { fetchDevices, removeDevice, login, cancelLogin } = useAppContext();
+  const { removeDevice, login, cancelLogin } = useAppContext();
   const accountToken = useSelector((state) => state.account.accountToken)!;
   const devices = useSelector((state) => state.account.devices);
 
@@ -115,8 +115,6 @@ export default function TooManyDevices() {
     cancelLogin();
     history.reset(RoutePath.login, transitions.pop);
   }, [history.reset, cancelLogin]);
-
-  useEffect(() => void fetchDevices(accountToken), []);
 
   const iconSource = getIconSource(devices);
   const title = getTitle(devices);
