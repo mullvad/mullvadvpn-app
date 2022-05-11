@@ -84,6 +84,13 @@ impl Error {
         }
     }
 
+    pub fn is_aborted(&self) -> bool {
+        match self {
+            Error::Aborted => true,
+            _ => false,
+        }
+    }
+
     /// Returns a new instance for which `abortable_stream::Aborted` is mapped to `Self::Aborted`.
     fn map_aborted(self) -> Self {
         if let Error::HyperError(error) = &self {

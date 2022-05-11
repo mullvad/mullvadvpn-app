@@ -182,10 +182,26 @@ impl PrivateDeviceEvent {
 
 impl Error {
     pub fn is_network_error(&self) -> bool {
-        if let Error::OtherRestError(error) = self {
+        if let Error::OtherRestError(error) = self.unpack() {
             error.is_network_error()
         } else {
             false
+        }
+    }
+
+    pub fn is_aborted(&self) -> bool {
+        if let Error::OtherRestError(error) = self.unpack() {
+            error.is_aborted()
+        } else {
+            false
+        }
+    }
+
+    fn unpack(&self) -> &Error {
+        if let Error::ResponseFailure(ref inner) = self {
+            &*inner
+        } else {
+            self
         }
     }
 }
@@ -891,7 +907,7 @@ impl TunnelStateChangeHandler {
                                 "{}",
                                 error.display_chain_with_msg("Failed to check device validity")
                             );
-                            if error.is_network_error() {
+                            if error.is_network_error() || error.is_aborted() {
                                 check_validity.store(true, Ordering::SeqCst);
                             }
                         }
