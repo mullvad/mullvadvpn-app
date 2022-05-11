@@ -232,6 +232,7 @@ impl InnerParametersGenerator {
         self.account_manager
             .data()
             .await
+            .map(|s| s.into_device())
             .ok()
             .flatten()
             .ok_or(Error::NoAuthDetails)
