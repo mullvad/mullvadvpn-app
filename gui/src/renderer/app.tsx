@@ -299,9 +299,18 @@ export default class AppRenderer {
     } catch (e) {
       const error = e as Error;
       if (error.message === 'Too many devices') {
-        actions.account.loginTooManyDevices(error);
-        this.loginState = 'too many devices';
-        this.history.reset(RoutePath.tooManyDevices, transitions.push);
+        try {
+          await this.fetchDevices(accountToken);
+
+          actions.account.loginTooManyDevices(error);
+          this.loginState = 'too many devices';
+
+          this.history.reset(RoutePath.tooManyDevices, transitions.push);
+        } catch (e) {
+          const error = e as Error;
+          log.error('Failed to fetch device list');
+          actions.account.loginFailed(error);
+        }
       } else {
         actions.account.loginFailed(error);
       }

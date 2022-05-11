@@ -55,7 +55,12 @@ import {
   VoucherResponse,
 } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
-import { CommunicationError, InvalidAccountError, TooManyDevicesError } from './errors';
+import {
+  CommunicationError,
+  InvalidAccountError,
+  ListDevicesError,
+  TooManyDevicesError,
+} from './errors';
 import { ManagementServiceClient } from './management_interface/management_interface_grpc_pb';
 import * as grpcTypes from './management_interface/management_interface_pb';
 
@@ -527,12 +532,16 @@ export class DaemonRpc {
   }
 
   public async listDevices(accountToken: AccountToken): Promise<Array<IDevice>> {
-    const response = await this.callString<grpcTypes.DeviceList>(
-      this.client.listDevices,
-      accountToken,
-    );
+    try {
+      const response = await this.callString<grpcTypes.DeviceList>(
+        this.client.listDevices,
+        accountToken,
+      );
 
-    return response.getDevicesList().map(convertFromDevice);
+      return response.getDevicesList().map(convertFromDevice);
+    } catch {
+      throw new ListDevicesError();
+    }
   }
 
   public async removeDevice(deviceRemoval: IDeviceRemoval): Promise<void> {
