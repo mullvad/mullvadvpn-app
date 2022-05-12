@@ -132,10 +132,9 @@ build_ref() {
       # Remove disallowed version characters from the tag
       version_suffix="+${tag//[^0-9a-z_-]/}"
       # Will only match paths that include *-dev-* which means release builds will not be included
-      for artifact_path in dist/MullvadVPN-*-dev-*.{deb,rpm,exe,pkg,apk,aab}; do
-          extension="${artifact_path##*.}"
-          filename="${artifact_path%.*}"
-          mv "$artifact_path" "${filename}${version_suffix}.${extension}"
+      for artifact_path in dist/MullvadVPN-*-dev-*{_amd64.deb,_x86_64.rpm,.exe,.pkg,.apk,.aab}; do
+          tagged_name=$(echo $artifact_path | sed -E "s/(.*)(_amd64\.deb|_x86_64\.rpm|\.exe|\.pkg|\.apk|\.aab)/\1$version_suffix\2/")
+          mv "$artifact_path" "$tagged_name"
       done
   fi
 
