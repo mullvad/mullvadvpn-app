@@ -64,6 +64,7 @@ impl fmt::Display for DevicePort {
 /// Contains a device state.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum DeviceState {
     LoggedIn(AccountAndDevice),
