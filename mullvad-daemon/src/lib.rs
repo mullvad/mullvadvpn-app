@@ -1086,11 +1086,18 @@ where
                     "{}",
                     error.display_chain_with_msg("Failed to move over account from old settings")
                 );
-                // Synthesize a logout event.
-                event_listener.notify_device_event(DeviceEvent {
-                    cause: DeviceEventCause::LoggedOut,
-                    new_state: DeviceState::LoggedOut,
-                });
+                // Synthesize a logout or revocation if migration fails.
+                let event = match error {
+                    device::Error::InvalidDevice => DeviceEvent {
+                        cause: DeviceEventCause::Revoked,
+                        new_state: DeviceState::Revoked,
+                    },
+                    _ => DeviceEvent {
+                        cause: DeviceEventCause::LoggedOut,
+                        new_state: DeviceState::LoggedOut,
+                    },
+                };
+                event_listener.notify_device_event(event);
             }
         });
     }
