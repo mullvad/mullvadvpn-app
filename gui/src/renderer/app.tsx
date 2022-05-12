@@ -7,11 +7,11 @@ import {
   AccountToken,
   BridgeSettings,
   BridgeState,
+  DeviceEvent,
+  DeviceState,
   IAccountData,
   IAppVersionInfo,
   IDevice,
-  IDeviceConfig,
-  IDeviceEvent,
   IDeviceRemoval,
   IDnsOptions,
   ILocation,
@@ -100,8 +100,7 @@ export default class AppRenderer {
   private relayListPair!: IRelayListPair;
   private tunnelState!: TunnelState;
   private settings!: ISettings;
-  private deviceConfig?: IDeviceConfig;
-  private hasReceivedDeviceConfig = false;
+  private deviceState?: DeviceState;
   private guiSettings!: IGuiSettingsState;
   private loginState: LoginState = 'none';
   private previousLoginState: LoginState = 'none';
@@ -136,9 +135,7 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.account.listenDevice((deviceEvent) => {
-      const oldDeviceConfig = this.deviceConfig;
-      this.hasReceivedDeviceConfig = true;
-      this.handleAccountChange(deviceEvent, oldDeviceConfig?.accountToken);
+      this.handleDeviceEvent(deviceEvent);
     });
 
     IpcRendererEventChannel.account.listenDevices((devices) => {
@@ -213,12 +210,15 @@ export default class AppRenderer {
     this.setAccountExpiry(initialState.accountData?.expiry);
     this.setSettings(initialState.settings);
     this.setIsPerformingPostUpgrade(initialState.isPerformingPostUpgrade);
-    this.handleAccountChange(
-      { deviceConfig: initialState.deviceConfig },
-      undefined,
-      initialState.navigationHistory !== undefined,
-    );
-    this.hasReceivedDeviceConfig = initialState.hasReceivedDeviceConfig;
+
+    if (initialState.deviceState) {
+      const deviceState = initialState.deviceState;
+      this.handleDeviceEvent(
+        { type: deviceState.type, deviceState } as DeviceEvent,
+        initialState.navigationHistory !== undefined,
+      );
+    }
+
     this.setAccountHistory(initialState.accountHistory);
     this.setTunnelState(initialState.tunnelState);
     this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
@@ -363,8 +363,8 @@ export default class AppRenderer {
     IpcRendererEventChannel.account.updateData();
   }
 
-  public getDevice = (): Promise<IDevice | undefined> => {
-    return IpcRendererEventChannel.account.getDevice();
+  public getDeviceState = (): Promise<DeviceState> => {
+    return IpcRendererEventChannel.account.getDeviceState();
   };
 
   public fetchDevices = async (accountToken: AccountToken): Promise<Array<IDevice>> => {
@@ -589,6 +589,10 @@ export default class AppRenderer {
     IpcRendererEventChannel.navigation.setScrollPositions(scrollPositions);
   }
 
+  private isLoggedIn(): boolean {
+    return this.deviceState?.type === 'logged in';
+  }
+
   // Make sure that the content height is correct and log if it isn't. This is mostly for debugging
   // purposes since there's a bug in Electron that causes the app height to be another value than
   // the one we have set.
@@ -735,13 +739,13 @@ export default class AppRenderer {
   }
 
   private getNavigationBase(): RoutePath {
-    if (this.connectedToDaemon && this.hasReceivedDeviceConfig) {
+    if (this.connectedToDaemon && this.deviceState !== undefined) {
       const loginState = this.reduxStore.getState().account.status;
       const deviceRevoked = loginState.type === 'none' && loginState.deviceRevoked;
 
       if (deviceRevoked) {
         return RoutePath.deviceRevoked;
-      } else if (this.deviceConfig?.accountToken) {
+      } else if (this.isLoggedIn()) {
         return RoutePath.main;
       } else {
         return RoutePath.login;
@@ -838,48 +842,54 @@ export default class AppRenderer {
     }
   }
 
-  private handleAccountChange(
-    newDeviceEvent: IDeviceEvent,
-    oldAccount?: string,
-    preventRedirectToConnect?: boolean,
-  ) {
+  private handleDeviceEvent(deviceEvent: DeviceEvent, preventRedirectToConnect?: boolean) {
     const reduxAccount = this.reduxActions.account;
 
-    this.deviceConfig = newDeviceEvent.deviceConfig;
-    const newAccount = newDeviceEvent.deviceConfig?.accountToken;
-    const newDevice = newDeviceEvent.deviceConfig?.device;
+    this.deviceState = deviceEvent.deviceState;
 
-    if (oldAccount && !newAccount) {
-      this.loginScheduler.cancel();
-      if (!this.reduxStore.getState().account.loggingOut && newDeviceEvent.remote) {
-        reduxAccount.deviceRevoked();
-      } else {
+    switch (deviceEvent.type) {
+      case 'logged in': {
+        const accountToken = deviceEvent.deviceState.accountAndDevice.accountToken;
+        const device = deviceEvent.deviceState.accountAndDevice.device;
+
+        switch (this.loginState) {
+          case 'none':
+          case 'logging in':
+            reduxAccount.loggedIn(accountToken, device);
+
+            if (this.previousLoginState === 'too many devices') {
+              this.resetNavigation();
+            } else if (!preventRedirectToConnect) {
+              this.redirectToConnect();
+            }
+            break;
+          case 'creating account':
+            reduxAccount.accountCreated(accountToken, device, new Date().toISOString());
+            break;
+        }
+
+        if (this.loginState !== 'logging in' && this.loginState !== 'creating account') {
+          this.resetNavigation();
+        }
+        break;
+      }
+      case 'logged out':
+        this.loginScheduler.cancel();
         reduxAccount.loggedOut();
-      }
-
-      this.resetNavigation();
-    } else if (newAccount !== undefined && newDevice !== undefined && oldAccount !== newAccount) {
-      switch (this.loginState) {
-        case 'none':
-        case 'logging in':
-          reduxAccount.loggedIn({ accountToken: newAccount, device: newDevice });
-
-          if (this.previousLoginState === 'too many devices') {
-            this.resetNavigation();
-          } else if (!preventRedirectToConnect) {
-            this.redirectToConnect();
-          }
-          break;
-        case 'creating account':
-          reduxAccount.accountCreated(
-            { accountToken: newAccount, device: newDevice },
-            new Date().toISOString(),
-          );
-          break;
-      }
-
-      if (this.loginState !== 'logging in' && this.loginState !== 'creating account') {
         this.resetNavigation();
+        break;
+      case 'revoked': {
+        this.loginScheduler.cancel();
+
+        const oldAccountState = this.reduxStore.getState().account;
+        if (oldAccountState.loggingOut) {
+          reduxAccount.loggedOut();
+        } else {
+          reduxAccount.deviceRevoked();
+        }
+
+        this.resetNavigation();
+        break;
       }
     }
 

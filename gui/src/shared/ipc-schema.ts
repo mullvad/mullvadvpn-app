@@ -5,11 +5,11 @@ import {
   AccountToken,
   BridgeSettings,
   BridgeState,
+  DeviceEvent,
+  DeviceState,
   IAccountData,
   IAppVersionInfo,
   IDevice,
-  IDeviceConfig,
-  IDeviceEvent,
   IDeviceRemoval,
   IDnsOptions,
   ILocation,
@@ -62,8 +62,7 @@ export interface IAppStateSnapshot {
   tunnelState: TunnelState;
   settings: ISettings;
   isPerformingPostUpgrade: boolean;
-  deviceConfig?: IDeviceConfig;
-  hasReceivedDeviceConfig: boolean;
+  deviceState?: DeviceState;
   relayListPair: IRelayListPair;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppVersionInfo;
@@ -182,7 +181,7 @@ export const ipcSchema = {
   },
   account: {
     '': notifyRenderer<IAccountData | undefined>(),
-    device: notifyRenderer<IDeviceEvent>(),
+    device: notifyRenderer<DeviceEvent>(),
     devices: notifyRenderer<Array<IDevice>>(),
     create: invoke<void, string>(),
     login: invoke<AccountToken, void>(),
@@ -190,7 +189,7 @@ export const ipcSchema = {
     getWwwAuthToken: invoke<void, string>(),
     submitVoucher: invoke<string, VoucherResponse>(),
     updateData: send<void>(),
-    getDevice: invoke<void, IDevice | undefined>(),
+    getDeviceState: invoke<void, DeviceState>(),
     listDevices: invoke<AccountToken, Array<IDevice>>(),
     removeDevice: invoke<IDeviceRemoval, void>(),
   },

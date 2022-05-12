@@ -1,28 +1,24 @@
-import { AccountToken, TunnelState } from './daemon-rpc-types';
+import { TunnelState } from './daemon-rpc-types';
 
 export function connectEnabled(
   connectedToDaemon: boolean,
-  accountToken: AccountToken | undefined,
+  loggedIn: boolean,
   tunnelState: TunnelState['state'],
 ) {
   return (
     connectedToDaemon &&
-    accountToken !== undefined &&
-    accountToken !== '' &&
+    loggedIn &&
     (tunnelState === 'disconnected' || tunnelState === 'disconnecting' || tunnelState === 'error')
   );
 }
 
 export function reconnectEnabled(
   connectedToDaemon: boolean,
-  accountToken: AccountToken | undefined,
+  loggedIn: boolean,
   tunnelState: TunnelState['state'],
 ) {
   return (
-    connectedToDaemon &&
-    accountToken !== undefined &&
-    accountToken !== '' &&
-    (tunnelState === 'connected' || tunnelState === 'connecting')
+    connectedToDaemon && loggedIn && (tunnelState === 'connected' || tunnelState === 'connecting')
   );
 }
 

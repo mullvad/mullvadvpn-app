@@ -27,10 +27,10 @@ import {
   BridgeSettings,
   BridgeState,
   DaemonEvent,
+  DeviceEvent,
+  DeviceState,
   IAccountData,
   IAppVersionInfo,
-  IDeviceConfig,
-  IDeviceEvent,
   IDeviceRemoval,
   IDnsOptions,
   IRelayList,
@@ -206,8 +206,7 @@ class ApplicationMain {
       },
     },
   };
-  private deviceConfig?: IDeviceConfig;
-  private hasReceivedDeviceConfig = false;
+  private deviceState?: DeviceState;
   private guiSettings = new GuiSettings();
   private tunnelStateExpectation?: Expectation;
 
@@ -681,10 +680,13 @@ class ApplicationMain {
 
     // fetch device
     try {
-      this.setDeviceConfig({ deviceConfig: await this.daemonRpc.getDevice() });
-      void this.daemonRpc
-        .updateDevice()
-        .catch((error: Error) => log.warn(`Failed to update device info: ${error.message}`));
+      const deviceState = await this.daemonRpc.getDevice();
+      this.handleDeviceEvent({ type: deviceState.type, deviceState } as DeviceEvent);
+      if (deviceState.type === 'logged in') {
+        void this.daemonRpc
+          .updateDevice()
+          .catch((error: Error) => log.warn(`Failed to update device info: ${error.message}`));
+      }
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch device: ${error.message}`);
@@ -749,7 +751,7 @@ class ApplicationMain {
     }
 
     // show window when account is not set
-    if (!this.deviceConfig) {
+    if (!this.isLoggedIn()) {
       this.windowController?.show();
     }
   };
@@ -822,7 +824,7 @@ class ApplicationMain {
         } else if ('appVersionInfo' in daemonEvent) {
           this.setLatestVersion(daemonEvent.appVersionInfo);
         } else if ('device' in daemonEvent) {
-          this.setDeviceConfig(daemonEvent.device);
+          this.handleDeviceEvent(daemonEvent.device);
         } else if ('deviceRemoval' in daemonEvent) {
           if (this.windowController) {
             IpcMainEventChannel.account.notifyDevices(
@@ -854,26 +856,14 @@ class ApplicationMain {
   }
 
   private connectTunnel = async (): Promise<void> => {
-    if (
-      connectEnabled(
-        this.connectedToDaemon,
-        this.deviceConfig?.accountToken,
-        this.tunnelState.state,
-      )
-    ) {
+    if (connectEnabled(this.connectedToDaemon, this.isLoggedIn(), this.tunnelState.state)) {
       this.setOptimisticTunnelState('connecting');
       await this.daemonRpc.connectTunnel();
     }
   };
 
   private reconnectTunnel = async (): Promise<void> => {
-    if (
-      reconnectEnabled(
-        this.connectedToDaemon,
-        this.deviceConfig?.accountToken,
-        this.tunnelState.state,
-      )
-    ) {
+    if (reconnectEnabled(this.connectedToDaemon, this.isLoggedIn(), this.tunnelState.state)) {
       this.setOptimisticTunnelState('connecting');
       await this.daemonRpc.reconnectTunnel();
     }
@@ -1166,26 +1156,39 @@ class ApplicationMain {
     }
   }
 
-  private setDeviceConfig(deviceEvent: IDeviceEvent) {
-    const oldDeviceConfig = this.deviceConfig;
-    this.deviceConfig = deviceEvent.deviceConfig;
-    this.hasReceivedDeviceConfig = true;
+  private handleDeviceEvent(deviceEvent: DeviceEvent) {
+    this.deviceState = deviceEvent.deviceState;
 
     if (this.isPerformingPostUpgrade) {
       void this.performPostUpgradeCheck();
     }
 
-    // make sure to invalidate the account data cache when account tokens change
-    this.updateAccountDataOnAccountChange(
-      oldDeviceConfig?.accountToken,
-      deviceEvent.deviceConfig?.accountToken,
-    );
+    switch (deviceEvent.deviceState.type) {
+      case 'logged in':
+        this.accountDataCache.fetch(deviceEvent.deviceState.accountAndDevice.accountToken);
+        break;
+      case 'logged out':
+      case 'revoked':
+        this.accountDataCache.invalidate();
+        break;
+    }
 
     void this.updateAccountHistory();
+    this.setTrayContextMenu();
 
     if (this.windowController) {
       IpcMainEventChannel.account.notifyDevice(this.windowController.webContents, deviceEvent);
     }
+  }
+
+  private isLoggedIn(): boolean {
+    return this.deviceState?.type === 'logged in';
+  }
+
+  private getAccountToken(): AccountToken | undefined {
+    return this.deviceState?.type === 'logged in'
+      ? this.deviceState.accountAndDevice.accountToken
+      : undefined;
   }
 
   private trayIconType(tunnelState: TunnelState, blockWhenDisconnected: boolean): TrayIconType {
@@ -1270,8 +1273,7 @@ class ApplicationMain {
       tunnelState: this.tunnelState,
       settings: this.settings,
       isPerformingPostUpgrade: this.isPerformingPostUpgrade,
-      deviceConfig: this.deviceConfig,
-      hasReceivedDeviceConfig: this.hasReceivedDeviceConfig,
+      deviceState: this.deviceState,
       relayListPair: {
         relays: this.processRelaysForPresentation(this.relays, this.settings.relaySettings),
         bridges: this.processBridgesForPresentation(this.relays, this.settings.bridgeState),
@@ -1363,7 +1365,7 @@ class ApplicationMain {
     IpcMainEventChannel.account.handleLogout(() => this.logout());
     IpcMainEventChannel.account.handleGetWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
     IpcMainEventChannel.account.handleSubmitVoucher(async (voucherCode: string) => {
-      const currentAccountToken = this.deviceConfig?.accountToken;
+      const currentAccountToken = this.getAccountToken();
       const response = await this.daemonRpc.submitVoucher(voucherCode);
 
       if (currentAccountToken) {
@@ -1374,9 +1376,9 @@ class ApplicationMain {
     });
     IpcMainEventChannel.account.handleUpdateData(() => this.updateAccountData());
 
-    IpcMainEventChannel.account.handleGetDevice(async () => {
-      const deviceConfig = await this.daemonRpc.getDevice();
-      return deviceConfig?.device;
+    IpcMainEventChannel.account.handleGetDeviceState(async () => {
+      await this.daemonRpc.updateDevice();
+      return this.daemonRpc.getDevice();
     });
     IpcMainEventChannel.account.handleListDevices((accountToken: AccountToken) => {
       return this.daemonRpc.listDevices(accountToken);
@@ -1540,7 +1542,7 @@ class ApplicationMain {
   private async autoConnect() {
     if (process.env.NODE_ENV === 'development') {
       log.info('Skip autoconnect in development');
-    } else if (this.deviceConfig && (!this.accountData || !hasExpired(this.accountData.expiry))) {
+    } else if (this.isLoggedIn() && (!this.accountData || !hasExpired(this.accountData.expiry))) {
       if (this.guiSettings.autoConnect) {
         try {
           log.info('Autoconnect the tunnel');
@@ -1571,21 +1573,9 @@ class ApplicationMain {
     }
   }
 
-  private updateAccountDataOnAccountChange(oldAccount?: string, newAccount?: string) {
-    if (oldAccount && !newAccount) {
-      this.accountDataCache.invalidate();
-    } else if (!oldAccount && newAccount) {
-      this.accountDataCache.fetch(newAccount);
-    } else if (oldAccount && newAccount && oldAccount !== newAccount) {
-      this.accountDataCache.fetch(newAccount);
-    }
-
-    this.setTrayContextMenu();
-  }
-
   private updateAccountData() {
-    if (this.connectedToDaemon && this.deviceConfig) {
-      this.accountDataCache.fetch(this.deviceConfig.accountToken);
+    if (this.connectedToDaemon && this.isLoggedIn()) {
+      this.accountDataCache.fetch(this.getAccountToken()!);
     }
   }
 
@@ -1971,7 +1961,7 @@ class ApplicationMain {
           this.tray?.on('right-click', () =>
             this.trayIconController?.popUpContextMenu(
               this.connectedToDaemon,
-              this.deviceConfig?.accountToken,
+              this.isLoggedIn(),
               this.tunnelState,
             ),
           );
@@ -2009,7 +1999,7 @@ class ApplicationMain {
   private setTrayContextMenu() {
     this.trayIconController?.setContextMenu(
       this.connectedToDaemon,
-      this.deviceConfig?.accountToken,
+      this.isLoggedIn(),
       this.tunnelState,
     );
   }
