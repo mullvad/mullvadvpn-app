@@ -114,7 +114,7 @@ export type DaemonEvent =
   | { settings: ISettings }
   | { relayList: IRelayList }
   | { appVersionInfo: IAppVersionInfo }
-  | { device: IDeviceEvent }
+  | { device: DeviceEvent }
   | { deviceRemoval: Array<IDevice> };
 
 export interface ITunnelStateRelayInfo {
@@ -333,15 +333,19 @@ export interface IAppVersionInfo {
   suggestedIsBeta?: boolean;
 }
 
-export interface IDeviceEvent {
-  deviceConfig?: IDeviceConfig;
-  remote?: boolean;
-}
-
-export interface IDeviceConfig {
+export interface IAccountAndDevice {
   accountToken: AccountToken;
   device?: IDevice;
 }
+
+export type LoggedInDeviceState = { type: 'logged in'; accountAndDevice: IAccountAndDevice };
+export type LoggedOutDeviceState = { type: 'logged out' | 'revoked' };
+
+export type DeviceState = LoggedInDeviceState | LoggedOutDeviceState;
+
+export type DeviceEvent =
+  | { type: 'logged in' | 'updated' | 'rotated_key'; deviceState: LoggedInDeviceState }
+  | { type: 'logged out' | 'revoked'; deviceState: LoggedOutDeviceState };
 
 export interface IDevice {
   id: string;

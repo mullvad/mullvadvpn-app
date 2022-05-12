@@ -29,7 +29,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IApp
     },
     onBuyMore: () => props.app.openLinkWithAuth(links.purchase),
     updateAccountData: () => props.app.updateAccountData(),
-    getDevice: () => props.app.getDevice(),
+    getDeviceState: () => props.app.getDeviceState(),
   };
 };
 

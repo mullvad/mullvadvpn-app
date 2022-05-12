@@ -1,4 +1,4 @@
-import { AccountToken, IDevice, IDeviceConfig } from '../../../shared/daemon-rpc-types';
+import { AccountToken, IDevice } from '../../../shared/daemon-rpc-types';
 
 interface IStartLoginAction {
   type: 'START_LOGIN';
@@ -107,11 +107,11 @@ function startLogin(accountToken: AccountToken): IStartLoginAction {
   };
 }
 
-function loggedIn(deviceConfig: IDeviceConfig): ILoggedInAction {
+function loggedIn(accountToken: AccountToken, device?: IDevice): ILoggedInAction {
   return {
     type: 'LOGGED_IN',
-    accountToken: deviceConfig.accountToken,
-    deviceName: deviceConfig.device?.name,
+    accountToken,
+    deviceName: device?.name,
   };
 }
 
@@ -172,11 +172,15 @@ function createAccountFailed(error: Error): ICreateAccountFailed {
   };
 }
 
-function accountCreated(deviceConfig: IDeviceConfig, expiry: string): IAccountCreated {
+function accountCreated(
+  accountToken: AccountToken,
+  device: IDevice | undefined,
+  expiry: string,
+): IAccountCreated {
   return {
     type: 'ACCOUNT_CREATED',
-    accountToken: deviceConfig.accountToken,
-    deviceName: deviceConfig.device?.name,
+    accountToken: accountToken,
+    deviceName: device?.name,
     expiry,
   };
 }
