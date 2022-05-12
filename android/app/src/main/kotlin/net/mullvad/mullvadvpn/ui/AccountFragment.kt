@@ -102,8 +102,8 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
                 .onEach { state ->
                     if (state.isInitialState()) deviceRepository.refreshDeviceState()
                 }
-                .collect {
-                    accountNumberView.information = it.token()
+                .collect { state ->
+                    accountNumberView.information = state.token()
                 }
         }
 

@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.service
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import net.mullvad.mullvadvpn.model.AccountAndDevice
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceEvent
@@ -126,7 +125,7 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
         return listDevices(daemonInterfaceAddress, accountToken)
     }
 
-    fun getDevice(): AccountAndDevice? = getDevice(daemonInterfaceAddress)
+    fun getDevice(): DeviceState = getDevice(daemonInterfaceAddress)
 
     fun updateDevice() = updateDevice(daemonInterfaceAddress)
 
@@ -216,7 +215,7 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
         accountToken: String?
     ): List<Device>?
 
-    private external fun getDevice(daemonInterfaceAddress: Long): AccountAndDevice?
+    private external fun getDevice(daemonInterfaceAddress: Long): DeviceState
     private external fun updateDevice(daemonInterfaceAddress: Long)
     private external fun removeDevice(
         daemonInterfaceAddress: Long,
@@ -262,7 +261,7 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
     }
 
     private fun notifyDeviceEvent(event: DeviceEvent) {
-        _deviceStateUpdates.tryEmit(DeviceState.from(event.device))
+        _deviceStateUpdates.tryEmit(event.newState)
     }
 
     private fun notifyRemoveDeviceEvent(event: RemoveDeviceEvent) {

@@ -8,26 +8,23 @@ sealed class DeviceState : Parcelable {
     object InitialState : DeviceState()
 
     @Parcelize
-    data class DeviceRegistered(val accountAndDevice: AccountAndDevice) : DeviceState()
+    class LoggedIn(val accountAndDevice: AccountAndDevice) : DeviceState()
 
     @Parcelize
-    object DeviceNotRegistered : DeviceState()
+    object LoggedOut : DeviceState()
+
+    @Parcelize
+    object Revoked : DeviceState()
 
     fun isInitialState(): Boolean {
         return this is InitialState
     }
 
     fun deviceName(): String? {
-        return (this as? DeviceRegistered)?.accountAndDevice?.device?.name
+        return (this as? LoggedIn)?.accountAndDevice?.device?.name
     }
 
     fun token(): String? {
-        return (this as? DeviceRegistered)?.accountAndDevice?.account_token
-    }
-
-    companion object {
-        fun from(accountAndDevice: AccountAndDevice?): DeviceState {
-            return accountAndDevice?.let { DeviceRegistered(it) } ?: DeviceNotRegistered
-        }
+        return (this as? LoggedIn)?.accountAndDevice?.account_token
     }
 }

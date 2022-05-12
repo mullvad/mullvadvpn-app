@@ -137,7 +137,7 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
                 repository.deviceState
                     .onEach { state -> if (state.isInitialState()) repository.refreshDeviceState() }
                     .collect { device ->
-                        updateLoggedInStatus(device is DeviceState.DeviceRegistered)
+                        updateLoggedInStatus(device is DeviceState.LoggedIn)
                     }
             }
         }

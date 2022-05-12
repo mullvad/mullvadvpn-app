@@ -5,6 +5,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class DeviceEvent(
-    val device: AccountAndDevice?,
-    val remote: Boolean
+    val cause: DeviceEventCause,
+    val newState: DeviceState
 ) : Parcelable

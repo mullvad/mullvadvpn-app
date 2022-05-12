@@ -45,8 +45,8 @@ class LaunchFragment : ServiceAwareFragment() {
                 .first { state -> state.isInitialState().not() }
                 .let { deviceState ->
                     when (deviceState) {
-                        is DeviceState.DeviceRegistered -> advanceToConnectScreen()
-                        is DeviceState.DeviceNotRegistered -> advanceToLoginScreen()
+                        is DeviceState.LoggedIn -> advanceToConnectScreen()
+                        is DeviceState.LoggedOut -> advanceToLoginScreen()
                         else -> Unit
                     }
                 }
