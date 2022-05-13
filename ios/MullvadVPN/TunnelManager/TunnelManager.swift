@@ -845,7 +845,8 @@ extension TunnelManager {
             // Do not retry if logged out.
             return nil
 
-        case .replaceWireguardKey(.server(.invalidAccount)):
+        case .replaceWireguardKey(.unhandledResponse(_, let serverErrorResponse))
+            where serverErrorResponse?.code == .invalidAccount:
             // Do not retry if account was removed.
             return nil
 

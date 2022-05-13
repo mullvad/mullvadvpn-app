@@ -364,20 +364,14 @@ private extension LoginState {
                             urlError.localizedDescription
                         )
 
-                    case .server(let serverError):
-                        var message = serverError.errorDescription ?? NSLocalizedString(
+                    case .unhandledResponse(_, let serverError):
+                        return serverError?.detail ?? NSLocalizedString(
                             "SUBHEAD_TITLE_UNKNOWN_SERVER_ERROR",
                             tableName: "Login",
                             comment: "Subhead displayed in the event of unknown server error."
                         )
 
-                        if let recoverySuggestion = serverError.recoverySuggestion {
-                            message.append("\n\(recoverySuggestion)")
-                        }
-
-                        return message
-
-                    case .encodePayload, .decodeErrorResponse, .decodeSuccessResponse:
+                    case .createURLRequest, .decodeResponse:
                         return localizedUnknownInternalError
                     }
                 } else {

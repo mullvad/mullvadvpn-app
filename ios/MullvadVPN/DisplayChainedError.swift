@@ -184,7 +184,9 @@ extension TunnelManager.Error: DisplayChainedError {
                 reason
             )
 
-            if case .server(.keyLimitReached) = restError {
+            if case .unhandledResponse(_, let serverErrorResponse) = restError,
+               serverErrorResponse?.code == .keyLimitReached
+            {
                 // TODO: maybe use `restError.recoverySuggestion` instead?
                 message.append("\n\n")
                 message.append(NSLocalizedString(
@@ -209,7 +211,9 @@ extension TunnelManager.Error: DisplayChainedError {
                 reason
             )
 
-            if case .server(.keyLimitReached) = restError {
+            if case .unhandledResponse(_, let serverErrorResponse) = restError,
+               serverErrorResponse?.code == .keyLimitReached
+            {
                 // TODO: maybe use `restError.recoverySuggestion` instead?
                 message.append("\n\n")
                 message.append(NSLocalizedString(
@@ -336,7 +340,9 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
         case .validateAccount(let restError):
             let reason = restError.errorChainDescription ?? ""
 
-            if case .server(.invalidAccount) = restError {
+            if case .unhandledResponse(_, let serverErrorResponse) = restError,
+               serverErrorResponse?.code == .invalidAccount
+            {
                 return String(
                     format: NSLocalizedString(
                         "INVALID_ACCOUNT_ERROR",

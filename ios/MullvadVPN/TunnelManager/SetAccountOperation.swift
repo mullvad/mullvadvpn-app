@@ -158,7 +158,8 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
                     case .success:
                         self.logger.info("Removed key (\(index)) from server.")
 
-                    case .failure(.server(.pubKeyNotFound)):
+                    case .failure(.unhandledResponse(_, let serverErrorResponse))
+                        where serverErrorResponse?.code == .publicKeyNotFound:
                         self.logger.debug("Key (\(index)) was not found on server.")
 
                     case .failure(let error):
