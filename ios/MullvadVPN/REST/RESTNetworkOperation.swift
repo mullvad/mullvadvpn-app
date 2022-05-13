@@ -237,6 +237,7 @@ extension REST {
         private func didReceiveURLResponse(_ response: HTTPURLResponse, data: Data, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
+            logger.debug("Response: \(response.statusCode).")
 
             let handlerResult = responseHandler.handleURLResponse(response, data: data)
 
