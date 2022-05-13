@@ -12,117 +12,71 @@ extension REST {
 
     /// An error type returned by REST API classes.
     enum Error: ChainedError {
-        /// A failure to encode the payload
-        case encodePayload(Swift.Error)
+        /// A failure to create URL request.
+        case createURLRequest(Swift.Error)
 
-        /// A failure during networking
+        /// A failure during networking.
         case network(URLError)
 
-        /// A failure reported by server
-        case server(REST.ServerErrorResponse)
+        /// A failure to handle response.
+        case unhandledResponse(_ statusCode: Int, _ serverResponse: ServerErrorResponse?)
 
-        /// A failure to decode the error response from server
-        case decodeErrorResponse(Swift.Error)
-
-        /// A failure to decode the success response from server
-        case decodeSuccessResponse(Swift.Error)
+        /// A failure to decode server response.
+        case decodeResponse(Swift.Error)
 
         var errorDescription: String? {
             switch self {
-            case .encodePayload:
-                return "Failure to encode the payload."
+            case .createURLRequest:
+                return "Failure to create URL request."
             case .network:
                 return "Network error."
-            case .server:
-                return "Server error."
-            case .decodeErrorResponse:
-                return "Failure to decode error response from server."
-            case .decodeSuccessResponse:
-                return "Failure to decode success response from server."
+            case .unhandledResponse(let statusCode, let serverResponse):
+                var str = "Failure to handle server response: HTTP/\(statusCode)."
+
+                if let code = serverResponse?.code {
+                    str += " Error code: \(code)."
+                }
+
+                if let detail = serverResponse?.detail {
+                    str += " Detail: \(detail)."
+                }
+
+                return str
+            case .decodeResponse:
+                return "Failure to decode URL response data."
             }
         }
     }
 
-    /// A struct that represents a server response in case of error (any HTTP status code except 2xx).
-    struct ServerErrorResponse: LocalizedError, Decodable, Equatable {
-        /// A list of known server error codes
-        enum Code: String, Equatable {
-            case invalidAccount = "INVALID_ACCOUNT"
-            case keyLimitReached = "KEY_LIMIT_REACHED"
-            case pubKeyNotFound = "PUBKEY_NOT_FOUND"
-            case invalidAccessToken = "INVALID_ACCESS_TOKEN"
+    struct ServerErrorResponse: Decodable {
+        let code: ServerResponseCode
+        let detail: String?
 
-            static func ~= (pattern: Self, value: REST.ServerErrorResponse) -> Bool {
-                return pattern.rawValue == value.code
-            }
+        private enum CodingKeys: String, CodingKey {
+            case code, detail, error
         }
 
-        static var invalidAccount: Code {
-            return .invalidAccount
-        }
-        static var keyLimitReached: Code {
-            return .keyLimitReached
-        }
-        static var pubKeyNotFound: Code {
-            return .pubKeyNotFound
-        }
-        static var invalidAccessToken: Code {
-            return .invalidAccessToken
-        }
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let rawValue = try container.decode(String.self, forKey: .code)
 
-        let code: String
-        let error: String?
-
-        var errorDescription: String? {
-            switch code {
-            case Code.keyLimitReached.rawValue:
-                return NSLocalizedString(
-                    "KEY_LIMIT_REACHED_ERROR_DESCRIPTION",
-                    tableName: "REST",
-                    value: "Too many WireGuard keys in use.",
-                    comment: ""
-                )
-            case Code.invalidAccount.rawValue:
-                return NSLocalizedString(
-                    "INVALID_ACCOUNT_ERROR_DESCRIPTION",
-                    tableName: "REST",
-                    value: "Invalid account.",
-                    comment: ""
-                )
-
-            case Code.invalidAccessToken.rawValue:
-                return NSLocalizedString(
-                    "INVALID_ACCESS_TOKEN_ERROR_DESCRIPTION",
-                    tableName: "REST",
-                    value: "Invalid access token.",
-                    comment: "")
-            default:
-                let localizedString = NSLocalizedString(
-                    "UNKNOWN_ERROR_DESCRIPTION",
-                    tableName: "REST",
-                    value: "Unknown error: %@",
-                    comment: "Use %@ placeholder to place the error code into the localized string."
-                )
-                return String(format: localizedString, code)
-            }
+            code = ServerResponseCode(rawValue: rawValue)
+            detail = try container.decodeIfPresent(String.self, forKey: .detail)
+                ?? container.decodeIfPresent(String.self, forKey: .error)
         }
+    }
 
-        var recoverySuggestion: String? {
-            switch code {
-            case Code.keyLimitReached.rawValue:
-                return NSLocalizedString(
-                    "KEY_LIMIT_REACHED_ERROR_RECOVERY_SUGGESTION",
-                    tableName: "REST",
-                    value: "Please visit the website to revoke a key before login is possible.",
-                    comment: ""
-                )
-            default:
-                return nil
-            }
-        }
+    struct ServerResponseCode: RawRepresentable, Equatable {
+        static let invalidAccount = ServerResponseCode(rawValue: "INVALID_ACCOUNT")
+        static let keyLimitReached = ServerResponseCode(rawValue: "KEY_LIMIT_REACHED")
+        static let publicKeyNotFound = ServerResponseCode(rawValue: "PUBKEY_NOT_FOUND")
+        static let publicKeyInUse = ServerResponseCode(rawValue: "PUBKEY_IN_USE")
+        static let maxDevicesReached = ServerResponseCode(rawValue: "MAX_DEVICES_REACHED")
+        static let invalidAccessToken = ServerResponseCode(rawValue: "INVALID_ACCESS_TOKEN")
 
-        static func == (lhs: Self, rhs: Self) -> Bool {
-            return lhs.code == rhs.code
+        let rawValue: String
+        init(rawValue: String) {
+            self.rawValue = rawValue
         }
     }
 
