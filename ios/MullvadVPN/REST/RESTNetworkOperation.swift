@@ -119,17 +119,15 @@ extension REST {
 
             let endpoint = self.addressCacheStore.getCurrentEndpoint()
 
-            let result = requestHandler.createURLRequest(
-                endpoint: endpoint,
-                authorization: authorization
-            )
+            do {
+                let request = try requestHandler.createURLRequest(
+                    endpoint: endpoint,
+                    authorization: authorization
+                )
 
-            switch result {
-            case .success(let request):
                 didReceiveURLRequest(request, endpoint: endpoint)
-
-            case .failure(let error):
-                didFailToCreateURLRequest(error)
+            } catch {
+                didFailToCreateURLRequest(.createURLRequest(error))
             }
         }
 
@@ -145,7 +143,7 @@ extension REST {
             finish(completion: .failure(error))
         }
 
-        private func didReceiveURLRequest(_ urlRequest: URLRequest, endpoint: AnyIPEndpoint) {
+        private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             logger.debug(
@@ -153,7 +151,7 @@ extension REST {
                 metadata: loggerMetadata
             )
 
-            networkTask = urlSession.dataTask(with: urlRequest) { [weak self] data, response, error in
+            networkTask = urlSession.dataTask(with: restRequest.urlRequest) { [weak self] data, response, error in
                 guard let self = self else { return }
 
                 self.dispatchQueue.async {
