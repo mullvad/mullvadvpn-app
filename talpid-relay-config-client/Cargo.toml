@@ -1,0 +1,20 @@
+[package]
+name = "talpid-relay-config-client"
+version = "0.1.0"
+authors = ["Mullvad VPN"]
+description = "Uses relays to set up PQ-safe peers, etc."
+license = "GPL-3.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+talpid-types = { path = "../talpid-types" }
+tonic = "0.5"
+prost = "0.8"
+prost-types = "0.9"
+tower = "0.4"
+tokio = "1"
+oqs = { version = "0.7.0", default-features = false, features = ["kems"] }
+
+[build-dependencies]
+tonic-build = { version = "0.5", default-features = false, features = ["transport", "prost"] }
