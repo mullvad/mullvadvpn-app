@@ -15,6 +15,7 @@ extension REST {
         private let responseHandler: AnyResponseHandler<Success>
 
         private let dispatchQueue: DispatchQueue
+        private let logger: Logger
         private let urlSession: URLSession
         private let addressCacheStore: AddressCache.Store
 
@@ -27,9 +28,6 @@ extension REST {
         private let retryStrategy: RetryStrategy
         private var retryTimer: DispatchSourceTimer?
         private var retryCount = 0
-
-        private let logger = Logger(label: "REST.NetworkOperation")
-        private let loggerMetadata: Logger.Metadata
 
         init(
             name: String,
@@ -48,7 +46,9 @@ extension REST {
             self.requestHandler = requestHandler
             self.responseHandler = responseHandler
 
-            loggerMetadata = ["name": .string(name)]
+            var logger = Logger(label: "REST.NetworkOperation")
+            logger[metadataKey: "name"] =  .string(name)
+            self.logger = logger
 
             super.init(completionQueue: .main, completionHandler: completionHandler)
         }
@@ -136,8 +136,7 @@ extension REST {
 
             logger.error(
                 chainedError: error,
-                message: "Failed to request authorization.",
-                metadata: loggerMetadata
+                message: "Failed to request authorization."
             )
 
             finish(completion: .failure(error))
@@ -146,10 +145,7 @@ extension REST {
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            logger.debug(
-                "Executing request using \(endpoint).",
-                metadata: loggerMetadata
-            )
+            logger.debug("Send request to \(restRequest.pathTemplate.templateString) via \(endpoint).")
 
             networkTask = urlSession.dataTask(with: restRequest.urlRequest) { [weak self] data, response, error in
                 guard let self = self else { return }
@@ -176,8 +172,7 @@ extension REST {
 
             logger.error(
                 chainedError: error,
-                message: "Failed to create URLRequest.",
-                metadata: loggerMetadata
+                message: "Failed to create URLRequest."
             )
 
             finish(completion: .failure(error))
@@ -200,17 +195,13 @@ extension REST {
 
             logger.error(
                 chainedError: AnyChainedError(urlError),
-                message: "Failed to perform request to \(endpoint).",
-                metadata: loggerMetadata
+                message: "Failed to perform request to \(endpoint)."
             )
 
             // Check if retry count is not exceeded.
             guard retryCount < retryStrategy.maxRetryCount else {
                 if retryStrategy.maxRetryCount > 0 {
-                    logger.debug(
-                        "Ran out of retry attempts (\(retryStrategy.maxRetryCount))",
-                        metadata: loggerMetadata
-                    )
+                    logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))")
                 }
 
                 finish(completion: OperationCompletion(result: .failure(.network(urlError))))
