@@ -15,7 +15,7 @@ extension REST {
                 name: "AuthenticationProxy",
                 configuration: configuration,
                 requestFactory: RequestFactory.withDefaultAPICredentials(
-                    pathPrefix: "/auth/v1-beta1",
+                    pathPrefix: "/auth/v1",
                     bodyEncoder: Coding.makeJSONEncoder()
                 ),
                 responseDecoder: ResponseDecoder(
