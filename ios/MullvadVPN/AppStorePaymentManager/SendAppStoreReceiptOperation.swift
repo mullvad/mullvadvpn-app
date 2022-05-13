@@ -65,7 +65,7 @@ class SendAppStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentRespo
 
     private func sendReceipt(_ receiptData: Data) {
         submitReceiptTask = apiProxy.createApplePayment(
-            token: self.accountToken,
+            accountNumber: self.accountToken,
             receiptString: receiptData,
             retryStrategy: .noRetry) { result in
                 switch result {

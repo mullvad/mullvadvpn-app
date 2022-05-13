@@ -227,7 +227,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
                 self.updateViewState(.verifiedKey(true))
 
             case .failure(let error):
-                if case .server(.pubKeyNotFound) = error {
+                if case .unhandledResponse(_, let serverErrorResponse) = error,
+                   serverErrorResponse?.code == .publicKeyNotFound {
                     self.updateViewState(.verifiedKey(false))
                 } else {
                     self.showKeyVerificationFailureAlert(error)
