@@ -15,14 +15,14 @@ import {
   ConnectionConfig,
   Constraint,
   DaemonEvent,
+  DeviceEvent,
+  DeviceState,
   ErrorStateCause,
   FirewallPolicyError,
   IAccountData,
   IAppVersionInfo,
   IBridgeConstraints,
   IDevice,
-  IDeviceConfig,
-  IDeviceEvent,
   IDeviceRemoval,
   IDnsOptions,
   IErrorState,
@@ -41,6 +41,8 @@ import {
   ITunnelStateRelayInfo,
   IWireguardConstraints,
   IWireguardTunnelData,
+  LoggedInDeviceState,
+  LoggedOutDeviceState,
   ObfuscationType,
   ProxySettings,
   ProxyType,
@@ -513,18 +515,9 @@ export class DaemonRpc {
     return response.getValue();
   }
 
-  public async getDevice(): Promise<IDeviceConfig | undefined> {
-    try {
-      const response = await this.callEmpty<grpcTypes.DeviceConfig>(this.client.getDevice);
-      return convertFromDeviceConfig(response);
-    } catch (e) {
-      const error = e as grpc.ServiceError;
-      if (error.code === grpc.status.NOT_FOUND) {
-        return undefined;
-      } else {
-        throw error;
-      }
-    }
+  public async getDevice(): Promise<DeviceState> {
+    const response = await this.callEmpty<grpcTypes.DeviceState>(this.client.getDevice);
+    return convertFromDeviceState(response);
   }
 
   public async updateDevice(): Promise<void> {
@@ -1409,21 +1402,40 @@ function convertToTransportProtocol(protocol: RelayProtocol): grpcTypes.Transpor
   }
 }
 
-function convertFromDeviceEvent(deviceEvent: grpcTypes.DeviceEvent): IDeviceEvent {
-  return {
-    deviceConfig: convertFromDeviceConfig(deviceEvent.getDevice()),
-    remote: deviceEvent.getRemote(),
-  };
+function convertFromDeviceEvent(deviceEvent: grpcTypes.DeviceEvent): DeviceEvent {
+  const deviceState = convertFromDeviceState(deviceEvent.getNewState()!);
+  switch (deviceEvent.getCause()) {
+    case grpcTypes.DeviceEvent.Cause.LOGGED_IN:
+      return { type: 'logged in', deviceState: deviceState as LoggedInDeviceState };
+    case grpcTypes.DeviceEvent.Cause.LOGGED_OUT:
+      return { type: 'logged out', deviceState: deviceState as LoggedOutDeviceState };
+    case grpcTypes.DeviceEvent.Cause.REVOKED:
+      return { type: 'revoked', deviceState: deviceState as LoggedOutDeviceState };
+    case grpcTypes.DeviceEvent.Cause.UPDATED:
+      return { type: 'updated', deviceState: deviceState as LoggedInDeviceState };
+    case grpcTypes.DeviceEvent.Cause.ROTATED_KEY:
+      return { type: 'rotated_key', deviceState: deviceState as LoggedInDeviceState };
+  }
 }
 
-function convertFromDeviceConfig(deviceConfig?: grpcTypes.DeviceConfig): IDeviceConfig | undefined {
-  const device = deviceConfig?.getDevice();
-  return (
-    deviceConfig && {
-      accountToken: deviceConfig.getAccountToken(),
-      device: device ? convertFromDevice(device) : undefined,
+function convertFromDeviceState(deviceState: grpcTypes.DeviceState): DeviceState {
+  switch (deviceState.getState()) {
+    case grpcTypes.DeviceState.State.LOGGED_IN: {
+      const accountAndDevice = deviceState.getDevice()!;
+      const device = accountAndDevice.getDevice();
+      return {
+        type: 'logged in',
+        accountAndDevice: {
+          accountToken: accountAndDevice.getAccountToken(),
+          device: device && convertFromDevice(device),
+        },
+      };
     }
-  );
+    case grpcTypes.DeviceState.State.LOGGED_OUT:
+      return { type: 'logged out' };
+    case grpcTypes.DeviceState.State.REVOKED:
+      return { type: 'revoked' };
+  }
 }
 
 function convertFromDeviceRemoval(deviceRemoval: grpcTypes.RemoveDeviceEvent): Array<IDevice> {

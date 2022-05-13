@@ -18,8 +18,6 @@ interface IButtonColorProps {
 }
 
 const buttonColor = (props: IButtonColorProps) => {
-  console.log(props.location, 'city' in props.location);
-
   const background =
     'hostname' in props.location
       ? colors.blue20

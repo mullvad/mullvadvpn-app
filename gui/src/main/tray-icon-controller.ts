@@ -5,7 +5,7 @@ import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
 
 import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
-import { AccountToken, ILocation, TunnelState } from '../shared/daemon-rpc-types';
+import { ILocation, TunnelState } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import log from '../shared/logging';
 import KeyframeAnimation from './keyframe-animation';
@@ -102,15 +102,9 @@ export default class TrayIconController {
     animation.play({ end: frame });
   }
 
-  public setContextMenu(
-    connectedToDaemon: boolean,
-    accountToken: AccountToken | undefined,
-    tunnelState: TunnelState,
-  ) {
+  public setContextMenu(connectedToDaemon: boolean, loggedIn: boolean, tunnelState: TunnelState) {
     if (process.platform === 'linux') {
-      this.tray.setContextMenu(
-        this.createContextMenu(connectedToDaemon, accountToken, tunnelState),
-      );
+      this.tray.setContextMenu(this.createContextMenu(connectedToDaemon, loggedIn, tunnelState));
     }
   }
 
@@ -119,14 +113,8 @@ export default class TrayIconController {
     this.tray?.setToolTip(tooltip);
   }
 
-  public popUpContextMenu(
-    connectedToDaemon: boolean,
-    accountToken: AccountToken | undefined,
-    tunnelState: TunnelState,
-  ) {
-    this.tray.popUpContextMenu(
-      this.createContextMenu(connectedToDaemon, accountToken, tunnelState),
-    );
+  public popUpContextMenu(connectedToDaemon: boolean, loggedIn: boolean, tunnelState: TunnelState) {
+    this.tray.popUpContextMenu(this.createContextMenu(connectedToDaemon, loggedIn, tunnelState));
   }
 
   private createTooltipText(connectedToDaemon: boolean, tunnelState: TunnelState): string {
@@ -267,7 +255,7 @@ export default class TrayIconController {
 
   private createContextMenu(
     connectedToDaemon: boolean,
-    accountToken: AccountToken | undefined,
+    loggedIn: boolean,
     tunnelState: TunnelState,
   ) {
     const template: Electron.MenuItemConstructorOptions[] = [
@@ -281,13 +269,13 @@ export default class TrayIconController {
       {
         id: 'connect',
         label: messages.gettext('Connect'),
-        enabled: connectEnabled(connectedToDaemon, accountToken, tunnelState.state),
+        enabled: connectEnabled(connectedToDaemon, loggedIn, tunnelState.state),
         click: this.connect,
       },
       {
         id: 'reconnect',
         label: messages.gettext('Reconnect'),
-        enabled: reconnectEnabled(connectedToDaemon, accountToken, tunnelState.state),
+        enabled: reconnectEnabled(connectedToDaemon, loggedIn, tunnelState.state),
         click: this.reconnect,
       },
       {

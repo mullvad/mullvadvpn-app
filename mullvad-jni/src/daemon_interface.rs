@@ -2,7 +2,7 @@ use futures::{channel::oneshot, executor::block_on};
 use mullvad_daemon::{device, DaemonCommand, DaemonCommandSender};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    device::{AccountAndDevice, Device},
+    device::{Device, DeviceState},
     location::GeoIpLocation,
     relay_constraints::RelaySettingsUpdate,
     relay_list::RelayList,
@@ -212,7 +212,7 @@ impl DaemonInterface {
             .map_err(Error::from)
     }
 
-    pub fn get_device(&self) -> Result<Option<AccountAndDevice>> {
+    pub fn get_device(&self) -> Result<DeviceState> {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(DaemonCommand::GetDevice(tx))?;

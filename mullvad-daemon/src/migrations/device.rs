@@ -85,8 +85,8 @@ async fn cache_from_wireguard_key(
             });
         }
     }
-    log::info!("The existing WireGuard key is not valid; generating a new device");
-    cache_from_account(service, account_token).await
+    log::info!("The existing WireGuard key is not valid");
+    Err(device::Error::InvalidDevice)
 }
 
 async fn cache_from_account(

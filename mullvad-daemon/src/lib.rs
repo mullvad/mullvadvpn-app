@@ -40,7 +40,7 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    device::{AccountAndDevice, Device, DeviceEvent, DeviceId, RemoveDeviceEvent},
+    device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
     relay_list::RelayList,
@@ -194,8 +194,8 @@ pub enum DaemonCommand {
     LoginAccount(ResponseTx<(), Error>, AccountToken),
     /// Log out of the current account and remove the device, if they exist.
     LogoutAccount(ResponseTx<(), Error>),
-    /// Return the current device configuration, if there is one.
-    GetDevice(ResponseTx<Option<AccountAndDevice>, Error>),
+    /// Return the current device configuration.
+    GetDevice(ResponseTx<DeviceState, Error>),
     /// Update/check the current device, if there is one.
     UpdateDevice(ResponseTx<(), Error>),
     /// Return all the devices for a given account token.
@@ -611,7 +611,7 @@ where
 
         let account_history = account_history::AccountHistory::new(
             &settings_dir,
-            data.as_ref().map(|device| device.account_token.clone()),
+            data.device().map(|device| device.account_token.clone()),
         )
         .await
         .map_err(Error::LoadAccountHistory)?;
@@ -1070,7 +1070,11 @@ where
         let account_manager = self.account_manager.clone();
         let event_listener = self.event_listener.clone();
         tokio::spawn(async move {
-            if let Ok(Some(_)) = account_manager.data_after_login().await {
+            if let Ok(Some(_)) = account_manager
+                .data_after_login()
+                .await
+                .map(|s| s.into_device())
+            {
                 // Discard stale device
                 return;
             }
@@ -1082,8 +1086,18 @@ where
                     "{}",
                     error.display_chain_with_msg("Failed to move over account from old settings")
                 );
-                // Synthesize a logout event.
-                event_listener.notify_device_event(DeviceEvent::revoke(false));
+                // Synthesize a logout or revocation if migration fails.
+                let event = match error {
+                    device::Error::InvalidDevice => DeviceEvent {
+                        cause: DeviceEventCause::Revoked,
+                        new_state: DeviceState::Revoked,
+                    },
+                    _ => DeviceEvent {
+                        cause: DeviceEventCause::LoggedOut,
+                        new_state: DeviceState::LoggedOut,
+                    },
+                };
+                event_listener.notify_device_event(event);
             }
         });
     }
@@ -1202,8 +1216,10 @@ where
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             let result = async {
-                if let Ok(Some(_)) = account_manager.data().await {
-                    return Err(Error::AlreadyLoggedIn);
+                if let Ok(data) = account_manager.data().await {
+                    if data.logged_in() {
+                        return Err(Error::AlreadyLoggedIn);
+                    }
                 }
                 let token = account_manager
                     .account_service
@@ -1243,7 +1259,7 @@ where
     }
 
     async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
-        if let Ok(Some(device)) = self.account_manager.data().await {
+        if let Ok(Some(device)) = self.account_manager.data().await.map(|s| s.into_device()) {
             let future = self
                 .account_manager
                 .account_service
@@ -1269,7 +1285,7 @@ where
         tx: ResponseTx<VoucherSubmission, Error>,
         voucher: String,
     ) {
-        if let Ok(Some(device)) = self.account_manager.data().await {
+        if let Ok(Some(device)) = self.account_manager.data().await.map(|s| s.into_device()) {
             let mut account = self.account_manager.account_service.clone();
             tokio::spawn(async move {
                 Self::oneshot_send(
@@ -1320,16 +1336,16 @@ where
         });
     }
 
-    async fn on_get_device(&mut self, tx: ResponseTx<Option<AccountAndDevice>, Error>) {
+    async fn on_get_device(&mut self, tx: ResponseTx<DeviceState, Error>) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
                 tx,
-                Ok(account_manager
+                account_manager
                     .data()
                     .await
-                    .unwrap_or(None)
-                    .map(AccountAndDevice::from)),
+                    .map_err(|_| Error::NoAccountToken)
+                    .map(DeviceState::from),
                 "get_device response",
             );
         });
@@ -2041,11 +2057,12 @@ where
     }
 
     async fn on_get_wireguard_key(&self, tx: ResponseTx<Option<PublicKey>, Error>) {
-        let result = if let Ok(Some(config)) = self.account_manager.data().await {
-            Ok(Some(config.device.wg_data.get_public_key()))
-        } else {
-            Err(Error::NoAccountToken)
-        };
+        let result =
+            if let Ok(Some(config)) = self.account_manager.data().await.map(|s| s.into_device()) {
+                Ok(Some(config.device.wg_data.get_public_key()))
+            } else {
+                Err(Error::NoAccountToken)
+            };
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 
