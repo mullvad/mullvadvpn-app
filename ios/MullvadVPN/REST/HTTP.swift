@@ -13,6 +13,7 @@ struct HTTPMethod: RawRepresentable {
     static let get = HTTPMethod(rawValue: "GET")
     static let post = HTTPMethod(rawValue: "POST")
     static let delete = HTTPMethod(rawValue: "DELETE")
+    static let put = HTTPMethod(rawValue: "PUT")
 
     let rawValue: String
     init(rawValue: String) {
@@ -20,11 +21,22 @@ struct HTTPMethod: RawRepresentable {
     }
 }
 
-enum HTTPStatus {
-    static let notModified = 304
+struct HTTPStatus: RawRepresentable, Equatable {
+    static let notModified = HTTPStatus(rawValue: 304)
+    static let badRequest = HTTPStatus(rawValue: 400)
+    static let notFound = HTTPStatus(rawValue: 404)
 
     static func isSuccess(_ code: Int) -> Bool {
         return (200..<300).contains(code)
+    }
+
+    let rawValue: Int
+    init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+
+    var isSuccess: Bool {
+        return Self.isSuccess(rawValue)
     }
 }
 

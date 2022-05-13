@@ -22,10 +22,36 @@ extension REST {
             )
         }
 
-        func getMyAccount(
+        func createAccount(
+            retryStrategy: REST.RetryStrategy,
+            completion: @escaping CompletionHandler<NewAccountData>
+        ) -> Cancellable {
+            let requestHandler = AnyRequestHandler { endpoint in
+                return try self.requestFactory.createRequest(
+                    endpoint: endpoint,
+                    method: .post,
+                    pathTemplate: "accounts"
+                )
+            }
+
+            let responseHandler = REST.defaultResponseHandler(
+                decoding: NewAccountData.self,
+                with: responseDecoder
+            )
+
+            return addOperation(
+                name: "create-account",
+                retryStrategy: retryStrategy,
+                requestHandler: requestHandler,
+                responseHandler: responseHandler,
+                completionHandler: completion
+            )
+        }
+
+        func getAccountData(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<BetaAccountResponse>
+            completion: @escaping CompletionHandler<AccountData>
         ) -> Cancellable
         {
             let requestHandler = AnyRequestHandler(
@@ -54,7 +80,7 @@ extension REST {
             )
 
             let responseHandler = REST.defaultResponseHandler(
-                decoding: BetaAccountResponse.self,
+                decoding: AccountData.self,
                 with: responseDecoder
             )
 
@@ -68,13 +94,22 @@ extension REST {
         }
     }
 
-    struct BetaAccountResponse: Decodable {
+    struct AccountData: Decodable {
         let id: String
-        let number: String
         let expiry: Date
         let maxPorts: Int
         let canAddPorts: Bool
         let maxDevices: Int
         let canAddDevices: Bool
+    }
+
+    struct NewAccountData: Decodable {
+        let id: String
+        let expiry: Date
+        let maxPorts: Int
+        let canAddPorts: Bool
+        let maxDevices: Int
+        let canAddDevices: Bool
+        let number: String
     }
 }
