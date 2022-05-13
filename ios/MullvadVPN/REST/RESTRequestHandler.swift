@@ -11,11 +11,16 @@ import Foundation
 protocol RESTRequestHandler {
     typealias AuthorizationCompletion = (OperationCompletion<REST.Authorization, REST.Error>) -> Void
 
-    func createURLRequest(endpoint: AnyIPEndpoint, authorization: REST.Authorization?) -> Result<URLRequest, REST.Error>
+    func createURLRequest(endpoint: AnyIPEndpoint, authorization: REST.Authorization?) throws -> REST.Request
     func requestAuthorization(completion: @escaping AuthorizationCompletion) -> REST.AuthorizationResult
 }
 
 extension REST {
+
+    struct Request {
+        var urlRequest: URLRequest
+        var pathTemplate: URLPathTemplate
+    }
 
     enum AuthorizationResult {
         /// There is no requirement for authorizing this request.
@@ -28,22 +33,22 @@ extension REST {
     }
 
     final class AnyRequestHandler: RESTRequestHandler {
-        private let _createURLRequest: (AnyIPEndpoint, REST.Authorization?) -> Result<URLRequest, REST.Error>
+        private let _createURLRequest: (AnyIPEndpoint, REST.Authorization?) throws -> REST.Request
         private let _requestAuthorization: ((@escaping AuthorizationCompletion) -> AuthorizationResult)?
 
-        init(createURLRequest: @escaping (AnyIPEndpoint) -> Result<URLRequest, REST.Error>) {
+        init(createURLRequest: @escaping (AnyIPEndpoint) throws -> REST.Request) {
             _createURLRequest = { endpoint, authorization in
-                createURLRequest(endpoint)
+                return try createURLRequest(endpoint)
             }
             _requestAuthorization = nil
         }
 
         init(
-            createURLRequest: @escaping (AnyIPEndpoint, REST.Authorization) -> Result<URLRequest, REST.Error>,
+            createURLRequest: @escaping (AnyIPEndpoint, REST.Authorization) throws -> REST.Request,
             requestAuthorization: @escaping (@escaping AuthorizationCompletion) -> Cancellable
         ) {
             _createURLRequest = { endpoint, authorization in
-                return createURLRequest(endpoint, authorization!)
+                return try createURLRequest(endpoint, authorization!)
             }
             _requestAuthorization = { completion in
                 return .pending(requestAuthorization(completion))
@@ -53,8 +58,8 @@ extension REST {
         func createURLRequest(
             endpoint: AnyIPEndpoint,
             authorization: REST.Authorization?
-        ) -> Result<URLRequest, REST.Error> {
-            return _createURLRequest(endpoint, authorization)
+        ) throws -> REST.Request {
+            return try _createURLRequest(endpoint, authorization)
         }
 
         func requestAuthorization(

@@ -37,14 +37,15 @@ extension REST {
             self.bodyEncoder = bodyEncoder
         }
 
-        func createURLRequest(endpoint: AnyIPEndpoint, method: HTTPMethod, path: String) -> URLRequest {
+        func createRequest(endpoint: AnyIPEndpoint, method: HTTPMethod, pathTemplate: URLPathTemplate) throws -> REST.Request {
             var urlComponents = URLComponents()
             urlComponents.scheme = "https"
             urlComponents.path = pathPrefix
             urlComponents.host = "\(endpoint.ip)"
             urlComponents.port = Int(endpoint.port)
 
-            let requestURL = urlComponents.url!.appendingPathComponent(path)
+            let pathString = try pathTemplate.pathString()
+            let requestURL = urlComponents.url!.appendingPathComponent(pathString)
 
             var request = URLRequest(
                 url: requestURL,
@@ -55,38 +56,44 @@ extension REST {
             request.addValue(hostname, forHTTPHeaderField: HTTPHeader.host)
             request.addValue("application/json", forHTTPHeaderField: HTTPHeader.contentType)
             request.httpMethod = method.rawValue
-            return request
+
+            let prefixedPathTemplate = URLPathTemplate(stringLiteral: pathPrefix) + pathTemplate
+
+            return REST.Request(
+                urlRequest: request,
+                pathTemplate: prefixedPathTemplate
+            )
         }
 
-        func createURLRequestBuilder(
+        func createRequestBuilder(
             endpoint: AnyIPEndpoint,
             method: HTTPMethod,
-            path: String
-        ) -> RequestBuilder {
-            let request = createURLRequest(
+            pathTemplate: URLPathTemplate
+        ) throws -> RequestBuilder {
+            let request = try createRequest(
                 endpoint: endpoint,
                 method: method,
-                path: path
+                pathTemplate: pathTemplate
             )
 
             return RequestBuilder(
-                request: request,
+                restRequest: request,
                 bodyEncoder: bodyEncoder
             )
         }
     }
 
     struct RequestBuilder {
-        private var request: URLRequest
+        private var restRequest: REST.Request
         private let bodyEncoder: JSONEncoder
 
-        init(request: URLRequest, bodyEncoder: JSONEncoder) {
-            self.request = request
+        init(restRequest: REST.Request, bodyEncoder: JSONEncoder) {
+            self.restRequest = restRequest
             self.bodyEncoder = bodyEncoder
         }
 
         mutating func setHTTPBody<T: Encodable>(value: T) throws {
-            request.httpBody = try bodyEncoder.encode(value)
+            restRequest.urlRequest.httpBody = try bodyEncoder.encode(value)
         }
 
         mutating func setETagHeader(etag: String) {
@@ -95,7 +102,7 @@ extension REST {
             if etag.starts(with: "\"") {
                 etag.insert(contentsOf: "W/", at: etag.startIndex)
             }
-            request.setValue(etag, forHTTPHeaderField: HTTPHeader.ifNoneMatch)
+            restRequest.urlRequest.setValue(etag, forHTTPHeaderField: HTTPHeader.ifNoneMatch)
         }
 
         mutating func setAuthorization(_ authorization: REST.Authorization) {
@@ -108,11 +115,119 @@ extension REST {
                 value = "Bearer \(accessToken)"
             }
 
-            request.addValue(value, forHTTPHeaderField: HTTPHeader.authorization)
+            restRequest.urlRequest.addValue(value, forHTTPHeaderField: HTTPHeader.authorization)
         }
 
-        func getURLRequest() -> URLRequest {
-            return request
+        func getRequest() -> REST.Request {
+            return restRequest
         }
     }
+
+    struct URLPathTemplate: ExpressibleByStringLiteral {
+        enum Component {
+            case literal(String)
+            case placeholder(String)
+        }
+
+        enum Error: LocalizedError {
+            /// Replacement value is not provided for placeholder.
+            case noReplacement(_ name: String)
+
+            /// Failure to perecent encode replacement value.
+            case percentEncoding
+
+            var errorDescription: String? {
+                switch self {
+                case .noReplacement(let placeholder):
+                    return "Replacement is not provided for \(placeholder)."
+
+                case .percentEncoding:
+                    return "Failed to percent encode replacement value."
+                }
+            }
+        }
+
+        private var components: [Component]
+        private var replacements = [String: String]()
+
+        init(stringLiteral value: StringLiteralType) {
+            let slashCharset = CharacterSet(charactersIn: "/")
+
+            components = value.split(separator: "/").map { subpath -> Component in
+                if subpath.hasPrefix("{") && subpath.hasSuffix("}") {
+                    let name = String(subpath.dropFirst().dropLast())
+
+                    return .placeholder(name)
+                } else {
+                    return .literal(
+                        subpath.trimmingCharacters(in: slashCharset)
+                    )
+                }
+            }
+        }
+
+        private init(components: [Component]) {
+            self.components = components
+        }
+
+        mutating func addPercentEncodedReplacement(
+            name: String,
+            value: String,
+            allowedCharacters: CharacterSet
+        ) throws {
+            let encoded = value.addingPercentEncoding(
+                withAllowedCharacters: allowedCharacters
+            )
+
+            if let encoded = encoded {
+                replacements[name] = encoded
+            } else {
+                throw Error.percentEncoding
+            }
+        }
+
+        var templateString: String {
+            var combinedString = ""
+
+            for component in components {
+                combinedString += "/"
+
+                switch component {
+                case .literal(let string):
+                    combinedString += string
+                case .placeholder(let name):
+                    combinedString += "{\(name)}"
+                }
+            }
+
+            return combinedString
+        }
+
+        func pathString() throws -> String {
+            var combinedPath = ""
+
+            for component in components {
+                combinedPath += "/"
+
+                switch component {
+                case .literal(let string):
+                    combinedPath += string
+
+                case .placeholder(let name):
+                    if let string = replacements[name] {
+                        combinedPath += string
+                    } else {
+                        throw Error.noReplacement(name)
+                    }
+                }
+            }
+
+            return combinedPath
+        }
+
+        static func + (lhs: URLPathTemplate, rhs: URLPathTemplate) -> URLPathTemplate {
+            return URLPathTemplate(components: lhs.components + rhs.components)
+        }
+    }
+
 }

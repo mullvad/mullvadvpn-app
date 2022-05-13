@@ -30,15 +30,15 @@ extension REST {
         {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
-                    var requestBuilder = self.requestFactory.createURLRequestBuilder(
+                    var requestBuilder = try self.requestFactory.createRequestBuilder(
                         endpoint: endpoint,
                         method: .get,
-                        path: "/accounts/me"
+                        pathTemplate: "accounts/me"
                     )
 
                     requestBuilder.setAuthorization(authorization)
 
-                    return .success(requestBuilder.getURLRequest())
+                    return requestBuilder.getRequest()
                 },
                 requestAuthorization: { completion in
                     return self.configuration.accessTokenManager
