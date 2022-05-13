@@ -25,13 +25,13 @@ extension REST {
         let requestFactory: REST.RequestFactory
 
         /// URL response decoder.
-        let responseDecoder: REST.ResponseDecoder
+        let responseDecoder: JSONDecoder
 
         init(
             name: String,
             configuration: ConfigurationType,
             requestFactory: REST.RequestFactory,
-            responseDecoder: REST.ResponseDecoder
+            responseDecoder: JSONDecoder
         )
         {
             dispatchQueue = DispatchQueue(label: "REST.\(name).dispatchQueue")

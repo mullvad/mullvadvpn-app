@@ -18,9 +18,7 @@ extension REST {
                     pathPrefix: "/accounts/v1",
                     bodyEncoder: Coding.makeJSONEncoder()
                 ),
-                responseDecoder: ResponseDecoder(
-                    decoder: Coding.makeJSONDecoder()
-                )
+                responseDecoder: Coding.makeJSONDecoder()
             )
         }
 

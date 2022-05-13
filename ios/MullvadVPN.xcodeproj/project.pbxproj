@@ -104,7 +104,6 @@
 		5850368C25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B35322BB87C4003C19AD /* PrivateKeyWithMetadata.swift */; };
 		5850368D25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B35322BB87C4003C19AD /* PrivateKeyWithMetadata.swift */; };
 		58554F73280AFA5A00013055 /* RESTAuthenticationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */; };
-		58554F75280AFAE900013055 /* RESTResponseDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F74280AFAE900013055 /* RESTResponseDecoder.swift */; };
 		58554F77280AFD5C00013055 /* RESTTaskIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */; };
 		58554F79280B037400013055 /* RESTAccessTokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F78280B037400013055 /* RESTAccessTokenManager.swift */; };
 		58554F7B280B125F00013055 /* RESTAccountsProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F7A280B125F00013055 /* RESTAccountsProxy.swift */; };
@@ -424,7 +423,6 @@
 		584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Markdown.swift"; sourceTree = "<group>"; };
 		5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPAddressRange+Codable.swift"; sourceTree = "<group>"; };
 		58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAuthenticationProxy.swift; sourceTree = "<group>"; };
-		58554F74280AFAE900013055 /* RESTResponseDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTResponseDecoder.swift; sourceTree = "<group>"; };
 		58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTaskIdentifier.swift; sourceTree = "<group>"; };
 		58554F78280B037400013055 /* RESTAccessTokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAccessTokenManager.swift; sourceTree = "<group>"; };
 		58554F7A280B125F00013055 /* RESTAccountsProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAccountsProxy.swift; sourceTree = "<group>"; };
@@ -779,7 +777,6 @@
 				58F97A1A280EEBC00050C2FC /* RESTProxyFactory.swift */,
 				58B5A894280AACC4009FDE99 /* RESTRequestFactory.swift */,
 				58F97A1D280FDE230050C2FC /* RESTRequestHandler.swift */,
-				58554F74280AFAE900013055 /* RESTResponseDecoder.swift */,
 				588BCF272816D664009ADCEC /* RESTResponseHandler.swift */,
 				58095C582762155700890776 /* RESTRetryStrategy.swift */,
 				58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */,
@@ -1496,7 +1493,6 @@
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58B43C1925F77DB60002C8C3 /* ConnectMainContentView.swift in Sources */,
 				58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
-				58554F75280AFAE900013055 /* RESTResponseDecoder.swift in Sources */,
 				58F97A1E280FDE230050C2FC /* RESTRequestHandler.swift in Sources */,
 				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
