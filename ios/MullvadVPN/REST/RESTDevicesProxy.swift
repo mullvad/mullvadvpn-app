@@ -17,7 +17,7 @@ extension REST {
                 name: "DevicesProxy",
                 configuration: configuration,
                 requestFactory: RequestFactory.withDefaultAPICredentials(
-                    pathPrefix: "/accounts/v1-beta1",
+                    pathPrefix: "/accounts/v1",
                     bodyEncoder: Coding.makeJSONEncoder()
                 ),
                 responseDecoder: ResponseDecoder(
