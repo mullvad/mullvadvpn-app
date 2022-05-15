@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 - Remove WireGuard view as it's no longer needed with the new way of managing devices.
 
 ### Fixed
+- Fix time added view displayed due to incorrect local clock.
+
 #### Windows
 - Be more scrupulous about removing temporary files used by the installer and uninstaller.
 
