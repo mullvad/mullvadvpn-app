@@ -71,6 +71,7 @@ Line wrap the file at 100 chars.                                              Th
 - Use the entry endpoint when the relay selector fails to find a relay using the preferred
   constraints and the tunnel protocol is "any". Previously, the entry endpoint was ignored in this
   case.
+- Fix time added view displayed due to incorrect local clock.
 
 #### Windows
 - Fix "Open Mullvad VPN" tray context menu item not working after toggling unpinned window setting.
