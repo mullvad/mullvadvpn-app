@@ -33,14 +33,16 @@ export function Changelog() {
     (state) => state.settings.guiSettings.changelogDisplayedForVersion,
   );
   const changelog = useSelector((state) => state.userInterface.changelog);
+  const forceShowChanges = useSelector((state) => state.userInterface.forceShowChanges);
 
   const { setDisplayedChangelog } = useAppContext();
 
   const visible =
-    changelogDisplayedForVersion !== currentVersion &&
-    changelog.length > 0 &&
-    !window.env.development &&
-    !/-dev-[0-9a-f]{6}$/.test(currentVersion);
+    forceShowChanges ||
+    (changelogDisplayedForVersion !== currentVersion &&
+      changelog.length > 0 &&
+      !window.env.development &&
+      !/-dev-[0-9a-f]{6}$/.test(currentVersion));
 
   return (
     <ModalAlert

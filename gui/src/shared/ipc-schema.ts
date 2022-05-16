@@ -71,6 +71,7 @@ export interface IAppStateSnapshot {
   windowsSplitTunnelingApplications?: IWindowsApplication[];
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
   changelog: IChangelog;
+  forceShowChanges: boolean;
   navigationHistory?: IHistoryObject;
   scrollPositions: ScrollPositions;
 }

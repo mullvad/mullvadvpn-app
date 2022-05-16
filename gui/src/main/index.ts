@@ -105,7 +105,10 @@ const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
 
 const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 
-const QUIT_WITHOUT_DISCONNECT_FLAG = '--quit-without-disconnect';
+enum Options {
+  quitWithoutDisconnect = '--quit-without-disconnect',
+  showChanges = '--show-changes',
+}
 
 enum AppQuitStage {
   unready,
@@ -257,6 +260,7 @@ class ApplicationMain {
   private quitWithoutDisconnect = false;
 
   private changelog?: IChangelog;
+  private forceShowChanges = process.argv.includes(Options.showChanges);
 
   private navigationHistory?: IHistoryObject;
   private scrollPositions: ScrollPositions = {};
@@ -272,7 +276,7 @@ class ApplicationMain {
 
     // This ensures that only a single instance is running at the same time, but also exits if
     // there's no already running instance when the quit without disconnect flag is supplied.
-    if (!app.requestSingleInstanceLock() || process.argv.includes(QUIT_WITHOUT_DISCONNECT_FLAG)) {
+    if (!app.requestSingleInstanceLock() || process.argv.includes(Options.quitWithoutDisconnect)) {
       this.quitWithoutDisconnect = true;
       app.quit();
       return;
@@ -324,7 +328,7 @@ class ApplicationMain {
 
   private addSecondInstanceEventHandler() {
     app.on('second-instance', (_event, argv, _workingDirectory) => {
-      if (argv.includes(QUIT_WITHOUT_DISCONNECT_FLAG)) {
+      if (argv.includes(Options.quitWithoutDisconnect)) {
         // Quit if another instance is started with the quit without disconnect flag.
         this.quitWithoutDisconnect = true;
         app.quit();
@@ -1285,6 +1289,7 @@ class ApplicationMain {
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
       changelog: this.changelog ?? [],
+      forceShowChanges: this.forceShowChanges,
       navigationHistory: this.navigationHistory,
       scrollPositions: this.scrollPositions,
     }));
