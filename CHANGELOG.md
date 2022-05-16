@@ -25,10 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add option to filter relays by ownership in the desktop apps.
-- Include creation timestamp for devices in the CLI.
 
 ### Changed
-- List devices on an account sorted by creation date, oldest to newest, instead of alphabetically.
 - Display consistent colors regardless of monitor color profile.
 
 #### Android
@@ -40,7 +38,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix time added view displayed due to incorrect local clock.
-- Fix logout failing if the API cannot be reached in the GUI.
 
 #### Windows
 - Be more scrupulous about removing temporary files used by the installer and uninstaller.
@@ -54,6 +51,23 @@ Line wrap the file at 100 chars.                                              Th
   state.
 
 
+## [2022.2] - 2022-06-13
+This release is for desktop only.
+
+This release is identical to 2022.2-beta2.
+
+
+## [2022.2-beta2] - 2022-06-10
+### Added
+- Include creation timestamp for devices in the CLI.
+
+### Changed
+- List devices on an account sorted by creation date, oldest to newest, instead of alphabetically.
+
+### Fixed
+- Fix logout failing if the API cannot be reached in the GUI.
+
+
 ## [2022.2-beta1] - 2022-05-16
 ### Added
 - Extend DNS blocking with the following new categories: "Adult content" and "gambling".
@@ -62,7 +76,7 @@ Line wrap the file at 100 chars.                                              Th
   option to log out other devices when there are already 5 connected when logging in.
 - Add tray icon tooltip with connection info in desktop app.
 - Add relay and bridge constraints for restricting relay selection to rented or Mullvad-owned
-  relays.
+  relays. Allows filtering servers by ownership in the CLI.
 
 #### Windows
 - Detect mounting and dismounting of volumes, such as VeraCrypt volumes or USB drives,
