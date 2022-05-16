@@ -23,6 +23,17 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Android
+#### Android
+- Lowered default MTU to 1280 on Android.
+
+### Security
+#### Android
+- Prevent location request responses from being received outside the tunnel when in the connected
+  state.
+
+
+## [2022.2-beta1] - 2022-05-16
 ### Added
 - Extend DNS blocking with the following new categories: "Adult content" and "gambling".
 - Obfuscate traffic to the Mullvad API using bridges if it cannot be reached directly.
@@ -55,9 +66,6 @@ Line wrap the file at 100 chars.                                              Th
 - Pause API interactions when the daemon has not been used for 3 days.
 - Simplified output of `mullvad status` command.
 
-#### Android
-- Lowered default MTU to 1280 on Android.
-
 ### Fixed
 - Fix the sometimes incorrect time added text after adding time to the account.
 - Fix scrollbar no longer responsive and usable when covered by other elements.
@@ -83,10 +91,6 @@ Line wrap the file at 100 chars.                                              Th
 - Fix thrashing due to DNS config monitoring.
 
 ### Security
-#### Android
-- Prevent location request responses from being received outside the tunnel when in the connected
-  state.
-
 #### Windows
 - Update split tunnel driver to 1.2.1.0. This fixes potential DNS leaks seen when excluding at least
   one application.
