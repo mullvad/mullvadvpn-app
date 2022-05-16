@@ -51,6 +51,11 @@ export interface ISetChangelog {
   changelog: IChangelog;
 }
 
+export interface ISetForceShowChanges {
+  type: 'SET_FORCE_SHOW_CHANGES';
+  forceShowChanges: boolean;
+}
+
 export interface ISetIsPerformingPostUpgrade {
   type: 'SET_IS_PERFORMING_POST_UPGRADE';
   isPerformingPostUpgrade: boolean;
@@ -67,6 +72,7 @@ export type UserInterfaceAction =
   | ISetMacOsScrollbarVisibility
   | ISetConnectedToDaemon
   | ISetChangelog
+  | ISetForceShowChanges
   | ISetIsPerformingPostUpgrade;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
@@ -141,6 +147,13 @@ function setChangelog(changelog: IChangelog): ISetChangelog {
   };
 }
 
+function setForceShowChanges(forceShowChanges: boolean): ISetForceShowChanges {
+  return {
+    type: 'SET_FORCE_SHOW_CHANGES',
+    forceShowChanges,
+  };
+}
+
 function setIsPerformingPostUpgrade(isPerformingPostUpgrade: boolean): ISetIsPerformingPostUpgrade {
   return {
     type: 'SET_IS_PERFORMING_POST_UPGRADE',
@@ -159,5 +172,6 @@ export default {
   setMacOsScrollbarVisibility,
   setConnectedToDaemon,
   setChangelog,
+  setForceShowChanges,
   setIsPerformingPostUpgrade,
 };

@@ -229,7 +229,7 @@ export default class AppRenderer {
     this.setUpgradeVersion(initialState.upgradeVersion);
     this.setGuiSettings(initialState.guiSettings);
     this.storeAutoStart(initialState.autoStart);
-    this.setChangelog(initialState.changelog);
+    this.setChangelog(initialState.changelog, initialState.forceShowChanges);
 
     if (initialState.macOsScrollbarVisibility !== undefined) {
       this.reduxActions.userInterface.setMacOsScrollbarVisibility(
@@ -950,8 +950,9 @@ export default class AppRenderer {
     this.reduxActions.settings.updateAutoStart(autoStart);
   }
 
-  private setChangelog(changelog: IChangelog) {
+  private setChangelog(changelog: IChangelog, forceShowChanges: boolean) {
     this.reduxActions.userInterface.setChangelog(changelog);
+    this.reduxActions.userInterface.setForceShowChanges(forceShowChanges);
   }
 
   private async updateLocation() {
