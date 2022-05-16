@@ -1,5 +1,7 @@
-CHANGE THIS BEFORE A RELEASE
-Each line is treated as a separate change item shown in the GUI the first time it runs after install.
-Start each line with a capital letter and end each line with a period.
-[macOS, Windows, linux] To make an entry platform specific, start the line with an angle bracket enclosed comma separated list of platforms to show the entry on.
-Only point out the major changes.
+Revamped Mullvad device management. All app logins now have a name, and when you have too many devices you can log out other devices directly in the app
+Added ability to block gambling and adult content websites
+Connects to WireGuard servers faster, thanks to more efficiently verifying that the tunnel works
+Uses Shadowsocks obfuscation to reach the Mullvad API. Circumvents censorship
+[Windows] Fixes possible DNS leaks that could happen if split tunneling was used
+[macOS] Does not consume 100% CPU if there is an issue with controlling the system's DNS settings
+The escape key now navigates back one step. Shift+escape navigates back to the main view
