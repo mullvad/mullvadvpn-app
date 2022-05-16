@@ -134,7 +134,10 @@ build_ref() {
       # Will only match paths that include *-dev-* which means release builds will not be included
       # Pipes all matching names and their new name to mv
       pushd dist
-      ls | sed -nE "s/^(MullvadVPN-.*-dev-.*)(_amd64\.deb|_x86_64\.rpm|\.exe|\.pkg|\.apk|\.aab)$/\1\2 \1$version_suffix\2/p" | xargs -L 1 mv
+      for original_file in MullvadVPN-*-dev-*{_amd64.deb,_x86_64.rpm,.exe,.pkg,.apk,.aab}; do
+          new_file=$(echo $original_file | sed -nE "s/^(MullvadVPN-.*-dev-.*)(_amd64\.deb|_x86_64\.rpm|\.exe|\.pkg|\.apk|\.aab)$/\1$version_suffix\2/p")
+          mv $original_file $new_file
+      done
       popd
   fi
 
