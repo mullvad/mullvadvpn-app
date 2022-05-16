@@ -379,16 +379,8 @@ esac
 popd
 
 SEMVER_VERSION=$(echo "$PRODUCT_VERSION" | sed -Ee 's/($|-.*)/.0\1/g')
-current_head_commit_tag=$(git tag --points-at HEAD)
 for semver_path in dist/*"$SEMVER_VERSION"*; do
-    # If there is a tag for this commit then we append that to the produced artifacts
-    # We don't want to change the actual PRODUCT_VERSION as metadata in the form of +<metadata> is ignored by electron builder etc
-    version_suffix=""
-    if [[ -n "$current_head_commit_tag" ]]; then
-        # Remove disallowed version characters from the tag
-        version_suffix="+${current_head_commit_tag//[^0-9a-z_-]/}"
-    fi
-    product_path=$(echo "$semver_path" | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION$version_suffix/g")
+    product_path=$(echo "$semver_path" | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
     log_info "Moving $semver_path -> $product_path"
     mv "$semver_path" "$product_path"
 
