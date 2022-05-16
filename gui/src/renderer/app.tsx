@@ -37,6 +37,7 @@ import { Scheduler } from '../shared/scheduler';
 import AppRouter from './components/AppRouter';
 import { Changelog } from './components/Changelog';
 import ErrorBoundary from './components/ErrorBoundary';
+import KeyboardNavigation from './components/KeyboardNavigation';
 import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import { ModalContainer } from './components/Modal';
 import PlatformWindowContainer from './containers/PlatformWindowContainer';
@@ -273,8 +274,10 @@ export default class AppRenderer {
             <PlatformWindowContainer>
               <ErrorBoundary>
                 <ModalContainer>
-                  <AppRouter />
-                  <Changelog />
+                  <KeyboardNavigation>
+                    <AppRouter />
+                    <Changelog />
+                  </KeyboardNavigation>
                   {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
                 </ModalContainer>
               </ErrorBoundary>

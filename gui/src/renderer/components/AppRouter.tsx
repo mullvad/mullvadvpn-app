@@ -24,7 +24,6 @@ import {
 } from './ExpiredAccountAddTime';
 import FilterByProvider from './FilterByProvider';
 import Focus, { IFocusHandle } from './Focus';
-import KeyboardNavigation from './KeyboardNavigation';
 import Launch from './Launch';
 import MainView from './MainView';
 import SplitTunnelingSettings from './SplitTunnelingSettings';
@@ -74,40 +73,34 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
     const location = this.state.currentLocation;
 
     return (
-      <KeyboardNavigation>
-        <Focus ref={this.focusRef}>
-          <TransitionContainer onTransitionEnd={this.onNavigation} {...this.state.transition}>
-            <TransitionView viewId={location.key || ''}>
-              <Switch key={location.key} location={location}>
-                <Route exact path={RoutePath.launch} component={Launch} />
-                <Route exact path={RoutePath.login} component={LoginPage} />
-                <Route exact path={RoutePath.tooManyDevices} component={TooManyDevices} />
-                <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />
-                <Route exact path={RoutePath.main} component={MainView} />
-                <Route exact path={RoutePath.redeemVoucher} component={VoucherInput} />
-                <Route
-                  exact
-                  path={RoutePath.voucherSuccess}
-                  component={VoucherVerificationSuccess}
-                />
-                <Route exact path={RoutePath.timeAdded} component={TimeAdded} />
-                <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
-                <Route exact path={RoutePath.settings} component={SettingsPage} />
-                <Route exact path={RoutePath.selectLanguage} component={SelectLanguagePage} />
-                <Route exact path={RoutePath.accountSettings} component={AccountPage} />
-                <Route exact path={RoutePath.preferences} component={PreferencesPage} />
-                <Route exact path={RoutePath.advancedSettings} component={AdvancedSettingsPage} />
-                <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsPage} />
-                <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettingsPage} />
-                <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
-                <Route exact path={RoutePath.support} component={SupportPage} />
-                <Route exact path={RoutePath.selectLocation} component={SelectLocationPage} />
-                <Route exact path={RoutePath.filterByProvider} component={FilterByProvider} />
-              </Switch>
-            </TransitionView>
-          </TransitionContainer>
-        </Focus>
-      </KeyboardNavigation>
+      <Focus ref={this.focusRef}>
+        <TransitionContainer onTransitionEnd={this.onNavigation} {...this.state.transition}>
+          <TransitionView viewId={location.key || ''}>
+            <Switch key={location.key} location={location}>
+              <Route exact path={RoutePath.launch} component={Launch} />
+              <Route exact path={RoutePath.login} component={LoginPage} />
+              <Route exact path={RoutePath.tooManyDevices} component={TooManyDevices} />
+              <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />
+              <Route exact path={RoutePath.main} component={MainView} />
+              <Route exact path={RoutePath.redeemVoucher} component={VoucherInput} />
+              <Route exact path={RoutePath.voucherSuccess} component={VoucherVerificationSuccess} />
+              <Route exact path={RoutePath.timeAdded} component={TimeAdded} />
+              <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
+              <Route exact path={RoutePath.settings} component={SettingsPage} />
+              <Route exact path={RoutePath.selectLanguage} component={SelectLanguagePage} />
+              <Route exact path={RoutePath.accountSettings} component={AccountPage} />
+              <Route exact path={RoutePath.preferences} component={PreferencesPage} />
+              <Route exact path={RoutePath.advancedSettings} component={AdvancedSettingsPage} />
+              <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsPage} />
+              <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettingsPage} />
+              <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
+              <Route exact path={RoutePath.support} component={SupportPage} />
+              <Route exact path={RoutePath.selectLocation} component={SelectLocationPage} />
+              <Route exact path={RoutePath.filterByProvider} component={FilterByProvider} />
+            </Switch>
+          </TransitionView>
+        </TransitionContainer>
+      </Focus>
     );
   }
 

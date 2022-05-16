@@ -5,7 +5,7 @@ import { useHistory } from '../lib/history';
 import { disableDismissForRoutes, RoutePath } from '../lib/routes';
 
 interface IKeyboardNavigationProps {
-  children: React.ReactElement;
+  children: React.ReactElement | Array<React.ReactElement>;
 }
 
 // Listens for and handles keyboard shortcuts
