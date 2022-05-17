@@ -11,11 +11,14 @@ use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
-    fmt, io, mem,
+    fmt,
+    future::Future,
+    io, mem,
     mem::MaybeUninit,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::RawHandle,
     path::Path,
+    pin::Pin,
     ptr,
     sync::{Arc, Mutex},
 };
@@ -986,22 +989,22 @@ impl Tunnel for WgNtTunnel {
         Ok(())
     }
 
-    fn set_config(&self, config: &Config) -> std::result::Result<(), super::TunnelError> {
-        if let Some(ref device) = &*self.device.lock().unwrap() {
-            if let Err(error) = device.set_config(&config) {
+    fn set_config(
+        &self,
+        config: Config,
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
+        let device = self.device.clone();
+        Box::pin(async move {
+            let guard = device.lock().unwrap();
+            let device = guard.as_ref().ok_or(super::TunnelError::SetConfigError)?;
+            device.set_config(&config).map_err(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to set wg-nt tunnel config")
                 );
-                Err(super::TunnelError::SetConfigError)
-            } else {
-                Ok(())
-            }
-        } else {
-            Err(super::TunnelError::StatsError(
-                super::stats::Error::NoTunnelDevice,
-            ))
-        }
+                super::TunnelError::SetConfigError
+            })
+        })
     }
 }
 
@@ -1033,6 +1036,7 @@ mod tests {
                     public_key: WG_PUBLIC_KEY.clone(),
                     allowed_ips: vec!["1.3.3.0/24".parse().unwrap()],
                     endpoint: "1.2.3.4:1234".parse().unwrap(),
+                    psk: None,
                 }],
                 ipv4_gateway: "0.0.0.0".parse().unwrap(),
                 ipv6_gateway: None,

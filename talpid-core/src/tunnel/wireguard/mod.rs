@@ -8,6 +8,7 @@ use futures::{channel::mpsc, StreamExt};
 use futures::{
     channel::oneshot,
     future::{abortable, AbortHandle as FutureAbortHandle},
+    Future,
 };
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
@@ -21,6 +22,7 @@ use std::{
     convert::Infallible,
     net::IpAddr,
     path::Path,
+    pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
 };
 #[cfg(windows)]
@@ -308,11 +310,18 @@ impl WireguardMonitor {
                     }
                 }
 
-                log::trace!("Ephemeral pubkey: {}", config.tunnel.private_key.public_key());
+                log::trace!(
+                    "Ephemeral pubkey: {}",
+                    config.tunnel.private_key.public_key()
+                );
 
-                if let Some(tunnel) = &*tunnel.lock().unwrap() {
-                    tunnel
-                        .set_config(&config)
+                let set_config_future = tunnel
+                    .lock()
+                    .unwrap()
+                    .as_ref()
+                    .map(|tunnel| tunnel.set_config(config.clone()));
+                if let Some(f) = set_config_future {
+                    f.await
                         .map_err(Error::TunnelError)
                         .map_err(CloseMsg::SetupError)?;
                 }
@@ -632,7 +641,10 @@ pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
-    fn set_config(&self, _config: &Config) -> std::result::Result<(), TunnelError> {
+    fn set_config(
+        &self,
+        _config: Config,
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'static>> {
         unimplemented!()
     }
 }
