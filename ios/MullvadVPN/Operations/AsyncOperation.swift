@@ -43,7 +43,25 @@ class AsyncOperation: Operation {
         return true
     }
 
+    let dispatchQueue: DispatchQueue
+    init(dispatchQueue: DispatchQueue? = nil) {
+        self.dispatchQueue = dispatchQueue ?? DispatchQueue(label: "AsyncOperation.dispatchQueue")
+        super.init()
+    }
+
     final override func start() {
+        let underlyingQueue = OperationQueue.current?.underlyingQueue
+
+        if underlyingQueue == dispatchQueue {
+            _start()
+        } else {
+            dispatchQueue.async {
+                self._start()
+            }
+        }
+    }
+
+    private func _start() {
         stateLock.lock()
         if _isCancelled {
             stateLock.unlock()
@@ -59,19 +77,31 @@ class AsyncOperation: Operation {
         // Override in subclasses
     }
 
-    override func cancel() {
+    final override func cancel() {
+        var notifyDidCancel = false
+
         stateLock.lock()
         if !_isCancelled {
             willChangeValue(for: \.isCancelled)
             _isCancelled = true
             didChangeValue(for: \.isCancelled)
+
+            notifyDidCancel = true
         }
         stateLock.unlock()
 
         super.cancel()
+
+        if notifyDidCancel {
+            dispatchQueue.async {
+                self.operationDidCancel()
+            }
+        }
     }
 
     func finish() {
+        var notifyDidFinish = false
+
         stateLock.lock()
 
         if _isExecuting {
@@ -83,9 +113,15 @@ class AsyncOperation: Operation {
             _isFinished = true
             didChangeValue(for: \.isFinished)
 
-            stateLock.unlock()
-        } else {
-            stateLock.unlock()
+            notifyDidFinish = true
+        }
+
+        stateLock.unlock()
+
+        if notifyDidFinish {
+            dispatchQueue.async {
+                self.operationDidFinish()
+            }
         }
     }
 
@@ -93,6 +129,14 @@ class AsyncOperation: Operation {
         willChangeValue(for: \.isExecuting)
         _isExecuting = value
         didChangeValue(for: \.isExecuting)
+    }
+
+    func operationDidCancel() {
+        // Override in subclasses.
+    }
+
+    func operationDidFinish() {
+        // Override in subclasses.
     }
 }
 

@@ -176,7 +176,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
     /// The given account token is used to ensure that the system tunnel was configured for the same
     /// account. The system tunnel is removed in case of inconsistency.
     func loadTunnel(accountToken: String?, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
-        let operation = LoadTunnelOperation(queue: stateQueue, state: state, accountToken: accountToken) { [weak self] completion in
+        let operation = LoadTunnelOperation(dispatchQueue: stateQueue, state: state, accountToken: accountToken) { [weak self] completion in
             guard let self = self else { return }
 
             dispatchPrecondition(condition: .onQueue(self.stateQueue))
@@ -207,7 +207,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
 
     func startTunnel() {
         let operation = StartTunnelOperation(
-            queue: stateQueue,
+            dispatchQueue: stateQueue,
             state: state,
             encodeErrorHandler: { [weak self] error in
                 guard let self = self else { return }
@@ -241,7 +241,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
     }
 
     func stopTunnel() {
-        let operation = StopTunnelOperation(queue: stateQueue, state: state) { [weak self] completion in
+        let operation = StopTunnelOperation(dispatchQueue: stateQueue, state: state) { [weak self] completion in
             guard let self = self else { return }
 
             dispatchPrecondition(condition: .onQueue(self.stateQueue))
@@ -350,7 +350,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
     }
 
     func regeneratePrivateKey(completionHandler: ((TunnelManager.Error?) -> Void)? = nil) {
-        let operation = ReplaceKeyOperation.operationForKeyRegeneration(queue: stateQueue, state: state, apiProxy: apiProxy) { [weak self] completion in
+        let operation = ReplaceKeyOperation.operationForKeyRegeneration(dispatchQueue: stateQueue, state: state, apiProxy: apiProxy) { [weak self] completion in
             guard let self = self else { return }
 
             dispatchPrecondition(condition: .onQueue(self.stateQueue))
@@ -387,7 +387,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
 
     func rotatePrivateKey(completionHandler: @escaping (OperationCompletion<KeyRotationResult, TunnelManager.Error>) -> Void) -> Cancellable {
         let operation = ReplaceKeyOperation.operationForKeyRotation(
-            queue: stateQueue,
+            dispatchQueue: stateQueue,
             state: state,
             apiProxy: apiProxy,
             rotationInterval: TunnelManagerConfiguration.privateKeyRotationInterval
@@ -571,7 +571,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
 
     private func makeSetAccountOperation(accountToken: String?, completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void) -> Operation {
         return SetAccountOperation(
-            queue: stateQueue,
+            dispatchQueue: stateQueue,
             state: state,
             apiProxy: apiProxy,
             accountToken: accountToken,
@@ -600,7 +600,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
 
     private func scheduleTunnelSettingsUpdate(taskName: String, modificationBlock: @escaping (inout TunnelSettings) -> Void, completionHandler: @escaping (TunnelManager.Error?) -> Void) {
         let operation = SetTunnelSettingsOperation(
-            queue: stateQueue,
+            dispatchQueue: stateQueue,
             state: state,
             modificationBlock: modificationBlock,
             completionHandler: { [weak self] completion in

@@ -23,8 +23,6 @@ extension TunnelIPC {
     final class RequestOperation<Output>: ResultOperation<Output, TunnelIPC.Error> {
         typealias DecoderHandler = (Data?) -> Result<Output, TunnelIPC.Error>
 
-        private let queue: DispatchQueue
-
         private let tunnel: Tunnel
         private let request: TunnelIPC.Request
         private let options: RequestOptions
@@ -37,48 +35,39 @@ extension TunnelIPC {
 
         private var requestSent = false
 
-        init(queue: DispatchQueue,
-             tunnel: Tunnel,
-             request: TunnelIPC.Request,
-             options: TunnelIPC.RequestOptions,
-             decoderHandler: @escaping DecoderHandler,
-             completionHandler: @escaping CompletionHandler)
-        {
-            self.queue = queue
-
+        init(
+            dispatchQueue: DispatchQueue,
+            tunnel: Tunnel,
+            request: TunnelIPC.Request,
+            options: TunnelIPC.RequestOptions,
+            decoderHandler: @escaping DecoderHandler,
+            completionHandler: @escaping CompletionHandler
+        ) {
             self.tunnel = tunnel
             self.request = request
             self.options = options
-
             self.decoderHandler = decoderHandler
 
-            super.init(completionQueue: queue, completionHandler: completionHandler)
+            super.init(
+                dispatchQueue: dispatchQueue,
+                completionQueue: dispatchQueue,
+                completionHandler: completionHandler
+            )
         }
 
         override func main() {
-            queue.async {
-                guard !self.isCancelled else {
-                    self.finish(completion: .cancelled)
-                    return
-                }
+            setTimeoutTimer(connectingStateWaitDelay: 0)
 
-                self.setTimeoutTimer(connectingStateWaitDelay: 0)
-
-                self.statusObserver = self.tunnel.addBlockObserver(queue: self.queue) { [weak self] tunnel, status in
-                    self?.handleVPNStatus(status)
-                }
-
-                self.handleVPNStatus(self.tunnel.status)
+            statusObserver = tunnel.addBlockObserver(queue: dispatchQueue) { [weak self] tunnel, status in
+                self?.handleVPNStatus(status)
             }
+
+            handleVPNStatus(tunnel.status)
         }
 
-        override func cancel() {
-            super.cancel()
-
-            queue.async {
-                if self.isExecuting {
-                    self.finish(completion: .cancelled)
-                }
+        override func operationDidCancel() {
+            if isExecuting {
+                finish(completion: .cancelled)
             }
         }
 
@@ -113,7 +102,7 @@ extension TunnelIPC {
             // Schedule timeout work.
             let deadline: DispatchWallTime = .now() + options.timeout + connectingStateWaitDelay
 
-            queue.asyncAfter(wallDeadline: deadline, execute: workItem)
+            dispatchQueue.asyncAfter(wallDeadline: deadline, execute: workItem)
         }
 
         private func handleVPNStatus(_ status: NEVPNStatus) {
@@ -172,7 +161,7 @@ extension TunnelIPC {
             // Schedule delayed work.
             let deadline: DispatchWallTime = .now() + waitDelay
 
-            queue.asyncAfter(wallDeadline: deadline, execute: workItem)
+            dispatchQueue.asyncAfter(wallDeadline: deadline, execute: workItem)
         }
 
         private func sendRequest() {
@@ -199,7 +188,7 @@ extension TunnelIPC {
                 try tunnel.sendProviderMessage(messageData) { [weak self] responseData in
                     guard let self = self else { return }
 
-                    self.queue.async {
+                    self.dispatchQueue.async {
                         let decodingResult = self.decoderHandler(responseData)
 
                         self.finish(completion: OperationCompletion(result: decodingResult))
@@ -214,7 +203,7 @@ extension TunnelIPC {
 
 extension TunnelIPC.RequestOperation where Output: Codable {
     convenience init(
-        queue: DispatchQueue,
+        dispatchQueue: DispatchQueue,
         tunnel: Tunnel,
         request: TunnelIPC.Request,
         options: TunnelIPC.RequestOptions,
@@ -222,7 +211,7 @@ extension TunnelIPC.RequestOperation where Output: Codable {
     )
     {
         self.init(
-            queue: queue,
+            dispatchQueue: dispatchQueue,
             tunnel: tunnel,
             request: request,
             options: options,
@@ -242,14 +231,14 @@ extension TunnelIPC.RequestOperation where Output: Codable {
 
 extension TunnelIPC.RequestOperation where Output == Void {
     convenience init(
-        queue: DispatchQueue,
+        dispatchQueue: DispatchQueue,
         tunnel: Tunnel,
         request: TunnelIPC.Request,
         options: TunnelIPC.RequestOptions,
         completionHandler: @escaping CompletionHandler
     ) {
         self.init(
-            queue: queue,
+            dispatchQueue: dispatchQueue,
             tunnel: tunnel,
             request: request,
             options: options,

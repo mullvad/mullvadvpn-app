@@ -9,52 +9,52 @@
 import Foundation
 
 class StopTunnelOperation: ResultOperation<(), TunnelManager.Error> {
-    private let queue: DispatchQueue
     private let state: TunnelManager.State
 
-    init(queue: DispatchQueue, state: TunnelManager.State, completionHandler: @escaping CompletionHandler) {
-        self.queue = queue
+    init(
+        dispatchQueue: DispatchQueue,
+        state: TunnelManager.State,
+        completionHandler: @escaping CompletionHandler
+    )
+    {
         self.state = state
 
-        super.init(completionQueue: queue, completionHandler: completionHandler)
+        super.init(
+            dispatchQueue: dispatchQueue,
+            completionQueue: dispatchQueue,
+            completionHandler: completionHandler
+        )
     }
 
     override func main() {
-        queue.async {
-            guard !self.isCancelled else {
-                self.finish(completion: .cancelled)
-                return
-            }
+        guard let tunnel = state.tunnel else {
+            finish(completion: .failure(.unsetAccount))
+            return
+        }
 
-            guard let tunnel = self.state.tunnel else {
-                self.finish(completion: .failure(.unsetAccount))
-                return
-            }
+        switch state.tunnelStatus.state {
+        case .disconnecting(.reconnect):
+            state.tunnelStatus.state = .disconnecting(.nothing)
 
-            switch self.state.tunnelStatus.state {
-            case .disconnecting(.reconnect):
-                self.state.tunnelStatus.state = .disconnecting(.nothing)
+            finish(completion: .success(()))
 
-                self.finish(completion: .success(()))
+        case .connected, .connecting, .reconnecting:
+            // Disable on-demand when stopping the tunnel to prevent it from coming back up
+            tunnel.isOnDemandEnabled = false
 
-            case .connected, .connecting, .reconnecting:
-                // Disable on-demand when stopping the tunnel to prevent it from coming back up
-                tunnel.isOnDemandEnabled = false
-
-                tunnel.saveToPreferences { error in
-                    self.queue.async {
-                        if let error = error {
-                            self.finish(completion: .failure(.saveVPNConfiguration(error)))
-                        } else {
-                            tunnel.stop()
-                            self.finish(completion: .success(()))
-                        }
+            tunnel.saveToPreferences { error in
+                self.dispatchQueue.async {
+                    if let error = error {
+                        self.finish(completion: .failure(.saveVPNConfiguration(error)))
+                    } else {
+                        tunnel.stop()
+                        self.finish(completion: .success(()))
                     }
                 }
-
-            default:
-                self.finish(completion: .success(()))
             }
+
+        default:
+            finish(completion: .success(()))
         }
     }
 }

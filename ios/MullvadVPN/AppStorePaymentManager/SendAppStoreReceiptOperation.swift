@@ -25,40 +25,33 @@ class SendAppStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentRespo
         self.forceRefresh = forceRefresh
         self.receiptProperties = receiptProperties
 
-        super.init(completionQueue: .main, completionHandler: completionHandler)
+        super.init(
+            dispatchQueue: .main,
+            completionQueue: .main,
+            completionHandler: completionHandler
+        )
     }
 
-    override func cancel() {
-        super.cancel()
+    override func operationDidCancel() {
+        fetchReceiptTask?.cancel()
+        fetchReceiptTask = nil
 
-        DispatchQueue.main.async {
-            self.fetchReceiptTask?.cancel()
-            self.fetchReceiptTask = nil
-
-            self.submitReceiptTask?.cancel()
-            self.submitReceiptTask = nil
-        }
+        submitReceiptTask?.cancel()
+        submitReceiptTask = nil
     }
 
     override func main() {
-        DispatchQueue.main.async {
-            guard !self.isCancelled else {
+        fetchReceiptTask = AppStoreReceipt.fetch(forceRefresh: self.forceRefresh, receiptProperties: self.receiptProperties) { completion in
+            switch completion {
+            case .success(let receiptData):
+                self.sendReceipt(receiptData)
+
+            case .failure(let error):
+                self.logger.error(chainedError: error, message: "Failed to fetch the AppStore receipt.")
+                self.finish(completion: .failure(.readReceipt(error)))
+
+            case .cancelled:
                 self.finish(completion: .cancelled)
-                return
-            }
-
-            self.fetchReceiptTask = AppStoreReceipt.fetch(forceRefresh: self.forceRefresh, receiptProperties: self.receiptProperties) { completion in
-                switch completion {
-                case .success(let receiptData):
-                    self.sendReceipt(receiptData)
-
-                case .failure(let error):
-                    self.logger.error(chainedError: error, message: "Failed to fetch the AppStore receipt.")
-                    self.finish(completion: .failure(.readReceipt(error)))
-
-                case .cancelled:
-                    self.finish(completion: .cancelled)
-                }
             }
         }
     }

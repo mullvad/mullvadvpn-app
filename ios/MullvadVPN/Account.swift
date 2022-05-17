@@ -101,7 +101,7 @@ class Account {
     }
 
     func loginWithNewAccount(completionHandler: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
-        let operation = AsyncBlockOperation { operation in
+        let operation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             _ = self.apiProxy.createAccount(retryStrategy: .noRetry) { result in
                 switch result {
                 case .success(let response):
@@ -136,7 +136,7 @@ class Account {
     /// Perform the login and save the account token along with expiry (if available) to the
     /// application preferences.
     func login(accountToken: String, completionHandler: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
-        let operation = AsyncBlockOperation { operation in
+        let operation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             _ = self.apiProxy.getAccountExpiry(accountNumber: accountToken, retryStrategy: .default) { result in
                 switch result {
                 case .success(let response):
@@ -167,7 +167,7 @@ class Account {
 
     /// Perform the logout by erasing the account token and expiry from the application preferences.
     func logout(completionHandler: @escaping () -> Void) {
-        let operation = AsyncBlockOperation { operation in
+        let operation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             TunnelManager.shared.unsetAccount {
                 self.removeFromPreferences()
                 self.observerList.forEach { (observer) in
@@ -185,48 +185,44 @@ class Account {
     /// Forget that user was logged in, but do not attempt to unset account in `TunnelManager`.
     /// This function is used in cases where the tunnel or tunnel settings are corrupt.
     func forget(completionHandler: @escaping () -> Void) {
-        let operation = AsyncBlockOperation { operation in
-            DispatchQueue.main.async {
-                self.removeFromPreferences()
-                self.observerList.forEach { (observer) in
-                    observer.accountDidLogout(self)
-                }
-
-                completionHandler()
-                operation.finish()
+        let operation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+            self.removeFromPreferences()
+            self.observerList.forEach { (observer) in
+                observer.accountDidLogout(self)
             }
+
+            completionHandler()
+            operation.finish()
         }
 
         operationQueue.addOperation(operation)
     }
 
     func updateAccountExpiry() {
-        let operation = AsyncBlockOperation { operation in
-            DispatchQueue.main.async {
-                guard let token = self.token else {
-                    operation.finish()
-                    return
-                }
+        let operation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+            guard let token = self.token else {
+                operation.finish()
+                return
+            }
 
-                _ = self.apiProxy.getAccountExpiry(accountNumber: token, retryStrategy: .default) { completion in
-                    switch completion {
-                    case .success(let response):
-                        if self.expiry != response.expires {
-                            self.expiry = response.expires
-                            self.observerList.forEach { (observer) in
-                                observer.account(self, didUpdateExpiry: response.expires)
-                            }
+            _ = self.apiProxy.getAccountExpiry(accountNumber: token, retryStrategy: .default) { completion in
+                switch completion {
+                case .success(let response):
+                    if self.expiry != response.expires {
+                        self.expiry = response.expires
+                        self.observerList.forEach { (observer) in
+                            observer.account(self, didUpdateExpiry: response.expires)
                         }
-
-                    case .failure(let error):
-                        self.logger.error(chainedError: error, message: "Failed to update account expiry.")
-
-                    case .cancelled:
-                        self.logger.debug("Account expiry update was cancelled.")
                     }
 
-                    operation.finish()
+                case .failure(let error):
+                    self.logger.error(chainedError: error, message: "Failed to update account expiry.")
+
+                case .cancelled:
+                    self.logger.debug("Account expiry update was cancelled.")
                 }
+
+                operation.finish()
             }
         }
 
@@ -277,20 +273,18 @@ extension Account: AppStorePaymentObserver {
     }
 
     func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: REST.CreateApplePaymentResponse) {
-        let operation = AsyncBlockOperation { operation in
-            DispatchQueue.main.async {
-                let newExpiry = response.newExpiry
+        let operation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+            let newExpiry = response.newExpiry
 
-                // Make sure that payment corresponds to the active account token
-                if self.token == accountToken, self.expiry != newExpiry {
-                    self.expiry = newExpiry
-                    self.observerList.forEach { (observer) in
-                        observer.account(self, didUpdateExpiry: newExpiry)
-                    }
+            // Make sure that payment corresponds to the active account token
+            if self.token == accountToken, self.expiry != newExpiry {
+                self.expiry = newExpiry
+                self.observerList.forEach { (observer) in
+                    observer.account(self, didUpdateExpiry: newExpiry)
                 }
-
-                operation.finish()
             }
+
+            operation.finish()
         }
 
         operationQueue.addOperation(operation)
