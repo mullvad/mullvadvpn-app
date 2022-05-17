@@ -6,7 +6,6 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
@@ -61,9 +60,6 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize
     object VpnPermissionRequest : Event()
-
-    @Parcelize
-    data class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event()
 
     companion object {
         private const val MESSAGE_KEY = "event"

@@ -10,9 +10,7 @@ import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
-import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginResult
-import net.mullvad.mullvadvpn.model.PublicKey
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.model.RemoveDeviceEvent
@@ -30,7 +28,6 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
     var onTunnelStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected)
 
     var onAppVersionInfoChange: ((AppVersionInfo) -> Unit)? = null
-    var onKeygenEvent: ((KeygenEvent) -> Unit)? = null
     var onRelayListChange: ((RelayList) -> Unit)? = null
     var onDaemonStopped: (() -> Unit)? = null
 
@@ -59,11 +56,6 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
 
     fun disconnect() {
         disconnect(daemonInterfaceAddress)
-    }
-
-    fun generateWireguardKey(): KeygenEvent? {
-        // TODO: remove
-        return null
     }
 
     fun getAccountData(accountToken: String): GetAccountDataResult {
@@ -100,11 +92,6 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
 
     fun getVersionInfo(): AppVersionInfo? {
         return getVersionInfo(daemonInterfaceAddress)
-    }
-
-    fun getWireguardKey(): PublicKey? {
-        // TODO: no longer needed
-        return getWireguardKey(daemonInterfaceAddress)
     }
 
     fun reconnect() {
@@ -161,16 +148,11 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
         updateRelaySettings(daemonInterfaceAddress, update)
     }
 
-    fun verifyWireguardKey(): Boolean? {
-        return verifyWireguardKey(daemonInterfaceAddress)
-    }
-
     fun onDestroy() {
         onSettingsChange.unsubscribeAll()
         onTunnelStateChange.unsubscribeAll()
 
         onAppVersionInfoChange = null
-        onKeygenEvent = null
         onRelayListChange = null
         onDaemonStopped = null
 
@@ -201,7 +183,6 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
     private external fun getSettings(daemonInterfaceAddress: Long): Settings?
     private external fun getState(daemonInterfaceAddress: Long): TunnelState?
     private external fun getVersionInfo(daemonInterfaceAddress: Long): AppVersionInfo?
-    private external fun getWireguardKey(daemonInterfaceAddress: Long): PublicKey?
     private external fun reconnect(daemonInterfaceAddress: Long)
     private external fun clearAccountHistory(daemonInterfaceAddress: Long)
     private external fun loginAccount(
@@ -237,8 +218,6 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
         daemonInterfaceAddress: Long,
         update: RelaySettingsUpdate
     )
-
-    private external fun verifyWireguardKey(daemonInterfaceAddress: Long): Boolean?
 
     private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo) {
         onAppVersionInfoChange?.invoke(appVersionInfo)
