@@ -1,3 +1,7 @@
+use std::pin::Pin;
+
+use futures::Future;
+
 use super::{
     super::stats::{Stats, StatsMap},
     wg_message::DeviceNla,
@@ -108,5 +112,21 @@ impl Tunnel for NetlinkTunnel {
         });
 
         result
+    }
+
+    fn set_config(
+        &self,
+        config: Config,
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'static>> {
+        let mut wg = self.netlink_connections.wg_handle.clone();
+        let interface_index = self.interface_index;
+        Box::pin(async move {
+            wg.set_config(interface_index, &config)
+                .await
+                .map_err(|err| {
+                    log::error!("Failed to fetch WireGuard device config: {}", err);
+                    TunnelError::SetConfigError
+                })
+        })
     }
 }
