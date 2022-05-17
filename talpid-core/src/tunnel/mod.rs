@@ -198,6 +198,7 @@ impl TunnelMonitor {
         let monitor = wireguard::WireguardMonitor::start(
             runtime,
             config,
+            Some(params.connection.peer.public_key.clone()),
             log.as_deref(),
             resource_dir,
             on_event,

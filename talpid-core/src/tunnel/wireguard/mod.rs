@@ -25,7 +25,10 @@ use std::{
 };
 #[cfg(windows)]
 use talpid_types::BoxedError;
-use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
+use talpid_types::{
+    net::{obfuscation::ObfuscatorConfig, wireguard::PublicKey},
+    ErrorExt,
+};
 use tunnel_obfuscation::{
     create_obfuscator, Error as ObfuscationError, Settings as ObfuscationSettings, Udp2TcpSettings,
 };
@@ -72,6 +75,10 @@ pub enum Error {
     /// Failed to set up connectivity monitor
     #[error(display = "Connectivity monitor failed")]
     ConnectivityMonitorError(#[error(source)] connectivity_check::Error),
+
+    /// Failed to negotiate PQ PSK
+    #[error(display = "Failed to negotiate PQ PSK")]
+    PskNegotiationError(talpid_relay_config_client::Error),
 
     /// Failed to set up IP interfaces.
     #[cfg(windows)]
@@ -188,6 +195,7 @@ impl WireguardMonitor {
     >(
         runtime: tokio::runtime::Handle,
         mut config: Config,
+        psk_negotiation: Option<PublicKey>,
         log_path: Option<&Path>,
         resource_dir: &Path,
         on_event: F,
@@ -237,6 +245,7 @@ impl WireguardMonitor {
         .map_err(Error::ConnectivityMonitorError)?;
 
         let metadata = Self::tunnel_metadata(&iface_name, &config);
+        let tunnel = monitor.tunnel.clone();
 
         let tunnel_fut = async move {
             #[cfg(windows)]
@@ -279,6 +288,35 @@ impl WireguardMonitor {
                 .await
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
+
+            if let Some(pubkey) = psk_negotiation {
+                // TODO: add timeout
+                let (private_key, psk) = talpid_relay_config_client::push_pq_key(
+                    IpAddr::V4(config.ipv4_gateway),
+                    config.tunnel.private_key.public_key(),
+                )
+                .await
+                .map_err(Error::PskNegotiationError)
+                .map_err(CloseMsg::SetupError)?;
+
+                config.tunnel.private_key = private_key;
+
+                for peer in &mut config.peers {
+                    if pubkey == peer.public_key {
+                        peer.psk = Some(psk);
+                        break;
+                    }
+                }
+
+                log::trace!("Ephemeral pubkey: {}", config.tunnel.private_key.public_key());
+
+                if let Some(tunnel) = &*tunnel.lock().unwrap() {
+                    tunnel
+                        .set_config(&config)
+                        .map_err(Error::TunnelError)
+                        .map_err(CloseMsg::SetupError)?;
+                }
+            }
 
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(retry_attempt) {
@@ -594,6 +632,9 @@ pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
+    fn set_config(&self, _config: &Config) -> std::result::Result<(), TunnelError> {
+        unimplemented!()
+    }
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
@@ -629,6 +670,10 @@ pub enum TunnelError {
     /// Error whilst trying to retrieve config of a WireGuard tunnel
     #[error(display = "Failed to get config of WireGuard tunnel")]
     GetConfigError,
+
+    /// Failed to set WireGuard tunnel config on device
+    #[error(display = "Failed to set config of WireGuard tunnel")]
+    SetConfigError,
 
     /// Failed to duplicate tunnel file descriptor for wireguard-go
     #[cfg(any(target_os = "linux", target_os = "macos", target_os = "android"))]

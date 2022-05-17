@@ -1185,6 +1185,7 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
                             public_key,
                             allowed_ips,
                             endpoint,
+                            psk: None,
                         },
                         exit_peer: None,
                         ipv4_gateway,

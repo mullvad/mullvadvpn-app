@@ -391,12 +391,16 @@ impl ConnState {
 
 #[cfg(test)]
 mod test {
+    use futures::Future;
+
     use super::*;
     use crate::tunnel::wireguard::{
+        config::Config,
         stats::{self, Stats},
         TunnelError,
     };
     use std::{
+        pin::Pin,
         sync::{
             atomic::{AtomicBool, Ordering},
             Arc, Mutex,
@@ -597,6 +601,13 @@ mod test {
 
         fn get_tunnel_stats(&self) -> Result<stats::StatsMap, TunnelError> {
             (self.on_get_stats)()
+        }
+
+        fn set_config(
+            &self,
+            _config: Config,
+        ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
+            Box::pin(async { Ok(()) })
         }
     }
 

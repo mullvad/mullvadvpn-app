@@ -26,6 +26,7 @@ regex = "1.1.0"
 shell-escape = "0.1"
 talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
+talpid-relay-config-client = { path = "../talpid-relay-config-client" }
 uuid = { version = "0.8", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4.19"

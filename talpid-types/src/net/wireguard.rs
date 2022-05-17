@@ -55,6 +55,8 @@ pub struct PeerConfig {
     pub allowed_ips: Vec<IpNetwork>,
     /// IP address of the WireGuard server.
     pub endpoint: SocketAddr,
+    /// Preshared key.
+    pub psk: Option<PresharedKey>,
 }
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
@@ -253,12 +255,37 @@ impl fmt::Display for PublicKey {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PresharedKey([u8; 32]);
+
+impl PresharedKey {
+    /// Get the PSK as bytes
+    pub fn as_bytes(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
 
 impl From<[u8; 32]> for PresharedKey {
     fn from(key: [u8; 32]) -> PresharedKey {
         PresharedKey(key)
+    }
+}
+
+impl Serialize for PresharedKey {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serialize_key(&self.0, serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for PresharedKey {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserialize_key(deserializer)
     }
 }
 
