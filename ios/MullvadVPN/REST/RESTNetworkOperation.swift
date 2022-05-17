@@ -81,10 +81,15 @@ extension REST {
                 return
             }
 
-            let authorizationResult = requestHandler.requestAuthorization { completion in
-                self.dispatchQueue.async {
-                    assert(self.requiresAuthorization, "Illegal use of completion handler.")
+            guard let authorizationProvider = requestHandler.authorizationProvider else {
+                requiresAuthorization = false
+                didReceiveAuthorization(nil)
+                return
+            }
 
+            requiresAuthorization = true
+            authorizationTask = authorizationProvider.getAuthorization { completion in
+                self.dispatchQueue.async {
                     switch completion {
                     case .success(let authorization):
                         self.didReceiveAuthorization(authorization)
@@ -96,16 +101,6 @@ extension REST {
                         self.finish(completion: .cancelled)
                     }
                 }
-            }
-
-            switch authorizationResult {
-            case .pending(let task):
-                requiresAuthorization = true
-                authorizationTask = task
-
-            case .noRequirement:
-                requiresAuthorization = false
-                didReceiveAuthorization(nil)
             }
         }
 

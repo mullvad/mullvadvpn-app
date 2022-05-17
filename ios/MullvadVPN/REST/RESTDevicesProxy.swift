@@ -53,17 +53,10 @@ extension REST {
 
                     return requestBuilder.getRequest()
                 },
-                requestAuthorization: { completion in
-                    return self.configuration.accessTokenManager
-                        .getAccessToken(
-                            accountNumber: accountNumber,
-                            retryStrategy: retryStrategy
-                        ) { operationCompletion in
-                            completion(operationCompletion.map { tokenData in
-                                return .accessToken(tokenData.accessToken)
-                            })
-                        }
-                }
+                authorizationProvider: createAuthorizationProvider(
+                    accountNumber: accountNumber,
+                    retryStrategy: .default
+                )
             )
 
             let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<Device?> in
@@ -116,17 +109,10 @@ extension REST {
 
                     return requestBuilder.getRequest()
                 },
-                requestAuthorization: { completion in
-                    return self.configuration.accessTokenManager
-                        .getAccessToken(
-                            accountNumber: accountNumber,
-                            retryStrategy: retryStrategy
-                        ) { operationCompletion in
-                            completion(operationCompletion.map { tokenData in
-                                return .accessToken(tokenData.accessToken)
-                            })
-                        }
-                }
+                authorizationProvider: createAuthorizationProvider(
+                    accountNumber: accountNumber,
+                    retryStrategy: .default
+                )
             )
 
             let responseHandler = REST.defaultResponseHandler(
@@ -166,17 +152,10 @@ extension REST {
 
                     return requestBuilder.getRequest()
                 },
-                requestAuthorization: { completion in
-                    return self.configuration.accessTokenManager
-                        .getAccessToken(
-                            accountNumber: accountNumber,
-                            retryStrategy: retryStrategy
-                        ) { operationCompletion in
-                            completion(operationCompletion.map { tokenData in
-                                return .accessToken(tokenData.accessToken)
-                            })
-                        }
-                }
+                authorizationProvider: createAuthorizationProvider(
+                    accountNumber: accountNumber,
+                    retryStrategy: .default
+                )
             )
 
             let responseHandler = REST.defaultResponseHandler(
@@ -224,17 +203,10 @@ extension REST {
 
                     return requestBuilder.getRequest()
                 },
-                requestAuthorization: { completion in
-                    return self.configuration.accessTokenManager
-                        .getAccessToken(
-                            accountNumber: accountNumber,
-                            retryStrategy: retryStrategy
-                        ) { operationCompletion in
-                            completion(operationCompletion.map { tokenData in
-                                return .accessToken(tokenData.accessToken)
-                            })
-                        }
-                }
+                authorizationProvider: createAuthorizationProvider(
+                    accountNumber: accountNumber,
+                    retryStrategy: .default
+                )
             )
 
             let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<Bool> in
@@ -302,17 +274,10 @@ extension REST {
 
                     return urlRequest
                 },
-                requestAuthorization: { completion in
-                    return self.configuration.accessTokenManager
-                        .getAccessToken(
-                            accountNumber: accountNumber,
-                            retryStrategy: retryStrategy
-                        ) { operationCompletion in
-                            completion(operationCompletion.map { tokenData in
-                                return .accessToken(tokenData.accessToken)
-                            })
-                        }
-                }
+                authorizationProvider: createAuthorizationProvider(
+                    accountNumber: accountNumber,
+                    retryStrategy: .default
+                )
             )
 
             let responseHandler = REST.defaultResponseHandler(
