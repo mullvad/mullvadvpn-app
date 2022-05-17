@@ -47,6 +47,7 @@ class LaunchFragment : ServiceAwareFragment() {
                     when (deviceState) {
                         is DeviceState.LoggedIn -> advanceToConnectScreen()
                         is DeviceState.LoggedOut -> advanceToLoginScreen()
+                        is DeviceState.Revoked -> advanceToRevokedScreen()
                         else -> Unit
                     }
                 }
@@ -63,6 +64,14 @@ class LaunchFragment : ServiceAwareFragment() {
     private fun advanceToConnectScreen() {
         parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, ConnectFragment())
+            commit()
+        }
+    }
+
+    private fun advanceToRevokedScreen() {
+        // TODO: Open revoked screen.
+        parentFragmentManager.beginTransaction().apply {
+            replace(R.id.main_fragment, LoginFragment())
             commit()
         }
     }
