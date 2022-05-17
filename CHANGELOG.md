@@ -58,6 +58,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Lowered default MTU to 1280 on Android.
 
+### Removed
+#### Android
+- Remove WireGuard view as it's no longer needed with the new way of managing devices.
+
 ### Fixed
 - Fix the sometimes incorrect time added text after adding time to the account.
 - Fix scrollbar no longer responsive and usable when covered by other elements.
