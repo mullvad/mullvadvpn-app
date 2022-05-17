@@ -1,7 +1,6 @@
-use std::net::{Ipv4Addr, IpAddr};
+use std::net::{IpAddr, Ipv4Addr};
 
 use talpid_types::net::wireguard::PrivateKey;
-
 
 #[tokio::main]
 async fn main() {

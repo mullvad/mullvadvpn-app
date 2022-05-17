@@ -1,6 +1,6 @@
 use std::net::IpAddr;
 
-use oqs::kem::{Algorithm, Kem};
+use oqs::kem::{self, Algorithm, Kem, SecretKey};
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
 use tonic::transport::{Channel, Endpoint, Uri};
 
@@ -12,6 +12,7 @@ type RelayConfigService = types::post_quantum_secure_client::PostQuantumSecureCl
 
 const CONFIG_SERVICE_PORT: u16 = 1337;
 const ALGORITHM: Algorithm = Algorithm::ClassicMcEliece8192128f;
+const STACK_SIZE: usize = 8 * 1024 * 1024;
 
 #[derive(Debug)]
 pub enum Error {
@@ -28,8 +29,7 @@ pub async fn push_pq_key(
 ) -> Result<(PrivateKey, PresharedKey), Error> {
     let oqs_key = PrivateKey::new_from_random();
 
-    let kem = Kem::new(ALGORITHM).map_err(Error::OqsError)?;
-    let (pubkey, secret) = kem.keypair().map_err(Error::OqsError)?;
+    let (pubkey, secret) = generate_key().await?;
 
     let mut client = new_client(service_address).await?;
     let response = client
@@ -45,6 +45,7 @@ pub async fn push_pq_key(
         .map_err(Error::GrpcError)?;
 
     let ciphertext = response.into_inner().ciphertext;
+    let kem = Kem::new(ALGORITHM).map_err(Error::OqsError)?;
     let ciphertext = kem
         .ciphertext_from_bytes(&ciphertext)
         .ok_or(Error::InvalidCiphertext)?;
@@ -53,6 +54,32 @@ pub async fn push_pq_key(
         .map(|key| PresharedKey::from(<[u8; 32]>::try_from(key.as_ref()).unwrap()))
         .map_err(Error::OqsError)?;
     Ok((oqs_key, psk))
+}
+
+#[cfg(target_os = "windows")]
+async fn generate_key() -> Result<(kem::PublicKey, SecretKey), Error> {
+    let (tx, rx) = tokio::sync::oneshot::channel();
+
+    let gen_key = move || {
+        let kem = Kem::new(ALGORITHM).map_err(Error::OqsError)?;
+        let (pubkey, secret) = kem.keypair().map_err(Error::OqsError)?;
+        Ok((pubkey, secret))
+    };
+
+    std::thread::Builder::new()
+        .stack_size(STACK_SIZE)
+        .spawn(move || {
+            tx.send(gen_key()).unwrap();
+        })
+        .unwrap();
+
+    rx.await.unwrap()
+}
+
+#[cfg(not(target_os = "windows"))]
+async fn generate_key() -> Result<(kem::PublicKey, SecretKey), Error> {
+    let kem = Kem::new(ALGORITHM).map_err(Error::OqsError)?;
+    kem.keypair().map_err(Error::OqsError)
 }
 
 fn algorithm_to_string(algorithm: &Algorithm) -> String {
