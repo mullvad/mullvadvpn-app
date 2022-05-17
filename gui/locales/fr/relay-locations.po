@@ -184,6 +184,10 @@ msgstr "Hong Kong"
 msgid "Honolulu, HI"
 msgstr "Honolulu, HI"
 
+#. US HOU
+msgid "Houston, TX"
+msgstr "Houston, TX"
+
 #. HU
 msgid "Hungary"
 msgstr "Hongrie"
@@ -515,4 +519,3 @@ msgstr "Vienne"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zurich"
-

@@ -184,6 +184,10 @@ msgstr "ဟောင်ကောင်"
 msgid "Honolulu, HI"
 msgstr "ဟိုနိုလူလူ၊ ဟာဝိုင်ယီ"
 
+#. US HOU
+msgid "Houston, TX"
+msgstr ""
+
 #. HU
 msgid "Hungary"
 msgstr "ဟန်ဂေရီ"
@@ -515,4 +519,3 @@ msgstr "ဗင်း"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ဇူးရစ်ချ်"
-
