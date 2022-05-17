@@ -56,7 +56,6 @@ pub async fn push_pq_key(
     Ok((oqs_key, psk))
 }
 
-#[cfg(target_os = "windows")]
 async fn generate_key() -> Result<(kem::PublicKey, SecretKey), Error> {
     let (tx, rx) = tokio::sync::oneshot::channel();
 
@@ -74,12 +73,6 @@ async fn generate_key() -> Result<(kem::PublicKey, SecretKey), Error> {
         .unwrap();
 
     rx.await.unwrap()
-}
-
-#[cfg(not(target_os = "windows"))]
-async fn generate_key() -> Result<(kem::PublicKey, SecretKey), Error> {
-    let kem = Kem::new(ALGORITHM).map_err(Error::OqsError)?;
-    kem.keypair().map_err(Error::OqsError)
 }
 
 fn algorithm_to_string(algorithm: &Algorithm) -> String {
