@@ -6,6 +6,7 @@ use std::{
 use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, GenericTunnelOptions};
 
 /// Config required to set up a single WireGuard tunnel
+#[derive(Clone)]
 pub struct Config {
     /// Contains tunnel endpoint specific config
     pub tunnel: wireguard::TunnelConfig,

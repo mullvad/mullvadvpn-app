@@ -81,12 +81,16 @@ impl DeviceMessage {
         for peer in config.peers.iter() {
             let peer_endpoint = InetAddr::from_std(&peer.endpoint);
             let allowed_ips = peer.allowed_ips.iter().map(From::from).collect();
-            peers.push(PeerMessage(vec![
+            let mut peer_nlas = vec![
                 PeerNla::PublicKey(*peer.public_key.as_bytes()),
                 PeerNla::Endpoint(peer_endpoint),
                 PeerNla::AllowedIps(allowed_ips),
                 PeerNla::Flags(WGPEER_F_REPLACE_ALLOWEDIPS),
-            ]));
+            ];
+            if let Some(psk) = peer.psk.as_ref() {
+                peer_nlas.push(PeerNla::PresharedKey(psk.as_bytes().clone()));
+            }
+            peers.push(PeerMessage(peer_nlas));
         }
 
         let nlas = vec![
