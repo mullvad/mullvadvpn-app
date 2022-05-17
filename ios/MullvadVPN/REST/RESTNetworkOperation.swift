@@ -15,6 +15,7 @@ extension REST {
         private let responseHandler: AnyResponseHandler<Success>
 
         private let dispatchQueue: DispatchQueue
+        private let logger: Logger
         private let urlSession: URLSession
         private let addressCacheStore: AddressCache.Store
 
@@ -27,9 +28,6 @@ extension REST {
         private let retryStrategy: RetryStrategy
         private var retryTimer: DispatchSourceTimer?
         private var retryCount = 0
-
-        private let logger = Logger(label: "REST.NetworkOperation")
-        private let loggerMetadata: Logger.Metadata
 
         init(
             name: String,
@@ -48,7 +46,9 @@ extension REST {
             self.requestHandler = requestHandler
             self.responseHandler = responseHandler
 
-            loggerMetadata = ["name": .string(name)]
+            var logger = Logger(label: "REST.NetworkOperation")
+            logger[metadataKey: "name"] =  .string(name)
+            self.logger = logger
 
             super.init(completionQueue: .main, completionHandler: completionHandler)
         }
@@ -81,10 +81,15 @@ extension REST {
                 return
             }
 
-            let authorizationResult = requestHandler.requestAuthorization { completion in
-                self.dispatchQueue.async {
-                    assert(self.requiresAuthorization, "Illegal use of completion handler.")
+            guard let authorizationProvider = requestHandler.authorizationProvider else {
+                requiresAuthorization = false
+                didReceiveAuthorization(nil)
+                return
+            }
 
+            requiresAuthorization = true
+            authorizationTask = authorizationProvider.getAuthorization { completion in
+                self.dispatchQueue.async {
                     switch completion {
                     case .success(let authorization):
                         self.didReceiveAuthorization(authorization)
@@ -96,16 +101,6 @@ extension REST {
                         self.finish(completion: .cancelled)
                     }
                 }
-            }
-
-            switch authorizationResult {
-            case .pending(let task):
-                requiresAuthorization = true
-                authorizationTask = task
-
-            case .noRequirement:
-                requiresAuthorization = false
-                didReceiveAuthorization(nil)
             }
         }
 
@@ -119,17 +114,15 @@ extension REST {
 
             let endpoint = self.addressCacheStore.getCurrentEndpoint()
 
-            let result = requestHandler.createURLRequest(
-                endpoint: endpoint,
-                authorization: authorization
-            )
+            do {
+                let request = try requestHandler.createURLRequest(
+                    endpoint: endpoint,
+                    authorization: authorization
+                )
 
-            switch result {
-            case .success(let request):
                 didReceiveURLRequest(request, endpoint: endpoint)
-
-            case .failure(let error):
-                didFailToCreateURLRequest(error)
+            } catch {
+                didFailToCreateURLRequest(.createURLRequest(error))
             }
         }
 
@@ -138,22 +131,18 @@ extension REST {
 
             logger.error(
                 chainedError: error,
-                message: "Failed to request authorization.",
-                metadata: loggerMetadata
+                message: "Failed to request authorization."
             )
 
             finish(completion: .failure(error))
         }
 
-        private func didReceiveURLRequest(_ urlRequest: URLRequest, endpoint: AnyIPEndpoint) {
+        private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            logger.debug(
-                "Executing request using \(endpoint).",
-                metadata: loggerMetadata
-            )
+            logger.debug("Send request to \(restRequest.pathTemplate.templateString) via \(endpoint).")
 
-            networkTask = urlSession.dataTask(with: urlRequest) { [weak self] data, response, error in
+            networkTask = urlSession.dataTask(with: restRequest.urlRequest) { [weak self] data, response, error in
                 guard let self = self else { return }
 
                 self.dispatchQueue.async {
@@ -178,8 +167,7 @@ extension REST {
 
             logger.error(
                 chainedError: error,
-                message: "Failed to create URLRequest.",
-                metadata: loggerMetadata
+                message: "Failed to create URLRequest."
             )
 
             finish(completion: .failure(error))
@@ -202,17 +190,13 @@ extension REST {
 
             logger.error(
                 chainedError: AnyChainedError(urlError),
-                message: "Failed to perform request to \(endpoint).",
-                metadata: loggerMetadata
+                message: "Failed to perform request to \(endpoint)."
             )
 
             // Check if retry count is not exceeded.
             guard retryCount < retryStrategy.maxRetryCount else {
                 if retryStrategy.maxRetryCount > 0 {
-                    logger.debug(
-                        "Ran out of retry attempts (\(retryStrategy.maxRetryCount))",
-                        metadata: loggerMetadata
-                    )
+                    logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))")
                 }
 
                 finish(completion: OperationCompletion(result: .failure(.network(urlError))))
@@ -248,19 +232,39 @@ extension REST {
         private func didReceiveURLResponse(_ response: HTTPURLResponse, data: Data, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            let result = responseHandler.handleURLResponse(response, data: data)
+            logger.debug("Response: \(response.statusCode).")
 
-            if case .server(.invalidAccessToken) = result.error,
-                requiresAuthorization, retryInvalidAccessTokenError
-            {
-                logger.debug(
-                    "Received invalid access token error. Retry once.",
-                    metadata: loggerMetadata
-                )
-                retryInvalidAccessTokenError = false
-                startRequest()
-            } else {
-                finish(completion: OperationCompletion(result: result))
+            let handlerResult = responseHandler.handleURLResponse(response, data: data)
+
+            switch handlerResult {
+            case .success(let output):
+                // Response handler produced value.
+                finish(completion: .success(output))
+
+            case .decoding(let decoderBlock):
+                // Response handler returned a block decoding value.
+                let decodeResult = Result { try decoderBlock() }
+                    .mapError { error -> REST.Error in
+                        return .decodeResponse(error)
+                    }
+                finish(completion: OperationCompletion(result: decodeResult))
+
+            case .unhandledResponse(let serverErrorResponse):
+                // Response handler couldn't handle the response.
+                if serverErrorResponse?.code == .invalidAccessToken,
+                    requiresAuthorization,
+                    retryInvalidAccessTokenError
+                {
+                    logger.debug("Received invalid access token error. Retry once.")
+                    retryInvalidAccessTokenError = false
+                    startRequest()
+                } else {
+                    finish(
+                        completion: .failure(
+                            .unhandledResponse(response.statusCode, serverErrorResponse)
+                        )
+                    )
+                }
             }
         }
     }
