@@ -833,11 +833,20 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
     buffer.extend(windows::as_uninit_byte_slice(&header));
 
     for peer in &config.peers {
+        let flags = if peer.psk.is_some() {
+            WgPeerFlag::HAS_PRESHARED_KEY | WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT
+        } else {
+            WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT
+        };
         let wg_peer = WgPeer {
-            flags: WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT,
+            flags,
             reserved: 0,
             public_key: peer.public_key.as_bytes().clone(),
-            preshared_key: [0u8; WIREGUARD_KEY_LENGTH],
+            preshared_key: peer
+                .psk
+                .as_ref()
+                .map(|psk| psk.as_bytes().clone())
+                .unwrap_or([0u8; WIREGUARD_KEY_LENGTH]),
             persistent_keepalive: 0,
             endpoint: windows::inet_sockaddr_from_socketaddr(peer.endpoint).into(),
             tx_bytes: 0,
@@ -975,6 +984,24 @@ impl Tunnel for WgNtTunnel {
     fn stop(mut self: Box<Self>) -> std::result::Result<(), super::TunnelError> {
         self.stop_tunnel();
         Ok(())
+    }
+
+    fn set_config(&self, config: &Config) -> std::result::Result<(), super::TunnelError> {
+        if let Some(ref device) = &*self.device.lock().unwrap() {
+            if let Err(error) = device.set_config(&config) {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to set wg-nt tunnel config")
+                );
+                Err(super::TunnelError::SetConfigError)
+            } else {
+                Ok(())
+            }
+        } else {
+            Err(super::TunnelError::StatsError(
+                super::stats::Error::NoTunnelDevice,
+            ))
+        }
     }
 }
 
