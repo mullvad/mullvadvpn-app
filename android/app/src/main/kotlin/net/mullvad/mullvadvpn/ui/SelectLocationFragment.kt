@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
@@ -43,7 +42,7 @@ class SelectLocationFragment :
             onSelect = { relayItem ->
                 jobTracker.newBackgroundJob("selectRelay") {
                     relayListListener.selectedRelayLocation = relayItem?.location
-                    maybeConnect()
+                    connectionProxy.connect()
 
                     jobTracker.newUiJob("close") {
                         close()
@@ -150,14 +149,6 @@ class SelectLocationFragment :
 
     private fun updateRelayList(relayList: RelayList, selectedItem: RelayItem?) {
         relayListAdapter.onRelayListChange(relayList, selectedItem)
-    }
-
-    private fun maybeConnect() {
-        val keyStatus = keyStatusListener.keyStatus
-
-        if (keyStatus == null || keyStatus is KeygenEvent.NewKey) {
-            connectionProxy.connect()
-        }
     }
 
     private fun initializeLoadingSpinner(parentView: View) {
