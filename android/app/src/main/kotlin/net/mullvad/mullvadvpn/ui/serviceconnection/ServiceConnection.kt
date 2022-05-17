@@ -61,7 +61,6 @@ class ServiceConnection(
         closeScope()
         dispatcher.onDestroy()
 
-        accountCache.onDestroy()
         authTokenCache.onDestroy()
         connectionProxy.onDestroy()
         keyStatusListener.onDestroy()

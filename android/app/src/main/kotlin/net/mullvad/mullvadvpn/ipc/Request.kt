@@ -5,7 +5,6 @@ import android.os.Messenger
 import java.net.InetAddress
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.LocationConstraint
-import org.joda.time.DateTime
 
 // Requests that the service can handle
 sealed class Request : Message.RequestMessage() {
@@ -30,13 +29,13 @@ sealed class Request : Message.RequestMessage() {
     object FetchAccountExpiry : Request()
 
     @Parcelize
+    object FetchAccountHistory : Request()
+
+    @Parcelize
     object FetchAuthToken : Request()
 
     @Parcelize
     data class IncludeApp(val packageName: String) : Request()
-
-    @Parcelize
-    data class InvalidateAccountExpiry(val expiry: DateTime) : Request()
 
     @Parcelize
     data class Login(val account: String?) : Request()

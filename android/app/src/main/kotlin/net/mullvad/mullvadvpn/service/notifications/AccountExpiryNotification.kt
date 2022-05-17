@@ -10,7 +10,7 @@ import androidx.core.app.NotificationCompat
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.model.LoginStatus
+import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.endpoint.AccountCache
 import net.mullvad.mullvadvpn.util.Intermittent
@@ -44,33 +44,31 @@ class AccountExpiryNotification(
         true
     )
 
-    var loginStatus by observable<LoginStatus?>(null) { _, oldValue, newValue ->
+    var accountExpiry by observable<AccountExpiry>(
+        AccountExpiry.Missing
+    ) { _, oldValue, newValue ->
         if (oldValue != newValue) {
             jobTracker.newUiJob("update") { update(newValue) }
         }
     }
 
     init {
-        accountCache.onLoginStatusChange.subscribe(this) { newStatus ->
-            loginStatus = newStatus
+        accountCache.onAccountExpiryChange.subscribe(this) { expiry ->
+            accountExpiry = expiry
         }
     }
 
     fun onDestroy() {
         accountCache.onAccountNumberChange.unsubscribe(this)
-        loginStatus = null
     }
 
-    private suspend fun update(loginStatus: LoginStatus?) {
-        val remainingTime = loginStatus?.expiry?.let { expiry -> Duration(DateTime.now(), expiry) }
-        val closeToExpire = remainingTime?.isShorterThan(REMAINING_TIME_FOR_REMINDERS) ?: false
-        val accountIsNew = loginStatus?.isNewAccount ?: false
+    private suspend fun update(expiry: AccountExpiry) {
+        val expiryDate = expiry.date()
+        val durationUntilExpiry = expiryDate?.remainingTime()
 
-        if (closeToExpire && !accountIsNew) {
-            val notification = build(loginStatus!!.expiry!!, remainingTime!!)
-
+        if (durationUntilExpiry?.isCloseToExpiry() == true) {
+            val notification = build(expiryDate, durationUntilExpiry)
             channel.notificationManager.notify(NOTIFICATION_ID, notification)
-
             jobTracker.newUiJob("scheduleUpdate") { scheduleUpdate() }
         } else {
             channel.notificationManager.cancel(NOTIFICATION_ID)
@@ -78,9 +76,17 @@ class AccountExpiryNotification(
         }
     }
 
+    private fun DateTime.remainingTime(): Duration {
+        return Duration(DateTime.now(), this)
+    }
+
+    private fun Duration.isCloseToExpiry(): Boolean {
+        return isShorterThan(REMAINING_TIME_FOR_REMINDERS)
+    }
+
     private suspend fun scheduleUpdate() {
         delay(TIME_BETWEEN_CHECKS)
-        update(loginStatus)
+        update(accountExpiry)
     }
 
     private suspend fun build(expiry: DateTime, remainingTime: Duration): Notification {

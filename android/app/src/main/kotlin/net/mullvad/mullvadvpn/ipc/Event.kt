@@ -3,11 +3,14 @@ package net.mullvad.mullvadvpn.ipc
 import android.os.Message as RawMessage
 import android.os.Messenger
 import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.model.AccountCreationResult
+import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
-import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
+import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -18,7 +21,13 @@ sealed class Event : Message.EventMessage() {
     protected override val messageKey = MESSAGE_KEY
 
     @Parcelize
-    data class AccountHistory(val history: String?) : Event()
+    data class AccountCreationEvent(val result: AccountCreationResult) : Event()
+
+    @Parcelize
+    data class AccountExpiryEvent(val expiry: AccountExpiry) : Event()
+
+    @Parcelize
+    data class AccountHistoryEvent(val history: AccountHistory) : Event()
 
     @Parcelize
     data class AppVersionInfo(val versionInfo: AppVersionInfoData?) : Event()
@@ -36,7 +45,7 @@ sealed class Event : Message.EventMessage() {
     data class ListenerReady(val connection: Messenger, val listenerId: Int) : Event()
 
     @Parcelize
-    data class LoginStatus(val status: LoginStatusData?) : Event()
+    data class LoginEvent(val result: LoginResult) : Event()
 
     @Parcelize
     data class NewLocation(val location: GeoIpLocation?) : Event()

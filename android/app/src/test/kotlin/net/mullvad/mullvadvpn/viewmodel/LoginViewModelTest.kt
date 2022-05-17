@@ -3,20 +3,21 @@ package net.mullvad.mullvadvpn.viewmodel
 import app.cash.turbine.FlowTurbine
 import app.cash.turbine.test
 import io.mockk.MockKAnnotations
-import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.invoke
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
 import junit.framework.Assert.assertEquals
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.setMain
+import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.model.AccountCreationResult
+import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.LoginResult
-import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
-import net.mullvad.talpid.util.EventNotifier
 import org.junit.Before
 import org.junit.Test
 
@@ -25,37 +26,20 @@ class LoginViewModelTest {
     @MockK
     private lateinit var mockedAccountCache: AccountCache
 
-    @MockK
-    private lateinit var mockedLoginStatusNotifier: EventNotifier<LoginStatus?>
-
-    @MockK
-    private lateinit var mockedAccountHistoryNotifier: EventNotifier<String?>
-
     private lateinit var loginViewModel: LoginViewModel
-    private val capturedLoginStatusNotifierCallback = slot<(LoginStatus?) -> Unit>()
-    private val capturedAccountHistoryNotifierCallback = slot<(String?) -> Unit>()
+
+    private val accountCreationTestEvents = MutableSharedFlow<AccountCreationResult>()
+    private val accountHistoryTestEvents = MutableSharedFlow<AccountHistory>()
+    private val loginTestEvents = MutableSharedFlow<Event.LoginEvent>()
 
     @Before
     fun setup() {
+        Dispatchers.setMain(TestCoroutineDispatcher())
         MockKAnnotations.init(this, relaxUnitFun = true)
 
-        every {
-            mockedLoginStatusNotifier.subscribe(
-                any(),
-                any(),
-                capture(capturedLoginStatusNotifierCallback)
-            )
-        } just Runs
-
-        every {
-            mockedAccountHistoryNotifier.subscribe(
-                any(),
-                capture(capturedAccountHistoryNotifierCallback)
-            )
-        } just Runs
-
-        every { mockedAccountCache.onLoginStatusChange } returns mockedLoginStatusNotifier
-        every { mockedAccountCache.onAccountHistoryChange } returns mockedAccountHistoryNotifier
+        every { mockedAccountCache.accountCreationEvents } returns accountCreationTestEvents
+        every { mockedAccountCache.accountHistoryEvents } returns accountHistoryTestEvents
+        every { mockedAccountCache.loginEvents } returns loginTestEvents
 
         loginViewModel = LoginViewModel(mockk())
     }
@@ -69,23 +53,13 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testClearingViewModel() {
-        loginViewModel.updateAccountCacheInstance(mockedAccountCache)
-        loginViewModel.onCleared()
-        verify {
-            mockedLoginStatusNotifier.unsubscribe(any())
-            mockedAccountHistoryNotifier.unsubscribe(any())
-        }
-    }
-
-    @Test
     fun testCreateAccount() = runBlockingTest {
         loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             skipDefaultItem()
             loginViewModel.createAccount()
             assertEquals(LoginViewModel.LoginUiState.CreatingAccount, awaitItem())
-            capturedLoginStatusNotifierCallback.captured.invoke(DummyLoginStatus.ACCOUNT_CREATED)
+            accountCreationTestEvents.emit(AccountCreationResult.Success(DUMMY_ACCOUNT_TOKEN))
             assertEquals(LoginViewModel.LoginUiState.AccountCreated, awaitItem())
         }
     }
@@ -95,9 +69,9 @@ class LoginViewModelTest {
         loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             skipDefaultItem()
-            loginViewModel.login("")
+            loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
             assertEquals(LoginViewModel.LoginUiState.Loading, awaitItem())
-            capturedLoginStatusNotifierCallback.captured.invoke(DummyLoginStatus.SUCCESSFUL_LOGIN)
+            loginTestEvents.emit(Event.LoginEvent(LoginResult.Ok))
             assertEquals(LoginViewModel.LoginUiState.Success(isOutOfTime = false), awaitItem())
         }
     }
@@ -107,11 +81,9 @@ class LoginViewModelTest {
         loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             skipDefaultItem()
-            loginViewModel.login("")
+            loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
             assertEquals(LoginViewModel.LoginUiState.Loading, awaitItem())
-            capturedLoginStatusNotifierCallback.captured.invoke(
-                DummyLoginStatus.INVALID_ACCOUNT_ERROR
-            )
+            loginTestEvents.emit(Event.LoginEvent(LoginResult.InvalidAccount))
             assertEquals(LoginViewModel.LoginUiState.InvalidAccountError, awaitItem())
         }
     }
@@ -121,9 +93,9 @@ class LoginViewModelTest {
         loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             skipDefaultItem()
-            loginViewModel.login("")
+            loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
             assertEquals(LoginViewModel.LoginUiState.Loading, awaitItem())
-            capturedLoginStatusNotifierCallback.captured.invoke(DummyLoginStatus.MAX_DEVICES_ERROR)
+            loginTestEvents.emit(Event.LoginEvent(LoginResult.MaxDevicesReached))
             assertEquals(LoginViewModel.LoginUiState.TooManyDevicesError, awaitItem())
         }
     }
@@ -133,10 +105,13 @@ class LoginViewModelTest {
         loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             skipDefaultItem()
-            loginViewModel.login("")
+            loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
             assertEquals(LoginViewModel.LoginUiState.Loading, awaitItem())
-            capturedLoginStatusNotifierCallback.captured.invoke(DummyLoginStatus.RPC_ERROR)
-            assertEquals(LoginViewModel.LoginUiState.OtherError("RpcError"), awaitItem())
+            loginTestEvents.emit(Event.LoginEvent(LoginResult.RpcError))
+            assertEquals(
+                LoginViewModel.LoginUiState.OtherError(EXPECTED_RPC_ERROR_MESSAGE),
+                awaitItem()
+            )
         }
     }
 
@@ -145,10 +120,13 @@ class LoginViewModelTest {
         loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             skipDefaultItem()
-            loginViewModel.login("")
+            loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
             assertEquals(LoginViewModel.LoginUiState.Loading, awaitItem())
-            capturedLoginStatusNotifierCallback.captured.invoke(DummyLoginStatus.OTHER_ERROR)
-            assertEquals(LoginViewModel.LoginUiState.OtherError("OtherError"), awaitItem())
+            loginTestEvents.emit(Event.LoginEvent(LoginResult.OtherError))
+            assertEquals(
+                LoginViewModel.LoginUiState.OtherError(EXPECTED_OTHER_ERROR_MESSAGE),
+                awaitItem()
+            )
         }
     }
 
@@ -156,8 +134,10 @@ class LoginViewModelTest {
     fun testAccountHistory() = runBlockingTest {
         loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.accountHistory.test { skipDefaultItem() }
-        capturedAccountHistoryNotifierCallback.invoke(DUMMY_ACCOUNT_TOKEN)
-        loginViewModel.accountHistory.test { assertEquals(DUMMY_ACCOUNT_TOKEN, awaitItem()) }
+        accountHistoryTestEvents.emit(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN))
+        loginViewModel.accountHistory.test {
+            assertEquals(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN), awaitItem())
+        }
     }
 
     @Test
@@ -173,49 +153,7 @@ class LoginViewModelTest {
 
     companion object {
         private const val DUMMY_ACCOUNT_TOKEN = "DUMMY"
-
-        private object DummyLoginStatus {
-            val ACCOUNT_CREATED = LoginStatus(
-                DUMMY_ACCOUNT_TOKEN,
-                mockk(),
-                isNewAccount = true,
-                mockk()
-            )
-
-            val SUCCESSFUL_LOGIN = LoginStatus(
-                DUMMY_ACCOUNT_TOKEN,
-                mockk(),
-                isNewAccount = false,
-                LoginResult.Ok
-            )
-
-            val INVALID_ACCOUNT_ERROR = LoginStatus(
-                DUMMY_ACCOUNT_TOKEN,
-                mockk(),
-                isNewAccount = false,
-                LoginResult.InvalidAccount
-            )
-
-            val MAX_DEVICES_ERROR = LoginStatus(
-                DUMMY_ACCOUNT_TOKEN,
-                mockk(),
-                isNewAccount = false,
-                LoginResult.MaxDevicesReached
-            )
-
-            val RPC_ERROR = LoginStatus(
-                DUMMY_ACCOUNT_TOKEN,
-                mockk(),
-                isNewAccount = false,
-                LoginResult.RpcError
-            )
-
-            val OTHER_ERROR = LoginStatus(
-                DUMMY_ACCOUNT_TOKEN,
-                mockk(),
-                isNewAccount = false,
-                LoginResult.OtherError
-            )
-        }
+        private const val EXPECTED_RPC_ERROR_MESSAGE = "RpcError"
+        private const val EXPECTED_OTHER_ERROR_MESSAGE = "OtherError"
     }
 }

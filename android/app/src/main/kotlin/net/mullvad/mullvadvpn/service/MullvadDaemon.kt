@@ -1,8 +1,7 @@
 package net.mullvad.mullvadvpn.service
 
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceEvent
@@ -34,11 +33,8 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
     var onRelayListChange: ((RelayList) -> Unit)? = null
     var onDaemonStopped: (() -> Unit)? = null
 
-    private val _deviceStateUpdates = MutableSharedFlow<DeviceState>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val deviceStateUpdates = _deviceStateUpdates.asSharedFlow()
+    private val _deviceStateUpdates = MutableStateFlow<DeviceState>(DeviceState.InitialState)
+    val deviceStateUpdates = _deviceStateUpdates.asStateFlow()
 
     init {
         System.loadLibrary("mullvad_jni")
@@ -125,9 +121,16 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
         return listDevices(daemonInterfaceAddress, accountToken)
     }
 
-    fun getDevice(): DeviceState = getDevice(daemonInterfaceAddress)
+    fun getAndEmitDeviceState(): DeviceState {
+        return getDevice(daemonInterfaceAddress).also { deviceState ->
+            _deviceStateUpdates.tryEmit(deviceState)
+        }
+    }
 
-    fun updateDevice() = updateDevice(daemonInterfaceAddress)
+    fun refreshDevice() {
+        updateDevice(daemonInterfaceAddress)
+        getAndEmitDeviceState()
+    }
 
     fun removeDevice(accountToken: String, deviceId: String): RemoveDeviceResult {
         return removeDevice(daemonInterfaceAddress, accountToken, deviceId)
