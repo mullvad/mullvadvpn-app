@@ -3494,6 +3494,7 @@ dependencies = [
  "system-configuration",
  "talpid-dbus",
  "talpid-platform-metadata",
+ "talpid-relay-config-client",
  "talpid-time",
  "talpid-types",
  "tempfile",
