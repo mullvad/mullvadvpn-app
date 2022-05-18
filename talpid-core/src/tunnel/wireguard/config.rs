@@ -148,6 +148,9 @@ impl Config {
                 .add("public_key", peer.public_key.as_bytes().as_ref())
                 .add("endpoint", peer.endpoint.to_string().as_str())
                 .add("replace_allowed_ips", "true");
+            if let Some(ref psk) = peer.psk {
+                wg_conf.add("preshared_key", psk.as_bytes().as_ref());
+            }
             for addr in &peer.allowed_ips {
                 wg_conf.add("allowed_ip", addr.to_string().as_str());
             }

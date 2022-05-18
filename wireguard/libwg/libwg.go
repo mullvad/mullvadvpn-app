@@ -13,6 +13,7 @@ import (
 	"bufio"
 	"bytes"
 	"runtime"
+	"strings"
 	"unsafe"
 
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/tunnelcontainer"
@@ -57,6 +58,27 @@ func wgGetConfig(tunnelHandle int32) *C.char {
 	}
 	writer.Flush()
 	return C.CString(settings.String())
+}
+
+//export wgSetConfig
+func wgSetConfig(tunnelHandle int32, cSettings *C.char) int32 {
+	tunnel, err := tunnels.Get(tunnelHandle)
+	if err != nil {
+		return ERROR_GENERAL_FAILURE
+	}
+	if cSettings == nil {
+		tunnel.Logger.Errorf("cSettings is null\n")
+		return ERROR_GENERAL_FAILURE
+	}
+	settings := C.GoString(cSettings)
+
+	setError := tunnel.Device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
+	if setError != nil {
+		tunnel.Logger.Errorf("Failed to set device configuration\n")
+		tunnel.Logger.Errorf("%s\n", setError)
+		return ERROR_GENERAL_FAILURE
+	}
+	return 0
 }
 
 //export wgFreePtr
