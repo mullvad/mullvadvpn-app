@@ -231,27 +231,17 @@ extension Pinger {
 }
 
 private func in_chksum(_ data: Data) -> UInt16 {
-    return data.withUnsafeBytes { buffer in
-        let length = buffer.count
-
-        var sum: Int32 = 0
-
-        let isOdd = length  % 2 != 0
-        let strideTo = isOdd ? length - 1 : length
-
-        for offset in stride(from: 0, to: strideTo, by: 2) {
-            let word = buffer.load(fromByteOffset: offset, as: UInt16.self)
-            sum += Int32(word)
+    let words = sequence(state: data.makeIterator()) { iterator in
+        return iterator.next().map { byte in
+            return iterator.next().map { nextByte in
+                return [byte, nextByte].withUnsafeBytes { buffer in
+                    return buffer.load(as: UInt16.self)
+                }
+            } ?? UInt16(byte)
         }
-
-        if isOdd {
-            let byte = buffer.load(fromByteOffset: length - 1, as: UInt8.self)
-            sum += Int32(byte)
-        }
-
-        sum = (sum >> 16) + (sum & 0xffff)
-        sum += (sum >> 16)
-
-        return UInt16(truncatingIfNeeded: ~sum)
     }
+
+    let sum = words.reduce(0, &+)
+
+    return ~sum
 }
