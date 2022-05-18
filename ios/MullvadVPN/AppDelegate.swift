@@ -180,7 +180,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let operationQueue = OperationQueue()
 
-        let updateAddressCacheOperation = AsyncBlockOperation { operation in
+        let updateAddressCacheOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             let handle = self.addressCacheTracker.updateEndpoints { completion in
                 addressCacheFetchResult = completion.backgroundFetchResult
                 operation.finish()
@@ -191,7 +191,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        let updateRelaysOperation = AsyncBlockOperation { operation in
+        let updateRelaysOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             let handle = RelayCache.Tracker.shared.updateRelays { completion in
                 switch completion {
                 case .success(let result):
@@ -211,7 +211,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        let rotatePrivateKeyOperation = AsyncBlockOperation { operation in
+        let rotatePrivateKeyOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             let handle = TunnelManager.shared.rotatePrivateKey { completion in
                 switch completion {
                 case .success(let rotationResult):

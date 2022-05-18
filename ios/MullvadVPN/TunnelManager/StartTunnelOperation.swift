@@ -12,57 +12,57 @@ import NetworkExtension
 class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
     typealias EncodeErrorHandler = (Error) -> Void
 
-    private let queue: DispatchQueue
     private let state: TunnelManager.State
-
     private var encodeErrorHandler: EncodeErrorHandler?
 
-    init(queue: DispatchQueue, state: TunnelManager.State, encodeErrorHandler: @escaping EncodeErrorHandler, completionHandler: @escaping CompletionHandler) {
-        self.queue = queue
+    init(
+        dispatchQueue: DispatchQueue,
+        state: TunnelManager.State,
+        encodeErrorHandler: @escaping EncodeErrorHandler,
+        completionHandler: @escaping CompletionHandler
+    )
+    {
         self.state = state
         self.encodeErrorHandler = encodeErrorHandler
 
-        super.init(completionQueue: queue, completionHandler: completionHandler)
+        super.init(
+            dispatchQueue: dispatchQueue,
+            completionQueue: dispatchQueue,
+            completionHandler: completionHandler
+        )
     }
 
     override func main() {
-        queue.async {
-            guard !self.isCancelled else {
-                self.finish(completion: .cancelled)
-                return
-            }
+        guard let tunnelInfo = state.tunnelInfo else {
+            self.finish(completion: .failure(.unsetAccount))
+            return
+        }
 
-            guard let tunnelInfo = self.state.tunnelInfo else {
-                self.finish(completion: .failure(.unsetAccount))
-                return
-            }
+        switch state.tunnelStatus.state {
+        case .disconnecting(.nothing):
+            state.tunnelStatus.state = .disconnecting(.reconnect)
 
-            switch self.state.tunnelStatus.state {
-            case .disconnecting(.nothing):
-                self.state.tunnelStatus.state = .disconnecting(.reconnect)
+            finish(completion: .success(()))
 
-                self.finish(completion: .success(()))
+        case .disconnected, .pendingReconnect:
+            RelayCache.Tracker.shared.read { readResult in
+                self.dispatchQueue.async {
+                    switch readResult {
+                    case .success(let cachedRelays):
+                        self.didReceiveRelays(
+                            tunnelInfo: tunnelInfo,
+                            cachedRelays: cachedRelays
+                        )
 
-            case .disconnected, .pendingReconnect:
-                RelayCache.Tracker.shared.read { readResult in
-                    self.queue.async {
-                        switch readResult {
-                        case .success(let cachedRelays):
-                            self.didReceiveRelays(
-                                tunnelInfo: tunnelInfo,
-                                cachedRelays: cachedRelays
-                            )
-
-                        case .failure(let error):
-                            self.finish(completion: .failure(.readRelays(error)))
-                        }
+                    case .failure(let error):
+                        self.finish(completion: .failure(.readRelays(error)))
                     }
                 }
-
-            default:
-                // Do not attempt to start the tunnel in all other cases.
-                self.finish(completion: .success(()))
             }
+
+        default:
+            // Do not attempt to start the tunnel in all other cases.
+            finish(completion: .success(()))
         }
     }
 
@@ -78,7 +78,7 @@ class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
         }
 
         Self.makeTunnelProvider(accountToken: tunnelInfo.token) { makeTunnelProviderResult in
-            self.queue.async {
+            self.dispatchQueue.async {
                 switch makeTunnelProviderResult {
                 case .success(let tunnelProvider):
                     let startTunnelResult = Result { try self.startTunnel(tunnelProvider: tunnelProvider, selectorResult: selectorResult) }

@@ -301,7 +301,6 @@ extension RelayCache.Tracker {
 fileprivate class UpdateRelaysOperation: ResultOperation<RelayCache.FetchResult, RelayCache.Error> {
     typealias UpdateHandler = (RelayCache.CachedRelays) -> Void
 
-    private let dispatchQueue: DispatchQueue
     private let apiProxy: REST.APIProxy
     private let cacheFileURL: URL
     private let relayUpdateInterval: TimeInterval
@@ -311,57 +310,54 @@ fileprivate class UpdateRelaysOperation: ResultOperation<RelayCache.FetchResult,
     private let updateHandler: UpdateHandler
     private var downloadCancellable: Cancellable?
 
-    init(dispatchQueue: DispatchQueue,
-         apiProxy: REST.APIProxy,
-         cacheFileURL: URL,
-         relayUpdateInterval: TimeInterval,
-         updateHandler: @escaping UpdateHandler,
-         completionHandler: @escaping CompletionHandler) {
-        self.dispatchQueue = dispatchQueue
+    init(
+        dispatchQueue: DispatchQueue,
+        apiProxy: REST.APIProxy,
+        cacheFileURL: URL,
+        relayUpdateInterval: TimeInterval,
+        updateHandler: @escaping UpdateHandler,
+        completionHandler: @escaping CompletionHandler
+    )
+    {
         self.apiProxy = apiProxy
         self.cacheFileURL = cacheFileURL
         self.relayUpdateInterval = relayUpdateInterval
         self.updateHandler = updateHandler
 
-        super.init(completionQueue: dispatchQueue, completionHandler: completionHandler)
+        super.init(
+            dispatchQueue: dispatchQueue,
+            completionQueue: dispatchQueue,
+            completionHandler: completionHandler
+        )
     }
 
     override func main() {
-        dispatchQueue.async {
-            guard !self.isCancelled else {
-                self.finish(completion: .cancelled)
-                return
+        let readResult = RelayCache.IO.read(cacheFileURL: self.cacheFileURL)
+
+        switch readResult {
+        case .success(let cachedRelays):
+            let nextUpdate = cachedRelays.updatedAt.addingTimeInterval(self.relayUpdateInterval)
+
+            if nextUpdate <= Date() {
+                self.downloadRelays(previouslyCachedRelays: cachedRelays)
+            } else {
+                self.finish(completion: .success(.throttled))
             }
 
-            let readResult = RelayCache.IO.read(cacheFileURL: self.cacheFileURL)
-            switch readResult {
-            case .success(let cachedRelays):
-                let nextUpdate = cachedRelays.updatedAt.addingTimeInterval(self.relayUpdateInterval)
+        case .failure(let readError):
+            self.logger.error(chainedError: readError, message: "Failed to read the relay cache to determine if it needs to be updated.")
 
-                if nextUpdate <= Date() {
-                    self.downloadRelays(previouslyCachedRelays: cachedRelays)
-                } else {
-                    self.finish(completion: .success(.throttled))
-                }
-
-            case .failure(let readError):
-                self.logger.error(chainedError: readError, message: "Failed to read the relay cache to determine if it needs to be updated.")
-
-                if self.shouldDownloadRelaysOnReadFailure(readError) {
-                    self.downloadRelays(previouslyCachedRelays: nil)
-                } else {
-                    self.finish(completion: .failure(readError))
-                }
+            if self.shouldDownloadRelaysOnReadFailure(readError) {
+                self.downloadRelays(previouslyCachedRelays: nil)
+            } else {
+                self.finish(completion: .failure(readError))
             }
         }
     }
 
-    override func cancel() {
-        super.cancel()
-
-        dispatchQueue.async {
-            self.downloadCancellable?.cancel()
-        }
+    override func operationDidCancel() {
+        downloadCancellable?.cancel()
+        downloadCancellable = nil
     }
 
     private func didReceiveNewRelays(etag: String?, relays: REST.ServerRelaysResponse) {

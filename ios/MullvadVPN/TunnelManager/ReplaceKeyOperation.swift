@@ -10,7 +10,6 @@ import Foundation
 import Logging
 
 class ReplaceKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, TunnelManager.Error> {
-    private let queue: DispatchQueue
     private let state: TunnelManager.State
 
     private let apiProxy: REST.APIProxy
@@ -21,14 +20,14 @@ class ReplaceKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, Tunn
     private let logger = Logger(label: "TunnelManager.ReplaceKeyOperation")
 
     class func operationForKeyRotation(
-        queue: DispatchQueue,
+        dispatchQueue: DispatchQueue,
         state: TunnelManager.State,
         apiProxy: REST.APIProxy,
         rotationInterval: TimeInterval,
         completionHandler: @escaping CompletionHandler
     ) -> ReplaceKeyOperation {
         return ReplaceKeyOperation(
-            queue: queue,
+            dispatchQueue: dispatchQueue,
             state: state,
             apiProxy: apiProxy,
             rotationInterval: rotationInterval,
@@ -37,13 +36,13 @@ class ReplaceKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, Tunn
     }
 
     class func operationForKeyRegeneration(
-        queue: DispatchQueue,
+        dispatchQueue: DispatchQueue,
         state: TunnelManager.State,
         apiProxy: REST.APIProxy,
         completionHandler: @escaping (OperationCompletion<(), TunnelManager.Error>) -> Void
     ) -> ReplaceKeyOperation {
         return ReplaceKeyOperation(
-            queue: queue,
+            dispatchQueue: dispatchQueue,
             state: state,
             apiProxy: apiProxy,
             rotationInterval: nil
@@ -62,43 +61,36 @@ class ReplaceKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, Tunn
     }
 
     private init(
-        queue: DispatchQueue,
+        dispatchQueue: DispatchQueue,
         state: TunnelManager.State,
         apiProxy: REST.APIProxy,
         rotationInterval: TimeInterval?,
         completionHandler: @escaping CompletionHandler
     ) {
-        self.queue = queue
         self.state = state
 
         self.apiProxy = apiProxy
         self.rotationInterval = rotationInterval
 
-        super.init(completionQueue: queue, completionHandler: completionHandler)
+        super.init(
+            dispatchQueue: dispatchQueue,
+            completionQueue: dispatchQueue,
+            completionHandler: completionHandler
+        )
     }
 
     override func main() {
-        queue.async {
-            self.execute { completion in
-                self.finish(completion: completion)
-            }
+        self.execute { completion in
+            self.finish(completion: completion)
         }
     }
 
-    override func cancel() {
-        super.cancel()
-
-        queue.async {
-            self.restRequest?.cancel()
-        }
+    override func operationDidCancel() {
+        restRequest?.cancel()
+        restRequest = nil
     }
 
     private func execute(completionHandler: @escaping CompletionHandler) {
-        guard !isCancelled else {
-            completionHandler(.cancelled)
-            return
-        }
-
         guard let tunnelInfo = state.tunnelInfo else {
             completionHandler(.failure(.unsetAccount))
             return
@@ -158,7 +150,7 @@ class ReplaceKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, Tunn
             newPublicKey: newPrivateKey.publicKey,
             retryStrategy: .default
         ) { completion in
-            self.queue.async {
+            self.dispatchQueue.async {
                 self.didReceiveResponse(
                     completion: completion,
                     accountToken: tunnelInfo.token,

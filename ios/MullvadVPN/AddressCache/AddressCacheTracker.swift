@@ -85,7 +85,7 @@ extension AddressCache {
 
         func updateEndpoints(completionHandler: ((_ completion: OperationCompletion<CacheUpdateResult, Error>) -> Void)? = nil) -> Cancellable {
             let operation = UpdateAddressCacheOperation(
-                queue: stateQueue,
+                dispatchQueue: stateQueue,
                 apiProxy: apiProxy,
                 store: store,
                 updateInterval: Self.updateInterval,

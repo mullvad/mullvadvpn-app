@@ -19,43 +19,32 @@ extension AddressCache {
     }
 
     class UpdateAddressCacheOperation: ResultOperation<CacheUpdateResult, Error> {
-        private let queue: DispatchQueue
         private let apiProxy: REST.APIProxy
         private let store: AddressCache.Store
         private let updateInterval: TimeInterval
 
         private var requestTask: Cancellable?
 
-        init(queue: DispatchQueue, apiProxy: REST.APIProxy, store: AddressCache.Store, updateInterval: TimeInterval, completionHandler: CompletionHandler?) {
-            self.queue = queue
+        init(
+            dispatchQueue: DispatchQueue,
+            apiProxy: REST.APIProxy,
+            store: AddressCache.Store,
+            updateInterval: TimeInterval,
+            completionHandler: CompletionHandler?
+        )
+        {
             self.apiProxy = apiProxy
             self.store = store
             self.updateInterval = updateInterval
 
-            super.init(completionQueue: queue, completionHandler: completionHandler)
+            super.init(
+                dispatchQueue: dispatchQueue,
+                completionQueue: dispatchQueue,
+                completionHandler: completionHandler
+            )
         }
 
         override func main() {
-            queue.async {
-                self.startUpdate()
-            }
-        }
-
-        override func cancel() {
-            super.cancel()
-
-            queue.async {
-                self.requestTask?.cancel()
-                self.requestTask = nil
-            }
-        }
-
-        private func startUpdate() {
-            guard !isCancelled else {
-                finish(completion: .cancelled)
-                return
-            }
-
             let lastUpdate = store.getLastUpdateDate()
             let nextUpdate = Date(timeInterval: updateInterval, since: lastUpdate)
 
@@ -64,33 +53,34 @@ extension AddressCache {
                 return
             }
 
-            requestTask = apiProxy.getAddressList(retryStrategy: .default) { completion in
-                self.queue.async {
-                    self.handleResponse(completion)
+            requestTask = apiProxy.getAddressList(retryStrategy: .default) { [weak self] completion in
+                self?.dispatchQueue.async {
+                    self?.handleResponse(completion)
                 }
             }
         }
 
+        override func operationDidCancel() {
+            requestTask?.cancel()
+            requestTask = nil
+        }
+
         private func handleResponse(_ completion: OperationCompletion<[AnyIPEndpoint], REST.Error>) {
-            switch completion {
-            case .success(let newEndpoints):
-                switch store.setEndpoints(newEndpoints) {
-                case .success:
-                    self.finish(completion: .success(.finished))
-                case .failure(let error):
-                    self.finish(completion: .failure(error))
+            let mappedCompletion = completion
+                .flatMapError { error -> OperationCompletion<[AnyIPEndpoint], Error> in
+                    if case URLError.cancelled = error {
+                        return .cancelled
+                    } else {
+                        return .failure(error)
+                    }
+                }
+                .tryMap { endpoints -> CacheUpdateResult in
+                    try store.setEndpoints(endpoints)
+
+                    return .finished
                 }
 
-            case .failure(let error):
-                if case URLError.cancelled = error {
-                    self.finish(completion: .cancelled)
-                } else {
-                    self.finish(completion: .failure(error))
-                }
-
-            case .cancelled:
-                self.finish(completion: .cancelled)
-            }
+            finish(completion: mappedCompletion)
         }
     }
 }

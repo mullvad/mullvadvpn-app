@@ -100,28 +100,35 @@ extension AddressCache {
 
             var currentEndpoint = cachedAddresses.endpoints.first!
 
-            if failedEndpoint == currentEndpoint {
-                cachedAddresses.endpoints.removeFirst()
-                cachedAddresses.endpoints.append(failedEndpoint)
+            guard failedEndpoint == currentEndpoint else {
+                return currentEndpoint
+            }
 
-                currentEndpoint = cachedAddresses.endpoints.first!
+            cachedAddresses.endpoints.removeFirst()
+            cachedAddresses.endpoints.append(failedEndpoint)
 
-                logger.debug("Failed to communicate using \(failedEndpoint). Next endpoint: \(currentEndpoint)")
+            currentEndpoint = cachedAddresses.endpoints.first!
 
-                if case .failure(let error) = writeToDisk() {
-                    logger.error(chainedError: error, message: "Failed to write address cache after selecting next endpoint.")
-                }
+            logger.debug("Failed to communicate using \(failedEndpoint). Next endpoint: \(currentEndpoint)")
+
+            do {
+                try writeToDisk()
+            } catch {
+                logger.error(
+                    chainedError: AnyChainedError(error),
+                    message: "Failed to write address cache after selecting next endpoint."
+                )
             }
 
             return currentEndpoint
         }
 
-        func setEndpoints(_ endpoints: [AnyIPEndpoint]) -> Result<Void, AddressCache.StoreError> {
+        func setEndpoints(_ endpoints: [AnyIPEndpoint]) throws {
             nslock.lock()
             defer { nslock.unlock() }
 
             guard !endpoints.isEmpty else {
-                return .failure(.emptyAddressList)
+                throw StoreError.emptyAddressList
             }
 
             if Set(cachedAddresses.endpoints) == Set(endpoints) {
@@ -143,7 +150,7 @@ extension AddressCache {
                 )
             }
 
-            return writeToDisk()
+            try writeToDisk()
         }
 
         func getLastUpdateDate() -> Date {
@@ -154,77 +161,87 @@ extension AddressCache {
         }
 
         private func initializeStore() {
-            switch readFromCacheLocationWithFallback() {
-            case .success(let readResult):
-                if readResult.cachedAddresses.endpoints.isEmpty {
-                    logger.debug("Read empty cache from \(readResult.source). Fallback to default API endpoint.")
-
-                    cachedAddresses = Self.defaultCachedAddresses
-
-                    logger.debug("Initialized cache with default API endpoint.")
-                } else {
-                    switch readResult.source {
-                    case .disk:
-                        cachedAddresses = readResult.cachedAddresses
-
-                    case .bundle:
-                        var addresses = readResult.cachedAddresses
-                        addresses.endpoints.shuffle()
-                        cachedAddresses = addresses
-
-                        logger.debug("Persist address list read from bundle.")
-
-                        if case .failure(let error) = writeToDisk() {
-                            logger.error(chainedError: error, message: "Failed to persist address cache after reading it from bundle.")
-                        }
-                    }
-
-                    logger.debug("Initialized cache from \(readResult.source) with \(cachedAddresses.endpoints.count) endpoint(s).")
-                }
-
-            case .failure(let error):
-                logger.error(chainedError: error, message: "Failed to read address cache. Fallback to default API endpoint.")
+            let readResult: ReadResult
+            do {
+                readResult = try readFromCacheLocationWithFallback()
+            } catch {
+                logger.error(
+                    chainedError: AnyChainedError(error),
+                    message: "Failed to read address cache. Fallback to default API endpoint."
+                )
 
                 cachedAddresses = Self.defaultCachedAddresses
 
                 logger.debug("Initialized cache with default API endpoint.")
+                return
+            }
+
+            guard !readResult.cachedAddresses.endpoints.isEmpty else {
+                logger.debug("Read empty cache from \(readResult.source). Fallback to default API endpoint.")
+
+                cachedAddresses = Self.defaultCachedAddresses
+
+                logger.debug("Initialized cache with default API endpoint.")
+
+                return
+            }
+
+            switch readResult.source {
+            case .disk:
+                cachedAddresses = readResult.cachedAddresses
+
+            case .bundle:
+                var addresses = readResult.cachedAddresses
+                addresses.endpoints.shuffle()
+                cachedAddresses = addresses
+
+                logger.debug("Persist address list read from bundle.")
+
+                do {
+                    try writeToDisk()
+                } catch {
+                    logger.error(
+                        chainedError: AnyChainedError(error),
+                        message: "Failed to persist address cache after reading it from bundle."
+                    )
+                }
+            }
+
+            logger.debug("Initialized cache from \(readResult.source) with \(cachedAddresses.endpoints.count) endpoint(s).")
+        }
+
+        private func readFromCacheLocationWithFallback() throws -> ReadResult {
+            do {
+                return ReadResult(
+                    cachedAddresses: try readFromCacheLocation(),
+                    source: .disk
+                )
+            } catch {
+                logger.error(
+                    chainedError: AnyChainedError(error),
+                    message: "Failed to read address cache from disk. Fallback to pre-bundled cache."
+                )
+            }
+
+            return ReadResult(
+                cachedAddresses: try readFromBundle(),
+                source: .bundle
+            )
+        }
+
+        private func readFromCacheLocation() throws -> CachedAddresses {
+            do {
+                let data = try Data(contentsOf: cacheFileURL)
+
+                return try JSONDecoder().decode(CachedAddresses.self, from: data)
+            } catch let error as DecodingError {
+                throw StoreError.decodeCache(error)
+            } catch {
+                throw StoreError.readCache(error)
             }
         }
 
-        private func readFromCacheLocationWithFallback() -> Result<ReadResult, AddressCache.StoreError> {
-            return readFromCacheLocation()
-                .map { addresses in
-                    return ReadResult(
-                        cachedAddresses: addresses,
-                        source: .disk
-                    )
-                }
-                .flatMapError { error in
-                    logger.error(chainedError: error, message: "Failed to read address cache from disk. Fallback to pre-bundled cache.")
-
-                    return readFromBundle().map { cachedAddresses in
-                        return ReadResult(
-                            cachedAddresses: cachedAddresses,
-                            source: .bundle
-                        )
-                    }
-                }
-        }
-
-        private func readFromCacheLocation() -> Result<CachedAddresses, AddressCache.StoreError> {
-            return Result { try Data(contentsOf: cacheFileURL) }
-                .mapError { error in
-                    return .readCache(error)
-                }
-                .flatMap { data in
-                    return Result { try JSONDecoder().decode(CachedAddresses.self, from: data) }
-                        .mapError { error in
-                            return .decodeCache(error)
-                        }
-                }
-        }
-
-        private func writeToDisk() -> Result<(), AddressCache.StoreError> {
+        private func writeToDisk() throws {
             let cacheDirectoryURL = cacheFileURL.deletingLastPathComponent()
 
             try? FileManager.default.createDirectory(
@@ -233,35 +250,30 @@ extension AddressCache {
                 attributes: nil
             )
 
-            return Result { try JSONEncoder().encode(cachedAddresses) }
-                .mapError { error in
-                    return .encodeCache(error)
-                }
-                .flatMap { data in
-                    return Result { try data.write(to: cacheFileURL, options: .atomic) }
-                        .mapError { error in
-                            return .writeCache(error)
-                        }
-                }
+            do {
+                let data = try JSONEncoder().encode(cachedAddresses)
+                try data.write(to: cacheFileURL, options: .atomic)
+            } catch let error as EncodingError {
+                throw StoreError.encodeCache(error)
+            } catch {
+                throw StoreError.writeCache(error)
+            }
         }
 
-        private func readFromBundle() -> Result<CachedAddresses, AddressCache.StoreError> {
-            return Result { try Data(contentsOf: prebundledCacheFileURL) }
-                .mapError { error in
-                    return .readCacheFromBundle(error)
-                }
-                .flatMap { data in
-                    return Result { try JSONDecoder().decode([AnyIPEndpoint].self, from: data) }
-                        .mapError { error in
-                            return .decodeCacheFromBundle(error)
-                        }
-                        .map { endpoints in
-                            return CachedAddresses(
-                                updatedAt: Date(timeIntervalSince1970: 0),
-                                endpoints: endpoints
-                            )
-                        }
-                }
+        private func readFromBundle() throws -> CachedAddresses {
+            do {
+                let data = try Data(contentsOf: prebundledCacheFileURL)
+                let endpoints = try JSONDecoder().decode([AnyIPEndpoint].self, from: data)
+
+                return CachedAddresses(
+                    updatedAt: Date(timeIntervalSince1970: 0),
+                    endpoints: endpoints
+                )
+            } catch let error as DecodingError {
+                throw StoreError.decodeCacheFromBundle(error)
+            } catch {
+                throw StoreError.decodeCacheFromBundle(error)
+            }
         }
 
     }

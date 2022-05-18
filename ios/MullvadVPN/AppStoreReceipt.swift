@@ -32,9 +32,6 @@ enum AppStoreReceipt {
         }
     }
 
-    /// Internal dispatch queue.
-    private static let dispatchQueue = DispatchQueue(label: "AppStoreReceiptDispatchQueue")
-
     /// Internal operation queue.
     private static let operationQueue: OperationQueue = {
         let queue = OperationQueue()
@@ -47,7 +44,6 @@ enum AppStoreReceipt {
     /// This call may trigger a sign in with AppStore prompt to appear.
     static func fetch(forceRefresh: Bool = false, receiptProperties: [String: Any]? = nil, completionHandler: @escaping (OperationCompletion<Data, Error>) -> Void) -> Cancellable {
         let operation = FetchAppStoreReceiptOperation(
-            dispatchQueue: dispatchQueue,
             forceRefresh: forceRefresh,
             receiptProperties: receiptProperties,
             completionHandler: completionHandler
@@ -68,50 +64,46 @@ enum AppStoreReceipt {
 }
 
 fileprivate class FetchAppStoreReceiptOperation: ResultOperation<Data, AppStoreReceipt.Error>, SKRequestDelegate {
-    private let dispatchQueue: DispatchQueue
     private var request: SKReceiptRefreshRequest?
     private let receiptProperties: [String: Any]?
     private let forceRefresh: Bool
 
-    init(dispatchQueue: DispatchQueue, forceRefresh: Bool, receiptProperties: [String: Any]?, completionHandler: @escaping (Completion) -> Void) {
-        self.dispatchQueue = dispatchQueue
+    init(
+        forceRefresh: Bool,
+        receiptProperties: [String: Any]?,
+        completionHandler: @escaping (Completion) -> Void
+    )
+    {
         self.forceRefresh = forceRefresh
         self.receiptProperties = receiptProperties
 
-        super.init(completionQueue: .main, completionHandler: completionHandler)
+        super.init(
+            dispatchQueue: .main,
+            completionQueue: .main,
+            completionHandler: completionHandler
+        )
     }
 
     override func main() {
-        dispatchQueue.async {
-            guard !self.isCancelled else {
-                self.finish(completion: .cancelled)
-                return
-            }
+        // Pull receipt from AppStore if requested.
+        guard !forceRefresh else {
+            startRefreshRequest()
+            return
+        }
 
-            // Pull receipt from AppStore if requested.
-            guard !self.forceRefresh else {
-                self.startRefreshRequest()
-                return
-            }
+        // Read AppStore receipt from disk.
+        let result = readReceiptFromDisk()
 
-            // Read AppStore receipt from disk.
-            let result = self.readReceiptFromDisk()
-
-            // Pull receipt from AppStore if it's not cached locally.
-            if case .failure(.doesNotExist) = result {
-                self.startRefreshRequest()
-            } else {
-                self.finish(completion: OperationCompletion(result: result))
-            }
+        // Pull receipt from AppStore if it's not cached locally.
+        if case .failure(.doesNotExist) = result {
+            startRefreshRequest()
+        } else {
+            finish(completion: OperationCompletion(result: result))
         }
     }
 
-    override func cancel() {
-        dispatchQueue.async {
-            super.cancel()
-
-            self.request?.cancel()
-        }
+    override func operationDidCancel() {
+        self.request?.cancel()
     }
 
     // - MARK: SKRequestDelegate

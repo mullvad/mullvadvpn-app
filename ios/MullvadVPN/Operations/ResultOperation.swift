@@ -55,11 +55,20 @@ class ResultOperation<Success, Failure: Error>: AsyncOperation {
         }
     }
 
-    init(completionQueue: DispatchQueue?, completionHandler: CompletionHandler?) {
+    override init(dispatchQueue: DispatchQueue?) {
+        super.init(dispatchQueue: dispatchQueue)
+    }
+
+    init(
+        dispatchQueue: DispatchQueue?,
+        completionQueue: DispatchQueue?,
+        completionHandler: CompletionHandler?
+    )
+    {
         _completionQueue = completionQueue
         _completionHandler = completionHandler
 
-        super.init()
+        super.init(dispatchQueue: dispatchQueue)
     }
 
     @available(*, unavailable)
@@ -116,71 +125,3 @@ class ResultOperation<Success, Failure: Error>: AsyncOperation {
         }
     }
 }
-
-class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Failure> {
-    typealias ExecutionBlock = (ResultBlockOperation<Success, Failure>) -> Void
-
-    private var executionBlock: ExecutionBlock?
-    private var cancellationBlocks: [() -> Void] = []
-
-    convenience init(executionBlock: @escaping ExecutionBlock) {
-        self.init(
-            executionBlock: executionBlock,
-            completionQueue: nil,
-            completionHandler: nil
-        )
-    }
-
-    init(
-        executionBlock: @escaping ExecutionBlock,
-        completionQueue: DispatchQueue?,
-        completionHandler: CompletionHandler?
-    )
-    {
-        self.executionBlock = executionBlock
-        super.init(completionQueue: completionQueue, completionHandler: completionHandler)
-    }
-
-    override func main() {
-        stateLock.lock()
-        let block = executionBlock
-        executionBlock = nil
-        stateLock.unlock()
-
-        block?(self)
-    }
-
-    override func cancel() {
-        super.cancel()
-
-        stateLock.lock()
-        let blocks = cancellationBlocks
-        cancellationBlocks.removeAll()
-        stateLock.unlock()
-
-        for block in blocks {
-            block()
-        }
-    }
-
-    override func _finish() {
-        stateLock.lock()
-        cancellationBlocks.removeAll()
-        executionBlock = nil
-        stateLock.unlock()
-
-        super._finish()
-    }
-
-    func addCancellationBlock(_ block: @escaping () -> Void) {
-        stateLock.lock()
-        if isCancelled {
-            stateLock.unlock()
-            block()
-        } else {
-            cancellationBlocks.append(block)
-            stateLock.unlock()
-        }
-    }
-}
-

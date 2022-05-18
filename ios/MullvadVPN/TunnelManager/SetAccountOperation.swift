@@ -13,7 +13,6 @@ import Logging
 class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
     typealias WillDeleteVPNConfigurationHandler = () -> Void
 
-    private let queue: DispatchQueue
     private let state: TunnelManager.State
     private let apiProxy: REST.APIProxy
     private let accountToken: String?
@@ -22,7 +21,7 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
     private let logger = Logger(label: "TunnelManager.SetAccountOperation")
 
     init(
-        queue: DispatchQueue,
+        dispatchQueue: DispatchQueue,
         state: TunnelManager.State,
         apiProxy: REST.APIProxy,
         accountToken: String?,
@@ -30,29 +29,25 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
         completionHandler: @escaping CompletionHandler
     )
     {
-        self.queue = queue
         self.state = state
         self.apiProxy = apiProxy
         self.accountToken = accountToken
         self.willDeleteVPNConfigurationHandler = willDeleteVPNConfigurationHandler
 
-        super.init(completionQueue: queue, completionHandler: completionHandler)
+        super.init(
+            dispatchQueue: dispatchQueue,
+            completionQueue: dispatchQueue,
+            completionHandler: completionHandler
+        )
     }
 
     override func main() {
-        queue.async {
-            self.execute { completion in
-                self.finish(completion: completion)
-            }
+        execute { completion in
+            self.finish(completion: completion)
         }
     }
 
     private func execute(completionHandler: @escaping CompletionHandler) {
-        guard !isCancelled else {
-            completionHandler(.cancelled)
-            return
-        }
-
         // Delete current account key and configuration if set.
         if let tunnelInfo = state.tunnelInfo, tunnelInfo.token != accountToken {
             let currentAccountToken = tunnelInfo.token
@@ -153,7 +148,7 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
         for (index, publicKey) in publicKeys.enumerated() {
             dispatchGroup.enter()
             _ = apiProxy.deleteWireguardKey(accountNumber: accountToken, publicKey: publicKey, retryStrategy: .default) { result in
-                self.queue.async {
+                self.dispatchQueue.async {
                     switch result {
                     case .success:
                         self.logger.info("Removed key (\(index)) from server.")
@@ -174,7 +169,7 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
             }
         }
 
-        dispatchGroup.notify(queue: queue) {
+        dispatchGroup.notify(queue: dispatchQueue) {
             completionHandler()
         }
     }
@@ -209,7 +204,7 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
 
         // Remove VPN configuration
         tunnel.removeFromPreferences { error in
-            self.queue.async {
+            self.dispatchQueue.async {
                 // Ignore error but log it
                 if let error = error {
                     self.logger.error(
@@ -227,7 +222,7 @@ class SetAccountOperation: ResultOperation<(), TunnelManager.Error> {
 
     private func pushNewAccountKey(accountToken: String, publicKey: PublicKey, completionHandler: @escaping CompletionHandler) {
         _ = apiProxy.pushWireguardKey(accountNumber: accountToken, publicKey: publicKey, retryStrategy: .default) { result in
-            self.queue.async {
+            self.dispatchQueue.async {
                 switch result {
                 case .success(let associatedAddresses):
                     self.logger.debug("Pushed new key to server.")

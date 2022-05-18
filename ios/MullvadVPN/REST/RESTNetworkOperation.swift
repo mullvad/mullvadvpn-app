@@ -14,7 +14,6 @@ extension REST {
         private let requestHandler: AnyRequestHandler
         private let responseHandler: AnyResponseHandler<Success>
 
-        private let dispatchQueue: DispatchQueue
         private let logger: Logger
         private let urlSession: URLSession
         private let addressCacheStore: AddressCache.Store
@@ -39,7 +38,6 @@ extension REST {
             completionHandler: @escaping CompletionHandler
         )
         {
-            self.dispatchQueue = dispatchQueue
             self.urlSession = configuration.session
             self.addressCacheStore = configuration.addressCacheStore
             self.retryStrategy = retryStrategy
@@ -50,27 +48,25 @@ extension REST {
             logger[metadataKey: "name"] =  .string(name)
             self.logger = logger
 
-            super.init(completionQueue: .main, completionHandler: completionHandler)
+            super.init(
+                dispatchQueue: dispatchQueue,
+                completionQueue: .main,
+                completionHandler: completionHandler
+            )
         }
 
-        override func cancel() {
-            super.cancel()
+        override func operationDidCancel() {
+            retryTimer?.cancel()
+            networkTask?.cancel()
+            authorizationTask?.cancel()
 
-            dispatchQueue.async {
-                self.retryTimer?.cancel()
-                self.networkTask?.cancel()
-                self.authorizationTask?.cancel()
-
-                self.retryTimer = nil
-                self.networkTask = nil
-                self.authorizationTask = nil
-            }
+            retryTimer = nil
+            networkTask = nil
+            authorizationTask = nil
         }
 
         override func main() {
-            dispatchQueue.async {
-                self.startRequest()
-            }
+            startRequest()
         }
 
         private func startRequest() {
