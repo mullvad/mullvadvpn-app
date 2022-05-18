@@ -19,6 +19,8 @@ Logger *g_logger = nullptr;
 namespace
 {
 
+bool g_pinned = false;
+
 std::wstring PopString()
 {
 	//
@@ -45,6 +47,11 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 void PinDll()
 {
+	if (g_pinned)
+	{
+		return;
+	}
+
 	//
 	// Apparently NSIS loads and unloads the plugin module for EVERY call it makes to the plugin.
 	// This makes it kind of difficult to maintain state.
@@ -68,6 +75,8 @@ void PinDll()
 	{
 		LoadLibraryW(self);
 	}
+
+	g_pinned = true;
 }
 
 std::vector<std::wstring> BlockToRows(const std::wstring &textBlock)

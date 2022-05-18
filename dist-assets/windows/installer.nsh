@@ -54,6 +54,42 @@
 !define PERSISTENT_BLOCK_OUTBOUND_IPV4_FILTER_GUID "{79860c64-9a5e-48a3-b5f3-d64b41659aa5}"
 
 #
+# CleanupTempFiles
+#
+# Clean up files used temporarily by the installer.
+#
+!macro CleanupTempFiles
+
+	Push $0
+
+	log::SetLogTarget ${LOG_VOID}
+
+	# Horrendous hack for unpinning log.dll. Since we do not know the reference count
+	# it is safest to unload it from here.
+	CleanupTempFiles_free_logger:
+	System::Call "KERNEL32::GetModuleHandle(t $\"$PLUGINSDIR\log.dll$\")p.r0"
+	${If} $0 P<> 0
+		System::Call "KERNEL32::FreeLibrary(pr0)"
+		Goto CleanupTempFiles_free_logger
+	${EndIf}
+
+	# The working directory cannot be deleted, so make sure it's set to $TEMP.
+	SetOutPath "$TEMP"
+
+	RMDir /r "$TEMP\mullvad-split-tunnel"
+	Delete "$TEMP\wintun.dll"
+	Delete "$TEMP\mullvad-wireguard.dll"
+	Delete "$TEMP\driverlogic.exe"
+	Delete "$TEMP\mullvad-setup.exe"
+	Delete "$TEMP\winfw.dll"
+
+	Pop $0
+
+!macroend
+
+!define CleanupTempFiles '!insertmacro "CleanupTempFiles"'
+
+#
 # ExtractWireGuard
 #
 # Extract Wintun and WireGuardNT installer into $TEMP
@@ -902,6 +938,8 @@
 
 	customInstall_skip_abort:
 
+	${CleanupTempFiles}
+
 	Pop $R0
 
 !macroend
@@ -1161,6 +1199,7 @@
 	${EndIf}
 
 	log::Log "Aborting uninstaller"
+
 	SetErrorLevel 1
 	Abort
 
@@ -1195,6 +1234,8 @@
 		SetShellVarContext all
 		Delete "$LOCALAPPDATA\Mullvad VPN\uninstall.log"
 	${EndIf}
+
+	${CleanupTempFiles}
 
 	Pop $R0
 	Pop $1

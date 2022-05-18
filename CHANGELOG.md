@@ -23,13 +23,17 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-### Android
+### Changed
 #### Android
 - Lowered default MTU to 1280 on Android.
 
 ### Removed
 #### Android
 - Remove WireGuard view as it's no longer needed with the new way of managing devices.
+
+### Fixed
+#### Windows
+- Be more scrupulous about removing temporary files used by the installer and uninstaller.
 
 ### Security
 #### Android
