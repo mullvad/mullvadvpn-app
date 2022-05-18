@@ -52,7 +52,6 @@ class ServiceEndpoint(
     val appVersionInfoCache = AppVersionInfoCache(this)
     val authTokenCache = AuthTokenCache(this)
     val customDns = CustomDns(this)
-    val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
     val relayListListener = RelayListListener(this)
     val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
@@ -82,7 +81,6 @@ class ServiceEndpoint(
         connectionProxy.onDestroy()
         customDns.onDestroy()
         deviceRepositoryBackend.onDestroy()
-        keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         relayListListener.onDestroy()
         settingsListener.onDestroy()
@@ -137,7 +135,6 @@ class ServiceEndpoint(
                 Event.AccountHistoryEvent(accountCache.onAccountHistoryChange.latestEvent),
                 Event.SettingsUpdate(settingsListener.settings),
                 Event.NewLocation(locationInfoCache.location),
-                Event.WireGuardKeyStatus(keyStatusListener.keyStatus),
                 Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent),
                 Event.CurrentVersion(appVersionInfoCache.currentVersion),
                 Event.AppVersionInfo(appVersionInfoCache.appVersionInfo),

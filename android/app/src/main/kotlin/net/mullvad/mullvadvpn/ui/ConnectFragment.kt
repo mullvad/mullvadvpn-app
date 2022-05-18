@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
-import net.mullvad.mullvadvpn.ui.notification.KeyStatusNotification
 import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
 import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
@@ -54,7 +53,6 @@ class ConnectFragment :
         notificationBanner = view.findViewById<NotificationBanner>(R.id.notification_banner).apply {
             notifications.apply {
                 register(TunnelStateNotification(parentActivity, connectionProxy))
-                register(KeyStatusNotification(parentActivity, authTokenCache, keyStatusListener))
                 register(VersionInfoNotification(parentActivity, appVersionInfoCache))
                 register(AccountExpiryNotification(parentActivity, authTokenCache, accountCache))
             }
@@ -121,7 +119,6 @@ class ConnectFragment :
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
 
-        keyStatusListener.onKeyStatusChange.unsubscribe(this)
         connectionProxy.onUiStateChange.unsubscribe(this)
 
         notificationBanner.onPause()

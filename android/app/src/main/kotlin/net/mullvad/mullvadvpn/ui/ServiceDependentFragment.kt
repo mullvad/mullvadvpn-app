@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.CustomDns
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.KeyStatusListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
@@ -52,9 +51,6 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
     lateinit var deviceRepository: DeviceRepository
         private set
 
-    lateinit var keyStatusListener: KeyStatusListener
-        private set
-
     lateinit var locationInfoCache: LocationInfoCache
         private set
 
@@ -76,7 +72,6 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
         connectionProxy = serviceConnection.connectionProxy
         deviceRepository = serviceConnection.deviceRepository
         customDns = serviceConnection.customDns
-        keyStatusListener = serviceConnection.keyStatusListener
         locationInfoCache = serviceConnection.locationInfoCache
         relayListListener = serviceConnection.relayListListener
         settingsListener = serviceConnection.settingsListener

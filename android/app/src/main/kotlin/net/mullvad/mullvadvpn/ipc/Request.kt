@@ -97,12 +97,6 @@ sealed class Request : Message.RequestMessage() {
     @Parcelize
     data class VpnPermissionResponse(val isGranted: Boolean) : Request()
 
-    @Parcelize
-    object WireGuardGenerateKey : Request()
-
-    @Parcelize
-    object WireGuardVerifyKey : Request()
-
     companion object {
         private const val MESSAGE_KEY = "request"
 
