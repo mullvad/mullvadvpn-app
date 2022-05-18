@@ -2,7 +2,8 @@ use super::{
     super::stats::{Stats, StatsMap},
     Config, Error as WgKernelError, Handle, Tunnel, TunnelError, MULLVAD_INTERFACE_NAME,
 };
-use std::collections::HashMap;
+use futures::Future;
+use std::{collections::HashMap, pin::Pin};
 use talpid_dbus::{
     dbus,
     network_manager::{
@@ -89,6 +90,24 @@ impl Tunnel for NetworkManagerTunnel {
                     TunnelError::GetConfigError
                 })?;
             Ok(Stats::parse_device_message(&device))
+        })
+    }
+
+    fn set_config(
+        &self,
+        config: Config,
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
+        let interface_name = self.interface_name.clone();
+        let mut wg = self.netlink_connections.wg_handle.clone();
+        Box::pin(async move {
+            let index = crate::linux::iface_index(&interface_name).map_err(|err| {
+                log::error!("Failed to fetch WireGuard device index: {}", err);
+                TunnelError::SetConfigError
+            })?;
+            wg.set_config(index, &config).await.map_err(|err| {
+                log::error!("Failed to apply WireGuard config: {}", err);
+                TunnelError::SetConfigError
+            })
         })
     }
 }

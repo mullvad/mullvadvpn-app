@@ -644,9 +644,7 @@ pub(crate) trait Tunnel: Send {
     fn set_config(
         &self,
         _config: Config,
-    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'static>> {
-        unimplemented!()
-    }
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
