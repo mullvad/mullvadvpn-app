@@ -13,8 +13,10 @@ use futures::SinkExt;
 use ipnetwork::IpNetwork;
 use std::{
     ffi::{c_void, CStr},
+    future::Future,
     os::raw::c_char,
     path::Path,
+    pin::Pin,
 };
 #[cfg(windows)]
 use talpid_types::BoxedError;
@@ -354,6 +356,21 @@ impl Tunnel for WgGoTunnel {
     fn stop(mut self: Box<Self>) -> Result<()> {
         self.stop_tunnel()
     }
+
+    fn set_config(
+        &self,
+        config: Config,
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
+        let wg_config_str = config.to_userspace_format();
+        let handle = self.handle.unwrap();
+        Box::pin(async move {
+            let status = unsafe { wgSetConfig(handle, wg_config_str.as_ptr() as *const i8) };
+            if status != 0 {
+                return Err(TunnelError::SetConfigError);
+            }
+            Ok(())
+        })
+    }
 }
 
 fn check_wg_status(wg_code: i32) -> Result<()> {
@@ -421,6 +438,9 @@ extern "C" {
 
     // Returns the file descriptor of the tunnel IPv4 socket.
     fn wgGetConfig(handle: i32) -> *mut std::os::raw::c_char;
+
+    // Sets the config of the WireGuard interface.
+    fn wgSetConfig(handle: i32, settings: *const i8) -> i32;
 
     // Frees a pointer allocated by the go runtime - useful to free return value of wgGetConfig
     fn wgFreePtr(ptr: *mut c_void);
