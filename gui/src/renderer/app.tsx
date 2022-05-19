@@ -336,8 +336,7 @@ export default class AppRenderer {
   }
 
   public leaveRevokedDevice = async () => {
-    const reduxAccount = this.reduxActions.account;
-    reduxAccount.loggedOut();
+    await this.logout();
     this.resetNavigation();
     await this.disconnectTunnel();
   };
