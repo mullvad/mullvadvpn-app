@@ -12,7 +12,7 @@ import UserNotifications
 let accountExpiryNotificationIdentifier = "net.mullvad.MullvadVPN.AccountExpiryNotification"
 let accountExpiryDefaultTriggerInterval = 3
 
-class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificationProvider, InAppNotificationProvider, AccountObserver {
+class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificationProvider, InAppNotificationProvider, TunnelObserver {
     private var accountExpiry: Date?
 
     /// Interval prior to expiry used to calculate when to trigger notifications.
@@ -27,8 +27,8 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
 
         super.init()
 
-        accountExpiry = Account.shared.expiry
-        Account.shared.addObserver(self)
+        accountExpiry = TunnelManager.shared.accountExpiry
+        TunnelManager.shared.addObserver(self)
     }
 
     private var trigger: UNNotificationTrigger? {
@@ -122,18 +122,18 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         )
     }
 
-    func account(_ account: Account, didUpdateExpiry expiry: Date) {
-        self.accountExpiry = expiry
-        invalidate()
+    // MARK: - TunnelObserver
+
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
+        // no-op
     }
 
-    func account(_ account: Account, didLoginWithToken token: String, expiry: Date) {
-        self.accountExpiry = expiry
-        invalidate()
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
+        // no-op
     }
 
-    func accountDidLogout(_ account: Account) {
-        self.accountExpiry = nil
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
+        accountExpiry = tunnelSettings?.account.expiry
         invalidate()
     }
 

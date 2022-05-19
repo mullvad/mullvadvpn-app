@@ -10,6 +10,6 @@ import Foundation
 
 protocol TunnelObserver: AnyObject {
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState)
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelInfo: TunnelInfo?)
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?)
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error)
 }

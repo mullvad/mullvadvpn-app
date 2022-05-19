@@ -10,7 +10,7 @@ import Foundation
 import NetworkExtension
 
 protocol TunnelManagerStateDelegate: AnyObject {
-    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelInfo newTunnelInfo: TunnelInfo?)
+    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelSettings newTunnelSettings: TunnelSettingsV2?)
     func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelStatus newTunnelStatus: TunnelStatus)
     func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelProvider newTunnelObject: Tunnel?, shouldRefreshTunnelState: Bool)
 }
@@ -23,7 +23,7 @@ extension TunnelManager {
 
         private let queueMarkerKey = DispatchSpecificKey<Bool>()
 
-        private var _tunnelInfo: TunnelInfo?
+        private var _tunnelSettings: TunnelSettingsV2?
         private var _tunnelObject: Tunnel?
         private var _tunnelStatus = TunnelStatus(
             isNetworkReachable: false,
@@ -31,18 +31,18 @@ extension TunnelManager {
             state: .disconnected
         )
 
-        var tunnelInfo: TunnelInfo? {
+        var tunnelSettings: TunnelSettingsV2? {
             get {
                 return performBlock {
-                    return _tunnelInfo
+                    return _tunnelSettings
                 }
             }
             set {
                 performBlock {
-                    if _tunnelInfo != newValue {
-                        _tunnelInfo = newValue
+                    if _tunnelSettings != newValue {
+                        _tunnelSettings = newValue
 
-                        delegate?.tunnelManagerState(self, didChangeTunnelInfo: newValue)
+                        delegate?.tunnelManagerState(self, didChangeTunnelSettings: newValue)
                     }
                 }
             }

@@ -14,8 +14,7 @@ protocol AccountViewControllerDelegate: AnyObject {
     func accountViewControllerDidLogout(_ controller: AccountViewController)
 }
 
-class AccountViewController: UIViewController, AppStorePaymentObserver, AccountObserver {
-
+class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelObserver {
     private let contentView: AccountContentView = {
         let contentView = AccountContentView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
@@ -84,7 +83,9 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
             comment: "Navigation title"
         )
 
-        contentView.accountTokenRowView.value = Account.shared.formattedToken
+        contentView.accountTokenRowView.value = TunnelManager.shared.accountNumber.map { string in
+            return formatAccountNumber(string)
+        }
         contentView.accountTokenRowView.actionHandler = { [weak self] in
             self?.copyAccountToken()
         }
@@ -94,9 +95,9 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         contentView.logoutButton.addTarget(self, action: #selector(doLogout), for: .touchUpInside)
 
         AppStorePaymentManager.shared.addPaymentObserver(self)
-        Account.shared.addObserver(self)
+        TunnelManager.shared.addObserver(self)
 
-        updateAccountExpiry(expiryDate: Account.shared.expiry)
+        updateAccountExpiry(expiryDate: TunnelManager.shared.accountExpiry)
 
         // Make sure to disable IAPs when payments are restricted
         if AppStorePaymentManager.canMakePayments {
@@ -293,7 +294,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         )
 
         alertPresenter.enqueue(alertController, presentingController: self) {
-            Account.shared.logout {
+            TunnelManager.shared.unsetAccount {
                 DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
                     alertController.dismiss(animated: true) {
                         self.delegate?.accountViewControllerDidLogout(self)
@@ -303,18 +304,18 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         }
     }
 
-    // MARK: - AccountObserver
+    // MARK: - TunnelObserver
 
-    func account(_ account: Account, didUpdateExpiry expiry: Date) {
-        updateAccountExpiry(expiryDate: expiry)
-    }
-
-    func account(_ account: Account, didLoginWithToken token: String, expiry: Date) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
         // no-op
     }
 
-    func accountDidLogout(_ account: Account) {
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
         // no-op
+    }
+
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
+        updateAccountExpiry(expiryDate: tunnelSettings?.account.expiry)
     }
 
     // MARK: - AppStorePaymentObserver
@@ -351,7 +352,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
     func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: REST.CreateApplePaymentResponse) {
         showTimeAddedConfirmationAlert(with: response, context: .purchase)
 
-        if transaction.payment == self.pendingPayment {
+        if transaction.payment == pendingPayment {
             compoundInteractionRestriction.decrease(animated: true)
         }
     }
@@ -368,7 +369,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
     }
 
     private func copyAccountToken() {
-        UIPasteboard.general.string = Account.shared.token
+        UIPasteboard.general.string = TunnelManager.shared.accountNumber
 
         contentView.accountTokenRowView.value = NSLocalizedString(
             "COPIED_TO_PASTEBOARD_LABEL",
@@ -377,9 +378,9 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         )
 
         let workItem = DispatchWorkItem { [weak self] in
-            guard let formattedToken = Account.shared.formattedToken else { return }
+            guard let accountNumber = TunnelManager.shared.accountNumber else { return }
 
-            self?.contentView.accountTokenRowView.value = formattedToken
+            self?.contentView.accountTokenRowView.value = self?.formatAccountNumber(accountNumber)
         }
 
         copyToPasteboardWork?.cancel()
@@ -389,22 +390,22 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
     }
 
     @objc private func doPurchase() {
-        guard let product = product, let accountToken = Account.shared.token else { return }
+        guard let product = product, let accountNumber = TunnelManager.shared.accountNumber else { return }
 
         let payment = SKPayment(product: product)
 
         pendingPayment = payment
         compoundInteractionRestriction.increase(animated: true)
 
-        AppStorePaymentManager.shared.addPayment(payment, for: accountToken)
+        AppStorePaymentManager.shared.addPayment(payment, for: accountNumber)
     }
 
     @objc private func restorePurchases() {
-        guard let accountToken = Account.shared.token else { return }
+        guard let accountNumber = TunnelManager.shared.accountNumber  else { return }
 
         compoundInteractionRestriction.increase(animated: true)
 
-        _ = AppStorePaymentManager.shared.restorePurchases(for: accountToken) { completion in
+        _ = AppStorePaymentManager.shared.restorePurchases(for: accountNumber) { completion in
             switch completion {
             case .success(let response):
                 self.showTimeAddedConfirmationAlert(with: response, context: .restoration)
@@ -436,6 +437,10 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
             self.compoundInteractionRestriction.decrease(animated: true)
         }
+    }
+
+    private func formatAccountNumber(_ string: String) -> String {
+        return string.split(every: 4).joined(separator: " ")
     }
 
 }

@@ -22,7 +22,7 @@ protocol ConnectViewControllerDelegate: AnyObject {
     func connectViewControllerShouldShowSelectLocationPicker(_ controller: ConnectViewController)
 }
 
-class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainment, TunnelObserver, AccountObserver {
+class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainment, TunnelObserver {
 
     weak var delegate: ConnectViewControllerDelegate?
 
@@ -46,9 +46,10 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
-        if !Account.shared.isLoggedIn {
+        guard TunnelManager.shared.isAccountSet else {
             return HeaderBarPresentation(style: .default, showsDivider: true)
         }
+
         switch tunnelState {
         case .connecting, .reconnecting, .connected:
             return HeaderBarPresentation(style: .secured, showsDivider: false)
@@ -94,7 +95,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         updateLocation(animated: false)
         addNotificationController()
 
-        Account.shared.addObserver(self)
+        TunnelManager.shared.addObserver(self)
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -128,24 +129,10 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         ])
     }
 
-    // MARK: - AccountObserver
-
-    func account(_ account: Account, didLoginWithToken token: String, expiry: Date) {
-        setNeedsHeaderBarStyleAppearanceUpdate()
-    }
-
-    func account(_ account: Account, didUpdateExpiry expiry: Date) {
-        // no-op
-    }
-
-    func accountDidLogout(_ account: Account) {
-        setNeedsHeaderBarStyleAppearanceUpdate()
-    }
-
     // MARK: - TunnelObserver
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelInfo: TunnelInfo?) {
-        // no-op
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
+        setNeedsHeaderBarStyleAppearanceUpdate()
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {

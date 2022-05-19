@@ -43,7 +43,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
         TunnelManager.shared.addObserver(self)
 
-        if let dnsSettings = TunnelManager.shared.tunnelInfo?.tunnelSettings.interface.dnsSettings {
+        if let dnsSettings = TunnelManager.shared.tunnelSettings?.dnsSettings {
             dataSource.update(from: dnsSettings)
         }
     }
@@ -85,8 +85,8 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelInfo: TunnelInfo?) {
-        guard let dnsSettings = tunnelInfo?.tunnelSettings.interface.dnsSettings else { return }
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
+        guard let dnsSettings = tunnelSettings?.dnsSettings else { return }
 
         dataSource.update(from: dnsSettings)
     }

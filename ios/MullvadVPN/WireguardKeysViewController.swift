@@ -11,10 +11,10 @@ import UIKit
 import Logging
 
 /// A UI refresh interval for the public key creation date (in seconds)
-private let kCreationDateRefreshInterval = Int(60)
+private let creationDateRefreshInterval = Int(60)
 
 /// A maximum number of characters to display out of the entire public key representation
-private let kDisplayPublicKeyMaxLength = 20
+private let displayPublicKeyMaxLength = 20
 
 private enum WireguardKeysViewState {
     case `default`
@@ -34,7 +34,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
 
     private var publicKeyPeriodicUpdateTimer: DispatchSourceTimer?
     private var copyToPasteboardWork: DispatchWorkItem?
-    private var verifyKeyCancellable: Cancellable?
+    private var updateDeviceTask: Cancellable?
 
     private let alertPresenter = AlertPresenter()
     private var state: WireguardKeysViewState = .default {
@@ -46,8 +46,6 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
-
-    private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -82,16 +80,16 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         contentView.verifyKeyButton.addTarget(self, action: #selector(handleVerifyKey(_:)), for: .touchUpInside)
 
         TunnelManager.shared.addObserver(self)
-        updatePublicKey(tunnelSettings: TunnelManager.shared.tunnelInfo?.tunnelSettings, animated: false)
+        updatePublicKey(deviceData: TunnelManager.shared.device, animated: false)
 
         startPublicKeyPeriodicUpdate()
     }
 
     private func startPublicKeyPeriodicUpdate() {
-        let interval = DispatchTimeInterval.seconds(kCreationDateRefreshInterval)
+        let interval = DispatchTimeInterval.seconds(creationDateRefreshInterval)
         let timerSource = DispatchSource.makeTimerSource(queue: .main)
         timerSource.setEventHandler { [weak self] () -> Void in
-            self?.updatePublicKey(tunnelSettings: TunnelManager.shared.tunnelInfo?.tunnelSettings, animated: true)
+            self?.updatePublicKey(deviceData: TunnelManager.shared.device, animated: true)
         }
         timerSource.schedule(deadline: .now() + interval, repeating: interval)
         timerSource.activate()
@@ -105,8 +103,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelInfo: TunnelInfo?) {
-        self.updatePublicKey(tunnelSettings: tunnelInfo?.tunnelSettings, animated: true)
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
+        updatePublicKey(deviceData: tunnelSettings?.device, animated: true)
     }
 
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
@@ -116,20 +114,16 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     // MARK: - Actions
 
     private func copyPublicKey() {
-        guard let tunnelInfo = TunnelManager.shared.tunnelInfo else { return }
+        guard let tunnelSettings = TunnelManager.shared.tunnelSettings else { return }
 
-        let metadata = tunnelInfo.tunnelSettings.interface.privateKey.publicKeyWithMetadata
-
-        UIPasteboard.general.string = metadata.stringRepresentation()
+        UIPasteboard.general.string = tunnelSettings.device.wgKeyData.privateKey.publicKey.base64Key
 
         setPublicKeyTitle(
             string: NSLocalizedString("COPIED_TO_PASTEBOARD_LABEL", tableName: "WireguardKeys", comment: ""),
             animated: true)
 
         let workItem = DispatchWorkItem { [weak self] in
-            let tunnelSettings = TunnelManager.shared.tunnelInfo?.tunnelSettings
-
-            self?.updatePublicKey(tunnelSettings: tunnelSettings, animated: true)
+            self?.updatePublicKey(deviceData: TunnelManager.shared.device, animated: true)
         }
 
         DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(3), execute: workItem)
@@ -161,13 +155,16 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         contentView.creationRowView.value = formatKeyGenerationElapsedTime(with: creationDate) ?? "-"
     }
 
-    private func updatePublicKey(tunnelSettings: TunnelSettings?, animated: Bool) {
-        if let publicKey = tunnelSettings?.interface.privateKey.publicKeyWithMetadata {
-            let displayKey = publicKey
-                .stringRepresentation(maxLength: kDisplayPublicKeyMaxLength)
+    private func updatePublicKey(deviceData: StoredDeviceData?, animated: Bool) {
+        if let wgKeyData = deviceData?.wgKeyData {
+            let displayKey = wgKeyData.privateKey
+                .publicKey
+                .base64Key
+                .prefix(displayPublicKeyMaxLength)
+                .appending("...")
 
             setPublicKeyTitle(string: displayKey, animated: animated)
-            updateCreationDateLabel(with: publicKey.creationDate)
+            updateCreationDateLabel(with: wgKeyData.creationDate)
         } else {
             setPublicKeyTitle(string: "-", animated: animated)
             contentView.creationRowView.value = "-"
@@ -209,26 +206,19 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     }
 
     private func verifyKey() {
-        guard let tunnelInfo = TunnelManager.shared.tunnelInfo else { return }
-
         updateViewState(.verifyingKey)
 
-        verifyKeyCancellable?.cancel()
+        updateDeviceTask?.cancel()
 
-        verifyKeyCancellable = apiProxy.getWireguardKey(
-            accountNumber: tunnelInfo.token,
-            publicKey: tunnelInfo.tunnelSettings.interface.publicKey,
-            retryStrategy: .default
-        ) { [weak self] result in
+        updateDeviceTask = TunnelManager.shared.updateDeviceData { [weak self] completion in
             guard let self = self else { return }
 
-            switch result {
+            switch completion {
             case .success:
                 self.updateViewState(.verifiedKey(true))
 
             case .failure(let error):
-                if case .unhandledResponse(_, let serverErrorResponse) = error,
-                   serverErrorResponse?.code == .publicKeyNotFound {
+                if case .deviceRevoked = error {
                     self.updateViewState(.verifiedKey(false))
                 } else {
                     self.showKeyVerificationFailureAlert(error)
@@ -254,26 +244,39 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         }
     }
 
-    private func showKeyVerificationFailureAlert(_ error: REST.Error) {
+    private func showKeyVerificationFailureAlert(_ error: TunnelManager.Error) {
         let reason = error.errorChainDescription ?? ""
         let errorDescription = String(
             format: NSLocalizedString(
                 "VERIFY_KEY_FAILURE_ALERT_MESSAGE",
                 tableName: "WireguardKeys",
-                value: "Failed to verify the WireGuard key on server: %@",
+                value: "Failed to verify the WireGuard key: %@",
                 comment: ""
             ),
             reason
         )
 
         let alertController = UIAlertController(
-            title: NSLocalizedString("VERIFY_KEY_FAILURE_ALERT_TITLE", tableName: "WireguardKeys", comment: ""),
+            title: NSLocalizedString(
+                "VERIFY_KEY_FAILURE_ALERT_TITLE",
+                tableName: "WireguardKeys",
+                value: "Cannot verify the key",
+                comment: ""
+            ),
             message: errorDescription,
             preferredStyle: .alert
         )
 
         alertController.addAction(
-            UIAlertAction(title: NSLocalizedString("VERIFY_KEY_FAILURE_ALERT_OK_ACTION", tableName: "WireguardKeys", comment: ""), style: .cancel)
+            UIAlertAction(
+                title: NSLocalizedString(
+                    "VERIFY_KEY_FAILURE_ALERT_OK_ACTION",
+                    tableName: "WireguardKeys",
+                    value: "OK",
+                    comment: ""
+                ),
+                style: .cancel
+            )
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)
@@ -281,12 +284,25 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
 
     private func showKeyRegenerationFailureAlert(_ error: TunnelManager.Error) {
         let alertController = UIAlertController(
-            title: NSLocalizedString("REGENERATE_KEY_FAILURE_ALERT_TITLE", tableName: "WireguardKeys", comment: ""),
+            title: NSLocalizedString(
+                "REGENERATE_KEY_FAILURE_ALERT_TITLE",
+                tableName: "WireguardKeys",
+                value: "Cannot regenerate the key",
+                comment: ""
+            ),
             message: error.errorChainDescription,
             preferredStyle: .alert
         )
         alertController.addAction(
-            UIAlertAction(title: NSLocalizedString("REGENERATE_KEY_FAILURE_ALERT_OK_ACTION", tableName: "WireguardKeys", comment: ""), style: .cancel)
+            UIAlertAction(
+                title: NSLocalizedString(
+                    "REGENERATE_KEY_FAILURE_ALERT_OK_ACTION",
+                    tableName: "WireguardKeys",
+                    value: "OK",
+                    comment: ""
+                ),
+                style: .cancel
+            )
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)

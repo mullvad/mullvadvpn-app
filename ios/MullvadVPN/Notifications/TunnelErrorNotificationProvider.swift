@@ -42,7 +42,7 @@ class TunnelErrorNotificationProvider: NotificationProvider, InAppNotificationPr
         invalidate()
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelInfo: TunnelInfo?) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
         // no-op
     }
 
