@@ -9,8 +9,8 @@
 import Foundation
 import UserNotifications
 
-let kAccountExpiryNotificationIdentifier = "net.mullvad.MullvadVPN.AccountExpiryNotification"
-let kAccountExpiryDefaultTriggerInterval = 3
+let accountExpiryNotificationIdentifier = "net.mullvad.MullvadVPN.AccountExpiryNotification"
+let accountExpiryDefaultTriggerInterval = 3
 
 class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificationProvider, InAppNotificationProvider, AccountObserver {
     private var accountExpiry: Date?
@@ -19,10 +19,10 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
     private let triggerInterval: Int
 
     override var identifier: String {
-        return kAccountExpiryNotificationIdentifier
+        return accountExpiryNotificationIdentifier
     }
 
-    init(triggerInterval: Int = kAccountExpiryDefaultTriggerInterval) {
+    init(triggerInterval: Int = accountExpiryDefaultTriggerInterval) {
         self.triggerInterval = triggerInterval
 
         super.init()
@@ -70,7 +70,7 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         content.sound = UNNotificationSound.default
 
         return UNNotificationRequest(
-            identifier: kAccountExpiryNotificationIdentifier,
+            identifier: accountExpiryNotificationIdentifier,
             content: content,
             trigger: trigger
         )

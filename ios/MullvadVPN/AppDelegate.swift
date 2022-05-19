@@ -823,7 +823,7 @@ extension AppDelegate: UISplitViewControllerDelegate {
 extension AppDelegate: UNUserNotificationCenterDelegate {
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        if response.notification.request.identifier == kAccountExpiryNotificationIdentifier,
+        if response.notification.request.identifier == accountExpiryNotificationIdentifier,
            response.actionIdentifier == UNNotificationDefaultActionIdentifier {
             rootContainer?.showSettings(navigateTo: .account, animated: true)
         }
