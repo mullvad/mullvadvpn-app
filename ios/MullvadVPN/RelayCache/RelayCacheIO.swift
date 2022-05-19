@@ -26,17 +26,21 @@ extension RelayCache.IO {
     }
 
     /// Safely read the cache file from disk using file coordinator.
-    static func read(cacheFileURL: URL) -> Result<RelayCache.CachedRelays, RelayCache.Error> {
+    static func read(cacheFileURL: URL) throws -> RelayCache.CachedRelays {
         var result: Result<RelayCache.CachedRelays, RelayCache.Error>?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
         let accessor = { (fileURLForReading: URL) -> Void in
             // Decode data from disk
-            result = Result { try Data(contentsOf: fileURLForReading) }
-            .mapError { RelayCache.Error.readCache($0) }
-            .flatMap { (data) in
-                Result { try JSONDecoder().decode(RelayCache.CachedRelays.self, from: data) }
-                .mapError { RelayCache.Error.decodeCache($0) }
+            do {
+                let data = try Data(contentsOf: fileURLForReading)
+                let relays = try JSONDecoder().decode(RelayCache.CachedRelays.self, from: data)
+
+                result = .success(relays)
+            } catch let error as DecodingError {
+                result = .failure(.decodeCache(error))
+            } catch {
+                result = .failure(.readCache(error))
             }
         }
 
@@ -50,50 +54,57 @@ extension RelayCache.IO {
             result = .failure(.readCache(error))
         }
 
-        return result!
+        return try result!.get()
     }
 
     /// Safely read the cache file from disk using file coordinator and fallback to prebundled relays in case if the
     /// relay cache file is missing.
-    static func readWithFallback(cacheFileURL: URL, preBundledRelaysFileURL: URL) -> Result<RelayCache.CachedRelays, RelayCache.Error> {
-        return Self.read(cacheFileURL: cacheFileURL)
-            .flatMapError { (error) -> Result<RelayCache.CachedRelays, RelayCache.Error> in
-                switch error {
-                case .decodeCache, .readCache(CocoaError.fileReadNoSuchFile):
-                    return RelayCache.IO.readPrebundledRelays(fileURL: preBundledRelaysFileURL)
-                default:
-                    return .failure(error)
-                }
-            }
-    }
+    static func readWithFallback(cacheFileURL: URL, preBundledRelaysFileURL: URL) throws -> RelayCache.CachedRelays {
+        do {
+            return try Self.read(cacheFileURL: cacheFileURL)
+        } catch {
+            let error = error as! RelayCache.Error
 
-    /// Read pre-bundled relays file from disk.
-    static func readPrebundledRelays(fileURL: URL) -> Result<RelayCache.CachedRelays, RelayCache.Error> {
-        return Result { try Data(contentsOf: fileURL) }
-        .mapError { RelayCache.Error.readPrebundledRelays($0) }
-        .flatMap { (data) -> Result<RelayCache.CachedRelays, RelayCache.Error> in
-            return Result { try REST.Coding.makeJSONDecoder().decode(REST.ServerRelaysResponse.self, from: data) }
-            .mapError { RelayCache.Error.decodePrebundledRelays($0) }
-            .map { (relays) -> RelayCache.CachedRelays in
-                return RelayCache.CachedRelays(
-                    relays: relays,
-                    updatedAt: Date(timeIntervalSince1970: 0)
-                )
+            switch error {
+            case .decodeCache, .readCache(CocoaError.fileReadNoSuchFile):
+                return try RelayCache.IO.readPrebundledRelays(fileURL: preBundledRelaysFileURL)
+            default:
+                throw error
             }
         }
     }
 
+    /// Read pre-bundled relays file from disk.
+    static func readPrebundledRelays(fileURL: URL) throws -> RelayCache.CachedRelays {
+        do {
+            let data = try Data(contentsOf: fileURL)
+            let relays = try REST.Coding.makeJSONDecoder()
+                .decode(REST.ServerRelaysResponse.self, from: data)
+
+            return RelayCache.CachedRelays(
+                relays: relays,
+                updatedAt: Date(timeIntervalSince1970: 0)
+            )
+        } catch let error as DecodingError {
+            throw RelayCache.Error.decodePrebundledRelays(error)
+        } catch {
+            throw RelayCache.Error.readPrebundledRelays(error)
+        }
+    }
+
     /// Safely write the cache file on disk using file coordinator.
-    static func write(cacheFileURL: URL, record: RelayCache.CachedRelays) -> Result<(), RelayCache.Error> {
-        var result: Result<(), RelayCache.Error>?
+    static func write(cacheFileURL: URL, record: RelayCache.CachedRelays) throws {
+        var resultError: RelayCache.Error?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
         let accessor = { (fileURLForWriting: URL) -> Void in
-            result = Result { try JSONEncoder().encode(record) }
-            .mapError { RelayCache.Error.encodeCache($0) }
-            .flatMap { (data) in
-                Result { try data.write(to: fileURLForWriting) }
-                .mapError { RelayCache.Error.writeCache($0) }
+            do {
+                let data = try JSONEncoder().encode(record)
+                try data.write(to: fileURLForWriting)
+            } catch let error as EncodingError {
+                resultError = .encodeCache(error)
+            } catch {
+                resultError = .writeCache(error)
             }
         }
 
@@ -103,10 +114,8 @@ extension RelayCache.IO {
                                    error: &error,
                                    byAccessor: accessor)
 
-        if let error = error {
-            result = .failure(.writeCache(error))
+        if let resultError = resultError {
+            throw resultError
         }
-
-        return result!
     }
 }
