@@ -172,9 +172,9 @@ class AccountExpiryRow: UIView {
 
     var value: Date? {
         didSet {
-            let expiry = value.flatMap { AccountExpiry(date: $0) }
+            let expiry = value
 
-            if let expiry = expiry, expiry.isExpired  {
+            if let expiry = expiry, expiry <= Date()  {
                 let localizedString = NSLocalizedString(
                     "ACCOUNT_OUT_OF_TIME_LABEL",
                     tableName: "Account",
@@ -187,7 +187,13 @@ class AccountExpiryRow: UIView {
 
                 valueLabel.textColor = .dangerColor
             } else {
-                let formattedDate = expiry?.formattedDate
+                let formattedDate = expiry.map { date in
+                    return DateFormatter.localizedString(
+                        from: date,
+                        dateStyle: .medium,
+                        timeStyle: .short
+                    )
+                }
 
                 valueLabel.text = formattedDate
                 accessibilityValue = formattedDate
