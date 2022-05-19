@@ -8,13 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5801C9A527A14B2A0031566A /* TunnelManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5801C9A427A14B2A0031566A /* TunnelManagerState.swift */; };
-		5806766D27048E5500C858CB /* KeychainMatchLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */; };
-		5806766E27048E5600C858CB /* KeychainMatchLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */; };
-		5806767927048E8800C858CB /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDF6245088E100CB0F5B /* Keychain.swift */; };
-		5806767A27048E8800C858CB /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDF6245088E100CB0F5B /* Keychain.swift */; };
-		5806767B27048E8900C858CB /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDF6245088E100CB0F5B /* Keychain.swift */; };
 		5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
-		5806768127048EE000C858CB /* KeychainMatchLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */; };
 		5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 5807483A27DB8A980020ECBF /* WireGuardKitTypes */; };
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
 		5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2C1243203D000F5FF30 /* StringTests.swift */; };
@@ -194,9 +188,6 @@
 		5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */; };
 		5891BF5125E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5891BF5025E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift */; };
 		5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5892A45D265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift */; };
-		5896AE7E246ACE65005B36CB /* KeychainAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */; };
-		5896AE80246ACE79005B36CB /* KeychainClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */; };
-		5896AE82246ACE84005B36CB /* KeychainReturn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */; };
 		5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
 		5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */; };
 		5896AE88246D7FAF005B36CB /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
@@ -290,13 +281,7 @@
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
 		58F97A1B280EEBC00050C2FC /* RESTProxyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F97A1A280EEBC00050C2FC /* RESTProxyFactory.swift */; };
 		58F97A1E280FDE230050C2FC /* RESTRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F97A1D280FDE230050C2FC /* RESTRequestHandler.swift */; };
-		58FAEDEF245069C700CB0F5B /* KeychainAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */; };
-		58FAEDF1245069CA00CB0F5B /* KeychainAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */; };
 		58FAEDF4245088B300CB0F5B /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
-		58FAEDFF24533A7000CB0F5B /* KeychainReturn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */; };
-		58FAEE0124533A9C00CB0F5B /* KeychainClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */; };
-		58FAEE0324533ABE00CB0F5B /* KeychainReturn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */; };
-		58FAEE0424533AC000CB0F5B /* KeychainClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */; };
 		58FB865526E8BF3100F188BC /* AppStorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* AppStorePaymentManagerError.swift */; };
 		58FB865A26EA214400F188BC /* RelayCacheObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865926EA214400F188BC /* RelayCacheObserver.swift */; };
 		58FB865E26EA284E00F188BC /* LogFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865D26EA284E00F188BC /* LogFormatting.swift */; };
@@ -578,11 +563,6 @@
 		58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportReviewViewController.swift; sourceTree = "<group>"; };
 		58F97A1A280EEBC00050C2FC /* RESTProxyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTProxyFactory.swift; sourceTree = "<group>"; };
 		58F97A1D280FDE230050C2FC /* RESTRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTRequestHandler.swift; sourceTree = "<group>"; };
-		58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainAttributes.swift; sourceTree = "<group>"; };
-		58FAEDF6245088E100CB0F5B /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
-		58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainMatchLimit.swift; sourceTree = "<group>"; };
-		58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainReturn.swift; sourceTree = "<group>"; };
-		58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainClass.swift; sourceTree = "<group>"; };
 		58FB865426E8BF3100F188BC /* AppStorePaymentManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorePaymentManagerError.swift; sourceTree = "<group>"; };
 		58FB865926EA214400F188BC /* RelayCacheObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheObserver.swift; sourceTree = "<group>"; };
 		58FB865D26EA284E00F188BC /* LogFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFormatting.swift; sourceTree = "<group>"; };
@@ -910,7 +890,7 @@
 				5840250022B1124600E4CFEC /* IPAddress+Codable.swift */,
 				5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */,
 				58561C98239A5D1500BD6B5E /* IPEndpoint.swift */,
-				58FB865626E8C06800F188BC /* Keychain */,
+				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
 				58727282265D173C00F315B2 /* LaunchScreen.storyboard */,
 				58E20770274672CA00DE5D77 /* LaunchViewController.swift */,
 				58A1AA8623F43901009F7EA6 /* Location.swift */,
@@ -1024,19 +1004,6 @@
 				58F3C0A524A50155003E76BE /* relays.json */,
 			);
 			path = Assets;
-			sourceTree = "<group>";
-		};
-		58FB865626E8C06800F188BC /* Keychain */ = {
-			isa = PBXGroup;
-			children = (
-				58FAEDF6245088E100CB0F5B /* Keychain.swift */,
-				58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */,
-				58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */,
-				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
-				58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */,
-				58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */,
-			);
-			path = Keychain;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1277,15 +1244,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5896AE80246ACE79005B36CB /* KeychainClass.swift in Sources */,
 				582AE3132440CA2700E6733A /* AccountTokenInput.swift in Sources */,
 				58CAF4EF26025954007C5886 /* SimulatorTunnelProvider.swift in Sources */,
 				58B0A2AA238EE6A900BC001D /* RelaySelector.swift in Sources */,
 				5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */,
 				5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */,
-				5896AE82246ACE84005B36CB /* KeychainReturn.swift in Sources */,
 				58B0A2A8238EE68200BC001D /* RelaySelectorTests.swift in Sources */,
-				5806766D27048E5500C858CB /* KeychainMatchLimit.swift in Sources */,
 				5819C2152726CC9400D6EC38 /* DataSourceSnapshot.swift in Sources */,
 				584E96BE240FD4DB00D3334F /* Location.swift in Sources */,
 				5857F23424C8443700CF6F47 /* AsyncOperation.swift in Sources */,
@@ -1297,7 +1261,6 @@
 				5857F23824C8446700CF6F47 /* AsyncBlockOperation.swift in Sources */,
 				582AE3122440CA0D00E6733A /* AccountTokenInputTests.swift in Sources */,
 				585DA8A526B14EE000B8C587 /* PacketTunnelStatus.swift in Sources */,
-				5896AE7E246ACE65005B36CB /* KeychainAttributes.swift in Sources */,
 				58B0A2A9238EE6A100BC001D /* RelayConstraints.swift in Sources */,
 				5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */,
 				5819C2142726CC8D00D6EC38 /* DataSourceSnapshotTests.swift in Sources */,
@@ -1308,7 +1271,6 @@
 				58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */,
 				5846227A26E24F1F0035F7C2 /* ExclusivityController.swift in Sources */,
 				58871D2325D535D2002297FA /* IPAddressRange+Codable.swift in Sources */,
-				5806767B27048E8900C858CB /* Keychain.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1369,7 +1331,6 @@
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* AppStorePaymentObserver.swift in Sources */,
-				58FAEDEF245069C700CB0F5B /* KeychainAttributes.swift in Sources */,
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
 				585DA87A26B024F900B8C587 /* RelayCacheError.swift in Sources */,
 				5856D13727450A8A00DFD627 /* UIImage+TintColor.swift in Sources */,
@@ -1388,12 +1349,10 @@
 				58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */,
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
 				58A99ED3240014A0006599E9 /* ConsentViewController.swift in Sources */,
-				58FAEE0124533A9C00CB0F5B /* KeychainClass.swift in Sources */,
 				58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */,
 				58095C4F2760BA9100890776 /* AddressCacheStore.swift in Sources */,
 				58AEEF6B2344A46200C9BBD5 /* TunnelSettingsManager.swift in Sources */,
 				587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */,
-				5806767927048E8800C858CB /* Keychain.swift in Sources */,
 				588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
 				58F97A1B280EEBC00050C2FC /* RESTProxyFactory.swift in Sources */,
@@ -1469,7 +1428,6 @@
 				58554F79280B037400013055 /* RESTAccessTokenManager.swift in Sources */,
 				58F2E144276A13F300A79513 /* StartTunnelOperation.swift in Sources */,
 				5868BD33261DCD2600E6027F /* CustomSplitViewController.swift in Sources */,
-				5806766E27048E5600C858CB /* KeychainMatchLimit.swift in Sources */,
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
 				586E54FB27A2DF6D0029B88B /* TunnelIPCRequestOperation.swift in Sources */,
 				584592612639B4A200EF967F /* ConsentContentView.swift in Sources */,
@@ -1498,7 +1456,6 @@
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
 				58F840B22464491D0044E708 /* ChainedError.swift in Sources */,
-				58FAEDFF24533A7000CB0F5B /* KeychainReturn.swift in Sources */,
 				588BCF24280FE43D009ADCEC /* RESTDevicesProxy.swift in Sources */,
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
 				587EB67027143B6500123C75 /* DataSourceSnapshot.swift in Sources */,
@@ -1513,11 +1470,8 @@
 			files = (
 				5850366825A47AC700A43E93 /* IPAddressRange+Codable.swift in Sources */,
 				58FB865F26EA2E6D00F188BC /* LogFormatting.swift in Sources */,
-				5806767A27048E8800C858CB /* Keychain.swift in Sources */,
 				585DA89726B0328000B8C587 /* TunnelIPCResponse.swift in Sources */,
-				5806768127048EE000C858CB /* KeychainMatchLimit.swift in Sources */,
 				587C575426D2615F005EF767 /* PacketTunnelOptions.swift in Sources */,
-				58FAEE0324533ABE00CB0F5B /* KeychainReturn.swift in Sources */,
 				58BFA5CD22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
 				5850368D25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */,
 				5820675826E652AF00655B05 /* RelayCacheIO.swift in Sources */,
@@ -1534,11 +1488,9 @@
 				58FC040A27B3EE03001C21F0 /* TunnelMonitor.swift in Sources */,
 				5838318B27C40A3900000571 /* Pinger.swift in Sources */,
 				5820675C26E6576800655B05 /* RelayCache.swift in Sources */,
-				58FAEDF1245069CA00CB0F5B /* KeychainAttributes.swift in Sources */,
 				585DA89A26B0329200B8C587 /* PacketTunnelStatus.swift in Sources */,
 				585DA88526B0270700B8C587 /* ServerRelaysResponse.swift in Sources */,
 				581503A724D6F4AE00C9C50E /* Logging.swift in Sources */,
-				58FAEE0424533AC000CB0F5B /* KeychainClass.swift in Sources */,
 				58AEEF6C2344A49D00C9BBD5 /* TunnelSettingsManager.swift in Sources */,
 				581503A424D6F1EC00C9C50E /* ChainedError+Logger.swift in Sources */,
 				5815039824D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
