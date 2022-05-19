@@ -22,7 +22,7 @@ import {
   VoucherInput,
   VoucherVerificationSuccess,
 } from './ExpiredAccountAddTime';
-import FilterByProvider from './FilterByProvider';
+import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
 import Launch from './Launch';
 import MainView from './MainView';
@@ -96,7 +96,7 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
               <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
               <Route exact path={RoutePath.support} component={SupportPage} />
               <Route exact path={RoutePath.selectLocation} component={SelectLocationPage} />
-              <Route exact path={RoutePath.filterByProvider} component={FilterByProvider} />
+              <Route exact path={RoutePath.filter} component={Filter} />
             </Switch>
           </TransitionView>
         </TransitionContainer>

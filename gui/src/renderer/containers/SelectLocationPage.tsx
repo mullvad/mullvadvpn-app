@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
 import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
-import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
+import { LiftedConstraint, Ownership, RelayLocation } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import SelectLocation from '../components/SelectLocation';
@@ -44,17 +44,19 @@ const mapStateToProps = (state: IReduxState, props: IHistoryProps & IAppContext)
     ((tunnelProtocol === 'any' || tunnelProtocol === 'wireguard') && multihopEnabled);
 
   const providers = 'normal' in relaySettings ? relaySettings.normal.providers : [];
+  const ownership = 'normal' in relaySettings ? relaySettings.normal.ownership : Ownership.any;
 
   return {
     locale: state.userInterface.locale,
     selectedExitLocation,
     selectedEntryLocation,
     selectedBridgeLocation,
-    relayLocations: filterLocationsByProvider(state.settings.relayLocations, providers),
-    bridgeLocations: filterLocationsByProvider(state.settings.bridgeLocations, providers),
+    relayLocations: filterLocations(state.settings.relayLocations, providers, ownership),
+    bridgeLocations: filterLocations(state.settings.bridgeLocations, providers, ownership),
     allowEntrySelection,
     tunnelProtocol,
     providers,
+    ownership,
 
     onSelectEntryLocation: async (entryLocation: RelayLocation) => {
       // dismiss the view first
@@ -76,7 +78,7 @@ const mapStateToProps = (state: IReduxState, props: IHistoryProps & IAppContext)
 const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
     onClose: () => props.history.dismiss(),
-    onViewFilterByProvider: () => props.history.push(RoutePath.filterByProvider),
+    onViewFilter: () => props.history.push(RoutePath.filter),
     onSelectExitLocation: async (relayLocation: RelayLocation) => {
       // dismiss the view first
       props.history.dismiss();
@@ -118,26 +120,67 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
     onClearProviders: async () => {
       await props.app.updateRelaySettings({ normal: { providers: [] } });
     },
+    onClearOwnership: async () => {
+      await props.app.updateRelaySettings({ normal: { ownership: Ownership.any } });
+    },
   };
 };
+
+function filterLocations(
+  locations: IRelayLocationRedux[],
+  providers: string[],
+  ownership: Ownership,
+): IRelayLocationRedux[] {
+  const locationsFilteredByOwnership = filterLocationsByOwnership(locations, ownership);
+  const locationsFilteredByProvider = filterLocationsByProvider(
+    locationsFilteredByOwnership,
+    providers,
+  );
+
+  return locationsFilteredByProvider;
+}
+
+function filterLocationsByOwnership(
+  locations: IRelayLocationRedux[],
+  ownership: Ownership,
+): IRelayLocationRedux[] {
+  if (ownership === Ownership.any) {
+    return locations;
+  }
+
+  const expectOwned = ownership === Ownership.mullvadOwned;
+  return locations
+    .map((country) => ({
+      ...country,
+      cities: country.cities
+        .map((city) => ({
+          ...city,
+          relays: city.relays.filter((relay) => relay.owned === expectOwned),
+        }))
+        .filter((city) => city.relays.length > 0),
+    }))
+    .filter((country) => country.cities.length > 0);
+}
 
 function filterLocationsByProvider(
   locations: IRelayLocationRedux[],
   providers: string[],
 ): IRelayLocationRedux[] {
-  return providers.length === 0
-    ? locations
-    : locations
-        .map((country) => ({
-          ...country,
-          cities: country.cities
-            .map((city) => ({
-              ...city,
-              relays: city.relays.filter((relay) => providers.includes(relay.provider)),
-            }))
-            .filter((city) => city.relays.length > 0),
+  if (providers.length === 0) {
+    return locations;
+  }
+
+  return locations
+    .map((country) => ({
+      ...country,
+      cities: country.cities
+        .map((city) => ({
+          ...city,
+          relays: city.relays.filter((relay) => providers.includes(relay.provider)),
         }))
-        .filter((country) => country.cities.length > 0);
+        .filter((city) => city.relays.length > 0),
+    }))
+    .filter((country) => country.cities.length > 0);
 }
 
 export default withAppContext(

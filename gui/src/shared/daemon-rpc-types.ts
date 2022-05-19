@@ -82,6 +82,12 @@ export function proxyTypeToString(proxy: ProxyType): string {
   }
 }
 
+export enum Ownership {
+  any,
+  mullvadOwned,
+  rented,
+}
+
 export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
@@ -159,6 +165,7 @@ interface IRelaySettingsNormal<OpenVpn, Wireguard> {
   location: Constraint<RelayLocation>;
   tunnelProtocol: Constraint<TunnelProtocol>;
   providers: string[];
+  ownership: Ownership;
   openvpnConstraints: OpenVpn;
   wireguardConstraints: Wireguard;
 }
@@ -241,6 +248,7 @@ export interface IRelayListHostname {
   includeInCountry: boolean;
   active: boolean;
   weight: number;
+  owned: boolean;
   tunnels?: IRelayTunnels;
   bridges?: IRelayBridges;
 }
@@ -380,6 +388,7 @@ export type SplitTunnelSettings = {
 export interface IBridgeConstraints {
   location: Constraint<RelayLocation>;
   providers: string[];
+  ownership: Ownership;
 }
 
 export type BridgeSettings = { normal: IBridgeConstraints } | { custom: ProxySettings };

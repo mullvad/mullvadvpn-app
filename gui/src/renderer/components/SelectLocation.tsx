@@ -2,7 +2,12 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { colors } from '../../config.json';
-import { LiftedConstraint, RelayLocation, TunnelProtocol } from '../../shared/daemon-rpc-types';
+import {
+  LiftedConstraint,
+  Ownership,
+  RelayLocation,
+  TunnelProtocol,
+} from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
@@ -25,16 +30,13 @@ import {
 } from './NavigationBar';
 import { ScopeBarItem } from './ScopeBar';
 import {
-  StyledClearProvidersButton,
+  StyledClearFilterButton,
   StyledContainer,
   StyledContent,
-  StyledFilterByProviderButton,
-  StyledFilterContainer,
+  StyledFilter,
   StyledFilterIconButton,
-  StyledFilterMenu,
+  StyledFilterRow,
   StyledNavigationBarAttachment,
-  StyledProviderCountRow,
-  StyledProvidersCount,
   StyledScopeBar,
   StyledSettingsHeader,
 } from './SelectLocationStyles';
@@ -50,13 +52,15 @@ interface IProps {
   allowEntrySelection: boolean;
   tunnelProtocol: LiftedConstraint<TunnelProtocol>;
   providers: string[];
+  ownership: Ownership;
   onClose: () => void;
-  onViewFilterByProvider: () => void;
+  onViewFilter: () => void;
   onSelectExitLocation: (location: RelayLocation) => void;
   onSelectEntryLocation: (location: RelayLocation) => void;
   onSelectBridgeLocation: (location: RelayLocation) => void;
   onSelectClosestToExit: () => void;
   onClearProviders: () => void;
+  onClearOwnership: () => void;
 }
 
 enum LocationScope {
@@ -65,7 +69,6 @@ enum LocationScope {
 }
 
 interface IState {
-  showFilterMenu: boolean;
   headingHeight: number;
   locationScope: LocationScope;
 }
@@ -76,7 +79,7 @@ interface ISelectLocationSnapshot {
 }
 
 export default class SelectLocation extends React.Component<IProps, IState> {
-  public state = { showFilterMenu: false, headingHeight: 0, locationScope: LocationScope.exit };
+  public state = { headingHeight: 0, locationScope: LocationScope.exit };
 
   private scrollView = React.createRef<CustomScrollbarsRef>();
   private spacePreAllocationViewRef = React.createRef<SpacePreAllocationView>();
@@ -90,7 +93,6 @@ export default class SelectLocation extends React.Component<IProps, IState> {
 
   private snapshotByScope: Partial<Record<LocationScope, ISelectLocationSnapshot>> = {};
 
-  private filterButtonRef = React.createRef<HTMLDivElement>();
   private headerRef = React.createRef<HTMLHeadingElement>();
 
   public componentDidMount() {
@@ -132,9 +134,12 @@ export default class SelectLocation extends React.Component<IProps, IState> {
   }
 
   public render() {
+    const showOwnershipFilter = this.props.ownership !== Ownership.any;
+    const showProvidersFilter = this.props.providers.length > 0;
+    const showFilters = showOwnershipFilter || showProvidersFilter;
     return (
       <BackAction icon="close" action={this.props.onClose}>
-        <Layout onClick={this.onClickAnywhere}>
+        <Layout>
           <StyledContainer>
             <NavigationContainer>
               <NavigationBar>
@@ -146,26 +151,17 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                     }
                   </TitleBarItem>
 
-                  <StyledFilterContainer ref={this.filterButtonRef}>
-                    <StyledFilterIconButton
-                      onClick={this.toggleFilterMenu}
-                      aria-label={messages.gettext('Filter')}>
-                      <ImageView
-                        source="icon-filter-round"
-                        tintColor={colors.white40}
-                        tintHoverColor={colors.white60}
-                        height={24}
-                        width={24}
-                      />
-                    </StyledFilterIconButton>
-                    {this.state.showFilterMenu && (
-                      <StyledFilterMenu>
-                        <StyledFilterByProviderButton onClick={this.props.onViewFilterByProvider}>
-                          {messages.pgettext('select-location-view', 'Filter by provider')}
-                        </StyledFilterByProviderButton>
-                      </StyledFilterMenu>
-                    )}
-                  </StyledFilterContainer>
+                  <StyledFilterIconButton
+                    onClick={this.props.onViewFilter}
+                    aria-label={messages.gettext('Filter')}>
+                    <ImageView
+                      source="icon-filter-round"
+                      tintColor={colors.white40}
+                      tintHoverColor={colors.white60}
+                      height={24}
+                      width={24}
+                    />
+                  </StyledFilterIconButton>
                 </NavigationItems>
               </NavigationBar>
               <NavigationScrollbars ref={this.scrollView}>
@@ -181,32 +177,52 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                       {this.renderHeaderSubtitle()}
                     </StyledSettingsHeader>
 
-                    {this.props.providers.length > 0 && (
-                      <StyledProviderCountRow>
+                    {showFilters && (
+                      <StyledFilterRow>
                         {messages.pgettext('select-location-view', 'Filtered:')}
-                        <StyledProvidersCount>
-                          {sprintf(
-                            messages.pgettext(
-                              'select-location-view',
-                              'Providers: %(numberOfProviders)d',
-                            ),
-                            {
-                              numberOfProviders: this.props.providers.length,
-                            },
-                          )}
-                          <StyledClearProvidersButton
-                            aria-label={messages.gettext('Clear')}
-                            onClick={this.props.onClearProviders}>
-                            <ImageView
-                              height={16}
-                              width={16}
-                              source="icon-close"
-                              tintColor={colors.white60}
-                              tintHoverColor={colors.white80}
-                            />
-                          </StyledClearProvidersButton>
-                        </StyledProvidersCount>
-                      </StyledProviderCountRow>
+
+                        {showOwnershipFilter && (
+                          <StyledFilter>
+                            {this.ownershipFilterLabel()}
+                            <StyledClearFilterButton
+                              aria-label={messages.gettext('Clear')}
+                              onClick={this.props.onClearOwnership}>
+                              <ImageView
+                                height={16}
+                                width={16}
+                                source="icon-close"
+                                tintColor={colors.white60}
+                                tintHoverColor={colors.white80}
+                              />
+                            </StyledClearFilterButton>
+                          </StyledFilter>
+                        )}
+
+                        {showProvidersFilter && (
+                          <StyledFilter>
+                            {sprintf(
+                              messages.pgettext(
+                                'select-location-view',
+                                'Providers: %(numberOfProviders)d',
+                              ),
+                              {
+                                numberOfProviders: this.props.providers.length,
+                              },
+                            )}
+                            <StyledClearFilterButton
+                              aria-label={messages.gettext('Clear')}
+                              onClick={this.props.onClearProviders}>
+                              <ImageView
+                                height={16}
+                                width={16}
+                                source="icon-close"
+                                tintColor={colors.white60}
+                                tintHoverColor={colors.white80}
+                              />
+                            </StyledClearFilterButton>
+                          </StyledFilter>
+                        )}
+                      </StyledFilterRow>
                     )}
                     {this.props.allowEntrySelection && (
                       <StyledScopeBar
@@ -239,6 +255,17 @@ export default class SelectLocation extends React.Component<IProps, IState> {
       this.scrollToPosition(...snapshot.scrollPosition);
     } else {
       this.scrollToSelectedCell();
+    }
+  }
+
+  private ownershipFilterLabel(): string {
+    switch (this.props.ownership) {
+      case Ownership.mullvadOwned:
+        return messages.pgettext('filter-view', 'Owned');
+      case Ownership.rented:
+        return messages.pgettext('filter-view', 'Rented');
+      default:
+        throw new Error('Only owned and rented should make label visible');
     }
   }
 
@@ -412,21 +439,6 @@ export default class SelectLocation extends React.Component<IProps, IState> {
     locationRect.height += expandedContentHeight;
     this.spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
     this.scrollView.current?.scrollIntoView(locationRect);
-  };
-
-  private toggleFilterMenu = () => {
-    this.setState((state) => ({
-      showFilterMenu: !state.showFilterMenu,
-    }));
-  };
-
-  private onClickAnywhere = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (
-      this.state.showFilterMenu &&
-      !this.filterButtonRef.current?.contains(event.target as HTMLElement)
-    ) {
-      this.setState({ showFilterMenu: false });
-    }
   };
 }
 

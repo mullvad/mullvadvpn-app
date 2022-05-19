@@ -36,6 +36,7 @@ import {
   IRelayList,
   ISettings,
   liftConstraint,
+  Ownership,
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -162,6 +163,7 @@ class ApplicationMain {
         location: 'any',
         tunnelProtocol: 'any',
         providers: [],
+        ownership: Ownership.any,
         openvpnConstraints: {
           port: 'any',
           protocol: 'any',
@@ -178,6 +180,7 @@ class ApplicationMain {
       normal: {
         location: 'any',
         providers: [],
+        ownership: Ownership.any,
       },
     },
     bridgeState: 'auto',
