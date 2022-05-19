@@ -33,14 +33,14 @@ final class Pinger {
         stop()
     }
 
-    func start(delay: DispatchTimeInterval, repeating repeatInterval: DispatchTimeInterval) -> Result<(), Pinger.Error> {
+    func start(delay: DispatchTimeInterval, repeating repeatInterval: DispatchTimeInterval) throws {
         stateLock.lock()
         defer { stateLock.unlock() }
 
         stop()
 
         guard let newSocket = CFSocketCreate(kCFAllocatorDefault, AF_INET, SOCK_DGRAM, IPPROTO_ICMP, 0, nil, nil) else {
-            return .failure(.createSocket)
+            throw Error.createSocket
         }
 
         let flags = CFSocketGetSocketFlags(newSocket)
@@ -48,12 +48,10 @@ final class Pinger {
             CFSocketSetSocketFlags(newSocket, flags | kCFSocketCloseOnInvalidate)
         }
 
-        if case .failure(let error) = bindSocket(newSocket) {
-            return .failure(error)
-        }
+        try bindSocket(newSocket)
 
         guard let runLoop = CFSocketCreateRunLoopSource(kCFAllocatorDefault, newSocket, 0) else {
-            return .failure(.createRunLoop)
+            throw Error.createRunLoop
         }
 
         CFRunLoopAddSource(CFRunLoopGetMain(), runLoop, .defaultMode)
@@ -68,8 +66,6 @@ final class Pinger {
 
         newTimer.schedule(wallDeadline: .now() + delay, repeating: repeatInterval)
         newTimer.resume()
-
-        return .success(())
     }
 
     func stop() {
@@ -135,15 +131,15 @@ final class Pinger {
         return nextSequenceNumber
     }
 
-    private func bindSocket(_ socket: CFSocket) -> Result<(), Pinger.Error> {
+    private func bindSocket(_ socket: CFSocket) throws {
         guard let interfaceName = interfaceName else {
             logger.debug("Interface is not specified.")
-            return .success(())
+            return
         }
 
         var index = if_nametoindex(interfaceName)
         guard index > 0 else {
-            return .failure(.mapInterfaceNameToIndex(errno))
+            throw Error.mapInterfaceNameToIndex(errno)
         }
 
         logger.debug("Bind socket to \"\(interfaceName)\" (index: \(index))...")
@@ -159,9 +155,7 @@ final class Pinger {
         if result == -1 {
             logger.error("Failed to bind socket to \"\(interfaceName)\" (index: \(index), errno: \(errno)).")
 
-            return .failure(.bindSocket(errno))
-        } else {
-            return .success(())
+            throw Error.bindSocket(errno)
         }
     }
 

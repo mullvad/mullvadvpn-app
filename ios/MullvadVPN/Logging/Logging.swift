@@ -19,7 +19,15 @@ func initLoggingSystem(bundleIdentifier: String, metadata: Logger.Metadata? = ni
     try? FileManager.default.createDirectory(at: logsDirectoryURL, withIntermediateDirectories: false, attributes: nil)
 
     // Rotate log
-    let logRotationResult = LogRotation.rotateLog(logsDirectory: logsDirectoryURL, logFileName: logFileName)
+    var logRotationError: Error?
+    do {
+        try LogRotation.rotateLog(
+           logsDirectory: logsDirectoryURL,
+           logFileName: logFileName
+       )
+    } catch {
+        logRotationError = error
+    }
 
     // Create an array of log output streams
     var streams: [TextOutputStream] = []
@@ -52,8 +60,10 @@ func initLoggingSystem(bundleIdentifier: String, metadata: Logger.Metadata? = ni
         }
     }
 
-    if case .failure(let logRotationError) = logRotationResult {
-        Logger(label: "LogRotation")
-            .error(chainedError: logRotationError, message: "Failed to rotate log")
+    if let logRotationError = logRotationError {
+        Logger(label: "LogRotation").error(
+            chainedError: AnyChainedError(logRotationError),
+            message: "Failed to rotate log"
+        )
     }
 }
