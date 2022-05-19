@@ -435,6 +435,7 @@ message TunnelOptions {
 		uint32 mtu = 1;
 		google.protobuf.Duration rotation_interval = 2;
 		bool use_wireguard_nt = 3;
+		bool use_pq_safe_psk = 4;
 	}
 	message GenericOptions {
 		bool enable_ipv6 = 1;
