@@ -241,25 +241,21 @@ extension RelayCache.Tracker {
     }
 
     /// Schedules app refresh task relative to the last relays update.
-    func scheduleAppRefreshTask() -> Result<(), RelayCache.Error> {
-        return readAndWait().flatMap { cachedRelays in
-            let beginDate = cachedRelays.updatedAt.addingTimeInterval(Self.relayUpdateInterval)
+    func scheduleAppRefreshTask() throws {
+        let cachedRelays = try readAndWait()
+        let beginDate = cachedRelays.updatedAt.addingTimeInterval(Self.relayUpdateInterval)
 
-            return self.submitAppRefreshTask(at: beginDate)
-        }
+        try submitAppRefreshTask(at: beginDate)
     }
 
     /// Create and submit task request to scheduler.
-    private func submitAppRefreshTask(at beginDate: Date) -> Result<(), RelayCache.Error> {
+    private func submitAppRefreshTask(at beginDate: Date) throws {
         let taskIdentifier = ApplicationConfiguration.appRefreshTaskIdentifier
 
         let request = BGAppRefreshTaskRequest(identifier: taskIdentifier)
         request.earliestBeginDate = beginDate
 
-        return Result { try BGTaskScheduler.shared.submit(request) }
-            .mapError { error in
-                return .backgroundTaskScheduler(error)
-            }
+        try BGTaskScheduler.shared.submit(request)
     }
 
     /// Background task handler
@@ -287,13 +283,15 @@ extension RelayCache.Tracker {
 
         // Schedule next refresh
         let scheduleDate = Date(timeIntervalSinceNow: Self.relayUpdateInterval)
+        do {
+            try submitAppRefreshTask(at: scheduleDate)
 
-        switch self.submitAppRefreshTask(at: scheduleDate) {
-        case .success:
             logger.debug("Scheduled next app refresh task at \(scheduleDate.logFormatDate()).")
-
-        case .failure(let error):
-            logger.error(chainedError: error, message: "Failed to schedule next app refresh task.")
+        } catch {
+            logger.error(
+                chainedError: AnyChainedError(error),
+                message: "Failed to schedule next app refresh task."
+            )
         }
     }
 }

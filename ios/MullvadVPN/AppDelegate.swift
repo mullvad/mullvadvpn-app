@@ -263,11 +263,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     @available(iOS 13.0, *)
     private func scheduleBackgroundTasks() {
-        switch RelayCache.Tracker.shared.scheduleAppRefreshTask() {
-        case .success:
-            self.logger?.debug("Scheduled app refresh task.")
-        case .failure(let error):
-            self.logger?.error(chainedError: error, message: "Could not schedule app refresh task.")
+        do {
+            try RelayCache.Tracker.shared.scheduleAppRefreshTask()
+
+            logger?.debug("Scheduled app refresh task.")
+        } catch {
+            logger?.error(
+                chainedError: AnyChainedError(error),
+                message: "Could not schedule app refresh task."
+            )
         }
 
         switch TunnelManager.shared.scheduleBackgroundTask() {
