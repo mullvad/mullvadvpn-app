@@ -198,7 +198,18 @@ impl TunnelMonitor {
         let monitor = wireguard::WireguardMonitor::start(
             runtime,
             config,
-            Some(params.connection.peer.public_key.clone()),
+            if params.options.use_pq_safe_psk {
+                Some(
+                    params
+                        .connection
+                        .exit_peer
+                        .as_ref()
+                        .map(|peer| peer.public_key.clone())
+                        .unwrap_or(params.connection.peer.public_key.clone()),
+                )
+            } else {
+                None
+            },
             log.as_deref(),
             resource_dir,
             on_event,

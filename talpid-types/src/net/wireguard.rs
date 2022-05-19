@@ -80,6 +80,8 @@ pub struct TunnelOptions {
         jnix(map = "|maybe_mtu| maybe_mtu.map(|mtu| mtu as i32)")
     )]
     pub mtu: Option<u16>,
+    /// Obtain a PSK using the relay config client.
+    pub use_pq_safe_psk: bool,
     /// Temporary switch for wireguard-nt
     #[cfg(windows)]
     #[serde(default = "default_wgnt_setting")]
@@ -96,6 +98,7 @@ impl Default for TunnelOptions {
     fn default() -> Self {
         Self {
             mtu: None,
+            use_pq_safe_psk: false,
             #[cfg(windows)]
             use_wireguard_nt: default_wgnt_setting(),
         }

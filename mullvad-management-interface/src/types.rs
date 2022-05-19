@@ -680,6 +680,7 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
                 use_wireguard_nt: options.wireguard.options.use_wireguard_nt,
                 #[cfg(not(windows))]
                 use_wireguard_nt: false,
+                use_pq_safe_psk: options.wireguard.options.use_pq_safe_psk,
             }),
             generic: Some(tunnel_options::GenericOptions {
                 enable_ipv6: options.generic.enable_ipv6,
@@ -1413,6 +1414,7 @@ impl TryFrom<TunnelOptions> for mullvad_types::settings::TunnelOptions {
                     } else {
                         None
                     },
+                    use_pq_safe_psk: wireguard_options.use_pq_safe_psk,
                     #[cfg(windows)]
                     use_wireguard_nt: wireguard_options.use_wireguard_nt,
                 },
