@@ -373,6 +373,17 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_settings_error)
     }
 
+    async fn set_quantum_resistant_tunnel(&self, request: Request<bool>) -> ServiceResult<()> {
+        let enable = request.into_inner();
+        log::debug!("set_quantum_resistant_tunnel({})", enable);
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetQuantumResistantTunnel(tx, enable))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_settings_error)
+    }
+
     #[cfg(not(target_os = "android"))]
     async fn set_dns_options(&self, request: Request<types::DnsOptions>) -> ServiceResult<()> {
         let options = DnsOptions::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
