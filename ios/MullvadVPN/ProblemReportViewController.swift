@@ -57,7 +57,8 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         textLabel.text = NSLocalizedString(
             "SUBHEAD_LABEL",
             tableName: "ProblemReport",
-            comment: "Subhead label displayed below navigation title."
+            value: "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.",
+            comment: ""
         )
         return textLabel
     }()
@@ -79,7 +80,8 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         textField.placeholder = NSLocalizedString(
             "EMAIL_TEXTFIELD_PLACEHOLDER",
             tableName: "ProblemReport",
-            comment: "Placeholder for email text field."
+            value: "Your email (optional)",
+            comment: ""
         )
 
         return textField
@@ -94,7 +96,8 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         textView.placeholder = NSLocalizedString(
             "DESCRIPTION_TEXTVIEW_PLACEHOLDER",
             tableName: "ProblemReport",
-            comment: "Placeholder for description text view."
+            value: "Please describe your problem in English or Swedish",
+            comment: ""
         )
         textView.contentInsetAdjustmentBehavior = .never
 
@@ -142,7 +145,8 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         button.setTitle(NSLocalizedString(
             "VIEW_APP_LOGS_BUTTON_TITLE",
             tableName: "ProblemReport",
-            comment: "Title for button to view application logs"
+            value: "View app logs",
+            comment: ""
         ), for: .normal)
         button.addTarget(self, action: #selector(handleViewLogsButtonTap), for: .touchUpInside)
         return button
@@ -154,7 +158,8 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         button.setTitle(NSLocalizedString(
             "SEND_BUTTON_TITLE",
             tableName: "ProblemReport",
-            comment: "Title for button to send problem report."
+            value: "Send",
+            comment: ""
         ), for: .normal)
         button.addTarget(self, action: #selector(handleSendButtonTap), for: .touchUpInside)
         return button
@@ -199,7 +204,12 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
         view.backgroundColor = .secondaryColor
 
-        navigationItem.title = NSLocalizedString("NAVIGATION_TITLE", tableName: "ProblemReport", comment: "Navigation title")
+        navigationItem.title = NSLocalizedString(
+            "NAVIGATION_TITLE",
+            tableName: "ProblemReport",
+            value: "Report a problem",
+            comment: ""
+        )
 
         textViewKeyboardResponder = AutomaticKeyboardResponder(targetView: messageTextView)
         scrollViewKeyboardResponder = AutomaticKeyboardResponder(targetView: scrollView)
@@ -452,23 +462,32 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         let message = NSLocalizedString(
             "EMPTY_EMAIL_ALERT_MESSAGE",
             tableName: "ProblemReport",
-            comment: "Alert message warning users that they atttempt to send problem report without email address filled in."
+            value: "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.",
+            comment: ""
         )
 
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
 
-        let cancelAction = UIAlertAction(title: NSLocalizedString(
-            "EMPTY_EMAIL_ALERT_CANCEL_ACTION",
-            tableName: "ProblemReport",
-            comment: "Cancel button."
-        ), style: .cancel) { _ in
+        let cancelAction = UIAlertAction(
+            title: NSLocalizedString(
+                "EMPTY_EMAIL_ALERT_CANCEL_ACTION",
+                tableName: "ProblemReport",
+                value: "Cancel",
+                comment: ""
+            ),
+            style: .cancel
+        ) { _ in
             completion(false)
         }
-        let sendAction = UIAlertAction(title: NSLocalizedString(
-            "EMPTY_EMAIL_ALERT_SEND_ANYWAY_ACTION",
-            tableName: "ProblemReport",
-            comment: "Title for button to send problem report without email address filled in."
-        ), style: .destructive) { _ in
+        let sendAction = UIAlertAction(
+            title: NSLocalizedString(
+                "EMPTY_EMAIL_ALERT_SEND_ANYWAY_ACTION",
+                tableName: "ProblemReport",
+                value: "Send anyway",
+                comment: ""
+            ),
+            style: .destructive
+        ) { _ in
             completion(true)
         }
 

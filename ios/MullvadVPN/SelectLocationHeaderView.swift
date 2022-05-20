@@ -19,7 +19,8 @@ class SelectLocationHeaderView: UIView {
         textLabel.text = NSLocalizedString(
             "SUBHEAD_LABEL",
             tableName: "SelectLocation",
-            comment: "Subhead label displayed below navigation title."
+            value: "While connected, your real location is masked with a private and secure location in the selected region",
+            comment: ""
         )
         return textLabel
     }()

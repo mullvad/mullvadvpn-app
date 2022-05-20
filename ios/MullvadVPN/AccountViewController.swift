@@ -80,7 +80,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
             tableName: "Account",
-            comment: "Navigation title"
+            value: "Account",
+            comment: ""
         )
 
         contentView.accountTokenRowView.value = TunnelManager.shared.accountNumber.map { string in
@@ -152,7 +153,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             "PURCHASE_BUTTON_TITLE_FORMAT",
             tableName: "Account",
             value: "%1$@ (%2$@)",
-            comment: "Purchase button title: <TITLE> (<PRICE>). The order can be changed by swapping %1 and %2."
+            comment: ""
         )
         let title = String(format: format, localizedTitle, localizedPrice)
 
@@ -164,7 +165,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             "PURCHASE_BUTTON_CANNOT_CONNECT_TO_APPSTORE_LABEL",
             tableName: "Account",
             value: "Cannot connect to AppStore",
-            comment: "Purchase button title displayed when unable to load the price of in-app purchase."
+            comment: ""
         )
 
         contentView.purchaseButton.setTitle(title, for: .normal)
@@ -175,7 +176,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             "PURCHASE_BUTTON_PAYMENTS_RESTRICTED_LABEL",
             tableName: "Account",
             value: "Payments restricted",
-            comment: "Purchase button title displayed when payments are restriced on device."
+            comment: ""
         )
 
         contentView.purchaseButton.setTitle(title, for: .normal)
@@ -238,12 +239,14 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             title: NSLocalizedString(
                 "LOGOUT_CONFIRMATION_ALERT_TITLE",
                 tableName: "Account",
-                comment: "Title for logout dialog"
+                value: "Log out",
+                comment: ""
             ),
             message: NSLocalizedString(
                 "LOGOUT_CONFIRMATION_ALERT_MESSAGE",
                 tableName: "Account",
-                comment: "Message for logout dialog"
+                value: "Are you sure you want to log out?\n\nThis will erase the account number from this device. It is not possible for us to recover it for you. Make sure you have your account number saved somewhere, to be able to log back in.",
+                comment: ""
             ),
             preferredStyle: .alert
         )
@@ -254,7 +257,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
                     "LOGOUT_CONFIRMATION_ALERT_CANCEL_ACTION",
                     tableName: "Account",
                     value: "Cancel",
-                    comment: "Title for cancel button in logout dialog"
+                    comment: ""
                 ),
                 style: .cancel,
                 handler: { (alertAction) in
@@ -268,7 +271,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
                     "LOGOUT_CONFIRMATION_ALERT_YES_ACTION",
                     tableName: "Account",
                     value: "Log out",
-                    comment: "Title for confirmation button in logout dialog"
+                    comment: ""
                 ),
                 style: .destructive,
                 handler: { (alertAction) in
@@ -284,7 +287,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             "LOGGING_OUT_ALERT_TITLE",
             tableName: "Account",
             value: "Logging out. Please wait...",
-            comment: "Modal message displayed during logout"
+            comment: ""
         )
 
         let alertController = UIAlertController(
@@ -326,7 +329,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
                 "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
                 tableName: "Account",
                 value: "Cannot complete the purchase",
-                comment: "Title for purchase failure dialog"
+                comment: ""
             ),
             message: error.errorChainDescription,
             preferredStyle: .alert
@@ -338,7 +341,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
                     "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
                     tableName: "Account",
                     value: "OK",
-                    comment: "Title for OK button in purchase failure dialog"
+                    comment: ""
                 ), style: .cancel)
         )
 
@@ -374,7 +377,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         contentView.accountTokenRowView.value = NSLocalizedString(
             "COPIED_TO_PASTEBOARD_LABEL",
             tableName: "Account",
-            comment: "Message, temporarily displayed in place account token, after copying the account token to pasteboard on tap."
+            value: "COPIED TO PASTEBOARD!",
+            comment: ""
         )
 
         let workItem = DispatchWorkItem { [weak self] in
@@ -416,7 +420,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
                         "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
                         tableName: "Account",
                         value: "Cannot restore purchases",
-                        comment: "Title for failure dialog when restoring purchases"
+                        comment: ""
                     ),
                     message: error.errorChainDescription,
                     preferredStyle: .alert
@@ -426,7 +430,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
                         "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
                         tableName: "Account",
                         value: "OK",
-                        comment: "Title for 'OK' button in failure dialog when restoring purchases"
+                        comment: ""
                     ), style: .cancel)
                 )
                 self.alertPresenter.enqueue(alertController, presentingController: self)
@@ -459,13 +463,14 @@ private extension REST.CreateApplePaymentResponse {
                 "TIME_ADDED_ALERT_SUCCESS_TITLE",
                 tableName: "Account",
                 value: "Thanks for your purchase",
-                comment: "Title for purchase completion dialog"
+                comment: ""
             )
         case .restoration:
             return NSLocalizedString(
                 "RESTORE_PURCHASES_ALERT_TITLE",
-                tableName: "Account", value: "Restore purchases",
-                comment: "Title for purchase restoration dialog"
+                tableName: "Account",
+                value: "Restore purchases",
+                comment: ""
             )
         }
     }
@@ -478,7 +483,7 @@ private extension REST.CreateApplePaymentResponse {
                     "TIME_ADDED_ALERT_SUCCESS_MESSAGE",
                     tableName: "Account",
                     value: "%@ have been added to your account",
-                    comment: "Message displayed upon successful purchase and containing the time duration credited to user account. Use %@ placeholder to position the localized text with duration added (i.e '30 days')"
+                    comment: ""
                 ),
                 formattedTimeAdded ?? ""
             )
@@ -489,7 +494,7 @@ private extension REST.CreateApplePaymentResponse {
                     "RESTORE_PURCHASES_ALERT_NO_TIME_ADDED_MESSAGE",
                     tableName: "Account",
                     value: "Your previous purchases have already been added to this account.",
-                    comment: "Message displayed when no time credited to user account during purchase restoration; communicates that user account has already been credited with all outstanding purchased time duration."
+                    comment: ""
                 )
             case .timeAdded:
                 return String(
@@ -497,7 +502,7 @@ private extension REST.CreateApplePaymentResponse {
                         "RESTORE_PURCHASES_ALERT_TIME_ADDED_MESSAGE",
                         tableName: "Account",
                         value: "%@ have been added to your account",
-                        comment: "Message displayed upon successful restoration of existing purchases, containing the time duration credited to user account. Use %@ placeholder to position the localized text with duration added (i.e '30 days')"
+                        comment: ""
                     ),
                     formattedTimeAdded ?? ""
                 )

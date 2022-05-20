@@ -17,7 +17,12 @@ class ConsentContentView: UIView {
         titleLabel.numberOfLines = 0
         titleLabel.textColor = .white
         titleLabel.allowsDefaultTighteningForTruncation = true
-        titleLabel.text = NSLocalizedString("PRIVACY_NOTICE_HEADING", tableName: "Consent", comment: "Heading.")
+        titleLabel.text = NSLocalizedString(
+            "PRIVACY_NOTICE_HEADING",
+            tableName: "Consent",
+            value: "Do you agree to remaining anonymous?",
+            comment: ""
+        )
         titleLabel.lineBreakMode = .byWordWrapping
         if #available(iOS 14.0, *) {
             // Disable the new line break strategy used by UIKit that moves at least two words
@@ -34,7 +39,12 @@ class ConsentContentView: UIView {
         bodyLabel.font = UIFont.systemFont(ofSize: 18)
         bodyLabel.textColor = .white
         bodyLabel.numberOfLines = 0
-        bodyLabel.text = NSLocalizedString("PRIVACY_NOTICE_BODY", tableName: "Consent", comment: "Body.")
+        bodyLabel.text = NSLocalizedString(
+            "PRIVACY_NOTICE_BODY",
+            tableName: "Consent",
+            value: "You have a right to privacy. That’s why we never store activity logs, don't ask for personal information, and encourage anonymous payments.\n\nIn some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.\n\nWe strongly believe in retaining as little data as possible because we want you to remain anonymous.",
+            comment: ""
+        )
         return bodyLabel
     }()
 
@@ -44,7 +54,8 @@ class ConsentContentView: UIView {
         button.titleString = NSLocalizedString(
             "PRIVACY_POLICY_LINK_TITLE",
             tableName: "Consent",
-            comment: "Title for link to privacy policy web page."
+            value: "Privacy policy",
+            comment: ""
         )
         button.setImage(UIImage(named: "IconExtlink"), for: .normal)
         return button
@@ -57,7 +68,8 @@ class ConsentContentView: UIView {
         button.setTitle(NSLocalizedString(
             "CONTINUE_BUTTON_TITLE",
             tableName: "Consent",
-            comment: "Title for button used for agreeing with privacy notice."
+            value: "Agree and continue",
+            comment: ""
         ), for: .normal)
         return button
     }()

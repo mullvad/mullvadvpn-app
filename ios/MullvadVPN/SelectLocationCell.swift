@@ -224,8 +224,18 @@ class SelectLocationCell: UITableViewCell {
     private func updateAccessibilityCustomActions() {
         if showsCollapseControl {
             let actionName = isExpanded
-                ? NSLocalizedString("SELECT_LOCATION_COLLAPSE_ACCESSIBILITY_ACTION", tableName: "SelectLocation", comment: "")
-                : NSLocalizedString("SELECT_LOCATION_EXPAND_ACCESSIBILITY_ACTION", tableName: "SelectLocation", comment: "")
+                ? NSLocalizedString(
+                    "SELECT_LOCATION_COLLAPSE_ACCESSIBILITY_ACTION",
+                    tableName: "SelectLocation",
+                    value: "Collapse location",
+                    comment: ""
+                )
+                : NSLocalizedString(
+                    "SELECT_LOCATION_EXPAND_ACCESSIBILITY_ACTION",
+                    tableName: "SelectLocation",
+                    value: "Expand location",
+                    comment: ""
+                )
 
             accessibilityCustomActions = [
                 UIAccessibilityCustomAction(name: actionName, target: self, selector: #selector(toggleCollapseAccessibilityAction))

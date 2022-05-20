@@ -1,14 +1,5 @@
-/* Message for in-app notification, displayed within the last 3 days until account expiry. */
-"ACCOUNT_EXPIRY_INAPP_NOTIFICATION_BODY" = "%@ left. Buy more credit.";
-
-/* Title for in-app notification, displayed within the last 3 days until account expiry. */
-"ACCOUNT_EXPIRY_INAPP_NOTIFICATION_TITLE" = "ACCOUNT CREDIT EXPIRES SOON";
-
 /* Message for system account expiry notification, fired 3 days prior to account expiry. */
 "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY" = "Account credit expires in 3 days. Buy more credit.";
 
 /* Title for system account expiry notification, fired 3 days prior to account expiry. */
 "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE" = "Account credit expires soon";
-
-/* No comment provided by engineer. */
-"TUNNEL_ERROR_INAPP_NOTIFICATION_TITLE" = "Tunnel error";

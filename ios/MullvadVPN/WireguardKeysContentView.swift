@@ -17,6 +17,7 @@ class WireguardKeysContentView: UIView {
             NSLocalizedString(
                 "REGENERATE_KEY_BUTTON_TITLE",
                 tableName: "WireguardKeys",
+                value: "Regenerate key",
                 comment: ""
             ),
             for: .normal
@@ -31,6 +32,7 @@ class WireguardKeysContentView: UIView {
             NSLocalizedString(
                 "VERIFY_KEY_BUTTON_TITLE",
                 tableName: "WireguardKeys",
+                value: "Verify key",
                 comment: ""
             ),
             for: .normal
@@ -112,7 +114,12 @@ class WireguardKeysPublicKeyRow: UIView {
     private let textLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.text = NSLocalizedString("PUBLIC_KEY_LABEL", tableName: "WireguardKeys", comment: "")
+        textLabel.text = NSLocalizedString(
+            "PUBLIC_KEY_LABEL",
+            tableName: "WireguardKeys",
+            value: "Public key",
+            comment: ""
+        )
         textLabel.font = UIFont.systemFont(ofSize: 14)
         textLabel.textColor = UIColor(white: 1.0, alpha: 0.6)
         return textLabel
@@ -125,7 +132,12 @@ class WireguardKeysPublicKeyRow: UIView {
         button.setTitleColor(.white, for: .normal)
         button.contentHorizontalAlignment = .leading
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 1)
-        button.accessibilityHint = NSLocalizedString("PUBLIC_KEY_ACCESSIBILITY_HINT", tableName: "WireguardKeys", comment: "")
+        button.accessibilityHint = NSLocalizedString(
+            "PUBLIC_KEY_ACCESSIBILITY_HINT",
+            tableName: "WireguardKeys",
+            value: "Tap to copy to pasteboard.",
+            comment: ""
+        )
         return button
     }()
 
@@ -164,10 +176,17 @@ class WireguardKeysPublicKeyRow: UIView {
 
         let actionName = NSLocalizedString(
             "ACCOUNT_TOKEN_ACCESSIBILITY_ACTION_TITLE",
-            tableName: "Account",
+            tableName: "WireguardKeys",
+            value: "Copy account token to pasteboard",
             comment: ""
         )
-        accessibilityCustomActions = [UIAccessibilityCustomAction(name: actionName, target: self, selector: #selector(performAccessibilityAction))]
+        accessibilityCustomActions = [
+            UIAccessibilityCustomAction(
+                name: actionName,
+                target: self,
+                selector: #selector(performAccessibilityAction)
+            )
+        ]
 
         valueButton.addTarget(self, action: #selector(handleTap), for: .touchUpInside)
     }
@@ -187,6 +206,7 @@ class WireguardKeysPublicKeyRow: UIView {
                     NSLocalizedString(
                         "KEY_STATUS_VALID",
                         tableName: "WireguardKeys",
+                        value: "Key is valid",
                         comment: ""
                     )
                 )
@@ -195,6 +215,7 @@ class WireguardKeysPublicKeyRow: UIView {
                     NSLocalizedString(
                         "KEY_STATUS_INVALID",
                         tableName: "WireguardKeys",
+                        value: "Key is invalid",
                         comment: ""
                     )
                 )
@@ -225,7 +246,12 @@ class WireguardKeysCreationRow: UIView {
     private let textLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.text = NSLocalizedString("KEY_GENERATED_LABEL", tableName: "WireguardKeys", comment: "")
+        textLabel.text = NSLocalizedString(
+            "KEY_GENERATED_LABEL",
+            tableName: "WireguardKeys",
+            value: "Key generated",
+            comment: ""
+        )
         textLabel.font = UIFont.systemFont(ofSize: 14)
         textLabel.textColor = UIColor(white: 1.0, alpha: 0.6)
         return textLabel
@@ -336,6 +362,7 @@ class WireguardKeyStatusView: UIView {
                 textLabel.text = NSLocalizedString(
                     "KEY_STATUS_VALID",
                     tableName: "WireguardKeys",
+                    value: "Key is valid",
                     comment: ""
                 )
                 textLabel.textColor = .successColor
@@ -343,6 +370,7 @@ class WireguardKeyStatusView: UIView {
                 textLabel.text = NSLocalizedString(
                     "KEY_STATUS_INVALID",
                     tableName: "WireguardKeys",
+                    value: "Key is invalid",
                     comment: ""
                 )
                 textLabel.textColor = .dangerColor

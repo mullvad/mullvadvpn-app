@@ -24,7 +24,7 @@ class AccountInputGroupView: UIView {
             "ACCOUNT_INPUT_LOGIN_BUTTON_ACCESSIBILITY_LABEL",
             tableName: "AccountInput",
             value: "Log in",
-            comment: "Accessibility label for submit button in account token input."
+            comment: ""
         )
         return button
     }()
