@@ -573,7 +573,24 @@ impl Relay {
         }
         if let Some(entry) = matches.values_of("entry location") {
             wireguard_constraints.entry_location = parse_entry_location_constraint(entry);
-            wireguard_constraints.use_multihop = wireguard_constraints.entry_location.is_some();
+            let use_multihop = wireguard_constraints.entry_location.is_some();
+            if use_multihop {
+                let use_pq = rpc
+                    .get_settings(())
+                    .await?
+                    .into_inner()
+                    .tunnel_options
+                    .unwrap()
+                    .wireguard
+                    .unwrap()
+                    .use_pq_safe_psk;
+                if use_pq {
+                    return Err(Error::CommandFailed(
+                        "PQ PSK exchange does not work when multihop is enabled",
+                    ));
+                }
+            }
+            wireguard_constraints.use_multihop = use_multihop;
         }
 
         self.update_constraints(types::RelaySettingsUpdate {

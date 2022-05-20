@@ -236,6 +236,22 @@ impl SettingsPersister {
         self.update(should_save).await
     }
 
+    pub async fn set_quantum_resistant_tunnel(
+        &mut self,
+        use_pq_safe_psk: bool,
+    ) -> Result<bool, Error> {
+        let should_save = Self::update_field(
+            &mut self
+                .settings
+                .tunnel_options
+                .wireguard
+                .options
+                .use_pq_safe_psk,
+            use_pq_safe_psk,
+        );
+        self.update(should_save).await
+    }
+
     pub async fn set_dns_options(&mut self, options: DnsOptions) -> Result<bool, Error> {
         let should_save =
             Self::update_field(&mut self.settings.tunnel_options.dns_options, options);
