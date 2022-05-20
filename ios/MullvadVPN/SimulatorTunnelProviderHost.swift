@@ -83,26 +83,29 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     }
 
     private func pickRelay() -> RelaySelectorResult? {
-        switch RelayCache.Tracker.shared.readAndWait() {
-        case .success(let cachedRelays):
-            do {
-                let tunnelSettings = try SettingsManager.readSettings()
+        let cachedRelays: RelayCache.CachedRelays
+        do {
+            cachedRelays = try RelayCache.Tracker.shared.readAndWait()
+        } catch {
+            providerLogger.error(
+                chainedError: AnyChainedError(error),
+                message: "Failed to read relays when picking relay."
+            )
+            return nil
+        }
 
-                return RelaySelector.evaluate(
-                    relays: cachedRelays.relays,
-                    constraints: tunnelSettings.relayConstraints
-                )
-            } catch {
-                providerLogger.error(
-                    chainedError: AnyChainedError(error),
-                    message: "Failed to read settings when picking relay."
-                )
+        do {
+            let tunnelSettings = try SettingsManager.readSettings()
 
-                return nil
-            }
-
-        case .failure(let error):
-            self.providerLogger.error(chainedError: error, message: "Failed to read relays when picking relay.")
+            return RelaySelector.evaluate(
+                relays: cachedRelays.relays,
+                constraints: tunnelSettings.relayConstraints
+            )
+        } catch {
+            providerLogger.error(
+                chainedError: AnyChainedError(error),
+                message: "Failed to read settings when picking relay."
+            )
             return nil
         }
     }
