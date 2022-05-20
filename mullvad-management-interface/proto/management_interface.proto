@@ -43,6 +43,7 @@ service ManagementService {
 	rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+	rpc SetQuantumResistantTunnel(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 	rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
 
 	// Account management
