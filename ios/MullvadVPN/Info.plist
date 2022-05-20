@@ -4,6 +4,11 @@
 <dict>
 	<key>ApplicationSecurityGroupIdentifier</key>
 	<string>$(SECURITY_GROUP_IDENTIFIER)</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<true/>
+	</dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>net.mullvad.MullvadVPN.AppRefresh</string>
