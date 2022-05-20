@@ -262,24 +262,28 @@ final class TunnelManager {
         _refreshTunnelStatus()
     }
 
-    func startTunnel() {
+    func startTunnel(completionHandler: ((OperationCompletion<(), Error>) -> Void)? = nil) {
         let operation = StartTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
             completionHandler: { [weak self] completion in
-                guard let self = self, let error = completion.error else { return }
-
-                self.logger.error(
-                    chainedError: AnyChainedError(error),
-                    message: "Failed to start the tunnel."
-                )
+                guard let self = self else { return }
 
                 DispatchQueue.main.async {
-                    let tunnelError = StartTunnelError(underlyingError: error)
+                    if let error = completion.error {
+                        self.logger.error(
+                            chainedError: AnyChainedError(error),
+                            message: "Failed to start the tunnel."
+                        )
 
-                    self.observerList.forEach { observer in
-                        observer.tunnelManager(self, didFailWithError: tunnelError)
+                        let tunnelError = StartTunnelError(underlyingError: error)
+
+                        self.observerList.forEach { observer in
+                            observer.tunnelManager(self, didFailWithError: tunnelError)
+                        }
                     }
+
+                    completionHandler?(completion)
                 }
             })
 
@@ -289,24 +293,28 @@ final class TunnelManager {
         operationQueue.addOperation(operation)
     }
 
-    func stopTunnel() {
+    func stopTunnel(completionHandler: ((OperationCompletion<(), Error>) -> Void)? = nil) {
         let operation = StopTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self)
         ) { [weak self] completion in
-            guard let self = self, let error = completion.error else { return }
-
-            self.logger.error(
-                chainedError: AnyChainedError(error),
-                message: "Failed to stop the tunnel."
-            )
+            guard let self = self else { return }
 
             DispatchQueue.main.async {
-                let tunnelError = StopTunnelError(underlyingError: error)
+                if let error = completion.error {
+                    self.logger.error(
+                        chainedError: AnyChainedError(error),
+                        message: "Failed to stop the tunnel."
+                    )
 
-                self.observerList.forEach { observer in
-                    observer.tunnelManager(self, didFailWithError: tunnelError)
+                    let tunnelError = StopTunnelError(underlyingError: error)
+
+                    self.observerList.forEach { observer in
+                        observer.tunnelManager(self, didFailWithError: tunnelError)
+                    }
                 }
+
+                completionHandler?(completion)
             }
         }
 

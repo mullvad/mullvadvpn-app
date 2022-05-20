@@ -30,6 +30,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add revoked device view displayed when the app detects that device is no longer registered on
   backend.
 - Add ability to manage registered devices if too many devices detected during log-in.
+- Add intents: start VPN, stop VPN, reconnect VPN (acts as start VPN when the tunnel is down, 
+  otherwise picks new relay).
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.

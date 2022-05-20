@@ -10,6 +10,7 @@ import UIKit
 import BackgroundTasks
 import StoreKit
 import UserNotifications
+import Intents
 import Logging
 
 @UIApplicationMain
@@ -78,6 +79,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         return true
+    }
+
+    func application(_ application: UIApplication, handlerFor intent: INIntent) -> Any? {
+        switch intent {
+        case is StartVPNIntent:
+            return StartVPNIntentHandler()
+        case is StopVPNIntent:
+            return StopVPNIntentHandler()
+        case is ReconnectVPNIntent:
+            return ReconnectVPNIntentHandler()
+        default:
+            return nil
+        }
     }
 
     func application(
