@@ -40,6 +40,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Be more scrupulous about removing temporary files used by the installer and uninstaller.
 
+#### Android
+- Fix unused dependencies loaded in the service/tile DI graph.
+
 ### Security
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected
