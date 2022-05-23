@@ -225,7 +225,11 @@ impl TunnelMonitor {
                         match device {
                             Some(device) => {
                                 let mtu = route_manager.get_device_mtu(device.to_string()).await.map_err(|_| Error::AssignMtuError)?;
-                                params.options.mtu = Some(mtu);
+                                if mtu != 1500 {
+                                    log::log!("Found MTU: {} on device {} which is different from 1500", mtu, device);
+                                }
+                                let upstream_mtu = min(1400, mtu);
+                                params.options.mtu = Some(upstream_mtu);
                                 return Ok(());
                             }
                             None => {
