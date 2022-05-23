@@ -8,7 +8,7 @@ use std::{
 };
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
-use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
+use talpid_types::net::{wireguard as wireguard_types, AllowedTunnelTraffic, TunnelParameters};
 
 #[cfg(target_os = "android")]
 pub use self::tun_provider::TunConfig;
@@ -73,7 +73,7 @@ pub enum TunnelEvent {
     /// Sent when the tunnel fails to connect due to an authentication error.
     AuthFailed(Option<String>),
     /// Sent when the tunnel interface has been created, before routes are set up.
-    InterfaceUp(TunnelMetadata),
+    InterfaceUp(TunnelMetadata, AllowedTunnelTraffic),
     /// Sent when the tunnel comes up and is ready for traffic.
     Up(TunnelMetadata),
     /// Sent when the tunnel goes down.

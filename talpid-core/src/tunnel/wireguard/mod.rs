@@ -20,7 +20,7 @@ use std::env;
 use std::io;
 use std::{
     convert::Infallible,
-    net::IpAddr,
+    net::{IpAddr, SocketAddrV4},
     path::Path,
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
@@ -28,7 +28,7 @@ use std::{
 #[cfg(windows)]
 use talpid_types::BoxedError;
 use talpid_types::{
-    net::{obfuscation::ObfuscatorConfig, wireguard::PublicKey},
+    net::{obfuscation::ObfuscatorConfig, wireguard::PublicKey, AllowedTunnelTraffic, Protocol},
     ErrorExt,
 };
 use tunnel_obfuscation::{
@@ -272,7 +272,18 @@ impl WireguardMonitor {
                 }
             }
 
-            (on_event)(TunnelEvent::InterfaceUp(metadata.clone())).await;
+            let allowed_traffic = if psk_negotiation.is_some() {
+                AllowedTunnelTraffic::Only(
+                    SocketAddrV4::new(config.ipv4_gateway, 1337).into(),
+                    Protocol::Tcp,
+                )
+            } else {
+                AllowedTunnelTraffic::Only(
+                    SocketAddrV4::new(config.ipv4_gateway, 0).into(),
+                    Protocol::IcmpV4,
+                )
+            };
+            (on_event)(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic)).await;
 
             // Add non-default routes before establishing the tunnel.
             #[cfg(target_os = "linux")]
@@ -325,6 +336,12 @@ impl WireguardMonitor {
                         .map_err(Error::TunnelError)
                         .map_err(CloseMsg::SetupError)?;
                 }
+
+                let allowed_traffic = AllowedTunnelTraffic::Only(
+                    SocketAddrV4::new(config.ipv4_gateway, 0).into(),
+                    Protocol::IcmpV4,
+                );
+                (on_event)(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic)).await;
             }
 
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {

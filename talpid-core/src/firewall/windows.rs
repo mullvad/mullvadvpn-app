@@ -6,7 +6,7 @@ use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use crate::winnet;
 use talpid_types::{
-    net::{AllowedEndpoint, Endpoint},
+    net::{AllowedEndpoint, AllowedTunnelTraffic, Endpoint},
     tunnel::FirewallPolicyError,
 };
 use widestring::WideCString;
@@ -102,6 +102,7 @@ impl Firewall {
                 tunnel,
                 allow_lan,
                 allowed_endpoint,
+                allowed_tunnel_traffic,
                 relay_client,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
@@ -111,6 +112,7 @@ impl Firewall {
                     &cfg,
                     &tunnel,
                     &WinFwAllowedEndpointContainer::from(allowed_endpoint).as_endpoint(),
+                    &allowed_tunnel_traffic,
                     &relay_client,
                 )
             }
@@ -148,6 +150,7 @@ impl Firewall {
         winfw_settings: &WinFwSettings,
         tunnel_metadata: &Option<TunnelMetadata>,
         allowed_endpoint: &WinFwAllowedEndpoint<'_>,
+        allowed_tunnel_traffic: &AllowedTunnelTraffic,
         relay_client: &Path,
     ) -> Result<(), Error> {
         log::trace!("Applying 'connecting' firewall policy");
@@ -169,6 +172,26 @@ impl Firewall {
             ptr::null()
         };
 
+        let allowed_tun_ip;
+        let allowed_tunnel_endpoint =
+            if let AllowedTunnelTraffic::Only(addr, proto) = allowed_tunnel_traffic {
+                allowed_tun_ip = widestring_ip(addr.ip());
+                Some(WinFwEndpoint {
+                    ip: allowed_tun_ip.as_ptr(),
+                    port: addr.port(),
+                    protocol: WinFwProt::from(*proto),
+                })
+            } else {
+                None
+            };
+        let allowed_tunnel_traffic = WinFwAllowedTunnelTraffic {
+            type_: WinFwAllowedTunnelTrafficType::from(allowed_tunnel_traffic),
+            endpoint: allowed_tunnel_endpoint
+                .as_ref()
+                .map(|ep| ep as *const _)
+                .unwrap_or(ptr::null()),
+        };
+
         unsafe {
             WinFw_ApplyPolicyConnecting(
                 winfw_settings,
@@ -176,6 +199,7 @@ impl Firewall {
                 relay_client.as_ptr(),
                 interface_wstr_ptr,
                 allowed_endpoint,
+                &allowed_tunnel_traffic,
             )
             .into_result()
             .map_err(Error::ApplyingConnectingPolicy)
@@ -276,10 +300,10 @@ fn widestring_ip(ip: IpAddr) -> WideCString {
 
 #[allow(non_snake_case)]
 mod winfw {
-    use super::{widestring_ip, AllowedEndpoint, Error, WideCString};
+    use super::{widestring_ip, AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString};
     use crate::logging::windows::LogSink;
     use libc;
-    use talpid_types::net::TransportProtocol;
+    use talpid_types::net::{Protocol, TransportProtocol};
 
     pub struct WinFwAllowedEndpointContainer {
         _clients: Box<[WideCString]>,
@@ -338,6 +362,30 @@ mod winfw {
     }
 
     #[repr(C)]
+    pub struct WinFwAllowedTunnelTraffic {
+        pub type_: WinFwAllowedTunnelTrafficType,
+        pub endpoint: *const WinFwEndpoint,
+    }
+
+    #[repr(u8)]
+    #[derive(Clone, Copy)]
+    pub enum WinFwAllowedTunnelTrafficType {
+        None,
+        All,
+        Only,
+    }
+
+    impl From<&AllowedTunnelTraffic> for WinFwAllowedTunnelTrafficType {
+        fn from(traffic: &AllowedTunnelTraffic) -> Self {
+            match traffic {
+                AllowedTunnelTraffic::None => WinFwAllowedTunnelTrafficType::None,
+                AllowedTunnelTraffic::All => WinFwAllowedTunnelTrafficType::All,
+                AllowedTunnelTraffic::Only(..) => WinFwAllowedTunnelTrafficType::Only,
+            }
+        }
+    }
+
+    #[repr(C)]
     pub struct WinFwEndpoint {
         pub ip: *const libc::wchar_t,
         pub port: u16,
@@ -349,6 +397,8 @@ mod winfw {
     pub enum WinFwProt {
         Tcp = 0u8,
         Udp = 1u8,
+        IcmpV4 = 2u8,
+        IcmpV6 = 3u8,
     }
 
     impl From<TransportProtocol> for WinFwProt {
@@ -356,6 +406,17 @@ mod winfw {
             match prot {
                 TransportProtocol::Tcp => WinFwProt::Tcp,
                 TransportProtocol::Udp => WinFwProt::Udp,
+            }
+        }
+    }
+
+    impl From<Protocol> for WinFwProt {
+        fn from(prot: Protocol) -> WinFwProt {
+            match prot {
+                Protocol::Tcp => WinFwProt::Tcp,
+                Protocol::Udp => WinFwProt::Udp,
+                Protocol::IcmpV4 => WinFwProt::IcmpV4,
+                Protocol::IcmpV6 => WinFwProt::IcmpV6,
             }
         }
     }
@@ -440,7 +501,8 @@ mod winfw {
             relay: &WinFwEndpoint,
             relayClient: *const libc::wchar_t,
             tunnelIfaceAlias: *const libc::wchar_t,
-            allowed_endpoint: *const WinFwAllowedEndpoint<'_>,
+            allowedEndpoint: *const WinFwAllowedEndpoint<'_>,
+            allowedTunnelTraffic: &WinFwAllowedTunnelTraffic,
         ) -> WinFwPolicyStatus;
 
         #[link_name = "WinFw_ApplyPolicyConnected"]

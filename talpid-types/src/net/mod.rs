@@ -275,6 +275,31 @@ impl fmt::Display for AllowedEndpoint {
     }
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum AllowedTunnelTraffic {
+    None,
+    All,
+    Only(SocketAddr, Protocol),
+}
+
+/// A protocol: UDP, TCP, or ICMP.
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+pub enum Protocol {
+    Udp,
+    Tcp,
+    IcmpV4,
+    IcmpV6,
+}
+
+impl From<TransportProtocol> for Protocol {
+    fn from(proto: TransportProtocol) -> Self {
+        match proto {
+            TransportProtocol::Udp => Protocol::Udp,
+            TransportProtocol::Tcp => Protocol::Tcp,
+        }
+    }
+}
+
 /// IP protocol version.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]

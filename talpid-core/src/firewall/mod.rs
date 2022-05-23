@@ -8,7 +8,7 @@ use std::{
     fmt,
     net::{Ipv4Addr, Ipv6Addr},
 };
-use talpid_types::net::{AllowedEndpoint, Endpoint};
+use talpid_types::net::{AllowedEndpoint, AllowedTunnelTraffic, Endpoint};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -109,6 +109,8 @@ pub enum FirewallPolicy {
         allow_lan: bool,
         /// Host that should be reachable while connecting.
         allowed_endpoint: AllowedEndpoint,
+        /// Networks for which to permit in-tunnel traffic.
+        allowed_tunnel_traffic: AllowedTunnelTraffic,
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]
         relay_client: PathBuf,

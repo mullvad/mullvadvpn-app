@@ -12,9 +12,9 @@ use std::{
     env,
     ffi::{CStr, CString},
     io,
-    net::{IpAddr, Ipv4Addr},
+    net::{IpAddr, Ipv4Addr, SocketAddr},
 };
-use talpid_types::net::{Endpoint, TransportProtocol};
+use talpid_types::net::{AllowedTunnelTraffic, Endpoint, Protocol, TransportProtocol};
 
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
 const MANGLE_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_MANGLE;
@@ -558,6 +558,7 @@ impl<'a> PolicyBatch<'a> {
                 tunnel,
                 allow_lan,
                 allowed_endpoint,
+                allowed_tunnel_traffic,
             } => {
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint);
                 self.add_allow_endpoint_rules(&allowed_endpoint.endpoint);
@@ -567,7 +568,19 @@ impl<'a> PolicyBatch<'a> {
                 self.add_drop_dns_rule();
 
                 if let Some(tunnel) = tunnel {
-                    self.add_allow_tunnel_rules(&tunnel.interface)?;
+                    match allowed_tunnel_traffic {
+                        AllowedTunnelTraffic::All => {
+                            self.add_allow_tunnel_rules(&tunnel.interface)?;
+                        }
+                        AllowedTunnelTraffic::None => (),
+                        AllowedTunnelTraffic::Only(address, protocol) => {
+                            self.add_allow_in_tunnel_endpoint_rules(
+                                &tunnel.interface,
+                                *address,
+                                *protocol,
+                            )?;
+                        }
+                    }
                     if *allow_lan {
                         self.add_block_cve_2019_14899(tunnel);
                     }
@@ -769,6 +782,35 @@ impl<'a> PolicyBatch<'a> {
             add_verdict(&mut block_tcp_rule, &Verdict::Reject(RejectionType::TcpRst));
             self.batch.add(&block_tcp_rule, nftnl::MsgType::Add);
         }
+    }
+
+    fn add_allow_in_tunnel_endpoint_rules(
+        &mut self,
+        tunnel_interface: &str,
+        address: SocketAddr,
+        protocol: Protocol,
+    ) -> Result<()> {
+        for (chain, dir, end) in [
+            (&self.out_chain, Direction::Out, End::Dst),
+            (&self.in_chain, Direction::In, End::Src),
+        ] {
+            let mut rule = Rule::new(chain);
+
+            check_iface(&mut rule, dir, tunnel_interface)?;
+            check_ip(&mut rule, end, address.ip());
+            match protocol {
+                Protocol::IcmpV4 | Protocol::IcmpV6 => check_l4proto(&mut rule, protocol),
+                Protocol::Tcp => {
+                    check_port(&mut rule, TransportProtocol::Tcp, end, address.port());
+                }
+                Protocol::Udp => {
+                    check_port(&mut rule, TransportProtocol::Udp, end, address.port());
+                }
+            }
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+        Ok(())
     }
 
     fn add_allow_tunnel_rules(&mut self, tunnel_interface: &str) -> Result<()> {
@@ -988,7 +1030,7 @@ fn check_ip(rule: &mut Rule<'_>, end: End, ip: impl Into<IpAddr>) {
 
 fn check_port(rule: &mut Rule<'_>, protocol: TransportProtocol, end: End, port: u16) {
     // Must check transport layer protocol before loading transport layer payload
-    check_l4proto(rule, protocol);
+    check_l4proto(rule, protocol.into());
 
     rule.add_expr(&match (protocol, end) {
         (TransportProtocol::Udp, End::Src) => nft_expr!(payload udp sport),
@@ -1011,15 +1053,17 @@ fn l3proto(addr: IpAddr) -> u8 {
     }
 }
 
-fn check_l4proto(rule: &mut Rule<'_>, protocol: TransportProtocol) {
+fn check_l4proto(rule: &mut Rule<'_>, protocol: Protocol) {
     rule.add_expr(&nft_expr!(meta l4proto));
     rule.add_expr(&nft_expr!(cmp == l4proto(protocol)));
 }
 
-fn l4proto(protocol: TransportProtocol) -> u8 {
+fn l4proto(protocol: Protocol) -> u8 {
     match protocol {
-        TransportProtocol::Udp => libc::IPPROTO_UDP as u8,
-        TransportProtocol::Tcp => libc::IPPROTO_TCP as u8,
+        Protocol::Udp => libc::IPPROTO_UDP as u8,
+        Protocol::Tcp => libc::IPPROTO_TCP as u8,
+        Protocol::IcmpV4 => libc::IPPROTO_ICMP as u8,
+        Protocol::IcmpV6 => libc::IPPROTO_ICMPV6 as u8,
     }
 }
 
