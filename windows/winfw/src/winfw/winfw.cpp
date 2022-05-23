@@ -233,7 +233,8 @@ WinFw_ApplyPolicyConnecting(
 	const WinFwEndpoint *relay,
 	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
-	const WinFwAllowedEndpoint *allowedEndpoint
+	const WinFwAllowedEndpoint *allowedEndpoint,
+	const WinFwAllowedTunnelTraffic *allowedTunnelTraffic
 )
 {
 	if (nullptr == g_fwContext)
@@ -258,12 +259,18 @@ WinFw_ApplyPolicyConnecting(
 			THROW_ERROR("Invalid argument: relayClient");
 		}
 
+		if (nullptr == allowedTunnelTraffic)
+		{
+			THROW_ERROR("Invalid argument: allowedTunnelTraffic");
+		}
+
 		return g_fwContext->applyPolicyConnecting(
 			*settings,
 			*relay,
 			relayClient,
 			tunnelInterfaceAlias != nullptr ? std::make_optional(tunnelInterfaceAlias) : std::nullopt,
-			MakeOptional(allowedEndpoint)
+			MakeOptional(allowedEndpoint),
+			*allowedTunnelTraffic
 		) ? WINFW_POLICY_STATUS_SUCCESS : WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 	catch (common::error::WindowsException &err)
