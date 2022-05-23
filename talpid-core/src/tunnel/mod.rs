@@ -210,46 +210,65 @@ impl TunnelMonitor {
         })
     }
 
-    fn assign_mtu(route_manager: &RouteManagerHandle, runtime: &tokio::runtime::Handle, params: &mut wireguard_types::TunnelParameters) -> Result<()> {
+    fn assign_mtu(
+        route_manager: &RouteManagerHandle,
+        runtime: &tokio::runtime::Handle,
+        params: &mut wireguard_types::TunnelParameters,
+    ) -> Result<()> {
         let result = runtime.block_on(async {
             // Retrying the `get_destination_route` should eventually yield a device name so we
             // retry up to 10 times and then throw an error.
             let retries = 10;
             let mut attempted_ip = params.connection.peer.endpoint.ip();
             for _ in 0..retries {
-                let route = route_manager.get_destination_route(attempted_ip, false).await.map_err(|_| Error::AssignMtuError)?;
+                let route = route_manager
+                    .get_destination_route(attempted_ip, false)
+                    .await
+                    .map_err(|_| Error::AssignMtuError)?;
                 match route {
                     Some(route) => {
                         let node = route.get_node();
                         let device = node.get_device();
                         match device {
                             Some(device) => {
-                                let mtu = route_manager.get_device_mtu(device.to_string()).await.map_err(|_| Error::AssignMtuError)?;
+                                let mtu = route_manager
+                                    .get_device_mtu(device.to_string())
+                                    .await
+                                    .map_err(|_| Error::AssignMtuError)?;
                                 if mtu != 1500 {
-                                    log::log!("Found MTU: {} on device {} which is different from 1500", mtu, device);
+                                    log::log!(
+                                        "Found MTU: {} on device {} which is different from 1500",
+                                        mtu,
+                                        device
+                                    );
                                 }
                                 let upstream_mtu = min(1400, mtu);
                                 params.options.mtu = Some(upstream_mtu);
                                 return Ok(());
                             }
-                            None => {
-                                match node.get_address() {
-                                    Some(ip) => attempted_ip = ip,
-                                    None => {
-                                        log::error!("Node does not contain an IP address nor a device name");
-                                        return Err(Error::AssignMtuError);
-                                    }
+                            None => match node.get_address() {
+                                Some(ip) => attempted_ip = ip,
+                                None => {
+                                    log::error!(
+                                        "Node does not contain an IP address nor a device name"
+                                    );
+                                    return Err(Error::AssignMtuError);
                                 }
-                            }
+                            },
                         }
                     }
                     None => {
-                        log::error!("No route detected when assigning the mtu to the Wireguard tunnel");
+                        log::error!(
+                            "No route detected when assigning the mtu to the Wireguard tunnel"
+                        );
                         return Err(Error::AssignMtuError);
                     }
                 }
             }
-            log::error!("Retried {} times looking for the correct device and could not find it", retries);
+            log::error!(
+                "Retried {} times looking for the correct device and could not find it",
+                retries
+            );
             return Err(Error::AssignMtuError);
         });
         result
