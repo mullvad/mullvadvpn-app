@@ -16,11 +16,11 @@ import org.koin.core.scope.Scope
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 
-class AppModuleTest : KoinTest {
+class UiModuleTest : KoinTest {
 
     @get:Rule
     val koinTestRule = KoinTestRule.create {
-        modules(appModule)
+        modules(uiModule)
     }
 
     @After
