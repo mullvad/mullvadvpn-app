@@ -30,7 +30,8 @@ public:
 		const WinFwEndpoint &relay,
 		const std::wstring &relayClient,
 		const std::optional<std::wstring> &tunnelInterfaceAlias,
-		const std::optional<WinFwAllowedEndpoint> &allowedEndpoint
+		const std::optional<WinFwAllowedEndpoint> &allowedEndpoint,
+		const WinFwAllowedTunnelTraffic &allowedTunnelTraffic
 	);
 
 	bool applyPolicyConnected

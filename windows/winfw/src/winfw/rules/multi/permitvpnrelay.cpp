@@ -2,6 +2,7 @@
 #include "permitvpnrelay.h"
 #include <winfw/mullvadguids.h>
 #include <winfw/winfw.h>
+#include <winfw/rules/shared.h>
 #include <libwfp/filterbuilder.h>
 #include <libwfp/conditionbuilder.h>
 #include <libwfp/conditions/conditionprotocol.h>
@@ -24,19 +25,6 @@ const GUID &LayerFromIp(const wfp::IpAddress &ip)
 	{
 		case wfp::IpAddress::Type::Ipv4: return FWPM_LAYER_ALE_AUTH_CONNECT_V4;
 		case wfp::IpAddress::Type::Ipv6: return FWPM_LAYER_ALE_AUTH_CONNECT_V6;
-		default:
-		{
-			THROW_ERROR("Missing case handler in switch clause");
-		}
-	};
-}
-
-std::unique_ptr<ConditionProtocol> CreateProtocolCondition(WinFwProtocol protocol)
-{
-	switch (protocol)
-	{
-		case WinFwProtocol::Tcp: return ConditionProtocol::Tcp();
-		case WinFwProtocol::Udp: return ConditionProtocol::Udp();
 		default:
 		{
 			THROW_ERROR("Missing case handler in switch clause");

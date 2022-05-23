@@ -873,9 +873,10 @@ mod event_server {
             request: Request<EventDetails>,
         ) -> std::result::Result<Response<()>, tonic::Status> {
             let env = request.into_inner().env;
-            (self.on_event)(super::TunnelEvent::InterfaceUp(Self::get_tunnel_metadata(
-                &env,
-            )?))
+            (self.on_event)(super::TunnelEvent::InterfaceUp(
+                Self::get_tunnel_metadata(&env)?,
+                talpid_types::net::AllowedTunnelTraffic::All,
+            ))
             .await;
             Ok(Response::new(()))
         }

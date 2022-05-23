@@ -32,7 +32,9 @@ WinFwSettings;
 enum WinFwProtocol : uint8_t
 {
 	Tcp = 0,
-	Udp = 1
+	Udp = 1,
+	Icmp = 2,
+	IcmpV6 = 3
 };
 
 typedef struct tag_WinFwEndpoint
@@ -54,6 +56,20 @@ typedef struct tag_WinFwAllowedEndpoint
 	WinFwEndpoint endpoint;
 }
 WinFwAllowedEndpoint;
+
+enum WinFwAllowedTunnelTrafficType : uint8_t
+{
+	None,
+	All,
+	Only
+};
+
+typedef struct tag_WinFwAllowedTunnelTraffic
+{
+	WinFwAllowedTunnelTrafficType type;
+	WinFwEndpoint *endpoint;
+}
+WinFwAllowedTunnelTraffic;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Functions
@@ -139,7 +155,7 @@ enum WINFW_POLICY_STATUS
 // Apply restrictions in the firewall that block all traffic, except:
 // - What is specified by settings
 // - Communication with the relay server
-// - Non-DNS traffic inside the VPN tunnel
+// - Specified in-tunnel traffic, except DNS.
 //
 extern "C"
 WINFW_LINKAGE
@@ -150,7 +166,8 @@ WinFw_ApplyPolicyConnecting(
 	const WinFwEndpoint *relay,
 	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
-	const WinFwAllowedEndpoint *allowedEndpoint
+	const WinFwAllowedEndpoint *allowedEndpoint,
+	const WinFwAllowedTunnelTraffic *allowedTunnelTraffic
 );
 
 //
