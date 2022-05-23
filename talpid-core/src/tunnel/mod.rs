@@ -61,6 +61,10 @@ pub enum Error {
     /// There was an error listening for events from the Wireguard tunnel
     #[error(display = "Failed while listening for events from the Wireguard tunnel")]
     WireguardTunnelMonitoringError(#[error(source)] wireguard::Error),
+
+    /// Could not detect and assign the correct mtu
+    #[error(display = "Could not detect and assign a correct MTU for the Wireguard tunnel")]
+    AssignMtuError,
 }
 
 /// Possible events from the VPN tunnel and the child process managing it.
@@ -101,7 +105,7 @@ impl TunnelMonitor {
     #[cfg_attr(any(target_os = "android", windows), allow(unused_variables))]
     pub fn start<L>(
         runtime: tokio::runtime::Handle,
-        tunnel_parameters: &TunnelParameters,
+        tunnel_parameters: &mut TunnelParameters,
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
@@ -134,9 +138,9 @@ impl TunnelMonitor {
             #[cfg(target_os = "android")]
             TunnelParameters::OpenVpn(_) => Err(Error::UnsupportedPlatform),
 
-            TunnelParameters::Wireguard(config) => Self::start_wireguard_tunnel(
+            TunnelParameters::Wireguard(ref mut config) => Self::start_wireguard_tunnel(
                 runtime,
-                &config,
+                config,
                 log_file,
                 resource_dir,
                 on_event,
@@ -172,7 +176,7 @@ impl TunnelMonitor {
 
     fn start_wireguard_tunnel<L>(
         runtime: tokio::runtime::Handle,
-        params: &wireguard_types::TunnelParameters,
+        params: &mut wireguard_types::TunnelParameters,
         log: Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
@@ -188,11 +192,13 @@ impl TunnelMonitor {
             + Clone
             + 'static,
     {
-        let config = wireguard::config::Config::from_parameters(&params)?;
+        #[cfg(target_os = "linux")]
+        runtime.block_on(Self::assign_mtu(&route_manager, params));
+        let config = wireguard::config::Config::from_parameters(params)?;
         let monitor = wireguard::WireguardMonitor::start(
             runtime,
             config,
-            log.as_ref().map(|p| p.as_path()),
+            log.as_deref(),
             resource_dir,
             on_event,
             tun_provider,
@@ -203,6 +209,41 @@ impl TunnelMonitor {
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),
         })
+    }
+
+    #[cfg(target_os = "linux")]
+    fn set_mtu(params: &mut wireguard_types::TunnelParameters, mtu: u16) {
+        const WIREGUARD_HEADER_SIZE: u16 = 80;
+        // The largest tunnel MTU that we allow. Standard MTU - Wireguard header
+        const MAX_TUNNEL_MTU: u16 = 1420;
+        // The minimum allowed MTU size for our tunnel in IPv6 is 1280
+        const MIN_IPV6_MTU: u16 = 1280;
+        const MIN_IPV4_MTU: u16 = 576;
+        let min_mtu = match params.generic_options.enable_ipv6 {
+            true => MIN_IPV6_MTU,
+            false => MIN_IPV4_MTU,
+        };
+        let mtu = std::cmp::max(
+            mtu.checked_sub(WIREGUARD_HEADER_SIZE).unwrap_or(min_mtu),
+            min_mtu,
+        );
+        let upstream_mtu = std::cmp::min(MAX_TUNNEL_MTU, mtu);
+        params.options.mtu = Some(upstream_mtu);
+    }
+
+    #[cfg(target_os = "linux")]
+    async fn assign_mtu(
+        route_manager: &RouteManagerHandle,
+        params: &mut wireguard_types::TunnelParameters,
+    ) {
+        // It is fine to leave the params untouched if getting the mtu for the route fails. In that
+        // case we will do our regular default.
+        if let Ok(mtu) = route_manager
+            .get_mtu_for_route(params.connection.peer.endpoint.ip())
+            .await
+        {
+            Self::set_mtu(params, mtu);
+        }
     }
 
     #[cfg(not(target_os = "android"))]
