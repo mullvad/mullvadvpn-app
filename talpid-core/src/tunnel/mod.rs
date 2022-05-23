@@ -236,13 +236,13 @@ impl TunnelMonitor {
                                     .await
                                     .map_err(|_| Error::AssignMtuError)?;
                                 if mtu != 1500 {
-                                    log::log!(
+                                    log::info!(
                                         "Found MTU: {} on device {} which is different from 1500",
                                         mtu,
                                         device
                                     );
                                 }
-                                let upstream_mtu = min(1400, mtu);
+                                let upstream_mtu = std::cmp::min(1400, mtu);
                                 params.options.mtu = Some(upstream_mtu);
                                 return Ok(());
                             }
