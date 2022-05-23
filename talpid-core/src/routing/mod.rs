@@ -22,7 +22,7 @@ pub use imp::{Error, RouteManager};
 
 pub use imp::RouteManagerHandle;
 
-/// A netowrk route with a specific network node, destinaiton and an optional metric.
+/// A network route with a specific network node, destinaiton and an optional metric.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct Route {
     node: Node,

@@ -61,6 +61,10 @@ pub enum Error {
     /// There was an error listening for events from the Wireguard tunnel
     #[error(display = "Failed while listening for events from the Wireguard tunnel")]
     WireguardTunnelMonitoringError(#[error(source)] wireguard::Error),
+
+    /// Could not detect and assign the correct mtu
+    #[error(display = "Could not detect and assign a correct MTU for the Wireguard tunnel")]
+    AssignMtuError,
 }
 
 /// Possible events from the VPN tunnel and the child process managing it.
@@ -101,7 +105,7 @@ impl TunnelMonitor {
     #[cfg_attr(any(target_os = "android", windows), allow(unused_variables))]
     pub fn start<L>(
         runtime: tokio::runtime::Handle,
-        tunnel_parameters: &TunnelParameters,
+        tunnel_parameters: &mut TunnelParameters,
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
@@ -134,9 +138,9 @@ impl TunnelMonitor {
             #[cfg(target_os = "android")]
             TunnelParameters::OpenVpn(_) => Err(Error::UnsupportedPlatform),
 
-            TunnelParameters::Wireguard(config) => Self::start_wireguard_tunnel(
+            TunnelParameters::Wireguard(ref mut config) => Self::start_wireguard_tunnel(
                 runtime,
-                &config,
+                config,
                 log_file,
                 resource_dir,
                 on_event,
@@ -172,7 +176,7 @@ impl TunnelMonitor {
 
     fn start_wireguard_tunnel<L>(
         runtime: tokio::runtime::Handle,
-        params: &wireguard_types::TunnelParameters,
+        params: &mut wireguard_types::TunnelParameters,
         log: Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
@@ -188,6 +192,7 @@ impl TunnelMonitor {
             + Clone
             + 'static,
     {
+        Self::assign_mtu(&route_manager, &runtime, params)?;
         let config = wireguard::config::Config::from_parameters(&params)?;
         let monitor = wireguard::WireguardMonitor::start(
             runtime,
@@ -203,6 +208,47 @@ impl TunnelMonitor {
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),
         })
+    }
+
+    fn assign_mtu(route_manager: &RouteManagerHandle, runtime: &tokio::runtime::Handle, params: &mut wireguard_types::TunnelParameters) -> Result<()> {
+        let result = runtime.block_on(async {
+            // Retrying the `get_destination_route` should eventually yield a device name so we
+            // retry up to 10 times and then throw an error.
+            let retries = 10;
+            let mut attempted_ip = params.connection.peer.endpoint.ip();
+            for _ in 0..retries {
+                let route = route_manager.get_destination_route(attempted_ip, false).await.map_err(|_| Error::AssignMtuError)?;
+                match route {
+                    Some(route) => {
+                        let node = route.get_node();
+                        let device = node.get_device();
+                        match device {
+                            Some(device) => {
+                                let mtu = route_manager.get_device_mtu(device.to_string()).await.map_err(|_| Error::AssignMtuError)?;
+                                params.options.mtu = Some(mtu);
+                                return Ok(());
+                            }
+                            None => {
+                                match node.get_address() {
+                                    Some(ip) => attempted_ip = ip,
+                                    None => {
+                                        log::error!("Node does not contain an IP address nor a device name");
+                                        return Err(Error::AssignMtuError);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    None => {
+                        log::error!("No route detected when assigning the mtu to the Wireguard tunnel");
+                        return Err(Error::AssignMtuError);
+                    }
+                }
+            }
+            log::error!("Retried {} times looking for the correct device and could not find it", retries);
+            return Err(Error::AssignMtuError);
+        });
+        result
     }
 
     #[cfg(not(target_os = "android"))]

@@ -113,6 +113,9 @@ pub enum Error {
     #[error(display = "No netlink response for route query")]
     NoRouteError,
 
+    #[error(display = "No link found")]
+    LinkNotFoundError,
+
     /// Unable to create routing table for tagged connections and packets.
     #[error(display = "Cannot find a free routing table ID")]
     NoFreeRoutingTableId,
@@ -362,6 +365,9 @@ impl RouteManagerImpl {
             }
             RouteManagerCommand::GetDestinationRoute(destination, set_mark, result_tx) => {
                 let _ = result_tx.send(self.get_destination_route(&destination, set_mark).await);
+            }
+            RouteManagerCommand::GetDeviceMtu(device, result_tx) => {
+                let _ = result_tx.send(self.get_device_mtu(device).await);
             }
             RouteManagerCommand::ClearRoutes => {
                 log::debug!("Clearing routes");
@@ -718,6 +724,28 @@ impl RouteManagerImpl {
                 error.display_chain_with_msg("Failed to remove routing rules")
             );
         }
+    }
+
+    async fn get_device_mtu(
+        &self,
+        device: String,
+    ) -> Result<u16> {
+        let mut links = self.handle.link().get().execute();
+        let target_device = LinkNla::IfName(device);
+        while let Some(msg) = links.try_next().await.map_err(|_| Error::LinkNotFoundError)? {
+            let found = msg.nlas.iter().any(|e| {
+                *e == target_device
+            });
+            if found {
+                if let Some(LinkNla::Mtu(mtu)) = msg.nlas.iter().find(|e| {
+                    matches!(e, LinkNla::Mtu(_))
+                })
+                {
+                    return Ok(*mtu as u16);
+                }
+            }
+        }
+        Err(Error::LinkNotFoundError)
     }
 
     async fn get_destination_route(

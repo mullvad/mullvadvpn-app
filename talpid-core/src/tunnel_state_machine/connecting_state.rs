@@ -115,7 +115,7 @@ impl ConnectingState {
         let (tunnel_close_tx, tunnel_close_rx) = oneshot::channel();
         let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
 
-        let tunnel_parameters = parameters.clone();
+        let mut tunnel_parameters = parameters.clone();
 
         tokio::task::spawn_blocking(move || {
             let start = Instant::now();
@@ -141,7 +141,7 @@ impl ConnectingState {
 
             let block_reason = match TunnelMonitor::start(
                 runtime,
-                &tunnel_parameters,
+                &mut tunnel_parameters,
                 &log_dir,
                 &resource_dir,
                 on_tunnel_event,
