@@ -7,4 +7,8 @@ sealed class ServiceConnectionState {
         ServiceConnectionState()
 
     object Disconnected : ServiceConnectionState()
+
+    fun readyContainer(): ServiceConnectionContainer? {
+        return (this as? ConnectedReady)?.container
+    }
 }
