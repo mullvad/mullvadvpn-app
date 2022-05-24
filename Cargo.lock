@@ -1770,6 +1770,7 @@ dependencies = [
 name = "mullvad-management-interface"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "err-derive",
  "futures",
  "lazy_static",

@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use http::{Method, StatusCode};
 use mullvad_types::{
     account::AccountToken,
@@ -23,6 +24,8 @@ struct DeviceResponse {
     ipv4_address: ipnetwork::Ipv4Network,
     ipv6_address: ipnetwork::Ipv6Network,
     ports: Vec<DevicePort>,
+    hijack_dns: bool,
+    created: DateTime<Utc>,
 }
 
 impl DevicesProxy {
@@ -71,6 +74,8 @@ impl DevicesProxy {
                 ipv4_address,
                 ipv6_address,
                 ports,
+                hijack_dns,
+                created,
                 ..
             } = response;
 
@@ -80,6 +85,8 @@ impl DevicesProxy {
                     name,
                     pubkey,
                     ports,
+                    hijack_dns,
+                    created,
                 },
                 mullvad_types::wireguard::AssociatedAddresses {
                     ipv4_address,

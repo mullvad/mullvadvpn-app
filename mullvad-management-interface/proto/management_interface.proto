@@ -580,6 +580,8 @@ message Device {
 	string name = 2;
 	bytes pubkey = 3;
 	repeated DevicePort ports = 4;
+	bool hijack_dns = 5;
+	google.protobuf.Timestamp created = 6;
 }
 
 message DevicePort {

@@ -1,4 +1,5 @@
 use crate::account::AccountToken;
+use chrono::{DateTime, Utc};
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
@@ -21,6 +22,8 @@ pub struct Device {
     #[cfg_attr(target_os = "android", jnix(map = "|key| *key.as_bytes()"))]
     pub pubkey: PublicKey,
     pub ports: Vec<DevicePort>,
+    pub hijack_dns: bool,
+    pub created: DateTime<Utc>,
 }
 
 impl Eq for Device {}
