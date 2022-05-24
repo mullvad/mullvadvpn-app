@@ -18,15 +18,19 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.VoucherSubmissionError
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.VoucherRedeemer
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.SegmentedInputFormatter
 import org.joda.time.DateTime
+import org.koin.android.ext.android.inject
 
 const val FULL_VOUCHER_CODE_LENGTH = "XXXX-XXXX-XXXX-XXXX".length
 
 class RedeemVoucherDialogFragment : DialogFragment() {
+    private val serviceConnectionManager: ServiceConnectionManager by inject()
+
     private val jobTracker = JobTracker()
 
     private lateinit var parentActivity: MainActivity
@@ -49,7 +53,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
         parentActivity = context as MainActivity
 
-        parentActivity.serviceNotifier.subscribe(this) { connection ->
+        serviceConnectionManager.serviceNotifier.subscribe(this) { connection ->
             accountCache = connection?.accountCache
             voucherRedeemer = connection?.voucherRedeemer
         }
@@ -123,7 +127,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
     override fun onDetach() {
         jobTracker.cancelJob("updateExpiry")
-        parentActivity.serviceNotifier.unsubscribe(this)
+        serviceConnectionManager.serviceNotifier.unsubscribe(this)
 
         super.onDetach()
     }

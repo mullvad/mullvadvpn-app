@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.CustomDns
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 
@@ -63,19 +63,19 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
     lateinit var splitTunneling: SplitTunneling
         private set
 
-    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
+    override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
         // This method is always either called first or after an `onNoServiceConnection`, so the
         // initialization of the fields doesn't have to be synchronized
-        accountCache = serviceConnection.accountCache
-        appVersionInfoCache = serviceConnection.appVersionInfoCache
-        authTokenCache = serviceConnection.authTokenCache
-        connectionProxy = serviceConnection.connectionProxy
-        deviceRepository = serviceConnection.deviceRepository
-        customDns = serviceConnection.customDns
-        locationInfoCache = serviceConnection.locationInfoCache
-        relayListListener = serviceConnection.relayListListener
-        settingsListener = serviceConnection.settingsListener
-        splitTunneling = serviceConnection.splitTunneling
+        accountCache = serviceConnectionContainer.accountCache
+        appVersionInfoCache = serviceConnectionContainer.appVersionInfoCache
+        authTokenCache = serviceConnectionContainer.authTokenCache
+        connectionProxy = serviceConnectionContainer.connectionProxy
+        deviceRepository = serviceConnectionContainer.deviceRepository
+        customDns = serviceConnectionContainer.customDns
+        locationInfoCache = serviceConnectionContainer.locationInfoCache
+        relayListListener = serviceConnectionContainer.relayListListener
+        settingsListener = serviceConnectionContainer.settingsListener
+        splitTunneling = serviceConnectionContainer.splitTunneling
 
         synchronized(this) {
             when (state) {

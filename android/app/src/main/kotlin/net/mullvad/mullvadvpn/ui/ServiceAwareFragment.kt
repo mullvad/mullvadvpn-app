@@ -2,10 +2,14 @@ package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
 import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.util.JobTracker
+import org.koin.android.ext.android.inject
 
 abstract class ServiceAwareFragment : BaseFragment() {
+    private val serviceConnectionManager: ServiceConnectionManager by inject()
+
     val jobTracker = JobTracker()
 
     open val isSecureScreen = false
@@ -13,7 +17,7 @@ abstract class ServiceAwareFragment : BaseFragment() {
     lateinit var parentActivity: MainActivity
         private set
 
-    var serviceConnection: ServiceConnection? = null
+    var serviceConnectionContainer: ServiceConnectionContainer? = null
         private set
 
     override fun onAttach(context: Context) {
@@ -25,7 +29,7 @@ abstract class ServiceAwareFragment : BaseFragment() {
             parentActivity.enterSecureScreen(this)
         }
 
-        parentActivity.serviceNotifier.subscribe(this) { connection ->
+        serviceConnectionManager.serviceNotifier.subscribe(this) { connection ->
             configureServiceConnection(connection)
         }
     }
@@ -37,7 +41,7 @@ abstract class ServiceAwareFragment : BaseFragment() {
     }
 
     override fun onDetach() {
-        parentActivity.serviceNotifier.unsubscribe(this)
+        serviceConnectionManager.serviceNotifier.unsubscribe(this)
 
         if (isSecureScreen) {
             parentActivity.leaveSecureScreen(this)
@@ -46,16 +50,18 @@ abstract class ServiceAwareFragment : BaseFragment() {
         super.onDetach()
     }
 
-    abstract fun onNewServiceConnection(serviceConnection: ServiceConnection)
+    abstract fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer)
 
     open fun onNoServiceConnection() {
     }
 
-    private fun configureServiceConnection(connection: ServiceConnection?) {
-        serviceConnection = connection
+    private fun configureServiceConnection(
+        serviceConnectionContainer: ServiceConnectionContainer?
+    ) {
+        this.serviceConnectionContainer = serviceConnectionContainer
 
-        if (connection != null) {
-            onNewServiceConnection(connection)
+        if (serviceConnectionContainer != null) {
+            onNewServiceConnection(serviceConnectionContainer)
         } else {
             onNoServiceConnection()
         }

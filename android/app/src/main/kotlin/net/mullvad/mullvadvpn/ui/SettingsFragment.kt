@@ -15,7 +15,7 @@ import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.widget.AccountCell
 import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
 import net.mullvad.mullvadvpn.ui.widget.NavigateCell
@@ -33,10 +33,10 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
     private var deviceRepository: DeviceRepository? = null
     private var versionInfoCache: AppVersionInfoCache? = null
 
-    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
-        accountCache = serviceConnection.accountCache
-        deviceRepository = serviceConnection.deviceRepository
-        versionInfoCache = serviceConnection.appVersionInfoCache
+    override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
+        accountCache = serviceConnectionContainer.accountCache
+        deviceRepository = serviceConnectionContainer.deviceRepository
+        versionInfoCache = serviceConnectionContainer.appVersionInfoCache
 
         if (active) {
             configureListeners()
