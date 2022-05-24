@@ -28,7 +28,7 @@ class ServiceConnection(
         Event.fromMessage(message)
     }
 
-    override val scope = getKoin().createScope(
+    override val scope = getKoin().getOrCreateScope(
         SERVICE_CONNECTION_SCOPE,
         named(SERVICE_CONNECTION_SCOPE), this
     )
@@ -40,6 +40,7 @@ class ServiceConnection(
         DeviceRepository(ServiceConnectionDeviceDataSource(connection, dispatcher), MainScope())
     val locationInfoCache = LocationInfoCache(dispatcher)
     val settingsListener = SettingsListener(connection, dispatcher)
+    // NOTE: `org.koin.core.scope.get` must be used here rather than `org.koin.core.component.get`.
     val splitTunneling = get<SplitTunneling>(parameters = { parametersOf(connection, dispatcher) })
     val voucherRedeemer = VoucherRedeemer(connection, dispatcher)
     val vpnPermission = VpnPermission(connection, dispatcher)

@@ -116,7 +116,6 @@ open class MainActivity : FragmentActivity() {
     override fun onStop() {
         Log.d("mullvad", "Stoping main activity")
         unbindService(serviceConnectionManager)
-        unloadKoinModules(uiModule)
 
         super.onStop()
 
