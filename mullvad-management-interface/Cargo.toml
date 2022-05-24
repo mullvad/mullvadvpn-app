@@ -8,6 +8,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
+chrono = { version = "0.4.19" }
 err-derive = "0.3.1"
 mullvad-types = { path = "../mullvad-types" }
 mullvad-paths = { path = "../mullvad-paths" }
