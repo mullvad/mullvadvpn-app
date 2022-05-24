@@ -6,7 +6,7 @@ use std::{
     net::{IpAddr, Ipv4Addr},
 };
 use subslice::SubsliceExt;
-use talpid_types::net;
+use talpid_types::net::{self, AllowedTunnelTraffic};
 
 pub use pfctl::Error;
 
@@ -119,6 +119,7 @@ impl Firewall {
                 tunnel,
                 allow_lan,
                 allowed_endpoint,
+                allowed_tunnel_traffic,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(*peer_endpoint)?];
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.endpoint)?);
@@ -128,7 +129,10 @@ impl Firewall {
                 rules.append(&mut self.get_block_dns_rules()?);
 
                 if let Some(tunnel) = tunnel {
-                    rules.push(self.get_allow_tunnel_rule(&tunnel.interface)?);
+                    rules.extend(
+                        self.get_allow_tunnel_rule(&tunnel.interface, allowed_tunnel_traffic)?
+                            .into_iter(),
+                    );
                 }
 
                 if *allow_lan {
@@ -154,7 +158,13 @@ impl Firewall {
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
                 rules.append(&mut self.get_block_dns_rules()?);
 
-                rules.push(self.get_allow_tunnel_rule(tunnel.interface.as_str())?);
+                rules.extend(
+                    self.get_allow_tunnel_rule(
+                        tunnel.interface.as_str(),
+                        &AllowedTunnelTraffic::All,
+                    )?
+                    .into_iter(),
+                );
 
                 if *allow_lan {
                     rules.append(&mut self.get_allow_lan_rules()?);
@@ -318,14 +328,34 @@ impl Firewall {
         Ok(vec![block_tcp_dns_rule, block_udp_dns_rule])
     }
 
-    fn get_allow_tunnel_rule(&self, tunnel_interface: &str) -> Result<pfctl::FilterRule> {
-        Ok(self
-            .create_rule_builder(FilterRuleAction::Pass)
+    fn get_allow_tunnel_rule(
+        &self,
+        tunnel_interface: &str,
+        allowed_traffic: &AllowedTunnelTraffic,
+    ) -> Result<Option<pfctl::FilterRule>> {
+        let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
+        let mut base_rule = rule_builder
             .quick(true)
             .interface(tunnel_interface)
             .keep_state(pfctl::StatePolicy::Keep)
-            .tcp_flags(Self::get_tcp_flags())
-            .build()?)
+            .tcp_flags(Self::get_tcp_flags());
+        match allowed_traffic {
+            AllowedTunnelTraffic::Only(addr, protocol) => {
+                use talpid_types::net::Protocol::*;
+                let pfctl_proto = match protocol {
+                    Udp => pfctl::Proto::Udp,
+                    Tcp => pfctl::Proto::Tcp,
+                    IcmpV4 => pfctl::Proto::Icmp,
+                    IcmpV6 => pfctl::Proto::IcmpV6,
+                };
+                base_rule = base_rule.to(*addr).proto(pfctl_proto);
+            }
+            AllowedTunnelTraffic::All => {}
+            AllowedTunnelTraffic::None => {
+                return Ok(None);
+            }
+        };
+        Ok(Some(base_rule.build()?))
     }
 
     fn get_allow_loopback_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
