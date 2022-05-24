@@ -214,9 +214,28 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, mut setup_done_rx) = mpsc::channel(0);
+
+        // Use allowed IPs to block anything but the v4 gateway, if PSK exchange is on.
+        let patched_config_ref;
+        let mut patched_config;
+        if psk_negotiation.is_some() {
+            patched_config = config.clone();
+            let gateway_net = ipnetwork::IpNetwork::from(IpAddr::from(config.ipv4_gateway));
+            for peer in &mut patched_config.peers {
+                for allowed_ip in &mut peer.allowed_ips {
+                    if allowed_ip.is_ipv4() && allowed_ip.prefix() == 0 {
+                        *allowed_ip = gateway_net;
+                    }
+                }
+            }
+            patched_config_ref = &patched_config;
+        } else {
+            patched_config_ref = &config;
+        }
+
         let tunnel = Self::open_tunnel(
             runtime.clone(),
-            &config,
+            patched_config_ref,
             log_path,
             resource_dir,
             tun_provider,
