@@ -4,14 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onEach
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
+import org.koin.android.ext.android.inject
 
 class LaunchFragment : ServiceAwareFragment() {
+    private val deviceRepository: DeviceRepository by inject()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,23 +32,16 @@ class LaunchFragment : ServiceAwareFragment() {
         return view
     }
 
-    override fun onStop() {
-        jobTracker.cancelJob("advanceToNextScreen")
-        super.onStop()
-    }
-
     override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
-        advanceToNextScreen(serviceConnectionContainer.deviceRepository)
     }
 
-    private fun advanceToNextScreen(deviceRepository: DeviceRepository) {
-        jobTracker.newUiJob("advanceToNextScreen") {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        lifecycleScope.launch {
             deviceRepository.deviceState
-                .onEach { state ->
-                    if (state.isInitialState()) deviceRepository.refreshDeviceState()
-                }
-                .first { state -> state.isInitialState().not() }
-                .let { deviceState ->
+                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+                .collect { deviceState ->
                     when (deviceState) {
                         is DeviceState.LoggedIn -> advanceToConnectScreen()
                         is DeviceState.LoggedOut -> advanceToLoginScreen()
