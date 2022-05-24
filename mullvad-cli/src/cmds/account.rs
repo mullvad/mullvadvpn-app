@@ -156,6 +156,10 @@ impl Account {
                 if verbose {
                     println!("Device id      : {}", inner_device.id);
                     println!("Device pubkey  : {}", inner_device.pubkey);
+                    println!(
+                        "Device created : {}",
+                        inner_device.created.with_timezone(&chrono::Local)
+                    );
                     for port in inner_device.ports {
                         println!("Device port    : {}", port);
                     }
@@ -184,7 +188,7 @@ impl Account {
     async fn list_devices(&self, matches: &clap::ArgMatches) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let token = self.parse_account_else_current(&mut rpc, matches).await?;
-        let device_list = rpc
+        let mut device_list = rpc
             .list_devices(token)
             .await
             .map_err(map_device_error)?
@@ -193,6 +197,9 @@ impl Account {
         let verbose = matches.is_present("verbose");
 
         println!("Devices on the account:");
+        device_list
+            .devices
+            .sort_unstable_by_key(|dev| dev.created.as_ref().map(|dt| dt.seconds).unwrap_or(0));
         for device in device_list.devices {
             let device = Device::try_from(device.clone()).unwrap();
             if verbose {
@@ -200,6 +207,10 @@ impl Account {
                 println!("Name      : {}", device.pretty_name());
                 println!("Id        : {}", device.id);
                 println!("Public key: {}", device.pubkey);
+                println!(
+                    "Created   : {}",
+                    device.created.with_timezone(&chrono::Local)
+                );
                 for port in device.ports {
                     println!("Port      : {}", port);
                 }
