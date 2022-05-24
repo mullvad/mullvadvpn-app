@@ -5,12 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import java.text.DateFormat
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
@@ -19,8 +23,11 @@ import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
+import org.koin.android.ext.android.inject
 
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
+    private val deviceRepository: DeviceRepository by inject()
+
     override val isSecureScreen = true
 
     private val dateStyle = DateFormat.MEDIUM
@@ -97,27 +104,20 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         return view
     }
 
-    override fun onSafelyStart() {
-        jobTracker.newUiJob("updateAccountNumber") {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        lifecycleScope.launch {
             deviceRepository.deviceState
-                .onEach { state ->
-                    if (state.isInitialState()) deviceRepository.refreshDeviceState()
-                }
+                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
                 .collect { state ->
                     accountNumberView.information = state.token()
-                }
-        }
-
-        jobTracker.newUiJob("updateDeviceName") {
-            deviceRepository.deviceState
-                .onEach { state ->
-                    if (state.isInitialState()) deviceRepository.refreshDeviceState()
-                }
-                .collect { state ->
                     deviceNameView.information = state.deviceName()?.capitalizeFirstCharOfEachWord()
                 }
         }
+    }
 
+    override fun onSafelyStart() {
         jobTracker.newUiJob("updateAccountExpiry") {
             accountCache.accountExpiryState
                 .map { state -> state.date() }

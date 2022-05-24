@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
@@ -33,6 +34,7 @@ val uiModule = module {
     }
 
     single { ServiceConnectionManager(androidContext()) }
+    single { DeviceRepository(get()) }
 }
 const val APPS_SCOPE = "APPS_SCOPE"
 const val SERVICE_CONNECTION_SCOPE = "SERVICE_CONNECTION_SCOPE"
