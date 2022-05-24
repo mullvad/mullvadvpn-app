@@ -20,9 +20,10 @@ import org.koin.core.scope.get
 // The properties of this class can be used to send events to the service, to listen for events from
 // the service and to get values received from events.
 @OptIn(KoinApiExtension::class)
-class ServiceConnection(
+class ServiceConnectionContainer(
     connection: Messenger,
-    onServiceReady: ((ServiceConnection) -> Unit)? = null
+    onServiceReady: (ServiceConnectionContainer) -> Unit,
+    onVpnPermissionRequest: () -> Unit
 ) : KoinScopeComponent {
     private val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
         Event.fromMessage(message)
@@ -50,8 +51,10 @@ class ServiceConnection(
     var relayListListener = RelayListListener(connection, dispatcher, settingsListener)
 
     init {
+        vpnPermission.onRequest = onVpnPermissionRequest
+
         dispatcher.registerHandler(Event.ListenerReady::class) { _ ->
-            onServiceReady?.invoke(this@ServiceConnection)
+            onServiceReady.invoke(this@ServiceConnectionContainer)
         }
 
         registerListener(connection)

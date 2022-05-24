@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.ui.customdns.CustomDnsAdapter
 import net.mullvad.mullvadvpn.ui.fragments.SplitTunnelingFragment
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.widget.CellSwitch
 import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.ui.widget.MtuCell
@@ -84,8 +84,8 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         return view
     }
 
-    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
-        super.onNewServiceConnection(serviceConnection)
+    override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
+        super.onNewServiceConnection(serviceConnectionContainer)
         subscribeToCustomDnsChanges()
     }
 

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.onEach
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 
 class LaunchFragment : ServiceAwareFragment() {
 
@@ -32,8 +32,8 @@ class LaunchFragment : ServiceAwareFragment() {
         super.onStop()
     }
 
-    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
-        advanceToNextScreen(serviceConnection.deviceRepository)
+    override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
+        advanceToNextScreen(serviceConnectionContainer.deviceRepository)
     }
 
     private fun advanceToNextScreen(deviceRepository: DeviceRepository) {

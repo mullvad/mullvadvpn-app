@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.AccountHistory
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
@@ -81,8 +81,8 @@ class LoginFragment :
         setupLifecycleSubscriptionsToViewModel()
     }
 
-    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
-        super.onNewServiceConnection(serviceConnection)
+    override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
+        super.onNewServiceConnection(serviceConnectionContainer)
         if (this::loginViewModel.isInitialized) {
             loginViewModel.updateAccountCacheInstance(accountCache)
         }
