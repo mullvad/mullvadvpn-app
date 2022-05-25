@@ -136,10 +136,10 @@ impl RouteManagerHandle {
 
     /// Listen for route changes.
     #[cfg(target_os = "linux")]
-    pub async fn get_device_mtu(&self, device: String) -> Result<u16, Error> {
+    pub async fn get_mtu_for_route(&self, ip: IpAddr) -> Result<u16, Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
-            .unbounded_send(RouteManagerCommand::GetDeviceMtu(device, response_tx))
+            .unbounded_send(RouteManagerCommand::GetMtuForRoute(ip, response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
         response_rx
             .await
@@ -164,7 +164,7 @@ pub(crate) enum RouteManagerCommand {
     #[cfg(target_os = "linux")]
     NewChangeListener(oneshot::Sender<mpsc::UnboundedReceiver<CallbackMessage>>),
     #[cfg(target_os = "linux")]
-    GetDeviceMtu(String, oneshot::Sender<Result<u16, PlatformError>>),
+    GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16, PlatformError>>),
     #[cfg(target_os = "linux")]
     GetDestinationRoute(
         IpAddr,

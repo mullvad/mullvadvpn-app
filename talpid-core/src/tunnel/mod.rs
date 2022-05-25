@@ -192,8 +192,8 @@ impl TunnelMonitor {
             + Clone
             + 'static,
     {
-        Self::assign_mtu(&route_manager, &runtime, params)?;
-        let config = wireguard::config::Config::from_parameters(&params)?;
+        runtime.block_on(Self::assign_mtu(&route_manager, params));
+        let config = wireguard::config::Config::from_parameters(params)?;
         let monitor = wireguard::WireguardMonitor::start(
             runtime,
             config,
@@ -210,68 +210,42 @@ impl TunnelMonitor {
         })
     }
 
-    fn assign_mtu(
+    fn set_mtu(params: &mut wireguard_types::TunnelParameters, mtu: u16) {
+        const WIREGUARD_HEADER_SIZE: u16 = 80;
+        // The largest tunnel MTU that we allow. Standard MTU - Wireguard header
+        const MAX_TUNNEL_MTU: u16 = 1420;
+        // The minimum allowed MTU size for our tunnel in IPv6 is 1280
+        const MIN_IPV6_MTU: u16 = 1280;
+        const MIN_IPV4_MTU: u16 = 576;
+        let mtu = if params.generic_options.enable_ipv6 {
+            std::cmp::max(
+                mtu.checked_sub(WIREGUARD_HEADER_SIZE)
+                    .unwrap_or(MIN_IPV6_MTU),
+                MIN_IPV6_MTU,
+            )
+        } else {
+            std::cmp::max(
+                mtu.checked_sub(WIREGUARD_HEADER_SIZE)
+                    .unwrap_or(MIN_IPV4_MTU),
+                MIN_IPV4_MTU,
+            )
+        };
+        let upstream_mtu = std::cmp::min(MAX_TUNNEL_MTU, mtu);
+        params.options.mtu = Some(upstream_mtu);
+    }
+
+    async fn assign_mtu(
         route_manager: &RouteManagerHandle,
-        runtime: &tokio::runtime::Handle,
         params: &mut wireguard_types::TunnelParameters,
-    ) -> Result<()> {
-        let result = runtime.block_on(async {
-            // Retrying the `get_destination_route` should eventually yield a device name so we
-            // retry up to 10 times and then throw an error.
-            let retries = 10;
-            let mut attempted_ip = params.connection.peer.endpoint.ip();
-            for _ in 0..retries {
-                let route = route_manager
-                    .get_destination_route(attempted_ip, false)
-                    .await
-                    .map_err(|_| Error::AssignMtuError)?;
-                match route {
-                    Some(route) => {
-                        let node = route.get_node();
-                        let device = node.get_device();
-                        match device {
-                            Some(device) => {
-                                let mtu = route_manager
-                                    .get_device_mtu(device.to_string())
-                                    .await
-                                    .map_err(|_| Error::AssignMtuError)?;
-                                if mtu != 1500 {
-                                    log::info!(
-                                        "Found MTU: {} on device {} which is different from 1500",
-                                        mtu,
-                                        device
-                                    );
-                                }
-                                let upstream_mtu = std::cmp::min(1400, mtu);
-                                params.options.mtu = Some(upstream_mtu);
-                                return Ok(());
-                            }
-                            None => match node.get_address() {
-                                Some(ip) => attempted_ip = ip,
-                                None => {
-                                    log::error!(
-                                        "Node does not contain an IP address nor a device name"
-                                    );
-                                    return Err(Error::AssignMtuError);
-                                }
-                            },
-                        }
-                    }
-                    None => {
-                        log::error!(
-                            "No route detected when assigning the mtu to the Wireguard tunnel"
-                        );
-                        return Err(Error::AssignMtuError);
-                    }
-                }
-            }
-            log::error!(
-                "Retried {} times looking for the correct device and could not find it",
-                retries
-            );
-            return Err(Error::AssignMtuError);
-        });
-        result
+    ) {
+        // It is fine to leave the params untouched if getting the mtu for the route fails. In that
+        // case we will do our regular default.
+        if let Ok(mtu) = route_manager
+            .get_mtu_for_route(params.connection.peer.endpoint.ip())
+            .await
+        {
+            Self::set_mtu(params, mtu);
+        }
     }
 
     #[cfg(not(target_os = "android"))]

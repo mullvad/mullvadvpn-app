@@ -366,8 +366,8 @@ impl RouteManagerImpl {
             RouteManagerCommand::GetDestinationRoute(destination, set_mark, result_tx) => {
                 let _ = result_tx.send(self.get_destination_route(&destination, set_mark).await);
             }
-            RouteManagerCommand::GetDeviceMtu(device, result_tx) => {
-                let _ = result_tx.send(self.get_device_mtu(device).await);
+            RouteManagerCommand::GetMtuForRoute(ip, result_tx) => {
+                let _ = result_tx.send(self.get_mtu_for_route(ip).await);
             }
             RouteManagerCommand::ClearRoutes => {
                 log::debug!("Clearing routes");
@@ -724,6 +724,49 @@ impl RouteManagerImpl {
                 error.display_chain_with_msg("Failed to remove routing rules")
             );
         }
+    }
+
+    async fn get_mtu_for_route(&self, ip: IpAddr) -> Result<u16> {
+        // RECURSION_LIMIT controls how many times we recurse to find the device name by looking up
+        // an IP with `get_destination_route`.
+        const RECURSION_LIMIT: usize = 10;
+        const STANDARD_MTU: u16 = 1500;
+        let mut attempted_ip = ip;
+        for _ in 0..RECURSION_LIMIT {
+            let route = self.get_destination_route(&attempted_ip, false).await?;
+            match route {
+                Some(route) => {
+                    let node = route.get_node();
+                    match (node.get_device(), node.get_address()) {
+                        (Some(device), None) => {
+                            let mtu = self.get_device_mtu(device.to_string()).await?;
+                            if mtu != STANDARD_MTU {
+                                log::info!(
+                                    "Found MTU: {} on device {} which is different from the standard {}",
+                                    mtu,
+                                    device,
+                                    STANDARD_MTU
+                                );
+                            }
+                            return Ok(mtu);
+                        }
+                        (None, Some(address)) => attempted_ip = address,
+                        _ => {
+                            panic!("Route must contain either an IP or a device.");
+                        }
+                    }
+                }
+                None => {
+                    log::error!("No route detected when assigning the mtu to the Wireguard tunnel");
+                    return Err(Error::NoRouteError);
+                }
+            }
+        }
+        log::error!(
+            "Retried {} times looking for the correct device and could not find it",
+            RECURSION_LIMIT
+        );
+        Err(Error::NoRouteError)
     }
 
     async fn get_device_mtu(&self, device: String) -> Result<u16> {
