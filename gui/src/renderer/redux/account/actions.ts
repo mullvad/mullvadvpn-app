@@ -213,7 +213,7 @@ function updateAccountExpiry(expiry?: string): IUpdateAccountExpiryAction {
 function updateDevices(devices: Array<IDevice>): IUpdateDevicesAction {
   return {
     type: 'UPDATE_DEVICES',
-    devices: devices.sort((a, b) => a.name.localeCompare(b.name)),
+    devices: devices.sort((a, b) => a.created.getDate() - b.created.getDate()),
   };
 }
 

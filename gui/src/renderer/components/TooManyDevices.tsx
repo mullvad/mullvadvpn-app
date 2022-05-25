@@ -102,7 +102,6 @@ export default function TooManyDevices() {
   const { removeDevice, login, cancelLogin } = useAppContext();
   const accountToken = useSelector((state) => state.account.accountToken)!;
   const devices = useSelector((state) => state.account.devices);
-  devices.sort((a, b) => a.created.getTime() - b.created.getTime());
   const loginState = useSelector((state) => state.account.status);
 
   const onRemoveDevice = useCallback(
