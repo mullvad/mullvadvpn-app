@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">하나 이상의 DNS 서버를 추가할 수 있습니다.</string>
     <string name="custom_dns_hint">IP 입력</string>
     <string name="custom_tunnel_host_resolution_error">사용자 지정 서버의 호스트 이름을 확인하지 못했습니다.</string>
+    <string name="device_name">장치 이름</string>
     <string name="disconnect">연결 끊기</string>
     <string name="disconnecting">연결 해제 중</string>
     <string name="dismiss">해제</string>
@@ -143,7 +144,7 @@
     <string name="wireguard_key_verification_failure">키 확인 실패</string>
     <string name="wireguard_manage_keys">키 관리</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d - %2$d.</string>
+    <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d</string>
     <string name="wireguard_public_key">WireGuard 공개 키</string>
     <string name="wireguard_replace_key">키 다시 생성</string>
     <string name="wireguard_verify_key">키 확인</string>

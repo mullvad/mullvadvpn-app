@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2022-02-24 09:05\n"
+"PO-Revision-Date: 2022-05-25 09:08\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -183,6 +183,10 @@ msgstr "Hong Kong"
 #. US HNL
 msgid "Honolulu, HI"
 msgstr "Honolulu, HI"
+
+#. US HOU
+msgid "Houston, TX"
+msgstr "Houston, TX"
 
 #. HU
 msgid "Hungary"

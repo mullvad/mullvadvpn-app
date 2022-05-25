@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">Чтобы добавить как минимум один DNS-сервер, включите этот параметр.</string>
     <string name="custom_dns_hint">Введите IP-адрес</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского сервера</string>
+    <string name="device_name">Имя устройства</string>
     <string name="disconnect">Отключить</string>
     <string name="disconnecting">Отключение</string>
     <string name="dismiss">Закрыть</string>
@@ -79,7 +80,7 @@
     <string name="mullvad_account_number">Номер учетной записи Mullvad</string>
     <string name="no_matching_bridge_relay">Текущим настройкам не соответствует ни один мостовой сервер ретрансляции</string>
     <string name="no_matching_relay">Текущим настройкам не соответствует ни один сервер ретрансляции</string>
-    <string name="no_wireguard_key">Не найден корректный ключ WireGuard. Управлять ключами можно в разделе «Дополнительные настройки».</string>
+    <string name="no_wireguard_key">Не найден действительный ключ WireGuard. Управлять ключами можно в разделе «Дополнительные настройки».</string>
     <string name="not_blocking_internet">ВОЗМОЖНА УТЕЧКА СЕТЕВОГО ТРАФИКА</string>
     <string name="out_address">Выход</string>
     <string name="out_of_time">Закончилось время</string>
@@ -93,7 +94,7 @@
     <string name="report_a_problem">Сообщить о проблеме</string>
     <string name="secure_connection">ЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ</string>
     <string name="secured">Подключение защищено</string>
-    <string name="select_location">Выбрать местоположение</string>
+    <string name="select_location">Выбор местоположения</string>
     <string name="select_location_description">При подключении реальное местоположение маскируется защищенным конфиденциальным местоположением в выбранном регионе.</string>
     <string name="send">Отправить</string>
     <string name="send_anyway">Все равно отправить</string>
@@ -138,13 +139,13 @@
     <string name="wireguard_key">Ключ WireGuard</string>
     <string name="wireguard_key_generated">Ключ сгенерирован</string>
     <string name="wireguard_key_invalid">Ключ недействителен</string>
-    <string name="wireguard_key_reconnecting">Повторное подключение с новым ключом WireGuard...</string>
+    <string name="wireguard_key_reconnecting">Подключение с новым ключом WireGuard…</string>
     <string name="wireguard_key_valid">Ключ действителен</string>
     <string name="wireguard_key_verification_failure">Ошибка проверки ключа</string>
     <string name="wireguard_manage_keys">Управление ключами</string>
     <string name="wireguard_mtu">MTU для WireGuard</string>
-    <string name="wireguard_mtu_footer">Значение MTU для WireGuard. Допустимый диапазон: %1$d–%2$d.</string>
+    <string name="wireguard_mtu_footer">Установите значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>
     <string name="wireguard_public_key">Открытый ключ WireGuard</string>
-    <string name="wireguard_replace_key">Повторно сгенерировать ключ</string>
+    <string name="wireguard_replace_key">Сгенерировать ключ</string>
     <string name="wireguard_verify_key">Проверка ключа</string>
 </resources>

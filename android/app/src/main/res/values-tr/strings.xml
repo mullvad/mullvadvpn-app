@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">En az bir DNS sunucusu eklemek için etkinleştirin.</string>
     <string name="custom_dns_hint">IP\'yi girin</string>
     <string name="custom_tunnel_host_resolution_error">Özel sunucu ana bilgisayar adı çözülemiyor</string>
+    <string name="device_name">Cihaz adı</string>
     <string name="disconnect">Bağlantıyı Kes</string>
     <string name="disconnecting">Bağlantı kesiliyor</string>
     <string name="dismiss">Reddet</string>

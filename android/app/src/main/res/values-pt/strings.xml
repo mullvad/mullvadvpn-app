@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">Ativar para adicionar pelo menos um servidor DNS.</string>
     <string name="custom_dns_hint">Introduzir IP</string>
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o nome do anfitrião do servidor personalizado</string>
+    <string name="device_name">Nome do dispositivo</string>
     <string name="disconnect">Desligar</string>
     <string name="disconnecting">A desligar</string>
     <string name="dismiss">Dispensar</string>

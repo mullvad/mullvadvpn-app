@@ -27,7 +27,7 @@
     <string name="confirm_no_email">U staat op het punt om het probleemrapport te verzenden zonder een contactmethode op te geven. Voer een e-mailadres in als u een antwoord wenst op het rapport.</string>
     <string name="congrats">Gefeliciteerd!</string>
     <string name="connect">Mijn verbinding beveiligen</string>
-    <string name="connecting">Verbinden</string>
+    <string name="connecting">Bezig met verbinden</string>
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
     <string name="copied_mullvad_account_number">Mullvad-accountnummer gekopieerd naar klembord</string>
     <string name="copied_to_clipboard">Gekopieerd naar klembord</string>
@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">Schakel in om minimaal één DNS-server toe te voegen.</string>
     <string name="custom_dns_hint">Voer IP-adres in</string>
     <string name="custom_tunnel_host_resolution_error">Kon de hostnaam van de aangepaste server niet omzetten</string>
+    <string name="device_name">Apparaatnaam</string>
     <string name="disconnect">Verbinding verbreken</string>
     <string name="disconnecting">Verbinding wordt verbroken</string>
     <string name="dismiss">Negeren</string>
@@ -108,7 +109,7 @@
     <string name="settings_advanced">Geavanceerd</string>
     <string name="settings_preferences">Voorkeuren</string>
     <string name="show_system_apps">Systeemapps weergeven</string>
-    <string name="split_tunneling">Split tunneling</string>
+    <string name="split_tunneling">Gesplitste tunneling</string>
     <string name="split_tunneling_description">Split tunneling maakt het mogelijk te kiezen welke toepassingen niet via de VPN-tunnel moeten worden omgeleid.</string>
     <string name="start_tunnel_error">Starten van tunnelverbinding mislukt</string>
     <string name="switch_location">Locatie wijzigen</string>
@@ -143,7 +144,7 @@
     <string name="wireguard_key_verification_failure">Verificatie sleutel mislukt</string>
     <string name="wireguard_manage_keys">Sleutels beheren</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>
-    <string name="wireguard_mtu_footer">Stel MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d.</string>
+    <string name="wireguard_mtu_footer">Stel de MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d.</string>
     <string name="wireguard_public_key">Openbare WireGuard-sleutel</string>
     <string name="wireguard_replace_key">Sleutel opnieuw genereren</string>
     <string name="wireguard_verify_key">Sleutel verifiëren</string>

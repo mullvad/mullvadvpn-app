@@ -27,7 +27,7 @@
     <string name="confirm_no_email">သင်သည် သင့်ထံ ကျွန်ုပ်တို့ ပြန်ဆက်သွယ်နိုင်မည့် နည်းလမ်း မပါဘဲ ပြဿနာ ရီပို့တ်ကို ပေးပို့တော့မည် ဖြစ်ပါသည်။ သင့်ရီပို့တ်အတွက် အဖြေ ရရှိလိုပါက အီမေးလိပ်စာ ဖြည့်သွင်းပေးရပါမည်။</string>
     <string name="congrats">ဝမ်းသာပါတယ်။</string>
     <string name="connect">ကျွန်ုပ်၏ ချိတ်ဆက်မှုကို ကာကွယ်ရန်</string>
-    <string name="connecting">ချိတ်ဆက်နေပါသည်</string>
+    <string name="connecting">ချိတ်ဆက်နေဆဲ</string>
     <string name="connecting_to_daemon">Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ...</string>
     <string name="copied_mullvad_account_number">Mullvad အကောင့်နံပါတ်ကို ကလစ်ဘုတ်တွင် ကူးထားပါသည်</string>
     <string name="copied_to_clipboard">ကလစ်ဘုတ်တွင် ကူးယူပြီး</string>
@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">အနည်းဆုံး DNS ဆာဗာတစ်ခုကို ပေါင်းထည့်ပါ။</string>
     <string name="custom_dns_hint">IP ဖြည့်ပါ</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက် ဆာဗာ၏ Hostname ကို ဖြေရှင်း၍ မရနိုင်ပါ</string>
+    <string name="device_name">စက်အမည်</string>
     <string name="disconnect">ချိတ်ဆက်မှုဖြုတ်ရန်</string>
     <string name="disconnecting">ချိတ်ဆက်မှုဖြုတ်နေပါသည်</string>
     <string name="dismiss">ဖယ်ပစ်ရန်</string>
@@ -79,7 +80,7 @@
     <string name="mullvad_account_number">Mullvad အကောင့်နံပါတ်</string>
     <string name="no_matching_bridge_relay">လက်ရှိဆက်တင်နှင့် ကိုက်ညီသည့် ပေါင်းကူး ထပ်ဆင့်ဆာဗာ မရှိပါ</string>
     <string name="no_matching_relay">လက်ရှိဆက်တင်နှင့် ကိုက်ညီသည့် ထပ်ဆင့်ဆာဗာ မရှိပါ</string>
-    <string name="no_wireguard_key">အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင် အောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။</string>
+    <string name="no_wireguard_key">အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင်များအောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။</string>
     <string name="not_blocking_internet">ကွန်ရက် ကူးလူးမှု ပေါက်ကြားနေနိုင်ပါသည်</string>
     <string name="out_address">အထွက်</string>
     <string name="out_of_time">အချိန်စေ့သွားပါပြီ</string>
@@ -108,7 +109,7 @@
     <string name="settings_advanced">အဆင့်မြင့်</string>
     <string name="settings_preferences">လိုလားမှုများ</string>
     <string name="show_system_apps">စနစ်အက်ပ်များ ပြရန်</string>
-    <string name="split_tunneling">Split Tunneling</string>
+    <string name="split_tunneling">Split tunneling</string>
     <string name="split_tunneling_description">Split Tunneling သည် VPN Tunnel မှတစ်ဆင့် လမ်းကြောင်းအတိုင်း မပို့သင့်သည့် အက်ပ်များကို ရွေးချယ်နိုင်ပါသည်။</string>
     <string name="start_tunnel_error">Tunnel ချိတ်ဆက်မှုကို စတင်ရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="switch_location">တည်နေရာ ပြောင်းရန်</string>
@@ -138,12 +139,12 @@
     <string name="wireguard_key">WireGuard ကီး</string>
     <string name="wireguard_key_generated">ကီး ထုတ်ပြီး</string>
     <string name="wireguard_key_invalid">ကီး မှားနေပါသည်</string>
-    <string name="wireguard_key_reconnecting">WireGuard ကီးအသစ်ဖြင့် ပြန်ချိတ်ဆက်နေဆဲ...</string>
+    <string name="wireguard_key_reconnecting">WireGuard ကီး အသစ်ဖြင့် ပြန်ချိတ်ဆက်နေဆဲ...</string>
     <string name="wireguard_key_valid">ကီး မှန်ပါသည်</string>
-    <string name="wireguard_key_verification_failure">ကီးစစ်ဆေးမှု မအောင်မြင်ပါ</string>
+    <string name="wireguard_key_verification_failure">ကီး စစ်ဆေးမှု မအောင်မြင်ပါ</string>
     <string name="wireguard_manage_keys">ကီးများ စီမံခန့်ခွဲရန်</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %1$d - %2$d</string>
+    <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %1$d - %2$d။</string>
     <string name="wireguard_public_key">WireGuard အများသုံး ကီး</string>
     <string name="wireguard_replace_key">ကီး ပြန်ထုတ်ရန်</string>
     <string name="wireguard_verify_key">ကီး စစ်ဆေးရန်</string>

@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">Activez pour ajouter au moins un serveur DNS.</string>
     <string name="custom_dns_hint">Saisir l\'IP</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution du nom d\'hôte du serveur personnalisé</string>
+    <string name="device_name">Nom de l\'appareil</string>
     <string name="disconnect">Déconnexion</string>
     <string name="disconnecting">Déconnexion en cours</string>
     <string name="dismiss">Ignorer</string>
@@ -137,7 +138,7 @@
     <string name="wireguard_generate_key">Générer la clé</string>
     <string name="wireguard_key">Clé WireGuard</string>
     <string name="wireguard_key_generated">Clé générée</string>
-    <string name="wireguard_key_invalid">La clé est invalide</string>
+    <string name="wireguard_key_invalid">La clé n\'est pas valide</string>
     <string name="wireguard_key_reconnecting">Reconnexion avec la nouvelle clé WireGuard…</string>
     <string name="wireguard_key_valid">La clé est valide</string>
     <string name="wireguard_key_verification_failure">Échec de la vérification de la clé</string>
