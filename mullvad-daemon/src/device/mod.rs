@@ -157,8 +157,17 @@ pub struct PrivateDevice {
     pub name: DeviceName,
     pub wg_data: wireguard::WireguardData,
     pub ports: Vec<DevicePort>,
+    // FIXME: Reasonable default to avoid migration code for the field,
+    // as it was previously missing.
+    // This attribute may be removed once upgrades from `2022.2-beta1`
+    // no longer need to be supported.
     #[serde(default)]
     pub hijack_dns: bool,
+    // FIXME: Incorrect but reasonable default to avoid migration code
+    // for the field, as it was previously missing.
+    // The value is corrected when the device is validated or updated.
+    // This attribute may be removed once upgrades from `2022.2-beta1`
+    // no longer need to be supported.
     #[serde(default = "Utc::now")]
     pub created: DateTime<Utc>,
 }
