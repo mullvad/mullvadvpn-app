@@ -281,7 +281,6 @@ impl From<mullvad_types::device::RemoveDeviceEvent> for RemoveDeviceEvent {
     fn from(event: mullvad_types::device::RemoveDeviceEvent) -> Self {
         RemoveDeviceEvent {
             account_token: event.account_token,
-            removed_device: Some(Device::from(event.removed_device)),
             new_device_list: event.new_devices.into_iter().map(Device::from).collect(),
         }
     }

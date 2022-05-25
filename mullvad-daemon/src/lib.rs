@@ -1393,10 +1393,11 @@ where
             let result = device_service
                 .remove_device(account_token.clone(), device_id)
                 .await
-                .map(move |(removed_device, new_devices)| {
+                .map(move |new_devices| {
+                    // FIXME: We should be able to get away with only returning the removed ID,
+                    //        and not have to request the list from the API.
                     event_listener.notify_remove_device_event(RemoveDeviceEvent {
                         account_token,
-                        removed_device,
                         new_devices,
                     });
                 });

@@ -137,6 +137,5 @@ pub struct DeviceEvent {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RemoveDeviceEvent {
     pub account_token: AccountToken,
-    pub removed_device: Device,
     pub new_devices: Vec<Device>,
 }
