@@ -24,6 +24,7 @@ use std::{
     path::Path,
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
+    time::Duration,
 };
 #[cfg(windows)]
 use talpid_types::BoxedError;
@@ -109,6 +110,10 @@ pub struct WireguardMonitor {
     pinger_stop_sender: sync_mpsc::Sender<()>,
     _obfuscator: Option<ObfuscatorHandle>,
 }
+
+const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(4);
+const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(15);
+const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
 struct ObfuscatorHandle {
@@ -322,12 +327,25 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
 
             if let Some(pubkey) = psk_negotiation {
-                // TODO: add timeout
-                let (private_key, psk) = talpid_relay_config_client::push_pq_key(
-                    IpAddr::V4(config.ipv4_gateway),
-                    config.tunnel.private_key.public_key(),
+                let timeout = std::cmp::min(
+                    MAX_PSK_EXCHANGE_TIMEOUT,
+                    INITIAL_PSK_EXCHANGE_TIMEOUT.saturating_mul(
+                        PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt),
+                    ),
+                );
+
+                let (private_key, psk) = tokio::time::timeout(
+                    timeout,
+                    talpid_relay_config_client::push_pq_key(
+                        IpAddr::V4(config.ipv4_gateway),
+                        config.tunnel.private_key.public_key(),
+                    ),
                 )
                 .await
+                .map_err(|_timeout_err| {
+                    log::warn!("Timeout while negotiating PSK");
+                    CloseMsg::PskNegotiationTimeout
+                })?
                 .map_err(Error::PskNegotiationError)
                 .map_err(CloseMsg::SetupError)?;
 
@@ -507,7 +525,7 @@ impl WireguardMonitor {
     /// Blocks the current thread until tunnel disconnects
     pub fn wait(mut self) -> Result<()> {
         let wait_result = match self.close_msg_receiver.recv() {
-            Ok(CloseMsg::PingErr) => Err(Error::TimeoutError),
+            Ok(CloseMsg::PskNegotiationTimeout) | Ok(CloseMsg::PingErr) => Err(Error::TimeoutError),
             Ok(CloseMsg::Stop) | Ok(CloseMsg::ObfuscatorExpired) => Ok(()),
             Ok(CloseMsg::SetupError(error)) => Err(error),
             Ok(CloseMsg::ObfuscatorFailed(error)) => Err(error),
@@ -667,6 +685,7 @@ impl WireguardMonitor {
 
 enum CloseMsg {
     Stop,
+    PskNegotiationTimeout,
     PingErr,
     SetupError(Error),
     ObfuscatorExpired,
