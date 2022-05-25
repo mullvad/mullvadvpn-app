@@ -159,6 +159,9 @@ pub struct PrivateDevice {
     pub ports: Vec<DevicePort>,
     #[serde(default)]
     pub hijack_dns: bool,
+    // Use an incorrect but reasonable default to avoid migration code.
+    // It will be updated to the correct value whenever the device
+    // is validated or updated.
     #[serde(default = "Utc::now")]
     pub created: DateTime<Utc>,
 }
