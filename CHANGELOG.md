@@ -25,8 +25,11 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add option to filter relays by ownership in the desktop apps.
+- Add device timestamps to the CLI.
 
 ### Changed
+- Sort listed devices by age (descending order).
+
 #### Android
 - Lowered default MTU to 1280 on Android.
 
