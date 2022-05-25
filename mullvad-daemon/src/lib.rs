@@ -1058,7 +1058,7 @@ where
                 }
             }
             PrivateDeviceEvent::RotatedKey(_) => {
-                if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
+                if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
                     self.schedule_reconnect(WG_RECONNECT_DELAY);
                 }
             }
@@ -1688,7 +1688,7 @@ where
                         .set_tunnel_options(&self.settings.tunnel_options);
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
-                    if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
+                    if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
                         log::info!("Initiating tunnel restart");
                         self.reconnect_tunnel();
                     }
@@ -1839,7 +1839,7 @@ where
                         .set_tunnel_options(&self.settings.tunnel_options);
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
-                    if let Some(TunnelType::OpenVpn) = self.get_connected_tunnel_type() {
+                    if self.get_target_tunnel_type() == Some(TunnelType::OpenVpn) {
                         log::info!(
                             "Initiating tunnel restart because the OpenVPN mssfix setting changed"
                         );
@@ -1976,7 +1976,7 @@ where
                         .set_tunnel_options(&self.settings.tunnel_options);
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
-                    if self.get_connected_tunnel_type() == Some(TunnelType::Wireguard) {
+                    if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
                         log::info!("Reconnecting because the PQ safety setting changed");
                         self.reconnect_tunnel();
                     }
