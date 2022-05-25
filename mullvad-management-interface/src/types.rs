@@ -35,6 +35,7 @@ impl From<talpid_types::net::TunnelEndpoint> for TunnelEndpoint {
                 net::TunnelType::Wireguard => i32::from(TunnelType::Wireguard),
                 net::TunnelType::OpenVpn => i32::from(TunnelType::Openvpn),
             },
+            quantum_resistant: endpoint.quantum_resistant,
             proxy: endpoint.proxy.map(|proxy_ep| ProxyEndpoint {
                 address: proxy_ep.endpoint.address.to_string(),
                 protocol: i32::from(TransportProtocol::from(proxy_ep.endpoint.protocol)),
