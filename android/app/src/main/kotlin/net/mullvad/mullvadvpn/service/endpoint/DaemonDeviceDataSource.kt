@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.service.endpoint
 import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
-import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.util.JobTracker
 
@@ -31,11 +30,7 @@ class DaemonDeviceDataSource(
 
         endpoint.dispatcher.registerHandler(Request.RefreshDeviceState::class) {
             tracker.newBackgroundJob("refreshDeviceJob") {
-                daemon.getDevice()
-                    .let { accountAndDevice ->
-                        Event.DeviceStateEvent(DeviceState.from(accountAndDevice))
-                    }
-                    .also { event -> endpoint.sendEvent(event) }
+                daemon.refreshDevice()
             }
         }
     }

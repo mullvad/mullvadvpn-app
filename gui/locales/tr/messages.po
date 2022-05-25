@@ -499,16 +499,16 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Bir sorun oluştu. Lütfen bizimle %(email)s adresinden iletişime geçin"
 
 #. Title label in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Filter by provider"
 msgstr "Hizmet sağlayıcıya göre filtrele"
 
 #. Back button in navigation bar
-msgctxt "filter-by-provider-nav"
+msgctxt "filter-nav"
 msgid "Select location"
 msgstr "Konum seçin"
 
-msgctxt "filter-by-provider-view"
+msgctxt "filter-view"
 msgid "All providers"
 msgstr "Tüm hizmet sağlayıcılar"
 

@@ -22,44 +22,34 @@ extension REST.Error: DisplayChainedError {
                     "NETWORK_ERROR",
                     tableName: "REST",
                     value: "Network error: %@",
-                    comment: "Network error. Use %@ placeholder to place localized failure description."
+                    comment: ""
                 ),
                 urlError.localizedDescription
             )
-        case .server(let serverError):
-            if let knownErrorDescription = serverError.errorDescription {
-                return knownErrorDescription
-            } else {
-                return String(
-                    format: NSLocalizedString(
-                        "SERVER_ERROR",
-                        tableName: "REST",
-                        value: "Server error: %@",
-                        comment: "Server error. Use %@ placeholder to place localized failure description."
-                    ),
-                    serverError.error ?? "(empty)"
-                )
-            }
-        case .encodePayload:
+        case .unhandledResponse(let statusCode, let serverResponse):
+            return String(
+                format: NSLocalizedString(
+                    "SERVER_ERROR",
+                    tableName: "REST",
+                    value: "Unexpected server response: %1$@ (HTTP status: %2$d)",
+                    comment: ""
+                ),
+                serverResponse?.code.rawValue ?? "(no code)",
+                statusCode
+            )
+        case .createURLRequest:
             return NSLocalizedString(
                 "SERVER_REQUEST_ENCODING_ERROR",
                 tableName: "REST",
-                value: "Server request encoding error",
-                comment: "Failure to encode the server request."
+                value: "Failure to create URL request",
+                comment: ""
             )
-        case .decodeSuccessResponse:
+        case .decodeResponse:
             return NSLocalizedString(
                 "SERVER_SUCCESS_RESPONSE_DECODING_ERROR",
                 tableName: "REST",
-                value: "Server success response decoding error",
-                comment: "Failure to decode the server success response."
-            )
-        case .decodeErrorResponse:
-            return NSLocalizedString(
-                "SERVER_FAILURE_RESPONSE_DECODING_ERROR",
-                tableName: "REST",
-                value: "Server error response decoding error",
-                comment: "Failure to decode the server failure response."
+                value: "Server response decoding error",
+                comment: ""
             )
         }
     }
@@ -194,7 +184,9 @@ extension TunnelManager.Error: DisplayChainedError {
                 reason
             )
 
-            if case .server(.keyLimitReached) = restError {
+            if case .unhandledResponse(_, let serverErrorResponse) = restError,
+               serverErrorResponse?.code == .keyLimitReached
+            {
                 // TODO: maybe use `restError.recoverySuggestion` instead?
                 message.append("\n\n")
                 message.append(NSLocalizedString(
@@ -219,7 +211,9 @@ extension TunnelManager.Error: DisplayChainedError {
                 reason
             )
 
-            if case .server(.keyLimitReached) = restError {
+            if case .unhandledResponse(_, let serverErrorResponse) = restError,
+               serverErrorResponse?.code == .keyLimitReached
+            {
                 // TODO: maybe use `restError.recoverySuggestion` instead?
                 message.append("\n\n")
                 message.append(NSLocalizedString(
@@ -346,7 +340,9 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
         case .validateAccount(let restError):
             let reason = restError.errorChainDescription ?? ""
 
-            if case .server(.invalidAccount) = restError {
+            if case .unhandledResponse(_, let serverErrorResponse) = restError,
+               serverErrorResponse?.code == .invalidAccount
+            {
                 return String(
                     format: NSLocalizedString(
                         "INVALID_ACCOUNT_ERROR",

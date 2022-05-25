@@ -9,47 +9,43 @@
 import Foundation
 
 class ReloadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
-    private let queue: DispatchQueue
     private let state: TunnelManager.State
-    private var cancellableTask: Cancellable?
+    private var task: Cancellable?
 
-    init(queue: DispatchQueue, state: TunnelManager.State, completionHandler: @escaping CompletionHandler) {
-        self.queue = queue
+    init(
+        queue: DispatchQueue,
+        state: TunnelManager.State,
+        completionHandler: @escaping CompletionHandler
+    )
+    {
         self.state = state
 
-        super.init(completionQueue: queue, completionHandler: completionHandler)
+        super.init(
+            dispatchQueue: queue,
+            completionQueue: queue,
+            completionHandler: completionHandler
+        )
     }
 
     override func main() {
-        queue.async {
-            guard !self.isCancelled else {
-                self.finish(completion: .cancelled)
-                return
-            }
+        guard let tunnel = self.state.tunnel else {
+            finish(completion: .failure(.unsetAccount))
+            return
+        }
 
-            guard let tunnel = self.state.tunnel else {
-                self.finish(completion: .failure(.unsetAccount))
-                return
-            }
+        let session = TunnelIPC.Session(tunnel: tunnel)
 
-            let session = TunnelIPC.Session(tunnel: tunnel)
+        task = session.reloadTunnelSettings { [weak self] completion in
+            guard let self = self else { return }
 
-            self.cancellableTask = session.reloadTunnelSettings { [weak self] completion in
-                guard let self = self else { return }
-
-                self.queue.async {
-                    self.finish(completion: completion.mapError { .reloadTunnel($0) })
-                }
+            self.dispatchQueue.async {
+                self.finish(completion: completion.mapError { .reloadTunnel($0) })
             }
         }
     }
 
-    override func cancel() {
-        super.cancel()
-
-        queue.async {
-            self.cancellableTask?.cancel()
-            self.cancellableTask = nil
-        }
+    override func operationDidCancel() {
+        task?.cancel()
+        task = nil
     }
 }

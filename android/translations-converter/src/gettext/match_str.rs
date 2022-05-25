@@ -92,16 +92,6 @@ macro_rules! match_str {
         )
     };
 
-    // Match a string with a given suffix
-    (
-        @match_str($conditions:tt, $input:ident $(, @no_bindings)*)
-        | [.., $suffix:literal] $( $rest:tt )* ) => {
-        match_str!(
-            @match_str(($conditions || $input.ends_with($suffix)), $input, @no_bindings)
-            $( $rest )*
-        )
-    };
-
     // Match a string with a given prefix and suffix
     (
         @match_str($conditions:tt, $input:ident $(, @no_bindings)*)
@@ -113,36 +103,6 @@ macro_rules! match_str {
                 ($conditions || ($input.starts_with($prefix) && $input.ends_with($suffix))),
                 $input,
                 @no_bindings
-            )
-            $( $rest )*
-        )
-    };
-
-    // Match a string with a given prefix, binding the rest of the string after the prefix
-    (
-        @match_str($conditions:tt, $input:ident)
-        | [$prefix:literal, $binding:ident] $( $rest:tt )*
-    ) => {
-        match_str!(
-            @match_str(
-                ($conditions || $input.starts_with($prefix)),
-                $input,
-                @binding $binding = &$input[$prefix.len()..]
-            )
-            $( $rest )*
-        )
-    };
-
-    // Match a string with a given suffix, binding the start of the string up to before the suffix
-    (
-        @match_str($conditions:tt, $input:ident)
-        | [$binding:ident, $suffix:literal] $( $rest:tt )*
-    ) => {
-        match_str!(
-            @match_str(
-                ($conditions || $input.ends_with($suffix)),
-                $input,
-                @binding $binding = &$input[..($input.len()-$suffix.len())]
             )
             $( $rest )*
         )
@@ -162,16 +122,6 @@ macro_rules! match_str {
             )
             $( $rest )*
         )
-    };
-
-    // Final empty `else` body
-    ( @match_str((false), $input:ident) |) => { {} };
-
-    // Final empty `else` body
-    ( @match_str((false), $input:ident) | _ => $body:expr $(,)*) => {
-        {
-            $body
-        }
     };
 
     // Final `else` body with a catch-all binding

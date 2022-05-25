@@ -11,42 +11,37 @@ import Foundation
 class SetTunnelSettingsOperation: ResultOperation<(), TunnelManager.Error> {
     typealias ModificationHandler = (inout TunnelSettings) -> Void
 
-    private let queue: DispatchQueue
     private let state: TunnelManager.State
     private let modificationBlock: ModificationHandler
 
-    init(queue: DispatchQueue, state: TunnelManager.State, modificationBlock: @escaping ModificationHandler, completionHandler: @escaping CompletionHandler) {
-        self.queue = queue
+    init(dispatchQueue: DispatchQueue, state: TunnelManager.State, modificationBlock: @escaping ModificationHandler, completionHandler: @escaping CompletionHandler) {
         self.state = state
         self.modificationBlock = modificationBlock
 
-        super.init(completionQueue: queue, completionHandler: completionHandler)
+        super.init(
+            dispatchQueue: dispatchQueue,
+            completionQueue: dispatchQueue,
+            completionHandler: completionHandler
+        )
     }
 
     override func main() {
-        queue.async {
-            guard !self.isCancelled else {
-                self.finish(completion: .cancelled)
-                return
-            }
+        guard let accountToken = state.tunnelInfo?.token else {
+            finish(completion: .failure(.unsetAccount))
+            return
+        }
 
-            guard let accountToken = self.state.tunnelInfo?.token else {
-                self.finish(completion: .failure(.unsetAccount))
-                return
-            }
+        let result = TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { tunnelSettings in
+            modificationBlock(&tunnelSettings)
+        }
 
-            let result = TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { tunnelSettings in
-                self.modificationBlock(&tunnelSettings)
-            }
+        switch result {
+        case .success(let newTunnelSettings):
+            state.tunnelInfo?.tunnelSettings = newTunnelSettings
+            finish(completion: .success(()))
 
-            switch result {
-            case .success(let newTunnelSettings):
-                self.state.tunnelInfo?.tunnelSettings = newTunnelSettings
-                self.finish(completion: .success(()))
-
-            case .failure(let error):
-                self.finish(completion: .failure(.updateTunnelSettings(error)))
-            }
+        case .failure(let error):
+            finish(completion: .failure(.updateTunnelSettings(error)))
         }
     }
 }

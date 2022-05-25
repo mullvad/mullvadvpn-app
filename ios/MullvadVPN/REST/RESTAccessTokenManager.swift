@@ -31,7 +31,9 @@ extension REST {
             completionHandler: @escaping (OperationCompletion<REST.AccessTokenData, REST.Error>) -> Void
         ) -> Cancellable
         {
-            let operation = ResultBlockOperation<REST.AccessTokenData, REST.Error> { operation in
+            let operation = ResultBlockOperation<REST.AccessTokenData, REST.Error>(
+                dispatchQueue: dispatchQueue
+            ) { operation in
                 if let tokenData = self.tokens[accountNumber], tokenData.expiry > Date() {
                     operation.finish(completion: .success(tokenData))
                     return

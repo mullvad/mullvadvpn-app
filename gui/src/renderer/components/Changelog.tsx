@@ -1,7 +1,9 @@
+import { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
+import { useBoolean } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { hugeText, smallText } from './common-styles';
@@ -33,20 +35,29 @@ export function Changelog() {
     (state) => state.settings.guiSettings.changelogDisplayedForVersion,
   );
   const changelog = useSelector((state) => state.userInterface.changelog);
+  const initialForceShowChanges = useSelector((state) => state.userInterface.forceShowChanges);
 
   const { setDisplayedChangelog } = useAppContext();
 
+  const [forceShowChanges, , stopForceShowChanges] = useBoolean(initialForceShowChanges);
+
+  const close = useCallback(() => {
+    setDisplayedChangelog();
+    stopForceShowChanges();
+  }, []);
+
   const visible =
-    changelogDisplayedForVersion !== currentVersion &&
-    changelog.length > 0 &&
-    !window.env.development &&
-    !/-dev-[0-9a-f]{6}$/.test(currentVersion);
+    forceShowChanges ||
+    (changelogDisplayedForVersion !== currentVersion &&
+      changelog.length > 0 &&
+      !window.env.development &&
+      !/-dev-[0-9a-f]{6}$/.test(currentVersion));
 
   return (
     <ModalAlert
       isOpen={visible}
       buttons={[
-        <AppButton.BlueButton key="close" onClick={setDisplayedChangelog}>
+        <AppButton.BlueButton key="close" onClick={close}>
           {
             // TRANSLATORS: This is a button which closes a dialog.
             messages.gettext('Got it!')

@@ -82,3 +82,14 @@ command:
 ```
 CROWDIN_API_KEY=$YOUR_CROWDIN_KEY ./gui/scripts/crowdin.sh download
 ```
+
+## Add new translations to the Android app
+
+Adding the new translations to the Android app after downloading them from Crowdin is similar to how
+the translations template is updated. First run:
+```
+npm run update-translations
+```
+
+And then run the Android translations converter tool as described in the
+[Android readme](../../android/README.md).

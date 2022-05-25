@@ -101,10 +101,6 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             onSubmit = { mtu -> settingsListener.wireguardMtu = mtu }
         }
 
-        view.findViewById<NavigateCell>(R.id.wireguard_keys).apply {
-            targetFragment = WireguardKeyFragment::class
-        }
-
         view.findViewById<NavigateCell>(R.id.split_tunneling).apply {
             targetFragment = SplitTunnelingFragment::class
         }

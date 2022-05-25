@@ -7,11 +7,11 @@ import {
   AccountToken,
   BridgeSettings,
   BridgeState,
+  DeviceEvent,
+  DeviceState,
   IAccountData,
   IAppVersionInfo,
   IDevice,
-  IDeviceConfig,
-  IDeviceEvent,
   IDeviceRemoval,
   IDnsOptions,
   ILocation,
@@ -37,6 +37,7 @@ import { Scheduler } from '../shared/scheduler';
 import AppRouter from './components/AppRouter';
 import { Changelog } from './components/Changelog';
 import ErrorBoundary from './components/ErrorBoundary';
+import KeyboardNavigation from './components/KeyboardNavigation';
 import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import { ModalContainer } from './components/Modal';
 import PlatformWindowContainer from './containers/PlatformWindowContainer';
@@ -100,8 +101,7 @@ export default class AppRenderer {
   private relayListPair!: IRelayListPair;
   private tunnelState!: TunnelState;
   private settings!: ISettings;
-  private deviceConfig?: IDeviceConfig;
-  private hasReceivedDeviceConfig = false;
+  private deviceState?: DeviceState;
   private guiSettings!: IGuiSettingsState;
   private loginState: LoginState = 'none';
   private previousLoginState: LoginState = 'none';
@@ -136,9 +136,7 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.account.listenDevice((deviceEvent) => {
-      const oldDeviceConfig = this.deviceConfig;
-      this.hasReceivedDeviceConfig = true;
-      this.handleAccountChange(deviceEvent, oldDeviceConfig?.accountToken);
+      this.handleDeviceEvent(deviceEvent);
     });
 
     IpcRendererEventChannel.account.listenDevices((devices) => {
@@ -213,12 +211,15 @@ export default class AppRenderer {
     this.setAccountExpiry(initialState.accountData?.expiry);
     this.setSettings(initialState.settings);
     this.setIsPerformingPostUpgrade(initialState.isPerformingPostUpgrade);
-    this.handleAccountChange(
-      { deviceConfig: initialState.deviceConfig },
-      undefined,
-      initialState.navigationHistory !== undefined,
-    );
-    this.hasReceivedDeviceConfig = initialState.hasReceivedDeviceConfig;
+
+    if (initialState.deviceState) {
+      const deviceState = initialState.deviceState;
+      this.handleDeviceEvent(
+        { type: deviceState.type, deviceState } as DeviceEvent,
+        initialState.navigationHistory !== undefined,
+      );
+    }
+
     this.setAccountHistory(initialState.accountHistory);
     this.setTunnelState(initialState.tunnelState);
     this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
@@ -228,7 +229,7 @@ export default class AppRenderer {
     this.setUpgradeVersion(initialState.upgradeVersion);
     this.setGuiSettings(initialState.guiSettings);
     this.storeAutoStart(initialState.autoStart);
-    this.setChangelog(initialState.changelog);
+    this.setChangelog(initialState.changelog, initialState.forceShowChanges);
 
     if (initialState.macOsScrollbarVisibility !== undefined) {
       this.reduxActions.userInterface.setMacOsScrollbarVisibility(
@@ -273,8 +274,10 @@ export default class AppRenderer {
             <PlatformWindowContainer>
               <ErrorBoundary>
                 <ModalContainer>
-                  <AppRouter />
-                  <Changelog />
+                  <KeyboardNavigation>
+                    <AppRouter />
+                    <Changelog />
+                  </KeyboardNavigation>
                   {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
                 </ModalContainer>
               </ErrorBoundary>
@@ -299,9 +302,18 @@ export default class AppRenderer {
     } catch (e) {
       const error = e as Error;
       if (error.message === 'Too many devices') {
-        actions.account.loginTooManyDevices(error);
-        this.loginState = 'too many devices';
-        this.history.reset(RoutePath.tooManyDevices, transitions.push);
+        try {
+          await this.fetchDevices(accountToken);
+
+          actions.account.loginTooManyDevices(error);
+          this.loginState = 'too many devices';
+
+          this.history.reset(RoutePath.tooManyDevices, transitions.push);
+        } catch (e) {
+          const error = e as Error;
+          log.error('Failed to fetch device list');
+          actions.account.loginFailed(error);
+        }
       } else {
         actions.account.loginFailed(error);
       }
@@ -324,8 +336,7 @@ export default class AppRenderer {
   }
 
   public leaveRevokedDevice = async () => {
-    const reduxAccount = this.reduxActions.account;
-    reduxAccount.loggedOut();
+    await this.logout();
     this.resetNavigation();
     await this.disconnectTunnel();
   };
@@ -354,8 +365,8 @@ export default class AppRenderer {
     IpcRendererEventChannel.account.updateData();
   }
 
-  public getDevice = (): Promise<IDevice | undefined> => {
-    return IpcRendererEventChannel.account.getDevice();
+  public getDeviceState = (): Promise<DeviceState> => {
+    return IpcRendererEventChannel.account.getDeviceState();
   };
 
   public fetchDevices = async (accountToken: AccountToken): Promise<Array<IDevice>> => {
@@ -580,6 +591,10 @@ export default class AppRenderer {
     IpcRendererEventChannel.navigation.setScrollPositions(scrollPositions);
   }
 
+  private isLoggedIn(): boolean {
+    return this.deviceState?.type === 'logged in';
+  }
+
   // Make sure that the content height is correct and log if it isn't. This is mostly for debugging
   // purposes since there's a bug in Electron that causes the app height to be another value than
   // the one we have set.
@@ -620,12 +635,14 @@ export default class AppRenderer {
         wireguardConstraints,
         tunnelProtocol,
         providers,
+        ownership,
       } = relaySettings.normal;
 
       actions.settings.updateRelay({
         normal: {
           location: liftConstraint(location),
           providers,
+          ownership,
           openvpn: {
             port: liftConstraint(openvpnConstraints.port),
             protocol: liftConstraint(openvpnConstraints.protocol),
@@ -726,13 +743,13 @@ export default class AppRenderer {
   }
 
   private getNavigationBase(): RoutePath {
-    if (this.connectedToDaemon && this.hasReceivedDeviceConfig) {
+    if (this.connectedToDaemon && this.deviceState !== undefined) {
       const loginState = this.reduxStore.getState().account.status;
       const deviceRevoked = loginState.type === 'none' && loginState.deviceRevoked;
 
       if (deviceRevoked) {
         return RoutePath.deviceRevoked;
-      } else if (this.deviceConfig?.accountToken) {
+      } else if (this.isLoggedIn()) {
         return RoutePath.main;
       } else {
         return RoutePath.login;
@@ -829,48 +846,54 @@ export default class AppRenderer {
     }
   }
 
-  private handleAccountChange(
-    newDeviceEvent: IDeviceEvent,
-    oldAccount?: string,
-    preventRedirectToConnect?: boolean,
-  ) {
+  private handleDeviceEvent(deviceEvent: DeviceEvent, preventRedirectToConnect?: boolean) {
     const reduxAccount = this.reduxActions.account;
 
-    this.deviceConfig = newDeviceEvent.deviceConfig;
-    const newAccount = newDeviceEvent.deviceConfig?.accountToken;
-    const newDevice = newDeviceEvent.deviceConfig?.device;
+    this.deviceState = deviceEvent.deviceState;
 
-    if (oldAccount && !newAccount) {
-      this.loginScheduler.cancel();
-      if (!this.reduxStore.getState().account.loggingOut && newDeviceEvent.remote) {
-        reduxAccount.deviceRevoked();
-      } else {
+    switch (deviceEvent.type) {
+      case 'logged in': {
+        const accountToken = deviceEvent.deviceState.accountAndDevice.accountToken;
+        const device = deviceEvent.deviceState.accountAndDevice.device;
+
+        switch (this.loginState) {
+          case 'none':
+          case 'logging in':
+            reduxAccount.loggedIn(accountToken, device);
+
+            if (this.previousLoginState === 'too many devices') {
+              this.resetNavigation();
+            } else if (!preventRedirectToConnect) {
+              this.redirectToConnect();
+            }
+            break;
+          case 'creating account':
+            reduxAccount.accountCreated(accountToken, device, new Date().toISOString());
+            break;
+        }
+
+        if (this.loginState !== 'logging in' && this.loginState !== 'creating account') {
+          this.resetNavigation();
+        }
+        break;
+      }
+      case 'logged out':
+        this.loginScheduler.cancel();
         reduxAccount.loggedOut();
-      }
-
-      this.resetNavigation();
-    } else if (newAccount !== undefined && newDevice !== undefined && oldAccount !== newAccount) {
-      switch (this.loginState) {
-        case 'none':
-        case 'logging in':
-          reduxAccount.loggedIn({ accountToken: newAccount, device: newDevice });
-
-          if (this.previousLoginState === 'too many devices') {
-            this.resetNavigation();
-          } else if (!preventRedirectToConnect) {
-            this.redirectToConnect();
-          }
-          break;
-        case 'creating account':
-          reduxAccount.accountCreated(
-            { accountToken: newAccount, device: newDevice },
-            new Date().toISOString(),
-          );
-          break;
-      }
-
-      if (this.loginState !== 'logging in' && this.loginState !== 'creating account') {
         this.resetNavigation();
+        break;
+      case 'revoked': {
+        this.loginScheduler.cancel();
+
+        const oldAccountState = this.reduxStore.getState().account;
+        if (oldAccountState.loggingOut) {
+          reduxAccount.loggedOut();
+        } else {
+          reduxAccount.deviceRevoked();
+        }
+
+        this.resetNavigation();
+        break;
       }
     }
 
@@ -927,8 +950,9 @@ export default class AppRenderer {
     this.reduxActions.settings.updateAutoStart(autoStart);
   }
 
-  private setChangelog(changelog: IChangelog) {
+  private setChangelog(changelog: IChangelog, forceShowChanges: boolean) {
     this.reduxActions.userInterface.setChangelog(changelog);
+    this.reduxActions.userInterface.setForceShowChanges(forceShowChanges);
   }
 
   private async updateLocation() {

@@ -105,7 +105,21 @@ impl DeviceService {
         })
     }
 
-    pub async fn remove_device(&self, token: AccountToken, device: DeviceId) -> Result<(), Error> {
+    pub async fn remove_device(
+        &self,
+        account_token: AccountToken,
+        device_id: DeviceId,
+    ) -> Result<Vec<Device>, Error> {
+        self.remove_device_inner(account_token.clone(), device_id)
+            .await?;
+        self.list_devices(account_token).await
+    }
+
+    async fn remove_device_inner(
+        &self,
+        token: AccountToken,
+        device: DeviceId,
+    ) -> Result<(), Error> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         retry_future_n(
@@ -391,6 +405,7 @@ fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
         Err(error) => {
             if let RestError::ApiError(status, code) = error {
                 *status != rest::StatusCode::NOT_FOUND
+                    && code != mullvad_api::DEVICE_NOT_FOUND
                     && code != mullvad_api::INVALID_ACCOUNT
                     && code != mullvad_api::MAX_DEVICES_REACHED
                     && code != mullvad_api::PUBKEY_IN_USE
@@ -403,16 +418,12 @@ fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
 
 fn map_rest_error(error: rest::Error) -> Error {
     match error {
-        RestError::ApiError(status, ref code) => {
-            if status == rest::StatusCode::NOT_FOUND {
-                return Error::InvalidDevice;
-            }
-            match code.as_str() {
-                mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,
-                mullvad_api::MAX_DEVICES_REACHED => Error::MaxDevicesReached,
-                _ => Error::OtherRestError(error),
-            }
-        }
+        RestError::ApiError(_status, ref code) => match code.as_str() {
+            mullvad_api::DEVICE_NOT_FOUND => Error::InvalidDevice,
+            mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,
+            mullvad_api::MAX_DEVICES_REACHED => Error::MaxDevicesReached,
+            _ => Error::OtherRestError(error),
+        },
         error => Error::OtherRestError(error),
     }
 }

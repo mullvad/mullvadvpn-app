@@ -7,10 +7,11 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
-import net.mullvad.mullvadvpn.ui.notification.KeyStatusNotification
 import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
 import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
@@ -52,7 +53,6 @@ class ConnectFragment :
         notificationBanner = view.findViewById<NotificationBanner>(R.id.notification_banner).apply {
             notifications.apply {
                 register(TunnelStateNotification(parentActivity, connectionProxy))
-                register(KeyStatusNotification(parentActivity, authTokenCache, keyStatusListener))
                 register(VersionInfoNotification(parentActivity, appVersionInfoCache))
                 register(AccountExpiryNotification(parentActivity, authTokenCache, accountCache))
             }
@@ -101,21 +101,24 @@ class ConnectFragment :
             }
         }
 
-        accountCache.onAccountExpiryChange.subscribe(this) { expiry ->
-            if (expiry?.isBeforeNow() ?: false) {
-                openOutOfTimeScreen()
-            } else if (expiry != null) {
-                scheduleNextAccountExpiryCheck(expiry)
-            }
+        jobTracker.newUiJob("updateAccountExpiry") {
+            accountCache.accountExpiryState
+                .map { state -> state.date() }
+                .collect { expiryDate ->
+                    if (expiryDate?.isBeforeNow == true) {
+                        openOutOfTimeScreen()
+                    } else if (expiryDate != null)
+                        scheduleNextAccountExpiryCheck(expiryDate)
+                }
         }
     }
 
     override fun onSafelyStop() {
+        jobTracker.cancelJob("updateAccountExpiry")
+
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
 
-        accountCache.onAccountExpiryChange.unsubscribe(this)
-        keyStatusListener.onKeyStatusChange.unsubscribe(this)
         connectionProxy.onUiStateChange.unsubscribe(this)
 
         notificationBanner.onPause()

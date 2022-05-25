@@ -82,6 +82,12 @@ export function proxyTypeToString(proxy: ProxyType): string {
   }
 }
 
+export enum Ownership {
+  any,
+  mullvadOwned,
+  rented,
+}
+
 export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
@@ -114,7 +120,7 @@ export type DaemonEvent =
   | { settings: ISettings }
   | { relayList: IRelayList }
   | { appVersionInfo: IAppVersionInfo }
-  | { device: IDeviceEvent }
+  | { device: DeviceEvent }
   | { deviceRemoval: Array<IDevice> };
 
 export interface ITunnelStateRelayInfo {
@@ -159,6 +165,7 @@ interface IRelaySettingsNormal<OpenVpn, Wireguard> {
   location: Constraint<RelayLocation>;
   tunnelProtocol: Constraint<TunnelProtocol>;
   providers: string[];
+  ownership: Ownership;
   openvpnConstraints: OpenVpn;
   wireguardConstraints: Wireguard;
 }
@@ -241,6 +248,7 @@ export interface IRelayListHostname {
   includeInCountry: boolean;
   active: boolean;
   weight: number;
+  owned: boolean;
   tunnels?: IRelayTunnels;
   bridges?: IRelayBridges;
 }
@@ -333,20 +341,25 @@ export interface IAppVersionInfo {
   suggestedIsBeta?: boolean;
 }
 
-export interface IDeviceEvent {
-  deviceConfig?: IDeviceConfig;
-  remote?: boolean;
-}
-
-export interface IDeviceConfig {
+export interface IAccountAndDevice {
   accountToken: AccountToken;
   device?: IDevice;
 }
+
+export type LoggedInDeviceState = { type: 'logged in'; accountAndDevice: IAccountAndDevice };
+export type LoggedOutDeviceState = { type: 'logged out' | 'revoked' };
+
+export type DeviceState = LoggedInDeviceState | LoggedOutDeviceState;
+
+export type DeviceEvent =
+  | { type: 'logged in' | 'updated' | 'rotated_key'; deviceState: LoggedInDeviceState }
+  | { type: 'logged out' | 'revoked'; deviceState: LoggedOutDeviceState };
 
 export interface IDevice {
   id: string;
   name: string;
   ports?: Array<string>;
+  created: Date;
 }
 
 export interface IDeviceRemoval {
@@ -376,6 +389,7 @@ export type SplitTunnelSettings = {
 export interface IBridgeConstraints {
   location: Constraint<RelayLocation>;
   providers: string[];
+  ownership: Ownership;
 }
 
 export type BridgeSettings = { normal: IBridgeConstraints } | { custom: ProxySettings };

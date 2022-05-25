@@ -21,3 +21,9 @@ export class TooManyDevicesError extends Error {
     super('Too many devices');
   }
 }
+
+export class ListDevicesError extends Error {
+  constructor() {
+    super('Failed to fetch list of devices');
+  }
+}

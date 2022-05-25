@@ -16,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
@@ -120,6 +121,7 @@ class LoginFragment :
                 launch {
                     loginViewModel.accountHistory.collect { history ->
                         accountLogin.accountHistory = history
+                            .let { it as? AccountHistory.Available }?.accountToken
                     }
                 }
                 launch {

@@ -710,14 +710,14 @@ fn eq_file_content<P: AsRef<Path>>(a: &P, b: &P) -> bool {
     let file_a = match File::open(a).map(BufReader::new) {
         Ok(file) => file,
         Err(e) => {
-            log::debug!("Failed top open file {}: {}", a.as_ref().display(), e);
+            log::debug!("Failed to open file {}: {}", a.as_ref().display(), e);
             return false;
         }
     };
     let file_b = match File::open(b).map(BufReader::new) {
         Ok(file) => file,
         Err(e) => {
-            log::debug!("Failed top open file {}: {}", b.as_ref().display(), e);
+            log::debug!("Failed to open file {}: {}", b.as_ref().display(), e);
             return false;
         }
     };

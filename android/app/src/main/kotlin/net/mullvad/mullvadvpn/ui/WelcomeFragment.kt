@@ -64,8 +64,10 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             }
         }
 
-        accountCache.onAccountExpiryChange.subscribe(this) { expiry ->
-            checkExpiry(expiry)
+        jobTracker.newUiJob("checkAccountExpiry") {
+            accountCache.accountExpiryState.collect {
+                checkExpiry(it.date())
+            }
         }
 
         jobTracker.newBackgroundJob("pollAccountData") {
@@ -79,7 +81,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyStop() {
-        accountCache.onAccountExpiryChange.unsubscribe(this)
+        jobTracker.cancelJob("checkAccountExpiry")
         jobTracker.cancelJob("pollAccountData")
         jobTracker.cancelJob("updateAccountNumber")
     }

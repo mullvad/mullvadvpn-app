@@ -21,6 +21,14 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
+    var value: Success? {
+        if case .success(let value) = self {
+            return value
+        } else {
+            return nil
+        }
+    }
+
     var error: Failure? {
         if case .failure(let error) = self {
             return error
@@ -44,7 +52,6 @@ enum OperationCompletion<Success, Failure: Error> {
         switch result {
         case .success(let value):
             self = .success(value)
-
         case .failure(let error):
             self = .failure(error)
         }
@@ -69,6 +76,49 @@ enum OperationCompletion<Success, Failure: Error> {
             return .failure(block(error))
         case .cancelled:
             return .cancelled
+        }
+    }
+
+    func flatMap<NewSuccess>(_ block: (Success) -> OperationCompletion<NewSuccess, Failure>) -> OperationCompletion<NewSuccess, Failure> {
+        switch self {
+        case .success(let value):
+            return block(value)
+        case .failure(let error):
+            return .failure(error)
+        case .cancelled:
+            return .cancelled
+        }
+    }
+
+    func flatMapError<NewFailure: Error>(_ block: (Failure) -> OperationCompletion<Success, NewFailure>) -> OperationCompletion<Success, NewFailure> {
+        switch self {
+        case .success(let value):
+            return .success(value)
+        case .failure(let error):
+            return block(error)
+        case .cancelled:
+            return .cancelled
+        }
+    }
+
+    func tryMap<NewSuccess>(_ block: (Success) throws -> NewSuccess) -> OperationCompletion<NewSuccess, Error> {
+        switch self {
+        case .success(let value):
+            do {
+                return .success(try block(value))
+            } catch {
+                return .failure(error)
+            }
+        case .failure(let error):
+            return .failure(error)
+        case .cancelled:
+            return .cancelled
+        }
+    }
+
+    func assertNoSuccess<NewSuccess>() -> OperationCompletion<NewSuccess, Failure> {
+        return map { success in
+            return success as! NewSuccess
         }
     }
 }

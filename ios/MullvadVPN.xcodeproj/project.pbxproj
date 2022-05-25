@@ -80,6 +80,7 @@
 		5840250422B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
 		5840250522B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
 		5840BE35279EDB16002836BA /* OperationCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840BE34279EDB16002836BA /* OperationCompletion.swift */; };
+		5842102E282D3FC200F24E46 /* ResultBlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */; };
 		584592612639B4A200EF967F /* ConsentContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584592602639B4A200EF967F /* ConsentContentView.swift */; };
 		5846226526E0D9630035F7C2 /* ProductsRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */; };
 		5846227126E229F20035F7C2 /* AppStoreSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227026E229F20035F7C2 /* AppStoreSubscription.swift */; };
@@ -104,7 +105,6 @@
 		5850368C25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B35322BB87C4003C19AD /* PrivateKeyWithMetadata.swift */; };
 		5850368D25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B35322BB87C4003C19AD /* PrivateKeyWithMetadata.swift */; };
 		58554F73280AFA5A00013055 /* RESTAuthenticationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */; };
-		58554F75280AFAE900013055 /* RESTResponseDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F74280AFAE900013055 /* RESTResponseDecoder.swift */; };
 		58554F77280AFD5C00013055 /* RESTTaskIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */; };
 		58554F79280B037400013055 /* RESTAccessTokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F78280B037400013055 /* RESTAccessTokenManager.swift */; };
 		58554F7B280B125F00013055 /* RESTAccountsProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F7A280B125F00013055 /* RESTAccountsProxy.swift */; };
@@ -407,6 +407,7 @@
 		5840250022B1124600E4CFEC /* IPAddress+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPAddress+Codable.swift"; sourceTree = "<group>"; };
 		5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadEndpoint.swift; sourceTree = "<group>"; };
 		5840BE34279EDB16002836BA /* OperationCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationCompletion.swift; sourceTree = "<group>"; };
+		5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultBlockOperation.swift; sourceTree = "<group>"; };
 		584592602639B4A200EF967F /* ConsentContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsentContentView.swift; sourceTree = "<group>"; };
 		5845F841236CBACD00B2D93C /* TunnelIPC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelIPC.swift; sourceTree = "<group>"; };
 		5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsRequestOperation.swift; sourceTree = "<group>"; };
@@ -424,7 +425,6 @@
 		584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Markdown.swift"; sourceTree = "<group>"; };
 		5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPAddressRange+Codable.swift"; sourceTree = "<group>"; };
 		58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAuthenticationProxy.swift; sourceTree = "<group>"; };
-		58554F74280AFAE900013055 /* RESTResponseDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTResponseDecoder.swift; sourceTree = "<group>"; };
 		58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTaskIdentifier.swift; sourceTree = "<group>"; };
 		58554F78280B037400013055 /* RESTAccessTokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAccessTokenManager.swift; sourceTree = "<group>"; };
 		58554F7A280B125F00013055 /* RESTAccountsProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAccountsProxy.swift; sourceTree = "<group>"; };
@@ -666,6 +666,7 @@
 				5820675D26E6839900655B05 /* PresentAlertOperation.swift */,
 				5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */,
 				58F7D26427EB50A300E4D821 /* ResultOperation.swift */,
+				5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -779,7 +780,6 @@
 				58F97A1A280EEBC00050C2FC /* RESTProxyFactory.swift */,
 				58B5A894280AACC4009FDE99 /* RESTRequestFactory.swift */,
 				58F97A1D280FDE230050C2FC /* RESTRequestHandler.swift */,
-				58554F74280AFAE900013055 /* RESTResponseDecoder.swift */,
 				588BCF272816D664009ADCEC /* RESTResponseHandler.swift */,
 				58095C582762155700890776 /* RESTRetryStrategy.swift */,
 				58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */,
@@ -1325,6 +1325,7 @@
 				585DA89926B0329200B8C587 /* PacketTunnelStatus.swift in Sources */,
 				5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */,
 				5840250122B1124600E4CFEC /* IPAddress+Codable.swift in Sources */,
+				5842102E282D3FC200F24E46 /* ResultBlockOperation.swift in Sources */,
 				5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */,
 				5846227126E229F20035F7C2 /* AppStoreSubscription.swift in Sources */,
 				5820675B26E6576800655B05 /* RelayCache.swift in Sources */,
@@ -1496,7 +1497,6 @@
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58B43C1925F77DB60002C8C3 /* ConnectMainContentView.swift in Sources */,
 				58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
-				58554F75280AFAE900013055 /* RESTResponseDecoder.swift in Sources */,
 				58F97A1E280FDE230050C2FC /* RESTRequestHandler.swift in Sources */,
 				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,

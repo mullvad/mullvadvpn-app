@@ -18,48 +18,33 @@ class PresentAlertOperation: AsyncOperation {
         self.presentingController = presentingController
         self.presentCompletion = presentCompletion
 
-        super.init()
+        super.init(dispatchQueue: .main)
     }
 
-    override func cancel() {
-        DispatchQueue.main.async {
-            // Guard against executing cancellation more than once.
-            guard !self.isCancelled else { return }
+    override func operationDidCancel() {
+        // Guard against trying to dismiss the alert when operation hasn't started yet.
+        guard isExecuting else { return }
 
-            // Call super implementation to toggle isCancelled flag
-            super.cancel()
-
-            // Guard against trying to dismiss the alert when operation hasn't started yet.
-            guard self.isExecuting else { return }
-
-            // Guard against dismissing controller during transition.
-            if !self.alertController.isBeingPresented && !self.alertController.isBeingDismissed {
-                self.dismissAndFinish()
-            }
+        // Guard against dismissing controller during transition.
+        if !alertController.isBeingPresented && !alertController.isBeingDismissed {
+            dismissAndFinish()
         }
     }
 
     override func main() {
-        DispatchQueue.main.async {
-            guard !self.isCancelled else {
-                self.finish()
-                return
-            }
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(self.alertControllerDidDismiss(_:)),
+            name: AlertPresenter.alertControllerDidDismissNotification,
+            object: self.alertController
+        )
 
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(self.alertControllerDidDismiss(_:)),
-                name: AlertPresenter.alertControllerDidDismissNotification,
-                object: self.alertController
-            )
+        presentingController.present(self.alertController, animated: true) {
+            self.presentCompletion?()
 
-            self.presentingController.present(self.alertController, animated: true) {
-                self.presentCompletion?()
-
-                // Alert operation was cancelled during transition?
-                if self.isCancelled {
-                    self.dismissAndFinish()
-                }
+            // Alert operation was cancelled during transition?
+            if self.isCancelled {
+                self.dismissAndFinish()
             }
         }
     }

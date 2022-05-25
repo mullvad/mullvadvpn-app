@@ -511,16 +511,12 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     // Device management
-    async fn get_device(&self, _: Request<()>) -> ServiceResult<types::DeviceConfig> {
+    async fn get_device(&self, _: Request<()>) -> ServiceResult<types::DeviceState> {
         log::debug!("get_device");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetDevice(tx))?;
-        let device = self
-            .wait_for_result(rx)
-            .await?
-            .map_err(map_daemon_error)?
-            .ok_or(Status::new(Code::NotFound, "no device is set"))?;
-        Ok(Response::new(types::DeviceConfig::from(device)))
+        let device = self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
+        Ok(Response::new(types::DeviceState::from(device)))
     }
 
     async fn update_device(&self, _: Request<()>) -> ServiceResult<()> {

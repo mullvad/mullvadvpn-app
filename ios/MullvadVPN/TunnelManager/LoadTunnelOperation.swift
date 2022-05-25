@@ -10,34 +10,29 @@ import Foundation
 import Logging
 
 class LoadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
-    private let queue: DispatchQueue
     private let accountToken: String?
     private let state: TunnelManager.State
 
     private let logger = Logger(label: "TunnelManager.LoadTunnelOperation")
 
-    init(queue: DispatchQueue, state: TunnelManager.State, accountToken: String?, completionHandler: @escaping CompletionHandler) {
-        self.queue = queue
+    init(dispatchQueue: DispatchQueue, state: TunnelManager.State, accountToken: String?, completionHandler: @escaping CompletionHandler) {
         self.state = state
         self.accountToken = accountToken
 
-        super.init(completionQueue: queue, completionHandler: completionHandler)
+        super.init(
+            dispatchQueue: dispatchQueue,
+            completionQueue: dispatchQueue,
+            completionHandler: completionHandler
+        )
     }
 
     override func main() {
-        queue.async {
-            self.execute { completion in
-                self.finish(completion: completion)
-            }
+        execute { completion in
+            self.finish(completion: completion)
         }
     }
 
     private func execute(completionHandler: @escaping CompletionHandler) {
-        guard !isCancelled else {
-            completionHandler(.cancelled)
-            return
-        }
-
         // Migrate the tunnel settings if needed
         if let accountToken = accountToken {
             let migrationResult = migrateTunnelSettings(accountToken: accountToken)
@@ -49,7 +44,7 @@ class LoadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
         }
 
         TunnelProviderManagerType.loadAllFromPreferences { tunnels, error in
-            self.queue.async {
+            self.dispatchQueue.async {
                 if let error = error {
                     completionHandler(.failure(.loadAllVPNConfigurations(error)))
                 } else {
@@ -70,7 +65,7 @@ class LoadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
                 // Case 2: tunnel exists but account token is unset.
                 // Remove the orphaned tunnel.
                 tunnelProvider.removeFromPreferences { error in
-                    self.queue.async {
+                    self.dispatchQueue.async {
                         if let error = error {
                             completionHandler(.failure(.removeInconsistentVPNConfiguration(error)))
                         } else {
@@ -121,7 +116,7 @@ class LoadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
         // It will be re-created upon the first attempt to connect the tunnel.
         case (.success(false), .success(let keychainEntry)):
             tunnelProvider.removeFromPreferences { error in
-                self.queue.async {
+                self.dispatchQueue.async {
                     if let error = error {
                         completionHandler(.failure(.removeInconsistentVPNConfiguration(error)))
                     } else {
@@ -141,7 +136,7 @@ class LoadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
             // Remove the tunnel with corrupt configuration.
             // It will be re-created upon the first attempt to connect the tunnel.
             tunnelProvider.removeFromPreferences { error in
-                self.queue.async {
+                self.dispatchQueue.async {
                     if let error = error {
                         completionHandler(.failure(.removeInconsistentVPNConfiguration(error)))
                     } else {
@@ -158,7 +153,7 @@ class LoadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
             logger.error(chainedError: verificationError, message: "Failed to verify the tunnel and load tunnel settings. Removing the tunnel.")
 
             tunnelProvider.removeFromPreferences { error in
-                self.queue.async {
+                self.dispatchQueue.async {
                     if let error = error {
                         completionHandler(.failure(.removeInconsistentVPNConfiguration(error)))
                     } else {
@@ -172,7 +167,7 @@ class LoadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
             logger.error(chainedError: settingsReadError, message: "Failed to load tunnel settings. Removing the tunnel.")
 
             tunnelProvider.removeFromPreferences { error in
-                self.queue.async {
+                self.dispatchQueue.async {
                     if let error = error {
                         completionHandler(.failure(.removeInconsistentVPNConfiguration(error)))
                     } else {

@@ -1,12 +1,17 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import android.app.Application
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.model.AccountCreationResult
+import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 
@@ -14,9 +19,10 @@ class LoginViewModel(
     application: Application
 ) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Default)
-    private val _accountHistory = MutableStateFlow<String?>(null)
     val uiState: StateFlow<LoginUiState> = _uiState
-    val accountHistory: StateFlow<String?> = _accountHistory
+
+    private val _accountHistory = MutableStateFlow<AccountHistory>(AccountHistory.Missing)
+    val accountHistory: StateFlow<AccountHistory> = _accountHistory
 
     private var accountCache: AccountCache? = null
 
@@ -38,8 +44,15 @@ class LoginViewModel(
     // Ensures the view model has an up-to-date instance of account cache. This is an intermediate
     // solution due to limitations in the current app architecture.
     fun updateAccountCacheInstance(newAccountCache: AccountCache?) {
-        accountCache?.unsubscribe()
-        accountCache = newAccountCache?.apply { subscribe() }
+        accountCache = newAccountCache?.apply {
+            viewModelScope.launch {
+                accountHistoryEvents.collect {
+                    _accountHistory.value = it
+                }
+            }
+
+            fetchAccountHistory()
+        }
     }
 
     fun clearAccountHistory() {
@@ -47,50 +60,44 @@ class LoginViewModel(
     }
 
     fun createAccount() {
-        _uiState.value = LoginUiState.CreatingAccount
-        accountCache?.createNewAccount()
+        accountCache?.apply {
+            _uiState.value = LoginUiState.CreatingAccount
+
+            viewModelScope.launch {
+                _uiState.value = accountCreationEvents.first().mapToUiState()
+            }
+
+            createNewAccount()
+        }
     }
 
     fun login(accountToken: String) {
-        _uiState.value = LoginUiState.Loading
-        accountCache?.login(accountToken)
-    }
+        accountCache?.apply {
+            _uiState.value = LoginUiState.Loading
 
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public override fun onCleared() {
-        accountCache?.unsubscribe()
-    }
-
-    private fun AccountCache.subscribe() {
-        onAccountHistoryChange.subscribe(this) { history ->
-            _accountHistory.value = history
-        }
-
-        onLoginStatusChange.subscribe(this, startWithLatestEvent = false) { status ->
-            _uiState.value = when {
-                status == null -> {
-                    LoginUiState.Default
-                }
-                status.isNewAccount -> {
-                    LoginUiState.AccountCreated
-                }
-                else -> {
-                    when (status.loginResult) {
-                        LoginResult.Ok -> LoginUiState.Success(false)
-                        LoginResult.InvalidAccount -> LoginUiState.InvalidAccountError
-                        LoginResult.MaxDevicesReached -> LoginUiState.TooManyDevicesError
-                        else -> LoginUiState.OtherError(
-                            errorMessage = status.loginResult?.toString() ?: ""
-                        )
-                    }
-                }
+            viewModelScope.launch {
+                _uiState.value = loginEvents.first().result.mapToUiState()
             }
+
+            login(accountToken)
         }
     }
 
-    private fun AccountCache.unsubscribe() {
-        onAccountHistoryChange.unsubscribe(this)
-        onLoginStatusChange.unsubscribe(this)
+    private fun AccountCreationResult.mapToUiState(): LoginUiState {
+        return if (this is AccountCreationResult.Success) {
+            LoginUiState.AccountCreated
+        } else {
+            LoginUiState.UnableToCreateAccountError
+        }
+    }
+
+    private fun LoginResult.mapToUiState(): LoginUiState {
+        return when (this) {
+            LoginResult.Ok -> LoginUiState.Success(false)
+            LoginResult.InvalidAccount -> LoginUiState.InvalidAccountError
+            LoginResult.MaxDevicesReached -> LoginUiState.TooManyDevicesError
+            else -> LoginUiState.OtherError(errorMessage = this.toString())
+        }
     }
 
     class Factory(val application: Application) :

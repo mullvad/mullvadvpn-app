@@ -22,27 +22,20 @@ class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>, SKPr
     init(productIdentifiers: Set<String>, completionHandler: @escaping CompletionHandler) {
         self.productIdentifiers = productIdentifiers
 
-        super.init(completionQueue: .main, completionHandler: completionHandler)
+        super.init(
+            dispatchQueue: .main,
+            completionQueue: .main,
+            completionHandler: completionHandler
+        )
     }
 
     override func main() {
-        DispatchQueue.main.async {
-            guard !self.isCancelled else {
-                self.finish(completion: .cancelled)
-                return
-            }
-
-            self.startRequest()
-        }
+        startRequest()
     }
 
-    override func cancel() {
-        super.cancel()
-
-        DispatchQueue.main.async {
-            self.request?.cancel()
-            self.retryTimer?.cancel()
-        }
+    override func operationDidCancel() {
+        request?.cancel()
+        retryTimer?.cancel()
     }
 
     // - MARK: SKProductsRequestDelegate
@@ -52,7 +45,7 @@ class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>, SKPr
     }
 
     func request(_ request: SKRequest, didFailWithError error: Error) {
-        DispatchQueue.main.async {
+        dispatchQueue.async {
             if self.retryCount < self.maxRetryCount, !self.isCancelled {
                 self.retryCount += 1
                 self.retry(error: error)

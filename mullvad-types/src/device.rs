@@ -1,4 +1,5 @@
 use crate::account::AccountToken;
+use chrono::{DateTime, Utc};
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
@@ -21,6 +22,10 @@ pub struct Device {
     #[cfg_attr(target_os = "android", jnix(map = "|key| *key.as_bytes()"))]
     pub pubkey: PublicKey,
     pub ports: Vec<DevicePort>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub hijack_dns: bool,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub created: DateTime<Utc>,
 }
 
 impl Eq for Device {}
@@ -61,6 +66,26 @@ impl fmt::Display for DevicePort {
     }
 }
 
+/// Contains a device state.
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+pub enum DeviceState {
+    LoggedIn(AccountAndDevice),
+    LoggedOut,
+    Revoked,
+}
+
+impl DeviceState {
+    pub fn into_device(self) -> Option<AccountAndDevice> {
+        match self {
+            DeviceState::LoggedIn(dev) => Some(dev),
+            _ => None,
+        }
+    }
+}
+
 /// A [Device] and its associated account token.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
@@ -79,35 +104,30 @@ impl AccountAndDevice {
     }
 }
 
+/// Reason why a [DeviceEvent] was emitted.
+#[derive(Clone, Debug)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+pub enum DeviceEventCause {
+    /// Logged in on a new device.
+    LoggedIn,
+    /// The device was removed due to user (or daemon) action.
+    LoggedOut,
+    /// Device was removed because it was not found remotely.
+    Revoked,
+    /// The device was updated, but not its key.
+    Updated,
+    /// The key was rotated.
+    RotatedKey,
+}
+
 /// Emitted when logging in or out of an account, or when the device changes.
 #[derive(Clone, Debug)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct DeviceEvent {
-    /// Device that was affected.
-    pub device: Option<AccountAndDevice>,
-    /// Indicates whether the change was initiated remotely or by the daemon.
-    pub remote: bool,
-}
-
-impl DeviceEvent {
-    pub fn new(device: Option<AccountAndDevice>, remote: bool) -> DeviceEvent {
-        DeviceEvent { device, remote }
-    }
-
-    pub fn from_device(device: AccountAndDevice, remote: bool) -> DeviceEvent {
-        DeviceEvent {
-            device: Some(device),
-            remote,
-        }
-    }
-
-    pub fn revoke(remote: bool) -> Self {
-        Self {
-            device: None,
-            remote,
-        }
-    }
+    pub cause: DeviceEventCause,
+    pub new_state: DeviceState,
 }
 
 /// Emitted when a device is removed using the `RemoveDevice` RPC.
@@ -117,6 +137,5 @@ impl DeviceEvent {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RemoveDeviceEvent {
     pub account_token: AccountToken,
-    pub removed_device: Device,
     pub new_devices: Vec<Device>,
 }

@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
@@ -72,8 +74,12 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     }
 
     override fun onSafelyStart() {
-        accountCache.onAccountExpiryChange.subscribe(this) { expiry ->
-            checkExpiry(expiry)
+        jobTracker.newUiJob("updateAccountExpiry") {
+            accountCache.accountExpiryState
+                .map { state -> state.date() }
+                .collect { expiryDate ->
+                    checkExpiry(expiryDate)
+                }
         }
 
         jobTracker.newBackgroundJob("pollAccountData") {
@@ -87,7 +93,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     }
 
     override fun onSafelyStop() {
-        accountCache.onAccountExpiryChange.unsubscribe(this)
+        jobTracker.cancelJob("updateAccountExpiry")
         jobTracker.cancelJob("pollAccountData")
     }
 

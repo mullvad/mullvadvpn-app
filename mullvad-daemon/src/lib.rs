@@ -11,10 +11,10 @@ mod cleanup;
 pub mod device;
 mod dns;
 pub mod exception_logging;
-#[cfg(target_os = "macos")]
-pub mod exclusion_gid;
 mod geoip;
 pub mod logging;
+#[cfg(target_os = "macos")]
+mod macos;
 #[cfg(not(target_os = "android"))]
 pub mod management_interface;
 mod migrations;
@@ -34,14 +34,13 @@ use futures::{
     future::{abortable, AbortHandle, Future},
     StreamExt,
 };
-use mullvad_api::availability::ApiAvailabilityHandle;
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    device::{AccountAndDevice, Device, DeviceEvent, DeviceId, RemoveDeviceEvent},
+    device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
     relay_list::RelayList,
@@ -195,8 +194,8 @@ pub enum DaemonCommand {
     LoginAccount(ResponseTx<(), Error>, AccountToken),
     /// Log out of the current account and remove the device, if they exist.
     LogoutAccount(ResponseTx<(), Error>),
-    /// Return the current device configuration, if there is one.
-    GetDevice(ResponseTx<Option<AccountAndDevice>, Error>),
+    /// Return the current device configuration.
+    GetDevice(ResponseTx<DeviceState, Error>),
     /// Update/check the current device, if there is one.
     UpdateDevice(ResponseTx<(), Error>),
     /// Return all the devices for a given account token.
@@ -545,8 +544,8 @@ where
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
         let exclusion_gid = {
-            bump_filehandle_limit();
-            exclusion_gid::set_exclusion_gid().map_err(Error::GroupIdError)?
+            macos::bump_filehandle_limit();
+            macos::set_exclusion_gid().map_err(Error::GroupIdError)?
         };
 
         mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
@@ -557,7 +556,7 @@ where
             &cache_dir,
             true,
             #[cfg(target_os = "android")]
-            Self::create_bypass_tx(&internal_event_tx),
+            api::create_bypass_tx(&internal_event_tx),
         )
         .await
         .map_err(Error::InitRpcFactory)?;
@@ -597,30 +596,22 @@ where
             migrations::MigrationComplete::new(true)
         };
 
-        let account_manager = device::AccountManager::spawn(
+        let (account_manager, data) = device::AccountManager::spawn(
             api_handle.clone(),
-            api_availability.clone(),
             &settings_dir,
             settings
                 .tunnel_options
                 .wireguard
                 .rotation_interval
                 .unwrap_or_default(),
+            internal_event_tx.to_specialized_sender(),
         )
         .await
         .map_err(Error::LoadAccountManager)?;
-        account_manager
-            .receive_events(internal_event_tx.to_specialized_sender())
-            .await
-            .map_err(Error::LoadAccountManager)?;
-        let data = account_manager
-            .data()
-            .await
-            .map_err(Error::LoadAccountManager)?;
 
         let account_history = account_history::AccountHistory::new(
             &settings_dir,
-            data.as_ref().map(|device| device.account_token.clone()),
+            data.device().map(|device| device.account_token.clone()),
         )
         .await
         .map_err(Error::LoadAccountHistory)?;
@@ -681,7 +672,7 @@ where
 
         endpoint_updater.set_tunnel_command_tx(Arc::downgrade(&tunnel_command_tx));
 
-        Self::forward_offline_state(api_availability.clone(), offline_state_rx).await;
+        api::forward_offline_state(api_availability.clone(), offline_state_rx);
 
         let relay_list_listener = event_listener.clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
@@ -1079,7 +1070,11 @@ where
         let account_manager = self.account_manager.clone();
         let event_listener = self.event_listener.clone();
         tokio::spawn(async move {
-            if let Ok(Some(_)) = account_manager.data_after_login().await {
+            if let Ok(Some(_)) = account_manager
+                .data_after_login()
+                .await
+                .map(|s| s.into_device())
+            {
                 // Discard stale device
                 return;
             }
@@ -1091,8 +1086,18 @@ where
                     "{}",
                     error.display_chain_with_msg("Failed to move over account from old settings")
                 );
-                // Synthesize a logout event.
-                event_listener.notify_device_event(DeviceEvent::revoke(false));
+                // Synthesize a logout or revocation if migration fails.
+                let event = match error {
+                    device::Error::InvalidDevice => DeviceEvent {
+                        cause: DeviceEventCause::Revoked,
+                        new_state: DeviceState::Revoked,
+                    },
+                    _ => DeviceEvent {
+                        cause: DeviceEventCause::LoggedOut,
+                        new_state: DeviceState::LoggedOut,
+                    },
+                };
+                event_listener.notify_device_event(event);
             }
         });
     }
@@ -1211,8 +1216,10 @@ where
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             let result = async {
-                if let Ok(Some(_)) = account_manager.data().await {
-                    return Err(Error::AlreadyLoggedIn);
+                if let Ok(data) = account_manager.data().await {
+                    if data.logged_in() {
+                        return Err(Error::AlreadyLoggedIn);
+                    }
                 }
                 let token = account_manager
                     .account_service
@@ -1252,7 +1259,7 @@ where
     }
 
     async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
-        if let Ok(Some(device)) = self.account_manager.data().await {
+        if let Ok(Some(device)) = self.account_manager.data().await.map(|s| s.into_device()) {
             let future = self
                 .account_manager
                 .account_service
@@ -1278,7 +1285,7 @@ where
         tx: ResponseTx<VoucherSubmission, Error>,
         voucher: String,
     ) {
-        if let Ok(Some(device)) = self.account_manager.data().await {
+        if let Ok(Some(device)) = self.account_manager.data().await.map(|s| s.into_device()) {
             let mut account = self.account_manager.account_service.clone();
             tokio::spawn(async move {
                 Self::oneshot_send(
@@ -1329,16 +1336,16 @@ where
         });
     }
 
-    async fn on_get_device(&mut self, tx: ResponseTx<Option<AccountAndDevice>, Error>) {
+    async fn on_get_device(&mut self, tx: ResponseTx<DeviceState, Error>) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
                 tx,
-                Ok(account_manager
+                account_manager
                     .data()
                     .await
-                    .unwrap_or(None)
-                    .map(AccountAndDevice::from)),
+                    .map_err(|_| Error::NoAccountToken)
+                    .map(DeviceState::from),
                 "get_device response",
             );
         });
@@ -1376,50 +1383,29 @@ where
     async fn on_remove_device(
         &mut self,
         tx: ResponseTx<(), Error>,
-        token: AccountToken,
+        account_token: AccountToken,
         device_id: DeviceId,
     ) {
         let device_service = self.account_manager.device_service.clone();
         let event_listener = self.event_listener.clone();
 
         tokio::spawn(async move {
-            let mut devices = match device_service
-                .list_devices(token.clone())
+            let result = device_service
+                .remove_device(account_token.clone(), device_id)
                 .await
-                .map_err(Error::ListDevicesError)
-            {
-                Ok(devices) => devices,
-                Err(error) => {
-                    Self::oneshot_send(tx, Err(error), "remove_device response");
-                    return;
-                }
-            };
-            if let Err(error) = device_service
-                .remove_device(token.clone(), device_id.clone())
-                .await
-                .map_err(Error::RemoveDeviceError)
-            {
-                Self::oneshot_send(tx, Err(error), "remove_device response");
-                return;
-            };
-            let removed_device =
-                if let Some(index) = devices.iter().position(|device| device.id == device_id) {
-                    devices.swap_remove(index)
-                } else {
-                    log::error!("List did not contain the revoked device");
-                    Device {
-                        id: device_id,
-                        name: "unknown device".to_string(),
-                        pubkey: talpid_types::net::wireguard::PublicKey::from([0u8; 32]),
-                        ports: vec![],
-                    }
-                };
-            event_listener.notify_remove_device_event(RemoveDeviceEvent {
-                account_token: token,
-                removed_device,
-                new_devices: devices,
-            });
-            Self::oneshot_send(tx, Ok(()), "remove_device response");
+                .map(move |new_devices| {
+                    // FIXME: We should be able to get away with only returning the removed ID,
+                    //        and not have to request the list from the API.
+                    event_listener.notify_remove_device_event(RemoveDeviceEvent {
+                        account_token,
+                        new_devices,
+                    });
+                });
+            Self::oneshot_send(
+                tx,
+                result.map_err(Error::RemoveDeviceError),
+                "remove_device response",
+            );
         });
     }
 
@@ -2072,11 +2058,12 @@ where
     }
 
     async fn on_get_wireguard_key(&self, tx: ResponseTx<Option<PublicKey>, Error>) {
-        let result = if let Ok(Some(config)) = self.account_manager.data().await {
-            Ok(Some(config.device.wg_data.get_public_key()))
-        } else {
-            Err(Error::NoAccountToken)
-        };
+        let result =
+            if let Ok(Some(config)) = self.account_manager.data().await.map(|s| s.into_device()) {
+                Ok(Some(config.device.wg_data.get_public_key()))
+            } else {
+                Err(Error::NoAccountToken)
+            };
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 
@@ -2114,39 +2101,6 @@ where
                 self.send_tunnel_command(TunnelCommand::BypassSocket(fd, tx));
             }
         }
-    }
-
-    #[cfg(target_os = "android")]
-    fn create_bypass_tx(
-        event_sender: &DaemonEventSender,
-    ) -> Option<mpsc::Sender<mullvad_api::SocketBypassRequest>> {
-        let (bypass_tx, mut bypass_rx) = mpsc::channel(1);
-        let daemon_tx = event_sender.to_specialized_sender();
-        tokio::spawn(async move {
-            while let Some((raw_fd, done_tx)) = bypass_rx.next().await {
-                if let Err(_) = daemon_tx.send(DaemonCommand::BypassSocket(raw_fd, done_tx)) {
-                    log::error!("Can't send socket bypass request to daemon");
-                    break;
-                }
-            }
-        });
-        Some(bypass_tx)
-    }
-
-    async fn forward_offline_state(
-        api_availability: ApiAvailabilityHandle,
-        mut offline_state_rx: mpsc::UnboundedReceiver<bool>,
-    ) {
-        let initial_state = offline_state_rx
-            .next()
-            .await
-            .expect("missing initial offline state");
-        api_availability.set_offline(initial_state);
-        tokio::spawn(async move {
-            while let Some(is_offline) = offline_state_rx.next().await {
-                api_availability.set_offline(is_offline);
-            }
-        });
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
@@ -2238,42 +2192,5 @@ fn new_selector_config(settings: &Settings) -> SelectorConfig {
         bridge_state: settings.get_bridge_state(),
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
-    }
-}
-
-/// Bump filehandle limit
-#[cfg(target_os = "macos")]
-pub fn bump_filehandle_limit() {
-    let mut limits = libc::rlimit {
-        rlim_cur: 0,
-        rlim_max: 0,
-    };
-    // SAFETY: `&mut limits` is a valid pointer parameter for the getrlimit syscall
-    let status = unsafe { libc::getrlimit(libc::RLIMIT_NOFILE, &mut limits) };
-    if status != 0 {
-        log::error!(
-            "Failed to get file handle limits: {}-{}",
-            io::Error::from_raw_os_error(status),
-            status
-        );
-        return;
-    }
-
-    const INCREASED_FILEHANDLE_LIMIT: u64 = 1024;
-    // if file handle limit is already big enough, there's no reason to decrease it.
-    if limits.rlim_cur >= INCREASED_FILEHANDLE_LIMIT {
-        return;
-    }
-
-    limits.rlim_cur = INCREASED_FILEHANDLE_LIMIT;
-    // SAFETY: `&limits` is a valid pointer parameter for the getrlimit syscall
-    let status = unsafe { libc::setrlimit(libc::RLIMIT_NOFILE, &limits) };
-    if status != 0 {
-        log::error!(
-            "Failed to set file handle limit to {}: {}-{}",
-            INCREASED_FILEHANDLE_LIMIT,
-            io::Error::from_raw_os_error(status),
-            status
-        );
     }
 }

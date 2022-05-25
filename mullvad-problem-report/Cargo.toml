@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-problem-report"
-version = "2022.1.0"
+version = "2022.2.0-beta1"
 authors = ["Mullvad VPN"]
 description = "Collect Mullvad VPN logs into a report and send it to support"
 license = "GPL-3.0"

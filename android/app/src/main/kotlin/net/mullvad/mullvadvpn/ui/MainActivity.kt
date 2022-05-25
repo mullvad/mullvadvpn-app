@@ -10,6 +10,7 @@ import android.net.VpnService
 import android.os.Bundle
 import android.os.IBinder
 import android.os.Messenger
+import android.util.Log
 import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -18,11 +19,15 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
+import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.talpid.util.EventNotifier
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.unloadKoinModules
 
 open class MainActivity : FragmentActivity() {
+
     val problemReport = MullvadProblemReport()
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
@@ -64,6 +69,8 @@ open class MainActivity : FragmentActivity() {
     var backButtonHandler: (() -> Boolean)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        loadKoinModules(uiModule)
+
         requestedOrientation = if (deviceIsTv) {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         } else {
@@ -85,7 +92,7 @@ open class MainActivity : FragmentActivity() {
     }
 
     override fun onStart() {
-        android.util.Log.d("mullvad", "Starting main activity")
+        Log.d("mullvad", "Starting main activity")
         super.onStart()
 
         val intent = Intent(this, MullvadVpnService::class.java)
@@ -107,8 +114,9 @@ open class MainActivity : FragmentActivity() {
     }
 
     override fun onStop() {
-        android.util.Log.d("mullvad", "Stoping main activity")
+        Log.d("mullvad", "Stoping main activity")
         unbindService(serviceConnectionManager)
+        unloadKoinModules(uiModule)
 
         super.onStop()
 

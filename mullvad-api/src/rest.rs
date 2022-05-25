@@ -84,6 +84,13 @@ impl Error {
         }
     }
 
+    pub fn is_aborted(&self) -> bool {
+        match self {
+            Error::Aborted => true,
+            _ => false,
+        }
+    }
+
     /// Returns a new instance for which `abortable_stream::Aborted` is mapped to `Self::Aborted`.
     fn map_aborted(self) -> Self {
         if let Error::HyperError(error) = &self {
@@ -584,7 +591,6 @@ pub async fn parse_rest_response(
 pub async fn handle_error_response<T>(response: Response) -> Result<T> {
     let status = response.status();
     let error_message = match status {
-        hyper::StatusCode::NOT_FOUND => "Not found",
         hyper::StatusCode::METHOD_NOT_ALLOWED => "Method not allowed",
         status => match get_body_length(&response) {
             0 => status.canonical_reason().unwrap_or("Unexpected error"),

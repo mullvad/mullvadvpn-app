@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.ui.notification
 
 import android.content.Context
+import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
@@ -20,15 +21,15 @@ class AccountExpiryNotification(
     }
 
     override fun onResume() {
-        accountCache.onAccountExpiryChange.subscribe(this) { accountExpiry ->
-            jobTracker.newUiJob("updateAccountExpiry") {
-                updateAccountExpiry(accountExpiry)
+        jobTracker.newUiJob("updateAccountExpiry") {
+            accountCache.accountExpiryState.collect { state ->
+                updateAccountExpiry(state.date())
             }
         }
     }
 
     override fun onPause() {
-        accountCache.onAccountExpiryChange.unsubscribe(this)
+        jobTracker.cancelJob("updateAccountExpiry")
     }
 
     private fun updateAccountExpiry(expiry: DateTime?) {

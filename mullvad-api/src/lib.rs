@@ -47,6 +47,9 @@ pub const INVALID_VOUCHER: &str = "INVALID_VOUCHER";
 /// Error code returned by the Mullvad API if the account token is invalid.
 pub const INVALID_ACCOUNT: &str = "INVALID_ACCOUNT";
 
+/// Error code returned by the Mullvad API if the device does not exist.
+pub const DEVICE_NOT_FOUND: &str = "DEVICE_NOT_FOUND";
+
 /// Error code returned by the Mullvad API if the access token is invalid.
 pub const INVALID_ACCESS_TOKEN: &str = "INVALID_ACCESS_TOKEN";
 

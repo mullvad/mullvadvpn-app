@@ -10,54 +10,42 @@ import Foundation
 
 /// Asynchronous block operation
 class AsyncBlockOperation: AsyncOperation {
-    private let stateLock = NSLock()
-
     private var executionBlock: ((AsyncBlockOperation) -> Void)?
     private var cancellationBlocks: [() -> Void] = []
 
-    init(block: @escaping (AsyncBlockOperation) -> Void) {
+    init(dispatchQueue: DispatchQueue?, block: @escaping (AsyncBlockOperation) -> Void) {
         executionBlock = block
+        super.init(dispatchQueue: dispatchQueue)
     }
 
     override func main() {
-        stateLock.lock()
         let block = executionBlock
         executionBlock = nil
-        stateLock.unlock()
 
         block?(self)
     }
 
-    override func finish() {
-        stateLock.lock()
-        cancellationBlocks.removeAll()
-        executionBlock = nil
-        stateLock.unlock()
-
-        super.finish()
-    }
-
-    override func cancel() {
-        super.cancel()
-
-        stateLock.lock()
+    override func operationDidCancel() {
         let blocks = cancellationBlocks
         cancellationBlocks.removeAll()
-        stateLock.unlock()
 
         for block in blocks {
             block()
         }
     }
 
+    override func operationDidFinish() {
+        cancellationBlocks.removeAll()
+        executionBlock = nil
+    }
+
     func addCancellationBlock(_ block: @escaping () -> Void) {
-        stateLock.lock()
-        if isCancelled {
-            stateLock.unlock()
-            block()
-        } else {
-            cancellationBlocks.append(block)
-            stateLock.unlock()
+        dispatchQueue.async {
+            if self.isCancelled {
+                block()
+            } else {
+                self.cancellationBlocks.append(block)
+            }
         }
     }
 }

@@ -24,6 +24,36 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add option to filter relays by ownership in the desktop apps.
+- Include creation timestamp for devices in the CLI.
+
+### Changed
+- List devices on an account sorted by creation date, oldest to newest, instead of alphabetically.
+
+#### Android
+- Lowered default MTU to 1280 on Android.
+
+### Removed
+#### Android
+- Remove WireGuard view as it's no longer needed with the new way of managing devices.
+
+### Fixed
+- Fix time added view displayed due to incorrect local clock.
+
+#### Windows
+- Be more scrupulous about removing temporary files used by the installer and uninstaller.
+
+#### Android
+- Fix unused dependencies loaded in the service/tile DI graph.
+
+### Security
+#### Android
+- Prevent location request responses from being received outside the tunnel when in the connected
+  state.
+
+
+## [2022.2-beta1] - 2022-05-16
+### Added
 - Extend DNS blocking with the following new categories: "Adult content" and "gambling".
 - Obfuscate traffic to the Mullvad API using bridges if it cannot be reached directly.
 - Add device management to desktop app. This simplifies knowing which device is which and adds the
@@ -80,10 +110,6 @@ Line wrap the file at 100 chars.                                              Th
 - Fix thrashing due to DNS config monitoring.
 
 ### Security
-#### Android
-- Prevent location request responses from being received outside the tunnel when in the connected
-  state.
-
 #### Windows
 - Update split tunnel driver to 1.2.1.0. This fixes potential DNS leaks seen when excluding at least
   one application.

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { formatDate, hasExpired } from '../../shared/account-expiry';
-import { AccountToken, IDevice } from '../../shared/daemon-rpc-types';
+import { AccountToken, DeviceState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import {
   AccountContainer,
@@ -39,7 +39,7 @@ interface IProps {
   onClose: () => void;
   onBuyMore: () => Promise<void>;
   updateAccountData: () => void;
-  getDevice: () => Promise<IDevice | undefined>;
+  getDeviceState: () => Promise<DeviceState | undefined>;
 }
 
 interface IState {
@@ -189,10 +189,12 @@ export default class Account extends React.Component<IProps, IState> {
     this.setState({ logoutDialogState: 'checking-ports' });
     this.props.prepareLogout();
 
-    const device = await this.props.getDevice();
-    if (device === undefined) {
-      this.onHideLogoutConfirmationDialog();
-    } else if (device.ports !== undefined && device.ports.length > 0) {
+    const deviceState = await this.props.getDeviceState();
+    if (
+      deviceState?.type === 'logged in' &&
+      deviceState.accountAndDevice.device?.ports !== undefined &&
+      deviceState.accountAndDevice.device.ports.length > 0
+    ) {
       this.setState({ logoutDialogState: 'confirm' });
     } else {
       this.props.onLogout();

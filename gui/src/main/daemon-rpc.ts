@@ -15,14 +15,14 @@ import {
   ConnectionConfig,
   Constraint,
   DaemonEvent,
+  DeviceEvent,
+  DeviceState,
   ErrorStateCause,
   FirewallPolicyError,
   IAccountData,
   IAppVersionInfo,
   IBridgeConstraints,
   IDevice,
-  IDeviceConfig,
-  IDeviceEvent,
   IDeviceRemoval,
   IDnsOptions,
   IErrorState,
@@ -41,7 +41,10 @@ import {
   ITunnelStateRelayInfo,
   IWireguardConstraints,
   IWireguardTunnelData,
+  LoggedInDeviceState,
+  LoggedOutDeviceState,
   ObfuscationType,
+  Ownership,
   ProxySettings,
   ProxyType,
   RelayLocation,
@@ -55,7 +58,12 @@ import {
   VoucherResponse,
 } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
-import { CommunicationError, InvalidAccountError, TooManyDevicesError } from './errors';
+import {
+  CommunicationError,
+  InvalidAccountError,
+  ListDevicesError,
+  TooManyDevicesError,
+} from './errors';
 import { ManagementServiceClient } from './management_interface/management_interface_grpc_pb';
 import * as grpcTypes from './management_interface/management_interface_pb';
 
@@ -319,6 +327,12 @@ export class DaemonRpc {
         normalUpdate.setProviders(providerUpdate);
       }
 
+      if (settingsUpdate.ownership !== undefined) {
+        const ownershipUpdate = new grpcTypes.OwnershipUpdate();
+        ownershipUpdate.setOwnership(convertToOwnership(settingsUpdate.ownership));
+        normalUpdate.setOwnership(ownershipUpdate);
+      }
+
       grpcRelaySettings.setNormal(normalUpdate);
       await this.call<grpcTypes.RelaySettingsUpdate, Empty>(
         this.client.updateRelaySettings,
@@ -508,18 +522,9 @@ export class DaemonRpc {
     return response.getValue();
   }
 
-  public async getDevice(): Promise<IDeviceConfig | undefined> {
-    try {
-      const response = await this.callEmpty<grpcTypes.DeviceConfig>(this.client.getDevice);
-      return convertFromDeviceConfig(response);
-    } catch (e) {
-      const error = e as grpc.ServiceError;
-      if (error.code === grpc.status.NOT_FOUND) {
-        return undefined;
-      } else {
-        throw error;
-      }
-    }
+  public async getDevice(): Promise<DeviceState> {
+    const response = await this.callEmpty<grpcTypes.DeviceState>(this.client.getDevice);
+    return convertFromDeviceState(response);
   }
 
   public async updateDevice(): Promise<void> {
@@ -527,12 +532,16 @@ export class DaemonRpc {
   }
 
   public async listDevices(accountToken: AccountToken): Promise<Array<IDevice>> {
-    const response = await this.callString<grpcTypes.DeviceList>(
-      this.client.listDevices,
-      accountToken,
-    );
+    try {
+      const response = await this.callString<grpcTypes.DeviceList>(
+        this.client.listDevices,
+        accountToken,
+      );
 
-    return response.getDevicesList().map(convertFromDevice);
+      return response.getDevicesList().map(convertFromDevice);
+    } catch {
+      throw new ListDevicesError();
+    }
   }
 
   public async removeDevice(deviceRemoval: IDeviceRemoval): Promise<void> {
@@ -1012,6 +1021,7 @@ function convertFromRelaySettings(
           : 'any';
         const tunnelProtocol = convertFromTunnelTypeConstraint(normal.getTunnelType()!);
         const providers = normal.getProvidersList();
+        const ownership = convertFromOwnership(normal.getOwnership());
         const openvpnConstraints = convertFromOpenVpnConstraints(normal.getOpenvpnConstraints()!);
         const wireguardConstraints = convertFromWireguardConstraints(
           normal.getWireguardConstraints()!,
@@ -1022,6 +1032,7 @@ function convertFromRelaySettings(
             location,
             tunnelProtocol,
             providers,
+            ownership,
             wireguardConstraints,
             openvpnConstraints,
           },
@@ -1041,10 +1052,12 @@ function convertFromBridgeSettings(
     const grpcLocation = normalSettings.location;
     const location = grpcLocation ? { only: convertFromLocation(grpcLocation) } : 'any';
     const providers = normalSettings.providersList;
+    const ownership = convertFromOwnership(normalSettings.ownership);
     return {
       normal: {
         location,
         providers,
+        ownership,
       },
     };
   }
@@ -1206,6 +1219,28 @@ function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
     .filter(([, value]) => value !== undefined)
     .map(([key]) => key);
   throw new Error(`Unknown daemon event received containing ${keys}`);
+}
+
+function convertFromOwnership(ownership: grpcTypes.Ownership): Ownership {
+  switch (ownership) {
+    case grpcTypes.Ownership.ANY:
+      return Ownership.any;
+    case grpcTypes.Ownership.MULLVAD_OWNED:
+      return Ownership.mullvadOwned;
+    case grpcTypes.Ownership.RENTED:
+      return Ownership.rented;
+  }
+}
+
+function convertToOwnership(ownership: Ownership): grpcTypes.Ownership {
+  switch (ownership) {
+    case Ownership.any:
+      return grpcTypes.Ownership.ANY;
+    case Ownership.mullvadOwned:
+      return grpcTypes.Ownership.MULLVAD_OWNED;
+    case Ownership.rented:
+      return grpcTypes.Ownership.RENTED;
+  }
 }
 
 function convertFromOpenVpnConstraints(
@@ -1400,21 +1435,40 @@ function convertToTransportProtocol(protocol: RelayProtocol): grpcTypes.Transpor
   }
 }
 
-function convertFromDeviceEvent(deviceEvent: grpcTypes.DeviceEvent): IDeviceEvent {
-  return {
-    deviceConfig: convertFromDeviceConfig(deviceEvent.getDevice()),
-    remote: deviceEvent.getRemote(),
-  };
+function convertFromDeviceEvent(deviceEvent: grpcTypes.DeviceEvent): DeviceEvent {
+  const deviceState = convertFromDeviceState(deviceEvent.getNewState()!);
+  switch (deviceEvent.getCause()) {
+    case grpcTypes.DeviceEvent.Cause.LOGGED_IN:
+      return { type: 'logged in', deviceState: deviceState as LoggedInDeviceState };
+    case grpcTypes.DeviceEvent.Cause.LOGGED_OUT:
+      return { type: 'logged out', deviceState: deviceState as LoggedOutDeviceState };
+    case grpcTypes.DeviceEvent.Cause.REVOKED:
+      return { type: 'revoked', deviceState: deviceState as LoggedOutDeviceState };
+    case grpcTypes.DeviceEvent.Cause.UPDATED:
+      return { type: 'updated', deviceState: deviceState as LoggedInDeviceState };
+    case grpcTypes.DeviceEvent.Cause.ROTATED_KEY:
+      return { type: 'rotated_key', deviceState: deviceState as LoggedInDeviceState };
+  }
 }
 
-function convertFromDeviceConfig(deviceConfig?: grpcTypes.DeviceConfig): IDeviceConfig | undefined {
-  const device = deviceConfig?.getDevice();
-  return (
-    deviceConfig && {
-      accountToken: deviceConfig.getAccountToken(),
-      device: device ? convertFromDevice(device) : undefined,
+function convertFromDeviceState(deviceState: grpcTypes.DeviceState): DeviceState {
+  switch (deviceState.getState()) {
+    case grpcTypes.DeviceState.State.LOGGED_IN: {
+      const accountAndDevice = deviceState.getDevice()!;
+      const device = accountAndDevice.getDevice();
+      return {
+        type: 'logged in',
+        accountAndDevice: {
+          accountToken: accountAndDevice.getAccountToken(),
+          device: device && convertFromDevice(device),
+        },
+      };
     }
-  );
+    case grpcTypes.DeviceState.State.LOGGED_OUT:
+      return { type: 'logged out' };
+    case grpcTypes.DeviceState.State.REVOKED:
+      return { type: 'revoked' };
+  }
 }
 
 function convertFromDeviceRemoval(deviceRemoval: grpcTypes.RemoveDeviceEvent): Array<IDevice> {
@@ -1422,11 +1476,13 @@ function convertFromDeviceRemoval(deviceRemoval: grpcTypes.RemoveDeviceEvent): A
 }
 
 function convertFromDevice(device: grpcTypes.Device): IDevice {
+  const created = ensureExists(device.getCreated(), "no 'created' field for device").toDate();
   const asObject = device.toObject();
 
   return {
     ...asObject,
     ports: asObject.portsList.map((port) => port.id),
+    created: created,
   };
 }
 
