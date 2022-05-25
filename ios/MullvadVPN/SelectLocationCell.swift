@@ -106,6 +106,12 @@ class SelectLocationCell: UITableViewCell {
 
         locationLabel.font = UIFont.systemFont(ofSize: 17)
         locationLabel.textColor = .white
+        locationLabel.lineBreakMode = .byWordWrapping
+        locationLabel.numberOfLines = 0
+        if #available(iOS 14.0, *) {
+            // See: https://stackoverflow.com/q/46200027/351305
+            locationLabel.lineBreakStrategy = []
+        }
 
         tickImageView.tintColor = .white
 
@@ -135,7 +141,7 @@ class SelectLocationCell: UITableViewCell {
             statusIndicator.centerYAnchor.constraint(equalTo: tickImageView.centerYAnchor),
 
             locationLabel.leadingAnchor.constraint(equalTo: statusIndicator.trailingAnchor, constant: 12),
-            locationLabel.trailingAnchor.constraint(greaterThanOrEqualTo: collapseButton.leadingAnchor, constant: 0),
+            locationLabel.trailingAnchor.constraint(lessThanOrEqualTo: collapseButton.leadingAnchor),
             locationLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
             locationLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
 
