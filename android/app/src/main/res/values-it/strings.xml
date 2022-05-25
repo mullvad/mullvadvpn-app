@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">Abilita per aggiungere almeno un server DNS.</string>
     <string name="custom_dns_hint">Inserisci IP</string>
     <string name="custom_tunnel_host_resolution_error">Impossibile risolvere il nome host del server personalizzato</string>
+    <string name="device_name">Nome dispositivo</string>
     <string name="disconnect">Disconnetti</string>
     <string name="disconnecting">Disconnessione</string>
     <string name="dismiss">Ignora</string>

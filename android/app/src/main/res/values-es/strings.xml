@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">Active esta opción para agregar como mínimo un servidor DNS.</string>
     <string name="custom_dns_hint">Escriba la IP</string>
     <string name="custom_tunnel_host_resolution_error">No se puede resolver el nombre de host del servidor personalizado</string>
+    <string name="device_name">Nombre del dispositivo</string>
     <string name="disconnect">Desconectar</string>
     <string name="disconnecting">Desconectando</string>
     <string name="dismiss">Descartar</string>
@@ -79,7 +80,7 @@
     <string name="mullvad_account_number">Número de cuenta de Mullvad</string>
     <string name="no_matching_bridge_relay">Ningún servidor de retransmisión de puente coincide con la configuración actual</string>
     <string name="no_matching_relay">Ningún servidor de retransmisión coincide con la configuración actual</string>
-    <string name="no_wireguard_key">Falta una clave de WireGuard válida. Administre las claves en la Configuración avanzada.</string>
+    <string name="no_wireguard_key">Falta una clave de WireGuard válida. Para administrar las claves, vaya a Configuración avanzada.</string>
     <string name="not_blocking_internet">PUEDE QUE SE ESTÉ FILTRANDO EL TRÁFICO DE RED</string>
     <string name="out_address">Salida</string>
     <string name="out_of_time">Tiempo agotado</string>
@@ -138,7 +139,7 @@
     <string name="wireguard_key">Clave de WireGuard</string>
     <string name="wireguard_key_generated">Clave generada</string>
     <string name="wireguard_key_invalid">La clave no es válida</string>
-    <string name="wireguard_key_reconnecting">Volviendo a conectar con la nueva clave de WireGuard…</string>
+    <string name="wireguard_key_reconnecting">Reconectando con la nueva clave de WireGuard…</string>
     <string name="wireguard_key_valid">La clave es válida</string>
     <string name="wireguard_key_verification_failure">Error al verificar la clave</string>
     <string name="wireguard_manage_keys">Administrar claves</string>

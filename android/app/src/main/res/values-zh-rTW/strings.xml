@@ -27,7 +27,7 @@
     <string name="confirm_no_email">您即將傳送的問題報告未包含回覆方式資訊。如果想收到您這份報告的回覆，請輸入您的電子郵件位址。</string>
     <string name="congrats">恭喜！</string>
     <string name="connect">保護我的連線</string>
-    <string name="connecting">連線中</string>
+    <string name="connecting">正在連線</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中...</string>
     <string name="copied_mullvad_account_number">已將 Mullvad 帳號複製到剪貼簿</string>
     <string name="copied_to_clipboard">已複製到剪貼簿</string>
@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">啟用以新增至少一個 DNS 伺服器。</string>
     <string name="custom_dns_hint">輸入 IP</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂伺服器的主機名稱</string>
+    <string name="device_name">裝置名稱</string>
     <string name="disconnect">中斷連線</string>
     <string name="disconnecting">正在中斷連線</string>
     <string name="dismiss">取消</string>
@@ -93,7 +94,7 @@
     <string name="report_a_problem">回報問題</string>
     <string name="secure_connection">安全連線</string>
     <string name="secured">安全</string>
-    <string name="select_location">選取位置</string>
+    <string name="select_location">選擇位置</string>
     <string name="select_location_description">連線時，會使用所選區域的一個私密安全位置，將您的真實位置遮住。</string>
     <string name="send">傳送</string>
     <string name="send_anyway">仍要傳送</string>

@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">Aktivera för att lägga till minst en DNS-server.</string>
     <string name="custom_dns_hint">Ange IP</string>
     <string name="custom_tunnel_host_resolution_error">Det gick inte att lösa värdnamnet för den anpassade servern</string>
+    <string name="device_name">Enhetens namn</string>
     <string name="disconnect">Koppla från</string>
     <string name="disconnecting">Kopplar från</string>
     <string name="dismiss">Ignorera</string>
@@ -79,7 +80,7 @@
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
     <string name="no_matching_bridge_relay">Ingen bryggreläserver matchar de aktuella inställningarna</string>
     <string name="no_matching_relay">Ingen reläserver matchar de aktuella inställningarna</string>
-    <string name="no_wireguard_key">Giltig WireGuard-nyckel saknas. Hantera nycklar i avancerade inställningar.</string>
+    <string name="no_wireguard_key">Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar.</string>
     <string name="not_blocking_internet">DU KANSKE HAR LÄCKAGE I NÄTVERKSTRAFIKEN</string>
     <string name="out_address">Ut</string>
     <string name="out_of_time">Ingen tid kvar</string>
@@ -138,7 +139,7 @@
     <string name="wireguard_key">WireGuard-nyckel</string>
     <string name="wireguard_key_generated">Nyckel har genererats</string>
     <string name="wireguard_key_invalid">Nyckeln är ogiltig</string>
-    <string name="wireguard_key_reconnecting">Återansluter med ny WireGuard-nyckel...</string>
+    <string name="wireguard_key_reconnecting">Återansluter med ny WireGuard-nyckel ...</string>
     <string name="wireguard_key_valid">Nyckeln är giltig</string>
     <string name="wireguard_key_verification_failure">Det gick inte att verifiera nyckel</string>
     <string name="wireguard_manage_keys">Hantera nycklar</string>

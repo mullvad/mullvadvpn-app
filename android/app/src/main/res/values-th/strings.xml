@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ</string>
     <string name="custom_dns_hint">ป้อน IP</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบชื่อโฮสต์ของเซิร์ฟเวอร์แบบกำหนดเอง</string>
+    <string name="device_name">ชื่ออุปกรณ์</string>
     <string name="disconnect">ตัดการเชื่อมต่อ</string>
     <string name="disconnecting">กำลังตัดการเชื่อมต่อ</string>
     <string name="dismiss">ละทิ้ง</string>
@@ -79,7 +80,7 @@
     <string name="mullvad_account_number">หมายเลขบัญชี Mullvad</string>
     <string name="no_matching_bridge_relay">ไม่มีเซิร์ฟเวอร์บริดจ์รีเลย์ที่ตรงกับการตั้งค่าในปัจจุบัน</string>
     <string name="no_matching_relay">ไม่มีเซิร์ฟเวอร์รีเลย์ที่ตรงกับการตั้งค่าในปัจจุบัน</string>
-    <string name="no_wireguard_key">ไม่มีคีย์ WireGuard ที่ถูกต้อง โปรดจัดการคีย์ภายใต้ส่วนการตั้งค่าขั้นสูง</string>
+    <string name="no_wireguard_key">คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง</string>
     <string name="not_blocking_internet">คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่ในขณะนี้</string>
     <string name="out_address">ออก</string>
     <string name="out_of_time">หมดเวลา</string>
@@ -108,7 +109,7 @@
     <string name="settings_advanced">ขั้นสูง</string>
     <string name="settings_preferences">การกำหนดค่า</string>
     <string name="show_system_apps">แสดงแอประบบ</string>
-    <string name="split_tunneling">แยกช่องทาง</string>
+    <string name="split_tunneling">การแยกอุโมงค์</string>
     <string name="split_tunneling_description">การแยกช่องทางทำให้คุณสามารถเลือกได้ว่า แอปพลิเคชันใดไม่ควรได้รับการกำหนดเส้นทางผ่านช่องทาง VPN</string>
     <string name="start_tunnel_error">ไม่สามารถเริ่มการเชื่อมต่อช่องทางได้</string>
     <string name="switch_location">สลับตำแหน่ง</string>

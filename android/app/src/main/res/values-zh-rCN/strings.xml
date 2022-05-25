@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
     <string name="custom_dns_hint">输入 IP</string>
     <string name="custom_tunnel_host_resolution_error">无法解析自定义服务器的主机名</string>
+    <string name="device_name">设备名称</string>
     <string name="disconnect">断开连接</string>
     <string name="disconnecting">正在断开连接</string>
     <string name="dismiss">关闭</string>
@@ -138,7 +139,7 @@
     <string name="wireguard_key">WireGuard 密钥</string>
     <string name="wireguard_key_generated">已生成密钥</string>
     <string name="wireguard_key_invalid">密钥无效</string>
-    <string name="wireguard_key_reconnecting">正在使用新的 wireGuard 密钥重新连接…</string>
+    <string name="wireguard_key_reconnecting">正在使用新 WireGuard 密钥重新连接…</string>
     <string name="wireguard_key_valid">密钥有效</string>
     <string name="wireguard_key_verification_failure">密钥验证失败</string>
     <string name="wireguard_manage_keys">管理密钥</string>

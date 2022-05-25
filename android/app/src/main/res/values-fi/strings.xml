@@ -39,6 +39,7 @@
     <string name="custom_dns_footer">Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen.</string>
     <string name="custom_dns_hint">Anna IP-osoite</string>
     <string name="custom_tunnel_host_resolution_error">Mukautetun palvelimen isäntänimen selvittäminen epäonnistui</string>
+    <string name="device_name">Laitteen nimi</string>
     <string name="disconnect">Katkaise yhteys</string>
     <string name="disconnecting">Katkaistaan yhteyttä</string>
     <string name="dismiss">Jätä huomiotta</string>
@@ -79,7 +80,7 @@
     <string name="mullvad_account_number">Mullvad-tilin numero</string>
     <string name="no_matching_bridge_relay">Mikään siltausvälityspalvelin ei vastaa nykyisiä asetuksia</string>
     <string name="no_matching_relay">Mikään välityspalvelin ei vastaa nykyisiä asetuksia</string>
-    <string name="no_wireguard_key">Kelvollinen WireGuard-avain puuttuu. Hallinnoi avaimia lisäasetuksissa.</string>
+    <string name="no_wireguard_key">Validi WireGuard-avain puuttuu. Hallinnoi avaimia lisäasetuksissa.</string>
     <string name="not_blocking_internet">VERKKOLIIKENTEESI SAATTAA VUOTAA</string>
     <string name="out_address">Lähtevä</string>
     <string name="out_of_time">Ei käyttöaikaa</string>
@@ -139,7 +140,7 @@
     <string name="wireguard_key_generated">Avain luotu</string>
     <string name="wireguard_key_invalid">Virheellinen avain</string>
     <string name="wireguard_key_reconnecting">Yhdistetään uudelleen uudella WireGuard-avaimella...</string>
-    <string name="wireguard_key_valid">Kelvollinen avain</string>
+    <string name="wireguard_key_valid">Validi avain</string>
     <string name="wireguard_key_verification_failure">Avaimen todentaminen epäonnistui</string>
     <string name="wireguard_manage_keys">Hallitse avaimia</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
