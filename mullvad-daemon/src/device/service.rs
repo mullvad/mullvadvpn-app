@@ -109,29 +109,10 @@ impl DeviceService {
         &self,
         account_token: AccountToken,
         device_id: DeviceId,
-    ) -> Result<(Device, Vec<Device>), Error> {
-        let mut devices = self.list_devices(account_token.clone()).await?;
-        self.remove_device_inner(account_token, device_id.clone())
+    ) -> Result<Vec<Device>, Error> {
+        self.remove_device_inner(account_token.clone(), device_id)
             .await?;
-        if let Some(index) = devices.iter().position(|device| device.id == device_id) {
-            Ok((devices.swap_remove(index), devices))
-        } else {
-            // You would only end up here if the API service successfully removed a device that
-            // was previously not included in the list returned by it, which should be impossible.
-            // Just return a bogus device in its place.
-            log::error!("List did not contain the revoked device");
-            Ok((
-                Device {
-                    id: device_id,
-                    name: "unknown device".to_string(),
-                    pubkey: talpid_types::net::wireguard::PublicKey::from([0u8; 32]),
-                    ports: vec![],
-                    hijack_dns: false,
-                    created: Utc::now(),
-                },
-                devices,
-            ))
-        }
+        self.list_devices(account_token).await
     }
 
     async fn remove_device_inner(
