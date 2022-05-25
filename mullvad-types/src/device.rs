@@ -22,7 +22,9 @@ pub struct Device {
     #[cfg_attr(target_os = "android", jnix(map = "|key| *key.as_bytes()"))]
     pub pubkey: PublicKey,
     pub ports: Vec<DevicePort>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub hijack_dns: bool,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub created: DateTime<Utc>,
 }
 
