@@ -11,6 +11,11 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-              with:
-                  fetch-depth: 2
-            - run: ci/verify-lockfile-signature.sh origin/master
+            - name: Verify signatures
+            - run: |
+                commits=${{ github.event.pull_request.commits }}
+                if [[ -n "$commits" ]]; then
+                    # Prepare enough depth for diffs with master
+                    git fetch --depth="$(( commits + 1 ))"
+                fi
+                ci/verify-lockfile-signature.sh origin/master
