@@ -10,10 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2022-02-24 09:05\n"
+"PO-Revision-Date: 2022-05-25 09:08\n"
 
-msgid "%(duration)s was added to your account."
-msgstr "%(duration)s 已新增至您的帳戶。"
+msgid "%(duration)s was added, account paid until %(expiry)s."
+msgstr "已新增 %(duration)s，帳戶到期時間為 %(expiry)s。"
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -55,6 +55,9 @@ msgid "a year ago"
 msgid_plural "%d years ago"
 msgstr[0] "%d 年前"
 
+msgid "Account paid until %(expiry)s."
+msgstr "帳戶到期時間為 %(expiry)s。"
+
 msgid "an hour ago"
 msgid_plural "%d hours ago"
 msgstr[0] "%d 小時前"
@@ -74,6 +77,9 @@ msgstr "BETA"
 msgid "BLOCKED CONNECTION"
 msgstr "被封鎖的連線"
 
+msgid "Blocking internet"
+msgstr "正在封鎖網路"
+
 msgid "Buy credit"
 msgstr "購買點數"
 
@@ -92,14 +98,29 @@ msgstr "關閉"
 msgid "Connect"
 msgstr "連線"
 
+msgid "Connected"
+msgstr "已連線"
+
+msgid "Connecting"
+msgstr "正在連線"
+
 msgid "CREATING SECURE CONNECTION"
 msgstr "建立安全連線"
 
 msgid "Default"
 msgstr "預設"
 
+msgid "Disable"
+msgstr "停用"
+
 msgid "Disconnect"
 msgstr "中斷連線"
+
+msgid "Disconnected"
+msgstr "已中斷連線"
+
+msgid "Disconnecting"
+msgstr "正在中斷連線"
 
 msgid "Dismiss"
 msgstr "取消"
@@ -169,6 +190,9 @@ msgstr "此設定會助長延遲。請僅在需要時使用。"
 msgid "UDP"
 msgstr "UDP"
 
+msgid "Unblock"
+msgstr "解除封鎖"
+
 msgid "UNSECURED CONNECTION"
 msgstr "不安全的連線"
 
@@ -206,8 +230,20 @@ msgid "Login"
 msgstr "登入"
 
 msgctxt "accessibility"
+msgid "More information"
+msgstr "更多資訊"
+
+msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "在外部開啟"
+
+#. Button action description provided to accessibility tools such as screen
+#. readers.
+#. Available placeholders:
+#. %(deviceName)s - The device name to remove.
+msgctxt "accessibility"
+msgid "Remove device named %(deviceName)s"
+msgstr "移除名為「%(deviceName)s」的裝置"
 
 msgctxt "accessibility"
 msgid "Remove item"
@@ -252,6 +288,16 @@ msgstr "支付至"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "進階"
+
+#. %(openvpn)s will be replaced with the string "OpenVPN"
+msgctxt "advanced-settings-view"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s 設定"
+
+#. %(wireguard)s will be replaced with the string "WireGuard"
+msgctxt "advanced-settings-view"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s 設定"
 
 msgctxt "advanced-settings-view"
 msgid "Add a server"
@@ -299,37 +345,22 @@ msgid "If you disconnect or quit the app, this setting will block your internet.
 msgstr "如果您中斷連線或退出應用程式，此設定將會封鎖您的網路。"
 
 #. Description for multihop settings toggle.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "advanced-settings-view"
-msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
-msgstr "藉由將您的流量路由到某個 WireGuard 伺服器，再從另一個伺服器傳出，以此增加匿名性，提高追蹤難度。"
-
-msgctxt "advanced-settings-view"
-msgid "missing key"
-msgstr "遺失金鑰"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN"
-msgstr "OpenVPN"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN settings"
-msgstr "OpenVPN 設定"
-
-msgctxt "advanced-settings-view"
-msgid "Split tunneling"
-msgstr "分割通道"
+msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
+msgstr "藉由將您的流量路由到某個 %(wireguard)s 伺服器，再從另一個伺服器傳出，以此增加匿名性，提高追蹤難度。"
 
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "應用程式內建緊停開關 (Kill Switch) 始終處於開啟狀態。如果按一下「中斷連線」或「退出」，此設定還將封鎖您的網路。"
 
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(wireguard)s - will be replaced with "WireGuard"
 msgctxt "advanced-settings-view"
-msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
-msgstr "您想要新增的 DNS 伺服器為公共伺服器，僅可以與 WireGuard 搭配使用。為了確保它始終有效，請為 WireGuard 設定「通道通訊協定」(在「進階」設定中)。"
-
-msgctxt "advanced-settings-view"
-msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
-msgstr "若要啟用 WireGuard，請在底下「Wireguard 金鑰」設定下產生金鑰。"
+msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
+msgstr "您想要新增的 DNS 伺服器為公共伺服器，僅可以與 %(wireguard)s 搭配使用。為了確保它始終有效，請為 %(wireguard)s 設定「%(tunnelProtocol)s」(在「進階」設定中)。"
 
 msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
@@ -338,14 +369,6 @@ msgstr "通道通訊協定"
 msgctxt "advanced-settings-view"
 msgid "Use custom DNS server"
 msgstr "使用自訂 DNS 伺服器"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard"
-msgstr "WireGuard"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard settings"
-msgstr "WireGuard 設定"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -418,7 +441,7 @@ msgstr "兌換憑證"
 
 msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "注意，在 VPN 中斷連線時關閉它，將允許網路流量，直到您在「進階設定」下將其重新開啟。"
+msgstr "注意，在 VPN 中斷連線時關閉它，將允許網路流量，直到您在「進階」設定下將其重新開啟。"
 
 msgctxt "connect-view"
 msgid "Start using the app"
@@ -480,6 +503,79 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr "出境"
 
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "**" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Are you sure you want to log out of **%(deviceName)s**?"
+msgstr "確定要登出 **%(deviceName)s** 嗎？"
+
+#. Button for continuing login process.
+msgctxt "device-management"
+msgid "Continue with login"
+msgstr "繼續登入"
+
+msgctxt "device-management"
+msgid "Device is inactive"
+msgstr "裝置處於非活動狀態"
+
+msgctxt "device-management"
+msgid "Device name"
+msgstr "裝置名稱"
+
+msgctxt "device-management"
+msgid "Go to login"
+msgstr "前往登入"
+
+msgctxt "device-management"
+msgid "Going to login will unblock the Internet on this device."
+msgstr "前往登入將在此裝置上解除對網際網路的封鎖。"
+
+#. Confirmation button when logging out
+msgctxt "device-management"
+msgid "Log out anyway"
+msgstr "仍然登出"
+
+msgctxt "device-management"
+msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
+msgstr "請從底下清單至少移除一個裝置來將其登出。您可以在裝置的「帳戶」設定下找到相應裝置名稱。"
+
+#. Page title informing user that enough devices has been removed to continue
+#. login process.
+msgctxt "device-management"
+msgid "Super!"
+msgstr "太好了！"
+
+#. This is is a further explanation of what happens when logging out.
+msgctxt "device-management"
+msgid "The ports forwarded to this device will be deleted if you log out."
+msgstr "如果您登出，將會刪除轉送到此裝置的連接埠。"
+
+#. Further information about consequences of logging out device.
+msgctxt "device-management"
+msgid "This will delete all forwarded ports. Local settings will be saved."
+msgstr "這將刪除所有轉送的連接埠。將儲存本機設定。"
+
+#. Page title informing user that the login failed due to too many registered
+#. devices on account.
+msgctxt "device-management"
+msgid "Too many devices"
+msgstr "裝置過多"
+
+#. Confirmation button when logging out other device.
+msgctxt "device-management"
+msgid "Yes, log out device"
+msgstr "是，將裝置登出"
+
+msgctxt "device-management"
+msgid "You can now continue logging in on this device."
+msgstr "現在，您可以繼續在此裝置上登入。"
+
+msgctxt "device-management"
+msgid "You have removed this device. To connect again, you will need to log back in."
+msgstr "您已移除此裝置。若要重新連線，您需要重新登入。"
+
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -491,11 +587,6 @@ msgstr "出現了問題。請與我們聯絡：%(email)s"
 msgctxt "filter-by-provider-nav"
 msgid "Filter by provider"
 msgstr "按供應商篩選"
-
-#. Back button in navigation bar
-msgctxt "filter-by-provider-nav"
-msgid "Select location"
-msgstr "選取位置"
 
 msgctxt "filter-by-provider-view"
 msgid "All providers"
@@ -531,10 +622,6 @@ msgid "Install the latest app version to stay up to date."
 msgstr "安裝最新版本的應用程式以保持最新狀態。"
 
 msgctxt "in-app-notifications"
-msgid "Manage keys under Advanced settings."
-msgstr "在「進階」設定下管理金鑰。"
-
-msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "網路流量可能正在洩漏"
 
@@ -558,13 +645,17 @@ msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "可用的更新"
 
-msgctxt "in-app-notifications"
-msgid "VALID WIREGUARD KEY IS MISSING"
-msgstr "缺少有效的 WireGuard 金鑰"
-
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "連線 Mullvad 系統服務中..."
+
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+#. Available placeholder:
+#. %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
+msgctxt "login-view"
+msgid "**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection."
+msgstr "**%(alwaysRequireVpnSettingsName)s** 已啟用。需先將其停用，才能為您的連線解除封鎖。"
 
 msgctxt "login-view"
 msgid "Account created"
@@ -599,6 +690,10 @@ msgid "Failed to create account"
 msgstr "無法建立帳戶"
 
 msgctxt "login-view"
+msgid "Finishing upgrade."
+msgstr "即將完成升級。"
+
+msgctxt "login-view"
 msgid "Logged in"
 msgstr "已登入"
 
@@ -614,24 +709,32 @@ msgctxt "login-view"
 msgid "Login failed"
 msgstr "登入失敗"
 
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+msgctxt "login-view"
+msgid "Our kill switch is currently blocking your connection."
+msgstr "我們的終止開關目前正在封鎖您的連線。"
+
 msgctxt "login-view"
 msgid "Please wait"
 msgstr "請稍候"
+
+msgctxt "login-view"
+msgid "Too many devices"
+msgstr "裝置過多"
 
 msgctxt "login-view"
 msgid "Unknown error"
 msgstr "未知錯誤"
 
 msgctxt "login-view"
+msgid "Upgrading..."
+msgstr "正在升級…"
+
+msgctxt "login-view"
 msgid "Valid account number"
 msgstr "有效帳號"
 
-#. Back button in navigation bar
-msgctxt "navigation-bar"
-msgid "Advanced"
-msgstr "進階"
-
-#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -695,12 +798,16 @@ msgid "Disconnected and unsecure"
 msgstr "已中斷連線且未受保護"
 
 msgctxt "notifications"
+msgid "No servers in your selected location match your settings."
+msgstr "所選位置沒有伺服器與您的設定相符。"
+
+msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "正在重新連線"
 
 msgctxt "notifications"
-msgid "The apps excluded with split tunneling might not work properly right now."
-msgstr "透過分割通道而排除的應用程式目前可能無法正常執行。"
+msgid "The apps excluded with %(splitTunneling)s might not work properly right now."
+msgstr "透過 %(splitTunneling)s 而排除的應用程式，目前可能無法正常執行。"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules."
@@ -750,9 +857,11 @@ msgctxt "notifications"
 msgid "Upgrade"
 msgstr "升級"
 
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with "WireGuard"
 msgctxt "notifications"
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。"
+msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
+msgstr "缺少有效的 %(wireguard)s 金鑰。在「進階」設定下管理金鑰。"
 
 msgctxt "notifications"
 msgid "Your device is offline. Try connecting when it's back online."
@@ -763,14 +872,17 @@ msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。"
 
-msgctxt "notifications"
-msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
-msgstr "您所選擇的伺服器與通道的通訊協定不符。請調整您的設定。"
-
 #. Title label in navigation bar
+#. Available placeholders:
+#. %(openvpn)s - Will be replaced with "OpenVPN"
 msgctxt "openvpn-settings-nav"
-msgid "OpenVPN settings"
-msgstr "OpenVPN 設定"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s 設定"
+
+#. %(openvpn)s will be replaced with "OpenVPN"
+msgctxt "openvpn-settings-view"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s 設定"
 
 #. The title for the port selector section.
 #. Available placeholders:
@@ -786,37 +898,43 @@ msgstr "橋接模式"
 
 #. This is used as a description for the bridge mode
 #. setting.
+#. Available placeholders:
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
-msgstr "在到達 OpenVPN 伺服器之前，使您的流量流經橋接伺服器，藉此協助您規避審查。增添了混淆，使指紋識別更加困難。"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder."
+msgstr "在到達 %(openvpn)s 伺服器之前，使您的流量流經橋接伺服器，藉此協助您規避審查。增添了混淆，使指紋識別更加困難。"
 
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
 
-msgctxt "openvpn-settings-view"
-msgid "OpenVPN settings"
-msgstr "OpenVPN 設定"
-
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
+#. %(openvpn)s - will be replaced with "OpenVPN"
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
 msgctxt "openvpn-settings-view"
-msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr "設定 OpenVPN MSS 值。有效範圍：%(min)d - %(max)d。"
+msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
+msgstr "設定 %(openvpn)s MSS 值。有效範圍：%(min)d - %(max)d。"
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
+#. Available placeholders:
+#. %(transportProtocol)s - the name of the transport protocol setting
+#. %(automat)s - the translation of "Automatic"
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
-msgstr "若要啟動橋接模式，請將**傳輸通訊協定**變更為**自動**或 **TCP**。"
+msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
+msgstr "若要啟動橋接模式，請將 **%(transportProtocol)s** 變更為 **%(automatic)s** 或 **%(tcp)s**。"
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
-msgstr "若要啟動橋接模式，請返回並將**通道通訊協定**變更為 **OpenVPN**。"
+msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
+msgstr "若要啟動橋接模式，請返回並將 **%(tunnelProtocol)s** 變更為 **%(openvpn)s**。"
 
 #. This is used to instruct users how to make UDP mode
 #. available.
@@ -854,24 +972,20 @@ msgid "Block ads"
 msgstr "封鎖廣告"
 
 msgctxt "preferences-view"
+msgid "Block adult content"
+msgstr "封鎖成人內容"
+
+msgctxt "preferences-view"
+msgid "Block gambling"
+msgstr "封鎖賭博"
+
+msgctxt "preferences-view"
 msgid "Block malware"
 msgstr "封鎖惡意軟體"
 
 msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "封鎖追蹤者"
-
-#. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
-#. Available placeholders:
-#. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
-#. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
-#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
-#. %(preferencesPageName)s - The page title showed on top in the preferences page.
-msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "停用**%(blockAdsFeatureName)s**、**%(blockTrackersFeatureName)s**和**%(blockMalwareFeatureName)s** (在「%(preferencesPageName)s」下)，以啟動此設定。"
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -881,6 +995,15 @@ msgstr "停用**%(blockAdsFeatureName)s**、**%(blockTrackersFeatureName)s**和*
 msgctxt "preferences-view"
 msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
 msgstr "停用 **%(customDnsFeatureName)s** (在「進階」設定中)，以啟用這些設定。"
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "preferences-view"
+msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
+msgstr "停用所有內容封鎖程式 (在 %(preferencesPageName)s 下)，以便啟動此設定。"
 
 msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -942,6 +1065,34 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "使用單色系統匣圖示，而不是彩色的圖示。"
 
+msgctxt "preferences-view"
+msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "警告：這並不是且不應被視為防病毒軟體，它只是提供了一層額外保護。"
+
+msgctxt "preferences-view"
+msgid "Warning: This might cause issues on certain websites, services, and programs."
+msgstr "警告：這可能會導致某些網站、服務和程式出現問題。"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
+msgstr "啟用後，此功能會禁止裝置聯繫某些已知包含惡意軟體的網域。"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
+msgstr "啟用後，此功能會禁止裝置聯繫某些已知會追蹤使用者的網域。"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain known ad domains."
+msgstr "啟用後，此功能會禁止裝置聯繫某些已知的廣告網域。"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
+msgstr "啟用後，此功能會禁止裝置聯繫某些已知包含成人內容的網站和服務。"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
+msgstr "啟用後，此功能會進止裝置聯繫某些已知包含賭博內容的網站和服務。"
+
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr "取消"
@@ -998,10 +1149,6 @@ msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
 msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "最靠近出口伺服器"
-
-msgctxt "select-location-view"
 msgid "Entry"
 msgstr "入口"
 
@@ -1025,6 +1172,10 @@ msgstr "供應商：%(numberOfProviders)d"
 msgctxt "select-location-view"
 msgid "Select location"
 msgstr "選取位置"
+
+msgctxt "select-location-view"
+msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
+msgstr "應用程式會隨機選擇一個橋接伺服器，而離您越近的伺服器就越有可能獲選。"
 
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
@@ -1084,11 +1235,6 @@ msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
 msgstr "有可用更新。請安裝最新版本的應用程式以維持最新狀態。"
 
-#. Title label in navigation bar
-msgctxt "split-tunneling-nav"
-msgid "Split tunneling"
-msgstr "分割通道"
-
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr "%(applicationName)s 發生問題且無法從 VPN 通道排除。"
@@ -1130,8 +1276,8 @@ msgid "Launch"
 msgstr "啟動"
 
 msgctxt "split-tunneling-view"
-msgid "No result for %(searchTerm)s."
-msgstr "「%(searchTerm)s」沒有搜尋結果。"
+msgid "No result for **%(searchTerm)s**."
+msgstr "**%(searchTerm)s** 沒有任何結果。"
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1145,14 +1291,6 @@ msgstr "請聯絡支援團隊。"
 msgctxt "split-tunneling-view"
 msgid "Please try again or contact support."
 msgstr "請再試一次或聯絡支援團隊。"
-
-msgctxt "split-tunneling-view"
-msgid "Split tunneling"
-msgstr "分割通道"
-
-msgctxt "split-tunneling-view"
-msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
-msgstr "分割通道已從 CLI 停用，如果您在下方的清單中新增或移除應用程式，則該功能將自動啟用。"
 
 msgctxt "split-tunneling-view"
 msgid "Try a different search."
@@ -1248,8 +1386,24 @@ msgid "Your email (optional)"
 msgstr "您的電子郵件 (選填)"
 
 msgctxt "tray-icon-context-menu"
+msgid "Disconnected from system service"
+msgstr "已中斷與系統服務的連線"
+
+msgctxt "tray-icon-context-menu"
 msgid "Open %(mullvadVpn)s"
 msgstr "開啟 %(mullvadVpn)s"
+
+msgctxt "tray-icon-tooltip"
+msgid "%(city)s, %(country)s"
+msgstr "%(country)s%(city)s"
+
+msgctxt "tray-icon-tooltip"
+msgid "Connected. %(location)s"
+msgstr "已連線。%(location)s"
+
+msgctxt "tray-icon-tooltip"
+msgid "Connecting. %(location)s"
+msgstr "正在連線。%(location)s"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
@@ -1259,76 +1413,18 @@ msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "切換位置"
 
-msgctxt "wireguard-key-view"
-msgid "Failed to generate a key"
-msgstr "無法產生金鑰"
-
-msgctxt "wireguard-key-view"
-msgid "Generate key"
-msgstr "產生金鑰"
-
-msgctxt "wireguard-key-view"
-msgid "Generating key"
-msgstr "正在產生金鑰"
-
-msgctxt "wireguard-key-view"
-msgid "Key generated"
-msgstr "已產生金鑰"
-
-msgctxt "wireguard-key-view"
-msgid "Key is invalid"
-msgstr "金鑰無效"
-
-msgctxt "wireguard-key-view"
-msgid "Key is valid"
-msgstr "金鑰有效"
-
-msgctxt "wireguard-key-view"
-msgid "Key verification failed"
-msgstr "金鑰驗證失敗"
-
-msgctxt "wireguard-key-view"
-msgid "Manage keys"
-msgstr "管理金鑰"
-
-msgctxt "wireguard-key-view"
-msgid "No key set"
-msgstr "未設定金鑰"
-
-msgctxt "wireguard-key-view"
-msgid "Public key"
-msgstr "公開金鑰"
-
-msgctxt "wireguard-key-view"
-msgid "Reconnecting with new WireGuard key..."
-msgstr "正在使用新 WireGuard 金鑰重新連線..."
-
-msgctxt "wireguard-key-view"
-msgid "Regenerate key"
-msgstr "重新產生金鑰"
-
-msgctxt "wireguard-key-view"
-msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
-msgstr "無法重新產生金鑰：您已達到最大金鑰數。若要產生新的金鑰，需先前往「管理金鑰」撤銷任一金鑰。"
-
-msgctxt "wireguard-key-view"
-msgid "Verify key"
-msgstr "驗證金鑰"
-
 #. Title label in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "WireGuard key"
-msgstr "WireGuard 金鑰"
-
-#. Back button in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "WireGuard settings"
-msgstr "WireGuard 設定"
-
-#. Title label in navigation bar
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-nav"
-msgid "WireGuard settings"
-msgstr "WireGuard 設定"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s 設定"
+
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
+msgctxt "wireguard-settings-view"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s 設定"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -1344,29 +1440,24 @@ msgstr "連接埠"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
 msgctxt "wireguard-settings-view"
-msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
-msgstr "設定 WireGuard MTU 值。有效範圍：%(min)d - %(max)d。"
+msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
+msgstr "設定 %(wireguard)s MTU 值。有效範圍：%(min)d - %(max)d。"
 
 #. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
-msgstr "自動設定會隨機從各種連線埠中進行選擇。"
+msgstr "自動設定將會隨機從各種連線埠中進行選擇。"
 
 #. The hint displayed below the WireGuard IP version selector.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr "這將允許僅支援 IPv6 的裝置存取 WireGuard。"
-
-msgctxt "wireguard-settings-view"
-msgid "WireGuard key"
-msgstr "WireGuard 金鑰"
-
-msgctxt "wireguard-settings-view"
-msgid "WireGuard settings"
-msgstr "WireGuard 設定"
+msgid "This allows access to %(wireguard)s for devices that only support IPv6."
+msgstr "這可以讓僅支援 IPv6 的裝置存取 %(wireguard)s。"
 
 msgid "Account authentication failed."
 msgstr "帳戶驗證失敗。"
@@ -1386,9 +1477,6 @@ msgstr "所有應用程式"
 msgid "Blocking all connections"
 msgstr "正在封鎖所有連線"
 
-msgid "Blocking internet"
-msgstr "正在封鎖網路"
-
 msgid "Copied Mullvad account number to clipboard"
 msgstr "已將 Mullvad 帳號複製到剪貼簿"
 
@@ -1407,9 +1495,6 @@ msgstr "嚴重錯誤 (需注意)"
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "自訂 DNS 伺服器位址 %s 無效"
 
-msgid "Disconnecting"
-msgstr "正在中斷連線"
-
 msgid "Enable"
 msgstr "啟用"
 
@@ -1422,6 +1507,9 @@ msgstr "無法套用防火牆規則。裝置目前可能不安全"
 msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
 msgstr "無法封鎖所有網路流量。請排除故障或向我們回報問題。"
 
+msgid "Failed to generate a key"
+msgstr "無法產生金鑰"
+
 msgid "Failed to resolve the hostname of custom server"
 msgstr "無法解析自訂伺服器的主機名稱"
 
@@ -1431,11 +1519,29 @@ msgstr "無法設定系統 DNS 伺服器"
 msgid "Failed to start tunnel connection"
 msgstr "無法啟動通道連線"
 
+msgid "Generate key"
+msgstr "產生金鑰"
+
 msgid "If needed we will contact you on %s"
 msgstr "如有需要，我們將以 %s 與您聯絡"
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "安裝 Mullvad VPN (%s) 以維持最新狀態"
+
+msgid "Key generated"
+msgstr "已產生金鑰"
+
+msgid "Key is invalid"
+msgstr "金鑰無效"
+
+msgid "Key is valid"
+msgstr "金鑰有效"
+
+msgid "Key verification failed"
+msgstr "金鑰驗證失敗"
+
+msgid "Manage keys"
+msgstr "管理金鑰"
 
 msgid "Mullvad account number"
 msgstr "Mullvad 帳號"
@@ -1446,8 +1552,20 @@ msgstr "沒有與目前設定相符的橋接中繼伺服器"
 msgid "No relay server matches the current settings"
 msgstr "沒有與目前設定相符的中繼伺服器"
 
+msgid "Public key"
+msgstr "公開金鑰"
+
+msgid "Reconnecting with new WireGuard key..."
+msgstr "正在使用新 WireGuard 金鑰重新連線..."
+
+msgid "Regenerate key"
+msgstr "重新產生金鑰"
+
 msgid "Secured"
 msgstr "安全"
+
+msgid "Set WireGuard MTU value. Valid range: %d - %d."
+msgstr "設定 WireGuard MTU 值。有效範圍：%d - %d。"
 
 msgid "Show system apps"
 msgstr "顯示系統應用程式"
@@ -1457,6 +1575,9 @@ msgstr "顯示目前的 VPN 通道狀態"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "在帳戶時間即將到期時顯示提醒"
+
+msgid "Split tunneling"
+msgstr "分割通道"
 
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr "利用拆分通道，您可以選擇哪些應用程式不應透過 VPN 通道進行路由。"
@@ -1485,17 +1606,29 @@ msgstr "建立通道時，VPN 權限被拒絕。請嘗試重新連線。"
 msgid "VPN tunnel status"
 msgstr "VPN 通道狀態"
 
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。"
+
+msgid "Verify key"
+msgstr "驗證金鑰"
+
 msgid "Virtual adapter error"
 msgstr "虛擬配接器錯誤"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "連線時，會使用所選區域的一個私密安全位置，將您的真實位置遮住。"
 
+msgid "WireGuard"
+msgstr "WireGuard"
+
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
 msgid "WireGuard error"
 msgstr "WireGuard 錯誤"
+
+msgid "WireGuard key"
+msgstr "WireGuard 金鑰"
 
 msgid "WireGuard public key"
 msgstr "WireGuard 公開金鑰"
