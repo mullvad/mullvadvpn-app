@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add option to filter relays by ownership in the desktop apps.
 - Include creation timestamp for devices in the CLI.
+- Add support for quantum-resistant PSK exchange.
 
 ### Changed
 - List devices on an account sorted by creation date, oldest to newest, instead of alphabetically.
