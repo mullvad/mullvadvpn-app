@@ -12,10 +12,11 @@ jobs:
         steps:
             - uses: actions/checkout@v2
             - name: Verify signatures
+              id: verify
               run: |
                 commits=${{ github.event.pull_request.commits }}
                 if [[ -n "$commits" ]]; then
                     # Prepare enough depth for diffs with master
-                    git fetch --depth="$(( commits + 1 ))"
+                    git fetch --depth="$(( commits + 1 ))" origin ${{ steps.verify.outputs.current_branch }}
                 fi
                 ci/verify-lockfile-signature.sh origin/master
