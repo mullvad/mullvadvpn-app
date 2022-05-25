@@ -1443,11 +1443,13 @@ function convertFromDeviceRemoval(deviceRemoval: grpcTypes.RemoveDeviceEvent): A
 }
 
 function convertFromDevice(device: grpcTypes.Device): IDevice {
+  const created = ensureExists(device.getCreated(), "no 'created' field for device").toDate();
   const asObject = device.toObject();
 
   return {
     ...asObject,
     ports: asObject.portsList.map((port) => port.id),
+    created: created,
   };
 }
 
