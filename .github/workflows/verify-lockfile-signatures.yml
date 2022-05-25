@@ -12,7 +12,7 @@ jobs:
         steps:
             - uses: actions/checkout@v2
             - name: Verify signatures
-            - run: |
+              run: |
                 commits=${{ github.event.pull_request.commits }}
                 if [[ -n "$commits" ]]; then
                     # Prepare enough depth for diffs with master
