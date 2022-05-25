@@ -109,6 +109,15 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
     } else {
         String::new()
     };
+    let quantum_resistant = if verbose {
+        if endpoint.quantum_resistant {
+            "\nQuantum resistant tunnel: true".to_string()
+        } else {
+            "\nQuantum resistant tunnel: false".to_string()
+        }
+    } else {
+        String::new()
+    };
 
     let mut bridge_type = String::new();
     let mut obfuscator_type = String::new();
@@ -127,7 +136,7 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
     }
 
     format!(
-        "{exit_endpoint}{first_hop}{bridge}{obfuscator}{tunnel_type}{bridge_type}{obfuscator_type}",
+        "{exit_endpoint}{first_hop}{bridge}{obfuscator}{tunnel_type}{quantum_resistant}{bridge_type}{obfuscator_type}",
         first_hop = first_hop.unwrap_or_default(),
         bridge = bridge.unwrap_or_default(),
         obfuscator = obfuscator.unwrap_or_default(),

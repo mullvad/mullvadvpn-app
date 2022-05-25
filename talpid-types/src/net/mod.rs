@@ -29,6 +29,7 @@ impl TunnelParameters {
         match self {
             TunnelParameters::OpenVpn(params) => TunnelEndpoint {
                 tunnel_type: TunnelType::OpenVpn,
+                quantum_resistant: false,
                 endpoint: params.config.endpoint,
                 proxy: params.proxy.as_ref().map(|proxy| proxy.get_endpoint()),
                 obfuscation: None,
@@ -36,6 +37,7 @@ impl TunnelParameters {
             },
             TunnelParameters::Wireguard(params) => TunnelEndpoint {
                 tunnel_type: TunnelType::Wireguard,
+                quantum_resistant: params.options.use_pq_safe_psk,
                 endpoint: params
                     .connection
                     .get_exit_endpoint()
@@ -133,6 +135,8 @@ pub struct TunnelEndpoint {
     pub endpoint: Endpoint,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_type: TunnelType,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub quantum_resistant: bool,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub proxy: Option<proxy::ProxyEndpoint>,
     #[cfg_attr(target_os = "android", jnix(skip))]
