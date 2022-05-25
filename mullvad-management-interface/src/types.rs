@@ -217,6 +217,11 @@ impl From<mullvad_types::device::Device> for Device {
             name: device.name,
             pubkey: device.pubkey.as_bytes().to_vec(),
             ports: device.ports.into_iter().map(DevicePort::from).collect(),
+            hijack_dns: device.hijack_dns,
+            created: Some(Timestamp {
+                seconds: device.created.timestamp(),
+                nanos: 0,
+            }),
         }
     }
 }
@@ -276,7 +281,6 @@ impl From<mullvad_types::device::RemoveDeviceEvent> for RemoveDeviceEvent {
     fn from(event: mullvad_types::device::RemoveDeviceEvent) -> Self {
         RemoveDeviceEvent {
             account_token: event.account_token,
-            removed_device: Some(Device::from(event.removed_device)),
             new_device_list: event.new_devices.into_iter().map(Device::from).collect(),
         }
     }
@@ -808,6 +812,19 @@ impl TryFrom<Device> for mullvad_types::device::Device {
                 .into_iter()
                 .map(mullvad_types::device::DevicePort::from)
                 .collect(),
+            hijack_dns: device.hijack_dns,
+            created: chrono::DateTime::from_utc(
+                chrono::NaiveDateTime::from_timestamp(
+                    device
+                        .created
+                        .ok_or(FromProtobufTypeError::InvalidArgument(
+                            "missing 'created' field",
+                        ))?
+                        .seconds,
+                    0,
+                ),
+                chrono::Utc,
+            ),
         })
     }
 }

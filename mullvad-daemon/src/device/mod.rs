@@ -157,6 +157,19 @@ pub struct PrivateDevice {
     pub name: DeviceName,
     pub wg_data: wireguard::WireguardData,
     pub ports: Vec<DevicePort>,
+    // FIXME: Reasonable default to avoid migration code for the field,
+    // as it was previously missing.
+    // This attribute may be removed once upgrades from `2022.2-beta1`
+    // no longer need to be supported.
+    #[serde(default)]
+    pub hijack_dns: bool,
+    // FIXME: Incorrect but reasonable default to avoid migration code
+    // for the field, as it was previously missing.
+    // The value is corrected when the device is validated or updated.
+    // This attribute may be removed once upgrades from `2022.2-beta1`
+    // no longer need to be supported.
+    #[serde(default = "Utc::now")]
+    pub created: DateTime<Utc>,
 }
 
 impl PrivateDevice {
@@ -174,6 +187,8 @@ impl PrivateDevice {
             name: device.name,
             wg_data,
             ports: device.ports,
+            hijack_dns: device.hijack_dns,
+            created: device.created,
         })
     }
 
@@ -186,6 +201,8 @@ impl PrivateDevice {
         self.id = device.id;
         self.ports = device.ports;
         self.name = device.name;
+        self.hijack_dns = device.hijack_dns;
+        self.created = device.created;
         Ok(())
     }
 }
@@ -197,6 +214,8 @@ impl From<PrivateDevice> for Device {
             ports: device.ports,
             pubkey: device.wg_data.private_key.public_key(),
             name: device.name,
+            hijack_dns: device.hijack_dns,
+            created: device.created,
         }
     }
 }

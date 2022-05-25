@@ -1,4 +1,5 @@
 use crate::account::AccountToken;
+use chrono::{DateTime, Utc};
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
@@ -21,6 +22,10 @@ pub struct Device {
     #[cfg_attr(target_os = "android", jnix(map = "|key| *key.as_bytes()"))]
     pub pubkey: PublicKey,
     pub ports: Vec<DevicePort>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub hijack_dns: bool,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub created: DateTime<Utc>,
 }
 
 impl Eq for Device {}
@@ -132,6 +137,5 @@ pub struct DeviceEvent {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RemoveDeviceEvent {
     pub account_token: AccountToken,
-    pub removed_device: Device,
     pub new_devices: Vec<Device>,
 }

@@ -580,6 +580,8 @@ message Device {
 	string name = 2;
 	bytes pubkey = 3;
 	repeated DevicePort ports = 4;
+	bool hijack_dns = 5;
+	google.protobuf.Timestamp created = 6;
 }
 
 message DevicePort {
@@ -619,6 +621,5 @@ message DeviceEvent {
 
 message RemoveDeviceEvent {
 	string account_token = 1;
-	Device removed_device = 2;
-	repeated Device new_device_list = 3;
+	repeated Device new_device_list = 2;
 }
