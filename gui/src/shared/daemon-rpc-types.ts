@@ -359,6 +359,7 @@ export interface IDevice {
   id: string;
   name: string;
   ports?: Array<string>;
+  created: Date;
 }
 
 export interface IDeviceRemoval {
