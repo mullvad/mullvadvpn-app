@@ -217,19 +217,14 @@ impl TunnelMonitor {
         // The minimum allowed MTU size for our tunnel in IPv6 is 1280
         const MIN_IPV6_MTU: u16 = 1280;
         const MIN_IPV4_MTU: u16 = 576;
-        let mtu = if params.generic_options.enable_ipv6 {
-            std::cmp::max(
-                mtu.checked_sub(WIREGUARD_HEADER_SIZE)
-                    .unwrap_or(MIN_IPV6_MTU),
-                MIN_IPV6_MTU,
-            )
-        } else {
-            std::cmp::max(
-                mtu.checked_sub(WIREGUARD_HEADER_SIZE)
-                    .unwrap_or(MIN_IPV4_MTU),
-                MIN_IPV4_MTU,
-            )
+        let min_mtu = match params.generic_options.enable_ipv6 {
+            true => MIN_IPV6_MTU,
+            false => MIN_IPV4_MTU,
         };
+        let mtu = std::cmp::max(
+            mtu.checked_sub(WIREGUARD_HEADER_SIZE).unwrap_or(mn_mtu),
+            mn_mtu,
+        );
         let upstream_mtu = std::cmp::min(MAX_TUNNEL_MTU, mtu);
         params.options.mtu = Some(upstream_mtu);
     }
