@@ -448,7 +448,7 @@ impl ManagementService for ManagementServiceImpl {
                     "Unable to get account data from API: {}",
                     error.display_chain()
                 );
-                map_rest_error(error)
+                map_rest_error(&error)
             })
     }
 
@@ -927,15 +927,15 @@ fn map_daemon_error(error: crate::Error) -> Status {
     use crate::Error as DaemonError;
 
     match error {
-        DaemonError::RestError(error) => map_rest_error(error),
+        DaemonError::RestError(error) => map_rest_error(&error),
         DaemonError::SettingsError(error) => map_settings_error(error),
         DaemonError::AlreadyLoggedIn => Status::already_exists(error.to_string()),
-        DaemonError::LoginError(error) => map_device_error(error),
-        DaemonError::LogoutError(error) => map_device_error(error),
-        DaemonError::KeyRotationError(error) => map_device_error(error),
-        DaemonError::ListDevicesError(error) => map_device_error(error),
-        DaemonError::RemoveDeviceError(error) => map_device_error(error),
-        DaemonError::UpdateDeviceError(error) => map_device_error(error),
+        DaemonError::LoginError(error) => map_device_error(&error),
+        DaemonError::LogoutError(error) => map_device_error(&error),
+        DaemonError::KeyRotationError(error) => map_device_error(&error),
+        DaemonError::ListDevicesError(error) => map_device_error(&error),
+        DaemonError::RemoveDeviceError(error) => map_device_error(&error),
+        DaemonError::UpdateDeviceError(error) => map_device_error(&error),
         #[cfg(windows)]
         DaemonError::SplitTunnelError(error) => map_split_tunnel_error(error),
         DaemonError::AccountHistory(error) => map_account_history_error(error),
@@ -975,15 +975,15 @@ fn map_rest_voucher_error(error: RestError) -> Status {
 
             error => Status::unknown(format!("Voucher error: {}", error)),
         },
-        error => map_rest_error(error),
+        error => map_rest_error(&error),
     }
 }
 
 /// Converts a REST API error into a tonic status.
-fn map_rest_error(error: RestError) -> Status {
+fn map_rest_error(error: &RestError) -> Status {
     match error {
         RestError::ApiError(status, message)
-            if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
+            if *status == StatusCode::UNAUTHORIZED || *status == StatusCode::FORBIDDEN =>
         {
             Status::new(Code::Unauthenticated, message)
         }
@@ -1009,7 +1009,7 @@ fn map_settings_error(error: settings::Error) -> Status {
 }
 
 /// Converts an instance of [`mullvad_daemon::device::Error`] into a tonic status.
-fn map_device_error(error: device::Error) -> Status {
+fn map_device_error(error: &device::Error) -> Status {
     match error {
         device::Error::MaxDevicesReached => Status::new(Code::ResourceExhausted, error.to_string()),
         device::Error::InvalidAccount => Status::new(Code::Unauthenticated, error.to_string()),
@@ -1020,6 +1020,7 @@ fn map_device_error(error: device::Error) -> Status {
             Status::new(Code::Unavailable, error.to_string())
         }
         device::Error::OtherRestError(error) => map_rest_error(error),
+        device::Error::ResponseFailure(error) => map_device_error(error.unpack()),
         _ => Status::new(Code::Unknown, error.to_string()),
     }
 }
