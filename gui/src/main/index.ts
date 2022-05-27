@@ -1377,7 +1377,12 @@ class ApplicationMain {
     IpcMainEventChannel.account.handleUpdateData(() => this.updateAccountData());
 
     IpcMainEventChannel.account.handleGetDeviceState(async () => {
-      await this.daemonRpc.updateDevice();
+      try {
+        await this.daemonRpc.updateDevice();
+      } catch (e) {
+        const error = e as Error;
+        log.warn(`Failed to update device info: ${error.message}`);
+      }
       return this.daemonRpc.getDevice();
     });
     IpcMainEventChannel.account.handleListDevices((accountToken: AccountToken) => {
