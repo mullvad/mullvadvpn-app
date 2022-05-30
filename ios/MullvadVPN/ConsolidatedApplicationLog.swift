@@ -15,7 +15,6 @@ private let kRedactedAccountPlaceholder = "[REDACTED ACCOUNT NUMBER]"
 private let kRedactedContainerPlaceholder = "[REDACTED CONTAINER PATH]"
 
 class ConsolidatedApplicationLog: TextOutputStreamable {
-
     typealias Metadata = KeyValuePairs<MetadataKey, String>
 
     enum MetadataKey: String {
@@ -108,13 +107,13 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         let path = fileURL.path
         let redactedPath = redact(string: path)
 
-        switch Self.readFileLossy(path: path, maxBytes: kLogMaxReadBytes) {
-        case .success(let lossyString):
+        do {
+            let lossyString = try Self.readFileLossy(path: path, maxBytes: kLogMaxReadBytes)
             let redactedString = redact(string: lossyString)
-            logs.append(LogAttachment(label: redactedPath, content: redactedString))
 
-        case .failure(let error):
-            addError(message: redactedPath, error: error)
+            logs.append(LogAttachment(label: redactedPath, content: redactedString))
+        } catch {
+            addError(message: redactedPath, error: AnyChainedError(error))
         }
     }
 
@@ -129,9 +128,9 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         ]
     }
 
-    private static func readFileLossy(path: String, maxBytes: UInt64) -> Result<String, Error> {
+    private static func readFileLossy(path: String, maxBytes: UInt64) throws -> String {
         guard let fileHandle = FileHandle(forReadingAtPath: path) else {
-            return .failure(.logFileDoesNotExist(path))
+            throw Error.logFileDoesNotExist(path)
         }
 
         let endOfFileOffset = fileHandle.seekToEndOfFile()
@@ -149,7 +148,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
                 return ch == replacementCharacter
             })
 
-        return .success(lossyString)
+        return lossyString
     }
 
     private func redactCustomStrings(string: String) -> String {

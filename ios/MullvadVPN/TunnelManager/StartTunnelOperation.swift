@@ -33,8 +33,8 @@ class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
     }
 
     override func main() {
-        guard let tunnelInfo = state.tunnelInfo else {
-            self.finish(completion: .failure(.unsetAccount))
+        guard let tunnelSettings = state.tunnelSettings else {
+            finish(completion: .failure(.unsetAccount))
             return
         }
 
@@ -50,7 +50,7 @@ class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
                     switch readResult {
                     case .success(let cachedRelays):
                         self.didReceiveRelays(
-                            tunnelInfo: tunnelInfo,
+                            tunnelSettings: tunnelSettings,
                             cachedRelays: cachedRelays
                         )
 
@@ -66,10 +66,10 @@ class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
         }
     }
 
-    private func didReceiveRelays(tunnelInfo: TunnelInfo, cachedRelays: RelayCache.CachedRelays) {
+    private func didReceiveRelays(tunnelSettings: TunnelSettingsV2, cachedRelays: RelayCache.CachedRelays) {
         let selectorResult = RelaySelector.evaluate(
             relays: cachedRelays.relays,
-            constraints: tunnelInfo.tunnelSettings.relayConstraints
+            constraints: tunnelSettings.relayConstraints
         )
 
         guard let selectorResult = selectorResult else {
@@ -77,13 +77,16 @@ class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
             return
         }
 
-        Self.makeTunnelProvider(accountToken: tunnelInfo.token) { makeTunnelProviderResult in
+        Self.makeTunnelProvider { makeTunnelProviderResult in
             self.dispatchQueue.async {
                 switch makeTunnelProviderResult {
                 case .success(let tunnelProvider):
                     let startTunnelResult = Result { try self.startTunnel(tunnelProvider: tunnelProvider, selectorResult: selectorResult) }
+                        .mapError { error -> TunnelManager.Error in
+                            return .startVPNTunnel(error)
+                        }
 
-                    self.finish(completion: OperationCompletion(result: startTunnelResult.mapError { .startVPNTunnel($0) }))
+                    self.finish(completion: OperationCompletion(result: startTunnelResult))
 
                 case .failure(let error):
                     self.finish(completion: .failure(error))
@@ -109,22 +112,27 @@ class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
         try tunnelProvider.connection.startVPNTunnel(options: tunnelOptions.rawOptions())
     }
 
-    private class func makeTunnelProvider(accountToken: String, completionHandler: @escaping (Result<TunnelProviderManagerType, TunnelManager.Error>) -> Void) {
+    private class func makeTunnelProvider(completionHandler: @escaping (Result<TunnelProviderManagerType, TunnelManager.Error>) -> Void) {
         TunnelProviderManagerType.loadAllFromPreferences { tunnelProviders, error in
             if let error = error {
                 completionHandler(.failure(.loadAllVPNConfigurations(error)))
                 return
             }
 
-            let result = Self.setupTunnelProvider(
-                accountToken: accountToken,
-                tunnels: tunnelProviders
-            )
+            let protocolConfig = NETunnelProviderProtocol()
+            protocolConfig.providerBundleIdentifier = ApplicationConfiguration.packetTunnelExtensionIdentifier
+            protocolConfig.serverAddress = ""
 
-            guard case .success(let tunnelProvider) = result else {
-                completionHandler(result)
-                return
-            }
+            let tunnelProvider = tunnelProviders?.first ?? TunnelProviderManagerType()
+            tunnelProvider.isEnabled = true
+            tunnelProvider.localizedDescription = "WireGuard"
+            tunnelProvider.protocolConfiguration = protocolConfig
+
+            // Enable on-demand VPN, always connect the tunnel when on Wi-Fi or cellular.
+            let alwaysOnRule = NEOnDemandRuleConnect()
+            alwaysOnRule.interfaceTypeMatch = .any
+            tunnelProvider.onDemandRules = [alwaysOnRule]
+            tunnelProvider.isOnDemandEnabled = true
 
             tunnelProvider.saveToPreferences { error in
                 if let error = error {
@@ -145,35 +153,5 @@ class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
                 }
             }
         }
-    }
-
-    private class func setupTunnelProvider(accountToken: String, tunnels: [TunnelProviderManagerType]?) -> Result<TunnelProviderManagerType, TunnelManager.Error> {
-        // Request persistent keychain reference to tunnel settings
-        return TunnelSettingsManager.getPersistentKeychainReference(account: accountToken)
-            .mapError { error in
-                return .obtainPersistentKeychainReference(error)
-            }
-            .map { passwordReference in
-                // Get the first available tunnel or make a new one
-                let tunnelProvider = tunnels?.first ?? TunnelProviderManagerType()
-
-                let protocolConfig = NETunnelProviderProtocol()
-                protocolConfig.providerBundleIdentifier = ApplicationConfiguration.packetTunnelExtensionIdentifier
-                protocolConfig.serverAddress = ""
-                protocolConfig.username = accountToken
-                protocolConfig.passwordReference = passwordReference
-
-                tunnelProvider.isEnabled = true
-                tunnelProvider.localizedDescription = "WireGuard"
-                tunnelProvider.protocolConfiguration = protocolConfig
-
-                // Enable on-demand VPN, always connect the tunnel when on Wi-Fi or cellular
-                let alwaysOnRule = NEOnDemandRuleConnect()
-                alwaysOnRule.interfaceTypeMatch = .any
-                tunnelProvider.onDemandRules = [alwaysOnRule]
-                tunnelProvider.isOnDemandEnabled = true
-
-                return tunnelProvider
-            }
     }
 }

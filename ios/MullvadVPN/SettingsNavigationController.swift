@@ -62,7 +62,7 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
         navigationBar.prefersLargeTitles = true
 
         // Update account expiry
-        Account.shared.updateAccountExpiry()
+        TunnelManager.shared.updateAccountData()
     }
 
     // MARK: - SettingsViewControllerDelegate

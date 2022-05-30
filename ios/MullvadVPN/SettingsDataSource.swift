@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITableViewDelegate {
+class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITableViewDelegate {
     private enum CellReuseIdentifiers: String, CaseIterable {
         case accountCell
         case basicCell
@@ -50,6 +50,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
     }
 
     private var snapshot = DataSourceSnapshot<Section, Item>()
+    private var storedAccountData: StoredAccountData?
 
     weak var delegate: SettingsDataSourceDelegate?
 
@@ -65,7 +66,9 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
     override init() {
         super.init()
 
-        Account.shared.addObserver(self)
+        TunnelManager.shared.addObserver(self)
+        storedAccountData = TunnelManager.shared.tunnelSettings?.account
+
         updateDataSnapshot()
     }
 
@@ -82,7 +85,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
     private func updateDataSnapshot() {
         var newSnapshot = DataSourceSnapshot<Section, Item>()
 
-        if Account.shared.isLoggedIn {
+        if TunnelManager.shared.isAccountSet {
             newSnapshot.appendSections([.main])
             newSnapshot.appendItems([.account, .preferences, .wireguardKey], in: .main)
         }
@@ -113,7 +116,7 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
         case .account:
             let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.accountCell.rawValue, for: indexPath) as! SettingsAccountCell
             cell.titleLabel.text = NSLocalizedString("ACCOUNT_CELL_LABEL", tableName: "Settings", value: "Account", comment: "")
-            cell.accountExpiryDate = Account.shared.expiry
+            cell.accountExpiryDate = TunnelManager.shared.accountExpiry
             cell.accessibilityIdentifier = "AccountCell"
             cell.disclosureType = .chevron
 
@@ -199,22 +202,34 @@ class SettingsDataSource: NSObject, AccountObserver, UITableViewDataSource, UITa
         return 0
     }
 
-    // MARK: - AccountObserver
+    // MARK: - TunnelObserver
 
-    func account(_ account: Account, didUpdateExpiry expiry: Date) {
-        tableView?.performBatchUpdates {
-            if let indexPath = snapshot.indexPathForItem(.account) {
-                tableView?.reloadRows(at: [indexPath], with: .none)
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
+        // no-op
+    }
+
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
+        // no-op
+    }
+
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
+        let newAccountData = tunnelSettings?.account
+        let oldAccountData = storedAccountData
+
+        storedAccountData = newAccountData
+
+        // Refresh individual row if expiry changed.
+        if let newAccountData = newAccountData, let oldAccountData = oldAccountData,
+           oldAccountData.number == newAccountData.number,
+           oldAccountData.expiry != newAccountData.expiry {
+            tableView?.performBatchUpdates {
+                if let indexPath = snapshot.indexPathForItem(.account) {
+                    tableView?.reloadRows(at: [indexPath], with: .none)
+                }
             }
+            return
         }
-    }
 
-    func account(_ account: Account, didLoginWithToken token: String, expiry: Date) {
-        updateDataSnapshot()
-        tableView?.reloadData()
-    }
-
-    func accountDidLogout(_ account: Account) {
         updateDataSnapshot()
         tableView?.reloadData()
     }

@@ -29,6 +29,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     }()
 
     private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
+    private let accountsProxy = REST.ProxyFactory.shared.createAccountsProxy()
 
     private let exclusivityController = ExclusivityController()
 
@@ -111,16 +112,19 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     }
 
     func addPayment(_ payment: SKPayment, for accountToken: String) {
-        var cancellableTask: Cancellable?
+        var task: Cancellable?
         let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Validate account token") {
-            cancellableTask?.cancel()
+            task?.cancel()
         }
 
         // Validate account token before adding new payment to the queue.
-        cancellableTask = apiProxy.getAccountExpiry(accountNumber: accountToken, retryStrategy: .default) { result in
+        task = accountsProxy.getAccountData(
+            accountNumber: accountToken,
+            retryStrategy: .default
+        ) { completion in
             dispatchPrecondition(condition: .onQueue(.main))
 
-            switch result {
+            switch completion {
             case .success:
                 self.associateAccountToken(accountToken, and: payment)
                 self.paymentQueue.add(payment)

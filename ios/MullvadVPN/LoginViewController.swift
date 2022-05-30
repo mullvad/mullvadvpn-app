@@ -16,13 +16,22 @@ enum AuthenticationMethod {
 enum LoginState {
     case `default`
     case authenticating(AuthenticationMethod)
-    case failure(Account.Error)
+    case failure(TunnelManager.Error)
     case success(AuthenticationMethod)
 }
 
 protocol LoginViewControllerDelegate: AnyObject {
-    func loginViewController(_ controller: LoginViewController, loginWithAccountToken accountToken: String, completion: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void)
-    func loginViewControllerLoginWithNewAccount(_ controller: LoginViewController, completion: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void)
+    func loginViewController(
+        _ controller: LoginViewController,
+        loginWithAccountToken accountToken: String,
+        completion: @escaping (OperationCompletion<StoredAccountData?, TunnelManager.Error>) -> Void
+    )
+
+    func loginViewControllerLoginWithNewAccount(
+        _ controller: LoginViewController,
+        completion: @escaping (OperationCompletion<StoredAccountData?, TunnelManager.Error>) -> Void
+    )
+
     func loginViewControllerDidLogin(_ controller: LoginViewController)
 }
 
@@ -183,12 +192,14 @@ class LoginViewController: UIViewController, RootContainment {
         let accountToken = contentView.accountInputGroup.parsedToken
 
         beginLogin(method: .existingAccount)
-        self.delegate?.loginViewController(self, loginWithAccountToken: accountToken, completion: { [weak self] (result) in
-            switch result {
+        self.delegate?.loginViewController(self, loginWithAccountToken: accountToken, completion: { [weak self] completion in
+            switch completion {
             case .success:
                 self?.endLogin(.success(.existingAccount))
             case .failure(let error):
                 self?.endLogin(.failure(error))
+            case .cancelled:
+                self?.endLogin(.default)
             }
         })
     }
@@ -199,13 +210,15 @@ class LoginViewController: UIViewController, RootContainment {
         contentView.accountInputGroup.clearToken()
         updateKeyboardToolbar()
 
-        self.delegate?.loginViewControllerLoginWithNewAccount(self, completion: { [weak self] (result) in
-            switch result {
-            case .success(let response):
-                self?.contentView.accountInputGroup.setToken(response.token)
+        self.delegate?.loginViewControllerLoginWithNewAccount(self, completion: { [weak self] completion in
+            switch completion {
+            case .success(let accountData):
+                self?.contentView.accountInputGroup.setToken(accountData?.number ?? "")
                 self?.endLogin(.success(.newAccount))
             case .failure(let error):
                 self?.endLogin(.failure(error))
+            case .cancelled:
+                self?.endLogin(.default)
             }
         })
     }
@@ -341,43 +354,7 @@ private extension LoginState {
             }
 
         case .failure(let error):
-            let localizedUnknownInternalError = NSLocalizedString(
-                "SUBHEAD_TITLE_INTERNAL_ERROR",
-                tableName: "Login",
-                comment: "Subhead displayed in the event of internal error."
-            )
-
-            switch error {
-            case .createAccount(let rpcError), .verifyAccount(let rpcError):
-                return rpcError.errorChainDescription ?? ""
-            case .tunnelConfiguration(let error):
-                if case .pushWireguardKey(let pushError) = error {
-                    switch pushError {
-                    case .network(let urlError):
-                        return String(
-                            format: NSLocalizedString(
-                                "SUBHEAD_TITLE_NETWORK_ERROR_FORMAT",
-                                tableName: "Login",
-                                value: "Network error: %@",
-                                comment: "Subhead displayed in the event of network error. Use %@ placeholder to place localized text describing network failure."
-                            ),
-                            urlError.localizedDescription
-                        )
-
-                    case .unhandledResponse(_, let serverError):
-                        return serverError?.detail ?? NSLocalizedString(
-                            "SUBHEAD_TITLE_UNKNOWN_SERVER_ERROR",
-                            tableName: "Login",
-                            comment: "Subhead displayed in the event of unknown server error."
-                        )
-
-                    case .createURLRequest, .decodeResponse:
-                        return localizedUnknownInternalError
-                    }
-                } else {
-                    return localizedUnknownInternalError
-                }
-            }
+            return error.errorChainDescription ?? ""
 
         case .success(let method):
             switch method {

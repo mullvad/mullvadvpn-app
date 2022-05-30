@@ -70,15 +70,20 @@ extension RelayCache {
 
                 self.isPeriodicUpdatesEnabled = true
 
-                switch RelayCache.IO.read(cacheFileURL: self.cacheFileURL) {
-                case .success(let cachedRelays):
-                    let nextUpdate = cachedRelays.updatedAt.addingTimeInterval(Self.relayUpdateInterval)
+                do {
+                    let cachedRelays = try RelayCache.IO.read(cacheFileURL: self.cacheFileURL)
+                    let nextUpdate = cachedRelays.updatedAt
+                        .addingTimeInterval(Self.relayUpdateInterval)
+
                     self.scheduleRepeatingTimer(startTime: .now() + nextUpdate.timeIntervalSinceNow)
+                } catch {
+                    self.logger.error(
+                        chainedError: AnyChainedError(error),
+                        message: "Failed to read the relay cache."
+                    )
 
-                case .failure(let readError):
-                    self.logger.error(chainedError: readError, message: "Failed to read the relay cache.")
-
-                    if Self.shouldDownloadRelaysOnReadFailure(readError) {
+                    if let readError = error as? RelayCache.Error,
+                       Self.shouldDownloadRelaysOnReadFailure(readError) {
                         self.scheduleRepeatingTimer(startTime: .now())
                     }
                 }
@@ -98,7 +103,11 @@ extension RelayCache {
             }
         }
 
-        func updateRelays(completionHandler: @escaping (OperationCompletion<RelayCache.FetchResult, RelayCache.Error>) -> Void) -> Cancellable {
+        func updateRelays(
+            completionHandler: @escaping (
+                OperationCompletion<RelayCache.FetchResult, RelayCache.Error>
+            ) -> Void
+        ) -> Cancellable {
             let operation = UpdateRelaysOperation(
                 dispatchQueue: stateQueue,
                 apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
@@ -131,20 +140,24 @@ extension RelayCache {
 
         func read(completionHandler: @escaping (Result<CachedRelays, RelayCache.Error>) -> Void) {
             stateQueue.async {
-                let result = RelayCache.IO.readWithFallback(
-                    cacheFileURL: self.cacheFileURL,
-                    preBundledRelaysFileURL: self.prebundledRelaysFileURL
-                )
+                let result = Result {
+                    try RelayCache.IO.readWithFallback(
+                        cacheFileURL: self.cacheFileURL,
+                        preBundledRelaysFileURL: self.prebundledRelaysFileURL
+                    )
+                }.mapError { error in
+                    return error as! RelayCache.Error
+                }
 
                 completionHandler(result)
             }
         }
 
-        func readAndWait() -> Result<CachedRelays, RelayCache.Error> {
-            return stateQueue.sync {
-                return RelayCache.IO.readWithFallback(
-                    cacheFileURL: self.cacheFileURL,
-                    preBundledRelaysFileURL: self.prebundledRelaysFileURL
+        func readAndWait() throws -> CachedRelays {
+            return try stateQueue.sync {
+                return try RelayCache.IO.readWithFallback(
+                    cacheFileURL: cacheFileURL,
+                    preBundledRelaysFileURL: prebundledRelaysFileURL
                 )
             }
         }
@@ -241,38 +254,37 @@ extension RelayCache.Tracker {
     }
 
     /// Schedules app refresh task relative to the last relays update.
-    func scheduleAppRefreshTask() -> Result<(), RelayCache.Error> {
-        return readAndWait().flatMap { cachedRelays in
-            let beginDate = cachedRelays.updatedAt.addingTimeInterval(Self.relayUpdateInterval)
+    func scheduleAppRefreshTask() throws {
+        let cachedRelays = try readAndWait()
+        let beginDate = cachedRelays.updatedAt.addingTimeInterval(Self.relayUpdateInterval)
 
-            return self.submitAppRefreshTask(at: beginDate)
-        }
+        try submitAppRefreshTask(at: beginDate)
     }
 
     /// Create and submit task request to scheduler.
-    private func submitAppRefreshTask(at beginDate: Date) -> Result<(), RelayCache.Error> {
+    private func submitAppRefreshTask(at beginDate: Date) throws {
         let taskIdentifier = ApplicationConfiguration.appRefreshTaskIdentifier
 
         let request = BGAppRefreshTaskRequest(identifier: taskIdentifier)
         request.earliestBeginDate = beginDate
 
-        return Result { try BGTaskScheduler.shared.submit(request) }
-            .mapError { error in
-                return .backgroundTaskScheduler(error)
-            }
+        try BGTaskScheduler.shared.submit(request)
     }
 
     /// Background task handler
     private func handleAppRefreshTask(_ task: BGAppRefreshTask) {
         logger.debug("Start app refresh task.")
 
-        let cancellable = self.updateRelays { completion in
+        let cancellable = updateRelays { completion in
             switch completion {
             case .success(let fetchResult):
                 self.logger.debug("Finished updating relays in app refresh task: \(fetchResult).")
 
             case .failure(let error):
-                self.logger.error(chainedError: error, message: "Failed to update relays in app refresh task.")
+                self.logger.error(
+                    chainedError: error,
+                    message: "Failed to update relays in app refresh task."
+                )
 
             case .cancelled:
                 self.logger.debug("App refresh task was cancelled.")
@@ -287,13 +299,15 @@ extension RelayCache.Tracker {
 
         // Schedule next refresh
         let scheduleDate = Date(timeIntervalSinceNow: Self.relayUpdateInterval)
+        do {
+            try submitAppRefreshTask(at: scheduleDate)
 
-        switch self.submitAppRefreshTask(at: scheduleDate) {
-        case .success:
             logger.debug("Scheduled next app refresh task at \(scheduleDate.logFormatDate()).")
-
-        case .failure(let error):
-            logger.error(chainedError: error, message: "Failed to schedule next app refresh task.")
+        } catch {
+            logger.error(
+                chainedError: AnyChainedError(error),
+                message: "Failed to schedule next app refresh task."
+            )
         }
     }
 }
@@ -308,7 +322,7 @@ fileprivate class UpdateRelaysOperation: ResultOperation<RelayCache.FetchResult,
     private let logger = Logger(label: "RelayCacheTracker.UpdateRelaysOperation")
 
     private let updateHandler: UpdateHandler
-    private var downloadCancellable: Cancellable?
+    private var downloadTask: Cancellable?
 
     init(
         dispatchQueue: DispatchQueue,
@@ -332,32 +346,34 @@ fileprivate class UpdateRelaysOperation: ResultOperation<RelayCache.FetchResult,
     }
 
     override func main() {
-        let readResult = RelayCache.IO.read(cacheFileURL: self.cacheFileURL)
-
-        switch readResult {
-        case .success(let cachedRelays):
-            let nextUpdate = cachedRelays.updatedAt.addingTimeInterval(self.relayUpdateInterval)
+        do {
+            let cachedRelays = try RelayCache.IO.read(cacheFileURL: cacheFileURL)
+            let nextUpdate = cachedRelays.updatedAt.addingTimeInterval(relayUpdateInterval)
 
             if nextUpdate <= Date() {
-                self.downloadRelays(previouslyCachedRelays: cachedRelays)
+                downloadRelays(previouslyCachedRelays: cachedRelays)
             } else {
-                self.finish(completion: .success(.throttled))
+                finish(completion: .success(.throttled))
             }
+        } catch {
+            let error = error as! RelayCache.Error
 
-        case .failure(let readError):
-            self.logger.error(chainedError: readError, message: "Failed to read the relay cache to determine if it needs to be updated.")
+            logger.error(
+                chainedError: error,
+                message: "Failed to read the relay cache to determine if it needs to be updated."
+            )
 
-            if self.shouldDownloadRelaysOnReadFailure(readError) {
-                self.downloadRelays(previouslyCachedRelays: nil)
+            if shouldDownloadRelaysOnReadFailure(error) {
+                downloadRelays(previouslyCachedRelays: nil)
             } else {
-                self.finish(completion: .failure(readError))
+                finish(completion: .failure(error))
             }
         }
     }
 
     override func operationDidCancel() {
-        downloadCancellable?.cancel()
-        downloadCancellable = nil
+        downloadTask?.cancel()
+        downloadTask = nil
     }
 
     private func didReceiveNewRelays(etag: String?, relays: REST.ServerRelaysResponse) {
@@ -365,38 +381,49 @@ fileprivate class UpdateRelaysOperation: ResultOperation<RelayCache.FetchResult,
 
         logger.info("Downloaded \(numRelays) relays.")
 
-        let cachedRelays = RelayCache.CachedRelays(etag: etag, relays: relays, updatedAt: Date())
-        let writeResult = RelayCache.IO.write(cacheFileURL: cacheFileURL, record: cachedRelays)
+        let cachedRelays = RelayCache.CachedRelays(
+            etag: etag,
+            relays: relays,
+            updatedAt: Date()
+        )
 
-        switch writeResult {
-        case .success:
+        do {
+            try RelayCache.IO.write(cacheFileURL: cacheFileURL, record: cachedRelays)
+
             updateHandler(cachedRelays)
 
             finish(completion: .success(.newContent))
+        } catch {
+            let error = error as! RelayCache.Error
 
-        case .failure(let error):
-            logger.error(chainedError: error, message: "Failed to store downloaded relays.")
+            logger.error(
+                chainedError: error,
+                message: "Failed to store downloaded relays."
+            )
 
-            finish(completion: .failure(.writeCache(error)))
+            finish(completion: .failure(error))
         }
     }
 
     private func didReceiveNotModified(previouslyCachedRelays: RelayCache.CachedRelays) {
-        logger.info("Relays haven't changed since last check.")
-
         var cachedRelays = previouslyCachedRelays
         cachedRelays.updatedAt = Date()
 
-        let writeResult = RelayCache.IO.write(cacheFileURL: self.cacheFileURL, record: cachedRelays)
+        logger.info("Relays haven't changed since last check.")
 
-        switch writeResult {
-        case .success:
+        do {
+            try RelayCache.IO.write(cacheFileURL: cacheFileURL, record: cachedRelays)
+
             finish(completion: .success(.sameContent))
+        } catch {
+            let error = error as! RelayCache.Error
 
-        case .failure(let error):
-            logger.error(chainedError: error, message: "Failed to update cached relays timestamp.")
+            logger.error(
+                chainedError: error,
+                message: "Failed to update cached relays timestamp."
+            )
 
-            finish(completion: .failure(.writeCache(error)))
+            finish(completion: .failure(error))
         }
     }
 
@@ -407,11 +434,11 @@ fileprivate class UpdateRelaysOperation: ResultOperation<RelayCache.FetchResult,
     }
 
     private func downloadRelays(previouslyCachedRelays: RelayCache.CachedRelays?) {
-        downloadCancellable = apiProxy.getRelays(etag: previouslyCachedRelays?.etag, retryStrategy: .noRetry) { [weak self] result in
+        downloadTask = apiProxy.getRelays(etag: previouslyCachedRelays?.etag, retryStrategy: .noRetry) { [weak self] completion in
             guard let self = self else { return }
 
             self.dispatchQueue.async {
-                switch result {
+                switch completion {
                 case .success(.newContent(let etag, let relays)):
                     self.didReceiveNewRelays(etag: etag, relays: relays)
 

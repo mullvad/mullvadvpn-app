@@ -68,7 +68,6 @@ extension TunnelManager.Error: DisplayChainedError {
                 ),
                 systemError.localizedDescription
             )
-
         case .reloadVPNConfiguration(let systemError):
             return String(
                 format: NSLocalizedString(
@@ -79,7 +78,6 @@ extension TunnelManager.Error: DisplayChainedError {
                 ),
                 systemError.localizedDescription
             )
-
         case .saveVPNConfiguration(let systemError):
             return String(
                 format: NSLocalizedString(
@@ -90,15 +88,6 @@ extension TunnelManager.Error: DisplayChainedError {
                 ),
                 systemError.localizedDescription
             )
-
-        case .obtainPersistentKeychainReference(_):
-            return NSLocalizedString(
-                "OBTAIN_PERSISTENT_KEYCHAIN_REFERENCE_ERROR",
-                tableName: "TunnelManager",
-                value: "Failed to obtain the persistent keychain reference for the VPN configuration",
-                comment: ""
-            )
-
         case .startVPNTunnel(let systemError):
             return String(
                 format: NSLocalizedString(
@@ -109,7 +98,6 @@ extension TunnelManager.Error: DisplayChainedError {
                 ),
                 systemError.localizedDescription
             )
-
         case .removeVPNConfiguration(let systemError):
             return String(
                 format: NSLocalizedString(
@@ -120,121 +108,79 @@ extension TunnelManager.Error: DisplayChainedError {
                 ),
                 systemError.localizedDescription
             )
-
-        case .removeInconsistentVPNConfiguration(let systemError):
-            return String(
-                format: NSLocalizedString(
-                    "REMOVE_INCONSISTENT_VPN_CONFIGURATION",
-                    tableName: "TunnelManager",
-                    value: "Failed to remove the outdated system VPN configuration: %@",
-                    comment: ""
-                ),
-                systemError.localizedDescription
-            )
-
-        case .readTunnelSettings(_):
+        case .readSettings:
             return NSLocalizedString(
                 "READ_TUNNEL_SETTINGS_ERROR",
                 tableName: "TunnelManager",
-                value: "Failed to read tunnel settings",
+                value: "Failed to read settings",
                 comment: ""
             )
-
-        case .addTunnelSettings(_):
+        case .writeSettings:
             return NSLocalizedString(
-                "ADD_TUNNEL_SETTINGS_ERROR",
+                "WRITE_TUNNEL_SETTINGS_ERROR",
                 tableName: "TunnelManager",
-                value: "Failed to add tunnel settings",
+                value: "Failed to write settings",
                 comment: ""
             )
-
-        case .updateTunnelSettings(_):
+        case .deleteSettings:
             return NSLocalizedString(
-                "UPDATE_TUNNEL_SETTINGS_ERROR",
+                "DELETE_TUNNEL_SETTINGS_ERROR",
                 tableName: "TunnelManager",
-                value: "Failed to update tunnel settings",
+                value: "Failed to delete settings",
                 comment: ""
             )
-
-        case .removeTunnelSettings(_):
-            return NSLocalizedString(
-                "REMOVE_TUNNEL_SETTINGS_ERROR",
-                tableName: "TunnelManager",
-                value: "Failed to remove tunnel settings",
-                comment: ""
-            )
-
-        case .migrateTunnelSettings(_):
-            return NSLocalizedString(
-                "MIGRATE_TUNNEL_SETTINGS_ERROR",
-                tableName: "TunnelManager",
-                value: "Failed to migrate tunnel settings",
-                comment: ""
-            )
-
-        case .pushWireguardKey(let restError):
-            let reason = restError.errorChainDescription ?? ""
-            var message = String(
+        case .deleteDevice(let restError):
+            return String(
                 format: NSLocalizedString(
-                    "PUSH_WIREGUARD_KEY_ERROR",
+                    "DELETE_DEVICE_ERROR",
                     tableName: "TunnelManager",
-                    value: "Failed to send the WireGuard key to server: %@",
+                    value: "Failed to create a device: %@",
                     comment: ""
                 ),
-                reason
+                restError.errorChainDescription ?? ""
             )
-
-            if case .unhandledResponse(_, let serverErrorResponse) = restError,
-               serverErrorResponse?.code == .keyLimitReached
-            {
-                // TODO: maybe use `restError.recoverySuggestion` instead?
-                message.append("\n\n")
-                message.append(NSLocalizedString(
-                    "PUSH_WIREGUARD_KEY_RECOVERY_SUGGESTION",
-                    tableName: "TunnelManager",
-                    value: "Remove unused WireGuard keys and try again",
-                    comment: ""
-                ))
-            }
-
-            return message
-
-        case .replaceWireguardKey(let restError):
-            let reason = restError.errorChainDescription ?? ""
-            var message = String(
+        case .getDevice(let restError):
+            return String(
                 format: NSLocalizedString(
-                    "REPLACE_WIREGUARD_KEY_ERROR",
+                    "CREATE_DEVICE_ERROR",
                     tableName: "TunnelManager",
-                    value: "Failed to replace the WireGuard key on server: %@",
+                    value: "Failed to obtain device data: %@",
                     comment: ""
                 ),
-                reason
+                restError.errorChainDescription ?? ""
             )
-
-            if case .unhandledResponse(_, let serverErrorResponse) = restError,
-               serverErrorResponse?.code == .keyLimitReached
-            {
-                // TODO: maybe use `restError.recoverySuggestion` instead?
-                message.append("\n\n")
-                message.append(NSLocalizedString(
-                    "REPLACE_WIREGUARD_KEY_RECOVERY_SUGGESTION",
+        case .deviceRevoked:
+            return NSLocalizedString(
+                "DEVICE_REVOKED_ERROR",
+                tableName: "TunnelManager",
+                value: "Device is revoked.",
+                comment: ""
+            )
+        case .createDevice(let restError):
+            return String(
+                format: NSLocalizedString(
+                    "CREATE_DEVICE_ERROR",
                     tableName: "TunnelManager",
-                    value: "Remove unused WireGuard keys and try again",
-                    comment: "")
-                )
-            }
-
-            return message
-
-        case .removeWireguardKey:
-            // This error is never displayed anywhere
-            return nil
-
+                    value: "Failed to create a device: %@",
+                    comment: ""
+                ),
+                restError.errorChainDescription ?? ""
+            )
+        case .rotateKey(let restError):
+            return String(
+                format: NSLocalizedString(
+                    "ROTATE_KY_ERROR",
+                    tableName: "TunnelManager",
+                    value: "Failed to rotate WireGuard key: %@",
+                    comment: ""
+                ),
+                restError.errorChainDescription ?? ""
+            )
         case .unsetAccount:
             return NSLocalizedString(
-                "MISSING_ACCOUNT_INTERNAL_ERROR",
+                "UNSET_ACCOUNT_ERROR",
                 tableName: "TunnelManager",
-                value: "Internal error: missing account",
+                value: "Internal error: account is unset",
                 comment: ""
             )
         case .readRelays:
@@ -251,11 +197,6 @@ extension TunnelManager.Error: DisplayChainedError {
                 value: "Failed to satisfy relay constraints.",
                 comment: ""
             )
-
-        case .backgroundTaskScheduler:
-            // This error is never displayed anywhere
-            return nil
-
         case .reloadTunnel(let error):
             return String(
                 format: NSLocalizedString(
@@ -266,18 +207,26 @@ extension TunnelManager.Error: DisplayChainedError {
                 ),
                 error.localizedDescription
             )
-        }
-    }
-}
-
-extension Account.Error: DisplayChainedError {
-    var errorChainDescription: String? {
-        switch self {
-        case .createAccount(let restError), .verifyAccount(let restError):
-            return restError.errorChainDescription
-
-        case .tunnelConfiguration(let tunnelError):
-            return tunnelError.errorChainDescription
+        case .getAccountData(let restError):
+            return String(
+                format: NSLocalizedString(
+                    "GET_ACCOUNT_DATA_ERROR",
+                    tableName: "TunnelManager",
+                    value: "Failed to obtain account data: %@",
+                    comment: ""
+                ),
+                restError.errorChainDescription ?? ""
+            )
+        case .createAccount(let restError):
+            return String(
+                format: NSLocalizedString(
+                    "CREATE_ACCOUNT_ERROR",
+                    tableName: "TunnelManager",
+                    value: "Failed to create new account: %@",
+                    comment: ""
+                ),
+                restError.errorChainDescription ?? ""
+            )
         }
     }
 }

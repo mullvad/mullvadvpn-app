@@ -103,29 +103,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         // Load tunnels
-        TunnelManager.shared.loadTunnel(accountToken: Account.shared.token) { error in
+        TunnelManager.shared.loadConfiguration { error in
             dispatchPrecondition(condition: .onQueue(.main))
 
             if let error = error {
                 self.logger?.error(chainedError: error, message: "Failed to load tunnels")
 
-                switch error {
-                case .loadAllVPNConfigurations(_), .removeInconsistentVPNConfiguration(_):
-                    // TODO: avoid throwing fatal error and show the problem report UI instead.
-                    fatalError(error.displayChain(message: "Failed to load tunnels"))
-
-                case .migrateTunnelSettings(_), .readTunnelSettings(_):
-                    // Forget that user was logged in since tunnel settings are likely corrupt
-                    // or missing.
-                    Account.shared.forget {
-                        self.didFinishInitialization()
-                    }
-
-                default:
-                    fatalError("Unexpected error coming from loadTunnel()")
-                }
+                // TODO: avoid throwing fatal error and show the problem report UI instead.
+                fatalError(error.displayChain(message: "Failed to load VPN tunnel configuration"))
             } else {
-                self.relayConstraints = TunnelManager.shared.tunnelInfo?.tunnelSettings.relayConstraints
+                self.relayConstraints = TunnelManager.shared.tunnelSettings?.relayConstraints
                 self.didFinishInitialization()
             }
         }
@@ -263,18 +250,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     @available(iOS 13.0, *)
     private func scheduleBackgroundTasks() {
-        switch RelayCache.Tracker.shared.scheduleAppRefreshTask() {
-        case .success:
-            self.logger?.debug("Scheduled app refresh task.")
-        case .failure(let error):
-            self.logger?.error(chainedError: error, message: "Could not schedule app refresh task.")
+        do {
+            try RelayCache.Tracker.shared.scheduleAppRefreshTask()
+
+            logger?.debug("Scheduled app refresh task.")
+        } catch {
+            logger?.error(
+                chainedError: AnyChainedError(error),
+                message: "Could not schedule app refresh task."
+            )
         }
 
-        switch TunnelManager.shared.scheduleBackgroundTask() {
-        case .success:
-            self.logger?.debug("Scheduled private key rotation task")
-        case .failure(let error):
-            self.logger?.error(chainedError: error, message: "Could not schedule private key rotation task.")
+        do {
+            try TunnelManager.shared.scheduleBackgroundTask()
+
+            logger?.debug("Scheduled private key rotation task.")
+        } catch {
+            logger?.error(
+                chainedError: AnyChainedError(error),
+                message: "Could not schedule private key rotation task."
+            )
         }
 
         do {
@@ -282,9 +277,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             self.logger?.debug("Scheduled address cache update task.")
         } catch {
-            self.logger?.error(chainedError: AnyChainedError(error), message: "Could not schedule address cache update task.")
+            self.logger?.error(
+                chainedError: AnyChainedError(error),
+                message: "Could not schedule address cache update task."
+            )
         }
-
     }
 
     private func didFinishInitialization() {
@@ -317,8 +314,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func startPaymentQueueHandling() {
         let paymentManager = AppStorePaymentManager.shared
         paymentManager.delegate = self
-
-        Account.shared.startPaymentMonitoring(with: paymentManager)
+        paymentManager.addPaymentObserver(TunnelManager.shared)
         paymentManager.startPaymentQueueMonitoring()
     }
 
@@ -339,15 +335,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.connectController = connectController
 
         self.rootContainer?.setViewControllers([splitViewController], animated: false)
-        showSplitViewMaster(Account.shared.isLoggedIn, animated: false)
+        showSplitViewMaster(TunnelManager.shared.isAccountSet, animated: false)
 
         let rootContainerWrapper = makeLoginContainerController()
 
-        if !Account.shared.isAgreedToTermsOfService {
+        if !isAgreedToTermsOfService() {
             let consentViewController = self.makeConsentController { [weak self] (viewController) in
                 guard let self = self else { return }
 
-                if Account.shared.isLoggedIn {
+                if TunnelManager.shared.isAccountSet {
                     rootContainerWrapper.dismiss(animated: true) {
                         self.showAccountSettingsControllerIfAccountExpired()
                     }
@@ -357,7 +353,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             rootContainerWrapper.setViewControllers([consentViewController], animated: false)
             self.rootContainer?.present(rootContainerWrapper, animated: false)
-        } else if !Account.shared.isLoggedIn {
+        } else if !TunnelManager.shared.isAccountSet {
             rootContainerWrapper.setViewControllers([makeLoginController()], animated: false)
             self.rootContainer?.present(rootContainerWrapper, animated: false)
         } else {
@@ -372,7 +368,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let loginViewController = self.makeLoginController()
             var viewControllers: [UIViewController] = [loginViewController]
 
-            if Account.shared.isLoggedIn {
+            if TunnelManager.shared.isAccountSet {
                 let connectController = self.makeConnectViewController()
                 viewControllers.append(connectController)
                 self.connectController = connectController
@@ -383,7 +379,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        if Account.shared.isAgreedToTermsOfService {
+        if isAgreedToTermsOfService() {
             showNextController(false)
         } else {
             let consentViewController = self.makeConsentController { (consentController) in
@@ -428,7 +424,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         consentViewController.completionHandler = { (consentViewController) in
-            Account.shared.agreeToTermsOfService()
+            setAgreedToTermsOfService()
             completion(consentViewController)
         }
 
@@ -478,7 +474,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func showAccountSettingsControllerIfAccountExpired() {
-        guard let accountExpiry = Account.shared.expiry, AccountExpiry(date: accountExpiry).isExpired else { return }
+        guard let accountExpiry = TunnelManager.shared.accountExpiry, accountExpiry <= Date() else { return }
 
         rootContainer?.showSettings(navigateTo: .account, animated: true)
     }
@@ -534,7 +530,7 @@ extension AppDelegate: RootContainerViewControllerDelegate {
     }
 
     func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController) -> Bool {
-        guard Account.shared.isLoggedIn else { return false }
+        guard TunnelManager.shared.isAccountSet else { return false }
 
         switch TunnelManager.shared.tunnelState {
         case .connected, .connecting, .reconnecting:
@@ -552,39 +548,45 @@ extension AppDelegate: RootContainerViewControllerDelegate {
 
 extension AppDelegate: LoginViewControllerDelegate {
 
-    func loginViewController(_ controller: LoginViewController, loginWithAccountToken accountToken: String, completion: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
+    func loginViewController(_ controller: LoginViewController, loginWithAccountToken accountNumber: String, completion: @escaping (OperationCompletion<StoredAccountData?, TunnelManager.Error>) -> Void) {
         self.rootContainer?.setEnableSettingsButton(false)
 
-        Account.shared.login(accountToken: accountToken) { result in
-            switch result {
+        TunnelManager.shared.setAccount(action: .existing(accountNumber)) { operationCompletion in
+            switch operationCompletion {
             case .success:
-                self.logger?.debug("Logged in with existing token")
+                self.logger?.debug("Logged in with existing account.")
                 // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
 
             case .failure(let error):
-                self.logger?.error(chainedError: error, message: "Failed to log in with existing account")
+                self.logger?.error(chainedError: error, message: "Failed to log in with existing account.")
+                fallthrough
+
+            case .cancelled:
                 self.rootContainer?.setEnableSettingsButton(true)
             }
 
-            completion(result)
+            completion(operationCompletion)
         }
     }
 
-    func loginViewControllerLoginWithNewAccount(_ controller: LoginViewController, completion: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
+    func loginViewControllerLoginWithNewAccount(_ controller: LoginViewController, completion: @escaping (OperationCompletion<StoredAccountData?, TunnelManager.Error>) -> Void) {
         self.rootContainer?.setEnableSettingsButton(false)
 
-        Account.shared.loginWithNewAccount { result in
-            switch result {
+        TunnelManager.shared.setAccount(action: .new) { operationCompletion in
+            switch operationCompletion {
             case .success:
-                self.logger?.debug("Logged in with new account token")
+                self.logger?.debug("Logged in with new account number.")
                 // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
 
             case .failure(let error):
-                self.logger?.error(chainedError: error, message: "Failed to log in with new account")
+                self.logger?.error(chainedError: error, message: "Failed to log in with new account.")
+                fallthrough
+
+            case .cancelled:
                 self.rootContainer?.setEnableSettingsButton(true)
             }
 
-            completion(result)
+            completion(operationCompletion)
         }
     }
 
@@ -594,7 +596,7 @@ extension AppDelegate: LoginViewControllerDelegate {
         // Move the settings button back into header bar
         self.rootContainer?.removeSettingsButtonFromPresentationContainer()
 
-        self.relayConstraints = TunnelManager.shared.tunnelInfo?.tunnelSettings.relayConstraints
+        self.relayConstraints = TunnelManager.shared.tunnelSettings?.relayConstraints
         self.selectLocationViewController?.setSelectedRelayLocation(relayConstraints?.location.value, animated: false, scrollPosition: .middle)
 
         switch UIDevice.current.userInterfaceIdiom {
@@ -788,7 +790,7 @@ extension AppDelegate: AppStorePaymentManagerDelegate {
     {
         // Since we do not persist the relation between the payment and account token between the
         // app launches, we assume that all successful purchases belong to the active account token.
-        return Account.shared.token
+        return TunnelManager.shared.tunnelSettings?.account.number
     }
 
 }
@@ -823,7 +825,7 @@ extension AppDelegate: UISplitViewControllerDelegate {
 extension AppDelegate: UNUserNotificationCenterDelegate {
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        if response.notification.request.identifier == kAccountExpiryNotificationIdentifier,
+        if response.notification.request.identifier == accountExpiryNotificationIdentifier,
            response.actionIdentifier == UNNotificationDefaultActionIdentifier {
             rootContainer?.showSettings(navigateTo: .account, animated: true)
         }
@@ -839,4 +841,19 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
     }
 
+}
+
+// MARK: -
+
+/// A enum holding the `UserDefaults` string keys
+private let isAgreedToTermsOfServiceKey = "isAgreedToTermsOfService"
+
+/// Returns true if user agreed to terms of service, otherwise false.
+func isAgreedToTermsOfService() -> Bool {
+    return UserDefaults.standard.bool(forKey: isAgreedToTermsOfServiceKey)
+}
+
+/// Save the boolean flag in preferences indicating that the user agreed to terms of service.
+func setAgreedToTermsOfService() {
+    UserDefaults.standard.set(true, forKey: isAgreedToTermsOfServiceKey)
 }

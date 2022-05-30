@@ -10,15 +10,26 @@ import Foundation
 import Logging
 
 extension Logger {
-
-    func error<T: ChainedError>(chainedError: T,
-                                message: @autoclosure () -> String? = nil,
-                                metadata: @autoclosure () -> Logger.Metadata? = nil,
-                                source: @autoclosure () -> String? = nil,
-                                file: String = #file, function: String = #function, line: UInt = #line)
+    func error<T: ChainedError>(
+        chainedError: T,
+        message: @autoclosure () -> String? = nil,
+        metadata: @autoclosure () -> Logger.Metadata? = nil,
+        source: @autoclosure () -> String? = nil,
+        file: String = #file,
+        function: String = #function,
+        line: UInt = #line
+    )
     {
-        let s = Message(stringLiteral: chainedError.displayChain(message: message()))
-        log(level: .error, s, metadata: metadata(), source: source(), file: file, function: function, line: line)
+        log(
+            level: .error,
+            Message(
+                stringLiteral: chainedError.displayChain(message: message())
+            ),
+            metadata: metadata(),
+            source: source(),
+            file: file,
+            function: function,
+            line: line
+        )
     }
-
 }

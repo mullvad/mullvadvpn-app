@@ -19,7 +19,6 @@ extension RelayCache {
         case encodeCache(Swift.Error)
         case decodeCache(Swift.Error)
         case rest(REST.Error)
-        case backgroundTaskScheduler(Swift.Error)
 
         var errorDescription: String? {
             switch self {
@@ -37,8 +36,6 @@ extension RelayCache {
                 return "Write cache error."
             case .rest:
                 return "REST error."
-            case .backgroundTaskScheduler:
-                return "Background task scheduler error."
             }
         }
     }

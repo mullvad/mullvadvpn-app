@@ -14,62 +14,58 @@ extension TunnelManager {
         /// Account is unset.
         case unsetAccount
 
-        /// A failure to start the VPN tunnel via system call.
+        /// Failure to start the VPN tunnel via system call.
         case startVPNTunnel(Swift.Error)
 
-        /// A failure to load the system VPN configurations created by the app.
+        /// Failure to load the system VPN configurations created by the app.
         case loadAllVPNConfigurations(Swift.Error)
 
-        /// A failure to save the system VPN configuration.
+        /// Failure to save the system VPN configuration.
         case saveVPNConfiguration(Swift.Error)
 
-        /// A failure to reload the system VPN configuration.
+        /// Failure to reload the system VPN configuration.
         case reloadVPNConfiguration(Swift.Error)
 
-        /// A failure to remove the system VPN configuration.
+        /// Failure to remove the system VPN configuration.
         case removeVPNConfiguration(Swift.Error)
 
-        /// A failure to perform a recovery (by removing the VPN configuration) when a corrupt
-        /// VPN configuration is detected.
-        case removeInconsistentVPNConfiguration(Swift.Error)
+        /// Failure to read settings.
+        case readSettings(Swift.Error)
 
-        /// A failure to read tunnel settings.
-        case readTunnelSettings(TunnelSettingsManager.Error)
+        /// Failure to write settings.
+        case writeSettings(Swift.Error)
 
-        /// A failure to read relays cache.
+        /// Failure to delete settings.
+        case deleteSettings(Swift.Error)
+
+        /// Failure to read relays cache.
         case readRelays(RelayCache.Error)
 
-        /// A failure to find a relay satisfying the given constraints.
+        /// Failure to find a relay satisfying the given constraints.
         case cannotSatisfyRelayConstraints
 
-        /// A failure to add the tunnel settings.
-        case addTunnelSettings(TunnelSettingsManager.Error)
+        /// Failure to create device.
+        case createDevice(REST.Error)
 
-        /// A failure to update the tunnel settings.
-        case updateTunnelSettings(TunnelSettingsManager.Error)
+        /// Failure to delete device.
+        case deleteDevice(REST.Error)
 
-        /// A failure to remove the tunnel settings from Keychain.
-        case removeTunnelSettings(TunnelSettingsManager.Error)
+        /// Failure to obtain device data.
+        case getDevice(REST.Error)
 
-        /// A failure to migrate tunnel settings.
-        case migrateTunnelSettings(TunnelSettingsManager.Error)
+        /// Requested device is already revoked.
+        case deviceRevoked
 
-        /// Unable to obtain the persistent keychain reference for the tunnel settings.
-        case obtainPersistentKeychainReference(TunnelSettingsManager.Error)
+        /// Failure to obtain account data.
+        case getAccountData(REST.Error)
 
-        /// A failure to push the public WireGuard key.
-        case pushWireguardKey(REST.Error)
+        /// Failure to create account.
+        case createAccount(REST.Error)
 
-        /// A failure to replace the public WireGuard key.
-        case replaceWireguardKey(REST.Error)
+        /// Failure to rotate WireGuard key.
+        case rotateKey(REST.Error)
 
-        /// A failure to remove the public WireGuard key.
-        case removeWireguardKey(REST.Error)
-
-        /// A failure to schedule background task.
-        case backgroundTaskScheduler(Swift.Error)
-
-        /// A failure to reload tunnel.
+        /// Failure to reload tunnel.
         case reloadTunnel(TunnelIPC.Error)
 
         var errorDescription: String? {
@@ -86,32 +82,30 @@ extension TunnelManager {
                 return "Failed to reload the system VPN configuration."
             case .removeVPNConfiguration:
                 return "Failed to remove the system VPN configuration."
-            case .removeInconsistentVPNConfiguration:
-                return "Failed to remove the inconsistent VPN tunnel."
-            case .readTunnelSettings:
-                return "Failed to read the tunnel settings."
+            case .readSettings:
+                return "Failed to read settings."
             case .readRelays:
                 return "Failed to read relays."
             case .cannotSatisfyRelayConstraints:
                 return "Failed to satisfy the relay constraints."
-            case .addTunnelSettings:
-                return "Failed to add the tunnel settings."
-            case .updateTunnelSettings:
-                return "Failed to update the tunnel settings."
-            case .removeTunnelSettings:
-                return "Failed to remove the tunnel settings."
-            case .migrateTunnelSettings:
-                return "Failed to migrate the tunnel settings."
-            case .obtainPersistentKeychainReference:
-                return "Failed to obtain the persistent keychain reference."
-            case .pushWireguardKey:
-                return "Failed to push the WireGuard key to server."
-            case .replaceWireguardKey:
-                return "Failed to replace the WireGuard key on server."
-            case .removeWireguardKey:
-                return "Failed to remove the WireGuard key from server."
-            case .backgroundTaskScheduler:
-                return "Failed to schedule background task."
+            case .writeSettings:
+                return "Failed to write settings."
+            case .deleteSettings:
+                return "Failed to delete settings."
+            case .createDevice:
+                return "Failed to create a device."
+            case .deleteDevice:
+                return "Failed to delete a device."
+            case .getDevice:
+                return "Failed to obtain device data."
+            case .deviceRevoked:
+                return "Requested device is already revoked."
+            case .getAccountData:
+                return "Failed to obtain account data."
+            case .createAccount:
+                return "Failed to create new account."
+            case .rotateKey:
+                return "Failed to rotate WireGuard key."
             case .reloadTunnel:
                 return "Failed to reload tunnel."
             }

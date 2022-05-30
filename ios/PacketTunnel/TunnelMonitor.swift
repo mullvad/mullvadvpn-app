@@ -125,16 +125,16 @@ final class TunnelMonitor {
         stopPinging()
     }
 
-    private func startPinging(address: IPv4Address) -> Result<(), Pinger.Error> {
+    private func startPinging(address: IPv4Address) throws {
         let newPinger = Pinger(address: address, interfaceName: adapter.interfaceName)
-        let pingerResult = newPinger.start(delay: TunnelMonitorConfiguration.pingStartDelay, repeating: TunnelMonitorConfiguration.pingInterval)
 
-        if case .success = pingerResult {
-            pinger = newPinger
-            isPinging = true
-        }
+        try newPinger.start(
+            delay: TunnelMonitorConfiguration.pingStartDelay,
+            repeating: TunnelMonitorConfiguration.pingInterval
+        )
 
-        return pingerResult
+        pinger = newPinger
+        isPinging = true
     }
 
     private func stopPinging() {
@@ -230,8 +230,9 @@ final class TunnelMonitor {
         case (true, false):
             logger.debug("Network is reachable. Starting to ping.")
 
-            switch startPinging(address: address) {
-            case .success:
+            do {
+                try startPinging(address: address)
+
                 // Reset the last recovery attempt date.
                 firstAttemptDate = Date()
                 lastAttemptDate = firstAttemptDate
@@ -242,10 +243,14 @@ final class TunnelMonitor {
                 delegateQueue.async {
                     self.delegate?.tunnelMonitor(self, networkReachabilityStatusDidChange: isNetworkReachable)
                 }
+            } catch {
+                let error = error as! Pinger.Error
 
-            case .failure(let error):
                 if error != lastError {
-                    logger.error(chainedError: AnyChainedError(error), message: "Failed to start pinging.")
+                    logger.error(
+                        chainedError: AnyChainedError(error),
+                        message: "Failed to start pinging."
+                    )
                     lastError = error
                 }
             }
