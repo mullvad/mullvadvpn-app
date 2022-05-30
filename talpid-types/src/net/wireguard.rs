@@ -68,6 +68,7 @@ pub struct TunnelConfig {
 
 /// Options in [`TunnelParameters`] that apply to any WireGuard connection.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(
     target_os = "android",
