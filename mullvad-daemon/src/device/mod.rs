@@ -279,7 +279,7 @@ impl Error {
         }
     }
 
-    fn unpack(&self) -> &Error {
+    pub fn unpack(&self) -> &Error {
         if let Error::ResponseFailure(ref inner) = self {
             &*inner
         } else {

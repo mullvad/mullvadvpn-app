@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix time added view displayed due to incorrect local clock.
+- Fix logout failing if the API cannot be reached in the GUI.
 
 #### Windows
 - Be more scrupulous about removing temporary files used by the installer and uninstaller.
