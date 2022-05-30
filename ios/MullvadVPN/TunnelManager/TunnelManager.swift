@@ -954,8 +954,9 @@ extension TunnelManager {
             return nil
 
         case .rotateKey(.unhandledResponse(_, let serverErrorResponse))
-            where serverErrorResponse?.code == .invalidAccount:
-            // Do not retry if account was removed.
+            where serverErrorResponse?.code == .invalidAccount ||
+            serverErrorResponse?.code == .deviceNotFound:
+            // Do not retry if account or device were removed.
             return nil
 
         default:

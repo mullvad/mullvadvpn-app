@@ -73,6 +73,7 @@ extension REST {
         static let publicKeyInUse = ServerResponseCode(rawValue: "PUBKEY_IN_USE")
         static let maxDevicesReached = ServerResponseCode(rawValue: "MAX_DEVICES_REACHED")
         static let invalidAccessToken = ServerResponseCode(rawValue: "INVALID_ACCESS_TOKEN")
+        static let deviceNotFound = ServerResponseCode(rawValue: "DEVICE_NOT_FOUND")
 
         let rawValue: String
         init(rawValue: String) {
