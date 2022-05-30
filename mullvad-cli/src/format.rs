@@ -153,7 +153,7 @@ fn format_endpoint(hostname: &String, protocol_enum: i32, addr: Option<&str>) ->
 fn print_error_state(error_state: &ErrorState) {
     if error_state.blocking_error.is_some() {
         eprintln!("Mullvad daemon failed to setup firewall rules!");
-        eprintln!("Deamon cannot block traffic from flowing, non-local traffic will leak");
+        eprintln!("Daemon cannot block traffic from flowing, non-local traffic will leak");
     }
 
     match ErrorStateCause::from_i32(error_state.cause) {
