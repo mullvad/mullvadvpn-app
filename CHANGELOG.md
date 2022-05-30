@@ -33,6 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Lowered default MTU to 1280 on Android.
 
+### Fixed
+- Fix logout failing if the API cannot be reached in the GUI.
+
 ### Security
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected
