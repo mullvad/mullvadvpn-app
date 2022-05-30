@@ -8,13 +8,15 @@ edition = "2021"
 publish = false
 
 [dependencies]
+log = "0.4"
+rand = "0.8"
 talpid-types = { path = "../talpid-types" }
 tonic = "0.5"
 prost = "0.8"
 prost-types = "0.9"
 tower = "0.4"
-tokio = "1"
-oqs = { version = "0.7.0", default-features = false, features = ["kems"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+classic-mceliece-rust = { version = "1.0", features = ["mceliece8192128f"] }
 
 [build-dependencies]
 tonic-build = { version = "0.5", default-features = false, features = ["transport", "prost"] }

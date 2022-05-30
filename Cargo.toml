@@ -25,3 +25,8 @@ members = [
 [profile.release]
 opt-level = 3
 lto = true
+
+# Key generation may take over one minute without optimizations
+# enabled.
+[profile.dev.package."classic-mceliece-rust"]
+opt-level = 3
