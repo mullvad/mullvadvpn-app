@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 if [ -z "$PROJECT_DIR" ]; then
   echo "This script is intended to be executed by Xcode"
