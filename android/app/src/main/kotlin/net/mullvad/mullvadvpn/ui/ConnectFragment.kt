@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
@@ -96,7 +95,7 @@ class ConnectFragment :
         }
 
         connectionProxy.onUiStateChange.subscribe(this) { uiState ->
-            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            jobTracker.newUiJob("updateTunnelState") {
                 updateTunnelState(uiState, connectionProxy.state)
             }
         }
@@ -114,7 +113,7 @@ class ConnectFragment :
     }
 
     override fun onSafelyStop() {
-        jobTracker.cancelJob("updateAccountExpiry")
+        jobTracker.cancelAllJobs()
 
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
