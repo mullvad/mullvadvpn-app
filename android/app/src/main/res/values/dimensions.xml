@@ -53,4 +53,5 @@
     <dimen name="switch_thumb_padding">8dp</dimen>
     <dimen name="switch_track_radius">16dp</dimen>
     <dimen name="switch_track_stroke">2dp</dimen>
+    <dimen name="top_bar_height">64dp</dimen>
 </resources>
