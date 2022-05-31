@@ -5,6 +5,7 @@ object Versions {
     const val jvmTarget = "1.8"
     const val koin = "2.2.3"
     const val kotlin = "1.5.31"
+    const val kotlinCompilerExtensionVersion = "1.0.5"
     const val kotlinx = "1.5.2"
     const val leakCanary = "2.8.1"
     const val mockk = "1.12.3"
@@ -30,6 +31,13 @@ object Versions {
         const val junit = "1.1.4"
         const val test = "1.4.0"
         const val uiautomator = "2.2.0"
+    }
+
+    object Compose {
+        const val base = "1.1.1"
+        const val viewModelLifecycle = "2.4.1"
+        const val uiController = "0.23.1"
+        const val constrainLayout = "1.0.1"
     }
 
     object Plugin {
