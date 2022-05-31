@@ -33,7 +33,6 @@ import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 
 open class MainActivity : FragmentActivity() {
-    private val deviceRepository: DeviceRepository by inject()
     val problemReport = MullvadProblemReport()
 
     private var visibleSecureScreens = HashSet<Fragment>()
@@ -47,10 +46,15 @@ open class MainActivity : FragmentActivity() {
     var backButtonHandler: (() -> Boolean)? = null
 
     private lateinit var serviceConnectionManager: ServiceConnectionManager
+    private lateinit var deviceRepository: DeviceRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(uiModule)
-        serviceConnectionManager = getKoin().get()
+
+        getKoin().apply {
+            serviceConnectionManager = get()
+            deviceRepository = get()
+        }
 
         requestedOrientation = if (deviceIsTv) {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
@@ -164,7 +168,7 @@ open class MainActivity : FragmentActivity() {
                         is DeviceState.Initial,
                         is DeviceState.Unknown -> openLaunchView()
                         is DeviceState.LoggedOut -> openLoginView()
-                        is DeviceState.Revoked -> openLoginView()
+                        is DeviceState.Revoked -> openRevokedView()
                         is DeviceState.LoggedIn -> openConnectView()
                     }
                     currentState = newState
@@ -208,6 +212,19 @@ open class MainActivity : FragmentActivity() {
     private fun openLoginView() {
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, LoginFragment())
+            commit()
+        }
+    }
+
+    private fun openRevokedView() {
+        supportFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_right,
+                R.anim.fragment_exit_to_left,
+                R.anim.fragment_half_enter_from_left,
+                R.anim.fragment_exit_to_right
+            )
+            replace(R.id.main_fragment, DeviceRevokedFragment())
             commit()
         }
     }
