@@ -96,13 +96,9 @@ extension AddressCache {
                 }
             )
 
-            let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "AddressCache.Tracker.updateEndpoints") {
-                operation.cancel()
-            }
-
-            operation.completionBlock = {
-                UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-            }
+            operation.addObserver(
+                BackgroundObserver(name: "Update endpoints", cancelUponExpiration: true)
+            )
 
             operationQueue.addOperation(operation)
 

@@ -189,13 +189,9 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
             completionHandler: completionHandler
         )
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Send AppStore receipt") {
-            operation.cancel()
-        }
-
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
+        operation.addObserver(
+            BackgroundObserver(name: "Send AppStore receipt", cancelUponExpiration: true)
+        )
 
         operation.addCondition(
             MutuallyExclusive(category: OperationCategory.sendAppStoreReceipt)

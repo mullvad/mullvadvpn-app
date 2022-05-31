@@ -49,13 +49,9 @@ enum AppStoreReceipt {
             completionHandler: completionHandler
         )
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Fetch AppStore receipt") {
-            operation.cancel()
-        }
-
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
+        operation.addObserver(
+            BackgroundObserver(name: "Fetch AppStore receipt", cancelUponExpiration: true)
+        )
 
         operationQueue.addOperation(operation)
 
