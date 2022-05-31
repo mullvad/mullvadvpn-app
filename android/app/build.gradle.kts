@@ -83,6 +83,15 @@ android {
         }
     }
 
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerVersion = Versions.kotlin
+        kotlinCompilerExtensionVersion = Versions.kotlinCompilerExtensionVersion
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -164,6 +173,12 @@ dependencies {
     implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
     implementation(Dependencies.AndroidX.lifecycleViewmodelKtx)
     implementation(Dependencies.AndroidX.recyclerview)
+    implementation(Dependencies.Compose.constrainLayout)
+    implementation(Dependencies.Compose.foundation)
+    implementation(Dependencies.Compose.viewModelLifecycle)
+    implementation(Dependencies.Compose.material)
+    implementation(Dependencies.Compose.uiController)
+    implementation(Dependencies.Compose.ui)
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.Koin.core)
     implementation(Dependencies.Koin.coreExt)
