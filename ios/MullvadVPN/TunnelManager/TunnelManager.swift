@@ -61,7 +61,6 @@ final class TunnelManager: TunnelManagerStateDelegate {
 
     private let logger = Logger(label: "TunnelManager")
     private let stateQueue = DispatchQueue(label: "TunnelManager.stateQueue")
-    private let exclusivityController = ExclusivityController()
     private let operationQueue = AsyncOperationQueue()
 
     private var statusObserver: Tunnel.StatusBlockObserver?
@@ -223,32 +222,21 @@ final class TunnelManager: TunnelManagerStateDelegate {
                 completionHandler(completion.error)
             }
         }
-
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(
-            withName: "Load tunnel configuration"
-        ) {
-            // no-op
-        }
-
-        loadTunnelOperation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(migrateSettingsOperation, categories: [
-            OperationCategory.changeTunnelSettings
-        ])
-
-        exclusivityController.addOperation(loadTunnelOperation, categories: [
-            OperationCategory.manageTunnelProvider,
-            OperationCategory.changeTunnelSettings
-        ])
-
         loadTunnelOperation.addDependency(migrateSettingsOperation)
 
-        operationQueue.addOperations([
-            migrateSettingsOperation,
-            loadTunnelOperation
-        ], waitUntilFinished: false)
+        let groupOperation = GroupOperation(operations: [
+            migrateSettingsOperation, loadTunnelOperation
+        ])
+
+
+        groupOperation.addCondition(
+            MutuallyExclusive(category: OperationCategory.manageTunnelProvider)
+        )
+        groupOperation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
+
+        operationQueue.addOperation(groupOperation)
     }
 
     func startTunnel() {
@@ -280,8 +268,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
         operation.completionBlock = {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
-
-        exclusivityController.addOperation(operation, categories: [OperationCategory.manageTunnelProvider])
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnelProvider))
 
         operationQueue.addOperation(operation)
     }
@@ -313,7 +300,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
 
-        exclusivityController.addOperation(operation, categories: [OperationCategory.manageTunnelProvider])
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnelProvider))
 
         operationQueue.addOperation(operation)
     }
@@ -353,7 +340,9 @@ final class TunnelManager: TunnelManagerStateDelegate {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
 
-        exclusivityController.addOperation(operation, categories: [OperationCategory.manageTunnelProvider])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.manageTunnelProvider)
+        )
 
         operationQueue.addOperation(operation)
     }
@@ -397,10 +386,12 @@ final class TunnelManager: TunnelManagerStateDelegate {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
 
-        exclusivityController.addOperation(operation, categories: [
-            OperationCategory.manageTunnelProvider,
-            OperationCategory.changeTunnelSettings
-        ])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.manageTunnelProvider)
+        )
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
 
         operationQueue.addOperation(operation)
     }
@@ -431,9 +422,9 @@ final class TunnelManager: TunnelManagerStateDelegate {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
 
-        exclusivityController.addOperation(operation, categories: [
-            OperationCategory.changeTunnelSettings
-        ])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
 
         operationQueue.addOperation(operation)
     }
@@ -456,9 +447,9 @@ final class TunnelManager: TunnelManagerStateDelegate {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
 
-        exclusivityController.addOperation(operation, categories: [
-            OperationCategory.changeTunnelSettings
-        ])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
 
         operationQueue.addOperation(operation)
 
@@ -501,7 +492,9 @@ final class TunnelManager: TunnelManagerStateDelegate {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
 
-        exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
 
         operationQueue.addOperation(operation)
     }
@@ -545,7 +538,9 @@ final class TunnelManager: TunnelManagerStateDelegate {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
 
-        exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
 
         operationQueue.addOperation(operation)
 
@@ -678,7 +673,9 @@ final class TunnelManager: TunnelManagerStateDelegate {
             self.startTunnel()
         }
 
-        exclusivityController.addOperation(operation, categories: [OperationCategory.tunnelStateUpdate])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.tunnelStateUpdate)
+        )
 
         // Cancel last VPN status mapping operation
         lastMapConnectionStatusOperation?.cancel()
@@ -735,7 +732,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
             UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
 
-        exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.changeTunnelSettings))
 
         operationQueue.addOperation(operation)
     }
