@@ -125,13 +125,9 @@ extension RelayCache {
                 completionHandler: completionHandler
             )
 
-            let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Update relays") {
-                operation.cancel()
-            }
-
-            operation.completionBlock = {
-                UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-            }
+            operation.addObserver(
+                BackgroundObserver(name: "Update relays", cancelUponExpiration: true)
+            )
 
             operationQueue.addOperation(operation)
 
