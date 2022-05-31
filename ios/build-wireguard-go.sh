@@ -25,7 +25,7 @@ fi
 RESOLVED_SOURCE_PACKAGES_PATH="$( cd "$SOURCE_PACKAGES_PATH" && pwd -P )"
 if [ "$RESOLVED_SOURCE_PACKAGES_PATH" == "" ]; then
   echo "Failed to resolve the SourcePackages path: $SOURCE_PACKAGES_PATH"
-  exit -1
+  exit 1
 fi
 
 # Compile the path to the Makefile directory
