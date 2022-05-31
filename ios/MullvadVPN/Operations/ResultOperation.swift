@@ -125,3 +125,9 @@ class ResultOperation<Success, Failure: Error>: AsyncOperation {
         }
     }
 }
+
+extension ResultOperation: FallibleOperation {
+    var error: Error? {
+        return completion?.error
+    }
+}
