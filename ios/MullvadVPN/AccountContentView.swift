@@ -108,7 +108,12 @@ class AccountTokenRow: UIView {
     private let textLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.text = NSLocalizedString("ACCOUNT_TOKEN_LABEL", tableName: "Account", comment: "")
+        textLabel.text = NSLocalizedString(
+            "ACCOUNT_TOKEN_LABEL",
+            tableName: "Account",
+            value: "Account number",
+            comment: ""
+        )
         textLabel.font = UIFont.systemFont(ofSize: 14)
         textLabel.textColor = UIColor(white: 1.0, alpha: 0.6)
         return textLabel
@@ -121,7 +126,12 @@ class AccountTokenRow: UIView {
         button.setTitleColor(.white, for: .normal)
         button.contentHorizontalAlignment = .leading
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 1)
-        button.accessibilityHint = NSLocalizedString("ACCOUNT_TOKEN_ACCESSIBILITY_HINT", tableName: "Account", comment: "")
+        button.accessibilityHint = NSLocalizedString(
+            "ACCOUNT_TOKEN_ACCESSIBILITY_HINT",
+            tableName: "Account",
+            value: "Tap to copy to pasteboard.",
+            comment: ""
+        )
         return button
     }()
 
@@ -148,6 +158,7 @@ class AccountTokenRow: UIView {
         let actionName = NSLocalizedString(
             "ACCOUNT_TOKEN_ACCESSIBILITY_ACTION_TITLE",
             tableName: "Account",
+            value: "Copy account token to pasteboard",
             comment: ""
         )
         accessibilityCustomActions = [UIAccessibilityCustomAction(name: actionName, target: self, selector: #selector(performAccessibilityAction))]
@@ -179,7 +190,7 @@ class AccountExpiryRow: UIView {
                     "ACCOUNT_OUT_OF_TIME_LABEL",
                     tableName: "Account",
                     value: "OUT OF TIME",
-                    comment: "Label displayed in place of account expiration when account is out of time."
+                    comment: ""
                 )
 
                 valueLabel.text = localizedString
@@ -206,7 +217,12 @@ class AccountExpiryRow: UIView {
     private let textLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.text = NSLocalizedString("ACCOUNT_EXPIRY_LABEL", tableName: "Account", comment: "")
+        textLabel.text = NSLocalizedString(
+            "ACCOUNT_EXPIRY_LABEL",
+            tableName: "Account",
+            value: "Paid until",
+            comment: ""
+        )
         textLabel.font = UIFont.systemFont(ofSize: 14)
         textLabel.textColor = UIColor(white: 1.0, alpha: 0.6)
         return textLabel

@@ -52,7 +52,8 @@ class LoginViewController: UIViewController, RootContainment {
             title: NSLocalizedString(
                 "LOGIN_ACCESSORY_TOOLBAR_BUTTON_TITLE",
                 tableName: "Login",
-                comment: "Title for 'Log in' button displayed in toolbar above keyboard on iPhone."
+                value: "Log in",
+                comment: ""
             ),
             style: .done,
             target: self,
@@ -315,16 +316,36 @@ private extension LoginState {
     var localizedTitle: String {
         switch self {
         case .default:
-            return NSLocalizedString("HEADING_TITLE_DEFAULT", tableName: "Login", comment: "Default login prompt heading.")
+            return NSLocalizedString(
+                "HEADING_TITLE_DEFAULT",
+                tableName: "Login",
+                value: "Login",
+                comment: ""
+            )
 
         case .authenticating:
-            return NSLocalizedString("HEADING_TITLE_AUTHENTICATING", tableName: "Login", comment: "Heading displayed during authentication.")
+            return NSLocalizedString(
+                "HEADING_TITLE_AUTHENTICATING",
+                tableName: "Login",
+                value: "Logging in...",
+                comment: ""
+            )
 
         case .failure:
-            return NSLocalizedString("HEADING_TITLE_FAILURE", tableName: "Login", comment: "Heading displayed upon failure to authenticate.")
+            return NSLocalizedString(
+                "HEADING_TITLE_FAILURE",
+                tableName: "Login",
+                value: "Login failed",
+                comment: ""
+            )
 
         case .success:
-            return NSLocalizedString("HEADING_TITLE_SUCCESS", tableName: "Login", comment: "Heading displayed upon successful authentication.")
+            return NSLocalizedString(
+                "HEADING_TITLE_SUCCESS",
+                tableName: "Login",
+                value: "Logged in",
+                comment: ""
+            )
         }
     }
 
@@ -334,7 +355,8 @@ private extension LoginState {
             return NSLocalizedString(
                 "SUBHEAD_TITLE_DEFAULT",
                 tableName: "Login",
-                comment: "Default login prompt subhead."
+                value: "Enter your account number",
+                comment: ""
             )
 
         case .authenticating(let method):
@@ -343,13 +365,15 @@ private extension LoginState {
                 return NSLocalizedString(
                     "SUBHEAD_TITLE_AUTHENTICATING",
                     tableName: "Login",
-                    comment: "Subhead displayed during authentication."
+                    value: "Checking account number",
+                    comment: ""
                 )
             case .newAccount:
                 return NSLocalizedString(
                     "SUBHEAD_TITLE_CREATING_ACCOUNT",
                     tableName: "Login",
-                    comment: "Subhead displayed when creating new account."
+                    value: "Creating new account",
+                    comment: ""
                 )
             }
 
@@ -362,13 +386,15 @@ private extension LoginState {
                 return NSLocalizedString(
                     "SUBHEAD_TITLE_SUCCESS",
                     tableName: "Login",
-                    comment: "Subhead displayed upon successful authentication using existing account token."
+                    value: "Correct account number",
+                    comment: ""
                 )
             case .newAccount:
                 return NSLocalizedString(
                     "SUBHEAD_TITLE_CREATED_ACCOUNT",
                     tableName: "Login",
-                    comment: "Subhead displayed upon successful authentication with newly created account token."
+                    value: "Account created",
+                    comment: ""
                 )
             }
         }

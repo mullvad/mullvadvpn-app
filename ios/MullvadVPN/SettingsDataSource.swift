@@ -115,7 +115,12 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
         switch item {
         case .account:
             let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.accountCell.rawValue, for: indexPath) as! SettingsAccountCell
-            cell.titleLabel.text = NSLocalizedString("ACCOUNT_CELL_LABEL", tableName: "Settings", value: "Account", comment: "")
+            cell.titleLabel.text = NSLocalizedString(
+                "ACCOUNT_CELL_LABEL",
+                tableName: "Settings",
+                value: "Account",
+                comment: ""
+            )
             cell.accountExpiryDate = TunnelManager.shared.accountExpiry
             cell.accessibilityIdentifier = "AccountCell"
             cell.disclosureType = .chevron
@@ -124,7 +129,12 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
 
         case .preferences:
             let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString("PREFERENCES_CELL_LABEL", tableName: "Settings", value: "Preferences", comment: "")
+            cell.titleLabel.text = NSLocalizedString(
+                "PREFERENCES_CELL_LABEL",
+                tableName: "Settings",
+                value: "Preferences",
+                comment: ""
+            )
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = nil
             cell.disclosureType = .chevron
@@ -133,7 +143,12 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
 
         case .wireguardKey:
             let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString("WIREGUARD_KEY_CELL_LABEL", tableName: "Settings", value: "WireGuard key", comment: "")
+            cell.titleLabel.text = NSLocalizedString(
+                "WIREGUARD_KEY_CELL_LABEL",
+                tableName: "Settings",
+                value: "WireGuard key",
+                comment: ""
+            )
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = "WireGuardKeyCell"
             cell.disclosureType = .chevron
@@ -142,7 +157,12 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
 
         case .version:
             let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString("APP_VERSION_CELL_LABEL", tableName: "Settings", value: "App version", comment: "")
+            cell.titleLabel.text = NSLocalizedString(
+                "APP_VERSION_CELL_LABEL",
+                tableName: "Settings",
+                value: "App version",
+                comment: ""
+            )
             cell.detailTitleLabel.text = Bundle.main.productVersion
             cell.accessibilityIdentifier = nil
             cell.disclosureType = .none
@@ -151,7 +171,12 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
 
         case .problemReport:
             let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString("REPORT_PROBLEM_CELL_LABEL", tableName: "Settings", value: "Report a problem", comment: "")
+            cell.titleLabel.text = NSLocalizedString(
+                "REPORT_PROBLEM_CELL_LABEL",
+                tableName: "Settings",
+                value: "Report a problem",
+                comment: ""
+            )
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = nil
             cell.disclosureType = .chevron
@@ -160,7 +185,12 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
 
         case .faq:
             let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString("FAQ_AND_GUIDES_CELL_LABEL", tableName: "Settings", value: "FAQ & Guides", comment: "")
+            cell.titleLabel.text = NSLocalizedString(
+                "FAQ_AND_GUIDES_CELL_LABEL",
+                tableName: "Settings",
+                value: "FAQ & Guides",
+                comment: ""
+            )
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = nil
             cell.disclosureType = .externalLink

@@ -34,6 +34,7 @@ class ConnectionPanelView: UIView {
             collapseButton.accessibilityLabel = NSLocalizedString(
                 "RELAY_ACCESSIBILITY_LABEL",
                 tableName: "ConnectionPanel",
+                value: "Connected relay",
                 comment: ""
             )
             collapseButton.accessibilityAttributedValue = NSAttributedString(
@@ -78,11 +79,13 @@ class ConnectionPanelView: UIView {
         inAddressRow.title = NSLocalizedString(
             "IN_ADDRESS_LABEL",
             tableName: "ConnectionPanel",
+            value: "In",
             comment: ""
         )
         outAddressRow.title = NSLocalizedString(
             "OUT_ADDRESS_LABEL",
             tableName: "ConnectionPanel",
+            value: "Out",
             comment: ""
         )
 
@@ -145,12 +148,14 @@ class ConnectionPanelView: UIView {
             collapseButton.accessibilityHint = NSLocalizedString(
                 "COLLAPSE_BUTTON_ACCESSIBILITY_HINT",
                 tableName: "ConnectionPanel",
+                value: "Double tap to collapse the connection info panel.",
                 comment: ""
             )
         } else {
             collapseButton.accessibilityHint = NSLocalizedString(
                 "EXPAND_BUTTON_ACCESSIBILITY_HINT",
                 tableName: "ConnectionPanel",
+                value: "Double tap to expand the connection info panel.",
                 comment: ""
             )
         }

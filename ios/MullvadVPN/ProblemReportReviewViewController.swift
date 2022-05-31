@@ -32,7 +32,8 @@ class ProblemReportReviewViewController: UIViewController {
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
             tableName: "ProblemReportReview",
-            comment: "Navigation title"
+            value: "App logs",
+            comment: ""
         )
         navigationItem.rightBarButtonItem = dismissButtonItem
 
@@ -40,7 +41,10 @@ class ProblemReportReviewViewController: UIViewController {
         textView.text = reportString
         textView.isEditable = false
         if #available(iOS 13.0, *) {
-            textView.font = UIFont.monospacedSystemFont(ofSize: UIFont.systemFontSize, weight: .regular)
+            textView.font = UIFont.monospacedSystemFont(
+                ofSize: UIFont.systemFontSize,
+                weight: .regular
+            )
         } else {
             textView.font = UIFont(name: "Courier", size: UIFont.systemFontSize)
         }

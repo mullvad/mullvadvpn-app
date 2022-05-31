@@ -169,7 +169,7 @@ extension TunnelManager.Error: DisplayChainedError {
         case .rotateKey(let restError):
             return String(
                 format: NSLocalizedString(
-                    "ROTATE_KY_ERROR",
+                    "ROTATE_KEY_ERROR",
                     tableName: "TunnelManager",
                     value: "Failed to rotate WireGuard key: %@",
                     comment: ""
@@ -238,35 +238,35 @@ extension SKError: LocalizedError {
             return NSLocalizedString(
                 "UNKNOWN_ERROR",
                 tableName: "StoreKitErrors",
-                value: "Unknown error",
+                value: "Unknown error.",
                 comment: ""
             )
         case .clientInvalid:
             return NSLocalizedString(
                 "CLIENT_INVALID",
                 tableName: "StoreKitErrors",
-                value: "Client is not allowed to issue the request",
+                value: "Client is not allowed to issue the request.",
                 comment: ""
             )
         case .paymentCancelled:
             return NSLocalizedString(
                 "PAYMENT_CANCELLED",
                 tableName: "StoreKitErrors",
-                value: "User cancelled the request",
+                value: "User cancelled the request.",
                 comment: ""
             )
         case .paymentInvalid:
             return NSLocalizedString(
                 "PAYMENT_INVALID",
                 tableName: "StoreKitErrors",
-                value: "Invalid purchase identifier",
+                value: "Invalid purchase identifier.",
                 comment: ""
             )
         case .paymentNotAllowed:
             return NSLocalizedString(
                 "PAYMENT_NOT_ALLOWED",
                 tableName: "StoreKitErrors",
-                value: "This device is not allowed to make the payment",
+                value: "This device is not allowed to make the payment.",
                 comment: ""
             )
         default:
@@ -282,7 +282,7 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
             return NSLocalizedString(
                 "NO_ACCOUNT_SET_ERROR",
                 tableName: "AppStorePaymentManager",
-                value: "Internal error: account is not set",
+                value: "Internal error: account is not set.",
                 comment: ""
             )
 

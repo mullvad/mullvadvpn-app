@@ -111,11 +111,13 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
             style: .warning,
             title: NSLocalizedString(
                 "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_TITLE",
+                value: "ACCOUNT CREDIT EXPIRES SOON",
                 comment: "Title for in-app notification, displayed within the last 3 days until account expiry."
             ),
             body: String(
                 format: NSLocalizedString(
                     "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_BODY",
+                    value: "%@ left. Buy more credit.",
                     comment: "Message for in-app notification, displayed within the last 3 days until account expiry."
                 ), duration
             )

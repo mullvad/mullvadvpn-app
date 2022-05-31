@@ -35,7 +35,12 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate,
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.title = NSLocalizedString("NAVIGATION_TITLE", tableName: "Settings", comment: "Navigation title")
+        navigationItem.title = NSLocalizedString(
+            "NAVIGATION_TITLE",
+            tableName: "Settings",
+            value: "Settings",
+            comment: ""
+        )
         navigationItem.largeTitleDisplayMode = .always
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handleDismiss))
 

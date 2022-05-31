@@ -57,7 +57,12 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         super.viewDidLoad()
 
         navigationItem.largeTitleDisplayMode = .never
-        navigationItem.title = NSLocalizedString("NAVIGATION_TITLE", tableName: "SelectLocation", comment: "Navigation title")
+        navigationItem.title = NSLocalizedString(
+            "NAVIGATION_TITLE",
+            tableName: "SelectLocation",
+            value: "Select Location",
+            comment: ""
+        )
 
         let tableView = UITableView(frame: view.bounds, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false

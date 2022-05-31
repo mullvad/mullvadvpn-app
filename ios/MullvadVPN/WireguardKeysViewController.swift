@@ -70,7 +70,12 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
         ])
 
-        navigationItem.title = NSLocalizedString("NAVIGATION_TITLE", tableName: "WireguardKeys", comment: "")
+        navigationItem.title = NSLocalizedString(
+            "NAVIGATION_TITLE",
+            tableName: "WireguardKeys",
+            value: "WireGuard key",
+            comment: ""
+        )
 
         contentView.publicKeyRowView.actionHandler = { [weak self] in
             self?.copyPublicKey()
@@ -119,7 +124,12 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         UIPasteboard.general.string = tunnelSettings.device.wgKeyData.privateKey.publicKey.base64Key
 
         setPublicKeyTitle(
-            string: NSLocalizedString("COPIED_TO_PASTEBOARD_LABEL", tableName: "WireguardKeys", comment: ""),
+            string: NSLocalizedString(
+                "COPIED_TO_PASTEBOARD_LABEL",
+                tableName: "WireguardKeys",
+                value: "COPIED TO PASTEBOARD!",
+                comment: ""
+            ),
             animated: true)
 
         let workItem = DispatchWorkItem { [weak self] in
@@ -147,7 +157,15 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             to: Date(),
             unitsStyle: .full
         ).map { (formattedInterval) -> String in
-            return String(format: NSLocalizedString("KEY_GENERATED_SINCE_FORMAT", tableName: "WireguardKeys", comment: ""), formattedInterval)
+            return String(
+                format: NSLocalizedString(
+                    "KEY_GENERATED_SINCE_FORMAT",
+                    tableName: "WireguardKeys",
+                    value: "%@ ago",
+                    comment: ""
+                ),
+                formattedInterval
+            )
         }
     }
 

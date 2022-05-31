@@ -19,7 +19,8 @@ enum AppStoreSubscription: String {
             return NSLocalizedString(
                 "APPSTORE_SUBSCRIPTION_TITLE_ADD_30_DAYS",
                 tableName: "AppStoreSubscriptions",
-                comment: "Title for non-renewable subscription that credits 30 days to user account."
+                value: "Add 30 days time",
+                comment: ""
             )
         }
     }

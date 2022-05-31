@@ -19,7 +19,11 @@ class TunnelErrorNotificationProvider: NotificationProvider, InAppNotificationPr
         return InAppNotificationDescriptor(
             identifier: identifier,
             style: .error,
-            title: NSLocalizedString("TUNNEL_ERROR_INAPP_NOTIFICATION_TITLE", comment: ""),
+            title: NSLocalizedString(
+                "TUNNEL_ERROR_INAPP_NOTIFICATION_TITLE",
+                value: "Tunnel error",
+                comment: ""
+            ),
             body: lastError.errorChainDescription ?? "No error description provided."
         )
     }

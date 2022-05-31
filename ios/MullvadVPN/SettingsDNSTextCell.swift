@@ -30,7 +30,12 @@ class SettingsDNSTextCell: SettingsCell, UITextFieldDelegate {
         textField.backgroundColor = .clear
         textField.textColor = UIColor.TextField.textColor
         textField.textMargins = UIMetrics.settingsCellLayoutMargins
-        textField.placeholder = NSLocalizedString("DNS_TEXT_CELL_PLACEHOLDER", tableName: "Settings", value: "Enter IP", comment: "")
+        textField.placeholder = NSLocalizedString(
+            "DNS_TEXT_CELL_PLACEHOLDER",
+            tableName: "Settings",
+            value: "Enter IP",
+            comment: ""
+        )
         textField.cornerRadius = 0
         textField.keyboardType = .numbersAndPunctuation
         textField.returnKeyType = .done
