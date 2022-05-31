@@ -165,7 +165,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         var relaysFetchResult: UIBackgroundFetchResult?
         var rotatePrivateKeyFetchResult: UIBackgroundFetchResult?
 
-        let operationQueue = OperationQueue()
+        let operationQueue = AsyncOperationQueue()
 
         let updateAddressCacheOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             let handle = self.addressCacheTracker.updateEndpoints { completion in
