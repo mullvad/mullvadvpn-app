@@ -34,7 +34,7 @@ enum AppStoreReceipt {
 
     /// Internal operation queue.
     private static let operationQueue: OperationQueue = {
-        let queue = OperationQueue()
+        let queue = AsyncOperationQueue()
         queue.name = "AppStoreReceiptQueue"
         queue.maxConcurrentOperationCount = 1
         return queue

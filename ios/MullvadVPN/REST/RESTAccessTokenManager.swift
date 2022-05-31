@@ -13,7 +13,7 @@ extension REST {
 
     final class AccessTokenManager {
         private let logger = Logger(label: "REST.AccessTokenManager")
-        private let operationQueue = OperationQueue()
+        private let operationQueue = AsyncOperationQueue()
         private let dispatchQueue = DispatchQueue(label: "REST.AccessTokenManager.dispatchQueue")
         private let proxy: AuthenticationProxy
         private var tokens = [String: AccessTokenData]()

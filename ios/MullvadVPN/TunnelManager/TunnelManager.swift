@@ -61,8 +61,8 @@ final class TunnelManager: TunnelManagerStateDelegate {
 
     private let logger = Logger(label: "TunnelManager")
     private let stateQueue = DispatchQueue(label: "TunnelManager.stateQueue")
-    private let operationQueue = OperationQueue()
     private let exclusivityController = ExclusivityController()
+    private let operationQueue = AsyncOperationQueue()
 
     private var statusObserver: Tunnel.StatusBlockObserver?
     private var lastMapConnectionStatusOperation: Operation?

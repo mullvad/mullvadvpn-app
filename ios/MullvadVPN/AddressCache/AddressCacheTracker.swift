@@ -37,8 +37,8 @@ extension AddressCache {
         private var timer: DispatchSourceTimer?
 
         /// Operation queue.
-        private let operationQueue: OperationQueue = {
-            let operationQueue = OperationQueue()
+        private let operationQueue: AsyncOperationQueue = {
+            let operationQueue = AsyncOperationQueue()
             operationQueue.maxConcurrentOperationCount = 1
             return operationQueue
         }()

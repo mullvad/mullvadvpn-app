@@ -23,7 +23,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private let logger = Logger(label: "AppStorePaymentManager")
 
     private let operationQueue: OperationQueue = {
-        let queue = OperationQueue()
+        let queue = AsyncOperationQueue()
         queue.name = "AppStorePaymentManagerQueue"
         return queue
     }()
