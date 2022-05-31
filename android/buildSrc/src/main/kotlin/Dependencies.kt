@@ -39,6 +39,18 @@ object Dependencies {
             "androidx.test:orchestrator:${Versions.AndroidX.test}"
     }
 
+    object Compose {
+        const val constrainLayout =
+            "androidx.constraintlayout:constraintlayout-compose:${Versions.Compose.constrainLayout}"
+        const val foundation = "androidx.compose.foundation:foundation:${Versions.Compose.base}"
+        const val viewModelLifecycle =
+            "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.Compose.viewModelLifecycle}"
+        const val material = "androidx.compose.material:material:${Versions.Compose.base}"
+        const val uiController =
+            "com.google.accompanist:accompanist-systemuicontroller:${Versions.Compose.uiController}"
+        const val ui = "androidx.compose.ui:ui:${Versions.Compose.base}"
+    }
+
     object Koin {
         const val core = "io.insert-koin:koin-core:${Versions.koin}"
         const val coreExt = "io.insert-koin:koin-core-ext:${Versions.koin}"
