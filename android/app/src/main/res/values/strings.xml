@@ -174,4 +174,10 @@
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="show_system_apps">Show system apps</string>
     <string name="toggle_vpn">Toggle VPN</string>
+    <string name="go_to_login">Go to login</string>
+    <string name="device_inactive_title">Device is inactive</string>
+    <string name="device_inactive_description">You have removed this device. To connect again, you
+    will need to log back in.</string>
+    <string name="device_inactive_unblock_warning">Going to login will unblock the internet on this
+    device.</string>
 </resources>

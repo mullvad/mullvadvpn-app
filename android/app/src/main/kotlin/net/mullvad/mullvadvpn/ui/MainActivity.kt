@@ -12,10 +12,18 @@ import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
+import net.mullvad.mullvadvpn.model.DeviceState
+import net.mullvad.mullvadvpn.ui.fragments.DeviceRevokedFragment
+import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
@@ -34,10 +42,15 @@ open class MainActivity : FragmentActivity() {
     var backButtonHandler: (() -> Boolean)? = null
 
     private lateinit var serviceConnectionManager: ServiceConnectionManager
+    private lateinit var deviceRepository: DeviceRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(uiModule)
-        serviceConnectionManager = getKoin().get()
+
+        getKoin().apply {
+            serviceConnectionManager = get()
+            deviceRepository = get()
+        }
 
         requestedOrientation = if (deviceIsTv) {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
@@ -57,6 +70,8 @@ open class MainActivity : FragmentActivity() {
         if (savedInstanceState == null) {
             addInitialFragment()
         }
+
+        launchRevocationHandler()
     }
 
     override fun onStart() {
@@ -136,6 +151,23 @@ open class MainActivity : FragmentActivity() {
         }
     }
 
+    private fun launchRevocationHandler() {
+        lifecycleScope.launch {
+            deviceRepository.deviceState
+                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+                .collect { deviceState ->
+                    // TODO: Double-check whether the state is distinct for all cases, e.g. in cases
+                    //  where the device data is changed.
+                    when (deviceState) {
+                        is DeviceState.LoggedIn -> openConnectView()
+                        is DeviceState.Revoked -> openRevokedView()
+                        is DeviceState.LoggedOut -> openLoginView()
+                        else -> Unit
+                    }
+                }
+        }
+    }
+
     @Suppress("DEPRECATION")
     private fun requestVpnPermission() {
         val intent = VpnService.prepare(this)
@@ -148,5 +180,42 @@ open class MainActivity : FragmentActivity() {
             add(R.id.main_fragment, LaunchFragment())
             commit()
         }
+    }
+
+    private fun openConnectView() {
+        if (currentFragment() is ConnectFragment) return
+
+        supportFragmentManager.beginTransaction().apply {
+            replace(R.id.main_fragment, ConnectFragment())
+            commit()
+        }
+    }
+
+    private fun openLoginView() {
+        if (currentFragment() is LoginFragment) return
+
+        supportFragmentManager.beginTransaction().apply {
+            replace(R.id.main_fragment, LoginFragment())
+            commit()
+        }
+    }
+
+    private fun openRevokedView() {
+        if (currentFragment() is DeviceRevokedFragment) return
+
+        supportFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_right,
+                R.anim.fragment_exit_to_left,
+                R.anim.fragment_half_enter_from_left,
+                R.anim.fragment_exit_to_right
+            )
+            replace(R.id.main_fragment, DeviceRevokedFragment())
+            commit()
+        }
+    }
+
+    private fun currentFragment(): Fragment? {
+        return supportFragmentManager.findFragmentById(R.id.main_fragment)
     }
 }
