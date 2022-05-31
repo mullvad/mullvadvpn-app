@@ -1,9 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,9 +12,7 @@ import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 
-class LoginViewModel(
-    application: Application
-) : AndroidViewModel(application) {
+class LoginViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Default)
     val uiState: StateFlow<LoginUiState> = _uiState
 
@@ -97,13 +92,6 @@ class LoginViewModel(
             LoginResult.InvalidAccount -> LoginUiState.InvalidAccountError
             LoginResult.MaxDevicesReached -> LoginUiState.TooManyDevicesError
             else -> LoginUiState.OtherError(errorMessage = this.toString())
-        }
-    }
-
-    class Factory(val application: Application) :
-        ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return LoginViewModel(application) as T
         }
     }
 }
