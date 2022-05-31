@@ -31,7 +31,7 @@ extension RelayCache {
 
         /// Internal operation queue.
         private let operationQueue: OperationQueue = {
-            let operationQueue = OperationQueue()
+            let operationQueue = AsyncOperationQueue()
             operationQueue.name = "RelayCacheTrackerQueue"
             operationQueue.maxConcurrentOperationCount = 1
             return operationQueue

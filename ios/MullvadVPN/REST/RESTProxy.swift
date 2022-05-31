@@ -16,7 +16,7 @@ extension REST {
         let dispatchQueue: DispatchQueue
 
         /// Operation queue used for running network operations.
-        let operationQueue = OperationQueue()
+        let operationQueue = AsyncOperationQueue()
 
         /// Proxy configuration.
         let configuration: ConfigurationType
