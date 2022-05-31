@@ -197,6 +197,7 @@
 		589D287A2846250500F9A7B3 /* OperationCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28772846250500F9A7B3 /* OperationCondition.swift */; };
 		589D287B2846250500F9A7B3 /* AsyncOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */; };
 		589D287C2846250500F9A7B3 /* OperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28792846250500F9A7B3 /* OperationObserver.swift */; };
+		589D288028462CB000F9A7B3 /* BackgroundObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D287F28462CB000F9A7B3 /* BackgroundObserver.swift */; };
 		589D28822846306C00F9A7B3 /* GroupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28812846306C00F9A7B3 /* GroupOperation.swift */; };
 		58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */; };
 		58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
@@ -470,6 +471,7 @@
 		589D28772846250500F9A7B3 /* OperationCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationCondition.swift; sourceTree = "<group>"; };
 		589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncOperationQueue.swift; sourceTree = "<group>"; };
 		589D28792846250500F9A7B3 /* OperationObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationObserver.swift; sourceTree = "<group>"; };
+		589D287F28462CB000F9A7B3 /* BackgroundObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundObserver.swift; sourceTree = "<group>"; };
 		589D28812846306C00F9A7B3 /* GroupOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupOperation.swift; sourceTree = "<group>"; };
 		58A1AA8623F43901009F7EA6 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionPanelView.swift; sourceTree = "<group>"; };
@@ -616,6 +618,7 @@
 				580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */,
 				58E973DD24850EB600096F90 /* AsyncOperation.swift */,
 				589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */,
+				589D287F28462CB000F9A7B3 /* BackgroundObserver.swift */,
 				589D28812846306C00F9A7B3 /* GroupOperation.swift */,
 				5840BE34279EDB16002836BA /* OperationCompletion.swift */,
 				589D28772846250500F9A7B3 /* OperationCondition.swift */,
@@ -1287,6 +1290,7 @@
 				5850367F25A481D800A43E93 /* IPAddressRange+Codable.swift in Sources */,
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
 				589D287A2846250500F9A7B3 /* OperationCondition.swift in Sources */,
+				589D288028462CB000F9A7B3 /* BackgroundObserver.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* AppStorePaymentObserver.swift in Sources */,
