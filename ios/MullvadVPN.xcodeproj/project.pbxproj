@@ -199,6 +199,7 @@
 		589D287A2846250500F9A7B3 /* OperationCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28772846250500F9A7B3 /* OperationCondition.swift */; };
 		589D287B2846250500F9A7B3 /* AsyncOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */; };
 		589D287C2846250500F9A7B3 /* OperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28792846250500F9A7B3 /* OperationObserver.swift */; };
+		589D28822846306C00F9A7B3 /* GroupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28812846306C00F9A7B3 /* GroupOperation.swift */; };
 		58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */; };
 		58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
 		58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
@@ -472,6 +473,7 @@
 		589D28772846250500F9A7B3 /* OperationCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationCondition.swift; sourceTree = "<group>"; };
 		589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncOperationQueue.swift; sourceTree = "<group>"; };
 		589D28792846250500F9A7B3 /* OperationObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationObserver.swift; sourceTree = "<group>"; };
+		589D28812846306C00F9A7B3 /* GroupOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupOperation.swift; sourceTree = "<group>"; };
 		58A1AA8623F43901009F7EA6 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionPanelView.swift; sourceTree = "<group>"; };
 		58A94AE326CFD945001CB97C /* TunnelErrorNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelErrorNotificationProvider.swift; sourceTree = "<group>"; };
@@ -618,6 +620,7 @@
 				58E973DD24850EB600096F90 /* AsyncOperation.swift */,
 				580EE20524B3222200F9D8A1 /* ExclusivityController.swift */,
 				589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */,
+				589D28812846306C00F9A7B3 /* GroupOperation.swift */,
 				5840BE34279EDB16002836BA /* OperationCompletion.swift */,
 				589D28772846250500F9A7B3 /* OperationCondition.swift */,
 				589D28792846250500F9A7B3 /* OperationObserver.swift */,
@@ -1300,6 +1303,7 @@
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
 				582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */,
 				58554F7D280D6FE000013055 /* RESTURLSession.swift in Sources */,
+				589D28822846306C00F9A7B3 /* GroupOperation.swift in Sources */,
 				5846227726E22A7C0035F7C2 /* AppStorePaymentManagerDelegate.swift in Sources */,
 				5871FB8325498CA20051A0A4 /* Swizzle.swift in Sources */,
 				58EF581125D69DB400AEBA94 /* StatusImageView.swift in Sources */,
