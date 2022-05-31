@@ -96,7 +96,7 @@ class ConnectFragment :
         }
 
         connectionProxy.onUiStateChange.subscribe(this) { uiState ->
-            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            jobTracker.newUiJob("updateTunnelState") {
                 updateTunnelState(uiState, connectionProxy.state)
             }
         }
@@ -114,7 +114,7 @@ class ConnectFragment :
     }
 
     override fun onSafelyStop() {
-        jobTracker.cancelJob("updateAccountExpiry")
+        jobTracker.cancelAllJobs()
 
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
