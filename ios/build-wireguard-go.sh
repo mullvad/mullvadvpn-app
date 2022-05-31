@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
 # build-wireguard-go.sh
 # A helper build script for WireGuardGoBridge via ExternalBuildSystem target in Xcode.
 #
