@@ -4,7 +4,6 @@ import android.os.Looper
 import android.os.Messenger
 import android.os.RemoteException
 import android.util.Log
-import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.di.SERVICE_CONNECTION_SCOPE
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
@@ -20,15 +19,16 @@ import org.koin.core.scope.get
 // The properties of this class can be used to send events to the service, to listen for events from
 // the service and to get values received from events.
 @OptIn(KoinApiExtension::class)
-class ServiceConnection(
+class ServiceConnectionContainer(
     connection: Messenger,
-    onServiceReady: ((ServiceConnection) -> Unit)? = null
+    onServiceReady: (ServiceConnectionContainer) -> Unit,
+    onVpnPermissionRequest: () -> Unit
 ) : KoinScopeComponent {
     private val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
         Event.fromMessage(message)
     }
 
-    override val scope = getKoin().createScope(
+    override val scope = getKoin().getOrCreateScope(
         SERVICE_CONNECTION_SCOPE,
         named(SERVICE_CONNECTION_SCOPE), this
     )
@@ -36,10 +36,10 @@ class ServiceConnection(
     val accountCache = AccountCache(connection, dispatcher)
     val authTokenCache = AuthTokenCache(connection, dispatcher)
     val connectionProxy = ConnectionProxy(connection, dispatcher)
-    val deviceRepository =
-        DeviceRepository(ServiceConnectionDeviceDataSource(connection, dispatcher), MainScope())
+    val deviceDataSource = ServiceConnectionDeviceDataSource(connection, dispatcher)
     val locationInfoCache = LocationInfoCache(dispatcher)
     val settingsListener = SettingsListener(connection, dispatcher)
+    // NOTE: `org.koin.core.scope.get` must be used here rather than `org.koin.core.component.get`.
     val splitTunneling = get<SplitTunneling>(parameters = { parametersOf(connection, dispatcher) })
     val voucherRedeemer = VoucherRedeemer(connection, dispatcher)
     val vpnPermission = VpnPermission(connection, dispatcher)
@@ -49,8 +49,10 @@ class ServiceConnection(
     var relayListListener = RelayListListener(connection, dispatcher, settingsListener)
 
     init {
+        vpnPermission.onRequest = onVpnPermissionRequest
+
         dispatcher.registerHandler(Event.ListenerReady::class) { _ ->
-            onServiceReady?.invoke(this@ServiceConnection)
+            onServiceReady.invoke(this@ServiceConnectionContainer)
         }
 
         registerListener(connection)

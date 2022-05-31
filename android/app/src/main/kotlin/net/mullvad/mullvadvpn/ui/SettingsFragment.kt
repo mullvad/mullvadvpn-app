@@ -6,21 +6,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.widget.AccountCell
 import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
 import net.mullvad.mullvadvpn.ui.widget.NavigateCell
+import org.koin.android.ext.android.inject
 
 class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBarPainter {
+    private val deviceRepository: DeviceRepository by inject()
+
     private lateinit var accountMenu: AccountCell
     private lateinit var appVersionMenu: AppVersionCell
     private lateinit var preferencesMenu: View
@@ -30,13 +35,11 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
     private var active = false
 
     private var accountCache: AccountCache? = null
-    private var deviceRepository: DeviceRepository? = null
     private var versionInfoCache: AppVersionInfoCache? = null
 
-    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
-        accountCache = serviceConnection.accountCache
-        deviceRepository = serviceConnection.deviceRepository
-        versionInfoCache = serviceConnection.appVersionInfoCache
+    override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
+        accountCache = serviceConnectionContainer.accountCache
+        versionInfoCache = serviceConnectionContainer.appVersionInfoCache
 
         if (active) {
             configureListeners()
@@ -45,7 +48,6 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
 
     override fun onNoServiceConnection() {
         accountCache = null
-        deviceRepository = null
         versionInfoCache = null
     }
 
@@ -90,6 +92,14 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
                 paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
             }
         }
+
+        lifecycleScope.launch {
+            deviceRepository.deviceState
+                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+                .collect { device ->
+                    updateLoggedInStatus(device is DeviceState.LoggedIn)
+                }
+        }
     }
 
     override fun onResume() {
@@ -129,16 +139,6 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
             }
 
             fetchAccountExpiry()
-        }
-
-        jobTracker.newUiJob("updateLoggedInStatus") {
-            deviceRepository?.let { repository ->
-                repository.deviceState
-                    .onEach { state -> if (state.isInitialState()) repository.refreshDeviceState() }
-                    .collect { device ->
-                        updateLoggedInStatus(device is DeviceState.LoggedIn)
-                    }
-            }
         }
 
         versionInfoCache?.onUpdate = {

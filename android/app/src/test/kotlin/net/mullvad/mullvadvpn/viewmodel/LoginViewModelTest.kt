@@ -5,7 +5,6 @@ import app.cash.turbine.test
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import io.mockk.verify
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +40,7 @@ class LoginViewModelTest {
         every { mockedAccountCache.accountHistoryEvents } returns accountHistoryTestEvents
         every { mockedAccountCache.loginEvents } returns loginTestEvents
 
-        loginViewModel = LoginViewModel(mockk())
+        loginViewModel = LoginViewModel()
     }
 
     @Test

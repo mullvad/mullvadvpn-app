@@ -10,23 +10,23 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.AccountHistory
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginFragment :
     ServiceDependentFragment(OnNoService.GoToLaunchScreen),
     NavigationBarPainter {
 
-    private lateinit var loginViewModel: LoginViewModel
+    private val loginViewModel: LoginViewModel by viewModel()
 
     private lateinit var title: TextView
     private lateinit var subtitle: TextView
@@ -52,10 +52,7 @@ class LoginFragment :
         loggedInStatus = view.findViewById(R.id.logged_in_status)
         loginFailStatus = view.findViewById(R.id.login_fail_status)
 
-        val factory = LoginViewModel.Factory(requireActivity().application)
-        loginViewModel = ViewModelProvider(this, factory)[LoginViewModel::class.java].apply {
-            updateAccountCacheInstance(accountCache)
-        }
+        loginViewModel.updateAccountCacheInstance(accountCache)
 
         accountLogin = view.findViewById<AccountLogin>(R.id.account_login).apply {
             onLogin = loginViewModel::login
@@ -73,26 +70,19 @@ class LoginFragment :
 
         scrollToShow(accountLogin)
 
+        setupLifecycleSubscriptionsToViewModel()
+
         return view
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setupLifecycleSubscriptionsToViewModel()
-    }
-
-    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
-        super.onNewServiceConnection(serviceConnection)
-        if (this::loginViewModel.isInitialized) {
-            loginViewModel.updateAccountCacheInstance(accountCache)
-        }
+    override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
+        super.onNewServiceConnection(serviceConnectionContainer)
+        loginViewModel.updateAccountCacheInstance(accountCache)
     }
 
     override fun onNoServiceConnection() {
         super.onNoServiceConnection()
-        if (this::loginViewModel.isInitialized) {
-            loginViewModel.updateAccountCacheInstance(null)
-        }
+        loginViewModel.updateAccountCacheInstance(null)
     }
 
     override fun onSafelyStart() {

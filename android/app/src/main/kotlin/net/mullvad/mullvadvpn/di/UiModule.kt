@@ -6,7 +6,10 @@ import kotlinx.coroutines.Dispatchers
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
+import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -30,6 +33,10 @@ val uiModule = module {
             SplitTunneling(messenger, dispatcher)
         }
     }
+
+    single { ServiceConnectionManager(androidContext()) }
+    single { DeviceRepository(get()) }
+    viewModel { LoginViewModel() }
 }
 const val APPS_SCOPE = "APPS_SCOPE"
 const val SERVICE_CONNECTION_SCOPE = "SERVICE_CONNECTION_SCOPE"

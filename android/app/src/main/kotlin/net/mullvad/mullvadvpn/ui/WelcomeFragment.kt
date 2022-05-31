@@ -13,14 +13,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
 import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import org.joda.time.DateTime
+import org.koin.android.ext.android.inject
 
 val POLL_INTERVAL: Long = 15 /* s */ * 1000 /* ms */
 
 class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+    private val deviceRepository: DeviceRepository by inject()
+
     private lateinit var accountLabel: TextView
     private lateinit var sitePaymentButton: SitePaymentButton
 
