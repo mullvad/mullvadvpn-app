@@ -147,7 +147,11 @@ pub struct TunnelEndpoint {
 
 impl fmt::Display for TunnelEndpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{} - {}", self.tunnel_type, self.endpoint)?;
+        write!(f, "{} ", self.tunnel_type)?;
+        if self.quantum_resistant {
+            write!(f, "(quantum resistant) ")?;
+        }
+        write!(f, "- {}", self.endpoint)?;
         match self.tunnel_type {
             TunnelType::OpenVpn => {
                 if let Some(ref proxy) = self.proxy {

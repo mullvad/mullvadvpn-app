@@ -81,7 +81,7 @@ pub enum Error {
 
     /// Failed to negotiate PQ PSK
     #[error(display = "Failed to negotiate PQ PSK")]
-    PskNegotiationError(talpid_relay_config_client::Error),
+    PskNegotiationError(#[error(source)] talpid_relay_config_client::Error),
 
     /// Failed to set up IP interfaces.
     #[cfg(windows)]
@@ -221,7 +221,7 @@ impl WireguardMonitor {
         let (setup_done_tx, mut setup_done_rx) = mpsc::channel(0);
 
         // Use allowed IPs to block anything but the v4 gateway, if PSK exchange is on.
-        let patched_config_ref;
+        let config_ref;
         let mut patched_config;
         if psk_negotiation.is_some() {
             patched_config = config.clone();
@@ -233,14 +233,14 @@ impl WireguardMonitor {
                     }
                 }
             }
-            patched_config_ref = &patched_config;
+            config_ref = &patched_config;
         } else {
-            patched_config_ref = &config;
+            config_ref = &config;
         }
 
         let tunnel = Self::open_tunnel(
             runtime.clone(),
-            patched_config_ref,
+            config_ref,
             log_path,
             resource_dir,
             tun_provider,
@@ -327,6 +327,8 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
 
             if let Some(pubkey) = psk_negotiation {
+                log::debug!("Performing PQ-safe PSK exchange");
+
                 let timeout = std::cmp::min(
                     MAX_PSK_EXCHANGE_TIMEOUT,
                     INITIAL_PSK_EXCHANGE_TIMEOUT.saturating_mul(

@@ -3,12 +3,12 @@ use std::fmt;
 use super::Error;
 
 use classic_mceliece_rust::{
-    crypto_kem_dec, crypto_kem_keypair, CRYPTO_BYTES, CRYPTO_CIPHERTEXTBYTES,
-    CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES,
+    crypto_kem_dec, crypto_kem_keypair, CRYPTO_BYTES, CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES,
 };
 use talpid_types::net::wireguard::PresharedKey;
 
 const STACK_SIZE: usize = 8 * 1024 * 1024;
+pub use classic_mceliece_rust::CRYPTO_CIPHERTEXTBYTES;
 
 #[derive(Debug)]
 pub struct PublicKey(Box<[u8; CRYPTO_PUBLICKEYBYTES]>);
@@ -45,20 +45,20 @@ pub async fn generate_keys() -> Result<(PublicKey, SecretKey), Error> {
     std::thread::Builder::new()
         .stack_size(STACK_SIZE)
         .spawn(move || {
-            tx.send(gen_key()).unwrap();
+            let _ = tx.send(gen_key());
         })
         .unwrap();
 
     rx.await.unwrap()
 }
 
-pub fn decapsulate(secret: &SecretKey, ciphertext: &[u8]) -> Result<PresharedKey, Error> {
-    let ct: [u8; CRYPTO_CIPHERTEXTBYTES] = ciphertext
-        .try_into()
-        .map_err(|_| Error::InvalidCiphertext)?;
+pub fn decapsulate(
+    secret: &SecretKey,
+    ciphertext: &[u8; CRYPTO_CIPHERTEXTBYTES],
+) -> Result<PresharedKey, Error> {
     let mut psk = [0u8; CRYPTO_BYTES];
 
-    crypto_kem_dec(&mut psk, &ct, &secret.0).map_err(|error| {
+    crypto_kem_dec(&mut psk, ciphertext, &secret.0).map_err(|error| {
         log::error!("KEM decapsulation failed: {error}");
         Error::DecapsulationError
     })?;
