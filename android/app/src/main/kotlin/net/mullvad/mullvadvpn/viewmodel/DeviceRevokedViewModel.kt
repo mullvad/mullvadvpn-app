@@ -18,7 +18,7 @@ import net.mullvad.talpid.util.callbackFlowFromSubscription
 //  ServiceConnectionManager here.
 class DeviceRevokedViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+    scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 ) : ViewModel() {
 
     val uiState = serviceConnectionManager.connectionState
