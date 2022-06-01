@@ -97,7 +97,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         // Read tunnel configuration.
         let tunnelConfiguration: PacketTunnelConfiguration
         do {
-            tunnelConfiguration = try makeConfiguration(nil)
+            tunnelConfiguration = try makeConfiguration(appSelectorResult)
         } catch {
             providerLogger.error(
                 chainedError: AnyChainedError(error),
