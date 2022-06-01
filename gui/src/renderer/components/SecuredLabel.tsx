@@ -5,8 +5,10 @@ import { messages } from '../../shared/gettext';
 
 export enum SecuredDisplayStyle {
   secured,
+  securedPq,
   blocked,
   securing,
+  securingPq,
   unsecured,
   unsecuring,
   failedToSecure,
@@ -14,8 +16,10 @@ export enum SecuredDisplayStyle {
 
 const securedDisplayStyleColorMap = {
   [SecuredDisplayStyle.securing]: colors.white,
+  [SecuredDisplayStyle.securingPq]: colors.white,
   [SecuredDisplayStyle.unsecuring]: colors.white,
   [SecuredDisplayStyle.secured]: colors.green,
+  [SecuredDisplayStyle.securedPq]: colors.green,
   [SecuredDisplayStyle.blocked]: colors.white,
   [SecuredDisplayStyle.unsecured]: colors.red,
   [SecuredDisplayStyle.failedToSecure]: colors.red,
@@ -45,11 +49,17 @@ function getLabelText(displayStyle: SecuredDisplayStyle) {
     case SecuredDisplayStyle.secured:
       return messages.gettext('SECURE CONNECTION');
 
+    case SecuredDisplayStyle.securedPq:
+      return messages.gettext('QUANTUM SECURE CONNECTION');
+
     case SecuredDisplayStyle.blocked:
       return messages.gettext('BLOCKED CONNECTION');
 
     case SecuredDisplayStyle.securing:
       return messages.gettext('CREATING SECURE CONNECTION');
+
+    case SecuredDisplayStyle.securingPq:
+      return messages.gettext('CREATING QUANTUM SECURE CONNECTION');
 
     case SecuredDisplayStyle.unsecured:
       return messages.gettext('UNSECURED CONNECTION');

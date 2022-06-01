@@ -92,6 +92,7 @@ export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
   tunnelType: TunnelType;
+  quantumResistant: boolean;
   proxy?: IProxyEndpoint;
   obfuscationEndpoint?: IObfuscationEndpoint;
   entryEndpoint?: IEndpoint;

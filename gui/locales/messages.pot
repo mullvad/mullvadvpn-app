@@ -108,6 +108,9 @@ msgstr ""
 msgid "Connecting"
 msgstr ""
 
+msgid "CREATING QUANTUM SECURE CONNECTION"
+msgstr ""
+
 msgid "CREATING SECURE CONNECTION"
 msgstr ""
 
@@ -170,6 +173,9 @@ msgid "On"
 msgstr ""
 
 msgid "Open URL"
+msgstr ""
+
+msgid "QUANTUM SECURE CONNECTION"
 msgstr ""
 
 msgid "Reconnect"
