@@ -1,34 +1,48 @@
 use socket2::SockAddr;
 use std::{
     ffi::{OsStr, OsString},
-    fmt, io, mem,
+    fmt, io,
+    mem::{self, MaybeUninit},
     net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
         io::RawHandle,
     },
+    path::PathBuf,
+    ptr,
     sync::Mutex,
     time::{Duration, Instant},
 };
-use winapi::shared::{
-    ifdef::NET_LUID,
-    in6addr::IN6_ADDR,
-    inaddr::IN_ADDR,
-    netioapi::{
-        CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
-        FreeMibTable, GetIpInterfaceEntry, GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
-        MibAddInstance, NotifyIpInterfaceChange, SetIpInterfaceEntry, MIB_IPINTERFACE_ROW,
-        MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE,
+use widestring::WideCStr;
+use winapi::{
+    shared::{
+        guiddef::GUID,
+        ifdef::NET_LUID,
+        in6addr::IN6_ADDR,
+        inaddr::IN_ADDR,
+        netioapi::{
+            CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
+            ConvertInterfaceLuidToGuid, FreeMibTable, GetIpInterfaceEntry,
+            GetUnicastIpAddressEntry, GetUnicastIpAddressTable, MibAddInstance,
+            NotifyIpInterfaceChange, SetIpInterfaceEntry, MIB_IPINTERFACE_ROW,
+            MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE,
+        },
+        nldef::{IpDadStatePreferred, IpDadStateTentative, NL_DAD_STATE},
+        ntddndis::NDIS_IF_MAX_STRING_SIZE,
+        ntdef::FALSE,
+        winerror::{ERROR_NOT_FOUND, NO_ERROR, S_OK},
+        ws2def::{
+            AF_INET, AF_INET6, AF_UNSPEC, SOCKADDR_IN as sockaddr_in,
+            SOCKADDR_STORAGE as sockaddr_storage,
+        },
+        ws2ipdef::{SOCKADDR_IN6_LH as sockaddr_in6, SOCKADDR_INET},
     },
-    nldef::{IpDadStatePreferred, IpDadStateTentative, NL_DAD_STATE},
-    ntddndis::NDIS_IF_MAX_STRING_SIZE,
-    ntdef::FALSE,
-    winerror::{ERROR_NOT_FOUND, NO_ERROR},
-    ws2def::{
-        AF_INET, AF_INET6, AF_UNSPEC, SOCKADDR_IN as sockaddr_in,
-        SOCKADDR_STORAGE as sockaddr_storage,
+    um::{
+        combaseapi::{CoTaskMemFree, StringFromGUID2},
+        knownfolders::FOLDERID_System,
+        shlobj::SHGetKnownFolderPath,
+        winnt::PWSTR,
     },
-    ws2ipdef::{SOCKADDR_IN6_LH as sockaddr_in6, SOCKADDR_INET},
 };
 
 pub mod window;
@@ -350,6 +364,27 @@ pub fn get_unicast_table(
     Ok(unicast_rows)
 }
 
+/// Obtain a string representation for a GUID object.
+pub fn string_from_guid(guid: &GUID) -> String {
+    let mut buffer = [0u16; 40];
+    let length = unsafe { StringFromGUID2(guid, &mut buffer[0] as *mut _, buffer.len() as i32 - 1) }
+        as usize;
+    // cannot fail because `buffer` is large enough
+    assert!(length > 0);
+    let length = length - 1;
+    String::from_utf16(&buffer[0..length]).unwrap()
+}
+
+/// Returns the GUID of a network interface given its LUID.
+pub fn guid_from_luid(luid: &NET_LUID) -> io::Result<GUID> {
+    let mut guid = MaybeUninit::zeroed();
+    let status = unsafe { ConvertInterfaceLuidToGuid(luid, guid.as_mut_ptr()) };
+    if status != NO_ERROR {
+        return Err(io::Error::from_raw_os_error(status as i32));
+    }
+    Ok(unsafe { guid.assume_init() })
+}
+
 /// Returns the LUID of an interface given its alias.
 pub fn luid_from_alias<T: AsRef<OsStr>>(alias: T) -> io::Result<NET_LUID> {
     let alias_wide: Vec<u16> = alias
@@ -433,6 +468,24 @@ pub fn try_socketaddr_from_inet_sockaddr(addr: SOCKADDR_INET) -> Result<SocketAd
     }
     .as_socket()
     .ok_or(Error::UnknownAddressFamily(family))
+}
+
+/// Returns the system directory, i.e. `%windir%\system32`.
+pub fn get_system_dir() -> io::Result<PathBuf> {
+    let mut folder_path: PWSTR = ptr::null_mut();
+    let status =
+        unsafe { SHGetKnownFolderPath(&FOLDERID_System, 0, ptr::null_mut(), &mut folder_path) };
+    let result = if status == S_OK {
+        let path = unsafe { WideCStr::from_ptr_str(folder_path) };
+        Ok(path.to_ustring().to_os_string().into())
+    } else {
+        Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            "Cannot find the system directory",
+        ))
+    };
+    unsafe { CoTaskMemFree(folder_path as *mut _) };
+    result
 }
 
 /// Casts a struct to a slice of possibly uninitialized bytes.
