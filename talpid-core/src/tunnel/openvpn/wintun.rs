@@ -1,4 +1,6 @@
-use crate::windows::{get_ip_interface_entry, set_ip_interface_entry, AddressFamily};
+use crate::windows::{
+    get_ip_interface_entry, set_ip_interface_entry, string_from_guid, AddressFamily,
+};
 use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
@@ -480,24 +482,6 @@ impl fmt::Debug for WintunLoggerHandle {
 impl Drop for WintunLoggerHandle {
     fn drop(&mut self) {
         self.dll_handle.set_logger(None);
-    }
-}
-
-/// Obtain a string representation for a GUID object.
-fn string_from_guid(guid: &GUID) -> String {
-    use std::{ffi::OsString, os::windows::ffi::OsStringExt};
-    use winapi::um::combaseapi::StringFromGUID2;
-
-    let mut buffer = [0u16; 40];
-    let length = unsafe { StringFromGUID2(guid, &mut buffer[0] as *mut _, buffer.len() as i32 - 1) }
-        as usize;
-    if length > 0 {
-        let length = length - 1;
-        OsString::from_wide(&buffer[0..length])
-            .to_string_lossy()
-            .to_string()
-    } else {
-        "".to_string()
     }
 }
 

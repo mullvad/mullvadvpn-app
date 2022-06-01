@@ -1,14 +1,13 @@
-#[cfg(unix)]
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
-#[cfg(unix)]
 use lazy_static::lazy_static;
-use std::fmt;
 #[cfg(not(target_os = "android"))]
 use std::net::IpAddr;
-#[cfg(unix)]
-use std::net::{Ipv4Addr, Ipv6Addr};
 #[cfg(windows)]
 use std::path::PathBuf;
+use std::{
+    fmt,
+    net::{Ipv4Addr, Ipv6Addr},
+};
 use talpid_types::net::{AllowedEndpoint, Endpoint};
 
 #[cfg(target_os = "macos")]
@@ -29,7 +28,6 @@ mod imp;
 
 pub use self::imp::Error;
 
-#[cfg(unix)]
 lazy_static! {
     /// When "allow local network" is enabled the app will allow traffic to and from these networks.
     pub(crate) static ref ALLOWED_LAN_NETS: [IpNetwork; 6] = [
@@ -83,7 +81,7 @@ const DHCPV6_CLIENT_PORT: u16 = 546;
 #[cfg(all(unix, not(target_os = "android")))]
 const ROOT_UID: u32 = 0;
 
-#[cfg(all(unix, not(target_os = "android")))]
+#[cfg(any(all(unix, not(target_os = "android")), target_os = "windows"))]
 /// Returns whether an address belongs to a private subnet.
 pub fn is_local_address(address: &IpAddr) -> bool {
     let address = address.clone();
