@@ -51,7 +51,7 @@ pub async fn generate_keys() -> Result<(PublicKey, SecretKey), Error> {
     std::thread::Builder::new()
         .stack_size(STACK_SIZE)
         .spawn(move || {
-            tx.send(gen_key()).unwrap();
+            let _ = tx.send(gen_key());
         })
         .unwrap();
 
