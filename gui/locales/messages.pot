@@ -1546,6 +1546,9 @@ msgstr ""
 msgid "Generate key"
 msgstr ""
 
+msgid "Going to login will unblock the internet on this device."
+msgstr ""
+
 msgid "If needed we will contact you on %s"
 msgstr ""
 
