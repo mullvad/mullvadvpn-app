@@ -1,22 +1,12 @@
 use crate::windows::{get_system_dir, guid_from_luid, luid_from_alias, string_from_guid};
-use lazy_static::lazy_static;
-use std::{env, io, net::IpAddr, path::Path, process::Command};
+use std::{io, net::IpAddr, process::Command};
 use talpid_types::ErrorExt;
 use winapi::shared::guiddef::GUID;
 use winreg::{
-    enums::{HKEY_LOCAL_MACHINE, KEY_SET_VALUE, REG_MULTI_SZ},
+    enums::{HKEY_LOCAL_MACHINE, KEY_SET_VALUE},
     transaction::Transaction,
-    RegKey, RegValue,
+    RegKey,
 };
-
-const DNS_CACHE_POLICY_GUID: &str = "{d57d2750-f971-408e-8e55-cfddb37e60ae}";
-
-lazy_static! {
-    /// Specifies whether to override per-interface DNS resolvers with a global DNS policy.
-    static ref GLOBAL_DNS_CACHE_POLICY: bool = env::var("TALPID_DNS_CACHE_POLICY")
-        .map(|v| v != "0")
-        .unwrap_or(false);
-}
 
 /// Errors that can happen when configuring DNS on Windows.
 #[derive(err_derive::Error, Debug)]
@@ -29,10 +19,6 @@ pub enum Error {
     /// Failure to obtain an interface GUID.
     #[error(display = "Failed to obtain GUID for the interface")]
     InterfaceGuidError(#[error(source)] io::Error),
-
-    /// Failure to set new DNS servers.
-    #[error(display = "Failed to update dnscache policy config")]
-    UpdateDnsCachePolicy(#[error(source)] io::Error),
 
     /// Failure to flush DNS cache.
     #[error(display = "Failed to execute ipconfig")]
@@ -59,10 +45,7 @@ impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
     fn new() -> Result<Self, Error> {
-        let mut monitor = DnsMonitor { current_guid: None };
-        monitor.reset()?;
-
-        Ok(monitor)
+        Ok(DnsMonitor { current_guid: None })
     }
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
@@ -71,41 +54,14 @@ impl super::DnsMonitorT for DnsMonitor {
         set_dns(&guid, servers)?;
         self.current_guid = Some(guid);
         flush_dns_cache()?;
-
-        if *GLOBAL_DNS_CACHE_POLICY {
-            if let Err(error) = set_dns_cache_policy(servers) {
-                log::error!("{}", error.display_chain());
-            }
-        }
-
         Ok(())
     }
 
     fn reset(&mut self) -> Result<(), Error> {
-        let mut result = Ok(());
-
         if let Some(guid) = self.current_guid.take() {
-            result = result.and(set_dns(&guid, &[])).and(flush_dns_cache());
+            return set_dns(&guid, &[]).and(flush_dns_cache());
         }
-
-        if *GLOBAL_DNS_CACHE_POLICY {
-            result = result.and(reset_dns_cache_policy());
-        }
-
-        result
-    }
-}
-
-impl Drop for DnsMonitor {
-    fn drop(&mut self) {
-        if *GLOBAL_DNS_CACHE_POLICY {
-            if let Err(error) = reset_dns_cache_policy() {
-                log::warn!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to reset DNS cache policy")
-                );
-            }
-        }
+        Ok(())
     }
 }
 
@@ -203,71 +159,4 @@ fn flush_dns_cache() -> Result<(), Error> {
         return Err(Error::FlushResolverCacheError);
     }
     Ok(())
-}
-
-fn set_dns_cache_policy(servers: &[IpAddr]) -> Result<(), Error> {
-    let transaction = Transaction::new().map_err(Error::UpdateDnsCachePolicy)?;
-    let result = match set_dns_cache_policy_inner(&transaction, servers) {
-        Ok(()) => transaction.commit(),
-        Err(error) => transaction.rollback().and_then(|_| Err(error)),
-    };
-    result.map_err(Error::UpdateDnsCachePolicy)
-}
-
-fn set_dns_cache_policy_inner(transaction: &Transaction, servers: &[IpAddr]) -> io::Result<()> {
-    let (dns_cache_parameters, _) = RegKey::predef(HKEY_LOCAL_MACHINE).create_subkey_transacted(
-        r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#,
-        transaction,
-    )?;
-
-    // Fall back on LLMNR and NetBIOS if DNS resolution fails
-    dns_cache_parameters.set_value("DnsSecureNameQueryFallback", &1u32)?;
-
-    let policy_path = Path::new("DnsPolicyConfig").join(DNS_CACHE_POLICY_GUID);
-    let (policy_config, _) =
-        dns_cache_parameters.create_subkey_transacted(policy_path, transaction)?;
-
-    // Enable only the "Generic DNS server" option
-    policy_config.set_value("ConfigOptions", &0x08u32)?;
-    let server_list: Vec<String> = servers.iter().map(|server| server.to_string()).collect();
-    policy_config.set_value("GenericDNSServers", &server_list.join(";"))?;
-    policy_config.set_value("IPSECCARestriction", &"")?;
-    policy_config.set_raw_value(
-        "Name",
-        &RegValue {
-            // utf16 string: ".\0\0"
-            bytes: [0x2e, 0, 0, 0, 0, 0].to_vec(),
-            vtype: REG_MULTI_SZ,
-        },
-    )?;
-    policy_config.set_value("Version", &2u32)?;
-
-    Ok(())
-}
-
-fn reset_dns_cache_policy() -> Result<(), Error> {
-    let (dns_cache_parameters, _) = RegKey::predef(HKEY_LOCAL_MACHINE)
-        .create_subkey(r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#)
-        .map_err(Error::UpdateDnsCachePolicy)?;
-    match dns_cache_parameters.delete_value("DnsSecureNameQueryFallback") {
-        Ok(()) => Ok(()),
-        Err(error) => {
-            if error.kind() == io::ErrorKind::NotFound {
-                Ok(())
-            } else {
-                Err(Error::UpdateDnsCachePolicy(error))
-            }
-        }
-    }?;
-    let policy_path = Path::new("DnsPolicyConfig").join(DNS_CACHE_POLICY_GUID);
-    match dns_cache_parameters.delete_subkey_all(policy_path) {
-        Ok(()) => Ok(()),
-        Err(error) => {
-            if error.kind() == io::ErrorKind::NotFound {
-                Ok(())
-            } else {
-                Err(Error::UpdateDnsCachePolicy(error))
-            }
-        }
-    }
 }
