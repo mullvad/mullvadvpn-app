@@ -77,6 +77,7 @@ const SelectedLocationChevron = styled(AppButton.Icon)({
 export default class TunnelControl extends React.Component<ITunnelControlProps> {
   public render() {
     let state = this.props.tunnelState.state;
+    let pq = false;
 
     switch (this.props.tunnelState.state) {
       case 'disconnecting':
@@ -92,14 +93,36 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
             break;
         }
         break;
+      case 'disconnecting':
+        switch (this.props.tunnelState.details) {
+          case 'block':
+            state = 'error';
+            break;
+          case 'reconnect':
+            state = 'connecting';
+            break;
+          default:
+            state = 'disconnecting';
+            break;
+        }
+        break;
+      case 'connecting':
+        if (this.props.tunnelState.details) {
+          pq = this.props.tunnelState.details.endpoint.quantumResistant;
+        }
+        break;
+      case 'connected':
+        pq = this.props.tunnelState.details.endpoint.quantumResistant;
+        break;
     }
 
     switch (state) {
-      case 'connecting':
+      case 'connecting': {
+        const displayStyle = pq ? SecuredDisplayStyle.securingPq : SecuredDisplayStyle.securing;
         return (
           <Wrapper>
             <Body>
-              <Secured displayStyle={SecuredDisplayStyle.securing} />
+              <Secured displayStyle={displayStyle} />
               <Location>
                 {this.renderCountry()}
                 {this.renderCity()}
@@ -112,11 +135,14 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
             </Footer>
           </Wrapper>
         );
-      case 'connected':
+      }
+
+      case 'connected': {
+        const displayStyle = pq ? SecuredDisplayStyle.securedPq : SecuredDisplayStyle.secured;
         return (
           <Wrapper>
             <Body>
-              <Secured displayStyle={SecuredDisplayStyle.secured} />
+              <Secured displayStyle={displayStyle} />
               <Location>
                 {this.renderCountry()}
                 {this.renderCity()}
@@ -129,6 +155,7 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
             </Footer>
           </Wrapper>
         );
+      }
 
       case 'error':
         if (
