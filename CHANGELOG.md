@@ -44,6 +44,9 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Be more scrupulous about removing temporary files used by the installer and uninstaller.
+- Fix issue where local name resolution fails. This requires users to ensure that non-tunnel
+  interfaces are configured correctly to use local custom DNS.
+- Configure DNS correctly when the DNS client service is disabled or not responding.
 
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.
