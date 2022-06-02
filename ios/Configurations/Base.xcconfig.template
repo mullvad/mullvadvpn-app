@@ -1,0 +1,12 @@
+// Development team
+DEVELOPMENT_TEAM = CKG9MXH72F
+
+// Bundle ID
+APPLICATION_IDENTIFIER = net.mullvad.MullvadVPN
+
+// Shared container security group ID
+SECURITY_GROUP_IDENTIFIER = group.net.mullvad.MullvadVPN
+
+// Code signing style
+// Possible values: Manual or Automatic
+CODE_SIGN_STYLE = Manual

@@ -37,6 +37,14 @@ jobs:
                   sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
                   sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
 
+            - name: Configure Xcode project
+              run: |
+                  cp Base.xcconfig.template Base.xcconfig
+                  cp App.xcconfig.template App.xcconfig
+                  cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
+                  cp Screenshots.xcconfig.template Screenshots.xcconfig
+              working-directory: ios/Configurations
+
             - name: Build and test
               run: |
                   xcodebuild test \

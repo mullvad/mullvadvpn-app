@@ -8,7 +8,7 @@
 	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.net.mullvad.MullvadVPN</string>
+		<string>$(SECURITY_GROUP_IDENTIFIER)</string>
 	</array>
 </dict>
 </plist>

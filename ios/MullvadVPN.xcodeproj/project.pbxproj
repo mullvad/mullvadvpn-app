@@ -329,6 +329,9 @@
 		5801C9A427A14B2A0031566A /* TunnelManagerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManagerState.swift; sourceTree = "<group>"; };
 		5807E2BF2432038B00F5FF30 /* String+Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Split.swift"; sourceTree = "<group>"; };
 		5807E2C1243203D000F5FF30 /* StringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringTests.swift; sourceTree = "<group>"; };
+		5808273928487E3E006B77A4 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		5808273B284888BC006B77A4 /* App.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = App.xcconfig; sourceTree = "<group>"; };
+		5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = PacketTunnel.xcconfig; sourceTree = "<group>"; };
 		58095C4A2760B4F200890776 /* AddressCacheStoreError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheStoreError.swift; sourceTree = "<group>"; };
 		58095C4E2760BA9100890776 /* AddressCacheStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheStore.swift; sourceTree = "<group>"; };
 		58095C502760BBB400890776 /* AddressCacheTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheTracker.swift; sourceTree = "<group>"; };
@@ -946,6 +949,9 @@
 		58ECD29023F178FD004298B6 /* Configurations */ = {
 			isa = PBXGroup;
 			children = (
+				5808273928487E3E006B77A4 /* Base.xcconfig */,
+				5808273B284888BC006B77A4 /* App.xcconfig */,
+				5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */,
 				58ECD29123F178FD004298B6 /* Screenshots.xcconfig */,
 			);
 			path = Configurations;
@@ -1498,9 +1504,8 @@
 /* Begin XCBuildConfiguration section */
 		58B0A2A6238EE67E00BC001D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = CKG9MXH72F;
 				INFOPLIST_FILE = MullvadVPNTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1515,9 +1520,8 @@
 		};
 		58B0A2A7238EE67E00BC001D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = MullvadVPNTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1526,8 +1530,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPNTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -1565,7 +1567,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1629,7 +1630,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
-				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -1656,14 +1656,13 @@
 		};
 		58CE5E73224146210008646E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273B284888BC006B77A4 /* App.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MullvadVPN/MullvadVPN.entitlements;
-				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MullvadVPN/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1671,9 +1670,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2022.2;
-				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Mullvad VPN Development";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1682,14 +1680,13 @@
 		};
 		58CE5E74224146210008646E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273B284888BC006B77A4 /* App.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MullvadVPN/MullvadVPN.entitlements;
-				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MullvadVPN/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1697,9 +1694,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2022.2;
-				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Mullvad VPN Release";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -1707,12 +1703,11 @@
 		};
 		58CE5E83224146470008646E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
-				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1721,9 +1716,8 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 2022.2;
-				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnel;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Packet Tunnel Development";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -1731,12 +1725,11 @@
 		};
 		58CE5E84224146470008646E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
-				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1745,9 +1738,8 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 2022.2;
-				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnel;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Packet Tunnel Release";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -1756,16 +1748,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 58ECD29123F178FD004298B6 /* Screenshots.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = CKG9MXH72F;
 				INFOPLIST_FILE = MullvadVPNScreenshots/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPNScreenshots;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).Screenshots";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = MullvadVPN;
@@ -1776,19 +1765,14 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 58ECD29123F178FD004298B6 /* Screenshots.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = MullvadVPNScreenshots/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPNScreenshots;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).Screenshots";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = MullvadVPN;
 			};
@@ -1796,8 +1780,8 @@
 		};
 		58FBDA9822A519BC00EB69A3 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
 				DEBUGGING_SYMBOLS = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -1810,8 +1794,8 @@
 		};
 		58FBDA9922A519BC00EB69A3 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";

@@ -1,1 +1,8 @@
-MULLVAD_ACCOUNT_TOKEN=<ACCOUNT TOKEN>
+#include "Base.xcconfig"
+
+// Provisioning profiles
+// Comment out the lines below if using automatic code sign
+PROVISIONING_PROFILE_SPECIFIER[config=Debug][sdk=*][arch=*] = Screenshots Development
+
+// Mullvad account number used when taking screenshots
+MULLVAD_ACCOUNT_TOKEN = 
