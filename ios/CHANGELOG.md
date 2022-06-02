@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
   any inbound traffic received. This should also keep the tunnel in connecting or reconnecting state
   until the tunnel monitor determined that connection is functional.
 - Add "FAQ & Guides" link in Settings.
+- Add option to block gambling and adult content.
 
 ### Changed
 - Delete leftover settings in Keychain during login. WireGuard keys will be removed from
