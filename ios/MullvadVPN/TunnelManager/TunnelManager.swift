@@ -349,18 +349,20 @@ final class TunnelManager: TunnelManagerStateDelegate {
                 // Cancel last VPN status mapping operation
                 self.lastMapConnectionStatusOperation?.cancel()
                 self.lastMapConnectionStatusOperation = nil
-            },
-            completionHandler: { [weak self] completion in
-                guard let self = self else { return }
-
-                dispatchPrecondition(condition: .onQueue(self.stateQueue))
-
-                self.updatePrivateKeyRotationTimer()
-
-                DispatchQueue.main.async {
-                    completionHandler(completion)
-                }
             })
+
+        operation.completionQueue = stateQueue
+        operation.completionHandler = { [weak self] completion in
+            guard let self = self else { return }
+
+            dispatchPrecondition(condition: .onQueue(self.stateQueue))
+
+            self.updatePrivateKeyRotationTimer()
+
+            DispatchQueue.main.async {
+                completionHandler(completion)
+            }
+        }
 
         operation.addObserver(BackgroundObserver(name: action.taskName, cancelUponExpiration: true))
 
