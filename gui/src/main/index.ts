@@ -275,6 +275,9 @@ class ApplicationMain {
       app.commandLine.appendSwitch('wm-window-animations-disabled');
     }
 
+    // Display correct colors regardless of monitor color profile.
+    app.commandLine.appendSwitch('force-color-profile', 'srgb');
+
     this.overrideAppPaths();
 
     // This ensures that only a single instance is running at the same time, but also exits if

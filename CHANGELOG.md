@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - List devices on an account sorted by creation date, oldest to newest, instead of alphabetically.
+- Display consistent colors regardless of monitor color profile.
 
 #### Android
 - Lowered default MTU to 1280 on Android.
