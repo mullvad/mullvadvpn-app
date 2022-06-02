@@ -178,6 +178,30 @@ xcrun altool --store-password-in-keychain-item <KEYCHAIN_ITEM_NAME> \
 
 [Apple ID website]: https://appleid.apple.com/account/manage
 
+# Configure Xcode project
+
+Copy template files of Xcode build configuration:
+
+```
+cp ./ios/Configurations/Base.xcconfig.template ./ios/Configurations/Base.xcconfig
+cp ./ios/Configurations/App.xcconfig.template ./ios/Configurations/App.xcconfig
+cp ./ios/Configurations/PacketTunnel.xcconfig.template ./ios/Configurations/PacketTunnel.xcconfig
+cp ./ios/Configurations/Screenshots.xcconfig.template ./ios/Configurations/Screenshots.xcconfig
+```
+
+Template files provide our team ID and correct provisioning profiles and generally do not require 
+any changes when configuring our build server or developer machines for members of Mullvad 
+development team. In all other cases perform the following steps to configure the project:
+
+1. Edit `Base.xcconfig` and fill in your Apple development team ID, which can be found on Apple 
+developer portal in the top right corner next to your organization name (uppercase letters and 
+digits).
+1. Edit `App.xcconfig` and `PacketTunnel.xcconfig` and supply the names of your provisioning profiles 
+for development (Debug) and distribution (Release).
+1. Edit `Screenshots.xcconfig` and supply the name of your provisioning profile. We only specify 
+development profile here as we never build UI testing targets for distribution. Skip this step if 
+you do not intend to generate screenshots for the app.
+
 # Automated build and deployment
 
 Build script does not bump the build number, so make sure to do that manually and commit to repo:

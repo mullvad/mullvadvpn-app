@@ -1,0 +1,6 @@
+#include "Base.xcconfig"
+
+// Provisioning profiles
+// Comment out the lines below if using automatic code sign
+PROVISIONING_PROFILE_SPECIFIER[config=Debug][sdk=*][arch=*] = Mullvad VPN Development
+PROVISIONING_PROFILE_SPECIFIER[config=Release][sdk=*][arch=*] = Mullvad VPN Distribution

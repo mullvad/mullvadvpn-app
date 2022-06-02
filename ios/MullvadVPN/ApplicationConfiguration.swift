@@ -9,14 +9,20 @@
 import Foundation
 import struct Network.IPv4Address
 
-enum ApplicationConfiguration {}
+class ApplicationConfiguration {
+    /// Shared container security group identifier.
+    static var securityGroupIdentifier: String {
+        let securityGroupIdentifier = Bundle(for: Self.self)
+            .object(forInfoDictionaryKey: "ApplicationSecurityGroupIdentifier") as? String
+        return securityGroupIdentifier!
+    }
 
-extension ApplicationConfiguration {
-    /// The application group identifier used for sharing application preferences between processes
-    static let securityGroupIdentifier = "group.net.mullvad.MullvadVPN"
+    /// The application identifier for packet tunnel extension.
+    static var packetTunnelExtensionIdentifier: String {
+        let mainBundleIdentifier = Bundle.main.bundleIdentifier!
 
-    /// The application identifier for the PacketTunnel extension
-    static let packetTunnelExtensionIdentifier = "net.mullvad.MullvadVPN.PacketTunnel"
+        return "\(mainBundleIdentifier).PacketTunnel"
+    }
 
     /// Container URL for security group
     static var containerURL: URL? {
@@ -64,4 +70,6 @@ extension ApplicationConfiguration {
 
     /// API address background task identifier
     static let addressCacheUpdateTaskIdentifier = "net.mullvad.MullvadVPN.AddressCacheUpdate"
+
+    private init() {}
 }
