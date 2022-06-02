@@ -273,6 +273,7 @@ class ApplicationMain {
     // this issue has been resolved: https://github.com/electron/electron/issues/12130
     if (process.platform === 'win32') {
       app.commandLine.appendSwitch('wm-window-animations-disabled');
+      app.commandLine.appendSwitch('force-color-profile', 'srgb');
     }
 
     this.overrideAppPaths();
