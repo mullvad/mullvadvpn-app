@@ -78,6 +78,8 @@ struct PreferencesViewModel: Equatable {
     private(set) var blockAdvertising: Bool
     private(set) var blockTracking: Bool
     private(set) var blockMalware: Bool
+    private(set) var blockAdultContent: Bool
+    private(set) var blockGambling: Bool
     private(set) var enableCustomDNS: Bool
     var customDNSDomains: [DNSServerEntry]
 
@@ -96,6 +98,16 @@ struct PreferencesViewModel: Equatable {
         enableCustomDNS = false
     }
 
+    mutating func setBlockAdultContent(_ newValue: Bool) {
+        blockAdultContent = newValue
+        enableCustomDNS = false
+    }
+
+    mutating func setBlockGambling(_ newValue: Bool) {
+        blockGambling = newValue
+        enableCustomDNS = false
+    }
+
     mutating func setEnableCustomDNS(_ newValue: Bool) {
         blockTracking = false
         blockAdvertising = false
@@ -104,7 +116,7 @@ struct PreferencesViewModel: Equatable {
 
     /// Precondition for enabling Custom DNS.
     var customDNSPrecondition: CustomDNSPrecondition {
-        if blockAdvertising || blockTracking || blockMalware {
+        if blockAdvertising || blockTracking || blockMalware || blockAdultContent || blockGambling {
             return .conflictsWithOtherSettings
         } else {
             let hasValidDNSDomains = customDNSDomains.contains { entry in
@@ -128,6 +140,8 @@ struct PreferencesViewModel: Equatable {
         blockAdvertising = dnsSettings.blockingOptions.contains(.blockAdvertising)
         blockTracking = dnsSettings.blockingOptions.contains(.blockTracking)
         blockMalware = dnsSettings.blockingOptions.contains(.blockMalware)
+        blockAdultContent = dnsSettings.blockingOptions.contains(.blockAdultContent)
+        blockGambling = dnsSettings.blockingOptions.contains(.blockGambling)
         enableCustomDNS = dnsSettings.enableCustomDNS
         customDNSDomains = dnsSettings.customDNSDomains.map { ipAddress in
             return DNSServerEntry(identifier: UUID(), address: "\(ipAddress)")
@@ -141,6 +155,8 @@ struct PreferencesViewModel: Equatable {
         mergedViewModel.blockAdvertising = other.blockAdvertising
         mergedViewModel.blockTracking = other.blockTracking
         mergedViewModel.blockMalware = other.blockMalware
+        mergedViewModel.blockAdultContent = other.blockAdultContent
+        mergedViewModel.blockGambling = other.blockGambling
         mergedViewModel.enableCustomDNS = other.enableCustomDNS
 
         var oldDNSDomains = customDNSDomains
@@ -216,6 +232,14 @@ struct PreferencesViewModel: Equatable {
 
         if blockMalware {
             blockingOptions.insert(.blockMalware)
+        }
+
+        if blockAdultContent {
+            blockingOptions.insert(.blockAdultContent)
+        }
+
+        if blockGambling {
+            blockingOptions.insert(.blockGambling)
         }
 
         var dnsSettings = DNSSettings()
