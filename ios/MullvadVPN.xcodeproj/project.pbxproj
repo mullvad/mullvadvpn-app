@@ -87,6 +87,7 @@
 		583E1E272848DE1C004838B3 /* OutputOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DDD28468158002B1049 /* OutputOperation.swift */; };
 		583E1E282848DE1C004838B3 /* BackgroundObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D287F28462CB000F9A7B3 /* BackgroundObserver.swift */; };
 		583E1E2A2848DF67004838B3 /* OperationObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E1E292848DF67004838B3 /* OperationObserverTests.swift */; };
+		583E1E2C2848E1A1004838B3 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 583E1E2B2848E1A1004838B3 /* WireGuardKitTypes */; };
 		5840250122B1124600E4CFEC /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IPAddress+Codable.swift */; };
 		5840250222B1124600E4CFEC /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IPAddress+Codable.swift */; };
 		5840250422B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
@@ -193,7 +194,6 @@
 		5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 587B7543266922BF00DEF7E9 /* Localizable.strings */; };
 		588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */; };
 		588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */; };
-		58871D1E25D535A3002297FA /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 58871D1D25D535A3002297FA /* WireGuardKit */; };
 		58871D2325D535D2002297FA /* IPAddressRange+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */; };
 		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
 		5888AD87227B17950051EB06 /* SelectLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationViewController.swift */; };
@@ -581,8 +581,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				583E1E2C2848E1A1004838B3 /* WireGuardKitTypes in Frameworks */,
 				584789EC2652A1A2000E45FB /* Logging in Frameworks */,
-				58871D1E25D535A3002297FA /* WireGuardKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1043,8 +1043,8 @@
 			);
 			name = MullvadVPNTests;
 			packageProductDependencies = (
-				58871D1D25D535A3002297FA /* WireGuardKit */,
 				584789EB2652A1A2000E45FB /* Logging */,
+				583E1E2B2848E1A1004838B3 /* WireGuardKitTypes */,
 			);
 			productName = MullvadVPNTests;
 			productReference = 58B0A2A0238EE67E00BC001D /* MullvadVPNTests.xctest */;
@@ -1949,6 +1949,11 @@
 			package = 58BA79192578F092006FAEA0 /* XCRemoteSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKitTypes;
 		};
+		583E1E2B2848E1A1004838B3 /* WireGuardKitTypes */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 58BA79192578F092006FAEA0 /* XCRemoteSwiftPackageReference "wireguard-apple" */;
+			productName = WireGuardKitTypes;
+		};
 		584789EB2652A1A2000E45FB /* Logging */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */;
@@ -1963,11 +1968,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */;
 			productName = Logging;
-		};
-		58871D1D25D535A3002297FA /* WireGuardKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 58BA79192578F092006FAEA0 /* XCRemoteSwiftPackageReference "wireguard-apple" */;
-			productName = WireGuardKit;
 		};
 		58BA791A2578F092006FAEA0 /* WireGuardKit */ = {
 			isa = XCSwiftPackageProductDependency;
