@@ -31,6 +31,7 @@ pub const SILENCED_CRATES: &[&str] = &[
     "tokio_reactor",
     "tokio_threadpool",
     "tokio_util",
+    "tower",
     "want",
     "ws",
     "mio",
