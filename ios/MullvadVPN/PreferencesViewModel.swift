@@ -57,13 +57,12 @@ enum CustomDNSPrecondition {
 
         case .conflictsWithOtherSettings:
             return NSAttributedString(
-                markdownString: NSLocalizedString(
+                string: NSLocalizedString(
                     "CUSTOM_DNS_DISABLE_ADTRACKER_BLOCKING_FOOTNOTE",
                     tableName: "Preferences",
-                    value: "Disable **Block ads**, **Block trackers** and **Block malware** to activate this setting.",
+                    value: "Disable all content blockers (under Preferences) to activate this setting.",
                     comment: "Foot note displayed when custom DNS cannot be enabled, because ad/tracker/malware blockers features should be disabled first."
-                ),
-                font: preferredFont
+                )
             )
         }
     }
