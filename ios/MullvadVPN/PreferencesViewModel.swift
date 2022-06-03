@@ -35,13 +35,13 @@ enum CustomDNSPrecondition {
         case .emptyDNSDomains:
             if isEditing {
                 return NSAttributedString(
-                    markdownString: NSLocalizedString(
+                    string: NSLocalizedString(
                         "CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_ON_FOOTNOTE",
                         tableName: "Preferences",
                         value: "To enable this setting, add at least one server.",
                         comment: "Foot note displayed if there are no DNS entries and table view is in editing mode."
                     ),
-                    font: preferredFont
+                    attributes: [.font: preferredFont]
                 )
             } else {
                 return NSAttributedString(
@@ -62,7 +62,8 @@ enum CustomDNSPrecondition {
                     tableName: "Preferences",
                     value: "Disable all content blockers (under Preferences) to activate this setting.",
                     comment: "Foot note displayed when custom DNS cannot be enabled, because ad/tracker/malware blockers features should be disabled first."
-                )
+                ),
+                attributes: [.font: preferredFont]
             )
         }
     }
