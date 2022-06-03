@@ -31,7 +31,8 @@ GRAPHICAL_ASSETS = [
   "location-marker-secure.svg",
   "location-marker-unsecure.svg",
   "logo-icon.svg",
-  "logo-text.svg"
+  "logo-text.svg",
+  "icon-close-sml.svg"
 ]
 
 # App icon sizes
