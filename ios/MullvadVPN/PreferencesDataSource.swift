@@ -378,7 +378,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             }
 
             return cell
-            
+
         case .blockAdultContent:
             let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue, for: indexPath) as! SettingsSwitchCell
 
@@ -395,7 +395,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             }
 
             return cell
-            
+
         case .blockGambling:
             let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue, for: indexPath) as! SettingsSwitchCell
 
@@ -511,7 +511,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             delegate?.preferencesDataSource(self, didChangeViewModel: viewModel)
         }
     }
-    
+
     private func setBlockAdultContent(_ isEnabled: Bool) {
         let oldViewModel = viewModel
 
@@ -525,7 +525,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             delegate?.preferencesDataSource(self, didChangeViewModel: viewModel)
         }
     }
-    
+
     private func setBlockGambling(_ isEnabled: Bool) {
         let oldViewModel = viewModel
 

@@ -97,12 +97,12 @@ struct PreferencesViewModel: Equatable {
         blockMalware = newValue
         enableCustomDNS = false
     }
-    
+
     mutating func setBlockAdultContent(_ newValue: Bool) {
         blockAdultContent = newValue
         enableCustomDNS = false
     }
-    
+
     mutating func setBlockGambling(_ newValue: Bool) {
         blockGambling = newValue
         enableCustomDNS = false
@@ -233,11 +233,11 @@ struct PreferencesViewModel: Equatable {
         if blockMalware {
             blockingOptions.insert(.blockMalware)
         }
-        
+
         if blockAdultContent {
             blockingOptions.insert(.blockAdultContent)
         }
-        
+
         if blockGambling {
             blockingOptions.insert(.blockGambling)
         }
