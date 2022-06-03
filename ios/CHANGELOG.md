@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+- Improve random port distribution. Should be less biased towards port 53.
+
+
+## [2022.2] - 2022-04-28
 ### Added
 - Add tunnel monitor when establishing tunnel connection. Picks next relay every 15 seconds until
   any inbound traffic received. This should also keep the tunnel in connecting or reconnecting state
@@ -36,9 +41,6 @@ Line wrap the file at 100 chars.                                              Th
 - Validate account token before charging user (in-app purchases). Safeguards from trying to add 
   credits on accounts that no longer exist on our backend. Usually the case with newly created 
   accounts that went stale.
-
-### Fixed
-- Improve random port distribution. Should be less biased towards port 53.
 
 
 ## [2022.1] - 2022-02-15
