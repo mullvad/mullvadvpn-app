@@ -49,6 +49,8 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         case blockAdvertising
         case blockTracking
         case blockMalware
+        case blockAdultContent
+        case blockGambling
         case useCustomDNS
         case addDNSServer
         case dnsServer(_ uniqueID: UUID)
@@ -309,7 +311,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
     private func updateSnapshot() {
         var newSnapshot = DataSourceSnapshot<Section, Item>()
         newSnapshot.appendSections([.mullvadDNS, .customDNS])
-        newSnapshot.appendItems([.blockAdvertising, .blockTracking, .blockMalware], in: .mullvadDNS)
+        newSnapshot.appendItems([.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling], in: .mullvadDNS)
         newSnapshot.appendItems([.useCustomDNS], in: .customDNS)
 
         let dnsServerItems = viewModel.customDNSDomains.map { entry in
@@ -373,6 +375,40 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             cell.setOn(viewModel.blockMalware, animated: false)
             cell.action = { [weak self] isOn in
                 self?.setBlockMalware(isOn)
+            }
+
+            return cell
+
+        case .blockAdultContent:
+            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue, for: indexPath) as! SettingsSwitchCell
+
+            cell.titleLabel.text = NSLocalizedString(
+                "BLOCK_ADULT_CELL_LABEL",
+                tableName: "Preferences",
+                value: "Block adult content",
+                comment: ""
+            )
+            cell.accessibilityHint = nil
+            cell.setOn(viewModel.blockAdultContent, animated: false)
+            cell.action = { [weak self] isOn in
+                self?.setBlockAdultContent(isOn)
+            }
+
+            return cell
+
+        case .blockGambling:
+            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue, for: indexPath) as! SettingsSwitchCell
+
+            cell.titleLabel.text = NSLocalizedString(
+                "BLOCK_GAMBLING_CELL_LABEL",
+                tableName: "Preferences",
+                value: "Block gambling",
+                comment: ""
+            )
+            cell.accessibilityHint = nil
+            cell.setOn(viewModel.blockGambling, animated: false)
+            cell.action = { [weak self] isOn in
+                self?.setBlockGambling(isOn)
             }
 
             return cell
@@ -466,6 +502,34 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         let oldViewModel = viewModel
 
         viewModel.setBlockMalware(isEnabled)
+
+        if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
+            reloadCustomDNSFooter()
+        }
+
+        if !isEditing {
+            delegate?.preferencesDataSource(self, didChangeViewModel: viewModel)
+        }
+    }
+
+    private func setBlockAdultContent(_ isEnabled: Bool) {
+        let oldViewModel = viewModel
+
+        viewModel.setBlockAdultContent(isEnabled)
+
+        if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
+            reloadCustomDNSFooter()
+        }
+
+        if !isEditing {
+            delegate?.preferencesDataSource(self, didChangeViewModel: viewModel)
+        }
+    }
+
+    private func setBlockGambling(_ isEnabled: Bool) {
+        let oldViewModel = viewModel
+
+        viewModel.setBlockGambling(isEnabled)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
             reloadCustomDNSFooter()

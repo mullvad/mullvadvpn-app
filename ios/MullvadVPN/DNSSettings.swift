@@ -18,6 +18,8 @@ struct DNSBlockingOptions: OptionSet, Codable {
     static let blockAdvertising = DNSBlockingOptions(rawValue: 1 << 0)
     static let blockTracking = DNSBlockingOptions(rawValue: 1 << 1)
     static let blockMalware = DNSBlockingOptions(rawValue: 1 << 2)
+    static let blockAdultContent = DNSBlockingOptions(rawValue: 1 << 3)
+    static let blockGambling = DNSBlockingOptions(rawValue: 1 << 4)
 
     var serverAddress: IPv4Address? {
         if isEmpty {
