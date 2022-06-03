@@ -145,14 +145,14 @@ impl TunnelState for DisconnectedState {
                         .set_allow_lan(allow_lan)
                         .expect("Failed to set allow LAN parameter");
 
-                    Self::set_firewall_policy(shared_values, true);
+                    Self::set_firewall_policy(shared_values, false);
                 }
                 SameState(self.into())
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 if shared_values.allowed_endpoint != endpoint {
                     shared_values.allowed_endpoint = endpoint;
-                    Self::set_firewall_policy(shared_values, true);
+                    Self::set_firewall_policy(shared_values, false);
                 }
                 let _ = tx.send(());
                 SameState(self.into())
