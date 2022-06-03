@@ -43,6 +43,8 @@ export default function CustomDnsSettings() {
   const [savingAdd, setSavingAdd] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
   const willShowConfirmationDialog = useRef(false);
+  const addingLocalIp = useRef(false);
+  const manualLocal = window.env.platform === 'win32' || window.env.platform === 'linux';
 
   const featureAvailable = useMemo(
     () =>
@@ -121,8 +123,17 @@ export default function CustomDnsSettings() {
 
         try {
           const ipAddress = IpAddress.fromString(address);
-          if (ipAddress.isLocal()) {
-            await add();
+          addingLocalIp.current = ipAddress.isLocal();
+          if (addingLocalIp.current) {
+            if (manualLocal) {
+              willShowConfirmationDialog.current = true;
+              setConfirmAction(() => async () => {
+                willShowConfirmationDialog.current = false;
+                await add();
+              });
+            } else {
+              await add();
+            }
           } else {
             willShowConfirmationDialog.current = true;
             setConfirmAction(() => async () => {
@@ -160,8 +171,18 @@ export default function CustomDnsSettings() {
 
       const ipAddress = IpAddress.fromString(newAddress);
       return new Promise<void>((resolve) => {
-        if (ipAddress.isLocal()) {
-          void edit().then(resolve);
+        addingLocalIp.current = ipAddress.isLocal();
+        if (addingLocalIp.current) {
+          if (manualLocal) {
+            willShowConfirmationDialog.current = true;
+            setConfirmAction(() => async () => {
+              willShowConfirmationDialog.current = false;
+              await edit();
+              resolve();
+            });
+          } else {
+            void edit().then(resolve);
+          }
         } else {
           willShowConfirmationDialog.current = true;
           setConfirmAction(() => async () => {
@@ -275,6 +296,7 @@ export default function CustomDnsSettings() {
 
       <ConfirmationDialog
         isOpen={confirmAction !== undefined}
+        isLocal={addingLocalIp}
         confirm={confirm}
         abort={abortConfirmation}
       />
@@ -386,11 +408,33 @@ function CellListItem(props: ICellListItemProps) {
 
 interface IConfirmationDialogProps {
   isOpen: boolean;
+  isLocal: React.RefObject<boolean>;
   confirm: () => void;
   abort: () => void;
 }
 
 function ConfirmationDialog(props: IConfirmationDialogProps) {
+  let message;
+  if (props.isLocal.current) {
+    message = messages.pgettext(
+      'advanced-settings-view',
+      'The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it.',
+    );
+  } else {
+    message = sprintf(
+      // TRANSLATORS: Available placeholders:
+      // TRANSLATORS: %(tunnelProtocol)s - the name of the tunnel protocol setting
+      // TRANSLATORS: %(wireguard)s - will be replaced with "WireGuard"
+      messages.pgettext(
+        'advanced-settings-view',
+        'The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the "%(tunnelProtocol)s" (in Advanced settings) to %(wireguard)s.',
+      ),
+      {
+        wireguard: strings.wireguard,
+        tunnelProtocol: messages.pgettext('advanced-settings-view', 'Tunnel protocol'),
+      },
+    );
+  }
   return (
     <ModalAlert
       isOpen={props.isOpen}
@@ -404,18 +448,6 @@ function ConfirmationDialog(props: IConfirmationDialogProps) {
         </AppButton.BlueButton>,
       ]}
       close={props.abort}
-      message={sprintf(
-        // TRANSLATORS: Available placeholders:
-        // TRANSLATORS: %(tunnelProtocol)s - the name of the tunnel protocol setting
-        // TRANSLATORS: %(wireguard)s - will be replaced with "WireGuard"
-        messages.pgettext(
-          'advanced-settings-view',
-          'The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the "%(tunnelProtocol)s" (in Advanced settings) to %(wireguard)s.',
-        ),
-        {
-          wireguard: strings.wireguard,
-          tunnelProtocol: messages.pgettext('advanced-settings-view', 'Tunnel protocol'),
-        },
-      )}></ModalAlert>
+      message={message}></ModalAlert>
   );
 }
