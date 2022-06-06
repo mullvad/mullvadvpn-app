@@ -222,8 +222,8 @@ impl TunnelMonitor {
             false => MIN_IPV4_MTU,
         };
         let mtu = std::cmp::max(
-            mtu.checked_sub(WIREGUARD_HEADER_SIZE).unwrap_or(mn_mtu),
-            mn_mtu,
+            mtu.checked_sub(WIREGUARD_HEADER_SIZE).unwrap_or(min_mtu),
+            min_mtu,
         );
         let upstream_mtu = std::cmp::min(MAX_TUNNEL_MTU, mtu);
         params.options.mtu = Some(upstream_mtu);
