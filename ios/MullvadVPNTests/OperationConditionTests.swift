@@ -13,11 +13,9 @@ class OperationConditionTests: XCTestCase {
         let expectConditionEvaluation = expectation(description: "Expect condition evaluation")
         let expectOperationToExecute = expectation(description: "Expect operation to execute")
 
-        let operationQueue = AsyncOperationQueue()
 
-        let operation = AsyncBlockOperation(dispatchQueue: nil) { op in
+        let operation = AsyncBlockOperation {
             expectOperationToExecute.fulfill()
-            op.finish()
         }
 
         let blockCondition = BlockCondition { op, completion in
@@ -27,6 +25,7 @@ class OperationConditionTests: XCTestCase {
 
         operation.addCondition(blockCondition)
 
+        let operationQueue = AsyncOperationQueue()
         operationQueue.addOperation(operation)
 
         waitForExpectations(timeout: 1)
@@ -39,15 +38,8 @@ class OperationConditionTests: XCTestCase {
         )
         expectOperationToNeverExecute.isInverted = true
 
-        let operationQueue = AsyncOperationQueue()
-
-        let operation = AsyncBlockOperation(dispatchQueue: nil) { op in
+        let operation = AsyncBlockOperation {
             expectOperationToNeverExecute.fulfill()
-            op.finish()
-        }
-
-        operation.completionBlock = {
-            XCTAssertTrue(operation.isCancelled, "False condition should cancel operation.")
         }
 
         let blockCondition = BlockCondition { op, completion in
@@ -57,9 +49,21 @@ class OperationConditionTests: XCTestCase {
 
         operation.addCondition(blockCondition)
 
+        let expectCancellation = keyValueObservingExpectation(
+            for: operation,
+               keyPath: "isCancelled",
+               expectedValue: true
+        )
+
+        let operationQueue = AsyncOperationQueue()
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: 1)
+        let expectations = [
+            expectConditionEvaluation,
+            expectOperationToNeverExecute,
+            expectCancellation
+        ]
+        wait(for: expectations, timeout: 1)
     }
 
     func testNoCancelledDependenciesCondition() {
@@ -69,9 +73,8 @@ class OperationConditionTests: XCTestCase {
         let parent = BlockOperation()
         parent.cancel()
 
-        let child = AsyncBlockOperation(dispatchQueue: nil) { op in
+        let child = AsyncBlockOperation {
             expectToNeverExecute.fulfill()
-            op.finish()
         }
         child.addDependency(parent)
         child.addCondition(NoCancelledDependenciesCondition())
@@ -92,13 +95,12 @@ class OperationConditionTests: XCTestCase {
         let expectToNeverExecute = expectation(description: "Expect child to never execute.")
         expectToNeverExecute.isInverted = true
 
-        let parent = ResultBlockOperation<Void, URLError>(dispatchQueue: nil) { op in
-            op.finish(completion: .failure(URLError(.badURL)))
+        let parent = ResultBlockOperation<(), URLError> {
+            throw URLError(.badURL)
         }
 
-        let child = AsyncBlockOperation(dispatchQueue: nil) { op in
+        let child = AsyncBlockOperation {
             expectToNeverExecute.fulfill()
-            op.finish()
         }
         child.addDependency(parent)
         child.addCondition(NoFailedDependenciesCondition(ignoreCancellations: false))
@@ -121,9 +123,8 @@ class OperationConditionTests: XCTestCase {
         let parent = BlockOperation()
         parent.cancel()
 
-        let child = AsyncBlockOperation(dispatchQueue: nil) { op in
+        let child = AsyncBlockOperation {
             expectToExecute.fulfill()
-            op.finish()
         }
         child.addDependency(parent)
         child.addCondition(NoFailedDependenciesCondition(ignoreCancellations: true))
@@ -145,7 +146,7 @@ class OperationConditionTests: XCTestCase {
         let exclusiveCategory = "exclusiveOperations"
         let operationQueue = AsyncOperationQueue()
 
-        let firstOperation = AsyncBlockOperation(dispatchQueue: nil) { op in
+        let firstOperation = AsyncBlockOperation { op in
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
                 expectFirstOperationExecution.fulfill()
                 op.finish()
@@ -153,9 +154,8 @@ class OperationConditionTests: XCTestCase {
         }
         firstOperation.addCondition(MutuallyExclusive(category: exclusiveCategory))
 
-        let secondOperation = AsyncBlockOperation(dispatchQueue: nil) { op in
+        let secondOperation = AsyncBlockOperation {
             expectSecondOperationExecution.fulfill()
-            op.finish()
         }
         secondOperation.addCondition(MutuallyExclusive(category: exclusiveCategory))
 

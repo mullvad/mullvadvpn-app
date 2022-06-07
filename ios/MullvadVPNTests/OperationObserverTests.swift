@@ -17,11 +17,7 @@ class OperationObserverTests: XCTestCase {
         expectDidCancel.isInverted = true
         let expectDidFinish = expectation(description: "didAttach handler")
 
-        let oprationQueue = AsyncOperationQueue()
-
-        let operation = AsyncBlockOperation(dispatchQueue: nil) { op in
-            op.finish()
-        }
+        let operation = AsyncBlockOperation()
         operation.addBlockObserver(OperationBlockObserver(
             didAttach: { op in
                 expectDidAttach.fulfill()
@@ -34,7 +30,8 @@ class OperationObserverTests: XCTestCase {
             }
         ))
 
-        oprationQueue.addOperation(operation)
+        let operationQueue = AsyncOperationQueue()
+        operationQueue.addOperation(operation)
 
         let expectations = [expectDidCancel, expectDidAttach, expectDidStart, expectDidFinish]
         wait(for: expectations, timeout: 1, enforceOrder: true)
@@ -47,11 +44,7 @@ class OperationObserverTests: XCTestCase {
         let expectDidCancel = expectation(description: "didCancel handler")
         let expectDidFinish = expectation(description: "didAttach handler")
 
-        let oprationQueue = AsyncOperationQueue()
-
-        let operation = AsyncBlockOperation(dispatchQueue: nil) { op in
-            op.finish()
-        }
+        let operation = AsyncBlockOperation()
         operation.addBlockObserver(OperationBlockObserver(
             didAttach: { op in
                 expectDidAttach.fulfill()
@@ -63,10 +56,10 @@ class OperationObserverTests: XCTestCase {
                 expectDidFinish.fulfill()
             }
         ))
-
         operation.cancel()
 
-        oprationQueue.addOperation(operation)
+        let operationQueue = AsyncOperationQueue()
+        operationQueue.addOperation(operation)
 
         let expectations = [expectDidAttach, expectDidCancel, expectDidStart, expectDidFinish]
         wait(for: expectations, timeout: 1, enforceOrder: true)
