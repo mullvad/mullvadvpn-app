@@ -230,6 +230,7 @@ impl TunnelMonitor {
         params.options.mtu = Some(upstream_mtu);
     }
 
+    #[cfg(target_os = "linux")]
     async fn assign_mtu(
         route_manager: &RouteManagerHandle,
         params: &mut wireguard_types::TunnelParameters,
