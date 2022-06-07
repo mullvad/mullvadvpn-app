@@ -782,7 +782,8 @@ impl RouteManagerImpl {
                 if let Some(LinkNla::Mtu(mtu)) =
                     msg.nlas.iter().find(|e| matches!(e, LinkNla::Mtu(_)))
                 {
-                    return Ok(u16::try_from(*mtu).expect("MTU returned by device does not fit into a u16"));
+                    return Ok(u16::try_from(*mtu)
+                        .expect("MTU returned by device does not fit into a u16"));
                 }
             }
         }
