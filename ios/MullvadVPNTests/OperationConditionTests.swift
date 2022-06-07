@@ -13,7 +13,6 @@ class OperationConditionTests: XCTestCase {
         let expectConditionEvaluation = expectation(description: "Expect condition evaluation")
         let expectOperationToExecute = expectation(description: "Expect operation to execute")
 
-
         let operation = AsyncBlockOperation {
             expectOperationToExecute.fulfill()
         }
@@ -49,21 +48,10 @@ class OperationConditionTests: XCTestCase {
 
         operation.addCondition(blockCondition)
 
-        let expectCancellation = keyValueObservingExpectation(
-            for: operation,
-               keyPath: "isCancelled",
-               expectedValue: true
-        )
-
         let operationQueue = AsyncOperationQueue()
         operationQueue.addOperation(operation)
 
-        let expectations = [
-            expectConditionEvaluation,
-            expectOperationToNeverExecute,
-            expectCancellation
-        ]
-        wait(for: expectations, timeout: 1)
+        waitForExpectations(timeout: 1)
     }
 
     func testNoCancelledDependenciesCondition() {
@@ -79,16 +67,10 @@ class OperationConditionTests: XCTestCase {
         child.addDependency(parent)
         child.addCondition(NoCancelledDependenciesCondition())
 
-        let expectCancellation = keyValueObservingExpectation(
-            for: child,
-               keyPath: "isCancelled",
-               expectedValue: true
-        )
-
         let operationQueue = AsyncOperationQueue()
         operationQueue.addOperations([parent, child], waitUntilFinished: false)
 
-        wait(for: [expectToNeverExecute, expectCancellation], timeout: 1)
+        waitForExpectations(timeout: 1)
     }
 
     func testNoFailedDependenciesCondition() {
@@ -105,16 +87,10 @@ class OperationConditionTests: XCTestCase {
         child.addDependency(parent)
         child.addCondition(NoFailedDependenciesCondition(ignoreCancellations: false))
 
-        let expectCancellation = keyValueObservingExpectation(
-            for: child,
-               keyPath: "isCancelled",
-               expectedValue: true
-        )
-
         let operationQueue = AsyncOperationQueue()
         operationQueue.addOperations([parent, child], waitUntilFinished: false)
 
-        wait(for: [expectToNeverExecute, expectCancellation], timeout: 1)
+        waitForExpectations(timeout: 1)
     }
 
     func testNoFailedDependenciesIgnoringCancellationsCondition() {
