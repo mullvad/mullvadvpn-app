@@ -33,7 +33,7 @@ class DeviceRevokedViewModelTest {
     @MockK
     private lateinit var mockedServiceConnectionManager: ServiceConnectionManager
 
-    val serviceConnectionState =
+    private val serviceConnectionState =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
 
     private lateinit var viewModel: DeviceRevokedViewModel
@@ -56,6 +56,7 @@ class DeviceRevokedViewModelTest {
 
     @Test
     fun testUiStateWhenServiceNotConnected() = runBlockingTest {
+        // Arrange, Act, Assert
         viewModel.uiState.test {
             serviceConnectionState.value = ServiceConnectionState.Disconnected
             assertEquals(DeviceRevokedUiState(false), awaitItem())
@@ -64,6 +65,7 @@ class DeviceRevokedViewModelTest {
 
     @Test
     fun testUiStateWhenServiceConnectedButNotReady() = runBlockingTest {
+        // Arrange, Act, Assert
         viewModel.uiState.test {
             serviceConnectionState.value = ServiceConnectionState.ConnectedNotReady(mockk())
             assertEquals(DeviceRevokedUiState(false), awaitItem())
