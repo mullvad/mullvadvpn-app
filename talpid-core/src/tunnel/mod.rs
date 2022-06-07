@@ -192,12 +192,13 @@ impl TunnelMonitor {
             + Clone
             + 'static,
     {
+        #[cfg(target_os = "linux")]
         runtime.block_on(Self::assign_mtu(&route_manager, params));
         let config = wireguard::config::Config::from_parameters(params)?;
         let monitor = wireguard::WireguardMonitor::start(
             runtime,
             config,
-            log.as_ref().map(|p| p.as_path()),
+            log.as_deref(),
             resource_dir,
             on_event,
             tun_provider,
