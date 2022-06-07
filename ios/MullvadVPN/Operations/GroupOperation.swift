@@ -23,6 +23,7 @@ class GroupOperation: AsyncOperation {
         finishingOperation.completionBlock = { [weak self] in
             self?.finish()
         }
+        finishingOperation.addDependencies(children)
 
         operationQueue.addOperations(children, waitUntilFinished: false)
         operationQueue.addOperation(finishingOperation)
