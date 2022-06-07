@@ -44,6 +44,15 @@ sealed class Request : Message.RequestMessage() {
     object RefreshDeviceState : Request()
 
     @Parcelize
+    object GetDevice : Request()
+
+    @Parcelize
+    data class GetDeviceList(val accountToken: String) : Request()
+
+    @Parcelize
+    data class RemoveDevice(val accountToken: String, val deviceId: String) : Request()
+
+    @Parcelize
     object Logout : Request()
 
     @Parcelize
