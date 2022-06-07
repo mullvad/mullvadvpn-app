@@ -136,11 +136,11 @@ class AsyncOperation: Operation {
 
     private func evaluateConditions() {
         guard !_conditions.isEmpty else {
-            setState(newState: .ready)
+            setState(.ready)
             return
         }
 
-        setState(newState: .evaluatingConditions)
+        setState(.evaluatingConditions)
 
         var results = [Bool](repeating: false, count: _conditions.count)
         let group = DispatchGroup()
@@ -171,7 +171,7 @@ class AsyncOperation: Operation {
             cancel()
         }
 
-        setState(newState: .ready)
+        setState(.ready)
     }
 
     // MARK: -
@@ -252,7 +252,7 @@ class AsyncOperation: Operation {
             stateLock.unlock()
             finish()
         } else {
-            setState(newState: .executing)
+            setState(.executing)
 
             for observer in _observers {
                 observer.operationDidStart(self)
@@ -298,7 +298,7 @@ class AsyncOperation: Operation {
 
         stateLock.lock()
         if state < .finished {
-            setState(newState: .finished)
+            setState(.finished)
             notifyDidFinish = true
         }
         stateLock.unlock()
@@ -316,7 +316,7 @@ class AsyncOperation: Operation {
 
     // MARK: - Private
 
-    private func setState(newState: State) {
+    private func setState(_ newState: State) {
         willChangeValue(for: \.state)
         assert(state < newState)
         state = newState
@@ -332,7 +332,7 @@ class AsyncOperation: Operation {
     }
 
     func didEnqueue() {
-        setState(newState: .pending)
+        setState(.pending)
     }
 
     // MARK: - Subclass overrides
