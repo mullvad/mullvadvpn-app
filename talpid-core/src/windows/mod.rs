@@ -369,14 +369,10 @@ pub fn string_from_guid(guid: &GUID) -> String {
     let mut buffer = [0u16; 40];
     let length = unsafe { StringFromGUID2(guid, &mut buffer[0] as *mut _, buffer.len() as i32 - 1) }
         as usize;
-    if length > 0 {
-        let length = length - 1;
-        OsString::from_wide(&buffer[0..length])
-            .to_string_lossy()
-            .to_string()
-    } else {
-        "".to_string()
-    }
+    // cannot fail because `buffer` is large enough
+    assert!(length > 0);
+    let length = length - 1;
+    String::from_utf16(&buffer[0..length]).unwrap()
 }
 
 /// Returns the GUID of a network interface given its LUID.
