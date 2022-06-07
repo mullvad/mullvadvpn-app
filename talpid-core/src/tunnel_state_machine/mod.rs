@@ -189,6 +189,12 @@ pub enum TunnelCommand {
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<OsString>,
     ),
+    /// Return a list of processes that are currently being split, as well as their
+    /// paths.
+    #[cfg(windows)]
+    GetExcludedProcesses(
+        oneshot::Sender<Result<Vec<split_tunnel::ExcludedProcess>, split_tunnel::Error>>,
+    ),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;

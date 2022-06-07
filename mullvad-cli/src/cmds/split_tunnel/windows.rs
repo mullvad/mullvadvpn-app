@@ -1,3 +1,5 @@
+use std::{ffi::OsStr, path::Path};
+
 use crate::{new_rpc_client, Command, Result};
 
 pub struct SplitTunnel;
@@ -23,11 +25,13 @@ impl Command for SplitTunnel {
                     ),
             )
             .subcommand(clap::App::new("get").about("Display the split tunnel status"))
+            .subcommand(create_pid_subcommand())
     }
 
     async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
             Some(("app", matches)) => Self::handle_app_subcommand(matches).await,
+            Some(("pid", matches)) => Self::handle_pid_subcommand(matches).await,
             Some(("get", _)) => self.get().await,
             Some(("set", matches)) => {
                 let enabled = matches.value_of("policy").expect("missing policy");
@@ -48,6 +52,16 @@ fn create_app_subcommand() -> clap::App<'static> {
         .subcommand(clap::App::new("add").arg(clap::Arg::new("path").required(true)))
         .subcommand(clap::App::new("remove").arg(clap::Arg::new("path").required(true)))
         .subcommand(clap::App::new("clear"))
+}
+
+fn create_pid_subcommand() -> clap::App<'static> {
+    clap::App::new("pid")
+        .about("Manages processes (PIDs) excluded from the tunnel")
+        .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+        .subcommand(clap::App::new("list")
+            .about("List processes that are currently being excluded, i.e. their PIDs, as well as whether \
+                    they are excluded because of their executable paths or because they're subprocesses of \
+                    such processes"))
 }
 
 impl SplitTunnel {
@@ -85,6 +99,33 @@ impl SplitTunnel {
             }
             Some(("clear", _)) => {
                 new_rpc_client().await?.clear_split_tunnel_apps(()).await?;
+                Ok(())
+            }
+            _ => unreachable!("unhandled subcommand"),
+        }
+    }
+
+    async fn handle_pid_subcommand(matches: &clap::ArgMatches) -> Result<()> {
+        match matches.subcommand() {
+            Some(("list", _)) => {
+                let processes = new_rpc_client()
+                    .await?
+                    .get_excluded_processes(())
+                    .await?
+                    .into_inner();
+
+                for process in &processes.processes {
+                    let subproc = if process.inherited { "subprocess" } else { "" };
+                    println!(
+                        "{:<7}{subproc:<12}{}",
+                        process.pid,
+                        Path::new(&process.image)
+                            .file_name()
+                            .unwrap_or(OsStr::new("unknown"))
+                            .to_string_lossy()
+                    );
+                }
+
                 Ok(())
             }
             _ => unreachable!("unhandled subcommand"),

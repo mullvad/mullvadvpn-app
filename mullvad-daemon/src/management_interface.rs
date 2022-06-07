@@ -768,6 +768,42 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(windows)]
+    async fn get_excluded_processes(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::ExcludedProcessList> {
+        log::debug!("get_excluded_processes");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetSplitTunnelProcesses(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_split_tunnel_error)
+            .map(|processes| {
+                Response::new(types::ExcludedProcessList {
+                    processes: processes
+                        .into_iter()
+                        .map(|process| types::ExcludedProcess {
+                            // FIXME: This is necessarily 32 bits or less
+                            pid: u32::try_from(process.pid).unwrap(),
+                            image: process.image.into_os_string().to_string_lossy().to_string(),
+                            inherited: process.inherited,
+                        })
+                        .collect(),
+                })
+            })
+    }
+
+    #[cfg(not(windows))]
+    async fn get_excluded_processes(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::ExcludedProcessList> {
+        Ok(Response::new(types::ExcludedProcessList {
+            processes: vec![],
+        }))
+    }
+
+    #[cfg(windows)]
     async fn set_use_wireguard_nt(&self, request: Request<bool>) -> ServiceResult<()> {
         log::debug!("set_use_wireguard_nt");
         let state = request.into_inner();
