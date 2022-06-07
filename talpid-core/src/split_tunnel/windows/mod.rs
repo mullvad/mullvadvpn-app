@@ -12,15 +12,17 @@ use crate::{
 };
 use futures::channel::{mpsc, oneshot};
 use std::{
+    collections::HashMap,
     convert::TryFrom,
     ffi::{OsStr, OsString},
     io, mem,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::{AsRawHandle, RawHandle},
+    path::{Path, PathBuf},
     ptr,
     sync::{
         atomic::{AtomicBool, Ordering},
-        mpsc as sync_mpsc, Arc, Mutex, Weak,
+        mpsc as sync_mpsc, Arc, Mutex, RwLock, Weak,
     },
     time::Duration,
 };
@@ -102,6 +104,7 @@ pub struct SplitTunnel {
     request_tx: RequestTx,
     event_thread: Option<std::thread::JoinHandle<()>>,
     quit_event: Arc<QuitEvent>,
+    excluded_pids: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
     _route_change_callback: Option<WinNetCallbackHandle>,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     async_path_update_in_progress: Arc<AtomicBool>,
@@ -148,10 +151,23 @@ struct InterfaceAddresses {
     internet_ipv6: Option<Ipv6Addr>,
 }
 
+/// Represents a process that is being excluded from the tunnel.
+#[derive(Debug, Clone)]
+pub struct ExcludedProcess {
+    /// Process identifier.
+    pub pid: u32,
+    /// Path to the image that this process is an instance of.
+    pub image: PathBuf,
+    /// If true, then the process is split because its parent was split,
+    /// not due to its path being in the config.
+    pub inherited: bool,
+}
+
 struct EventThreadContext {
     handle: Arc<driver::DeviceHandle>,
     event_overlapped: OVERLAPPED,
     quit_event: Arc<QuitEvent>,
+    excluded_pids: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
 }
 unsafe impl Send for EventThreadContext {}
 
@@ -172,11 +188,13 @@ impl SplitTunnel {
         }
 
         let quit_event = Arc::new(QuitEvent::new());
+        let excluded_pids = Arc::new(RwLock::new(HashMap::new()));
 
         let event_context = EventThreadContext {
             handle: handle.clone(),
             event_overlapped,
             quit_event: quit_event.clone(),
+            excluded_pids: excluded_pids.clone(),
         };
 
         let event_thread = std::thread::spawn(move || {
@@ -291,6 +309,34 @@ impl SplitTunnel {
                         reason,
                         image,
                     } => {
+                        let mut pids = event_context.excluded_pids.write().unwrap();
+                        match event_id {
+                            EventId::StartSplittingProcess => {
+                                if let Some(prev_entry) = pids.get(&process_id) {
+                                    log::error!("PID collision: {process_id} is already in the list of excluded processes. New image: {:?}. Current image: {:?}", image, prev_entry);
+                                }
+                                pids.insert(
+                                    process_id,
+                                    ExcludedProcess {
+                                        pid: u32::try_from(process_id)
+                                            .expect("PID should be containable in a DWORD"),
+                                        image: Path::new(&image).to_path_buf(),
+                                        inherited: reason.contains(
+                                            driver::SplittingChangeReason::BY_INHERITANCE,
+                                        ),
+                                    },
+                                );
+                            }
+                            EventId::StopSplittingProcess => {
+                                if pids.remove(&process_id).is_none() {
+                                    log::error!(
+                                        "Inconsistent process tree: {process_id} was not found"
+                                    );
+                                }
+                            }
+                            _ => (),
+                        }
+
                         log::trace!(
                             "{}:\n\tpid: {}\n\treason: {:?}\n\timage: {:?}",
                             event_str,
@@ -326,6 +372,7 @@ impl SplitTunnel {
             _route_change_callback: None,
             daemon_tx,
             async_path_update_in_progress: Arc::new(AtomicBool::new(false)),
+            excluded_pids,
         })
     }
 
@@ -561,6 +608,17 @@ impl SplitTunnel {
     pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
         self._route_change_callback = None;
         self.send_request(Request::RegisterIps(InterfaceAddresses::default()))
+    }
+
+    /// Return processes that are currently being excluded.
+    pub fn get_processes(&self) -> Result<Vec<ExcludedProcess>, Error> {
+        Ok(self
+            .excluded_pids
+            .read()
+            .unwrap()
+            .values()
+            .cloned()
+            .collect())
     }
 }
 

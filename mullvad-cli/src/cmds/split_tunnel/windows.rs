@@ -1,3 +1,5 @@
+use std::{ffi::OsStr, path::Path};
+
 use crate::{new_rpc_client, Command, Result};
 
 pub struct SplitTunnel;
@@ -23,11 +25,13 @@ impl Command for SplitTunnel {
                     ),
             )
             .subcommand(clap::App::new("get").about("Display the split tunnel status"))
+            .subcommand(create_pid_subcommand())
     }
 
     async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
             Some(("app", matches)) => Self::handle_app_subcommand(matches).await,
+            Some(("pid", matches)) => Self::handle_pid_subcommand(matches).await,
             Some(("get", _)) => self.get().await,
             Some(("set", matches)) => {
                 let enabled = matches.value_of("policy").expect("missing policy");
@@ -48,6 +52,13 @@ fn create_app_subcommand() -> clap::App<'static> {
         .subcommand(clap::App::new("add").arg(clap::Arg::new("path").required(true)))
         .subcommand(clap::App::new("remove").arg(clap::Arg::new("path").required(true)))
         .subcommand(clap::App::new("clear"))
+}
+
+fn create_pid_subcommand() -> clap::App<'static> {
+    clap::App::new("pid")
+        .about("Manages processes (PIDs) excluded from the tunnel")
+        .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+        .subcommand(clap::App::new("list"))
 }
 
 impl SplitTunnel {
@@ -85,6 +96,33 @@ impl SplitTunnel {
             }
             Some(("clear", _)) => {
                 new_rpc_client().await?.clear_split_tunnel_apps(()).await?;
+                Ok(())
+            }
+            _ => unreachable!("unhandled subcommand"),
+        }
+    }
+
+    async fn handle_pid_subcommand(matches: &clap::ArgMatches) -> Result<()> {
+        match matches.subcommand() {
+            Some(("list", _)) => {
+                let processes = new_rpc_client()
+                    .await?
+                    .get_excluded_processes(())
+                    .await?
+                    .into_inner();
+
+                for process in &processes.processes {
+                    let flags = if process.inherited { "I" } else { "C" };
+                    println!(
+                        "{:<6}{flags:<3}[{}]",
+                        process.pid,
+                        Path::new(&process.image)
+                            .file_name()
+                            .unwrap_or(OsStr::new("unknown"))
+                            .to_string_lossy()
+                    );
+                }
+
                 Ok(())
             }
             _ => unreachable!("unhandled subcommand"),
