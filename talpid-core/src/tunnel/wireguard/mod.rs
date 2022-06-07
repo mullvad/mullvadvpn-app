@@ -327,6 +327,8 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
 
             if let Some(pubkey) = psk_negotiation {
+                log::debug!("Performing PQ-safe PSK exchange");
+
                 let timeout = std::cmp::min(
                     MAX_PSK_EXCHANGE_TIMEOUT,
                     INITIAL_PSK_EXCHANGE_TIMEOUT.saturating_mul(
