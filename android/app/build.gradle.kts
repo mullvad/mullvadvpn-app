@@ -120,6 +120,10 @@ android {
 
     packagingOptions {
         jniLibs.useLegacyPackaging = true
+
+        // Fixes packaging error caused by: androidx.compose.ui:ui-test-junit4
+        pickFirst("META-INF/AL2.0")
+        pickFirst("META-INF/LGPL2.1")
     }
 
     project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
@@ -202,8 +206,10 @@ dependencies {
 
     // UI test dependencies
     debugImplementation(Dependencies.AndroidX.fragmentTestning)
+    debugImplementation(Dependencies.Compose.testManifest)
     androidTestImplementation(Dependencies.AndroidX.espressoContrib)
     androidTestImplementation(Dependencies.AndroidX.espressoCore)
+    androidTestImplementation(Dependencies.Compose.junit)
     androidTestImplementation(Dependencies.Koin.test)
     androidTestImplementation(Dependencies.Kotlin.test)
     androidTestImplementation(Dependencies.MockK.android)
