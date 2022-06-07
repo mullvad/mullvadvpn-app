@@ -62,6 +62,78 @@ class OperationConditionTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testNoCancelledDependenciesCondition() {
+        let expectToNeverExecute = expectation(description: "Expect child to never execute.")
+        expectToNeverExecute.isInverted = true
+
+        let parent = BlockOperation()
+        parent.cancel()
+
+        let child = AsyncBlockOperation(dispatchQueue: nil) { op in
+            expectToNeverExecute.fulfill()
+            op.finish()
+        }
+        child.addDependency(parent)
+        child.addCondition(NoCancelledDependenciesCondition())
+
+        let expectCancellation = keyValueObservingExpectation(
+            for: child,
+               keyPath: "isCancelled",
+               expectedValue: true
+        )
+
+        let operationQueue = AsyncOperationQueue()
+        operationQueue.addOperations([parent, child], waitUntilFinished: false)
+
+        wait(for: [expectToNeverExecute, expectCancellation], timeout: 1)
+    }
+
+    func testNoFailedDependenciesCondition() {
+        let expectToNeverExecute = expectation(description: "Expect child to never execute.")
+        expectToNeverExecute.isInverted = true
+
+        let parent = ResultBlockOperation<Void, URLError>(dispatchQueue: nil) { op in
+            op.finish(completion: .failure(URLError(.badURL)))
+        }
+
+        let child = AsyncBlockOperation(dispatchQueue: nil) { op in
+            expectToNeverExecute.fulfill()
+            op.finish()
+        }
+        child.addDependency(parent)
+        child.addCondition(NoFailedDependenciesCondition(ignoreCancellations: false))
+
+        let expectCancellation = keyValueObservingExpectation(
+            for: child,
+               keyPath: "isCancelled",
+               expectedValue: true
+        )
+
+        let operationQueue = AsyncOperationQueue()
+        operationQueue.addOperations([parent, child], waitUntilFinished: false)
+
+        wait(for: [expectToNeverExecute, expectCancellation], timeout: 1)
+    }
+
+    func testNoFailedDependenciesIgnoringCancellationsCondition() {
+        let expectToExecute = expectation(description: "Expect child to execute.")
+
+        let parent = BlockOperation()
+        parent.cancel()
+
+        let child = AsyncBlockOperation(dispatchQueue: nil) { op in
+            expectToExecute.fulfill()
+            op.finish()
+        }
+        child.addDependency(parent)
+        child.addCondition(NoFailedDependenciesCondition(ignoreCancellations: true))
+
+        let operationQueue = AsyncOperationQueue()
+        operationQueue.addOperations([parent, child], waitUntilFinished: false)
+
+        waitForExpectations(timeout: 1)
+    }
+
     func testMutuallyExclusiveCondition() {
         let expectFirstOperationExecution = expectation(
             description: "Expect first operation to execute first"
