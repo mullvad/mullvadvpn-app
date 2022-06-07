@@ -265,9 +265,12 @@ pub enum DaemonCommand {
     /// Clear list of apps to exclude from the tunnel
     #[cfg(windows)]
     ClearSplitTunnelApps(ResponseTx<(), Error>),
-    /// Disable split tunnel
+    /// Enable or disable split tunneling
     #[cfg(windows)]
     SetSplitTunnelState(ResponseTx<(), Error>, bool),
+    /// Returns all processes currently being excluded from the tunnel
+    #[cfg(windows)]
+    GetSplitTunnelProcesses(ResponseTx<Vec<split_tunnel::ExcludedProcess>, split_tunnel::Error>),
     /// Toggle wireguard-nt on or off
     #[cfg(target_os = "windows")]
     UseWireGuardNt(ResponseTx<(), Error>, bool),
@@ -1013,6 +1016,8 @@ where
             ClearSplitTunnelApps(tx) => self.on_clear_split_tunnel_apps(tx).await,
             #[cfg(windows)]
             SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled).await,
+            #[cfg(windows)]
+            GetSplitTunnelProcesses(tx) => self.on_get_split_tunnel_processes(tx),
             #[cfg(target_os = "windows")]
             UseWireGuardNt(tx, state) => self.on_use_wireguard_nt(tx, state).await,
             #[cfg(target_os = "windows")]
@@ -1674,6 +1679,14 @@ where
     }
 
     #[cfg(windows)]
+    fn on_get_split_tunnel_processes(
+        &self,
+        tx: ResponseTx<Vec<split_tunnel::ExcludedProcess>, split_tunnel::Error>,
+    ) {
+        self.send_tunnel_command(TunnelCommand::GetExcludedProcesses(tx));
+    }
+
+    #[cfg(windows)]
     async fn on_use_wireguard_nt(&mut self, tx: ResponseTx<(), Error>, state: bool) {
         let save_result = self
             .settings
@@ -2198,7 +2211,7 @@ where
         }
     }
 
-    fn send_tunnel_command(&mut self, command: TunnelCommand) {
+    fn send_tunnel_command(&self, command: TunnelCommand) {
         self.tunnel_command_tx
             .unbounded_send(command)
             .expect("Tunnel state machine has stopped");
