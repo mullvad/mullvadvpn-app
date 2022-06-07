@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Automatically attempt to detect and set the correct MTU for Wireguard tunnels.
 
+#### Windows
+- Add CLI command for listing excluded processes.
+
 ### Changed
 - Display consistent colors regardless of monitor color profile.
 
