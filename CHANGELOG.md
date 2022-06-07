@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add option to filter relays by ownership in the desktop apps.
 - Include creation timestamp for devices in the CLI.
 
+#### Windows
+- Add CLI command for listing excluded processes.
+
 ### Changed
 - List devices on an account sorted by creation date, oldest to newest, instead of alphabetically.
 - Display consistent colors regardless of monitor color profile.
