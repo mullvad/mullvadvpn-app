@@ -43,9 +43,11 @@ object Dependencies {
         const val constrainLayout =
             "androidx.constraintlayout:constraintlayout-compose:${Versions.Compose.constrainLayout}"
         const val foundation = "androidx.compose.foundation:foundation:${Versions.Compose.base}"
+        const val junit = "androidx.compose.ui:ui-test-junit4:${Versions.Compose.base}"
         const val viewModelLifecycle =
             "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.Compose.viewModelLifecycle}"
         const val material = "androidx.compose.material:material:${Versions.Compose.base}"
+        const val testManifest = "androidx.compose.ui:ui-test-manifest:${Versions.Compose.base}"
         const val uiController =
             "com.google.accompanist:accompanist-systemuicontroller:${Versions.Compose.uiController}"
         const val ui = "androidx.compose.ui:ui:${Versions.Compose.base}"
