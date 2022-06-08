@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5801C9A527A14B2A0031566A /* TunnelManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5801C9A427A14B2A0031566A /* TunnelManagerState.swift */; };
+		58059DE228468255002B1049 /* ResultOperation+Fallible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DE128468255002B1049 /* ResultOperation+Fallible.swift */; };
 		5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
 		5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 5807483A27DB8A980020ECBF /* WireGuardKitTypes */; };
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
@@ -69,6 +70,7 @@
 		5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5835B7CB233B76CB0096D79F /* TunnelManager.swift */; };
 		5838318B27C40A3900000571 /* Pinger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838318A27C40A3900000571 /* Pinger.swift */; };
 		583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583DA21325FA4B5C00318683 /* LocationDataSource.swift */; };
+		583E1E1B2848DE1C004838B3 /* ResultOperation+Fallible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DE128468255002B1049 /* ResultOperation+Fallible.swift */; };
 		5840250122B1124600E4CFEC /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IPAddress+Codable.swift */; };
 		5840250222B1124600E4CFEC /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IPAddress+Codable.swift */; };
 		5840250422B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
@@ -330,6 +332,7 @@
 
 /* Begin PBXFileReference section */
 		5801C9A427A14B2A0031566A /* TunnelManagerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManagerState.swift; sourceTree = "<group>"; };
+		58059DE128468255002B1049 /* ResultOperation+Fallible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResultOperation+Fallible.swift"; sourceTree = "<group>"; };
 		5807E2BF2432038B00F5FF30 /* String+Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Split.swift"; sourceTree = "<group>"; };
 		5807E2C1243203D000F5FF30 /* StringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringTests.swift; sourceTree = "<group>"; };
 		5808273928487E3E006B77A4 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
@@ -624,6 +627,7 @@
 				5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */,
 				5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */,
 				58F7D26427EB50A300E4D821 /* ResultOperation.swift */,
+				58059DE128468255002B1049 /* ResultOperation+Fallible.swift */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -1219,6 +1223,7 @@
 				585DA8A326B14E0D00B8C587 /* ServerRelaysResponse.swift in Sources */,
 				5820676226E75D8500655B05 /* REST.swift in Sources */,
 				58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */,
+				583E1E1B2848DE1C004838B3 /* ResultOperation+Fallible.swift in Sources */,
 				5857F23024C843ED00CF6F47 /* ChainedError.swift in Sources */,
 				58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */,
 				58871D2325D535D2002297FA /* IPAddressRange+Codable.swift in Sources */,
@@ -1257,6 +1262,7 @@
 				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
 				58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */,
 				58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */,
+				58059DE228468255002B1049 /* ResultOperation+Fallible.swift in Sources */,
 				582BB1B3229574F40055B6EF /* SettingsAccountCell.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				58F1311527E0B2AB007AC5BC /* Result+Extensions.swift in Sources */,
