@@ -150,6 +150,9 @@ pub async fn spawn(
     )
     .await?;
 
+    #[cfg(windows)]
+    let split_tunnel = state_machine.shared_values.split_tunnel.handle();
+
     tokio::task::spawn_blocking(move || {
         state_machine.run(state_change_listener);
         if shutdown_tx.send(()).is_err() {
@@ -160,6 +163,8 @@ pub async fn spawn(
     Ok(TunnelStateMachineHandle {
         command_tx,
         shutdown_rx,
+        #[cfg(windows)]
+        split_tunnel,
     })
 }
 
@@ -191,12 +196,6 @@ pub enum TunnelCommand {
     SetExcludedApps(
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<OsString>,
-    ),
-    /// Return a list of processes that are currently being split, as well as their
-    /// paths.
-    #[cfg(windows)]
-    GetExcludedProcesses(
-        oneshot::Sender<Result<Vec<split_tunnel::ExcludedProcess>, split_tunnel::Error>>,
     ),
 }
 
@@ -603,6 +602,8 @@ state_wrapper! {
 pub struct TunnelStateMachineHandle {
     command_tx: Arc<mpsc::UnboundedSender<TunnelCommand>>,
     shutdown_rx: oneshot::Receiver<()>,
+    #[cfg(windows)]
+    split_tunnel: split_tunnel::SplitTunnelHandle,
 }
 
 impl TunnelStateMachineHandle {
@@ -620,5 +621,11 @@ impl TunnelStateMachineHandle {
     /// Returns tunnel command sender.
     pub fn command_tx(&self) -> &Arc<mpsc::UnboundedSender<TunnelCommand>> {
         &self.command_tx
+    }
+
+    /// Returns split tunnel object handle.
+    #[cfg(windows)]
+    pub fn split_tunnel(&self) -> &split_tunnel::SplitTunnelHandle {
+        &self.split_tunnel
     }
 }

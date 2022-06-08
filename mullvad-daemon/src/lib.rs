@@ -1682,7 +1682,13 @@ where
         &self,
         tx: ResponseTx<Vec<split_tunnel::ExcludedProcess>, split_tunnel::Error>,
     ) {
-        self.send_tunnel_command(TunnelCommand::GetExcludedProcesses(tx));
+        Self::oneshot_send(
+            tx,
+            self.tunnel_state_machine_handle
+                .split_tunnel()
+                .get_processes(),
+            "get_split_tunnel_processes response",
+        );
     }
 
     #[cfg(windows)]
