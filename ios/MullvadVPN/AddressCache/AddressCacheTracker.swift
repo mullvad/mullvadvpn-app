@@ -37,8 +37,8 @@ extension AddressCache {
         private var timer: DispatchSourceTimer?
 
         /// Operation queue.
-        private let operationQueue: OperationQueue = {
-            let operationQueue = OperationQueue()
+        private let operationQueue: AsyncOperationQueue = {
+            let operationQueue = AsyncOperationQueue()
             operationQueue.maxConcurrentOperationCount = 1
             return operationQueue
         }()
@@ -96,13 +96,9 @@ extension AddressCache {
                 }
             )
 
-            let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "AddressCache.Tracker.updateEndpoints") {
-                operation.cancel()
-            }
-
-            operation.completionBlock = {
-                UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-            }
+            operation.addObserver(
+                BackgroundObserver(name: "Update endpoints", cancelUponExpiration: true)
+            )
 
             operationQueue.addOperation(operation)
 

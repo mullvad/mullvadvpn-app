@@ -23,15 +23,13 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private let logger = Logger(label: "AppStorePaymentManager")
 
     private let operationQueue: OperationQueue = {
-        let queue = OperationQueue()
+        let queue = AsyncOperationQueue()
         queue.name = "AppStorePaymentManagerQueue"
         return queue
     }()
 
     private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
     private let accountsProxy = REST.ProxyFactory.shared.createAccountsProxy()
-
-    private let exclusivityController = ExclusivityController()
 
     private let paymentQueue: SKPaymentQueue
     private var observerList = ObserverList<AppStorePaymentObserver>()
@@ -102,9 +100,11 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     func requestProducts(with productIdentifiers: Set<AppStoreSubscription>, completionHandler: @escaping (OperationCompletion<SKProductsResponse, Swift.Error>) -> Void) -> Cancellable {
         let productIdentifiers = productIdentifiers.productIdentifiersSet
-        let operation = ProductsRequestOperation(productIdentifiers: productIdentifiers, completionHandler: completionHandler)
-
-        exclusivityController.addOperation(operation, categories: [OperationCategory.productsRequest])
+        let operation = ProductsRequestOperation(
+            productIdentifiers: productIdentifiers,
+            completionHandler: completionHandler
+        )
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.productsRequest))
 
         operationQueue.addOperation(operation)
 
@@ -189,15 +189,13 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
             completionHandler: completionHandler
         )
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Send AppStore receipt") {
-            operation.cancel()
-        }
+        operation.addObserver(
+            BackgroundObserver(name: "Send AppStore receipt", cancelUponExpiration: true)
+        )
 
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [OperationCategory.sendAppStoreReceipt])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.sendAppStoreReceipt)
+        )
 
         operationQueue.addOperation(operation)
 

@@ -15,7 +15,7 @@ extension TunnelIPC {
     final class Session {
         private let tunnel: Tunnel
         private let queue = DispatchQueue(label: "TunnelIPC.SessionQueue")
-        private let operationQueue = OperationQueue()
+        private let operationQueue = AsyncOperationQueue()
 
         init(tunnel: Tunnel) {
             self.tunnel = tunnel

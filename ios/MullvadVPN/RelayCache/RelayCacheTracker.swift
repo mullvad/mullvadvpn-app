@@ -31,7 +31,7 @@ extension RelayCache {
 
         /// Internal operation queue.
         private let operationQueue: OperationQueue = {
-            let operationQueue = OperationQueue()
+            let operationQueue = AsyncOperationQueue()
             operationQueue.name = "RelayCacheTrackerQueue"
             operationQueue.maxConcurrentOperationCount = 1
             return operationQueue
@@ -125,13 +125,9 @@ extension RelayCache {
                 completionHandler: completionHandler
             )
 
-            let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Update relays") {
-                operation.cancel()
-            }
-
-            operation.completionBlock = {
-                UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-            }
+            operation.addObserver(
+                BackgroundObserver(name: "Update relays", cancelUponExpiration: true)
+            )
 
             operationQueue.addOperation(operation)
 

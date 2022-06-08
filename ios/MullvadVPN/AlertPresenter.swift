@@ -13,7 +13,7 @@ class AlertPresenter {
     static let alertControllerDidDismissNotification = Notification.Name("UIAlertControllerDidDismiss")
 
     private let operationQueue: OperationQueue = {
-        let operationQueue = OperationQueue()
+        let operationQueue = AsyncOperationQueue()
         operationQueue.name = "AlertPresenterQueue"
         operationQueue.maxConcurrentOperationCount = 1
         return operationQueue

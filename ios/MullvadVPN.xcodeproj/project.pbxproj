@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5801C9A527A14B2A0031566A /* TunnelManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5801C9A427A14B2A0031566A /* TunnelManagerState.swift */; };
+		58059DE228468255002B1049 /* ResultOperation+Fallible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DE128468255002B1049 /* ResultOperation+Fallible.swift */; };
 		5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
 		5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 5807483A27DB8A980020ECBF /* WireGuardKitTypes */; };
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
@@ -20,7 +21,7 @@
 		58095C552760F02500890776 /* UpdateAddressCacheOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C542760F02500890776 /* UpdateAddressCacheOperation.swift */; };
 		58095C572760F47900890776 /* api-ip-address.json in Resources */ = {isa = PBXBuildFile; fileRef = 58095C562760F47900890776 /* api-ip-address.json */; };
 		58095C592762155700890776 /* RESTRetryStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C582762155700890776 /* RESTRetryStrategy.swift */; };
-		580EE20624B3222200F9D8A1 /* ExclusivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE20524B3222200F9D8A1 /* ExclusivityController.swift */; };
+		580CBFB82848D503007878F0 /* OperationConditionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580CBFB72848D503007878F0 /* OperationConditionTests.swift */; };
 		580EE22424B3243100F9D8A1 /* AsyncBlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */; };
 		580F8B8328197881002E0998 /* TunnelSettingsV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580F8B8228197881002E0998 /* TunnelSettingsV2.swift */; };
 		580F8B8428197884002E0998 /* TunnelSettingsV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580F8B8228197881002E0998 /* TunnelSettingsV2.swift */; };
@@ -70,6 +71,17 @@
 		5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5835B7CB233B76CB0096D79F /* TunnelManager.swift */; };
 		5838318B27C40A3900000571 /* Pinger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838318A27C40A3900000571 /* Pinger.swift */; };
 		583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583DA21325FA4B5C00318683 /* LocationDataSource.swift */; };
+		583E1E1B2848DE1C004838B3 /* ResultOperation+Fallible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DE128468255002B1049 /* ResultOperation+Fallible.swift */; };
+		583E1E1C2848DE1C004838B3 /* AsyncOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */; };
+		583E1E1E2848DE1C004838B3 /* OperationCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28772846250500F9A7B3 /* OperationCondition.swift */; };
+		583E1E202848DE1C004838B3 /* OperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28792846250500F9A7B3 /* OperationObserver.swift */; };
+		583E1E222848DE1C004838B3 /* GroupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28812846306C00F9A7B3 /* GroupOperation.swift */; };
+		583E1E232848DE1C004838B3 /* OperationCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840BE34279EDB16002836BA /* OperationCompletion.swift */; };
+		583E1E252848DE1C004838B3 /* ResultOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7D26427EB50A300E4D821 /* ResultOperation.swift */; };
+		583E1E262848DE1C004838B3 /* ResultBlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */; };
+		583E1E282848DE1C004838B3 /* BackgroundObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D287F28462CB000F9A7B3 /* BackgroundObserver.swift */; };
+		583E1E2A2848DF67004838B3 /* OperationObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E1E292848DF67004838B3 /* OperationObserverTests.swift */; };
+		583E1E2C2848E1A1004838B3 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 583E1E2B2848E1A1004838B3 /* WireGuardKitTypes */; };
 		5840250122B1124600E4CFEC /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IPAddress+Codable.swift */; };
 		5840250222B1124600E4CFEC /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IPAddress+Codable.swift */; };
 		5840250422B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
@@ -84,7 +96,6 @@
 		5846227126E229F20035F7C2 /* AppStoreSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227026E229F20035F7C2 /* AppStoreSubscription.swift */; };
 		5846227326E22A160035F7C2 /* AppStorePaymentObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227226E22A160035F7C2 /* AppStorePaymentObserver.swift */; };
 		5846227726E22A7C0035F7C2 /* AppStorePaymentManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227626E22A7C0035F7C2 /* AppStorePaymentManagerDelegate.swift */; };
-		5846227A26E24F1F0035F7C2 /* ExclusivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE20524B3222200F9D8A1 /* ExclusivityController.swift */; };
 		584789BE264D4A2A000E45FB /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B7264D4A2A000E45FB /* le_root_cert.cer */; };
 		584789E026529D72000E45FB /* SSLPinningURLSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */; };
 		584789EC2652A1A2000E45FB /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 584789EB2652A1A2000E45FB /* Logging */; };
@@ -177,7 +188,6 @@
 		5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 587B7543266922BF00DEF7E9 /* Localizable.strings */; };
 		588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */; };
 		588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */; };
-		58871D1E25D535A3002297FA /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 58871D1D25D535A3002297FA /* WireGuardKit */; };
 		58871D2325D535D2002297FA /* IPAddressRange+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */; };
 		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
 		5888AD87227B17950051EB06 /* SelectLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationViewController.swift */; };
@@ -194,6 +204,11 @@
 		5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */; };
 		5896AE88246D7FAF005B36CB /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
 		5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896CEF126972DEB00B0FAE8 /* AccountContentView.swift */; };
+		589D287A2846250500F9A7B3 /* OperationCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28772846250500F9A7B3 /* OperationCondition.swift */; };
+		589D287B2846250500F9A7B3 /* AsyncOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */; };
+		589D287C2846250500F9A7B3 /* OperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28792846250500F9A7B3 /* OperationObserver.swift */; };
+		589D288028462CB000F9A7B3 /* BackgroundObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D287F28462CB000F9A7B3 /* BackgroundObserver.swift */; };
+		589D28822846306C00F9A7B3 /* GroupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28812846306C00F9A7B3 /* GroupOperation.swift */; };
 		58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */; };
 		58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
 		58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
@@ -327,6 +342,7 @@
 
 /* Begin PBXFileReference section */
 		5801C9A427A14B2A0031566A /* TunnelManagerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManagerState.swift; sourceTree = "<group>"; };
+		58059DE128468255002B1049 /* ResultOperation+Fallible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResultOperation+Fallible.swift"; sourceTree = "<group>"; };
 		5807E2BF2432038B00F5FF30 /* String+Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Split.swift"; sourceTree = "<group>"; };
 		5807E2C1243203D000F5FF30 /* StringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringTests.swift; sourceTree = "<group>"; };
 		5808273928487E3E006B77A4 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
@@ -339,7 +355,7 @@
 		58095C542760F02500890776 /* UpdateAddressCacheOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateAddressCacheOperation.swift; sourceTree = "<group>"; };
 		58095C562760F47900890776 /* api-ip-address.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "api-ip-address.json"; sourceTree = "<group>"; };
 		58095C582762155700890776 /* RESTRetryStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTRetryStrategy.swift; sourceTree = "<group>"; };
-		580EE20524B3222200F9D8A1 /* ExclusivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExclusivityController.swift; sourceTree = "<group>"; };
+		580CBFB72848D503007878F0 /* OperationConditionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationConditionTests.swift; sourceTree = "<group>"; };
 		580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncBlockOperation.swift; sourceTree = "<group>"; };
 		580F8B8228197881002E0998 /* TunnelSettingsV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV2.swift; sourceTree = "<group>"; };
 		580F8B8528197958002E0998 /* DNSSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSSettings.swift; sourceTree = "<group>"; };
@@ -373,6 +389,7 @@
 		5835B7CB233B76CB0096D79F /* TunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManager.swift; sourceTree = "<group>"; };
 		5838318A27C40A3900000571 /* Pinger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pinger.swift; sourceTree = "<group>"; };
 		583DA21325FA4B5C00318683 /* LocationDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDataSource.swift; sourceTree = "<group>"; };
+		583E1E292848DF67004838B3 /* OperationObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationObserverTests.swift; sourceTree = "<group>"; };
 		5840250022B1124600E4CFEC /* IPAddress+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPAddress+Codable.swift"; sourceTree = "<group>"; };
 		5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadEndpoint.swift; sourceTree = "<group>"; };
 		5840BE34279EDB16002836BA /* OperationCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationCompletion.swift; sourceTree = "<group>"; };
@@ -463,6 +480,11 @@
 		5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormatting.swift; sourceTree = "<group>"; };
 		5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormattingTests.swift; sourceTree = "<group>"; };
 		5896CEF126972DEB00B0FAE8 /* AccountContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountContentView.swift; sourceTree = "<group>"; };
+		589D28772846250500F9A7B3 /* OperationCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationCondition.swift; sourceTree = "<group>"; };
+		589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncOperationQueue.swift; sourceTree = "<group>"; };
+		589D28792846250500F9A7B3 /* OperationObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationObserver.swift; sourceTree = "<group>"; };
+		589D287F28462CB000F9A7B3 /* BackgroundObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundObserver.swift; sourceTree = "<group>"; };
+		589D28812846306C00F9A7B3 /* GroupOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupOperation.swift; sourceTree = "<group>"; };
 		58A1AA8623F43901009F7EA6 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionPanelView.swift; sourceTree = "<group>"; };
 		58A94AE326CFD945001CB97C /* TunnelErrorNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelErrorNotificationProvider.swift; sourceTree = "<group>"; };
@@ -550,8 +572,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				583E1E2C2848E1A1004838B3 /* WireGuardKitTypes in Frameworks */,
 				584789EC2652A1A2000E45FB /* Logging in Frameworks */,
-				58871D1E25D535A3002297FA /* WireGuardKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -607,12 +629,17 @@
 			children = (
 				580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */,
 				58E973DD24850EB600096F90 /* AsyncOperation.swift */,
-				580EE20524B3222200F9D8A1 /* ExclusivityController.swift */,
+				589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */,
+				589D287F28462CB000F9A7B3 /* BackgroundObserver.swift */,
+				589D28812846306C00F9A7B3 /* GroupOperation.swift */,
 				5840BE34279EDB16002836BA /* OperationCompletion.swift */,
+				589D28772846250500F9A7B3 /* OperationCondition.swift */,
+				589D28792846250500F9A7B3 /* OperationObserver.swift */,
 				5820675D26E6839900655B05 /* PresentAlertOperation.swift */,
 				5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */,
 				58F7D26427EB50A300E4D821 /* ResultOperation.swift */,
 				5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */,
+				58059DE128468255002B1049 /* ResultOperation+Fallible.swift */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -763,6 +790,8 @@
 		58B0A2A1238EE67E00BC001D /* MullvadVPNTests */ = {
 			isa = PBXGroup;
 			children = (
+				583E1E292848DF67004838B3 /* OperationObserverTests.swift */,
+				580CBFB72848D503007878F0 /* OperationConditionTests.swift */,
 				582AE3112440CA0D00E6733A /* AccountTokenInputTests.swift */,
 				5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */,
 				58B0A2A4238EE67E00BC001D /* Info.plist */,
@@ -1002,8 +1031,8 @@
 			);
 			name = MullvadVPNTests;
 			packageProductDependencies = (
-				58871D1D25D535A3002297FA /* WireGuardKit */,
 				584789EB2652A1A2000E45FB /* Logging */,
+				583E1E2B2848E1A1004838B3 /* WireGuardKitTypes */,
 			);
 			productName = MullvadVPNTests;
 			productReference = 58B0A2A0238EE67E00BC001D /* MullvadVPNTests.xctest */;
@@ -1187,6 +1216,8 @@
 			files = (
 				582AE3132440CA2700E6733A /* AccountTokenInput.swift in Sources */,
 				58CAF4EF26025954007C5886 /* SimulatorTunnelProvider.swift in Sources */,
+				583E1E232848DE1C004838B3 /* OperationCompletion.swift in Sources */,
+				583E1E222848DE1C004838B3 /* GroupOperation.swift in Sources */,
 				58B0A2AA238EE6A900BC001D /* RelaySelector.swift in Sources */,
 				5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */,
 				5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */,
@@ -1198,20 +1229,28 @@
 				58B0A2AC238EE6D500BC001D /* IPAddress+Codable.swift in Sources */,
 				58B0A2AD238EE6EC00BC001D /* MullvadEndpoint.swift in Sources */,
 				58FAEDF4245088B300CB0F5B /* KeychainError.swift in Sources */,
+				583E1E252848DE1C004838B3 /* ResultOperation.swift in Sources */,
+				583E1E262848DE1C004838B3 /* ResultBlockOperation.swift in Sources */,
+				583E1E2A2848DF67004838B3 /* OperationObserverTests.swift in Sources */,
 				5896AE88246D7FAF005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
 				5857F23824C8446700CF6F47 /* AsyncBlockOperation.swift in Sources */,
 				582AE3122440CA0D00E6733A /* AccountTokenInputTests.swift in Sources */,
 				585DA8A526B14EE000B8C587 /* PacketTunnelStatus.swift in Sources */,
 				58B0A2A9238EE6A100BC001D /* RelayConstraints.swift in Sources */,
+				583E1E282848DE1C004838B3 /* BackgroundObserver.swift in Sources */,
 				5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */,
 				5819C2142726CC8D00D6EC38 /* DataSourceSnapshotTests.swift in Sources */,
 				585DA8A326B14E0D00B8C587 /* ServerRelaysResponse.swift in Sources */,
+				583E1E1E2848DE1C004838B3 /* OperationCondition.swift in Sources */,
+				583E1E1C2848DE1C004838B3 /* AsyncOperationQueue.swift in Sources */,
 				5820676226E75D8500655B05 /* REST.swift in Sources */,
 				58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */,
+				583E1E1B2848DE1C004838B3 /* ResultOperation+Fallible.swift in Sources */,
 				5857F23024C843ED00CF6F47 /* ChainedError.swift in Sources */,
 				58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */,
-				5846227A26E24F1F0035F7C2 /* ExclusivityController.swift in Sources */,
 				58871D2325D535D2002297FA /* IPAddressRange+Codable.swift in Sources */,
+				580CBFB82848D503007878F0 /* OperationConditionTests.swift in Sources */,
+				583E1E202848DE1C004838B3 /* OperationObserver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1242,10 +1281,12 @@
 				58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */,
 				58F1311327E09B00007AC5BC /* Cancellable.swift in Sources */,
 				587C575326D2615F005EF767 /* PacketTunnelOptions.swift in Sources */,
+				589D287C2846250500F9A7B3 /* OperationObserver.swift in Sources */,
 				587B753B2666467500DEF7E9 /* NotificationBannerView.swift in Sources */,
 				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
 				58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */,
 				58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */,
+				58059DE228468255002B1049 /* ResultOperation+Fallible.swift in Sources */,
 				582BB1B3229574F40055B6EF /* SettingsAccountCell.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				58F1311527E0B2AB007AC5BC /* Result+Extensions.swift in Sources */,
@@ -1272,6 +1313,8 @@
 				58655DCE27DA0A5D00911834 /* TunnelMonitorConfiguration.swift in Sources */,
 				5850367F25A481D800A43E93 /* IPAddressRange+Codable.swift in Sources */,
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
+				589D287A2846250500F9A7B3 /* OperationCondition.swift in Sources */,
+				589D288028462CB000F9A7B3 /* BackgroundObserver.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* AppStorePaymentObserver.swift in Sources */,
@@ -1283,6 +1326,7 @@
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
 				582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */,
 				58554F7D280D6FE000013055 /* RESTURLSession.swift in Sources */,
+				589D28822846306C00F9A7B3 /* GroupOperation.swift in Sources */,
 				5846227726E22A7C0035F7C2 /* AppStorePaymentManagerDelegate.swift in Sources */,
 				5871FB8325498CA20051A0A4 /* Swizzle.swift in Sources */,
 				58EF581125D69DB400AEBA94 /* StatusImageView.swift in Sources */,
@@ -1332,7 +1376,6 @@
 				584D26BF270C550B004EA533 /* AnyIPAddress.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
 				587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */,
-				580EE20624B3222200F9D8A1 /* ExclusivityController.swift in Sources */,
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
 				585DA89326B0323E00B8C587 /* TunnelIPCRequest.swift in Sources */,
 				5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */,
@@ -1397,6 +1440,7 @@
 				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
+				589D287B2846250500F9A7B3 /* AsyncOperationQueue.swift in Sources */,
 				58F840B22464491D0044E708 /* ChainedError.swift in Sources */,
 				588BCF24280FE43D009ADCEC /* RESTDevicesProxy.swift in Sources */,
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
@@ -1887,6 +1931,11 @@
 			package = 58BA79192578F092006FAEA0 /* XCRemoteSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKitTypes;
 		};
+		583E1E2B2848E1A1004838B3 /* WireGuardKitTypes */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 58BA79192578F092006FAEA0 /* XCRemoteSwiftPackageReference "wireguard-apple" */;
+			productName = WireGuardKitTypes;
+		};
 		584789EB2652A1A2000E45FB /* Logging */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */;
@@ -1901,11 +1950,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */;
 			productName = Logging;
-		};
-		58871D1D25D535A3002297FA /* WireGuardKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 58BA79192578F092006FAEA0 /* XCRemoteSwiftPackageReference "wireguard-apple" */;
-			productName = WireGuardKit;
 		};
 		58BA791A2578F092006FAEA0 /* WireGuardKit */ = {
 			isa = XCSwiftPackageProductDependency;

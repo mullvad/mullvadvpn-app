@@ -61,8 +61,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
 
     private let logger = Logger(label: "TunnelManager")
     private let stateQueue = DispatchQueue(label: "TunnelManager.stateQueue")
-    private let operationQueue = OperationQueue()
-    private let exclusivityController = ExclusivityController()
+    private let operationQueue = AsyncOperationQueue()
 
     private var statusObserver: Tunnel.StatusBlockObserver?
     private var lastMapConnectionStatusOperation: Operation?
@@ -223,32 +222,24 @@ final class TunnelManager: TunnelManagerStateDelegate {
                 completionHandler(completion.error)
             }
         }
-
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(
-            withName: "Load tunnel configuration"
-        ) {
-            // no-op
-        }
-
-        loadTunnelOperation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(migrateSettingsOperation, categories: [
-            OperationCategory.changeTunnelSettings
-        ])
-
-        exclusivityController.addOperation(loadTunnelOperation, categories: [
-            OperationCategory.manageTunnelProvider,
-            OperationCategory.changeTunnelSettings
-        ])
-
         loadTunnelOperation.addDependency(migrateSettingsOperation)
 
-        operationQueue.addOperations([
-            migrateSettingsOperation,
-            loadTunnelOperation
-        ], waitUntilFinished: false)
+        let groupOperation = GroupOperation(operations: [
+            migrateSettingsOperation, loadTunnelOperation
+        ])
+
+        groupOperation.addObserver(
+            BackgroundObserver(name: "Load tunnel configuration", cancelUponExpiration: false)
+        )
+
+        groupOperation.addCondition(
+            MutuallyExclusive(category: OperationCategory.manageTunnelProvider)
+        )
+        groupOperation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
+
+        operationQueue.addOperation(groupOperation)
     }
 
     func startTunnel() {
@@ -272,16 +263,8 @@ final class TunnelManager: TunnelManagerStateDelegate {
                 }
             })
 
-
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Start tunnel") {
-            operation.cancel()
-        }
-
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [OperationCategory.manageTunnelProvider])
+        operation.addObserver(BackgroundObserver(name: "Start tunnel", cancelUponExpiration: true))
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnelProvider))
 
         operationQueue.addOperation(operation)
     }
@@ -305,15 +288,8 @@ final class TunnelManager: TunnelManagerStateDelegate {
             }
         }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Stop tunnel") {
-            operation.cancel()
-        }
-
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [OperationCategory.manageTunnelProvider])
+        operation.addObserver(BackgroundObserver(name: "Stop tunnel", cancelUponExpiration: true))
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnelProvider))
 
         operationQueue.addOperation(operation)
     }
@@ -345,15 +321,12 @@ final class TunnelManager: TunnelManagerStateDelegate {
             }
         }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Reconnect tunnel") {
-            operation.cancel()
-        }
-
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [OperationCategory.manageTunnelProvider])
+        operation.addObserver(
+            BackgroundObserver(name: "Reconnect tunnel", cancelUponExpiration: true)
+        )
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.manageTunnelProvider)
+        )
 
         operationQueue.addOperation(operation)
     }
@@ -389,18 +362,14 @@ final class TunnelManager: TunnelManagerStateDelegate {
                 }
             })
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: action.taskName) {
-            operation.cancel()
-        }
+        operation.addObserver(BackgroundObserver(name: action.taskName, cancelUponExpiration: true))
 
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [
-            OperationCategory.manageTunnelProvider,
-            OperationCategory.changeTunnelSettings
-        ])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.manageTunnelProvider)
+        )
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
 
         operationQueue.addOperation(operation)
     }
@@ -423,17 +392,13 @@ final class TunnelManager: TunnelManagerStateDelegate {
             completionHandler?(completion.error)
         }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Update account data") {
-            operation.cancel()
-        }
+        operation.addObserver(
+            BackgroundObserver(name: "Update account data", cancelUponExpiration: true)
+        )
 
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [
-            OperationCategory.changeTunnelSettings
-        ])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
 
         operationQueue.addOperation(operation)
     }
@@ -448,17 +413,13 @@ final class TunnelManager: TunnelManagerStateDelegate {
         operation.completionQueue = .main
         operation.completionHandler = completionHandler
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Update device data") {
-            operation.cancel()
-        }
+        operation.addObserver(
+            BackgroundObserver(name: "Update device data", cancelUponExpiration: true)
+        )
 
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [
-            OperationCategory.changeTunnelSettings
-        ])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
 
         operationQueue.addOperation(operation)
 
@@ -493,15 +454,13 @@ final class TunnelManager: TunnelManagerStateDelegate {
             }
         }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Regenerate private key") {
-            operation.cancel()
-        }
+        operation.addObserver(
+            BackgroundObserver(name: "Regenerate private key", cancelUponExpiration: true)
+        )
 
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
 
         operationQueue.addOperation(operation)
     }
@@ -537,15 +496,13 @@ final class TunnelManager: TunnelManagerStateDelegate {
             }
         }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Rotate private key") {
-            operation.cancel()
-        }
+        operation.addObserver(
+            BackgroundObserver(name: "Rotate private key", cancelUponExpiration: true)
+        )
 
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.changeTunnelSettings)
+        )
 
         operationQueue.addOperation(operation)
 
@@ -678,7 +635,9 @@ final class TunnelManager: TunnelManagerStateDelegate {
             self.startTunnel()
         }
 
-        exclusivityController.addOperation(operation, categories: [OperationCategory.tunnelStateUpdate])
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.tunnelStateUpdate)
+        )
 
         // Cancel last VPN status mapping operation
         lastMapConnectionStatusOperation?.cancel()
@@ -727,15 +686,8 @@ final class TunnelManager: TunnelManagerStateDelegate {
             completionHandler(completion.error)
         }
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: taskName) {
-            operation.cancel()
-        }
-
-        operation.completionBlock = {
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-        }
-
-        exclusivityController.addOperation(operation, categories: [OperationCategory.changeTunnelSettings])
+        operation.addObserver(BackgroundObserver(name: taskName, cancelUponExpiration: true))
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.changeTunnelSettings))
 
         operationQueue.addOperation(operation)
     }
