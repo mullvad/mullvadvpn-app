@@ -66,7 +66,7 @@ use std::{
 use talpid_core::split_tunnel;
 use talpid_core::{
     mpsc::Sender,
-    tunnel_state_machine::{self, TunnelCommand},
+    tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle},
 };
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
@@ -506,7 +506,6 @@ pub trait EventListener {
 }
 
 pub struct Daemon<L: EventListener> {
-    tunnel_command_tx: Arc<mpsc::UnboundedSender<TunnelCommand>>,
     tunnel_state: TunnelState,
     target_state: PersistentTargetState,
     state: DaemonExecutionState,
@@ -529,7 +528,7 @@ pub struct Daemon<L: EventListener> {
     parameters_generator: tunnel::ParametersGenerator,
     app_version_info: Option<AppVersionInfo>,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
-    tunnel_state_machine_handle: tunnel_state_machine::JoinHandle,
+    tunnel_state_machine_handle: TunnelStateMachineHandle,
     #[cfg(target_os = "windows")]
     volume_update_tx: mpsc::UnboundedSender<()>,
 }
@@ -650,7 +649,7 @@ where
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
-        let (tunnel_command_tx, tunnel_state_machine_handle) = tunnel_state_machine::spawn(
+        let tunnel_state_machine_handle = tunnel_state_machine::spawn(
             tunnel_state_machine::InitialTunnelState {
                 allow_lan: settings.allow_lan,
                 block_when_disconnected: settings.block_when_disconnected,
@@ -675,7 +674,8 @@ where
         .await
         .map_err(Error::TunnelError)?;
 
-        endpoint_updater.set_tunnel_command_tx(Arc::downgrade(&tunnel_command_tx));
+        endpoint_updater
+            .set_tunnel_command_tx(Arc::downgrade(tunnel_state_machine_handle.command_tx()));
 
         api::forward_offline_state(api_availability.clone(), offline_state_rx);
 
@@ -706,7 +706,6 @@ where
         relay_list_updater.update().await;
 
         let daemon = Daemon {
-            tunnel_command_tx,
             tunnel_state: TunnelState::Disconnected,
             target_state,
             state: DaemonExecutionState::Running,
@@ -792,7 +791,7 @@ where
         L,
         Vec<Pin<Box<dyn Future<Output = ()>>>>,
         mullvad_api::Runtime,
-        tunnel_state_machine::JoinHandle,
+        TunnelStateMachineHandle,
     ) {
         let Daemon {
             event_listener,
@@ -918,12 +917,12 @@ where
     fn schedule_reconnect(&mut self, delay: Duration) {
         self.unschedule_reconnect();
 
-        let tunnel_command_tx = self.tx.to_specialized_sender();
+        let daemon_command_tx = self.tx.to_specialized_sender();
         let (future, abort_handle) = abortable(Box::pin(async move {
             tokio::time::sleep(delay).await;
             log::debug!("Attempting to reconnect");
             let (tx, rx) = oneshot::channel();
-            let _ = tunnel_command_tx.send(DaemonCommand::Reconnect(tx));
+            let _ = daemon_command_tx.send(DaemonCommand::Reconnect(tx));
             // suppress "unable to send" warning:
             let _ = rx.await;
         }));
@@ -2212,7 +2211,8 @@ where
     }
 
     fn send_tunnel_command(&self, command: TunnelCommand) {
-        self.tunnel_command_tx
+        self.tunnel_state_machine_handle
+            .command_tx()
             .unbounded_send(command)
             .expect("Tunnel state machine has stopped");
     }
