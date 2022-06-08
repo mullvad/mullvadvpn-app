@@ -610,6 +610,8 @@ impl TunnelStateMachineHandle {
     /// Waits for the tunnel state machine to shut down.
     /// This may fail after a timeout of `TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT`.
     pub async fn try_join(self) {
+        drop(self.command_tx);
+
         match tokio::time::timeout(TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT, self.shutdown_rx).await {
             Ok(_) => log::info!("Tunnel state machine shut down"),
             Err(_) => log::error!("Tunnel state machine did not shut down gracefully"),
