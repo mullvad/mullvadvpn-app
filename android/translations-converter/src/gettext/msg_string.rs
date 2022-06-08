@@ -38,7 +38,7 @@ impl MsgString {
 
 impl Display for MsgString {
     /// Write the ID message string with proper escaping.
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         self.0.fmt(formatter)
     }
 }

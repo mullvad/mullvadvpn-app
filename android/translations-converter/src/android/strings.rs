@@ -88,7 +88,7 @@ fn default_translatable() -> bool {
 
 // Unfortunately, direct serialization to XML isn't working correctly.
 impl Display for StringResources {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         writeln!(formatter, r#"<?xml version="1.0" encoding="utf-8"?>"#)?;
         writeln!(formatter, "<resources>")?;
 
@@ -101,7 +101,7 @@ impl Display for StringResources {
 }
 
 impl Display for StringResource {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         if self.translatable {
             write!(
                 formatter,
