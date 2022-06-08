@@ -208,11 +208,6 @@ impl TunnelState for DisconnectedState {
                 shared_values.split_tunnel.set_paths(&paths, result_tx);
                 SameState(self.into())
             }
-            #[cfg(windows)]
-            Some(TunnelCommand::GetExcludedProcesses(result_tx)) => {
-                let _ = result_tx.send(shared_values.split_tunnel.get_processes());
-                SameState(self.into())
-            }
             None => {
                 Self::reset_dns(shared_values);
                 Finished
