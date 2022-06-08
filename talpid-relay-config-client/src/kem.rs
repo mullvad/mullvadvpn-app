@@ -3,10 +3,9 @@ use std::fmt;
 use super::Error;
 
 use classic_mceliece_rust::{
-    crypto_kem_dec, crypto_kem_keypair, AesState, RNGState, CRYPTO_BYTES, CRYPTO_CIPHERTEXTBYTES,
+    crypto_kem_dec, crypto_kem_keypair, CRYPTO_BYTES, CRYPTO_CIPHERTEXTBYTES,
     CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES,
 };
-use rand::RngCore;
 use talpid_types::net::wireguard::PresharedKey;
 
 const STACK_SIZE: usize = 8 * 1024 * 1024;
@@ -32,12 +31,7 @@ pub async fn generate_keys() -> Result<(PublicKey, SecretKey), Error> {
     let (tx, rx) = tokio::sync::oneshot::channel();
 
     let gen_key = move || {
-        let mut rng = AesState::new();
-
-        let mut entropy = [0u8; 48];
-        rand::thread_rng().fill_bytes(&mut entropy);
-        rng.randombytes_init(entropy);
-
+        let mut rng = rand::thread_rng();
         let mut pubkey = Box::new([0u8; CRYPTO_PUBLICKEYBYTES]);
         let mut secret = Box::new([0u8; CRYPTO_SECRETKEYBYTES]);
         crypto_kem_keypair(&mut pubkey, &mut secret, &mut rng).map_err(|error| {
