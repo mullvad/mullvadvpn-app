@@ -13,8 +13,20 @@ class AsyncBlockOperation: AsyncOperation {
     private var executionBlock: ((AsyncBlockOperation) -> Void)?
     private var cancellationBlocks: [() -> Void] = []
 
-    init(dispatchQueue: DispatchQueue?, block: @escaping (AsyncBlockOperation) -> Void) {
+    override init(dispatchQueue: DispatchQueue? = nil) {
+        super.init(dispatchQueue: dispatchQueue)
+    }
+
+    init(dispatchQueue: DispatchQueue? = nil, block: @escaping (AsyncBlockOperation) -> Void) {
         executionBlock = block
+        super.init(dispatchQueue: dispatchQueue)
+    }
+
+    init(dispatchQueue: DispatchQueue? = nil, block: @escaping () -> Void) {
+        executionBlock = { operation in
+            block()
+            operation.finish()
+        }
         super.init(dispatchQueue: dispatchQueue)
     }
 
@@ -22,7 +34,11 @@ class AsyncBlockOperation: AsyncOperation {
         let block = executionBlock
         executionBlock = nil
 
-        block?(self)
+        if let block = block {
+            block(self)
+        } else {
+            finish()
+        }
     }
 
     override func operationDidCancel() {
@@ -37,6 +53,20 @@ class AsyncBlockOperation: AsyncOperation {
     override func operationDidFinish() {
         cancellationBlocks.removeAll()
         executionBlock = nil
+    }
+
+    func setExecutionBlock(_ block: @escaping (AsyncBlockOperation) -> Void) {
+        dispatchQueue.async {
+            assert(!self.isExecuting && !self.isFinished)
+            self.executionBlock = block
+        }
+    }
+
+    func setExecutionBlock(_ block: @escaping () -> Void) {
+        setExecutionBlock { operation in
+            block()
+            operation.finish()
+        }
     }
 
     func addCancellationBlock(_ block: @escaping () -> Void) {
