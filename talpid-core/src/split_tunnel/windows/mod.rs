@@ -86,8 +86,8 @@ pub enum Error {
     RequestThreadStuck,
 
     /// The request handling thread is down
-    #[error(display = "The ST request thread is down")]
-    RequestThreadDown,
+    #[error(display = "The split tunnel monitor is down")]
+    SplitTunnelDown,
 
     /// Failed to start the NTFS reparse point monitor
     #[error(display = "Failed to start path monitor")]
@@ -104,7 +104,7 @@ pub struct SplitTunnel {
     request_tx: RequestTx,
     event_thread: Option<std::thread::JoinHandle<()>>,
     quit_event: Arc<QuitEvent>,
-    excluded_pids: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
+    excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
     _route_change_callback: Option<WinNetCallbackHandle>,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     async_path_update_in_progress: Arc<AtomicBool>,
@@ -163,11 +163,30 @@ pub struct ExcludedProcess {
     pub inherited: bool,
 }
 
+/// Cloneable handle for interacting with the split tunnel module.
+#[derive(Debug, Clone)]
+pub struct SplitTunnelHandle {
+    excluded_processes: Weak<RwLock<HashMap<usize, ExcludedProcess>>>,
+}
+
+impl SplitTunnelHandle {
+    /// Return processes that are currently being excluded, including
+    /// their pids, paths, and reason for being excluded.
+    pub fn get_processes(&self) -> Result<Vec<ExcludedProcess>, Error> {
+        let processes = self
+            .excluded_processes
+            .upgrade()
+            .ok_or(Error::SplitTunnelDown)?;
+        let processes = processes.read().unwrap();
+        Ok(processes.values().cloned().collect())
+    }
+}
+
 struct EventThreadContext {
     handle: Arc<driver::DeviceHandle>,
     event_overlapped: OVERLAPPED,
     quit_event: Arc<QuitEvent>,
-    excluded_pids: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
+    excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
 }
 unsafe impl Send for EventThreadContext {}
 
@@ -188,13 +207,13 @@ impl SplitTunnel {
         }
 
         let quit_event = Arc::new(QuitEvent::new());
-        let excluded_pids = Arc::new(RwLock::new(HashMap::new()));
+        let excluded_processes = Arc::new(RwLock::new(HashMap::new()));
 
         let event_context = EventThreadContext {
             handle: handle.clone(),
             event_overlapped,
             quit_event: quit_event.clone(),
-            excluded_pids: excluded_pids.clone(),
+            excluded_processes: excluded_processes.clone(),
         };
 
         let event_thread = std::thread::spawn(move || {
@@ -309,7 +328,7 @@ impl SplitTunnel {
                         reason,
                         image,
                     } => {
-                        let mut pids = event_context.excluded_pids.write().unwrap();
+                        let mut pids = event_context.excluded_processes.write().unwrap();
                         match event_id {
                             EventId::StartSplittingProcess => {
                                 if let Some(prev_entry) = pids.get(&process_id) {
@@ -372,7 +391,7 @@ impl SplitTunnel {
             _route_change_callback: None,
             daemon_tx,
             async_path_update_in_progress: Arc::new(AtomicBool::new(false)),
-            excluded_pids,
+            excluded_processes,
         })
     }
 
@@ -511,7 +530,7 @@ impl SplitTunnel {
 
         request_tx
             .send((request, response_tx))
-            .map_err(|_| Error::RequestThreadDown)?;
+            .map_err(|_| Error::SplitTunnelDown)?;
 
         response_rx
             .recv_timeout(REQUEST_TIMEOUT)
@@ -553,8 +572,8 @@ impl SplitTunnel {
         let wait_task = move || {
             request_tx
                 .send((request, response_tx))
-                .map_err(|_| Error::RequestThreadDown)?;
-            response_rx.recv().map_err(|_| Error::RequestThreadDown)?
+                .map_err(|_| Error::SplitTunnelDown)?;
+            response_rx.recv().map_err(|_| Error::SplitTunnelDown)?
         };
         let in_progress = self.async_path_update_in_progress.clone();
         self.runtime.spawn_blocking(move || {
@@ -610,15 +629,11 @@ impl SplitTunnel {
         self.send_request(Request::RegisterIps(InterfaceAddresses::default()))
     }
 
-    /// Return processes that are currently being excluded.
-    pub fn get_processes(&self) -> Result<Vec<ExcludedProcess>, Error> {
-        Ok(self
-            .excluded_pids
-            .read()
-            .unwrap()
-            .values()
-            .cloned()
-            .collect())
+    /// Returns a handle used for interacting with the split tunnel module.
+    pub fn handle(&self) -> SplitTunnelHandle {
+        SplitTunnelHandle {
+            excluded_processes: Arc::downgrade(&self.excluded_processes),
+        }
     }
 }
 
