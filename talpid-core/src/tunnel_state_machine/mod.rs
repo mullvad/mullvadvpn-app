@@ -116,7 +116,7 @@ pub async fn spawn(
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "macos")] exclusion_gid: u32,
     #[cfg(target_os = "android")] android_context: AndroidContext,
-) -> Result<(Arc<mpsc::UnboundedSender<TunnelCommand>>, JoinHandle), Error> {
+) -> Result<TunnelStateMachineHandle, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
 
@@ -157,7 +157,10 @@ pub async fn spawn(
         }
     });
 
-    Ok((command_tx, JoinHandle { shutdown_rx }))
+    Ok(TunnelStateMachineHandle {
+        command_tx,
+        shutdown_rx,
+    })
 }
 
 /// Representation of external commands for the tunnel state machine.
@@ -596,18 +599,26 @@ state_wrapper! {
     }
 }
 
-/// Handle used to wait for the tunnel state machine to shut down.
-pub struct JoinHandle {
+/// Handle used to control the tunnel state machine.
+pub struct TunnelStateMachineHandle {
+    command_tx: Arc<mpsc::UnboundedSender<TunnelCommand>>,
     shutdown_rx: oneshot::Receiver<()>,
 }
 
-impl JoinHandle {
+impl TunnelStateMachineHandle {
     /// Waits for the tunnel state machine to shut down.
     /// This may fail after a timeout of `TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT`.
     pub async fn try_join(self) {
+        drop(self.command_tx);
+
         match tokio::time::timeout(TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT, self.shutdown_rx).await {
             Ok(_) => log::info!("Tunnel state machine shut down"),
             Err(_) => log::error!("Tunnel state machine did not shut down gracefully"),
         }
+    }
+
+    /// Returns tunnel command sender.
+    pub fn command_tx(&self) -> &Arc<mpsc::UnboundedSender<TunnelCommand>> {
+        &self.command_tx
     }
 }
