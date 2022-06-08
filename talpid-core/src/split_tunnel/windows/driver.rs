@@ -1,6 +1,6 @@
 use super::windows::{
-    get_device_path, get_process_creation_time, get_process_device_path, open_process,
-    ProcessAccess, ProcessSnapshot,
+    get_device_path, get_process_creation_time, get_process_device_path, open_process, Event,
+    Overlapped, ProcessAccess, ProcessSnapshot,
 };
 use crate::windows::as_uninit_byte_slice;
 use bitflags::bitflags;
@@ -33,12 +33,14 @@ use winapi::{
         },
     },
     um::{
-        handleapi::CloseHandle,
         ioapiset::{DeviceIoControl, GetOverlappedResult},
         minwinbase::OVERLAPPED,
-        synchapi::{CreateEventW, WaitForSingleObject},
+        synchapi::{WaitForMultipleObjects, WaitForSingleObject},
         tlhelp32::TH32CS_SNAPPROCESS,
-        winbase::{FILE_FLAG_OVERLAPPED, INFINITE, WAIT_ABANDONED, WAIT_FAILED, WAIT_OBJECT_0},
+        winbase::{
+            FILE_FLAG_OVERLAPPED, INFINITE, WAIT_ABANDONED, WAIT_ABANDONED_0, WAIT_FAILED,
+            WAIT_OBJECT_0,
+        },
         winioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
     },
 };
@@ -258,25 +260,29 @@ impl DeviceHandle {
     }
 
     fn initialize(&self) -> io::Result<()> {
-        device_io_control(
-            self.handle.as_raw_handle(),
-            DriverIoctlCode::Initialize as u32,
-            None,
-            0,
-            None,
-        )?;
+        unsafe {
+            device_io_control(
+                self.handle.as_raw_handle(),
+                DriverIoctlCode::Initialize as u32,
+                None,
+                0,
+                None,
+            )?;
+        }
         Ok(())
     }
 
     fn register_processes(&self) -> io::Result<()> {
         let process_tree_buffer = serialize_process_tree(build_process_tree()?)?;
-        device_io_control(
-            self.handle.as_raw_handle(),
-            DriverIoctlCode::RegisterProcesses as u32,
-            Some(&process_tree_buffer),
-            0,
-            None,
-        )?;
+        unsafe {
+            device_io_control(
+                self.handle.as_raw_handle(),
+                DriverIoctlCode::RegisterProcesses as u32,
+                Some(&process_tree_buffer),
+                0,
+                None,
+            )?;
+        }
         Ok(())
     }
 
@@ -330,25 +336,29 @@ impl DeviceHandle {
 
         let buffer = as_uninit_byte_slice(&addresses);
 
-        device_io_control(
-            self.handle.as_raw_handle(),
-            DriverIoctlCode::RegisterIpAddresses as u32,
-            Some(buffer),
-            0,
-            None,
-        )?;
+        unsafe {
+            device_io_control(
+                self.handle.as_raw_handle(),
+                DriverIoctlCode::RegisterIpAddresses as u32,
+                Some(buffer),
+                0,
+                None,
+            )?;
+        }
 
         Ok(())
     }
 
     pub fn get_driver_state(&self) -> io::Result<DriverState> {
-        let buffer = device_io_control(
-            self.handle.as_raw_handle(),
-            DriverIoctlCode::GetState as u32,
-            None,
-            size_of::<u64>() as u32,
-            None,
-        )?
+        let buffer = unsafe {
+            device_io_control(
+                self.handle.as_raw_handle(),
+                DriverIoctlCode::GetState as u32,
+                None,
+                size_of::<u64>() as u32,
+                None,
+            )?
+        }
         .unwrap();
 
         let raw_state: u64 = unsafe { deserialize_buffer(&buffer[0..size_of::<u64>()]) };
@@ -384,26 +394,29 @@ impl DeviceHandle {
 
         let config = make_process_config(&device_paths);
 
-        device_io_control(
-            self.handle.as_raw_handle(),
-            DriverIoctlCode::SetConfiguration as u32,
-            Some(&config),
-            0,
-            None,
-        )?;
+        unsafe {
+            device_io_control(
+                self.handle.as_raw_handle(),
+                DriverIoctlCode::SetConfiguration as u32,
+                Some(&config),
+                0,
+                None,
+            )?;
+        }
 
         Ok(())
     }
 
     pub fn clear_config(&self) -> io::Result<()> {
-        device_io_control(
-            self.handle.as_raw_handle(),
-            DriverIoctlCode::ClearConfiguration as u32,
-            None,
-            0,
-            None,
-        )?;
-
+        unsafe {
+            device_io_control(
+                self.handle.as_raw_handle(),
+                DriverIoctlCode::ClearConfiguration as u32,
+                None,
+                0,
+                None,
+            )?;
+        }
         Ok(())
     }
 }
@@ -761,170 +774,114 @@ pub fn parse_event_buffer(buffer: &[u8]) -> Option<(EventId, EventBody)> {
     }
 }
 
-/// Send an IOCTL code to the given device handle.
+/// Send an IOCTL code to the given device handle, and wait for the result.
 /// `input` specifies an optional buffer to send.
-/// Upon success, a buffer of size `output_size` is returned, or None if `output_size` is 0.
-pub fn device_io_control(
+///
+/// Upon success, a buffer containing at most `output_size` bytes is returned,
+/// or `None` if `output_size == 0`.
+///
+/// # Safety
+///
+/// `device` must be a valid device handle.
+pub unsafe fn device_io_control(
     device: RawHandle,
     ioctl_code: u32,
     input: Option<&[MaybeUninit<u8>]>,
     output_size: u32,
     timeout: Option<Duration>,
 ) -> Result<Option<Vec<u8>>, io::Error> {
-    struct HandleOwner {
-        handle: RawHandle,
-    }
-    impl Drop for HandleOwner {
-        fn drop(&mut self) {
-            unsafe { CloseHandle(self.handle) };
-        }
-    }
-
-    let mut overlapped: OVERLAPPED = unsafe { mem::zeroed() };
-    overlapped.hEvent = unsafe { CreateEventW(ptr::null_mut(), TRUE, FALSE, ptr::null()) };
-
-    if overlapped.hEvent == ptr::null_mut() {
-        return Err(io::Error::last_os_error());
-    }
-
-    let _handle_owner = HandleOwner {
-        handle: overlapped.hEvent,
-    };
+    let mut overlapped = Overlapped::new(Some(Event::new(true, false)?))?;
 
     let mut out_buffer = if output_size > 0 {
-        Some(Vec::with_capacity(output_size as usize))
+        let mut buffer = vec![];
+        buffer.resize(
+            usize::try_from(output_size).expect("u32 must be no larger than usize"),
+            0u8,
+        );
+        Some(buffer)
     } else {
         None
     };
 
-    device_io_control_buffer(
+    let bytes_read = device_io_control_buffer(
         device,
         ioctl_code,
         input,
-        out_buffer.as_mut(),
-        &overlapped,
+        out_buffer.as_mut().map(|out_buf| &mut out_buf[..]),
+        overlapped.as_overlapped_mut(),
         timeout,
-    )
-    .map(|()| out_buffer)
+    )?;
+    if let Some(buffer) = out_buffer.as_mut() {
+        buffer.truncate(usize::try_from(bytes_read).expect("u32 must be no larger than usize"));
+    }
+    Ok(out_buffer)
 }
 
-/// Send an IOCTL code to the given device handle.
+/// Send an IOCTL code to the given device handle, and wait for the result.
 /// `input` specifies an optional buffer to send.
-/// Upon success, `output` buffer will contain at most `output.capacity()` bytes of data.
-pub fn device_io_control_buffer(
+///
+/// Upon success, `output` buffer will contain at most `output.len()` bytes of data,
+/// and the function returns the number of bytes read.
+///
+/// # Safety
+///
+/// * `device` must be a valid device handle.
+/// * `overlapped` must be a valid `OVERLAPPED` object with a valid event object.
+pub unsafe fn device_io_control_buffer(
     device: RawHandle,
     ioctl_code: u32,
     input: Option<&[MaybeUninit<u8>]>,
-    mut output: Option<&mut Vec<u8>>,
-    overlapped: &OVERLAPPED,
+    output: Option<&mut [u8]>,
+    overlapped: &mut OVERLAPPED,
     timeout: Option<Duration>,
-) -> Result<(), io::Error> {
-    let input_ptr = match input {
-        Some(input) => input as *const _ as *mut _,
-        None => ptr::null_mut(),
-    };
-    let input_len = input.map(|input| input.len()).unwrap_or(0);
-
-    let out_ptr = match output {
-        Some(ref mut output) => output.as_mut_ptr() as *mut _,
-        None => ptr::null_mut(),
-    };
-    let output_size = if let Some(ref output) = output {
-        output.capacity()
-    } else {
-        0
-    };
-
-    let event = overlapped.hEvent;
-
-    let mut returned_bytes = 0u32;
-    let overlapped = overlapped as *const _ as *mut _;
-
-    let result = unsafe {
-        DeviceIoControl(
-            device as *mut _,
-            ioctl_code,
-            input_ptr,
-            input_len as u32,
-            out_ptr,
-            output_size as u32,
-            &mut returned_bytes,
-            overlapped,
+) -> Result<u32, io::Error> {
+    let output_len = output.as_ref().map(|output| output.len()).unwrap_or(0);
+    let output_len = u32::try_from(output_len).map_err(|_error| {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "the output buffer is too large",
         )
+    })?;
+    let out_ptr = match output {
+        Some(output) => output as *mut _ as *mut _,
+        None => ptr::null_mut(),
     };
-
-    if result != 0 {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            "Expected pending operation",
-        ));
-    }
-
-    let last_error = io::Error::last_os_error();
-    if last_error.raw_os_error() != Some(ERROR_IO_PENDING as i32) {
-        return Err(last_error);
-    }
-
-    let timeout = timeout
-        .map(|timeout| timeout.as_millis() as u32)
-        .unwrap_or(INFINITE);
-    let result = unsafe { WaitForSingleObject(event, timeout) };
-    match result {
-        WAIT_FAILED => return Err(io::Error::last_os_error()),
-        WAIT_ABANDONED => return Err(io::Error::new(io::ErrorKind::Other, "abandoned mutex")),
-        WAIT_OBJECT_0 => (),
-        error => return Err(io::Error::from_raw_os_error(error as i32)),
-    }
-
-    let result =
-        unsafe { GetOverlappedResult(device as *mut _, overlapped, &mut returned_bytes, FALSE) };
-
-    if result == 0 {
-        return Err(io::Error::last_os_error());
-    }
-
-    if let Some(ref mut output) = output {
-        unsafe { output.set_len(returned_bytes as usize) };
-    }
-
-    Ok(())
+    device_io_control_buffer_async(device, ioctl_code, input, out_ptr, output_len, overlapped)?;
+    get_overlapped_result(device, timeout, overlapped)
 }
 
 /// Send an IOCTL code to the given device handle.
 /// `input` specifies an optional buffer to send.
-/// The result must be obtained using `GetOverlappedResult[Ex]`.
+///
+/// The result must be obtained using `GetOverlappedResult[Ex]` or [get_overlapped_result].
+///
+/// # Safety
+///
+/// * `device` must be a valid device handle.
+/// * `overlapped` must be a valid `OVERLAPPED` object with a valid event object.
 pub unsafe fn device_io_control_buffer_async(
     device: RawHandle,
     ioctl_code: u32,
-    mut output: Option<&mut Vec<u8>>,
-    input: Option<&[u8]>,
-    overlapped: &OVERLAPPED,
+    input: Option<&[MaybeUninit<u8>]>,
+    output_ptr: *mut u8,
+    output_len: u32,
+    overlapped: &mut OVERLAPPED,
 ) -> Result<(), io::Error> {
     let input_ptr = match input {
-        Some(input) => input as *const _ as *mut _,
+        Some(input) => input.as_ptr() as *mut _,
         None => ptr::null_mut(),
     };
     let input_len = input.map(|input| input.len()).unwrap_or(0);
 
-    let out_ptr = match output {
-        Some(ref mut output) => output.as_mut_ptr() as *mut _,
-        None => ptr::null_mut(),
-    };
-    let output_size = if let Some(ref output) = output {
-        output.capacity()
-    } else {
-        0
-    };
-
-    let overlapped = overlapped as *const _ as *mut _;
-
     let result = DeviceIoControl(
-        device as *mut _,
+        device,
         ioctl_code,
         input_ptr,
-        input_len as u32,
-        out_ptr,
-        output_size as u32,
+        u32::try_from(input_len).map_err(|_error| {
+            io::Error::new(io::ErrorKind::InvalidInput, "the input buffer is too large")
+        })?,
+        output_ptr as *mut _,
+        output_len,
         ptr::null_mut(),
         overlapped,
     );
@@ -942,6 +899,87 @@ pub unsafe fn device_io_control_buffer_async(
     }
 
     Ok(())
+}
+
+/// Retrieves the result of an overlapped operation. On success, this returns
+/// the number of bytes transferred. For device I/O, this is the number of bytes
+/// written to the output buffer.
+///
+/// # Safety
+///
+/// * `device` must be a valid device handle.
+/// * `overlapped` must be a valid `OVERLAPPED` object with a valid event object.
+pub unsafe fn get_overlapped_result(
+    device: RawHandle,
+    timeout: Option<Duration>,
+    overlapped: &mut OVERLAPPED,
+) -> io::Result<u32> {
+    wait_for_single_object(overlapped.hEvent, timeout)?;
+    let mut returned_bytes = 0u32;
+    let result = GetOverlappedResult(device, overlapped, &mut returned_bytes, FALSE);
+    if result == 0 {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(returned_bytes)
+}
+
+/// Waits for an object to be signaled, or until a timeout interval has elapsed.
+///
+/// # Safety
+///
+/// * `object` must be a valid object that can be signaled, such as an event object.
+pub unsafe fn wait_for_single_object(
+    object: RawHandle,
+    timeout: Option<Duration>,
+) -> io::Result<()> {
+    let timeout = match timeout {
+        Some(timeout) => u32::try_from(timeout.as_millis()).map_err(|_error| {
+            io::Error::new(io::ErrorKind::InvalidInput, "the duration is too long")
+        })?,
+        None => INFINITE,
+    };
+    let result = WaitForSingleObject(object, timeout);
+    match result {
+        WAIT_OBJECT_0 => Ok(()),
+        WAIT_FAILED => Err(io::Error::last_os_error()),
+        WAIT_ABANDONED => Err(io::Error::new(io::ErrorKind::Other, "abandoned mutex")),
+        error => Err(io::Error::from_raw_os_error(error as i32)),
+    }
+}
+
+/// Waits for one or several objects to be signaled, or until a timeout interval has elapsed.
+/// On success, this returns a pointer to an object in `objects` that was signaled.
+///
+/// # Safety
+///
+/// * `object` must be a valid object that can be signaled, such as an event object.
+pub unsafe fn wait_for_multiple_objects(
+    objects: &[RawHandle],
+    wait_all: bool,
+    timeout: Option<Duration>,
+) -> io::Result<RawHandle> {
+    let timeout = match timeout {
+        Some(timeout) => u32::try_from(timeout.as_millis()).map_err(|_error| {
+            io::Error::new(io::ErrorKind::InvalidInput, "the duration is too long")
+        })?,
+        None => INFINITE,
+    };
+    let objects_len = u32::try_from(objects.len())
+        .map_err(|_error| io::Error::new(io::ErrorKind::InvalidInput, "too many objects"))?;
+    let result = WaitForMultipleObjects(
+        objects_len,
+        objects.as_ptr(),
+        if wait_all { TRUE } else { FALSE },
+        timeout,
+    );
+    let signaled_index = if result >= WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + objects_len {
+        result - WAIT_OBJECT_0
+    } else if result >= WAIT_ABANDONED_0 && result < WAIT_ABANDONED_0 + objects_len {
+        return Err(io::Error::new(io::ErrorKind::Other, "abandoned mutex"));
+    } else {
+        return Err(io::Error::last_os_error());
+    };
+    Ok(objects[usize::try_from(signaled_index).expect("usize must be larger than u32")])
 }
 
 /// Reads the value from `buffer`, zeroing any remaining bytes.
