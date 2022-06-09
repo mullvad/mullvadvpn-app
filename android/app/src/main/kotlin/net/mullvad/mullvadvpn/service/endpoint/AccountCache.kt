@@ -7,6 +7,7 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.lastOrNull
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.AccountCreationResult
@@ -107,7 +108,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun accountToken(): String? {
-        return daemon.await().deviceStateUpdates.value.token()
+        return daemon.await().deviceStateUpdates.lastOrNull()?.token()
     }
 
     private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {

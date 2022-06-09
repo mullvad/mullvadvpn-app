@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.service
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceEvent
@@ -30,8 +30,8 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
     var onRelayListChange: ((RelayList) -> Unit)? = null
     var onDaemonStopped: (() -> Unit)? = null
 
-    private val _deviceStateUpdates = MutableStateFlow<DeviceState>(DeviceState.InitialState)
-    val deviceStateUpdates = _deviceStateUpdates.asStateFlow()
+    private val _deviceStateUpdates = MutableSharedFlow<DeviceState>(extraBufferCapacity = 1)
+    val deviceStateUpdates = _deviceStateUpdates.asSharedFlow()
 
     init {
         System.loadLibrary("mullvad_jni")
