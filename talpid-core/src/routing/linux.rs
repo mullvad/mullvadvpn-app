@@ -7,6 +7,7 @@ use std::{
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
+use netlink_sys::AsyncSocket;
 use talpid_types::ErrorExt;
 
 use futures::{
@@ -139,6 +140,7 @@ impl RouteManagerImpl {
         let mgroup_flags = RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_ROUTE | RTMGRP_LINK | RTMGRP_NOTIFY;
         let addr = SocketAddr::new(0, mgroup_flags);
         connection
+            .socket_mut()
             .socket_mut()
             .bind(&addr)
             .map_err(Error::BindError)?;
