@@ -40,9 +40,7 @@ import Foundation
 
 /// A base implementation of an asynchronous operation
 class AsyncOperation: Operation {
-    private static var observerContext = 0
-
-    /// A state lock used for manipulating the operation state flags in a thread safe fashion.
+    /// A state lock used for manipulating the operation state in a thread safe fashion.
     private let stateLock = NSRecursiveLock()
 
     /// Operation state.
@@ -181,21 +179,6 @@ class AsyncOperation: Operation {
     init(dispatchQueue: DispatchQueue? = nil) {
         self.dispatchQueue = dispatchQueue ?? DispatchQueue(label: "AsyncOperation.dispatchQueue")
         super.init()
-
-        addObserver(
-            self,
-            forKeyPath: #keyPath(isReady),
-            options: [],
-            context: &Self.observerContext
-        )
-    }
-
-    deinit {
-        removeObserver(
-            self,
-            forKeyPath: #keyPath(isReady),
-            context: &Self.observerContext
-        )
     }
 
     // MARK: - KVO
@@ -210,25 +193,6 @@ class AsyncOperation: Operation {
 
     @objc class func keyPathsForValuesAffectingIsFinished() -> Set<String> {
         return ["state"]
-    }
-
-    override func observeValue(
-        forKeyPath keyPath: String?,
-        of object: Any?,
-        change: [NSKeyValueChangeKey : Any]?,
-        context: UnsafeMutableRawPointer?
-    )
-    {
-        if context == &Self.observerContext {
-            checkReadiness()
-        } else {
-            super.observeValue(
-                forKeyPath: keyPath,
-                of: object,
-                change: change,
-                context: context
-            )
-        }
     }
 
     // MARK: - Lifecycle
@@ -323,16 +287,48 @@ class AsyncOperation: Operation {
         didChangeValue(for: \.state)
     }
 
-    private func checkReadiness() {
+    private func dependenciesDidFinish() {
         stateLock.lock()
-        if state == .pending && !_isCancelled && super.isReady {
-            evaluateConditions()
-        }
-        stateLock.unlock()
+        defer { stateLock.unlock() }
+
+        guard state == .pending && !_isCancelled else { return }
+
+        precondition(super.isReady, "Expect super.isReady to be true.")
+
+        evaluateConditions()
     }
 
     func didEnqueue() {
+        stateLock.lock()
+        guard state == .initialized else {
+            stateLock.unlock()
+            return
+        }
         setState(.pending)
+        stateLock.unlock()
+
+        let group = DispatchGroup()
+        var observers = [NSKeyValueObservation]()
+
+        for dependency in dependencies {
+            group.enter()
+
+            let observer = dependency.observe(\.isFinished, options: [.initial]) { dependency, _ in
+                if dependency.isFinished {
+                    group.leave()
+                }
+            }
+
+            observers.append(observer)
+        }
+
+        group.notify(queue: dispatchQueue) {
+            for observer in observers {
+                observer.invalidate()
+            }
+
+            self.dependenciesDidFinish()
+        }
     }
 
     // MARK: - Subclass overrides
