@@ -1,5 +1,5 @@
 use crate::{
-    windows::window::{create_hidden_window, WindowCloseHandle},
+    windows::window::{PowerManagementEvent, PowerManagementListener},
     winnet,
 };
 use futures::channel::mpsc::UnboundedSender;
@@ -8,13 +8,9 @@ use std::{
     ffi::c_void,
     io,
     sync::{Arc, Weak},
-    thread,
     time::Duration,
 };
 use talpid_types::ErrorExt;
-use winapi::um::winuser::{
-    DefWindowProcW, PBT_APMRESUMEAUTOMATIC, PBT_APMSUSPEND, WM_POWERBROADCAST,
-};
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -25,7 +21,6 @@ pub enum Error {
 }
 
 pub struct BroadcastListener {
-    window: WindowCloseHandle,
     system_state: Arc<Mutex<SystemState>>,
     _callback_handle: winnet::WinNetCallbackHandle,
     _notify_tx: Arc<UnboundedSender<bool>>,
@@ -34,7 +29,10 @@ pub struct BroadcastListener {
 unsafe impl Send for BroadcastListener {}
 
 impl BroadcastListener {
-    pub fn start(notify_tx: UnboundedSender<bool>) -> Result<Self, Error> {
+    pub fn start(
+        notify_tx: UnboundedSender<bool>,
+        mut power_mgmt_rx: PowerManagementListener,
+    ) -> Result<Self, Error> {
         let notify_tx = Arc::new(notify_tx);
         let (v4_connectivity, v6_connectivity) = Self::check_initial_connectivity();
         let system_state = Arc::new(Mutex::new(SystemState {
@@ -44,34 +42,33 @@ impl BroadcastListener {
             notify_tx: Arc::downgrade(&notify_tx),
         }));
 
-        let power_broadcast_state_ref = system_state.clone();
-
-        let power_broadcast_callback = move |window, message, wparam, lparam| {
-            let state = power_broadcast_state_ref.clone();
-            if message == WM_POWERBROADCAST {
-                if wparam == PBT_APMSUSPEND {
-                    log::debug!("Machine is preparing to enter sleep mode");
-                    apply_system_state_change(state, StateChange::Suspended(true));
-                } else if wparam == PBT_APMRESUMEAUTOMATIC {
-                    log::debug!("Machine is returning from sleep mode");
-                    thread::spawn(move || {
-                        // TAP will be unavailable for approximately 2 seconds on a healthy machine.
-                        thread::sleep(Duration::from_secs(5));
-                        log::debug!("TAP is presumed to have been re-initialized");
-                        apply_system_state_change(state, StateChange::Suspended(false));
-                    });
+        let state = system_state.clone();
+        tokio::spawn(async move {
+            while let Some(event) = power_mgmt_rx.next().await {
+                match event {
+                    PowerManagementEvent::Suspend => {
+                        log::debug!("Machine is preparing to enter sleep mode");
+                        apply_system_state_change(state.clone(), StateChange::Suspended(true));
+                    }
+                    PowerManagementEvent::ResumeAutomatic => {
+                        let state_copy = state.clone();
+                        tokio::spawn(async move {
+                            // Tunnel will be unavailable for approximately 2 seconds on a healthy
+                            // machine.
+                            tokio::time::sleep(Duration::from_secs(5)).await;
+                            log::debug!("Tunnel device is presumed to have been re-initialized");
+                            apply_system_state_change(state_copy, StateChange::Suspended(false));
+                        });
+                    }
+                    _ => (),
                 }
             }
-            unsafe { DefWindowProcW(window, message, wparam, lparam) }
-        };
-
-        let window = create_hidden_window(power_broadcast_callback);
+        });
 
         let callback_handle =
             unsafe { Self::setup_network_connectivity_listener(system_state.clone())? };
 
         Ok(BroadcastListener {
-            window,
             system_state,
             _callback_handle: callback_handle,
             _notify_tx: notify_tx,
@@ -145,12 +142,6 @@ impl BroadcastListener {
     }
 }
 
-impl Drop for BroadcastListener {
-    fn drop(&mut self) {
-        self.window.close();
-    }
-}
-
 #[derive(Debug)]
 enum StateChange {
     NetworkV4Connectivity(bool),
@@ -209,8 +200,11 @@ fn is_offline_str(offline: bool) -> &'static str {
 
 pub type MonitorHandle = BroadcastListener;
 
-pub async fn spawn_monitor(sender: UnboundedSender<bool>) -> Result<MonitorHandle, Error> {
-    BroadcastListener::start(sender)
+pub async fn spawn_monitor(
+    sender: UnboundedSender<bool>,
+    power_mgmt_rx: PowerManagementListener,
+) -> Result<MonitorHandle, Error> {
+    BroadcastListener::start(sender, power_mgmt_rx)
 }
 
 fn apply_system_state_change(state: Arc<Mutex<SystemState>>, change: StateChange) {

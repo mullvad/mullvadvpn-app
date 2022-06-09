@@ -238,6 +238,9 @@ impl TunnelStateMachine {
         #[cfg(target_os = "macos")]
         let filtering_resolver = crate::resolver::start_resolver().await?;
 
+        #[cfg(target_os = "windows")]
+        let power_mgmt_rx = crate::windows::window::PowerManagementListener::new();
+
         #[cfg(windows)]
         let split_tunnel =
             split_tunnel::SplitTunnel::new(runtime.clone(), command_tx.clone(), volume_update_rx)
@@ -288,6 +291,8 @@ impl TunnelStateMachine {
                 .map_err(Error::InitRouteManagerError)?,
             #[cfg(target_os = "android")]
             android_context,
+            #[cfg(target_os = "windows")]
+            power_mgmt_rx,
         )
         .await
         .map_err(Error::OfflineMonitorError)?;
