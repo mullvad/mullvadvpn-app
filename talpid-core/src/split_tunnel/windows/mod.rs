@@ -156,7 +156,7 @@ struct EventThreadContext {
 unsafe impl Send for EventThreadContext {}
 
 impl SplitTunnel {
-    /// Initialize the driver.
+    /// Initialize the split tunnel device.
     pub fn new(
         runtime: tokio::runtime::Handle,
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
