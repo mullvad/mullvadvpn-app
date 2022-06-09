@@ -48,7 +48,6 @@ jobs:
             - name: Build and test
               run: |
                   xcodebuild test \
-                      -quiet \
                       -project MullvadVPN.xcodeproj \
                       -scheme MullvadVPNTests \
                       -destination "${destination}" \
