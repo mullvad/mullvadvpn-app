@@ -263,6 +263,7 @@ impl TunnelStateMachine {
             runtime.clone(),
             args.command_tx.clone(),
             volume_update_rx,
+            power_mgmt_rx.clone(),
         )
         .map_err(Error::InitSplitTunneling)?;
 

@@ -6,6 +6,7 @@ mod windows;
 use crate::{
     tunnel::TunnelMetadata,
     tunnel_state_machine::TunnelCommand,
+    windows::window::{PowerManagementEvent, PowerManagementListener},
     winnet::{
         self, get_best_default_route, interface_luid_to_ip, WinNetAddrFamily, WinNetCallbackHandle,
     },
@@ -26,6 +27,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
+use winapi::shared::winerror::ERROR_OPERATION_ABORTED;
 
 const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;
 const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
@@ -41,6 +43,10 @@ pub enum Error {
     /// Failed to set paths to excluded applications
     #[error(display = "Failed to set list of excluded applications")]
     SetConfiguration(#[error(source)] io::Error),
+
+    /// Failed to obtain the current driver state
+    #[error(display = "Failed to obtain the driver state")]
+    GetState(#[error(source)] io::Error),
 
     /// Failed to register interface IP addresses
     #[error(display = "Failed to register IP addresses for exclusions")]
@@ -85,6 +91,10 @@ pub enum Error {
     /// A previous path update has not yet completed
     #[error(display = "A previous update is not yet complete")]
     AlreadySettingPaths,
+
+    /// Resetting in the engaged state risks leaking into the tunnel
+    #[error(display = "Failed to reset driver because it is engaged")]
+    CannotResetEngaged,
 }
 
 /// Manages applications whose traffic to exclude from the tunnel.
@@ -97,11 +107,13 @@ pub struct SplitTunnel {
     _route_change_callback: Option<WinNetCallbackHandle>,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     async_path_update_in_progress: Arc<AtomicBool>,
+    power_mgmt_handle: tokio::task::JoinHandle<()>,
 }
 
 enum Request {
     SetPaths(Vec<OsString>),
     RegisterIps(InterfaceAddresses),
+    Restart,
 }
 type RequestResponseTx = sync_mpsc::Sender<Result<(), Error>>;
 type RequestTx = sync_mpsc::Sender<(Request, RequestResponseTx)>;
@@ -160,12 +172,18 @@ impl SplitTunnel {
         runtime: tokio::runtime::Handle,
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
+        power_mgmt_rx: PowerManagementListener,
     ) -> Result<Self, Error> {
-        let (request_tx, handle) = Self::spawn_request_thread(volume_update_rx)?;
-
         let excluded_processes = Arc::new(RwLock::new(HashMap::new()));
+
+        let (request_tx, handle) =
+            Self::spawn_request_thread(volume_update_rx, excluded_processes.clone())?;
+
         let (event_thread, quit_event) =
             Self::spawn_event_listener(handle, excluded_processes.clone())?;
+
+        let power_mgmt_handle =
+            Self::spawn_power_management_monitor(request_tx.clone(), power_mgmt_rx);
 
         Ok(SplitTunnel {
             runtime,
@@ -176,6 +194,7 @@ impl SplitTunnel {
             daemon_tx,
             async_path_update_in_progress: Arc::new(AtomicBool::new(false)),
             excluded_processes,
+            power_mgmt_handle,
         })
     }
 
@@ -194,6 +213,7 @@ impl SplitTunnel {
         let quit_event_copy = quit_event.clone();
 
         let event_thread = std::thread::spawn(move || {
+            log::debug!("Starting split tunnel event thread");
             let mut data_buffer = vec![];
 
             loop {
@@ -206,7 +226,15 @@ impl SplitTunnel {
                 ) {
                     Ok(EventResult::Event(event_id, event_body)) => (event_id, event_body),
                     Ok(EventResult::Quit) => break,
-                    Err(_error) => continue,
+                    Err(error) => {
+                        if error.raw_os_error() == Some(ERROR_OPERATION_ABORTED as i32) {
+                            // The driver will normally abort the request if the driver state
+                            // is reset. Give the driver service some time to recover before
+                            // retrying.
+                            std::thread::sleep(Duration::from_millis(500));
+                        }
+                        continue;
+                    }
                 };
 
                 Self::handle_event(event_id, event_body, &excluded_processes);
@@ -275,10 +303,14 @@ impl SplitTunnel {
 
         let returned_bytes =
             driver::get_overlapped_result(device, overlapped).map_err(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("get_overlapped_result failed for dequed event"),
-                );
+                if error.raw_os_error() != Some(ERROR_OPERATION_ABORTED as i32) {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "get_overlapped_result failed for dequed event"
+                        ),
+                    );
+                }
                 error
             })?;
 
@@ -368,6 +400,7 @@ impl SplitTunnel {
 
     fn spawn_request_thread(
         volume_update_rx: mpsc::UnboundedReceiver<()>,
+        excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
     ) -> Result<(RequestTx, Arc<driver::DeviceHandle>), Error> {
         let (tx, rx): (RequestTx, _) = sync_mpsc::channel();
         let (init_tx, init_rx) = sync_mpsc::channel();
@@ -420,11 +453,9 @@ impl SplitTunnel {
                                     "{}",
                                     error.display_chain_with_msg("Failed to update path monitor")
                                 );
-                                monitored_paths_guard.clear();
-                            } else {
-                                *monitored_paths_guard = paths.to_vec();
                             }
                         }
+                        *monitored_paths_guard = paths.to_vec();
 
                         result
                     }
@@ -449,6 +480,42 @@ impl SplitTunnel {
                             }
                             result
                         }
+                    }
+                    Request::Restart => {
+                        let monitored_paths_guard = monitored_paths.lock().unwrap();
+                        (|| {
+                            let state = handle.get_driver_state().map_err(Error::GetState)?;
+                            if state == driver::DriverState::Engaged {
+                                // Leaving the engaged state risks leaking traffic into the tunnel,
+                                // so err on the safe side.
+                                log::warn!(
+                                    "Not resetting driver state because it is currently engaged"
+                                );
+                                return Err(Error::CannotResetEngaged);
+                            }
+
+                            handle.reinitialize().map_err(Error::InitializationError)?;
+
+                            {
+                                excluded_processes.write().unwrap().clear();
+                            }
+
+                            handle
+                                .register_ips(
+                                    previous_addresses.tunnel_ipv4,
+                                    previous_addresses.tunnel_ipv6,
+                                    previous_addresses.internet_ipv4,
+                                    previous_addresses.internet_ipv6,
+                                )
+                                .map_err(Error::RegisterIps)?;
+
+                            if monitored_paths_guard.len() > 0 {
+                                handle
+                                    .set_config(&*monitored_paths_guard)
+                                    .map_err(Error::SetConfiguration)?;
+                            }
+                            Ok(())
+                        })()
                     }
                 };
                 if response_tx.send(response).is_err() {
@@ -506,6 +573,34 @@ impl SplitTunnel {
         response_rx
             .recv_timeout(REQUEST_TIMEOUT)
             .map_err(|_| Error::RequestThreadStuck)?
+    }
+
+    fn spawn_power_management_monitor(
+        request_tx: RequestTx,
+        mut power_mgmt_rx: PowerManagementListener,
+    ) -> tokio::task::JoinHandle<()> {
+        tokio::spawn(async move {
+            while let Some(event) = power_mgmt_rx.next().await {
+                match event {
+                    PowerManagementEvent::ResumeAutomatic => {
+                        let tx = request_tx.clone();
+                        tokio::task::spawn_blocking(move || {
+                            std::thread::sleep(Duration::from_secs(1));
+                            if let Err(error) =
+                                SplitTunnel::send_request_inner(&tx, Request::Restart)
+                            {
+                                log::error!(
+                                    "{}",
+                                    error
+                                        .display_chain_with_msg("Failed to reinitialize ST module")
+                                );
+                            }
+                        });
+                    }
+                    _ => (),
+                }
+            }
+        })
     }
 
     /// Set a list of applications to exclude from the tunnel.
@@ -610,6 +705,8 @@ impl SplitTunnel {
 
 impl Drop for SplitTunnel {
     fn drop(&mut self) {
+        self.power_mgmt_handle.abort();
+
         if let Some(_event_thread) = self.event_thread.take() {
             if let Err(error) = self.quit_event.set() {
                 log::error!(
