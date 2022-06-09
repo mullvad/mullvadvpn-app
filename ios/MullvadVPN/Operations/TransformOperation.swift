@@ -7,13 +7,34 @@
 
 import Foundation
 
-final class TransformOperation<Input, Output, Failure: Error>: ResultOperation<Output, Failure> {
-    typealias ExecutionBlock = ((Input, TransformOperation<Input, Output, Failure>) -> Void)
-    typealias ThrowingExecutionBlock = ((Input) throws -> Output)
+final class TransformOperation<Input, Output, Failure: Error>:
+    ResultOperation<Output, Failure>,
+    InputOperation
+{
+    typealias ExecutionBlock = (Input, TransformOperation<Input, Output, Failure>) -> Void
+    typealias ThrowingExecutionBlock = (Input) throws -> Output
 
-    private var input: Input?
+    typealias InputBlock = () -> Input?
+
+    private let nslock = NSLock()
+
+    private(set) var input: Input? {
+        get {
+            nslock.lock()
+            defer { nslock.unlock() }
+            return _input
+        }
+        set {
+            nslock.lock()
+            _input = newValue
+            nslock.unlock()
+        }
+    }
+
+    private var _input: Input?
+    private var inputBlock: InputBlock?
+
     private var executionBlock: ExecutionBlock?
-    private var configurationBlocks: [() -> Void] = []
     private var cancellationBlocks: [() -> Void] = []
 
     init(
@@ -22,38 +43,35 @@ final class TransformOperation<Input, Output, Failure: Error>: ResultOperation<O
         block: ExecutionBlock? = nil
     )
     {
-        self.input = input
-        self.executionBlock = block
+        _input = input
+        executionBlock = block
 
         super.init(dispatchQueue: dispatchQueue)
     }
 
-    convenience init(
-        dispatchQueue: DispatchQueue?,
+    init(
+        dispatchQueue: DispatchQueue? = nil,
         input: Input? = nil,
-        block: @escaping ThrowingExecutionBlock
+        throwingBlock: @escaping ThrowingExecutionBlock
     )
     {
-        self.init(
-            dispatchQueue: dispatchQueue,
-            input: input,
-            block: Self.wrapThrowingBlock(block)
-        )
+        _input = input
+        executionBlock = Self.wrapThrowingBlock(throwingBlock)
+
+        super.init(dispatchQueue: dispatchQueue)
     }
 
     override func main() {
-        for configurationBlock in configurationBlocks {
-            configurationBlock()
-        }
+        let inputValue = inputBlock?()
 
-        configurationBlocks.removeAll()
+        input = inputValue
 
-        guard let input = input, let executionBlock = executionBlock else {
+        guard let inputValue = inputValue, let executionBlock = executionBlock else {
             finish(completion: .cancelled)
             return
         }
 
-        executionBlock(input, self)
+        executionBlock(inputValue, self)
     }
 
     override func operationDidCancel() {
@@ -69,6 +87,8 @@ final class TransformOperation<Input, Output, Failure: Error>: ResultOperation<O
         cancellationBlocks.removeAll()
         executionBlock = nil
     }
+
+    // MARK: - Block handlers
 
     func setExecutionBlock(_ block: @escaping ExecutionBlock) {
         dispatchQueue.async {
@@ -91,22 +111,12 @@ final class TransformOperation<Input, Output, Failure: Error>: ResultOperation<O
         }
     }
 
-    func inject<T>(from dependency: T) where T: OutputOperation, T.Output == Input {
-        inject(from: dependency, via: { $0 })
-    }
+    // MARK: - Input injection
 
-    func inject<T>(from dependency: T, via block: @escaping (T.Output) -> Input) where T: OutputOperation {
+    func setInputBlock(_ block: @escaping () -> Input?) {
         dispatchQueue.async {
-            self.configurationBlocks.append { [weak self] in
-                guard let self = self else { return }
-
-                if let output = dependency.output {
-                    self.input = block(output)
-                }
-            }
-
+            self.inputBlock = block
         }
-        addDependency(dependency)
     }
 
     private class func wrapThrowingBlock(_ executionBlock: @escaping ThrowingExecutionBlock) -> ExecutionBlock {
@@ -122,6 +132,5 @@ final class TransformOperation<Input, Output, Failure: Error>: ResultOperation<O
             }
         }
     }
-
 }
 
