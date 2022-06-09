@@ -11,9 +11,9 @@ publish = false
 log = "0.4"
 rand = "0.8"
 talpid-types = { path = "../talpid-types" }
-tonic = "0.5"
-prost = "0.8"
-prost-types = "0.9"
+tonic = "0.7.2"
+prost = "0.10.4"
+prost-types = "0.10.1"
 tower = "0.4"
 tokio = "1"
 classic-mceliece-rust = { git = "https://github.com/mullvad/classic-mceliece-rust", rev = "5130d9e3bfbf54735177e15636a643366c250b78", features = ["mceliece8192128f"] }
@@ -22,4 +22,4 @@ classic-mceliece-rust = { git = "https://github.com/mullvad/classic-mceliece-rus
 tokio = { version = "1", features = ["rt-multi-thread"] }
 
 [build-dependencies]
-tonic-build = { version = "0.5", default-features = false, features = ["transport", "prost"] }
+tonic-build = { version = "0.7.2", default-features = false, features = ["transport", "prost"] }
