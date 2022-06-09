@@ -42,6 +42,7 @@ class ServiceConnectionManager(
 
         override fun onServiceDisconnected(className: ComponentName) {
             Log.d("mullvad", "UI lost the connection to the service")
+            _connectionState.value.readyContainer()?.onDestroy()
             notify(ServiceConnectionState.Disconnected)
         }
     }
@@ -54,12 +55,14 @@ class ServiceConnectionManager(
     }
 
     fun unbind() {
+        _connectionState.value.readyContainer()?.onDestroy()
         context.unbindService(serviceConnection)
         notify(ServiceConnectionState.Disconnected)
         vpnPermissionRequestHandler = null
     }
 
     fun onDestroy() {
+        _connectionState.value.readyContainer()?.onDestroy()
         serviceNotifier.unsubscribeAll()
         notify(ServiceConnectionState.Disconnected)
         vpnPermissionRequestHandler = null

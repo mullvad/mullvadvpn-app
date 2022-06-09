@@ -20,7 +20,7 @@ import org.koin.core.scope.get
 // the service and to get values received from events.
 @OptIn(KoinApiExtension::class)
 class ServiceConnectionContainer(
-    connection: Messenger,
+    val connection: Messenger,
     onServiceReady: (ServiceConnectionContainer) -> Unit,
     onVpnPermissionRequest: () -> Unit
 ) : KoinScopeComponent {
@@ -39,6 +39,7 @@ class ServiceConnectionContainer(
     val deviceDataSource = ServiceConnectionDeviceDataSource(connection, dispatcher)
     val locationInfoCache = LocationInfoCache(dispatcher)
     val settingsListener = SettingsListener(connection, dispatcher)
+
     // NOTE: `org.koin.core.scope.get` must be used here rather than `org.koin.core.component.get`.
     val splitTunneling = get<SplitTunneling>(parameters = { parametersOf(connection, dispatcher) })
     val voucherRedeemer = VoucherRedeemer(connection, dispatcher)
@@ -48,10 +49,13 @@ class ServiceConnectionContainer(
     val customDns = CustomDns(connection, settingsListener)
     var relayListListener = RelayListListener(connection, dispatcher, settingsListener)
 
+    private var listenerId: Int? = null
+
     init {
         vpnPermission.onRequest = onVpnPermissionRequest
 
-        dispatcher.registerHandler(Event.ListenerReady::class) { _ ->
+        dispatcher.registerHandler(Event.ListenerReady::class) { event ->
+            listenerId = event.listenerId
             onServiceReady.invoke(this@ServiceConnectionContainer)
         }
 
@@ -59,7 +63,9 @@ class ServiceConnectionContainer(
     }
 
     fun onDestroy() {
+        unregisterListener()
         closeScope()
+
         dispatcher.onDestroy()
 
         authTokenCache.onDestroy()
@@ -81,6 +87,16 @@ class ServiceConnectionContainer(
             connection.send(request.message)
         } catch (exception: RemoteException) {
             Log.e("mullvad", "Failed to register listener for service events", exception)
+        }
+    }
+
+    private fun unregisterListener() {
+        listenerId?.let { id ->
+            try {
+                connection.send(Request.UnregisterListener(id).message)
+            } catch (exception: RemoteException) {
+                Log.e("mullvad", "Failed to unregister listener for service events", exception)
+            }
         }
     }
 }
