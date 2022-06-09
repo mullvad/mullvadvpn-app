@@ -37,11 +37,9 @@ class AsyncOperationQueue: OperationQueue {
         }
 
         if wait {
-            let blockOperation = BlockOperation()
-            blockOperation.addDependencies(operations)
-
-            addOperation(blockOperation)
-            blockOperation.waitUntilFinished()
+            for operation in operations {
+                operation.waitUntilFinished()
+            }
         }
     }
 }
