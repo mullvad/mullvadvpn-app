@@ -1,6 +1,6 @@
 use std::{fmt, net::IpAddr};
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
-use tonic::transport::{Channel, Endpoint};
+use tonic::transport::Channel;
 
 mod kem;
 
@@ -82,11 +82,7 @@ pub async fn push_pq_key(
 }
 
 async fn new_client(addr: IpAddr) -> Result<RelayConfigService, Error> {
-    let channel = Endpoint::from_shared(format!("tcp://{addr}:{CONFIG_SERVICE_PORT}"))
-        .expect("Failed to construct URI")
-        .connect()
+    RelayConfigService::connect(format!("tcp://{addr}:{CONFIG_SERVICE_PORT}"))
         .await
-        .map_err(Error::GrpcTransportError)?;
-
-    Ok(RelayConfigService::new(channel))
+        .map_err(Error::GrpcTransportError)
 }
