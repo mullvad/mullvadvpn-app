@@ -58,7 +58,10 @@ fn create_pid_subcommand() -> clap::App<'static> {
     clap::App::new("pid")
         .about("Manages processes (PIDs) excluded from the tunnel")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .subcommand(clap::App::new("list"))
+        .subcommand(clap::App::new("list")
+            .about("List processes that are currently being excluded, i.e. their PIDs, as well as whether \
+                    they are excluded because of their executable paths or because they're subprocesses of \
+                    such processes"))
 }
 
 impl SplitTunnel {
@@ -112,9 +115,9 @@ impl SplitTunnel {
                     .into_inner();
 
                 for process in &processes.processes {
-                    let flags = if process.inherited { "I" } else { "C" };
+                    let subproc = if process.inherited { "subprocess" } else { "" };
                     println!(
-                        "{:<6}{flags:<3}[{}]",
+                        "{:<7}{subproc:<12}{}",
                         process.pid,
                         Path::new(&process.image)
                             .file_name()
