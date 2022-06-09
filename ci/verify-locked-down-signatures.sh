@@ -8,7 +8,7 @@ import_gpg_keys="false"
 # The whitelisted commit can be set in order to allow github actions to only check changes since origin/master
 whitelisted_commit="5d41b8a1d9745fbb3ff81ea6ea2eb8f202ca7ed0"
 
-while [ ! $# -eq 0 ]; do
+while [ ! "$#" -gt 0 ]; do
     case "$1" in
         "--import-gpg-keys")
             import_gpg_keys="true"
