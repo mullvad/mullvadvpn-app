@@ -81,7 +81,7 @@ pub enum Error {
 
     /// Failed to negotiate PQ PSK
     #[error(display = "Failed to negotiate PQ PSK")]
-    PskNegotiationError(talpid_relay_config_client::Error),
+    PskNegotiationError(#[error(source)] talpid_relay_config_client::Error),
 
     /// Failed to set up IP interfaces.
     #[cfg(windows)]

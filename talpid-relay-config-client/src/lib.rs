@@ -1,4 +1,4 @@
-use std::net::IpAddr;
+use std::{fmt, net::IpAddr};
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
 use tonic::transport::{Channel, Endpoint, Uri};
 
@@ -15,6 +15,32 @@ pub enum Error {
     KeyGenerationFailed,
     DecapsulationError,
     InvalidCiphertext,
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use Error::*;
+        match self {
+            GrpcTransportError(error) => error.fmt(f),
+            GrpcError(status) => write!(f, "RPC failed: {}", status),
+            KeyGenerationFailed => "Failed to generate KEM key pair".fmt(f),
+            DecapsulationError => "Failed to decapsulate secret".fmt(f),
+            InvalidCiphertext => "The service returned an invalid ciphertext".fmt(f),
+        }
+    }
+}
+
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        use Error::*;
+        match self {
+            GrpcTransportError(error) => Some(error),
+            GrpcError(status) => Some(status),
+            KeyGenerationFailed => None,
+            DecapsulationError => None,
+            InvalidCiphertext => None,
+        }
+    }
 }
 
 type RelayConfigService = types::post_quantum_secure_client::PostQuantumSecureClient<Channel>;
