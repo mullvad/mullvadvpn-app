@@ -97,6 +97,11 @@ class LoginViewController: UIViewController, RootContainment {
         return false
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        updateLastUsedAccount()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -225,6 +230,16 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     // MARK: - Private
+
+    private func updateLastUsedAccount() {
+        do {
+            let accountNumber = try SettingsManager.getLastUsedAccount()
+            contentView.accountInputGroup.lastUsedAccount = StringFormatter.formattedAccountNumber(from: accountNumber)
+            contentView.accountInputGroup.updateLastUsedAccount()
+        } catch {
+            return
+        }
+    }
 
     private func loginStateDidChange() {
         contentView.accountInputGroup.setLoginState(loginState, animated: true)
