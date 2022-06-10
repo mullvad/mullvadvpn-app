@@ -116,12 +116,10 @@ impl ApiEndpoint {
                     log::debug!("Overriding API. Using {} at {}", api.host, api.addr);
                 }
             }
-        } else {
-            if host_var.is_some() || address_var.is_some() {
-                log::warn!(
-                    "MULLVAD_API_HOST and MULLVAD_API_ADDR are ignored in production builds"
-                );
-            }
+        } else if host_var.is_some() || address_var.is_some() {
+            log::warn!(
+                "MULLVAD_API_HOST and MULLVAD_API_ADDR are ignored in production builds"
+            );
         }
         api
     }

@@ -316,7 +316,7 @@ impl AccountManagerHandle {
     }
 
     pub async fn logout(&self) -> Result<(), Error> {
-        self.send_command(|tx| AccountManagerCommand::Logout(tx))
+        self.send_command(AccountManagerCommand::Logout)
             .await
     }
 
@@ -326,17 +326,17 @@ impl AccountManagerHandle {
     }
 
     pub async fn data(&self) -> Result<PrivateDeviceState, Error> {
-        self.send_command(|tx| AccountManagerCommand::GetData(tx))
+        self.send_command(AccountManagerCommand::GetData)
             .await
     }
 
     pub async fn data_after_login(&self) -> Result<PrivateDeviceState, Error> {
-        self.send_command(|tx| AccountManagerCommand::GetDataAfterLogin(tx))
+        self.send_command(AccountManagerCommand::GetDataAfterLogin)
             .await
     }
 
     pub async fn rotate_key(&self) -> Result<(), Error> {
-        self.send_command(|tx| AccountManagerCommand::RotateKey(tx))
+        self.send_command(AccountManagerCommand::RotateKey)
             .await
     }
 
@@ -346,7 +346,7 @@ impl AccountManagerHandle {
     }
 
     pub async fn validate_device(&self) -> Result<(), Error> {
-        self.send_command(|tx| AccountManagerCommand::ValidateDevice(tx))
+        self.send_command(AccountManagerCommand::ValidateDevice)
             .await
     }
 

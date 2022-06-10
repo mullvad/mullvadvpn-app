@@ -214,7 +214,7 @@ impl Serialize for PublicKey {
     where
         S: Serializer,
     {
-        serialize_key(&self.0.as_bytes(), serializer)
+        serialize_key(self.0.as_bytes(), serializer)
     }
 }
 

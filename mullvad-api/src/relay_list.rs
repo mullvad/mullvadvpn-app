@@ -35,7 +35,8 @@ impl RelayListProxy {
         let service = self.handle.service.clone();
         let request = self.handle.factory.request("app/v1/relays", Method::GET);
 
-        let future = async move {
+        
+        async move {
             let mut request = request?;
             request.set_timeout(RELAY_LIST_TIMEOUT);
 
@@ -67,8 +68,7 @@ impl RelayListProxy {
                     .await?
                     .into_relay_list(etag),
             ))
-        };
-        future
+        }
     }
 }
 
@@ -113,7 +113,7 @@ impl ServerRelayList {
 
         relay_list::RelayList {
             etag: etag.map(|mut tag| {
-                if tag.starts_with("\"") {
+                if tag.starts_with('\"') {
                     tag.insert_str(0, "W/");
                 }
                 tag

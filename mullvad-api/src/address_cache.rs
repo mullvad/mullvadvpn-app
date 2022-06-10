@@ -49,7 +49,7 @@ impl AddressCache {
 
         let address_cache = Self {
             inner: Arc::new(Mutex::new(cache)),
-            write_path: write_path.map(|cache| Arc::from(cache)),
+            write_path: write_path.map(Arc::from),
         };
         Ok(address_cache)
     }
@@ -109,7 +109,7 @@ impl AddressCacheInner {
 async fn read_address_file(path: &Path) -> Result<SocketAddr, Error> {
     let mut file = fs::File::open(path)
         .await
-        .map_err(|error| Error::OpenAddressCache(error))?;
+        .map_err(Error::OpenAddressCache)?;
     let mut address = String::new();
     file.read_to_string(&mut address)
         .await

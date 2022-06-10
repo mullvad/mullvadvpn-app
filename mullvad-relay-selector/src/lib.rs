@@ -279,7 +279,7 @@ impl RelaySelector {
             }
             RelaySettings::Normal(constraints) => {
                 let relay =
-                    self.get_tunnel_endpoint(&constraints, config.bridge_state, retry_attempt)?;
+                    self.get_tunnel_endpoint(constraints, config.bridge_state, retry_attempt)?;
                 let bridge = match relay.endpoint {
                     MullvadEndpoint::OpenVpn(endpoint)
                         if endpoint.protocol == TransportProtocol::Tcp =>
@@ -300,7 +300,7 @@ impl RelaySelector {
                         self.get_obfuscator_inner(
                             &config,
                             obfuscator_relay,
-                            &endpoint,
+                            endpoint,
                             retry_attempt,
                         )?
                     }
@@ -324,7 +324,7 @@ impl RelaySelector {
                 &relay_constraints.location,
                 &relay_constraints.providers,
                 &relay_constraints.ownership,
-                relay_constraints.openvpn_constraints.clone(),
+                relay_constraints.openvpn_constraints,
                 bridge_state,
                 retry_attempt,
             ),
@@ -434,7 +434,7 @@ impl RelaySelector {
     ) -> Result<NormalSelectedRelay, Error> {
         let mut exit_matcher = RelayMatcher {
             location: exit_location,
-            tunnel: WIREGUARD_EXIT_CONSTRAINTS.clone().into(),
+            tunnel: WIREGUARD_EXIT_CONSTRAINTS.clone(),
             ..entry_matcher.clone()
         };
 
@@ -476,7 +476,7 @@ impl RelaySelector {
             entry_endpoint,
             entry_relay,
         );
-        return Ok(result);
+        Ok(result)
     }
 
     /// Returns a WireGuard endpoint, should only ever be used when the user has specified the
@@ -536,7 +536,7 @@ impl RelaySelector {
 
         // Pick the entry relay first if its location constraint is a subset of the exit location.
         if relay_constraints.wireguard_constraints.use_multihop {
-            matcher.tunnel.wireguard = WIREGUARD_EXIT_CONSTRAINTS.clone().into();
+            matcher.tunnel.wireguard = WIREGUARD_EXIT_CONSTRAINTS.clone();
             if relay_constraints
                 .wireguard_constraints
                 .entry_location
@@ -603,7 +603,7 @@ impl RelaySelector {
         retry_attempt: u32,
     ) -> Result<NormalSelectedRelay, Error> {
         let preferred_constraints =
-            self.preferred_constraints(&relay_constraints, bridge_state, retry_attempt);
+            self.preferred_constraints(relay_constraints, bridge_state, retry_attempt);
 
         if let Ok(result) = self.get_multihop_tunnel_endpoint_internal(&preferred_constraints) {
             log::debug!(
@@ -611,7 +611,7 @@ impl RelaySelector {
                 retry_attempt
             );
             Ok(result)
-        } else if let Ok(result) = self.get_multihop_tunnel_endpoint_internal(&relay_constraints) {
+        } else if let Ok(result) = self.get_multihop_tunnel_endpoint_internal(relay_constraints) {
             log::debug!(
                 "Relay matched on second preference for retry attempt {}",
                 retry_attempt
@@ -715,8 +715,7 @@ impl RelaySelector {
             .collect();
 
         let relay = self
-            .pick_random_relay(&matching_relays)
-            .map(|relay| relay.clone())
+            .pick_random_relay(&matching_relays).cloned()
             .ok_or(Error::NoRelay)?;
         let endpoint = matcher
             .mullvad_endpoint(&relay)
@@ -849,7 +848,7 @@ impl RelaySelector {
             self.pick_random_relay(&matching_relays)
         };
         relay.and_then(|relay| {
-            self.pick_random_bridge(&relay)
+            self.pick_random_bridge(relay)
                 .map(|bridge| (bridge, relay.clone()))
         })
     }
@@ -1060,7 +1059,7 @@ impl RelaySelector {
 
         self.pick_random_relay(&matching_relays)
             .and_then(|selected_relay| {
-                let endpoint = matcher.mullvad_endpoint(&selected_relay);
+                let endpoint = matcher.mullvad_endpoint(selected_relay);
                 let addr_in = endpoint
                     .as_ref()
                     .map(|endpoint| endpoint.to_endpoint().address.ip())
@@ -1444,7 +1443,7 @@ mod test {
             "se9-wireguard".to_string(),
         );
         let relay_constraints = RelayConstraints {
-            location: Constraint::Only(location.clone()),
+            location: Constraint::Only(location),
             tunnel_protocol: Constraint::Any,
             ..RelayConstraints::default()
         };
@@ -1469,7 +1468,7 @@ mod test {
             "se-got-001".to_string(),
         );
         let relay_constraints = RelayConstraints {
-            location: Constraint::Only(location.clone()),
+            location: Constraint::Only(location),
             tunnel_protocol: Constraint::Any,
             ..RelayConstraints::default()
         };
@@ -1615,7 +1614,7 @@ mod test {
             "se-got-001".to_string(),
         );
         let mut relay_constraints = RelayConstraints {
-            location: Constraint::Only(location.clone()),
+            location: Constraint::Only(location),
             tunnel_protocol: Constraint::Any,
             ..RelayConstraints::default()
         };

@@ -182,8 +182,8 @@ fn main() {
                         value: gettext::MsgValue::Plural {
                             plural_id,
                             values: vec![
-                                gettext::MsgString::empty().into(),
-                                gettext::MsgString::empty().into(),
+                                gettext::MsgString::empty(),
+                                gettext::MsgString::empty(),
                             ],
                         },
                     }
@@ -199,7 +199,7 @@ fn main() {
 /// `values-en-rUS`.
 fn android_locale_directory(locale: &str) -> String {
     let mut directory = String::from("values-");
-    let mut parts = locale.split("-");
+    let mut parts = locale.split('-');
 
     directory.push_str(parts.next().unwrap());
 

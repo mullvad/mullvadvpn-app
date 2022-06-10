@@ -21,11 +21,11 @@ impl MsgString {
     /// characters. It will not attempt to escape non-ASCII characters and will just keep them as
     /// UTF-8 characters.
     pub fn from_unescaped(string: &str) -> Self {
-        let string = string.replace(r"\", r"\\");
-        let string = string.replace("\n", r"\n");
-        let string = string.replace("\r", r"\r");
-        let string = string.replace("\t", r"\t");
-        let string = string.replace(r#"""#, r#"\""#);
+        let string = string.replace('\\', r"\\");
+        let string = string.replace('\n', r"\n");
+        let string = string.replace('\r', r"\r");
+        let string = string.replace('\t', r"\t");
+        let string = string.replace('"', r#"\""#);
 
         MsgString(string)
     }

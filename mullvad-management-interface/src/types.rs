@@ -563,7 +563,7 @@ impl From<mullvad_types::relay_constraints::BridgeSettings> for BridgeSettings {
                     bridge_settings::Type::Shadowsocks(bridge_settings::ShadowsocksProxySettings {
                         peer: proxy_settings.peer.to_string(),
                         password: proxy_settings.password.clone(),
-                        cipher: proxy_settings.cipher.clone(),
+                        cipher: proxy_settings.cipher,
                     })
                 }
             },
@@ -903,7 +903,7 @@ impl TryFrom<RelaySettings> for mullvad_types::relay_constraints::RelaySettings 
         let update_value =
             settings
                 .endpoint
-                .clone()
+                
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "missing relay settings",
                 ))?;
@@ -975,7 +975,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
         let update_value =
             settings
                 .r#type
-                .clone()
+                
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "missing relay settings",
                 ))?;

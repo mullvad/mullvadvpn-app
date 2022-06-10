@@ -128,9 +128,9 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
 
     format!(
         "{exit_endpoint}{first_hop}{bridge}{obfuscator}{tunnel_type}{bridge_type}{obfuscator_type}",
-        first_hop = first_hop.unwrap_or(String::new()),
-        bridge = bridge.unwrap_or(String::new()),
-        obfuscator = obfuscator.unwrap_or(String::new()),
+        first_hop = first_hop.unwrap_or_default(),
+        bridge = bridge.unwrap_or_default(),
+        obfuscator = obfuscator.unwrap_or_default(),
     )
 }
 

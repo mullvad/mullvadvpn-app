@@ -216,13 +216,13 @@ impl RelayConstraints {
             ownership: update.ownership.unwrap_or_else(|| self.ownership.clone()),
             tunnel_protocol: update
                 .tunnel_protocol
-                .unwrap_or_else(|| self.tunnel_protocol.clone()),
+                .unwrap_or(self.tunnel_protocol),
             wireguard_constraints: update
                 .wireguard_constraints
                 .unwrap_or_else(|| self.wireguard_constraints.clone()),
             openvpn_constraints: update
                 .openvpn_constraints
-                .unwrap_or_else(|| self.openvpn_constraints.clone()),
+                .unwrap_or(self.openvpn_constraints),
         }
     }
 }

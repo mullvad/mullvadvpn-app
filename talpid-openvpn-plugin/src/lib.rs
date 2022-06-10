@@ -34,7 +34,7 @@ pub enum Error {
 
 /// All the OpenVPN events this plugin will register for listening to. Edit this variable to change
 /// events.
-pub static INTERESTING_EVENTS: &'static [EventType] = &[
+pub static INTERESTING_EVENTS: &[EventType] = &[
     EventType::AuthFailed,
     EventType::Up,
     EventType::RouteUp,
@@ -75,7 +75,7 @@ fn parse_args(args: &[CString]) -> Result<Arguments, Error> {
         .into_iter();
 
     let _plugin_path = args_iter.next();
-    let ipc_socket_path: String = args_iter.next().ok_or_else(|| Error::MissingCoreServerId)?;
+    let ipc_socket_path: String = args_iter.next().ok_or(Error::MissingCoreServerId)?;
 
     Ok(Arguments { ipc_socket_path })
 }

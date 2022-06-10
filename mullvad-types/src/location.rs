@@ -198,7 +198,7 @@ mod tests {
         use super::haversine_dist_deg;
         assert_eq!(
             haversine_dist_deg(36.12, -86.67, 33.94, -118.4),
-            2887.2599506071111
+            2_887.259_950_607_111
         );
         assert_eq!(
             haversine_dist_deg(90.0, 5.0, 90.0, 79.0),

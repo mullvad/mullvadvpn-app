@@ -171,7 +171,7 @@ pub fn collect_report(
 
     problem_report.add_logs(extra_logs);
 
-    write_problem_report(&output_path, &problem_report).map_err(|source| Error::WriteReportError {
+    write_problem_report(output_path, &problem_report).map_err(|source| Error::WriteReportError {
         path: output_path.display().to_string(),
         source,
     })
@@ -292,7 +292,7 @@ async fn send_problem_report_inner(
     cache_dir: &Path,
 ) -> Result<(), Error> {
     let metadata =
-        ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
+        ProblemReport::parse_metadata(report_content).unwrap_or_else(metadata::collect);
     let api_runtime = mullvad_api::Runtime::with_cache(
         cache_dir,
         false,
@@ -315,7 +315,7 @@ async fn send_problem_report_inner(
 
     for _attempt in 0..MAX_SEND_ATTEMPTS {
         match api_client
-            .problem_report(user_email, user_message, &report_content, &metadata)
+            .problem_report(user_email, user_message, report_content, &metadata)
             .await
         {
             Ok(()) => {

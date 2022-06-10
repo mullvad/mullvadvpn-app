@@ -107,7 +107,7 @@ fn run() -> Result<(), Error> {
             "Problem report written to {}",
             expanded_output_path.display()
         );
-        println!("");
+        println!();
         println!("Send the problem report to support via the send subcommand. See:");
         println!(" $ {} send --help", env::args().next().unwrap());
         Ok(())
