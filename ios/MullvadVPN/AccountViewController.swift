@@ -85,7 +85,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         )
 
         contentView.accountTokenRowView.value = TunnelManager.shared.accountNumber.map { string in
-            return formatAccountNumber(string)
+            return StringFormatter.formattedAccountNumber(from: string)
         }
         contentView.accountTokenRowView.actionHandler = { [weak self] in
             self?.copyAccountToken()
@@ -384,7 +384,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         let workItem = DispatchWorkItem { [weak self] in
             guard let accountNumber = TunnelManager.shared.accountNumber else { return }
 
-            self?.contentView.accountTokenRowView.value = self?.formatAccountNumber(accountNumber)
+            self?.contentView.accountTokenRowView.value = StringFormatter.formattedAccountNumber(from: accountNumber)
         }
 
         copyToPasteboardWork?.cancel()
@@ -441,10 +441,6 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
             self.compoundInteractionRestriction.decrease(animated: true)
         }
-    }
-
-    private func formatAccountNumber(_ string: String) -> String {
-        return string.split(every: 4).joined(separator: " ")
     }
 
 }
