@@ -26,7 +26,7 @@ pub fn state_listen(mut rpc: ManagementServiceClient) -> Receiver<Result<TunnelS
                         Err(status) => Err(Error::RpcFailed(status)),
                     };
 
-                    if (sender.send(forward).await).is_err() {
+                    if sender.send(forward).await.is_err() {
                         break;
                     }
                 }

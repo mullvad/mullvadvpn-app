@@ -112,7 +112,7 @@ impl ServerRelayList {
 
         relay_list::RelayList {
             etag: etag.map(|mut tag| {
-                if tag.starts_with('\"') {
+                if tag.starts_with('"') {
                     tag.insert_str(0, "W/");
                 }
                 tag

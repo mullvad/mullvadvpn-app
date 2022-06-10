@@ -152,7 +152,7 @@ impl<
         );
 
         if let Some(config) = proxy_config_provider.next().await {
-            connector_handle.set_connection_mode(config)
+            connector_handle.set_connection_mode(config);
         }
 
         let (command_tx, command_rx) = mpsc::unbounded();

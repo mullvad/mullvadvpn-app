@@ -213,7 +213,7 @@ impl RelayConstraints {
         RelayConstraints {
             location: update.location.unwrap_or_else(|| self.location.clone()),
             providers: update.providers.unwrap_or_else(|| self.providers.clone()),
-            ownership: update.ownership.unwrap_or_else(|| self.ownership.clone()),
+            ownership: update.ownership.unwrap_or(self.ownership),
             tunnel_protocol: update.tunnel_protocol.unwrap_or(self.tunnel_protocol),
             wireguard_constraints: update
                 .wireguard_constraints
@@ -327,7 +327,7 @@ impl Set<LocationConstraint> for LocationConstraint {
 }
 
 /// Limits the set of servers to choose based on ownership.
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Copy, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub enum Ownership {
     MullvadOwned,
     Rented,
