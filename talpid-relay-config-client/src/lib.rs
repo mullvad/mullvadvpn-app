@@ -10,7 +10,7 @@ mod types {
 
 #[derive(Debug)]
 pub enum Error {
-    GrpcTransportError(tonic::transport::Error),
+    GrpcConnectError(tonic::transport::Error),
     GrpcError(tonic::Status),
     KeyGenerationFailed,
     DecapsulationError,
@@ -21,7 +21,7 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use Error::*;
         match self {
-            GrpcTransportError(error) => error.fmt(f),
+            GrpcConnectError(_) => "Failed to connect to config service".fmt(f),
             GrpcError(status) => write!(f, "RPC failed: {}", status),
             KeyGenerationFailed => "Failed to generate KEM key pair".fmt(f),
             DecapsulationError => "Failed to decapsulate secret".fmt(f),
@@ -32,13 +32,9 @@ impl std::fmt::Display for Error {
 
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        use Error::*;
         match self {
-            GrpcTransportError(error) => Some(error),
-            GrpcError(status) => Some(status),
-            KeyGenerationFailed => None,
-            DecapsulationError => None,
-            InvalidCiphertext => None,
+            Self::GrpcConnectError(error) => Some(error),
+            _ => None,
         }
     }
 }
@@ -84,5 +80,5 @@ pub async fn push_pq_key(
 async fn new_client(addr: IpAddr) -> Result<RelayConfigService, Error> {
     RelayConfigService::connect(format!("tcp://{addr}:{CONFIG_SERVICE_PORT}"))
         .await
-        .map_err(Error::GrpcTransportError)
+        .map_err(Error::GrpcConnectError)
 }
