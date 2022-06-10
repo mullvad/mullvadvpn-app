@@ -35,7 +35,6 @@ impl RelayListProxy {
         let service = self.handle.service.clone();
         let request = self.handle.factory.request("app/v1/relays", Method::GET);
 
-        
         async move {
             let mut request = request?;
             request.set_timeout(RELAY_LIST_TIMEOUT);

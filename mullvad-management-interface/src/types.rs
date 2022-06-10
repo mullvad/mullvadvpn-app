@@ -900,13 +900,11 @@ impl TryFrom<RelaySettings> for mullvad_types::relay_constraints::RelaySettings 
         use mullvad_types::{relay_constraints as mullvad_constraints, CustomTunnelEndpoint};
         use talpid_types::net;
 
-        let update_value =
-            settings
-                .endpoint
-                
-                .ok_or(FromProtobufTypeError::InvalidArgument(
-                    "missing relay settings",
-                ))?;
+        let update_value = settings
+            .endpoint
+            .ok_or(FromProtobufTypeError::InvalidArgument(
+                "missing relay settings",
+            ))?;
 
         match update_value {
             relay_settings::Endpoint::Custom(settings) => {
@@ -972,13 +970,11 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
         use mullvad_types::{relay_constraints as mullvad_constraints, CustomTunnelEndpoint};
         use talpid_types::net;
 
-        let update_value =
-            settings
-                .r#type
-                
-                .ok_or(FromProtobufTypeError::InvalidArgument(
-                    "missing relay settings",
-                ))?;
+        let update_value = settings
+            .r#type
+            .ok_or(FromProtobufTypeError::InvalidArgument(
+                "missing relay settings",
+            ))?;
 
         match update_value {
             relay_settings_update::Type::Custom(settings) => {

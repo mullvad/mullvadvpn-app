@@ -165,7 +165,6 @@ impl RelayListUpdater {
             ExponentialBackoff::new(EXPONENTIAL_BACKOFF_INITIAL, EXPONENTIAL_BACKOFF_FACTOR)
                 .max_delay(UPDATE_INTERVAL * 2);
 
-        
         retry_future(
             download_futures,
             |result| result.is_err(),

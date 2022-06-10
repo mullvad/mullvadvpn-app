@@ -181,10 +181,7 @@ fn main() {
                         id,
                         value: gettext::MsgValue::Plural {
                             plural_id,
-                            values: vec![
-                                gettext::MsgString::empty(),
-                                gettext::MsgString::empty(),
-                            ],
+                            values: vec![gettext::MsgString::empty(), gettext::MsgString::empty()],
                         },
                     }
                 }),

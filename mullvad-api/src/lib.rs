@@ -117,9 +117,7 @@ impl ApiEndpoint {
                 }
             }
         } else if host_var.is_some() || address_var.is_some() {
-            log::warn!(
-                "MULLVAD_API_HOST and MULLVAD_API_ADDR are ignored in production builds"
-            );
+            log::warn!("MULLVAD_API_HOST and MULLVAD_API_ADDR are ignored in production builds");
         }
         api
     }

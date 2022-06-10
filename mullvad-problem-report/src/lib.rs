@@ -291,8 +291,7 @@ async fn send_problem_report_inner(
     report_content: &str,
     cache_dir: &Path,
 ) -> Result<(), Error> {
-    let metadata =
-        ProblemReport::parse_metadata(report_content).unwrap_or_else(metadata::collect);
+    let metadata = ProblemReport::parse_metadata(report_content).unwrap_or_else(metadata::collect);
     let api_runtime = mullvad_api::Runtime::with_cache(
         cache_dir,
         false,

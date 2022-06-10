@@ -214,9 +214,7 @@ impl RelayConstraints {
             location: update.location.unwrap_or_else(|| self.location.clone()),
             providers: update.providers.unwrap_or_else(|| self.providers.clone()),
             ownership: update.ownership.unwrap_or_else(|| self.ownership.clone()),
-            tunnel_protocol: update
-                .tunnel_protocol
-                .unwrap_or(self.tunnel_protocol),
+            tunnel_protocol: update.tunnel_protocol.unwrap_or(self.tunnel_protocol),
             wireguard_constraints: update
                 .wireguard_constraints
                 .unwrap_or_else(|| self.wireguard_constraints.clone()),

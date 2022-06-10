@@ -715,7 +715,8 @@ impl RelaySelector {
             .collect();
 
         let relay = self
-            .pick_random_relay(&matching_relays).cloned()
+            .pick_random_relay(&matching_relays)
+            .cloned()
             .ok_or(Error::NoRelay)?;
         let endpoint = matcher
             .mullvad_endpoint(&relay)

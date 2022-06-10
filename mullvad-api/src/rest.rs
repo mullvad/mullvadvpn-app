@@ -151,9 +151,9 @@ impl<
             socket_bypass_tx.clone(),
         );
 
-        if let Some(config) = proxy_config_provider
-            .next()
-            .await { connector_handle.set_connection_mode(config) }
+        if let Some(config) = proxy_config_provider.next().await {
+            connector_handle.set_connection_mode(config)
+        }
 
         let (command_tx, command_rx) = mpsc::unbounded();
         let client = Client::builder().build(connector);

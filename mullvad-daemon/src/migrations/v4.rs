@@ -140,7 +140,6 @@ fn wg_protocol_from_port(port: u16) -> TransportProtocol {
 #[cfg(test)]
 mod test {
     use super::{migrate, version_matches};
-    
 
     pub const V4_SETTINGS: &str = r#"
 {
