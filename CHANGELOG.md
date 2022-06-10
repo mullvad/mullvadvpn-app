@@ -51,6 +51,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.
+- Fix missing IPC message unregistration causing multiple copies of some messages to be received.
 
 ### Security
 #### Android
