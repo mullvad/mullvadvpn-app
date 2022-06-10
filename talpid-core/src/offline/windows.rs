@@ -2,7 +2,7 @@ use crate::{
     windows::window::{PowerManagementEvent, PowerManagementListener},
     winnet,
 };
-use futures::{channel::mpsc::UnboundedSender, StreamExt};
+use futures::channel::mpsc::UnboundedSender;
 use parking_lot::Mutex;
 use std::{
     ffi::c_void,

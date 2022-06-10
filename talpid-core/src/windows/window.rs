@@ -1,9 +1,6 @@
 //! Utilities for windows.
 
-use futures::{ready, Stream};
-use std::{
-    future::Future, os::windows::io::AsRawHandle, pin::Pin, ptr, sync::Arc, task::Poll, thread,
-};
+use std::{os::windows::io::AsRawHandle, ptr, sync::Arc, thread};
 use tokio::sync::watch;
 use winapi::{
     shared::{
@@ -158,22 +155,11 @@ impl PowerManagementEvent {
     }
 }
 
-/// Monitors and provides power management events to listeners
+/// Provides power management events to listeners
+#[derive(Clone)]
 pub struct PowerManagementListener {
-    window: Arc<WindowScopedHandle>,
+    _window: Arc<WindowScopedHandle>,
     rx: watch::Receiver<Option<PowerManagementEvent>>,
-    future:
-        Pin<Box<dyn Future<Output = Option<watch::Receiver<Option<PowerManagementEvent>>>> + Send>>,
-}
-
-impl Clone for PowerManagementListener {
-    fn clone(&self) -> Self {
-        Self {
-            window: self.window.clone(),
-            rx: self.rx.clone(),
-            future: Box::pin(Self::next_future(self.rx.clone())),
-        }
-    }
 }
 
 impl PowerManagementListener {
@@ -193,48 +179,24 @@ impl PowerManagementListener {
         let window = create_hidden_window(power_broadcast_callback);
 
         Self {
-            window: Arc::new(WindowScopedHandle { window }),
-            rx: rx.clone(),
-            future: Box::pin(Self::next_future(rx)),
+            _window: Arc::new(WindowScopedHandle(window)),
+            rx,
         }
     }
 
-    fn next_future(
-        mut rx: watch::Receiver<Option<PowerManagementEvent>>,
-    ) -> impl Future<Output = Option<watch::Receiver<Option<PowerManagementEvent>>>> {
-        async move {
-            if rx.changed().await.is_err() {
-                return None;
-            }
-            Some(rx)
+    /// Returns the next power event.
+    pub async fn next(&mut self) -> Option<PowerManagementEvent> {
+        if self.rx.changed().await.is_err() {
+            return None;
         }
+        *self.rx.borrow_and_update()
     }
 }
 
-impl Stream for PowerManagementListener {
-    type Item = PowerManagementEvent;
-
-    fn poll_next(
-        mut self: Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> Poll<Option<Self::Item>> {
-        match ready!(Pin::new(&mut self.future).poll(cx)) {
-            Some(mut rx) => {
-                let val = *rx.borrow_and_update();
-                self.future = Box::pin(PowerManagementListener::next_future(rx));
-                Poll::Ready(val)
-            }
-            None => Poll::Ready(None),
-        }
-    }
-}
-
-struct WindowScopedHandle {
-    window: WindowCloseHandle,
-}
+struct WindowScopedHandle(WindowCloseHandle);
 
 impl Drop for WindowScopedHandle {
     fn drop(&mut self) {
-        self.window.close();
+        self.0.close();
     }
 }
