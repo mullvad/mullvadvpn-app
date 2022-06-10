@@ -155,7 +155,7 @@ impl TunnelMatcher for AnyTunnelMatcher {
                 self.wireguard.mullvad_endpoint(relay),
             ]
             .into_iter()
-            .filter_map(|relay| relay)
+            .flatten()
             .collect::<Vec<_>>()
             .choose(&mut rand::thread_rng())
             .cloned(),

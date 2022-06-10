@@ -151,10 +151,9 @@ impl<
             socket_bypass_tx.clone(),
         );
 
-        proxy_config_provider
-            .next()
-            .await
-            .map(|config| connector_handle.set_connection_mode(config));
+        if let Some(config) = proxy_config_provider.next().await {
+            connector_handle.set_connection_mode(config);
+        }
 
         let (command_tx, command_rx) = mpsc::unbounded();
         let client = Client::builder().build(connector);
@@ -293,14 +292,14 @@ pub struct RestRequest {
 impl RestRequest {
     /// Constructs a GET request with the given URI. Returns an error if the URI is not valid.
     pub fn get(uri: &str) -> Result<Self> {
-        let uri = hyper::Uri::from_str(&uri).map_err(Error::UriError)?;
+        let uri = hyper::Uri::from_str(uri).map_err(Error::UriError)?;
 
         let mut builder = http::request::Builder::new()
             .method(Method::GET)
             .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
             .header(header::ACCEPT, HeaderValue::from_static("application/json"));
         if let Some(host) = uri.host() {
-            builder = builder.header(header::HOST, HeaderValue::from_str(&host)?);
+            builder = builder.header(header::HOST, HeaderValue::from_str(host)?);
         };
 
         let request = builder
@@ -499,14 +498,14 @@ pub fn send_request(
     async move {
         let mut request = request?;
         if let Some((store, account)) = &auth {
-            let access_token = store.get_token(&account).await?;
+            let access_token = store.get_token(account).await?;
             request.set_auth(Some(access_token))?;
         }
         let response = service.request(request).await?;
         let result = parse_rest_response(response, expected_statuses).await;
 
         if let Some((store, account)) = &auth {
-            store.check_response(&account, &result);
+            store.check_response(account, &result);
         }
 
         result
@@ -526,14 +525,14 @@ pub fn send_json_request<B: serde::Serialize>(
     async move {
         let mut request = request?;
         if let Some((store, account)) = &auth {
-            let access_token = store.get_token(&account).await?;
+            let access_token = store.get_token(account).await?;
             request.set_auth(Some(access_token))?;
         }
         let response = service.request(request).await?;
         let result = parse_rest_response(response, expected_statuses).await;
 
         if let Some((store, account)) = &auth {
-            store.check_response(&account, &result);
+            store.check_response(account, &result);
         }
 
         result

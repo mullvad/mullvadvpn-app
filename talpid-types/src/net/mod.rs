@@ -41,10 +41,7 @@ impl TunnelParameters {
                     .get_exit_endpoint()
                     .unwrap_or(params.connection.get_endpoint()),
                 proxy: None,
-                obfuscation: params
-                    .obfuscation
-                    .as_ref()
-                    .map(|obfs| ObfuscationEndpoint::from(obfs)),
+                obfuscation: params.obfuscation.as_ref().map(ObfuscationEndpoint::from),
                 entry_endpoint: params
                     .connection
                     .get_exit_endpoint()
@@ -64,7 +61,7 @@ impl TunnelParameters {
             TunnelParameters::Wireguard(params) => params
                 .obfuscation
                 .as_ref()
-                .map(|obfuscator| Self::get_obfuscator_endpoint(obfuscator))
+                .map(Self::get_obfuscator_endpoint)
                 .unwrap_or(params.connection.get_endpoint()),
         }
     }

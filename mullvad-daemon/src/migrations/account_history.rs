@@ -131,7 +131,6 @@ fn try_format_v1(bytes: &[u8]) -> Result<Option<AccountToken>> {
 
 #[cfg(test)]
 mod test {
-    use serde_json;
 
     pub const ACCOUNT_HISTORY_V1: &str = r#"
 {

@@ -94,7 +94,7 @@ impl Stream for ApiConnectionModeProvider {
             config
         }));
 
-        return self.poll_next(cx);
+        self.poll_next(cx)
     }
 }
 
@@ -148,7 +148,7 @@ impl ApiEndpointUpdaterHandle {
                 };
                 let (result_tx, result_rx) = oneshot::channel();
                 let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
-                    get_allowed_endpoint(address.clone()),
+                    get_allowed_endpoint(address),
                     result_tx,
                 ));
                 // Wait for the firewall policy to be updated.

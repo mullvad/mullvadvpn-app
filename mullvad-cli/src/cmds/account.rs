@@ -241,7 +241,7 @@ impl Account {
                     || dev.id.eq_ignore_ascii_case(&device_to_revoke)
             })
             .map(|dev| dev.id)
-            .ok_or_else(|| Error::Other(DEVICE_NOT_FOUND_ERROR))?;
+            .ok_or(Error::Other(DEVICE_NOT_FOUND_ERROR))?;
 
         rpc.remove_device(types::DeviceRemoval {
             account_token: token,

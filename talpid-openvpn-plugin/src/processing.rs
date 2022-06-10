@@ -29,7 +29,7 @@ impl EventProcessor {
             .build()
             .map_err(Error::CreateRuntime)?;
         let ipc_client = runtime
-            .block_on(Self::spawn_client(arguments.ipc_socket_path.clone()))
+            .block_on(Self::spawn_client(arguments.ipc_socket_path))
             .map_err(Error::CreateTransport)?;
 
         Ok(EventProcessor {
