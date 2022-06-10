@@ -23,23 +23,25 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-### Added
-- Add option to filter relays by ownership in the desktop apps.
-- Include creation timestamp for devices in the CLI.
-
 ### Changed
-- List devices on an account sorted by creation date, oldest to newest, instead of alphabetically.
-
 #### Android
 - Lowered default MTU to 1280 on Android.
-
-### Fixed
-- Fix logout failing if the API cannot be reached in the GUI.
 
 ### Security
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected
   state.
+
+
+## [2022.2-beta2] - 2022-06-10
+### Added
+- Include creation timestamp for devices in the CLI.
+
+### Changed
+- List devices on an account sorted by creation date, oldest to newest, instead of alphabetically.
+
+### Fixed
+- Fix logout failing if the API cannot be reached in the GUI.
 
 
 ## [2022.2-beta1] - 2022-05-16
@@ -50,7 +52,7 @@ Line wrap the file at 100 chars.                                              Th
   option to log out other devices when there are already 5 connected when logging in.
 - Add tray icon tooltip with connection info in desktop app.
 - Add relay and bridge constraints for restricting relay selection to rented or Mullvad-owned
-  relays.
+  relays. Allows filtering servers by ownership in the CLI.
 
 #### Windows
 - Detect mounting and dismounting of volumes, such as VeraCrypt volumes or USB drives,
