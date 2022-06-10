@@ -7,6 +7,12 @@
 //
 
 import UIKit
+import Logging
+
+protocol AccountInputGroupViewDelegate: AnyObject {
+    func accountInputGroupViewShouldRemoveLastUsedAccount(_ view: AccountInputGroupView) -> Bool
+    func accountInputGroupViewShouldAttemptLogin(_ view: AccountInputGroupView)
+}
 
 class AccountInputGroupView: UIView {
 
@@ -14,7 +20,7 @@ class AccountInputGroupView: UIView {
         case normal, error, authenticating
     }
 
-    var onSendButton: ((AccountInputGroupView) -> Void)?
+    weak var delegate: AccountInputGroupViewDelegate?
 
     let sendButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -45,7 +51,7 @@ class AccountInputGroupView: UIView {
 
     private let privateTextField: AccountTextField = {
         let textField = AccountTextField()
-        textField.font = UIFont.systemFont(ofSize: 20)
+        textField.font = accountNumberFont()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "0000 0000 0000 0000"
         textField.placeholderTextColor = .lightGray
@@ -64,9 +70,55 @@ class AccountInputGroupView: UIView {
         return textField
     }()
 
-    private let contentView: UIView = {
+    private let separator: UIView = {
+        let separator = UIView()
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        separator.backgroundColor = UIColor.AccountTextField.NormalState.borderColor
+        return separator
+    }()
+
+    private let topRowView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white
+
+        return view
+    }()
+
+    private let bottomRowView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white.withAlphaComponent(0.8)
+
+        return view
+    }()
+
+    private let lastUsedAccountButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.titleLabel?.font = accountNumberFont()
+        button.setTitle("", for: .normal)
+        button.contentHorizontalAlignment = .leading
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: UIMetrics.textFieldMargins.left, bottom: 0, right: 0)
+        button.setTitleColor(UIColor.AccountTextField.NormalState.textColor, for: .normal)
+
+        return button
+    }()
+
+    private let removeLastUsedAccountButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "IconCloseSml"), for: .normal)
+        button.imageView?.tintColor = .primaryColor.withAlphaComponent(0.4)
+
+        return button
+    }()
+
+    private let contentView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.translatesAutoresizingMaskIntoConstraints = false
+
         return view
     }()
 
@@ -75,12 +127,14 @@ class AccountInputGroupView: UIView {
     private let borderRadius = CGFloat(8)
     private let borderWidth = CGFloat(2)
 
+    private var lastUsedAccount: String = ""
+
     private var borderColor: UIColor {
         switch loginState {
         case .default:
             return privateTextField.isEditing
-                ? UIColor.AccountTextField.NormalState.borderColor
-                : UIColor.clear
+                             ? UIColor.AccountTextField.NormalState.borderColor
+                             : UIColor.clear
 
         case .failure:
             return UIColor.AccountTextField.ErrorState.borderColor
@@ -119,33 +173,77 @@ class AccountInputGroupView: UIView {
     private let borderLayer = CAShapeLayer()
     private let contentLayerMask = CALayer()
 
+    var lastUsedAccountViewHeightConstraint: NSLayoutConstraint!
+    var lastUsedAccountHeightConstraint: NSLayoutConstraint!
+    var separatorHeightConstraint: NSLayoutConstraint!
+
     // MARK: - View lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         addSubview(contentView)
-        contentView.addSubview(privateTextField)
-        contentView.addSubview(sendButton)
+        contentView.addSubview(topRowView)
+        contentView.addSubview(bottomRowView)
+        topRowView.addSubview(privateTextField)
+        topRowView.addSubview(sendButton)
+        bottomRowView.addSubview(separator)
+        bottomRowView.addSubview(lastUsedAccountButton)
+        bottomRowView.addSubview(removeLastUsedAccountButton)
 
         privateTextField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         sendButton.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 
+        separatorHeightConstraint = separator.heightAnchor.constraint(equalToConstant: 0)
+        lastUsedAccountHeightConstraint = lastUsedAccountButton.heightAnchor.constraint(equalToConstant: 0)
+
+        lastUsedAccountButton.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        removeLastUsedAccountButton.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+
         NSLayoutConstraint.activate([
             contentView.topAnchor.constraint(equalTo: topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            sendButton.topAnchor.constraint(equalTo: contentView.topAnchor),
-            sendButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            sendButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            topRowView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            topRowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            topRowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            topRowView.bottomAnchor.constraint(equalTo: bottomRowView.topAnchor),
+
+            bottomRowView.topAnchor.constraint(equalTo: topRowView.bottomAnchor),
+            bottomRowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            bottomRowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            bottomRowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+
+            privateTextField.topAnchor.constraint(equalTo: topRowView.topAnchor),
+            privateTextField.leadingAnchor.constraint(equalTo: topRowView.leadingAnchor),
+            privateTextField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor),
+            privateTextField.bottomAnchor.constraint(equalTo: topRowView.bottomAnchor),
+
+            sendButton.topAnchor.constraint(equalTo: topRowView.topAnchor),
+            sendButton.trailingAnchor.constraint(equalTo: topRowView.trailingAnchor),
+            sendButton.bottomAnchor.constraint(equalTo: topRowView.bottomAnchor),
             sendButton.widthAnchor.constraint(equalTo: sendButton.heightAnchor),
 
-            privateTextField.topAnchor.constraint(equalTo: contentView.topAnchor),
-            privateTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            privateTextField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor),
-            privateTextField.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            separator.topAnchor.constraint(equalTo: bottomRowView.topAnchor),
+            separator.bottomAnchor.constraint(equalTo: lastUsedAccountButton.topAnchor),
+            separator.leadingAnchor.constraint(equalTo: bottomRowView.leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: bottomRowView.trailingAnchor),
+            separatorHeightConstraint,
+
+            lastUsedAccountButton.topAnchor.constraint(equalTo: separator.bottomAnchor),
+            lastUsedAccountButton.bottomAnchor.constraint(equalTo: bottomRowView.bottomAnchor),
+            lastUsedAccountButton.leadingAnchor.constraint(equalTo: bottomRowView.leadingAnchor),
+            lastUsedAccountButton.trailingAnchor.constraint(equalTo: removeLastUsedAccountButton.leadingAnchor),
+            lastUsedAccountButton.heightAnchor.constraint(lessThanOrEqualTo: privateTextField.heightAnchor),
+            lastUsedAccountHeightConstraint,
+
+            removeLastUsedAccountButton.topAnchor.constraint(equalTo: separator.bottomAnchor),
+            removeLastUsedAccountButton.leadingAnchor.constraint(equalTo: lastUsedAccountButton.trailingAnchor),
+            removeLastUsedAccountButton.trailingAnchor.constraint(equalTo: bottomRowView.trailingAnchor),
+            removeLastUsedAccountButton.bottomAnchor.constraint(equalTo: bottomRowView.bottomAnchor),
+            removeLastUsedAccountButton.widthAnchor.constraint(equalTo: removeLastUsedAccountButton.heightAnchor),
         ])
 
         backgroundColor = UIColor.clear
@@ -159,6 +257,10 @@ class AccountInputGroupView: UIView {
         updateTextFieldEnabled()
         updateSendButtonAppearance(animated: false)
         updateKeyboardReturnKeyEnabled()
+
+        lastUsedAccountButton.addTarget(self, action: #selector(didTapLastUsedAccount), for: .touchUpInside)
+
+        removeLastUsedAccountButton.addTarget(self, action: #selector(didTapRemoveLastUsedAccount), for: .touchUpInside)
 
         addTextFieldNotificationObservers()
         addAccessibilityNotificationObservers()
@@ -175,6 +277,7 @@ class AccountInputGroupView: UIView {
         updateAppearance()
         updateTextFieldEnabled()
         updateSendButtonAppearance(animated: animated)
+        updateLastUsedAccount()
     }
 
     func setOnReturnKey(_ onReturnKey: ((AccountInputGroupView) -> Bool)?) {
@@ -189,14 +292,20 @@ class AccountInputGroupView: UIView {
         }
     }
 
-    func setToken(_ token: String) {
-        privateTextField.autoformattingText = token
+    func setAccount(_ account: String) {
+        privateTextField.autoformattingText = account
         updateSendButtonAppearance(animated: false)
     }
 
-    func clearToken() {
+    func clearAccount() {
         privateTextField.autoformattingText = ""
         updateSendButtonAppearance(animated: false)
+    }
+
+    func setLastUsedAccount(_ accountNumber: String) {
+        lastUsedAccount = accountNumber
+        lastUsedAccountButton.setTitle(accountNumber, for: .normal)
+        setLastUsedAccount(isExpanded: true)
     }
 
     // MARK: - CALayerDelegate
@@ -236,10 +345,32 @@ class AccountInputGroupView: UIView {
     }
 
     @objc private func handleSendButton(_ sender: Any) {
-        onSendButton?(self)
+        self.delegate?.accountInputGroupViewShouldAttemptLogin(self)
+    }
+
+    @objc private func didTapLastUsedAccount() {
+        setAccount(lastUsedAccount)
+        privateTextField.resignFirstResponder()
+        setLastUsedAccount(isExpanded: false)
+        self.delegate?.accountInputGroupViewShouldAttemptLogin(self)
+    }
+
+    @objc private func didTapRemoveLastUsedAccount() {
+        if self.delegate?.accountInputGroupViewShouldRemoveLastUsedAccount(self) ?? false {
+            clearAccount()
+            setLastUsedAccount(isExpanded: false)
+        }
     }
 
     // MARK: - Private
+
+    private static func accountNumberFont() -> UIFont {
+        if #available(iOS 13, *) {
+            return UIFont.monospacedSystemFont(ofSize: 20, weight: .regular)
+        } else {
+            return UIFont.systemFont(ofSize: 20)
+        }
+    }
 
     private func addTextFieldNotificationObservers() {
         let notificationCenter = NotificationCenter.default
@@ -260,7 +391,7 @@ class AccountInputGroupView: UIView {
 
     private func updateAppearance() {
         borderLayer.strokeColor = borderColor.cgColor
-        contentView.backgroundColor = backgroundLayerColor
+        topRowView.backgroundColor = backgroundLayerColor
         privateTextField.textColor = textColor
     }
 
@@ -272,6 +403,28 @@ class AccountInputGroupView: UIView {
         case .default, .failure:
             privateTextField.isEnabled = true
         }
+    }
+
+    private func updateLastUsedAccount() {
+        guard !lastUsedAccount.isEmpty else {
+            setLastUsedAccount(isExpanded: false)
+            return
+        }
+        switch self.loginState {
+        case .authenticating, .success:
+            setLastUsedAccount(isExpanded: false)
+        default:
+            setLastUsedAccount(isExpanded: true)
+        }
+    }
+
+    private func setLastUsedAccount(isExpanded: Bool) {
+        lastUsedAccountHeightConstraint.constant = isExpanded ? 50 : 0
+        lastUsedAccountButton.alpha = isExpanded ? 1 : 0
+        lastUsedAccountButton.isUserInteractionEnabled = isExpanded ? true : false
+
+        separatorHeightConstraint.constant = isExpanded ? 2 : 0
+        separator.alpha = isExpanded ? 1 : 0
     }
 
     private func updateSendButtonAppearance(animated: Bool) {
