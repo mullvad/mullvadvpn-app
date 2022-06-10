@@ -1,3 +1,4 @@
+#![allow(clippy::identity_op)]
 use chrono::{offset::Utc, DateTime};
 #[cfg(target_os = "android")]
 use jnix::IntoJava;

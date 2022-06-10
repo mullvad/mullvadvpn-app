@@ -334,7 +334,7 @@ impl<'a> PolicyBatch<'a> {
         {
             for server in dns_servers
                 .iter()
-                .filter(|server| !is_local_dns_address(&tunnel, server))
+                .filter(|server| !is_local_dns_address(tunnel, server))
             {
                 let chain = if server.is_ipv4() {
                     &self.mangle_chain_v4
@@ -581,8 +581,8 @@ impl<'a> PolicyBatch<'a> {
                 dns_servers,
             } => {
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint);
-                self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Udp)?;
-                self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Tcp)?;
+                self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Udp)?;
+                self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Tcp)?;
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
                 self.add_drop_dns_rule();
@@ -903,7 +903,7 @@ fn allow_interface_rule<'a>(
     direction: Direction,
     iface: &str,
 ) -> Result<Rule<'a>> {
-    let mut rule = Rule::new(&chain);
+    let mut rule = Rule::new(chain);
     check_iface(&mut rule, direction, iface)?;
     add_verdict(&mut rule, &Verdict::Accept);
 

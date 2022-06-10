@@ -438,6 +438,8 @@ impl SharedTunnelStateValues {
         Ok(())
     }
 
+    // We need to clone on android, so we can ignore clippys advice
+    #[allow(clippy::redundant_clone)]
     pub fn set_dns_servers(
         &mut self,
         dns_servers: Option<Vec<IpAddr>>,

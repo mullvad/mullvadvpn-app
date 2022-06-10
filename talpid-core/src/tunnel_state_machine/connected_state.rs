@@ -87,8 +87,7 @@ impl ConnectedState {
         if let Some(ref servers) = shared_values.dns_servers {
             servers.clone()
         } else {
-            let mut dns_ips = vec![];
-            dns_ips.push(self.metadata.ipv4_gateway.into());
+            let mut dns_ips = vec![self.metadata.ipv4_gateway.into()];
             if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
                 dns_ips.push(ipv6_gateway.into());
             };
@@ -135,7 +134,7 @@ impl ConnectedState {
 
         shared_values
             .dns_monitor
-            .set(&self.metadata.interface, &dns_ips)
+            .set(&self.metadata.interface, dns_ips)
             .map_err(BoxedError::new)?;
 
         Ok(())

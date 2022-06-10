@@ -25,7 +25,7 @@ impl TempFile {
 
 impl AsRef<Path> for TempFile {
     fn as_ref(&self) -> &Path {
-        &self.path.as_path()
+        self.path.as_path()
     }
 }
 
