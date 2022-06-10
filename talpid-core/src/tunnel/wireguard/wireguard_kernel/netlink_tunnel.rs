@@ -68,7 +68,7 @@ impl Tunnel for NetlinkTunnel {
                     return Ok(name);
                 }
             }
-            return Err(Error::Truncated);
+            Err(Error::Truncated)
         });
 
         match result {
@@ -99,14 +99,12 @@ impl Tunnel for NetlinkTunnel {
     fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
         let mut wg = self.netlink_connections.wg_handle.clone();
         let interface_index = self.interface_index;
-        let result = self.tokio_handle.block_on(async move {
+        self.tokio_handle.block_on(async move {
             let device = wg.get_by_index(interface_index).await.map_err(|err| {
                 log::error!("Failed to fetch WireGuard device config: {}", err);
                 TunnelError::GetConfigError
             })?;
             Ok(Stats::parse_device_message(&device))
-        });
-
-        result
+        })
     }
 }

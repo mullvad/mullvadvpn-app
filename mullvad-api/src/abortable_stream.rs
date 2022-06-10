@@ -72,7 +72,7 @@ where
         cx: &mut Context<'_>,
         buf: &[u8],
     ) -> Poll<io::Result<usize>> {
-        if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
+        if Pin::new(&mut self.shutdown_rx).poll(cx).is_ready() {
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
                 Aborted(()),
@@ -82,7 +82,7 @@ where
     }
 
     fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
-        if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
+        if Pin::new(&mut self.shutdown_rx).poll(cx).is_ready() {
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
                 Aborted(()),
@@ -105,7 +105,7 @@ where
         cx: &mut Context<'_>,
         buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<()>> {
-        if let Poll::Ready(_) = Pin::new(&mut self.shutdown_rx).poll(cx) {
+        if Pin::new(&mut self.shutdown_rx).poll(cx).is_ready() {
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionReset,
                 Aborted(()),

@@ -382,10 +382,7 @@ impl ConnState {
     }
 
     pub fn connected(&self) -> bool {
-        match self {
-            ConnState::Connected { .. } => true,
-            _ => false,
-        }
+        matches!(self, ConnState::Connected { .. })
     }
 }
 

@@ -51,7 +51,7 @@ fn main() {
     match run() {
         Err(Error::InvalidArguments) => {
             let mut args = env::args();
-            let program = args.next().unwrap_or(PROGRAM_NAME.to_string());
+            let program = args.next().unwrap_or_else(|| PROGRAM_NAME.to_string());
             eprintln!("Usage: {} COMMAND [ARGS]", program);
             std::process::exit(1);
         }

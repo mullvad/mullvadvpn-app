@@ -274,16 +274,11 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let proxy_auth_file =
             Self::create_proxy_auth_file(&params.proxy).map_err(Error::CredentialsWriteError)?;
         let user_pass_file_path = user_pass_file.to_path_buf();
-        let proxy_auth_file_path = match proxy_auth_file {
-            Some(ref file) => Some(file.to_path_buf()),
-            _ => None,
-        };
+        let proxy_auth_file_path = proxy_auth_file.as_ref().map(|file| file.to_path_buf());
 
-        let log_dir: Option<PathBuf> = if let Some(ref log_path) = log_path {
-            Some(log_path.parent().expect("log_path has no parent").into())
-        } else {
-            None
-        };
+        let log_dir = log_path
+            .as_ref()
+            .map(|log_path| log_path.parent().expect("log_path has no parent").into());
 
         let proxy_resources = proxy::ProxyResourceData {
             resource_dir: resource_dir.to_path_buf(),
@@ -398,7 +393,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         let wintun = Arc::new(wintun);
 
         cmd.plugin(plugin_path, vec![ipc_path])
-            .log(log_path.as_ref().map(|p| p.as_path()));
+            .log(log_path.as_deref());
         let (spawn_task, abort_spawn) = futures::future::abortable(Self::prepare_process(
             cmd,
             #[cfg(windows)]
@@ -945,14 +940,14 @@ mod event_server {
         ) -> std::result::Result<TunnelMetadata, tonic::Status> {
             let tunnel_alias = env
                 .get("dev")
-                .ok_or(tonic::Status::invalid_argument("missing tunnel alias"))?
+                .ok_or_else(|| tonic::Status::invalid_argument("missing tunnel alias"))?
                 .to_string();
 
             let mut ips = vec![env
                 .get("ifconfig_local")
-                .ok_or(tonic::Status::invalid_argument(
-                    "missing \"ifconfig_local\" in up event",
-                ))?
+                .ok_or_else(|| {
+                    tonic::Status::invalid_argument("missing \"ifconfig_local\" in up event")
+                })?
                 .parse()
                 .map_err(|_| tonic::Status::invalid_argument("Invalid tunnel IPv4 address"))?];
             if let Some(ipv6_address) = env.get("ifconfig_ipv6_local") {
@@ -964,9 +959,9 @@ mod event_server {
             }
             let ipv4_gateway = env
                 .get("route_vpn_gateway")
-                .ok_or(tonic::Status::invalid_argument(
-                    "No \"route_vpn_gateway\" in tunnel up event",
-                ))?
+                .ok_or_else(|| {
+                    tonic::Status::invalid_argument("No \"route_vpn_gateway\" in tunnel up event")
+                })?
                 .parse()
                 .map_err(|_| {
                     tonic::Status::invalid_argument("Invalid tunnel gateway IPv4 address")
