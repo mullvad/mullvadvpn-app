@@ -63,6 +63,7 @@ pub enum DriverIoctlCode {
     ClearConfiguration = ctl_code(ST_DEVICE_TYPE, 8, METHOD_NEITHER, FILE_ANY_ACCESS),
     GetState = ctl_code(ST_DEVICE_TYPE, 9, METHOD_BUFFERED, FILE_ANY_ACCESS),
     QueryProcess = ctl_code(ST_DEVICE_TYPE, 10, METHOD_BUFFERED, FILE_ANY_ACCESS),
+    Reset = ctl_code(ST_DEVICE_TYPE, 11, METHOD_NEITHER, FILE_ANY_ACCESS),
 }
 
 #[derive(Debug, PartialEq)]
@@ -206,6 +207,10 @@ pub enum DeviceHandleError {
     /// Failed to clear configuration in driver
     #[error(display = "Failed to clear configuration in driver")]
     ClearConfigError(#[error(source)] io::Error),
+
+    /// Failed to reset driver state to "started"
+    #[error(display = "Failed to reset driver state")]
+    ResetError(#[error(source)] io::Error),
 }
 
 impl DeviceHandle {
@@ -226,35 +231,26 @@ impl DeviceHandle {
             })?;
 
         let device = Self { handle };
-
-        // Initialize the driver
-        let state = device
-            .get_driver_state()
-            .map_err(DeviceHandleError::GetStateError)?;
-        if state == DriverState::Started {
-            log::trace!("Initializing driver");
-            device
-                .initialize()
-                .map_err(DeviceHandleError::InitializationError)?;
-        }
-
-        // Initialize process tree
-        let state = device
-            .get_driver_state()
-            .map_err(DeviceHandleError::GetStateError)?;
-        if state == DriverState::Initialized {
-            log::trace!("Registering processes");
-            device
-                .register_processes()
-                .map_err(DeviceHandleError::RegisterProcessesError)?;
-        }
-
-        log::trace!("Clearing any existing exclusion config");
-        device
-            .clear_config()
-            .map_err(DeviceHandleError::ClearConfigError)?;
-
+        device.reinitialize()?;
         Ok(device)
+    }
+
+    pub fn reinitialize(&self) -> Result<(), DeviceHandleError> {
+        let state = self
+            .get_driver_state()
+            .map_err(DeviceHandleError::GetStateError)?;
+        if state != DriverState::Started {
+            log::debug!("Resetting driver state");
+            self.reset().map_err(DeviceHandleError::ResetError)?;
+        }
+
+        log::debug!("Initializing driver");
+        self.initialize()
+            .map_err(DeviceHandleError::InitializationError)?;
+
+        log::debug!("Initializing driver process tree");
+        self.register_processes()
+            .map_err(DeviceHandleError::RegisterProcessesError)
     }
 
     fn initialize(&self) -> io::Result<()> {
@@ -404,6 +400,17 @@ impl DeviceHandle {
             None,
         )?;
 
+        Ok(())
+    }
+
+    fn reset(&self) -> io::Result<()> {
+        device_io_control(
+            self.handle.as_raw_handle(),
+            DriverIoctlCode::Reset as u32,
+            None,
+            0,
+            None,
+        )?;
         Ok(())
     }
 }
