@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-daemon"
-version = "2022.2.0-beta2"
+version = "2022.2.0"
 authors = ["Mullvad VPN"]
 description = "Mullvad VPN daemon. Runs and controls the VPN tunnels"
 license = "GPL-3.0"
