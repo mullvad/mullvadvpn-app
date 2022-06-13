@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add option to filter relays by ownership in the desktop apps.
 
+#### Linux
+- Automatically attempt to detect and set the correct MTU for Wireguard tunnels.
+
 ### Changed
 - Display consistent colors regardless of monitor color profile.
 
