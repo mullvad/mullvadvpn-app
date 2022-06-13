@@ -113,6 +113,9 @@ pub enum Error {
     #[error(display = "No netlink response for route query")]
     NoRouteError,
 
+    #[error(display = "Route node was malformed")]
+    InvalidRouteNode,
+
     #[error(display = "No link found")]
     LinkNotFoundError,
 
@@ -738,7 +741,7 @@ impl RouteManagerImpl {
                 Some(route) => {
                     let node = route.get_node();
                     match (node.get_device(), node.get_address()) {
-                        (Some(device), None) => {
+                        (Some(device), _) => {
                             let mtu = self.get_device_mtu(device.to_string()).await?;
                             if mtu != STANDARD_MTU {
                                 log::info!(
@@ -751,8 +754,9 @@ impl RouteManagerImpl {
                             return Ok(mtu);
                         }
                         (None, Some(address)) => attempted_ip = address,
-                        _ => {
-                            panic!("Route must contain either an IP or a device.");
+                        (None, None) => {
+                            log::error!("Route contains an invalid node which lacks both a device and an address");
+                            return Err(Error::InvalidRouteNode);
                         }
                     }
                 }
