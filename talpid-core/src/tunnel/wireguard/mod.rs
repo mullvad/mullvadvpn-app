@@ -230,7 +230,7 @@ impl WireguardMonitor {
             #[cfg(target_os = "windows")]
             setup_done_tx,
         )?;
-        let iface_name = tunnel.get_interface_name().to_string();
+        let iface_name = tunnel.get_interface_name();
 
         let event_callback = Box::new(on_event.clone());
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
@@ -544,7 +544,7 @@ impl WireguardMonitor {
         log::debug!("Using userspace WireGuard implementation");
         Ok(Box::new(
             WgGoTunnel::start_tunnel(
-                &config,
+                config,
                 log_path,
                 #[cfg(not(windows))]
                 tun_provider,
@@ -591,9 +591,7 @@ impl WireguardMonitor {
 
     /// Returns routes to the peer endpoints (through the physical interface).
     #[cfg_attr(target_os = "linux", allow(unused_variables))]
-    fn get_endpoint_routes<'a>(
-        endpoints: &'a [IpAddr],
-    ) -> impl Iterator<Item = RequiredRoute> + 'a {
+    fn get_endpoint_routes(endpoints: &[IpAddr]) -> impl Iterator<Item = RequiredRoute> + '_ {
         #[cfg(target_os = "linux")]
         {
             // No need due to policy based routing.

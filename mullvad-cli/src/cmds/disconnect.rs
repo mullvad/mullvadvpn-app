@@ -35,9 +35,8 @@ impl Command for Disconnect {
                 while let Some(state) = receiver.next().await {
                     let state = state?;
                     format::print_state(&state, false);
-                    match state.state.unwrap() {
-                        Disconnected(_) => return Ok(()),
-                        _ => {}
+                    if let Disconnected(_) = state.state.unwrap() {
+                        return Ok(());
                     }
                 }
                 return Err(Error::StatusListenerFailed);

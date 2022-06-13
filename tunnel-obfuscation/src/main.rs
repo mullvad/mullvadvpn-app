@@ -16,8 +16,8 @@ async fn main() {
     }
 }
 
-async fn instantiate_requested(obfuscator_type: &String) -> Box<dyn Obfuscator> {
-    match obfuscator_type.as_str() {
+async fn instantiate_requested(obfuscator_type: &str) -> Box<dyn Obfuscator> {
+    match obfuscator_type {
         "udp2tcp" => {
             let settings = Udp2TcpSettings {
                 peer: SocketAddr::new("127.0.0.1".parse().unwrap(), 3030),

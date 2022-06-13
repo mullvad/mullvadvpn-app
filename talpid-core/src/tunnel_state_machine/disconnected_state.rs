@@ -28,13 +28,11 @@ impl DisconnectedState {
                 dns_redirect_port: shared_values.filtering_resolver.listening_port(),
             };
 
-            let firewall_result = shared_values.firewall.apply_policy(policy).map_err(|e| {
+            shared_values.firewall.apply_policy(policy).map_err(|e| {
                 e.display_chain_with_msg(
                     "Failed to apply blocking firewall policy for disconnected state",
                 )
-            });
-
-            firewall_result
+            })
         } else if should_reset_firewall {
             shared_values
                 .firewall

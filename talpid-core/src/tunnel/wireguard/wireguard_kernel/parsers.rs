@@ -54,7 +54,7 @@ pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<InetAddr, DecodeError> {
     match NativeEndian::read_u16(buffer) {
         AF_INET => unsafe {
             let sockaddr: *const libc::sockaddr_in = ptr as *const _;
-            Ok(InetAddr::V4(*sockaddr).into())
+            Ok(InetAddr::V4(*sockaddr))
         },
         AF_INET6 => unsafe {
             let sockaddr: *const libc::sockaddr_in6 = ptr as *const _;

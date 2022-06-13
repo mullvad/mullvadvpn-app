@@ -94,8 +94,8 @@ fn openvpn_event(
 
     let parsed_env = openvpn_plugin::ffi::parse::env_utf8(&env).map_err(Error::ParseEnvFailed)?;
 
-    let mut ctx = handle
-        .lock()
+    let ctx = handle
+        .get_mut()
         .expect("failed to obtain mutex for EventProcessor");
     if let Some(processor) = ctx.as_mut() {
         match processor.process_event(event, parsed_env) {

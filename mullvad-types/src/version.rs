@@ -69,10 +69,7 @@ impl ParsedAppVersion {
     }
 
     pub fn is_dev(&self) -> bool {
-        match self {
-            ParsedAppVersion::Dev(..) => true,
-            _ => false,
-        }
+        matches!(self, ParsedAppVersion::Dev(..))
     }
 }
 

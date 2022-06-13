@@ -215,10 +215,9 @@ impl HttpsConnectorWithSni {
     }
 
     async fn resolve_address(address_cache: AddressCache, uri: Uri) -> io::Result<SocketAddr> {
-        let hostname = uri.host().ok_or(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "invalid url, missing host",
-        ))?;
+        let hostname = uri.host().ok_or_else(|| {
+            io::Error::new(io::ErrorKind::InvalidInput, "invalid url, missing host")
+        })?;
         let port = uri.port_u16().unwrap_or(443);
         if let Ok(addr) = hostname.parse::<IpAddr>() {
             return Ok(SocketAddr::new(addr, port));
@@ -241,7 +240,7 @@ impl HttpsConnectorWithSni {
             .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
         let addr = addrs
             .next()
-            .ok_or(io::Error::new(io::ErrorKind::Other, "Empty DNS response"))?;
+            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Empty DNS response"))?;
         Ok(SocketAddr::new(addr.ip(), port))
     }
 }

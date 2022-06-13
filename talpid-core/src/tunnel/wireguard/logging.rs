@@ -36,7 +36,8 @@ static NULL_DEVICE: &str = "NUL";
 static NULL_DEVICE: &str = "/dev/null";
 
 fn create_log_file(log_path: Option<&Path>) -> Result<fs::File, Error> {
-    fs::File::create(log_path.unwrap_or(NULL_DEVICE.as_ref())).map_err(Error::PrepareLogFileError)
+    fs::File::create(log_path.unwrap_or_else(|| NULL_DEVICE.as_ref()))
+        .map_err(Error::PrepareLogFileError)
 }
 
 pub fn clean_up_logging(ordinal: u32) {

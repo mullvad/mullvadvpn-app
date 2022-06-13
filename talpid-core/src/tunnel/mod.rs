@@ -121,13 +121,13 @@ impl TunnelMonitor {
             + Sync
             + 'static,
     {
-        Self::ensure_ipv6_can_be_used_if_enabled(&tunnel_parameters)?;
-        let log_file = Self::prepare_tunnel_log_file(&tunnel_parameters, log_dir)?;
+        Self::ensure_ipv6_can_be_used_if_enabled(tunnel_parameters)?;
+        let log_file = Self::prepare_tunnel_log_file(tunnel_parameters, log_dir)?;
 
         match tunnel_parameters {
             #[cfg(not(target_os = "android"))]
             TunnelParameters::OpenVpn(config) => runtime.block_on(Self::start_openvpn_tunnel(
-                &config,
+                config,
                 log_file,
                 resource_dir,
                 on_event,

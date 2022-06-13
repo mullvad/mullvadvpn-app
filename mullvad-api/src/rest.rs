@@ -78,17 +78,11 @@ pub enum Error {
 
 impl Error {
     pub fn is_network_error(&self) -> bool {
-        match self {
-            Error::HyperError(_) | Error::TimeoutError(_) => true,
-            _ => false,
-        }
+        matches!(self, Error::HyperError(_) | Error::TimeoutError(_))
     }
 
     pub fn is_aborted(&self) -> bool {
-        match self {
-            Error::Aborted => true,
-            _ => false,
-        }
+        matches!(self, Error::Aborted)
     }
 
     /// Returns a new instance for which `abortable_stream::Aborted` is mapped to `Self::Aborted`.

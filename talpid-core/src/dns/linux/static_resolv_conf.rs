@@ -5,6 +5,7 @@ use resolv_conf::{Config, ScopedIp};
 use std::{
     fs, io,
     net::IpAddr,
+    path::Path,
     sync::{mpsc, Arc},
     thread,
 };
@@ -128,7 +129,7 @@ impl DnsWatcher {
             if event
                 .path
                 .as_ref()
-                .map(|p| p.as_path() == &RESOLV_CONF_PATH.as_ref())
+                .map(|p| p.as_path() == AsRef::<Path>::as_ref(RESOLV_CONF_PATH))
                 .unwrap_or(false)
             {
                 let mut locked_state = state.lock();

@@ -142,7 +142,7 @@ impl DnsMonitorHolder {
                 static_resolv_conf.set_dns(servers.to_vec())?
             }
             SystemdResolved(ref mut systemd_resolved) => handle
-                .block_on(systemd_resolved.set_dns(route_manager.clone(), interface, &servers))?,
+                .block_on(systemd_resolved.set_dns(route_manager.clone(), interface, servers))?,
             NetworkManager(ref mut network_manager) => {
                 network_manager.set_dns(interface, servers)?
             }
