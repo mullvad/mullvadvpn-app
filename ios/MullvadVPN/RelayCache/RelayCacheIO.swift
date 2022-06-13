@@ -14,8 +14,12 @@ extension RelayCache {
 
 extension RelayCache.IO {
     /// The default cache file location bound by app group container.
-    static func defaultCacheFileURL(forSecurityApplicationGroupIdentifier appGroupIdentifier: String) -> URL? {
-        let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier)
+    static func defaultCacheFileURL(
+        forSecurityApplicationGroupIdentifier appGroupIdentifier: String
+    ) -> URL? {
+        let containerURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: appGroupIdentifier
+        )
 
         return containerURL?.appendingPathComponent("relays.json")
     }
@@ -57,9 +61,11 @@ extension RelayCache.IO {
         return try result!.get()
     }
 
-    /// Safely read the cache file from disk using file coordinator and fallback to prebundled relays in case if the
-    /// relay cache file is missing.
-    static func readWithFallback(cacheFileURL: URL, preBundledRelaysFileURL: URL) throws -> RelayCache.CachedRelays {
+    /// Safely read the cache file from disk using file coordinator and fallback to prebundled
+    /// relays in case if the relay cache file is missing.
+    static func readWithFallback(cacheFileURL: URL, preBundledRelaysFileURL: URL)
+        throws -> RelayCache.CachedRelays
+    {
         do {
             return try Self.read(cacheFileURL: cacheFileURL)
         } catch {

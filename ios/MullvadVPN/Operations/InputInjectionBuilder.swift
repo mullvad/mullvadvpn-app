@@ -54,6 +54,23 @@ class InputInjectionBuilder<OperationType, Context> where OperationType: InputOp
         return self
     }
 
+    func injectCompletion<T, Success, Failure>(
+        from dependency: T,
+        via block: @escaping (inout Context, T.Completion) -> Void
+    ) -> Self
+        where T: ResultOperation<Success, Failure>
+    {
+        inputBlocks.append { context in
+            if let completion = dependency.completion {
+                block(&context, completion)
+            }
+        }
+
+        operation.addDependency(dependency)
+
+        return self
+    }
+
     func reduce(_ reduceBlock: @escaping (Context) -> OperationType.Input?) {
         operation.setInputBlock {
             for inputBlock in self.inputBlocks {

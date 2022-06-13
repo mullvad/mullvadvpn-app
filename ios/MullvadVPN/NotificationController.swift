@@ -15,7 +15,7 @@ struct InAppNotificationDescriptor: Equatable {
     var body: String
 }
 
-class NotificationController: UIViewController, NotificationManagerDelegate {
+class NotificationController: UIViewController {
     let bannerView: NotificationBannerView = {
         let bannerView = NotificationBannerView()
         bannerView.translatesAutoresizingMaskIntoConstraints = false
@@ -125,12 +125,7 @@ class NotificationController: UIViewController, NotificationManagerDelegate {
         }
     }
 
-    private func updateAccessibilityFrame() {
-        let layoutFrame = bannerView.layoutMarginsGuide.layoutFrame
-        bannerView.accessibilityFrame = UIAccessibility.convertToScreenCoordinates(layoutFrame, in: view)
-    }
-
-    private func setNotifications(_ notifications: [InAppNotificationDescriptor], animated: Bool) {
+    func setNotifications(_ notifications: [InAppNotificationDescriptor], animated: Bool) {
         let nextNotification = notifications.first
 
         if let notification = nextNotification {
@@ -141,10 +136,9 @@ class NotificationController: UIViewController, NotificationManagerDelegate {
         }
     }
 
-    // MARK: - NotificationManagerDelegate
-
-    func notificationManagerDidUpdateInAppNotifications(_ manager: NotificationManager, notifications: [InAppNotificationDescriptor]) {
-        setNotifications(notifications, animated: true)
+    private func updateAccessibilityFrame() {
+        let layoutFrame = bannerView.layoutMarginsGuide.layoutFrame
+        bannerView.accessibilityFrame = UIAccessibility.convertToScreenCoordinates(layoutFrame, in: view)
     }
 
 }

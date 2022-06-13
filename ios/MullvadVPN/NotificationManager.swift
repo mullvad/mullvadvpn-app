@@ -92,6 +92,10 @@ class NotificationManager: NotificationProviderDelegate {
         }
     }
 
+    static let shared = NotificationManager()
+
+    private init() {}
+
     func updateNotifications() {
         assert(Thread.isMainThread)
 
@@ -132,7 +136,10 @@ class NotificationManager: NotificationProviderDelegate {
             for newRequest in newSystemNotificationRequests {
                 notificationCenter.add(newRequest) { (error) in
                     if let error = error {
-                        self.logger.error("Failed to add notification request with identifier \(newRequest.identifier). Error: \(error.localizedDescription)")
+                        self.logger.error(
+                            chainedError: AnyChainedError(error),
+                            message: "Failed to add notification request with identifier \(newRequest.identifier)."
+                        )
                     }
                 }
             }
@@ -154,7 +161,10 @@ class NotificationManager: NotificationProviderDelegate {
             case .notDetermined:
                 userNotificationCenter.requestAuthorization(options: authorizationOptions) { (granted, error) in
                     if let error = error {
-                        self.logger.error("Failed to obtain user notifications authorization: \(error.localizedDescription)")
+                        self.logger.error(
+                            chainedError: AnyChainedError(error),
+                            message: "Failed to obtain user notifications authorization"
+                        )
                     }
                     completion(granted)
                 }

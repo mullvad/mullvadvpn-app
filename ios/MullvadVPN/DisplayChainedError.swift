@@ -183,6 +183,13 @@ extension TunnelManager.Error: DisplayChainedError {
                 value: "Internal error: account is unset",
                 comment: ""
             )
+        case .unsetTunnel:
+            return NSLocalizedString(
+                "UNSET_TUNNEL_ERROR",
+                tableName: "TunnelManager",
+                value: "Tunnel is unset.",
+                comment: ""
+            )
         case .readRelays:
             return NSLocalizedString(
                 "READ_RELAYS_ERROR",

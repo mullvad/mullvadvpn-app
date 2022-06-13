@@ -309,6 +309,10 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     // MARK: - TunnelObserver
 
+    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
+        // no-op
+    }
+
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
         // no-op
     }

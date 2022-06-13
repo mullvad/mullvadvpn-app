@@ -45,20 +45,15 @@ class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
             finish(completion: .success(()))
 
         case .disconnected, .pendingReconnect:
-            RelayCache.Tracker.shared.read { readResult in
-                self.dispatchQueue.async {
-                    switch readResult {
-                    case .success(let cachedRelays):
-                        self.didReceiveRelays(
-                            tunnelSettings: tunnelSettings,
-                            cachedRelays: cachedRelays
-                        )
-
-                    case .failure(let error):
-                        self.finish(completion: .failure(.readRelays(error)))
-                    }
-                }
+            guard let cachedRelays = RelayCache.Tracker.shared.getCachedRelays() else {
+                finish(completion: .failure(.readRelays))
+                return
             }
+
+            didReceiveRelays(
+                tunnelSettings: tunnelSettings,
+                cachedRelays: cachedRelays
+            )
 
         default:
             // Do not attempt to start the tunnel in all other cases.

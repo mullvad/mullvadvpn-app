@@ -10,7 +10,7 @@ import Foundation
 import Logging
 import class WireGuardKitTypes.PrivateKey
 
-class RotateKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, TunnelManager.Error> {
+class RotateKeyOperation: ResultOperation<Bool, TunnelManager.Error> {
     private let state: TunnelManager.State
 
     private let devicesProxy: REST.DevicesProxy
@@ -51,7 +51,7 @@ class RotateKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, Tunne
             if nextRotationDate > Date() {
                 logger.debug("Throttle private key rotation.")
 
-                finish(completion: .success(.throttled(creationDate)))
+                finish(completion: .success(false))
                 return
             } else {
                 logger.debug("Private key is old enough, rotate right away.")
@@ -119,7 +119,7 @@ class RotateKeyOperation: ResultOperation<TunnelManager.KeyRotationResult, Tunne
 
             state.tunnelSettings = newTunnelSettings
 
-            finish(completion: .success(.finished))
+            finish(completion: .success(true))
         } catch {
             logger.error(
                 chainedError: AnyChainedError(error),
