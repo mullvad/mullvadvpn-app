@@ -4,8 +4,8 @@ use tonic::transport::Channel;
 
 mod kem;
 
-mod types {
-    tonic::include_proto!("feature");
+mod proto {
+    tonic::include_proto!("tunnel_config");
 }
 
 #[derive(Debug)]
@@ -39,7 +39,7 @@ impl std::error::Error for Error {
     }
 }
 
-type RelayConfigService = types::post_quantum_secure_client::PostQuantumSecureClient<Channel>;
+type RelayConfigService = proto::post_quantum_secure_client::PostQuantumSecureClient<Channel>;
 
 const CONFIG_SERVICE_PORT: u16 = 1337;
 const ALGORITHM_NAME: &str = "Classic-McEliece-8192128f";
@@ -57,10 +57,10 @@ pub async fn push_pq_key(
 
     let mut client = new_client(service_address).await?;
     let response = client
-        .psk_exchange(types::PskRequest {
+        .psk_exchange_experimental_v0(proto::PskRequestExperimentalV0 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),
             wg_psk_pubkey: wg_psk_privkey.public_key().as_bytes().to_vec(),
-            oqs_pubkey: Some(types::OqsPubkey {
+            kem_pubkey: Some(proto::KemPubkeyExperimentalV0 {
                 algorithm_name: ALGORITHM_NAME.to_string(),
                 key_data: kem_pubkey.into_vec(),
             }),
