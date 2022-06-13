@@ -220,11 +220,11 @@ class AsyncOperation: Operation {
         self.dispatchQueue = dispatchQueue ?? DispatchQueue(label: "AsyncOperation.dispatchQueue")
         super.init()
 
-        addObserver(self, forKeyPath: "isReady", options: [], context: &Self.observerContext)
+        addObserver(self, forKeyPath: #keyPath(isReady), options: [], context: &Self.observerContext)
     }
 
     deinit {
-        removeObserver(self, forKeyPath: "isReady", context: &Self.observerContext)
+        removeObserver(self, forKeyPath: #keyPath(isReady), context: &Self.observerContext)
     }
 
     // MARK: - KVO
@@ -252,15 +252,15 @@ class AsyncOperation: Operation {
     }
 
     @objc class func keyPathsForValuesAffectingIsReady() -> Set<String> {
-        return ["state"]
+        return [#keyPath(state)]
     }
 
     @objc class func keyPathsForValuesAffectingIsExecuting() -> Set<String> {
-        return ["state"]
+        return [#keyPath(state)]
     }
 
     @objc class func keyPathsForValuesAffectingIsFinished() -> Set<String> {
-        return ["state"]
+        return [#keyPath(state)]
     }
 
     // MARK: - Lifecycle
