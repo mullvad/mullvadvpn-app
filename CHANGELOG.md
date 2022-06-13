@@ -33,6 +33,12 @@ Line wrap the file at 100 chars.                                              Th
   state.
 
 
+## [2022.2] - 2022-06-13
+This release is for desktop only.
+
+This release is identical to 2022.2-beta2.
+
+
 ## [2022.2-beta2] - 2022-06-10
 ### Added
 - Include creation timestamp for devices in the CLI.
