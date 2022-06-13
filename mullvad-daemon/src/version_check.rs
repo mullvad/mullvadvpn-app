@@ -14,6 +14,7 @@ use std::{
     future::Future,
     io,
     path::{Path, PathBuf},
+    str::FromStr,
     time::Duration,
 };
 use talpid_core::mpsc::Sender;
@@ -297,10 +298,10 @@ impl VersionUpdater {
         if !*IS_DEV_BUILD {
             let stable_version = latest_stable
                 .as_ref()
-                .and_then(|stable| ParsedAppVersion::from_str(stable));
+                .and_then(|stable| ParsedAppVersion::from_str(stable).ok());
 
             let beta_version = if show_beta {
-                ParsedAppVersion::from_str(latest_beta)
+                ParsedAppVersion::from_str(latest_beta).ok()
             } else {
                 None
             };
@@ -339,10 +340,10 @@ impl VersionUpdater {
         let mut check_delay = next_delay();
         let mut version_check = futures::future::Fuse::terminated();
 
-        // If this is a dev build ,there's no need to pester the API for version checks.
+        // If this is a dev build, there's no need to pester the API for version checks.
         if *IS_DEV_BUILD {
             log::warn!("Not checking for updates because this is a development build");
-            while let Some(_) = rx.next().await {}
+            while rx.next().await.is_some() {}
             return;
         }
 

@@ -33,16 +33,16 @@ pub use nm_tunnel::NetworkManagerTunnel;
 #[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to decode netlink message")]
-    DecodeError(#[error(source)] DecodeError),
+    Decode(#[error(source)] DecodeError),
 
     #[error(display = "Failed to execute netlink control request")]
-    NetlinkControlMessageError(#[error(source)] nl_message::Error),
+    NetlinkControlMessage(#[error(source)] nl_message::Error),
 
     #[error(display = "Failed to open netlink socket")]
-    NetlinkSocketError(#[error(source)] std::io::Error),
+    NetlinkSocket(#[error(source)] std::io::Error),
 
     #[error(display = "Failed to send netlink control request")]
-    NetlinkRequestError(#[error(source)] netlink_proto::Error<NetlinkControlMessage>),
+    NetlinkRequest(#[error(source)] netlink_proto::Error<NetlinkControlMessage>),
 
     #[error(display = "WireGuard netlink interface unavailable. Is the kernel module loaded?")]
     WireguardNetlinkInterfaceUnavailable,
@@ -60,25 +60,25 @@ pub enum Error {
     NoDevice,
 
     #[error(display = "Failed to get config: _0")]
-    WgGetConfError(netlink_packet_core::error::ErrorMessage),
+    WgGetConf(netlink_packet_core::error::ErrorMessage),
 
     #[error(display = "Failed to apply config: _0")]
-    WgSetConfError(netlink_packet_core::error::ErrorMessage),
+    WgSetConf(netlink_packet_core::error::ErrorMessage),
 
     #[error(display = "Interface name too long")]
-    InterfaceNameError,
+    InterfaceName,
 
     #[error(display = "Send request error")]
-    SendRequestError(#[error(source)] NetlinkError<DeviceMessage>),
+    SendRequest(#[error(source)] NetlinkError<DeviceMessage>),
 
     #[error(display = "Create device error")]
-    NetlinkCreateDeviceError(#[error(source)] rtnetlink::Error),
+    NetlinkCreateDevice(#[error(source)] rtnetlink::Error),
 
     #[error(display = "Add IP to device error")]
-    NetlinkSetIpError(rtnetlink::Error),
+    NetlinkSetIp(rtnetlink::Error),
 
     #[error(display = "Failed to delete device")]
-    DeleteDeviceError(#[error(source)] rtnetlink::Error),
+    DeleteDevice(#[error(source)] rtnetlink::Error),
 
     #[error(display = "NetworkManager error")]
     NetworkManager(#[error(source)] nm_tunnel::Error),
@@ -98,7 +98,7 @@ impl Handle {
     pub async fn connect() -> Result<Self, Error> {
         let message_type = Self::get_wireguard_message_type().await?;
         let (conn, wireguard_connection, _messages) =
-            netlink_proto::new_connection(NETLINK_GENERIC).map_err(Error::NetlinkSocketError)?;
+            netlink_proto::new_connection(NETLINK_GENERIC).map_err(Error::NetlinkSocket)?;
         let wg_handle = WireguardConnection {
             message_type,
             connection: wireguard_connection,
@@ -106,7 +106,7 @@ impl Handle {
         let (abortable_connection, wg_abort_handle) = abortable(conn);
         tokio::spawn(abortable_connection);
         let (conn, route_handle, _messages) =
-            rtnetlink::new_connection().map_err(Error::NetlinkSocketError)?;
+            rtnetlink::new_connection().map_err(Error::NetlinkSocket)?;
         let (abortable_connection, route_abort_handle) = abortable(conn);
         tokio::spawn(abortable_connection);
 
@@ -120,21 +120,21 @@ impl Handle {
 
     async fn get_wireguard_message_type() -> Result<u16, Error> {
         let (conn, mut handle, _messages) =
-            netlink_proto::new_connection(NETLINK_GENERIC).map_err(Error::NetlinkSocketError)?;
+            netlink_proto::new_connection(NETLINK_GENERIC).map_err(Error::NetlinkSocket)?;
         let (conn, abort_handle) = abortable(conn);
         tokio::spawn(conn);
 
         let result = async move {
             let mut message: NetlinkMessage<NetlinkControlMessage> =
                 NetlinkControlMessage::get_netlink_family_id(CString::new("wireguard").unwrap())
-                    .map_err(Error::NetlinkControlMessageError)?
+                    .map_err(Error::NetlinkControlMessage)?
                     .into();
 
             message.header.flags = NLM_F_REQUEST | NLM_F_ACK;
 
             let mut req = handle
                 .request(message, SocketAddr::new(0, 0))
-                .map_err(Error::NetlinkRequestError)?;
+                .map_err(Error::NetlinkRequest)?;
             let response = req.next().await;
             if let Some(response) = response {
                 if let NetlinkPayload::InnerMessage(msg) = response.payload {
@@ -177,14 +177,14 @@ impl Handle {
         let mut response = self
             .route_handle
             .request(add_request)
-            .map_err(Error::NetlinkCreateDeviceError)?;
+            .map_err(Error::NetlinkCreateDevice)?;
         while let Some(response_message) = response.next().await {
             if let NetlinkPayload::Error(err) = response_message.payload {
                 // if the device exists, verify that it's a wireguard device
                 if -err.code != libc::EEXIST {
-                    return Err(Error::NetlinkCreateDeviceError(
-                        rtnetlink::Error::NetlinkError(err),
-                    ));
+                    return Err(Error::NetlinkCreateDevice(rtnetlink::Error::NetlinkError(
+                        err,
+                    )));
                 }
             }
         }
@@ -208,9 +208,9 @@ impl Handle {
         let mut response = self
             .route_handle
             .request(request)
-            .map_err(Error::NetlinkSetIpError)?;
+            .map_err(Error::NetlinkSetIp)?;
         while let Some(response_message) = response.next().await {
-            consume_netlink_error(response_message, Error::NetlinkSetIpError)?;
+            consume_netlink_error(response_message, Error::NetlinkSetIp)?;
         }
 
         Ok(())
@@ -226,9 +226,9 @@ impl Handle {
         let mut response = self
             .route_handle
             .request(request)
-            .map_err(Error::DeleteDeviceError)?;
+            .map_err(Error::DeleteDevice)?;
         while let Some(message) = response.next().await {
-            consume_netlink_error(message, Error::DeleteDeviceError)?;
+            consume_netlink_error(message, Error::DeleteDevice)?;
         }
 
         Ok(())
@@ -269,7 +269,7 @@ impl WireguardConnection {
         let mut response = self
             .connection
             .request(netlink_message, SocketAddr::new(0, 0))
-            .map_err(Error::SendRequestError)?;
+            .map_err(Error::SendRequest)?;
         match response.next().await {
             Some(received_message) => match received_message.payload {
                 NetlinkPayload::InnerMessage(inner) => Ok(inner),
@@ -277,7 +277,7 @@ impl WireguardConnection {
                     if err.code == -libc::ENODEV {
                         Err(Error::NoDevice)
                     } else {
-                        Err(Error::WgGetConfError(err))
+                        Err(Error::WgGetConf(err))
                     }
                 }
                 anything_else => {
@@ -297,11 +297,11 @@ impl WireguardConnection {
         let mut request = self
             .connection
             .request(netlink_message, SocketAddr::new(0, 0))
-            .map_err(Error::SendRequestError)?;
+            .map_err(Error::SendRequest)?;
 
         while let Some(response) = request.next().await {
             if let NetlinkPayload::Error(err) = response.payload {
-                return Err(Error::WgSetConfError(err));
+                return Err(Error::WgSetConf(err));
             }
         }
         Ok(())

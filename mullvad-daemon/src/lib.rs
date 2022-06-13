@@ -31,7 +31,7 @@ use crate::target_state::PersistentTargetState;
 use device::{PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
-    future::{abortable, AbortHandle, Future},
+    future::{abortable, AbortHandle, Future, LocalBoxFuture},
     StreamExt,
 };
 use mullvad_relay_selector::{
@@ -385,6 +385,12 @@ pub struct DaemonCommandChannel {
     receiver: mpsc::UnboundedReceiver<InternalDaemonEvent>,
 }
 
+impl Default for DaemonCommandChannel {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DaemonCommandChannel {
     pub fn new() -> Self {
         let (untracked_sender, receiver) = mpsc::unbounded();
@@ -472,13 +478,13 @@ impl<E> Sender<E> for DaemonEventSender<E>
 where
     InternalDaemonEvent: From<E>,
 {
-    fn send(&self, event: E) -> Result<(), ()> {
+    fn send(&self, event: E) -> Result<(), talpid_core::mpsc::Error> {
         if let Some(sender) = self.sender.upgrade() {
             sender
                 .unbounded_send(InternalDaemonEvent::from(event))
-                .map_err(|_| ())
+                .map_err(|_| talpid_core::mpsc::Error::ChannelClosed)
         } else {
-            Err(())
+            Err(talpid_core::mpsc::Error::ChannelClosed)
         }
     }
 }
@@ -684,7 +690,7 @@ where
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
 
-        let mut relay_list_updater = RelayListUpdater::new(
+        let mut relay_list_updater = RelayListUpdater::spawn(
             relay_selector.clone(),
             api_handle.clone(),
             &cache_dir,
@@ -785,11 +791,11 @@ where
 
     /// Shuts down the daemon without shutting down the underlying event listener and the shutdown
     /// callbacks
-    fn shutdown(
+    fn shutdown<'a>(
         self,
     ) -> (
         L,
-        Vec<Pin<Box<dyn Future<Output = ()>>>>,
+        Vec<LocalBoxFuture<'a, ()>>,
         mullvad_api::Runtime,
         TunnelStateMachineHandle,
     ) {
@@ -845,11 +851,11 @@ where
             TunnelStateTransition::Disconnected => TunnelState::Disconnected,
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
                 endpoint,
-                location: self.parameters_generator.get_last_location(),
+                location: self.parameters_generator.get_last_location().await,
             },
             TunnelStateTransition::Connected(endpoint) => TunnelState::Connected {
                 endpoint,
-                location: self.parameters_generator.get_last_location(),
+                location: self.parameters_generator.get_last_location().await,
             },
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
@@ -1184,7 +1190,7 @@ where
             }
             Disconnecting(..) => Self::oneshot_send(
                 tx,
-                self.parameters_generator.get_last_location(),
+                self.parameters_generator.get_last_location().await,
                 "current location",
             ),
             Connected { location, .. } => {
@@ -1703,7 +1709,8 @@ where
                 Self::oneshot_send(tx, Ok(()), "use_wireguard_nt response");
                 if settings_changed {
                     self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options);
+                        .set_tunnel_options(&self.settings.tunnel_options)
+                        .await;
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
@@ -1854,7 +1861,8 @@ where
                 Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response");
                 if settings_changed {
                     self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options);
+                        .set_tunnel_options(&self.settings.tunnel_options)
+                        .await;
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     if self.get_target_tunnel_type() == Some(TunnelType::OpenVpn) {
@@ -1963,7 +1971,8 @@ where
                 Self::oneshot_send(tx, Ok(()), "set_enable_ipv6 response");
                 if settings_changed {
                     self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options);
+                        .set_tunnel_options(&self.settings.tunnel_options)
+                        .await;
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     log::info!("Initiating tunnel restart because the enable IPv6 setting changed");
@@ -1991,7 +2000,8 @@ where
                 Self::oneshot_send(tx, Ok(()), "set_quantum_resistant_tunnel response");
                 if settings_changed {
                     self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options);
+                        .set_tunnel_options(&self.settings.tunnel_options)
+                        .await;
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
@@ -2021,7 +2031,8 @@ where
                     let resolvers =
                         dns::addresses_from_options(&settings.tunnel_options.dns_options);
                     self.parameters_generator
-                        .set_tunnel_options(&settings.tunnel_options);
+                        .set_tunnel_options(&settings.tunnel_options)
+                        .await;
                     self.event_listener.notify_settings(settings);
                     self.send_tunnel_command(TunnelCommand::Dns(resolvers));
                 }
@@ -2044,7 +2055,8 @@ where
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_mtu response");
                 if settings_changed {
                     self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options);
+                        .set_tunnel_options(&self.settings.tunnel_options)
+                        .await;
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
@@ -2086,7 +2098,8 @@ where
                         );
                     }
                     self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options);
+                        .set_tunnel_options(&self.settings.tunnel_options)
+                        .await;
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                 }

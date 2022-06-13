@@ -132,23 +132,25 @@ pub async fn spawn(
     let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
     let weak_command_tx = Arc::downgrade(&command_tx);
-    let state_machine = TunnelStateMachine::new(
-        initial_settings,
-        weak_command_tx,
-        offline_state_listener,
+
+    let init_args = TunnelStateMachineInitArgs {
+        settings: initial_settings,
+        command_tx: weak_command_tx,
+        offline_state_tx: offline_state_listener,
         tunnel_parameters_generator,
         tun_provider,
         log_dir,
         resource_dir,
-        command_rx,
+        commands_rx: command_rx,
         #[cfg(target_os = "windows")]
         volume_update_rx,
         #[cfg(target_os = "macos")]
         exclusion_gid,
         #[cfg(target_os = "android")]
         android_context,
-    )
-    .await?;
+    };
+
+    let state_machine = TunnelStateMachine::new(init_args).await?;
 
     #[cfg(windows)]
     let split_tunnel = state_machine.shared_values.split_tunnel.handle();
@@ -219,20 +221,35 @@ struct TunnelStateMachine {
     shared_values: SharedTunnelStateValues,
 }
 
+/// Tunnel state machine initialization arguments arguments
+struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
+    settings: InitialTunnelState,
+    command_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>,
+    offline_state_tx: mpsc::UnboundedSender<bool>,
+    tunnel_parameters_generator: G,
+    tun_provider: TunProvider,
+    log_dir: Option<PathBuf>,
+    resource_dir: PathBuf,
+    commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
+    #[cfg(target_os = "windows")]
+    volume_update_rx: mpsc::UnboundedReceiver<()>,
+    #[cfg(target_os = "macos")]
+    exclusion_gid: u32,
+    #[cfg(target_os = "android")]
+    android_context: AndroidContext,
+}
+
 impl TunnelStateMachine {
     async fn new(
-        settings: InitialTunnelState,
-        command_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>,
-        offline_state_tx: mpsc::UnboundedSender<bool>,
-        tunnel_parameters_generator: impl TunnelParametersGenerator,
-        tun_provider: TunProvider,
-        log_dir: Option<PathBuf>,
-        resource_dir: PathBuf,
-        commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
-        #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
-        #[cfg(target_os = "macos")] exclusion_gid: u32,
-        #[cfg(target_os = "android")] android_context: AndroidContext,
+        args: TunnelStateMachineInitArgs<impl TunnelParametersGenerator>,
     ) -> Result<Self, Error> {
+        #[cfg(target_os = "windows")]
+        let volume_update_rx = args.volume_update_rx;
+        #[cfg(target_os = "macos")]
+        let exclusion_gid = args.exclusion_gid;
+        #[cfg(target_os = "android")]
+        let android_context = args.android_context;
+
         let runtime = tokio::runtime::Handle::current();
 
         #[cfg(target_os = "macos")]
@@ -242,20 +259,24 @@ impl TunnelStateMachine {
         let power_mgmt_rx = crate::windows::window::PowerManagementListener::new();
 
         #[cfg(windows)]
-        let split_tunnel =
-            split_tunnel::SplitTunnel::new(runtime.clone(), command_tx.clone(), volume_update_rx)
-                .map_err(Error::InitSplitTunneling)?;
+        let split_tunnel = split_tunnel::SplitTunnel::new(
+            runtime.clone(),
+            args.command_tx.clone(),
+            volume_update_rx,
+        )
+        .map_err(Error::InitSplitTunneling)?;
 
-        let args = FirewallArguments {
-            initial_state: if settings.block_when_disconnected || !settings.reset_firewall {
-                InitialFirewallState::Blocked(settings.allowed_endpoint.clone())
+        let fw_args = FirewallArguments {
+            initial_state: if args.settings.block_when_disconnected || !args.settings.reset_firewall
+            {
+                InitialFirewallState::Blocked(args.settings.allowed_endpoint.clone())
             } else {
                 InitialFirewallState::None
             },
-            allow_lan: settings.allow_lan,
+            allow_lan: args.settings.allow_lan,
         };
 
-        let firewall = Firewall::from_args(args).map_err(Error::InitFirewallError)?;
+        let firewall = Firewall::from_args(fw_args).map_err(Error::InitFirewallError)?;
         let route_manager = RouteManager::new(HashSet::new())
             .await
             .map_err(Error::InitRouteManagerError)?;
@@ -267,20 +288,20 @@ impl TunnelStateMachine {
                 .handle()
                 .map_err(Error::InitRouteManagerError)?,
             #[cfg(target_os = "macos")]
-            command_tx.clone(),
+            args.command_tx.clone(),
         )
         .map_err(Error::InitDnsMonitorError)?;
 
         let (offline_tx, mut offline_rx) = mpsc::unbounded();
-        let initial_offline_state_tx = offline_state_tx.clone();
+        let initial_offline_state_tx = args.offline_state_tx.clone();
         tokio::spawn(async move {
             while let Some(offline) = offline_rx.next().await {
-                if let Some(tx) = command_tx.upgrade() {
+                if let Some(tx) = args.command_tx.upgrade() {
                     let _ = tx.unbounded_send(TunnelCommand::IsOffline(offline));
                 } else {
                     break;
                 }
-                let _ = offline_state_tx.unbounded_send(offline);
+                let _ = args.offline_state_tx.unbounded_send(offline);
             }
         });
         let mut offline_monitor = offline::spawn_monitor(
@@ -301,7 +322,7 @@ impl TunnelStateMachine {
 
         #[cfg(windows)]
         split_tunnel
-            .set_paths_sync(&settings.exclude_paths)
+            .set_paths_sync(&args.settings.exclude_paths)
             .map_err(Error::InitSplitTunneling)?;
 
         let mut shared_values = SharedTunnelStateValues {
@@ -312,15 +333,15 @@ impl TunnelStateMachine {
             dns_monitor,
             route_manager,
             _offline_monitor: offline_monitor,
-            allow_lan: settings.allow_lan,
-            block_when_disconnected: settings.block_when_disconnected,
+            allow_lan: args.settings.allow_lan,
+            block_when_disconnected: args.settings.block_when_disconnected,
             is_offline,
-            dns_servers: settings.dns_servers,
-            allowed_endpoint: settings.allowed_endpoint,
-            tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
-            tun_provider: Arc::new(Mutex::new(tun_provider)),
-            log_dir,
-            resource_dir,
+            dns_servers: args.settings.dns_servers,
+            allowed_endpoint: args.settings.allowed_endpoint,
+            tunnel_parameters_generator: Box::new(args.tunnel_parameters_generator),
+            tun_provider: Arc::new(Mutex::new(args.tun_provider)),
+            log_dir: args.log_dir,
+            resource_dir: args.resource_dir,
             #[cfg(target_os = "linux")]
             connectivity_check_was_enabled: None,
             #[cfg(target_os = "macos")]
@@ -331,11 +352,11 @@ impl TunnelStateMachine {
 
         tokio::task::spawn_blocking(move || {
             let (initial_state, _) =
-                DisconnectedState::enter(&mut shared_values, settings.reset_firewall);
+                DisconnectedState::enter(&mut shared_values, args.settings.reset_firewall);
 
             Ok(TunnelStateMachine {
                 current_state: Some(initial_state),
-                commands: commands_rx.fuse(),
+                commands: args.commands_rx.fuse(),
                 shared_values,
             })
         })

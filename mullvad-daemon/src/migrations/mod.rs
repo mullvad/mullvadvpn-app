@@ -57,31 +57,31 @@ const SETTINGS_FILE: &str = "settings.json";
 #[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to read the settings")]
-    ReadError(#[error(source)] io::Error),
+    Read(#[error(source)] io::Error),
 
     #[error(display = "Malformed settings")]
-    ParseError(#[error(source)] serde_json::Error),
+    Parse(#[error(source)] serde_json::Error),
 
     #[error(display = "Unable to read any version of the settings")]
     NoMatchingVersion,
 
     #[error(display = "Unable to serialize settings to JSON")]
-    SerializeError(#[error(source)] serde_json::Error),
+    Serialize(#[error(source)] serde_json::Error),
 
     #[error(display = "Unable to open settings for writing")]
-    OpenError(#[error(source)] io::Error),
+    Open(#[error(source)] io::Error),
 
     #[error(display = "Unable to write new settings")]
-    WriteError(#[error(source)] io::Error),
+    Write(#[error(source)] io::Error),
 
     #[error(display = "Unable to sync settings to disk")]
-    SyncError(#[error(source)] io::Error),
+    SyncSettings(#[error(source)] io::Error),
 
     #[error(display = "Failed to read the account history")]
-    ReadHistoryError(#[error(source)] io::Error),
+    ReadHistory(#[error(source)] io::Error),
 
     #[error(display = "Failed to write new account history")]
-    WriteHistoryError(#[error(source)] io::Error),
+    WriteHistory(#[error(source)] io::Error),
 
     #[error(display = "Failed to parse account history")]
     ParseHistoryError,
@@ -129,10 +129,10 @@ pub(crate) async fn migrate_all(
         return Ok(None);
     }
 
-    let settings_bytes = fs::read(&path).await.map_err(Error::ReadError)?;
+    let settings_bytes = fs::read(&path).await.map_err(Error::Read)?;
 
     let mut settings: serde_json::Value =
-        serde_json::from_reader(&settings_bytes[..]).map_err(Error::ParseError)?;
+        serde_json::from_reader(&settings_bytes[..]).map_err(Error::Parse)?;
 
     if !settings.is_object() {
         return Err(Error::NoMatchingVersion);
@@ -155,7 +155,7 @@ pub(crate) async fn migrate_all(
         return Ok(migration_data);
     }
 
-    let buffer = serde_json::to_string_pretty(&settings).map_err(Error::SerializeError)?;
+    let buffer = serde_json::to_string_pretty(&settings).map_err(Error::Serialize)?;
 
     let mut options = fs::OpenOptions::new();
     #[cfg(unix)]
@@ -168,11 +168,11 @@ pub(crate) async fn migrate_all(
         .truncate(true)
         .open(&path)
         .await
-        .map_err(Error::OpenError)?;
+        .map_err(Error::Open)?;
     file.write_all(&buffer.into_bytes())
         .await
-        .map_err(Error::WriteError)?;
-    file.sync_data().await.map_err(Error::SyncError)?;
+        .map_err(Error::Write)?;
+    file.sync_data().await.map_err(Error::SyncSettings)?;
 
     log::debug!("Migrated settings. Wrote settings to {}", path.display());
 

@@ -22,6 +22,12 @@ pub enum Error {
 /// Factory of tunnel devices on Unix systems.
 pub struct UnixTunProvider;
 
+impl Default for UnixTunProvider {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl UnixTunProvider {
     pub fn new() -> Self {
         UnixTunProvider
