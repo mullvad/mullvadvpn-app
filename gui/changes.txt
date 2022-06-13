@@ -1,4 +1,4 @@
-Revamped Mullvad device management. All app logins now have a name, and when you have too many devices you can log out other devices directly in the app
+Revamped Mullvad device management. All apps now have a name, and when you have too many devices you can log out other devices directly in the app
 Added ability to block gambling and adult content websites
 Connects to WireGuard servers faster, thanks to more efficiently verifying that the tunnel works
 Uses Shadowsocks obfuscation to reach the Mullvad API. Circumvents censorship
