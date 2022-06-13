@@ -12,15 +12,28 @@ import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
+import net.mullvad.mullvadvpn.model.DeviceState
+import net.mullvad.mullvadvpn.ui.fragments.DeviceRevokedFragment
+import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 
 open class MainActivity : FragmentActivity() {
+    private val deviceRepository: DeviceRepository by inject()
     val problemReport = MullvadProblemReport()
 
     private var visibleSecureScreens = HashSet<Fragment>()
@@ -54,9 +67,7 @@ open class MainActivity : FragmentActivity() {
 
         setContentView(R.layout.main)
 
-        if (savedInstanceState == null) {
-            addInitialFragment()
-        }
+        launchDeviceStateHandler()
     }
 
     override fun onStart() {
@@ -136,6 +147,43 @@ open class MainActivity : FragmentActivity() {
         }
     }
 
+    private fun launchDeviceStateHandler() {
+        var currentState: DeviceState? = null
+
+        lifecycleScope.launch {
+            deviceRepository.deviceState
+                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+                .debounce {
+                    // Debounce DeviceState.Unknown to delay view transitions during reconnect.
+                    it.addDebounceForUnknownState()
+                }
+                .distinctByDeviceState()
+                .filter { newState -> newState != currentState }
+                .collect { newState ->
+                    when (newState) {
+                        is DeviceState.Initial,
+                        is DeviceState.Unknown -> openLaunchView()
+                        is DeviceState.LoggedOut -> openLoginView()
+                        is DeviceState.Revoked -> openLoginView()
+                        is DeviceState.LoggedIn -> openConnectView()
+                    }
+                    currentState = newState
+                }
+        }
+    }
+
+    private fun Flow<DeviceState>.distinctByDeviceState(): Flow<DeviceState> {
+        return this.distinctUntilChangedBy { it::class }
+    }
+
+    private fun DeviceState.addDebounceForUnknownState(): Long {
+        return if (this is DeviceState.Unknown) {
+            UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
+        } else {
+            ZERO_DEBOUNCE_DELAY_MILLISECONDS
+        }
+    }
+
     @Suppress("DEPRECATION")
     private fun requestVpnPermission() {
         val intent = VpnService.prepare(this)
@@ -143,10 +191,29 @@ open class MainActivity : FragmentActivity() {
         startActivityForResult(intent, 0)
     }
 
-    private fun addInitialFragment() {
+    private fun openLaunchView() {
         supportFragmentManager.beginTransaction().apply {
-            add(R.id.main_fragment, LaunchFragment())
+            replace(R.id.main_fragment, LaunchFragment())
             commit()
         }
+    }
+
+    private fun openConnectView() {
+        supportFragmentManager.beginTransaction().apply {
+            replace(R.id.main_fragment, ConnectFragment())
+            commit()
+        }
+    }
+
+    private fun openLoginView() {
+        supportFragmentManager.beginTransaction().apply {
+            replace(R.id.main_fragment, LoginFragment())
+            commit()
+        }
+    }
+
+    companion object {
+        private const val ZERO_DEBOUNCE_DELAY_MILLISECONDS = 0L
+        private const val UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS = 2000L
     }
 }

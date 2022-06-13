@@ -4,20 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
-import org.koin.android.ext.android.inject
 
-class LaunchFragment : ServiceAwareFragment() {
-    private val deviceRepository: DeviceRepository by inject()
-
+class LaunchFragment : Fragment(), StatusBarPainter, NavigationBarPainter {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -26,51 +17,16 @@ class LaunchFragment : ServiceAwareFragment() {
         val view = inflater.inflate(R.layout.launch, container, false)
 
         view.findViewById<View>(R.id.settings).setOnClickListener {
-            parentActivity.openSettings()
+            (context as? MainActivity)?.openSettings()
         }
+
+        context
+            ?.let { ContextCompat.getColor(it, R.color.blue) }
+            ?.let { color ->
+                paintStatusBar(color)
+                paintNavigationBar(color)
+            }
 
         return view
-    }
-
-    override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        lifecycleScope.launch {
-            deviceRepository.deviceState
-                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
-                .collect { deviceState ->
-                    when (deviceState) {
-                        is DeviceState.LoggedIn -> advanceToConnectScreen()
-                        is DeviceState.LoggedOut -> advanceToLoginScreen()
-                        is DeviceState.Revoked -> advanceToRevokedScreen()
-                        else -> Unit
-                    }
-                }
-        }
-    }
-
-    private fun advanceToLoginScreen() {
-        parentFragmentManager.beginTransaction().apply {
-            replace(R.id.main_fragment, LoginFragment())
-            commit()
-        }
-    }
-
-    private fun advanceToConnectScreen() {
-        parentFragmentManager.beginTransaction().apply {
-            replace(R.id.main_fragment, ConnectFragment())
-            commit()
-        }
-    }
-
-    private fun advanceToRevokedScreen() {
-        // TODO: Open revoked screen.
-        parentFragmentManager.beginTransaction().apply {
-            replace(R.id.main_fragment, LoginFragment())
-            commit()
-        }
     }
 }

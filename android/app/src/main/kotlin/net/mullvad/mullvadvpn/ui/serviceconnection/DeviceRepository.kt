@@ -1,16 +1,18 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.model.DeviceState
 
 class DeviceRepository(
-    private val serviceConnectionManager: ServiceConnectionManager
+    private val serviceConnectionManager: ServiceConnectionManager,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     val deviceState = serviceConnectionManager.connectionState
         .flatMapLatest { state ->
@@ -20,10 +22,10 @@ class DeviceRepository(
                         state.container.deviceDataSource.refreshDevice()
                     }
             } else {
-                emptyFlow()
+                flowOf(DeviceState.Unknown)
             }
         }
-        .stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Lazily, DeviceState.InitialState)
+        .stateIn(CoroutineScope(dispatcher), SharingStarted.Lazily, DeviceState.Initial)
 
     fun refreshDeviceState() {
         container()?.deviceDataSource?.refreshDevice()

@@ -12,9 +12,10 @@ class ServiceConnectionDeviceDataSource(
     private val dispatcher: EventDispatcher
 ) {
     val deviceStateUpdates = callbackFlow {
-        dispatcher.registerHandler(Event.DeviceStateEvent::class) { event ->
+        val handler: (Event.DeviceStateEvent) -> Unit = { event ->
             trySend(event.newState)
         }
+        dispatcher.registerHandler(Event.DeviceStateEvent::class, handler)
         awaitClose {
             // The current dispatcher doesn't support unregistration of handlers.
         }
