@@ -234,6 +234,10 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
 
     // MARK: - TunnelObserver
 
+    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
+        // no-op
+    }
+
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
         // no-op
     }

@@ -8,38 +8,12 @@
 
 import UIKit
 
-extension OperationCompletion where Success == AddressCache.CacheUpdateResult {
-    var backgroundFetchResult: UIBackgroundFetchResult {
+extension OperationCompletion {
+    func backgroundFetchResult(_ hasNewData: (Success) -> Bool) -> UIBackgroundFetchResult {
         switch self {
-        case .success(.finished):
-            return .newData
-        case .success(.throttled), .cancelled:
-            return .noData
-        case .failure:
-            return .failed
-        }
-    }
-}
-
-extension OperationCompletion where Success == TunnelManager.KeyRotationResult {
-    var backgroundFetchResult: UIBackgroundFetchResult {
-        switch self {
-        case .success(.finished):
-            return .newData
-        case .success(.throttled), .cancelled:
-            return .noData
-        case .failure:
-            return .failed
-        }
-    }
-}
-
-extension OperationCompletion where Success == RelayCache.FetchResult {
-    var backgroundFetchResult: UIBackgroundFetchResult {
-        switch self {
-        case .success(.newContent):
-            return .newData
-        case .success(.throttled), .success(.sameContent), .cancelled:
+        case .success(let value):
+            return hasNewData(value) ? .newData : .noData
+        case .cancelled:
             return .noData
         case .failure:
             return .failed

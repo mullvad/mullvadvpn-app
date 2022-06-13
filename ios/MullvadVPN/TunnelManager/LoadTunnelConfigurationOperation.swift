@@ -13,18 +13,10 @@ class LoadTunnelConfigurationOperation: ResultOperation<(), TunnelManager.Error>
     private let logger = Logger(label: "LoadTunnelConfigurationOperation")
     private let state: TunnelManager.State
 
-    init(
-        dispatchQueue: DispatchQueue,
-        state: TunnelManager.State,
-        completionHandler: @escaping CompletionHandler
-    ) {
+    init(dispatchQueue: DispatchQueue, state: TunnelManager.State) {
         self.state = state
 
-        super.init(
-            dispatchQueue: dispatchQueue,
-            completionQueue: dispatchQueue,
-            completionHandler: completionHandler
-        )
+        super.init(dispatchQueue: dispatchQueue)
     }
 
     override func main() {
@@ -40,88 +32,72 @@ class LoadTunnelConfigurationOperation: ResultOperation<(), TunnelManager.Error>
     }
 
     private func didLoadVPNConfigurations(tunnels: [TunnelProviderManagerType]?) {
-        let tunnelProvider = tunnels?.first
-
+        var returnError: TunnelManager.Error?
+        var tunnelSettings: TunnelSettingsV2?
         do {
-            let tunnelSettings = try SettingsManager.readSettings()
-            let tunnel = tunnelProvider.map { tunnelProvider in
-                return Tunnel(tunnelProvider: tunnelProvider)
-            }
-
-            state.tunnelSettings = tunnelSettings
-            state.setTunnel(tunnel, shouldRefreshTunnelState: true)
-
-            finish(completion: .success(()))
-        } catch .itemNotFound as KeychainError {
+            tunnelSettings = try SettingsManager.readSettings()
+        } catch .itemNotFound as KeychainError  {
             logger.debug("Settings not found in keychain.")
-
-            state.tunnelSettings = nil
-            state.setTunnel(nil, shouldRefreshTunnelState: true)
-
-            if let tunnelProvider = tunnelProvider {
-                removeOrphanedTunnel(tunnelProvider: tunnelProvider) { error in
-                    self.finish(completion: error.map { .failure($0) } ?? .success(()))
-                }
-            } else {
-                finish(completion: .success(()))
-            }
         } catch let error as DecodingError {
-            state.tunnelSettings = nil
-            state.setTunnel(nil, shouldRefreshTunnelState: true)
+            logger.error(
+                chainedError: AnyChainedError(error),
+                message: "Cannot decode settings. Will attempt to delete them from keychain."
+            )
 
             do {
-                logger.error(
-                    chainedError: AnyChainedError(error),
-                    message: "Cannot decode settings. Will attempt to delete them from keychain."
-                )
-
                 try SettingsManager.deleteSettings()
             } catch {
+                returnError = .deleteSettings(error)
+
                 logger.error(
                     chainedError: AnyChainedError(error),
                     message: "Failed to delete settings from keychain."
                 )
             }
-
-            let returnError: TunnelManager.Error = .readSettings(error)
-
-            if let tunnelProvider = tunnelProvider {
-                removeOrphanedTunnel(tunnelProvider: tunnelProvider) { _ in
-                    self.finish(completion: .failure(returnError))
-                }
-            } else {
-                finish(completion: .failure(returnError))
-            }
         } catch {
-            state.tunnelSettings = nil
-            state.setTunnel(nil, shouldRefreshTunnelState: true)
+            returnError = .readSettings(error)
 
-            let returnError: TunnelManager.Error = .readSettings(error)
+            logger.error(
+                chainedError: AnyChainedError(error),
+                message: "Unexpected error when reading settings."
+            )
+        }
 
-            if let tunnelProvider = tunnelProvider {
-                removeOrphanedTunnel(tunnelProvider: tunnelProvider) { _ in
-                    self.finish(completion: .failure(returnError))
+        let tunnel = tunnels?.first.map { tunnelProvider in
+            return Tunnel(tunnelProvider: tunnelProvider)
+        }
+
+        if let tunnelSettings = tunnelSettings {
+            state.tunnelSettings = tunnelSettings
+            state.setTunnel(tunnel, shouldRefreshTunnelState: true)
+            state.isLoadedConfiguration = true
+
+            finish(completion: .success(()))
+        } else {
+            let onFinish = {
+                self.state.tunnelSettings = nil
+                self.state.setTunnel(nil, shouldRefreshTunnelState: true)
+                self.state.isLoadedConfiguration = returnError == nil
+
+                self.finish(completion: returnError.map { .failure($0) } ?? .success(()))
+            }
+
+            if let tunnel = tunnel {
+                logger.debug("Remove orphaned VPN configuration.")
+
+                tunnel.removeFromPreferences { error in
+                    self.dispatchQueue.async {
+                        if let error = error {
+                            self.logger.error(
+                                chainedError: AnyChainedError(error),
+                                message: "Failed to remove VPN configuration."
+                            )
+                        }
+                        onFinish()
+                    }
                 }
             } else {
-                finish(completion: .failure(returnError))
-            }
-        }
-    }
-
-    private func removeOrphanedTunnel(tunnelProvider: TunnelProviderManagerType, completion: @escaping (TunnelManager.Error?) -> Void) {
-        logger.debug("Remove orphaned VPN configuration.")
-
-        tunnelProvider.removeFromPreferences { error in
-            self.dispatchQueue.async {
-                if let error = error {
-                    self.logger.error(
-                        chainedError: AnyChainedError(error),
-                        message: "Failed to remove VPN configuration."
-                    )
-                    completion(.removeVPNConfiguration(error))
-                } else {
-                    completion(nil)
-                }
+                onFinish()
             }
         }
     }

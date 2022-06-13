@@ -28,7 +28,7 @@ class StopTunnelOperation: ResultOperation<(), TunnelManager.Error> {
 
     override func main() {
         guard let tunnel = state.tunnel else {
-            finish(completion: .failure(.unsetAccount))
+            finish(completion: .failure(.unsetTunnel))
             return
         }
 

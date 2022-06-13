@@ -14,6 +14,9 @@ extension TunnelManager {
         /// Account is unset.
         case unsetAccount
 
+        /// Tunnel is not set yet.
+        case unsetTunnel
+
         /// Failure to start the VPN tunnel via system call.
         case startVPNTunnel(Swift.Error)
 
@@ -39,7 +42,7 @@ extension TunnelManager {
         case deleteSettings(Swift.Error)
 
         /// Failure to read relays cache.
-        case readRelays(RelayCache.Error)
+        case readRelays
 
         /// Failure to find a relay satisfying the given constraints.
         case cannotSatisfyRelayConstraints
@@ -72,6 +75,8 @@ extension TunnelManager {
             switch self {
             case .unsetAccount:
                 return "Account is unset."
+            case .unsetTunnel:
+                return "Tunnel is unset."
             case .startVPNTunnel:
                 return "Failed to start the VPN tunnel."
             case .loadAllVPNConfigurations:

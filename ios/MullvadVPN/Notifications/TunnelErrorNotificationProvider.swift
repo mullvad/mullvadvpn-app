@@ -36,6 +36,12 @@ class TunnelErrorNotificationProvider: NotificationProvider, InAppNotificationPr
         TunnelManager.shared.addObserver(self)
     }
 
+    // MARK: - TunnelObserver
+
+    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
+        // no-op
+    }
+
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
         // Reset error with each new connection attempt
         if case .connecting = tunnelState {

@@ -83,14 +83,8 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     }
 
     private func pickRelay() -> RelaySelectorResult? {
-        let cachedRelays: RelayCache.CachedRelays
-        do {
-            cachedRelays = try RelayCache.Tracker.shared.readAndWait()
-        } catch {
-            providerLogger.error(
-                chainedError: AnyChainedError(error),
-                message: "Failed to read relays when picking relay."
-            )
+        guard let cachedRelays = RelayCache.Tracker.shared.getCachedRelays() else {
+            providerLogger.error("Failed to obtain relays when picking relay.")
             return nil
         }
 

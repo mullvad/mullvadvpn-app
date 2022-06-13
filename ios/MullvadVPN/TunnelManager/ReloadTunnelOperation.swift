@@ -12,24 +12,15 @@ class ReloadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
     private let state: TunnelManager.State
     private var task: Cancellable?
 
-    init(
-        queue: DispatchQueue,
-        state: TunnelManager.State,
-        completionHandler: @escaping CompletionHandler
-    )
-    {
+    init(dispatchQueue: DispatchQueue, state: TunnelManager.State) {
         self.state = state
 
-        super.init(
-            dispatchQueue: queue,
-            completionQueue: queue,
-            completionHandler: completionHandler
-        )
+        super.init(dispatchQueue: dispatchQueue)
     }
 
     override func main() {
         guard let tunnel = self.state.tunnel else {
-            finish(completion: .failure(.unsetAccount))
+            finish(completion: .failure(.unsetTunnel))
             return
         }
 
@@ -38,9 +29,7 @@ class ReloadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
         task = session.reloadTunnelSettings { [weak self] completion in
             guard let self = self else { return }
 
-            self.dispatchQueue.async {
-                self.finish(completion: completion.mapError { .reloadTunnel($0) })
-            }
+            self.finish(completion: completion.mapError { .reloadTunnel($0) })
         }
     }
 
