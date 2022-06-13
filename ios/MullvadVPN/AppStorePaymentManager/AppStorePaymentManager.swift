@@ -56,20 +56,20 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
     }
 
-    /// A private hash map that maps each payment to account token
+    /// A private hash map that maps each payment to account token.
     private var paymentToAccountToken = [SKPayment: String]()
 
-    /// Returns true if the device is able to make payments
+    /// Returns true if the device is able to make payments.
     class var canMakePayments: Bool {
         return SKPaymentQueue.canMakePayments()
     }
 
     init(queue: SKPaymentQueue) {
-        self.paymentQueue = queue
+        paymentQueue = queue
     }
 
     func startPaymentQueueMonitoring() {
-        self.logger.debug("Start payment queue monitoring")
+        logger.debug("Start payment queue monitoring")
         paymentQueue.add(self)
     }
 

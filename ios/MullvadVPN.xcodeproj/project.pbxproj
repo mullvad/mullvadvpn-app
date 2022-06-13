@@ -21,7 +21,6 @@
 		58095C4F2760BA9100890776 /* AddressCacheStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C4E2760BA9100890776 /* AddressCacheStore.swift */; };
 		58095C512760BBB500890776 /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C502760BBB400890776 /* AddressCacheTracker.swift */; };
 		58095C532760EEC700890776 /* RESTNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C522760EEC700890776 /* RESTNetworkOperation.swift */; };
-		58095C552760F02500890776 /* UpdateAddressCacheOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C542760F02500890776 /* UpdateAddressCacheOperation.swift */; };
 		58095C572760F47900890776 /* api-ip-address.json in Resources */ = {isa = PBXBuildFile; fileRef = 58095C562760F47900890776 /* api-ip-address.json */; };
 		58095C592762155700890776 /* RESTRetryStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C582762155700890776 /* RESTRetryStrategy.swift */; };
 		580CBFB82848D503007878F0 /* OperationConditionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580CBFB72848D503007878F0 /* OperationConditionTests.swift */; };
@@ -368,7 +367,6 @@
 		58095C4E2760BA9100890776 /* AddressCacheStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheStore.swift; sourceTree = "<group>"; };
 		58095C502760BBB400890776 /* AddressCacheTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheTracker.swift; sourceTree = "<group>"; };
 		58095C522760EEC700890776 /* RESTNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTNetworkOperation.swift; sourceTree = "<group>"; };
-		58095C542760F02500890776 /* UpdateAddressCacheOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateAddressCacheOperation.swift; sourceTree = "<group>"; };
 		58095C562760F47900890776 /* api-ip-address.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "api-ip-address.json"; sourceTree = "<group>"; };
 		58095C582762155700890776 /* RESTRetryStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTRetryStrategy.swift; sourceTree = "<group>"; };
 		580CBFB72848D503007878F0 /* OperationConditionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationConditionTests.swift; sourceTree = "<group>"; };
@@ -640,7 +638,6 @@
 				58095C4E2760BA9100890776 /* AddressCacheStore.swift */,
 				58095C4A2760B4F200890776 /* AddressCacheStoreError.swift */,
 				58095C502760BBB400890776 /* AddressCacheTracker.swift */,
-				58095C542760F02500890776 /* UpdateAddressCacheOperation.swift */,
 			);
 			path = AddressCache;
 			sourceTree = "<group>";
@@ -1430,7 +1427,6 @@
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
 				58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */,
 				5815039724D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
-				58095C552760F02500890776 /* UpdateAddressCacheOperation.swift in Sources */,
 				5820675E26E6839900655B05 /* PresentAlertOperation.swift in Sources */,
 				5815039D24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
