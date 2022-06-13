@@ -137,7 +137,7 @@ impl Formatter {
         if self.output_timestamp {
             DATE_TIME_FORMAT_STR
         } else {
-            &""
+            ""
         }
     }
 

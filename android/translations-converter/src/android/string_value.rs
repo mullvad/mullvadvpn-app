@@ -19,9 +19,9 @@ impl StringValue {
     /// indices.
     pub fn from_unescaped(string: &str) -> Self {
         let value_with_parameters = htmlize::escape_text(string)
-            .replace(r"\", r"\\")
-            .replace("\"", "\\\"")
-            .replace(r"'", r"\'");
+            .replace('\\', r"\\")
+            .replace('\"', "\\\"")
+            .replace('\'', r"\'");
 
         let value_without_line_breaks = Self::collapse_line_breaks(value_with_parameters);
         let value = Self::ensure_parameters_are_indexed(value_without_line_breaks);
@@ -50,7 +50,7 @@ impl StringValue {
             static ref PARAMETER_INDEX: Regex = Regex::new(r"^(\d+)\$").unwrap();
         }
 
-        let mut parts = original.split("%");
+        let mut parts = original.split('%');
         let mut output = parts.next().unwrap().to_owned();
         let mut offset = 1;
 

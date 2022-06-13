@@ -316,8 +316,7 @@ impl AccountManagerHandle {
     }
 
     pub async fn logout(&self) -> Result<(), Error> {
-        self.send_command(|tx| AccountManagerCommand::Logout(tx))
-            .await
+        self.send_command(AccountManagerCommand::Logout).await
     }
 
     pub async fn set(&self, data: PrivateAccountAndDevice) -> Result<(), Error> {
@@ -326,18 +325,16 @@ impl AccountManagerHandle {
     }
 
     pub async fn data(&self) -> Result<PrivateDeviceState, Error> {
-        self.send_command(|tx| AccountManagerCommand::GetData(tx))
-            .await
+        self.send_command(AccountManagerCommand::GetData).await
     }
 
     pub async fn data_after_login(&self) -> Result<PrivateDeviceState, Error> {
-        self.send_command(|tx| AccountManagerCommand::GetDataAfterLogin(tx))
+        self.send_command(AccountManagerCommand::GetDataAfterLogin)
             .await
     }
 
     pub async fn rotate_key(&self) -> Result<(), Error> {
-        self.send_command(|tx| AccountManagerCommand::RotateKey(tx))
-            .await
+        self.send_command(AccountManagerCommand::RotateKey).await
     }
 
     pub async fn set_rotation_interval(&self, interval: RotationInterval) -> Result<(), Error> {
@@ -346,7 +343,7 @@ impl AccountManagerHandle {
     }
 
     pub async fn validate_device(&self) -> Result<(), Error> {
-        self.send_command(|tx| AccountManagerCommand::ValidateDevice(tx))
+        self.send_command(AccountManagerCommand::ValidateDevice)
             .await
     }
 

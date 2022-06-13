@@ -52,14 +52,14 @@ impl CustomTunnelEndpoint {
             ConnectionConfig::OpenVpn(config) => openvpn::TunnelParameters {
                 config,
                 options: tunnel_options.openvpn.clone(),
-                generic_options: tunnel_options.generic.clone(),
+                generic_options: tunnel_options.generic,
                 proxy,
             }
             .into(),
             ConnectionConfig::Wireguard(connection) => wireguard::TunnelParameters {
                 connection,
                 options: tunnel_options.wireguard.options.clone(),
-                generic_options: tunnel_options.generic.clone(),
+                generic_options: tunnel_options.generic,
                 obfuscation: None,
             }
             .into(),

@@ -220,7 +220,7 @@ impl HttpsConnectorWithSni {
             "invalid url, missing host",
         ))?;
         let port = uri.port_u16().unwrap_or(443);
-        if let Some(addr) = hostname.parse::<IpAddr>().ok() {
+        if let Ok(addr) = hostname.parse::<IpAddr>() {
             return Ok(SocketAddr::new(addr, port));
         }
 
@@ -234,7 +234,7 @@ impl HttpsConnectorWithSni {
         //
         let mut addrs = GaiResolver::new()
             .call(
-                Name::from_str(&hostname)
+                Name::from_str(hostname)
                     .map_err(|err| io::Error::new(io::ErrorKind::InvalidInput, err))?,
             )
             .await

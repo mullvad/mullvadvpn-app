@@ -69,7 +69,7 @@ impl RelayListUpdater {
         let updater = RelayListUpdater {
             api_client,
             cache_path: cache_dir.join(super::RELAYS_FILENAME),
-            parsed_relays: selector.parsed_relays.clone(),
+            parsed_relays: selector.parsed_relays,
             on_update: Box::new(on_update),
             last_check: UNIX_EPOCH,
             api_availability,
@@ -165,12 +165,11 @@ impl RelayListUpdater {
             ExponentialBackoff::new(EXPONENTIAL_BACKOFF_INITIAL, EXPONENTIAL_BACKOFF_FACTOR)
                 .max_delay(UPDATE_INTERVAL * 2);
 
-        let download_future = retry_future(
+        retry_future(
             download_futures,
             |result| result.is_err(),
             Jittered::jitter(exponential_backoff),
-        );
-        download_future
+        )
     }
 
     async fn update_cache(&mut self, new_relay_list: RelayList) -> Result<(), Error> {

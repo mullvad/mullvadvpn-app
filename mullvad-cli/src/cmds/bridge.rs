@@ -246,7 +246,7 @@ impl Bridge {
 
     async fn handle_set_bridge_provider(matches: &clap::ArgMatches) -> Result<()> {
         let providers: Vec<String> = matches.values_of_t_or_exit("provider");
-        let providers = if providers.iter().next().map(String::as_str) == Some("any") {
+        let providers = if providers.get(0).map(String::as_str) == Some("any") {
             vec![]
         } else {
             providers

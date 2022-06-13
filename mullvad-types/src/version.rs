@@ -194,7 +194,7 @@ mod test {
         ];
 
         for (input, expected_output) in tests {
-            assert_eq!(ParsedAppVersion::from_str(&input), expected_output,);
+            assert_eq!(ParsedAppVersion::from_str(input), expected_output,);
         }
     }
 }

@@ -128,7 +128,7 @@ impl SystemdResolved {
     pub fn ensure_resolved_exists(&self) -> Result<()> {
         let _: Box<dyn RefArg> = self
             .as_manager_object()
-            .get(&MANAGER_INTERFACE, "DNS")
+            .get(MANAGER_INTERFACE, "DNS")
             .map_err(Error::NoSystemdResolved)?;
 
         Ok(())
@@ -483,7 +483,7 @@ impl DnsServer {
 
         let ip_bytes = iter.next()?.box_clone();
         let ip_bytes: &Vec<u8> = arg::cast(&ip_bytes)?;
-        let address = ip_from_bytes(&ip_bytes)?;
+        let address = ip_from_bytes(ip_bytes)?;
         Some(Self {
             iface_index,
             address_family,
