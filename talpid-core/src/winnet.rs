@@ -404,7 +404,7 @@ pub fn interface_luid_to_ip(
     }
 }
 
-pub fn add_device_ip_addresses(iface: &String, addresses: &Vec<IpAddr>) -> bool {
+pub fn add_device_ip_addresses(iface: &str, addresses: &[IpAddr]) -> bool {
     let raw_iface = WideCString::from_str(iface)
         .expect("Failed to convert UTF-8 string to null terminated UCS string")
         .into_raw();
