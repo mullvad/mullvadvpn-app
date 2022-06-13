@@ -40,12 +40,61 @@ import Foundation
 
 /// A base implementation of an asynchronous operation
 class AsyncOperation: Operation {
-    /// A state lock used for manipulating the operation state in a thread safe fashion.
+    /// Mutex lock used for guarding critical sections of operation lifecycle.
+    private let operationLock = NSRecursiveLock()
+
+    /// Mutex lock used to guard `state` and `isCancelled` properties.
+    ///
+    /// This lock must not encompass KVO hooks such as `willChangeValue` and `didChangeValue` to
+    /// prevent deadlocks, since KVO observers may synchronously query the operation state on a
+    /// different thread.
+    ///
+    /// `operationLock` should be used along with `stateLock` to ensure internal state consistency
+    /// when multiple access to `state` or `isCancelled` is necessary, such as when testing
+    /// the value before modifying it.
     private let stateLock = NSRecursiveLock()
 
+    /// Backing variable for `state`.
+    /// Access must be guarded with `stateLock`.
+    private var _state: State = .initialized
+
+    /// Backing variable for `_isCancelled`.
+    /// Access must be guarded with `stateLock`.
+    private var __isCancelled: Bool = false
+
     /// Operation state.
-    @objc private var state: State = .initialized
-    private var _isCancelled = false
+    @objc private var state: State {
+        get {
+            stateLock.lock()
+            defer { stateLock.unlock() }
+
+            return _state
+        }
+        set(newState) {
+            willChangeValue(for: \.state)
+            stateLock.lock()
+            assert(_state < newState)
+            _state = newState
+            stateLock.unlock()
+            didChangeValue(for: \.state)
+        }
+    }
+
+    private var _isCancelled: Bool {
+        get {
+            stateLock.lock()
+            defer { stateLock.unlock() }
+
+            return __isCancelled
+        }
+        set {
+            willChangeValue(for: \.isCancelled)
+            stateLock.lock()
+            __isCancelled = newValue
+            stateLock.unlock()
+            didChangeValue(for: \.isCancelled)
+        }
+    }
 
     final override var isReady: Bool {
         stateLock.lock()
@@ -57,11 +106,11 @@ class AsyncOperation: Operation {
         }
 
         // Mark operation ready when cancelled, so that operation queue could flush it faster.
-        guard !_isCancelled else {
+        guard !__isCancelled else {
             return true
         }
 
-        switch state {
+        switch _state {
         case .initialized, .pending, .evaluatingConditions:
             return false
 
@@ -71,23 +120,14 @@ class AsyncOperation: Operation {
     }
 
     final override var isExecuting: Bool {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-
         return state == .executing
     }
 
     final override var isFinished: Bool {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-
         return state == .finished
     }
 
     final override var isCancelled: Bool {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-
         return _isCancelled
     }
 
@@ -100,17 +140,17 @@ class AsyncOperation: Operation {
     private var _observers: [OperationObserver] = []
 
     final var observers: [OperationObserver] {
-        stateLock.lock()
-        defer { stateLock.unlock() }
+        operationLock.lock()
+        defer { operationLock.unlock() }
 
         return _observers
     }
 
     final func addObserver(_ observer: OperationObserver) {
-        stateLock.lock()
+        operationLock.lock()
         assert(state < .executing)
         _observers.append(observer)
-        stateLock.unlock()
+        operationLock.unlock()
         observer.didAttach(to: self)
     }
 
@@ -119,26 +159,26 @@ class AsyncOperation: Operation {
     private var _conditions: [OperationCondition] = []
 
     final var conditions: [OperationCondition] {
-        stateLock.lock()
-        defer { stateLock.unlock() }
+        operationLock.lock()
+        defer { operationLock.unlock() }
 
         return _conditions
     }
 
     func addCondition(_ condition: OperationCondition) {
-        stateLock.lock()
+        operationLock.lock()
         assert(state < .evaluatingConditions)
         _conditions.append(condition)
-        stateLock.unlock()
+        operationLock.unlock()
     }
 
     private func evaluateConditions() {
         guard !_conditions.isEmpty else {
-            setState(.ready)
+            state = .ready
             return
         }
 
-        setState(.evaluatingConditions)
+        state = .evaluatingConditions
 
         var results = [Bool](repeating: false, count: _conditions.count)
         let group = DispatchGroup()
@@ -159,8 +199,8 @@ class AsyncOperation: Operation {
     }
 
     private func didEvaluateConditions(_ results: [Bool]) {
-        stateLock.lock()
-        defer { stateLock.unlock() }
+        operationLock.lock()
+        defer { operationLock.unlock() }
 
         guard state < .ready else { return }
 
@@ -169,7 +209,7 @@ class AsyncOperation: Operation {
             cancel()
         }
 
-        setState(.ready)
+        state = .ready
     }
 
     // MARK: -
@@ -179,20 +219,48 @@ class AsyncOperation: Operation {
     init(dispatchQueue: DispatchQueue? = nil) {
         self.dispatchQueue = dispatchQueue ?? DispatchQueue(label: "AsyncOperation.dispatchQueue")
         super.init()
+
+        addObserver(self, forKeyPath: #keyPath(isReady), options: [], context: &Self.observerContext)
+    }
+
+    deinit {
+        removeObserver(self, forKeyPath: #keyPath(isReady), context: &Self.observerContext)
     }
 
     // MARK: - KVO
 
+    private static var observerContext = 0
+
+    override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey : Any]?,
+        context: UnsafeMutableRawPointer?
+    )
+    {
+        if context == &Self.observerContext {
+            checkReadiness()
+            return
+        }
+
+        super.observeValue(
+            forKeyPath: keyPath,
+            of: object,
+            change: change,
+            context: context
+        )
+    }
+
     @objc class func keyPathsForValuesAffectingIsReady() -> Set<String> {
-        return ["state"]
+        return [#keyPath(state)]
     }
 
     @objc class func keyPathsForValuesAffectingIsExecuting() -> Set<String> {
-        return ["state"]
+        return [#keyPath(state)]
     }
 
     @objc class func keyPathsForValuesAffectingIsFinished() -> Set<String> {
-        return ["state"]
+        return [#keyPath(state)]
     }
 
     // MARK: - Lifecycle
@@ -211,17 +279,17 @@ class AsyncOperation: Operation {
     }
 
     private func _start() {
-        stateLock.lock()
+        operationLock.lock()
         if _isCancelled {
-            stateLock.unlock()
+            operationLock.unlock()
             finish()
         } else {
-            setState(.executing)
+            state = .executing
 
             for observer in _observers {
                 observer.operationDidStart(self)
             }
-            stateLock.unlock()
+            operationLock.unlock()
 
             main()
         }
@@ -234,15 +302,12 @@ class AsyncOperation: Operation {
     final override func cancel() {
         var notifyDidCancel = false
 
-        stateLock.lock()
+        operationLock.lock()
         if !_isCancelled {
-            willChangeValue(for: \.isCancelled)
             _isCancelled = true
-            didChangeValue(for: \.isCancelled)
-
             notifyDidCancel = true
         }
-        stateLock.unlock()
+        operationLock.unlock()
 
         super.cancel()
 
@@ -260,12 +325,12 @@ class AsyncOperation: Operation {
     func finish() {
         var notifyDidFinish = false
 
-        stateLock.lock()
+        operationLock.lock()
         if state < .finished {
-            setState(.finished)
+            state = .finished
             notifyDidFinish = true
         }
-        stateLock.unlock()
+        operationLock.unlock()
 
         if notifyDidFinish {
             dispatchQueue.async {
@@ -280,56 +345,27 @@ class AsyncOperation: Operation {
 
     // MARK: - Private
 
-    private func setState(_ newState: State) {
-        willChangeValue(for: \.state)
-        assert(state < newState)
-        state = newState
-        didChangeValue(for: \.state)
-    }
-
-    private func dependenciesDidFinish() {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-
-        guard state == .pending && !_isCancelled else { return }
-
-        precondition(super.isReady, "Expect super.isReady to be true.")
-
-        evaluateConditions()
-    }
-
     func didEnqueue() {
-        stateLock.lock()
+        operationLock.lock()
+        defer { operationLock.unlock() }
+
         guard state == .initialized else {
-            stateLock.unlock()
             return
         }
-        setState(.pending)
-        stateLock.unlock()
 
-        let group = DispatchGroup()
-        var observers = [NSKeyValueObservation]()
-
-        for dependency in dependencies {
-            group.enter()
-
-            let observer = dependency.observe(\.isFinished, options: [.initial]) { dependency, _ in
-                if dependency.isFinished {
-                    group.leave()
-                }
-            }
-
-            observers.append(observer)
-        }
-
-        group.notify(queue: dispatchQueue) {
-            for observer in observers {
-                observer.invalidate()
-            }
-
-            self.dependenciesDidFinish()
-        }
+        state = .pending
     }
+
+    private func checkReadiness() {
+        operationLock.lock()
+
+        if state == .pending, !_isCancelled, super.isReady {
+            evaluateConditions()
+        }
+
+        operationLock.unlock()
+    }
+
 
     // MARK: - Subclass overrides
 

@@ -17,7 +17,7 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
 
     convenience init(
         dispatchQueue: DispatchQueue? = nil,
-        executionBlock: @escaping ExecutionBlock
+        executionBlock: ExecutionBlock? = nil
     )
     {
         self.init(
@@ -35,17 +35,7 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
     {
         self.init(
             dispatchQueue: dispatchQueue,
-            executionBlock: { operation in
-                do {
-                    let value = try executionBlock()
-
-                    operation.finish(completion: .success(value))
-                } catch {
-                    let castedError = error as! Failure
-
-                    operation.finish(completion: .failure(castedError))
-                }
-            },
+            executionBlock: Self.wrapThrowingBlock(executionBlock),
             completionQueue: nil,
             completionHandler: nil
         )
@@ -53,7 +43,7 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
 
     init(
         dispatchQueue: DispatchQueue?,
-        executionBlock: @escaping ExecutionBlock,
+        executionBlock: ExecutionBlock?,
         completionQueue: DispatchQueue?,
         completionHandler: CompletionHandler?
     )
@@ -88,12 +78,37 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
         executionBlock = nil
     }
 
+    func setExecutionBlock(_ block: @escaping (ResultBlockOperation<Success, Failure>) -> Void) {
+        dispatchQueue.async {
+            assert(!self.isExecuting && !self.isFinished)
+            self.executionBlock = block
+        }
+    }
+
+    func setExecutionBlock(_ block: @escaping ThrowingExecutionBlock) {
+        setExecutionBlock(Self.wrapThrowingBlock(block))
+    }
+
     func addCancellationBlock(_ block: @escaping () -> Void) {
         dispatchQueue.async {
             if self.isCancelled {
                 block()
             } else {
                 self.cancellationBlocks.append(block)
+            }
+        }
+    }
+
+    private class func wrapThrowingBlock(_ executionBlock: @escaping ThrowingExecutionBlock) -> ExecutionBlock {
+        return { operation in
+            do {
+                let value = try executionBlock()
+
+                operation.finish(completion: .success(value))
+            } catch {
+                let castedError = error as! Failure
+
+                operation.finish(completion: .failure(castedError))
             }
         }
     }
