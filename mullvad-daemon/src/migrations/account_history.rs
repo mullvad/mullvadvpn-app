@@ -53,12 +53,12 @@ pub async fn migrate_formats(settings_dir: &Path, settings: &mut serde_json::Val
         .read(true)
         .open(path)
         .await
-        .map_err(Error::ReadHistoryError)?;
+        .map_err(Error::ReadHistory)?;
 
     let mut bytes = vec![];
     file.read_to_end(&mut bytes)
         .await
-        .map_err(Error::ReadHistoryError)?;
+        .map_err(Error::ReadHistory)?;
 
     if is_format_v3(&bytes) {
         return Ok(());
@@ -92,16 +92,16 @@ fn is_format_v3(bytes: &[u8]) -> bool {
 }
 
 async fn write_format_v3(mut file: File, token: Option<AccountToken>) -> Result<()> {
-    file.set_len(0).await.map_err(Error::WriteHistoryError)?;
+    file.set_len(0).await.map_err(Error::WriteHistory)?;
     file.seek(io::SeekFrom::Start(0))
         .await
-        .map_err(Error::WriteHistoryError)?;
+        .map_err(Error::WriteHistory)?;
     if let Some(token) = token {
         file.write_all(token.as_bytes())
             .await
-            .map_err(Error::WriteHistoryError)?;
+            .map_err(Error::WriteHistory)?;
     }
-    file.sync_all().await.map_err(Error::WriteHistoryError)
+    file.sync_all().await.map_err(Error::WriteHistory)
 }
 
 fn try_format_v2(bytes: &[u8]) -> Result<Option<(AccountToken, serde_json::Value)>> {

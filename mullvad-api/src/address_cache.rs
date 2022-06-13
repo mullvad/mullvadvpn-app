@@ -10,19 +10,16 @@ use tokio::{
 #[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to open the address cache file")]
-    OpenAddressCache(#[error(source)] io::Error),
+    Open(#[error(source)] io::Error),
 
     #[error(display = "Failed to read the address cache file")]
-    ReadAddressCache(#[error(source)] io::Error),
+    Read(#[error(source)] io::Error),
 
     #[error(display = "Failed to parse the address cache file")]
-    ParseAddressCache,
+    Parse,
 
     #[error(display = "Failed to update the address cache file")]
-    WriteAddressCache(#[error(source)] io::Error),
-
-    #[error(display = "The address cache is empty")]
-    EmptyAddressCache,
+    Write(#[error(source)] io::Error),
 }
 
 #[derive(Clone)]
@@ -68,7 +65,7 @@ impl AddressCache {
         self.inner.lock().await.address
     }
 
-    pub async fn set_address(&self, address: SocketAddr) -> io::Result<()> {
+    pub async fn set_address(&self, address: SocketAddr) -> Result<(), Error> {
         let mut inner = self.inner.lock().await;
         if address != inner.address {
             self.save_to_disk(&address).await?;
@@ -77,17 +74,21 @@ impl AddressCache {
         Ok(())
     }
 
-    async fn save_to_disk(&self, address: &SocketAddr) -> io::Result<()> {
+    async fn save_to_disk(&self, address: &SocketAddr) -> Result<(), Error> {
         let write_path = match self.write_path.as_ref() {
             Some(write_path) => write_path,
             None => return Ok(()),
         };
 
-        let mut file = crate::fs::AtomicFile::new(write_path.to_path_buf()).await?;
+        let mut file = crate::fs::AtomicFile::new(write_path.to_path_buf())
+            .await
+            .map_err(Error::Open)?;
         let mut contents = address.to_string();
         contents += "\n";
-        file.write_all(contents.as_bytes()).await?;
-        file.finalize().await
+        file.write_all(contents.as_bytes())
+            .await
+            .map_err(Error::Write)?;
+        file.finalize().await.map_err(Error::Write)
     }
 }
 
@@ -103,12 +104,10 @@ impl AddressCacheInner {
 }
 
 async fn read_address_file(path: &Path) -> Result<SocketAddr, Error> {
-    let mut file = fs::File::open(path)
-        .await
-        .map_err(Error::OpenAddressCache)?;
+    let mut file = fs::File::open(path).await.map_err(Error::Open)?;
     let mut address = String::new();
     file.read_to_string(&mut address)
         .await
-        .map_err(Error::ReadAddressCache)?;
-    address.trim().parse().map_err(|_| Error::ParseAddressCache)
+        .map_err(Error::Read)?;
+    address.trim().parse().map_err(|_| Error::Parse)
 }

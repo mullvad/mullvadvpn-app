@@ -130,7 +130,7 @@ impl ServerRelayList {
     ) {
         let openvpn_endpoint_data = openvpn.ports;
         for mut openvpn_relay in openvpn.relays.into_iter() {
-            openvpn_relay.to_lower();
+            openvpn_relay.convert_to_lowercase();
             if let Some((country_code, city_code)) = split_location_code(&openvpn_relay.location) {
                 if let Some(country) = countries.get_mut(country_code) {
                     if let Some(city) = country
@@ -184,7 +184,7 @@ impl ServerRelayList {
             };
 
         for mut wireguard_relay in relays {
-            wireguard_relay.relay.to_lower();
+            wireguard_relay.relay.convert_to_lowercase();
             if let Some((country_code, city_code)) =
                 split_location_code(&wireguard_relay.relay.location)
             {
@@ -235,7 +235,7 @@ impl ServerRelayList {
         } = bridges;
 
         for mut bridge_relay in relays {
-            bridge_relay.to_lower();
+            bridge_relay.convert_to_lowercase();
             if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location) {
                 if let Some(country) = countries.get_mut(country_code) {
                     if let Some(city) = country
@@ -345,7 +345,7 @@ struct Relay {
 }
 
 impl Relay {
-    fn to_lower(&mut self) {
+    fn convert_to_lowercase(&mut self) {
         self.hostname = self.hostname.to_lowercase();
         self.location = self.location.to_lowercase();
     }

@@ -2,7 +2,10 @@
 use jnix::IntoJava;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::cmp::{Ord, Ordering, PartialOrd};
+use std::{
+    cmp::{Ord, Ordering, PartialOrd},
+    str::FromStr,
+};
 
 lazy_static::lazy_static! {
     static ref STABLE_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)$").unwrap();
@@ -44,30 +47,33 @@ pub enum ParsedAppVersion {
     Dev(u32, u32, Option<u32>, String),
 }
 
-impl ParsedAppVersion {
-    pub fn from_str(version: &str) -> Option<Self> {
+impl FromStr for ParsedAppVersion {
+    type Err = ();
+    fn from_str(version: &str) -> Result<Self, Self::Err> {
         let get_int = |cap: &regex::Captures<'_>, idx| cap.get(idx)?.as_str().parse().ok();
 
         if let Some(caps) = STABLE_REGEX.captures(version) {
-            let year = get_int(&caps, 1)?;
-            let version = get_int(&caps, 2)?;
-            Some(Self::Stable(year, version))
+            let year = get_int(&caps, 1).ok_or(())?;
+            let version = get_int(&caps, 2).ok_or(())?;
+            Ok(Self::Stable(year, version))
         } else if let Some(caps) = BETA_REGEX.captures(version) {
-            let year = get_int(&caps, 1)?;
-            let version = get_int(&caps, 2)?;
-            let beta_version = get_int(&caps, 3)?;
-            Some(Self::Beta(year, version, beta_version))
+            let year = get_int(&caps, 1).ok_or(())?;
+            let version = get_int(&caps, 2).ok_or(())?;
+            let beta_version = get_int(&caps, 3).ok_or(())?;
+            Ok(Self::Beta(year, version, beta_version))
         } else if let Some(caps) = DEV_REGEX.captures(version) {
-            let year = get_int(&caps, 1)?;
-            let version = get_int(&caps, 2)?;
+            let year = get_int(&caps, 1).ok_or(())?;
+            let version = get_int(&caps, 2).ok_or(())?;
             let beta_version = caps.get(4).map(|_| get_int(&caps, 5).unwrap());
-            let dev_hash = caps.get(6)?.as_str().to_string();
-            Some(Self::Dev(year, version, beta_version, dev_hash))
+            let dev_hash = caps.get(6).ok_or(())?.as_str().to_string();
+            Ok(Self::Dev(year, version, beta_version, dev_hash))
         } else {
-            None
+            Err(())
         }
     }
+}
 
+impl ParsedAppVersion {
     pub fn is_dev(&self) -> bool {
         matches!(self, ParsedAppVersion::Dev(..))
     }
@@ -191,7 +197,7 @@ mod test {
         ];
 
         for (input, expected_output) in tests {
-            assert_eq!(ParsedAppVersion::from_str(input), expected_output,);
+            assert_eq!(ParsedAppVersion::from_str(input).ok(), expected_output,);
         }
     }
 }

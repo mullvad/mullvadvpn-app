@@ -87,13 +87,13 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to open a netlink connection")]
-    ConnectError(#[error(source)] io::Error),
+    Connect(#[error(source)] io::Error),
 
     #[error(display = "Failed to bind netlink socket")]
-    BindError(#[error(source)] io::Error),
+    Bind(#[error(source)] io::Error),
 
     #[error(display = "Netlink error")]
-    NetlinkError(#[error(source)] rtnetlink::Error),
+    Netlink(#[error(source)] rtnetlink::Error),
 
     #[error(display = "Route without a valid node")]
     InvalidRoute,
@@ -108,16 +108,16 @@ pub enum Error {
     UnknownDeviceIndex(u32),
 
     #[error(display = "Failed to get a route for the given IP address")]
-    GetRouteError(#[error(source)] rtnetlink::Error),
+    GetRoute(#[error(source)] rtnetlink::Error),
 
     #[error(display = "No netlink response for route query")]
-    NoRouteError,
+    NoRoute,
 
     #[error(display = "Route node was malformed")]
     InvalidRouteNode,
 
     #[error(display = "No link found")]
-    LinkNotFoundError,
+    LinkNotFound,
 
     /// Unable to create routing table for tagged connections and packets.
     #[error(display = "Cannot find a free routing table ID")]
@@ -140,14 +140,11 @@ pub struct RouteManagerImpl {
 impl RouteManagerImpl {
     pub async fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
         let (mut connection, handle, messages) =
-            rtnetlink::new_connection().map_err(Error::ConnectError)?;
+            rtnetlink::new_connection().map_err(Error::Connect)?;
 
         let mgroup_flags = RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_ROUTE | RTMGRP_LINK | RTMGRP_NOTIFY;
         let addr = SocketAddr::new(0, mgroup_flags);
-        connection
-            .socket_mut()
-            .bind(&addr)
-            .map_err(Error::BindError)?;
+        connection.socket_mut().bind(&addr).map_err(Error::Bind)?;
 
         tokio::spawn(connection);
 
@@ -179,11 +176,11 @@ impl RouteManagerImpl {
             let mut req = NetlinkMessage::from(RtnlMessage::NewRule((*rule).clone()));
             req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
 
-            let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
+            let mut response = self.handle.request(req).map_err(Error::Netlink)?;
 
             while let Some(message) = response.next().await {
                 if let NetlinkPayload::Error(error) = message.payload {
-                    return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(error)));
+                    return Err(Error::Netlink(rtnetlink::Error::NetlinkError(error)));
                 }
             }
         }
@@ -236,7 +233,7 @@ impl RouteManagerImpl {
         let mut req = NetlinkMessage::from(RtnlMessage::GetRule(RuleMessage::default()));
         req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_DUMP;
 
-        let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
+        let mut response = self.handle.request(req).map_err(Error::Netlink)?;
 
         let mut rules = vec![];
 
@@ -246,7 +243,7 @@ impl RouteManagerImpl {
                     rules.push(rule);
                 }
                 NetlinkPayload::Error(error) => {
-                    return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(error)));
+                    return Err(Error::Netlink(rtnetlink::Error::NetlinkError(error)));
                 }
                 _ => (),
             }
@@ -260,12 +257,12 @@ impl RouteManagerImpl {
         let mut req = NetlinkMessage::from(RtnlMessage::DelRule(rule));
         req.header.flags = NLM_F_REQUEST | NLM_F_ACK;
 
-        let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
+        let mut response = self.handle.request(req).map_err(Error::Netlink)?;
 
         while let Some(message) = response.next().await {
             if let NetlinkPayload::Error(error) = message.payload {
                 if error.to_io().kind() != io::ErrorKind::NotFound {
-                    return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(error)));
+                    return Err(Error::Netlink(rtnetlink::Error::NetlinkError(error)));
                 }
             }
         }
@@ -296,7 +293,7 @@ impl RouteManagerImpl {
     ) -> Result<BTreeMap<u32, NetworkInterface>> {
         let mut link_map = BTreeMap::new();
         let mut link_request = handle.link().get().execute();
-        while let Some(link) = link_request.try_next().await.map_err(Error::NetlinkError)? {
+        while let Some(link) = link_request.try_next().await.map_err(Error::Netlink)? {
             if let Some((idx, device)) = Self::map_interface(link) {
                 link_map.insert(idx, device);
             }
@@ -543,7 +540,7 @@ impl RouteManagerImpl {
 
     async fn delete_route_if_exists(&self, route: &Route) -> Result<()> {
         if let Err(error) = self.delete_route(route).await {
-            if let Error::NetlinkError(rtnetlink::Error::NetlinkError(msg)) = &error {
+            if let Error::Netlink(rtnetlink::Error::NetlinkError(msg)) = &error {
                 if msg.code == -libc::ESRCH {
                     return Ok(());
                 }
@@ -619,7 +616,7 @@ impl RouteManagerImpl {
             .del(route_message)
             .execute()
             .await
-            .map_err(Error::NetlinkError)
+            .map_err(Error::Netlink)
     }
 
     async fn add_route_direct(&mut self, route: Route) -> Result<()> {
@@ -693,11 +690,11 @@ impl RouteManagerImpl {
         let mut req = NetlinkMessage::from(RtnlMessage::NewRoute(add_message));
         req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
 
-        let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
+        let mut response = self.handle.request(req).map_err(Error::Netlink)?;
 
         while let Some(message) = response.next().await {
             if let NetlinkPayload::Error(err) = message.payload {
-                return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(err)));
+                return Err(Error::Netlink(rtnetlink::Error::NetlinkError(err)));
             }
         }
         Ok(())
@@ -759,7 +756,7 @@ impl RouteManagerImpl {
                 }
                 None => {
                     log::error!("No route detected when assigning the mtu to the Wireguard tunnel");
-                    return Err(Error::NoRouteError);
+                    return Err(Error::NoRoute);
                 }
             }
         }
@@ -767,17 +764,13 @@ impl RouteManagerImpl {
             "Retried {} times looking for the correct device and could not find it",
             RECURSION_LIMIT
         );
-        Err(Error::NoRouteError)
+        Err(Error::NoRoute)
     }
 
     async fn get_device_mtu(&self, device: String) -> Result<u16> {
         let mut links = self.handle.link().get().execute();
         let target_device = LinkNla::IfName(device);
-        while let Some(msg) = links
-            .try_next()
-            .await
-            .map_err(|_| Error::LinkNotFoundError)?
-        {
+        while let Some(msg) = links.try_next().await.map_err(|_| Error::LinkNotFound)? {
             let found = msg.nlas.iter().any(|e| *e == target_device);
             if found {
                 if let Some(LinkNla::Mtu(mtu)) =
@@ -788,7 +781,7 @@ impl RouteManagerImpl {
                 }
             }
         }
-        Err(Error::LinkNotFoundError)
+        Err(Error::LinkNotFound)
     }
 
     async fn get_destination_route(
@@ -813,11 +806,11 @@ impl RouteManagerImpl {
         let mut stream = execute_route_get_request(self.handle.clone(), message.clone());
         match stream.try_next().await {
             Ok(Some(route_msg)) => self.parse_route_message(route_msg),
-            Ok(None) => Err(Error::NoRouteError),
+            Ok(None) => Err(Error::NoRoute),
             Err(rtnetlink::Error::NetlinkError(nl_err)) if nl_err.code == -libc::ENETUNREACH => {
                 Ok(None)
             }
-            Err(err) => Err(Error::GetRouteError(err)),
+            Err(err) => Err(Error::GetRoute(err)),
         }
     }
 }

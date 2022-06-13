@@ -84,13 +84,6 @@ impl StringValue {
     }
 }
 
-impl StringValue {
-    /// Clones the internal string value.
-    pub fn to_string(&self) -> String {
-        self.0.clone()
-    }
-}
-
 impl Deref for StringValue {
     type Target = str;
 

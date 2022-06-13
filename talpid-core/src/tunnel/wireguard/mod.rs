@@ -1,15 +1,11 @@
 use self::config::Config;
 #[cfg(not(windows))]
 use super::tun_provider;
-use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
+use super::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 use crate::routing::{self, RequiredRoute, RouteManagerHandle};
+use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Future};
 #[cfg(windows)]
 use futures::{channel::mpsc, StreamExt};
-use futures::{
-    channel::oneshot,
-    future::{abortable, AbortHandle as FutureAbortHandle},
-    Future,
-};
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
@@ -54,6 +50,7 @@ mod wireguard_nt;
 use self::wireguard_go::WgGoTunnel;
 
 type Result<T> = std::result::Result<T, Error>;
+type EventCallback = Box<dyn (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Sync + 'static>;
 
 /// Errors that can happen in the Wireguard tunnel monitor.
 #[derive(err_derive::Error, Debug)]
@@ -104,12 +101,7 @@ pub struct WireguardMonitor {
     /// Tunnel implementation
     tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
     /// Callback to signal tunnel events
-    event_callback: Box<
-        dyn (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-            + Send
-            + Sync
-            + 'static,
-    >,
+    event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
     pinger_stop_sender: sync_mpsc::Sender<()>,
     _obfuscator: Option<ObfuscatorHandle>,
@@ -208,13 +200,13 @@ impl WireguardMonitor {
         mut config: Config,
         psk_negotiation: Option<PublicKey>,
         log_path: Option<&Path>,
-        resource_dir: &Path,
-        on_event: F,
         tun_provider: Arc<Mutex<TunProvider>>,
-        route_manager: RouteManagerHandle,
         retry_attempt: u32,
-        tunnel_close_rx: oneshot::Receiver<()>,
+        route_manager: RouteManagerHandle,
+        init_args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
+        let on_event = init_args.on_event;
+
         let endpoint_addrs: Vec<IpAddr> =
             config.peers.iter().map(|peer| peer.endpoint.ip()).collect();
         let (close_msg_sender, close_msg_receiver) = sync_mpsc::channel();
@@ -228,7 +220,7 @@ impl WireguardMonitor {
             runtime.clone(),
             &Self::patch_allowed_ips(&config, psk_negotiation.is_some()),
             log_path,
-            resource_dir,
+            init_args.resource_dir,
             tun_provider,
             #[cfg(target_os = "windows")]
             setup_done_tx,
@@ -351,7 +343,7 @@ impl WireguardMonitor {
         });
 
         tokio::spawn(async move {
-            if tunnel_close_rx.await.is_ok() {
+            if init_args.tunnel_close_rx.await.is_ok() {
                 monitor_handle.abort();
                 let _ = close_msg_sender.send(CloseMsg::Stop);
             }

@@ -95,6 +95,7 @@ fn default_wgnt_setting() -> bool {
     true
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for TunnelOptions {
     fn default() -> Self {
         Self {

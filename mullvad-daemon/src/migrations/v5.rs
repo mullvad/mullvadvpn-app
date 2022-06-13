@@ -95,7 +95,7 @@ pub(crate) async fn migrate(settings: &mut serde_json::Value) -> Result<Option<M
         //
         if let Some(port) = wireguard_constraints.get("port") {
             let port_constraint: Constraint<TransportPort> =
-                serde_json::from_value(port.clone()).map_err(Error::ParseError)?;
+                serde_json::from_value(port.clone()).map_err(Error::Parse)?;
             if let Some(transport_port) = port_constraint.option() {
                 let (port, obfuscation_settings) = match transport_port.protocol {
                     TransportProtocol::Udp => (serde_json::json!(transport_port.port), None),
@@ -116,8 +116,7 @@ pub(crate) async fn migrate(settings: &mut serde_json::Value) -> Result<Option<M
 
     let migration_data = if let Some(token) = settings.get("account_token").filter(|t| !t.is_null())
     {
-        let token: AccountToken =
-            serde_json::from_value(token.clone()).map_err(Error::ParseError)?;
+        let token: AccountToken = serde_json::from_value(token.clone()).map_err(Error::Parse)?;
         let migration_data =
             if let Some(wg_data) = settings.get("wireguard").filter(|wg| !wg.is_null()) {
                 Some(MigrationData {

@@ -1,6 +1,6 @@
 use self::tun_provider::TunProvider;
 use crate::{logging, routing::RouteManagerHandle};
-use futures::channel::oneshot;
+use futures::{channel::oneshot, future::BoxFuture};
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::{Path, PathBuf},
@@ -98,6 +98,20 @@ pub struct TunnelMonitor {
     monitor: InternalTunnelMonitor,
 }
 
+/// Arguments for creating a tunnel.
+pub struct TunnelArgs<'a, L>
+where
+    // L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
+    L: (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Clone + Sync + 'static,
+{
+    /// Resource directory.
+    pub resource_dir: &'a Path,
+    /// Callback function called when an event happens.
+    pub on_event: L,
+    /// Receiver oneshot channel for closing the tunnel.
+    pub tunnel_close_rx: oneshot::Receiver<()>,
+}
+
 // TODO(emilsp) move most of the openvpn tunnel details to OpenVpnTunnelMonitor
 impl TunnelMonitor {
     /// Creates a new `TunnelMonitor` that connects to the given remote and notifies `on_event`
@@ -107,12 +121,10 @@ impl TunnelMonitor {
         runtime: tokio::runtime::Handle,
         tunnel_parameters: &mut TunnelParameters,
         log_dir: &Option<PathBuf>,
-        resource_dir: &Path,
-        on_event: L,
         tun_provider: Arc<Mutex<TunProvider>>,
-        route_manager: RouteManagerHandle,
         retry_attempt: u32,
-        tunnel_close_rx: oneshot::Receiver<()>,
+        route_manager: RouteManagerHandle,
+        init_args: TunnelArgs<'_, L>,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -129,9 +141,9 @@ impl TunnelMonitor {
             TunnelParameters::OpenVpn(config) => runtime.block_on(Self::start_openvpn_tunnel(
                 config,
                 log_file,
-                resource_dir,
-                on_event,
-                tunnel_close_rx,
+                init_args.resource_dir,
+                init_args.on_event,
+                init_args.tunnel_close_rx,
                 #[cfg(target_os = "linux")]
                 route_manager,
             )),
@@ -142,12 +154,10 @@ impl TunnelMonitor {
                 runtime,
                 config,
                 log_file,
-                resource_dir,
-                on_event,
                 tun_provider,
-                route_manager,
                 retry_attempt,
-                tunnel_close_rx,
+                route_manager,
+                init_args,
             ),
         }
     }
@@ -178,12 +188,10 @@ impl TunnelMonitor {
         runtime: tokio::runtime::Handle,
         params: &mut wireguard_types::TunnelParameters,
         log: Option<PathBuf>,
-        resource_dir: &Path,
-        on_event: L,
         tun_provider: Arc<Mutex<TunProvider>>,
-        route_manager: RouteManagerHandle,
         retry_attempt: u32,
-        tunnel_close_rx: oneshot::Receiver<()>,
+        route_manager: RouteManagerHandle,
+        init_args: TunnelArgs<'_, L>,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -211,12 +219,10 @@ impl TunnelMonitor {
                 None
             },
             log.as_deref(),
-            resource_dir,
-            on_event,
             tun_provider,
-            route_manager,
             retry_attempt,
-            tunnel_close_rx,
+            route_manager,
+            init_args,
         )?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),

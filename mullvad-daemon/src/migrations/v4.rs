@@ -43,8 +43,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if let Some(constraints) = wireguard_constraints {
         let (port, protocol): (Constraint<u16>, TransportProtocol) =
             if let Some(port) = constraints.get("port") {
-                let port_constraint =
-                    serde_json::from_value(port.clone()).map_err(Error::ParseError)?;
+                let port_constraint = serde_json::from_value(port.clone()).map_err(Error::Parse)?;
                 match port_constraint {
                     Constraint::Any => (Constraint::Any, TransportProtocol::Udp),
                     Constraint::Only(port) => (Constraint::Only(port), wg_protocol_from_port(port)),
@@ -77,13 +76,13 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 
     if let Some(constraints) = openvpn_constraints {
         let port: Constraint<u16> = if let Some(port) = constraints.get("port") {
-            serde_json::from_value(port.clone()).map_err(Error::ParseError)?
+            serde_json::from_value(port.clone()).map_err(Error::Parse)?
         } else {
             Constraint::Any
         };
         let transport_constraint: Constraint<TransportProtocol> =
             if let Some(protocol) = constraints.get("protocol") {
-                serde_json::from_value(protocol.clone()).map_err(Error::ParseError)?
+                serde_json::from_value(protocol.clone()).map_err(Error::Parse)?
             } else {
                 Constraint::Any
             };

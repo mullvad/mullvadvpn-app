@@ -28,7 +28,7 @@ pub enum Error {
     ReadResolvConf(&'static str, #[error(source)] io::Error),
 
     #[error(display = "resolv.conf at {} could not be parsed", _0)]
-    ParseError(&'static str, #[error(source)] resolv_conf::ParseError),
+    Parse(&'static str, #[error(source)] resolv_conf::ParseError),
 
     #[error(display = "Failed to remove stale resolv.conf backup at {}", _0)]
     RemoveBackup(&'static str, #[error(source)] io::Error),
@@ -179,7 +179,7 @@ fn read_config() -> Result<Config> {
 
     let contents = fs::read_to_string(RESOLV_CONF_PATH)
         .map_err(|e| Error::ReadResolvConf(RESOLV_CONF_PATH, e))?;
-    let config = Config::parse(&contents).map_err(|e| Error::ParseError(RESOLV_CONF_PATH, e))?;
+    let config = Config::parse(&contents).map_err(|e| Error::Parse(RESOLV_CONF_PATH, e))?;
 
     Ok(config)
 }
@@ -198,8 +198,8 @@ fn restore_from_backup() -> Result<()> {
     match fs::read_to_string(RESOLV_CONF_BACKUP_PATH) {
         Ok(backup) => {
             log::info!("Restoring DNS state from backup");
-            let config = Config::parse(&backup)
-                .map_err(|e| Error::ParseError(RESOLV_CONF_BACKUP_PATH, e))?;
+            let config =
+                Config::parse(&backup).map_err(|e| Error::Parse(RESOLV_CONF_BACKUP_PATH, e))?;
 
             write_config(&config)?;
 

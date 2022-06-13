@@ -384,7 +384,7 @@ impl RelaySelector {
         let mut relay_matcher = RelayMatcher {
             location: location.clone(),
             providers: providers.clone(),
-            ownership: ownership.clone(),
+            ownership: *ownership,
             tunnel: openvpn_constraints,
         };
 
@@ -492,7 +492,7 @@ impl RelaySelector {
         let mut entry_relay_matcher = RelayMatcher {
             location: location.clone(),
             providers: providers.clone(),
-            ownership: ownership.clone(),
+            ownership: *ownership,
             tunnel: wireguard_constraints.clone().into(),
         };
 
@@ -532,7 +532,7 @@ impl RelaySelector {
                 .clone(),
             ..matcher.clone()
         }
-        .to_wireguard_matcher();
+        .into_wireguard_matcher();
 
         // Pick the entry relay first if its location constraint is a subset of the exit location.
         if relay_constraints.wireguard_constraints.use_multihop {
@@ -746,7 +746,7 @@ impl RelaySelector {
                 let bridge_constraints = InternalBridgeConstraints {
                     location: settings.location.clone(),
                     providers: settings.providers.clone(),
-                    ownership: settings.ownership.clone(),
+                    ownership: settings.ownership,
                     // FIXME: This is temporary while talpid-core only supports TCP proxies
                     transport_protocol: Constraint::Only(TransportProtocol::Tcp),
                 };
@@ -791,7 +791,7 @@ impl RelaySelector {
             BridgeSettings::Normal(settings) => InternalBridgeConstraints {
                 location: settings.location.clone(),
                 providers: settings.providers.clone(),
-                ownership: settings.ownership.clone(),
+                ownership: settings.ownership,
                 transport_protocol: Constraint::Only(TransportProtocol::Tcp),
             },
             BridgeSettings::Custom(_bridge_settings) => InternalBridgeConstraints {
@@ -1064,7 +1064,7 @@ impl RelaySelector {
                 let addr_in = endpoint
                     .as_ref()
                     .map(|endpoint| endpoint.to_endpoint().address.ip())
-                    .unwrap_or(IpAddr::from(selected_relay.ipv4_addr_in));
+                    .unwrap_or_else(|| IpAddr::from(selected_relay.ipv4_addr_in));
                 log::info!("Selected relay {} at {}", selected_relay.hostname, addr_in);
                 endpoint.map(|endpoint| NormalSelectedRelay::new(endpoint, selected_relay.clone()))
             })

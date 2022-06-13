@@ -2,7 +2,7 @@ use clap::{crate_authors, crate_description, crate_name, App};
 use mullvad_api::{self, proxy::ApiConnectionMode};
 use mullvad_management_interface::new_rpc_client;
 use mullvad_types::version::ParsedAppVersion;
-use std::{path::PathBuf, process, time::Duration};
+use std::{path::PathBuf, process, str::FromStr, time::Duration};
 use talpid_core::{
     firewall::{self, Firewall},
     future_retry::{constant_interval, retry_future_n},
@@ -133,7 +133,7 @@ async fn main() {
 
 async fn is_older_version(old_version: &str) -> Result<ExitStatus, Error> {
     let parsed_version =
-        ParsedAppVersion::from_str(old_version).ok_or(Error::ParseVersionStringError)?;
+        ParsedAppVersion::from_str(old_version).map_err(|_| Error::ParseVersionStringError)?;
 
     Ok(if parsed_version < *APP_VERSION {
         ExitStatus::Ok
@@ -152,7 +152,7 @@ async fn prepare_restart() -> Result<(), Error> {
 
 async fn reset_firewall() -> Result<(), Error> {
     // Ensure that the daemon isn't running
-    if let Ok(_) = new_rpc_client().await {
+    if new_rpc_client().await.is_ok() {
         return Err(Error::DaemonIsRunning);
     }
 

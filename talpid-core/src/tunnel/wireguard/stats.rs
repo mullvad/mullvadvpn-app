@@ -4,10 +4,10 @@ use super::wireguard_kernel::wg_message::{DeviceMessage, DeviceNla, PeerNla};
 #[derive(err_derive::Error, Debug, PartialEq)]
 pub enum Error {
     #[error(display = "Failed to parse peer pubkey from string \"_0\"")]
-    PubKeyParseError(String, #[error(source)] hex::FromHexError),
+    PubKeyParse(String, #[error(source)] hex::FromHexError),
 
     #[error(display = "Failed to parse integer from string \"_0\"")]
-    IntParseError(String, #[error(source)] std::num::ParseIntError),
+    IntParse(String, #[error(source)] std::num::ParseIntError),
 
     #[error(display = "Device no longer exists")]
     NoTunnelDevice,
@@ -47,7 +47,7 @@ impl Stats {
                 "public_key" => {
                     let mut buffer = [0u8; 32];
                     hex::decode_to_slice(value, &mut buffer)
-                        .map_err(|err| Error::PubKeyParseError(value.to_string(), err))?;
+                        .map_err(|err| Error::PubKeyParse(value.to_string(), err))?;
                     peer = Some(buffer);
                     tx_bytes = None;
                     rx_bytes = None;
@@ -57,7 +57,7 @@ impl Stats {
                         value
                             .trim()
                             .parse()
-                            .map_err(|err| Error::IntParseError(value.to_string(), err))?,
+                            .map_err(|err| Error::IntParse(value.to_string(), err))?,
                     );
                 }
                 "tx_bytes" => {
@@ -65,7 +65,7 @@ impl Stats {
                         value
                             .trim()
                             .parse()
-                            .map_err(|err| Error::IntParseError(value.to_string(), err))?,
+                            .map_err(|err| Error::IntParse(value.to_string(), err))?,
                     );
                 }
 
@@ -145,7 +145,7 @@ mod test {
 
         assert_eq!(
             Stats::parse_config_str(invalid_input),
-            Err(Error::IntParseError(invalid_str, int_err))
+            Err(Error::IntParse(invalid_str, int_err))
         );
     }
 }

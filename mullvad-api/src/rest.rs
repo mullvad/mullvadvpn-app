@@ -130,7 +130,7 @@ impl<
     > RequestService<T, F>
 {
     /// Constructs a new request service.
-    pub async fn new(
+    pub async fn spawn(
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
         address_cache: AddressCache,

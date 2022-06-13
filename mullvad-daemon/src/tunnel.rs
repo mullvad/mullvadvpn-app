@@ -1,8 +1,6 @@
-use std::{
-    future::Future,
-    pin::Pin,
-    sync::{Arc, Mutex},
-};
+use std::{future::Future, pin::Pin, sync::Arc};
+
+use tokio::sync::Mutex;
 
 use mullvad_relay_selector::{RelaySelector, SelectedBridge, SelectedObfuscator, SelectedRelay};
 use mullvad_types::{
@@ -32,7 +30,7 @@ pub enum Error {
     NoBridgeAvailable,
 
     #[error(display = "Failed to resolve hostname for custom relay")]
-    ResolveCustomHostnameError,
+    ResolveCustomHostname,
 }
 
 #[derive(Clone)]
@@ -65,13 +63,13 @@ impl ParametersGenerator {
     }
 
     /// Sets the tunnel options to use when generating new tunnel parameters.
-    pub fn set_tunnel_options(&self, tunnel_options: &TunnelOptions) {
-        self.0.lock().unwrap().tunnel_options = tunnel_options.clone();
+    pub async fn set_tunnel_options(&self, tunnel_options: &TunnelOptions) {
+        self.0.lock().await.tunnel_options = tunnel_options.clone();
     }
 
     /// Gets the location associated with the last generated tunnel parameters.
-    pub fn get_last_location(&self) -> Option<GeoIpLocation> {
-        let inner = self.0.lock().unwrap();
+    pub async fn get_last_location(&self) -> Option<GeoIpLocation> {
+        let inner = self.0.lock().await;
 
         let relays = inner.last_generated_relays.as_ref()?;
 
@@ -131,7 +129,7 @@ impl InnerParametersGenerator {
                     .to_tunnel_parameters(self.tunnel_options.clone(), None)
                     .map_err(|e| {
                         log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
-                        Error::ResolveCustomHostnameError
+                        Error::ResolveCustomHostname
                     })
             }
             Ok((SelectedRelay::Normal(constraints), bridge, obfuscator)) => {
@@ -246,13 +244,13 @@ impl TunnelParametersGenerator for ParametersGenerator {
     ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>> {
         let generator = self.0.clone();
         Box::pin(async move {
-            let mut inner = generator.lock().unwrap();
+            let mut inner = generator.lock().await;
             inner
                 .generate(retry_attempt)
                 .await
                 .map_err(|error| match error {
                     Error::NoBridgeAvailable => ParameterGenerationError::NoMatchingBridgeRelay,
-                    Error::ResolveCustomHostnameError => {
+                    Error::ResolveCustomHostname => {
                         ParameterGenerationError::CustomTunnelHostResultionError
                     }
                     error => {

@@ -1,3 +1,4 @@
+#![allow(clippy::identity_op)]
 use super::{Error, Result};
 use mullvad_types::settings::SettingsVersion;
 use std::time::Duration;

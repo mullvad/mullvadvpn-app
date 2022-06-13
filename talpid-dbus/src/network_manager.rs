@@ -59,6 +59,7 @@ const MAXIMUM_SUPPORTED_MINOR_VERSION: u32 = 26;
 const NM_DEVICE_STATE_CHANGED: &str = "StateChanged";
 
 pub type Result<T> = std::result::Result<T, Error>;
+type NetworkSettings<'a> = HashMap<String, HashMap<String, Variant<Box<dyn RefArg + 'a>>>>;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -447,10 +448,8 @@ impl NetworkManager {
 
         let device = self.as_path(&device_path);
         // Get the last applied connection
-        let (mut settings, version_id): (
-            HashMap<String, HashMap<String, Variant<Box<dyn RefArg>>>>,
-            u64,
-        ) = device.method_call(NM_DEVICE, "GetAppliedConnection", (0u32,))?;
+        let (mut settings, version_id): (NetworkSettings, u64) =
+            device.method_call(NM_DEVICE, "GetAppliedConnection", (0u32,))?;
 
         // Keep changed routes.
         // These routes were modified outside NM, likely by RouteManager.
@@ -576,7 +575,7 @@ impl NetworkManager {
     }
 
     fn update_dns_config<'a, T>(
-        settings: &mut HashMap<String, HashMap<String, Variant<Box<dyn RefArg + 'a>>>>,
+        settings: &mut NetworkSettings<'a>,
         ip_protocol: &'static str,
         servers: T,
     ) where

@@ -34,7 +34,7 @@ impl From<RelayConstraints> for RelayMatcher<AnyTunnelMatcher> {
 }
 
 impl RelayMatcher<AnyTunnelMatcher> {
-    pub fn to_wireguard_matcher(self) -> RelayMatcher<WireguardMatcher> {
+    pub fn into_wireguard_matcher(self) -> RelayMatcher<WireguardMatcher> {
         RelayMatcher {
             tunnel: self.tunnel.wireguard,
             location: self.location,

@@ -57,7 +57,7 @@ pub struct RelayListUpdater {
 }
 
 impl RelayListUpdater {
-    pub fn new(
+    pub fn spawn(
         selector: super::RelaySelector,
         api_handle: MullvadRestHandle,
         cache_dir: &Path,

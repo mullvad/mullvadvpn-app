@@ -5,7 +5,7 @@ use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal
 
 use std::{convert::TryFrom, sync::Once};
 
-const INIT_ONCE: Once = Once::new();
+static INIT_ONCE: Once = Once::new();
 
 const FAULT_SIGNALS: [Signal; 5] = [
     // Access to invalid memory address

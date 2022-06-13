@@ -151,7 +151,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::GetVersionInfo(tx))?;
         self.wait_for_result(rx)
             .await?
-            .ok_or(Status::not_found("no version cache"))
+            .ok_or_else(|| Status::not_found("no version cache"))
             .map(types::AppVersionInfo::from)
             .map(Response::new)
     }
