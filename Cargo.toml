@@ -16,8 +16,8 @@ members = [
     "talpid-core",
     "talpid-dbus",
     "talpid-platform-metadata",
-    "talpid-relay-config-client",
     "talpid-time",
+    "talpid-tunnel-config-client",
     "mullvad-management-interface",
     "tunnel-obfuscation",
 ]

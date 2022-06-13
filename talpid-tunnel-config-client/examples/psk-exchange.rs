@@ -16,7 +16,7 @@ async fn main() {
     let pubkey = PublicKey::from_base64(pubkey_s.trim()).expect("Invalid public key");
 
     let (private_key, psk) =
-        talpid_relay_config_client::push_pq_key(IpAddr::V4(Ipv4Addr::new(10, 64, 0, 1)), pubkey)
+        talpid_tunnel_config_client::push_pq_key(IpAddr::V4(Ipv4Addr::new(10, 64, 0, 1)), pubkey)
             .await
             .unwrap();
 
