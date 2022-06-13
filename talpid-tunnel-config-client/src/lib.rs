@@ -68,13 +68,13 @@ pub async fn push_pq_key(
         .await
         .map_err(Error::GrpcError)?;
 
-    let ct: [u8; kem::CRYPTO_CIPHERTEXTBYTES] = response
+    let ciphertext: [u8; kem::CRYPTO_CIPHERTEXTBYTES] = response
         .into_inner()
         .ciphertext
         .try_into()
         .map_err(|_| Error::InvalidCiphertext)?;
 
-    Ok((wg_psk_privkey, kem::decapsulate(&kem_secret, &ct)?))
+    Ok((wg_psk_privkey, kem::decapsulate(&kem_secret, &ciphertext)?))
 }
 
 async fn new_client(addr: IpAddr) -> Result<RelayConfigService, Error> {

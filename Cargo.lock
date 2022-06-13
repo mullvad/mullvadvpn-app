@@ -3339,8 +3339,8 @@ dependencies = [
  "system-configuration",
  "talpid-dbus",
  "talpid-platform-metadata",
- "talpid-relay-config-client",
  "talpid-time",
+ "talpid-tunnel-config-client",
  "talpid-types",
  "tempfile",
  "tokio",
@@ -3400,7 +3400,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "talpid-relay-config-client"
+name = "talpid-time"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "tokio",
+]
+
+[[package]]
+name = "talpid-tunnel-config-client"
 version = "0.1.0"
 dependencies = [
  "classic-mceliece-rust",
@@ -3413,14 +3421,6 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
-]
-
-[[package]]
-name = "talpid-time"
-version = "0.1.0"
-dependencies = [
- "libc",
- "tokio",
 ]
 
 [[package]]
