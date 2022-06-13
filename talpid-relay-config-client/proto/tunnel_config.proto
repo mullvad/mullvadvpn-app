@@ -1,0 +1,38 @@
+//
+// If you need to (re)generate the gRPC code, see prerequisites
+//
+// 	https://grpc.io/docs/languages/go/quickstart/
+//
+// and then run
+//
+// 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative tunnel_config.proto
+//
+// from this directory.
+//
+
+syntax = "proto3";
+
+option go_package = "github.com/mullvad/wg-manager/server/tuncfg";
+
+package tunnel_config;
+
+service PostQuantumSecure {
+  // PskExchangeExperimentalV0 uses the common API defined by LibOQS.  See:
+  // https://github.com/open-quantum-safe/liboqs
+  rpc PskExchangeExperimentalV0(PskRequestExperimentalV0) returns (PskResponseExperimentalV0) {}
+}
+
+message PskRequestExperimentalV0 {
+  bytes wg_pubkey = 1;
+  bytes wg_psk_pubkey = 2;
+  KemPubkeyExperimentalV0 kem_pubkey = 3;
+}
+
+message KemPubkeyExperimentalV0 {
+  string algorithm_name = 1;
+  bytes key_data = 2;
+}
+
+message PskResponseExperimentalV0 {
+  bytes ciphertext = 1;
+}
