@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.RecyclerViewMatcher.Companion.withRecyclerView
+import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ViewIntent
 import net.mullvad.mullvadvpn.di.APPS_SCOPE
 import net.mullvad.mullvadvpn.model.ListItemData
@@ -33,8 +34,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.unloadKoinModules
 import org.koin.core.qualifier.named
 import org.koin.core.scope.Scope
+import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.mock.MockProviderRule
 import org.koin.test.mock.declareMock
@@ -45,7 +49,17 @@ class SplitTunnelingFragmentTest : KoinTest {
 
     private val mockedViewModel = mockk<SplitTunnelingViewModel>(relaxUnitFun = true)
     private val sharedFlow = MutableSharedFlow<List<ListItemData>>()
-    private val scope: Scope = getKoin().getOrCreateScope(APPS_SCOPE, named(APPS_SCOPE))
+    private lateinit var scope: Scope
+
+    private val testModule = module {
+        scope(named(APPS_SCOPE)) {
+            scoped {
+                mockk<ApplicationsIconManager>().apply {
+                    every { getAppIcon(any()) } returns mockk(relaxed = true)
+                }
+            }
+        }
+    }
 
     @get:Rule
     val mockProvider = MockProviderRule.create { clazz ->
@@ -57,6 +71,8 @@ class SplitTunnelingFragmentTest : KoinTest {
 
     @Before
     fun setUp() {
+        loadKoinModules(testModule)
+        scope = getKoin().getOrCreateScope(APPS_SCOPE, named(APPS_SCOPE))
         scope.declareMock<SplitTunnelingViewModel>()
         every { mockedViewModel.listItems } returns sharedFlow
         coEvery { mockedViewModel.processIntent(ViewIntent.ViewIsReady) } just Runs
@@ -65,6 +81,7 @@ class SplitTunnelingFragmentTest : KoinTest {
     @After
     fun tearDown() {
         scope.close()
+        unloadKoinModules(testModule)
         unmockkAll()
     }
 
