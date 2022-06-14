@@ -116,7 +116,7 @@ pub async fn spawn(
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "macos")] exclusion_gid: u32,
     #[cfg(target_os = "android")] android_context: AndroidContext,
-) -> Result<(Arc<mpsc::UnboundedSender<TunnelCommand>>, JoinHandle), Error> {
+) -> Result<TunnelStateMachineHandle, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
 
@@ -150,6 +150,9 @@ pub async fn spawn(
     )
     .await?;
 
+    #[cfg(windows)]
+    let split_tunnel = state_machine.shared_values.split_tunnel.handle();
+
     tokio::task::spawn_blocking(move || {
         state_machine.run(state_change_listener);
         if shutdown_tx.send(()).is_err() {
@@ -157,7 +160,12 @@ pub async fn spawn(
         }
     });
 
-    Ok((command_tx, JoinHandle { shutdown_rx }))
+    Ok(TunnelStateMachineHandle {
+        command_tx,
+        shutdown_rx,
+        #[cfg(windows)]
+        split_tunnel,
+    })
 }
 
 /// Representation of external commands for the tunnel state machine.
@@ -590,18 +598,34 @@ state_wrapper! {
     }
 }
 
-/// Handle used to wait for the tunnel state machine to shut down.
-pub struct JoinHandle {
+/// Handle used to control the tunnel state machine.
+pub struct TunnelStateMachineHandle {
+    command_tx: Arc<mpsc::UnboundedSender<TunnelCommand>>,
     shutdown_rx: oneshot::Receiver<()>,
+    #[cfg(windows)]
+    split_tunnel: split_tunnel::SplitTunnelHandle,
 }
 
-impl JoinHandle {
+impl TunnelStateMachineHandle {
     /// Waits for the tunnel state machine to shut down.
     /// This may fail after a timeout of `TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT`.
     pub async fn try_join(self) {
+        drop(self.command_tx);
+
         match tokio::time::timeout(TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT, self.shutdown_rx).await {
             Ok(_) => log::info!("Tunnel state machine shut down"),
             Err(_) => log::error!("Tunnel state machine did not shut down gracefully"),
         }
+    }
+
+    /// Returns tunnel command sender.
+    pub fn command_tx(&self) -> &Arc<mpsc::UnboundedSender<TunnelCommand>> {
+        &self.command_tx
+    }
+
+    /// Returns split tunnel object handle.
+    #[cfg(windows)]
+    pub fn split_tunnel(&self) -> &split_tunnel::SplitTunnelHandle {
+        &self.split_tunnel
     }
 }

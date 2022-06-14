@@ -79,6 +79,7 @@ service ManagementService {
 	rpc RemoveSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 	rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc SetSplitTunnelState(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+	rpc GetExcludedProcesses(google.protobuf.Empty) returns (ExcludedProcessList) {}
 
 	rpc SetUseWireguardNt(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 
@@ -474,6 +475,16 @@ message DnsOptions {
 message PublicKey {
 	bytes key = 1;
 	google.protobuf.Timestamp created = 2;
+}
+
+message ExcludedProcess {
+	uint32 pid = 1;
+	string image = 2;
+	bool inherited = 3;
+}
+
+message ExcludedProcessList {
+	repeated ExcludedProcess processes = 1;
 }
 
 message AppVersionInfo {

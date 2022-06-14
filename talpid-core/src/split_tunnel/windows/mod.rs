@@ -12,29 +12,20 @@ use crate::{
 };
 use futures::channel::{mpsc, oneshot};
 use std::{
+    collections::HashMap,
     convert::TryFrom,
     ffi::{OsStr, OsString},
-    io, mem,
+    io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
-    os::windows::io::{AsRawHandle, RawHandle},
-    ptr,
+    os::windows::io::AsRawHandle,
+    path::{Path, PathBuf},
     sync::{
         atomic::{AtomicBool, Ordering},
-        mpsc as sync_mpsc, Arc, Mutex, Weak,
+        mpsc as sync_mpsc, Arc, Mutex, RwLock, Weak,
     },
     time::Duration,
 };
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
-use winapi::{
-    shared::minwindef::{FALSE, TRUE},
-    um::{
-        handleapi::CloseHandle,
-        ioapiset::GetOverlappedResult,
-        minwinbase::OVERLAPPED,
-        synchapi::{CreateEventW, SetEvent, WaitForMultipleObjects, WaitForSingleObject},
-        winbase::{INFINITE, WAIT_ABANDONED_0, WAIT_OBJECT_0},
-    },
-};
 
 const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;
 const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
@@ -84,8 +75,8 @@ pub enum Error {
     RequestThreadStuck,
 
     /// The request handling thread is down
-    #[error(display = "The ST request thread is down")]
-    RequestThreadDown,
+    #[error(display = "The split tunnel monitor is down")]
+    SplitTunnelDown,
 
     /// Failed to start the NTFS reparse point monitor
     #[error(display = "Failed to start path monitor")]
@@ -101,34 +92,11 @@ pub struct SplitTunnel {
     runtime: tokio::runtime::Handle,
     request_tx: RequestTx,
     event_thread: Option<std::thread::JoinHandle<()>>,
-    quit_event: Arc<QuitEvent>,
+    quit_event: Arc<windows::Event>,
+    excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
     _route_change_callback: Option<WinNetCallbackHandle>,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     async_path_update_in_progress: Arc<AtomicBool>,
-}
-
-struct QuitEvent(RawHandle);
-
-unsafe impl Send for QuitEvent {}
-unsafe impl Sync for QuitEvent {}
-
-impl QuitEvent {
-    fn new() -> Self {
-        Self(unsafe { CreateEventW(ptr::null_mut(), TRUE, FALSE, ptr::null()) })
-    }
-
-    fn set_event(&self) -> io::Result<()> {
-        if unsafe { SetEvent(self.0) } == 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(())
-    }
-}
-
-impl Drop for QuitEvent {
-    fn drop(&mut self) {
-        unsafe { CloseHandle(self.0) };
-    }
 }
 
 enum Request {
@@ -148,12 +116,43 @@ struct InterfaceAddresses {
     internet_ipv6: Option<Ipv6Addr>,
 }
 
-struct EventThreadContext {
-    handle: Arc<driver::DeviceHandle>,
-    event_overlapped: OVERLAPPED,
-    quit_event: Arc<QuitEvent>,
+/// Represents a process that is being excluded from the tunnel.
+#[derive(Debug, Clone)]
+pub struct ExcludedProcess {
+    /// Process identifier.
+    pub pid: u32,
+    /// Path to the image that this process is an instance of.
+    pub image: PathBuf,
+    /// If true, then the process is split because its parent was split,
+    /// not due to its path being in the config.
+    pub inherited: bool,
 }
-unsafe impl Send for EventThreadContext {}
+
+/// Cloneable handle for interacting with the split tunnel module.
+#[derive(Debug, Clone)]
+pub struct SplitTunnelHandle {
+    excluded_processes: Weak<RwLock<HashMap<usize, ExcludedProcess>>>,
+}
+
+impl SplitTunnelHandle {
+    /// Return processes that are currently being excluded, including
+    /// their pids, paths, and reason for being excluded.
+    pub fn get_processes(&self) -> Result<Vec<ExcludedProcess>, Error> {
+        let processes = self
+            .excluded_processes
+            .upgrade()
+            .ok_or(Error::SplitTunnelDown)?;
+        let processes = processes.read().unwrap();
+        Ok(processes.values().cloned().collect())
+    }
+}
+
+enum EventResult {
+    /// Result containing the next event.
+    Event(driver::EventId, driver::EventBody),
+    /// Quit event was signaled.
+    Quit,
+}
 
 impl SplitTunnel {
     /// Initialize the split tunnel device.
@@ -164,159 +163,9 @@ impl SplitTunnel {
     ) -> Result<Self, Error> {
         let (request_tx, handle) = Self::spawn_request_thread(volume_update_rx)?;
 
-        let mut event_overlapped: OVERLAPPED = unsafe { mem::zeroed() };
-        event_overlapped.hEvent =
-            unsafe { CreateEventW(ptr::null_mut(), TRUE, FALSE, ptr::null()) };
-        if event_overlapped.hEvent == ptr::null_mut() {
-            return Err(Error::EventThreadError(io::Error::last_os_error()));
-        }
-
-        let quit_event = Arc::new(QuitEvent::new());
-
-        let event_context = EventThreadContext {
-            handle: handle.clone(),
-            event_overlapped,
-            quit_event: quit_event.clone(),
-        };
-
-        let event_thread = std::thread::spawn(move || {
-            use driver::{EventBody, EventId};
-
-            // Take ownership of the entire struct (Rust 2021 edition change)
-            let _ = &event_context;
-
-            let mut data_buffer = Vec::with_capacity(DRIVER_EVENT_BUFFER_SIZE);
-            let mut returned_bytes = 0u32;
-
-            let event_objects = [
-                event_context.event_overlapped.hEvent,
-                event_context.quit_event.0,
-            ];
-
-            loop {
-                if unsafe { WaitForSingleObject(event_context.quit_event.0, 0) == WAIT_OBJECT_0 } {
-                    // Quit event was signaled
-                    break;
-                }
-
-                if let Err(error) = unsafe {
-                    driver::device_io_control_buffer_async(
-                        event_context.handle.as_raw_handle(),
-                        driver::DriverIoctlCode::DequeEvent as u32,
-                        Some(&mut data_buffer),
-                        None,
-                        &event_context.event_overlapped,
-                    )
-                } {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("device_io_control failed")
-                    );
-                    continue;
-                }
-
-                let result = unsafe {
-                    WaitForMultipleObjects(
-                        event_objects.len() as u32,
-                        &event_objects[0],
-                        FALSE,
-                        INFINITE,
-                    )
-                };
-
-                let signaled_index = if result >= WAIT_OBJECT_0
-                    && result < WAIT_OBJECT_0 + event_objects.len() as u32
-                {
-                    result - WAIT_OBJECT_0
-                } else if result >= WAIT_ABANDONED_0
-                    && result < WAIT_ABANDONED_0 + event_objects.len() as u32
-                {
-                    result - WAIT_ABANDONED_0
-                } else {
-                    let error = io::Error::last_os_error();
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("WaitForMultipleObjects failed")
-                    );
-
-                    continue;
-                };
-
-                if event_context.quit_event.0 == event_objects[signaled_index as usize] {
-                    // Quit event was signaled
-                    break;
-                }
-
-                let result = unsafe {
-                    GetOverlappedResult(
-                        event_context.handle.as_raw_handle(),
-                        &event_context.event_overlapped as *const _ as *mut _,
-                        &mut returned_bytes,
-                        TRUE,
-                    )
-                };
-
-                if result == 0 {
-                    let error = io::Error::last_os_error();
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("GetOverlappedResult failed")
-                    );
-
-                    continue;
-                }
-
-                unsafe { data_buffer.set_len(returned_bytes as usize) };
-
-                let event = driver::parse_event_buffer(&data_buffer);
-
-                let (event_id, event_body) = match event {
-                    Some((event_id, event_body)) => (event_id, event_body),
-                    None => continue,
-                };
-
-                let event_str = match &event_id {
-                    EventId::StartSplittingProcess | EventId::ErrorStartSplittingProcess => {
-                        "Start splitting process"
-                    }
-                    EventId::StopSplittingProcess | EventId::ErrorStopSplittingProcess => {
-                        "Stop splitting process"
-                    }
-                    EventId::ErrorMessage => "ErrorMessage",
-                };
-
-                match event_body {
-                    EventBody::SplittingEvent {
-                        process_id,
-                        reason,
-                        image,
-                    } => {
-                        log::trace!(
-                            "{}:\n\tpid: {}\n\treason: {:?}\n\timage: {:?}",
-                            event_str,
-                            process_id,
-                            reason,
-                            image,
-                        );
-                    }
-                    EventBody::SplittingError { process_id, image } => {
-                        log::error!(
-                            "FAILED: {}:\n\tpid: {}\n\timage: {:?}",
-                            event_str,
-                            process_id,
-                            image,
-                        );
-                    }
-                    EventBody::ErrorMessage { status, message } => {
-                        log::error!("NTSTATUS {:#x}: {}", status, message.to_string_lossy())
-                    }
-                }
-            }
-
-            log::debug!("Stopping split tunnel event thread");
-
-            unsafe { CloseHandle(event_context.event_overlapped.hEvent) };
-        });
+        let excluded_processes = Arc::new(RwLock::new(HashMap::new()));
+        let (event_thread, quit_event) =
+            Self::spawn_event_listener(handle, excluded_processes.clone())?;
 
         Ok(SplitTunnel {
             runtime,
@@ -326,7 +175,195 @@ impl SplitTunnel {
             _route_change_callback: None,
             daemon_tx,
             async_path_update_in_progress: Arc::new(AtomicBool::new(false)),
+            excluded_processes,
         })
+    }
+
+    /// Spawns an event loop thread that processes events from the driver service.
+    fn spawn_event_listener(
+        handle: Arc<driver::DeviceHandle>,
+        excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
+    ) -> Result<(std::thread::JoinHandle<()>, Arc<windows::Event>), Error> {
+        let mut event_overlapped = windows::Overlapped::new(Some(
+            windows::Event::new(true, false).map_err(Error::EventThreadError)?,
+        ))
+        .map_err(Error::EventThreadError)?;
+
+        let quit_event =
+            Arc::new(windows::Event::new(true, false).map_err(Error::EventThreadError)?);
+        let quit_event_copy = quit_event.clone();
+
+        let event_thread = std::thread::spawn(move || {
+            let mut data_buffer = vec![];
+
+            loop {
+                // Wait until either the next event is received or the quit event is signaled.
+                let (event_id, event_body) = match Self::fetch_next_event(
+                    &handle,
+                    &quit_event,
+                    &mut event_overlapped,
+                    &mut data_buffer,
+                ) {
+                    Ok(EventResult::Event(event_id, event_body)) => (event_id, event_body),
+                    Ok(EventResult::Quit) => break,
+                    Err(_error) => continue,
+                };
+
+                Self::handle_event(event_id, event_body, &excluded_processes);
+            }
+
+            log::debug!("Stopping split tunnel event thread");
+        });
+
+        Ok((event_thread, quit_event_copy))
+    }
+
+    fn fetch_next_event(
+        device: &Arc<driver::DeviceHandle>,
+        quit_event: &windows::Event,
+        overlapped: &mut windows::Overlapped,
+        data_buffer: &mut Vec<u8>,
+    ) -> io::Result<EventResult> {
+        if unsafe {
+            driver::wait_for_single_object(quit_event.as_raw_handle(), Some(Duration::ZERO))
+        }
+        .is_ok()
+        {
+            return Ok(EventResult::Quit);
+        }
+
+        data_buffer.resize(DRIVER_EVENT_BUFFER_SIZE, 0u8);
+
+        unsafe {
+            driver::device_io_control_buffer_async(
+                device,
+                driver::DriverIoctlCode::DequeEvent as u32,
+                None,
+                data_buffer.as_mut_ptr(),
+                u32::try_from(data_buffer.len()).expect("buffer must be smaller than u32"),
+                overlapped.as_mut_ptr(),
+            )
+        }
+        .map_err(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("DeviceIoControl failed to deque event")
+            );
+            error
+        })?;
+
+        let event_objects = [
+            overlapped.get_event().unwrap().as_raw_handle(),
+            quit_event.as_raw_handle(),
+        ];
+
+        let signaled_object =
+            unsafe { driver::wait_for_multiple_objects(&event_objects[..], false) }.map_err(
+                |error| {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("wait_for_multiple_objects failed")
+                    );
+                    error
+                },
+            )?;
+
+        if signaled_object == quit_event.as_raw_handle() {
+            // Quit event was signaled
+            return Ok(EventResult::Quit);
+        }
+
+        let returned_bytes =
+            driver::get_overlapped_result(device, overlapped).map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("get_overlapped_result failed for dequed event"),
+                );
+                error
+            })?;
+
+        data_buffer
+            .truncate(usize::try_from(returned_bytes).expect("usize must be no smaller than u32"));
+
+        driver::parse_event_buffer(&data_buffer)
+            .map(|(id, body)| EventResult::Event(id, body))
+            .map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to parse ST event buffer")
+                );
+                io::Error::new(io::ErrorKind::Other, "Failed to parse ST event buffer")
+            })
+    }
+
+    fn handle_event(
+        event_id: driver::EventId,
+        event_body: driver::EventBody,
+        excluded_processes: &Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
+    ) {
+        use driver::{EventBody, EventId};
+
+        let event_str = match &event_id {
+            EventId::StartSplittingProcess | EventId::ErrorStartSplittingProcess => {
+                "Start splitting process"
+            }
+            EventId::StopSplittingProcess | EventId::ErrorStopSplittingProcess => {
+                "Stop splitting process"
+            }
+            EventId::ErrorMessage => "ErrorMessage",
+        };
+
+        match event_body {
+            EventBody::SplittingEvent {
+                process_id,
+                reason,
+                image,
+            } => {
+                let mut pids = excluded_processes.write().unwrap();
+                match event_id {
+                    EventId::StartSplittingProcess => {
+                        if let Some(prev_entry) = pids.get(&process_id) {
+                            log::error!("PID collision: {process_id} is already in the list of excluded processes. New image: {:?}. Current image: {:?}", image, prev_entry);
+                        }
+                        pids.insert(
+                            process_id,
+                            ExcludedProcess {
+                                pid: u32::try_from(process_id)
+                                    .expect("PID should be containable in a DWORD"),
+                                image: Path::new(&image).to_path_buf(),
+                                inherited: reason
+                                    .contains(driver::SplittingChangeReason::BY_INHERITANCE),
+                            },
+                        );
+                    }
+                    EventId::StopSplittingProcess => {
+                        if pids.remove(&process_id).is_none() {
+                            log::error!("Inconsistent process tree: {process_id} was not found");
+                        }
+                    }
+                    _ => (),
+                }
+
+                log::trace!(
+                    "{}:\n\tpid: {}\n\treason: {:?}\n\timage: {:?}",
+                    event_str,
+                    process_id,
+                    reason,
+                    image,
+                );
+            }
+            EventBody::SplittingError { process_id, image } => {
+                log::error!(
+                    "FAILED: {}:\n\tpid: {}\n\timage: {:?}",
+                    event_str,
+                    process_id,
+                    image,
+                );
+            }
+            EventBody::ErrorMessage { status, message } => {
+                log::error!("NTSTATUS {:#x}: {}", status, message.to_string_lossy())
+            }
+        }
     }
 
     fn spawn_request_thread(
@@ -464,7 +501,7 @@ impl SplitTunnel {
 
         request_tx
             .send((request, response_tx))
-            .map_err(|_| Error::RequestThreadDown)?;
+            .map_err(|_| Error::SplitTunnelDown)?;
 
         response_rx
             .recv_timeout(REQUEST_TIMEOUT)
@@ -506,8 +543,8 @@ impl SplitTunnel {
         let wait_task = move || {
             request_tx
                 .send((request, response_tx))
-                .map_err(|_| Error::RequestThreadDown)?;
-            response_rx.recv().map_err(|_| Error::RequestThreadDown)?
+                .map_err(|_| Error::SplitTunnelDown)?;
+            response_rx.recv().map_err(|_| Error::SplitTunnelDown)?
         };
         let in_progress = self.async_path_update_in_progress.clone();
         self.runtime.spawn_blocking(move || {
@@ -562,12 +599,19 @@ impl SplitTunnel {
         self._route_change_callback = None;
         self.send_request(Request::RegisterIps(InterfaceAddresses::default()))
     }
+
+    /// Returns a handle used for interacting with the split tunnel module.
+    pub fn handle(&self) -> SplitTunnelHandle {
+        SplitTunnelHandle {
+            excluded_processes: Arc::downgrade(&self.excluded_processes),
+        }
+    }
 }
 
 impl Drop for SplitTunnel {
     fn drop(&mut self) {
         if let Some(_event_thread) = self.event_thread.take() {
-            if let Err(error) = self.quit_event.set_event() {
+            if let Err(error) = self.quit_event.set() {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to close ST event thread")
