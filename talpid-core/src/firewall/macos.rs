@@ -341,8 +341,8 @@ impl Firewall {
             .tcp_flags(Self::get_tcp_flags());
         match allowed_traffic {
             AllowedTunnelTraffic::Only(endpoint) => {
-                let pfctl_proto = as_pfctl_proto(protocol);
-                base_rule = base_rule.to(*addr).proto(pfctl_proto);
+                let pfctl_proto = as_pfctl_proto(endpoint.protocol);
+                base_rule = base_rule.to(endpoint.address).proto(pfctl_proto);
             }
             AllowedTunnelTraffic::All => {}
             AllowedTunnelTraffic::None => {
