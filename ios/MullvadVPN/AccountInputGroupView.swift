@@ -46,7 +46,7 @@ class AccountInputGroupView: UIView {
 
     private let privateTextField: AccountTextField = {
         let textField = AccountTextField()
-        textField.font = UIFont.systemFont(ofSize: 20)
+        textField.font = accountNumberFont()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "0000 0000 0000 0000"
         textField.placeholderTextColor = .lightGray
@@ -91,7 +91,7 @@ class AccountInputGroupView: UIView {
     private let lastUsedAccountButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 20)
+        button.titleLabel?.font = accountNumberFont()
         button.setTitle("", for: .normal)
         button.contentHorizontalAlignment = .leading
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 0)
@@ -355,6 +355,14 @@ class AccountInputGroupView: UIView {
     }
 
     // MARK: - Private
+    
+    private static func accountNumberFont() -> UIFont {
+        if #available(iOS 13, *) {
+            return UIFont.monospacedSystemFont(ofSize: 20, weight: .regular)
+        } else {
+            return UIFont.systemFont(ofSize: 20)
+        }
+    }
 
     private func addTextFieldNotificationObservers() {
         let notificationCenter = NotificationCenter.default
