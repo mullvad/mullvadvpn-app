@@ -7,12 +7,15 @@
 //
 
 import UIKit
+import Logging
 
 class AccountInputGroupView: UIView {
 
     enum Style {
         case normal, error, authenticating
     }
+
+    private let logger = Logger(label: "AccountInputGroupView")
 
     var onSendButton: ((AccountInputGroupView) -> Void)?
 
@@ -361,6 +364,8 @@ class AccountInputGroupView: UIView {
             try SettingsManager.setLastUsedAccount(nil)
             return true
         } catch {
+            logger.error(chainedError: AnyChainedError(error),
+                         message: "Failed to remove last used account.")
             return false
         }
     }

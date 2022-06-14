@@ -237,6 +237,8 @@ class LoginViewController: UIViewController, RootContainment {
             contentView.accountInputGroup.lastUsedAccount = StringFormatter.formattedAccountNumber(from: accountNumber)
             contentView.accountInputGroup.updateLastUsedAccount()
         } catch {
+            logger.error(chainedError: AnyChainedError(error),
+                         message: "Failed to update last used account.")
             return
         }
     }
