@@ -11,11 +11,14 @@ use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
-    fmt, io, mem,
+    fmt,
+    future::Future,
+    io, mem,
     mem::MaybeUninit,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::RawHandle,
     path::Path,
+    pin::Pin,
     ptr,
     sync::{Arc, Mutex},
 };
@@ -833,11 +836,20 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
     buffer.extend(windows::as_uninit_byte_slice(&header));
 
     for peer in &config.peers {
+        let flags = if peer.psk.is_some() {
+            WgPeerFlag::HAS_PRESHARED_KEY | WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT
+        } else {
+            WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT
+        };
         let wg_peer = WgPeer {
-            flags: WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT,
+            flags,
             reserved: 0,
             public_key: peer.public_key.as_bytes().clone(),
-            preshared_key: [0u8; WIREGUARD_KEY_LENGTH],
+            preshared_key: peer
+                .psk
+                .as_ref()
+                .map(|psk| psk.as_bytes().clone())
+                .unwrap_or([0u8; WIREGUARD_KEY_LENGTH]),
             persistent_keepalive: 0,
             endpoint: windows::inet_sockaddr_from_socketaddr(peer.endpoint).into(),
             tx_bytes: 0,
@@ -976,6 +988,24 @@ impl Tunnel for WgNtTunnel {
         self.stop_tunnel();
         Ok(())
     }
+
+    fn set_config(
+        &self,
+        config: Config,
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
+        let device = self.device.clone();
+        Box::pin(async move {
+            let guard = device.lock().unwrap();
+            let device = guard.as_ref().ok_or(super::TunnelError::SetConfigError)?;
+            device.set_config(&config).map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to set wg-nt tunnel config")
+                );
+                super::TunnelError::SetConfigError
+            })
+        })
+    }
 }
 
 #[cfg(test)]
@@ -1006,6 +1036,7 @@ mod tests {
                     public_key: WG_PUBLIC_KEY.clone(),
                     allowed_ips: vec!["1.3.3.0/24".parse().unwrap()],
                     endpoint: "1.2.3.4:1234".parse().unwrap(),
+                    psk: None,
                 }],
                 ipv4_gateway: "0.0.0.0".parse().unwrap(),
                 ipv6_gateway: None,

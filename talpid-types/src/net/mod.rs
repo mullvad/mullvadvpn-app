@@ -29,6 +29,7 @@ impl TunnelParameters {
         match self {
             TunnelParameters::OpenVpn(params) => TunnelEndpoint {
                 tunnel_type: TunnelType::OpenVpn,
+                quantum_resistant: false,
                 endpoint: params.config.endpoint,
                 proxy: params.proxy.as_ref().map(|proxy| proxy.get_endpoint()),
                 obfuscation: None,
@@ -36,6 +37,7 @@ impl TunnelParameters {
             },
             TunnelParameters::Wireguard(params) => TunnelEndpoint {
                 tunnel_type: TunnelType::Wireguard,
+                quantum_resistant: params.options.use_pq_safe_psk,
                 endpoint: params
                     .connection
                     .get_exit_endpoint()
@@ -134,6 +136,8 @@ pub struct TunnelEndpoint {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_type: TunnelType,
     #[cfg_attr(target_os = "android", jnix(skip))]
+    pub quantum_resistant: bool,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub proxy: Option<proxy::ProxyEndpoint>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub obfuscation: Option<ObfuscationEndpoint>,
@@ -143,7 +147,11 @@ pub struct TunnelEndpoint {
 
 impl fmt::Display for TunnelEndpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{} - {}", self.tunnel_type, self.endpoint)?;
+        write!(f, "{} ", self.tunnel_type)?;
+        if self.quantum_resistant {
+            write!(f, "(quantum resistant) ")?;
+        }
+        write!(f, "- {}", self.endpoint)?;
         match self.tunnel_type {
             TunnelType::OpenVpn => {
                 if let Some(ref proxy) = self.proxy {
@@ -272,6 +280,52 @@ impl fmt::Display for AllowedEndpoint {
             }
         }
         Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum AllowedTunnelTraffic {
+    None,
+    All,
+    Only(SocketAddr, Protocol),
+}
+
+impl fmt::Display for AllowedTunnelTraffic {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match *self {
+            AllowedTunnelTraffic::None => "None".fmt(f),
+            AllowedTunnelTraffic::All => "All".fmt(f),
+            AllowedTunnelTraffic::Only(addr, proto) => write!(f, "{}/{}", addr, proto),
+        }
+    }
+}
+
+/// A protocol: UDP, TCP, or ICMP.
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+pub enum Protocol {
+    Udp,
+    Tcp,
+    IcmpV4,
+    IcmpV6,
+}
+
+impl fmt::Display for Protocol {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            Protocol::Udp => "UDP".fmt(f),
+            Protocol::Tcp => "TCP".fmt(f),
+            Protocol::IcmpV4 => "ICMPv4".fmt(f),
+            Protocol::IcmpV6 => "ICMPv6".fmt(f),
+        }
+    }
+}
+
+impl From<TransportProtocol> for Protocol {
+    fn from(proto: TransportProtocol) -> Self {
+        match proto {
+            TransportProtocol::Udp => Protocol::Udp,
+            TransportProtocol::Tcp => Protocol::Tcp,
+        }
     }
 }
 

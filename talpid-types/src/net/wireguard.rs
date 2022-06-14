@@ -55,6 +55,8 @@ pub struct PeerConfig {
     pub allowed_ips: Vec<IpNetwork>,
     /// IP address of the WireGuard server.
     pub endpoint: SocketAddr,
+    /// Preshared key.
+    pub psk: Option<PresharedKey>,
 }
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
@@ -66,6 +68,7 @@ pub struct TunnelConfig {
 
 /// Options in [`TunnelParameters`] that apply to any WireGuard connection.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(
     target_os = "android",
@@ -78,6 +81,8 @@ pub struct TunnelOptions {
         jnix(map = "|maybe_mtu| maybe_mtu.map(|mtu| mtu as i32)")
     )]
     pub mtu: Option<u16>,
+    /// Obtain a PSK using the relay config client.
+    pub use_pq_safe_psk: bool,
     /// Temporary switch for wireguard-nt
     #[cfg(windows)]
     #[serde(default = "default_wgnt_setting")]
@@ -94,6 +99,7 @@ impl Default for TunnelOptions {
     fn default() -> Self {
         Self {
             mtu: None,
+            use_pq_safe_psk: false,
             #[cfg(windows)]
             use_wireguard_nt: default_wgnt_setting(),
         }
@@ -250,6 +256,40 @@ impl fmt::Debug for PublicKey {
 impl fmt::Display for PublicKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", &self.to_base64())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct PresharedKey([u8; 32]);
+
+impl PresharedKey {
+    /// Get the PSK as bytes
+    pub fn as_bytes(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
+impl From<[u8; 32]> for PresharedKey {
+    fn from(key: [u8; 32]) -> PresharedKey {
+        PresharedKey(key)
+    }
+}
+
+impl Serialize for PresharedKey {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serialize_key(&self.0, serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for PresharedKey {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserialize_key(deserializer)
     }
 }
 

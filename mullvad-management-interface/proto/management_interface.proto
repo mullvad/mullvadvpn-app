@@ -43,6 +43,7 @@ service ManagementService {
 	rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+	rpc SetQuantumResistantTunnel(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 	rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
 
 	// Account management
@@ -193,9 +194,10 @@ message TunnelEndpoint {
 	string address = 1;
 	TransportProtocol protocol = 2;
 	TunnelType tunnel_type = 3;
-	ProxyEndpoint proxy = 4;
-	ObfuscationEndpoint obfuscation = 5;
-	Endpoint entry_endpoint = 6;
+	bool quantum_resistant = 4;
+	ProxyEndpoint proxy = 5;
+	ObfuscationEndpoint obfuscation = 6;
+	Endpoint entry_endpoint = 7;
 }
 
 enum ObfuscationType {
@@ -435,6 +437,7 @@ message TunnelOptions {
 		uint32 mtu = 1;
 		google.protobuf.Duration rotation_interval = 2;
 		bool use_wireguard_nt = 3;
+		bool use_pq_safe_psk = 4;
 	}
 	message GenericOptions {
 		bool enable_ipv6 = 1;

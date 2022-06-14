@@ -21,7 +21,7 @@ use std::{
     time::{Duration, Instant},
 };
 use talpid_types::{
-    net::TunnelParameters,
+    net::{AllowedTunnelTraffic, TunnelParameters},
     tunnel::{ErrorStateCause, FirewallPolicyError},
     ErrorExt,
 };
@@ -47,6 +47,7 @@ pub struct ConnectingState {
     tunnel_events: TunnelEventsReceiver,
     tunnel_parameters: TunnelParameters,
     tunnel_metadata: Option<TunnelMetadata>,
+    allowed_tunnel_traffic: AllowedTunnelTraffic,
     tunnel_close_event: TunnelCloseEvent,
     tunnel_close_tx: oneshot::Sender<()>,
     retry_attempt: u32,
@@ -57,6 +58,7 @@ impl ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         params: &TunnelParameters,
         tunnel_metadata: &Option<TunnelMetadata>,
+        allowed_tunnel_traffic: AllowedTunnelTraffic,
     ) -> Result<(), FirewallPolicyError> {
         #[cfg(target_os = "linux")]
         shared_values.disable_connectivity_check();
@@ -68,6 +70,7 @@ impl ConnectingState {
             tunnel: tunnel_metadata.clone(),
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
+            allowed_tunnel_traffic,
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(&shared_values.resource_dir, &params),
         };
@@ -207,6 +210,7 @@ impl ConnectingState {
             tunnel_events: event_rx.fuse(),
             tunnel_parameters: parameters,
             tunnel_metadata: None,
+            allowed_tunnel_traffic: AllowedTunnelTraffic::None,
             tunnel_close_event: tunnel_close_event_rx.fuse(),
             tunnel_close_tx,
             retry_attempt,
@@ -294,6 +298,7 @@ impl ConnectingState {
             shared_values,
             &self.tunnel_parameters,
             &self.tunnel_metadata,
+            self.allowed_tunnel_traffic.clone(),
         ) {
             Ok(()) => {
                 cfg_if! {
@@ -333,6 +338,7 @@ impl ConnectingState {
                         shared_values,
                         &self.tunnel_parameters,
                         &self.tunnel_metadata,
+                        self.allowed_tunnel_traffic.clone(),
                     ) {
                         let _ = tx.send(());
                         return self.disconnect(
@@ -399,7 +405,7 @@ impl ConnectingState {
                 shared_values,
                 AfterDisconnect::Block(ErrorStateCause::AuthFailed(reason)),
             ),
-            Some((TunnelEvent::InterfaceUp(metadata), _done_tx)) => {
+            Some((TunnelEvent::InterfaceUp(metadata, allowed_tunnel_traffic), _done_tx)) => {
                 #[cfg(windows)]
                 if let Err(error) = shared_values
                     .split_tunnel
@@ -416,11 +422,15 @@ impl ConnectingState {
                         AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
                     );
                 }
+
+                self.allowed_tunnel_traffic = allowed_tunnel_traffic;
                 self.tunnel_metadata = Some(metadata);
+
                 match Self::set_firewall_policy(
                     shared_values,
                     &self.tunnel_parameters,
                     &self.tunnel_metadata,
+                    self.allowed_tunnel_traffic.clone(),
                 ) {
                     Ok(()) => SameState(self.into()),
                     Err(error) => self.disconnect(
@@ -549,9 +559,12 @@ impl TunnelState for ConnectingState {
                     return ErrorState::enter(shared_values, ErrorStateCause::SplitTunnelError);
                 }
 
-                if let Err(error) =
-                    Self::set_firewall_policy(shared_values, &tunnel_parameters, &None)
-                {
+                if let Err(error) = Self::set_firewall_policy(
+                    shared_values,
+                    &tunnel_parameters,
+                    &None,
+                    AllowedTunnelTraffic::None,
+                ) {
                     ErrorState::enter(
                         shared_values,
                         ErrorStateCause::SetFirewallPolicyError(error),

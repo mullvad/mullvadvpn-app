@@ -8,7 +8,7 @@ use std::{
     fmt,
     net::{Ipv4Addr, Ipv6Addr},
 };
-use talpid_types::net::{AllowedEndpoint, Endpoint};
+use talpid_types::net::{AllowedEndpoint, AllowedTunnelTraffic, Endpoint};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -109,6 +109,8 @@ pub enum FirewallPolicy {
         allow_lan: bool,
         /// Host that should be reachable while connecting.
         allowed_endpoint: AllowedEndpoint,
+        /// Networks for which to permit in-tunnel traffic.
+        allowed_tunnel_traffic: AllowedTunnelTraffic,
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]
         relay_client: PathBuf,
@@ -151,12 +153,13 @@ impl fmt::Display for FirewallPolicy {
                 tunnel,
                 allow_lan,
                 allowed_endpoint,
+                allowed_tunnel_traffic,
                 ..
             } => {
                 if let Some(tunnel) = tunnel {
                     write!(
                         f,
-                        "Connecting to {} over \"{}\" (ip: {}, v4 gw: {}, v6 gw: {:?}), {} LAN. Allowing endpoint {}",
+                        "Connecting to {} over \"{}\" (ip: {}, v4 gw: {}, v6 gw: {:?}, allowed in-tunnel traffic: {}), {} LAN. Allowing endpoint {}",
                         peer_endpoint,
                         tunnel.interface,
                         tunnel
@@ -167,6 +170,7 @@ impl fmt::Display for FirewallPolicy {
                             .join(","),
                         tunnel.ipv4_gateway,
                         tunnel.ipv6_gateway,
+                        allowed_tunnel_traffic,
                         if *allow_lan { "Allowing" } else { "Blocking" },
                         allowed_endpoint,
                     )

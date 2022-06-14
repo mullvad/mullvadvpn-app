@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add option to filter relays by ownership in the desktop apps.
+- Experimental: Add support for quantum-resistant PSK exchange to the CLI.
 
 #### Linux
 - Automatically attempt to detect and set the correct MTU for Wireguard tunnels.

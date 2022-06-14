@@ -185,7 +185,8 @@ bool FwContext::applyPolicyConnecting
 	const WinFwEndpoint &relay,
 	const std::wstring &relayClient,
 	const std::optional<std::wstring> &tunnelInterfaceAlias,
-	const std::optional<WinFwAllowedEndpoint> &allowedEndpoint
+	const std::optional<WinFwAllowedEndpoint> &allowedEndpoint,
+	const WinFwAllowedTunnelTraffic &allowedTunnelTraffic
 )
 {
 	Ruleset ruleset;
@@ -201,13 +202,39 @@ bool FwContext::applyPolicyConnecting
 
 	if (tunnelInterfaceAlias.has_value())
 	{
-		ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
-			*tunnelInterfaceAlias
-		));
-
-		ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
-			*tunnelInterfaceAlias
-		));
+		switch (allowedTunnelTraffic.type)
+		{
+			case WinFwAllowedTunnelTrafficType::All:
+			{
+				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
+					*tunnelInterfaceAlias,
+					std::nullopt
+				));
+				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
+					*tunnelInterfaceAlias,
+					std::nullopt
+				));
+				break;
+			}
+			case WinFwAllowedTunnelTrafficType::Only:
+			{
+				const auto onlyEndpoint = std::make_optional(baseline::PermitVpnTunnel::Endpoint{
+					wfp::IpAddress(allowedTunnelTraffic.endpoint->ip),
+					allowedTunnelTraffic.endpoint->port,
+					allowedTunnelTraffic.endpoint->protocol
+				});
+				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
+					*tunnelInterfaceAlias,
+					onlyEndpoint
+				));
+				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
+					*tunnelInterfaceAlias,
+					onlyEndpoint
+				));
+				break;
+			}
+			// For the "None" case, do nothing.
+		}
 	}
 
 	const auto status = applyRuleset(ruleset);
@@ -250,11 +277,13 @@ bool FwContext::applyPolicyConnected
 	}
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
-		tunnelInterfaceAlias
+		tunnelInterfaceAlias,
+		std::nullopt
 	));
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
-		tunnelInterfaceAlias
+		tunnelInterfaceAlias,
+		std::nullopt
 	));
 
 	const auto status = applyRuleset(ruleset);

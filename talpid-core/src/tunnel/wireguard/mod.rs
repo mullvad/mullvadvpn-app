@@ -8,6 +8,7 @@ use futures::{channel::mpsc, StreamExt};
 use futures::{
     channel::oneshot,
     future::{abortable, AbortHandle as FutureAbortHandle},
+    Future,
 };
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
@@ -18,14 +19,20 @@ use std::env;
 #[cfg(windows)]
 use std::io;
 use std::{
+    borrow::Cow,
     convert::Infallible,
-    net::IpAddr,
+    net::{IpAddr, SocketAddrV4},
     path::Path,
+    pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
+    time::Duration,
 };
 #[cfg(windows)]
 use talpid_types::BoxedError;
-use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
+use talpid_types::{
+    net::{obfuscation::ObfuscatorConfig, wireguard::PublicKey, AllowedTunnelTraffic, Protocol},
+    ErrorExt,
+};
 use tunnel_obfuscation::{
     create_obfuscator, Error as ObfuscationError, Settings as ObfuscationSettings, Udp2TcpSettings,
 };
@@ -73,6 +80,10 @@ pub enum Error {
     #[error(display = "Connectivity monitor failed")]
     ConnectivityMonitorError(#[error(source)] connectivity_check::Error),
 
+    /// Failed to negotiate PQ PSK
+    #[error(display = "Failed to negotiate PQ PSK")]
+    PskNegotiationError(#[error(source)] talpid_tunnel_config_client::Error),
+
     /// Failed to set up IP interfaces.
     #[cfg(windows)]
     #[error(display = "Failed to set up IP interfaces")]
@@ -100,6 +111,10 @@ pub struct WireguardMonitor {
     pinger_stop_sender: sync_mpsc::Sender<()>,
     _obfuscator: Option<ObfuscatorHandle>,
 }
+
+const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(4);
+const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(15);
+const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
 struct ObfuscatorHandle {
@@ -180,7 +195,7 @@ fn maybe_create_obfuscator(
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
     pub fn start<
-        F: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
+        F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
             + Sync
             + Clone
@@ -188,6 +203,7 @@ impl WireguardMonitor {
     >(
         runtime: tokio::runtime::Handle,
         mut config: Config,
+        psk_negotiation: Option<PublicKey>,
         log_path: Option<&Path>,
         resource_dir: &Path,
         on_event: F,
@@ -203,10 +219,11 @@ impl WireguardMonitor {
         let obfuscator = maybe_create_obfuscator(&runtime, &mut config, close_msg_sender.clone())?;
 
         #[cfg(target_os = "windows")]
-        let (setup_done_tx, mut setup_done_rx) = mpsc::channel(0);
+        let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
+
         let tunnel = Self::open_tunnel(
             runtime.clone(),
-            &config,
+            &Self::patch_allowed_ips(&config, psk_negotiation.is_some()),
             log_path,
             resource_dir,
             tun_provider,
@@ -237,31 +254,22 @@ impl WireguardMonitor {
         .map_err(Error::ConnectivityMonitorError)?;
 
         let metadata = Self::tunnel_metadata(&iface_name, &config);
+        let tunnel = monitor.tunnel.clone();
 
         let tunnel_fut = async move {
             #[cfg(windows)]
-            {
-                setup_done_rx
-                    .next()
-                    .await
-                    .ok_or_else(|| {
-                        // Tunnel was shut down early
-                        CloseMsg::SetupError(Error::IpInterfacesError)
-                    })?
-                    .map_err(|error| {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg("Failed to configure tunnel interface")
-                        );
-                        CloseMsg::SetupError(Error::IpInterfacesError)
-                    })?;
+            Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
+                .await?;
 
-                if !crate::winnet::add_device_ip_addresses(&iface_name, &config.tunnel.addresses) {
-                    return Err(CloseMsg::SetupError(Error::SetIpAddressesError));
-                }
-            }
-
-            (on_event)(TunnelEvent::InterfaceUp(metadata.clone())).await;
+            let allowed_traffic = if psk_negotiation.is_some() {
+                AllowedTunnelTraffic::Only(
+                    SocketAddrV4::new(config.ipv4_gateway, 1337).into(),
+                    Protocol::Tcp,
+                )
+            } else {
+                AllowedTunnelTraffic::All
+            };
+            (on_event)(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic)).await;
 
             // Add non-default routes before establishing the tunnel.
             #[cfg(target_os = "linux")]
@@ -279,6 +287,15 @@ impl WireguardMonitor {
                 .await
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
+
+            if let Some(pubkey) = psk_negotiation {
+                Self::perform_psk_negotiation(tunnel, retry_attempt, pubkey, &mut config).await?;
+                (on_event)(TunnelEvent::InterfaceUp(
+                    metadata.clone(),
+                    AllowedTunnelTraffic::All,
+                ))
+                .await;
+            }
 
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(retry_attempt) {
@@ -337,6 +354,125 @@ impl WireguardMonitor {
         });
 
         Ok(monitor)
+    }
+
+    /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
+    /// Used to block traffic to other destinations while connecting on Android.
+    fn patch_allowed_ips<'a>(config: &'a Config, gateway_only: bool) -> Cow<'a, Config> {
+        if gateway_only {
+            let mut patched_config = config.clone();
+            let gateway_net_v4 = ipnetwork::IpNetwork::from(IpAddr::from(config.ipv4_gateway));
+            let gateway_net_v6 = config
+                .ipv6_gateway
+                .map(|net| ipnetwork::IpNetwork::from(IpAddr::from(net)));
+            for peer in &mut patched_config.peers {
+                peer.allowed_ips = peer
+                    .allowed_ips
+                    .iter()
+                    .cloned()
+                    .filter_map(|mut allowed_ip| {
+                        if allowed_ip.prefix() == 0 {
+                            if allowed_ip.is_ipv4() {
+                                allowed_ip = gateway_net_v4;
+                            } else {
+                                if let Some(net) = gateway_net_v6 {
+                                    allowed_ip = net;
+                                } else {
+                                    return None;
+                                }
+                            }
+                        }
+                        Some(allowed_ip)
+                    })
+                    .collect();
+            }
+            Cow::Owned(patched_config)
+        } else {
+            Cow::Borrowed(config)
+        }
+    }
+
+    #[cfg(windows)]
+    async fn add_device_ip_addresses(
+        iface_name: &str,
+        addresses: &[IpAddr],
+        mut setup_done_rx: mpsc::Receiver<std::result::Result<(), BoxedError>>,
+    ) -> std::result::Result<(), CloseMsg> {
+        setup_done_rx
+            .next()
+            .await
+            .ok_or_else(|| {
+                // Tunnel was shut down early
+                CloseMsg::SetupError(Error::IpInterfacesError)
+            })?
+            .map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to configure tunnel interface")
+                );
+                CloseMsg::SetupError(Error::IpInterfacesError)
+            })?;
+        if !crate::winnet::add_device_ip_addresses(iface_name, addresses) {
+            return Err(CloseMsg::SetupError(Error::SetIpAddressesError));
+        }
+        Ok(())
+    }
+
+    async fn perform_psk_negotiation(
+        tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        retry_attempt: u32,
+        current_pubkey: PublicKey,
+        config: &mut Config,
+    ) -> std::result::Result<(), CloseMsg> {
+        log::debug!("Performing PQ-safe PSK exchange");
+
+        let timeout = std::cmp::min(
+            MAX_PSK_EXCHANGE_TIMEOUT,
+            INITIAL_PSK_EXCHANGE_TIMEOUT
+                .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
+        );
+
+        let (private_key, psk) = tokio::time::timeout(
+            timeout,
+            talpid_tunnel_config_client::push_pq_key(
+                IpAddr::V4(config.ipv4_gateway),
+                config.tunnel.private_key.public_key(),
+            ),
+        )
+        .await
+        .map_err(|_timeout_err| {
+            log::warn!("Timeout while negotiating PSK");
+            CloseMsg::PskNegotiationTimeout
+        })?
+        .map_err(Error::PskNegotiationError)
+        .map_err(CloseMsg::SetupError)?;
+
+        config.tunnel.private_key = private_key;
+
+        for peer in &mut config.peers {
+            if current_pubkey == peer.public_key {
+                peer.psk = Some(psk);
+                break;
+            }
+        }
+
+        log::trace!(
+            "Ephemeral pubkey: {}",
+            config.tunnel.private_key.public_key()
+        );
+
+        let set_config_future = tunnel
+            .lock()
+            .unwrap()
+            .as_ref()
+            .map(|tunnel| tunnel.set_config(config.clone()));
+        if let Some(f) = set_config_future {
+            f.await
+                .map_err(Error::TunnelError)
+                .map_err(CloseMsg::SetupError)?;
+        }
+
+        Ok(())
     }
 
     #[allow(unused_variables)]
@@ -424,7 +560,7 @@ impl WireguardMonitor {
     /// Blocks the current thread until tunnel disconnects
     pub fn wait(mut self) -> Result<()> {
         let wait_result = match self.close_msg_receiver.recv() {
-            Ok(CloseMsg::PingErr) => Err(Error::TimeoutError),
+            Ok(CloseMsg::PskNegotiationTimeout) | Ok(CloseMsg::PingErr) => Err(Error::TimeoutError),
             Ok(CloseMsg::Stop) | Ok(CloseMsg::ObfuscatorExpired) => Ok(()),
             Ok(CloseMsg::SetupError(error)) => Err(error),
             Ok(CloseMsg::ObfuscatorFailed(error)) => Err(error),
@@ -584,6 +720,7 @@ impl WireguardMonitor {
 
 enum CloseMsg {
     Stop,
+    PskNegotiationTimeout,
     PingErr,
     SetupError(Error),
     ObfuscatorExpired,
@@ -594,6 +731,10 @@ pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
+    fn set_config(
+        &self,
+        _config: Config,
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
@@ -629,6 +770,10 @@ pub enum TunnelError {
     /// Error whilst trying to retrieve config of a WireGuard tunnel
     #[error(display = "Failed to get config of WireGuard tunnel")]
     GetConfigError,
+
+    /// Failed to set WireGuard tunnel config on device
+    #[error(display = "Failed to set config of WireGuard tunnel")]
+    SetConfigError,
 
     /// Failed to duplicate tunnel file descriptor for wireguard-go
     #[cfg(any(target_os = "linux", target_os = "macos", target_os = "android"))]

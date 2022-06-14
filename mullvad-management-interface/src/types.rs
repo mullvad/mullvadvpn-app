@@ -35,6 +35,7 @@ impl From<talpid_types::net::TunnelEndpoint> for TunnelEndpoint {
                 net::TunnelType::Wireguard => i32::from(TunnelType::Wireguard),
                 net::TunnelType::OpenVpn => i32::from(TunnelType::Openvpn),
             },
+            quantum_resistant: endpoint.quantum_resistant,
             proxy: endpoint.proxy.map(|proxy_ep| ProxyEndpoint {
                 address: proxy_ep.endpoint.address.to_string(),
                 protocol: i32::from(TransportProtocol::from(proxy_ep.endpoint.protocol)),
@@ -680,6 +681,7 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
                 use_wireguard_nt: options.wireguard.options.use_wireguard_nt,
                 #[cfg(not(windows))]
                 use_wireguard_nt: false,
+                use_pq_safe_psk: options.wireguard.options.use_pq_safe_psk,
             }),
             generic: Some(tunnel_options::GenericOptions {
                 enable_ipv6: options.generic.enable_ipv6,
@@ -1185,6 +1187,7 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
                             public_key,
                             allowed_ips,
                             endpoint,
+                            psk: None,
                         },
                         exit_peer: None,
                         ipv4_gateway,
@@ -1412,6 +1415,7 @@ impl TryFrom<TunnelOptions> for mullvad_types::settings::TunnelOptions {
                     } else {
                         None
                     },
+                    use_pq_safe_psk: wireguard_options.use_pq_safe_psk,
                     #[cfg(windows)]
                     use_wireguard_nt: wireguard_options.use_wireguard_nt,
                 },
