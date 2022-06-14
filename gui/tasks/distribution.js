@@ -129,12 +129,6 @@ const config = {
       },
       {
         from: root(
-          path.join('windows', 'windns', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'windns.dll'),
-        ),
-        to: '.',
-      },
-      {
-        from: root(
           path.join('windows', 'winnet', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winnet.dll'),
         ),
         to: '.',

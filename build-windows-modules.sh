@@ -84,11 +84,9 @@ function build_nsis_plugins {
 
 function main {
     local winfw_root_path=${CPP_ROOT_PATH:-"./windows/winfw"}
-    local windns_root_path=${CPP_ROOT_PATH:-"./windows/windns"}
     local winnet_root_path=${CPP_ROOT_PATH:-"./windows/winnet"}
 
     build_solution "$winfw_root_path" "winfw.sln"
-    build_solution "$windns_root_path" "windns.sln"
     build_solution "$winnet_root_path" "winnet.sln"
 
     local driverlogic_root_path=${CPP_ROOT_PATH:-"./windows/driverlogic"}

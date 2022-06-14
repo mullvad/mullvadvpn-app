@@ -123,7 +123,7 @@ impl ConnectedState {
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
         let dns_ips = self.get_dns_servers(shared_values);
 
-        #[cfg(target_os = "linux")]
+        #[cfg(any(target_os = "linux", target_os = "windows"))]
         let dns_ips = &dns_ips
             .into_iter()
             .filter(|ip| {
