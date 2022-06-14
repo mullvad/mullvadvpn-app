@@ -161,12 +161,13 @@ impl NetlinkSerializable<DeviceMessage> for DeviceMessage {
     fn serialize(&self, mut buffer: &mut [u8]) {
         let command_buf = [self.command, WG_GENL_VERSION, 0u8, 0u8];
         let _ = buffer.write(&command_buf).unwrap();
-        self.nlas.as_slice().emit(&mut buffer)
+        self.nlas.as_slice().emit(buffer)
     }
 }
-impl Into<NetlinkPayload<DeviceMessage>> for DeviceMessage {
-    fn into(self) -> NetlinkPayload<DeviceMessage> {
-        NetlinkPayload::InnerMessage(self)
+
+impl From<DeviceMessage> for NetlinkPayload<DeviceMessage> {
+    fn from(msg: DeviceMessage) -> Self {
+        NetlinkPayload::InnerMessage(msg)
     }
 }
 
@@ -250,7 +251,7 @@ impl Nla for DeviceNla {
                 peers.as_slice().emit(buffer);
             }
             Unspec(payload) => {
-                let _ = buffer.write(&payload).expect("Failed to write ");
+                let _ = buffer.write(payload).expect("Failed to write ");
             }
         }
     }
@@ -266,8 +267,8 @@ impl<'a, T: AsRef<[u8]> + 'a + ?Sized + core::fmt::Debug> Parseable<NlaBuffer<&'
         let nla = match kind {
             WGDEVICE_A_IFINDEX => IfIndex(parsers::parse_u32(value)?),
             WGDEVICE_A_IFNAME => IfName(parsers::parse_cstring(value)?),
-            WGDEVICE_A_PRIVATE_KEY => PrivateKey(parsers::parse_wg_key(value)?.into()),
-            WGDEVICE_A_PUBLIC_KEY => PublicKey(parsers::parse_wg_key(value)?.into()),
+            WGDEVICE_A_PRIVATE_KEY => PrivateKey(parsers::parse_wg_key(value)?),
+            WGDEVICE_A_PUBLIC_KEY => PublicKey(parsers::parse_wg_key(value)?),
             WGDEVICE_A_FLAGS => Flags(parsers::parse_u32(value)?),
             WGDEVICE_A_LISTEN_PORT => ListenPort(parsers::parse_u16(value)?),
             WGDEVICE_A_FWMARK => Fwmark(parsers::parse_u32(value)?),
@@ -276,7 +277,7 @@ impl<'a, T: AsRef<[u8]> + 'a + ?Sized + core::fmt::Debug> Parseable<NlaBuffer<&'
                     .map(|nla_bytes| {
                         let buf = nla_bytes?;
                         let val = buf.value();
-                        PeerMessage::parse(&val)
+                        PeerMessage::parse(val)
                     })
                     .collect::<Result<Vec<PeerMessage>, DecodeError>>()?;
                 Peers(peers)
@@ -414,7 +415,7 @@ impl Nla for PeerNla {
             AllowedIps(ips) => ips.as_slice().emit(buffer),
             Unspec(payload) => {
                 let _ = buffer
-                    .write(&payload)
+                    .write(payload)
                     .expect("Buffer too small for unspecified payload");
             }
         }
@@ -426,8 +427,8 @@ impl<'a, T: AsRef<[u8]> + 'a + ?Sized> Parseable<NlaBuffer<&'a T>> for PeerNla {
         use PeerNla::*;
         let value = buf.value();
         let nla = match buf.kind() {
-            WGPEER_A_PUBLIC_KEY => PublicKey(parsers::parse_wg_key(value)?.into()),
-            WGPEER_A_PRESHARED_KEY => PresharedKey(parsers::parse_wg_key(value)?.into()),
+            WGPEER_A_PUBLIC_KEY => PublicKey(parsers::parse_wg_key(value)?),
+            WGPEER_A_PRESHARED_KEY => PresharedKey(parsers::parse_wg_key(value)?),
             WGPEER_A_FLAGS => Flags(parsers::parse_u32(value)?),
             WGPEER_A_ENDPOINT => Endpoint(parsers::parse_inet_sockaddr(value)?),
             WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL => {
@@ -469,7 +470,7 @@ impl From<&IpNetwork> for AllowedIpMessage {
         AllowedIpMessage(vec![
             AddressFamily(address_family as u16),
             CidrMask(ip.prefix()),
-            IpAddr(ip.ip().into()),
+            IpAddr(ip.ip()),
         ])
     }
 }
@@ -540,7 +541,7 @@ impl Nla for AllowedIpNla {
             CidrMask(cidr_mask) => buffer[0] = *cidr_mask,
             Unspec(payload) => {
                 let _ = buffer
-                    .write(&payload)
+                    .write(payload)
                     .expect("Buffer too small for unspec payload");
             }
         }

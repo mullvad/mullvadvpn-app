@@ -50,25 +50,16 @@ pub enum TunnelState {
 impl TunnelState {
     /// Returns true if the tunnel state is in the error state.
     pub fn is_in_error_state(&self) -> bool {
-        match self {
-            TunnelState::Error(_) => true,
-            _ => false,
-        }
+        matches!(self, TunnelState::Error(_))
     }
 
     /// Returns true if the tunnel state is in the connected state.
     pub fn is_connected(&self) -> bool {
-        match self {
-            TunnelState::Connected { .. } => true,
-            _ => false,
-        }
+        matches!(self, TunnelState::Connected { .. })
     }
 
     /// Returns true if the tunnel state is in the disconnected state.
     pub fn is_disconnected(&self) -> bool {
-        match self {
-            TunnelState::Disconnected => true,
-            _ => false,
-        }
+        matches!(self, TunnelState::Disconnected)
     }
 }

@@ -193,12 +193,10 @@ impl TunnelState for DisconnectingState {
         let result = if self.tunnel_close_event.is_terminated() {
             if commands.is_done() {
                 EventResult::Close(Ok(None))
+            } else if let Ok(command) = commands.get_mut().try_next() {
+                EventResult::Command(command)
             } else {
-                if let Ok(command) = commands.get_mut().try_next() {
-                    EventResult::Command(command)
-                } else {
-                    EventResult::Close(Ok(None))
-                }
+                EventResult::Close(Ok(None))
             }
         } else {
             runtime.block_on(async {

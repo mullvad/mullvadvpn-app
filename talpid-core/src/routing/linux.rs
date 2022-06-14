@@ -319,7 +319,7 @@ impl RouteManagerImpl {
 
     async fn cleanup_routes(&mut self) {
         for route in self.added_routes.drain().collect::<Vec<_>>().iter() {
-            if let Err(e) = self.delete_route_if_exists(&route).await {
+            if let Err(e) = self.delete_route_if_exists(route).await {
                 log::error!("Failed to remove route: {}: {}", route, e);
             }
         }
@@ -446,7 +446,7 @@ impl RouteManagerImpl {
         for nla in msg.nlas.iter() {
             match nla {
                 RouteNla::Oif(device_idx) => {
-                    match self.iface_map.get(&device_idx) {
+                    match self.iface_map.get(device_idx) {
                         Some(route_device) => {
                             if !route_device.is_loopback() {
                                 device = Some(route_device);
@@ -465,11 +465,11 @@ impl RouteManagerImpl {
                 }
 
                 RouteNla::Via(addr) => {
-                    node_addr = Self::parse_ip(&addr).map(Some)?;
+                    node_addr = Self::parse_ip(addr).map(Some)?;
                 }
 
                 RouteNla::Destination(addr) => {
-                    prefix = Self::parse_ip(&addr).and_then(|ip| {
+                    prefix = Self::parse_ip(addr).and_then(|ip| {
                         ipnetwork::IpNetwork::new(ip, destination_length)
                             .map_err(Error::InvalidNetworkPrefix)
                     })?;
@@ -477,7 +477,7 @@ impl RouteManagerImpl {
 
                 // gateway NLAs indicate that this is actually a default route
                 RouteNla::Gateway(gateway_ip) => {
-                    gateway = Self::parse_ip(&gateway_ip).map(Some)?;
+                    gateway = Self::parse_ip(gateway_ip).map(Some)?;
                 }
 
                 RouteNla::Priority(priority) => {
@@ -496,17 +496,16 @@ impl RouteManagerImpl {
         }
 
         let node = Node {
-            ip: node_addr.or(gateway.into()),
+            ip: node_addr.or(gateway),
             device: device.map(|dev| dev.name.clone()),
         };
 
-        let result = Ok(Some(Route {
+        Ok(Some(Route {
             node,
             prefix,
             metric,
             table_id,
-        }));
-        result
+        }))
     }
 
     fn map_interface(msg: LinkMessage) -> Option<(u32, NetworkInterface)> {
@@ -544,11 +543,9 @@ impl RouteManagerImpl {
 
     async fn delete_route_if_exists(&self, route: &Route) -> Result<()> {
         if let Err(error) = self.delete_route(route).await {
-            if let Error::NetlinkError(netlink_error) = &error {
-                if let rtnetlink::Error::NetlinkError(msg) = &netlink_error {
-                    if msg.code == -libc::ESRCH {
-                        return Ok(());
-                    }
+            if let Error::NetlinkError(rtnetlink::Error::NetlinkError(msg)) = &error {
+                if msg.code == -libc::ESRCH {
+                    return Ok(());
                 }
             }
             Err(error)

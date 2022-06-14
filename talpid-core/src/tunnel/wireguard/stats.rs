@@ -72,20 +72,19 @@ impl Stats {
                 _ => continue,
             }
 
-            match (peer, tx_bytes, rx_bytes) {
-                (Some(peer_val), Some(tx_bytes_val), Some(rx_bytes_val)) => {
-                    map.insert(
-                        peer_val,
-                        Self {
-                            tx_bytes: tx_bytes_val,
-                            rx_bytes: rx_bytes_val,
-                        },
-                    );
-                    peer = None;
-                    tx_bytes = None;
-                    rx_bytes = None;
-                }
-                _ => (),
+            if let (Some(peer_val), Some(tx_bytes_val), Some(rx_bytes_val)) =
+                (peer, tx_bytes, rx_bytes)
+            {
+                map.insert(
+                    peer_val,
+                    Self {
+                        tx_bytes: tx_bytes_val,
+                        rx_bytes: rx_bytes_val,
+                    },
+                );
+                peer = None;
+                tx_bytes = None;
+                rx_bytes = None;
             }
         }
         Ok(map)

@@ -47,13 +47,13 @@ impl NetlinkSerializable<NetlinkControlMessage> for NetlinkControlMessage {
 
     fn serialize(&self, mut buffer: &mut [u8]) {
         let _ = buffer.write(&[self.cmd, self.version, 0u8, 0u8]).unwrap();
-        self.nlas.as_slice().emit(&mut buffer);
+        self.nlas.as_slice().emit(buffer);
     }
 }
 
-impl Into<NetlinkPayload<NetlinkControlMessage>> for NetlinkControlMessage {
-    fn into(self) -> NetlinkPayload<NetlinkControlMessage> {
-        NetlinkPayload::InnerMessage(self)
+impl From<NetlinkControlMessage> for NetlinkPayload<NetlinkControlMessage> {
+    fn from(msg: NetlinkControlMessage) -> Self {
+        NetlinkPayload::InnerMessage(msg)
     }
 }
 

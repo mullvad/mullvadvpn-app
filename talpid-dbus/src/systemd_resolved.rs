@@ -199,7 +199,7 @@ impl SystemdResolved {
     /// it returns false, otherwise it checks whether the static stub file points to the local
     /// resolver. If not, the file has been _meddled_ with, so we can't trust it.
     fn resolv_conf_is_static_stub(link_path: &Path) -> Result<bool> {
-        if link_path == &STATIC_STUB_PATH.as_ref() {
+        if link_path == AsRef::<Path>::as_ref(STATIC_STUB_PATH) {
             let points_to_localhost = fs::read_to_string(link_path)
                 .map(|contents| {
                     let parts = contents.trim().split(' ');

@@ -307,10 +307,10 @@ impl OpenVpnCommand {
     }
 
     fn tls_cipher_arguments() -> Vec<String> {
-        let mut args = vec![];
-        args.push("--tls-ciphersuites".to_owned());
-        args.push(ALLOWED_TLS1_3_CIPHERS.join(":"));
-        args
+        vec![
+            "--tls-ciphersuites".to_owned(),
+            ALLOWED_TLS1_3_CIPHERS.join(":"),
+        ]
     }
 
     fn remote_arguments(&self) -> Vec<String> {

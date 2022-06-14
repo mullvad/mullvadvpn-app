@@ -456,7 +456,7 @@ impl SharedTunnelStateValues {
         dns_servers: Option<Vec<IpAddr>>,
     ) -> Result<bool, ErrorStateCause> {
         if self.dns_servers != dns_servers {
-            self.dns_servers = dns_servers.clone();
+            self.dns_servers = dns_servers;
 
             #[cfg(target_os = "android")]
             {
@@ -464,7 +464,7 @@ impl SharedTunnelStateValues {
                     .tun_provider
                     .lock()
                     .unwrap()
-                    .set_dns_servers(dns_servers)
+                    .set_dns_servers(self.dns_servers.clone())
                 {
                     log::error!(
                         "{}",

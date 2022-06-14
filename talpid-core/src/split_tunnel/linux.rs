@@ -74,7 +74,7 @@ impl PidManager {
 
         let net_cls_dir = env::var(NET_CLS_DIR_OVERRIDE_ENV_VAR)
             .map(PathBuf::from)
-            .unwrap_or(PathBuf::from(DEFAULT_NET_CLS_DIR));
+            .unwrap_or_else(|_| PathBuf::from(DEFAULT_NET_CLS_DIR));
 
         if !net_cls_dir.exists() {
             fs::create_dir_all(&net_cls_dir).map_err(Error::CreateCGroup)?;
