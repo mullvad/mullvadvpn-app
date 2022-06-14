@@ -41,7 +41,9 @@ impl std::error::Error for Error {
 
 type RelayConfigService = proto::post_quantum_secure_client::PostQuantumSecureClient<Channel>;
 
-const CONFIG_SERVICE_PORT: u16 = 1337;
+/// Port used by the tunnel config service.
+pub const CONFIG_SERVICE_PORT: u16 = 1337;
+
 const ALGORITHM_NAME: &str = "Classic-McEliece-8192128f";
 
 /// Generates a new WireGuard key pair and negotiates a PSK with the relay in a PQ-safe

@@ -21,7 +21,7 @@ use std::io;
 use std::{
     borrow::Cow,
     convert::Infallible,
-    net::{IpAddr, SocketAddrV4},
+    net::IpAddr,
     path::Path,
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
@@ -30,7 +30,10 @@ use std::{
 #[cfg(windows)]
 use talpid_types::BoxedError;
 use talpid_types::{
-    net::{obfuscation::ObfuscatorConfig, wireguard::PublicKey, AllowedTunnelTraffic, Protocol},
+    net::{
+        obfuscation::ObfuscatorConfig, wireguard::PublicKey, AllowedTunnelTraffic, Endpoint,
+        TransportProtocol,
+    },
     ErrorExt,
 };
 use tunnel_obfuscation::{
@@ -262,10 +265,11 @@ impl WireguardMonitor {
                 .await?;
 
             let allowed_traffic = if psk_negotiation.is_some() {
-                AllowedTunnelTraffic::Only(
-                    SocketAddrV4::new(config.ipv4_gateway, 1337).into(),
-                    Protocol::Tcp,
-                )
+                AllowedTunnelTraffic::Only(Endpoint::new(
+                    config.ipv4_gateway,
+                    talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
+                    TransportProtocol::Tcp,
+                ))
             } else {
                 AllowedTunnelTraffic::All
             };

@@ -340,15 +340,9 @@ impl Firewall {
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags());
         match allowed_traffic {
-            AllowedTunnelTraffic::Only(addr, protocol) => {
-                use talpid_types::net::Protocol::*;
-                let pfctl_proto = match protocol {
-                    Udp => pfctl::Proto::Udp,
-                    Tcp => pfctl::Proto::Tcp,
-                    IcmpV4 => pfctl::Proto::Icmp,
-                    IcmpV6 => pfctl::Proto::IcmpV6,
-                };
-                base_rule = base_rule.to(*addr).proto(pfctl_proto);
+            AllowedTunnelTraffic::Only(endpoint) => {
+                let pfctl_proto = as_pfctl_proto(endpoint.protocol);
+                base_rule = base_rule.to(endpoint.address).proto(pfctl_proto);
             }
             AllowedTunnelTraffic::All => {}
             AllowedTunnelTraffic::None => {

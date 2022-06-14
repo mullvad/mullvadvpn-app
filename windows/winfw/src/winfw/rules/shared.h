@@ -15,6 +15,4 @@ void SplitAddresses(const IpSet &in, IpSet &outIpv4, IpSet &outIpv6);
 
 std::unique_ptr<wfp::conditions::ConditionProtocol> CreateProtocolCondition(WinFwProtocol protocol);
 
-bool ProtocolHasPort(WinFwProtocol protocol);
-
 }
