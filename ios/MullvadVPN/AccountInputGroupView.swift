@@ -337,7 +337,7 @@ class AccountInputGroupView: UIView {
     }
 
     @objc private func handleSendButton(_ sender: Any) {
-        self.delegate?.attemptLogin()
+        self.delegate?.accountInputGroupViewShouldAttemptLogin(self)
     }
 
     @objc private func didTapLastUsedAccount() {
@@ -345,11 +345,11 @@ class AccountInputGroupView: UIView {
         privateTextField.autoformattingText = accountNumber
         privateTextField.resignFirstResponder()
         setLastUsedAccount(expanded: false)
-        self.delegate?.attemptLogin()
+        self.delegate?.accountInputGroupViewShouldAttemptLogin(self)
     }
 
     @objc private func didTapRemoveLastUsedAccount() {
-        if self.delegate?.removeLastUsedAccount() ?? false {
+        if self.delegate?.accountInputGroupViewShouldRemoveLastUsedAccount(self) ?? false {
             setLastUsedAccount(expanded: false)
         }
     }
