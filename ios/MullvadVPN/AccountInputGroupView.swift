@@ -15,9 +15,7 @@ class AccountInputGroupView: UIView {
         case normal, error, authenticating
     }
 
-    private let logger = Logger(label: "AccountInputGroupView")
-
-    var onSendButton: ((AccountInputGroupView) -> Void)?
+    weak var delegate: AccountInputGroupViewDelegate?
 
     let sendButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -339,7 +337,7 @@ class AccountInputGroupView: UIView {
     }
 
     @objc private func handleSendButton(_ sender: Any) {
-        onSendButton?(self)
+        self.delegate?.attemptLogin()
     }
 
     @objc private func didTapLastUsedAccount() {
@@ -347,27 +345,16 @@ class AccountInputGroupView: UIView {
         privateTextField.autoformattingText = accountNumber
         privateTextField.resignFirstResponder()
         setLastUsedAccount(expanded: false)
-        onSendButton?(self)
+        self.delegate?.attemptLogin()
     }
 
     @objc private func didTapRemoveLastUsedAccount() {
-        if removeLastUsedAccount() {
+        if self.delegate?.removeLastUsedAccount() ?? false {
             setLastUsedAccount(expanded: false)
         }
     }
 
     // MARK: - Private
-
-    @discardableResult private func removeLastUsedAccount() -> Bool {
-        do {
-            try SettingsManager.setLastUsedAccount(nil)
-            return true
-        } catch {
-            logger.error(chainedError: AnyChainedError(error),
-                         message: "Failed to remove last used account.")
-            return false
-        }
-    }
 
     private func addTextFieldNotificationObservers() {
         let notificationCenter = NotificationCenter.default
