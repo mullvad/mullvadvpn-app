@@ -45,25 +45,6 @@ std::unique_ptr<wfp::conditions::ConditionProtocol> CreateProtocolCondition(WinF
 	{
 		case WinFwProtocol::Tcp: return ConditionProtocol::Tcp();
 		case WinFwProtocol::Udp: return ConditionProtocol::Udp();
-		case WinFwProtocol::Icmp: return ConditionProtocol::Icmp();
-		case WinFwProtocol::IcmpV6: return ConditionProtocol::IcmpV6();
-		default:
-		{
-			THROW_ERROR("Missing case handler in switch clause");
-		}
-	};
-}
-
-bool ProtocolHasPort(WinFwProtocol protocol)
-{
-	switch (protocol)
-	{
-		case WinFwProtocol::Tcp:
-		case WinFwProtocol::Udp:
-			return true;
-		case WinFwProtocol::Icmp:
-		case WinFwProtocol::IcmpV6:
-			return false;
 		default:
 		{
 			THROW_ERROR("Missing case handler in switch clause");

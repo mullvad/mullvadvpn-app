@@ -33,8 +33,6 @@ enum WinFwProtocol : uint8_t
 {
 	Tcp = 0,
 	Udp = 1,
-	Icmp = 2,
-	IcmpV6 = 3
 };
 
 typedef struct tag_WinFwEndpoint

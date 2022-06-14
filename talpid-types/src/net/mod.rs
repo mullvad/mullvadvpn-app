@@ -287,7 +287,7 @@ impl fmt::Display for AllowedEndpoint {
 pub enum AllowedTunnelTraffic {
     None,
     All,
-    Only(SocketAddr, Protocol),
+    Only(Endpoint),
 }
 
 impl fmt::Display for AllowedTunnelTraffic {
@@ -295,36 +295,7 @@ impl fmt::Display for AllowedTunnelTraffic {
         match *self {
             AllowedTunnelTraffic::None => "None".fmt(f),
             AllowedTunnelTraffic::All => "All".fmt(f),
-            AllowedTunnelTraffic::Only(addr, proto) => write!(f, "{}/{}", addr, proto),
-        }
-    }
-}
-
-/// A protocol: UDP, TCP, or ICMP.
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
-pub enum Protocol {
-    Udp,
-    Tcp,
-    IcmpV4,
-    IcmpV6,
-}
-
-impl fmt::Display for Protocol {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self {
-            Protocol::Udp => "UDP".fmt(f),
-            Protocol::Tcp => "TCP".fmt(f),
-            Protocol::IcmpV4 => "ICMPv4".fmt(f),
-            Protocol::IcmpV6 => "ICMPv6".fmt(f),
-        }
-    }
-}
-
-impl From<TransportProtocol> for Protocol {
-    fn from(proto: TransportProtocol) -> Self {
-        match proto {
-            TransportProtocol::Udp => Protocol::Udp,
-            TransportProtocol::Tcp => Protocol::Tcp,
+            AllowedTunnelTraffic::Only(endpoint) => endpoint.fmt(f),
         }
     }
 }

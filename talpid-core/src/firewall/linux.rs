@@ -12,9 +12,9 @@ use std::{
     env,
     ffi::{CStr, CString},
     io,
-    net::{IpAddr, Ipv4Addr, SocketAddr},
+    net::{IpAddr, Ipv4Addr},
 };
-use talpid_types::net::{AllowedTunnelTraffic, Endpoint, Protocol, TransportProtocol};
+use talpid_types::net::{AllowedTunnelTraffic, Endpoint, TransportProtocol};
 
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
 const MANGLE_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_MANGLE;
@@ -573,12 +573,8 @@ impl<'a> PolicyBatch<'a> {
                             self.add_allow_tunnel_rules(&tunnel.interface)?;
                         }
                         AllowedTunnelTraffic::None => (),
-                        AllowedTunnelTraffic::Only(address, protocol) => {
-                            self.add_allow_in_tunnel_endpoint_rules(
-                                &tunnel.interface,
-                                *address,
-                                *protocol,
-                            )?;
+                        AllowedTunnelTraffic::Only(endpoint) => {
+                            self.add_allow_in_tunnel_endpoint_rules(&tunnel.interface, endpoint)?;
                         }
                     }
                     if *allow_lan {
@@ -787,26 +783,16 @@ impl<'a> PolicyBatch<'a> {
     fn add_allow_in_tunnel_endpoint_rules(
         &mut self,
         tunnel_interface: &str,
-        address: SocketAddr,
-        protocol: Protocol,
+        endpoint: &Endpoint,
     ) -> Result<()> {
         for (chain, dir, end) in [
             (&self.out_chain, Direction::Out, End::Dst),
             (&self.in_chain, Direction::In, End::Src),
         ] {
             let mut rule = Rule::new(chain);
-
             check_iface(&mut rule, dir, tunnel_interface)?;
-            check_ip(&mut rule, end, address.ip());
-            match protocol {
-                Protocol::IcmpV4 | Protocol::IcmpV6 => check_l4proto(&mut rule, protocol),
-                Protocol::Tcp => {
-                    check_port(&mut rule, TransportProtocol::Tcp, end, address.port());
-                }
-                Protocol::Udp => {
-                    check_port(&mut rule, TransportProtocol::Udp, end, address.port());
-                }
-            }
+            check_ip(&mut rule, end, endpoint.address.ip());
+            check_port(&mut rule, endpoint.protocol, end, endpoint.address.port());
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
