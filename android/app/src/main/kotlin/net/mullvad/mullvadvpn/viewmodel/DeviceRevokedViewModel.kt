@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
-import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.talpid.util.callbackFlowFromSubscription
@@ -24,14 +23,21 @@ class DeviceRevokedViewModel(
     val uiState = serviceConnectionManager.connectionState
         .map { connectionState -> connectionState.readyContainer()?.connectionProxy }
         .flatMapLatest { proxy ->
-            proxy?.onUiStateChange?.callbackFlowFromSubscription(this)
-                ?: flowOf(TunnelState.Disconnected)
+            proxy?.onUiStateChange
+                ?.callbackFlowFromSubscription(this)
+                ?.map {
+                    if (it.isSecured()) {
+                        DeviceRevokedUiState.SECURED
+                    } else {
+                        DeviceRevokedUiState.UNSECURED
+                    }
+                }
+                ?: flowOf(DeviceRevokedUiState.UNKNOWN)
         }
-        .map { DeviceRevokedUiState(it.isSecured()) }
         .stateIn(
             scope,
             SharingStarted.Lazily,
-            DeviceRevokedUiState.DEFAULT
+            DeviceRevokedUiState.UNKNOWN
         )
 
     fun onGoToLoginClicked() {

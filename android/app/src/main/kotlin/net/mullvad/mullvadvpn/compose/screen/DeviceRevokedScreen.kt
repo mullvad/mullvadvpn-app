@@ -23,6 +23,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ActionButton
+import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 
 @Composable
@@ -76,7 +77,7 @@ fun DeviceRevokedScreen(
                 modifier = Modifier.padding(top = 10.dp)
             )
 
-            if (state.isSecured) {
+            if (state == DeviceRevokedUiState.SECURED) {
                 Text(
                     text = stringResource(id = R.string.device_inactive_unblock_warning),
                     fontSize = 12.sp,
@@ -96,7 +97,7 @@ fun DeviceRevokedScreen(
                 }
         ) {
             val buttonColor = colorResource(
-                if (state.isSecured) {
+                if (state == DeviceRevokedUiState.SECURED) {
                     R.color.red60
                 } else {
                     R.color.blue
