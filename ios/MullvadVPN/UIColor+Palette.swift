@@ -26,7 +26,7 @@ extension UIColor {
         enum AuthenticatingState {
             static let borderColor = secondaryColor
             static let textColor = primaryColor
-            static let backgroundColor = UIColor.white.withAlphaComponent(0.8)
+            static let backgroundColor = UIColor.white.withAlphaComponent(0.4)
         }
     }
 
