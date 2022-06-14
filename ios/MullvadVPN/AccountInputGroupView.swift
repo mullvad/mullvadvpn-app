@@ -168,8 +168,6 @@ class AccountInputGroupView: UIView {
     private let borderLayer = CAShapeLayer()
     private let contentLayerMask = CALayer()
 
-    var lastUsedAccount: String?
-
     var lastUsedAccountViewHeightConstraint: NSLayoutConstraint!
     var lastUsedAccountHeightConstraint: NSLayoutConstraint!
     var separatorHeightConstraint: NSLayoutConstraint!
@@ -299,9 +297,8 @@ class AccountInputGroupView: UIView {
         updateSendButtonAppearance(animated: false)
     }
 
-    func updateLastUsedAccount() {
-        guard lastUsedAccount != nil else { return }
-        lastUsedAccountButton.setTitle(lastUsedAccount, for: .normal)
+    func setLastUsedAccount(_ accountNumber: String) {
+        lastUsedAccountButton.setTitle(accountNumber, for: .normal)
         setLastUsedAccount(expanded: true)
     }
 
