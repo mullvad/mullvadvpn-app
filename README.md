@@ -450,6 +450,9 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
 
 * `TALPID_DISABLE_OFFLINE_MONITOR` - Forces the daemon to always assume the host is online.
 
+* `TALPID_NET_CLS_MOUNT_DIR` - On Linux, forces the daemon to mount the `net_cls` controller in the
+  specified directory if it isn't mounted already.
+
 * `MULLVAD_MANAGEMENT_SOCKET_GROUP` - On Linux and macOS, this restricts access to the management
   interface UDS socket to users in the specified group. This means that only users in that group can
   use the CLI and GUI. By default, everyone has access to the socket.
