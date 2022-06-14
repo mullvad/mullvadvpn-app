@@ -256,29 +256,18 @@ impl DeviceHandle {
     }
 
     fn initialize(&self) -> io::Result<()> {
-        unsafe {
-            device_io_control(
-                self.handle.as_raw_handle(),
-                DriverIoctlCode::Initialize as u32,
-                None,
-                0,
-                None,
-            )?;
-        }
+        device_io_control(&self.handle, DriverIoctlCode::Initialize as u32, None, 0)?;
         Ok(())
     }
 
     fn register_processes(&self) -> io::Result<()> {
         let process_tree_buffer = serialize_process_tree(build_process_tree()?)?;
-        unsafe {
-            device_io_control(
-                self.handle.as_raw_handle(),
-                DriverIoctlCode::RegisterProcesses as u32,
-                Some(&process_tree_buffer),
-                0,
-                None,
-            )?;
-        }
+        device_io_control(
+            &self.handle,
+            DriverIoctlCode::RegisterProcesses as u32,
+            Some(&process_tree_buffer),
+            0,
+        )?;
         Ok(())
     }
 
@@ -332,29 +321,23 @@ impl DeviceHandle {
 
         let buffer = as_uninit_byte_slice(&addresses);
 
-        unsafe {
-            device_io_control(
-                self.handle.as_raw_handle(),
-                DriverIoctlCode::RegisterIpAddresses as u32,
-                Some(buffer),
-                0,
-                None,
-            )?;
-        }
+        device_io_control(
+            &self.handle,
+            DriverIoctlCode::RegisterIpAddresses as u32,
+            Some(buffer),
+            0,
+        )?;
 
         Ok(())
     }
 
     pub fn get_driver_state(&self) -> io::Result<DriverState> {
-        let buffer = unsafe {
-            device_io_control(
-                self.handle.as_raw_handle(),
-                DriverIoctlCode::GetState as u32,
-                None,
-                size_of::<u64>() as u32,
-                None,
-            )?
-        }
+        let buffer = device_io_control(
+            &self.handle,
+            DriverIoctlCode::GetState as u32,
+            None,
+            size_of::<u64>() as u32,
+        )?
         .unwrap();
 
         let raw_state: u64 = unsafe { deserialize_buffer(&buffer[0..size_of::<u64>()]) };
@@ -390,43 +373,33 @@ impl DeviceHandle {
 
         let config = make_process_config(&device_paths);
 
-        unsafe {
-            device_io_control(
-                self.handle.as_raw_handle(),
-                DriverIoctlCode::SetConfiguration as u32,
-                Some(&config),
-                0,
-                None,
-            )?;
-        }
+        device_io_control(
+            &self.handle,
+            DriverIoctlCode::SetConfiguration as u32,
+            Some(&config),
+            0,
+        )?;
 
         Ok(())
     }
 
     pub fn clear_config(&self) -> io::Result<()> {
-        unsafe {
-            device_io_control(
-                self.handle.as_raw_handle(),
-                DriverIoctlCode::ClearConfiguration as u32,
-                None,
-                0,
-                None,
-            )?;
-        }
+        device_io_control(
+            &self.handle,
+            DriverIoctlCode::ClearConfiguration as u32,
+            None,
+            0,
+        )?;
         Ok(())
     }
 
     fn reset(&self) -> io::Result<()> {
-        unsafe {
-            device_io_control(
-                self.handle.as_raw_handle(),
-                DriverIoctlCode::Reset as u32,
-                None,
-                0,
-                None,
-            )?;
-        }
+        device_io_control(&self.handle, DriverIoctlCode::Reset as u32, None, 0)?;
         Ok(())
+    }
+
+    pub fn as_file(&self) -> &fs::File {
+        &self.handle
     }
 }
 
@@ -776,65 +749,55 @@ pub fn parse_event_buffer(buffer: &[u8]) -> Result<(EventId, EventBody), Unknown
 }
 
 /// Send an IOCTL code to the given device handle, and wait for the result.
-/// `input` specifies an optional buffer to send.
+///
+/// `input` specifies an optional buffer for sending data.
 ///
 /// Upon success, a buffer containing at most `output_size` bytes is returned,
-/// or `None` if `output_size == 0`.
-///
-/// # Safety
-///
-/// `device` must be a valid device handle.
-pub unsafe fn device_io_control(
-    device: RawHandle,
+/// or `None` if no bytes were read.
+pub fn device_io_control(
+    device: &fs::File,
     ioctl_code: u32,
     input: Option<&[MaybeUninit<u8>]>,
     output_size: u32,
-    timeout: Option<Duration>,
 ) -> Result<Option<Vec<u8>>, io::Error> {
     let mut overlapped = Overlapped::new(Some(Event::new(true, false)?))?;
 
-    let mut out_buffer = if output_size > 0 {
-        let mut buffer = vec![];
+    let mut buffer = vec![];
+    let out_buffer = if output_size > 0 {
         buffer.resize(
             usize::try_from(output_size).expect("u32 must be no larger than usize"),
             0u8,
         );
-        Some(buffer)
+        Some(&mut buffer[..])
     } else {
         None
     };
 
-    let bytes_read = device_io_control_buffer(
-        device,
-        ioctl_code,
-        input,
-        out_buffer.as_mut().map(|out_buf| &mut out_buf[..]),
-        overlapped.as_overlapped_mut(),
-        timeout,
-    )?;
-    if let Some(buffer) = out_buffer.as_mut() {
+    let bytes_read =
+        device_io_control_buffer(device, ioctl_code, input, out_buffer, &mut overlapped)?;
+    if bytes_read > 0 {
         buffer.truncate(usize::try_from(bytes_read).expect("u32 must be no larger than usize"));
+        return Ok(Some(buffer));
     }
-    Ok(out_buffer)
+    Ok(None)
 }
 
 /// Send an IOCTL code to the given device handle, and wait for the result.
-/// `input` specifies an optional buffer to send.
+///
+/// `input` specifies an optional buffer for sending data.
 ///
 /// Upon success, `output` buffer will contain at most `output.len()` bytes of data,
 /// and the function returns the number of bytes read.
 ///
-/// # Safety
+/// # Panics
 ///
-/// * `device` must be a valid device handle.
-/// * `overlapped` must be a valid `OVERLAPPED` object with a valid event object.
-pub unsafe fn device_io_control_buffer(
-    device: RawHandle,
+/// This function will panic if `overlapped` does not contain an event.
+pub fn device_io_control_buffer(
+    device: &fs::File,
     ioctl_code: u32,
     input: Option<&[MaybeUninit<u8>]>,
     output: Option<&mut [u8]>,
-    overlapped: &mut OVERLAPPED,
-    timeout: Option<Duration>,
+    overlapped: &mut Overlapped,
 ) -> Result<u32, io::Error> {
     let output_len = output.as_ref().map(|output| output.len()).unwrap_or(0);
     let output_len = u32::try_from(output_len).map_err(|_error| {
@@ -847,26 +810,38 @@ pub unsafe fn device_io_control_buffer(
         Some(output) => output as *mut _ as *mut _,
         None => ptr::null_mut(),
     };
-    device_io_control_buffer_async(device, ioctl_code, input, out_ptr, output_len, overlapped)?;
-    get_overlapped_result(device, timeout, overlapped)
+    // SAFETY: `out_ptr` will be valid until the result has been obtained.
+    unsafe {
+        device_io_control_buffer_async(
+            device,
+            ioctl_code,
+            input,
+            out_ptr,
+            output_len,
+            overlapped.as_mut_ptr(),
+        )?;
+    }
+    get_overlapped_result(device, overlapped)
 }
 
 /// Send an IOCTL code to the given device handle.
-/// `input` specifies an optional buffer to send.
 ///
-/// The result must be obtained using `GetOverlappedResult[Ex]` or [get_overlapped_result].
+/// `input` specifies an optional buffer for sending data.
+/// `output_ptr` specifies an optional buffer for receiving data.
+///
+/// Obtain the result using [get_overlapped_result].
 ///
 /// # Safety
 ///
-/// * `device` must be a valid device handle.
-/// * `overlapped` must be a valid `OVERLAPPED` object with a valid event object.
+/// * `output_ptr` must either be null or a valid buffer of `output_len` bytes. It must remain valid
+///   until the overlapped operation has completed.
 pub unsafe fn device_io_control_buffer_async(
-    device: RawHandle,
+    device: &fs::File,
     ioctl_code: u32,
     input: Option<&[MaybeUninit<u8>]>,
     output_ptr: *mut u8,
     output_len: u32,
-    overlapped: &mut OVERLAPPED,
+    overlapped: *mut OVERLAPPED,
 ) -> Result<(), io::Error> {
     let input_ptr = match input {
         Some(input) => input.as_ptr() as *mut _,
@@ -875,7 +850,7 @@ pub unsafe fn device_io_control_buffer_async(
     let input_len = input.map(|input| input.len()).unwrap_or(0);
 
     let result = DeviceIoControl(
-        device,
+        device.as_raw_handle(),
         ioctl_code,
         input_ptr,
         u32::try_from(input_len).map_err(|_error| {
@@ -906,18 +881,25 @@ pub unsafe fn device_io_control_buffer_async(
 /// the number of bytes transferred. For device I/O, this is the number of bytes
 /// written to the output buffer.
 ///
-/// # Safety
+/// # Panics
 ///
-/// * `device` must be a valid device handle.
-/// * `overlapped` must be a valid `OVERLAPPED` object with a valid event object.
-pub unsafe fn get_overlapped_result(
-    device: RawHandle,
-    timeout: Option<Duration>,
-    overlapped: &mut OVERLAPPED,
-) -> io::Result<u32> {
-    wait_for_single_object(overlapped.hEvent, timeout)?;
+/// This function will panic if `overlapped` does not contain an event.
+pub fn get_overlapped_result(device: &fs::File, overlapped: &mut Overlapped) -> io::Result<u32> {
+    let event = overlapped.get_event().unwrap();
+
+    // SAFETY: This is a valid event object.
+    unsafe { wait_for_single_object(event.as_raw_handle(), None) }?;
+
+    // SAFETY: The handle and overlapped object are valid.
     let mut returned_bytes = 0u32;
-    let result = GetOverlappedResult(device, overlapped, &mut returned_bytes, FALSE);
+    let result = unsafe {
+        GetOverlappedResult(
+            device.as_raw_handle(),
+            overlapped.as_mut_ptr(),
+            &mut returned_bytes,
+            FALSE,
+        )
+    };
     if result == 0 {
         return Err(io::Error::last_os_error());
     }
@@ -953,7 +935,7 @@ pub unsafe fn wait_for_single_object(
 ///
 /// # Safety
 ///
-/// * `object` must be a valid object that can be signaled, such as an event object.
+/// * `objects` must be a slice of valid objects that can be signaled, such as event objects.
 pub unsafe fn wait_for_multiple_objects(
     objects: &[RawHandle],
     wait_all: bool,

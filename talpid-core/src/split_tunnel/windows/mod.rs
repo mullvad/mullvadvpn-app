@@ -236,12 +236,12 @@ impl SplitTunnel {
 
         unsafe {
             driver::device_io_control_buffer_async(
-                device.as_raw_handle(),
+                device.as_file(),
                 driver::DriverIoctlCode::DequeEvent as u32,
                 None,
                 data_buffer.as_mut_ptr(),
                 u32::try_from(data_buffer.len()).expect("buffer must be smaller than u32"),
-                overlapped.as_overlapped_mut(),
+                overlapped.as_mut_ptr(),
             )
         }
         .map_err(|error| {
@@ -253,7 +253,7 @@ impl SplitTunnel {
         })?;
 
         let event_objects = [
-            overlapped.as_overlapped_mut().hEvent,
+            overlapped.get_event().unwrap().as_raw_handle(),
             quit_event.as_raw_handle(),
         ];
 
@@ -273,20 +273,14 @@ impl SplitTunnel {
             return Ok(EventResult::Quit);
         }
 
-        let returned_bytes = unsafe {
-            driver::get_overlapped_result(
-                device.as_raw_handle(),
-                None,
-                overlapped.as_overlapped_mut(),
-            )
-        }
-        .map_err(|error| {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("get_overlapped_result failed for dequed event"),
-            );
-            error
-        })?;
+        let returned_bytes =
+            driver::get_overlapped_result(device.as_file(), overlapped).map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("get_overlapped_result failed for dequed event"),
+                );
+                error
+            })?;
 
         data_buffer
             .truncate(usize::try_from(returned_bytes).expect("usize must be no smaller than u32"));
