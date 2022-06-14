@@ -337,8 +337,13 @@ impl Overlapped {
     }
 
     /// Borrows the underlying `OVERLAPPED` object.
-    pub fn as_overlapped_mut(&mut self) -> &mut OVERLAPPED {
+    pub fn as_mut_ptr(&mut self) -> *mut OVERLAPPED {
         &mut self.overlapped
+    }
+
+    /// Returns a reference to the associated event.
+    pub fn get_event(&self) -> Option<&Event> {
+        self.event.as_ref()
     }
 
     /// Sets the event object for the underlying `OVERLAPPED` object (i.e., `hEvent`)
