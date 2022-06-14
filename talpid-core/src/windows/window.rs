@@ -1,6 +1,7 @@
 //! Utilities for windows.
 
-use std::{os::windows::io::AsRawHandle, ptr, thread};
+use std::{os::windows::io::AsRawHandle, ptr, sync::Arc, thread};
+use tokio::sync::watch;
 use winapi::{
     shared::{
         basetsd::LONG_PTR,
@@ -13,7 +14,8 @@ use winapi::{
         winuser::{
             CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GetMessageW,
             GetWindowLongPtrW, PostQuitMessage, PostThreadMessageW, SetWindowLongPtrW,
-            TranslateMessage, GWLP_USERDATA, GWLP_WNDPROC, WM_DESTROY, WM_USER,
+            TranslateMessage, GWLP_USERDATA, GWLP_WNDPROC, PBT_APMRESUMEAUTOMATIC,
+            PBT_APMRESUMESUSPEND, PBT_APMSUSPEND, WM_DESTROY, WM_POWERBROADCAST, WM_USER,
         },
     },
 };
@@ -125,4 +127,76 @@ where
         return typed_callback(window, message, wparam, lparam);
     }
     DefWindowProcW(window, message, wparam, lparam)
+}
+
+/// Power management events
+#[non_exhaustive]
+#[derive(Debug, Clone, Copy)]
+pub enum PowerManagementEvent {
+    /// The system is resuming from sleep or hibernation
+    /// irrespective of user activity.
+    ResumeAutomatic,
+    /// The system is resuming from sleep or hibernation
+    /// due to user activity.
+    ResumeSuspend,
+    /// The computer is about to enter a suspended state.
+    Suspend,
+}
+
+impl PowerManagementEvent {
+    fn try_from_winevent(wparam: usize) -> Option<Self> {
+        use PowerManagementEvent::*;
+        match wparam {
+            PBT_APMRESUMEAUTOMATIC => Some(ResumeAutomatic),
+            PBT_APMRESUMESUSPEND => Some(ResumeSuspend),
+            PBT_APMSUSPEND => Some(Suspend),
+            _ => None,
+        }
+    }
+}
+
+/// Provides power management events to listeners
+#[derive(Clone)]
+pub struct PowerManagementListener {
+    _window: Arc<WindowScopedHandle>,
+    rx: watch::Receiver<Option<PowerManagementEvent>>,
+}
+
+impl PowerManagementListener {
+    /// Creates a new listener. This is expensive compared to cloning an existing instance.
+    pub fn new() -> Self {
+        let (tx, rx) = tokio::sync::watch::channel(None);
+
+        let power_broadcast_callback = move |window, message, wparam, lparam| {
+            if message == WM_POWERBROADCAST {
+                if let Some(event) = PowerManagementEvent::try_from_winevent(wparam) {
+                    tx.send_replace(Some(event));
+                }
+            }
+            unsafe { DefWindowProcW(window, message, wparam, lparam) }
+        };
+
+        let window = create_hidden_window(power_broadcast_callback);
+
+        Self {
+            _window: Arc::new(WindowScopedHandle(window)),
+            rx,
+        }
+    }
+
+    /// Returns the next power event.
+    pub async fn next(&mut self) -> Option<PowerManagementEvent> {
+        if self.rx.changed().await.is_err() {
+            return None;
+        }
+        *self.rx.borrow_and_update()
+    }
+}
+
+struct WindowScopedHandle(WindowCloseHandle);
+
+impl Drop for WindowScopedHandle {
+    fn drop(&mut self) {
+        self.0.close();
+    }
 }
