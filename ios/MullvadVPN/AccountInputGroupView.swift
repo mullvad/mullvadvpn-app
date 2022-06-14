@@ -72,7 +72,7 @@ class AccountInputGroupView: UIView {
         return separator
     }()
 
-    private let topContentView: UIView = {
+    private let topRowView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .white
@@ -80,7 +80,7 @@ class AccountInputGroupView: UIView {
         return view
     }()
 
-    private let bottomContentView: UIView = {
+    private let bottomRowView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .white.withAlphaComponent(0.8)
@@ -176,13 +176,13 @@ class AccountInputGroupView: UIView {
         super.init(frame: frame)
 
         addSubview(contentView)
-        contentView.addSubview(topContentView)
-        contentView.addSubview(bottomContentView)
-        topContentView.addSubview(privateTextField)
-        topContentView.addSubview(sendButton)
-        bottomContentView.addSubview(separator)
-        bottomContentView.addSubview(lastUsedAccountButton)
-        bottomContentView.addSubview(removeLastUsedAccountButton)
+        contentView.addSubview(topRowView)
+        contentView.addSubview(bottomRowView)
+        topRowView.addSubview(privateTextField)
+        topRowView.addSubview(sendButton)
+        bottomRowView.addSubview(separator)
+        bottomRowView.addSubview(lastUsedAccountButton)
+        bottomRowView.addSubview(removeLastUsedAccountButton)
 
         privateTextField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         sendButton.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
@@ -199,43 +199,43 @@ class AccountInputGroupView: UIView {
             contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            topContentView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            topContentView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            topContentView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            topContentView.bottomAnchor.constraint(equalTo: bottomContentView.topAnchor),
+            topRowView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            topRowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            topRowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            topRowView.bottomAnchor.constraint(equalTo: bottomRowView.topAnchor),
 
-            bottomContentView.topAnchor.constraint(equalTo: topContentView.bottomAnchor),
-            bottomContentView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            bottomContentView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            bottomContentView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            bottomRowView.topAnchor.constraint(equalTo: topRowView.bottomAnchor),
+            bottomRowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            bottomRowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            bottomRowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
 
-            privateTextField.topAnchor.constraint(equalTo: topContentView.topAnchor),
-            privateTextField.leadingAnchor.constraint(equalTo: topContentView.leadingAnchor),
+            privateTextField.topAnchor.constraint(equalTo: topRowView.topAnchor),
+            privateTextField.leadingAnchor.constraint(equalTo: topRowView.leadingAnchor),
             privateTextField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor),
-            privateTextField.bottomAnchor.constraint(equalTo: topContentView.bottomAnchor),
+            privateTextField.bottomAnchor.constraint(equalTo: topRowView.bottomAnchor),
 
-            sendButton.topAnchor.constraint(equalTo: topContentView.topAnchor),
-            sendButton.trailingAnchor.constraint(equalTo: topContentView.trailingAnchor),
-            sendButton.bottomAnchor.constraint(equalTo: topContentView.bottomAnchor),
+            sendButton.topAnchor.constraint(equalTo: topRowView.topAnchor),
+            sendButton.trailingAnchor.constraint(equalTo: topRowView.trailingAnchor),
+            sendButton.bottomAnchor.constraint(equalTo: topRowView.bottomAnchor),
             sendButton.widthAnchor.constraint(equalTo: sendButton.heightAnchor),
 
-            separator.topAnchor.constraint(equalTo: bottomContentView.topAnchor),
+            separator.topAnchor.constraint(equalTo: bottomRowView.topAnchor),
             separator.bottomAnchor.constraint(equalTo: lastUsedAccountButton.topAnchor),
-            separator.leadingAnchor.constraint(equalTo: bottomContentView.leadingAnchor),
-            separator.trailingAnchor.constraint(equalTo: bottomContentView.trailingAnchor),
+            separator.leadingAnchor.constraint(equalTo: bottomRowView.leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: bottomRowView.trailingAnchor),
             separatorHeightConstraint,
 
             lastUsedAccountButton.topAnchor.constraint(equalTo: separator.bottomAnchor),
-            lastUsedAccountButton.bottomAnchor.constraint(equalTo: bottomContentView.bottomAnchor),
-            lastUsedAccountButton.leadingAnchor.constraint(equalTo: bottomContentView.leadingAnchor),
+            lastUsedAccountButton.bottomAnchor.constraint(equalTo: bottomRowView.bottomAnchor),
+            lastUsedAccountButton.leadingAnchor.constraint(equalTo: bottomRowView.leadingAnchor),
             lastUsedAccountButton.trailingAnchor.constraint(equalTo: removeLastUsedAccountButton.leadingAnchor),
             lastUsedAccountButton.heightAnchor.constraint(lessThanOrEqualTo: privateTextField.heightAnchor),
             lastUsedAccountHeightConstraint,
 
             removeLastUsedAccountButton.topAnchor.constraint(equalTo: separator.bottomAnchor),
             removeLastUsedAccountButton.leadingAnchor.constraint(equalTo: lastUsedAccountButton.trailingAnchor),
-            removeLastUsedAccountButton.trailingAnchor.constraint(equalTo: bottomContentView.trailingAnchor),
-            removeLastUsedAccountButton.bottomAnchor.constraint(equalTo: bottomContentView.bottomAnchor),
+            removeLastUsedAccountButton.trailingAnchor.constraint(equalTo: bottomRowView.trailingAnchor),
+            removeLastUsedAccountButton.bottomAnchor.constraint(equalTo: bottomRowView.bottomAnchor),
             removeLastUsedAccountButton.widthAnchor.constraint(equalTo: removeLastUsedAccountButton.heightAnchor),
         ])
 
@@ -375,7 +375,7 @@ class AccountInputGroupView: UIView {
 
     private func updateAppearance() {
         borderLayer.strokeColor = borderColor.cgColor
-        topContentView.backgroundColor = backgroundLayerColor
+        topRowView.backgroundColor = backgroundLayerColor
         privateTextField.textColor = textColor
     }
 
