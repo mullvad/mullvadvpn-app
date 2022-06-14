@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.AppTheme
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.screen.DeviceRevokedScreen
+import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -30,7 +31,7 @@ class DeviceRevokedFragment : Fragment() {
                     val state = deviceRevokedViewModel.uiState.collectAsState().value
 
                     val topColor = colorResource(
-                        if (state.isSecured) {
+                        if (state == DeviceRevokedUiState.SECURED) {
                             R.color.green
                         } else {
                             R.color.red

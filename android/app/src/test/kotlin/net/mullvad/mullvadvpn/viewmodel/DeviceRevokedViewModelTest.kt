@@ -59,7 +59,7 @@ class DeviceRevokedViewModelTest {
         // Arrange, Act, Assert
         viewModel.uiState.test {
             serviceConnectionState.value = ServiceConnectionState.Disconnected
-            assertEquals(DeviceRevokedUiState(false), awaitItem())
+            assertEquals(DeviceRevokedUiState.UNKNOWN, awaitItem())
         }
     }
 
@@ -68,7 +68,7 @@ class DeviceRevokedViewModelTest {
         // Arrange, Act, Assert
         viewModel.uiState.test {
             serviceConnectionState.value = ServiceConnectionState.ConnectedNotReady(mockk())
-            assertEquals(DeviceRevokedUiState(false), awaitItem())
+            assertEquals(DeviceRevokedUiState.UNKNOWN, awaitItem())
         }
     }
 
@@ -89,9 +89,9 @@ class DeviceRevokedViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
-            assertEquals(DeviceRevokedUiState(false), awaitItem())
+            assertEquals(DeviceRevokedUiState.UNKNOWN, awaitItem())
             serviceConnectionState.value = ServiceConnectionState.ConnectedReady(mockedContainer)
-            assertEquals(DeviceRevokedUiState(true), awaitItem())
+            assertEquals(DeviceRevokedUiState.SECURED, awaitItem())
         }
     }
 

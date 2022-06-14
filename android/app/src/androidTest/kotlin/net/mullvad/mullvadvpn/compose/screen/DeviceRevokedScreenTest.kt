@@ -35,7 +35,7 @@ class DeviceRevokedScreenTest {
         // Arrange
         every {
             mockedViewModel.uiState
-        } returns MutableStateFlow(DeviceRevokedUiState(isSecured = true))
+        } returns MutableStateFlow(DeviceRevokedUiState.SECURED)
 
         // Act
         composeTestRule.setContent {
@@ -55,7 +55,7 @@ class DeviceRevokedScreenTest {
         // Arrange
         every {
             mockedViewModel.uiState
-        } returns MutableStateFlow(DeviceRevokedUiState(isSecured = false))
+        } returns MutableStateFlow(DeviceRevokedUiState.UNSECURED)
 
         // Act
         composeTestRule.setContent {
@@ -75,7 +75,7 @@ class DeviceRevokedScreenTest {
         // Arrange
         every {
             mockedViewModel.uiState
-        } returns MutableStateFlow(DeviceRevokedUiState(isSecured = false))
+        } returns MutableStateFlow(DeviceRevokedUiState.UNSECURED)
         composeTestRule.setContent {
             AppTheme {
                 DeviceRevokedScreen(mockedViewModel)
