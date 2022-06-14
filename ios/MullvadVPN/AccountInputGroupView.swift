@@ -127,7 +127,9 @@ class AccountInputGroupView: UIView {
     private var borderColor: UIColor {
         switch loginState {
         case .default:
-            return UIColor.AccountTextField.NormalState.borderColor
+            return privateTextField.isEditing
+                             ? UIColor.AccountTextField.NormalState.borderColor
+                             : UIColor.clear
 
         case .failure:
             return UIColor.AccountTextField.ErrorState.borderColor
