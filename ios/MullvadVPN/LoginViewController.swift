@@ -83,6 +83,10 @@ class LoginViewController: UIViewController, RootContainment {
         }
     }
 
+    private var canBeginLogin: Bool {
+        return contentView.accountInputGroup.satisfiesMinimumTokenLengthRequirement
+    }
+    
     weak var delegate: LoginViewControllerDelegate?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -113,23 +117,12 @@ class LoginViewController: UIViewController, RootContainment {
             contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
-        contentView.accountInputGroup.onSendButton = { [weak self] _ in
-            guard let self = self else { return }
-
-            if self.canBeginLogin() {
-                self.doLogin()
-            }
-        }
+        contentView.accountInputGroup.delegate = self
 
         contentView.accountInputGroup.setOnReturnKey { [weak self] _ in
             guard let self = self else { return true }
 
-            if self.canBeginLogin() {
-                self.doLogin()
-                return true
-            } else {
-                return false
-            }
+            return self.attemptLogin()
         }
 
         // There is no need to set the input accessory toolbar on iPad since it has a dedicated
@@ -298,7 +291,7 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     private func updateKeyboardToolbar() {
-        accountInputAccessoryLoginButton.isEnabled = canBeginLogin()
+        accountInputAccessoryLoginButton.isEnabled = canBeginLogin
     }
 
     private func updateCreateButtonEnabled() {
@@ -320,10 +313,6 @@ class LoginViewController: UIViewController, RootContainment {
         }
 
         contentView.createAccountButton.isEnabled = isEnabled
-    }
-
-    private func canBeginLogin() -> Bool {
-        return contentView.accountInputGroup.satisfiesMinimumTokenLengthRequirement
     }
 }
 
@@ -413,6 +402,33 @@ private extension LoginState {
                     comment: ""
                 )
             }
+        }
+    }
+}
+
+protocol AccountInputGroupViewDelegate: AnyObject {
+    func removeLastUsedAccount() -> Bool
+    @discardableResult func attemptLogin() -> Bool
+}
+
+extension LoginViewController: AccountInputGroupViewDelegate {
+    func removeLastUsedAccount() -> Bool {
+        do {
+            try SettingsManager.setLastUsedAccount(nil)
+            return true
+        } catch {
+            self.logger.error(chainedError: AnyChainedError(error),
+                              message: "Failed to remove last used account.")
+            return false
+        }
+    }
+    
+    @discardableResult func attemptLogin() -> Bool {
+        if canBeginLogin {
+            doLogin()
+            return true
+        } else {
+            return false
         }
     }
 }
