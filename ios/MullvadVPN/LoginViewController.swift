@@ -101,11 +101,6 @@ class LoginViewController: UIViewController, RootContainment {
         return false
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        updateLastUsedAccount()
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -116,6 +111,7 @@ class LoginViewController: UIViewController, RootContainment {
             contentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
+        updateLastUsedAccount()
 
         contentView.accountInputGroup.delegate = self
 
@@ -164,6 +160,7 @@ class LoginViewController: UIViewController, RootContainment {
         contentView.accountInputGroup.clearToken()
         loginState = .default
         updateKeyboardToolbar()
+        updateLastUsedAccount()
     }
 
     // MARK: - UITextField notifications
