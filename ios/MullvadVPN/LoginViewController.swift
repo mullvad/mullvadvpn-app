@@ -118,7 +118,7 @@ class LoginViewController: UIViewController, RootContainment {
         contentView.accountInputGroup.setOnReturnKey { [weak self] _ in
             guard let self = self else { return true }
 
-            return self.attemptLogin()
+            return self.accountInputGroupViewShouldAttemptLogin(self.contentView.accountInputGroup)
         }
 
         // There is no need to set the input accessory toolbar on iPad since it has a dedicated
@@ -404,12 +404,12 @@ private extension LoginState {
 }
 
 protocol AccountInputGroupViewDelegate: AnyObject {
-    func removeLastUsedAccount() -> Bool
-    @discardableResult func attemptLogin() -> Bool
+    func accountInputGroupViewShouldRemoveLastUsedAccount(_ view: AccountInputGroupView) -> Bool
+    @discardableResult func accountInputGroupViewShouldAttemptLogin(_ view: AccountInputGroupView) -> Bool
 }
 
 extension LoginViewController: AccountInputGroupViewDelegate {
-    func removeLastUsedAccount() -> Bool {
+    func accountInputGroupViewShouldRemoveLastUsedAccount(_ view: AccountInputGroupView) -> Bool {
         do {
             try SettingsManager.setLastUsedAccount(nil)
             return true
@@ -420,7 +420,7 @@ extension LoginViewController: AccountInputGroupViewDelegate {
         }
     }
     
-    @discardableResult func attemptLogin() -> Bool {
+    @discardableResult func accountInputGroupViewShouldAttemptLogin(_ view: AccountInputGroupView) -> Bool {
         if canBeginLogin {
             doLogin()
             return true
