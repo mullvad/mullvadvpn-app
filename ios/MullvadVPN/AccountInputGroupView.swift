@@ -102,7 +102,7 @@ class AccountInputGroupView: UIView {
     private let removeLastUsedAccountButton: UIButton = {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "xmark.circle.fill"), for: .normal)
+        button.setImage(.smallClose, for: .normal)
         button.imageView?.tintColor = .primaryColor.withAlphaComponent(0.4)
 
         return button

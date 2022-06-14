@@ -9,6 +9,8 @@
 import UIKit
 
 extension UIImage {
+    
+    static let smallClose: UIImage? = { UIImage(named: "IconCloseSml") }()
 
     func backport_withTintColor(_ tintColor: UIColor) -> UIImage {
         return backport_withTintColor(tintColor, renderingMode: renderingMode)
