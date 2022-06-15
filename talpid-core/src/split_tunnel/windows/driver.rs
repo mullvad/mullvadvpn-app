@@ -18,6 +18,7 @@ use std::{
         fs::OpenOptionsExt,
         io::{AsRawHandle, RawHandle},
     },
+    path::Path,
     ptr,
     time::Duration,
 };
@@ -354,7 +355,7 @@ impl DeviceHandle {
                     log::debug!(
                         "{}\nPath: {}",
                         error.display_chain_with_msg("Ignoring path on unmounted volume"),
-                        app.as_ref().to_string_lossy()
+                        Path::new(app.as_ref()).display()
                     );
                 }
                 Err(error) => return Err(error),
@@ -368,7 +369,7 @@ impl DeviceHandle {
 
         log::debug!("Excluded device paths:");
         for path in &device_paths {
-            log::debug!("    {:?}", path);
+            log::debug!("    {}", Path::new(&path).display());
         }
 
         let config = make_process_config(&device_paths);
