@@ -9,6 +9,11 @@
 import UIKit
 import Logging
 
+protocol AccountInputGroupViewDelegate: AnyObject {
+    func accountInputGroupViewShouldRemoveLastUsedAccount(_ view: AccountInputGroupView) -> Bool
+    @discardableResult func accountInputGroupViewShouldAttemptLogin(_ view: AccountInputGroupView) -> Bool
+}
+
 class AccountInputGroupView: UIView {
 
     enum Style {
