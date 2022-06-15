@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add option to block gambling and adult content.
+- Add last used account field to login view.
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.
