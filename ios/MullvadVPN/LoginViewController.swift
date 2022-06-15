@@ -86,7 +86,7 @@ class LoginViewController: UIViewController, RootContainment {
     private var canBeginLogin: Bool {
         return contentView.accountInputGroup.satisfiesMinimumTokenLengthRequirement
     }
-    
+
     weak var delegate: LoginViewControllerDelegate?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -419,7 +419,7 @@ extension LoginViewController: AccountInputGroupViewDelegate {
             return false
         }
     }
-    
+
     @discardableResult func accountInputGroupViewShouldAttemptLogin(_ view: AccountInputGroupView) -> Bool {
         if canBeginLogin {
             doLogin()
