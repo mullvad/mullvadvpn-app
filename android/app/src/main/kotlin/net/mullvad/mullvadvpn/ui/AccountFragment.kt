@@ -65,6 +65,18 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var redeemVoucherButton: RedeemVoucherButton
     private lateinit var titleController: CollapsibleTitleController
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            deviceRepository.deviceState
+                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+                .collect { state ->
+                    accountNumberView.information = state.token()
+                    deviceNameView.information = state.deviceName()?.capitalizeFirstCharOfEachWord()
+                }
+        }
+    }
+
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -101,19 +113,6 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         titleController = CollapsibleTitleController(view)
 
         return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        lifecycleScope.launch {
-            deviceRepository.deviceState
-                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
-                .collect { state ->
-                    accountNumberView.information = state.token()
-                    deviceNameView.information = state.deviceName()?.capitalizeFirstCharOfEachWord()
-                }
-        }
     }
 
     override fun onSafelyStart() {

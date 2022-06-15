@@ -38,6 +38,11 @@ class LoginFragment :
     private lateinit var background: View
     private lateinit var headerBar: HeaderBar
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setupLifecycleSubscriptionsToViewModel()
+    }
+
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -69,8 +74,6 @@ class LoginFragment :
         }
 
         scrollToShow(accountLogin)
-
-        setupLifecycleSubscriptionsToViewModel()
 
         return view
     }

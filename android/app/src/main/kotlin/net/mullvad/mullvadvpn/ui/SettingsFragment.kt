@@ -51,6 +51,17 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
         versionInfoCache = null
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            deviceRepository.deviceState
+                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+                .collect { device ->
+                    updateLoggedInStatus(device is DeviceState.LoggedIn)
+                }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -91,14 +102,6 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
             transitionFinishedFlow.collect {
                 paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
             }
-        }
-
-        lifecycleScope.launch {
-            deviceRepository.deviceState
-                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
-                .collect { device ->
-                    updateLoggedInStatus(device is DeviceState.LoggedIn)
-                }
         }
     }
 
