@@ -99,7 +99,7 @@ class AccountInputGroupView: UIView {
         button.titleLabel?.font = accountNumberFont()
         button.setTitle("", for: .normal)
         button.contentHorizontalAlignment = .leading
-        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 0)
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: UIMetrics.textFieldMargins.left, bottom: 0, right: 0)
         button.setTitleColor(UIColor.AccountTextField.NormalState.textColor, for: .normal)
 
         return button
