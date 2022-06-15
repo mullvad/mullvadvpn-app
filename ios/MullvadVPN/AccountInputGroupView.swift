@@ -404,7 +404,7 @@ class AccountInputGroupView: UIView {
             privateTextField.isEnabled = true
         }
     }
-    
+
     private func updateLastUsedAccount() {
         guard !lastUsedAccount.isEmpty else {
             setLastUsedAccount(isExpanded: false)
