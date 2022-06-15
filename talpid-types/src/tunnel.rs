@@ -8,9 +8,7 @@ use std::net::IpAddr;
 
 /// Event emitted from the states in `talpid_core::tunnel_state_machine` when the tunnel state
 /// machine enters a new state.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[serde(tag = "state", content = "details")]
+#[derive(Clone, Debug, PartialEq)]
 pub enum TunnelStateTransition {
     /// No connection is established and network is unsecured.
     Disconnected,
