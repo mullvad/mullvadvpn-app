@@ -174,12 +174,12 @@ impl Firewall {
 
         let allowed_tun_ip;
         let allowed_tunnel_endpoint =
-            if let AllowedTunnelTraffic::Only(addr, proto) = allowed_tunnel_traffic {
-                allowed_tun_ip = widestring_ip(addr.ip());
+            if let AllowedTunnelTraffic::Only(endpoint) = allowed_tunnel_traffic {
+                allowed_tun_ip = widestring_ip(endpoint.address.ip());
                 Some(WinFwEndpoint {
                     ip: allowed_tun_ip.as_ptr(),
-                    port: addr.port(),
-                    protocol: WinFwProt::from(*proto),
+                    port: endpoint.address.port(),
+                    protocol: WinFwProt::from(endpoint.protocol),
                 })
             } else {
                 None
@@ -303,7 +303,7 @@ mod winfw {
     use super::{widestring_ip, AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString};
     use crate::logging::windows::LogSink;
     use libc;
-    use talpid_types::net::{Protocol, TransportProtocol};
+    use talpid_types::net::TransportProtocol;
 
     pub struct WinFwAllowedEndpointContainer {
         _clients: Box<[WideCString]>,
@@ -397,8 +397,6 @@ mod winfw {
     pub enum WinFwProt {
         Tcp = 0u8,
         Udp = 1u8,
-        IcmpV4 = 2u8,
-        IcmpV6 = 3u8,
     }
 
     impl From<TransportProtocol> for WinFwProt {
@@ -406,17 +404,6 @@ mod winfw {
             match prot {
                 TransportProtocol::Tcp => WinFwProt::Tcp,
                 TransportProtocol::Udp => WinFwProt::Udp,
-            }
-        }
-    }
-
-    impl From<Protocol> for WinFwProt {
-        fn from(prot: Protocol) -> WinFwProt {
-            match prot {
-                Protocol::Tcp => WinFwProt::Tcp,
-                Protocol::Udp => WinFwProt::Udp,
-                Protocol::IcmpV4 => WinFwProt::IcmpV4,
-                Protocol::IcmpV6 => WinFwProt::IcmpV6,
             }
         }
     }

@@ -54,10 +54,7 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 		if (m_tunnelOnlyEndpoint.has_value())
 		{
 			conditionBuilder.add_condition(ConditionIp::Remote(m_tunnelOnlyEndpoint->ip));
-			if (ProtocolHasPort(m_tunnelOnlyEndpoint->protocol))
-			{
-				conditionBuilder.add_condition(ConditionPort::Remote(m_tunnelOnlyEndpoint->port));
-			}
+			conditionBuilder.add_condition(ConditionPort::Remote(m_tunnelOnlyEndpoint->port));
 			conditionBuilder.add_condition(CreateProtocolCondition(m_tunnelOnlyEndpoint->protocol));
 		}
 
@@ -85,10 +82,7 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 		if (m_tunnelOnlyEndpoint.has_value())
 		{
 			conditionBuilder.add_condition(ConditionIp::Remote(m_tunnelOnlyEndpoint->ip));
-			if (ProtocolHasPort(m_tunnelOnlyEndpoint->protocol))
-			{
-				conditionBuilder.add_condition(ConditionPort::Remote(m_tunnelOnlyEndpoint->port));
-			}
+			conditionBuilder.add_condition(ConditionPort::Remote(m_tunnelOnlyEndpoint->port));
 			conditionBuilder.add_condition(CreateProtocolCondition(m_tunnelOnlyEndpoint->protocol));
 		}
 
