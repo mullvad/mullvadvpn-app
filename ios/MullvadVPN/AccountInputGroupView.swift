@@ -292,12 +292,12 @@ class AccountInputGroupView: UIView {
         }
     }
 
-    func setToken(_ token: String) {
-        privateTextField.autoformattingText = token
+    func setAccount(_ account: String) {
+        privateTextField.autoformattingText = account
         updateSendButtonAppearance(animated: false)
     }
 
-    func clearToken() {
+    func clearAccount() {
         privateTextField.autoformattingText = ""
         updateSendButtonAppearance(animated: false)
     }
@@ -349,7 +349,7 @@ class AccountInputGroupView: UIView {
     }
 
     @objc private func didTapLastUsedAccount() {
-        privateTextField.autoformattingText = lastUsedAccount
+        setAccount(lastUsedAccount)
         privateTextField.resignFirstResponder()
         setLastUsedAccount(expanded: false)
         self.delegate?.accountInputGroupViewShouldAttemptLogin(self)
@@ -357,7 +357,7 @@ class AccountInputGroupView: UIView {
 
     @objc private func didTapRemoveLastUsedAccount() {
         if self.delegate?.accountInputGroupViewShouldRemoveLastUsedAccount(self) ?? false {
-            privateTextField.autoformattingText = ""
+            clearAccount()
             setLastUsedAccount(expanded: false)
         }
     }

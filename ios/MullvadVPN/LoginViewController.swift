@@ -157,7 +157,7 @@ class LoginViewController: UIViewController, RootContainment {
     // MARK: - Public
 
     func reset() {
-        contentView.accountInputGroup.clearToken()
+        contentView.accountInputGroup.clearAccount()
         loginState = .default
         updateKeyboardToolbar()
         updateLastUsedAccount()
@@ -203,13 +203,13 @@ class LoginViewController: UIViewController, RootContainment {
     @objc func createNewAccount() {
         beginLogin(method: .newAccount)
 
-        contentView.accountInputGroup.clearToken()
+        contentView.accountInputGroup.clearAccount()
         updateKeyboardToolbar()
 
         self.delegate?.loginViewControllerLoginWithNewAccount(self, completion: { [weak self] completion in
             switch completion {
             case .success(let accountData):
-                self?.contentView.accountInputGroup.setToken(accountData?.number ?? "")
+                self?.contentView.accountInputGroup.setAccount(accountData?.number ?? "")
                 self?.endLogin(.success(.newAccount))
             case .failure(let error):
                 self?.endLogin(.failure(error))
