@@ -122,6 +122,8 @@ class AccountInputGroupView: UIView {
     private let borderRadius = CGFloat(8)
     private let borderWidth = CGFloat(2)
 
+    private var lastUsedAccount: String = ""
+
     private var borderColor: UIColor {
         switch loginState {
         case .default:
@@ -296,6 +298,7 @@ class AccountInputGroupView: UIView {
     }
 
     func setLastUsedAccount(_ accountNumber: String) {
+        lastUsedAccount = accountNumber
         lastUsedAccountButton.setTitle(accountNumber, for: .normal)
         setLastUsedAccount(expanded: true)
     }
@@ -341,8 +344,7 @@ class AccountInputGroupView: UIView {
     }
 
     @objc private func didTapLastUsedAccount() {
-        guard let accountNumber = lastUsedAccountButton.titleLabel?.text else { return }
-        privateTextField.autoformattingText = accountNumber
+        privateTextField.autoformattingText = lastUsedAccount
         privateTextField.resignFirstResponder()
         setLastUsedAccount(expanded: false)
         self.delegate?.accountInputGroupViewShouldAttemptLogin(self)
@@ -350,12 +352,13 @@ class AccountInputGroupView: UIView {
 
     @objc private func didTapRemoveLastUsedAccount() {
         if self.delegate?.accountInputGroupViewShouldRemoveLastUsedAccount(self) ?? false {
+            privateTextField.autoformattingText = ""
             setLastUsedAccount(expanded: false)
         }
     }
 
     // MARK: - Private
-    
+
     private static func accountNumberFont() -> UIFont {
         if #available(iOS 13, *) {
             return UIFont.monospacedSystemFont(ofSize: 20, weight: .regular)
