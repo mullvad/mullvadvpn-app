@@ -8,11 +8,25 @@
 
 import UIKit
 
-class AccountTextField: CustomTextField, UITextFieldDelegate {
+class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegate {
+    /// The size of groups of digits.
+    static let groupSize = 4
 
-    private let input = AccountTokenInput()
+    /// Spacing between groups in points.
+    /// Automatically updated using current font.
+    private var groupSpacing: CGFloat = 8
+
+    /// Adjust caret by one whitespace when it's at the end of document, unless the given character
+    /// limit reached.
+    static let caretTrailingSpaceAtEndCharacterLimit = 16
 
     var onReturnKey: ((AccountTextField) -> Bool)?
+
+    override var font: UIFont? {
+        didSet {
+            updateGroupSpacing()
+        }
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -21,7 +35,11 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
         cornerRadius = 0
 
         delegate = self
-        pasteDelegate = input
+        pasteDelegate = self
+
+        addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+
+        updateGroupSpacing()
 
         NotificationCenter.default.addObserver(
             self,
@@ -37,16 +55,12 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
 
     var autoformattingText: String {
         set {
-            input.replace(with: newValue)
-            input.updateTextField(self)
+            let string = newValue.filter(Self.isDigit)
+            attributedText = styleInput(string)
         }
         get {
-            input.formattedString
+            return (text ?? "").filter(Self.isDigit)
         }
-    }
-
-    var parsedToken: String {
-        return input.parsedString
     }
 
     var enableReturnKey: Bool = true {
@@ -55,23 +69,115 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
         }
     }
 
+    private class func isDigit(_ ch: Character) -> Bool {
+        switch ch {
+        case "0"..."9":
+            return true
+        default:
+            return false
+        }
+    }
+
+    // MARK: - Actions
+
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-        if #available(iOS 15.0, *) {
-            if action == #selector(captureTextFromCamera(_:)) {
-                return false
+         if #available(iOS 15.0, *) {
+             if action == #selector(captureTextFromCamera(_:)) {
+                 return false
+             }
+         }
+         return super.canPerformAction(action, withSender: sender)
+     }
+
+    @objc func textDidChange() {
+        let selection = selectedTextRange
+        attributedText = text.map { styleInput($0) }
+        selectedTextRange = selection
+    }
+
+    // MARK: - Input styling
+
+    private func styleInput(_ string: String) -> NSAttributedString {
+        let attributedString = NSMutableAttributedString(string: string)
+
+        for i in 0 ..< string.count {
+            if i > 0 && i % Self.groupSize == 0 {
+                let start = string.index(string.startIndex, offsetBy: i - 1)
+                let nsRange = NSRange(start ... start, in: string)
+
+                attributedString.addAttribute(.kern, value: groupSpacing, range: nsRange)
             }
         }
-        return super.canPerformAction(action, withSender: sender)
+
+        return attributedString
+    }
+
+    private func updateGroupSpacing() {
+        let measurementFont = font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
+        let size = " ".size(withAttributes: [.font: measurementFont])
+
+        groupSpacing = size.width
+    }
+
+    // MARK: - UITextPasteDelegate
+
+    func textPasteConfigurationSupporting(_ textPasteConfigurationSupporting: UITextPasteConfigurationSupporting, transform item: UITextPasteItem) {
+        _ = item.itemProvider.loadObject(ofClass: String.self) { str, error in
+            if let str = str {
+                let parsedString = str.filter(Self.isDigit)
+                item.setResult(string: parsedString)
+            } else {
+                item.setNoResult()
+            }
+        }
+    }
+
+    func textPasteConfigurationSupporting(_ textPasteConfigurationSupporting: UITextPasteConfigurationSupporting, performPasteOf attributedString: NSAttributedString, to textRange: UITextRange) -> UITextRange {
+        attributedText = styleInput(attributedString.string)
+
+        // FIXME: triggers extra pass via `textDidChange()`.
+        sendActions(for: .editingChanged)
+
+        NotificationCenter.default.post(name: UITextField.textDidChangeNotification, object: self)
+
+        return self.textRange(from: endOfDocument, to: endOfDocument)!
     }
 
     // MARK: - UITextFieldDelegate
 
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        return input.textField(textField, shouldChangeCharactersIn: range, replacementString: string)
+        return string.allSatisfy(Self.isDigit)
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         return onReturnKey?(self) ?? true
+    }
+
+    // MARK: - UITextInput
+
+    override func caretRect(for position: UITextPosition) -> CGRect {
+        var caretRect = super.caretRect(for: position)
+
+        let offset = offset(from: beginningOfDocument, to: position)
+
+        if offset > 0 && offset % Self.groupSize == 0 {
+            // Compensate kerning.
+            var spacing: CGFloat = .zero
+
+            if position == endOfDocument {
+                let textLength = text?.count ?? 0
+
+                if textLength < Self.caretTrailingSpaceAtEndCharacterLimit {
+                    spacing = groupSpacing
+                }
+            } else {
+                spacing = -groupSpacing
+            }
+
+            caretRect.origin.x += spacing
+        }
+
+        return caretRect
     }
 
     // MARK: - Notifications

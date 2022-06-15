@@ -84,7 +84,7 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     private var canBeginLogin: Bool {
-        return contentView.accountInputGroup.satisfiesMinimumTokenLengthRequirement
+        return contentView.accountInputGroup.satisfiesMinimumAccountNumberLengthRequirement
     }
 
     weak var delegate: LoginViewControllerDelegate?
@@ -185,7 +185,7 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     @objc func doLogin() {
-        let accountToken = contentView.accountInputGroup.parsedToken
+        let accountToken = contentView.accountInputGroup.accountNumber
 
         beginLogin(method: .existingAccount)
         self.delegate?.loginViewController(self, loginWithAccountToken: accountToken, completion: { [weak self] completion in

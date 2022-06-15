@@ -35,18 +35,18 @@ class AccountInputGroupView: UIView {
         return button
     }()
 
-    var textField: UITextField {
+    var textField: AccountTextField {
         return privateTextField
     }
 
-    var parsedToken: String {
-        return privateTextField.parsedToken
+    var accountNumber: String {
+        return privateTextField.autoformattingText
     }
 
-    let minimumAccountTokenLength = 10
+    let minimumAccountNumberLength = 10
 
-    var satisfiesMinimumTokenLengthRequirement: Bool {
-        return privateTextField.parsedToken.count > minimumAccountTokenLength
+    var satisfiesMinimumAccountNumberLengthRequirement: Bool {
+        return privateTextField.autoformattingText.count > minimumAccountNumberLength
     }
 
     private let privateTextField: AccountTextField = {
@@ -438,7 +438,7 @@ class AccountInputGroupView: UIView {
                 self.sendButton.backgroundColor = .lightGray
 
             case .default, .failure:
-                let isEnabled = self.satisfiesMinimumTokenLengthRequirement
+                let isEnabled = self.satisfiesMinimumAccountNumberLengthRequirement
 
                 // Always show the send button when voice over is running to make it discoverable
                 if UIAccessibility.isVoiceOverRunning {
@@ -462,7 +462,7 @@ class AccountInputGroupView: UIView {
     }
 
     private func updateKeyboardReturnKeyEnabled() {
-        privateTextField.enableReturnKey = satisfiesMinimumTokenLengthRequirement
+        privateTextField.enableReturnKey = satisfiesMinimumAccountNumberLengthRequirement
     }
 
     private func borderBezierPath(size: CGSize) -> UIBezierPath {
