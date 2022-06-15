@@ -15,11 +15,8 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
@@ -161,23 +158,19 @@ open class MainActivity : FragmentActivity() {
                     // Debounce DeviceState.Unknown to delay view transitions during reconnect.
                     it.addDebounceForUnknownState()
                 }
-                .distinctByDeviceState()
-                .filter { newState -> newState != currentState }
                 .collect { newState ->
-                    when (newState) {
-                        is DeviceState.Initial,
-                        is DeviceState.Unknown -> openLaunchView()
-                        is DeviceState.LoggedOut -> openLoginView()
-                        is DeviceState.Revoked -> openRevokedView()
-                        is DeviceState.LoggedIn -> openConnectView()
+                    if (newState != currentState) {
+                        when (newState) {
+                            is DeviceState.Initial,
+                            is DeviceState.Unknown -> openLaunchView()
+                            is DeviceState.LoggedOut -> openLoginView()
+                            is DeviceState.Revoked -> openRevokedView()
+                            is DeviceState.LoggedIn -> openConnectView()
+                        }
+                        currentState = newState
                     }
-                    currentState = newState
                 }
         }
-    }
-
-    private fun Flow<DeviceState>.distinctByDeviceState(): Flow<DeviceState> {
-        return this.distinctUntilChangedBy { it::class }
     }
 
     private fun DeviceState.addDebounceForUnknownState(): Long {
