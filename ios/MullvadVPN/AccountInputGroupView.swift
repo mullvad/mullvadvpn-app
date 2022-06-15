@@ -11,7 +11,7 @@ import Logging
 
 protocol AccountInputGroupViewDelegate: AnyObject {
     func accountInputGroupViewShouldRemoveLastUsedAccount(_ view: AccountInputGroupView) -> Bool
-    @discardableResult func accountInputGroupViewShouldAttemptLogin(_ view: AccountInputGroupView) -> Bool
+    func accountInputGroupViewShouldAttemptLogin(_ view: AccountInputGroupView)
 }
 
 class AccountInputGroupView: UIView {

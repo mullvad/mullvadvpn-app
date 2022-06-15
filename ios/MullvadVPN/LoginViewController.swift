@@ -118,7 +118,7 @@ class LoginViewController: UIViewController, RootContainment {
         contentView.accountInputGroup.setOnReturnKey { [weak self] _ in
             guard let self = self else { return true }
 
-            return self.accountInputGroupViewShouldAttemptLogin(self.contentView.accountInputGroup)
+            return self.attemptLogin()
         }
 
         // There is no need to set the input accessory toolbar on iPad since it has a dedicated
@@ -311,6 +311,15 @@ class LoginViewController: UIViewController, RootContainment {
 
         contentView.createAccountButton.isEnabled = isEnabled
     }
+    
+    @discardableResult private func attemptLogin() -> Bool {
+        if canBeginLogin {
+            doLogin()
+            return true
+        } else {
+            return false
+        }
+    }
 }
 
 /// Private extension that brings localizable messages displayed in the Login view controller
@@ -417,12 +426,7 @@ extension LoginViewController: AccountInputGroupViewDelegate {
         }
     }
 
-    @discardableResult func accountInputGroupViewShouldAttemptLogin(_ view: AccountInputGroupView) -> Bool {
-        if canBeginLogin {
-            doLogin()
-            return true
-        } else {
-            return false
-        }
+    func accountInputGroupViewShouldAttemptLogin(_ view: AccountInputGroupView) {
+        attemptLogin()
     }
 }
