@@ -15,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.fragments.ACCOUNT_TOKEN_ARGUMENT_KEY
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
@@ -46,6 +47,7 @@ class LoginFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        loginViewModel.reset() // TODO: Keep?
         val view = inflater.inflate(R.layout.login, container, false)
 
         headerBar = view.findViewById(R.id.header_bar)
@@ -71,6 +73,8 @@ class LoginFragment :
 
         scrollToShow(accountLogin)
 
+        triggerAutoLoginIfAccountTokenPresent()
+
         return view
     }
 
@@ -92,6 +96,13 @@ class LoginFragment :
 
     override fun onSafelyStop() {
         parentActivity.backButtonHandler = null
+    }
+
+    private fun triggerAutoLoginIfAccountTokenPresent() {
+        arguments?.getString(ACCOUNT_TOKEN_ARGUMENT_KEY)?.also { accountToken ->
+            accountLogin.setAccountToken(accountToken)
+            loginViewModel.login(accountToken)
+        }
     }
 
     private fun setupLifecycleSubscriptionsToViewModel() {

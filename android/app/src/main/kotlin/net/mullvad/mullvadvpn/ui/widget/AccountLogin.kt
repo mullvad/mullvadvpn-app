@@ -23,6 +23,8 @@ class AccountLogin : RelativeLayout {
         private val MAX_ACCOUNT_HISTORY_ENTRIES = 3
     }
 
+    fun setAccountToken(accountToken: String) { input.input.setText(accountToken) }
+
     private val focusDebouncer = Debouncer(false).apply {
         listener = { hasFocus -> focused = hasFocus }
     }
