@@ -258,7 +258,6 @@ class AccountInputGroupView: UIView {
         updateSendButtonAppearance(animated: false)
         updateKeyboardReturnKeyEnabled()
 
-        setLastUsedAccount(expanded: false)
         lastUsedAccountButton.addTarget(self, action: #selector(didTapLastUsedAccount), for: .touchUpInside)
 
         removeLastUsedAccountButton.addTarget(self, action: #selector(didTapRemoveLastUsedAccount), for: .touchUpInside)
@@ -278,6 +277,7 @@ class AccountInputGroupView: UIView {
         updateAppearance()
         updateTextFieldEnabled()
         updateSendButtonAppearance(animated: animated)
+        updateLastUsedAccount()
     }
 
     func setOnReturnKey(_ onReturnKey: ((AccountInputGroupView) -> Bool)?) {
@@ -305,7 +305,7 @@ class AccountInputGroupView: UIView {
     func setLastUsedAccount(_ accountNumber: String) {
         lastUsedAccount = accountNumber
         lastUsedAccountButton.setTitle(accountNumber, for: .normal)
-        setLastUsedAccount(expanded: true)
+        setLastUsedAccount(isExpanded: true)
     }
 
     // MARK: - CALayerDelegate
@@ -351,14 +351,14 @@ class AccountInputGroupView: UIView {
     @objc private func didTapLastUsedAccount() {
         setAccount(lastUsedAccount)
         privateTextField.resignFirstResponder()
-        setLastUsedAccount(expanded: false)
+        setLastUsedAccount(isExpanded: false)
         self.delegate?.accountInputGroupViewShouldAttemptLogin(self)
     }
 
     @objc private func didTapRemoveLastUsedAccount() {
         if self.delegate?.accountInputGroupViewShouldRemoveLastUsedAccount(self) ?? false {
             clearAccount()
-            setLastUsedAccount(expanded: false)
+            setLastUsedAccount(isExpanded: false)
         }
     }
 
@@ -404,14 +404,27 @@ class AccountInputGroupView: UIView {
             privateTextField.isEnabled = true
         }
     }
+    
+    private func updateLastUsedAccount() {
+        guard !lastUsedAccount.isEmpty else {
+            setLastUsedAccount(isExpanded: false)
+            return
+        }
+        switch self.loginState {
+        case .authenticating, .success:
+            setLastUsedAccount(isExpanded: false)
+        default:
+            setLastUsedAccount(isExpanded: true)
+        }
+    }
 
-    private func setLastUsedAccount(expanded: Bool) {
-        lastUsedAccountHeightConstraint.constant = expanded ? 50 : 0
-        lastUsedAccountButton.alpha = expanded ? 1 : 0
-        lastUsedAccountButton.isUserInteractionEnabled = expanded ? true : false
+    private func setLastUsedAccount(isExpanded: Bool) {
+        lastUsedAccountHeightConstraint.constant = isExpanded ? 50 : 0
+        lastUsedAccountButton.alpha = isExpanded ? 1 : 0
+        lastUsedAccountButton.isUserInteractionEnabled = isExpanded ? true : false
 
-        separatorHeightConstraint.constant = expanded ? 2 : 0
-        separator.alpha = expanded ? 1 : 0
+        separatorHeightConstraint.constant = isExpanded ? 2 : 0
+        separator.alpha = isExpanded ? 1 : 0
     }
 
     private func updateSendButtonAppearance(animated: Bool) {
