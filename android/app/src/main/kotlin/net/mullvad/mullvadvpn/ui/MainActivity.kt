@@ -203,6 +203,7 @@ open class MainActivity : FragmentActivity() {
     }
 
     private fun openLoginView() {
+        clearBackStack()
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, LoginFragment())
             commit()
@@ -219,6 +220,15 @@ open class MainActivity : FragmentActivity() {
             )
             replace(R.id.main_fragment, DeviceRevokedFragment())
             commit()
+        }
+    }
+
+    fun clearBackStack() {
+        supportFragmentManager.apply {
+            if (backStackEntryCount > 0) {
+                val firstEntry = getBackStackEntryAt(0)
+                popBackStack(firstEntry.id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            }
         }
     }
 

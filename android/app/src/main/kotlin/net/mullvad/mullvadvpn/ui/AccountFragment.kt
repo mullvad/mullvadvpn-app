@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -90,7 +89,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         view.findViewById<Button>(R.id.logout).setOnClickAction("logout", jobTracker) {
-            logout()
+            accountCache.logout()
         }
 
         accountNumberView = view.findViewById<CopyableInformationView>(R.id.account_number).apply {
@@ -170,33 +169,6 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         transaction.addToBackStack(null)
 
         RedeemVoucherDialogFragment().show(transaction, null)
-    }
-
-    private suspend fun logout() {
-        accountCache.logout()
-        clearBackStack()
-        goToLoginScreen()
-    }
-
-    private fun clearBackStack() {
-        parentFragmentManager.apply {
-            val firstEntry = getBackStackEntryAt(0)
-
-            popBackStack(firstEntry.id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        }
-    }
-
-    private fun goToLoginScreen() {
-        parentFragmentManager.beginTransaction().apply {
-            setCustomAnimations(
-                R.anim.do_nothing,
-                R.anim.fragment_exit_to_bottom,
-                R.anim.do_nothing,
-                R.anim.do_nothing
-            )
-            replace(R.id.main_fragment, LoginFragment())
-            commit()
-        }
     }
 
     private fun addSpacesToAccountNumber(rawAccountNumber: String): String {
