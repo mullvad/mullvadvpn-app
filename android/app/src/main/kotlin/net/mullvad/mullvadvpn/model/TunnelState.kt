@@ -31,6 +31,16 @@ sealed class TunnelState() : Parcelable {
     @Parcelize
     class Error(val errorState: ErrorState) : TunnelState(), Parcelable
 
+    fun isSecured(): Boolean {
+        return when (this) {
+            is Connected,
+            is Connecting,
+            is Disconnecting, -> true
+            is Disconnected -> false
+            is Error -> this.errorState.isBlocking
+        }
+    }
+
     companion object {
         const val DISCONNECTED = "disconnected"
         const val CONNECTING = "connecting"

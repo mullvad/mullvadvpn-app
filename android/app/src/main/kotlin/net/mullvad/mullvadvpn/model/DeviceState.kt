@@ -5,10 +5,13 @@ import kotlinx.parcelize.Parcelize
 
 sealed class DeviceState : Parcelable {
     @Parcelize
-    object InitialState : DeviceState()
+    object Initial : DeviceState()
 
     @Parcelize
-    class LoggedIn(val accountAndDevice: AccountAndDevice) : DeviceState()
+    object Unknown : DeviceState()
+
+    @Parcelize
+    data class LoggedIn(val accountAndDevice: AccountAndDevice) : DeviceState()
 
     @Parcelize
     object LoggedOut : DeviceState()
@@ -16,8 +19,8 @@ sealed class DeviceState : Parcelable {
     @Parcelize
     object Revoked : DeviceState()
 
-    fun isInitialState(): Boolean {
-        return this is InitialState
+    fun isUnknown(): Boolean {
+        return this is Unknown
     }
 
     fun deviceName(): String? {

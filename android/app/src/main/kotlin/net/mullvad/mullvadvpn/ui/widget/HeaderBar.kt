@@ -27,19 +27,12 @@ class HeaderBar @JvmOverloads constructor(
     private val unsecuredColor = ContextCompat.getColor(context, R.color.red)
 
     var tunnelState by observable<TunnelState?>(null) { _, _, state ->
-        val backgroundColor = when (state) {
-            null -> disabledColor
-            is TunnelState.Disconnected -> unsecuredColor
-            is TunnelState.Connecting -> securedColor
-            is TunnelState.Connected -> securedColor
-            is TunnelState.Disconnecting -> securedColor
-            is TunnelState.Error -> {
-                if (state.errorState.isBlocking) {
-                    securedColor
-                } else {
-                    unsecuredColor
-                }
-            }
+        val backgroundColor = if (state == null) {
+            disabledColor
+        } else if (state.isSecured()) {
+            securedColor
+        } else {
+            unsecuredColor
         }
 
         container.setBackgroundColor(backgroundColor)
