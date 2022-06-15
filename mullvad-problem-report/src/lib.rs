@@ -674,6 +674,21 @@ mod tests {
     }
 
     #[test]
+    #[cfg(windows)]
+    fn redacts_home_dir() {
+        let assert_redacts_home_dir = |home_dir, test_str| {
+            let input = format!(r"pre {}\remaining\path post", test_str);
+            let actual = redact_home_dir_inner(&input, Some(PathBuf::from(home_dir)));
+            assert_eq!(r"pre ~\remaining\path post", actual);
+        };
+
+        let home_dir = r"C:\Users\user";
+
+        assert_redacts_home_dir(home_dir, r"\Device\HarddiskVolume1\Users\user");
+        assert_redacts_home_dir(home_dir, r"C:\Users\user");
+    }
+
+    #[test]
     fn doesnt_redact_not_guid() {
         assert_does_not_redact("23123ab-12ab-89cd-45ef-012345678901");
         assert_does_not_redact("GGGGGGGG-GGGG-GGGG-GGGG-GGGGGGGGGGGG");
