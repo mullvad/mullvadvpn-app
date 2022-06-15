@@ -420,10 +420,7 @@ impl ProblemReport {
     }
 
     fn redact_home_dir(input: &str) -> Cow<'_, str> {
-        match dirs_next::home_dir() {
-            Some(home) => Cow::from(input.replace(home.to_string_lossy().as_ref(), "~")),
-            None => Cow::from(input),
-        }
+        redact_home_dir_inner(input, dirs_next::home_dir())
     }
 
     fn redact_network_info(input: &str) -> Cow<'_, str> {
@@ -502,6 +499,32 @@ impl ProblemReport {
             metadata.insert(key.to_owned(), value.to_owned());
         }
         Some(metadata)
+    }
+}
+
+fn redact_home_dir_inner(input: &str, home_dir: Option<PathBuf>) -> Cow<'_, str> {
+    match home_dir {
+        Some(home) => {
+            let out = input.replace(home.to_string_lossy().as_ref(), "~");
+
+            // On Windows, redact the prefix of any path that contains \Users\{user}.
+            #[cfg(target_os = "windows")]
+            {
+                let mut home = home;
+                let prefix = home.components().next();
+                if let Some(prefix @ std::path::Component::Prefix(_)) = prefix.as_ref() {
+                    home = home.strip_prefix(prefix).unwrap().to_path_buf();
+                }
+                let expr = format!(r"[\w\\]+{}", regex::escape(&home.display().to_string()));
+                let regex = Regex::new(&expr).unwrap();
+
+                Cow::Owned(regex.replace_all(&out, "~").to_string())
+            }
+
+            #[cfg(not(target_os = "windows"))]
+            Cow::from(out)
+        }
+        None => Cow::from(input),
     }
 }
 
