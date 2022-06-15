@@ -421,7 +421,24 @@ impl ProblemReport {
 
     fn redact_home_dir(input: &str) -> Cow<'_, str> {
         match dirs_next::home_dir() {
-            Some(home) => Cow::from(input.replace(home.to_string_lossy().as_ref(), "~")),
+            Some(home) => {
+                // On Windows, redact the prefix of any path that contains \Users\{user}.
+                #[cfg(target_os = "windows")]
+                {
+                    let mut home = home;
+                    let prefix = home.components().next();
+                    if let Some(prefix @ std::path::Component::Prefix(_)) = prefix.as_ref() {
+                        home = home.strip_prefix(prefix).unwrap().to_path_buf();
+                    }
+                    let expr = format!(r"[\w\\]+{}", regex::escape(&home.display().to_string()));
+                    let regex = Regex::new(&expr).unwrap();
+
+                    Cow::Owned(regex.replace_all(&input, "~").to_string())
+                }
+
+                #[cfg(not(target_os = "windows"))]
+                Cow::from(input.replace(home.to_string_lossy().as_ref(), "~"))
+            }
             None => Cow::from(input),
         }
     }
