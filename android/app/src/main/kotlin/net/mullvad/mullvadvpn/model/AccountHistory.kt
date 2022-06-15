@@ -9,4 +9,6 @@ sealed class AccountHistory : Parcelable {
 
     @Parcelize
     object Missing : AccountHistory()
+
+    fun accountToken() = (this as? Available)?.accountToken
 }

@@ -2,24 +2,50 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val serviceConnectionManager: ServiceConnectionManager,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : ViewModel() {
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Default)
     val uiState: StateFlow<LoginUiState> = _uiState
 
-    private val _accountHistory = MutableStateFlow<AccountHistory>(AccountHistory.Missing)
-    val accountHistory: StateFlow<AccountHistory> = _accountHistory
+    private val accountCache: AccountCache?
+        get() {
+            return serviceConnectionManager.connectionState.value.readyContainer()?.accountCache
+        }
 
-    private var accountCache: AccountCache? = null
+    val accountHistory = serviceConnectionManager.connectionState
+        .flatMapLatest { state ->
+            if (state is ServiceConnectionState.ConnectedReady) {
+                state.container.accountCache.accountHistoryEvents
+                    .onStart {
+                        state.container.accountCache.fetchAccountHistory()
+                    }
+            } else {
+                emptyFlow()
+            }
+        }
+        .stateIn(CoroutineScope(dispatcher), SharingStarted.Lazily, AccountHistory.Missing)
 
     sealed class LoginUiState {
         object Default : LoginUiState()
@@ -36,45 +62,50 @@ class LoginViewModel : ViewModel() {
         data class OtherError(val errorMessage: String) : LoginUiState()
     }
 
-    // Ensures the view model has an up-to-date instance of account cache. This is an intermediate
-    // solution due to limitations in the current app architecture.
-    fun updateAccountCacheInstance(newAccountCache: AccountCache?) {
-        accountCache = newAccountCache?.apply {
-            viewModelScope.launch {
-                accountHistoryEvents.collect {
-                    _accountHistory.value = it
-                }
-            }
-
-            fetchAccountHistory()
+    fun clearAccountHistory() {
+        accountCache.tryPerformAction(
+            errorMessageIfAccountCacheNotAvailable = SERVICE_NOT_CONNECTED_ERROR_MESSAGE
+        ) { cache ->
+            cache.clearAccountHistory()
         }
     }
 
-    fun clearAccountHistory() {
-        accountCache?.clearAccountHistory()
-    }
-
     fun createAccount() {
-        accountCache?.apply {
+        accountCache.tryPerformAction(
+            errorMessageIfAccountCacheNotAvailable = SERVICE_NOT_CONNECTED_ERROR_MESSAGE
+        ) { cache ->
             _uiState.value = LoginUiState.CreatingAccount
-
-            viewModelScope.launch {
-                _uiState.value = accountCreationEvents.first().mapToUiState()
+            viewModelScope.launch(dispatcher) {
+                _uiState.value = cache.accountCreationEvents
+                    .onStart { cache.createNewAccount() }
+                    .first()
+                    .mapToUiState()
             }
-
-            createNewAccount()
         }
     }
 
     fun login(accountToken: String) {
-        accountCache?.apply {
+        accountCache.tryPerformAction(
+            errorMessageIfAccountCacheNotAvailable = SERVICE_NOT_CONNECTED_ERROR_MESSAGE
+        ) { cache ->
             _uiState.value = LoginUiState.Loading
-
-            viewModelScope.launch {
-                _uiState.value = loginEvents.first().result.mapToUiState()
+            viewModelScope.launch(dispatcher) {
+                _uiState.value = cache.loginEvents
+                    .onStart { cache.login(accountToken) }
+                    .map { it.result.mapToUiState() }
+                    .first()
             }
+        }
+    }
 
-            login(accountToken)
+    private fun AccountCache?.tryPerformAction(
+        errorMessageIfAccountCacheNotAvailable: String,
+        action: (AccountCache) -> Unit
+    ) {
+        if (this != null) {
+            action(this)
+        } else {
+            _uiState.value = LoginUiState.OtherError(errorMessageIfAccountCacheNotAvailable)
         }
     }
 
@@ -93,5 +124,9 @@ class LoginViewModel : ViewModel() {
             LoginResult.MaxDevicesReached -> LoginUiState.TooManyDevicesError
             else -> LoginUiState.OtherError(errorMessage = this.toString())
         }
+    }
+
+    companion object {
+        private const val SERVICE_NOT_CONNECTED_ERROR_MESSAGE = "Not connected to service!"
     }
 }
