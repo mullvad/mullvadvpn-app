@@ -403,10 +403,7 @@ private extension LoginState {
     }
 }
 
-protocol AccountInputGroupViewDelegate: AnyObject {
-    func accountInputGroupViewShouldRemoveLastUsedAccount(_ view: AccountInputGroupView) -> Bool
-    @discardableResult func accountInputGroupViewShouldAttemptLogin(_ view: AccountInputGroupView) -> Bool
-}
+// MARK: - AccountInputGroupViewDelegate
 
 extension LoginViewController: AccountInputGroupViewDelegate {
     func accountInputGroupViewShouldRemoveLastUsedAccount(_ view: AccountInputGroupView) -> Bool {
