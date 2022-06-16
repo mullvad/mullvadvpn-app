@@ -3,7 +3,7 @@
 
 use crate::{
     location::{CityCode, CountryCode, Hostname},
-    relay_list::{OpenVpnEndpointData, Relay},
+    relay_list::Relay,
     CustomTunnelEndpoint,
 };
 #[cfg(target_os = "android")]
@@ -435,21 +435,6 @@ impl fmt::Display for OpenVpnConstraints {
                     Constraint::Only(port) => write!(f, "port {}", port)?,
                 }
                 write!(f, "/{}", port.protocol)
-            }
-        }
-    }
-}
-
-impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
-    fn matches(&self, endpoint: &OpenVpnEndpointData) -> bool {
-        match self.port {
-            Constraint::Any => true,
-            Constraint::Only(transport_port) => {
-                transport_port.protocol == endpoint.protocol
-                    && match transport_port.port {
-                        Constraint::Any => true,
-                        Constraint::Only(port) => port == endpoint.port,
-                    }
             }
         }
     }
