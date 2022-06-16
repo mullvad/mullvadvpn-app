@@ -83,15 +83,11 @@ impl AddressCache {
             None => return Ok(()),
         };
 
-        let temp_path = write_path.with_file_name("api-cache.temp");
-
-        let mut file = fs::File::create(&temp_path).await?;
+        let mut file = crate::fs::AtomicFile::new(write_path.to_path_buf()).await?;
         let mut contents = address.to_string();
         contents += "\n";
         file.write_all(contents.as_bytes()).await?;
-        file.sync_data().await?;
-
-        fs::rename(&temp_path, write_path).await
+        file.finalize().await
     }
 }
 
