@@ -3,7 +3,6 @@
 
 use chrono::{DateTime, Local};
 use ipnetwork::IpNetwork;
-use matcher::AnyTunnelMatcher;
 use mullvad_types::{
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     location::{Coordinates, Location},
@@ -13,7 +12,7 @@ use mullvad_types::{
         RelaySettings, SelectedObfuscation, Set, TransportPort, Udp2TcpObfuscationSettings,
         WireguardConstraints,
     },
-    relay_list::{Relay, RelayList, Udp2TcpEndpointData},
+    relay_list::{BridgeEndpointData, Relay, RelayEndpointData, RelayList},
     CustomTunnelEndpoint,
 };
 use parking_lot::{Mutex, MutexGuard};
@@ -33,7 +32,7 @@ use talpid_types::{
     ErrorExt,
 };
 
-use self::matcher::{RelayMatcher, TunnelMatcher, WireguardMatcher};
+use matcher::{OpenVpnMatcher, RelayMatcher, TunnelMatcher, WireguardMatcher};
 
 mod matcher;
 pub mod updater;
@@ -41,12 +40,8 @@ pub mod updater;
 const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
 const RELAYS_FILENAME: &str = "relays.json";
 
-const DEFAULT_WIREGUARD_PORT: u16 = 51820;
-const WIREGUARD_EXIT_CONSTRAINTS: WireguardMatcher = WireguardMatcher {
-    peer: None,
-    port: Constraint::Only(DEFAULT_WIREGUARD_PORT),
-    ip_version: Constraint::Only(IpVersion::V4),
-};
+const WIREGUARD_EXIT_PORT: Constraint<u16> = Constraint::Only(51820);
+const WIREGUARD_EXIT_IP_VERSION: Constraint<IpVersion> = Constraint::Only(IpVersion::V4);
 
 const UDP2TCP_PORTS: [u16; 3] = [80, 443, 5001];
 
@@ -95,7 +90,15 @@ impl ParsedRelays {
         }
     }
 
-    pub fn from_relay_list(relay_list: RelayList, last_updated: SystemTime) -> Self {
+    pub fn from_relay_list(mut relay_list: RelayList, last_updated: SystemTime) -> Self {
+        // Append data for obfuscation protocols ourselves, since the API does not provide it.
+        if relay_list.wireguard.udp2tcp_ports.is_empty() {
+            relay_list
+                .wireguard
+                .udp2tcp_ports
+                .extend(UDP2TCP_PORTS.into_iter());
+        }
+
         let mut relays = Vec::new();
         for country in &relay_list.countries {
             let country_name = country.name.clone();
@@ -115,26 +118,6 @@ impl ParsedRelays {
                         latitude,
                         longitude,
                     });
-
-                    Self::filter_invalid_relays(&mut relay_with_location);
-
-                    // TODO: The WireGuard data is incorrectly modelled.
-                    // Using a vector here suggests that a relay may use multiple key pairs at a
-                    // time. This is incorrect and will never be the case.
-                    //
-                    // Currently, the `wireguard` vector will have 0 or 1 entries.
-                    // This should be changed into e.g. using an Option<_> instead.
-                    //
-
-                    if !relay.tunnels.wireguard.is_empty() {
-                        for port in UDP2TCP_PORTS {
-                            relay_with_location
-                                .obfuscators
-                                .udp2tcp
-                                .push(Udp2TcpEndpointData { port });
-                        }
-                    }
-
                     relays.push(relay_with_location);
                 }
             }
@@ -144,36 +127,6 @@ impl ParsedRelays {
             last_updated,
             locations: relay_list,
             relays,
-        }
-    }
-
-    fn filter_invalid_relays(relay: &mut Relay) {
-        let total_openvpn_endpoints = relay.tunnels.openvpn.len();
-        let openvpn_endpoints = &mut relay.tunnels.openvpn;
-        openvpn_endpoints.retain(|data| data.port != 0);
-
-        if openvpn_endpoints.len() < total_openvpn_endpoints {
-            log::error!(
-                "Relay {} contained {} invalid OpenVPN endpoints out of {} endpoints",
-                relay.hostname,
-                total_openvpn_endpoints - openvpn_endpoints.len(),
-                total_openvpn_endpoints
-            );
-        }
-
-        let total_wireguard_endpoints = relay.tunnels.wireguard.len();
-        let wireguard_endpoints = &mut relay.tunnels.wireguard;
-        wireguard_endpoints.retain(|data| {
-            !data.port_ranges.is_empty() && data.port_ranges.iter().all(|(start, end)| start <= end)
-        });
-
-        if wireguard_endpoints.len() < total_wireguard_endpoints {
-            log::error!(
-                "Relay {} contained {} invalid WireGuard endpoints out of {} endpoints",
-                relay.hostname,
-                total_wireguard_endpoints - wireguard_endpoints.len(),
-                total_wireguard_endpoints
-            );
         }
     }
 
@@ -349,7 +302,15 @@ impl RelaySelector {
             return None;
         }
 
-        let matcher = RelayMatcher::from(relay_constraints.clone());
+        let (openvpn_data, wireguard_data) = {
+            let relays = self.parsed_relays.lock();
+            (
+                relays.locations.openvpn.clone(),
+                relays.locations.wireguard.clone(),
+            )
+        };
+
+        let matcher = RelayMatcher::new(relay_constraints.clone(), openvpn_data, wireguard_data);
         let mut matching_locations: Vec<Location> = self
             .parsed_relays
             .lock()
@@ -385,11 +346,14 @@ impl RelaySelector {
             location: location.clone(),
             providers: providers.clone(),
             ownership: *ownership,
-            tunnel: openvpn_constraints,
+            tunnel: OpenVpnMatcher::new(
+                openvpn_constraints,
+                self.parsed_relays.lock().locations.openvpn.clone(),
+            ),
         };
 
-        if relay_matcher.tunnel.port.is_any() && bridge_state == BridgeState::On {
-            relay_matcher.tunnel.port = Constraint::Only(TransportPort {
+        if relay_matcher.tunnel.constraints.port.is_any() && bridge_state == BridgeState::On {
+            relay_matcher.tunnel.constraints.port = Constraint::Only(TransportPort {
                 protocol: TransportProtocol::Tcp,
                 port: Constraint::Any,
             });
@@ -401,7 +365,7 @@ impl RelaySelector {
 
         let (preferred_port, preferred_protocol) =
             Self::preferred_openvpn_constraints(retry_attempt);
-        let should_try_preferred = match &mut preferred_relay_matcher.tunnel.port {
+        let should_try_preferred = match &mut preferred_relay_matcher.tunnel.constraints.port {
             any @ Constraint::Any => {
                 *any = Constraint::Only(TransportPort {
                     protocol: preferred_protocol,
@@ -434,7 +398,7 @@ impl RelaySelector {
     ) -> Result<NormalSelectedRelay, Error> {
         let mut exit_matcher = RelayMatcher {
             location: exit_location,
-            tunnel: WIREGUARD_EXIT_CONSTRAINTS.clone(),
+            tunnel: self.wireguard_exit_matcher(),
             ..entry_matcher.clone()
         };
 
@@ -493,7 +457,10 @@ impl RelaySelector {
             location: location.clone(),
             providers: providers.clone(),
             ownership: *ownership,
-            tunnel: wireguard_constraints.clone().into(),
+            tunnel: WireguardMatcher::new(
+                wireguard_constraints.clone(),
+                self.parsed_relays.lock().locations.wireguard.clone(),
+            ),
         };
 
         let mut preferred_matcher: RelayMatcher<WireguardMatcher> = entry_relay_matcher.clone();
@@ -521,7 +488,15 @@ impl RelaySelector {
         &self,
         relay_constraints: &RelayConstraints,
     ) -> Result<NormalSelectedRelay, Error> {
-        let mut matcher: RelayMatcher<AnyTunnelMatcher> = relay_constraints.clone().into();
+        let (openvpn_data, wireguard_data) = {
+            let relays = self.parsed_relays.lock();
+            (
+                relays.locations.openvpn.clone(),
+                relays.locations.wireguard.clone(),
+            )
+        };
+        let mut matcher =
+            RelayMatcher::new(relay_constraints.clone(), openvpn_data, wireguard_data);
 
         let mut selected_entry_relay = None;
         let mut selected_entry_endpoint = None;
@@ -536,7 +511,7 @@ impl RelaySelector {
 
         // Pick the entry relay first if its location constraint is a subset of the exit location.
         if relay_constraints.wireguard_constraints.use_multihop {
-            matcher.tunnel.wireguard = WIREGUARD_EXIT_CONSTRAINTS.clone();
+            matcher.tunnel.wireguard = self.wireguard_exit_matcher();
             if relay_constraints
                 .wireguard_constraints
                 .entry_location
@@ -826,8 +801,8 @@ impl RelaySelector {
             .lock()
             .relays()
             .iter()
-            .filter(|relay| relay.active)
-            .filter_map(|relay| Self::matching_bridge_relay(relay, constraints))
+            .filter(|relay| relay.active && Self::matching_bridge_relay(relay, constraints))
+            .cloned()
             .collect();
 
         if matching_relays.is_empty() {
@@ -849,7 +824,7 @@ impl RelaySelector {
             self.pick_random_relay(&matching_relays)
         };
         relay.and_then(|relay| {
-            self.pick_random_bridge(relay)
+            self.pick_random_bridge(&self.parsed_relays.lock().locations.bridge, relay)
                 .map(|bridge| (bridge, relay.clone()))
         })
     }
@@ -931,21 +906,17 @@ impl RelaySelector {
         _endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
     ) -> Option<SelectedObfuscator> {
+        let udp2tcp_ports = &self.parsed_relays.lock().locations.wireguard.udp2tcp_ports;
         let udp2tcp_endpoint = if obfuscation_settings.port.is_only() {
-            relay
-                .obfuscators
-                .udp2tcp
+            udp2tcp_ports
                 .iter()
-                .find(|&candidate| obfuscation_settings.port.matches_eq(&candidate.port))
+                .find(|&candidate| obfuscation_settings.port == Constraint::Only(*candidate))
         } else {
-            relay
-                .obfuscators
-                .udp2tcp
-                .get(retry_attempt as usize % relay.obfuscators.udp2tcp.len())
+            udp2tcp_ports.get(retry_attempt as usize % udp2tcp_ports.len())
         };
         udp2tcp_endpoint
             .map(|udp2tcp_endpoint| ObfuscatorConfig::Udp2Tcp {
-                endpoint: SocketAddr::new(relay.ipv4_addr_in.into(), udp2tcp_endpoint.port),
+                endpoint: SocketAddr::new(relay.ipv4_addr_in.into(), *udp2tcp_endpoint),
             })
             .map(|config| SelectedObfuscator {
                 config,
@@ -967,7 +938,7 @@ impl RelaySelector {
             let location_supports_openvpn =
                 self.parsed_relays.lock().relays().iter().any(|relay| {
                     relay.active
-                        && !relay.tunnels.openvpn.is_empty()
+                        && relay.endpoint_data == RelayEndpointData::Openvpn
                         && location_constraint.matches(relay)
                         && providers_constraint.matches(relay)
                         && ownership_constraint.matches(relay)
@@ -981,7 +952,7 @@ impl RelaySelector {
 
         let location_supports_wireguard = self.parsed_relays.lock().relays().iter().any(|relay| {
             relay.active
-                && !relay.tunnels.wireguard.is_empty()
+                && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
                 && location_constraint.matches(relay)
                 && providers_constraint.matches(relay)
                 && ownership_constraint.matches(relay)
@@ -1071,27 +1042,11 @@ impl RelaySelector {
             .ok_or(Error::NoRelay)
     }
 
-    fn matching_bridge_relay(
-        relay: &Relay,
-        constraints: &InternalBridgeConstraints,
-    ) -> Option<Relay> {
-        if !constraints.location.matches(relay)
-            || !constraints.providers.matches(relay)
-            || !constraints.ownership.matches(relay)
-        {
-            return None;
-        }
-
-        let mut filtered_relay = relay.clone();
-        filtered_relay
-            .bridges
-            .shadowsocks
-            .retain(|bridge| constraints.transport_protocol.matches_eq(&bridge.protocol));
-        if filtered_relay.bridges.shadowsocks.is_empty() {
-            return None;
-        }
-
-        Some(filtered_relay)
+    fn matching_bridge_relay(relay: &Relay, constraints: &InternalBridgeConstraints) -> bool {
+        constraints.location.matches(relay)
+            && constraints.providers.matches(relay)
+            && constraints.ownership.matches(relay)
+            && relay.endpoint_data == RelayEndpointData::Bridge
     }
 
     /// Picks a relay using [Self::pick_random_relay_fn], using the `weight` member of each relay
@@ -1136,10 +1091,15 @@ impl RelaySelector {
     }
 
     /// Picks a random bridge from a relay.
-    fn pick_random_bridge(&self, relay: &Relay) -> Option<ProxySettings> {
-        relay
-            .bridges
-            .shadowsocks
+    fn pick_random_bridge(
+        &self,
+        data: &BridgeEndpointData,
+        relay: &Relay,
+    ) -> Option<ProxySettings> {
+        if relay.endpoint_data != RelayEndpointData::Bridge {
+            return None;
+        }
+        data.shadowsocks
             .choose(&mut rand::thread_rng())
             .map(|shadowsocks_endpoint| {
                 log::info!(
@@ -1149,9 +1109,7 @@ impl RelaySelector {
                     shadowsocks_endpoint.port,
                     shadowsocks_endpoint.protocol
                 );
-                shadowsocks_endpoint
-                    .clone()
-                    .to_proxy_settings(relay.ipv4_addr_in.into())
+                shadowsocks_endpoint.to_proxy_settings(relay.ipv4_addr_in.into())
             })
     }
 
@@ -1180,6 +1138,14 @@ impl RelaySelector {
         } else {
             Ok(bundled_relays)
         }
+    }
+
+    fn wireguard_exit_matcher(&self) -> WireguardMatcher {
+        let mut tunnel =
+            WireguardMatcher::from_endpoint(self.parsed_relays.lock().locations.wireguard.clone());
+        tunnel.ip_version = WIREGUARD_EXIT_IP_VERSION;
+        tunnel.port = WIREGUARD_EXIT_PORT;
+        tunnel
     }
 }
 
@@ -1271,6 +1237,7 @@ mod test {
                                     owned: true,
                                     provider: "31173".to_string(),
                                     weight: 1,
+                                    // TODO: add endpoint data here
                                     tunnels: RelayTunnels {
                                         openvpn: vec![],
                                         wireguard: vec![
@@ -1299,6 +1266,7 @@ mod test {
                                     owned: false,
                                     provider: "31173".to_string(),
                                     weight: 1,
+                                    // TODO: add endpoint data here
                                     tunnels: RelayTunnels {
                                         openvpn: vec![],
                                         wireguard: vec![
@@ -1327,6 +1295,7 @@ mod test {
                                     owned: true,
                                     provider: "31173".to_string(),
                                     weight: 1,
+                                    // TODO: add endpoint data here
                                     tunnels: RelayTunnels {
                                         openvpn: vec![
                                             OpenVpnEndpointData {
@@ -1361,6 +1330,7 @@ mod test {
                                     owned: true,
                                     provider: "31173".to_string(),
                                     weight: 1,
+                                    // TODO: add endpoint data here
                                     tunnels: RelayTunnels {
                                         openvpn: vec![],
                                         wireguard: vec![
@@ -1389,6 +1359,7 @@ mod test {
                                     owned: true,
                                     provider: "31173".to_string(),
                                     weight: 1,
+                                    // TODO: add endpoint data here
                                     tunnels: RelayTunnels {
                                         openvpn: vec![OpenVpnEndpointData{
                                             port: 0,

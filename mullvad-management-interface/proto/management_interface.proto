@@ -6,6 +6,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/any.proto";
 
 service ManagementService {
 	// Control and get tunnel state
@@ -509,6 +510,12 @@ message RelayListCity {
 }
 
 message Relay {
+	enum RelayType {
+		OPENVPN = 0;
+		BRIDGE = 1;
+		WIREGUARD = 2;
+	}
+
 	string hostname = 1;
 	string ipv4_addr_in = 2;
 	string ipv6_addr_in = 3;
@@ -517,9 +524,13 @@ message Relay {
 	bool owned = 6;
 	string provider = 7;
 	fixed64 weight = 8;
-	RelayTunnels tunnels = 9;
-	RelayBridges bridges = 10;
+	RelayType endpoint_type = 9;
+	google.protobuf.Any endpoint_data = 10;
 	Location location = 11;
+}
+
+message WireGuardRelayEndpointData {
+	bytes public_key = 1;
 }
 
 message Location {
@@ -529,15 +540,6 @@ message Location {
 	string city_code = 4;
 	double latitude = 5;
 	double longitude = 6;
-}
-
-message RelayTunnels {
-    repeated OpenVpnEndpointData openvpn = 1;
-    repeated WireguardEndpointData wireguard = 2;
-}
-
-message RelayBridges {
-    repeated ShadowsocksEndpointData shadowsocks = 1;
 }
 
 enum TransportProtocol {

@@ -696,6 +696,8 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
 
 impl From<mullvad_types::relay_list::RelayListCountry> for RelayListCountry {
     fn from(country: mullvad_types::relay_list::RelayListCountry) -> Self {
+        // FIXME: add endpoint data
+
         let mut proto_country = RelayListCountry {
             name: country.name,
             code: country.code,
@@ -718,6 +720,8 @@ impl From<mullvad_types::relay_list::RelayListCountry> for RelayListCountry {
 
 impl From<mullvad_types::relay_list::Relay> for Relay {
     fn from(relay: mullvad_types::relay_list::Relay) -> Self {
+        use mullvad_types::relay_list::RelayEndpointData as MullvadEndpointData;
+
         Self {
             hostname: relay.hostname,
             ipv4_addr_in: relay.ipv4_addr_in.to_string(),
@@ -730,51 +734,15 @@ impl From<mullvad_types::relay_list::Relay> for Relay {
             owned: relay.owned,
             provider: relay.provider,
             weight: relay.weight,
-            tunnels: Some(RelayTunnels {
-                openvpn: relay
-                    .tunnels
-                    .openvpn
-                    .iter()
-                    .map(|endpoint| OpenVpnEndpointData {
-                        port: u32::from(endpoint.port),
-                        protocol: i32::from(TransportProtocol::from(endpoint.protocol)),
-                    })
-                    .collect(),
-                wireguard: relay
-                    .tunnels
-                    .wireguard
-                    .iter()
-                    .map(|endpoint| {
-                        let port_ranges = endpoint
-                            .port_ranges
-                            .iter()
-                            .map(|range| PortRange {
-                                first: u32::from(range.0),
-                                last: u32::from(range.1),
-                            })
-                            .collect();
-                        WireguardEndpointData {
-                            port_ranges,
-                            ipv4_gateway: endpoint.ipv4_gateway.to_string(),
-                            ipv6_gateway: endpoint.ipv6_gateway.to_string(),
-                            public_key: endpoint.public_key.as_bytes().to_vec(),
-                        }
-                    })
-                    .collect(),
-            }),
-            bridges: Some(RelayBridges {
-                shadowsocks: relay
-                    .bridges
-                    .shadowsocks
-                    .into_iter()
-                    .map(|endpoint| ShadowsocksEndpointData {
-                        port: u32::from(endpoint.port),
-                        cipher: endpoint.cipher,
-                        password: endpoint.password,
-                        protocol: i32::from(TransportProtocol::from(endpoint.protocol)),
-                    })
-                    .collect(),
-            }),
+            endpoint_type: match &relay.endpoint_data {
+                MullvadEndpointData::Openvpn => relay::RelayType::Openvpn as i32,
+                MullvadEndpointData::Bridge => relay::RelayType::Bridge as i32,
+                MullvadEndpointData::Wireguard(_) => relay::RelayType::Wireguard as i32,
+            },
+            endpoint_data: match relay.endpoint_data {
+                MullvadEndpointData::Wireguard(data) => Some(data),
+                _ => None,
+            },
             location: relay.location.map(|location| Location {
                 country: location.country,
                 country_code: location.country_code,
