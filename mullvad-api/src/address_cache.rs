@@ -83,11 +83,11 @@ impl AddressCache {
             None => return Ok(()),
         };
 
-        let mut file = crate::fs::AtomicFile::new().await?;
+        let mut file = crate::fs::AtomicFile::new(write_path.to_path_buf()).await?;
         let mut contents = address.to_string();
         contents += "\n";
         file.write_all(contents.as_bytes()).await?;
-        file.finalize(write_path).await
+        file.finalize().await
     }
 }
 
