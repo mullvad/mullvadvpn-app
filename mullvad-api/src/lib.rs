@@ -32,6 +32,7 @@ pub use crate::https_client_with_sni::SocketBypassRequest;
 mod access;
 mod address_cache;
 pub mod device;
+mod fs;
 mod relay_list;
 pub use address_cache::AddressCache;
 pub use device::DevicesProxy;
