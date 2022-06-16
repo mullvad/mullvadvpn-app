@@ -224,7 +224,8 @@ class LoginViewController: UIViewController, RootContainment {
     private func updateLastUsedAccount() {
         do {
             let accountNumber = try SettingsManager.getLastUsedAccount()
-            contentView.accountInputGroup.setLastUsedAccount(StringFormatter.formattedAccountNumber(from: accountNumber))
+
+            contentView.accountInputGroup.setLastUsedAccount(accountNumber, animated: false)
         } catch {
             logger.error(chainedError: AnyChainedError(error),
                          message: "Failed to update last used account.")

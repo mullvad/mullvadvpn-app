@@ -35,6 +35,12 @@ class LoginContentView: UIView {
         return inputGroup
     }()
 
+    let accountInputGroupWrapper: UIView = {
+        let wrapperView = UIView()
+        wrapperView.translatesAutoresizingMaskIntoConstraints = false
+        return wrapperView
+    }()
+
     let statusImageView: StatusImageView = {
         let imageView = StatusImageView(style: .failure)
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -156,7 +162,8 @@ class LoginContentView: UIView {
     private func addSubviews() {
         formContainer.addSubview(titleLabel)
         formContainer.addSubview(messageLabel)
-        formContainer.addSubview(accountInputGroup)
+        formContainer.addSubview(accountInputGroupWrapper)
+        accountInputGroupWrapper.addSubview(accountInputGroup)
 
         contentContainer.addSubview(activityIndicator)
         contentContainer.addSubview(statusImageView)
@@ -195,6 +202,7 @@ class LoginContentView: UIView {
             formContainer.centerYAnchor.constraint(equalTo: contentContainer.centerYAnchor, constant: -20),
             formContainer.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor),
             formContainer.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor),
+            formContainer.bottomAnchor.constraint(equalTo: accountInputGroupWrapper.bottomAnchor),
 
             activityIndicator.centerXAnchor.constraint(equalTo: statusImageView.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: statusImageView.centerYAnchor),
@@ -207,10 +215,14 @@ class LoginContentView: UIView {
             messageLabel.leadingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
             messageLabel.trailingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
 
-            accountInputGroup.topAnchor.constraint(equalToSystemSpacingBelow: messageLabel.bottomAnchor, multiplier: 1),
-            accountInputGroup.leadingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
-            accountInputGroup.trailingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
-            accountInputGroup.bottomAnchor.constraint(equalTo: formContainer.bottomAnchor),
+            accountInputGroupWrapper.topAnchor.constraint(equalToSystemSpacingBelow: messageLabel.bottomAnchor, multiplier: 1),
+            accountInputGroupWrapper.leadingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
+            accountInputGroupWrapper.trailingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
+            accountInputGroupWrapper.heightAnchor.constraint(equalTo: accountInputGroup.contentView.heightAnchor),
+
+            accountInputGroup.topAnchor.constraint(equalTo: accountInputGroupWrapper.topAnchor),
+            accountInputGroup.leadingAnchor.constraint(equalTo: accountInputGroupWrapper.leadingAnchor),
+            accountInputGroup.trailingAnchor.constraint(equalTo: accountInputGroupWrapper.trailingAnchor),
         ])
     }
 
