@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,7 +18,7 @@ import net.mullvad.talpid.util.callbackFlowFromSubscription
 //  ServiceConnectionManager here.
 class DeviceRevokedViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
-    scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+    dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
     val uiState = serviceConnectionManager.connectionState
@@ -35,9 +36,9 @@ class DeviceRevokedViewModel(
                 ?: flowOf(DeviceRevokedUiState.UNKNOWN)
         }
         .stateIn(
-            scope,
-            SharingStarted.Lazily,
-            DeviceRevokedUiState.UNKNOWN
+            scope = CoroutineScope(dispatcher),
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = DeviceRevokedUiState.UNKNOWN
         )
 
     fun onGoToLoginClicked() {

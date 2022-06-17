@@ -25,7 +25,11 @@ class DeviceRepository(
                 flowOf(DeviceState.Unknown)
             }
         }
-        .stateIn(CoroutineScope(dispatcher), SharingStarted.Lazily, DeviceState.Initial)
+        .stateIn(
+            CoroutineScope(dispatcher),
+            SharingStarted.WhileSubscribed(),
+            DeviceState.Initial
+        )
 
     fun refreshDeviceState() {
         container()?.deviceDataSource?.refreshDevice()

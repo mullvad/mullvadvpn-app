@@ -45,7 +45,11 @@ class LoginViewModel(
                 emptyFlow()
             }
         }
-        .stateIn(CoroutineScope(dispatcher), SharingStarted.Lazily, AccountHistory.Missing)
+        .stateIn(
+            scope = CoroutineScope(dispatcher),
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = AccountHistory.Missing
+        )
 
     sealed class LoginUiState {
         object Default : LoginUiState()
