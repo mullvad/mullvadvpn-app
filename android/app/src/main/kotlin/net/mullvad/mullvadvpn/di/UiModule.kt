@@ -38,7 +38,7 @@ val uiModule = module {
 
     single { ServiceConnectionManager(androidContext()) }
     single { DeviceRepository(get()) }
-    viewModel { LoginViewModel(get()) }
+    viewModel { LoginViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get()) }
     viewModel { DeviceListViewModel(get()) }
 }

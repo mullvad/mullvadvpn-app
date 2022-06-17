@@ -47,6 +47,7 @@ class DeviceListFragment : Fragment() {
     }
 
     private fun openLoginView() {
+        parentActivity()?.clearBackStack()
         val loginFragment = LoginFragment().apply {
             if (deviceListViewModel.accountToken != null) {
                 arguments = Bundle().apply {
@@ -59,7 +60,6 @@ class DeviceListFragment : Fragment() {
         }
         parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, loginFragment)
-            addToBackStack(null)
             commit()
         }
     }

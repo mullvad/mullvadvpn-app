@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.fragments.ACCOUNT_TOKEN_ARGUMENT_KEY
+import net.mullvad.mullvadvpn.ui.fragments.DeviceListFragment
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
@@ -153,8 +154,11 @@ class LoginFragment :
             }
 
             is LoginViewModel.LoginUiState.TooManyDevicesError -> {
-                // TODO: Switch to TooManyDevicesFragment
-                loginFailure("Too many devices!")
+                openDeviceListFragment(uiState.accountToken)
+            }
+
+            is LoginViewModel.LoginUiState.TooManyDevicesMissingListError -> {
+                loginFailure(context?.getString(R.string.failed_to_fetch_devices))
             }
 
             is LoginViewModel.LoginUiState.UnableToCreateAccountError -> {
@@ -170,6 +174,24 @@ class LoginFragment :
     private fun openFragment(fragment: Fragment) {
         parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, fragment)
+            commit()
+        }
+    }
+
+    private fun openDeviceListFragment(accountToken: String) {
+        val deviceFragment = DeviceListFragment().apply {
+            arguments = Bundle().apply { putString(ACCOUNT_TOKEN_ARGUMENT_KEY, accountToken) }
+        }
+
+        parentFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_right,
+                R.anim.fragment_exit_to_left,
+                R.anim.fragment_half_enter_from_left,
+                R.anim.fragment_exit_to_right
+            )
+            replace(R.id.main_fragment, deviceFragment)
+            addToBackStack(null)
             commit()
         }
     }
@@ -210,7 +232,7 @@ class LoginFragment :
         scrollToShow(loggingInStatus)
     }
 
-    private fun loginFailure(description: String) {
+    private fun loginFailure(description: String? = "") {
         title.setText(R.string.login_fail_title)
         subtitle.setText(description)
 
