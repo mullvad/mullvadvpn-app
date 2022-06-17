@@ -19,10 +19,12 @@ import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 
 class LoginViewModel(
+    private val deviceRepository: DeviceRepository,
     private val serviceConnectionManager: ServiceConnectionManager,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
@@ -62,7 +64,8 @@ class LoginViewModel(
         object AccountCreated : LoginUiState()
         object UnableToCreateAccountError : LoginUiState()
         object InvalidAccountError : LoginUiState()
-        object TooManyDevicesError : LoginUiState()
+        data class TooManyDevicesError(val accountToken: String) : LoginUiState()
+        object TooManyDevicesMissingListError : LoginUiState()
         data class OtherError(val errorMessage: String) : LoginUiState()
     }
 
@@ -101,7 +104,7 @@ class LoginViewModel(
             viewModelScope.launch(dispatcher) {
                 _uiState.value = cache.loginEvents
                     .onStart { cache.login(accountToken) }
-                    .map { it.result.mapToUiState() }
+                    .map { it.result.mapToUiState(accountToken) }
                     .first()
             }
         }
@@ -126,11 +129,17 @@ class LoginViewModel(
         }
     }
 
-    private fun LoginResult.mapToUiState(): LoginUiState {
+    private suspend fun LoginResult.mapToUiState(accountToken: String): LoginUiState {
         return when (this) {
             LoginResult.Ok -> LoginUiState.Success(false)
             LoginResult.InvalidAccount -> LoginUiState.InvalidAccountError
-            LoginResult.MaxDevicesReached -> LoginUiState.TooManyDevicesError
+            LoginResult.MaxDevicesReached -> {
+                if (deviceRepository.getDeviceList(accountToken).isAvailable()) {
+                    LoginUiState.TooManyDevicesError(accountToken)
+                } else {
+                    LoginUiState.TooManyDevicesMissingListError
+                }
+            }
             else -> LoginUiState.OtherError(errorMessage = this.toString())
         }
     }
