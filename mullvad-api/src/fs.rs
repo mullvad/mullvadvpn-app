@@ -26,42 +26,35 @@ impl AtomicFile {
 
     /// Flushes and moves the file to `self.target_path`, replacing it if it exists.
     pub async fn finalize(mut self) -> io::Result<()> {
-        let file = self.file.take().unwrap();
-        let result = Self::finalize_inner(file, &self.temp_path, &self.target_path).await;
+        let result = async {
+            let file = self.file.take().unwrap();
+            file.sync_all().await?;
+            let std_file = file.into_std().await;
+            let _ = tokio::task::spawn_blocking(move || drop(std_file)).await;
+            fs::rename(&self.temp_path, &self.target_path).await
+        }
+        .await;
         if result.is_err() {
-            consume_removal_result(fs::remove_file(&self.temp_path).await);
+            let _ = tokio::task::spawn_blocking(move || try_remove_file(&self.temp_path)).await;
         }
         result
-    }
-
-    async fn finalize_inner(
-        file: fs::File,
-        temp_path: &Path,
-        target_path: &Path,
-    ) -> io::Result<()> {
-        file.sync_all().await?;
-        let std_file = file.into_std().await;
-        let _ = tokio::task::spawn_blocking(move || drop(std_file)).await;
-        fs::rename(temp_path, target_path).await
     }
 }
 
 impl Drop for AtomicFile {
     fn drop(&mut self) {
         if self.file.is_some() {
-            log::warn!("Object was not finalized");
-            consume_removal_result(std::fs::remove_file(&self.temp_path));
+            log::error!("{} was not finalized", self.temp_path.display());
+            try_remove_file(&self.temp_path);
         }
     }
 }
 
-fn consume_removal_result(result: io::Result<()>) {
-    if let Err(error) = result {
+fn try_remove_file(temp_path: &Path) {
+    if let Err(error) = std::fs::remove_file(temp_path) {
         if error.kind() != io::ErrorKind::NotFound {
-            log::warn!(
-                "{}",
-                error.display_chain_with_msg("Failed to delete temp file")
-            );
+            let msg = format!("Failed to delete temp file: {}", temp_path.display());
+            log::warn!("{}", error.display_chain_with_msg(&msg));
         }
     }
 }
