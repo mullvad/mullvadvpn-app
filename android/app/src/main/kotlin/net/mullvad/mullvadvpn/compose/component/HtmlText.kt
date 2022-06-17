@@ -1,15 +1,15 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import android.text.Spanned
 import android.util.TypedValue
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.text.HtmlCompat
 
 @Composable
 fun HtmlText(
-    htmlFormattedText: Spanned,
+    htmlFormattedString: String,
     textSize: Float,
     modifier: Modifier = Modifier
 ) {
@@ -20,6 +20,8 @@ fun HtmlText(
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
             }
         },
-        update = { it.text = htmlFormattedText }
+        update = {
+            it.text = HtmlCompat.fromHtml(htmlFormattedString, HtmlCompat.FROM_HTML_MODE_COMPACT)
+        }
     )
 }
