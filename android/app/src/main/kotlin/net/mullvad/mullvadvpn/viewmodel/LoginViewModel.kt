@@ -69,11 +69,6 @@ class LoginViewModel(
         data class OtherError(val errorMessage: String) : LoginUiState()
     }
 
-    // TODO: Required?
-    fun reset() {
-        _uiState.value = LoginUiState.Default
-    }
-
     fun clearAccountHistory() {
         accountCache.tryPerformAction(
             errorMessageIfAccountCacheNotAvailable = SERVICE_NOT_CONNECTED_ERROR_MESSAGE

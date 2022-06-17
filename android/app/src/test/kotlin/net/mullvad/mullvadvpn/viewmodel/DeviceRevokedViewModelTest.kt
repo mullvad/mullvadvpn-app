@@ -12,7 +12,6 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import io.mockk.verifyOrder
 import junit.framework.Assert.assertEquals
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
@@ -45,7 +44,7 @@ class DeviceRevokedViewModelTest {
         every { mockedServiceConnectionManager.connectionState } returns serviceConnectionState
         viewModel = DeviceRevokedViewModel(
             mockedServiceConnectionManager,
-            CoroutineScope(TestCoroutineDispatcher())
+            TestCoroutineDispatcher()
         )
     }
 
