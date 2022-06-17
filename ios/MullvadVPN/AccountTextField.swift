@@ -10,11 +10,11 @@ import UIKit
 
 class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegate {
     /// The size of groups of digits.
-    static let groupSize = 4
+    static let digitGroupSize = 4
 
     /// Spacing between groups in points.
     /// Automatically updated using current font.
-    private var groupSpacing: CGFloat = 8
+    private var digitGroupSpacing: CGFloat = 8
 
     /// Adjust caret by one whitespace when it's at the end of document, unless the given character
     /// limit reached.
@@ -70,12 +70,7 @@ class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegat
     }
 
     private class func isDigit(_ ch: Character) -> Bool {
-        switch ch {
-        case "0"..."9":
-            return true
-        default:
-            return false
-        }
+        return ("0"..."9").contains(ch)
     }
 
     // MARK: - Actions
@@ -101,11 +96,11 @@ class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegat
         let attributedString = NSMutableAttributedString(string: string)
 
         for i in 0 ..< string.count {
-            if i > 0 && i % Self.groupSize == 0 {
+            if Self.isEndOfDigitGroup(at: i) {
                 let start = string.index(string.startIndex, offsetBy: i - 1)
                 let nsRange = NSRange(start ... start, in: string)
 
-                attributedString.addAttribute(.kern, value: groupSpacing, range: nsRange)
+                attributedString.addAttribute(.kern, value: digitGroupSpacing, range: nsRange)
             }
         }
 
@@ -116,15 +111,19 @@ class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegat
         let measurementFont = font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
         let size = " ".size(withAttributes: [.font: measurementFont])
 
-        groupSpacing = size.width
+        digitGroupSpacing = size.width
+    }
+
+    private class func isEndOfDigitGroup(at characterIndex: Int) -> Bool {
+        return characterIndex > 0 && characterIndex % digitGroupSize == 0
     }
 
     // MARK: - UITextPasteDelegate
 
     func textPasteConfigurationSupporting(_ textPasteConfigurationSupporting: UITextPasteConfigurationSupporting, transform item: UITextPasteItem) {
-        _ = item.itemProvider.loadObject(ofClass: String.self) { str, error in
-            if let str = str {
-                let parsedString = str.filter(Self.isDigit)
+        _ = item.itemProvider.loadObject(ofClass: String.self) { string, error in
+            if let string = string {
+                let parsedString = string.filter(Self.isDigit)
                 item.setResult(string: parsedString)
             } else {
                 item.setNoResult()
@@ -160,18 +159,16 @@ class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegat
 
         let offset = offset(from: beginningOfDocument, to: position)
 
-        if offset > 0 && offset % Self.groupSize == 0 {
+        if Self.isEndOfDigitGroup(at: offset) {
             // Compensate kerning.
             var spacing: CGFloat = .zero
 
             if position == endOfDocument {
-                let textLength = text?.count ?? 0
-
-                if textLength < Self.caretTrailingSpaceAtEndCharacterLimit {
-                    spacing = groupSpacing
+                if offset < Self.caretTrailingSpaceAtEndCharacterLimit {
+                    spacing = digitGroupSpacing
                 }
             } else {
-                spacing = -groupSpacing
+                spacing = -digitGroupSpacing
             }
 
             caretRect.origin.x += spacing
