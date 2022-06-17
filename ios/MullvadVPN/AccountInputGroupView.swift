@@ -35,21 +35,17 @@ class AccountInputGroupView: UIView {
         return button
     }()
 
-    var textField: AccountTextField {
-        return privateTextField
-    }
-
     var accountNumber: String {
-        return privateTextField.autoformattingText
+        return textField.autoformattingText
     }
 
     let minimumAccountNumberLength = 10
 
     var satisfiesMinimumAccountNumberLengthRequirement: Bool {
-        return privateTextField.autoformattingText.count > minimumAccountNumberLength
+        return textField.autoformattingText.count > minimumAccountNumberLength
     }
 
-    private let privateTextField: AccountTextField = {
+    let textField: AccountTextField = {
         let textField = AccountTextField()
         textField.font = accountNumberFont()
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -132,9 +128,9 @@ class AccountInputGroupView: UIView {
     private var borderColor: UIColor {
         switch loginState {
         case .default:
-            return privateTextField.isEditing
-                             ? UIColor.AccountTextField.NormalState.borderColor
-                             : UIColor.clear
+            return textField.isEditing
+                ? UIColor.AccountTextField.NormalState.borderColor
+                : UIColor.clear
 
         case .failure:
             return UIColor.AccountTextField.ErrorState.borderColor
@@ -185,13 +181,13 @@ class AccountInputGroupView: UIView {
         addSubview(contentView)
         contentView.addSubview(topRowView)
         contentView.addSubview(bottomRowView)
-        topRowView.addSubview(privateTextField)
+        topRowView.addSubview(textField)
         topRowView.addSubview(sendButton)
         bottomRowView.addSubview(separator)
         bottomRowView.addSubview(lastUsedAccountButton)
         bottomRowView.addSubview(removeLastUsedAccountButton)
 
-        privateTextField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         sendButton.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 
         separatorHeightConstraint = separator.heightAnchor.constraint(equalToConstant: 0)
@@ -216,10 +212,10 @@ class AccountInputGroupView: UIView {
             bottomRowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             bottomRowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
 
-            privateTextField.topAnchor.constraint(equalTo: topRowView.topAnchor),
-            privateTextField.leadingAnchor.constraint(equalTo: topRowView.leadingAnchor),
-            privateTextField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor),
-            privateTextField.bottomAnchor.constraint(equalTo: topRowView.bottomAnchor),
+            textField.topAnchor.constraint(equalTo: topRowView.topAnchor),
+            textField.leadingAnchor.constraint(equalTo: topRowView.leadingAnchor),
+            textField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor),
+            textField.bottomAnchor.constraint(equalTo: topRowView.bottomAnchor),
 
             sendButton.topAnchor.constraint(equalTo: topRowView.topAnchor),
             sendButton.trailingAnchor.constraint(equalTo: topRowView.trailingAnchor),
@@ -236,7 +232,7 @@ class AccountInputGroupView: UIView {
             lastUsedAccountButton.bottomAnchor.constraint(equalTo: bottomRowView.bottomAnchor),
             lastUsedAccountButton.leadingAnchor.constraint(equalTo: bottomRowView.leadingAnchor),
             lastUsedAccountButton.trailingAnchor.constraint(equalTo: removeLastUsedAccountButton.leadingAnchor),
-            lastUsedAccountButton.heightAnchor.constraint(lessThanOrEqualTo: privateTextField.heightAnchor),
+            lastUsedAccountButton.heightAnchor.constraint(lessThanOrEqualTo: textField.heightAnchor),
             lastUsedAccountHeightConstraint,
 
             removeLastUsedAccountButton.topAnchor.constraint(equalTo: separator.bottomAnchor),
@@ -282,23 +278,23 @@ class AccountInputGroupView: UIView {
 
     func setOnReturnKey(_ onReturnKey: ((AccountInputGroupView) -> Bool)?) {
         if let onReturnKey = onReturnKey {
-            privateTextField.onReturnKey = { [weak self] _ -> Bool in
+            textField.onReturnKey = { [weak self] _ -> Bool in
                 guard let self = self else { return true }
 
                 return onReturnKey(self)
             }
         } else {
-            privateTextField.onReturnKey = nil
+            textField.onReturnKey = nil
         }
     }
 
     func setAccount(_ account: String) {
-        privateTextField.autoformattingText = account
+        textField.autoformattingText = account
         updateSendButtonAppearance(animated: false)
     }
 
     func clearAccount() {
-        privateTextField.autoformattingText = ""
+        textField.autoformattingText = ""
         updateSendButtonAppearance(animated: false)
     }
 
@@ -350,7 +346,7 @@ class AccountInputGroupView: UIView {
 
     @objc private func didTapLastUsedAccount() {
         setAccount(lastUsedAccount)
-        privateTextField.resignFirstResponder()
+        textField.resignFirstResponder()
         setLastUsedAccount(isExpanded: false)
         self.delegate?.accountInputGroupViewShouldAttemptLogin(self)
     }
@@ -378,30 +374,30 @@ class AccountInputGroupView: UIView {
         notificationCenter.addObserver(self,
                                        selector: #selector(textDidBeginEditing),
                                        name: UITextField.textDidBeginEditingNotification,
-                                       object: privateTextField)
+                                       object: textField)
         notificationCenter.addObserver(self,
                                        selector: #selector(textDidChange),
                                        name: UITextField.textDidChangeNotification,
-                                       object: privateTextField)
+                                       object: textField)
         notificationCenter.addObserver(self,
                                        selector: #selector(textDidEndEditing),
                                        name: UITextField.textDidEndEditingNotification,
-                                       object: privateTextField)
+                                       object: textField)
     }
 
     private func updateAppearance() {
         borderLayer.strokeColor = borderColor.cgColor
         topRowView.backgroundColor = backgroundLayerColor
-        privateTextField.textColor = textColor
+        textField.textColor = textColor
     }
 
     private func updateTextFieldEnabled() {
         switch loginState {
         case .authenticating, .success:
-            privateTextField.isEnabled = false
+            textField.isEnabled = false
 
         case .default, .failure:
-            privateTextField.isEnabled = true
+            textField.isEnabled = true
         }
     }
 
@@ -462,7 +458,7 @@ class AccountInputGroupView: UIView {
     }
 
     private func updateKeyboardReturnKeyEnabled() {
-        privateTextField.enableReturnKey = satisfiesMinimumAccountNumberLengthRequirement
+        textField.enableReturnKey = satisfiesMinimumAccountNumberLengthRequirement
     }
 
     private func borderBezierPath(size: CGSize) -> UIBezierPath {
