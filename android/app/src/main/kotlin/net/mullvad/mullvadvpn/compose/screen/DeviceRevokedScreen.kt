@@ -101,6 +101,7 @@ fun DeviceRevokedScreen(
                 text = stringResource(id = R.string.go_to_login),
                 onClick = { deviceRevokedViewModel.onGoToLoginClicked() },
                 colors = ButtonDefaults.buttonColors(
+                    contentColor = Color.White,
                     backgroundColor = colorResource(
                         if (state == DeviceRevokedUiState.SECURED) {
                             R.color.red60
