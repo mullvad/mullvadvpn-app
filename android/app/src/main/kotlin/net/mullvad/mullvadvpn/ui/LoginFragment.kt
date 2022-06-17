@@ -48,7 +48,6 @@ class LoginFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        loginViewModel.reset() // TODO: Keep?
         val view = inflater.inflate(R.layout.login, container, false)
 
         headerBar = view.findViewById(R.id.header_bar)
