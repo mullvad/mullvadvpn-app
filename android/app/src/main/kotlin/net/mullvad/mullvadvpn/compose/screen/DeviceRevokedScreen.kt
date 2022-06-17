@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -96,18 +97,18 @@ fun DeviceRevokedScreen(
                     width = Dimension.fillToConstraints
                 }
         ) {
-            val buttonColor = colorResource(
-                if (state == DeviceRevokedUiState.SECURED) {
-                    R.color.red60
-                } else {
-                    R.color.blue
-                }
-            )
-
             ActionButton(
                 text = stringResource(id = R.string.go_to_login),
                 onClick = { deviceRevokedViewModel.onGoToLoginClicked() },
-                buttonColor = buttonColor
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = colorResource(
+                        if (state == DeviceRevokedUiState.SECURED) {
+                            R.color.red60
+                        } else {
+                            R.color.blue
+                        }
+                    )
+                )
             )
         }
     }
