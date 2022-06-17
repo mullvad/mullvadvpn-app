@@ -80,7 +80,7 @@ subslice = "0.2"
 [target.'cfg(windows)'.dependencies]
 widestring = "0.5"
 winreg = { version = "0.7", features = ["transactions"] }
-winapi = { version = "0.3.6", features = ["combaseapi", "handleapi", "ifdef", "libloaderapi", "netioapi", "psapi", "stringapiset", "synchapi", "tlhelp32", "winbase", "winioctl", "winuser", "dbt"] }
+winapi = { version = "0.3.6", features = ["combaseapi", "handleapi", "ifdef", "knownfolders", "libloaderapi", "netioapi", "psapi", "shlobj", "stringapiset", "synchapi", "tlhelp32", "winbase", "winioctl", "winuser", "dbt"] }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 memoffset = "0.6"
 
