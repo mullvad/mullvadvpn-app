@@ -67,18 +67,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             )
         }
 
-        // Setup payments handling.
-        AppStorePaymentManager.shared.delegate = self
-        AppStorePaymentManager.shared.addPaymentObserver(TunnelManager.shared)
-
-        // Setup notifications.
-        NotificationManager.shared.notificationProviders = [
-            AccountExpiryNotificationProvider(),
-            TunnelErrorNotificationProvider()
-        ]
-
-        // Assign user notification center delegate
-        UNUserNotificationCenter.current().delegate = self
+        setupPaymentHandler()
+        setupNotificationHandler()
 
         // Add relay cache observer
         RelayCache.Tracker.shared.addObserver(self)
@@ -424,6 +414,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // MARK: - Private
+
+    private func setupPaymentHandler() {
+        AppStorePaymentManager.shared.delegate = self
+        AppStorePaymentManager.shared.addPaymentObserver(TunnelManager.shared)
+    }
+
+    private func setupNotificationHandler() {
+        NotificationManager.shared.notificationProviders = [
+            AccountExpiryNotificationProvider(),
+            TunnelErrorNotificationProvider()
+        ]
+        UNUserNotificationCenter.current().delegate = self
+    }
 
     private func setupPadUI() {
         let selectLocationController = makeSelectLocationController()
