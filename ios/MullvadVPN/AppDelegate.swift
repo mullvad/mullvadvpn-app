@@ -257,7 +257,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     }
 
                 return backgroundFetchResult
-
             }
 
         let groupOperation = GroupOperation(operations: operations)
