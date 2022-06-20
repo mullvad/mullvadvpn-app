@@ -135,7 +135,6 @@ pub struct TunnelEndpoint {
     pub endpoint: Endpoint,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_type: TunnelType,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub quantum_resistant: bool,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub proxy: Option<proxy::ProxyEndpoint>,
