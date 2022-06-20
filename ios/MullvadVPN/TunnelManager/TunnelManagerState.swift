@@ -58,17 +58,18 @@ extension TunnelManager {
             }
             set {
                 nslock.lock()
-                if _isLoadedConfiguration != newValue {
-                    _isLoadedConfiguration = newValue
+                defer { nslock.unlock() }
 
-                    delegateQueue.async {
-                        self.delegate?.tunnelManagerState(
-                            self,
-                            didChangeLoadedConfiguration: newValue
-                        )
-                    }
+                guard _isLoadedConfiguration != newValue else { return }
+
+                _isLoadedConfiguration = newValue
+
+                delegateQueue.async {
+                    self.delegate?.tunnelManagerState(
+                        self,
+                        didChangeLoadedConfiguration: newValue
+                    )
                 }
-                nslock.unlock()
             }
         }
 
@@ -81,14 +82,15 @@ extension TunnelManager {
             }
             set {
                 nslock.lock()
-                if _tunnelSettings != newValue {
-                    _tunnelSettings = newValue
+                defer { nslock.unlock() }
 
-                    delegateQueue.async {
-                        self.delegate?.tunnelManagerState(self, didChangeTunnelSettings: newValue)
-                    }
+                guard _tunnelSettings != newValue else { return }
+
+                _tunnelSettings = newValue
+
+                delegateQueue.async {
+                    self.delegate?.tunnelManagerState(self, didChangeTunnelSettings: newValue)
                 }
-                nslock.unlock()
             }
         }
 
@@ -108,14 +110,15 @@ extension TunnelManager {
             }
             set {
                 nslock.lock()
-                if _tunnelStatus != newValue {
-                    _tunnelStatus = newValue
+                defer { nslock.unlock() }
 
-                    delegateQueue.async {
-                        self.delegate?.tunnelManagerState(self, didChangeTunnelStatus: newValue)
-                    }
+                guard _tunnelStatus != newValue else { return }
+
+                _tunnelStatus = newValue
+
+                delegateQueue.async {
+                    self.delegate?.tunnelManagerState(self, didChangeTunnelStatus: newValue)
                 }
-                nslock.unlock()
             }
         }
 
@@ -125,18 +128,19 @@ extension TunnelManager {
 
         func setTunnel(_ newTunnelObject: Tunnel?, shouldRefreshTunnelState: Bool) {
             nslock.lock()
-            if _tunnelObject != newTunnelObject {
-                _tunnelObject = newTunnelObject
+            guard { nslock.unlock() }
 
-                delegateQueue.async {
-                    self.delegate?.tunnelManagerState(
-                        self,
-                        didChangeTunnelProvider: newTunnelObject,
-                        shouldRefreshTunnelState: shouldRefreshTunnelState
-                    )
-                }
+            guard _tunnelObject != newTunnelObject else { return }
+
+            _tunnelObject = newTunnelObject
+
+            delegateQueue.async {
+                self.delegate?.tunnelManagerState(
+                    self,
+                    didChangeTunnelProvider: newTunnelObject,
+                    shouldRefreshTunnelState: shouldRefreshTunnelState
+                )
             }
-            nslock.unlock()
         }
     }
 }
