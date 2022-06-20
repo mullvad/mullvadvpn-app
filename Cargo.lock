@@ -1667,7 +1667,6 @@ dependencies = [
  "lazy_static",
  "log",
  "mullvad-types",
- "rand 0.7.3",
  "regex",
  "rustls-pemfile",
  "serde",
@@ -1679,6 +1678,7 @@ dependencies = [
  "tokio-rustls",
  "tokio-stream",
  "urlencoding",
+ "uuid",
  "webpki 0.21.4",
 ]
 

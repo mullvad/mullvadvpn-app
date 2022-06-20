@@ -1,7 +1,6 @@
 use crate::tls_stream::TlsStream;
 use futures::Stream;
 use hyper::client::connect::{Connected, Connection};
-use rand::{distributions::Alphanumeric, Rng};
 use serde::{Deserialize, Serialize};
 use shadowsocks::relay::tcprelay::ProxyClientStream;
 use std::{
@@ -90,30 +89,13 @@ impl ApiConnectionMode {
     }
 
     /// Stores this config to `CURRENT_CONFIG_FILENAME`.
-    /// The content is saved to a temporary file first, which ensures that
-    /// consumers of the file never end up with partial content.
     pub async fn save(&self, cache_dir: &Path) -> io::Result<()> {
-        let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
-        let mut temp_ext = String::from("temp");
-        temp_ext.push_str(
-            &rand::thread_rng()
-                .sample_iter(&Alphanumeric)
-                .take(5)
-                .map(char::from)
-                .collect::<String>(),
-        );
-        let temp_path = path.with_extension(temp_ext);
-
-        {
-            let mut file = fs::File::create(&temp_path).await?;
-            let json = serde_json::to_string_pretty(self)
-                .map_err(|_| io::Error::new(io::ErrorKind::Other, "serialization failed"))?;
-            file.write_all(json.as_bytes()).await?;
-            file.write_all(b"\n").await?;
-            file.sync_data().await?;
-        }
-
-        fs::rename(&temp_path, path).await
+        let mut file = crate::fs::AtomicFile::new(cache_dir.join(CURRENT_CONFIG_FILENAME)).await?;
+        let json = serde_json::to_string_pretty(self)
+            .map_err(|_| io::Error::new(io::ErrorKind::Other, "serialization failed"))?;
+        file.write_all(json.as_bytes()).await?;
+        file.write_all(b"\n").await?;
+        file.finalize().await
     }
 
     /// Attempts to remove `CURRENT_CONFIG_FILENAME`, if it exists.
