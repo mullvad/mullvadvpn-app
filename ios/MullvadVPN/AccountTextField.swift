@@ -9,16 +9,15 @@
 import UIKit
 
 class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegate {
-    /// The size of groups of digits.
+    /// The size of a single group of digits.
     static let digitGroupSize = 4
 
     /// Spacing between groups in points.
     /// Automatically updated using current font.
     private var digitGroupSpacing: CGFloat = 8
 
-    /// Adjust caret by one whitespace when it's at the end of document, unless the given character
-    /// limit reached.
-    static let caretTrailingSpaceAtEndCharacterLimit = 16
+    /// Max number of groups of digits expected during input.
+    static let maxExpectedDigitGroupsCount = 4
 
     var onReturnKey: ((AccountTextField) -> Bool)?
 
@@ -69,10 +68,6 @@ class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegat
         }
     }
 
-    private class func isDigit(_ ch: Character) -> Bool {
-        return ("0"..."9").contains(ch)
-    }
-
     // MARK: - Actions
 
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
@@ -96,8 +91,8 @@ class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegat
         let attributedString = NSMutableAttributedString(string: string)
 
         for i in 0 ..< string.count {
-            if Self.isEndOfDigitGroup(at: i) {
-                let start = string.index(string.startIndex, offsetBy: i - 1)
+            if Self.isEndOfDigitGroup(at: i + 1) {
+                let start = string.index(string.startIndex, offsetBy: i)
                 let nsRange = NSRange(start ... start, in: string)
 
                 attributedString.addAttribute(.kern, value: digitGroupSpacing, range: nsRange)
@@ -114,13 +109,29 @@ class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegat
         digitGroupSpacing = size.width
     }
 
+    private func maxDigitGroupsExceeded() -> Bool {
+        let length = text?.count ?? 0
+        let groupCount = Float(length) / Float(Self.digitGroupSize)
+        let roundedGroupCount = Int(groupCount.rounded(.up))
+
+        return roundedGroupCount >= Self.maxExpectedDigitGroupsCount
+    }
+
     private class func isEndOfDigitGroup(at characterIndex: Int) -> Bool {
-        return characterIndex > 0 && characterIndex % digitGroupSize == 0
+        return characterIndex > 0 && (characterIndex % digitGroupSize) == 0
+    }
+
+    private class func isDigit(_ ch: Character) -> Bool {
+        return ("0"..."9").contains(ch)
     }
 
     // MARK: - UITextPasteDelegate
 
-    func textPasteConfigurationSupporting(_ textPasteConfigurationSupporting: UITextPasteConfigurationSupporting, transform item: UITextPasteItem) {
+    func textPasteConfigurationSupporting(
+        _ textPasteConfigurationSupporting: UITextPasteConfigurationSupporting,
+        transform item: UITextPasteItem
+    )
+    {
         _ = item.itemProvider.loadObject(ofClass: String.self) { string, error in
             if let string = string {
                 let parsedString = string.filter(Self.isDigit)
@@ -131,7 +142,12 @@ class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegat
         }
     }
 
-    func textPasteConfigurationSupporting(_ textPasteConfigurationSupporting: UITextPasteConfigurationSupporting, performPasteOf attributedString: NSAttributedString, to textRange: UITextRange) -> UITextRange {
+    func textPasteConfigurationSupporting(
+        _ textPasteConfigurationSupporting: UITextPasteConfigurationSupporting,
+        performPasteOf attributedString: NSAttributedString,
+        to textRange: UITextRange
+    ) -> UITextRange
+    {
         attributedText = styleInput(attributedString.string)
 
         // FIXME: triggers extra pass via `textDidChange()`.
@@ -144,7 +160,11 @@ class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegat
 
     // MARK: - UITextFieldDelegate
 
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         return string.allSatisfy(Self.isDigit)
     }
 
@@ -156,22 +176,21 @@ class AccountTextField: CustomTextField, UITextFieldDelegate, UITextPasteDelegat
 
     override func caretRect(for position: UITextPosition) -> CGRect {
         var caretRect = super.caretRect(for: position)
-
         let offset = offset(from: beginningOfDocument, to: position)
 
-        if Self.isEndOfDigitGroup(at: offset) {
-            // Compensate kerning.
-            var spacing: CGFloat = .zero
-
-            if position == endOfDocument {
-                if offset < Self.caretTrailingSpaceAtEndCharacterLimit {
-                    spacing = digitGroupSpacing
+        if position == endOfDocument && Self.isEndOfDigitGroup(at: offset) {
+            /// Prevent moving caret to the next group of digits once the number of expected groups
+            /// is reached.
+            if #available(iOS 15, *) {
+                // TextKit2 does not include kerning to the trailing character.
+                if !maxDigitGroupsExceeded() {
+                    caretRect.origin.x += digitGroupSpacing
                 }
             } else {
-                spacing = -digitGroupSpacing
+                if maxDigitGroupsExceeded() {
+                    caretRect.origin.x -= digitGroupSpacing
+                }
             }
-
-            caretRect.origin.x += spacing
         }
 
         return caretRect
