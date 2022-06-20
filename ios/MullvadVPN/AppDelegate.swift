@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-    private var logger: Logger?
+    private var logger: Logger!
 
     #if targetEnvironment(simulator)
     private let simulatorTunnelProvider = SimulatorTunnelProviderHost()
@@ -36,23 +36,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var connectController: ConnectViewController?
     private weak var settingsNavController: SettingsNavigationController?
 
-    private lazy var addressCacheTracker: AddressCache.Tracker = {
-        return AddressCache.Tracker(
-            apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
-            store: AddressCache.Store.shared
-        )
-    }()
-
-    private var cachedRelays: RelayCache.CachedRelays? {
-        didSet {
-            if let cachedRelays = cachedRelays {
-                self.selectLocationViewController?.setCachedRelays(cachedRelays)
-            }
-        }
-    }
     private var relayConstraints: RelayConstraints?
 
-    private let notificationManager = NotificationManager()
+    private let operationQueue: AsyncOperationQueue = {
+        let operationQueue = AsyncOperationQueue()
+        operationQueue.maxConcurrentOperationCount = 1
+        return operationQueue
+    }()
 
     // MARK: - Application lifecycle
 
@@ -60,7 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Setup logging
         initLoggingSystem(bundleIdentifier: Bundle.main.bundleIdentifier!)
 
-        self.logger = Logger(label: "AppDelegate")
+        logger = Logger(label: "AppDelegate")
 
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
@@ -69,53 +59,72 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         if #available(iOS 13.0, *) {
             // Register background tasks on iOS 13
-            RelayCache.Tracker.shared.registerAppRefreshTask()
-            TunnelManager.shared.registerBackgroundTask()
-            addressCacheTracker.registerBackgroundTask()
+            registerBackgroundTasks()
         } else {
             // Set background refresh interval on iOS 12
-            application.setMinimumBackgroundFetchInterval(ApplicationConfiguration.minimumBackgroundFetchInterval)
+            application.setMinimumBackgroundFetchInterval(
+                ApplicationConfiguration.minimumBackgroundFetchInterval
+            )
         }
 
-        // Assign user notification center delegate
-        UNUserNotificationCenter.current().delegate = self
+        setupPaymentHandler()
+        setupNotificationHandler()
+
+        // Add relay cache observer
+        RelayCache.Tracker.shared.addObserver(self)
+
+        // Start initialization
+        let setupTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { blockOperation in
+            TunnelManager.shared.loadConfiguration { error in
+                dispatchPrecondition(condition: .onQueue(.main))
+
+                if let error = error {
+                    self.logger.error(chainedError: error, message: "Failed to load tunnels")
+
+                    // TODO: avoid throwing fatal error and show the problem report UI instead.
+                    fatalError(
+                        error.displayChain(message: "Failed to load VPN tunnel configuration")
+                    )
+                }
+
+                blockOperation.finish()
+            }
+        }
+
+        let setupUIOperation = AsyncBlockOperation(dispatchQueue: .main) {
+            self.logger.debug("Finished initialization. Show user interface.")
+
+            self.relayConstraints = TunnelManager.shared.tunnelSettings?.relayConstraints
+
+            self.rootContainer = RootContainerViewController()
+            self.rootContainer?.delegate = self
+            self.window?.rootViewController = self.rootContainer
+
+            switch UIDevice.current.userInterfaceIdiom {
+            case .pad:
+                self.setupPadUI()
+
+            case .phone:
+                self.setupPhoneUI()
+
+            default:
+                fatalError()
+            }
+
+            NotificationManager.shared.updateNotifications()
+            AppStorePaymentManager.shared.startPaymentQueueMonitoring()
+        }
+
+        operationQueue.addOperations([
+            setupTunnelManagerOperation,
+            setupUIOperation
+        ], waitUntilFinished: false)
 
         // Create an app window
         self.window = UIWindow(frame: UIScreen.main.bounds)
 
         // Set an empty view controller while loading tunnels
         self.window?.rootViewController = LaunchViewController()
-
-        // Add relay cache observer
-        RelayCache.Tracker.shared.addObserver(self)
-
-        // Load initial relays
-        RelayCache.Tracker.shared.read { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let cachedRelays):
-                    self.cachedRelays = cachedRelays
-
-                case .failure(let error):
-                    self.logger?.error(chainedError: error, message: "Failed to load initial relays")
-                }
-            }
-        }
-
-        // Load tunnels
-        TunnelManager.shared.loadConfiguration { error in
-            dispatchPrecondition(condition: .onQueue(.main))
-
-            if let error = error {
-                self.logger?.error(chainedError: error, message: "Failed to load tunnels")
-
-                // TODO: avoid throwing fatal error and show the problem report UI instead.
-                fatalError(error.displayChain(message: "Failed to load VPN tunnel configuration"))
-            } else {
-                self.relayConstraints = TunnelManager.shared.tunnelSettings?.relayConstraints
-                self.didFinishInitialization()
-            }
-        }
 
         // Show the window
         self.window?.makeKeyAndVisible()
@@ -124,6 +133,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
+        // Refresh tunnel status.
+        TunnelManager.shared.refreshTunnelStatus()
+
         // Start periodic relays updates
         RelayCache.Tracker.shared.startPeriodicUpdates()
 
@@ -131,7 +143,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         TunnelManager.shared.startPeriodicPrivateKeyRotation()
 
         // Start periodic API address list updates
-        addressCacheTracker.startPeriodicUpdates()
+        AddressCache.Tracker.shared.startPeriodicUpdates()
 
         // Reveal application content
         occlusionWindow.isHidden = true
@@ -146,7 +158,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         TunnelManager.shared.stopPeriodicPrivateKeyRotation()
 
         // Stop periodic API address list updates
-        addressCacheTracker.stopPeriodicUpdates()
+        AddressCache.Tracker.shared.stopPeriodicUpdates()
 
         // Hide application content
         occlusionWindow.makeKeyAndVisible()
@@ -158,19 +170,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        logger?.info("Start background refresh")
+    func application(
+        _ application: UIApplication,
+        performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+    )
+    {
+        logger.debug("Start background refresh.")
 
-        var addressCacheFetchResult: UIBackgroundFetchResult?
-        var relaysFetchResult: UIBackgroundFetchResult?
-        var rotatePrivateKeyFetchResult: UIBackgroundFetchResult?
-
-        let operationQueue = AsyncOperationQueue()
-
-        let updateAddressCacheOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
-            let handle = self.addressCacheTracker.updateEndpoints { completion in
-                addressCacheFetchResult = completion.backgroundFetchResult
-                operation.finish()
+        let updateAddressCacheOperation = ResultBlockOperation<Bool, Error> { operation in
+            let handle = AddressCache.Tracker.shared.updateEndpoints { completion in
+                operation.finish(completion: completion)
             }
 
             operation.addCancellationBlock {
@@ -178,19 +187,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        let updateRelaysOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+        let updateRelaysOperation = ResultBlockOperation<RelayCache.FetchResult, RelayCache.Error>
+        { operation in
             let handle = RelayCache.Tracker.shared.updateRelays { completion in
-                switch completion {
-                case .success(let result):
-                    self.logger?.debug("Finished updating relays: \(result).")
-                case .failure(let error):
-                    self.logger?.error(chainedError: error, message: "Failed to update relays.")
-                case .cancelled:
-                    break
-                }
-
-                relaysFetchResult = completion.backgroundFetchResult
-                operation.finish()
+                operation.finish(completion: completion)
             }
 
             operation.addCancellationBlock {
@@ -198,124 +198,234 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        let rotatePrivateKeyOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
-            let handle = TunnelManager.shared.rotatePrivateKey { completion in
-                switch completion {
-                case .success(let rotationResult):
-                    self.logger?.debug("Finished rotating the key: \(rotationResult).")
-                case .failure(let error):
-                    self.logger?.error(chainedError: error, message: "Failed to rotate the key.")
-                case .cancelled:
-                    break
-                }
-
-                rotatePrivateKeyFetchResult = completion.backgroundFetchResult
-                operation.finish()
+        let rotatePrivateKeyOperation = ResultBlockOperation<Bool, TunnelManager.Error>
+        { operation in
+            let handle = TunnelManager.shared.rotatePrivateKey(forceRotate: false) { completion in
+                operation.finish(completion: completion)
             }
 
             operation.addCancellationBlock {
                 handle.cancel()
             }
         }
+        rotatePrivateKeyOperation.addDependencies([
+            updateRelaysOperation,
+            updateAddressCacheOperation
+        ])
 
-        rotatePrivateKeyOperation.addDependencies([updateRelaysOperation, updateAddressCacheOperation])
+        let operations = [
+            updateAddressCacheOperation,
+            updateRelaysOperation,
+            rotatePrivateKeyOperation
+        ]
 
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "AppDelegate.performFetch") {
-            operationQueue.cancelAllOperations()
-        }
+        let completeOperation = TransformOperation<UIBackgroundFetchResult, Void, Never>(
+            dispatchQueue: .main
+        )
 
-        let fetchOperations = [updateAddressCacheOperation, updateRelaysOperation, rotatePrivateKeyOperation]
-
-        let completionOperation = BlockOperation {
-            let operationResults = [addressCacheFetchResult, relaysFetchResult, rotatePrivateKeyFetchResult].compactMap { $0 }
-            let initialResult = operationResults.first ?? .failed
-            let backgroundFetchResult = operationResults.reduce(initialResult) { partialResult, other in
-                return partialResult.combine(with: other)
-            }
-
-            self.logger?.info("Finish background refresh with \(backgroundFetchResult)")
+        completeOperation.setExecutionBlock { backgroundFetchResult in
+            self.logger.debug("Finish background refresh. Status: \(backgroundFetchResult).")
 
             completionHandler(backgroundFetchResult)
-
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
 
-        completionOperation.addDependencies(fetchOperations)
+        completeOperation.injectMany(context: [UIBackgroundFetchResult]())
+            .injectCompletion(from: updateAddressCacheOperation, via: { results, completion in
+                results.append(completion.backgroundFetchResult { $0 })
+            })
+            .injectCompletion(from: updateRelaysOperation, via: { results, completion in
+                results.append(completion.backgroundFetchResult { $0 == .newContent })
+            })
+            .injectCompletion(from: rotatePrivateKeyOperation, via: { results, completion in
+                results.append(completion.backgroundFetchResult { $0 })
+            })
+            .reduce { operationResults in
+                let initialResult = operationResults.first ?? .failed
+                let backgroundFetchResult = operationResults
+                    .reduce(initialResult) { partialResult, other in
+                        return partialResult.combine(with: other)
+                    }
 
-        operationQueue.addOperations(fetchOperations, waitUntilFinished: false)
-        OperationQueue.main.addOperation(completionOperation)
+                return backgroundFetchResult
+            }
+
+        let groupOperation = GroupOperation(operations: operations)
+        groupOperation.addObserver(
+            BackgroundObserver(name: "Background refresh", cancelUponExpiration: true)
+        )
+
+        let operationQueue = AsyncOperationQueue()
+        operationQueue.addOperation(groupOperation)
+        operationQueue.addOperation(completeOperation)
     }
 
-    // MARK: - Private
+    // MARK: - Background tasks
+    @available(iOS 13, *)
+    private func registerBackgroundTasks() {
+        registerAppRefreshTask()
+        registerAddressCacheUpdateTask()
+        registerKeyRotationTask()
+    }
 
     @available(iOS 13.0, *)
-    private func scheduleBackgroundTasks() {
-        do {
-            try RelayCache.Tracker.shared.scheduleAppRefreshTask()
+    private func registerAppRefreshTask() {
+        let isRegistered = BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: ApplicationConfiguration.appRefreshTaskIdentifier,
+            using: nil
+        ) { task in
+            let handle = RelayCache.Tracker.shared.updateRelays { completion in
+                task.setTaskCompleted(success: completion.isSuccess)
+            }
 
-            logger?.debug("Scheduled app refresh task.")
+            task.expirationHandler = {
+                handle.cancel()
+            }
+
+            self.scheduleAppRefreshTask()
+        }
+
+        if isRegistered {
+            logger.debug("Registered app refresh task.")
+        } else {
+            logger.error("Failed to register app refresh task.")
+        }
+    }
+
+    @available(iOS 13.0, *)
+    private func registerKeyRotationTask() {
+        let isRegistered = BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: ApplicationConfiguration.privateKeyRotationTaskIdentifier,
+            using: nil
+        ) { task in
+            let handle = TunnelManager.shared.rotatePrivateKey(forceRotate: false) { completion in
+                self.scheduleKeyRotationTask()
+
+                task.setTaskCompleted(success: completion.isSuccess)
+            }
+
+            task.expirationHandler = {
+                handle.cancel()
+            }
+        }
+
+        if isRegistered {
+            logger.debug("Registered private key rotation task.")
+        } else {
+            logger.error("Failed to register private key rotation task.")
+        }
+    }
+
+    @available(iOS 13.0, *)
+    private func registerAddressCacheUpdateTask() {
+        let isRegistered = BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier,
+            using: nil
+        ) { task in
+            let handle = AddressCache.Tracker.shared.updateEndpoints { completion in
+                self.scheduleAddressCacheUpdateTask()
+
+                task.setTaskCompleted(success: completion.isSuccess)
+            }
+
+            task.expirationHandler = {
+                handle.cancel()
+            }
+        }
+
+        if isRegistered {
+            logger.debug("Registered address cache update task.")
+        } else {
+            logger.error("Failed to register address cache update task.")
+        }
+    }
+
+    @available(iOS 13.0, *)
+    func scheduleBackgroundTasks() {
+        scheduleAppRefreshTask()
+        scheduleKeyRotationTask()
+        scheduleAddressCacheUpdateTask()
+    }
+
+    @available(iOS 13.0, *)
+    private func scheduleAppRefreshTask() {
+        do {
+            let date = RelayCache.Tracker.shared.getNextUpdateDate()
+
+            let request = BGAppRefreshTaskRequest(
+                identifier: ApplicationConfiguration.appRefreshTaskIdentifier
+            )
+            request.earliestBeginDate = date
+
+            logger.debug("Schedule app refresh task at \(date.logFormatDate()).")
+
+            try BGTaskScheduler.shared.submit(request)
         } catch {
-            logger?.error(
+            logger.error(
                 chainedError: AnyChainedError(error),
                 message: "Could not schedule app refresh task."
             )
         }
+    }
 
+    @available(iOS 13.0, *)
+    private func scheduleKeyRotationTask() {
         do {
-            try TunnelManager.shared.scheduleBackgroundTask()
+            guard let date = TunnelManager.shared.getNextKeyRotationDate() else {
+                return
+            }
 
-            logger?.debug("Scheduled private key rotation task.")
+            let request = BGProcessingTaskRequest(
+                identifier: ApplicationConfiguration.privateKeyRotationTaskIdentifier
+            )
+            request.requiresNetworkConnectivity = true
+            request.earliestBeginDate = date
+
+            logger.debug("Schedule key rotation task at \(date.logFormatDate()).")
+
+            try BGTaskScheduler.shared.submit(request)
         } catch {
-            logger?.error(
+            logger.error(
                 chainedError: AnyChainedError(error),
                 message: "Could not schedule private key rotation task."
             )
         }
+    }
 
+    @available(iOS 13.0, *)
+    private func scheduleAddressCacheUpdateTask() {
         do {
-            try addressCacheTracker.scheduleBackgroundTask()
+            let date = AddressCache.Tracker.shared.nextScheduleDate()
 
-            self.logger?.debug("Scheduled address cache update task.")
+            let request = BGProcessingTaskRequest(
+                identifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier
+            )
+            request.requiresNetworkConnectivity = true
+            request.earliestBeginDate = date
+
+            logger.debug("Schedule address cache update task at \(date.logFormatDate()).")
+
+            try BGTaskScheduler.shared.submit(request)
         } catch {
-            self.logger?.error(
+            logger.error(
                 chainedError: AnyChainedError(error),
                 message: "Could not schedule address cache update task."
             )
         }
     }
 
-    private func didFinishInitialization() {
-        self.logger?.debug("Finished initialization. Show user interface.")
+    // MARK: - Private
 
-        self.rootContainer = RootContainerViewController()
-        self.rootContainer?.delegate = self
-        self.window?.rootViewController = self.rootContainer
+    private func setupPaymentHandler() {
+        AppStorePaymentManager.shared.delegate = self
+        AppStorePaymentManager.shared.addPaymentObserver(TunnelManager.shared)
+    }
 
-        switch UIDevice.current.userInterfaceIdiom {
-        case .pad:
-            self.setupPadUI()
-
-        case .phone:
-            self.setupPhoneUI()
-
-        default:
-            fatalError()
-        }
-
-        notificationManager.notificationProviders = [
+    private func setupNotificationHandler() {
+        NotificationManager.shared.notificationProviders = [
             AccountExpiryNotificationProvider(),
             TunnelErrorNotificationProvider()
         ]
-        notificationManager.updateNotifications()
-
-        startPaymentQueueHandling()
-    }
-
-    private func startPaymentQueueHandling() {
-        let paymentManager = AppStorePaymentManager.shared
-        paymentManager.delegate = self
-        paymentManager.addPaymentObserver(TunnelManager.shared)
-        paymentManager.startPaymentQueueMonitoring()
+        UNUserNotificationCenter.current().delegate = self
     }
 
     private func setupPadUI() {
@@ -393,7 +503,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func makeConnectViewController() -> ConnectViewController {
         let connectController = ConnectViewController()
         connectController.delegate = self
-        notificationManager.delegate = connectController.notificationController
+        NotificationManager.shared.delegate = self
 
         return connectController
     }
@@ -402,12 +512,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let selectLocationController = SelectLocationViewController()
         selectLocationController.delegate = self
 
-        if let cachedRelays = cachedRelays {
+        if let cachedRelays = RelayCache.Tracker.shared.getCachedRelays() {
             selectLocationController.setCachedRelays(cachedRelays)
         }
 
         if let relayLocation = relayConstraints?.location.value {
-            selectLocationController.setSelectedRelayLocation(relayLocation, animated: false, scrollPosition: .middle)
+            selectLocationController.setSelectedRelayLocation(
+                relayLocation,
+                animated: false,
+                scrollPosition: .middle
+            )
         }
 
         return selectLocationController
@@ -544,6 +658,13 @@ extension AppDelegate: RootContainerViewControllerDelegate {
     }
 }
 
+// MARK: - NotificationManagerDelegate
+extension AppDelegate: NotificationManagerDelegate {
+    func notificationManagerDidUpdateInAppNotifications(_ manager: NotificationManager, notifications: [InAppNotificationDescriptor]) {
+        connectController?.notificationController.setNotifications(notifications, animated: true)
+    }
+}
+
 // MARK: - LoginViewControllerDelegate
 
 extension AppDelegate: LoginViewControllerDelegate {
@@ -554,11 +675,11 @@ extension AppDelegate: LoginViewControllerDelegate {
         TunnelManager.shared.setAccount(action: .existing(accountNumber)) { operationCompletion in
             switch operationCompletion {
             case .success:
-                self.logger?.debug("Logged in with existing account.")
+                self.logger.debug("Logged in with existing account.")
                 // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
 
             case .failure(let error):
-                self.logger?.error(chainedError: error, message: "Failed to log in with existing account.")
+                self.logger.error(chainedError: error, message: "Failed to log in with existing account.")
                 fallthrough
 
             case .cancelled:
@@ -575,11 +696,11 @@ extension AppDelegate: LoginViewControllerDelegate {
         TunnelManager.shared.setAccount(action: .new) { operationCompletion in
             switch operationCompletion {
             case .success:
-                self.logger?.debug("Logged in with new account number.")
+                self.logger.debug("Logged in with new account number.")
                 // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
 
             case .failure(let error):
-                self.logger?.error(chainedError: error, message: "Failed to log in with new account.")
+                self.logger.error(chainedError: error, message: "Failed to log in with new account.")
                 fallthrough
 
             case .cancelled:
@@ -703,9 +824,9 @@ extension AppDelegate: SelectLocationViewControllerDelegate {
             self.relayConstraints = relayConstraints
 
             if let error = error {
-                self.logger?.error(chainedError: error, message: "Failed to update relay constraints")
+                self.logger.error(chainedError: error, message: "Failed to update relay constraints")
             } else {
-                self.logger?.debug("Updated relay constraints: \(relayConstraints)")
+                self.logger.debug("Updated relay constraints: \(relayConstraints)")
                 TunnelManager.shared.startTunnel()
             }
         }
@@ -761,9 +882,9 @@ extension AppDelegate: UIAdaptivePresentationControllerDelegate {
             })
         } else {
             if let containerView = presentationController.containerView {
-                self.rootContainer?.addSettingsButtonToPresentationContainer(containerView)
+                rootContainer?.addSettingsButtonToPresentationContainer(containerView)
             } else {
-                logger?.warning("Cannot obtain the containerView for presentation controller when presenting with adaptive style \(actualStyle.rawValue) and missing transition coordinator.")
+                logger.warning("Cannot obtain the containerView for presentation controller when presenting with adaptive style \(actualStyle.rawValue) and missing transition coordinator.")
             }
         }
     }
@@ -774,9 +895,7 @@ extension AppDelegate: UIAdaptivePresentationControllerDelegate {
 extension AppDelegate: RelayCacheObserver {
 
     func relayCache(_ relayCache: RelayCache.Tracker, didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays) {
-        DispatchQueue.main.async {
-            self.cachedRelays = cachedRelays
-        }
+        selectLocationViewController?.setCachedRelays(cachedRelays)
     }
 
 }
@@ -825,12 +944,16 @@ extension AppDelegate: UISplitViewControllerDelegate {
 extension AppDelegate: UNUserNotificationCenterDelegate {
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        if response.notification.request.identifier == accountExpiryNotificationIdentifier,
-           response.actionIdentifier == UNNotificationDefaultActionIdentifier {
-            rootContainer?.showSettings(navigateTo: .account, animated: true)
+        let blockOperation = AsyncBlockOperation(dispatchQueue: .main) {
+            if response.notification.request.identifier == accountExpiryNotificationIdentifier,
+               response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+                self.rootContainer?.showSettings(navigateTo: .account, animated: true)
+            }
+
+            completionHandler()
         }
 
-        completionHandler()
+        operationQueue.addOperation(blockOperation)
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {

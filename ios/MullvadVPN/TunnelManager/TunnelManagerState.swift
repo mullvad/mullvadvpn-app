@@ -10,19 +10,37 @@ import Foundation
 import NetworkExtension
 
 protocol TunnelManagerStateDelegate: AnyObject {
-    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelSettings newTunnelSettings: TunnelSettingsV2?)
-    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelStatus newTunnelStatus: TunnelStatus)
-    func tunnelManagerState(_ state: TunnelManager.State, didChangeTunnelProvider newTunnelObject: Tunnel?, shouldRefreshTunnelState: Bool)
+
+    func tunnelManagerState(
+        _ state: TunnelManager.State,
+        didChangeLoadedConfiguration isLoadedConfiguration: Bool
+    )
+
+    func tunnelManagerState(
+        _ state: TunnelManager.State,
+        didChangeTunnelSettings newTunnelSettings: TunnelSettingsV2?
+    )
+
+    func tunnelManagerState(
+        _ state: TunnelManager.State,
+        didChangeTunnelStatus newTunnelStatus: TunnelStatus
+    )
+
+    func tunnelManagerState(
+        _ state: TunnelManager.State,
+        didChangeTunnelProvider newTunnelObject: Tunnel?,
+        shouldRefreshTunnelState: Bool
+    )
 }
 
 extension TunnelManager {
 
     class State {
-        let queue: DispatchQueue
         weak var delegate: TunnelManagerStateDelegate?
+        let delegateQueue: DispatchQueue
 
-        private let queueMarkerKey = DispatchSpecificKey<Bool>()
-
+        private let nslock = NSLock()
+        private var _isLoadedConfiguration = false
         private var _tunnelSettings: TunnelSettingsV2?
         private var _tunnelObject: Tunnel?
         private var _tunnelStatus = TunnelStatus(
@@ -31,73 +49,97 @@ extension TunnelManager {
             state: .disconnected
         )
 
-        var tunnelSettings: TunnelSettingsV2? {
+        var isLoadedConfiguration: Bool {
             get {
-                return performBlock {
-                    return _tunnelSettings
-                }
+                nslock.lock()
+                defer { nslock.unlock() }
+
+                return _isLoadedConfiguration
             }
             set {
-                performBlock {
-                    if _tunnelSettings != newValue {
-                        _tunnelSettings = newValue
+                nslock.lock()
+                defer { nslock.unlock() }
 
-                        delegate?.tunnelManagerState(self, didChangeTunnelSettings: newValue)
-                    }
+                guard _isLoadedConfiguration != newValue else { return }
+
+                _isLoadedConfiguration = newValue
+
+                delegateQueue.async {
+                    self.delegate?.tunnelManagerState(
+                        self,
+                        didChangeLoadedConfiguration: newValue
+                    )
+                }
+            }
+        }
+
+        var tunnelSettings: TunnelSettingsV2? {
+            get {
+                nslock.lock()
+                defer { nslock.unlock() }
+
+                return _tunnelSettings
+            }
+            set {
+                nslock.lock()
+                defer { nslock.unlock() }
+
+                guard _tunnelSettings != newValue else { return }
+
+                _tunnelSettings = newValue
+
+                delegateQueue.async {
+                    self.delegate?.tunnelManagerState(self, didChangeTunnelSettings: newValue)
                 }
             }
         }
 
         var tunnel: Tunnel? {
-            return performBlock {
-                return _tunnelObject
-            }
+            nslock.lock()
+            defer { nslock.unlock() }
+
+            return _tunnelObject
         }
 
         var tunnelStatus: TunnelStatus {
             get {
-                return performBlock {
-                    return _tunnelStatus
-                }
+                nslock.lock()
+                defer { nslock.unlock() }
+
+                return _tunnelStatus
             }
             set {
-                performBlock {
-                    if _tunnelStatus != newValue {
-                        _tunnelStatus = newValue
+                nslock.lock()
+                defer { nslock.unlock() }
 
-                        delegate?.tunnelManagerState(self, didChangeTunnelStatus: newValue)
-                    }
+                guard _tunnelStatus != newValue else { return }
+
+                _tunnelStatus = newValue
+
+                delegateQueue.async {
+                    self.delegate?.tunnelManagerState(self, didChangeTunnelStatus: newValue)
                 }
             }
         }
 
-        init(queue: DispatchQueue) {
-            self.queue = queue
-
-            queue.setSpecific(key: queueMarkerKey, value: true)
-        }
-
-        deinit {
-            queue.setSpecific(key: queueMarkerKey, value: nil)
+        init(delegateQueue: DispatchQueue) {
+            self.delegateQueue = delegateQueue
         }
 
         func setTunnel(_ newTunnelObject: Tunnel?, shouldRefreshTunnelState: Bool) {
-            performBlock {
-                if _tunnelObject != newTunnelObject {
-                    _tunnelObject = newTunnelObject
+            nslock.lock()
+            defer { nslock.unlock() }
 
-                    delegate?.tunnelManagerState(self, didChangeTunnelProvider: newTunnelObject, shouldRefreshTunnelState: shouldRefreshTunnelState)
-                }
-            }
-        }
+            guard _tunnelObject != newTunnelObject else { return }
 
-        private func performBlock<T>(_ block: () -> T) -> T {
-            let isTargetQueue = DispatchQueue.getSpecific(key: queueMarkerKey) ?? false
+            _tunnelObject = newTunnelObject
 
-            if isTargetQueue {
-                return block()
-            } else {
-                return queue.sync(execute: block)
+            delegateQueue.async {
+                self.delegate?.tunnelManagerState(
+                    self,
+                    didChangeTunnelProvider: newTunnelObject,
+                    shouldRefreshTunnelState: shouldRefreshTunnelState
+                )
             }
         }
     }

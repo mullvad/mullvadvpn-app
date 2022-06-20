@@ -104,6 +104,10 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
 
     // MARK: - TunnelObserver
 
+    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
+        // no-op
+    }
+
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
         // no-op
     }
@@ -252,8 +256,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     private func regeneratePrivateKey() {
         self.updateViewState(.regeneratingKey)
 
-        TunnelManager.shared.regeneratePrivateKey { [weak self] error in
-            if let error = error {
+        _ = TunnelManager.shared.rotatePrivateKey(forceRotate: true) { [weak self] completion in
+            if let error = completion.error {
                 self?.showKeyRegenerationFailureAlert(error)
                 self?.updateViewState(.regeneratedKey(false))
             } else {

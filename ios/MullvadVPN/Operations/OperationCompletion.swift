@@ -121,4 +121,12 @@ enum OperationCompletion<Success, Failure: Error> {
             return success as! NewSuccess
         }
     }
+
+    func assertFailure<NewFailure: Error>(_ failureType: NewFailure.Type)
+        -> OperationCompletion<Success, NewFailure>
+    {
+        return mapError { error -> NewFailure in
+            return error as! NewFailure
+        }
+    }
 }

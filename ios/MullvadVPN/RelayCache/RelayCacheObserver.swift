@@ -9,5 +9,8 @@
 import Foundation
 
 protocol RelayCacheObserver: AnyObject {
-    func relayCache(_ relayCache: RelayCache.Tracker, didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays)
+    func relayCache(
+        _ relayCache: RelayCache.Tracker,
+        didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays
+    )
 }

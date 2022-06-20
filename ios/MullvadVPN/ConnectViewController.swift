@@ -131,6 +131,10 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     // MARK: - TunnelObserver
 
+    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
+        // no-op
+    }
+
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
         setNeedsHeaderBarStyleAppearanceUpdate()
     }
@@ -358,7 +362,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     @objc func handleReconnect(_ sender: Any) {
-        TunnelManager.shared.reconnectTunnel(completionHandler: nil)
+        TunnelManager.shared.reconnectTunnel()
     }
 
     @objc func handleSelectLocation(_ sender: Any) {
@@ -409,13 +413,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         return nil
     }
 
-    func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
-        print("mapView regionWillChangeAnimated: \(animated)")
-    }
-
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        print("mapView regionDidChangeAnimated: \(animated)")
-
         mapRegionAnimationDidEnd?()
         mapRegionAnimationDidEnd = nil
     }

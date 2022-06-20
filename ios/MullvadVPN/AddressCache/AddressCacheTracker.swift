@@ -7,11 +7,19 @@
 //
 
 import UIKit
-import BackgroundTasks
 import Logging
 
 extension AddressCache {
+
     class Tracker {
+        /// Shared instance.
+        static let shared: AddressCache.Tracker = {
+            return AddressCache.Tracker(
+                apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
+                store: AddressCache.Store.shared
+            )
+        }()
+
         /// Update interval (in seconds).
         private static let updateInterval: TimeInterval = 60 * 60 * 24
 
@@ -43,58 +51,71 @@ extension AddressCache {
             return operationQueue
         }()
 
-        /// Queue used for synchronizing access to instance members.
-        private let stateQueue = DispatchQueue(label: "AddressCache.Tracker.stateQueue")
+        /// Lock used for synchronizing member access.
+        private let nslock = NSLock()
 
         /// Designated initializer
-        init(apiProxy: REST.APIProxy, store: AddressCache.Store) {
+        private init(apiProxy: REST.APIProxy, store: AddressCache.Store) {
             self.apiProxy = apiProxy
             self.store = store
         }
 
         func startPeriodicUpdates() {
-            stateQueue.async {
-                guard !self.isPeriodicUpdatesEnabled else {
-                    return
-                }
+            nslock.lock()
+            defer { nslock.unlock() }
 
-                self.logger.debug("Start periodic address cache updates")
-
-                self.isPeriodicUpdatesEnabled = true
-
-                let scheduleDate = self.nextScheduleDate()
-
-                self.logger.debug("Schedule address cache update on \(scheduleDate.logFormatDate())")
-
-                self.scheduleEndpointsUpdate(startTime: .now() + scheduleDate.timeIntervalSinceNow)
+            guard !isPeriodicUpdatesEnabled else {
+                return
             }
+
+            logger.debug("Start periodic address cache updates.")
+
+            isPeriodicUpdatesEnabled = true
+
+            let scheduleDate = _nextScheduleDate()
+
+            logger.debug("Schedule address cache update at \(scheduleDate.logFormatDate()).")
+
+            scheduleEndpointsUpdate(startTime: .now() + scheduleDate.timeIntervalSinceNow)
         }
 
         func stopPeriodicUpdates() {
-            stateQueue.async {
-                guard self.isPeriodicUpdatesEnabled else { return }
+            nslock.lock()
+            defer { nslock.unlock() }
 
-                self.logger.debug("Stop periodic address cache updates")
+            guard isPeriodicUpdatesEnabled else { return }
 
-                self.isPeriodicUpdatesEnabled = false
+            logger.debug("Stop periodic address cache updates.")
 
-                self.timer?.cancel()
-                self.timer = nil
-            }
+            isPeriodicUpdatesEnabled = false
+
+            timer?.cancel()
+            timer = nil
         }
 
-        func updateEndpoints(completionHandler: ((_ completion: OperationCompletion<CacheUpdateResult, Error>) -> Void)? = nil) -> Cancellable {
-            let operation = UpdateAddressCacheOperation(
-                dispatchQueue: stateQueue,
-                apiProxy: apiProxy,
-                store: store,
-                updateInterval: Self.updateInterval,
-                completionHandler: { [weak self] completion in
-                    self?.handleCacheUpdateCompletion(completion)
-
-                    completionHandler?(completion)
+        func updateEndpoints(
+            completionHandler: ((OperationCompletion<Bool, Error>) -> Void)? = nil
+        ) -> Cancellable
+        {
+            let operation = ResultBlockOperation<Bool, Error> { operation in
+                guard self.nextScheduleDate() <= Date() else {
+                    operation.finish(completion: .success(false))
+                    return
                 }
-            )
+
+                let task = self.apiProxy.getAddressList(retryStrategy: .default) { completion in
+                    operation.finish(
+                        completion: self.handleResponse(completion: completion)
+                    )
+                }
+
+                operation.addCancellationBlock {
+                    task.cancel()
+                }
+            }
+
+            operation.completionQueue = .main
+            operation.completionHandler = completionHandler
 
             operation.addObserver(
                 BackgroundObserver(name: "Update endpoints", cancelUponExpiration: true)
@@ -103,6 +124,45 @@ extension AddressCache {
             operationQueue.addOperation(operation)
 
             return operation
+        }
+
+        func nextScheduleDate() -> Date {
+            nslock.lock()
+            defer { nslock.unlock() }
+
+            return _nextScheduleDate()
+        }
+
+        private func handleResponse(
+            completion: OperationCompletion<[AnyIPEndpoint], REST.Error>
+        ) -> OperationCompletion<Bool, Error>
+        {
+            let mappedCompletion = completion
+                .flatMapError { error -> OperationCompletion<[AnyIPEndpoint], REST.Error> in
+                    if case URLError.cancelled = error {
+                        return .cancelled
+                    } else {
+                        return .failure(error)
+                    }
+                }
+                .tryMap { endpoints -> Bool in
+                    try store.setEndpoints(endpoints)
+
+                    return true
+                }
+
+            nslock.lock()
+            lastFailureAttemptDate = mappedCompletion.isSuccess ? nil : Date()
+            nslock.unlock()
+
+            if let error = mappedCompletion.error {
+                logger.error(
+                    chainedError: AnyChainedError(error),
+                    message: "Failed to update address cache."
+                )
+            }
+
+            return mappedCompletion
         }
 
         private func scheduleEndpointsUpdate(startTime: DispatchWallTime) {
@@ -119,104 +179,33 @@ extension AddressCache {
         }
 
         private func handleTimer() {
-            _ = updateEndpoints { result in
+            _ = updateEndpoints { _ in
+                self.nslock.lock()
+                defer { self.nslock.unlock() }
+
                 guard self.isPeriodicUpdatesEnabled else { return }
 
-                let scheduleDate = self.nextScheduleDate()
+                let scheduleDate = self._nextScheduleDate()
 
-                self.logger.debug("Schedule next address cache update on \(scheduleDate.logFormatDate())")
+                self.logger.debug("Schedule next address cache update at \(scheduleDate.logFormatDate()).")
 
                 self.scheduleEndpointsUpdate(startTime: .now() + scheduleDate.timeIntervalSinceNow)
             }
         }
 
-        private func nextScheduleDate() -> Date {
-            if let lastFailureAttemptDate = lastFailureAttemptDate {
-                return Date(timeInterval: Self.retryInterval, since: lastFailureAttemptDate)
-            } else {
-                let updatedAt = store.getLastUpdateDate()
+        private func _nextScheduleDate() -> Date {
+            let nextDate = lastFailureAttemptDate.map { date in
+                return Date(
+                    timeInterval: Self.retryInterval,
+                    since: date
+                )
+            } ?? Date(
+                timeInterval: Self.updateInterval,
+                since: store.getLastUpdateDate()
+            )
 
-                return Date(timeInterval: Self.updateInterval, since: updatedAt)
-            }
+            return max(nextDate, Date())
         }
 
-        private func handleCacheUpdateCompletion(_ completion: OperationCompletion<AddressCache.CacheUpdateResult, Error>) {
-            switch completion {
-            case .success(let updateResult):
-                switch updateResult {
-                case .finished:
-                    logger.debug("Finished updating address cache.")
-                case .throttled:
-                    logger.debug("Address cache update was throttled.")
-                }
-
-                lastFailureAttemptDate = nil
-
-            case .failure(let error):
-                logger.error(chainedError: AnyChainedError(error), message: "Failed to update address cache.")
-                lastFailureAttemptDate = Date()
-
-            case .cancelled:
-                logger.debug("Address cache update was cancelled.")
-                lastFailureAttemptDate = Date()
-            }
-        }
-
-    }
-}
-
-// MARK: - Background tasks
-
-@available(iOS 13.0, *)
-extension AddressCache.Tracker {
-
-    /// Register background task with scheduler.
-    func registerBackgroundTask() {
-        let taskIdentifier = ApplicationConfiguration.addressCacheUpdateTaskIdentifier
-
-        let isRegistered = BGTaskScheduler.shared.register(forTaskWithIdentifier: taskIdentifier, using: nil) { task in
-            self.handleBackgroundTask(task as! BGProcessingTask)
-        }
-
-        if isRegistered {
-            logger.debug("Registered address cache update task")
-        } else {
-            logger.error("Failed to register address cache update task")
-        }
-    }
-
-    /// Create and submit task request to scheduler.
-    func scheduleBackgroundTask() throws {
-        let beginDate = nextScheduleDate()
-
-        logger.debug("Schedule address cache update task on \(beginDate.logFormatDate())")
-
-        let taskIdentifier = ApplicationConfiguration.addressCacheUpdateTaskIdentifier
-
-        let request = BGProcessingTaskRequest(identifier: taskIdentifier)
-        request.earliestBeginDate = beginDate
-        request.requiresNetworkConnectivity = true
-
-        return try BGTaskScheduler.shared.submit(request)
-    }
-
-    /// Background task handler.
-    private func handleBackgroundTask(_ task: BGProcessingTask) {
-        logger.debug("Start address cache update task")
-
-        let cancellable = updateEndpoints { completion in
-            do {
-                // Schedule next background task
-                try self.scheduleBackgroundTask()
-            } catch {
-                self.logger.error(chainedError: AnyChainedError(error), message: "Failed to schedule next address cache update task")
-            }
-
-            task.setTaskCompleted(success: completion.isSuccess)
-        }
-
-        task.expirationHandler = {
-            cancellable.cancel()
-        }
     }
 }
