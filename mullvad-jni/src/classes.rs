@@ -12,6 +12,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/mullvadvpn/model/Device",
     "net/mullvad/mullvadvpn/model/DeviceEvent",
     "net/mullvad/mullvadvpn/model/DeviceEventCause",
+    "net/mullvad/mullvadvpn/model/DevicePort",
     "net/mullvad/mullvadvpn/model/DeviceState$LoggedIn",
     "net/mullvad/mullvadvpn/model/DeviceState$LoggedOut",
     "net/mullvad/mullvadvpn/model/DeviceState$Revoked",
