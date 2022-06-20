@@ -1508,6 +1508,9 @@ msgstr ""
 msgid "All applications"
 msgstr ""
 
+msgid "Are you sure you want to log out of <b>%s</b>?"
+msgstr ""
+
 msgid "Blocking all connections"
 msgstr ""
 
@@ -1539,6 +1542,9 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr ""
 
 msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr ""
+
+msgid "Failed to fetch list of devices"
 msgstr ""
 
 msgid "Failed to generate a key"
@@ -1677,6 +1683,9 @@ msgid "You are running an unsupported app version."
 msgstr ""
 
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr ""
+
+msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device's Account settings."
 msgstr ""
 
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
