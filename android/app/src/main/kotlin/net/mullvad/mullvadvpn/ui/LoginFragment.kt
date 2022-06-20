@@ -73,6 +73,7 @@ class LoginFragment :
 
         scrollToShow(accountLogin)
 
+        loginViewModel.clearState()
         triggerAutoLoginIfAccountTokenPresent()
 
         return view
