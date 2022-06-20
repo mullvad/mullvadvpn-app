@@ -77,6 +77,10 @@ class LoginViewModel(
         }
     }
 
+    fun clearState() {
+        _uiState.value = LoginUiState.Default
+    }
+
     fun createAccount() {
         accountCache.tryPerformAction(
             errorMessageIfAccountCacheNotAvailable = SERVICE_NOT_CONNECTED_ERROR_MESSAGE
