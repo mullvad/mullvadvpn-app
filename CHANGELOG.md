@@ -43,6 +43,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Remove WireGuard view as it's no longer needed with the new way of managing devices.
 
+#### Linux
+- Remove upstart init configuration files
+
 ### Fixed
 - Fix time added view displayed due to incorrect local clock.
 
