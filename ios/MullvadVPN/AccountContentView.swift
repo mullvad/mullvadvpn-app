@@ -41,6 +41,12 @@ class AccountContentView: UIView {
         return button
     }()
 
+    let accountDeviceRow: AccountDeviceRow = {
+        let view = AccountDeviceRow()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
     let accountTokenRowView: AccountTokenRow = {
         let view = AccountTokenRow()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -54,7 +60,7 @@ class AccountContentView: UIView {
     }()
 
     lazy var contentStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [accountTokenRowView, accountExpiryRowView])
+        let stackView = UIStackView(arrangedSubviews: [accountDeviceRow, accountTokenRowView, accountExpiryRowView])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.sectionSpacing
@@ -88,6 +94,62 @@ class AccountContentView: UIView {
             buttonStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
             buttonStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
         ])
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+class AccountDeviceRow: UIView {
+
+    var deviceName: String = "" {
+        didSet {
+            deviceLabel.text = deviceName.capitalized
+        }
+    }
+
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString(
+            "ACCOUNT_TOKEN_LABEL",
+            tableName: "Account",
+            value: "Device name",
+            comment: ""
+        )
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = UIColor(white: 1.0, alpha: 0.6)
+        return label
+    }()
+
+    private let deviceLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 17)
+        label.textColor = .white
+        return label
+    }()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        addSubview(titleLabel)
+        addSubview(deviceLabel)
+
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: topAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+
+            deviceLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            deviceLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            deviceLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            deviceLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+
+        isAccessibilityElement = true
+        accessibilityLabel = titleLabel.text
     }
 
     required init?(coder: NSCoder) {
