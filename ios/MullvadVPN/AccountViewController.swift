@@ -84,10 +84,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             comment: ""
         )
 
-        contentView.accountTokenRowView.value = TunnelManager.shared.accountNumber.map { string in
-            return StringFormatter.formattedAccountNumber(from: string)
-        }
-        contentView.accountTokenRowView.actionHandler = { [weak self] in
+        contentView.accountTokenRowView.accountNumber = TunnelManager.shared.accountNumber
+        contentView.accountTokenRowView.copyAccountNumber = { [weak self] in
             self?.copyAccountToken()
         }
 
@@ -99,6 +97,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         TunnelManager.shared.addObserver(self)
 
         updateAccountExpiry(expiryDate: TunnelManager.shared.accountExpiry)
+        updateDeviceName(TunnelManager.shared.device?.name)
 
         // Make sure to disable IAPs when payments are restricted
         if AppStorePaymentManager.canMakePayments {
@@ -109,6 +108,10 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
     }
 
     // MARK: - Private methods
+
+    private func updateDeviceName(_ deviceName: String?) {
+        contentView.accountDeviceRow.deviceName = deviceName
+    }
 
     private func updateAccountExpiry(expiryDate: Date?) {
         contentView.accountExpiryRowView.value = expiryDate
@@ -322,7 +325,12 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
-        updateAccountExpiry(expiryDate: tunnelSettings?.account.expiry)
+        guard let tunnelSettings = tunnelSettings else {
+            return
+        }
+
+        updateDeviceName(tunnelSettings.device.name)
+        updateAccountExpiry(expiryDate: tunnelSettings.account.expiry)
     }
 
     // MARK: - AppStorePaymentObserver
@@ -377,24 +385,6 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     private func copyAccountToken() {
         UIPasteboard.general.string = TunnelManager.shared.accountNumber
-
-        contentView.accountTokenRowView.value = NSLocalizedString(
-            "COPIED_TO_PASTEBOARD_LABEL",
-            tableName: "Account",
-            value: "COPIED TO PASTEBOARD!",
-            comment: ""
-        )
-
-        let workItem = DispatchWorkItem { [weak self] in
-            guard let accountNumber = TunnelManager.shared.accountNumber else { return }
-
-            self?.contentView.accountTokenRowView.value = StringFormatter.formattedAccountNumber(from: accountNumber)
-        }
-
-        copyToPasteboardWork?.cancel()
-        copyToPasteboardWork = workItem
-
-        DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(3), execute: workItem)
     }
 
     @objc private func doPurchase() {

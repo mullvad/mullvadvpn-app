@@ -41,8 +41,14 @@ class AccountContentView: UIView {
         return button
     }()
 
-    let accountTokenRowView: AccountTokenRow = {
-        let view = AccountTokenRow()
+    let accountDeviceRow: AccountDeviceRow = {
+        let view = AccountDeviceRow()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    let accountTokenRowView: AccountNumberRow = {
+        let view = AccountNumberRow()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -54,7 +60,7 @@ class AccountContentView: UIView {
     }()
 
     lazy var contentStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [accountTokenRowView, accountExpiryRowView])
+        let stackView = UIStackView(arrangedSubviews: [accountDeviceRow, accountTokenRowView, accountExpiryRowView])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.sectionSpacing
@@ -95,17 +101,79 @@ class AccountContentView: UIView {
     }
 }
 
-class AccountTokenRow: UIView {
+class AccountDeviceRow: UIView {
 
-    var value: String? {
+    var deviceName: String? {
         didSet {
-            valueButton.setTitle(value, for: .normal)
-            accessibilityValue = value
+            deviceLabel.text = deviceName?.capitalized ?? ""
+            accessibilityValue = deviceName
         }
     }
-    var actionHandler: (() -> Void)?
 
-    private let textLabel: UILabel = {
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString(
+            "DEVICE_NAME",
+            tableName: "Account",
+            value: "Device name",
+            comment: ""
+        )
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = UIColor(white: 1.0, alpha: 0.6)
+        return label
+    }()
+
+    private let deviceLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 17)
+        label.textColor = .white
+        return label
+    }()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        addSubview(titleLabel)
+        addSubview(deviceLabel)
+
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: topAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+
+            deviceLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            deviceLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            deviceLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            deviceLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+
+        isAccessibilityElement = true
+        accessibilityLabel = titleLabel.text
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+class AccountNumberRow: UIView {
+    var accountNumber: String? {
+        didSet {
+            updateView()
+        }
+    }
+
+    var isObscured = true {
+        didSet {
+            updateView()
+        }
+    }
+
+    var copyAccountNumber: (() -> Void)?
+
+    private let titleLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.text = NSLocalizedString(
@@ -119,63 +187,220 @@ class AccountTokenRow: UIView {
         return textLabel
     }()
 
-    private let valueButton: UIButton = {
+    private let accountNumberLabel: UILabel = {
+        let textLabel = UILabel()
+        textLabel.translatesAutoresizingMaskIntoConstraints = false
+        textLabel.font = UIFont.systemFont(ofSize: 17)
+        textLabel.textColor = .white
+        return textLabel
+    }()
+
+    private let showHideButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 17)
-        button.setTitleColor(.white, for: .normal)
-        button.contentHorizontalAlignment = .leading
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 1)
-        button.accessibilityHint = NSLocalizedString(
-            "ACCOUNT_TOKEN_ACCESSIBILITY_HINT",
-            tableName: "Account",
-            value: "Tap to copy to pasteboard.",
-            comment: ""
-        )
+        button.tintColor = .white
+        button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
     }()
+
+    private let copyButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintColor = .white
+        button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        return button
+    }()
+
+    private var revertCopyImageWorkItem: DispatchWorkItem?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        addSubview(textLabel)
-        addSubview(valueButton)
+        addSubview(titleLabel)
+        addSubview(accountNumberLabel)
+        addSubview(showHideButton)
+        addSubview(copyButton)
 
         NSLayoutConstraint.activate([
-            textLabel.topAnchor.constraint(equalTo: topAnchor),
-            textLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            textLabel.trailingAnchor.constraint(greaterThanOrEqualTo: trailingAnchor),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleLabel.trailingAnchor.constraint(greaterThanOrEqualTo: trailingAnchor),
 
-            valueButton.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 8),
-            valueButton.leadingAnchor.constraint(equalTo: leadingAnchor),
-            valueButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            valueButton.bottomAnchor.constraint(equalTo: bottomAnchor)
+            accountNumberLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            accountNumberLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            accountNumberLabel.trailingAnchor.constraint(equalTo: showHideButton.leadingAnchor),
+            accountNumberLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            showHideButton.heightAnchor.constraint(equalTo: accountNumberLabel.heightAnchor),
+            showHideButton.centerYAnchor.constraint(equalTo: accountNumberLabel.centerYAnchor),
+            showHideButton.leadingAnchor.constraint(equalTo: accountNumberLabel.trailingAnchor),
+
+            copyButton.heightAnchor.constraint(equalTo: accountNumberLabel.heightAnchor),
+            copyButton.centerYAnchor.constraint(equalTo: accountNumberLabel.centerYAnchor),
+            copyButton.leadingAnchor.constraint(equalTo: showHideButton.trailingAnchor, constant: 24),
+            copyButton.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
 
-        isAccessibilityElement = true
-        accessibilityLabel = textLabel.text
-
-        let actionName = NSLocalizedString(
-            "ACCOUNT_TOKEN_ACCESSIBILITY_ACTION_TITLE",
-            tableName: "Account",
-            value: "Copy account token to pasteboard",
-            comment: ""
+        showHideButton.addTarget(
+            self,
+            action: #selector(didTapShowHideAccount),
+            for: .touchUpInside
         )
-        accessibilityCustomActions = [UIAccessibilityCustomAction(name: actionName, target: self, selector: #selector(performAccessibilityAction))]
 
-        valueButton.addTarget(self, action: #selector(handleTap), for: .touchUpInside)
+        copyButton.addTarget(
+            self,
+            action: #selector(didTapCopyAccountNumber),
+            for: .touchUpInside
+        )
+
+        isAccessibilityElement = true
+        accessibilityLabel = titleLabel.text
+
+        showCheckmark(false)
+        updateView()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    @objc private func handleTap() {
-        self.actionHandler?()
+    // MARK: - Private
+
+    private func updateView() {
+        accountNumberLabel.text = displayAccountNumber ?? ""
+        showHideButton.setImage(showHideImage, for: .normal)
+
+        accessibilityAttributedValue = _accessibilityAttributedValue
+        accessibilityCustomActions = _accessibilityCustomActions
     }
 
-    @objc private func performAccessibilityAction() {
-        self.actionHandler?()
+    private var displayAccountNumber: String? {
+        guard let accountNumber = accountNumber else {
+            return nil
+        }
+
+        let formattedString = StringFormatter.formattedAccountNumber(from: accountNumber)
+
+        if isObscured {
+            return String(formattedString.map { ch in
+                return ch == " " ? ch : "•"
+            })
+        } else {
+            return formattedString
+        }
+    }
+
+    private var showHideImage: UIImage? {
+        if isObscured {
+            return UIImage(named: "IconUnobscure")
+        } else {
+            return UIImage(named: "IconObscure")
+        }
+    }
+
+
+    private var _accessibilityAttributedValue: NSAttributedString? {
+        guard let accountNumber = accountNumber else {
+            return nil
+        }
+
+        if isObscured {
+            return NSAttributedString(
+                string: NSLocalizedString(
+                    "ACCOUNT_ACCESSIBILITY_OBSCURED",
+                    tableName: "Account",
+                    value: "Obscured",
+                    comment: ""
+                )
+            )
+        } else {
+            var attributes: [NSAttributedString.Key: Any]?
+            if #available(iOS 13.0, *) {
+                attributes = [.accessibilitySpeechSpellOut: true]
+            }
+
+            return NSAttributedString(string: accountNumber, attributes: attributes)
+        }
+    }
+
+    private var _accessibilityCustomActions: [UIAccessibilityCustomAction]? {
+        guard accountNumber != nil else { return nil }
+
+        return [
+            UIAccessibilityCustomAction(
+                name: showHideAccessibilityActionName,
+                target: self,
+                selector:  #selector(didTapShowHideAccount)
+            ),
+            UIAccessibilityCustomAction(
+                name: NSLocalizedString(
+                    "ACCOUNT_ACCESSIBILITY_COPY_TO_PASTEBOARD",
+                    tableName: "Account",
+                    value: "Copy to pasteboard",
+                    comment: ""
+                ),
+                target: self,
+                selector:  #selector(didTapCopyAccountNumber)
+            )
+        ]
+    }
+
+    private var showHideAccessibilityActionName: String {
+        if isObscured {
+            return NSLocalizedString(
+                "ACCOUNT_ACCESSIBILITY_SHOW_ACCOUNT_NUMBER",
+                tableName: "Account",
+                value: "Show account number",
+                comment: ""
+            )
+        } else {
+            return NSLocalizedString(
+                "ACCOUNT_ACCESSIBILITY_HIDE_ACCOUNT_NUMBER",
+                tableName: "Account",
+                value: "Hide account number",
+                comment: ""
+            )
+        }
+    }
+
+    private func showCheckmark(_ showCheckmark: Bool) {
+        if showCheckmark {
+            let tickIcon = UIImage(named: "IconTick")
+
+            copyButton.setImage(tickIcon, for: .normal)
+            copyButton.tintColor  = .successColor
+        } else {
+            let copyIcon = UIImage(named: "IconCopy")
+
+            copyButton.setImage(copyIcon, for: .normal)
+            copyButton.tintColor  = .white
+        }
+    }
+
+    // MARK: - Actions
+
+    @objc private func didTapShowHideAccount() {
+        isObscured.toggle()
+        updateView()
+
+        UIAccessibility.post(notification: .layoutChanged, argument: nil)
+    }
+
+    @objc private func didTapCopyAccountNumber() {
+        let delayedWorkItem = DispatchWorkItem { [weak self] in
+            self?.showCheckmark(false)
+        }
+
+        revertCopyImageWorkItem?.cancel()
+        revertCopyImageWorkItem = delayedWorkItem
+
+        showCheckmark(true)
+        copyAccountNumber?()
+
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + .seconds(2),
+            execute: delayedWorkItem
+        )
     }
 }
 
@@ -206,7 +431,7 @@ class AccountExpiryRow: UIView {
                     )
                 }
 
-                valueLabel.text = formattedDate
+                valueLabel.text = formattedDate ?? ""
                 accessibilityValue = formattedDate
 
                 valueLabel.textColor = .white
