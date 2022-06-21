@@ -121,7 +121,7 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
 
   return (
     <>
-      <Container ref={ref}>
+      <Container ref={ref} disabled={props.disabled}>
         <Button
           ref={buttonRef}
           onClick={handleClick}
