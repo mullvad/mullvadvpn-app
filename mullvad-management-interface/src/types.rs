@@ -1559,3 +1559,22 @@ impl From<FromProtobufTypeError> for crate::Status {
         }
     }
 }
+
+/// Converts any message to `google.protobuf.Any`.
+fn to_proto_any<T: prost::Message>(type_name: &str, message: T) -> prost_types::Any {
+    prost_types::Any {
+        type_url: format!("type.googleapis.com/{type_name}"),
+        value: message.encode_to_vec(),
+    }
+}
+
+/// Tries to convert a message from `google.protobuf.Any` to `T`.
+fn try_from_proto_any<T: prost::Message + Default>(
+    type_name: &str,
+    any_value: prost_types::Any,
+) -> Option<T> {
+    if any_value.type_url != format!("type.googleapis.com/{type_name}") {
+        return None;
+    }
+    T::decode(any_value.value.as_slice()).ok()
+}
