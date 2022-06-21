@@ -1026,23 +1026,19 @@ class ApplicationMain {
           .map((city) => ({
             ...city,
             relays: city.relays.filter((relay) => {
-              if (relay.tunnels) {
+              if (relay.endpoint_type != 'bridge') {
                 switch (tunnelProtocol) {
                   case 'openvpn':
-                    return relay.tunnels.openvpn.length > 0;
+                    return relay.endpoint_type == 'openvpn';
 
                   case 'wireguard':
-                    return relay.tunnels.wireguard.length > 0;
+                    return relay.endpoint_type == 'wireguard';
 
                   case 'any': {
                     const useMultihop =
                       'normal' in relaySettings &&
                       relaySettings.normal.wireguardConstraints.useMultihop;
-                    if (useMultihop) {
-                      return relay.tunnels.wireguard.length > 0;
-                    } else {
-                      return relay.tunnels.openvpn.length > 0 || relay.tunnels.wireguard.length > 0;
-                    }
+                    return !useMultihop || relay.endpoint_type == 'wireguard';
                   }
                   default:
                     return false;
@@ -1073,7 +1069,7 @@ class ApplicationMain {
             .map((city) => ({
               ...city,
               relays: city.relays.filter(
-                (relay) => relay.bridges && relay.bridges.shadowsocks.length > 0,
+                (relay) => relay.endpoint_type == 'bridge',
               ),
             }))
             .filter((city) => city.relays.length > 0),
