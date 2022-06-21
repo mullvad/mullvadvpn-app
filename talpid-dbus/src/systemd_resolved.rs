@@ -349,7 +349,7 @@ impl SystemdResolved {
             .map_err(Error::DBusRpcError)
     }
 
-    fn link_disable_dns_over_tls<'a, 'b: 'a>(&'a self, interface_index: u32) -> Result<()> {
+    fn link_disable_dns_over_tls(&self, interface_index: u32) -> Result<()> {
         let link_object_path = self
             .fetch_link(interface_index)
             .map_err(|e| Error::GetLinkError(Box::new(e)))?;

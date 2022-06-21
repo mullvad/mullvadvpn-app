@@ -19,16 +19,19 @@ use futures::stream::Stream;
 #[cfg(target_os = "linux")]
 use std::net::IpAddr;
 
+#[allow(clippy::module_inception)]
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
 mod imp;
 #[cfg(target_os = "macos")]
 pub(crate) use imp::listen_for_default_route_changes;
 
+#[allow(clippy::module_inception)]
 #[cfg(target_os = "linux")]
 #[path = "linux.rs"]
 mod imp;
 
+#[allow(clippy::module_inception)]
 #[cfg(target_os = "android")]
 #[path = "android.rs"]
 mod imp;

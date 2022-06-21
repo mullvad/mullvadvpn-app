@@ -35,10 +35,10 @@ impl CurrentApiCall {
     }
 
     pub fn is_validating(&self) -> bool {
-        match &self.current_call {
-            Some(Call::Validation(_)) | Some(Call::OneshotKeyRotation(_)) => true,
-            _ => false,
-        }
+        matches!(
+            &self.current_call,
+            Some(Call::Validation(_)) | Some(Call::OneshotKeyRotation(_))
+        )
     }
 
     pub fn is_running_timed_totation(&self) -> bool {
@@ -51,10 +51,7 @@ impl CurrentApiCall {
 
     pub fn is_logging_in(&self) -> bool {
         use Call::*;
-        match &self.current_call {
-            Some(Login(..)) => true,
-            _ => false,
-        }
+        matches!(&self.current_call, Some(Login(..)))
     }
 }
 

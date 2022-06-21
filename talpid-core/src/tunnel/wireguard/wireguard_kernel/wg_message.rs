@@ -110,9 +110,9 @@ impl DeviceMessage {
     }
 
     pub fn get_by_name(message_type: u16, name: String) -> Result<Self, Error> {
-        let c_name = CString::new(name).map_err(|_| Error::InterfaceNameError)?;
+        let c_name = CString::new(name).map_err(|_| Error::InterfaceName)?;
         if c_name.as_bytes_with_nul().len() > libc::IFNAMSIZ {
-            return Err(Error::InterfaceNameError);
+            return Err(Error::InterfaceName);
         }
 
         Ok(Self {
@@ -178,9 +178,7 @@ impl NetlinkDeserializable<DeviceMessage> for DeviceMessage {
         let new_payload = &payload[mem::size_of::<libc::genlmsghdr>()..];
         let mut nlas = vec![];
         for buf in NlasIterator::new(new_payload) {
-            nlas.push(
-                DeviceNla::parse(&buf.map_err(Error::DecodeError)?).map_err(Error::DecodeError)?,
-            );
+            nlas.push(DeviceNla::parse(&buf.map_err(Error::Decode)?).map_err(Error::Decode)?);
         }
 
         Ok(DeviceMessage {
@@ -391,13 +389,13 @@ impl Nla for PeerNla {
                 InetAddr::V4(sockaddr_in) => {
                     // SAFETY: `sockaddr_in` has no padding bytes
                     buffer
-                        .write(unsafe { struct_as_slice(sockaddr_in) })
+                        .write_all(unsafe { struct_as_slice(sockaddr_in) })
                         .expect("Buffer too small for sockaddr_in");
                 }
                 InetAddr::V6(sockaddr_in6) => {
                     // SAFETY: `sockaddr_in` has no padding bytes
                     buffer
-                        .write(unsafe { struct_as_slice(sockaddr_in6) })
+                        .write_all(unsafe { struct_as_slice(sockaddr_in6) })
                         .expect("Buffer too small for sockaddr_in6");
                 }
             },
@@ -408,7 +406,7 @@ impl Nla for PeerNla {
                 let timespec: &libc::timespec = last_handshake.as_ref();
                 // SAFETY: `timespec` has no padding bytes
                 buffer
-                    .write(unsafe { struct_as_slice(timespec) })
+                    .write_all(unsafe { struct_as_slice(timespec) })
                     .expect("Buffer too small for timespec");
             }
             RxBytes(num_bytes) | TxBytes(num_bytes) => NativeEndian::write_u64(buffer, *num_bytes),
@@ -535,7 +533,7 @@ impl Nla for AllowedIpNla {
             }
             IpAddr(ip_addr) => {
                 buffer
-                    .write(&ip_addr_to_bytes(ip_addr))
+                    .write_all(&ip_addr_to_bytes(ip_addr))
                     .expect("Buffer too small for AllowedIpNla::IpAddr");
             }
             CidrMask(cidr_mask) => buffer[0] = *cidr_mask,

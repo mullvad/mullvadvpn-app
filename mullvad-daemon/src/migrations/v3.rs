@@ -66,7 +66,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
                 DnsState::Default
             };
             let addresses = if let Some(addrs) = options.get("addresses") {
-                serde_json::from_value(addrs.clone()).map_err(Error::ParseError)?
+                serde_json::from_value(addrs.clone()).map_err(Error::Parse)?
             } else {
                 vec![]
             };

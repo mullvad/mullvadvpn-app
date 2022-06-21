@@ -183,7 +183,7 @@ fn construct_icmpv4_packet_inner(
 
     let checksum = internet_checksum::checksum(buffer);
     (&mut buffer[ICMP_CHECKSUM_OFFSET..])
-        .write(&checksum)
+        .write_all(&checksum)
         .unwrap();
 
     true

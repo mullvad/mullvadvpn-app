@@ -304,7 +304,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                             )
                             .await?;
                             let tls_stream = TlsStream::connect_https(socket, &hostname).await?;
-                            Ok::<_, io::Error>(ApiConnection::Direct(tls_stream))
+                            Ok::<_, io::Error>(ApiConnection::Direct(Box::new(tls_stream)))
                         }
                         InnerConnectionMode::Proxied(proxy_config) => {
                             let socket = Self::open_socket(
@@ -320,7 +320,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                                 addr,
                             );
                             let tls_stream = TlsStream::connect_https(proxy, &hostname).await?;
-                            Ok(ApiConnection::Proxied(tls_stream))
+                            Ok(ApiConnection::Proxied(Box::new(tls_stream)))
                         }
                     }
                 };

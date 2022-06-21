@@ -7,26 +7,26 @@ use tokio::{fs, io};
 #[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to get path")]
-    PathError(#[error(source)] mullvad_paths::Error),
+    Path(#[error(source)] mullvad_paths::Error),
 
     #[error(display = "Failed to remove directory {}", _0)]
-    RemoveDirError(String, #[error(source)] io::Error),
+    RemoveDir(String, #[error(source)] io::Error),
 
     #[cfg(not(target_os = "windows"))]
     #[error(display = "Failed to create directory {}", _0)]
-    CreateDirError(String, #[error(source)] io::Error),
+    CreateDir(String, #[error(source)] io::Error),
 
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to get file type info")]
-    FileTypeError(#[error(source)] io::Error),
+    FileType(#[error(source)] io::Error),
 
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to get dir entry")]
-    FileEntryError(#[error(source)] io::Error),
+    FileEntry(#[error(source)] io::Error),
 
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to read dir entries")]
-    ReadDirError(#[error(source)] io::Error),
+    ReadDir(#[error(source)] io::Error),
 }
 
 pub async fn clear_directories() -> Result<(), Error> {
@@ -35,12 +35,12 @@ pub async fn clear_directories() -> Result<(), Error> {
 }
 
 async fn clear_log_directory() -> Result<(), Error> {
-    let log_dir = mullvad_paths::get_log_dir().map_err(Error::PathError)?;
+    let log_dir = mullvad_paths::get_log_dir().map_err(Error::Path)?;
     clear_directory(&log_dir).await
 }
 
 async fn clear_cache_directory() -> Result<(), Error> {
-    let cache_dir = mullvad_paths::cache_dir().map_err(Error::PathError)?;
+    let cache_dir = mullvad_paths::cache_dir().map_err(Error::Path)?;
     clear_directory(&cache_dir).await
 }
 
@@ -49,22 +49,22 @@ async fn clear_directory(path: &Path) -> Result<(), Error> {
     {
         fs::remove_dir_all(path)
             .await
-            .map_err(|e| Error::RemoveDirError(path.display().to_string(), e))?;
+            .map_err(|e| Error::RemoveDir(path.display().to_string(), e))?;
         fs::create_dir_all(path)
             .await
-            .map_err(|e| Error::CreateDirError(path.display().to_string(), e))
+            .map_err(|e| Error::CreateDir(path.display().to_string(), e))
     }
     #[cfg(target_os = "windows")]
     {
-        let mut dir = fs::read_dir(&path).await.map_err(Error::ReadDirError)?;
+        let mut dir = fs::read_dir(&path).await.map_err(Error::ReadDir)?;
 
         let mut result = Ok(());
 
-        while let Some(entry) = dir.next_entry().await.map_err(Error::FileEntryError)? {
+        while let Some(entry) = dir.next_entry().await.map_err(Error::FileEntry)? {
             let entry_type = match entry.file_type().await {
                 Ok(entry_type) => entry_type,
                 Err(error) => {
-                    result = result.and(Err(Error::FileTypeError(error)));
+                    result = result.and(Err(Error::FileType(error)));
                     continue;
                 }
             };
@@ -74,9 +74,8 @@ async fn clear_directory(path: &Path) -> Result<(), Error> {
             } else {
                 fs::remove_dir_all(entry.path()).await
             };
-            result = result.and(
-                removal.map_err(|e| Error::RemoveDirError(entry.path().display().to_string(), e)),
-            );
+            result = result
+                .and(removal.map_err(|e| Error::RemoveDir(entry.path().display().to_string(), e)));
         }
         result
     }

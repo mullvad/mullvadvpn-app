@@ -132,8 +132,8 @@ impl ApiConnectionMode {
 
 /// Stream that is either a regular TLS stream or TLS via shadowsocks
 pub enum ApiConnection {
-    Direct(TlsStream<TcpStream>),
-    Proxied(TlsStream<ProxyClientStream<TcpStream>>),
+    Direct(Box<TlsStream<TcpStream>>),
+    Proxied(Box<TlsStream<ProxyClientStream<TcpStream>>>),
 }
 
 impl AsyncRead for ApiConnection {
