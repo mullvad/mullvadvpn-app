@@ -529,7 +529,7 @@ message Relay {
 	Location location = 11;
 }
 
-message WireGuardRelayEndpointData {
+message WireguardRelayEndpointData {
 	bytes public_key = 1;
 }
 

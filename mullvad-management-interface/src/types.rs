@@ -696,8 +696,6 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
 
 impl From<mullvad_types::relay_list::RelayListCountry> for RelayListCountry {
     fn from(country: mullvad_types::relay_list::RelayListCountry) -> Self {
-        // FIXME: add endpoint data
-
         let mut proto_country = RelayListCountry {
             name: country.name,
             code: country.code,
@@ -740,7 +738,12 @@ impl From<mullvad_types::relay_list::Relay> for Relay {
                 MullvadEndpointData::Wireguard(_) => relay::RelayType::Wireguard as i32,
             },
             endpoint_data: match relay.endpoint_data {
-                MullvadEndpointData::Wireguard(data) => Some(data),
+                MullvadEndpointData::Wireguard(data) => Some(to_proto_any(
+                    "mullvad_daemon.management_interface/WireguardRelayEndpointData",
+                    WireguardRelayEndpointData {
+                        public_key: data.public_key.as_bytes().to_vec(),
+                    },
+                )),
                 _ => None,
             },
             location: relay.location.map(|location| Location {
@@ -752,6 +755,76 @@ impl From<mullvad_types::relay_list::Relay> for Relay {
                 longitude: location.longitude,
             }),
         }
+    }
+}
+
+impl TryFrom<Relay> for mullvad_types::relay_list::Relay {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(relay: Relay) -> Result<Self, Self::Error> {
+        use mullvad_types::{
+            location::Location as MullvadLocation,
+            relay_list::{Relay as MullvadRelay, RelayEndpointData as MullvadEndpointData},
+        };
+
+        let endpoint_data = match relay.endpoint_type {
+            i if i == relay::RelayType::Openvpn as i32 => MullvadEndpointData::Openvpn,
+            i if i == relay::RelayType::Bridge as i32 => MullvadEndpointData::Bridge,
+            i if i == relay::RelayType::Wireguard as i32 => {
+                let data = relay
+                    .endpoint_data
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "missing endpoint wg data",
+                    ))?;
+                let data: WireguardRelayEndpointData = try_from_proto_any(
+                    "mullvad_daemon.management_interface/WireguardRelayEndpointData",
+                    data,
+                )
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "invalid endpoint wg data",
+                ))?;
+                MullvadEndpointData::Wireguard(
+                    mullvad_types::relay_list::WireguardRelayEndpointData {
+                        public_key: bytes_to_pubkey(&data.public_key)?,
+                    },
+                )
+            }
+            _ => {
+                return Err(FromProtobufTypeError::InvalidArgument(
+                    "invalid relay endpoint type",
+                ))
+            }
+        };
+
+        let ipv6_addr_in = if relay.ipv6_addr_in.is_empty() {
+            None
+        } else {
+            Some(relay.ipv4_addr_in.parse().map_err(|_err| {
+                FromProtobufTypeError::InvalidArgument("invalid relay IPv6 address")
+            })?)
+        };
+
+        Ok(MullvadRelay {
+            hostname: relay.hostname,
+            ipv4_addr_in: relay.ipv4_addr_in.parse().map_err(|_err| {
+                FromProtobufTypeError::InvalidArgument("invalid relay IPv4 address")
+            })?,
+            ipv6_addr_in,
+            include_in_country: relay.include_in_country,
+            active: relay.active,
+            owned: relay.owned,
+            provider: relay.provider,
+            weight: relay.weight,
+            endpoint_data,
+            location: relay.location.map(|location| MullvadLocation {
+                country: location.country,
+                country_code: location.country_code,
+                city: location.city,
+                city_code: location.city_code,
+                latitude: location.latitude,
+                longitude: location.longitude,
+            }),
+        })
     }
 }
 
