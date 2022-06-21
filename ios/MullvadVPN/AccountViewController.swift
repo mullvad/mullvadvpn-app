@@ -84,10 +84,10 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             comment: ""
         )
 
-        contentView.accountTokenRowView.value = TunnelManager.shared.accountNumber.map { string in
+        contentView.accountTokenRowView.accountNumber = TunnelManager.shared.accountNumber.map { string in
             return StringFormatter.formattedAccountNumber(from: string)
         }
-        contentView.accountTokenRowView.actionHandler = { [weak self] in
+        contentView.accountTokenRowView.copyAccountNumber = { [weak self] in
             self?.copyAccountToken()
         }
 
@@ -114,7 +114,6 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     private func updateDeviceName(_ deviceName: String?) {
         contentView.accountDeviceRow.deviceName = deviceName ?? ""
-//        contentView.accountDeviceRow.deviceName = TunnelManager.shared.device?.name ?? ""
     }
 
     private func updateAccountExpiry(expiryDate: Date?) {
@@ -385,24 +384,6 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     private func copyAccountToken() {
         UIPasteboard.general.string = TunnelManager.shared.accountNumber
-
-        contentView.accountTokenRowView.value = NSLocalizedString(
-            "COPIED_TO_PASTEBOARD_LABEL",
-            tableName: "Account",
-            value: "COPIED TO PASTEBOARD!",
-            comment: ""
-        )
-
-        let workItem = DispatchWorkItem { [weak self] in
-            guard let accountNumber = TunnelManager.shared.accountNumber else { return }
-
-            self?.contentView.accountTokenRowView.value = StringFormatter.formattedAccountNumber(from: accountNumber)
-        }
-
-        copyToPasteboardWork?.cancel()
-        copyToPasteboardWork = workItem
-
-        DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(3), execute: workItem)
     }
 
     @objc private func doPurchase() {
