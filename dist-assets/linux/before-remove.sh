@@ -14,14 +14,9 @@ if [[ "$1" == "upgrade" ]]; then
     exit 0;
 fi
 
-if which systemctl &> /dev/null; then
-    # the user might've disabled or stopped the service themselves already
-    systemctl stop mullvad-daemon.service || true
-    systemctl disable mullvad-daemon.service || true
-elif /sbin/init --version | grep upstart &> /dev/null; then
-    stop mullvad-daemon
-    rm -f /etc/init/mullvad-daemon.conf
-fi
+# the user might've disabled or stopped the service themselves already
+systemctl stop mullvad-daemon.service || true
+systemctl disable mullvad-daemon.service || true
 
 pkill -x "mullvad-gui" || true
 
