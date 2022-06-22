@@ -244,8 +244,8 @@ extension SceneDelegate {
 
         let rootContainerWrapper = makeLoginContainerController()
 
-        if !isAgreedToTermsOfService() {
-            let consentViewController = self.makeConsentController { [weak self] (viewController) in
+        if !TermsOfService.isAgreed {
+            let termsOfServiceViewController = self.makeTermsOfServiceController { [weak self] viewController in
                 guard let self = self else { return }
 
                 if TunnelManager.shared.isAccountSet {
@@ -256,7 +256,7 @@ extension SceneDelegate {
                     rootContainerWrapper.pushViewController(self.makeLoginController(), animated: true)
                 }
             }
-            rootContainerWrapper.setViewControllers([consentViewController], animated: false)
+            rootContainerWrapper.setViewControllers([termsOfServiceViewController], animated: false)
             rootContainer.present(rootContainerWrapper, animated: false)
         } else if !TunnelManager.shared.isAccountSet {
             rootContainerWrapper.setViewControllers([makeLoginController()], animated: false)
@@ -284,14 +284,14 @@ extension SceneDelegate {
             }
         }
 
-        if isAgreedToTermsOfService() {
+        if TermsOfService.isAgreed {
             showNextController(false)
         } else {
-            let consentViewController = self.makeConsentController { (consentController) in
+            let termsOfServiceController = self.makeTermsOfServiceController { _ in
                 showNextController(true)
             }
 
-            rootContainer.setViewControllers([consentViewController], animated: false)
+            rootContainer.setViewControllers([termsOfServiceController], animated: false)
         }
     }
 
@@ -340,22 +340,25 @@ extension SceneDelegate {
         return selectLocationController
     }
 
-    private func makeConsentController(completion: @escaping (UIViewController) -> Void) -> ConsentViewController {
-        let consentViewController = ConsentViewController()
+    private func makeTermsOfServiceController(
+        completion: @escaping (UIViewController) -> Void
+    ) -> TermsOfServiceViewController
+    {
+        let controller = TermsOfServiceViewController()
 
         if UIDevice.current.userInterfaceIdiom == .pad {
-            consentViewController.modalPresentationStyle = .formSheet
+            controller.modalPresentationStyle = .formSheet
             if #available(iOS 13.0, *) {
-                consentViewController.isModalInPresentation = true
+                controller.isModalInPresentation = true
             }
         }
 
-        consentViewController.completionHandler = { (consentViewController) in
-            setAgreedToTermsOfService()
-            completion(consentViewController)
+        controller.completionHandler = { controller in
+            TermsOfService.setAgreed()
+            completion(controller)
         }
 
-        return consentViewController
+        return controller
     }
 
     private func makeLoginContainerController() -> RootContainerViewController {
@@ -366,7 +369,7 @@ extension SceneDelegate {
         if UIDevice.current.userInterfaceIdiom == .pad {
             rootContainerWrapper.modalPresentationStyle = .formSheet
             if #available(iOS 13.0, *) {
-                // Prevent swiping off the login or consent controllers
+                // Prevent swiping off the login or terms of service controllers
                 rootContainerWrapper.isModalInPresentation = true
             }
         }
@@ -701,19 +704,4 @@ struct SceneWindowFactory: WindowFactory {
     func create() -> UIWindow {
         return UIWindow(windowScene: windowScene)
     }
-}
-
-// MARK: -
-
-/// A enum holding the `UserDefaults` string keys
-private let isAgreedToTermsOfServiceKey = "isAgreedToTermsOfService"
-
-/// Returns true if user agreed to terms of service, otherwise false.
-func isAgreedToTermsOfService() -> Bool {
-    return UserDefaults.standard.bool(forKey: isAgreedToTermsOfServiceKey)
-}
-
-/// Save the boolean flag in preferences indicating that the user agreed to terms of service.
-func setAgreedToTermsOfService() {
-    UserDefaults.standard.set(true, forKey: isAgreedToTermsOfServiceKey)
 }

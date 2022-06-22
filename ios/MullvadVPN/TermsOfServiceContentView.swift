@@ -1,5 +1,5 @@
 //
-//  ConsentContentView.swift
+//  TermsOfServiceContentView.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 28/04/2021.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ConsentContentView: UIView {
+class TermsOfServiceContentView: UIView {
 
     let titleLabel: UILabel = {
         let titleLabel = UILabel()
@@ -19,7 +19,7 @@ class ConsentContentView: UIView {
         titleLabel.allowsDefaultTighteningForTruncation = true
         titleLabel.text = NSLocalizedString(
             "PRIVACY_NOTICE_HEADING",
-            tableName: "Consent",
+            tableName: "TermsOfService",
             value: "Do you agree to remaining anonymous?",
             comment: ""
         )
@@ -41,7 +41,7 @@ class ConsentContentView: UIView {
         bodyLabel.numberOfLines = 0
         bodyLabel.text = NSLocalizedString(
             "PRIVACY_NOTICE_BODY",
-            tableName: "Consent",
+            tableName: "TermsOfService",
             value: "You have a right to privacy. That’s why we never store activity logs, don't ask for personal information, and encourage anonymous payments.\n\nIn some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.\n\nWe strongly believe in retaining as little data as possible because we want you to remain anonymous.",
             comment: ""
         )
@@ -53,7 +53,7 @@ class ConsentContentView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.titleString = NSLocalizedString(
             "PRIVACY_POLICY_LINK_TITLE",
-            tableName: "Consent",
+            tableName: "TermsOfService",
             value: "Privacy policy",
             comment: ""
         )
@@ -67,7 +67,7 @@ class ConsentContentView: UIView {
         button.accessibilityIdentifier = "AgreeButton"
         button.setTitle(NSLocalizedString(
             "CONTINUE_BUTTON_TITLE",
-            tableName: "Consent",
+            tableName: "TermsOfService",
             value: "Agree and continue",
             comment: ""
         ), for: .normal)
