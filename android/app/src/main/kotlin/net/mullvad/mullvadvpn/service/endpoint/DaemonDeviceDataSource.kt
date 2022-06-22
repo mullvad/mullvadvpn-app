@@ -22,15 +22,39 @@ class DaemonDeviceDataSource(
     }
 
     private fun launchDeviceEndpointJobs(daemon: MullvadDaemon) {
-        tracker.newBackgroundJob("propagateDeviceUpdates") {
+        tracker.newBackgroundJob("propagateDeviceUpdatesJob") {
             daemon.deviceStateUpdates.collect { newState ->
                 endpoint.sendEvent(Event.DeviceStateEvent(newState))
+            }
+        }
+
+        tracker.newBackgroundJob("propagateDeviceListUpdatesJob") {
+            daemon.deviceListUpdates.collect { newState ->
+                endpoint.sendEvent(Event.DeviceListUpdate(newState))
+            }
+        }
+
+        endpoint.dispatcher.registerHandler(Request.GetDevice::class) {
+            tracker.newBackgroundJob("getDeviceJob") {
+                daemon.getAndEmitDeviceState()
             }
         }
 
         endpoint.dispatcher.registerHandler(Request.RefreshDeviceState::class) {
             tracker.newBackgroundJob("refreshDeviceJob") {
                 daemon.refreshDevice()
+            }
+        }
+
+        endpoint.dispatcher.registerHandler(Request.RemoveDevice::class) { request ->
+            tracker.newBackgroundJob("removeDeviceJob") {
+                daemon.removeDevice(request.accountToken, request.deviceId)
+            }
+        }
+
+        endpoint.dispatcher.registerHandler(Request.GetDeviceList::class) { request ->
+            tracker.newBackgroundJob("getDeviceListJob") {
+                daemon.getAndEmitDeviceList(request.accountToken)
             }
         }
     }

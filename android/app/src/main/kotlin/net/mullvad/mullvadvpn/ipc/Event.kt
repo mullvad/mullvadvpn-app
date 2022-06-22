@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
+import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.LoginResult
@@ -39,6 +40,9 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize
     data class DeviceStateEvent(val newState: DeviceState) : Event()
+
+    @Parcelize
+    data class DeviceListUpdate(val event: DeviceListEvent) : Event()
 
     @Parcelize
     data class ListenerReady(val connection: Messenger, val listenerId: Int) : Event()

@@ -15,8 +15,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.model.AccountHistory
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
+import net.mullvad.mullvadvpn.ui.fragments.ACCOUNT_TOKEN_ARGUMENT_KEY
+import net.mullvad.mullvadvpn.ui.fragments.DeviceListFragment
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
@@ -38,6 +38,11 @@ class LoginFragment :
     private lateinit var background: View
     private lateinit var headerBar: HeaderBar
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setupLifecycleSubscriptionsToViewModel()
+    }
+
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -51,8 +56,6 @@ class LoginFragment :
         loggingInStatus = view.findViewById(R.id.logging_in_status)
         loggedInStatus = view.findViewById(R.id.logged_in_status)
         loginFailStatus = view.findViewById(R.id.login_fail_status)
-
-        loginViewModel.updateAccountCacheInstance(accountCache)
 
         accountLogin = view.findViewById<AccountLogin>(R.id.account_login).apply {
             onLogin = loginViewModel::login
@@ -70,19 +73,10 @@ class LoginFragment :
 
         scrollToShow(accountLogin)
 
-        setupLifecycleSubscriptionsToViewModel()
+        loginViewModel.clearState()
+        triggerAutoLoginIfAccountTokenPresent()
 
         return view
-    }
-
-    override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
-        super.onNewServiceConnection(serviceConnectionContainer)
-        loginViewModel.updateAccountCacheInstance(accountCache)
-    }
-
-    override fun onNoServiceConnection() {
-        super.onNoServiceConnection()
-        loginViewModel.updateAccountCacheInstance(null)
     }
 
     override fun onSafelyStart() {
@@ -105,13 +99,19 @@ class LoginFragment :
         parentActivity.backButtonHandler = null
     }
 
+    private fun triggerAutoLoginIfAccountTokenPresent() {
+        arguments?.getString(ACCOUNT_TOKEN_ARGUMENT_KEY)?.also { accountToken ->
+            accountLogin.setAccountToken(accountToken)
+            loginViewModel.login(accountToken)
+        }
+    }
+
     private fun setupLifecycleSubscriptionsToViewModel() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 launch {
                     loginViewModel.accountHistory.collect { history ->
-                        accountLogin.accountHistory = history
-                            .let { it as? AccountHistory.Available }?.accountToken
+                        accountLogin.accountHistory = history.accountToken()
                     }
                 }
                 launch {
@@ -154,8 +154,11 @@ class LoginFragment :
             }
 
             is LoginViewModel.LoginUiState.TooManyDevicesError -> {
-                // TODO: Switch to TooManyDevicesFragment
-                loginFailure("Too many devices!")
+                openDeviceListFragment(uiState.accountToken)
+            }
+
+            is LoginViewModel.LoginUiState.TooManyDevicesMissingListError -> {
+                loginFailure(context?.getString(R.string.failed_to_fetch_devices))
             }
 
             is LoginViewModel.LoginUiState.UnableToCreateAccountError -> {
@@ -171,6 +174,24 @@ class LoginFragment :
     private fun openFragment(fragment: Fragment) {
         parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, fragment)
+            commit()
+        }
+    }
+
+    private fun openDeviceListFragment(accountToken: String) {
+        val deviceFragment = DeviceListFragment().apply {
+            arguments = Bundle().apply { putString(ACCOUNT_TOKEN_ARGUMENT_KEY, accountToken) }
+        }
+
+        parentFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_right,
+                R.anim.fragment_exit_to_left,
+                R.anim.fragment_half_enter_from_left,
+                R.anim.fragment_exit_to_right
+            )
+            replace(R.id.main_fragment, deviceFragment)
+            addToBackStack(null)
             commit()
         }
     }
@@ -211,7 +232,7 @@ class LoginFragment :
         scrollToShow(loggingInStatus)
     }
 
-    private fun loginFailure(description: String) {
+    private fun loginFailure(description: String? = "") {
         title.setText(R.string.login_fail_title)
         subtitle.setText(description)
 

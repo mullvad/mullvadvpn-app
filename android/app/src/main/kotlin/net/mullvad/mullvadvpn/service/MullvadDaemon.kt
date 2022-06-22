@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceEvent
+import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.GeoIpLocation
@@ -22,7 +23,6 @@ import net.mullvad.talpid.util.EventNotifier
 class MullvadDaemon(vpnService: MullvadVpnService) {
     protected var daemonInterfaceAddress = 0L
 
-    var onDeviceRemoved = EventNotifier<RemoveDeviceEvent?>(null)
     val onSettingsChange = EventNotifier<Settings?>(null)
     var onTunnelStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected)
 
@@ -32,6 +32,9 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
 
     private val _deviceStateUpdates = MutableSharedFlow<DeviceState>(extraBufferCapacity = 1)
     val deviceStateUpdates = _deviceStateUpdates.asSharedFlow()
+
+    private val _deviceListUpdates = MutableSharedFlow<DeviceListEvent>(extraBufferCapacity = 1)
+    val deviceListUpdates = _deviceListUpdates.asSharedFlow()
 
     init {
         System.loadLibrary("mullvad_jni")
@@ -104,8 +107,16 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
 
     fun logoutAccount() = logoutAccount(daemonInterfaceAddress)
 
-    fun listDevices(accountToken: String?): List<Device>? {
-        return listDevices(daemonInterfaceAddress, accountToken)
+    fun getAndEmitDeviceList(accountToken: String): List<Device>? {
+        return listDevices(daemonInterfaceAddress, accountToken).also { deviceList ->
+            _deviceListUpdates.tryEmit(
+                if (deviceList == null) {
+                    DeviceListEvent.Error
+                } else {
+                    DeviceListEvent.Available(accountToken, deviceList)
+                }
+            )
+        }
     }
 
     fun getAndEmitDeviceState(): DeviceState {
@@ -247,6 +258,6 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
     }
 
     private fun notifyRemoveDeviceEvent(event: RemoveDeviceEvent) {
-        onDeviceRemoved.notify(event)
+        _deviceListUpdates.tryEmit(DeviceListEvent.Available(event.accountToken, event.newDevices))
     }
 }

@@ -82,10 +82,11 @@ class MullvadVpnService : TalpidVpnService() {
             connectionProxy.reconnect()
         }
 
-        notificationManager =
-            ForegroundNotificationManager(this, connectionProxy).apply {
-                accountNumberEvents = endpoint.settingsListener.accountNumberNotifier
-            }
+        notificationManager = ForegroundNotificationManager(
+            this,
+            connectionProxy,
+            daemonInstance.intermittentDaemon
+        )
 
         accountExpiryNotification = AccountExpiryNotification(
             this,
@@ -201,8 +202,7 @@ class MullvadVpnService : TalpidVpnService() {
             if (settings != null) {
                 handlePendingAction(settings)
             } else {
-                // TODO: Skip until device integration is ready.
-                // restart()
+                restart()
             }
         }
     }
@@ -232,12 +232,11 @@ class MullvadVpnService : TalpidVpnService() {
     private fun handlePendingAction(settings: Settings) {
         when (pendingAction) {
             PendingAction.Connect -> {
-                // TODO: Skip until device integration is ready.
-                // if (settings.accountToken != null) {
-                //     connectionProxy.connect()
-                // } else {
-                //     openUi()
-                // }
+                if (settings != null) {
+                    connectionProxy.connect()
+                } else {
+                    openUi()
+                }
             }
             PendingAction.Disconnect -> connectionProxy.disconnect()
             null -> return

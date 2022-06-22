@@ -180,4 +180,19 @@
     will need to log back in.</string>
     <string name="device_inactive_unblock_warning">Going to login will unblock the internet on this
     device.</string>
+    <string name="max_devices_warning_title">Too many devices</string>
+    <string name="max_devices_resolved_title">Super!</string>
+    <string name="max_devices_warning_description">You have too many active devices. Please log out
+    of at least one by removing it from the list below. You can find the corresponding nickname
+    under the device\'s Account settings.</string>
+    <string name="max_devices_resolved_description">You can now continue logging in on this
+    device.</string>
+    <string name="max_devices_confirm_removal_description">
+<![CDATA[Are you sure you want to log out of <b>%s</b>?]]>
+    </string>
+    <string name="confirm_removal">Yes, log out device</string>
+    <string name="continue_login">Continue with login</string>
+    <string name="failed_to_fetch_devices">Failed to fetch list of devices</string>
+    <string name="port_removal_notice">This will delete all forwarded ports. Local settings will be
+    saved.</string>
 </resources>

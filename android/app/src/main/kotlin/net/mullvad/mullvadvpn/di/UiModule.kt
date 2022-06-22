@@ -9,6 +9,7 @@ import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
+import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
@@ -37,8 +38,9 @@ val uiModule = module {
 
     single { ServiceConnectionManager(androidContext()) }
     single { DeviceRepository(get()) }
-    viewModel { LoginViewModel() }
+    viewModel { LoginViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get()) }
+    viewModel { DeviceListViewModel(get()) }
 }
 
 const val APPS_SCOPE = "APPS_SCOPE"

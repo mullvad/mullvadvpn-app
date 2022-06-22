@@ -3,20 +3,27 @@ package net.mullvad.mullvadvpn.viewmodel
 import app.cash.turbine.FlowTurbine
 import app.cash.turbine.test
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountHistory
+import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import org.junit.Before
 import org.junit.Test
 
@@ -25,11 +32,23 @@ class LoginViewModelTest {
     @MockK
     private lateinit var mockedAccountCache: AccountCache
 
+    @MockK
+    private lateinit var mockedDeviceRepository: DeviceRepository
+
+    @MockK
+    private lateinit var mockedServiceConnectionManager: ServiceConnectionManager
+
+    @MockK
+    private lateinit var mockedServiceConnectionContainer: ServiceConnectionContainer
+
     private lateinit var loginViewModel: LoginViewModel
 
     private val accountCreationTestEvents = MutableSharedFlow<AccountCreationResult>()
     private val accountHistoryTestEvents = MutableSharedFlow<AccountHistory>()
     private val loginTestEvents = MutableSharedFlow<Event.LoginEvent>()
+
+    private val serviceConnectionState =
+        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
 
     @Before
     fun setup() {
@@ -39,13 +58,21 @@ class LoginViewModelTest {
         every { mockedAccountCache.accountCreationEvents } returns accountCreationTestEvents
         every { mockedAccountCache.accountHistoryEvents } returns accountHistoryTestEvents
         every { mockedAccountCache.loginEvents } returns loginTestEvents
+        every { mockedServiceConnectionManager.connectionState } returns serviceConnectionState
+        every { mockedServiceConnectionContainer.accountCache } returns mockedAccountCache
 
-        loginViewModel = LoginViewModel()
+        serviceConnectionState.value =
+            ServiceConnectionState.ConnectedReady(mockedServiceConnectionContainer)
+
+        loginViewModel = LoginViewModel(
+            mockedDeviceRepository,
+            mockedServiceConnectionManager,
+            TestCoroutineDispatcher()
+        )
     }
 
     @Test
     fun testDefaultState() = runBlockingTest {
-        loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             assertEquals(LoginViewModel.LoginUiState.Default, awaitItem())
         }
@@ -53,19 +80,18 @@ class LoginViewModelTest {
 
     @Test
     fun testCreateAccount() = runBlockingTest {
-        loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             skipDefaultItem()
             loginViewModel.createAccount()
             assertEquals(LoginViewModel.LoginUiState.CreatingAccount, awaitItem())
             accountCreationTestEvents.emit(AccountCreationResult.Success(DUMMY_ACCOUNT_TOKEN))
+
             assertEquals(LoginViewModel.LoginUiState.AccountCreated, awaitItem())
         }
     }
 
     @Test
     fun testLoginWithValidAccount() = runBlockingTest {
-        loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
@@ -77,7 +103,6 @@ class LoginViewModelTest {
 
     @Test
     fun testLoginWithInvalidAccount() = runBlockingTest {
-        loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
@@ -89,19 +114,23 @@ class LoginViewModelTest {
 
     @Test
     fun testLoginWithTooManyDevicesError() = runBlockingTest {
-        loginViewModel.updateAccountCacheInstance(mockedAccountCache)
+        coEvery { mockedDeviceRepository.getDeviceList(any()) } returns DeviceListEvent.Available(
+            DUMMY_ACCOUNT_TOKEN, listOf()
+        )
+
         loginViewModel.uiState.test {
             skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
             assertEquals(LoginViewModel.LoginUiState.Loading, awaitItem())
             loginTestEvents.emit(Event.LoginEvent(LoginResult.MaxDevicesReached))
-            assertEquals(LoginViewModel.LoginUiState.TooManyDevicesError, awaitItem())
+            assertEquals(
+                LoginViewModel.LoginUiState.TooManyDevicesError(DUMMY_ACCOUNT_TOKEN), awaitItem()
+            )
         }
     }
 
     @Test
     fun testLoginWithRpcError() = runBlockingTest {
-        loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
@@ -116,7 +145,6 @@ class LoginViewModelTest {
 
     @Test
     fun testLoginWithUnknownError() = runBlockingTest {
-        loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.uiState.test {
             skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
@@ -131,17 +159,15 @@ class LoginViewModelTest {
 
     @Test
     fun testAccountHistory() = runBlockingTest {
-        loginViewModel.updateAccountCacheInstance(mockedAccountCache)
-        loginViewModel.accountHistory.test { skipDefaultItem() }
-        accountHistoryTestEvents.emit(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN))
         loginViewModel.accountHistory.test {
+            skipDefaultItem()
+            accountHistoryTestEvents.emit(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN))
             assertEquals(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN), awaitItem())
         }
     }
 
     @Test
     fun testClearingAccountHistory() = runBlockingTest {
-        loginViewModel.updateAccountCacheInstance(mockedAccountCache)
         loginViewModel.clearAccountHistory()
         verify { mockedAccountCache.clearAccountHistory() }
     }

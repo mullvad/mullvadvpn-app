@@ -45,7 +45,7 @@ class AccountInput : LinearLayout {
         }
     }
 
-    private val input = container.findViewById<EditText>(R.id.login_input).apply {
+    val input = container.findViewById<EditText>(R.id.login_input).apply {
         addTextChangedListener(inputWatcher)
         setOnEnterOrDoneAction(::login)
 

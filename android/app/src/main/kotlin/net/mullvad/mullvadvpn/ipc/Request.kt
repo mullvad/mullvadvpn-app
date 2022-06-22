@@ -44,6 +44,15 @@ sealed class Request : Message.RequestMessage() {
     object RefreshDeviceState : Request()
 
     @Parcelize
+    object GetDevice : Request()
+
+    @Parcelize
+    data class GetDeviceList(val accountToken: String) : Request()
+
+    @Parcelize
+    data class RemoveDevice(val accountToken: String, val deviceId: String) : Request()
+
+    @Parcelize
     object Logout : Request()
 
     @Parcelize
@@ -66,9 +75,6 @@ sealed class Request : Message.RequestMessage() {
         val oldAddress: InetAddress,
         val newAddress: InetAddress
     ) : Request()
-
-    @Parcelize
-    data class SetAccount(val account: String?) : Request()
 
     @Parcelize
     data class SetAllowLan(val allow: Boolean) : Request()
