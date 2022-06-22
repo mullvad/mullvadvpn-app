@@ -10,18 +10,11 @@ import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.talpid.util.EventNotifier
 
 class SettingsListener(private val connection: Messenger, eventDispatcher: EventDispatcher) {
-    val accountNumberNotifier = EventNotifier<String?>(null)
     val dnsOptionsNotifier = EventNotifier<DnsOptions?>(null)
     val relaySettingsNotifier = EventNotifier<RelaySettings?>(null)
     val settingsNotifier = EventNotifier<Settings?>(null)
 
     private var settings by settingsNotifier.notifiable()
-
-    var account: String?
-        get() = accountNumberNotifier.latestEvent
-        set(value) {
-            connection.send(Request.SetAccount(value).message)
-        }
 
     var allowLan: Boolean
         get() = settingsNotifier.latestEvent?.allowLan ?: false
@@ -46,7 +39,6 @@ class SettingsListener(private val connection: Messenger, eventDispatcher: Event
     }
 
     fun onDestroy() {
-        accountNumberNotifier.unsubscribeAll()
         dnsOptionsNotifier.unsubscribeAll()
         relaySettingsNotifier.unsubscribeAll()
         settingsNotifier.unsubscribeAll()
@@ -57,11 +49,6 @@ class SettingsListener(private val connection: Messenger, eventDispatcher: Event
     }
 
     private fun handleNewSettings(newSettings: Settings) {
-        // TODO: Skip until device integration is ready.
-        // if (settings?.accountToken != newSettings.accountToken) {
-        //     accountNumberNotifier.notify(newSettings.accountToken)
-        // }
-
         if (settings?.tunnelOptions?.dnsOptions != newSettings.tunnelOptions.dnsOptions) {
             dnsOptionsNotifier.notify(newSettings.tunnelOptions.dnsOptions)
         }

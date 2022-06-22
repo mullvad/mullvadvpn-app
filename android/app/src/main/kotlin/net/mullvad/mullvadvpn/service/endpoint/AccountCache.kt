@@ -35,7 +35,6 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     private val daemon
         get() = endpoint.intermittentDaemon
 
-    val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<AccountExpiry>(AccountExpiry.Missing)
     val onAccountHistoryChange = EventNotifier<AccountHistory>(AccountHistory.Missing)
 
@@ -97,10 +96,8 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     }
 
     fun onDestroy() {
-        endpoint.settingsListener.accountNumberNotifier.unsubscribe(this)
         jobTracker.cancelAllJobs()
 
-        onAccountNumberChange.unsubscribeAll()
         onAccountExpiryChange.unsubscribeAll()
         onAccountHistoryChange.unsubscribeAll()
 

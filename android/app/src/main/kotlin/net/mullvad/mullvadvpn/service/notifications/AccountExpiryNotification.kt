@@ -59,7 +59,7 @@ class AccountExpiryNotification(
     }
 
     fun onDestroy() {
-        accountCache.onAccountNumberChange.unsubscribe(this)
+        accountCache.onAccountExpiryChange.unsubscribe(this)
     }
 
     private suspend fun update(expiry: AccountExpiry) {
