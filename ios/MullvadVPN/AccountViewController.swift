@@ -84,9 +84,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             comment: ""
         )
 
-        contentView.accountTokenRowView.accountNumber = TunnelManager.shared.accountNumber.map { string in
-            return StringFormatter.formattedAccountNumber(from: string)
-        }
+        contentView.accountTokenRowView.accountNumber = TunnelManager.shared.accountNumber
         contentView.accountTokenRowView.copyAccountNumber = { [weak self] in
             self?.copyAccountToken()
         }
