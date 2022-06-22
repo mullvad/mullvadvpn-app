@@ -1208,8 +1208,8 @@ mod test {
     use mullvad_types::{
         relay_constraints::{BridgeConstraints, RelayConstraints},
         relay_list::{
-            OpenVpnEndpointData, Relay, RelayBridges, RelayListCity, RelayListCountry,
-            RelayObfuscators, RelayTunnels, WireguardEndpointData,
+            OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayListCity, RelayListCountry,
+            WireguardEndpointData, WireguardRelayEndpointData,
         },
     };
     use talpid_types::net::wireguard::PublicKey;
@@ -1237,24 +1237,9 @@ mod test {
                                     owned: true,
                                     provider: "31173".to_string(),
                                     weight: 1,
-                                    // TODO: add endpoint data here
-                                    tunnels: RelayTunnels {
-                                        openvpn: vec![],
-                                        wireguard: vec![
-                                            WireguardEndpointData {
-                                                port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
-                                                ipv4_gateway: "10.64.0.1".parse().unwrap(),
-                                                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
-                                                public_key: PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
-                                            },
-                                        ],
-                                    },
-                                    bridges: RelayBridges {
-                                        shadowsocks: vec![],
-                                    },
-                                    obfuscators: RelayObfuscators {
-                                        udp2tcp: vec![],
-                                    },
+                                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+                                        public_key: PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
+                                    }),
                                     location: None,
                                 },
                                 Relay {
@@ -1266,24 +1251,9 @@ mod test {
                                     owned: false,
                                     provider: "31173".to_string(),
                                     weight: 1,
-                                    // TODO: add endpoint data here
-                                    tunnels: RelayTunnels {
-                                        openvpn: vec![],
-                                        wireguard: vec![
-                                            WireguardEndpointData {
-                                                port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
-                                                ipv4_gateway: "10.64.0.1".parse().unwrap(),
-                                                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
-                                                public_key: PublicKey::from_base64("veGD6/aEY6sMfN3Ls7YWPmNgu3AheO7nQqsFT47YSws=").unwrap(),
-                                            },
-                                        ],
-                                    },
-                                    bridges: RelayBridges {
-                                        shadowsocks: vec![],
-                                    },
-                                    obfuscators: RelayObfuscators {
-                                        udp2tcp: vec![],
-                                    },
+                                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+                                        public_key: PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
+                                    }),
                                     location: None,
                                 },
                                 Relay {
@@ -1295,84 +1265,7 @@ mod test {
                                     owned: true,
                                     provider: "31173".to_string(),
                                     weight: 1,
-                                    // TODO: add endpoint data here
-                                    tunnels: RelayTunnels {
-                                        openvpn: vec![
-                                            OpenVpnEndpointData {
-                                                port: 1194,
-                                                protocol: TransportProtocol::Udp,
-                                            },
-                                            OpenVpnEndpointData {
-                                                port: 443,
-                                                protocol: TransportProtocol::Tcp,
-                                            },
-                                            OpenVpnEndpointData {
-                                                port: 80,
-                                                protocol: TransportProtocol::Tcp,
-                                            },
-                                        ],
-                                        wireguard: vec![],
-                                    },
-                                    bridges: RelayBridges {
-                                        shadowsocks: vec![],
-                                    },
-                                    obfuscators: RelayObfuscators {
-                                        udp2tcp: vec![],
-                                    },
-                                    location: None,
-                                },
-                                Relay {
-                                    hostname: "se11-wireguard-filtered".to_string(),
-                                    ipv4_addr_in: "185.213.154.69".parse().unwrap(),
-                                    ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
-                                    include_in_country: true,
-                                    active: true,
-                                    owned: true,
-                                    provider: "31173".to_string(),
-                                    weight: 1,
-                                    // TODO: add endpoint data here
-                                    tunnels: RelayTunnels {
-                                        openvpn: vec![],
-                                        wireguard: vec![
-                                            WireguardEndpointData {
-                                                port_ranges: vec![],
-                                                ipv4_gateway: "10.64.0.1".parse().unwrap(),
-                                                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
-                                                public_key: PublicKey::from_base64("veGD6/aEY6sMfN3Ls7YWPmNgu3AheO7nQqsFT47YSws=").unwrap(),
-                                            },
-                                        ],
-                                    },
-                                    bridges: RelayBridges {
-                                        shadowsocks: vec![],
-                                    },
-                                    obfuscators: RelayObfuscators {
-                                        udp2tcp: vec![],
-                                    },
-                                    location: None,
-                                },
-                                Relay {
-                                    hostname: "se-got-010-filtered".to_string(),
-                                    ipv4_addr_in: "185.213.154.69".parse().unwrap(),
-                                    ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
-                                    include_in_country: true,
-                                    active: true,
-                                    owned: true,
-                                    provider: "31173".to_string(),
-                                    weight: 1,
-                                    // TODO: add endpoint data here
-                                    tunnels: RelayTunnels {
-                                        openvpn: vec![OpenVpnEndpointData{
-                                            port: 0,
-                                            protocol: TransportProtocol::Udp,
-                                        }],
-                                        wireguard: vec![],
-                                    },
-                                    bridges: RelayBridges {
-                                        shadowsocks: vec![],
-                                    },
-                                    obfuscators: RelayObfuscators {
-                                        udp2tcp: vec![],
-                                    },
+                                    endpoint_data: RelayEndpointData::Openvpn,
                                     location: None,
                                 }
                             ],
@@ -1380,6 +1273,31 @@ mod test {
                     ],
                 }
             ],
+            openvpn: OpenVpnEndpointData {
+                ports: vec![
+                    OpenVpnEndpoint {
+                        port: 1194,
+                        protocol: TransportProtocol::Udp,
+                    },
+                    OpenVpnEndpoint {
+                        port: 443,
+                        protocol: TransportProtocol::Tcp,
+                    },
+                    OpenVpnEndpoint {
+                        port: 80,
+                        protocol: TransportProtocol::Tcp,
+                    },
+                ],
+            },
+            bridge: BridgeEndpointData {
+                shadowsocks: vec![],
+            },
+            wireguard: WireguardEndpointData {
+                port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
+                ipv4_gateway: "10.64.0.1".parse().unwrap(),
+                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+                udp2tcp_ports: vec![],
+            },
         };
     }
 
@@ -1838,32 +1756,6 @@ mod test {
             } = obfs_config;
             assert!(TCP2UDP_PORTS.contains(&endpoint.port()));
         }
-    }
-
-    #[test]
-    fn test_filtering_invalid_endpoint_relays() {
-        let relay_selector = new_relay_selector();
-        let mut constraints = RelayConstraints {
-            location: Constraint::Only(LocationConstraint::Hostname(
-                "se".to_string(),
-                "got".to_string(),
-                "se11-wireguard-filtered".to_string(),
-            )),
-            ..RelayConstraints::default()
-        };
-        relay_selector
-            .get_tunnel_endpoint(&constraints, BridgeState::Off, 0)
-            .expect_err("Successfully selected a relay that should be filtered");
-
-        constraints.location = Constraint::Only(LocationConstraint::Hostname(
-            "se".to_string(),
-            "got".to_string(),
-            "se-got-010-filtered".to_string(),
-        ));
-
-        relay_selector
-            .get_tunnel_endpoint(&constraints, BridgeState::Off, 0)
-            .expect_err("Successfully selected a relay that should be filtered");
     }
 
     #[test]
