@@ -24,7 +24,6 @@ class SettingsListener(endpoint: ServiceEndpoint) {
     private val commandChannel = spawnActor()
     private val daemon = endpoint.intermittentDaemon
 
-    val accountNumberNotifier = EventNotifier<String?>(null)
     val dnsOptionsNotifier = EventNotifier<DnsOptions?>(null)
     val relaySettingsNotifier = EventNotifier<RelaySettings?>(null)
     val settingsNotifier = EventNotifier<Settings?>(null)
@@ -63,7 +62,6 @@ class SettingsListener(endpoint: ServiceEndpoint) {
         commandChannel.close()
         daemon.unregisterListener(this)
 
-        accountNumberNotifier.unsubscribeAll()
         dnsOptionsNotifier.unsubscribeAll()
         relaySettingsNotifier.unsubscribeAll()
         settingsNotifier.unsubscribeAll()
@@ -94,11 +92,6 @@ class SettingsListener(endpoint: ServiceEndpoint) {
     private fun handleNewSettings(newSettings: Settings?) {
         if (newSettings != null) {
             synchronized(this) {
-                // TODO: Skip until device integration is ready.
-                // if (settings?.accountToken != newSettings.accountToken) {
-                //     accountNumberNotifier.notify(newSettings.accountToken)
-                // }
-
                 if (settings?.tunnelOptions?.dnsOptions != newSettings.tunnelOptions.dnsOptions) {
                     dnsOptionsNotifier.notify(newSettings.tunnelOptions.dnsOptions)
                 }

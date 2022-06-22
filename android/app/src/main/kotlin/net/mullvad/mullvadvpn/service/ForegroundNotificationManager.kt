@@ -10,7 +10,6 @@ import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.endpoint.ConnectionProxy
 import net.mullvad.mullvadvpn.service.notifications.TunnelStateNotification
-import net.mullvad.talpid.util.autoSubscribable
 
 class ForegroundNotificationManager(
     val service: MullvadVpnService,
@@ -35,10 +34,6 @@ class ForegroundNotificationManager(
 
     private val shouldBeOnForeground
         get() = lockedToForeground || !(tunnelState is TunnelState.Disconnected)
-
-    var accountNumberEvents by autoSubscribable<String?>(this, null) { accountNumber ->
-        loggedIn = accountNumber != null
-    }
 
     var onForeground = false
         private set
