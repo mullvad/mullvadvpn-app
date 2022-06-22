@@ -16,7 +16,7 @@ class RelayList {
                     val relays = mutableListOf<Relay>()
                     val relayCity = RelayCity(relayCountry, city.name, city.code, false, relays)
 
-                    val validCityRelays = city.relays.filter { relay -> relay.hasWireguardTunnels }
+                    val validCityRelays = city.relays.filter { relay -> relay.isWireguardRelay }
 
                     for (relay in validCityRelays) {
                         relays.add(Relay(relayCity, relay.hostname, relay.active))
