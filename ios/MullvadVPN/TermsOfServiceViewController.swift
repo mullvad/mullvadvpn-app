@@ -1,5 +1,5 @@
 //
-//  ConsentViewController.swift
+//  TermsOfServiceViewController.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 21/02/2020.
@@ -9,7 +9,7 @@
 import SafariServices
 import UIKit
 
-class ConsentViewController: UIViewController, RootContainment, SFSafariViewControllerDelegate {
+class TermsOfServiceViewController: UIViewController, RootContainment, SFSafariViewControllerDelegate {
 
     var completionHandler: ((UIViewController) -> Void)?
 
@@ -30,7 +30,7 @@ class ConsentViewController: UIViewController, RootContainment, SFSafariViewCont
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let contentView = ConsentContentView()
+        let contentView = TermsOfServiceContentView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
         contentView.agreeButton.addTarget(self, action: #selector(handleAgreeButton(_:)), for: .touchUpInside)
         contentView.privacyPolicyLink.addTarget(self, action: #selector(handlePrivacyPolicyButton(_:)), for: .touchUpInside)

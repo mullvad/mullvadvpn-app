@@ -32,7 +32,7 @@ class MullvadVPNScreenshots: XCTestCase {
 
         app.launch()
 
-        // Dismiss consent screen
+        // Dismiss terms of service screen
         _ = app.buttons["AgreeButton"].waitForExistence(timeout: 10)
         app.buttons["AgreeButton"].tap()
 
