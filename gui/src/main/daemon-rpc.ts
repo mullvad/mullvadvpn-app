@@ -730,7 +730,7 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity.AsObject): IRela
 function convertFromRelayListRelay(relay: grpcTypes.Relay.AsObject): IRelayListHostname {
   return {
     ...relay,
-    endpoint_type: convertFromRelayType(relay.endpointType),
+    endpointType: convertFromRelayType(relay.endpointType),
   };
 }
 
