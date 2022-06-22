@@ -187,7 +187,7 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
 
         status = .connecting
 
-        SimulatorTunnelProvider.shared.delegate.startTunnel(options: options) { (error) in
+        SimulatorTunnelProvider.shared.delegate.startTunnel(options: options) { error in
             if error == nil {
                 self.status = .connected
                 self.connectedDate = Date()
