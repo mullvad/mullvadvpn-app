@@ -47,8 +47,8 @@ class AccountContentView: UIView {
         return view
     }()
 
-    let accountTokenRowView: AccountTokenRow = {
-        let view = AccountTokenRow()
+    let accountTokenRowView: AccountNumberRow = {
+        let view = AccountNumberRow()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -106,6 +106,7 @@ class AccountDeviceRow: UIView {
     var deviceName: String = "" {
         didSet {
             deviceLabel.text = deviceName.capitalized
+            accessibilityValue = deviceName
         }
     }
 
@@ -157,19 +158,23 @@ class AccountDeviceRow: UIView {
     }
 }
 
-class AccountTokenRow: UIView {
+class AccountNumberRow: UIView {
 
     var accountNumber: String? {
         didSet {
             concealedAccountNumber = StringFormatter.concealedAccountNumber(from: accountNumber ?? "")
             accountNumberLabel.text = concealedAccountNumber
-            accessibilityValue = accountNumber
         }
     }
     var copyAccountNumber: (() -> Void)?
     var concealedAccountNumber = ""
     var isAccountNumberConcealed = true
     var isBlockingCopy = false
+    let defaultAccessibilityValue = NSLocalizedString(
+        "ACCOUNT_HIDDEN",
+        tableName: "Account",
+        value: "Hidden",
+        comment: "")
 
     private let titleLabel: UILabel = {
         let textLabel = UILabel()
@@ -248,30 +253,39 @@ class AccountTokenRow: UIView {
 
         isAccessibilityElement = true
         accessibilityLabel = titleLabel.text
+        accessibilityValue = defaultAccessibilityValue
 
-        showHideButton.addTarget(self, action: #selector(didTapShowHideButton), for: .touchUpInside)
-        copyButton.addTarget(self, action: #selector(didTapCopyButton), for: .touchUpInside)
+        showHideButton.addTarget(self, action: #selector(didTapShowHideAccount), for: .touchUpInside)
+        copyButton.addTarget(self, action: #selector(didTapCopyAccountNumber), for: .touchUpInside)
+
+        accessibilityCustomActions = [
+            UIAccessibilityCustomAction(name: NSLocalizedString("ACCOUNT_ACCESSIBILITY_SHOW_OR_HIDE_ACCOUNT",
+                                                                tableName: "Account",
+                                                                value: "Show or hide account",
+                                                                comment: ""),
+                                        target: self,
+                                        selector:  #selector(didTapShowHideAccount)),
+            UIAccessibilityCustomAction(name: NSLocalizedString("ACCOUNT_ACCESSIBILITY_COPY_TO_PASTEBOARD",
+                                                                tableName: "Account",
+                                                                value: "Copy to pasteboard",
+                                                                comment: ""),
+                                        target: self,
+                                        selector:  #selector(didTapCopyAccountNumber))]
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    @objc private func handleTap() {
-        self.copyAccountNumber?()
-    }
-
-    @objc private func performAccessibilityAction() {
-        self.copyAccountNumber?()
-    }
-
-    @objc func didTapShowHideButton() {
-        showHideButton.setImage(UIImage(named: isAccountNumberConcealed ? "IconHide" : "IconShow"), for: .normal)
-        accountNumberLabel.text = isAccountNumberConcealed ? accountNumber : concealedAccountNumber
+    @objc func didTapShowHideAccount() {
         isAccountNumberConcealed.toggle()
+        UIAccessibility.post(notification: .layoutChanged, argument: nil)
+        showHideButton.setImage(UIImage(named: isAccountNumberConcealed ? "IconShow" : "IconHide"), for: .normal)
+        accountNumberLabel.text = isAccountNumberConcealed ? concealedAccountNumber : accountNumber
+        accessibilityValue = isAccountNumberConcealed ? defaultAccessibilityValue : accountNumber
     }
 
-    @objc func didTapCopyButton() {
+    @objc func didTapCopyAccountNumber() {
         guard !isBlockingCopy else { return }
         isBlockingCopy = true
         copyAccountNumber?()
