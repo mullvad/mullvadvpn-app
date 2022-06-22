@@ -7,8 +7,8 @@ import kotlinx.parcelize.Parcelize
 data class Relay(
     val hostname: String,
     val active: Boolean,
-    val tunnels: RelayTunnels
+    val endpointData: RelayEndpointData
 ) : Parcelable {
-    val hasWireguardTunnels
-        get() = !tunnels.wireguard.isEmpty()
+    val isWireguardRelay
+        get() = endpointData is RelayEndpointData.Wireguard
 }
