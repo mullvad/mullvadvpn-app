@@ -250,7 +250,7 @@ export interface IRelayListHostname {
   active: boolean;
   weight: number;
   owned: boolean;
-  endpointType: RelayEndpointType,
+  endpointType: RelayEndpointType;
 }
 
 export type RelayEndpointType = 'wireguard' | 'openvpn' | 'bridge';

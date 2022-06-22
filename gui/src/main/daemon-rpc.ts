@@ -734,13 +734,13 @@ function convertFromRelayListRelay(relay: grpcTypes.Relay.AsObject): IRelayListH
   };
 }
 
-function convertFromRelayType(relay_type: grpcTypes.Relay.RelayType): RelayEndpointType {
+function convertFromRelayType(relayType: grpcTypes.Relay.RelayType): RelayEndpointType {
   const protocolMap: Record<grpcTypes.Relay.RelayType, RelayEndpointType> = {
     [grpcTypes.Relay.RelayType.OPENVPN]: 'openvpn',
     [grpcTypes.Relay.RelayType.BRIDGE]: 'bridge',
     [grpcTypes.Relay.RelayType.WIREGUARD]: 'wireguard',
   };
-  return protocolMap[relay_type];
+  return protocolMap[relayType];
 }
 
 function convertFromWireguardKey(publicKey: Uint8Array | string): string {
