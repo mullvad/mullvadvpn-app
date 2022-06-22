@@ -136,7 +136,7 @@ impl BroadcastListener {
         state.apply_change(change);
     }
 
-    pub async fn is_offline(&self) -> bool {
+    pub async fn host_is_offline(&self) -> bool {
         let state = self.system_state.lock();
         state.is_offline_currently()
     }

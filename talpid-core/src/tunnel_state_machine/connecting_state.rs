@@ -144,21 +144,17 @@ impl ConnectingState {
                 }
             };
 
-            let init_args = TunnelArgs {
+            let args = TunnelArgs {
+                runtime,
                 resource_dir: &resource_dir,
                 on_event: on_tunnel_event,
                 tunnel_close_rx,
-            };
-
-            let block_reason = match TunnelMonitor::start(
-                runtime,
-                &mut tunnel_parameters,
-                &log_dir,
                 tun_provider,
                 retry_attempt,
-                route_manager_handle,
-                init_args,
-            ) {
+                route_manager: route_manager_handle,
+            };
+
+            let block_reason = match TunnelMonitor::start(&mut tunnel_parameters, &log_dir, args) {
                 Ok(monitor) => {
                     let reason = Self::wait_for_tunnel_monitor(monitor, retry_attempt);
                     log::debug!("Tunnel monitor exited with block reason: {:?}", reason);

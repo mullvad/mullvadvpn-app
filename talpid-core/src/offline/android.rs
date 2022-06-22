@@ -100,7 +100,7 @@ impl MonitorHandle {
         })
     }
 
-    pub async fn is_offline(&self) -> bool {
+    pub async fn host_is_offline(&self) -> bool {
         match self.get_is_connected() {
             Ok(is_connected) => !is_connected,
             Err(error) => {

@@ -2,7 +2,7 @@ use self::config::Config;
 #[cfg(not(windows))]
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
-use crate::routing::{self, RequiredRoute, RouteManagerHandle};
+use crate::routing::{self, RequiredRoute};
 use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Future};
 #[cfg(windows)]
 use futures::{channel::mpsc, StreamExt};
@@ -196,32 +196,29 @@ impl WireguardMonitor {
             + Clone
             + 'static,
     >(
-        runtime: tokio::runtime::Handle,
         mut config: Config,
         psk_negotiation: Option<PublicKey>,
         log_path: Option<&Path>,
-        tun_provider: Arc<Mutex<TunProvider>>,
-        retry_attempt: u32,
-        route_manager: RouteManagerHandle,
-        init_args: TunnelArgs<'_, F>,
+        args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
-        let on_event = init_args.on_event;
+        let on_event = args.on_event;
 
         let endpoint_addrs: Vec<IpAddr> =
             config.peers.iter().map(|peer| peer.endpoint.ip()).collect();
         let (close_msg_sender, close_msg_receiver) = sync_mpsc::channel();
 
-        let obfuscator = maybe_create_obfuscator(&runtime, &mut config, close_msg_sender.clone())?;
+        let obfuscator =
+            maybe_create_obfuscator(&args.runtime, &mut config, close_msg_sender.clone())?;
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
 
         let tunnel = Self::open_tunnel(
-            runtime.clone(),
+            args.runtime.clone(),
             &Self::patch_allowed_ips(&config, psk_negotiation.is_some()),
             log_path,
-            init_args.resource_dir,
-            tun_provider,
+            args.resource_dir,
+            args.tun_provider,
             #[cfg(target_os = "windows")]
             setup_done_tx,
         )?;
@@ -230,7 +227,7 @@ impl WireguardMonitor {
         let event_callback = Box::new(on_event.clone());
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
         let monitor = WireguardMonitor {
-            runtime: runtime.clone(),
+            runtime: args.runtime.clone(),
             tunnel: Arc::new(Mutex::new(Some(tunnel))),
             event_callback,
             close_msg_receiver,
@@ -269,7 +266,7 @@ impl WireguardMonitor {
 
             // Add non-default routes before establishing the tunnel.
             #[cfg(target_os = "linux")]
-            route_manager
+            args.route_manager
                 .create_routing_rules(config.enable_ipv6)
                 .await
                 .map_err(Error::SetupRoutingError)
@@ -278,14 +275,15 @@ impl WireguardMonitor {
             let routes = Self::get_pre_tunnel_routes(&iface_name, &config)
                 .chain(Self::get_endpoint_routes(&endpoint_addrs))
                 .collect();
-            route_manager
+            args.route_manager
                 .add_routes(routes)
                 .await
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
             if let Some(pubkey) = psk_negotiation {
-                Self::perform_psk_negotiation(tunnel, retry_attempt, pubkey, &mut config).await?;
+                Self::perform_psk_negotiation(tunnel, args.retry_attempt, pubkey, &mut config)
+                    .await?;
                 (on_event)(TunnelEvent::InterfaceUp(
                     metadata.clone(),
                     AllowedTunnelTraffic::All,
@@ -294,7 +292,7 @@ impl WireguardMonitor {
             }
 
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
-                match connectivity_monitor.establish_connectivity(retry_attempt) {
+                match connectivity_monitor.establish_connectivity(args.retry_attempt) {
                     Ok(true) => Ok(connectivity_monitor),
                     Ok(false) => {
                         log::warn!("Timeout while checking tunnel connection");
@@ -313,7 +311,7 @@ impl WireguardMonitor {
             .unwrap()?;
 
             // Add any default route(s) that may exist.
-            route_manager
+            args.route_manager
                 .add_routes(Self::get_post_tunnel_routes(&iface_name, &config).collect())
                 .await
                 .map_err(Error::SetupRoutingError)
@@ -343,7 +341,7 @@ impl WireguardMonitor {
         });
 
         tokio::spawn(async move {
-            if init_args.tunnel_close_rx.await.is_ok() {
+            if args.tunnel_close_rx.await.is_ok() {
                 monitor_handle.abort();
                 let _ = close_msg_sender.send(CloseMsg::Stop);
             }
@@ -354,7 +352,7 @@ impl WireguardMonitor {
 
     /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
     /// Used to block traffic to other destinations while connecting on Android.
-    fn patch_allowed_ips<'a>(config: &'a Config, gateway_only: bool) -> Cow<'a, Config> {
+    fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
         if gateway_only {
             let mut patched_config = config.clone();
             let gateway_net_v4 = ipnetwork::IpNetwork::from(IpAddr::from(config.ipv4_gateway));
@@ -370,12 +368,10 @@ impl WireguardMonitor {
                         if allowed_ip.prefix() == 0 {
                             if allowed_ip.is_ipv4() {
                                 allowed_ip = gateway_net_v4;
+                            } else if let Some(net) = gateway_net_v6 {
+                                allowed_ip = net;
                             } else {
-                                if let Some(net) = gateway_net_v6 {
-                                    allowed_ip = net;
-                                } else {
-                                    return None;
-                                }
+                                return None;
                             }
                         }
                         Some(allowed_ip)

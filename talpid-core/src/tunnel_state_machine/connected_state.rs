@@ -123,7 +123,7 @@ impl ConnectedState {
         let dns_ips = self.get_dns_servers(shared_values);
 
         #[cfg(any(target_os = "linux", target_os = "windows"))]
-        let dns_ips = &dns_ips
+        let dns_ips = dns_ips
             .into_iter()
             .filter(|ip| {
                 !crate::firewall::is_local_address(ip)

@@ -318,7 +318,7 @@ impl TunnelStateMachine {
         )
         .await
         .map_err(Error::OfflineMonitorError)?;
-        let is_offline = offline_monitor.is_offline().await;
+        let is_offline = offline_monitor.host_is_offline().await;
         let _ = initial_offline_state_tx.unbounded_send(is_offline);
 
         #[cfg(windows)]
