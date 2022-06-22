@@ -82,7 +82,11 @@ class MullvadVpnService : TalpidVpnService() {
             connectionProxy.reconnect()
         }
 
-        notificationManager = ForegroundNotificationManager(this, connectionProxy)
+        notificationManager = ForegroundNotificationManager(
+            this,
+            connectionProxy,
+            daemonInstance.intermittentDaemon
+        )
 
         accountExpiryNotification = AccountExpiryNotification(
             this,

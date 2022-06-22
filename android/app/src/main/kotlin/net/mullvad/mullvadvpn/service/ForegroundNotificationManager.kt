@@ -7,13 +7,18 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.collect
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.endpoint.ConnectionProxy
 import net.mullvad.mullvadvpn.service.notifications.TunnelStateNotification
+import net.mullvad.mullvadvpn.util.Intermittent
+import net.mullvad.mullvadvpn.util.JobTracker
 
 class ForegroundNotificationManager(
     val service: MullvadVpnService,
-    val connectionProxy: ConnectionProxy
+    val connectionProxy: ConnectionProxy,
+    val intermittentDaemon: Intermittent<MullvadDaemon>
 ) {
     private sealed class UpdaterMessage {
         class UpdateNotification : UpdaterMessage()
@@ -21,6 +26,7 @@ class ForegroundNotificationManager(
         class NewTunnelState(val newState: TunnelState) : UpdaterMessage()
     }
 
+    private val jobTracker = JobTracker()
     private val updater = runUpdater()
 
     private val tunnelStateNotification = TunnelStateNotification(service)
@@ -47,10 +53,20 @@ class ForegroundNotificationManager(
             updater.sendBlocking(UpdaterMessage.NewTunnelState(newState))
         }
 
+        intermittentDaemon.registerListener(this) { daemon ->
+            jobTracker.newBackgroundJob("notificationLoggedInJob") {
+                daemon?.deviceStateUpdates?.collect { deviceState ->
+                    loggedIn = deviceState is DeviceState.LoggedIn
+                }
+            }
+        }
+
         updater.sendBlocking(UpdaterMessage.UpdateNotification())
     }
 
     fun onDestroy() {
+        jobTracker.cancelAllJobs()
+        intermittentDaemon.unregisterListener(this)
         connectionProxy.onStateChange.unsubscribe(this)
         updater.close()
     }
