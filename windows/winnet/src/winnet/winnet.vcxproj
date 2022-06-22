@@ -29,8 +29,6 @@
   <ItemGroup>
     <ClCompile Include="converters.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="InterfacePair.cpp" />
-    <ClCompile Include="NetworkInterfaces.cpp" />
     <ClCompile Include="routing\defaultroutemonitor.cpp" />
     <ClCompile Include="routing\helpers.cpp" />
     <ClCompile Include="routing\routemanager.cpp" />
@@ -40,8 +38,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="converters.h" />
-    <ClInclude Include="InterfacePair.h" />
-    <ClInclude Include="NetworkInterfaces.h" />
     <ClInclude Include="routing\defaultroutemonitor.h" />
     <ClInclude Include="routing\helpers.h" />
     <ClInclude Include="routing\routemanager.h" />

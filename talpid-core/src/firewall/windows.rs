@@ -4,7 +4,6 @@ use std::{net::IpAddr, path::Path, ptr};
 
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
-use crate::winnet;
 use talpid_types::{
     net::{AllowedEndpoint, AllowedTunnelTraffic, Endpoint},
     tunnel::FirewallPolicyError,
@@ -38,10 +37,6 @@ pub enum Error {
     /// Failure to reset firewall policies
     #[error(display = "Failed to reset firewall policies")]
     ResettingPolicy(#[error(source)] FirewallPolicyError),
-
-    /// Failure to set virtual adapter metric
-    #[error(display = "Unable to set virtual adapter metric")]
-    SetTunMetric(#[error(source)] crate::winnet::Error),
 }
 
 /// Timeout for acquiring the WFP transaction lock
@@ -229,15 +224,6 @@ impl Firewall {
             port: endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.protocol),
         };
-
-        let metrics_set = winnet::ensure_best_metric_for_interface(&tunnel_metadata.interface)
-            .map_err(Error::SetTunMetric)?;
-
-        if metrics_set {
-            log::debug!("Network interface metrics were changed");
-        } else {
-            log::debug!("Network interface metrics were not changed");
-        }
 
         let v6_gateway_ptr = match &v6_gateway {
             Some(v6_ip) => v6_ip.as_ptr(),

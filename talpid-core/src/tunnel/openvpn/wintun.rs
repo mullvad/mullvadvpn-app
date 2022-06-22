@@ -1,6 +1,4 @@
-use crate::windows::{
-    get_ip_interface_entry, set_ip_interface_entry, string_from_guid, AddressFamily,
-};
+use crate::windows::string_from_guid;
 use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
@@ -18,8 +16,6 @@ use winapi::{
         ifdef::NET_LUID,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
         netioapi::ConvertInterfaceLuidToGuid,
-        nldef::RouterDiscoveryDisabled,
-        ntdef::FALSE,
         winerror::NO_ERROR,
     },
     um::{
@@ -186,25 +182,12 @@ impl WintunAdapter {
         Ok((adapter, restart_required))
     }
 
-    pub fn try_disable_unused_features(&self) {
-        // Disable DAD, DHCP, and router discovery
-        let luid = self.luid();
-        for family in &[AddressFamily::Ipv4, AddressFamily::Ipv6] {
-            if let Ok(mut row) = get_ip_interface_entry(*family, &luid) {
-                row.SitePrefixLength = 0;
-                row.RouterDiscoveryBehavior = RouterDiscoveryDisabled;
-                row.DadTransmits = 0;
-                row.ManagedAddressConfigurationSupported = FALSE;
-                row.OtherStatefulConfigurationSupported = FALSE;
-
-                if let Err(error) = set_ip_interface_entry(&row) {
-                    log::error!(
-                        "{} (family: {})",
-                        error.display_chain_with_msg("Failed to update Wintun interface"),
-                        family,
-                    );
-                }
-            }
+    pub fn prepare_interface(&self) {
+        if let Err(error) = crate::tunnel::windows::initialize_interfaces(self.luid(), None) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set tunnel interface metric"),
+            );
         }
     }
 
