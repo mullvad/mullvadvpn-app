@@ -31,8 +31,6 @@ use winapi::{
         in6addr::IN6_ADDR,
         inaddr::IN_ADDR,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
-        nldef::RouterDiscoveryDisabled,
-        ntdef::FALSE,
         winerror::ERROR_MORE_DATA,
         ws2def::{ADDRESS_FAMILY, AF_INET, AF_INET6},
         ws2ipdef::SOCKADDR_INET,
@@ -139,13 +137,9 @@ pub enum Error {
     #[error(display = "Failed to wait on tunnel IP interfaces")]
     IpInterfacesError(#[error(source)] io::Error),
 
-    /// Failed to set MTU on tunnel device
-    #[error(display = "Failed to set tunnel IPv4 interface MTU")]
-    SetTunnelIpv4MtuError(#[error(source)] io::Error),
-
-    /// Failed to set MTU on tunnel device
-    #[error(display = "Failed to set tunnel IPv6 interface MTU")]
-    SetTunnelIpv6MtuError(#[error(source)] io::Error),
+    /// Failed to set MTU and metric on tunnel device
+    #[error(display = "Failed to set tunnel interface MTU")]
+    SetTunnelMtuError(#[error(source)] io::Error),
 
     /// Failed to set the tunnel state to up
     #[error(display = "Failed to enable the tunnel adapter")]
@@ -483,10 +477,8 @@ async fn setup_ip_listener(
         .map_err(Error::IpInterfacesError)?;
     log::debug!("Waiting for tunnel IP interfaces: Done");
 
-    prepare_interface(&luid, AF_INET as u16, mtu).map_err(Error::SetTunnelIpv4MtuError)?;
-    if has_ipv6 {
-        prepare_interface(&luid, AF_INET6 as u16, mtu).map_err(Error::SetTunnelIpv6MtuError)?;
-    }
+    crate::tunnel::windows::initialize_interfaces(luid, Some(mtu))
+        .map_err(Error::SetTunnelMtuError)?;
 
     if let Some(device) = &*device.lock().unwrap() {
         device
@@ -937,19 +929,6 @@ unsafe fn deserialize_config(
     }
 
     Ok((interface, peers))
-}
-
-fn prepare_interface(luid: &NET_LUID, family: u16, mtu: u32) -> io::Result<()> {
-    let family = windows::AddressFamily::try_from_af_family(family)
-        .map_err(|error| io::Error::new(io::ErrorKind::InvalidInput, error))?;
-    let mut iface = windows::get_ip_interface_entry(family, luid)?;
-    iface.SitePrefixLength = 0;
-    iface.NlMtu = mtu;
-    iface.RouterDiscoveryBehavior = RouterDiscoveryDisabled;
-    iface.DadTransmits = 0;
-    iface.ManagedAddressConfigurationSupported = FALSE;
-    iface.OtherStatefulConfigurationSupported = FALSE;
-    windows::set_ip_interface_entry(&iface)
 }
 
 impl Tunnel for WgNtTunnel {

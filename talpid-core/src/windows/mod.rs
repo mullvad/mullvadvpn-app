@@ -194,8 +194,8 @@ pub fn get_ip_interface_entry(
 }
 
 /// Set the properties of an IP interface.
-pub fn set_ip_interface_entry(row: &MIB_IPINTERFACE_ROW) -> io::Result<()> {
-    let result = unsafe { SetIpInterfaceEntry(row as *const _ as *mut _) };
+pub fn set_ip_interface_entry(row: &mut MIB_IPINTERFACE_ROW) -> io::Result<()> {
+    let result = unsafe { SetIpInterfaceEntry(row as *mut _) };
     if result == NO_ERROR {
         Ok(())
     } else {

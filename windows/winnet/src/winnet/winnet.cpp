@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "winnet.h"
-#include "NetworkInterfaces.h"
 #include "routing/routemanager.h"
 #include "converters.h"
 #include <libshared/logging/logsinkadapter.h>
@@ -28,38 +27,6 @@ RouteManager *g_RouteManager = nullptr;
 std::shared_ptr<shared::logging::LogSinkAdapter> g_RouteManagerLogSink;
 
 } //anonymous namespace
-
-extern "C"
-WINNET_LINKAGE
-WINNET_EBM_STATUS
-WINNET_API
-WinNet_EnsureBestMetric(
-	const wchar_t *deviceAlias,
-	MullvadLogSink logSink,
-	void *logSinkContext
-)
-{
-	try
-	{
-		if (nullptr == deviceAlias)
-		{
-			THROW_ERROR("Invalid argument: deviceAlias");
-		}
-
-		NetworkInterfaces interfaces;
-		return interfaces.SetBestMetricForInterfacesByAlias(deviceAlias) ?
-			WINNET_EBM_STATUS_METRIC_SET : WINNET_EBM_STATUS_METRIC_NO_CHANGE;
-	}
-	catch (const std::exception &err)
-	{
-		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
-		return WINNET_EBM_STATUS_FAILURE;
-	}
-	catch (...)
-	{
-		return WINNET_EBM_STATUS_FAILURE;
-	}
-};
 
 extern "C"
 WINNET_LINKAGE

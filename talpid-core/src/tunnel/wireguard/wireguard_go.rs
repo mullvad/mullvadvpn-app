@@ -119,6 +119,8 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         mut done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Self> {
+        use talpid_types::ErrorExt;
+
         let route_callback_handle = winnet::add_default_route_change_callback(
             Some(WgGoTunnel::default_route_changed_callback),
             (),
@@ -171,9 +173,23 @@ impl WgGoTunnel {
                 Value: interface_luid,
             };
             log::debug!("Waiting for tunnel IP interfaces to arrive");
+
+            let prepare_interfaces = async move {
+                crate::windows::wait_for_interfaces(luid, true, has_ipv6).await?;
+
+                if let Err(error) = crate::tunnel::windows::initialize_interfaces(luid, None) {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to set tunnel interface metric"),
+                    );
+                }
+
+                Ok(())
+            };
+
             let _ = done_tx
                 .send(
-                    crate::windows::wait_for_interfaces(luid, true, has_ipv6)
+                    prepare_interfaces
                         .await
                         .map_err(|error| BoxedError::new(TunnelError::SetupIpInterfaces(error))),
                 )
