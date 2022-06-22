@@ -37,7 +37,7 @@ pub struct MonitorHandle {
 impl MonitorHandle {
     /// Host is considered to be offline if the IPv4 internet is considered to be unreachable by the
     /// given reachability flags *or* there are no active physical interfaces.
-    pub async fn is_offline(&self) -> bool {
+    pub async fn host_is_offline(&self) -> bool {
         !exists_non_tunnel_default_route().await
     }
 }

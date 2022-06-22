@@ -88,7 +88,7 @@ impl DeviceMessage {
                 PeerNla::Flags(WGPEER_F_REPLACE_ALLOWEDIPS),
             ];
             if let Some(psk) = peer.psk.as_ref() {
-                peer_nlas.push(PeerNla::PresharedKey(psk.as_bytes().clone()));
+                peer_nlas.push(PeerNla::PresharedKey(*psk.as_bytes()));
             }
             peers.push(PeerMessage(peer_nlas));
         }

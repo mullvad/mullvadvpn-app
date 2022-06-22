@@ -104,12 +104,20 @@ where
     // L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
     L: (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Clone + Sync + 'static,
 {
-    /// Resource directory.
+    /// Toktio runtime handle.
+    pub runtime: tokio::runtime::Handle,
+    /// Resource directory path.
     pub resource_dir: &'a Path,
     /// Callback function called when an event happens.
     pub on_event: L,
     /// Receiver oneshot channel for closing the tunnel.
     pub tunnel_close_rx: oneshot::Receiver<()>,
+    /// Mutex to tunnel provider.
+    pub tun_provider: Arc<Mutex<TunProvider>>,
+    /// Connection retry attempts.
+    pub retry_attempt: u32,
+    /// Route manager handle.
+    pub route_manager: RouteManagerHandle,
 }
 
 // TODO(emilsp) move most of the openvpn tunnel details to OpenVpnTunnelMonitor
@@ -118,13 +126,9 @@ impl TunnelMonitor {
     /// on tunnel state changes.
     #[cfg_attr(any(target_os = "android", windows), allow(unused_variables))]
     pub fn start<L>(
-        runtime: tokio::runtime::Handle,
         tunnel_parameters: &mut TunnelParameters,
         log_dir: &Option<PathBuf>,
-        tun_provider: Arc<Mutex<TunProvider>>,
-        retry_attempt: u32,
-        route_manager: RouteManagerHandle,
-        init_args: TunnelArgs<'_, L>,
+        args: TunnelArgs<'_, L>,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -138,27 +142,21 @@ impl TunnelMonitor {
 
         match tunnel_parameters {
             #[cfg(not(target_os = "android"))]
-            TunnelParameters::OpenVpn(config) => runtime.block_on(Self::start_openvpn_tunnel(
+            TunnelParameters::OpenVpn(config) => args.runtime.block_on(Self::start_openvpn_tunnel(
                 config,
                 log_file,
-                init_args.resource_dir,
-                init_args.on_event,
-                init_args.tunnel_close_rx,
+                args.resource_dir,
+                args.on_event,
+                args.tunnel_close_rx,
                 #[cfg(target_os = "linux")]
-                route_manager,
+                args.route_manager,
             )),
             #[cfg(target_os = "android")]
             TunnelParameters::OpenVpn(_) => Err(Error::UnsupportedPlatform),
 
-            TunnelParameters::Wireguard(ref mut config) => Self::start_wireguard_tunnel(
-                runtime,
-                config,
-                log_file,
-                tun_provider,
-                retry_attempt,
-                route_manager,
-                init_args,
-            ),
+            TunnelParameters::Wireguard(ref mut config) => {
+                Self::start_wireguard_tunnel(config, log_file, args)
+            }
         }
     }
 
@@ -185,13 +183,9 @@ impl TunnelMonitor {
     }
 
     fn start_wireguard_tunnel<L>(
-        runtime: tokio::runtime::Handle,
         params: &mut wireguard_types::TunnelParameters,
         log: Option<PathBuf>,
-        tun_provider: Arc<Mutex<TunProvider>>,
-        retry_attempt: u32,
-        route_manager: RouteManagerHandle,
-        init_args: TunnelArgs<'_, L>,
+        args: TunnelArgs<'_, L>,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -201,10 +195,10 @@ impl TunnelMonitor {
             + 'static,
     {
         #[cfg(target_os = "linux")]
-        runtime.block_on(Self::assign_mtu(&route_manager, params));
+        args.runtime
+            .block_on(Self::assign_mtu(&args.route_manager, params));
         let config = wireguard::config::Config::from_parameters(params)?;
         let monitor = wireguard::WireguardMonitor::start(
-            runtime,
             config,
             if params.options.use_pq_safe_psk {
                 Some(
@@ -213,16 +207,13 @@ impl TunnelMonitor {
                         .exit_peer
                         .as_ref()
                         .map(|peer| peer.public_key.clone())
-                        .unwrap_or(params.connection.peer.public_key.clone()),
+                        .unwrap_or_else(|| params.connection.peer.public_key.clone()),
                 )
             } else {
                 None
             },
             log.as_deref(),
-            tun_provider,
-            retry_attempt,
-            route_manager,
-            init_args,
+            args,
         )?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),
