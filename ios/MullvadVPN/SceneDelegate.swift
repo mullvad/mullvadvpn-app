@@ -142,7 +142,7 @@ extension SceneDelegate: UIWindowSceneDelegate {
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
+        guard let windowScene = scene as? UIWindowScene else { return }
 
         setupScene(windowFactory: SceneWindowFactory(windowScene: windowScene))
     }
@@ -223,7 +223,7 @@ extension SceneDelegate: RootContainerViewControllerDelegate {
 
 extension SceneDelegate {
 
-    fileprivate func setupPadUI() {
+    private func setupPadUI() {
         let selectLocationController = makeSelectLocationController()
         let connectController = makeConnectViewController()
 
@@ -266,8 +266,8 @@ extension SceneDelegate {
         }
     }
 
-    fileprivate func setupPhoneUI() {
-        let showNextController = { [weak self] (_ animated: Bool) in
+    private func setupPhoneUI() {
+        let showNextController = { [weak self] (animated: Bool) in
             guard let self = self else { return }
 
             let loginViewController = self.makeLoginController()
@@ -389,13 +389,8 @@ extension SceneDelegate {
     }
 
     private func showSplitViewMaster(_ show: Bool, animated: Bool) {
-        if show {
-            splitViewController?.preferredDisplayMode = .allVisible
-            connectController?.setMainContentHidden(false, animated: animated)
-        } else {
-            splitViewController?.preferredDisplayMode = .primaryHidden
-            connectController?.setMainContentHidden(true, animated: animated)
-        }
+        splitViewController?.preferredDisplayMode = show ? .allVisible : .primaryHidden
+        connectController?.setMainContentHidden(!show, animated: animated)
     }
 }
 
@@ -585,13 +580,7 @@ extension SceneDelegate: UIAdaptivePresentationControllerDelegate {
 
     func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
         if controller.presentedViewController is RootContainerViewController {
-            // Use .formSheet presentation in regular horizontal environment and .fullScreen
-            // in compact environment.
-            if traitCollection.horizontalSizeClass == .regular {
-                return .formSheet
-            } else {
-                return .fullScreen
-            }
+            return traitCollection.horizontalSizeClass == .regular ? .formSheet : .fullScreen
         } else {
             return .none
         }
@@ -621,17 +610,18 @@ extension SceneDelegate: UIAdaptivePresentationControllerDelegate {
 
         // Add settings button into the modal container to make it accessible by user
         if let transitionCoordinator = transitionCoordinator {
-            transitionCoordinator.animate(alongsideTransition: { (context) in
+            transitionCoordinator.animate { context in
                 self.rootContainer.addSettingsButtonToPresentationContainer(context.containerView)
-            }, completion: { (context) in
-                // no-op
-            })
-        } else {
-            if let containerView = presentationController.containerView {
-                rootContainer.addSettingsButtonToPresentationContainer(containerView)
-            } else {
-                logger.warning("Cannot obtain the containerView for presentation controller when presenting with adaptive style \(actualStyle.rawValue) and missing transition coordinator.")
             }
+        } else if let containerView = presentationController.containerView {
+            rootContainer.addSettingsButtonToPresentationContainer(containerView)
+        } else {
+            logger.warning(
+                """
+                Cannot obtain the containerView for presentation controller when presenting with \
+                adaptive style \(actualStyle.rawValue) and missing transition coordinator.
+                """
+            )
         }
     }
 }
