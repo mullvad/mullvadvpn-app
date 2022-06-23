@@ -45,6 +45,21 @@ jobs:
                   cp Screenshots.xcconfig.template Screenshots.xcconfig
               working-directory: ios/Configurations
 
+            - name: Convert Package.resolved v2 -> v1
+              run: |
+                  jq '{
+                    "object": {
+                      "pins": .pins | map({
+                        "package": .identity,
+                        "repositoryURL": .location,
+                        "state": .state
+                      })
+                    },
+                    "version": 1
+                  }' Package.resolved > Package.resolved.out
+                  mv Package.resolved.out Package.resolved
+              working-directory: ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm
+
             - name: Build and test
               run: |
                   xcodebuild test \
