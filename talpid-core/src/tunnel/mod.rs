@@ -197,7 +197,7 @@ impl TunnelMonitor {
             + Clone
             + 'static,
     {
-        #[cfg(target_os = "linux")]
+        #[cfg(any(target_os = "linux", target_os = "windows"))]
         args.runtime
             .block_on(Self::assign_mtu(&args.route_manager, params));
         let config = wireguard::config::Config::from_parameters(params)?;
@@ -223,7 +223,7 @@ impl TunnelMonitor {
         })
     }
 
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "windows"))]
     fn set_mtu(params: &mut wireguard_types::TunnelParameters, peer_mtu: u16) {
         const IPV4_HEADER_SIZE: u16 = 20;
         const IPV6_HEADER_SIZE: u16 = 40;
@@ -248,7 +248,7 @@ impl TunnelMonitor {
         params.options.mtu = Some(tunnel_mtu);
     }
 
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "windows"))]
     async fn assign_mtu(
         route_manager: &RouteManagerHandle,
         params: &mut wireguard_types::TunnelParameters,

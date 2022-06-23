@@ -7,7 +7,8 @@ use futures::{
     },
     StreamExt,
 };
-use std::collections::HashSet;
+use std::{collections::HashSet, net::IpAddr};
+use winnet::WinNetAddrFamily;
 
 /// Windows routing errors.
 #[derive(err_derive::Error, Debug)]
@@ -30,6 +31,9 @@ pub enum Error {
     /// Attempt to use route manager that has been dropped
     #[error(display = "Cannot send message to route manager since it is down")]
     RouteManagerDown,
+    /// Something went wrong when getting the mtu of the interface
+    #[error(display = "Could not get the mtu of the interface")]
+    GetMtu,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -54,11 +58,21 @@ impl RouteManagerHandle {
             .map_err(|_| Error::RouteManagerDown)?;
         response_rx.await.map_err(|_| Error::ManagerChannelDown)?
     }
+
+    /// Applies the given routes while the route manager is running.
+    pub async fn get_mtu_for_route(&self, ip: IpAddr) -> Result<()> {
+        let (response_tx, response_rx) = oneshot::channel();
+        //self.tx
+        //    .unbounded_send(RouteManagerCommand::AddRoutes(routes, response_tx))
+        //    .map_err(|_| Error::RouteManagerDown)?;
+        response_rx.await.map_err(|_| Error::ManagerChannelDown)?
+    }
 }
 
 #[derive(Debug)]
 pub enum RouteManagerCommand {
     AddRoutes(HashSet<RequiredRoute>, oneshot::Sender<Result<()>>),
+    GetMtuForRoute(IpAddr, oneshot::Sender<Result<u32>>),
     Shutdown,
 }
 
@@ -112,6 +126,33 @@ impl RouteManager {
                         winnet::routing_manager_add_routes(&routes).map_err(Error::AddRoutesFailed),
                     );
                 }
+                RouteManagerCommand::GetMtuForRoute(ip, tx) => {
+                    // Try with IPV4 first
+                    match get_mtu_for_route(winnet::WinNetAddrFamily::IPV4) {
+                        Ok(Some(mtu)) => {
+                            tx.send(Ok(mtu));
+                            continue;
+                        }
+                        Ok(None) => (),
+                        Err(e) => {
+                            tx.send(Err(e));
+                            continue;
+                        }
+                    }
+                    // Try with IPV6 second
+                    let res = match get_mtu_for_route(winnet::WinNetAddrFamily::IPV6) {
+                        Ok(Some(mtu)) => {
+                            Ok(mtu)
+                        }
+                        Ok(None) => {
+                            Err(Error::GetMtu)
+                        }
+                        Err(e) => {
+                            Err(e)
+                        }
+                    };
+                    tx.send(res);
+                }
                 RouteManagerCommand::Shutdown => {
                     break;
                 }
@@ -154,6 +195,30 @@ impl RouteManager {
             Ok(())
         } else {
             Err(Error::ClearRoutesFailed)
+        }
+    }
+}
+
+fn get_mtu_for_route(addr_family: WinNetAddrFamily) -> Result<Option<u32>> {
+    use crate::windows::AddressFamily;
+    use winapi::shared::ifdef::NET_LUID;
+    match winnet::get_best_default_route(addr_family) {
+        Ok(Some(route)) => {
+            let addr_family = match addr_family {
+                WinNetAddrFamily::IPV4 => AddressFamily::Ipv4,
+                WinNetAddrFamily::IPV6 => AddressFamily::Ipv6,
+            };
+            let luid = NET_LUID { Value: route.interface_luid };
+            let interface_row = crate::windows::get_ip_interface_entry(addr_family, &luid)
+                .map_err(|_| Error::GetMtu)?;
+            let mtu = interface_row.NlMtu;
+            Ok(Some(mtu))
+        },
+        Ok(None) => {
+            Ok(None)
+        },
+        Err(e) => {
+            Err(Error::GetMtu)
         }
     }
 }
