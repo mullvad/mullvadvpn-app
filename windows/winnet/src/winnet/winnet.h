@@ -184,16 +184,3 @@ void
 WINNET_API
 WinNet_DeactivateRouteManager(
 );
-
-extern "C"
-WINNET_LINKAGE
-bool
-WINNET_API
-WinNet_AddDeviceIpAddresses(
-	const wchar_t *deviceAlias,
-	const WINNET_IP *addresses,
-	uint32_t numAddresses,
-	MullvadLogSink logSink,
-	void *logSinkContext
-);
-
