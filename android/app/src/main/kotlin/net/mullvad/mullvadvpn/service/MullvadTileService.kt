@@ -6,10 +6,9 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import kotlin.properties.Delegates.observable
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
@@ -24,7 +23,8 @@ class MullvadTileService : TileService() {
         updateTileState()
     }
 
-    private lateinit var scope: CoroutineScope
+    private val scope = MainScope()
+    private var listenerJob: Job? = null
 
     private lateinit var securedIcon: Icon
     private lateinit var unsecuredIcon: Icon
@@ -34,14 +34,6 @@ class MullvadTileService : TileService() {
 
         securedIcon = Icon.createWithResource(this, R.drawable.small_logo_white)
         unsecuredIcon = Icon.createWithResource(this, R.drawable.small_logo_black)
-    }
-
-    override fun onStartListening() {
-        super.onStartListening()
-
-        scope = MainScope()
-
-        scope.launch { listenToTunnelState() }
     }
 
     override fun onClick() {
@@ -58,9 +50,12 @@ class MullvadTileService : TileService() {
         }
     }
 
+    override fun onStartListening() {
+        listenerJob = scope.launch { listenToTunnelState() }
+    }
+
     override fun onStopListening() {
-        scope.cancel()
-        super.onStopListening()
+        listenerJob?.cancel()
     }
 
     @OptIn(FlowPreview::class)
