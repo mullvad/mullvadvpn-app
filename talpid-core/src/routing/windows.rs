@@ -60,11 +60,11 @@ impl RouteManagerHandle {
     }
 
     /// Applies the given routes while the route manager is running.
-    pub async fn get_mtu_for_route(&self, ip: IpAddr) -> Result<()> {
+    pub async fn get_mtu_for_route(&self, ip: IpAddr) -> Result<u16> {
         let (response_tx, response_rx) = oneshot::channel();
-        //self.tx
-        //    .unbounded_send(RouteManagerCommand::AddRoutes(routes, response_tx))
-        //    .map_err(|_| Error::RouteManagerDown)?;
+        self.tx
+            .unbounded_send(RouteManagerCommand::GetMtuForRoute(ip, response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
         response_rx.await.map_err(|_| Error::ManagerChannelDown)?
     }
 }
@@ -72,7 +72,7 @@ impl RouteManagerHandle {
 #[derive(Debug)]
 pub enum RouteManagerCommand {
     AddRoutes(HashSet<RequiredRoute>, oneshot::Sender<Result<()>>),
-    GetMtuForRoute(IpAddr, oneshot::Sender<Result<u32>>),
+    GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16>>),
     Shutdown,
 }
 
@@ -130,12 +130,12 @@ impl RouteManager {
                     // Try with IPV4 first
                     match get_mtu_for_route(winnet::WinNetAddrFamily::IPV4) {
                         Ok(Some(mtu)) => {
-                            tx.send(Ok(mtu));
+                            let _ = tx.send(Ok(mtu));
                             continue;
                         }
                         Ok(None) => (),
                         Err(e) => {
-                            tx.send(Err(e));
+                            let _ = tx.send(Err(e));
                             continue;
                         }
                     }
@@ -151,7 +151,7 @@ impl RouteManager {
                             Err(e)
                         }
                     };
-                    tx.send(res);
+                    let _ = tx.send(res);
                 }
                 RouteManagerCommand::Shutdown => {
                     break;
@@ -199,7 +199,7 @@ impl RouteManager {
     }
 }
 
-fn get_mtu_for_route(addr_family: WinNetAddrFamily) -> Result<Option<u32>> {
+fn get_mtu_for_route(addr_family: WinNetAddrFamily) -> Result<Option<u16>> {
     use crate::windows::AddressFamily;
     use winapi::shared::ifdef::NET_LUID;
     match winnet::get_best_default_route(addr_family) {
@@ -212,12 +212,13 @@ fn get_mtu_for_route(addr_family: WinNetAddrFamily) -> Result<Option<u32>> {
             let interface_row = crate::windows::get_ip_interface_entry(addr_family, &luid)
                 .map_err(|_| Error::GetMtu)?;
             let mtu = interface_row.NlMtu;
+            let mtu = u16::try_from(mtu).map_err(|_| Error::GetMtu)?;
             Ok(Some(mtu))
         },
         Ok(None) => {
             Ok(None)
         },
-        Err(e) => {
+        Err(_) => {
             Err(Error::GetMtu)
         }
     }
