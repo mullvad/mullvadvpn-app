@@ -37,17 +37,14 @@ class MullvadTileService : TileService() {
     }
 
     override fun onClick() {
-        super.onClick()
-
-        val intent = Intent(this, MullvadVpnService::class.java)
-
-        if (secured) {
-            intent.action = MullvadVpnService.KEY_DISCONNECT_ACTION
-            startService(intent)
-        } else {
-            intent.action = MullvadVpnService.KEY_CONNECT_ACTION
-            startForegroundService(intent)
+        val intent = Intent(this, MullvadVpnService::class.java).apply {
+            action = if (secured) {
+                MullvadVpnService.KEY_DISCONNECT_ACTION
+            } else {
+                MullvadVpnService.KEY_CONNECT_ACTION
+            }
         }
+        startForegroundService(intent)
     }
 
     override fun onStartListening() {
