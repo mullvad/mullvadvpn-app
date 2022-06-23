@@ -347,26 +347,6 @@ pub fn get_best_default_route(
     }
 }
 
-pub fn interface_luid_to_ip(
-    family: WinNetAddrFamily,
-    luid: u64,
-) -> Result<Option<WinNetIp>, Error> {
-    let mut ip = WinNetIp::default();
-    match unsafe {
-        WinNet_InterfaceLuidToIpAddress(
-            family,
-            luid,
-            &mut ip as *mut _,
-            Some(log_sink),
-            logging_context(),
-        )
-    } {
-        WinNetStatus::Success => Ok(Some(ip)),
-        WinNetStatus::NotFound => Ok(None),
-        WinNetStatus::Failure => Err(Error::GetIpAddressFromLuid),
-    }
-}
-
 pub fn add_device_ip_addresses(iface: &str, addresses: &[IpAddr]) -> bool {
     let raw_iface = WideCString::from_str(iface)
         .expect("Failed to convert UTF-8 string to null terminated UCS string")
@@ -432,15 +412,6 @@ mod api {
         pub fn WinNet_GetBestDefaultRoute(
             family: super::WinNetAddrFamily,
             default_route: *mut super::WinNetDefaultRoute,
-            sink: Option<LogSink>,
-            sink_context: *const u8,
-        ) -> WinNetStatus;
-
-        #[link_name = "WinNet_InterfaceLuidToIpAddress"]
-        pub fn WinNet_InterfaceLuidToIpAddress(
-            family: super::WinNetAddrFamily,
-            luid: u64,
-            ip: *mut super::WinNetIp,
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> WinNetStatus;

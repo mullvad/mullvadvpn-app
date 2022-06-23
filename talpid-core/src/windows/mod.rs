@@ -342,6 +342,21 @@ pub async fn wait_for_addresses(luid: NET_LUID) -> Result<()> {
     rx.await.map_err(|_| Error::UnicastSenderDropped)?
 }
 
+/// Returns the first unicast IP address for the given interface.
+pub fn get_ip_address_for_interface(
+    family: AddressFamily,
+    luid: NET_LUID,
+) -> Result<Option<IpAddr>> {
+    match get_unicast_table(Some(family))
+        .map_err(Error::ObtainUnicastAddress)?
+        .into_iter()
+        .find(|row| row.InterfaceLuid.Value == luid.Value)
+    {
+        Some(row) => Ok(Some(try_socketaddr_from_inet_sockaddr(row.Address)?.ip())),
+        None => Ok(None),
+    }
+}
+
 /// Returns the unicast IP address table. If `family` is `None`, then addresses for all families are
 /// returned.
 pub fn get_unicast_table(
