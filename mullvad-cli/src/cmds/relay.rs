@@ -586,7 +586,7 @@ impl Relay {
                     .use_pq_safe_psk;
                 if use_pq {
                     return Err(Error::CommandFailed(
-                        "PQ PSK exchange does not work when multihop is enabled",
+                        "Quantum resistant tunnels do not work when multihop is enabled",
                     ));
                 }
             }
