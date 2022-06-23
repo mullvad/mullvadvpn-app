@@ -575,7 +575,7 @@ impl Relay {
             wireguard_constraints.entry_location = parse_entry_location_constraint(entry);
             let use_multihop = wireguard_constraints.entry_location.is_some();
             if use_multihop {
-                let use_pq = rpc
+                let use_pq_safe_psk = rpc
                     .get_settings(())
                     .await?
                     .into_inner()
@@ -584,9 +584,9 @@ impl Relay {
                     .wireguard
                     .unwrap()
                     .use_pq_safe_psk;
-                if use_pq {
+                if use_pq_safe_psk {
                     return Err(Error::CommandFailed(
-                        "PQ PSK exchange does not work when multihop is enabled",
+                        "Quantum resistant tunnels do not work when multihop is enabled",
                     ));
                 }
             }
