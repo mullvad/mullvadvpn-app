@@ -87,7 +87,7 @@ class ForegroundNotificationManager(
         }
     }
 
-    private fun showOnForeground() {
+    fun showOnForeground() {
         service.startForeground(
             TunnelStateNotification.NOTIFICATION_ID,
             tunnelStateNotification.build()
