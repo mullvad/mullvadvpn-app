@@ -93,7 +93,7 @@ pub enum Error {
     /// Failed to set IP addresses on WireGuard interface
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to set IP addresses on WireGuard interface")]
-    SetIpAddressesError,
+    SetIpAddressesError(#[error(source)] crate::windows::Error),
 }
 
 /// Spawns and monitors a wireguard tunnel
@@ -419,8 +419,15 @@ impl WireguardMonitor {
                 );
                 CloseMsg::SetupError(Error::IpInterfacesError)
             })?;
-        if !crate::winnet::add_device_ip_addresses(iface_name, addresses) {
-            return Err(CloseMsg::SetupError(Error::SetIpAddressesError));
+
+        // TODO: The LUID can be obtained directly.
+        let luid = crate::windows::luid_from_alias(iface_name).map_err(|error| {
+            log::error!("Failed to obtain tunnel interface LUID: {}", error);
+            CloseMsg::SetupError(Error::IpInterfacesError)
+        })?;
+        for address in addresses {
+            crate::windows::add_ip_address_for_interface(luid, *address)
+                .map_err(|error| CloseMsg::SetupError(Error::SetIpAddressesError(error)))?;
         }
         Ok(())
     }

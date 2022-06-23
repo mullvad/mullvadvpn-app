@@ -347,23 +347,10 @@ pub fn get_best_default_route(
     }
 }
 
-pub fn add_device_ip_addresses(iface: &str, addresses: &[IpAddr]) -> bool {
-    let raw_iface = WideCString::from_str(iface)
-        .expect("Failed to convert UTF-8 string to null terminated UCS string")
-        .into_raw();
-    let converted_addresses: Vec<_> = addresses.iter().map(|addr| WinNetIp::from(*addr)).collect();
-    let ptr = converted_addresses.as_ptr();
-    let length: u32 = converted_addresses.len() as u32;
-    unsafe {
-        WinNet_AddDeviceIpAddresses(raw_iface, ptr, length, Some(log_sink), logging_context())
-    }
-}
-
 #[allow(non_snake_case)]
 mod api {
     use super::DefaultRouteChangedCallback;
     use crate::logging::windows::LogSink;
-    use libc::wchar_t;
 
     #[allow(dead_code)]
     #[repr(u32)]
@@ -425,14 +412,5 @@ mod api {
 
         #[link_name = "WinNet_UnregisterDefaultRouteChangedCallback"]
         pub fn WinNet_UnregisterDefaultRouteChangedCallback(registrationHandle: *mut libc::c_void);
-
-        #[link_name = "WinNet_AddDeviceIpAddresses"]
-        pub fn WinNet_AddDeviceIpAddresses(
-            interface_alias: *const wchar_t,
-            addresses: *const super::WinNetIp,
-            num_addresses: u32,
-            sink: Option<LogSink>,
-            sink_context: *const u8,
-        ) -> bool;
     }
 }

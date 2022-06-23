@@ -55,25 +55,4 @@ std::set<InterfaceUtils::NetworkAdapter> InterfaceUtils::GetAllAdapters(ULONG fa
 	return adapters;
 }
 
-//static
-void InterfaceUtils::AddDeviceIpAddresses(NET_LUID device, const std::vector<SOCKADDR_INET> &addresses)
-{
-	for (const auto &address : addresses)
-	{
-		MIB_UNICASTIPADDRESS_ROW row;
-		InitializeUnicastIpAddressEntry(&row);
-
-		row.InterfaceLuid = device;
-		row.Address = address;
-		row.DadState = IpDadStatePreferred;
-
-		const auto status = CreateUnicastIpAddressEntry(&row);
-
-		if (NO_ERROR != status)
-		{
-			THROW_WINDOWS_ERROR(status, "Assign IP address on network interface");
-		}
-	}
-}
-
 }
