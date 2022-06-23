@@ -16,7 +16,12 @@ prost = "0.8"
 prost-types = "0.9"
 tower = "0.4"
 tokio = "1"
-classic-mceliece-rust = { git = "https://github.com/mullvad/classic-mceliece-rust", rev = "5130d9e3bfbf54735177e15636a643366c250b78", features = ["mceliece8192128f"] }
+
+[dependencies.classic-mceliece-rust]
+git = "https://github.com/mullvad/classic-mceliece-rust"
+rev = "5130d9e3bfbf54735177e15636a643366c250b78"
+version = "1.0.1"
+features = ["mceliece8192128f"]
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread"] }
