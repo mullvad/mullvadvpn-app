@@ -109,14 +109,12 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
     } else {
         String::new()
     };
-    let quantum_resistant = if verbose {
-        if endpoint.quantum_resistant {
-            "\nQuantum resistant tunnel: true".to_string()
-        } else {
-            "\nQuantum resistant tunnel: false".to_string()
-        }
+    let quantum_resistant = if !verbose {
+        ""
+    } else if endpoint.quantum_resistant {
+        "\nQuantum resistant tunnel: yes"
     } else {
-        String::new()
+        "\nQuantum resistant tunnel: no"
     };
 
     let mut bridge_type = String::new();
