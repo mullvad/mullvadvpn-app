@@ -230,23 +230,28 @@ impl TunnelMonitor {
     }
 
     #[cfg(target_os = "linux")]
-    fn set_mtu(params: &mut wireguard_types::TunnelParameters, mtu: u16) {
-        const WIREGUARD_HEADER_SIZE: u16 = 80;
-        // The largest tunnel MTU that we allow. Standard MTU - Wireguard header
-        const MAX_TUNNEL_MTU: u16 = 1420;
+    fn set_mtu(params: &mut wireguard_types::TunnelParameters, peer_mtu: u16) {
+        const IPV4_HEADER_SIZE: u16 = 20;
+        const IPV6_HEADER_SIZE: u16 = 40;
+        const WIREGUARD_HEADER_SIZE: u16 = 40;
+        let total_header_size = WIREGUARD_HEADER_SIZE
+            + match params.connection.peer.endpoint.is_ipv6() {
+                false => IPV4_HEADER_SIZE,
+                true => IPV6_HEADER_SIZE,
+            };
+        // The largest peer MTU that we allow
+        const MAX_PEER_MTU: u16 = 1500;
         // The minimum allowed MTU size for our tunnel in IPv6 is 1280
-        const MIN_IPV6_MTU: u16 = 1280;
         const MIN_IPV4_MTU: u16 = 576;
+        const MIN_IPV6_MTU: u16 = 1280;
         let min_mtu = match params.generic_options.enable_ipv6 {
-            true => MIN_IPV6_MTU,
             false => MIN_IPV4_MTU,
+            true => MIN_IPV6_MTU,
         };
-        let mtu = std::cmp::max(
-            mtu.checked_sub(WIREGUARD_HEADER_SIZE).unwrap_or(min_mtu),
-            min_mtu,
-        );
-        let upstream_mtu = std::cmp::min(MAX_TUNNEL_MTU, mtu);
-        params.options.mtu = Some(upstream_mtu);
+        let tunnel_mtu = peer_mtu
+            .saturating_sub(total_header_size)
+            .clamp(min_mtu, MAX_PEER_MTU - total_header_size);
+        params.options.mtu = Some(tunnel_mtu);
     }
 
     #[cfg(target_os = "linux")]
@@ -254,13 +259,14 @@ impl TunnelMonitor {
         route_manager: &RouteManagerHandle,
         params: &mut wireguard_types::TunnelParameters,
     ) {
-        // It is fine to leave the params untouched if getting the mtu for the route fails. In that
-        // case we will do our regular default.
-        if let Ok(mtu) = route_manager
-            .get_mtu_for_route(params.connection.peer.endpoint.ip())
-            .await
-        {
-            Self::set_mtu(params, mtu);
+        // Only calculate the mtu automatically if the user has not set any
+        if params.options.mtu.is_none() {
+            if let Ok(mtu) = route_manager
+                .get_mtu_for_route(params.connection.peer.endpoint.ip())
+                .await
+            {
+                Self::set_mtu(params, mtu);
+            }
         }
     }
 
