@@ -231,9 +231,15 @@ impl TunnelMonitor {
 
     #[cfg(target_os = "linux")]
     fn set_mtu(params: &mut wireguard_types::TunnelParameters, mtu: u16) {
-        const WIREGUARD_HEADER_SIZE: u16 = 80;
-        // The largest tunnel MTU that we allow. Standard MTU - Wireguard header
-        const MAX_TUNNEL_MTU: u16 = 1420;
+        const IPV4_HEADER_SIZE: u16 = 20;
+        const IPV6_HEADER_SIZE: u16 = 40;
+        const WIREGUARD_HEADER_SIZE: u16 = 40;
+        let total_header_size = WIREGUARD_HEADER_SIZE + match params.connection.peer.endpoint.is_ipv6() {
+            true => IPV6_HEADER_SIZE,
+            false => IPV4_HEADER_SIZE,
+        };
+        // The largest peer MTU that we allow
+        const MAX_PEER_MTU: u16 = 1500;
         // The minimum allowed MTU size for our tunnel in IPv6 is 1280
         const MIN_IPV6_MTU: u16 = 1280;
         const MIN_IPV4_MTU: u16 = 576;
@@ -241,12 +247,11 @@ impl TunnelMonitor {
             true => MIN_IPV6_MTU,
             false => MIN_IPV4_MTU,
         };
-        let mtu = std::cmp::max(
-            mtu.checked_sub(WIREGUARD_HEADER_SIZE).unwrap_or(min_mtu),
+        let tunnel_mtu = mtu.checked_sub(total_header_size).unwrap_or(0).clamp(
             min_mtu,
-        );
-        let upstream_mtu = std::cmp::min(MAX_TUNNEL_MTU, mtu);
-        params.options.mtu = Some(upstream_mtu);
+            MAX_PEER_MTU - total_header_size,
+            );
+        params.options.mtu = Some(tunnel_mtu);
     }
 
     #[cfg(target_os = "linux")]
