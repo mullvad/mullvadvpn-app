@@ -24,6 +24,31 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+#### Android
+- Add device management to the Android app. This simplifies knowing which device is which and adds
+  the option to log other devices out when the account already has five devices.
+
+### Changed
+#### Android
+- Lowered default MTU to 1280 on Android.
+
+### Removed
+#### Android
+- Remove WireGuard view as it's no longer needed with the new way of managing devices.
+
+### Fixed
+#### Android
+- Fix unused dependencies loaded in the service/tile DI graph.
+- Fix missing IPC message unregistration causing multiple copies of some messages to be received.
+
+### Security
+#### Android
+- Prevent location request responses from being received outside the tunnel when in the connected
+  state.
+
+
+## [2022.3-beta1] - 2022-06-27
+### Added
 - Add option to filter relays by ownership in the desktop apps.
 - Experimental: Add support for quantum-resistant PSK exchange to the CLI.
 
@@ -33,24 +58,12 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add CLI command for listing excluded processes.
 
-#### Android
-- Add device management to the Android app. This simplifies knowing which device is which and adds
-  the option to log other devices out when the account already has five devices.
-
-### Changed
-- Display consistent colors regardless of monitor color profile.
-
-#### Android
-- Lowered default MTU to 1280 on Android.
-
 ### Removed
-#### Android
-- Remove WireGuard view as it's no longer needed with the new way of managing devices.
-
 #### Linux
 - Remove upstart init configuration files
 
 ### Fixed
+- Display consistent colors regardless of monitor color profile on desktop.
 - Fix time added view displayed due to incorrect local clock.
 
 #### Windows
@@ -58,15 +71,6 @@ Line wrap the file at 100 chars.                                              Th
 - Fix issue where local name resolution fails. This requires users to ensure that non-tunnel
   interfaces are configured correctly to use local custom DNS.
 - Configure DNS correctly when the DNS client service is disabled or not responding.
-
-#### Android
-- Fix unused dependencies loaded in the service/tile DI graph.
-- Fix missing IPC message unregistration causing multiple copies of some messages to be received.
-
-### Security
-#### Android
-- Prevent location request responses from being received outside the tunnel when in the connected
-  state.
 
 
 ## [2022.2] - 2022-06-13
