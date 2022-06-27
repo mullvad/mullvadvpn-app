@@ -51,13 +51,18 @@ ignore = [
 # The lint level for crates which do not have a detectable license
 unlicensed = "deny"
 
-# List of explicitly allowed licenses
-# See https://spdx.org/licenses/ for list of possible licenses
-# [possible values: any SPDX 3.11 short identifier (+ optional exception)].
+# Adding a license here has to be done carefully. Should not be changed
+# by individual developers.
 allow = [
-    "MIT",
+    "GPL-3.0",
     "Apache-2.0",
-    "GPL-3.0"
+    "MIT",
+    "WTFPL",
+    "ISC",
+    "BSD-3-Clause",
+    "BSD-2-Clause",
+    # https://github.com/briansmith/ring/issues/902
+    "LicenseRef-ring"
 ]
 
 # List of explicitly disallowed licenses
@@ -96,25 +101,12 @@ exceptions = [
     #{ allow = ["Zlib"], name = "adler32", version = "*" },
 ]
 
-# Some crates don't have (easily) machine readable licensing information,
-# adding a clarification entry for it allows you to manually specify the
-# licensing information
-#[[licenses.clarify]]
-# The name of the crate the clarification applies to
-#name = "ring"
-# The optional version constraint for the crate
-#version = "*"
-# The SPDX expression for the license requirements of the crate
-#expression = "MIT AND ISC AND OpenSSL"
-# One or more files in the crate's source used as the "source of truth" for
-# the license expression. If the contents match, the clarification will be used
-# when running the license check, otherwise the clarification will be ignored
-# and the crate will be checked normally, which may produce warnings or errors
-# depending on the rest of your configuration
-#license-files = [
-    # Each entry is a crate relative path, and the (opaque) hash of its contents
-    #{ path = "LICENSE", hash = 0xbd0eed23 }
-#]
+[[licenses.clarify]]
+name = "ring"
+expression = "LicenseRef-ring"
+license-files = [
+    { path = "LICENSE", hash = 0xbd0eed23 }
+]
 
 [licenses.private]
 # If true, ignores workspace crates that aren't published, or are only
