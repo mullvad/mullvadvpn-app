@@ -127,20 +127,12 @@ impl RouteManager {
                     );
                 }
                 RouteManagerCommand::GetMtuForRoute(ip, tx) => {
-                    // Try with IPV4 first
-                    match get_mtu_for_route(winnet::WinNetAddrFamily::IPV4) {
-                        Ok(Some(mtu)) => {
-                            let _ = tx.send(Ok(mtu));
-                            continue;
-                        }
-                        Ok(None) => (),
-                        Err(e) => {
-                            let _ = tx.send(Err(e));
-                            continue;
-                        }
-                    }
-                    // Try with IPV6 second
-                    let res = match get_mtu_for_route(winnet::WinNetAddrFamily::IPV6) {
+                    let addr_family = if ip.is_ipv4() {
+                        winnet::WinNetAddrFamily::IPV4
+                    } else {
+                        winnet::WinNetAddrFamily::IPV6
+                    };
+                    let res = match get_mtu_for_route(addr_family) {
                         Ok(Some(mtu)) => {
                             Ok(mtu)
                         }
