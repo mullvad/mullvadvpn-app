@@ -1,5 +1,3 @@
-CHANGE THIS BEFORE A RELEASE
-Each line is treated as a separate change item shown in the GUI the first time it runs after install.
-Start each line with a capital letter and end each line with a period.
-[macOS, Windows, linux] To make an entry platform specific, start the line with an angle bracket enclosed comma separated list of platforms to show the entry on.
-Only point out the major changes.
+Add server filtering on ownership status. See filters under location selection.
+[windows] Simplified and improved DNS management code. Should solve some issues related to DNS on Windows.
+Experimental support for post-quantum secure tunnels. Only available in the command line interface for now. Please see our blog.
