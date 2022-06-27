@@ -114,6 +114,12 @@ class MullvadVpnService : TalpidVpnService() {
         val startResult = super.onStartCommand(intent, flags, startId)
         var quitCommand = false
 
+        // Always promote to foreground if connect/disconnect actions are provided to mitigate cases
+        // where the service would potentially otherwise be too slow running `startForeground`.
+        if (intent?.action == KEY_CONNECT_ACTION || intent?.action == KEY_DISCONNECT_ACTION) {
+            notificationManager.showOnForeground()
+        }
+
         notificationManager.updateNotification()
 
         if (!keyguardManager.isDeviceLocked) {

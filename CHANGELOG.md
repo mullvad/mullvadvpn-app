@@ -40,6 +40,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.
 - Fix missing IPC message unregistration causing multiple copies of some messages to be received.
+- Fix quick settings tile being unresponsive and causing crashes on some devices.
+- Fix quick settings tile not working when the device is locked. It will now prompt the user to
+  unlock the device before attempting to toggle the tunnel state.
 
 ### Security
 #### Android
