@@ -1,6 +1,6 @@
 [package]
 name = "talpid-openvpn-plugin"
-version = "2022.2.0"
+version = "2022.3.0-beta1"
 authors = ["Mullvad VPN"]
 description = "OpenVPN shared library plugin for relaying OpenVPN events to talpid_core"
 license = "GPL-3.0"
