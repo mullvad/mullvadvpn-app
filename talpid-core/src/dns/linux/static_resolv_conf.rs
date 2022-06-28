@@ -4,7 +4,7 @@ use parking_lot::Mutex;
 use resolv_conf::{Config, ScopedIp};
 use std::{fs, io, net::IpAddr, sync::Arc};
 use talpid_types::ErrorExt;
-use triggered::{trigger, Trigger, Listener};
+use triggered::{trigger, Listener, Trigger};
 
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
@@ -132,9 +132,7 @@ impl DnsWatcher {
 
         tokio::spawn(async move { Self::event_loop(watcher, cancel_listener, &state).await });
 
-        Ok(DnsWatcher {
-            cancel_trigger,
-        })
+        Ok(DnsWatcher { cancel_trigger })
     }
 
     async fn event_loop(
