@@ -1,12 +1,13 @@
-use super::RESOLV_CONF_PATH;
-use inotify::{Inotify, WatchDescriptor, WatchMask};
+use futures::StreamExt;
+use inotify::{Inotify, WatchMask};
 use parking_lot::Mutex;
 use resolv_conf::{Config, ScopedIp};
-use std::{fs, io, net::IpAddr, sync::Arc, thread};
+use std::{fs, io, net::IpAddr, sync::Arc};
 use talpid_types::ErrorExt;
+use tokio::sync::oneshot::{channel, Receiver, Sender};
 
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
-const RESOLV_CONF_DIR: &str = "/etc/";
+const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -34,11 +35,11 @@ pub struct StaticResolvConf {
 }
 
 impl StaticResolvConf {
-    pub fn new() -> Result<Self> {
+    pub async fn new() -> Result<Self> {
         restore_from_backup()?;
 
         let state = Arc::new(Mutex::new(None));
-        let watcher = DnsWatcher::start(state.clone())?;
+        let watcher = DnsWatcher::start(state.clone()).await?;
 
         Ok(StaticResolvConf {
             state,
@@ -101,11 +102,18 @@ impl State {
 }
 
 struct DnsWatcher {
-    _pd: std::marker::PhantomData<()>,
+    /// Should only be used in `drop` and should always be initialized as `Some`
+    cancel_tx: Option<Sender<()>>,
+}
+
+impl Drop for DnsWatcher {
+    fn drop(&mut self) {
+        self.cancel_tx.take().unwrap().send(()).unwrap();
+    }
 }
 
 impl DnsWatcher {
-    fn start(state: Arc<Mutex<Option<State>>>) -> Result<Self> {
+    async fn start(state: Arc<Mutex<Option<State>>>) -> Result<Self> {
         let mut watcher = Inotify::init().map_err(Error::WatchResolvConf)?;
         let mut mask = WatchMask::empty();
         // Documentation for the meaning of these masks can be found in `man inotify`
@@ -113,36 +121,41 @@ impl DnsWatcher {
         // We do not watch for writes but instead for when a file opened for writing is closed.
         // This way we don't have collisions.
         mask.insert(WatchMask::CLOSE_WRITE);
-        mask.insert(WatchMask::CREATE);
         // DELETE_SELF is generated if the file watched is itself deleted
         mask.insert(WatchMask::DELETE_SELF);
         mask.insert(WatchMask::MOVE_SELF);
 
-        let resolv_conf_wd = watcher
-            .add_watch(&RESOLV_CONF_DIR, mask)
+        watcher
+            .add_watch(&RESOLV_CONF_PATH, mask)
             .map_err(Error::WatchResolvConf)?;
 
-        thread::spawn(move || Self::event_loop(watcher, resolv_conf_wd, &state));
+        let (cancel_tx, cancel_rx) = channel();
+
+        tokio::spawn(async move { Self::event_loop(watcher, cancel_rx, &state).await });
 
         Ok(DnsWatcher {
-            _pd: std::marker::PhantomData {},
+            cancel_tx: Some(cancel_tx),
         })
     }
 
-    fn event_loop(
+    async fn event_loop(
         mut watcher: Inotify,
-        resolv_conf_wd: WatchDescriptor,
+        mut cancel_rx: Receiver<()>,
         state: &Arc<Mutex<Option<State>>>,
     ) {
         const EVENT_BUFFER_SIZE: usize = 1024;
         let mut buffer = [0; EVENT_BUFFER_SIZE];
+        let mut events = watcher
+            .event_stream(&mut buffer)
+            .expect("Could not read events for resolv.conf");
+
         loop {
-            let events = watcher
-                .read_events_blocking(&mut buffer)
-                .expect("Could not read events for resolv.conf");
-            for event in events {
-                // Compare the events watchdescriptor with resolv confs watch descriptor.
-                if event.wd == resolv_conf_wd {
+            tokio::select! {
+                // To use a Receiver in a tokio::select! loop, add &mut in front of the channel.
+                _ = &mut cancel_rx => {
+                    break;
+                },
+                Some(_) = events.next() => {
                     let mut locked_state = state.lock();
                     if let Err(error) = Self::update(locked_state.as_mut()) {
                         log::error!(

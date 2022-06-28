@@ -10,8 +10,6 @@ use self::{
 use crate::routing::RouteManagerHandle;
 use std::{env, fmt, net::IpAddr};
 
-const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
-
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen in the Linux DNS monitor
@@ -58,7 +56,7 @@ impl super::DnsMonitorT for DnsMonitor {
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
         self.reset()?;
         // Creating a new DNS monitor for each set, in case the system changed how it manages DNS.
-        let mut inner = DnsMonitorHolder::new()?;
+        let mut inner = DnsMonitorHolder::new(&self.handle)?;
         if !servers.is_empty() {
             inner.set(&self.handle, &self.route_manager, interface, servers)?;
             self.inner = Some(inner);
@@ -95,21 +93,23 @@ impl fmt::Display for DnsMonitorHolder {
 }
 
 impl DnsMonitorHolder {
-    fn new() -> Result<Self> {
+    fn new(handle: &tokio::runtime::Handle) -> Result<Self> {
         let dns_module = env::var_os("TALPID_DNS_MODULE");
 
         let manager = match dns_module.as_ref().and_then(|value| value.to_str()) {
-            Some("static-file") => DnsMonitorHolder::StaticResolvConf(StaticResolvConf::new()?),
+            Some("static-file") => {
+                DnsMonitorHolder::StaticResolvConf(handle.block_on(StaticResolvConf::new())?)
+            }
             Some("resolvconf") => DnsMonitorHolder::Resolvconf(Resolvconf::new()?),
             Some("systemd") => DnsMonitorHolder::SystemdResolved(SystemdResolved::new()?),
             Some("network-manager") => DnsMonitorHolder::NetworkManager(NetworkManager::new()?),
-            Some(_) | None => Self::with_detected_dns_manager()?,
+            Some(_) | None => Self::with_detected_dns_manager(handle)?,
         };
         log::debug!("Managing DNS via {}", manager);
         Ok(manager)
     }
 
-    fn with_detected_dns_manager() -> Result<Self> {
+    fn with_detected_dns_manager(handle: &tokio::runtime::Handle) -> Result<Self> {
         SystemdResolved::new()
             .map(DnsMonitorHolder::SystemdResolved)
             .or_else(|err| {
@@ -124,7 +124,11 @@ impl DnsMonitorHolder {
                 NetworkManager::new().map(DnsMonitorHolder::NetworkManager)
             })
             .or_else(|_| Resolvconf::new().map(DnsMonitorHolder::Resolvconf))
-            .or_else(|_| StaticResolvConf::new().map(DnsMonitorHolder::StaticResolvConf))
+            .or_else(|_| {
+                handle
+                    .block_on(StaticResolvConf::new())
+                    .map(DnsMonitorHolder::StaticResolvConf)
+            })
             .map_err(|_| Error::NoDnsMonitor)
     }
 
