@@ -133,15 +133,9 @@ impl RouteManager {
                         winnet::WinNetAddrFamily::IPV6
                     };
                     let res = match get_mtu_for_route(addr_family) {
-                        Ok(Some(mtu)) => {
-                            Ok(mtu)
-                        }
-                        Ok(None) => {
-                            Err(Error::GetMtu)
-                        }
-                        Err(e) => {
-                            Err(e)
-                        }
+                        Ok(Some(mtu)) => Ok(mtu),
+                        Ok(None) => Err(Error::GetMtu),
+                        Err(e) => Err(e),
                     };
                     let _ = tx.send(res);
                 }
@@ -200,19 +194,17 @@ fn get_mtu_for_route(addr_family: WinNetAddrFamily) -> Result<Option<u16>> {
                 WinNetAddrFamily::IPV4 => AddressFamily::Ipv4,
                 WinNetAddrFamily::IPV6 => AddressFamily::Ipv6,
             };
-            let luid = NET_LUID { Value: route.interface_luid };
+            let luid = NET_LUID {
+                Value: route.interface_luid,
+            };
             let interface_row = crate::windows::get_ip_interface_entry(addr_family, &luid)
                 .map_err(|_| Error::GetMtu)?;
             let mtu = interface_row.NlMtu;
             let mtu = u16::try_from(mtu).map_err(|_| Error::GetMtu)?;
             Ok(Some(mtu))
-        },
-        Ok(None) => {
-            Ok(None)
-        },
-        Err(_) => {
-            Err(Error::GetMtu)
         }
+        Ok(None) => Ok(None),
+        Err(_) => Err(Error::GetMtu),
     }
 }
 
