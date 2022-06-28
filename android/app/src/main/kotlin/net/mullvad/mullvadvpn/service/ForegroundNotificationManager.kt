@@ -8,6 +8,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onStart
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.endpoint.ConnectionProxy
@@ -55,9 +56,13 @@ class ForegroundNotificationManager(
 
         intermittentDaemon.registerListener(this) { daemon ->
             jobTracker.newBackgroundJob("notificationLoggedInJob") {
-                daemon?.deviceStateUpdates?.collect { deviceState ->
-                    loggedIn = deviceState is DeviceState.LoggedIn
-                }
+                daemon?.deviceStateUpdates
+                    ?.onStart {
+                        emit(daemon.getAndEmitDeviceState())
+                    }
+                    ?.collect { deviceState ->
+                        loggedIn = deviceState is DeviceState.LoggedIn
+                    }
             }
         }
 
@@ -87,7 +92,7 @@ class ForegroundNotificationManager(
         }
     }
 
-    private fun showOnForeground() {
+    fun showOnForeground() {
         service.startForeground(
             TunnelStateNotification.NOTIFICATION_ID,
             tunnelStateNotification.build()
