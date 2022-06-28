@@ -4,7 +4,7 @@ use parking_lot::Mutex;
 use resolv_conf::{Config, ScopedIp};
 use std::{fs, io, net::IpAddr, sync::Arc};
 use talpid_types::ErrorExt;
-use tokio::sync::oneshot::{channel, Receiver, Sender};
+use triggered::{trigger, Trigger, Listener};
 
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
@@ -102,13 +102,12 @@ impl State {
 }
 
 struct DnsWatcher {
-    /// Should only be used in `drop` and should always be initialized as `Some`
-    cancel_tx: Option<Sender<()>>,
+    cancel_tx: Trigger,
 }
 
 impl Drop for DnsWatcher {
     fn drop(&mut self) {
-        self.cancel_tx.take().unwrap().send(()).unwrap();
+        self.cancel_tx.trigger();
     }
 }
 
@@ -129,18 +128,18 @@ impl DnsWatcher {
             .add_watch(&RESOLV_CONF_PATH, mask)
             .map_err(Error::WatchResolvConf)?;
 
-        let (cancel_tx, cancel_rx) = channel();
+        let (cancel_tx, cancel_rx) = trigger();
 
         tokio::spawn(async move { Self::event_loop(watcher, cancel_rx, &state).await });
 
         Ok(DnsWatcher {
-            cancel_tx: Some(cancel_tx),
+            cancel_tx,
         })
     }
 
     async fn event_loop(
         mut watcher: Inotify,
-        mut cancel_rx: Receiver<()>,
+        mut cancel_rx: Listener,
         state: &Arc<Mutex<Option<State>>>,
     ) {
         const EVENT_BUFFER_SIZE: usize = 1024;
