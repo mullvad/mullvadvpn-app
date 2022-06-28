@@ -32,4 +32,6 @@ jobs:
 
       - name: Clippy check
         run: |
-          ./ci/check-clippy.sh
+          export RUSTFLAGS="--deny warnings"
+          source env.sh
+          time cargo clippy --locked --verbose
