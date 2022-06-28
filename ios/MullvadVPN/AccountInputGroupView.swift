@@ -374,11 +374,7 @@ class AccountInputGroupView: UIView {
     // MARK: - Private
 
     private static func accountNumberFont() -> UIFont {
-        if #available(iOS 13, *) {
-            return UIFont.monospacedSystemFont(ofSize: 20, weight: .regular)
-        } else {
-            return UIFont.systemFont(ofSize: 20)
-        }
+        return UIFont.backport_monospacedSystemFont(ofSize: 20, weight: .regular)
     }
 
     private func addTextFieldNotificationObservers() {

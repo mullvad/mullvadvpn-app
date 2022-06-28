@@ -190,7 +190,7 @@ class AccountNumberRow: UIView {
     private let accountNumberLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.font = UIFont.systemFont(ofSize: 17)
+        textLabel.font = UIFont.backport_monospacedSystemFont(ofSize: 17, weight: .regular)
         textLabel.textColor = .white
         return textLabel
     }()
