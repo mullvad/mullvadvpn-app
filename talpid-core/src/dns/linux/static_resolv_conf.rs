@@ -102,12 +102,12 @@ impl State {
 }
 
 struct DnsWatcher {
-    cancel_tx: Trigger,
+    cancel_trigger: Trigger,
 }
 
 impl Drop for DnsWatcher {
     fn drop(&mut self) {
-        self.cancel_tx.trigger();
+        self.cancel_trigger.trigger();
     }
 }
 
@@ -128,18 +128,18 @@ impl DnsWatcher {
             .add_watch(&RESOLV_CONF_PATH, mask)
             .map_err(Error::WatchResolvConf)?;
 
-        let (cancel_tx, cancel_rx) = trigger();
+        let (cancel_trigger, cancel_listener) = trigger();
 
-        tokio::spawn(async move { Self::event_loop(watcher, cancel_rx, &state).await });
+        tokio::spawn(async move { Self::event_loop(watcher, cancel_listener, &state).await });
 
         Ok(DnsWatcher {
-            cancel_tx,
+            cancel_trigger,
         })
     }
 
     async fn event_loop(
         mut watcher: Inotify,
-        mut cancel_rx: Listener,
+        mut cancel_listener: Listener,
         state: &Arc<Mutex<Option<State>>>,
     ) {
         const EVENT_BUFFER_SIZE: usize = 1024;
@@ -150,8 +150,7 @@ impl DnsWatcher {
 
         loop {
             tokio::select! {
-                // To use a Receiver in a tokio::select! loop, add &mut in front of the channel.
-                _ = &mut cancel_rx => {
+                _ = &mut cancel_listener => {
                     break;
                 },
                 Some(_) = events.next() => {
