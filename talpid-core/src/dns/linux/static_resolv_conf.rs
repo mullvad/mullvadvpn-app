@@ -1,12 +1,11 @@
 use super::RESOLV_CONF_PATH;
-use notify::{RecommendedWatcher, RecursiveMode, Watcher};
+use inotify::{Inotify, WatchMask, WatchDescriptor};
 use parking_lot::Mutex;
 use resolv_conf::{Config, ScopedIp};
 use std::{
     fs, io,
     net::IpAddr,
-    path::Path,
-    sync::{mpsc, Arc},
+    sync::Arc,
     thread,
 };
 use talpid_types::ErrorExt;
@@ -19,7 +18,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to watch /etc/resolv.conf for changes")]
-    WatchResolvConf(#[error(source)] notify::Error),
+    WatchResolvConf(#[error(source)] std::io::Error),
 
     #[error(display = "Failed to write to {}", _0)]
     WriteResolvConf(&'static str, #[error(source)] io::Error),
@@ -107,39 +106,47 @@ impl State {
 }
 
 struct DnsWatcher {
-    _watcher: RecommendedWatcher,
+    _pd: std::marker::PhantomData<()>,
 }
 
 impl DnsWatcher {
     fn start(state: Arc<Mutex<Option<State>>>) -> Result<Self> {
-        let (event_tx, event_rx) = mpsc::channel();
-        let mut watcher = notify::raw_watcher(event_tx).map_err(Error::WatchResolvConf)?;
+        let mut watcher = Inotify::init().map_err(Error::WatchResolvConf)?;
+        let mut mask = WatchMask::empty();
+        // Documentation for the meaning of these masks can be found in `man inotify`
+        //
+        // We do not watch for writes but instead for when a file opened for writing is closed.
+        // This way we don't have collisions.
+        mask.insert(WatchMask::CLOSE_WRITE);
+        mask.insert(WatchMask::CREATE);
+        // DELETE_SELF is generated if the file watched is itself deleted
+        mask.insert(WatchMask::DELETE_SELF);
+        mask.insert(WatchMask::MOVE_SELF);
 
-        watcher
-            .watch(&RESOLV_CONF_DIR, RecursiveMode::NonRecursive)
-            .map_err(Error::WatchResolvConf)?;
+        let resolv_conf_wd = watcher.add_watch(&RESOLV_CONF_DIR, mask).map_err(Error::WatchResolvConf)?;
 
-        thread::spawn(move || Self::event_loop(event_rx, &state));
+        thread::spawn(move || Self::event_loop(watcher, resolv_conf_wd, &state));
 
-        Ok(DnsWatcher { _watcher: watcher })
+        Ok(DnsWatcher { _pd: std::marker::PhantomData {} })
     }
 
-    fn event_loop(events: mpsc::Receiver<notify::RawEvent>, state: &Arc<Mutex<Option<State>>>) {
-        for event in events {
-            if event
-                .path
-                .as_ref()
-                .map(|p| p.as_path() == AsRef::<Path>::as_ref(RESOLV_CONF_PATH))
-                .unwrap_or(false)
-            {
-                let mut locked_state = state.lock();
-                if let Err(error) = Self::update(locked_state.as_mut()) {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg(
-                            "Failed to update DNS state after DNS settings changed"
-                        )
-                    );
+    fn event_loop(mut watcher: Inotify, resolv_conf_wd: WatchDescriptor, state: &Arc<Mutex<Option<State>>>) {
+        const EVENT_BUFFER_SIZE: usize = 1024;
+        let mut buffer = [0; EVENT_BUFFER_SIZE];
+        loop {
+            let events = watcher.read_events_blocking(&mut buffer).expect("Could not read events for resolv.conf");
+            for event in events {
+                // Compare the events watchdescriptor with resolv confs watch descriptor.
+                if event.wd == resolv_conf_wd {
+                    let mut locked_state = state.lock();
+                    if let Err(error) = Self::update(locked_state.as_mut()) {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg(
+                                "Failed to update DNS state after DNS settings changed"
+                            )
+                        );
+                    }
                 }
             }
         }
