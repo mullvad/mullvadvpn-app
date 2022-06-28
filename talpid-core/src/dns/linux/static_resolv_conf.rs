@@ -1,13 +1,8 @@
 use super::RESOLV_CONF_PATH;
-use inotify::{Inotify, WatchMask, WatchDescriptor};
+use inotify::{Inotify, WatchDescriptor, WatchMask};
 use parking_lot::Mutex;
 use resolv_conf::{Config, ScopedIp};
-use std::{
-    fs, io,
-    net::IpAddr,
-    sync::Arc,
-    thread,
-};
+use std::{fs, io, net::IpAddr, sync::Arc, thread};
 use talpid_types::ErrorExt;
 
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
@@ -123,18 +118,28 @@ impl DnsWatcher {
         mask.insert(WatchMask::DELETE_SELF);
         mask.insert(WatchMask::MOVE_SELF);
 
-        let resolv_conf_wd = watcher.add_watch(&RESOLV_CONF_DIR, mask).map_err(Error::WatchResolvConf)?;
+        let resolv_conf_wd = watcher
+            .add_watch(&RESOLV_CONF_DIR, mask)
+            .map_err(Error::WatchResolvConf)?;
 
         thread::spawn(move || Self::event_loop(watcher, resolv_conf_wd, &state));
 
-        Ok(DnsWatcher { _pd: std::marker::PhantomData {} })
+        Ok(DnsWatcher {
+            _pd: std::marker::PhantomData {},
+        })
     }
 
-    fn event_loop(mut watcher: Inotify, resolv_conf_wd: WatchDescriptor, state: &Arc<Mutex<Option<State>>>) {
+    fn event_loop(
+        mut watcher: Inotify,
+        resolv_conf_wd: WatchDescriptor,
+        state: &Arc<Mutex<Option<State>>>,
+    ) {
         const EVENT_BUFFER_SIZE: usize = 1024;
         let mut buffer = [0; EVENT_BUFFER_SIZE];
         loop {
-            let events = watcher.read_events_blocking(&mut buffer).expect("Could not read events for resolv.conf");
+            let events = watcher
+                .read_events_blocking(&mut buffer)
+                .expect("Could not read events for resolv.conf");
             for event in events {
                 // Compare the events watchdescriptor with resolv confs watch descriptor.
                 if event.wd == resolv_conf_wd {
