@@ -1,5 +1,9 @@
 use crate::windows::{get_system_dir, guid_from_luid, luid_from_alias, string_from_guid};
-use std::{io, net::IpAddr, process::Command};
+use std::{
+    io,
+    net::IpAddr,
+    process::{Command, Stdio},
+};
 use talpid_types::ErrorExt;
 use winapi::shared::guiddef::GUID;
 use winreg::{
@@ -149,14 +153,14 @@ fn config_interface<'a>(
 
 fn flush_dns_cache() -> Result<(), Error> {
     let sysdir = get_system_dir().map_err(Error::SystemDirError)?;
-    let mut ipconfig = Command::new(sysdir.join("ipconfig.exe"));
-    ipconfig.arg("/flushdns");
-    let output = ipconfig.output().map_err(Error::ExecuteIpconfigError)?;
-    let output = String::from_utf8_lossy(&output.stdout);
-    // The exit code cannot be trusted
-    if !output.contains("Successfully flushed") {
-        log::error!("Failed to flush DNS cache: {}", output);
-        return Err(Error::FlushResolverCacheError);
-    }
+    Command::new(sysdir.join("ipconfig.exe"))
+        .arg("/flushdns")
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map_err(Error::ExecuteIpconfigError)?;
+    // The exit code cannot be trusted. And the stdout messages from Windows CLI tools
+    // are localized, so it can also not be checked. There is no way to verify if
+    // this flush succeeded or failed.
     Ok(())
 }
