@@ -41,14 +41,17 @@ Line wrap the file at 100 chars.                                              Th
 - Fix unused dependencies loaded in the service/tile DI graph.
 - Fix missing IPC message unregistration causing multiple copies of some messages to be received.
 
-#### Windows
-- Fix DNS issue on non-English Windows installations. Don't parse the output of ipconfig.exe
-  to determine if the tool succeeded.
-
 ### Security
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected
   state.
+
+
+## [2022.3-beta2] - 2022-06-29
+### Fixed
+#### Windows
+- Fix DNS issue on non-English Windows installations. Don't parse the output of ipconfig.exe
+  to determine if the tool succeeded.
 
 
 ## [2022.3-beta1] - 2022-06-27
