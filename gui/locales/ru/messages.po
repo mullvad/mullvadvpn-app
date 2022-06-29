@@ -423,7 +423,7 @@ msgstr "Отключить"
 
 msgctxt "connect-view"
 msgid "Either buy credit on our website or redeem a voucher."
-msgstr "Пополните баланс у нас на сайте или погасите ваучер."
+msgstr "Пополните баланс у нас на сайте или используйте ваучер."
 
 msgctxt "connect-view"
 msgid "Enter voucher code"
@@ -447,7 +447,7 @@ msgstr "Закончилось время"
 
 msgctxt "connect-view"
 msgid "Redeem voucher"
-msgstr "Погасить ваучер"
+msgstr "Использовать ваучер"
 
 msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
@@ -985,7 +985,7 @@ msgstr "Введите код ваучера"
 
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
-msgstr "Погасить ваучер"
+msgstr "Использовать ваучер"
 
 msgctxt "redeem-voucher-view"
 msgid "An error occurred."
@@ -993,11 +993,11 @@ msgstr "Произошла ошибка."
 
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
-msgstr "Погасить"
+msgstr "Использовать"
 
 msgctxt "redeem-voucher-view"
 msgid "Verifying voucher..."
-msgstr "Идет проверка ваучера…"
+msgstr "Идет проверка ваучера..."
 
 msgctxt "redeem-voucher-view"
 msgid "Voucher code has already been used."
@@ -1009,7 +1009,7 @@ msgstr "Код ваучера недействителен."
 
 msgctxt "redeem-voucher-view"
 msgid "Voucher was successfully redeemed."
-msgstr "Ваучер погашен."
+msgstr "Ваучер успешно использован."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -1052,7 +1052,7 @@ msgstr "Фильтр:"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
-msgstr "провайдеры: %(numberOfProviders)d"
+msgstr "Провайдеры: %(numberOfProviders)d"
 
 #. Heading in select location view
 msgctxt "select-location-view"
@@ -1140,7 +1140,7 @@ msgstr "Выберите приложения, которые нужно иск�
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
-msgstr "Щелкните по ярлыку приложения для запуска. Трафик приложения будет обходить туннель VPN, пока вы не закроете его."
+msgstr "Нажмите на ярлык приложения для запуска. Трафик приложения будет обходить туннель VPN, пока вы не закроете его."
 
 msgctxt "split-tunneling-view"
 msgid "Excluded apps"
@@ -1270,7 +1270,7 @@ msgstr "Мы рассмотрим эту проблему."
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
-msgstr "Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ, введите свой адрес электронной почты."
+msgstr "Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ на отчет, введите свой адрес электронной почты."
 
 msgctxt "support-view"
 msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
@@ -1278,7 +1278,7 @@ msgstr "Вы используете старую версию приложени
 
 msgctxt "support-view"
 msgid "Your email (optional)"
-msgstr "Ваша электронная почта (необязательно)"
+msgstr "Ваша эл. почта (необязательно)"
 
 msgctxt "tray-icon-context-menu"
 msgid "Open %(mullvadVpn)s"
