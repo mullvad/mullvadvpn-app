@@ -44,6 +44,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix quick settings tile not working when the device is locked. It will now prompt the user to
   unlock the device before attempting to toggle the tunnel state.
 
+#### Windows
+- Fix DNS issue on non-English Windows installations. Don't parse the output of ipconfig.exe
+  to determine if the tool succeeded.
+
 ### Security
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected
