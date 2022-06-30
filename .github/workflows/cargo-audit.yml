@@ -21,6 +21,6 @@ jobs:
                   version: latest
 
             - name: Audit
-              # TEMP: Ignore the time/chrono segfault CVEs since there are no known
+              # TEMP: Ignore the time segfault CVE since there are no known
               # good workarounds, and we want logs etc to be in local time.
-              run: cargo audit --ignore RUSTSEC-2020-0159 --ignore RUSTSEC-2020-0071
+              run: cargo audit --ignore RUSTSEC-2020-0071
