@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.ui.widget.NavigateCell
 import org.koin.android.ext.android.inject
 
 class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBarPainter {
-    private val accountCache: AccountCache by inject()
+    private val accountRepository: AccountRepository by inject()
     private val deviceRepository: DeviceRepository by inject()
 
     private lateinit var accountMenu: AccountCell
@@ -131,14 +131,14 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
 
     private fun configureListeners() {
         jobTracker.newUiJob("updateAccountExpiry") {
-            accountCache.accountExpiryState
+            accountRepository.accountExpiryState
                 .map { state -> state.date() }
                 .collect { expiryDate ->
                     accountMenu.accountExpiry = expiryDate
                 }
         }
 
-        accountCache.fetchAccountExpiry()
+        accountRepository.fetchAccountExpiry()
 
         versionInfoCache?.onUpdate = {
             jobTracker.newUiJob("updateVersionInfo") {

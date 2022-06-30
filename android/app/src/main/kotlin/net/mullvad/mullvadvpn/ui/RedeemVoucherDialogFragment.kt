@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.VoucherSubmissionError
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.VoucherRedeemer
 import net.mullvad.mullvadvpn.ui.widget.Button
@@ -31,7 +31,7 @@ const val FULL_VOUCHER_CODE_LENGTH = "XXXX-XXXX-XXXX-XXXX".length
 class RedeemVoucherDialogFragment : DialogFragment() {
 
     // Injected dependencies
-    private val accountCache: AccountCache by inject()
+    private val accountRepository: AccountRepository by inject()
     private val serviceConnectionManager: ServiceConnectionManager by inject()
 
     private val jobTracker = JobTracker()
@@ -60,7 +60,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
         }
 
         jobTracker.newUiJob("updateExpiry") {
-            accountCache.accountExpiryState.collect { accountExpiry = it.date() }
+            accountRepository.accountExpiryState.collect { accountExpiry = it.date() }
         }
 
         updateRedeemButton()

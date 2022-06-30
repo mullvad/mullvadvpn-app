@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.util.flatMapReadyConnectionOrDefault
 
-class AccountCache(
+class AccountRepository(
     private val serviceConnectionManager: ServiceConnectionManager,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
