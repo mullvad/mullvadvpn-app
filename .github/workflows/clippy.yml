@@ -1,0 +1,37 @@
+name: Rust - Run Clippy to check lints
+on:
+    # Check whenever a file that affects Clippy is changed in a pull request
+    pull_request:
+        paths:
+            - .github/workflows/clippy.yml
+            - ci/check-clippy.sh
+            - clippy.toml
+            - '**/*.rs'
+    # Check if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+  clippy_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Checkout binaries submodule
+        run: git submodule update --init --depth=1 dist-assets/binaries
+
+      - uses: actions-rs/toolchain@v1.0.6
+        with:
+            toolchain: stable
+            components: clippy
+            override: true
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libdbus-1-dev
+
+      - name: Clippy check
+        run: |
+          export RUSTFLAGS="--deny warnings"
+          source env.sh
+          time cargo clippy --locked --verbose
