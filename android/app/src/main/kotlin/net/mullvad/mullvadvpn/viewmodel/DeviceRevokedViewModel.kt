@@ -10,14 +10,16 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.talpid.util.callbackFlowFromSubscription
 
-// TODO: Refactor AccountCache and ConnectionProxy and inject those rather than injecting
+// TODO: Refactor ConnectionProxy to be easily injectable rather than injecting
 //  ServiceConnectionManager here.
 class DeviceRevokedViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
+    private val accountCache: AccountCache,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -46,7 +48,7 @@ class DeviceRevokedViewModel(
             if (container.connectionProxy.state.isSecured()) {
                 container.connectionProxy.disconnect()
             }
-            container.accountCache.logout()
+            accountCache.logout()
         }
     }
 

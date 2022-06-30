@@ -33,7 +33,7 @@ class ServiceConnectionContainer(
         named(SERVICE_CONNECTION_SCOPE), this
     )
 
-    val accountCache = AccountCache(connection, dispatcher)
+    val accountDataSource = ServiceConnectionAccountDataSource(connection, dispatcher)
     val authTokenCache = AuthTokenCache(connection, dispatcher)
     val connectionProxy = ConnectionProxy(connection, dispatcher)
     val deviceDataSource = ServiceConnectionDeviceDataSource(connection, dispatcher)

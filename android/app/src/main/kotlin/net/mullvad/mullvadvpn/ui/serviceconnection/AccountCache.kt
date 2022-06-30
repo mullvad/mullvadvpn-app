@@ -1,82 +1,103 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
-import android.os.Messenger
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.EventDispatcher
-import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
+import net.mullvad.mullvadvpn.util.flatMapReadyConnectionOrDefault
 
-class AccountCache(private val connection: Messenger, eventDispatcher: EventDispatcher) {
+class AccountCache(
+    private val serviceConnectionManager: ServiceConnectionManager,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO
+) {
+    private val dataSource
+        get() = serviceConnectionManager.connectionState.value.readyContainer()?.accountDataSource
 
-    private val _accountCreationEvents = MutableSharedFlow<AccountCreationResult>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val accountCreationEvents = _accountCreationEvents.asSharedFlow()
+    private val _cachedCreatedAccount = MutableStateFlow<String?>(null)
+    val cachedCreatedAccount = _cachedCreatedAccount.asStateFlow()
 
-    private val _accountExpiryState = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
-    val accountExpiryState = _accountExpiryState.asStateFlow()
-
-    private val _accountHistoryEvents = MutableSharedFlow<AccountHistory>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val accountHistoryEvents = _accountHistoryEvents.asSharedFlow()
-
-    private val _loginEvents = MutableSharedFlow<Event.LoginEvent>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val loginEvents = _loginEvents.asSharedFlow()
-
-    init {
-        eventDispatcher.apply {
-            registerHandler(Event.AccountCreationEvent::class) { event ->
-                _accountCreationEvents.tryEmit(event.result)
+    val accountCreationEvents: SharedFlow<AccountCreationResult> =
+        serviceConnectionManager.connectionState
+            .flatMapReadyConnectionOrDefault(flowOf()) { state ->
+                state.container.accountDataSource.accountCreationResult
             }
-
-            registerHandler(Event.AccountExpiryEvent::class) { event ->
-                _accountExpiryState.tryEmit(event.expiry)
+            .onEach {
+                _cachedCreatedAccount.value = (it as AccountCreationResult.Success).accountToken
             }
+            .shareIn(
+                CoroutineScope(dispatcher),
+                SharingStarted.WhileSubscribed()
+            )
 
-            registerHandler(Event.AccountHistoryEvent::class) { event ->
-                _accountHistoryEvents.tryEmit(event.history)
-            }
-
-            registerHandler(Event.LoginEvent::class) { event ->
-                _loginEvents.tryEmit(event)
-            }
+    val accountExpiryState: StateFlow<AccountExpiry> = serviceConnectionManager.connectionState
+        .flatMapReadyConnectionOrDefault(flowOf()) { state ->
+            state.container.accountDataSource.accountExpiry
         }
+        .onStart {
+            fetchAccountExpiry()
+        }
+        .stateIn(
+            CoroutineScope(dispatcher),
+            SharingStarted.WhileSubscribed(),
+            AccountExpiry.Missing
+        )
+
+    val accountHistoryEvents: StateFlow<AccountHistory> = serviceConnectionManager.connectionState
+        .flatMapReadyConnectionOrDefault(flowOf()) { state ->
+            state.container.accountDataSource.accountHistory
+        }
+        .onStart {
+            fetchAccountHistory()
+        }
+        .stateIn(
+            CoroutineScope(dispatcher),
+            SharingStarted.WhileSubscribed(),
+            AccountHistory.Missing
+        )
+
+    val loginEvents: SharedFlow<Event.LoginEvent> = serviceConnectionManager.connectionState
+        .flatMapReadyConnectionOrDefault(flowOf()) { state ->
+            state.container.accountDataSource.loginEvents
+        }
+        .shareIn(
+            CoroutineScope(dispatcher),
+            SharingStarted.WhileSubscribed()
+        )
+
+    fun createAccount() {
+        dataSource?.createAccount()
     }
 
-    fun createNewAccount() {
-        connection.send(Request.CreateAccount.message)
-    }
-
-    fun login(account: String) {
-        connection.send(Request.Login(account).message)
+    fun login(accountToken: String) {
+        dataSource?.login(accountToken)
     }
 
     fun logout() {
-        connection.send(Request.Logout.message)
+        dataSource?.logout()
     }
 
     fun fetchAccountExpiry() {
-        connection.send(Request.FetchAccountExpiry.message)
+        dataSource?.fetchAccountExpiry()
     }
 
     fun fetchAccountHistory() {
-        connection.send(Request.FetchAccountHistory.message)
+        dataSource?.fetchAccountHistory()
     }
 
     fun clearAccountHistory() {
-        connection.send(Request.ClearAccountHistory.message)
+        dataSource?.clearAccountHistory()
     }
 }

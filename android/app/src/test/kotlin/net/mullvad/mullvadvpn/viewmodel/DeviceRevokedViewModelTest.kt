@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -28,6 +29,9 @@ import org.junit.Before
 import org.junit.Test
 
 class DeviceRevokedViewModelTest {
+
+    @MockK
+    private lateinit var mockedAccountCache: AccountCache
 
     @MockK
     private lateinit var mockedServiceConnectionManager: ServiceConnectionManager
@@ -44,6 +48,7 @@ class DeviceRevokedViewModelTest {
         every { mockedServiceConnectionManager.connectionState } returns serviceConnectionState
         viewModel = DeviceRevokedViewModel(
             mockedServiceConnectionManager,
+            mockedAccountCache,
             TestCoroutineDispatcher()
         )
     }
@@ -100,7 +105,7 @@ class DeviceRevokedViewModelTest {
         val mockedContainer = mockk<ServiceConnectionContainer>().also {
             every { it.connectionProxy.state } returns TunnelState.Disconnected
             every { it.connectionProxy.disconnect() } just Runs
-            every { it.accountCache.logout() } just Runs
+            every { mockedAccountCache.logout() } just Runs
         }
         serviceConnectionState.value = ServiceConnectionState.ConnectedReady(mockedContainer)
 
@@ -109,7 +114,7 @@ class DeviceRevokedViewModelTest {
 
         // Assert
         verify {
-            mockedContainer.accountCache.logout()
+            mockedAccountCache.logout()
         }
     }
 
@@ -119,7 +124,7 @@ class DeviceRevokedViewModelTest {
         val mockedContainer = mockk<ServiceConnectionContainer>().also {
             every { it.connectionProxy.state } returns TunnelState.Connected(mockk(), mockk())
             every { it.connectionProxy.disconnect() } just Runs
-            every { it.accountCache.logout() } just Runs
+            every { mockedAccountCache.logout() } just Runs
         }
         serviceConnectionState.value = ServiceConnectionState.ConnectedReady(mockedContainer)
 
@@ -129,7 +134,7 @@ class DeviceRevokedViewModelTest {
         // Assert
         verifyOrder {
             mockedContainer.connectionProxy.disconnect()
-            mockedContainer.accountCache.logout()
+            mockedAccountCache.logout()
         }
     }
 

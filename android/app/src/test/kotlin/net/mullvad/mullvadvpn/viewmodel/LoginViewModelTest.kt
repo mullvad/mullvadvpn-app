@@ -22,7 +22,6 @@ import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import org.junit.Before
 import org.junit.Test
@@ -36,15 +35,12 @@ class LoginViewModelTest {
     private lateinit var mockedDeviceRepository: DeviceRepository
 
     @MockK
-    private lateinit var mockedServiceConnectionManager: ServiceConnectionManager
-
-    @MockK
     private lateinit var mockedServiceConnectionContainer: ServiceConnectionContainer
 
     private lateinit var loginViewModel: LoginViewModel
 
     private val accountCreationTestEvents = MutableSharedFlow<AccountCreationResult>()
-    private val accountHistoryTestEvents = MutableSharedFlow<AccountHistory>()
+    private val accountHistoryTestEvents = MutableStateFlow<AccountHistory>(AccountHistory.Missing)
     private val loginTestEvents = MutableSharedFlow<Event.LoginEvent>()
 
     private val serviceConnectionState =
@@ -58,15 +54,13 @@ class LoginViewModelTest {
         every { mockedAccountCache.accountCreationEvents } returns accountCreationTestEvents
         every { mockedAccountCache.accountHistoryEvents } returns accountHistoryTestEvents
         every { mockedAccountCache.loginEvents } returns loginTestEvents
-        every { mockedServiceConnectionManager.connectionState } returns serviceConnectionState
-        every { mockedServiceConnectionContainer.accountCache } returns mockedAccountCache
 
         serviceConnectionState.value =
             ServiceConnectionState.ConnectedReady(mockedServiceConnectionContainer)
 
         loginViewModel = LoginViewModel(
+            mockedAccountCache,
             mockedDeviceRepository,
-            mockedServiceConnectionManager,
             TestCoroutineDispatcher()
         )
     }
