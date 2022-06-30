@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
@@ -18,8 +19,13 @@ import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
+import org.koin.android.ext.android.inject
 
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+
+    // Injected dependencies
+    private val accountCache: AccountCache by inject()
+
     private lateinit var headerBar: HeaderBar
 
     private lateinit var sitePaymentButton: SitePaymentButton

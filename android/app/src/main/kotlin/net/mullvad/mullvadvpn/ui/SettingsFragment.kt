@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.ui.widget.NavigateCell
 import org.koin.android.ext.android.inject
 
 class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBarPainter {
+    private val accountCache: AccountCache by inject()
     private val deviceRepository: DeviceRepository by inject()
 
     private lateinit var accountMenu: AccountCell
@@ -34,11 +35,9 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
 
     private var active = false
 
-    private var accountCache: AccountCache? = null
     private var versionInfoCache: AppVersionInfoCache? = null
 
     override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
-        accountCache = serviceConnectionContainer.accountCache
         versionInfoCache = serviceConnectionContainer.appVersionInfoCache
 
         if (active) {
@@ -47,7 +46,6 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
     }
 
     override fun onNoServiceConnection() {
-        accountCache = null
         versionInfoCache = null
     }
 
@@ -132,17 +130,15 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
     }
 
     private fun configureListeners() {
-        accountCache?.apply {
-            jobTracker.newUiJob("updateAccountExpiry") {
-                accountExpiryState
-                    .map { state -> state.date() }
-                    .collect { expiryDate ->
-                        accountMenu.accountExpiry = expiryDate
-                    }
-            }
-
-            fetchAccountExpiry()
+        jobTracker.newUiJob("updateAccountExpiry") {
+            accountCache.accountExpiryState
+                .map { state -> state.date() }
+                .collect { expiryDate ->
+                    accountMenu.accountExpiry = expiryDate
+                }
         }
+
+        accountCache.fetchAccountExpiry()
 
         versionInfoCache?.onUpdate = {
             jobTracker.newUiJob("updateVersionInfo") {

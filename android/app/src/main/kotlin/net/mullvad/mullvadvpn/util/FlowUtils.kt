@@ -13,8 +13,10 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.take
 import net.mullvad.mullvadvpn.model.ServiceResult
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 
 fun <T> SendChannel<T>.safeOffer(element: T): Boolean {
     return runCatching { offer(element) }.getOrDefault(false)
@@ -60,6 +62,19 @@ fun Context.bindServiceFlow(intent: Intent, flags: Int = 0): Flow<ServiceResult>
             } catch (e: IllegalArgumentException) {
                 Log.e("mullvad", "Cannot unbind as no binding exists.")
             }
+        }
+    }
+}
+
+fun <R> Flow<ServiceConnectionState>.flatMapReadyConnectionOrDefault(
+    default: Flow<R>,
+    transform: (value: ServiceConnectionState.ConnectedReady) -> Flow<R>
+): Flow<R> {
+    return flatMapLatest { state ->
+        if (state is ServiceConnectionState.ConnectedReady) {
+            transform.invoke(state)
+        } else {
+            default
         }
     }
 }

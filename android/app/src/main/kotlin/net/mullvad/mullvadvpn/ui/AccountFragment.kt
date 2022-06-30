@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
@@ -25,6 +26,9 @@ import org.joda.time.DateTime
 import org.koin.android.ext.android.inject
 
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
+
+    // Injected dependencies
+    private val accountCache: AccountCache by inject()
     private val deviceRepository: DeviceRepository by inject()
 
     override val isSecureScreen = true
