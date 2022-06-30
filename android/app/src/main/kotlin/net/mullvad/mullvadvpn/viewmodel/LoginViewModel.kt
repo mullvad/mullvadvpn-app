@@ -12,18 +12,18 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.LoginResult
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 
 class LoginViewModel(
-    private val accountCache: AccountCache,
+    private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Default)
     val uiState: StateFlow<LoginUiState> = _uiState
 
-    val accountHistory = accountCache.accountHistoryEvents
+    val accountHistory = accountRepository.accountHistoryEvents
 
     sealed class LoginUiState {
         object Default : LoginUiState()
@@ -41,7 +41,7 @@ class LoginViewModel(
         data class OtherError(val errorMessage: String) : LoginUiState()
     }
 
-    fun clearAccountHistory() = accountCache.clearAccountHistory()
+    fun clearAccountHistory() = accountRepository.clearAccountHistory()
 
     fun clearState() {
         _uiState.value = LoginUiState.Default
@@ -50,8 +50,8 @@ class LoginViewModel(
     fun createAccount() {
         _uiState.value = LoginUiState.CreatingAccount
         viewModelScope.launch(dispatcher) {
-            _uiState.value = accountCache.accountCreationEvents
-                .onStart { accountCache.createAccount() }
+            _uiState.value = accountRepository.accountCreationEvents
+                .onStart { accountRepository.createAccount() }
                 .first()
                 .mapToUiState()
         }
@@ -60,8 +60,8 @@ class LoginViewModel(
     fun login(accountToken: String) {
         _uiState.value = LoginUiState.Loading
         viewModelScope.launch(dispatcher) {
-            _uiState.value = accountCache.loginEvents
-                .onStart { accountCache.login(accountToken) }
+            _uiState.value = accountRepository.loginEvents
+                .onStart { accountRepository.login(accountToken) }
                 .map { it.result.mapToUiState(accountToken) }
                 .first()
         }

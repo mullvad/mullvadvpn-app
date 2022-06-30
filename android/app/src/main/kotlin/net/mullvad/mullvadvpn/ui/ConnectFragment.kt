@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
 import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
 import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.NotificationBanner
 import net.mullvad.mullvadvpn.ui.widget.SwitchLocationButton
@@ -26,7 +26,7 @@ class ConnectFragment :
     ServiceDependentFragment(OnNoService.GoToLaunchScreen), NavigationBarPainter {
 
     // Injected dependencies
-    private val accountCache: AccountCache by inject()
+    private val accountRepository: AccountRepository by inject()
 
     private lateinit var actionButton: ConnectActionButton
     private lateinit var switchLocationButton: SwitchLocationButton
@@ -59,7 +59,13 @@ class ConnectFragment :
             notifications.apply {
                 register(TunnelStateNotification(parentActivity, connectionProxy))
                 register(VersionInfoNotification(parentActivity, appVersionInfoCache))
-                register(AccountExpiryNotification(parentActivity, authTokenCache, accountCache))
+                register(
+                    AccountExpiryNotification(
+                        parentActivity,
+                        authTokenCache,
+                        accountRepository
+                    )
+                )
             }
         }
 
@@ -107,7 +113,7 @@ class ConnectFragment :
         }
 
         jobTracker.newUiJob("updateAccountExpiry") {
-            accountCache.accountExpiryState
+            accountRepository.accountExpiryState
                 .map { state -> state.date() }
                 .collect { expiryDate ->
                     if (expiryDate?.isBeforeNow == true) {
@@ -182,7 +188,7 @@ class ConnectFragment :
             val millisUntilExpiration = expiration.millis - DateTime.now().millis
 
             delay(millisUntilExpiration)
-            accountCache.fetchAccountExpiry()
+            accountRepository.fetchAccountExpiry()
 
             // If the account ran out of time but is still connected, fetching the expiry again will
             // fail. Therefore, after a timeout of 5 seconds the app will assume the account time

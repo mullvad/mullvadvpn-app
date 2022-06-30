@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.talpid.util.callbackFlowFromSubscription
@@ -19,7 +19,7 @@ import net.mullvad.talpid.util.callbackFlowFromSubscription
 //  ServiceConnectionManager here.
 class DeviceRevokedViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
-    private val accountCache: AccountCache,
+    private val accountRepository: AccountRepository,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -48,7 +48,7 @@ class DeviceRevokedViewModel(
             if (container.connectionProxy.state.isSecured()) {
                 container.connectionProxy.disconnect()
             }
-            accountCache.logout()
+            accountRepository.logout()
         }
     }
 

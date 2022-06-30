@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
@@ -24,7 +24,7 @@ import org.koin.android.ext.android.inject
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
     // Injected dependencies
-    private val accountCache: AccountCache by inject()
+    private val accountRepository: AccountRepository by inject()
 
     private lateinit var headerBar: HeaderBar
 
@@ -81,7 +81,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
 
     override fun onSafelyStart() {
         jobTracker.newUiJob("updateAccountExpiry") {
-            accountCache.accountExpiryState
+            accountRepository.accountExpiryState
                 .map { state -> state.date() }
                 .collect { expiryDate ->
                     checkExpiry(expiryDate)
@@ -90,7 +90,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
 
         jobTracker.newBackgroundJob("pollAccountData") {
             while (true) {
-                accountCache.fetchAccountExpiry()
+                accountRepository.fetchAccountExpiry()
                 delay(POLL_INTERVAL)
             }
         }

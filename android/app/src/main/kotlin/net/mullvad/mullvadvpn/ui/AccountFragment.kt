@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
@@ -28,7 +28,7 @@ import org.koin.android.ext.android.inject
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     // Injected dependencies
-    private val accountCache: AccountCache by inject()
+    private val accountRepository: AccountRepository by inject()
     private val deviceRepository: DeviceRepository by inject()
 
     override val isSecureScreen = true
@@ -105,7 +105,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         view.findViewById<Button>(R.id.logout).setOnClickAction("logout", jobTracker) {
-            accountCache.logout()
+            accountRepository.logout()
         }
 
         accountNumberView = view.findViewById<CopyableInformationView>(R.id.account_number).apply {
@@ -121,7 +121,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     override fun onSafelyStart() {
         jobTracker.newUiJob("updateAccountExpiry") {
-            accountCache.accountExpiryState
+            accountRepository.accountExpiryState
                 .map { state -> state.date() }
                 .collect { expiryDate ->
                     currentAccountExpiry = expiryDate
@@ -140,7 +140,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         sitePaymentButton.updateAuthTokenCache(authTokenCache)
-        accountCache.fetchAccountExpiry()
+        accountRepository.fetchAccountExpiry()
     }
 
     override fun onSafelyStop() {
@@ -162,7 +162,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             accountExpiryView.information = expiryFormatter.format(accountExpiry.toDate())
         } else {
             accountExpiryView.information = null
-            accountCache.fetchAccountExpiry()
+            accountRepository.fetchAccountExpiry()
         }
     }
 
