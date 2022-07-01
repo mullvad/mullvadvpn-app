@@ -253,13 +253,14 @@ impl TunnelMonitor {
         route_manager: &RouteManagerHandle,
         params: &mut wireguard_types::TunnelParameters,
     ) {
-        // It is fine to leave the params untouched if getting the mtu for the route fails. In that
-        // case we will do our regular default.
-        if let Ok(mtu) = route_manager
-            .get_mtu_for_route(params.connection.peer.endpoint.ip())
-            .await
-        {
-            Self::set_mtu(params, mtu);
+        // Only calculate the mtu automatically if the user has not set any
+        if params.options.mtu.is_none() {
+            if let Ok(mtu) = route_manager
+                .get_mtu_for_route(params.connection.peer.endpoint.ip())
+                .await
+            {
+                Self::set_mtu(params, mtu);
+            }
         }
     }
 
