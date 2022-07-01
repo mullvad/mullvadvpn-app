@@ -90,9 +90,12 @@ class AccountInputGroupView: UIView {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .white.withAlphaComponent(0.8)
+        view.accessibilityElementsHidden = true
 
         return view
     }()
+
+    private var showsLastUsedAccountRow: Bool = false
 
     private let lastUsedAccountButton: UIButton = {
         let button = UIButton(type: .system)
@@ -102,7 +105,12 @@ class AccountInputGroupView: UIView {
         button.contentHorizontalAlignment = .leading
         button.contentEdgeInsets = UIMetrics.textFieldMargins
         button.setTitleColor(UIColor.AccountTextField.NormalState.textColor, for: .normal)
-
+        button.accessibilityLabel = NSLocalizedString(
+            "LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL",
+            tableName: "AccountInput",
+            value: "Last used account",
+            comment: ""
+        )
         return button
     }()
 
@@ -111,7 +119,12 @@ class AccountInputGroupView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "IconCloseSml"), for: .normal)
         button.imageView?.tintColor = .primaryColor.withAlphaComponent(0.4)
-
+        button.accessibilityLabel = NSLocalizedString(
+            "REMOVE_LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL",
+            tableName: "AccountInput",
+            value: "Remove last used account",
+            comment: ""
+        )
         return button
     }()
 
@@ -303,6 +316,16 @@ class AccountInputGroupView: UIView {
         if let accountNumber = accountNumber {
             let formattedNumber = StringFormatter.formattedAccountNumber(from: accountNumber)
 
+            var attributes: [NSAttributedString.Key: Any]?
+            if #available(iOS 13.0, *) {
+                attributes = [.accessibilitySpeechSpellOut: true]
+            }
+
+            lastUsedAccountButton.accessibilityAttributedValue = NSAttributedString(
+                string: accountNumber,
+                attributes: attributes
+            )
+
             UIView.performWithoutAnimation {
                 self.lastUsedAccountButton.setTitle(formattedNumber, for: .normal)
                 self.lastUsedAccountButton.layoutIfNeeded()
@@ -411,29 +434,31 @@ class AccountInputGroupView: UIView {
         }
     }
 
-    private func updateLastUsedAccountConstraints(animated: Bool) {
-        var shouldExpand: Bool
-
-        if lastUsedAccount == nil {
-            shouldExpand = false
-        } else {
-            switch loginState {
-            case .authenticating, .success:
-                shouldExpand = false
-            case .default, .failure:
-                shouldExpand = true
-            }
+    private func shouldShowLastUsedAccountRow() -> Bool {
+        guard lastUsedAccount != nil else {
+            return false
         }
 
-        updateLastUsedAccountConstraints(isExpanded: shouldExpand, animated: animated)
+        switch loginState {
+        case .authenticating, .success:
+            return false
+        case .default, .failure:
+            return true
+        }
     }
 
-    private func updateLastUsedAccountConstraints(isExpanded: Bool, animated: Bool) {
+    private func updateLastUsedAccountConstraints(animated: Bool) {
+        let shouldShow = shouldShowLastUsedAccountRow()
+
+        guard showsLastUsedAccountRow != shouldShow else {
+            return
+        }
+
         let actions = {
             let constraintToDeactivate: NSLayoutConstraint
             let constraintToActivate: NSLayoutConstraint
 
-            if isExpanded {
+            if shouldShow {
                 constraintToActivate = self.lastUsedAccountVisibleConstraint
                 constraintToDeactivate = self.lastUsedAccountHiddenConstraint
             } else {
@@ -453,6 +478,15 @@ class AccountInputGroupView: UIView {
         } else {
             actions()
             setNeedsLayout()
+        }
+
+        showsLastUsedAccountRow = shouldShow
+
+        bottomRowView.accessibilityElementsHidden = !shouldShow
+
+        if lastUsedAccountButton.accessibilityElementIsFocused() ||
+            removeLastUsedAccountButton.accessibilityElementIsFocused() {
+            UIAccessibility.post(notification: .layoutChanged, argument: textField)
         }
     }
 
