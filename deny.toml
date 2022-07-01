@@ -76,7 +76,13 @@ wildcards = "warn"
 highlight = "all"
 
 allow = []
-deny = []
+deny = [
+    # We are using Rustls for TLS. We don't want to accidentally pull in
+    # anything OpenSSL related
+    { name = "openssl-sys" },
+    { name = "openssl-src" },
+    { name = "openssl-probe" },
+]
 skip = []
 skip-tree = []
 
