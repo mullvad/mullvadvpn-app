@@ -9,6 +9,9 @@ on:
     workflow_dispatch:
 jobs:
     cargo-udeps:
+        # TODO: This does not capture and alert about platform specific dependencies on non-linux
+        # Since `cargo-udeps` seem to go pretty far with the compiling, i guess we need
+        # to run separate runners with different OSes to capture this aspect.
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
