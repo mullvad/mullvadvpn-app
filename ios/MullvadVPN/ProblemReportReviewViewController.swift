@@ -40,14 +40,10 @@ class ProblemReportReviewViewController: UIViewController {
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.text = reportString
         textView.isEditable = false
-        if #available(iOS 13.0, *) {
-            textView.font = UIFont.monospacedSystemFont(
-                ofSize: UIFont.systemFontSize,
-                weight: .regular
-            )
-        } else {
-            textView.font = UIFont(name: "Courier", size: UIFont.systemFontSize)
-        }
+        textView.font = UIFont.backport_monospacedSystemFont(
+            ofSize: UIFont.systemFontSize,
+            weight: .regular
+        )
 
         view.addSubview(textView)
 

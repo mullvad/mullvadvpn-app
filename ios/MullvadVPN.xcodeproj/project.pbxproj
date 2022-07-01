@@ -58,6 +58,7 @@
 		5820676426E771DB00655B05 /* TunnelManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820676326E771DB00655B05 /* TunnelManagerError.swift */; };
 		5820676826E79E7B00655B05 /* Result+UIBackgroundFetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820676726E79E7B00655B05 /* Result+UIBackgroundFetchResult.swift */; };
 		5823FA5426CE49F700283BF8 /* TunnelObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5823FA5326CE49F600283BF8 /* TunnelObserver.swift */; };
+		58289082286B590900478596 /* UIFont+Monospaced.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58289081286B590900478596 /* UIFont+Monospaced.swift */; };
 		58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */; };
 		58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB025124117005D0BB5 /* CustomTextField.swift */; };
 		58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB2251241B3005D0BB5 /* CustomTextView.swift */; };
@@ -392,6 +393,7 @@
 		5820676726E79E7B00655B05 /* Result+UIBackgroundFetchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Result+UIBackgroundFetchResult.swift"; sourceTree = "<group>"; };
 		5823FA4F26CA690600283BF8 /* OSLogHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogHandler.swift; sourceTree = "<group>"; };
 		5823FA5326CE49F600283BF8 /* TunnelObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObserver.swift; sourceTree = "<group>"; };
+		58289081286B590900478596 /* UIFont+Monospaced.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Monospaced.swift"; sourceTree = "<group>"; };
 		58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportViewController.swift; sourceTree = "<group>"; };
 		58293FB025124117005D0BB5 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		58293FB2251241B3005D0BB5 /* CustomTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
@@ -980,6 +982,7 @@
 				58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */,
 				5877152F23981F7B001F8237 /* WireguardKeysViewController.swift */,
 				5872D6E7286304DE00DB5F4E /* TermsOfService.swift */,
+				58289081286B590900478596 /* UIFont+Monospaced.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -1328,6 +1331,7 @@
 				58059DE228468255002B1049 /* ResultOperation+Fallible.swift in Sources */,
 				582BB1B3229574F40055B6EF /* SettingsAccountCell.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
+				58289082286B590900478596 /* UIFont+Monospaced.swift in Sources */,
 				58F1311527E0B2AB007AC5BC /* Result+Extensions.swift in Sources */,
 				585DA88426B0270700B8C587 /* ServerRelaysResponse.swift in Sources */,
 				5875960726F36B3A00BF6711 /* TunnelIPCError.swift in Sources */,
