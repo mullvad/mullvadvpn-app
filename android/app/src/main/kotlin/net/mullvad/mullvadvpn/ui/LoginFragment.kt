@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -128,17 +127,11 @@ class LoginFragment :
             }
 
             is LoginViewModel.LoginUiState.Success -> {
-                openFragment(
-                    if (uiState.isOutOfTime) {
-                        OutOfTimeFragment()
-                    } else {
-                        ConnectFragment()
-                    }
-                )
+                // MainActivity responsible for transition to connect/out-of-time view.
             }
 
             is LoginViewModel.LoginUiState.AccountCreated -> {
-                openFragment(WelcomeFragment())
+                // MainActivity responsible for transition to welcome view.
             }
 
             is LoginViewModel.LoginUiState.CreatingAccount -> {
@@ -168,13 +161,6 @@ class LoginFragment :
             is LoginViewModel.LoginUiState.OtherError -> {
                 loginFailure(uiState.errorMessage)
             }
-        }
-    }
-
-    private fun openFragment(fragment: Fragment) {
-        parentFragmentManager.beginTransaction().apply {
-            replace(R.id.main_fragment, fragment)
-            commit()
         }
     }
 

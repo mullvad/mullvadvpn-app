@@ -86,6 +86,7 @@ class AccountRepository(
     }
 
     fun logout() {
+        clearCreatedAccountCache()
         dataSource?.logout()
     }
 
@@ -99,5 +100,9 @@ class AccountRepository(
 
     fun clearAccountHistory() {
         dataSource?.clearAccountHistory()
+    }
+
+    private fun clearCreatedAccountCache() {
+        _cachedCreatedAccount.value = null
     }
 }

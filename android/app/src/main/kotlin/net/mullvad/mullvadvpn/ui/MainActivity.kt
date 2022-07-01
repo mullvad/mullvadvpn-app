@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.ui.fragments.DeviceRevokedFragment
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import org.koin.android.ext.android.getKoin
@@ -42,15 +43,17 @@ open class MainActivity : FragmentActivity() {
 
     var backButtonHandler: (() -> Boolean)? = null
 
-    private lateinit var serviceConnectionManager: ServiceConnectionManager
+    private lateinit var accountRepository: AccountRepository
     private lateinit var deviceRepository: DeviceRepository
+    private lateinit var serviceConnectionManager: ServiceConnectionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(uiModule)
 
         getKoin().apply {
-            serviceConnectionManager = get()
+            accountRepository = get()
             deviceRepository = get()
+            serviceConnectionManager = get()
         }
 
         requestedOrientation = if (deviceIsTv) {
@@ -165,7 +168,9 @@ open class MainActivity : FragmentActivity() {
                             is DeviceState.Unknown -> openLaunchView()
                             is DeviceState.LoggedOut -> openLoginView()
                             is DeviceState.Revoked -> openRevokedView()
-                            is DeviceState.LoggedIn -> openConnectView()
+                            is DeviceState.LoggedIn -> {
+                                openLoggedInView(newState.accountAndDevice.account_token)
+                            }
                         }
                         currentState = newState
                     }
@@ -195,9 +200,16 @@ open class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun openConnectView() {
+    private fun openLoggedInView(accountToken: String) {
+        val isNewAccount = accountToken == accountRepository.cachedCreatedAccount.value
+
+        val fragment = when {
+            isNewAccount -> WelcomeFragment()
+            else -> ConnectFragment()
+        }
+
         supportFragmentManager.beginTransaction().apply {
-            replace(R.id.main_fragment, ConnectFragment())
+            replace(R.id.main_fragment, fragment)
             commit()
         }
     }
