@@ -20,6 +20,6 @@ jobs:
                 commits=${{ github.event.pull_request.commits }}
                 if [[ -n "$commits" ]]; then
                     # Prepare enough depth for diffs with master
-                    git fetch --depth="$(( commits + 1 ))" origin ${{ github.head_ref }} master
+                    git fetch --depth="$(( commits + 1 ))" origin ${{ github.base_ref }}
                 fi
                 ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
