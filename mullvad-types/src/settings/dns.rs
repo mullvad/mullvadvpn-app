@@ -3,17 +3,12 @@ use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use serde::{Deserialize, Serialize};
 use std::net::IpAddr;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum DnsState {
+    #[default]
     Default,
     Custom,
-}
-
-impl Default for DnsState {
-    fn default() -> Self {
-        Self::Default
-    }
 }
 
 /// DNS config

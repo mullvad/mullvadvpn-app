@@ -497,18 +497,13 @@ pub enum BridgeSettings {
     Custom(ProxySettings),
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SelectedObfuscation {
     Auto,
+    #[default]
     Off,
     Udp2Tcp,
-}
-
-impl Default for SelectedObfuscation {
-    fn default() -> Self {
-        SelectedObfuscation::Off
-    }
 }
 
 impl fmt::Display for SelectedObfuscation {

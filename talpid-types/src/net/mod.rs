@@ -300,17 +300,12 @@ impl fmt::Display for AllowedTunnelTraffic {
 }
 
 /// IP protocol version.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum IpVersion {
+    #[default]
     V4,
     V6,
-}
-
-impl Default for IpVersion {
-    fn default() -> IpVersion {
-        IpVersion::V4
-    }
 }
 
 impl fmt::Display for IpVersion {

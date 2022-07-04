@@ -81,18 +81,13 @@ pub fn ensure_best_metric_for_interface(interface_alias: &str) -> Result<bool, E
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 #[allow(dead_code)]
 #[repr(u32)]
 pub enum WinNetAddrFamily {
+    #[default]
     IPV4 = 0,
     IPV6 = 1,
-}
-
-impl Default for WinNetAddrFamily {
-    fn default() -> Self {
-        WinNetAddrFamily::IPV4
-    }
 }
 
 impl WinNetAddrFamily {

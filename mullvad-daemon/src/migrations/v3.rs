@@ -6,17 +6,12 @@ use std::net::IpAddr;
 // Section for vendoring types and values that
 // this settings version depend on. See `mod.rs`.
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum DnsState {
+    #[default]
     Default,
     Custom,
-}
-
-impl Default for DnsState {
-    fn default() -> Self {
-        Self::Default
-    }
 }
 
 /// DNS config
