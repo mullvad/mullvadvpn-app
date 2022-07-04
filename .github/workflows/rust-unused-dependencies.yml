@@ -1,0 +1,49 @@
+name: Rust - Unused dependencies
+on:
+    pull_request:
+        paths:
+            - .github/workflows/rust-unused-dependencies.yml
+            - '**/*.rs'
+            - '**/Cargo.toml'
+    # Check if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    cargo-udeps:
+        # TODO: This does not capture and alert about platform specific dependencies on non-linux
+        # Since `cargo-udeps` seem to go pretty far with the compiling, i guess we need
+        # to run separate runners with different OSes to capture this aspect.
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Checkout binaries submodule
+              run: git submodule update --init --depth=1 dist-assets/binaries
+
+            - name: Install build dependencies
+              run: |
+                sudo apt-get update
+                sudo apt-get install libdbus-1-dev
+
+            # cargo-udeps can compile on stable, but not run on stable.
+            # So we need a nighly toolchain. But `rust-cache@v1` keys
+            # the cache on the rustc version. So if we just use `nightly`
+            # the cache will be lost every day. To mitigate this we lock
+            # it to a specific nightly. Obviously we have to bump this from
+            # time to time or when `cargo-udeps` release a version incompatible
+            # with our nightly version.
+            - name: Install Rust
+              uses: actions-rs/toolchain@v1.0.6
+              with:
+                toolchain: nightly-2022-07-01
+                profile: minimal
+                default: true
+
+            - uses: Swatinem/rust-cache@v1
+
+            - name: Install cargo-udeps
+              run: cargo install cargo-udeps
+
+            - name: Check for unused dependencies
+              run: |
+                source env.sh
+                cargo udeps --workspace --all-targets
