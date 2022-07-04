@@ -1,6 +1,8 @@
 #[cfg(target_os = "linux")]
 use nix::unistd::{execvp, getgid, getpid, getuid, setgid, setuid};
 #[cfg(target_os = "linux")]
+use std::fmt::Write as _;
+#[cfg(target_os = "linux")]
 use std::{
     convert::Infallible,
     env,
@@ -59,7 +61,7 @@ fn main() {
             let mut s = format!("{}", e);
             let mut source = e.source();
             while let Some(error) = source {
-                s.push_str(&format!("\nCaused by: {}", error));
+                write!(&mut s, "\nCaused by: {}", error).expect("formatting failed");
                 source = error.source();
             }
             eprintln!("{}", s);
