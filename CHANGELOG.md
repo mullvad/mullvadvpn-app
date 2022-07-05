@@ -47,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
   it was successful.
+- Fix app occasionally getting stuck in the offline state after being suspended.
 
 ### Security
 #### Android
