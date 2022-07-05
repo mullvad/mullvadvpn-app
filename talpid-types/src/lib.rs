@@ -1,6 +1,6 @@
 #![deny(rust_2018_idioms)]
 
-use std::{error::Error, fmt};
+use std::{error::Error, fmt, fmt::Write};
 
 #[cfg(target_os = "android")]
 pub mod android;
@@ -24,7 +24,7 @@ impl<E: Error> ErrorExt for E {
         let mut s = format!("Error: {}", self);
         let mut source = self.source();
         while let Some(error) = source {
-            s.push_str(&format!("\nCaused by: {}", error));
+            write!(&mut s, "\nCaused by: {}", error).expect("formatting failed");
             source = error.source();
         }
         s
@@ -34,7 +34,7 @@ impl<E: Error> ErrorExt for E {
         let mut s = format!("Error: {}\nCaused by: {}", msg, self);
         let mut source = self.source();
         while let Some(error) = source {
-            s.push_str(&format!("\nCaused by: {}", error));
+            write!(&mut s, "\nCaused by: {}", error).expect("formatting failed");
             source = error.source();
         }
         s

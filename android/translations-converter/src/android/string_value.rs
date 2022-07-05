@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::{
-    fmt::{self, Display, Formatter},
+    fmt::{self, Display, Formatter, Write},
     ops::Deref,
 };
 
@@ -74,7 +74,7 @@ impl StringValue {
                 output.push('%');
             } else {
                 // String doesn't have a parameter index, so it is added
-                output.push_str(&format!("%{}$", index + offset));
+                write!(&mut output, "%{}$", index + offset).expect("formatting failed");
             }
 
             output.push_str(part);
