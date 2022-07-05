@@ -45,8 +45,6 @@ Line wrap the file at 100 chars.                                              Th
   unlock the device before attempting to toggle the tunnel state.
 
 #### Windows
-- Fix DNS issue on non-English Windows installations. Don't parse the output of ipconfig.exe
-  to determine if the tool succeeded.
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
   it was successful.
 
@@ -54,6 +52,13 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected
   state.
+
+
+## [2022.3-beta2] - 2022-06-29
+### Fixed
+#### Windows
+- Fix DNS issue on non-English Windows installations. Don't parse the output of ipconfig.exe
+  to determine if the tool succeeded.
 
 
 ## [2022.3-beta1] - 2022-06-27
