@@ -16,23 +16,6 @@
 
 #define WINNET_API __stdcall
 
-enum WINNET_EBM_STATUS
-{
-	WINNET_EBM_STATUS_METRIC_NO_CHANGE = 0,
-	WINNET_EBM_STATUS_METRIC_SET = 1,
-	WINNET_EBM_STATUS_FAILURE = 2,
-};
-
-extern "C"
-WINNET_LINKAGE
-WINNET_EBM_STATUS
-WINNET_API
-WinNet_EnsureBestMetric(
-	const wchar_t *deviceAlias,
-	MullvadLogSink logSink,
-	void *logSinkContext
-);
-
 enum WINNET_ADDR_FAMILY
 {
 	WINNET_ADDR_FAMILY_IPV4 = 0,

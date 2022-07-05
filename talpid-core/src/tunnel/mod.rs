@@ -13,6 +13,9 @@ use talpid_types::net::{wireguard as wireguard_types, AllowedTunnelTraffic, Tunn
 #[cfg(target_os = "android")]
 pub use self::tun_provider::TunConfig;
 
+#[cfg(target_os = "windows")]
+mod windows;
+
 /// A module for all OpenVPN related tunnel management.
 #[cfg(not(target_os = "android"))]
 pub mod openvpn;

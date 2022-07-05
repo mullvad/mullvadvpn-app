@@ -12,10 +12,6 @@ use widestring::WideCString;
 /// Errors that this module may produce.
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
-    /// Failed to set the metrics for a network interface.
-    #[error(display = "Failed to set the metrics for a network interface")]
-    MetricApplication,
-
     /// Supplied interface alias is invalid.
     #[error(display = "Supplied interface alias is invalid")]
     InvalidInterfaceAlias(#[error(source)] widestring::NulError<u16>),
@@ -51,34 +47,6 @@ pub enum Error {
 
 fn logging_context() -> *const u8 {
     b"WinNet\0".as_ptr()
-}
-
-/// Returns true if metrics were changed, false otherwise
-pub fn ensure_best_metric_for_interface(interface_alias: &str) -> Result<bool, Error> {
-    let interface_alias_ws =
-        WideCString::from_str(interface_alias).map_err(Error::InvalidInterfaceAlias)?;
-
-    let metric_result = unsafe {
-        WinNet_EnsureBestMetric(
-            interface_alias_ws.as_ptr(),
-            Some(log_sink),
-            logging_context(),
-        )
-    };
-
-    match metric_result {
-        // Metrics didn't change
-        0 => Ok(false),
-        // Metrics changed
-        1 => Ok(true),
-        // Failure
-        2 => Err(Error::MetricApplication),
-        // Unexpected value
-        i => {
-            log::error!("Unexpected return code from WinNet_EnsureBestMetric: {}", i);
-            Err(Error::MetricApplication)
-        }
-    }
 }
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -459,13 +427,6 @@ mod api {
 
         #[link_name = "WinNet_DeactivateRouteManager"]
         pub fn WinNet_DeactivateRouteManager();
-
-        #[link_name = "WinNet_EnsureBestMetric"]
-        pub fn WinNet_EnsureBestMetric(
-            tunnel_interface_alias: *const wchar_t,
-            sink: Option<LogSink>,
-            sink_context: *const u8,
-        ) -> u32;
 
         #[link_name = "WinNet_GetBestDefaultRoute"]
         pub fn WinNet_GetBestDefaultRoute(
