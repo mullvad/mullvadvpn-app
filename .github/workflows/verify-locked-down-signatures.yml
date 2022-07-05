@@ -1,0 +1,26 @@
+name: Verify lockfile signatures
+on:
+    pull_request:
+        paths:
+            - .github/workflows/verify-locked-down-signatures.yml
+            - Cargo.lock
+            - gui/package-lock.json
+            - ci/keys/
+            - ci/verify-locked-down-signatures.sh
+    workflow_dispatch:
+jobs:
+    verify-signatures:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                ref: ${{ github.event.pull_request.head.sha }}
+            - name: Verify signatures
+              run: |
+                commits=${{ github.event.pull_request.commits }}
+                if [[ -n "$commits" ]]; then
+                    # Prepare enough depth for diffs with master, currently hard-coded but should probably be 
+                    # whatever branch is merged into
+                    git fetch --depth="$(( commits + 1 ))" origin ${{ github.head_ref }} master
+                fi
+                ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
