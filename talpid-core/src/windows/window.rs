@@ -1,7 +1,7 @@
 //! Utilities for windows.
 
 use std::{os::windows::io::AsRawHandle, ptr, sync::Arc, thread};
-use tokio::sync::watch;
+use tokio::sync::broadcast;
 use winapi::{
     shared::{
         basetsd::LONG_PTR,
@@ -156,21 +156,24 @@ impl PowerManagementEvent {
 }
 
 /// Provides power management events to listeners
-#[derive(Clone)]
 pub struct PowerManagementListener {
     _window: Arc<WindowScopedHandle>,
-    rx: watch::Receiver<Option<PowerManagementEvent>>,
+    rx: broadcast::Receiver<PowerManagementEvent>,
 }
 
 impl PowerManagementListener {
     /// Creates a new listener. This is expensive compared to cloning an existing instance.
     pub fn new() -> Self {
-        let (tx, rx) = tokio::sync::watch::channel(None);
+        let (tx, rx) = tokio::sync::broadcast::channel(16);
 
         let power_broadcast_callback = move |window, message, wparam, lparam| {
             if message == WM_POWERBROADCAST {
                 if let Some(event) = PowerManagementEvent::try_from_winevent(wparam) {
-                    tx.send_replace(Some(event));
+                    if tx.send(event).is_err() {
+                        log::debug!("Stopping power management event monitor");
+                        unsafe { PostQuitMessage(0) };
+                        return 0;
+                    }
                 }
             }
             unsafe { DefWindowProcW(window, message, wparam, lparam) }
@@ -186,10 +189,27 @@ impl PowerManagementListener {
 
     /// Returns the next power event.
     pub async fn next(&mut self) -> Option<PowerManagementEvent> {
-        if self.rx.changed().await.is_err() {
-            return None;
+        loop {
+            match self.rx.recv().await {
+                Ok(event) => break Some(event),
+                Err(broadcast::error::RecvError::Closed) => {
+                    log::error!("Sender was unexpectedly dropped");
+                    break None;
+                }
+                Err(broadcast::error::RecvError::Lagged(num_skipped)) => {
+                    log::warn!("Skipped {num_skipped} power broadcast events");
+                }
+            }
         }
-        *self.rx.borrow_and_update()
+    }
+}
+
+impl Clone for PowerManagementListener {
+    fn clone(&self) -> Self {
+        Self {
+            _window: self._window.clone(),
+            rx: self.rx.resubscribe(),
+        }
     }
 }
 
