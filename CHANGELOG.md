@@ -47,6 +47,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix DNS issue on non-English Windows installations. Don't parse the output of ipconfig.exe
   to determine if the tool succeeded.
+- Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
+  it was successful.
 
 ### Security
 #### Android
