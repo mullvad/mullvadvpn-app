@@ -55,16 +55,13 @@ locked_down_paths=$(\
     | sed "s/.*paths:$SEPARATOR\(\(\s*-\s[a-zA-Z\/\.-]*$SEPARATOR\)*\).*/\1/" \
     | tr $SEPARATOR '\n' \
     | awk '{print $2}')
-readonly locked_down_paths
 
 unsigned_commits_exist=0
-for locked_path in $locked_down_paths;
-do
+for locked_path in $locked_down_paths; do
     locked_path_commit_hashes=$(git rev-list --oneline "$whitelisted_commit"..HEAD \
         "$SCRIPT_DIR/../$locked_path" | awk '{print $1}')
 
-    for commit in $locked_path_commit_hashes;
-    do
+    for commit in $locked_path_commit_hashes; do
         if ! git verify-commit "$commit" 2> /dev/null; then
             echo "Commit $commit which changed $locked_path is not signed."
             unsigned_commits_exist=1
