@@ -13,7 +13,7 @@ import_gpg_keys="false"
 # as such some of the commits before are not signed
 # The whitelisted commit can be set in order to allow github actions to only check changes
 # since origin/master
-whitelisted_commit="1b3af718a"
+whitelisted_commit="17f721c89"
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
