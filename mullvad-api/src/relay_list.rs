@@ -331,8 +331,8 @@ impl From<&Wireguard> for relay_list::WireguardEndpointData {
     fn from(wg: &Wireguard) -> Self {
         Self {
             port_ranges: wg.port_ranges.clone(),
-            ipv4_gateway: wg.ipv4_gateway.clone(),
-            ipv6_gateway: wg.ipv6_gateway.clone(),
+            ipv4_gateway: wg.ipv4_gateway,
+            ipv6_gateway: wg.ipv6_gateway,
             udp2tcp_ports: vec![],
         }
     }
