@@ -106,10 +106,6 @@ impl ServerRelayList {
             }
         }
 
-        let openvpn = Self::add_openvpn_relays(&mut countries, openvpn);
-        let wireguard = Self::add_wireguard_relays(&mut countries, wireguard);
-        let bridge = Self::add_bridge_relays(&mut countries, bridge);
-
         relay_list::RelayList {
             etag: etag.map(|mut tag| {
                 if tag.starts_with('"') {
@@ -117,114 +113,13 @@ impl ServerRelayList {
                 }
                 tag
             }),
+            openvpn: openvpn.extract_relays(&mut countries),
+            wireguard: wireguard.extract_relays(&mut countries),
+            bridge: bridge.extract_relays(&mut countries),
             countries: countries
                 .into_iter()
                 .map(|(_key, country)| country)
                 .collect(),
-            openvpn,
-            wireguard,
-            bridge,
-        }
-    }
-
-    fn add_openvpn_relays(
-        countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
-        openvpn: OpenVpn,
-    ) -> relay_list::OpenVpnEndpointData {
-        for mut openvpn_relay in openvpn.relays.into_iter() {
-            openvpn_relay.convert_to_lowercase();
-            if let Some((country_code, city_code)) = split_location_code(&openvpn_relay.location) {
-                if let Some(country) = countries.get_mut(country_code) {
-                    if let Some(city) = country
-                        .cities
-                        .iter_mut()
-                        .find(|city| city.code == city_code)
-                    {
-                        let location = location::Location {
-                            country: country.name.clone(),
-                            country_code: country.code.clone(),
-                            city: city.name.clone(),
-                            city_code: city.code.clone(),
-                            latitude: city.latitude,
-                            longitude: city.longitude,
-                        };
-                        let relay = openvpn_relay.into_openvpn_mullvad_relay(location);
-                        city.relays.push(relay);
-                    }
-                };
-            }
-        }
-        openvpn.ports
-    }
-
-    fn add_wireguard_relays(
-        countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
-        wireguard: Wireguard,
-    ) -> relay_list::WireguardEndpointData {
-        let endpoint_data = relay_list::WireguardEndpointData::from(&wireguard);
-        let relays = wireguard.relays;
-
-        for mut wireguard_relay in relays {
-            wireguard_relay.relay.convert_to_lowercase();
-            if let Some((country_code, city_code)) =
-                split_location_code(&wireguard_relay.relay.location)
-            {
-                if let Some(country) = countries.get_mut(country_code) {
-                    if let Some(city) = country
-                        .cities
-                        .iter_mut()
-                        .find(|city| city.code == city_code)
-                    {
-                        let location = location::Location {
-                            country: country.name.clone(),
-                            country_code: country.code.clone(),
-                            city: city.name.clone(),
-                            city_code: city.code.clone(),
-                            latitude: city.latitude,
-                            longitude: city.longitude,
-                        };
-
-                        let relay = wireguard_relay.into_mullvad_relay(location);
-                        city.relays.push(relay);
-                    }
-                };
-            }
-        }
-
-        endpoint_data
-    }
-
-    fn add_bridge_relays(
-        countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
-        bridges: Bridges,
-    ) -> relay_list::BridgeEndpointData {
-        for mut bridge_relay in bridges.relays {
-            bridge_relay.convert_to_lowercase();
-            if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location) {
-                if let Some(country) = countries.get_mut(country_code) {
-                    if let Some(city) = country
-                        .cities
-                        .iter_mut()
-                        .find(|city| city.code == city_code)
-                    {
-                        let location = location::Location {
-                            country: country.name.clone(),
-                            country_code: country.code.clone(),
-                            city: city.name.clone(),
-                            city_code: city.code.clone(),
-                            latitude: city.latitude,
-                            longitude: city.longitude,
-                        };
-
-                        let relay = bridge_relay.into_bridge_mullvad_relay(location);
-                        city.relays.push(relay);
-                    }
-                };
-            }
-        }
-
-        relay_list::BridgeEndpointData {
-            shadowsocks: bridges.shadowsocks,
         }
     }
 }
@@ -291,6 +186,39 @@ struct OpenVpn {
     relays: Vec<Relay>,
 }
 
+impl OpenVpn {
+    /// Consumes `self` and appends all its relays to `countries`.
+    fn extract_relays(
+        self,
+        countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
+    ) -> relay_list::OpenVpnEndpointData {
+        for mut openvpn_relay in self.relays.into_iter() {
+            openvpn_relay.convert_to_lowercase();
+            if let Some((country_code, city_code)) = split_location_code(&openvpn_relay.location) {
+                if let Some(country) = countries.get_mut(country_code) {
+                    if let Some(city) = country
+                        .cities
+                        .iter_mut()
+                        .find(|city| city.code == city_code)
+                    {
+                        let location = location::Location {
+                            country: country.name.clone(),
+                            country_code: country.code.clone(),
+                            city: city.name.clone(),
+                            city_code: city.code.clone(),
+                            latitude: city.latitude,
+                            longitude: city.longitude,
+                        };
+                        let relay = openvpn_relay.into_openvpn_mullvad_relay(location);
+                        city.relays.push(relay);
+                    }
+                };
+            }
+        }
+        self.ports
+    }
+}
+
 #[derive(Debug, serde::Deserialize)]
 struct Relay {
     hostname: String,
@@ -338,6 +266,46 @@ impl From<&Wireguard> for relay_list::WireguardEndpointData {
     }
 }
 
+impl Wireguard {
+    /// Consumes `self` and appends all its relays to `countries`.
+    fn extract_relays(
+        self,
+        countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
+    ) -> relay_list::WireguardEndpointData {
+        let endpoint_data = relay_list::WireguardEndpointData::from(&self);
+        let relays = self.relays;
+
+        for mut wireguard_relay in relays {
+            wireguard_relay.relay.convert_to_lowercase();
+            if let Some((country_code, city_code)) =
+                split_location_code(&wireguard_relay.relay.location)
+            {
+                if let Some(country) = countries.get_mut(country_code) {
+                    if let Some(city) = country
+                        .cities
+                        .iter_mut()
+                        .find(|city| city.code == city_code)
+                    {
+                        let location = location::Location {
+                            country: country.name.clone(),
+                            country_code: country.code.clone(),
+                            city: city.name.clone(),
+                            city_code: city.code.clone(),
+                            latitude: city.latitude,
+                            longitude: city.longitude,
+                        };
+
+                        let relay = wireguard_relay.into_mullvad_relay(location);
+                        city.relays.push(relay);
+                    }
+                };
+            }
+        }
+
+        endpoint_data
+    }
+}
+
 #[derive(Debug, serde::Deserialize)]
 struct WireGuardRelay {
     #[serde(flatten)]
@@ -361,4 +329,41 @@ impl WireGuardRelay {
 struct Bridges {
     shadowsocks: Vec<relay_list::ShadowsocksEndpointData>,
     relays: Vec<Relay>,
+}
+
+impl Bridges {
+    /// Consumes `self` and appends all its relays to `countries`.
+    fn extract_relays(
+        self,
+        countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
+    ) -> relay_list::BridgeEndpointData {
+        for mut bridge_relay in self.relays {
+            bridge_relay.convert_to_lowercase();
+            if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location) {
+                if let Some(country) = countries.get_mut(country_code) {
+                    if let Some(city) = country
+                        .cities
+                        .iter_mut()
+                        .find(|city| city.code == city_code)
+                    {
+                        let location = location::Location {
+                            country: country.name.clone(),
+                            country_code: country.code.clone(),
+                            city: city.name.clone(),
+                            city_code: city.code.clone(),
+                            latitude: city.latitude,
+                            longitude: city.longitude,
+                        };
+
+                        let relay = bridge_relay.into_bridge_mullvad_relay(location);
+                        city.relays.push(relay);
+                    }
+                };
+            }
+        }
+
+        relay_list::BridgeEndpointData {
+            shadowsocks: self.shadowsocks,
+        }
+    }
 }
