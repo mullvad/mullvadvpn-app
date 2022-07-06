@@ -554,12 +554,30 @@ impl Relay {
 
     async fn set_wireguard_constraints(&self, matches: &clap::ArgMatches) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
+        let relay_list = rpc
+            .get_relay_locations(())
+            .await?
+            .into_inner()
+            .wireguard
+            .unwrap();
         let mut wireguard_constraints = self.get_wireguard_constraints(&mut rpc).await?;
 
         if let Some(port) = matches.value_of("port") {
             wireguard_constraints.port = match parse_port_constraint(port)? {
                 Constraint::Any => 0,
-                Constraint::Only(specific_port) => u32::from(specific_port),
+                Constraint::Only(specific_port) => {
+                    let specific_port = u32::from(specific_port);
+
+                    let is_valid_port = relay_list
+                        .port_ranges
+                        .iter()
+                        .any(|range| range.first <= specific_port && specific_port <= range.last);
+                    if !is_valid_port {
+                        return Err(Error::CommandFailed("The specified port is invalid"));
+                    }
+
+                    specific_port
+                }
             }
         }
 
@@ -755,7 +773,7 @@ fn parse_port_constraint(raw_port: &str) -> Result<Constraint<u16>> {
     match raw_port.to_lowercase().as_str() {
         "any" => Ok(Constraint::Any),
         port => Ok(Constraint::Only(u16::from_str(port).map_err(|_| {
-            Error::InvalidCommand("Invalid port. Must be \"any\" or [0-65535].")
+            Error::InvalidCommand("Invalid port. Must be \"any\" or 0-65535.")
         })?)),
     }
 }
