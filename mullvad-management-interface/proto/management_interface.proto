@@ -29,7 +29,7 @@ service ManagementService {
 	// Relays and tunnel constraints
 	rpc UpdateRelayLocations(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc UpdateRelaySettings(RelaySettingsUpdate) returns (google.protobuf.Empty) {}
-	rpc GetRelayLocations(google.protobuf.Empty) returns (stream RelayListCountry) {}
+	rpc GetRelayLocations(google.protobuf.Empty) returns (RelayList) {}
 	rpc GetCurrentLocation(google.protobuf.Empty) returns (GeoIpLocation) {}
 	rpc SetBridgeSettings(BridgeSettings) returns (google.protobuf.Empty) {}
 	rpc SetBridgeState(BridgeState) returns (google.protobuf.Empty) {}

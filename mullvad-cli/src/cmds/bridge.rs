@@ -424,7 +424,7 @@ impl Bridge {
 
     async fn list_bridge_relays() -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        let mut locations = rpc
+        let relay_list = rpc
             .get_relay_locations(())
             .await
             .map_err(|error| Error::RpcFailedExt("Failed to obtain relay locations", error))?
@@ -432,7 +432,7 @@ impl Bridge {
 
         let mut countries = Vec::new();
 
-        while let Some(mut country) = locations.message().await? {
+        for mut country in relay_list.countries {
             country.cities = country
                 .cities
                 .into_iter()

@@ -694,6 +694,18 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
     }
 }
 
+impl From<mullvad_types::relay_list::RelayList> for RelayList {
+    fn from(relay_list: mullvad_types::relay_list::RelayList) -> Self {
+        let mut proto_list = RelayList { countries: vec![] };
+        proto_list.countries = relay_list
+            .countries
+            .into_iter()
+            .map(RelayListCountry::from)
+            .collect();
+        proto_list
+    }
+}
+
 impl From<mullvad_types::relay_list::RelayListCountry> for RelayListCountry {
     fn from(country: mullvad_types::relay_list::RelayListCountry) -> Self {
         let mut proto_country = RelayListCountry {
