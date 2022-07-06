@@ -897,17 +897,10 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
     /// Sends relays to all subscribers of the management interface.
     fn notify_relay_list(&self, relay_list: RelayList) {
         log::debug!("Broadcasting new relay list");
-        let mut new_list = types::RelayList {
-            countries: Vec::new(),
-        };
-        new_list.countries.reserve(relay_list.countries.len());
-        for country in relay_list.countries.into_iter() {
-            new_list
-                .countries
-                .push(types::RelayListCountry::from(country));
-        }
         self.notify(types::DaemonEvent {
-            event: Some(daemon_event::Event::RelayList(new_list)),
+            event: Some(daemon_event::Event::RelayList(types::RelayList::from(
+                relay_list,
+            ))),
         })
     }
 

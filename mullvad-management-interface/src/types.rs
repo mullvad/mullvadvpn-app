@@ -696,13 +696,68 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
 
 impl From<mullvad_types::relay_list::RelayList> for RelayList {
     fn from(relay_list: mullvad_types::relay_list::RelayList) -> Self {
-        let mut proto_list = RelayList { countries: vec![] };
+        let mut proto_list = RelayList {
+            countries: vec![],
+            openvpn: Some(OpenVpnEndpointData::from(relay_list.openvpn)),
+            bridge: Some(BridgeEndpointData::from(relay_list.bridge)),
+            wireguard: Some(WireguardEndpointData::from(relay_list.wireguard)),
+        };
         proto_list.countries = relay_list
             .countries
             .into_iter()
             .map(RelayListCountry::from)
             .collect();
         proto_list
+    }
+}
+
+impl From<mullvad_types::relay_list::OpenVpnEndpointData> for OpenVpnEndpointData {
+    fn from(openvpn: mullvad_types::relay_list::OpenVpnEndpointData) -> Self {
+        OpenVpnEndpointData {
+            endpoints: openvpn
+                .ports
+                .into_iter()
+                .map(|endpoint| OpenVpnEndpoint {
+                    port: u32::from(endpoint.port),
+                    protocol: TransportProtocol::from(endpoint.protocol) as i32,
+                })
+                .collect(),
+        }
+    }
+}
+
+impl From<mullvad_types::relay_list::BridgeEndpointData> for BridgeEndpointData {
+    fn from(bridge: mullvad_types::relay_list::BridgeEndpointData) -> Self {
+        BridgeEndpointData {
+            shadowsocks: bridge
+                .shadowsocks
+                .into_iter()
+                .map(|endpoint| ShadowsocksEndpointData {
+                    port: u32::from(endpoint.port),
+                    cipher: endpoint.cipher,
+                    password: endpoint.password,
+                    protocol: TransportProtocol::from(endpoint.protocol) as i32,
+                })
+                .collect(),
+        }
+    }
+}
+
+impl From<mullvad_types::relay_list::WireguardEndpointData> for WireguardEndpointData {
+    fn from(wireguard: mullvad_types::relay_list::WireguardEndpointData) -> Self {
+        WireguardEndpointData {
+            port_ranges: wireguard
+                .port_ranges
+                .into_iter()
+                .map(|(first, last)| PortRange {
+                    first: u32::from(first),
+                    last: u32::from(last),
+                })
+                .collect(),
+            ipv4_gateway: wireguard.ipv4_gateway.to_string(),
+            ipv6_gateway: wireguard.ipv6_gateway.to_string(),
+            udp2tcp_ports: wireguard.udp2tcp_ports.into_iter().map(u32::from).collect(),
+        }
     }
 }
 
