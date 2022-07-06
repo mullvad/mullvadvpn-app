@@ -24,13 +24,12 @@ use parking_lot::RwLock;
 #[cfg(windows)]
 use std::path::PathBuf;
 use std::{
-    cmp,
     convert::{TryFrom, TryInto},
     sync::Arc,
     time::Duration,
 };
 use talpid_types::ErrorExt;
-use tokio_stream::wrappers::{ReceiverStream, UnboundedReceiverStream};
+use tokio_stream::wrappers::UnboundedReceiverStream;
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -54,7 +53,6 @@ const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
 
 #[mullvad_management_interface::async_trait]
 impl ManagementService for ManagementServiceImpl {
-    type GetRelayLocationsStream = ReceiverStream<Result<types::RelayListCountry, Status>>;
     type GetSplitTunnelProcessesStream = UnboundedReceiverStream<Result<i32, Status>>;
     type EventsListenStream = EventsListenerReceiver;
 
@@ -189,34 +187,14 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_settings_error)
     }
 
-    async fn get_relay_locations(
-        &self,
-        _: Request<()>,
-    ) -> ServiceResult<Self::GetRelayLocationsStream> {
+    async fn get_relay_locations(&self, _: Request<()>) -> ServiceResult<types::RelayList> {
         log::debug!("get_relay_locations");
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetRelayLocations(tx))?;
-        let locations = self.wait_for_result(rx).await?;
-
-        let (stream_tx, stream_rx) =
-            tokio::sync::mpsc::channel(cmp::max(1, locations.countries.len()));
-
-        tokio::spawn(async move {
-            for country in locations.countries.into_iter() {
-                if let Err(error) = stream_tx
-                    .send(Ok(types::RelayListCountry::from(country)))
-                    .await
-                {
-                    log::error!(
-                        "Error while sending relays to client: {}",
-                        error.display_chain()
-                    );
-                }
-            }
-        });
-
-        Ok(Response::new(ReceiverStream::new(stream_rx)))
+        self.wait_for_result(rx)
+            .await
+            .map(|relays| Response::new(types::RelayList::from(relays)))
     }
 
     async fn get_current_location(&self, _: Request<()>) -> ServiceResult<types::GeoIpLocation> {
