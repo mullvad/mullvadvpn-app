@@ -19,10 +19,9 @@ import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.LoginResult
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import org.junit.Before
 import org.junit.Test
@@ -30,13 +29,10 @@ import org.junit.Test
 class LoginViewModelTest {
 
     @MockK
-    private lateinit var mockedAccountCache: AccountCache
+    private lateinit var mockedAccountRepository: AccountRepository
 
     @MockK
     private lateinit var mockedDeviceRepository: DeviceRepository
-
-    @MockK
-    private lateinit var mockedServiceConnectionManager: ServiceConnectionManager
 
     @MockK
     private lateinit var mockedServiceConnectionContainer: ServiceConnectionContainer
@@ -44,7 +40,7 @@ class LoginViewModelTest {
     private lateinit var loginViewModel: LoginViewModel
 
     private val accountCreationTestEvents = MutableSharedFlow<AccountCreationResult>()
-    private val accountHistoryTestEvents = MutableSharedFlow<AccountHistory>()
+    private val accountHistoryTestEvents = MutableStateFlow<AccountHistory>(AccountHistory.Missing)
     private val loginTestEvents = MutableSharedFlow<Event.LoginEvent>()
 
     private val serviceConnectionState =
@@ -55,18 +51,16 @@ class LoginViewModelTest {
         Dispatchers.setMain(TestCoroutineDispatcher())
         MockKAnnotations.init(this, relaxUnitFun = true)
 
-        every { mockedAccountCache.accountCreationEvents } returns accountCreationTestEvents
-        every { mockedAccountCache.accountHistoryEvents } returns accountHistoryTestEvents
-        every { mockedAccountCache.loginEvents } returns loginTestEvents
-        every { mockedServiceConnectionManager.connectionState } returns serviceConnectionState
-        every { mockedServiceConnectionContainer.accountCache } returns mockedAccountCache
+        every { mockedAccountRepository.accountCreationEvents } returns accountCreationTestEvents
+        every { mockedAccountRepository.accountHistoryEvents } returns accountHistoryTestEvents
+        every { mockedAccountRepository.loginEvents } returns loginTestEvents
 
         serviceConnectionState.value =
             ServiceConnectionState.ConnectedReady(mockedServiceConnectionContainer)
 
         loginViewModel = LoginViewModel(
+            mockedAccountRepository,
             mockedDeviceRepository,
-            mockedServiceConnectionManager,
             TestCoroutineDispatcher()
         )
     }
@@ -169,7 +163,7 @@ class LoginViewModelTest {
     @Test
     fun testClearingAccountHistory() = runBlockingTest {
         loginViewModel.clearAccountHistory()
-        verify { mockedAccountCache.clearAccountHistory() }
+        verify { mockedAccountRepository.clearAccountHistory() }
     }
 
     private suspend fun <T> FlowTurbine<T>.skipDefaultItem() where T : Any? {

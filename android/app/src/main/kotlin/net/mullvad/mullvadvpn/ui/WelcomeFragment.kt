@@ -13,6 +13,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
@@ -23,6 +24,9 @@ import org.koin.android.ext.android.inject
 val POLL_INTERVAL: Long = 15 /* s */ * 1000 /* ms */
 
 class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+
+    // Injected dependencies
+    private val accountRepository: AccountRepository by inject()
     private val deviceRepository: DeviceRepository by inject()
 
     private lateinit var accountLabel: TextView
@@ -69,14 +73,14 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
 
         jobTracker.newUiJob("checkAccountExpiry") {
-            accountCache.accountExpiryState.collect {
+            accountRepository.accountExpiryState.collect {
                 checkExpiry(it.date())
             }
         }
 
         jobTracker.newBackgroundJob("pollAccountData") {
             while (true) {
-                accountCache.fetchAccountExpiry()
+                accountRepository.fetchAccountExpiry()
                 delay(POLL_INTERVAL)
             }
         }
