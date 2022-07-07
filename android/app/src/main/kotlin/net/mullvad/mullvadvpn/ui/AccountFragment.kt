@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.widget.Button
@@ -85,8 +86,10 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
             newAccount = false
 
-            prepare(authTokenCache, jobTracker) {
-                checkForAddedTime()
+            setOnClickAction("openAccountPageInBrowser", jobTracker) {
+                setEnabled(false)
+                context.openAccountPageInBrowser(authTokenCache.fetchAuthToken())
+                setEnabled(true)
             }
         }
 
@@ -123,8 +126,6 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
                     uiState.errorState.cause is ErrorStateCause.IsOffline
             }
         }
-
-        sitePaymentButton.updateAuthTokenCache(authTokenCache)
     }
 
     override fun onSafelyStop() {

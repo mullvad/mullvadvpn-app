@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
@@ -68,7 +69,12 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
 
         sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
             newAccount = false
-            prepare(authTokenCache, jobTracker)
+
+            setOnClickAction("openAccountPageInBrowser", jobTracker) {
+                setEnabled(false)
+                context.openAccountPageInBrowser(authTokenCache.fetchAuthToken())
+                setEnabled(true)
+            }
         }
 
         redeemButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
@@ -95,12 +101,10 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
                 delay(POLL_INTERVAL)
             }
         }
-
-        sitePaymentButton.updateAuthTokenCache(authTokenCache)
     }
 
     override fun onSafelyStop() {
-        jobTracker.cancelJob("pollAccountData")
+        jobTracker.cancelAllJobs()
     }
 
     override fun onSafelyDestroyView() {
