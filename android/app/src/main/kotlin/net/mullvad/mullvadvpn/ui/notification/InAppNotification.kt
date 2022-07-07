@@ -19,7 +19,6 @@ abstract class InAppNotification {
         protected set
 
     var onClick by changeMonitor.monitor<(suspend () -> Unit)?>(null)
-        protected set
 
     var showIcon by changeMonitor.monitor(false)
         protected set
