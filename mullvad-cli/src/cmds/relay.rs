@@ -682,13 +682,9 @@ impl Relay {
                     city.name, city.code, city.latitude, city.longitude
                 );
                 for relay in &city.relays {
-                    let tunnels = relay.tunnels.as_ref().unwrap();
-                    let supports_openvpn = !tunnels.openvpn.is_empty();
-                    let supports_wireguard = !tunnels.wireguard.is_empty();
-                    let support_msg = match (supports_openvpn, supports_wireguard) {
-                        (true, true) => "OpenVPN and WireGuard",
-                        (true, false) => "OpenVPN",
-                        (false, true) => "WireGuard",
+                    let support_msg = match relay.endpoint_type {
+                        i if i == i32::from(types::relay::RelayType::Openvpn) => "OpenVPN",
+                        i if i == i32::from(types::relay::RelayType::Wireguard) => "WireGuard",
                         _ => unreachable!("Bug in relay filtering earlier on"),
                     };
                     let ownership = if relay.owned {
@@ -737,9 +733,7 @@ impl Relay {
                 .filter_map(|mut city| {
                     city.relays.retain(|relay| {
                         relay.active
-                            && relay.tunnels.is_some()
-                            && !(relay.tunnels.as_ref().unwrap().openvpn.is_empty()
-                                && relay.tunnels.as_ref().unwrap().wireguard.is_empty())
+                            && relay.endpoint_type != (types::relay::RelayType::Bridge as i32)
                     });
                     if !city.relays.is_empty() {
                         Some(city)

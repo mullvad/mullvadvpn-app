@@ -29,24 +29,22 @@ import {
   ILocation,
   IObfuscationEndpoint,
   IOpenVpnConstraints,
-  IOpenVpnTunnelData,
   IProxyEndpoint,
   IRelayList,
   IRelayListCity,
   IRelayListCountry,
   IRelayListHostname,
   ISettings,
-  IShadowsocksEndpointData,
   ITunnelOptions,
   ITunnelStateRelayInfo,
   IWireguardConstraints,
-  IWireguardTunnelData,
   LoggedInDeviceState,
   LoggedOutDeviceState,
   ObfuscationType,
   Ownership,
   ProxySettings,
   ProxyType,
+  RelayEndpointType,
   RelayLocation,
   RelayProtocol,
   RelaySettings,
@@ -732,34 +730,17 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity.AsObject): IRela
 function convertFromRelayListRelay(relay: grpcTypes.Relay.AsObject): IRelayListHostname {
   return {
     ...relay,
-    tunnels: relay.tunnels && {
-      ...relay.tunnels,
-      openvpn: relay.tunnels.openvpnList.map(convertFromOpenvpnList),
-      wireguard: relay.tunnels.wireguardList.map(convertFromWireguardList),
-    },
-    bridges: relay.bridges && {
-      shadowsocks: relay.bridges.shadowsocksList.map(convertFromShadowsocksList),
-    },
+    endpointType: convertFromRelayType(relay.endpointType),
   };
 }
 
-function convertFromOpenvpnList(
-  openvpn: grpcTypes.OpenVpnEndpointData.AsObject,
-): IOpenVpnTunnelData {
-  return {
-    ...openvpn,
-    protocol: convertFromTransportProtocol(openvpn.protocol),
+function convertFromRelayType(relayType: grpcTypes.Relay.RelayType): RelayEndpointType {
+  const protocolMap: Record<grpcTypes.Relay.RelayType, RelayEndpointType> = {
+    [grpcTypes.Relay.RelayType.OPENVPN]: 'openvpn',
+    [grpcTypes.Relay.RelayType.BRIDGE]: 'bridge',
+    [grpcTypes.Relay.RelayType.WIREGUARD]: 'wireguard',
   };
-}
-
-function convertFromWireguardList(
-  wireguard: grpcTypes.WireguardEndpointData.AsObject,
-): IWireguardTunnelData {
-  return {
-    ...wireguard,
-    portRanges: wireguard.portRangesList,
-    publicKey: convertFromWireguardKey(wireguard.publicKey),
-  };
+  return protocolMap[relayType];
 }
 
 function convertFromWireguardKey(publicKey: Uint8Array | string): string {
@@ -767,15 +748,6 @@ function convertFromWireguardKey(publicKey: Uint8Array | string): string {
     return publicKey;
   }
   return Buffer.from(publicKey).toString('base64');
-}
-
-function convertFromShadowsocksList(
-  shadowsocks: grpcTypes.ShadowsocksEndpointData.AsObject,
-): IShadowsocksEndpointData {
-  return {
-    ...shadowsocks,
-    protocol: convertFromTransportProtocol(shadowsocks.protocol),
-  };
 }
 
 function convertFromTransportProtocol(protocol: grpcTypes.TransportProtocol): RelayProtocol {

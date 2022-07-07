@@ -250,41 +250,10 @@ export interface IRelayListHostname {
   active: boolean;
   weight: number;
   owned: boolean;
-  tunnels?: IRelayTunnels;
-  bridges?: IRelayBridges;
+  endpointType: RelayEndpointType;
 }
 
-export interface IRelayTunnels {
-  openvpn: IOpenVpnTunnelData[];
-  wireguard: IWireguardTunnelData[];
-}
-
-export interface IRelayBridges {
-  shadowsocks: IShadowsocksEndpointData[];
-}
-
-export interface IOpenVpnTunnelData {
-  port: number;
-  protocol: RelayProtocol;
-}
-
-export interface IWireguardTunnelData {
-  portRanges: Array<IPortRange>;
-  // Public key of the tunnel.
-  publicKey: string;
-}
-
-export interface IPortRange {
-  first: number;
-  last: number;
-}
-
-export interface IShadowsocksEndpointData {
-  port: number;
-  cipher: string;
-  password: string;
-  protocol: RelayProtocol;
-}
+export type RelayEndpointType = 'wireguard' | 'openvpn' | 'bridge';
 
 export interface ITunnelOptions {
   openvpn: {

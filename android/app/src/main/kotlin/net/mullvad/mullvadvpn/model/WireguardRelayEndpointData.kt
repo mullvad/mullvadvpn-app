@@ -4,4 +4,4 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class RelayTunnels(val wireguard: ArrayList<WireguardEndpointData>) : Parcelable
+object WireguardRelayEndpointData : Parcelable

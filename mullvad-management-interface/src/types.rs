@@ -718,6 +718,8 @@ impl From<mullvad_types::relay_list::RelayListCountry> for RelayListCountry {
 
 impl From<mullvad_types::relay_list::Relay> for Relay {
     fn from(relay: mullvad_types::relay_list::Relay) -> Self {
+        use mullvad_types::relay_list::RelayEndpointData as MullvadEndpointData;
+
         Self {
             hostname: relay.hostname,
             ipv4_addr_in: relay.ipv4_addr_in.to_string(),
@@ -730,51 +732,20 @@ impl From<mullvad_types::relay_list::Relay> for Relay {
             owned: relay.owned,
             provider: relay.provider,
             weight: relay.weight,
-            tunnels: Some(RelayTunnels {
-                openvpn: relay
-                    .tunnels
-                    .openvpn
-                    .iter()
-                    .map(|endpoint| OpenVpnEndpointData {
-                        port: u32::from(endpoint.port),
-                        protocol: i32::from(TransportProtocol::from(endpoint.protocol)),
-                    })
-                    .collect(),
-                wireguard: relay
-                    .tunnels
-                    .wireguard
-                    .iter()
-                    .map(|endpoint| {
-                        let port_ranges = endpoint
-                            .port_ranges
-                            .iter()
-                            .map(|range| PortRange {
-                                first: u32::from(range.0),
-                                last: u32::from(range.1),
-                            })
-                            .collect();
-                        WireguardEndpointData {
-                            port_ranges,
-                            ipv4_gateway: endpoint.ipv4_gateway.to_string(),
-                            ipv6_gateway: endpoint.ipv6_gateway.to_string(),
-                            public_key: endpoint.public_key.as_bytes().to_vec(),
-                        }
-                    })
-                    .collect(),
-            }),
-            bridges: Some(RelayBridges {
-                shadowsocks: relay
-                    .bridges
-                    .shadowsocks
-                    .into_iter()
-                    .map(|endpoint| ShadowsocksEndpointData {
-                        port: u32::from(endpoint.port),
-                        cipher: endpoint.cipher,
-                        password: endpoint.password,
-                        protocol: i32::from(TransportProtocol::from(endpoint.protocol)),
-                    })
-                    .collect(),
-            }),
+            endpoint_type: match &relay.endpoint_data {
+                MullvadEndpointData::Openvpn => relay::RelayType::Openvpn as i32,
+                MullvadEndpointData::Bridge => relay::RelayType::Bridge as i32,
+                MullvadEndpointData::Wireguard(_) => relay::RelayType::Wireguard as i32,
+            },
+            endpoint_data: match relay.endpoint_data {
+                MullvadEndpointData::Wireguard(data) => Some(to_proto_any(
+                    "mullvad_daemon.management_interface/WireguardRelayEndpointData",
+                    WireguardRelayEndpointData {
+                        public_key: data.public_key.as_bytes().to_vec(),
+                    },
+                )),
+                _ => None,
+            },
             location: relay.location.map(|location| Location {
                 country: location.country,
                 country_code: location.country_code,
@@ -784,6 +755,76 @@ impl From<mullvad_types::relay_list::Relay> for Relay {
                 longitude: location.longitude,
             }),
         }
+    }
+}
+
+impl TryFrom<Relay> for mullvad_types::relay_list::Relay {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(relay: Relay) -> Result<Self, Self::Error> {
+        use mullvad_types::{
+            location::Location as MullvadLocation,
+            relay_list::{Relay as MullvadRelay, RelayEndpointData as MullvadEndpointData},
+        };
+
+        let endpoint_data = match relay.endpoint_type {
+            i if i == relay::RelayType::Openvpn as i32 => MullvadEndpointData::Openvpn,
+            i if i == relay::RelayType::Bridge as i32 => MullvadEndpointData::Bridge,
+            i if i == relay::RelayType::Wireguard as i32 => {
+                let data = relay
+                    .endpoint_data
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "missing endpoint wg data",
+                    ))?;
+                let data: WireguardRelayEndpointData = try_from_proto_any(
+                    "mullvad_daemon.management_interface/WireguardRelayEndpointData",
+                    data,
+                )
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "invalid endpoint wg data",
+                ))?;
+                MullvadEndpointData::Wireguard(
+                    mullvad_types::relay_list::WireguardRelayEndpointData {
+                        public_key: bytes_to_pubkey(&data.public_key)?,
+                    },
+                )
+            }
+            _ => {
+                return Err(FromProtobufTypeError::InvalidArgument(
+                    "invalid relay endpoint type",
+                ))
+            }
+        };
+
+        let ipv6_addr_in = if relay.ipv6_addr_in.is_empty() {
+            None
+        } else {
+            Some(relay.ipv4_addr_in.parse().map_err(|_err| {
+                FromProtobufTypeError::InvalidArgument("invalid relay IPv6 address")
+            })?)
+        };
+
+        Ok(MullvadRelay {
+            hostname: relay.hostname,
+            ipv4_addr_in: relay.ipv4_addr_in.parse().map_err(|_err| {
+                FromProtobufTypeError::InvalidArgument("invalid relay IPv4 address")
+            })?,
+            ipv6_addr_in,
+            include_in_country: relay.include_in_country,
+            active: relay.active,
+            owned: relay.owned,
+            provider: relay.provider,
+            weight: relay.weight,
+            endpoint_data,
+            location: relay.location.map(|location| MullvadLocation {
+                country: location.country,
+                country_code: location.country_code,
+                city: location.city,
+                city_code: location.city_code,
+                latitude: location.latitude,
+                longitude: location.longitude,
+            }),
+        })
     }
 }
 
@@ -1590,4 +1631,23 @@ impl From<FromProtobufTypeError> for crate::Status {
             FromProtobufTypeError::InvalidArgument(err) => crate::Status::invalid_argument(err),
         }
     }
+}
+
+/// Converts any message to `google.protobuf.Any`.
+fn to_proto_any<T: prost::Message>(type_name: &str, message: T) -> prost_types::Any {
+    prost_types::Any {
+        type_url: format!("type.googleapis.com/{type_name}"),
+        value: message.encode_to_vec(),
+    }
+}
+
+/// Tries to convert a message from `google.protobuf.Any` to `T`.
+fn try_from_proto_any<T: prost::Message + Default>(
+    type_name: &str,
+    any_value: prost_types::Any,
+) -> Option<T> {
+    if any_value.type_url != format!("type.googleapis.com/{type_name}") {
+        return None;
+    }
+    T::decode(any_value.value.as_slice()).ok()
 }
