@@ -29,6 +29,8 @@ Line wrap the file at 100 chars.                                              Th
   the option to log other devices out when the account already has five devices.
 
 ### Changed
+- Reject invalid WireGuard ports in the CLI.
+
 #### Android
 - Lowered default MTU to 1280 on Android.
 - Disable app icon badge for tunnel state notification/status.
