@@ -9,8 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
@@ -65,19 +70,11 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
+
     override fun onSafelyStart() {
-        jobTracker.newUiJob("updateAccountNumber") {
-            deviceRepository.deviceState.collect { state ->
-                updateAccountNumber(state.token())
-            }
-        }
-
-        jobTracker.newUiJob("checkAccountExpiry") {
-            accountRepository.accountExpiryState.collect {
-                checkExpiry(it.date())
-            }
-        }
-
         jobTracker.newBackgroundJob("pollAccountData") {
             while (true) {
                 accountRepository.fetchAccountExpiry()
@@ -89,9 +86,27 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyStop() {
-        jobTracker.cancelJob("checkAccountExpiry")
         jobTracker.cancelJob("pollAccountData")
-        jobTracker.cancelJob("updateAccountNumber")
+    }
+
+    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            launchUpdateAccountNumberOnDeviceChanges()
+            launchAdvanceToConnectViewOnExpiryExtended()
+        }
+    }
+
+    private fun CoroutineScope.launchUpdateAccountNumberOnDeviceChanges() = launch {
+        deviceRepository.deviceState
+            .collect { state ->
+                updateAccountNumber(state.token())
+            }
+    }
+
+    private fun CoroutineScope.launchAdvanceToConnectViewOnExpiryExtended() = launch {
+        accountRepository.accountExpiryState.collect {
+            checkExpiry(it.date())
+        }
     }
 
     private fun updateAccountNumber(rawAccountNumber: String?) {
@@ -99,10 +114,8 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             addSpacesToAccountText(account)
         }
 
-        jobTracker.newUiJob("updateAccountNumber") {
-            accountLabel.text = accountText ?: ""
-            accountLabel.setEnabled(accountText != null && accountText.length > 0)
-        }
+        accountLabel.text = accountText ?: ""
+        accountLabel.setEnabled(accountText != null && accountText.length > 0)
     }
 
     private fun addSpacesToAccountText(account: String): String {

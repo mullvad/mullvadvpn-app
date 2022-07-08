@@ -5,10 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
@@ -79,15 +84,11 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
         return view
     }
 
-    override fun onSafelyStart() {
-        jobTracker.newUiJob("updateAccountExpiry") {
-            accountRepository.accountExpiryState
-                .map { state -> state.date() }
-                .collect { expiryDate ->
-                    checkExpiry(expiryDate)
-                }
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
 
+    override fun onSafelyStart() {
         jobTracker.newBackgroundJob("pollAccountData") {
             while (true) {
                 accountRepository.fetchAccountExpiry()
@@ -99,12 +100,25 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     }
 
     override fun onSafelyStop() {
-        jobTracker.cancelJob("updateAccountExpiry")
         jobTracker.cancelJob("pollAccountData")
     }
 
     override fun onSafelyDestroyView() {
         connectionProxy.onStateChange.unsubscribe(this)
+    }
+
+    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            launchProceedToConnectViewIfExpiryExtended()
+        }
+    }
+
+    private fun CoroutineScope.launchProceedToConnectViewIfExpiryExtended() = launch {
+        accountRepository.accountExpiryState
+            .map { state -> state.date() }
+            .collect { expiryDate ->
+                checkExpiry(expiryDate)
+            }
     }
 
     private fun updateDisconnectButton() {
