@@ -24,6 +24,7 @@ class TunnelStateNotification(val context: Context) {
         R.string.foreground_notification_channel_name,
         R.string.foreground_notification_channel_description,
         NotificationManager.IMPORTANCE_MIN,
+        false,
         false
     )
 
