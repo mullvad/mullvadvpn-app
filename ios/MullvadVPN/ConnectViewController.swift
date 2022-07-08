@@ -383,18 +383,6 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             return renderer
         }
 
-        if #available(iOS 13, *) {
-            if let multiPolygon = overlay as? MKMultiPolygon {
-                let renderer = MKMultiPolygonRenderer(multiPolygon: multiPolygon)
-                renderer.fillColor = UIColor.primaryColor
-                renderer.strokeColor = UIColor.secondaryColor
-                renderer.lineWidth = 1.0
-                renderer.lineCap = .round
-                renderer.lineJoin = .round
-                return renderer
-            }
-        }
-
         if let tileOverlay = overlay as? MKTileOverlay {
             return CustomOverlayRenderer(overlay: tileOverlay)
         }

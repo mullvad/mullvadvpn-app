@@ -142,24 +142,8 @@ extension GeoJSON {
     }
 
     static func decodeGeoJSON(_ data: Data) throws -> [MKOverlay] {
-        if #available(iOS 13, *) {
-            let decoder = MKGeoJSONDecoder()
-            let geoJSONObjects = try decoder.decode(data)
-
-            return geoJSONObjects.flatMap { (object) -> [MKOverlay] in
-                if let feat = object as? MKGeoJSONFeature {
-                    return feat.geometry.compactMap { (geometry) -> MKOverlay? in
-                        return geometry as? MKOverlay
-                    }
-                } else {
-                    return []
-                }
-            }
-        } else {
-            let jsonDecoder = JSONDecoder()
-            let featureCollection = try jsonDecoder.decode(GeoJSON.FeatureCollection.self, from: data)
-
-            return featureCollection.mkOverlays
-        }
+        return try JSONDecoder()
+            .decode(GeoJSON.FeatureCollection.self, from: data)
+            .mkOverlays
     }
 }
