@@ -117,8 +117,8 @@ extension GeoJSON {
         }
 
         private var geoCoordinates: [[CLLocationCoordinate2D]] {
-            return coordinates.map { (values) -> [CLLocationCoordinate2D] in
-                return values.map { (coordinates) -> CLLocationCoordinate2D in
+            return coordinates.map { values -> [CLLocationCoordinate2D] in
+                return values.map { coordinates -> CLLocationCoordinate2D in
                     return CLLocationCoordinate2D(latitude: coordinates[1], longitude: coordinates[0])
                 }
             }
@@ -129,7 +129,7 @@ extension GeoJSON {
         let coordinates: [[[[Double]]]]
 
         var mkPolygons: [MKOverlay] {
-            return coordinates.map { (values) -> MKPolygon in
+            return coordinates.map { values -> MKPolygon in
                 return Polygon(coordinates: values).mkPolygon
             }
         }
