@@ -7,10 +7,12 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -49,17 +51,6 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
         versionInfoCache = null
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            deviceRepository.deviceState
-                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
-                .collect { device ->
-                    updateLoggedInStatus(device is DeviceState.LoggedIn)
-                }
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -95,12 +86,7 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launchWhenResumed {
-            transitionFinishedFlow.collect {
-                paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
-            }
-        }
+        lifecycleScope.launchUiSubscriptionsOnResume()
     }
 
     override fun onResume() {
@@ -129,17 +115,37 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
         titleController.onDestroy()
     }
 
-    private fun configureListeners() {
-        jobTracker.newUiJob("updateAccountExpiry") {
-            accountRepository.accountExpiryState
-                .map { state -> state.date() }
-                .collect { expiryDate ->
-                    accountMenu.accountExpiry = expiryDate
-                }
+    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            launchPaintStatusBarAfterTransition()
+            luanchConfigureMenuOnDeviceChanges()
+            launchUpdateExpiryTextOnExpiryChanges()
         }
+    }
 
-        accountRepository.fetchAccountExpiry()
+    private fun CoroutineScope.launchPaintStatusBarAfterTransition() = launch {
+        transitionFinishedFlow.collect {
+            paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
+        }
+    }
 
+    private fun CoroutineScope.luanchConfigureMenuOnDeviceChanges() = launch {
+        deviceRepository.deviceState
+            .collect { device ->
+                updateLoggedInStatus(device is DeviceState.LoggedIn)
+            }
+    }
+
+    private fun CoroutineScope.launchUpdateExpiryTextOnExpiryChanges() = launch {
+        accountRepository.accountExpiryState
+            .onStart { accountRepository.fetchAccountExpiry() }
+            .map { state -> state.date() }
+            .collect { expiryDate ->
+                accountMenu.accountExpiry = expiryDate
+            }
+    }
+
+    private fun configureListeners() {
         versionInfoCache?.onUpdate = {
             jobTracker.newUiJob("updateVersionInfo") {
                 updateVersionInfo()

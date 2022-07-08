@@ -5,11 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import java.text.DateFormat
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -69,18 +71,6 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var redeemVoucherButton: RedeemVoucherButton
     private lateinit var titleController: CollapsibleTitleController
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            deviceRepository.deviceState
-                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
-                .collect { state ->
-                    accountNumberView.information = state.token()
-                    deviceNameView.information = state.deviceName()?.capitalizeFirstCharOfEachWord()
-                }
-        }
-    }
-
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -119,16 +109,11 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         return view
     }
 
-    override fun onSafelyStart() {
-        jobTracker.newUiJob("updateAccountExpiry") {
-            accountRepository.accountExpiryState
-                .map { state -> state.date() }
-                .collect { expiryDate ->
-                    currentAccountExpiry = expiryDate
-                    updateAccountExpiry(expiryDate)
-                }
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
 
+    override fun onSafelyStart() {
         connectionProxy.onUiStateChange.subscribe(this) { uiState ->
             jobTracker.newUiJob("updateHasConnectivity") {
                 hasConnectivity = uiState is TunnelState.Connected ||
@@ -140,7 +125,6 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         sitePaymentButton.updateAuthTokenCache(authTokenCache)
-        accountRepository.fetchAccountExpiry()
     }
 
     override fun onSafelyStop() {
@@ -149,6 +133,36 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     override fun onSafelyDestroyView() {
         titleController.onDestroy()
+    }
+
+    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            launchUpdateTextOnDeviceChanges()
+            launchUpdateTextOnExpiryChanges()
+        }
+    }
+
+    private fun CoroutineScope.launchUpdateTextOnDeviceChanges() {
+        launch {
+            deviceRepository.deviceState
+                .collect { state ->
+                    accountNumberView.information = state.token()
+                    deviceNameView.information =
+                        state.deviceName()?.capitalizeFirstCharOfEachWord()
+                }
+        }
+    }
+
+    private fun CoroutineScope.launchUpdateTextOnExpiryChanges() {
+        launch {
+            accountRepository.accountExpiryState
+                .onStart { accountRepository.fetchAccountExpiry() }
+                .map { state -> state.date() }
+                .collect { expiryDate ->
+                    currentAccountExpiry = expiryDate
+                    updateAccountExpiry(expiryDate)
+                }
+        }
     }
 
     private fun checkForAddedTime() {

@@ -5,9 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
@@ -89,6 +94,10 @@ class ConnectFragment :
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
+
     override fun onSafelyStart() {
         locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
 
@@ -110,17 +119,6 @@ class ConnectFragment :
             jobTracker.newUiJob("updateTunnelState") {
                 updateTunnelState(uiState, connectionProxy.state)
             }
-        }
-
-        jobTracker.newUiJob("updateAccountExpiry") {
-            accountRepository.accountExpiryState
-                .map { state -> state.date() }
-                .collect { expiryDate ->
-                    if (expiryDate?.isBeforeNow == true) {
-                        openOutOfTimeScreen()
-                    } else if (expiryDate != null)
-                        scheduleNextAccountExpiryCheck(expiryDate)
-                }
         }
     }
 
@@ -149,6 +147,23 @@ class ConnectFragment :
     override fun onResume() {
         super.onResume()
         paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.blue))
+    }
+
+    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            launchScheduledExpiryCheck()
+        }
+    }
+
+    private fun CoroutineScope.launchScheduledExpiryCheck() = launch {
+        accountRepository.accountExpiryState
+            .map { state -> state.date() }
+            .collect { expiryDate ->
+                if (expiryDate?.isBeforeNow == true) {
+                    openOutOfTimeScreen()
+                } else if (expiryDate != null)
+                    scheduleNextAccountExpiryCheck(expiryDate)
+            }
     }
 
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) {

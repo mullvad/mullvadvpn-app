@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -36,11 +37,6 @@ class LoginFragment :
     private lateinit var scrollArea: ScrollView
     private lateinit var background: View
     private lateinit var headerBar: HeaderBar
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setupLifecycleSubscriptionsToViewModel()
-    }
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -78,6 +74,10 @@ class LoginFragment :
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
+
     override fun onSafelyStart() {
         parentActivity.backButtonHandler = {
             if (accountLogin.hasFocus) {
@@ -105,19 +105,21 @@ class LoginFragment :
         }
     }
 
-    private fun setupLifecycleSubscriptionsToViewModel() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                launch {
-                    loginViewModel.accountHistory.collect { history ->
-                        accountLogin.accountHistory = history.accountToken()
-                    }
-                }
-                launch {
-                    loginViewModel.uiState.collect { uiState -> updateUi(uiState) }
-                }
-            }
+    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            lanuchUpdateAccountHistory()
+            launchUpdateUiOnViewModelStateChanges()
         }
+    }
+
+    private fun CoroutineScope.lanuchUpdateAccountHistory() = launch {
+        loginViewModel.accountHistory.collect { history ->
+            accountLogin.accountHistory = history.accountToken()
+        }
+    }
+
+    private fun CoroutineScope.launchUpdateUiOnViewModelStateChanges() = launch {
+        loginViewModel.uiState.collect { uiState -> updateUi(uiState) }
     }
 
     private fun updateUi(uiState: LoginViewModel.LoginUiState) {
