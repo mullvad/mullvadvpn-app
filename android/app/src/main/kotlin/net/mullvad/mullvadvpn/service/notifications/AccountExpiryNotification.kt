@@ -41,6 +41,7 @@ class AccountExpiryNotification(
         R.string.account_time_notification_channel_name,
         R.string.account_time_notification_channel_description,
         NotificationManager.IMPORTANCE_HIGH,
+        true,
         true
     )
 

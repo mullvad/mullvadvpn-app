@@ -15,7 +15,8 @@ class NotificationChannel(
     name: Int,
     description: Int,
     importance: Int,
-    isVibrationEnabled: Boolean
+    isVibrationEnabled: Boolean,
+    isBadgeEnabled: Boolean
 ) {
     private val badgeColor by lazy {
         context.getColor(R.color.colorPrimary)
@@ -30,7 +31,7 @@ class NotificationChannel(
         val channel = NotificationChannelCompat.Builder(id, importance)
             .setName(channelName)
             .setDescription(channelDescription)
-            .setShowBadge(true)
+            .setShowBadge(isBadgeEnabled)
             .setVibrationEnabled(isVibrationEnabled)
             .build()
 

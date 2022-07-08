@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 #### Android
 - Lowered default MTU to 1280 on Android.
+- Disable app icon badge for tunnel state notification/status.
 
 ### Removed
 #### Android
