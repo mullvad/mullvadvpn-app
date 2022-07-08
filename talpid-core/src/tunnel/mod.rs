@@ -255,12 +255,15 @@ impl TunnelMonitor {
     ) {
         // Only calculate the mtu automatically if the user has not set any
         if params.options.mtu.is_none() {
-            if let Ok(mtu) = route_manager
+            match route_manager
                 .get_mtu_for_route(params.connection.peer.endpoint.ip())
                 .await
-            {
-                Self::set_mtu(params, mtu);
-            }
+                {
+                    Ok(mtu) => Self::set_mtu(params, mtu),
+                    Err(e) => {
+                        log::error!("Could not get the MTU for route {}", e);
+                    }
+                }
         }
     }
 

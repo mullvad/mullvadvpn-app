@@ -197,14 +197,22 @@ fn get_mtu_for_route(addr_family: WinNetAddrFamily) -> Result<Option<u16>> {
             let luid = NET_LUID {
                 Value: route.interface_luid,
             };
-            let interface_row = crate::windows::get_ip_interface_entry(addr_family, &luid)
-                .map_err(|_| Error::GetMtu)?;
+            let interface_row = match crate::windows::get_ip_interface_entry(addr_family, &luid) {
+                Err(e) => {
+                    log::error!("Could not get ip interface entry: {}", e);
+                    return Err(Error::GetMtu);
+                },
+                Ok(i) => i,
+            };
             let mtu = interface_row.NlMtu;
             let mtu = u16::try_from(mtu).map_err(|_| Error::GetMtu)?;
             Ok(Some(mtu))
         }
         Ok(None) => Ok(None),
-        Err(_) => Err(Error::GetMtu),
+        Err(e) => {
+            log::error!("Could not get best default route: {}", e);
+            Err(Error::GetMtu)
+        }
     }
 }
 
