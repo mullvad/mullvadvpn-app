@@ -38,7 +38,7 @@ extension GeoJSON {
 
                 switch geometry {
                 case .polygon(let polygon):
-                    return [polygon.mkPolygon]
+                    return polygon.mkPolygons
 
                 case .multiPolygon(let multiPolygon):
                     return multiPolygon.mkPolygons
@@ -102,18 +102,24 @@ extension GeoJSON {
     struct Polygon: Decodable {
         let coordinates: [[[Double]]]
 
-        var mkPolygon: MKPolygon {
+        var mkPolygons: [MKPolygon] {
             let coords = self.geoCoordinates
             let exteriorCoordinates = coords.first ?? []
-            let interiorPolygons = coords.dropFirst().map { (interiorCoords) -> MKPolygon in
-                return MKPolygon(coordinates: interiorCoords, count: interiorCoords.count)
-            }
 
-            return MKPolygon(
+            let exteriorPolygon = MKPolygon(
                 coordinates: exteriorCoordinates,
                 count: exteriorCoordinates.count,
-                interiorPolygons: interiorPolygons
+                interiorPolygons: nil
             )
+
+            let interiorPolygons = coords.dropFirst().map { interiorCoords -> MKPolygon in
+                return MKPolygon(
+                    coordinates: interiorCoords,
+                    count: interiorCoords.count
+                )
+            }
+
+            return [exteriorPolygon] + interiorPolygons
         }
 
         private var geoCoordinates: [[CLLocationCoordinate2D]] {
@@ -129,8 +135,8 @@ extension GeoJSON {
         let coordinates: [[[[Double]]]]
 
         var mkPolygons: [MKOverlay] {
-            return coordinates.map { values -> MKPolygon in
-                return Polygon(coordinates: values).mkPolygon
+            return coordinates.flatMap { values -> [MKPolygon] in
+                return Polygon(coordinates: values).mkPolygons
             }
         }
     }
