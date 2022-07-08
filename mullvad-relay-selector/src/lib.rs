@@ -903,7 +903,7 @@ impl RelaySelector {
         &self,
         obfuscation_settings: &Udp2TcpObfuscationSettings,
         relay: &Relay,
-        _endpoint: &MullvadWireguardEndpoint,
+        endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
     ) -> Option<SelectedObfuscator> {
         let udp2tcp_ports = &self.parsed_relays.lock().locations.wireguard.udp2tcp_ports;
@@ -916,7 +916,7 @@ impl RelaySelector {
         };
         udp2tcp_endpoint
             .map(|udp2tcp_endpoint| ObfuscatorConfig::Udp2Tcp {
-                endpoint: SocketAddr::new(relay.ipv4_addr_in.into(), *udp2tcp_endpoint),
+                endpoint: SocketAddr::new(endpoint.peer.endpoint.ip(), *udp2tcp_endpoint),
             })
             .map(|config| SelectedObfuscator {
                 config,
