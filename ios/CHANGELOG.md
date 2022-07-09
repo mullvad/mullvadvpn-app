@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add option to block gambling and adult content.
 - Add last used account field to login view.
 - Display device name under account view.
+- Add search and pin locations.
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.

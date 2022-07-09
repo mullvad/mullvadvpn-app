@@ -21,6 +21,7 @@ let keychainServiceName = "Mullvad VPN"
 enum KeychainAccountName: String, CaseIterable {
     case settings = "Settings"
     case lastUsedAccount = "LastUsedAccount"
+    case pinnedLocationNames = "PinnedLocationNames"
 }
 
 extension SettingsManager {
@@ -252,5 +253,73 @@ extension SettingsManager {
         }
 
         return KeychainAccountName(rawValue: accountNumber) == nil
+    }
+}
+
+extension SettingsManager {
+    
+    // MARK: - Pinned location names
+
+    static func getPinnedLocationNames() throws -> Set<String> {
+        var query = createDefaultAttributes(accountName: .pinnedLocationNames)
+        query[kSecReturnData] = true
+
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+
+        guard status == errSecSuccess else {
+            throw KeychainError(code: status)
+        }
+
+        guard let data = result as? Data else {
+            throw KeychainError.itemNotFound
+        }
+        
+        guard let displayNames = try NSKeyedUnarchiver.unarchivedObject(
+            ofClass: NSSet.self,
+            from: data
+        ) as? Set<String> else {
+            throw KeychainError.itemNotFound
+        }
+        
+        return displayNames
+    }
+
+    static func setPinnedLocationNames(_ displayNames: Set<String>?) throws {
+        let query = createDefaultAttributes(accountName: .pinnedLocationNames)
+
+        guard let displayNames = displayNames else {
+            switch SecItemDelete(query as CFDictionary) {
+            case errSecSuccess, errSecItemNotFound:
+                return
+            case let status:
+                throw KeychainError(code: status)
+            }
+        }
+
+        let data = try NSKeyedArchiver.archivedData(
+            withRootObject: displayNames,
+            requiringSecureCoding: true
+        )
+        var status = SecItemUpdate(
+            query as CFDictionary,
+            [kSecValueData: data] as CFDictionary
+        )
+
+        switch status {
+        case errSecItemNotFound:
+            var insert = query
+            insert[kSecAttrAccessible] = kSecAttrAccessibleAfterFirstUnlock
+            insert[kSecValueData] = data
+
+            status = SecItemAdd(insert as CFDictionary, nil)
+            if status != errSecSuccess {
+                throw KeychainError(code: status)
+            }
+        case errSecSuccess:
+            break
+        default:
+            throw KeychainError(code: status)
+        }
     }
 }
