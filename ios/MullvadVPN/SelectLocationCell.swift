@@ -26,6 +26,7 @@ class SelectLocationCell: UITableViewCell {
 
     let tickImageView = UIImageView(image: UIImage(named: "IconTick"))
     let collapseButton = UIButton(type: .custom)
+    let pinButton = UIButton(type: .custom)
 
     private let chevronDown = UIImage(named: "IconChevronDown")
     private let chevronUp = UIImage(named: "IconChevronUp")
@@ -35,6 +36,14 @@ class SelectLocationCell: UITableViewCell {
             updateDisabled()
             updateBackgroundColor()
             updateStatusIndicatorColor()
+        }
+    }
+
+    var isPinned = false {
+        didSet {
+            let imageName = isPinned ? "IconPinned" : "IconUnpinned"
+            pinButton.setImage(.init(named: imageName), for: .normal)
+            pinButton.alpha = isPinned ? 1 : 0.3
         }
     }
 
@@ -53,6 +62,7 @@ class SelectLocationCell: UITableViewCell {
     }
 
     var didCollapseHandler: CollapseHandler?
+    var didTapPinHandler: CollapseHandler?
 
     override var indentationLevel: Int {
         didSet {
@@ -116,6 +126,11 @@ class SelectLocationCell: UITableViewCell {
 
         tickImageView.tintColor = .white
 
+        pinButton.accessibilityIdentifier = "PinButton"
+        pinButton.isAccessibilityElement = false
+        pinButton.tintColor = .white
+        pinButton.addTarget(self, action: #selector(handlePinButton(_:)), for: .touchUpInside)
+
         collapseButton.accessibilityIdentifier = "CollapseButton"
         collapseButton.isAccessibilityElement = false
         collapseButton.tintColor = .white
@@ -125,10 +140,11 @@ class SelectLocationCell: UITableViewCell {
             for: .touchUpInside
         )
 
-        [locationLabel, tickImageView, statusIndicator, collapseButton].forEach { subview in
-            subview.translatesAutoresizingMaskIntoConstraints = false
-            contentView.addSubview(subview)
-        }
+        [locationLabel, tickImageView, statusIndicator, pinButton, collapseButton]
+            .forEach { subview in
+                subview.translatesAutoresizingMaskIntoConstraints = false
+                contentView.addSubview(subview)
+            }
 
         updateCollapseImage()
         updateAccessibilityCustomActions()
@@ -156,6 +172,11 @@ class SelectLocationCell: UITableViewCell {
             locationLabel.bottomAnchor
                 .constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
 
+            pinButton.widthAnchor.constraint(equalToConstant: kCollapseButtonWidth),
+            pinButton.topAnchor.constraint(equalTo: contentView.topAnchor),
+            pinButton.trailingAnchor.constraint(equalTo: collapseButton.leadingAnchor),
+            pinButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+
             collapseButton.widthAnchor
                 .constraint(
                     equalToConstant: UIMetrics.contentLayoutMargins.left + UIMetrics
@@ -163,7 +184,7 @@ class SelectLocationCell: UITableViewCell {
                 ),
             collapseButton.topAnchor.constraint(equalTo: contentView.topAnchor),
             collapseButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            collapseButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            collapseButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
 
@@ -221,6 +242,10 @@ class SelectLocationCell: UITableViewCell {
         }
     }
 
+    @objc private func handlePinButton(_ sender: UIControl) {
+        didTapPinHandler?(self)
+    }
+
     @objc private func handleCollapseButton(_ sender: UIControl) {
         didCollapseHandler?(self)
     }
@@ -257,7 +282,7 @@ class SelectLocationCell: UITableViewCell {
                     name: actionName,
                     target: self,
                     selector: #selector(toggleCollapseAccessibilityAction)
-                ),
+                )
             ]
         } else {
             accessibilityCustomActions = nil
