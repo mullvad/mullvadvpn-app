@@ -29,7 +29,7 @@ service ManagementService {
 	// Relays and tunnel constraints
 	rpc UpdateRelayLocations(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc UpdateRelaySettings(RelaySettingsUpdate) returns (google.protobuf.Empty) {}
-	rpc GetRelayLocations(google.protobuf.Empty) returns (stream RelayListCountry) {}
+	rpc GetRelayLocations(google.protobuf.Empty) returns (RelayList) {}
 	rpc GetCurrentLocation(google.protobuf.Empty) returns (GeoIpLocation) {}
 	rpc SetBridgeSettings(BridgeSettings) returns (google.protobuf.Empty) {}
 	rpc SetBridgeState(BridgeState) returns (google.protobuf.Empty) {}
@@ -547,30 +547,6 @@ enum TransportProtocol {
 	TCP = 1;
 }
 
-message ShadowsocksEndpointData {
-    uint32 port = 1;
-    string cipher = 2;
-    string password = 3;
-    TransportProtocol protocol = 4;
-}
-
-message OpenVpnEndpointData {
-    uint32 port = 1;
-    TransportProtocol protocol = 2;
-}
-
-message WireguardEndpointData {
-	repeated PortRange port_ranges = 1;
-	string ipv4_gateway = 2;
-	string ipv6_gateway = 3;
-	bytes public_key = 4;
-}
-
-message PortRange {
-	uint32 first = 1;
-	uint32 last = 2;
-}
-
 message DaemonEvent {
 	oneof event {
 		TunnelState tunnel_state = 1;
@@ -584,6 +560,41 @@ message DaemonEvent {
 
 message RelayList {
 	repeated RelayListCountry countries = 1;
+	OpenVpnEndpointData openvpn = 2;
+	BridgeEndpointData bridge = 3;
+	WireguardEndpointData wireguard = 4;
+}
+
+message OpenVpnEndpointData {
+    repeated OpenVpnEndpoint endpoints = 1;
+}
+
+message OpenVpnEndpoint {
+    uint32 port = 1;
+    TransportProtocol protocol = 2;
+}
+
+message BridgeEndpointData {
+    repeated ShadowsocksEndpointData shadowsocks = 1;
+}
+
+message ShadowsocksEndpointData {
+    uint32 port = 1;
+    string cipher = 2;
+    string password = 3;
+    TransportProtocol protocol = 4;
+}
+
+message WireguardEndpointData {
+	repeated PortRange port_ranges = 1;
+	string ipv4_gateway = 2;
+	string ipv6_gateway = 3;
+	repeated uint32 udp2tcp_ports = 4;
+}
+
+message PortRange {
+	uint32 first = 1;
+	uint32 last = 2;
 }
 
 message AccountAndDevice {

@@ -246,17 +246,10 @@ export class DaemonRpc {
     }
   }
 
-  public getRelayLocations(): Promise<IRelayList> {
+  public async getRelayLocations(): Promise<IRelayList> {
     if (this.isConnected) {
-      return new Promise((resolve, reject) => {
-        const relayLocations: IRelayListCountry[] = [];
-        const stream = this.client.getRelayLocations(new Empty());
-        stream.on('data', (country: grpcTypes.RelayListCountry) =>
-          relayLocations.push(convertFromRelayListCountry(country.toObject())),
-        );
-        stream.on('end', () => resolve({ countries: relayLocations }));
-        stream.on('close', reject);
-      });
+      const response = await this.callEmpty<grpcTypes.RelayList>(this.client.getRelayLocations);
+      return convertFromRelayList(response);
     } else {
       throw noConnectionError;
     }
@@ -711,6 +704,16 @@ function liftConstraint<T>(constraint: Constraint<T> | undefined): T | undefined
   return undefined;
 }
 
+function convertFromRelayList(relayList: grpcTypes.RelayList): IRelayList {
+  return {
+    countries: relayList
+      .getCountriesList()
+      .map((country: grpcTypes.RelayListCountry) =>
+        convertFromRelayListCountry(country.toObject()),
+      ),
+  };
+}
+
 function convertFromRelayListCountry(
   country: grpcTypes.RelayListCountry.AsObject,
 ): IRelayListCountry {
@@ -1160,15 +1163,7 @@ function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
 
   const relayList = data.getRelayList();
   if (relayList !== undefined) {
-    return {
-      relayList: {
-        countries: relayList
-          .getCountriesList()
-          ?.map((country: grpcTypes.RelayListCountry) =>
-            convertFromRelayListCountry(country.toObject()),
-          ),
-      },
-    };
+    return { relayList: convertFromRelayList(relayList) };
   }
 
   const deviceConfig = data.getDevice();
