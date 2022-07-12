@@ -10,10 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2022-02-24 09:05\n"
+"PO-Revision-Date: 2022-07-12 06:30\n"
 
-msgid "%(duration)s was added to your account."
-msgstr "သင့်အကောင့်သို့ %(duration)s ပေါင်းထည့်ထားသည်။"
+msgid "%(duration)s was added, account paid until %(expiry)s."
+msgstr "%(duration)s ထပ်ပေါင်းပြီးပါပြီ၊ %(expiry)s မတိုင်ခင်ထိ အကောင့် ငွေပေးချေပြီးပါပြီ။"
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -55,9 +55,15 @@ msgid "a year ago"
 msgid_plural "%d years ago"
 msgstr[0] "လွန်ခဲ့သော %d နှစ်"
 
+msgid "Account paid until %(expiry)s."
+msgstr "%(expiry)s မတိုင်ခင်ထိ အကောင့် ငွေပေးချေပြီးပါပြီ။"
+
 msgid "an hour ago"
 msgid_plural "%d hours ago"
 msgstr[0] "လွန်ခဲ့သော %d နာရီ"
+
+msgid "Any"
+msgstr "တစ်ခုခု"
 
 msgid "Apply"
 msgstr "သုံးရန်"
@@ -73,6 +79,9 @@ msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ပိတ်ဆို့ထားသည့် ချိတ်ဆက်မှု"
+
+msgid "Blocking internet"
+msgstr "အင်တာနက် ပိတ်ဆို့နေပါသည်"
 
 msgid "Buy credit"
 msgstr "ခရက်ဒစ် ဝယ်ရန်"
@@ -92,14 +101,32 @@ msgstr "ပိတ်ရန်"
 msgid "Connect"
 msgstr "ချိတ်ဆက်ရန်"
 
+msgid "Connected"
+msgstr "ချိတ်ဆက်ပြီး"
+
+msgid "Connecting"
+msgstr "ချိတ်ဆက်နေဆဲ"
+
+msgid "CREATING QUANTUM SECURE CONNECTION"
+msgstr "QUANTUM လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးခြင်း"
+
 msgid "CREATING SECURE CONNECTION"
 msgstr "လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးနေပါသည်"
 
 msgid "Default"
 msgstr "ပုံသေ"
 
+msgid "Disable"
+msgstr "ပိတ်ရန်"
+
 msgid "Disconnect"
 msgstr "ချိတ်ဆက်မှုဖြုတ်ရန်"
+
+msgid "Disconnected"
+msgstr "ချိတ်ဆက်မှု ဖြုတ်ထားပြီး"
+
+msgid "Disconnecting"
+msgstr "ချိတ်ဆက်မှုဖြုတ်နေပါသည်"
 
 msgid "Dismiss"
 msgstr "ဖယ်ပစ်ရန်"
@@ -147,6 +174,9 @@ msgstr "ဖွင့်"
 msgid "Open URL"
 msgstr "URL ဖွင့်ရန်"
 
+msgid "QUANTUM SECURE CONNECTION"
+msgstr "QUANTUM လုံခြုံသည့် ချိတ်ဆက်မှု"
+
 msgid "Reconnect"
 msgstr "ပြန်ချိတ်ဆက်ရန်"
 
@@ -168,6 +198,9 @@ msgstr "ဤဆက်တင်သည် ကြန့်ကြာချိန်�
 
 msgid "UDP"
 msgstr "UDP"
+
+msgid "Unblock"
+msgstr "ပိတ်ဆို့မှုမှ ဖယ်ရန်"
 
 msgid "UNSECURED CONNECTION"
 msgstr "မလုံခြုံသည့် ချိတ်ဆက်မှု"
@@ -206,8 +239,20 @@ msgid "Login"
 msgstr "ဝင်ရန်"
 
 msgctxt "accessibility"
+msgid "More information"
+msgstr "နောက်ထပ်အချက်အလက်"
+
+msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "ပြင်ပတွင် ဖွင့်ရန်"
+
+#. Button action description provided to accessibility tools such as screen
+#. readers.
+#. Available placeholders:
+#. %(deviceName)s - The device name to remove.
+msgctxt "accessibility"
+msgid "Remove device named %(deviceName)s"
+msgstr "%(deviceName)s စက်ကို ဖယ်ရှားရန်"
 
 msgctxt "accessibility"
 msgid "Remove item"
@@ -252,6 +297,16 @@ msgstr "ဖော်ပြပါအထိ ပေးချေထားပြီ�
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "အဆင့်မြင့်"
+
+#. %(openvpn)s will be replaced with the string "OpenVPN"
+msgctxt "advanced-settings-view"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s ဆက်တင်များ"
+
+#. %(wireguard)s will be replaced with the string "WireGuard"
+msgctxt "advanced-settings-view"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s ဆက်တင်များ"
 
 msgctxt "advanced-settings-view"
 msgid "Add a server"
@@ -299,37 +354,26 @@ msgid "If you disconnect or quit the app, this setting will block your internet.
 msgstr "ဤအက်ပ်နှင့် ချိတ်ဆက်မှုပြတ်သွားပါက သို့မဟုတ် ထွက်လိုက်ပါက ဤဆက်တင်သည် သင့်အင်တာနက်ကို ပိတ်ဆို့သွားပါလိမ့်မည်။"
 
 #. Description for multihop settings toggle.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "advanced-settings-view"
-msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
-msgstr "သင်၏ ကူးလူးမှုကို WireGuard ဆာဗာတစ်ခုသို့ လမ်းကြောင်းပို့ပြီး အခြားတစ်ခုမှ ထုတ်ခြင်းဖြင့် သိုသိပ်ထားမှုကို တိုးစေပြီး ခြေရာခံရန် ခက်ခဲစေပါသည်။"
-
-msgctxt "advanced-settings-view"
-msgid "missing key"
-msgstr "ကီး မရှိပါ"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN"
-msgstr "OpenVPN"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN settings"
-msgstr "OpenVPN ဆက်တင်များ"
-
-msgctxt "advanced-settings-view"
-msgid "Split tunneling"
-msgstr "Split Tunneling"
+msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
+msgstr "သင်၏ ကူးလူးမှုကို %(wireguard)s ဆာဗာတစ်ခုသို့ လမ်းကြောင်း ပို့ပြီး အခြားတစ်ခုမှ ထုတ်ခြင်းဖြင့် သိုသိပ်ထားမှုကို တိုးစေပြီး ခြေရာခံရန် ခက်ခဲစေပါသည်။"
 
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "ဤအက်ပ်၏ မူလပါရှိသော Kill Switch ကို အမြဲဖွင့်ထားပါ။ ထို့အပြင် ချိတ်ဆက်မှုဖြုတ်ရန် သို့မဟုတ် ထွက်ရန်ကို နှိပ်ခြင်းဖြင့် ဤဆက်တင်သည် အင်တာနက်ကို ပိတ်ဆို့သွားပါလိမ့်မည်။"
 
 msgctxt "advanced-settings-view"
-msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
-msgstr "သင် ပေါင်းထည့်လိုသည့် DNS ဆာဗာသည် အများသုံးဖြစ်ပြီး WireGuard ဖြင့်သာ အလုပ်လုပ်ပါမည်။ ၎င်းကို အမြဲ အလုပ်လုပ်စေရန်အတွက် \"Tunnel ပရိုတိုကောလ်\"ကို (အဆင့်မြင့် ဆက်တင်တွင်) WireGuard အဖြစ် သတ်မှတ်ပေးပါ။"
+msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
+msgstr "သင်ပေါင်းထည့်လိုသည့် DNS ဆာဗာသည် သီးသန့် IP ဖြစ်ပါသည်။ ၎င်းကို သုံးရန် သင့်ကွန်ရက် အင်တာဖေ့(စ်)များကို သေချာ သီးသန့်စီစဉ်ထားပါ။"
 
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(wireguard)s - will be replaced with "WireGuard"
 msgctxt "advanced-settings-view"
-msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
-msgstr "WireGuard ကို လုပ်ဆောင်နိုင်စေရန် အောက်ပါ \"WireGuard ကီး\" ဆက်တင်အောက်တွင် ကီးကို ထုတ်ပေးပါ။ "
+msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
+msgstr "သင်ပေါင်းထည့်လိုသော DNS ဆာဗာသည် အများသုံးဖြစ်ပြီး %(wireguard)s ဖြင့်သာ လုပ်ဆောင်ပါမည်။ ၎င်းင်းကို အမြဲအလုပ်လုပ်စေရန် \"%(tunnelProtocol)s\" (အဆင့်မြင့် ဆက်တင်တွင်) ကို %(wireguard)s အဖြစ် သတ်မှတ်ပါ။"
 
 msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
@@ -338,14 +382,6 @@ msgstr "Tunnel ပရိုတိုကောလ်"
 msgctxt "advanced-settings-view"
 msgid "Use custom DNS server"
 msgstr "စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard"
-msgstr "WireGuard"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard settings"
-msgstr "WireGuard ဆက်တင်များ"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -480,6 +516,79 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr "အထွက်"
 
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "**" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Are you sure you want to log out of **%(deviceName)s**?"
+msgstr "**%(deviceName)s** မှ ထွက်ရန် သေချာပါသလား။"
+
+#. Button for continuing login process.
+msgctxt "device-management"
+msgid "Continue with login"
+msgstr "ဆက်လက် ဝင်ရောက်ရန်"
+
+msgctxt "device-management"
+msgid "Device is inactive"
+msgstr "စက်သည် သက်ဝင်လုပ်ဆောင်မှု မရှိပါ"
+
+msgctxt "device-management"
+msgid "Device name"
+msgstr "စက်အမည်"
+
+msgctxt "device-management"
+msgid "Go to login"
+msgstr "ဝင်ရောက်ရန် သွားပါ"
+
+msgctxt "device-management"
+msgid "Going to login will unblock the Internet on this device."
+msgstr "ဝင်ရောက်ရန်သွားခြင်းသည် ဤစက်ရှိ အင်တာနက်ကို ပိတ်ဆို့မှုမှ ဖယ်ပါလိမ့်မည်။"
+
+#. Confirmation button when logging out
+msgctxt "device-management"
+msgid "Log out anyway"
+msgstr "မည်သို့ပင်ဖြစ်စေ ထွက်မည်"
+
+msgctxt "device-management"
+msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
+msgstr "အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။"
+
+#. Page title informing user that enough devices has been removed to continue
+#. login process.
+msgctxt "device-management"
+msgid "Super!"
+msgstr "အလွန်ကောင်း။"
+
+#. This is is a further explanation of what happens when logging out.
+msgctxt "device-management"
+msgid "The ports forwarded to this device will be deleted if you log out."
+msgstr "သင် ထွက်ပါက ဤစက်သို့ ပေးပို့ထားသော ports ကို ဖျက်ပါမည်။"
+
+#. Further information about consequences of logging out device.
+msgctxt "device-management"
+msgid "This will delete all forwarded ports. Local settings will be saved."
+msgstr "၎င်းသည် ပေးပို့ထားသော ports ကို ဖျက်ပါမည်။ စက်တွင်းဆက်တင်ကို သိမ်းထားပါမည်။"
+
+#. Page title informing user that the login failed due to too many registered
+#. devices on account.
+msgctxt "device-management"
+msgid "Too many devices"
+msgstr "စက်များလွန်းနေသည်"
+
+#. Confirmation button when logging out other device.
+msgctxt "device-management"
+msgid "Yes, log out device"
+msgstr "စက်မှ ထွက်မည်"
+
+msgctxt "device-management"
+msgid "You can now continue logging in on this device."
+msgstr "သင်သည် ယခု ဤစက်တွင် ဆက်လက် ဝင်ရောက်နိုင်သည်။"
+
+msgctxt "device-management"
+msgid "You have removed this device. To connect again, you will need to log back in."
+msgstr "ဤစက်ကို ဖယ်ရှားပြီး ဖြစ်သည်။ ထပ်မံချိတ်ဆက်ရန်အတွက် ပြန်လည် ဝင်ရောက်ရန် လိုပါသည်။"
+
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -489,17 +598,36 @@ msgstr "တစ်စုံတစ်ခု မှားနေပါသည်။ %
 
 #. Title label in navigation bar
 msgctxt "filter-nav"
-msgid "Filter by provider"
-msgstr "ပံ့ပိုးသူအလိုက် စစ်ထုတ်ရန်"
-
-#. Back button in navigation bar
-msgctxt "filter-nav"
-msgid "Select location"
-msgstr "တည်နေရာ ရွေးရန်"
+msgid "Filter"
+msgstr "စစ်ထုတ်မှု"
 
 msgctxt "filter-view"
 msgid "All providers"
 msgstr "ပံ့ပိုးသူအားလုံး"
+
+msgctxt "filter-view"
+msgid "Mullvad owned only"
+msgstr "Mullvad ပိုင်ဆိုင်သည်များသာ"
+
+msgctxt "filter-view"
+msgid "Owned"
+msgstr "အပိုင်"
+
+msgctxt "filter-view"
+msgid "Ownership"
+msgstr "ပိုင်ဆိုင်မှု"
+
+msgctxt "filter-view"
+msgid "Providers"
+msgstr "ပံ့ပိုးသူများ"
+
+msgctxt "filter-view"
+msgid "Rented"
+msgstr "အငှား"
+
+msgctxt "filter-view"
+msgid "Rented only"
+msgstr "အငှားသီးသန့်"
 
 msgctxt "in-app-notifications"
 msgid "\"Always require VPN\" is enabled."
@@ -531,10 +659,6 @@ msgid "Install the latest app version to stay up to date."
 msgstr "အပ်ဒိတ်ဖြစ်နေစေရန် နောက်ဆုံးထွက် အက်ပ်ဗားရှင်းကို ထည့်သွင်းပါ။"
 
 msgctxt "in-app-notifications"
-msgid "Manage keys under Advanced settings."
-msgstr "အဆင့်မြင့် ဆက်တင်များအောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။"
-
-msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "ကွန်ရက် ကူးလူးမှု ပေါက်ကြားနေနိုင်ပါသည်"
 
@@ -558,13 +682,17 @@ msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "အပ်ဒိတ် ရရှိနိုင်ပါပြီ"
 
-msgctxt "in-app-notifications"
-msgid "VALID WIREGUARD KEY IS MISSING"
-msgstr "အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ"
-
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ..."
+
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+#. Available placeholder:
+#. %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
+msgctxt "login-view"
+msgid "**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection."
+msgstr "**%(alwaysRequireVpnSettingsName)s** ကို ဖွင့်ထားသည်။ သင်၏ ချိတ်ဆက်မှု ပိတ်ဆို့ခြင်းမှ ဖယ်ရှားရန် ၎င်းကို ပိတ်ပါ။"
 
 msgctxt "login-view"
 msgid "Account created"
@@ -599,6 +727,10 @@ msgid "Failed to create account"
 msgstr "အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ"
 
 msgctxt "login-view"
+msgid "Finishing upgrade."
+msgstr "အဆင့်မြှင့်ခြင်း ပြီးပါပြီ။"
+
+msgctxt "login-view"
 msgid "Logged in"
 msgstr "ဝင်ရောက်ထားပြီး"
 
@@ -614,24 +746,32 @@ msgctxt "login-view"
 msgid "Login failed"
 msgstr "ဝင်ရောက်မှု မအောင်မြင်ပါ"
 
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+msgctxt "login-view"
+msgid "Our kill switch is currently blocking your connection."
+msgstr "ကျွန်ုပ်တို့၏ Kill Switch သည် လက်ရှိတွင် သင်၏ ချိတ်ဆက်မှုကို ပိတ်ဆို့ထားသည်။"
+
 msgctxt "login-view"
 msgid "Please wait"
 msgstr "ကျေးဇူးပြု၍ စောင့်ပေးပါ"
+
+msgctxt "login-view"
+msgid "Too many devices"
+msgstr "စက်များလွန်းနေသည်"
 
 msgctxt "login-view"
 msgid "Unknown error"
 msgstr "မသိသည့် ချို့ယွင်းချက်"
 
 msgctxt "login-view"
+msgid "Upgrading..."
+msgstr "အဆင့်မြှင့်တင်နေဆဲ..."
+
+msgctxt "login-view"
 msgid "Valid account number"
 msgstr "မှန်ကန်သည့် အကောင့်နံပါတ်"
 
-#. Back button in navigation bar
-msgctxt "navigation-bar"
-msgid "Advanced"
-msgstr "အဆင့်မြင့်"
-
-#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -695,12 +835,16 @@ msgid "Disconnected and unsecure"
 msgstr "ချိတ်ဆက်မှုဖြုတ်ပြီးပါပြီ မလုံခြုံတော့ပါ"
 
 msgctxt "notifications"
+msgid "No servers in your selected location match your settings."
+msgstr "သင်ရွေးချယ်ထားသော တည်နေရာတွင် သင်၏ ဆက်တင်နှင့် ကိုက်ညီသော ဆာဗာ မရှိပါ။"
+
+msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "ပြန်ချိတ်ဆက်နေပါသည်"
 
 msgctxt "notifications"
-msgid "The apps excluded with split tunneling might not work properly right now."
-msgstr "Split Tunneling နှင့်အတူ မပါဝင်သည့် အက်ပ်များသည် ယခုအခါ ကောင်းစွာ အလုပ်လုပ်မည် မဟုတ်ပါ။"
+msgid "The apps excluded with %(splitTunneling)s might not work properly right now."
+msgstr "%(splitTunneling)s နှင့်အတူ မပါဝင်သည့် အက်ပ်များသည် ယခုတွင် ကောင်းစွာ အလုပ်လုပ်မည် မဟုတ်ပါ"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules."
@@ -750,9 +894,11 @@ msgctxt "notifications"
 msgid "Upgrade"
 msgstr "အဆင့်မြှင့်တင်ရန်"
 
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with "WireGuard"
 msgctxt "notifications"
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင် အောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။"
+msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
+msgstr "အကျုံးဝင်သည့် %(wireguard)s ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင်များအောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။"
 
 msgctxt "notifications"
 msgid "Your device is offline. Try connecting when it's back online."
@@ -763,14 +909,17 @@ msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။"
 
-msgctxt "notifications"
-msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
-msgstr "သင်ရွေးထားသည့် ဆာဗာနှင့် Tunnel ပရိုတိုကောလ်သည် ကိုက်ညီမှု မရှိပါ။ သင့်ဆက်တင်ကို ချိန်ပေးပါ။"
-
 #. Title label in navigation bar
+#. Available placeholders:
+#. %(openvpn)s - Will be replaced with "OpenVPN"
 msgctxt "openvpn-settings-nav"
-msgid "OpenVPN settings"
-msgstr "OpenVPN ဆက်တင်များ"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s ဆက်တင်များ"
+
+#. %(openvpn)s will be replaced with "OpenVPN"
+msgctxt "openvpn-settings-view"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s ဆက်တင်များ"
 
 #. The title for the port selector section.
 #. Available placeholders:
@@ -786,37 +935,43 @@ msgstr "ပေါင်းကူး မုဒ်"
 
 #. This is used as a description for the bridge mode
 #. setting.
+#. Available placeholders:
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
-msgstr "OpenVPN ဆာဗာသို့ မရောက်မီ ပေါင်းကူးဆာဗာတစ်ခုမှတစ်ဆင့် သင်၏ ကူးလူးမှုကို လမ်းကြောင်းပို့ပေးခြင်းဖြင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရန် ကူညီပေးပါသည်။ လက်ဗွေပြုလုပ်မှုကို ပိုမိုခက်ခဲအောင်လုပ်ရန် မရှုပ်ရှုပ်အောင် ပြုလုပ်ထားမှုကို ထည့်သွင်းထားပါသည်။"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder."
+msgstr "%(openvpn)s ဆာဗာသို့ မရောက်မီ ပေါင်းကူးဆာဗာတစ်ခုမှ တစ်ဆင့် သင်၏ ကူးလူးမှုကို လမ်းကြောင်းပေးပို့ခြင်းဖြင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရန် ကူညီပေးပါသည်။ လက်‌ဗွေပြုလုပ်မှုကို မရှုပ်ရှုပ်အောင် ပြုလုပ်ထားမှုကို ထည့်သွင်းထားပါသည်။"
 
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
 
-msgctxt "openvpn-settings-view"
-msgid "OpenVPN settings"
-msgstr "OpenVPN ဆက်တင်များ"
-
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
+#. %(openvpn)s - will be replaced with "OpenVPN"
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
 msgctxt "openvpn-settings-view"
-msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr "OpenVPN MSS တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %(min)d - %(max)d"
+msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
+msgstr "%(openvpn)s MSS တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %(min)d - %(max)d။"
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
+#. Available placeholders:
+#. %(transportProtocol)s - the name of the transport protocol setting
+#. %(automat)s - the translation of "Automatic"
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
-msgstr "ပေါင်းကူး မုဒ်ကို သက်ဝင်အောင်လုပ်ဆောင်ရန် **ပို့ဆောင်ရေး ပရိုတိုကောလ်** ကို **အော်တိုမက်တစ်** သို့မဟုတ် **TCP** သို့ ပြောင်းပါ။"
+msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
+msgstr "ပေါင်းကူးမုဒ်ကို သက်ဝင်လုပ်ဆောင်ရန် **%(transportProtocol)s** ကို **%(automatic)s** သို့မဟုတ် **%(tcp)s** သို့ ပြောင်းပါ။"
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
-msgstr "ပေါင်းကူး မုဒ်ကို သက်ဝင်အောင်လုပ်ဆောင်ရန် နောက်သို့ ပြန်သွားပြီး **Tunnel ပရိုတိုကောလ်** ကို **OpenVPN** သို့ ပြောင်းပါ။"
+msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
+msgstr "ပေါင်းကူးမုဒ်ကို သက်ဝင်လုပ်ဆောင်ရန် နောက်သို့ ပြန်သွားပြီး **%(tunnelProtocol)s** ကို **%(openvpn)s** သို့ ပြောင်းပါ။"
 
 #. This is used to instruct users how to make UDP mode
 #. available.
@@ -854,24 +1009,20 @@ msgid "Block ads"
 msgstr "ကြော်ငြာများ ပိတ်ဆို့ရန်"
 
 msgctxt "preferences-view"
+msgid "Block adult content"
+msgstr "အရွယ်ရောက်ပြီးသူများအတွက် အကြောင်းအရာကို ပိတ်ဆို့ရန်"
+
+msgctxt "preferences-view"
+msgid "Block gambling"
+msgstr "လောင်းကစားကို ပိတ်ဆို့ရန်"
+
+msgctxt "preferences-view"
 msgid "Block malware"
 msgstr "မဲလ်ဝဲရ်ကို ပိတ်ဆို့ရန်"
 
 msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "ခြေရာခံမှုများကို ပိတ်ဆို့ရန်"
-
-#. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
-#. Available placeholders:
-#. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
-#. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
-#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
-#. %(preferencesPageName)s - The page title showed on top in the preferences page.
-msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "ဤဆက်တင်ကို သက်ဝင်အောင်လုပ်ဆောင်ရန် **%(blockAdsFeatureName)s**၊ **%(blockTrackersFeatureName)s** နှင့် **%(blockMalwareFeatureName)s** (%(preferencesPageName)s အောက်ရှိ) ကို ပိတ်ပါ။"
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -881,6 +1032,15 @@ msgstr "ဤဆက်တင်ကို သက်ဝင်အောင်လု�
 msgctxt "preferences-view"
 msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
 msgstr "ဤဆက်တင်များကို သက်ဝင်အောင် လုပ်ဆောင်ရန် **%(customDnsFeatureName)s** ကို (အဆင့်မြင့် ဆက်တင်အောက်တွင်) ပိတ်ပါ။"
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "preferences-view"
+msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
+msgstr "ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အကြောင်းအရာ ပိတ်ဆို့မှု (%(preferencesPageName)s အောက်ရှိ) ကို ပိတ်ပါ။"
 
 msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -942,6 +1102,34 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "ရောင်စုံအစား တစ်ရောင်တည်းပြ မီနျူးဘား အိုင်ကွန်ကို သုံးပါသည်။"
 
+msgctxt "preferences-view"
+msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "သတိပေးချက်- ၎င်းသည် အပိုအကာအကွယ်လွှာ တစ်ခုသာဖြစ်ပြီး anti-virus မဟုတ်၍ ဤသို့ မလုပ်ဆောင်သင့်ပါ။"
+
+msgctxt "preferences-view"
+msgid "Warning: This might cause issues on certain websites, services, and programs."
+msgstr "သတိပေးချက်- ၎င်းသည် အချို့သော ဝဘ်ဆိုက်များ၊ ဝန်ဆောင်မှုများ နှင့် ပရိုဂရမ်များတွင် ပြဿနာများကို ဖြစ်စေနိုင်သည်။"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
+msgstr "ဖွင့်ထားသောအခါ ဤလုပ်ဆောင်ချက်သည် စက်ကို မဲလ်ဝဲရ် လက်ခံသူဟု သိထားသည့် အချို့သော နယ်ပယ်များနှင့် ဆက်သွယ်ခြင်းမှ ရပ်တန့်စေသည်။"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
+msgstr "ဖွင့်ထားသောအခါ ဤလုပ်ဆောင်ချက်သည် စက်အား သုံးစွဲသူများကို ခြေရာခံရန် ဟု သိထားသည့် အချို့သော နယ်ပယ်များနှင့် ဆက်သွယ်ခြင်းမှ ရပ်တန့်စေသည်။"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain known ad domains."
+msgstr "ဖွင့်ထားသောအခါ ဤလုပ်ဆောင်ချက်သည် စက်အား အချို့သော ကြော်ငြာနယ်ပယ်များကို ဆက်သွယ်ခြင်းမှ ရပ်တန့်စေသည်။"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
+msgstr "ဖွင့်ထားသောအခါ ဤလုပ်ဆောင်ချက်သည် စက်အား အရွယ်ရောက်ပြီးသူများအတွက် အကြောင်းအရာကို လက်ခံရန် သိထားသည့် အချို့သော ဝဘ်ဆိုက်များနှင့် ဝန်ဆောင်မှုများကို ဆက်သွယ်ခြင်းမှ ရပ်တန့်စေသည်။"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
+msgstr "ဖွင့်ထားသောအခါ ဤလုပ်ဆောင်ချက်သည် စက်အား လောင်းကစား အကြောင်းအရာကို လက်ခံရန် သိထားသည့် အချို့သော ဝဘ်ဆိုက်များနှင့် ဝန်ဆောင်မှုများကို ဆက်သွယ်ခြင်းမှ ရပ်တန့်စေသည်။"
+
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr "မလုပ်တော့ပါ"
@@ -998,20 +1186,12 @@ msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
 msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "ထွက်ရန် အနီးဆုံး ဆာဗာ"
-
-msgctxt "select-location-view"
 msgid "Entry"
 msgstr "အဝင်"
 
 msgctxt "select-location-view"
 msgid "Exit"
 msgstr "အထွက်"
-
-msgctxt "select-location-view"
-msgid "Filter by provider"
-msgstr "ပံ့ပိုးသူအလိုက် စစ်ထုတ်ရန်"
 
 msgctxt "select-location-view"
 msgid "Filtered:"
@@ -1025,6 +1205,10 @@ msgstr "ပံ့ပိုးသူများ- %(numberOfProviders)d"
 msgctxt "select-location-view"
 msgid "Select location"
 msgstr "တည်နေရာ ရွေးရန်"
+
+msgctxt "select-location-view"
+msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
+msgstr "ဤအက်ပ်သည် ကျပန်းပေါင်းကူးဆာဗာကို ရွေးချယ်သော်လည်း ဆာဗာများသည် သင့်အနီးနားရှိလေ ဖြစ်နိုင်ချေ ပိုများလေ ဖြစ်သည်။"
 
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
@@ -1084,11 +1268,6 @@ msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
 msgstr "အပ်ဒိတ် ရရှိနိုင်ပါပြီ။ အပ်ဒိတ်ဖြစ်နေစေရန် နောက်ဆုံးထွက် အက်ပ်ဗားရှင်းကို ထည့်သွင်းပါ။"
 
-#. Title label in navigation bar
-msgctxt "split-tunneling-nav"
-msgid "Split tunneling"
-msgstr "Split Tunneling"
-
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr "%(applicationName)s သည် ပြဿနာဖြစ်စေပြီး VPN Tunnel မှ ဖယ်၍ မရနိုင်ပါ။"
@@ -1130,8 +1309,8 @@ msgid "Launch"
 msgstr "စတင်ဆောင်ရွက်ရန်"
 
 msgctxt "split-tunneling-view"
-msgid "No result for %(searchTerm)s."
-msgstr "%(searchTerm)s အတွက် ရလဒ်မရှိပါ။"
+msgid "No result for **%(searchTerm)s**."
+msgstr "**%(searchTerm)s** အတွက် ရလဒ်မရှိပါ။"
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1145,14 +1324,6 @@ msgstr "အကူအညီ ရယူရန် ဆက်သွယ်ပေးပ�
 msgctxt "split-tunneling-view"
 msgid "Please try again or contact support."
 msgstr "ထပ်ကြိုးစားပေးပါ သို့မဟုတ် အကူအညီ ရယူရန် ဆက်သွယ်ပေးပါ။"
-
-msgctxt "split-tunneling-view"
-msgid "Split tunneling"
-msgstr "Split Tunneling"
-
-msgctxt "split-tunneling-view"
-msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
-msgstr "Split Tunneling ကို CLI မှ ပိတ်ထားပြီး အောက်ပါ စာရင်းများမှ အပလီကေးရှင်းများကို ပေါင်းထည့်သည့်အခါ သို့မဟုတ် ဖယ်ရှားသည့်အခါ အော်တို ဖွင့်သွားပါမည်။"
 
 msgctxt "split-tunneling-view"
 msgid "Try a different search."
@@ -1248,8 +1419,24 @@ msgid "Your email (optional)"
 msgstr "သင့်အီးမေးလ် (မဖြည့်လည်း ရပါသည်)"
 
 msgctxt "tray-icon-context-menu"
+msgid "Disconnected from system service"
+msgstr "စနစ်ဝန်ဆောင်မှုမှ ချိတ်ဆက်မှု ဖြုတ်ထားပြီး"
+
+msgctxt "tray-icon-context-menu"
 msgid "Open %(mullvadVpn)s"
 msgstr "%(mullvadVpn)s ကို ဖွင့်ရန်"
+
+msgctxt "tray-icon-tooltip"
+msgid "%(city)s, %(country)s"
+msgstr "%(city)s၊ %(country)s"
+
+msgctxt "tray-icon-tooltip"
+msgid "Connected. %(location)s"
+msgstr "%(location)s နှင့် ချိတ်ဆက်ထားပါသည်။"
+
+msgctxt "tray-icon-tooltip"
+msgid "Connecting. %(location)s"
+msgstr "%(location)s နှင့် ချိတ်ဆက်နေပါသည်။"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
@@ -1259,76 +1446,18 @@ msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "တည်နေရာ ပြောင်းရန်"
 
-msgctxt "wireguard-key-view"
-msgid "Failed to generate a key"
-msgstr "ကီး ထုတ်ရန် မအောင်မြင်ခဲ့ပါ"
-
-msgctxt "wireguard-key-view"
-msgid "Generate key"
-msgstr "ကီး ထုတ်ရန်"
-
-msgctxt "wireguard-key-view"
-msgid "Generating key"
-msgstr "ကီး ထုတ်နေပါသည်"
-
-msgctxt "wireguard-key-view"
-msgid "Key generated"
-msgstr "ကီး ထုတ်ပြီး"
-
-msgctxt "wireguard-key-view"
-msgid "Key is invalid"
-msgstr "ကီး မှားနေပါသည်"
-
-msgctxt "wireguard-key-view"
-msgid "Key is valid"
-msgstr "ကီး မှန်ပါသည်"
-
-msgctxt "wireguard-key-view"
-msgid "Key verification failed"
-msgstr "ကီးစစ်ဆေးမှု မအောင်မြင်ပါ"
-
-msgctxt "wireguard-key-view"
-msgid "Manage keys"
-msgstr "ကီးများ စီမံခန့်ခွဲရန်"
-
-msgctxt "wireguard-key-view"
-msgid "No key set"
-msgstr "သတ်မှတ်ထားသည့် ကီး မရှိပါ"
-
-msgctxt "wireguard-key-view"
-msgid "Public key"
-msgstr "အများသုံး ကီး"
-
-msgctxt "wireguard-key-view"
-msgid "Reconnecting with new WireGuard key..."
-msgstr "WireGuard ကီးအသစ်ဖြင့် ပြန်ချိတ်ဆက်နေဆဲ..."
-
-msgctxt "wireguard-key-view"
-msgid "Regenerate key"
-msgstr "ကီး ပြန်ထုတ်ရန်"
-
-msgctxt "wireguard-key-view"
-msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
-msgstr "ကီး ပြန်ထုတ်၍ မရနိုင်ပါ- သင့်တွင် ကီးအရေအတွက် အများဆုံး ပမာဏအထိ ရှိနေပြီ ဖြစ်ပါသည်။ ကီးအသစ် ထုတ်ရန်အတွက် ဦးစွာ \"ကီးများ စီမံခန့်ခွဲရန်\"အောက်တွင် တစ်ခုကို ရုပ်သိမ်းပေးရန် လိုပါသည်။"
-
-msgctxt "wireguard-key-view"
-msgid "Verify key"
-msgstr "ကီး စစ်ဆေးရန်"
-
 #. Title label in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "WireGuard key"
-msgstr "WireGuard ကီး"
-
-#. Back button in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "WireGuard settings"
-msgstr "WireGuard ဆက်တင်များ"
-
-#. Title label in navigation bar
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-nav"
-msgid "WireGuard settings"
-msgstr "WireGuard ဆက်တင်များ"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s ဆက်တင်များ"
+
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
+msgctxt "wireguard-settings-view"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s ဆက်တင်များ"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -1344,11 +1473,12 @@ msgstr "ပေါ့တ်"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
 msgctxt "wireguard-settings-view"
-msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
-msgstr "WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %(min)d - %(max)d"
+msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
+msgstr "%(wireguard)s MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %(min)d - %(max)d။"
 
 #. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
@@ -1356,9 +1486,11 @@ msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "အလိုအလျောက်ဆက်တင်သည် ပေါ့တ်များစွာထဲမှ ကျပန်းရွေးချယ်သွားပါလိမ့်မည်။"
 
 #. The hint displayed below the WireGuard IP version selector.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr "IPv6 သာ ပံ့ပိုးသည့် စက်များတွင် WireGuard သုံးနိုင်ရန် ၎င်းက ပြုလုပ်ပေးသည်။"
+msgid "This allows access to %(wireguard)s for devices that only support IPv6."
+msgstr "၎င်းသည် IPv6 သာ ပံ့ပိုးသည့် စက်များတွင် %(wireguard)s သုံးနိုင်ရန် ပြုလုပ်ပေးသည်။"
 
 msgctxt "wireguard-settings-view"
 msgid "WireGuard key"

@@ -10,10 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2022-02-24 09:05\n"
+"PO-Revision-Date: 2022-07-12 06:30\n"
 
-msgid "%(duration)s was added to your account."
-msgstr "%(duration)sがアカウントに追加されました。"
+msgid "%(duration)s was added, account paid until %(expiry)s."
+msgstr "%(duration)sが追加され、アカウントは%(expiry)sまでに支払われます。"
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -55,9 +55,15 @@ msgid "a year ago"
 msgid_plural "%d years ago"
 msgstr[0] "%d 年前"
 
+msgid "Account paid until %(expiry)s."
+msgstr "アカウントは%(expiry)sまでに支払われます。"
+
 msgid "an hour ago"
 msgid_plural "%d hours ago"
 msgstr[0] "%d時間前"
+
+msgid "Any"
+msgstr "すべて"
 
 msgid "Apply"
 msgstr "適用"
@@ -73,6 +79,9 @@ msgstr "ベータ版"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ブロックされた接続"
+
+msgid "Blocking internet"
+msgstr "インターネットをブロック中"
 
 msgid "Buy credit"
 msgstr "クレジットを購入"
@@ -92,14 +101,32 @@ msgstr "閉じる"
 msgid "Connect"
 msgstr "接続"
 
+msgid "Connected"
+msgstr "接続済み"
+
+msgid "Connecting"
+msgstr "接続中"
+
+msgid "CREATING QUANTUM SECURE CONNECTION"
+msgstr "量子セキュア保護接続を確立中"
+
 msgid "CREATING SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立中"
 
 msgid "Default"
 msgstr "デフォルト"
 
+msgid "Disable"
+msgstr "無効にする"
+
 msgid "Disconnect"
 msgstr "接続解除"
+
+msgid "Disconnected"
+msgstr "未接続"
+
+msgid "Disconnecting"
+msgstr "接続解除中"
 
 msgid "Dismiss"
 msgstr "閉じる"
@@ -147,6 +174,9 @@ msgstr "オン"
 msgid "Open URL"
 msgstr "URLを開く"
 
+msgid "QUANTUM SECURE CONNECTION"
+msgstr "量子セキュア保護接続"
+
 msgid "Reconnect"
 msgstr "再接続"
 
@@ -168,6 +198,9 @@ msgstr "この設定を有効にすると、遅延が増加します。必要な
 
 msgid "UDP"
 msgstr "UDP"
+
+msgid "Unblock"
+msgstr "ブロックを解除"
 
 msgid "UNSECURED CONNECTION"
 msgstr "セキュリティ保護されていない接続"
@@ -206,8 +239,20 @@ msgid "Login"
 msgstr "ログイン"
 
 msgctxt "accessibility"
+msgid "More information"
+msgstr "詳細情報"
+
+msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "外部ブラウザで開く"
+
+#. Button action description provided to accessibility tools such as screen
+#. readers.
+#. Available placeholders:
+#. %(deviceName)s - The device name to remove.
+msgctxt "accessibility"
+msgid "Remove device named %(deviceName)s"
+msgstr "%(deviceName)sという名前のデバイスを削除"
 
 msgctxt "accessibility"
 msgid "Remove item"
@@ -252,6 +297,16 @@ msgstr "次の日時まで支払い済み"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "詳細"
+
+#. %(openvpn)s will be replaced with the string "OpenVPN"
+msgctxt "advanced-settings-view"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)sの設定"
+
+#. %(wireguard)s will be replaced with the string "WireGuard"
+msgctxt "advanced-settings-view"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)sの設定"
 
 msgctxt "advanced-settings-view"
 msgid "Add a server"
@@ -299,37 +354,26 @@ msgid "If you disconnect or quit the app, this setting will block your internet.
 msgstr "アプリを接続解除したり終了したりすると、この設定によってインターネットアクセスがブロックされます。"
 
 #. Description for multihop settings toggle.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "advanced-settings-view"
-msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
-msgstr "トラフィックをあるWireGuardサーバーにルーティングし、別サーバーに送出することで匿名性を高め、追跡を困難にします。"
-
-msgctxt "advanced-settings-view"
-msgid "missing key"
-msgstr "見つからない鍵"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN"
-msgstr "OpenVPN"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN settings"
-msgstr "OpenVPN設定"
-
-msgctxt "advanced-settings-view"
-msgid "Split tunneling"
-msgstr "スプリットトンネリング"
+msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
+msgstr "トラフィックをある%(wireguard)sサーバーにルーティングし、別サーバーに送出することで匿名性を高め、追跡を困難にします。"
 
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "アプリに組み込まれているキルスイッチは常にオンになっています。この設定を有効にすると、「接続解除」または「終了」をクリックした場合にインターネットが補助的にブロックされます。"
 
 msgctxt "advanced-settings-view"
-msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
-msgstr "追加対象の DNS サーバーは公開されており、WireGuard でのみ動作します。常に動作させるためには、(詳細設定で) \"トンネルプロトコル\" に WireGuard を設定してください。"
+msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
+msgstr "追加する DNS サーバーの IP アドレスは、プライベート IP です。ネットワークインターフェイスがこのアドレスを使用するように構成されていることを確認してください。"
 
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(wireguard)s - will be replaced with "WireGuard"
 msgctxt "advanced-settings-view"
-msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
-msgstr "WireGuardを有効にするには、以下の「WireGuard鍵」の設定で鍵を生成します。"
+msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
+msgstr "追加対象のDNSサーバーは公開されており、%(wireguard)sでのみ動作します。常に動作させるためには、(詳細設定で) \"%(tunnelProtocol)s\" に%(wireguard)sを設定してください。"
 
 msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
@@ -338,14 +382,6 @@ msgstr "トンネルプロトコル"
 msgctxt "advanced-settings-view"
 msgid "Use custom DNS server"
 msgstr "カスタムDNSサーバーを使う"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard"
-msgstr "WireGuard"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard settings"
-msgstr "WireGuard設定"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -480,6 +516,79 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr "外側"
 
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "**" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Are you sure you want to log out of **%(deviceName)s**?"
+msgstr "本当に**%(deviceName)s**からログアウトしますか？"
+
+#. Button for continuing login process.
+msgctxt "device-management"
+msgid "Continue with login"
+msgstr "ログインを続ける"
+
+msgctxt "device-management"
+msgid "Device is inactive"
+msgstr "デバイスが無効です"
+
+msgctxt "device-management"
+msgid "Device name"
+msgstr "デバイス名"
+
+msgctxt "device-management"
+msgid "Go to login"
+msgstr "ログインに進む"
+
+msgctxt "device-management"
+msgid "Going to login will unblock the Internet on this device."
+msgstr "ログインに進むと、このデバイスのインターネットのブロックが解除されます。"
+
+#. Confirmation button when logging out
+msgctxt "device-management"
+msgid "Log out anyway"
+msgstr "ログアウトする"
+
+msgctxt "device-management"
+msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
+msgstr "以下のリストから少なくとも1つを削除してログアウトしてください。対応するデバイス名はデバイスのアカウント設定で確認できます。"
+
+#. Page title informing user that enough devices has been removed to continue
+#. login process.
+msgctxt "device-management"
+msgid "Super!"
+msgstr "素晴らしい！"
+
+#. This is is a further explanation of what happens when logging out.
+msgctxt "device-management"
+msgid "The ports forwarded to this device will be deleted if you log out."
+msgstr "ログアウトするとこのデバイスに転送されたポートが削除されます。"
+
+#. Further information about consequences of logging out device.
+msgctxt "device-management"
+msgid "This will delete all forwarded ports. Local settings will be saved."
+msgstr "これにより、転送されたポートがすべて削除されます。ローカル設定は保存されます。"
+
+#. Page title informing user that the login failed due to too many registered
+#. devices on account.
+msgctxt "device-management"
+msgid "Too many devices"
+msgstr "デバイスが多すぎます"
+
+#. Confirmation button when logging out other device.
+msgctxt "device-management"
+msgid "Yes, log out device"
+msgstr "はい。デバイスをログアウトさせます"
+
+msgctxt "device-management"
+msgid "You can now continue logging in on this device."
+msgstr "このデバイスでログインを続けられるようになりました。"
+
+msgctxt "device-management"
+msgid "You have removed this device. To connect again, you will need to log back in."
+msgstr "このデバイスを削除しました。再度接続するには、ログインし直す必要があります。"
+
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -489,17 +598,36 @@ msgstr "何か問題が生じたようです。 %(email)s までご連絡くだ�
 
 #. Title label in navigation bar
 msgctxt "filter-nav"
-msgid "Filter by provider"
-msgstr "プロバイダで絞り込む"
-
-#. Back button in navigation bar
-msgctxt "filter-nav"
-msgid "Select location"
-msgstr "場所を選択"
+msgid "Filter"
+msgstr "絞り込み"
 
 msgctxt "filter-view"
 msgid "All providers"
 msgstr "すべてのプロバイダ"
+
+msgctxt "filter-view"
+msgid "Mullvad owned only"
+msgstr "Mullvad 所有サーバーのみ"
+
+msgctxt "filter-view"
+msgid "Owned"
+msgstr "自社サーバー"
+
+msgctxt "filter-view"
+msgid "Ownership"
+msgstr "所有権"
+
+msgctxt "filter-view"
+msgid "Providers"
+msgstr "プロバイダ"
+
+msgctxt "filter-view"
+msgid "Rented"
+msgstr "レンタルサーバー"
+
+msgctxt "filter-view"
+msgid "Rented only"
+msgstr "レンタルサーバーのみ"
 
 msgctxt "in-app-notifications"
 msgid "\"Always require VPN\" is enabled."
@@ -531,10 +659,6 @@ msgid "Install the latest app version to stay up to date."
 msgstr "アプリの最新バージョンをインストールして、最新の状態を維持してください。"
 
 msgctxt "in-app-notifications"
-msgid "Manage keys under Advanced settings."
-msgstr "詳細設定で鍵を管理してください。"
-
-msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "ネットワークトラフィックが漏れている可能性があります"
 
@@ -558,13 +682,17 @@ msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "アップデート可"
 
-msgctxt "in-app-notifications"
-msgid "VALID WIREGUARD KEY IS MISSING"
-msgstr "有効なWireGuard鍵がありません"
-
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad システムサービスに接続中..."
+
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+#. Available placeholder:
+#. %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
+msgctxt "login-view"
+msgid "**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection."
+msgstr "**%(alwaysRequireVpnSettingsName)s**が有効になっています。接続のブロックを解除するには無効にしてください。"
 
 msgctxt "login-view"
 msgid "Account created"
@@ -599,6 +727,10 @@ msgid "Failed to create account"
 msgstr "アカウントを作成できませんでした"
 
 msgctxt "login-view"
+msgid "Finishing upgrade."
+msgstr "アップグレードを終了しています。"
+
+msgctxt "login-view"
 msgid "Logged in"
 msgstr "ログインしました"
 
@@ -614,24 +746,32 @@ msgctxt "login-view"
 msgid "Login failed"
 msgstr "ログインに失敗しました"
 
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+msgctxt "login-view"
+msgid "Our kill switch is currently blocking your connection."
+msgstr "現在、キルスイッチが接続をブロックしています。"
+
 msgctxt "login-view"
 msgid "Please wait"
 msgstr "お待ちください"
+
+msgctxt "login-view"
+msgid "Too many devices"
+msgstr "デバイスが多すぎます"
 
 msgctxt "login-view"
 msgid "Unknown error"
 msgstr "不明なエラー"
 
 msgctxt "login-view"
+msgid "Upgrading..."
+msgstr "アップグレード中..."
+
+msgctxt "login-view"
 msgid "Valid account number"
 msgstr "有効なアカウント番号"
 
-#. Back button in navigation bar
-msgctxt "navigation-bar"
-msgid "Advanced"
-msgstr "詳細"
-
-#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -695,12 +835,16 @@ msgid "Disconnected and unsecure"
 msgstr "接続が解除され、セキュリティ保護されていません"
 
 msgctxt "notifications"
+msgid "No servers in your selected location match your settings."
+msgstr "選択した場所には設定に一致するサーバーがありません。"
+
+msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "再接続中"
 
 msgctxt "notifications"
-msgid "The apps excluded with split tunneling might not work properly right now."
-msgstr "スプリットトンネリングを使用して除外されているアプリについては、現在正常に動作しない可能性があります。"
+msgid "The apps excluded with %(splitTunneling)s might not work properly right now."
+msgstr "%(splitTunneling)sを使用して除外されているアプリについては、現在正常に動作しない可能性があります。"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules."
@@ -750,9 +894,11 @@ msgctxt "notifications"
 msgid "Upgrade"
 msgstr "アップグレード"
 
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with "WireGuard"
 msgctxt "notifications"
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。"
+msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
+msgstr "有効な%(wireguard)s鍵が見つかりません。詳細設定で鍵を管理してください。"
 
 msgctxt "notifications"
 msgid "Your device is offline. Try connecting when it's back online."
@@ -763,14 +909,17 @@ msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。今すぐアップデートしてください。"
 
-msgctxt "notifications"
-msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
-msgstr "選択したサーバーとトンネルのプロトコルが一致していません。設定を調整してください。"
-
 #. Title label in navigation bar
+#. Available placeholders:
+#. %(openvpn)s - Will be replaced with "OpenVPN"
 msgctxt "openvpn-settings-nav"
-msgid "OpenVPN settings"
-msgstr "OpenVPN設定"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)sの設定"
+
+#. %(openvpn)s will be replaced with "OpenVPN"
+msgctxt "openvpn-settings-view"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)sの設定"
 
 #. The title for the port selector section.
 #. Available placeholders:
@@ -786,37 +935,43 @@ msgstr "ブリッジモード"
 
 #. This is used as a description for the bridge mode
 #. setting.
+#. Available placeholders:
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
-msgstr "OpenVPNサーバーへ到達する前にブリッジサーバー経由でトラフィックをルーティングすることにより、検閲を回避できるようにします。アクセス元の特定を困難にするために、難読化が施されます。"
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder."
+msgstr "%(openvpn)sサーバーへ到達する前にブリッジサーバー経由でトラフィックをルーティングすることにより、検閲を回避できるようにします。アクセス元の特定を困難にするために、難読化が施されます。"
 
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
 
-msgctxt "openvpn-settings-view"
-msgid "OpenVPN settings"
-msgstr "OpenVPN設定"
-
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
+#. %(openvpn)s - will be replaced with "OpenVPN"
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
 msgctxt "openvpn-settings-view"
-msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr "OpenVPN MSSの値を設定します。有効範囲: %(min)d ～ %(max)d。"
+msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
+msgstr "%(openvpn)s MSSの値を設定します。有効範囲: %(min)d ～ %(max)d。"
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
+#. Available placeholders:
+#. %(transportProtocol)s - the name of the transport protocol setting
+#. %(automat)s - the translation of "Automatic"
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
-msgstr "ブリッジモードを有効にするには、**転送プロトコル**を**自動**または**TCP**に変更してください。"
+msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
+msgstr "ブリッジモードを有効にするには、**%(transportProtocol)s**を**%(automatic)s**または**%(tcp)s**に変更してください。"
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
-msgstr "ブリッジモードを有効にするには、戻ってから**トンネリングプロトコル**を**OpenVPN**に変更してください。"
+msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
+msgstr "ブリッジモードを有効にするには、戻ってから**%(tunnelProtocol)s**を**%(openvpn)s**に変更してください。"
 
 #. This is used to instruct users how to make UDP mode
 #. available.
@@ -854,24 +1009,20 @@ msgid "Block ads"
 msgstr "広告のブロック"
 
 msgctxt "preferences-view"
+msgid "Block adult content"
+msgstr "アダルトコンテンツのブロック"
+
+msgctxt "preferences-view"
+msgid "Block gambling"
+msgstr "ギャンブルのブロック"
+
+msgctxt "preferences-view"
 msgid "Block malware"
 msgstr "マルウェアのブロック"
 
 msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "トラッカーのブロック"
-
-#. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
-#. Available placeholders:
-#. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
-#. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
-#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
-#. %(preferencesPageName)s - The page title showed on top in the preferences page.
-msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "この設定を有効にするには、(%(preferencesPageName)sにある) **%(blockAdsFeatureName)s**、 **%(blockTrackersFeatureName)s**、**%(blockMalwareFeatureName)s**を無効にしてください。"
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -881,6 +1032,15 @@ msgstr "この設定を有効にするには、(%(preferencesPageName)sにある
 msgctxt "preferences-view"
 msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
 msgstr "これらの設定を有効にするには、(詳細設定で) **%(customDnsFeatureName)s** を無効にしてください。"
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "preferences-view"
+msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
+msgstr "この設定を有効にするには、(%(preferencesPageName)sで) すべてのコンテンツブロッカーを無効にしてください。"
 
 msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -942,6 +1102,34 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "多色ではなく単色のトレイアイコンを使います。"
 
+msgctxt "preferences-view"
+msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "警告: これはウィルス対策ではありませんので、そのような用途には使用しないでください。あくまで追加の保護レイヤーに過ぎません。"
+
+msgctxt "preferences-view"
+msgid "Warning: This might cause issues on certain websites, services, and programs."
+msgstr "警告: これにより、特定のWebサイト、サービス、プログラムなどで問題が発生する可能性があります。"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
+msgstr "この機能を有効にすると、マルウェアの存在が確認されている特定ドメインへのデバイスの接続が停止されます。"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
+msgstr "この機能を有効にすると、ユーザーのトラッキングが確認されている特定ドメインへのデバイスの接続が停止されます。"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain known ad domains."
+msgstr "この機能を有効にすると、確認されている特定の広告ドメインへのデバイスの接続が停止されます。"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
+msgstr "この機能を有効にすると、アダルトコンテンツの提供が確認されている特定Webサイトまたはサービスへのデバイスの接続が停止されます。"
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
+msgstr "この機能を有効にすると、ギャンブル関連コンテンツの提供が確認されている特定Webサイトまたはサービスへのデバイスの接続が停止されます。"
+
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr "キャンセル"
@@ -998,20 +1186,12 @@ msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
 msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "最寄りの出口サーバー"
-
-msgctxt "select-location-view"
 msgid "Entry"
 msgstr "入口"
 
 msgctxt "select-location-view"
 msgid "Exit"
 msgstr "出口"
-
-msgctxt "select-location-view"
-msgid "Filter by provider"
-msgstr "プロバイダで絞り込む"
 
 msgctxt "select-location-view"
 msgid "Filtered:"
@@ -1025,6 +1205,10 @@ msgstr "プロバイダ数: %(numberOfProviders)d"
 msgctxt "select-location-view"
 msgid "Select location"
 msgstr "場所を選択"
+
+msgctxt "select-location-view"
+msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
+msgstr "ブリッジサーバーはアプリによってランダムに選択されますが、現在地に近いサーバーほど高い確率で選択されます。"
 
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
@@ -1084,11 +1268,6 @@ msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
 msgstr "アップデートできます。アプリの最新バージョンをインストールして、最新の状態を維持してください。"
 
-#. Title label in navigation bar
-msgctxt "split-tunneling-nav"
-msgid "Split tunneling"
-msgstr "スプリットトンネリング"
-
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr "%(applicationName)sには問題があるため、VPNトンネルから除外できません。"
@@ -1130,8 +1309,8 @@ msgid "Launch"
 msgstr "起動する"
 
 msgctxt "split-tunneling-view"
-msgid "No result for %(searchTerm)s."
-msgstr "%(searchTerm)s に該当する検索結果はありません。"
+msgid "No result for **%(searchTerm)s**."
+msgstr "**%(searchTerm)s**に該当する検索結果はありません。"
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1145,14 +1324,6 @@ msgstr "サポートにご連絡ください。"
 msgctxt "split-tunneling-view"
 msgid "Please try again or contact support."
 msgstr "再試行するか、サポートにご連絡ください。"
-
-msgctxt "split-tunneling-view"
-msgid "Split tunneling"
-msgstr "スプリットトンネリング"
-
-msgctxt "split-tunneling-view"
-msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
-msgstr "スプリットトンネリングは CLI では無効になっており、以下のリストでアプリケーションの追加または削除を行うことによって、自動的に有効になります。"
 
 msgctxt "split-tunneling-view"
 msgid "Try a different search."
@@ -1248,8 +1419,24 @@ msgid "Your email (optional)"
 msgstr "あなたのメールアドレス（任意）"
 
 msgctxt "tray-icon-context-menu"
+msgid "Disconnected from system service"
+msgstr "システムサービスから接続が解除されました"
+
+msgctxt "tray-icon-context-menu"
 msgid "Open %(mullvadVpn)s"
 msgstr "%(mullvadVpn)sを開く"
+
+msgctxt "tray-icon-tooltip"
+msgid "%(city)s, %(country)s"
+msgstr "%(city)s、%(country)s"
+
+msgctxt "tray-icon-tooltip"
+msgid "Connected. %(location)s"
+msgstr "接続しました。%(location)s"
+
+msgctxt "tray-icon-tooltip"
+msgid "Connecting. %(location)s"
+msgstr "接続中です。%(location)s"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
@@ -1259,76 +1446,18 @@ msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "場所を切り替える"
 
-msgctxt "wireguard-key-view"
-msgid "Failed to generate a key"
-msgstr "鍵の生成に失敗しました"
-
-msgctxt "wireguard-key-view"
-msgid "Generate key"
-msgstr "鍵を生成"
-
-msgctxt "wireguard-key-view"
-msgid "Generating key"
-msgstr "鍵を生成しています"
-
-msgctxt "wireguard-key-view"
-msgid "Key generated"
-msgstr "鍵が生成されました"
-
-msgctxt "wireguard-key-view"
-msgid "Key is invalid"
-msgstr "鍵は無効です"
-
-msgctxt "wireguard-key-view"
-msgid "Key is valid"
-msgstr "鍵は有効です"
-
-msgctxt "wireguard-key-view"
-msgid "Key verification failed"
-msgstr "鍵の検証に失敗しました"
-
-msgctxt "wireguard-key-view"
-msgid "Manage keys"
-msgstr "鍵を管理"
-
-msgctxt "wireguard-key-view"
-msgid "No key set"
-msgstr "鍵が設定されていません"
-
-msgctxt "wireguard-key-view"
-msgid "Public key"
-msgstr "公開鍵"
-
-msgctxt "wireguard-key-view"
-msgid "Reconnecting with new WireGuard key..."
-msgstr "新しいWireGuard鍵に再度接続中..."
-
-msgctxt "wireguard-key-view"
-msgid "Regenerate key"
-msgstr "鍵を生成"
-
-msgctxt "wireguard-key-view"
-msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
-msgstr "鍵を再生成できません。所有している鍵の最大数に達しています。新しい鍵を生成するには、先に「鍵を管理」で1つを無効にする必要があります。"
-
-msgctxt "wireguard-key-view"
-msgid "Verify key"
-msgstr "鍵を検証"
-
 #. Title label in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "WireGuard key"
-msgstr "WireGuard鍵"
-
-#. Back button in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "WireGuard settings"
-msgstr "WireGuard設定"
-
-#. Title label in navigation bar
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-nav"
-msgid "WireGuard settings"
-msgstr "WireGuard設定"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)sの設定"
+
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
+msgctxt "wireguard-settings-view"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)sの設定"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -1344,11 +1473,12 @@ msgstr "ポート"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
 msgctxt "wireguard-settings-view"
-msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
-msgstr "WireGuardのMTU値を設定します。有効範囲: %(min)d ～ %(max)d。"
+msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
+msgstr "%(wireguard)s MTUの値を設定します。有効範囲: %(min)d ～ %(max)d。"
 
 #. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
@@ -1356,9 +1486,11 @@ msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "自動設定では、さまざまなポートからランダムに選択されます。"
 
 #. The hint displayed below the WireGuard IP version selector.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr "これにより、IPv6のみをサポートするデバイスでもWireGuardにアクセスできるようになります。"
+msgid "This allows access to %(wireguard)s for devices that only support IPv6."
+msgstr "これにより、IPv6のみをサポートするデバイスでも%(wireguard)sにアクセスできるようになります。"
 
 msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
