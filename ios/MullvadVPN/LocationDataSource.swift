@@ -256,6 +256,9 @@ class LocationDataSource: NSObject, UITableViewDataSource {
 
         // Reset root node and location list on empty search text
         guard !searchText.isEmpty else {
+            nodeByLocation.forEach { element in
+                element.value.showsChildren = false
+            }
             rootNode.sortChildrenRecursive()
             locationList = rootNode.flatRelayLocationList()
             searchResultNode = nil
@@ -265,16 +268,31 @@ class LocationDataSource: NSObject, UITableViewDataSource {
 
         // Filter nodes by search text
         let searchResultChildren = nodeByLocation
-            .compactMap { element -> Node? in
+            .reduce(into: [RelayLocation: Node]()) { result, element in
                 let node = element.value
+                // Exclude relay type from search
                 guard node.nodeType != .relay else {
-                    return nil
+                    return
                 }
                 guard node.displayName.hasPrefixCaseDiacriticInsensitive(searchText) else {
-                    return nil
+                    return
                 }
-                return node
+                // Include collapsed node if there are no ascendants
+                guard !node.location.ascendants.isEmpty else {
+                    node.showsChildren = false
+                    result[node.location] = node
+                    return
+                }
+                // Include hierarchy expanded if there are ascendants
+                node.location.ascendants.forEach { ascendantLocation in
+                    guard let ascendantNode = nodeByLocation[ascendantLocation] else {
+                        return
+                    }
+                    ascendantNode.showsChildren = true
+                    result[ascendantLocation] = ascendantNode
+                }
             }
+            .map(\.value)
 
         // Configure search root node and location list
         let searchResultNode = Self.makeRootNode()
@@ -627,16 +645,19 @@ extension LocationDataSource {
         private func sortChildren() {
             switch nodeType {
             case .root, .country:
-                children.sort { (a, b) -> Bool in
+                children.sort { a, b -> Bool in
                     if a.isPinned == b.isPinned {
                         return lexicalSortComparator(a.displayName, b.displayName)
                     }
                     return a.isPinned
                 }
             case .city:
-                children.sort { (a, b) -> Bool in
+                children.sort { a, b -> Bool in
                     if a.isPinned == b.isPinned {
-                        return fileSortComparator(a.location.stringRepresentation, b.location.stringRepresentation)
+                        return fileSortComparator(
+                            a.location.stringRepresentation,
+                            b.location.stringRepresentation
+                        )
                     }
                     return a.isPinned
                 }
