@@ -10,10 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2022-02-24 09:05\n"
+"PO-Revision-Date: 2022-07-12 06:30\n"
 
-msgid "%(duration)s was added to your account."
-msgstr "%(duration)s wurden zu Ihrem Konto hinzugefügt."
+msgid "%(duration)s was added, account paid until %(expiry)s."
+msgstr "%(duration)s hinzugefügt. Konto bezahlt bis %(expiry)s."
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -65,10 +65,16 @@ msgid_plural "%d years ago"
 msgstr[0] "vor einem Jahr"
 msgstr[1] "vor %d Jahren"
 
+msgid "Account paid until %(expiry)s."
+msgstr "Konto bezahlt bis %(expiry)s."
+
 msgid "an hour ago"
 msgid_plural "%d hours ago"
 msgstr[0] "vor einer Stunde"
 msgstr[1] "vor %d Stunden"
+
+msgid "Any"
+msgstr "Beliebige"
 
 msgid "Apply"
 msgstr "Anwenden"
@@ -84,6 +90,9 @@ msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "GESPERRTE VERBINDUNG"
+
+msgid "Blocking internet"
+msgstr "Internet wird gesperrt"
 
 msgid "Buy credit"
 msgstr "Guthaben erwerben"
@@ -103,14 +112,32 @@ msgstr "Schließen"
 msgid "Connect"
 msgstr "Verbinden"
 
+msgid "Connected"
+msgstr "Verbunden"
+
+msgid "Connecting"
+msgstr "Verbinden"
+
+msgid "CREATING QUANTUM SECURE CONNECTION"
+msgstr "QUANTENSICHERE VERBINDUNG WIRD ERSTELLT"
+
 msgid "CREATING SECURE CONNECTION"
 msgstr "SICHERE VERBINDUNG WIRD ERSTELLT"
 
 msgid "Default"
 msgstr "Standard"
 
+msgid "Disable"
+msgstr "Deaktivieren"
+
 msgid "Disconnect"
 msgstr "Verbindung trennen"
+
+msgid "Disconnected"
+msgstr "Verbindung getrennt"
+
+msgid "Disconnecting"
+msgstr "Verbindung wird getrennt"
 
 msgid "Dismiss"
 msgstr "Ausblenden"
@@ -158,6 +185,9 @@ msgstr "Ein"
 msgid "Open URL"
 msgstr "URL öffnen"
 
+msgid "QUANTUM SECURE CONNECTION"
+msgstr "QUANTENSICHERE VERBINDUNG"
+
 msgid "Reconnect"
 msgstr "Erneut verbinden"
 
@@ -179,6 +209,9 @@ msgstr "Diese Einstellung erhöht die Latenz und sollte nur bei Bedarf verwendet
 
 msgid "UDP"
 msgstr "UDP"
+
+msgid "Unblock"
+msgstr "Entsperren"
 
 msgid "UNSECURED CONNECTION"
 msgstr "UNGESICHERTE VERBINDUNG"
@@ -217,8 +250,20 @@ msgid "Login"
 msgstr "Anmelden"
 
 msgctxt "accessibility"
+msgid "More information"
+msgstr "Weitere Informationen"
+
+msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "Wird extern geöffnet"
+
+#. Button action description provided to accessibility tools such as screen
+#. readers.
+#. Available placeholders:
+#. %(deviceName)s - The device name to remove.
+msgctxt "accessibility"
+msgid "Remove device named %(deviceName)s"
+msgstr "Gerät %(deviceName)s entfernt"
 
 msgctxt "accessibility"
 msgid "Remove item"
@@ -263,6 +308,16 @@ msgstr "Bezahlt bis"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "Erweitert"
+
+#. %(openvpn)s will be replaced with the string "OpenVPN"
+msgctxt "advanced-settings-view"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s-Einstellungen"
+
+#. %(wireguard)s will be replaced with the string "WireGuard"
+msgctxt "advanced-settings-view"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s-Einstellungen"
 
 msgctxt "advanced-settings-view"
 msgid "Add a server"
@@ -310,37 +365,26 @@ msgid "If you disconnect or quit the app, this setting will block your internet.
 msgstr "Wenn Sie die Verbindung trennen oder die App beenden, wird diese Einstellung Ihr Internet sperren."
 
 #. Description for multihop settings toggle.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "advanced-settings-view"
-msgid "Increases anonymity by routing your traffic into one WireGuard server and out another, making it harder to trace."
-msgstr "Erhöht Ihre Anonymität, indem Ihr Datenverkehr in einen WireGuard-Server hinein und aus einem anderen heraus geleitet wird, was eine Rückverfolgung extrem erschwert."
-
-msgctxt "advanced-settings-view"
-msgid "missing key"
-msgstr "fehlender Schlüssel"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN"
-msgstr "OpenVPN"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN settings"
-msgstr "OpenVPN-Einstellungen"
-
-msgctxt "advanced-settings-view"
-msgid "Split tunneling"
-msgstr "Split Tunneling"
+msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
+msgstr "Erhöht Ihre Anonymität, indem Ihr Datenverkehr in einen %(wireguard)s-Server hinein und aus einem anderen heraus geleitet wird, was eine Rückverfolgung extrem erschwert."
 
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "Der integrierte Killswitch der App ist immer an. Diese Einstellung wird außerdem das Internet sperren, wenn Sie auf Trennen oder Beenden klicken."
 
 msgctxt "advanced-settings-view"
-msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
-msgstr "Der DNS-Server, den Sie hinzufügen möchten, ist öffentlich und wird nur mit WireGuard funktionieren. Stellen Sie das „Tunnelprotokoll“ (in den erweiterten Einstellungen) auf Wireguard, um sicherzustellen, dass er immer funktioniert."
+msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
+msgstr "Der DNS-Server, den Sie hinzufügen möchten, ist eine private IP. Sie müssen sicherstellen, dass Ihre Netzwerkschnittstellen für die Verwendung dieses Servers konfiguriert sind."
 
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(wireguard)s - will be replaced with "WireGuard"
 msgctxt "advanced-settings-view"
-msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
-msgstr "Um WireGuard zu aktivieren, generieren Sie unten unter der Einstellung „WireGuard-Schlüssel“ einen Schlüssel."
+msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
+msgstr "Der DNS-Server, den Sie hinzufügen möchten, ist öffentlich und wird nur mit %(wireguard)s funktionieren. Stellen Sie das „%(tunnelProtocol)s“ (in den erweiterten Einstellungen) auf %(wireguard)s, um sicherzustellen, dass er immer funktioniert."
 
 msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
@@ -349,14 +393,6 @@ msgstr "Tunnelprotokoll"
 msgctxt "advanced-settings-view"
 msgid "Use custom DNS server"
 msgstr "Benutzerdefinierten DNS-Server verwenden"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard"
-msgstr "WireGuard"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard settings"
-msgstr "WireGuard-Einstellungen"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -491,6 +527,79 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr "Ausgehend"
 
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "**" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Are you sure you want to log out of **%(deviceName)s**?"
+msgstr "Möchten Sie sich wirklich von **%(deviceName)s** abmelden?"
+
+#. Button for continuing login process.
+msgctxt "device-management"
+msgid "Continue with login"
+msgstr "Weiter mit Anmeldung"
+
+msgctxt "device-management"
+msgid "Device is inactive"
+msgstr "Gerät ist inaktiv"
+
+msgctxt "device-management"
+msgid "Device name"
+msgstr "Gerätename"
+
+msgctxt "device-management"
+msgid "Go to login"
+msgstr "Zur Anmeldung"
+
+msgctxt "device-management"
+msgid "Going to login will unblock the Internet on this device."
+msgstr "Wenn Sie mit der Anmeldung fortfahren, wird die Internetsperre auf diesem Gerät aufgehoben."
+
+#. Confirmation button when logging out
+msgctxt "device-management"
+msgid "Log out anyway"
+msgstr "Dennoch abmelden"
+
+msgctxt "device-management"
+msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
+msgstr "Bitte melden Sie sich von mindestens einem Gerät ab, indem Sie es aus der Liste unten entfernen. Sie finden den entsprechenden Gerätenamen unter den Kontoeinstellungen des Geräts."
+
+#. Page title informing user that enough devices has been removed to continue
+#. login process.
+msgctxt "device-management"
+msgid "Super!"
+msgstr "Super!"
+
+#. This is is a further explanation of what happens when logging out.
+msgctxt "device-management"
+msgid "The ports forwarded to this device will be deleted if you log out."
+msgstr "Die an dieses Gerät weitergeleiteten Ports werden gelöscht, wenn Sie sich abmelden."
+
+#. Further information about consequences of logging out device.
+msgctxt "device-management"
+msgid "This will delete all forwarded ports. Local settings will be saved."
+msgstr "Dadurch werden alle weitergeleiteten Ports gelöscht. Die lokalen Einstellungen werden gespeichert."
+
+#. Page title informing user that the login failed due to too many registered
+#. devices on account.
+msgctxt "device-management"
+msgid "Too many devices"
+msgstr "Zu viele Geräte"
+
+#. Confirmation button when logging out other device.
+msgctxt "device-management"
+msgid "Yes, log out device"
+msgstr "Ja, von Gerät abmelden"
+
+msgctxt "device-management"
+msgid "You can now continue logging in on this device."
+msgstr "Sie können jetzt mit der Anmeldung auf diesem Gerät fortfahren."
+
+msgctxt "device-management"
+msgid "You have removed this device. To connect again, you will need to log back in."
+msgstr "Sie haben dieses Gerät entfernt. Um sich erneut zu verbinden, müssen Sie sich erneut anmelden."
+
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -500,17 +609,36 @@ msgstr "Es ist etwas schiefgegangen. Bitte kontaktieren Sie uns unter %(email)s"
 
 #. Title label in navigation bar
 msgctxt "filter-nav"
-msgid "Filter by provider"
-msgstr "Nach Provider filtern"
-
-#. Back button in navigation bar
-msgctxt "filter-nav"
-msgid "Select location"
-msgstr "Ort auswählen"
+msgid "Filter"
+msgstr "Filter"
 
 msgctxt "filter-view"
 msgid "All providers"
-msgstr "Alle Provider"
+msgstr "Alle Anbieter"
+
+msgctxt "filter-view"
+msgid "Mullvad owned only"
+msgstr "Nur im Besitz von Mullvad"
+
+msgctxt "filter-view"
+msgid "Owned"
+msgstr "In Besitz"
+
+msgctxt "filter-view"
+msgid "Ownership"
+msgstr "Eigentümerschaft"
+
+msgctxt "filter-view"
+msgid "Providers"
+msgstr "Anbieter"
+
+msgctxt "filter-view"
+msgid "Rented"
+msgstr "Gemietet"
+
+msgctxt "filter-view"
+msgid "Rented only"
+msgstr "Nur gemietet"
 
 msgctxt "in-app-notifications"
 msgid "\"Always require VPN\" is enabled."
@@ -542,10 +670,6 @@ msgid "Install the latest app version to stay up to date."
 msgstr "Installieren Sie die neueste Version der App, um auf dem neuesten Stand zu sein."
 
 msgctxt "in-app-notifications"
-msgid "Manage keys under Advanced settings."
-msgstr "Schlüssel verwaltet man unter Erweiterte Einstellungen."
-
-msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "ES KÖNNTE NETZWERK-TRAFFIC LEAKEN"
 
@@ -569,13 +693,17 @@ msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "UPDATE VERFÜGBAR"
 
-msgctxt "in-app-notifications"
-msgid "VALID WIREGUARD KEY IS MISSING"
-msgstr "GÜLTIGER WIREGUARD-SCHLÜSSEL FEHLT"
-
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Verbindung zum Mullvad-Systemdienst wird hergestellt..."
+
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+#. Available placeholder:
+#. %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
+msgctxt "login-view"
+msgid "**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection."
+msgstr "**%(alwaysRequireVpnSettingsName)s** ist aktiviert. Deaktivieren Sie dies, um Ihre Verbindung freizugeben."
 
 msgctxt "login-view"
 msgid "Account created"
@@ -610,6 +738,10 @@ msgid "Failed to create account"
 msgstr "Konto konnte nicht erstellt werden"
 
 msgctxt "login-view"
+msgid "Finishing upgrade."
+msgstr "Upgrade wird abgeschlossen."
+
+msgctxt "login-view"
 msgid "Logged in"
 msgstr "Angemeldet"
 
@@ -625,24 +757,32 @@ msgctxt "login-view"
 msgid "Login failed"
 msgstr "Anmeldung fehlgeschlagen"
 
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+msgctxt "login-view"
+msgid "Our kill switch is currently blocking your connection."
+msgstr "Unser Killswitch blockiert derzeit Ihre Verbindung."
+
 msgctxt "login-view"
 msgid "Please wait"
 msgstr "Bitte warten"
+
+msgctxt "login-view"
+msgid "Too many devices"
+msgstr "Zu viele Geräte"
 
 msgctxt "login-view"
 msgid "Unknown error"
 msgstr "Unbekannter Fehler"
 
 msgctxt "login-view"
+msgid "Upgrading..."
+msgstr "Upgrade läuft …"
+
+msgctxt "login-view"
 msgid "Valid account number"
 msgstr "Gültige Kontonummer"
 
-#. Back button in navigation bar
-msgctxt "navigation-bar"
-msgid "Advanced"
-msgstr "Erweitert"
-
-#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -706,12 +846,16 @@ msgid "Disconnected and unsecure"
 msgstr "Unsicher und nicht verbunden"
 
 msgctxt "notifications"
+msgid "No servers in your selected location match your settings."
+msgstr "Kein Server an Ihrem gewählten Standort entspricht Ihren Einstellungen."
+
+msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "Wiederherstellen der Verbindung"
 
 msgctxt "notifications"
-msgid "The apps excluded with split tunneling might not work properly right now."
-msgstr "Die Apps, welche mit Split Tunneling ausgeschlossen sind, funktionieren möglicherweise momentan nicht richtig."
+msgid "The apps excluded with %(splitTunneling)s might not work properly right now."
+msgstr "Die Apps, welche mit %(splitTunneling)s ausgeschlossen sind, funktionieren möglicherweise momentan nicht richtig."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules."
@@ -761,9 +905,11 @@ msgctxt "notifications"
 msgid "Upgrade"
 msgstr "Upgrade"
 
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with "WireGuard"
 msgctxt "notifications"
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "Gültiger WireGuard-Schlüssel fehlt. Sie können Ihre Schlüssel in den erweiterten Einstellungen verwalten."
+msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
+msgstr "Gültiger %(wireguard)s-Schlüssel fehlt. Sie können Ihre Schlüssel in den erweiterten Einstellungen verwalten."
 
 msgctxt "notifications"
 msgid "Your device is offline. Try connecting when it's back online."
@@ -774,14 +920,17 @@ msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der App gefährdet sein. Bitte aktualisieren Sie sie."
 
-msgctxt "notifications"
-msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
-msgstr "Ihr ausgewählter Server und das ausgewählte Tunnelprotokoll stimmen nicht überein. Bitte passen Sie Ihre Einstellungen an."
-
 #. Title label in navigation bar
+#. Available placeholders:
+#. %(openvpn)s - Will be replaced with "OpenVPN"
 msgctxt "openvpn-settings-nav"
-msgid "OpenVPN settings"
-msgstr "OpenVPN-Einstellungen"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s-Einstellungen"
+
+#. %(openvpn)s will be replaced with "OpenVPN"
+msgctxt "openvpn-settings-view"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s-Einstellungen"
 
 #. The title for the port selector section.
 #. Available placeholders:
@@ -797,37 +946,43 @@ msgstr "Brückenmodus"
 
 #. This is used as a description for the bridge mode
 #. setting.
+#. Available placeholders:
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an OpenVPN server. Obfuscation is added to make fingerprinting harder."
-msgstr "Hilft dabei, Zensuren zu umgehen, indem Ihr Datenverkehr über einen Brückenserver geleitet wird, bevor er einen OpenVPN-Server erreicht. Zusätzlich wird mithilfe einer Verschleierung das Fingerprinting erschwert."
+msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder."
+msgstr "Hilft dabei, Zensuren zu umgehen, indem Ihr Datenverkehr über einen Brückenserver geleitet wird, bevor er einen %(openvpn)s-Server erreicht. Zusätzlich wird mithilfe einer Verschleierung das Fingerprinting erschwert."
 
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
 msgstr "Mssfix"
 
-msgctxt "openvpn-settings-view"
-msgid "OpenVPN settings"
-msgstr "OpenVPN-Einstellungen"
-
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
+#. %(openvpn)s - will be replaced with "OpenVPN"
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
 msgctxt "openvpn-settings-view"
-msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr "Stellen Sie den OpenVPN MSS-Wert ein. Gültiger Bereich: %(min)d – %(max)d."
+msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
+msgstr "%(openvpn)s MSS-Wert einstellen. Gültiger Bereich: %(min)d - %(max)d."
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
+#. Available placeholders:
+#. %(transportProtocol)s - the name of the transport protocol setting
+#. %(automat)s - the translation of "Automatic"
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **Transport protocol** to **Automatic** or **TCP**."
-msgstr "Um den Brückenmodus zu aktivieren, stellen Sie das **Transport-Protokoll** auf **Automatisch** oder **TCP**."
+msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
+msgstr "Um den Brückenmodus zu aktivieren, stellen Sie das **%(transportProtocol)s** auf **%(automatic)s** oder **%(tcp)s**."
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **Tunnel protocol** to **OpenVPN**."
-msgstr "Um den Brückenmodus zu aktivieren, navigieren Sie zurück und ändern Sie das **Tunnelprotokoll** zu **OpenVPN**."
+msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
+msgstr "Um den Brückenmodus zu aktivieren, navigieren Sie zurück und ändern Sie das **%(tunnelProtocol)s** zu **%(openvpn)s**."
 
 #. This is used to instruct users how to make UDP mode
 #. available.
@@ -865,24 +1020,20 @@ msgid "Block ads"
 msgstr "Werbung blockieren"
 
 msgctxt "preferences-view"
+msgid "Block adult content"
+msgstr "Inhalte für Erwachsene sperren"
+
+msgctxt "preferences-view"
+msgid "Block gambling"
+msgstr "Glücksspiele sperren"
+
+msgctxt "preferences-view"
 msgid "Block malware"
 msgstr "Malware blockieren"
 
 msgctxt "preferences-view"
 msgid "Block trackers"
 msgstr "Tracker blockieren"
-
-#. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
-#. Available placeholders:
-#. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
-#. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
-#. %(blockMalwareFeatureName)s - The name displayed next to the "Block malware" toggle.
-#. %(preferencesPageName)s - The page title showed on top in the preferences page.
-msgctxt "preferences-view"
-msgid "Disable **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** and **%(blockMalwareFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
-msgstr "Deaktivieren Sie **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureName)s** und **%(blockMalwareFeatureName)s** (unter %(preferencesPageName)s), um diese Option zu aktivieren."
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
@@ -892,6 +1043,15 @@ msgstr "Deaktivieren Sie **%(blockAdsFeatureName)s**, **%(blockTrackersFeatureNa
 msgctxt "preferences-view"
 msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
 msgstr "Deaktivieren Sie **%(customDnsFeatureName)s** (in den erweiterten Einstellungen), um diese Einstellungen zu aktivieren."
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "preferences-view"
+msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
+msgstr "Deaktivieren Sie alle Inhaltssperren (unter %(preferencesPageName)s), um diese Einstellung zu aktivieren."
 
 msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -953,6 +1113,34 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Monochromatisches Leistensymbol statt Farbsymbol nutzen."
 
+msgctxt "preferences-view"
+msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "Warnung: Dies ist kein Antivirusprogramm und sollte auch nicht als solches behandelt werden. Es dient lediglich als zusätzliche Schutzschicht."
+
+msgctxt "preferences-view"
+msgid "Warning: This might cause issues on certain websites, services, and programs."
+msgstr "Warnung: Dies kann bei bestimmten Websites, Diensten und Programmen zu Problemen führen."
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
+msgstr "Wenn diese Funktion aktiviert ist, wird das Gerät daran gehindert, bestimmte Domänen zu kontaktieren, die bekanntermaßen Malware beherbergen."
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
+msgstr "Wenn diese Funktion aktiviert ist, wird das Gerät daran gehindert, bestimmte Domänen zu kontaktieren, die bekanntermaßen Benutzer nachverfolgen."
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain known ad domains."
+msgstr "Wenn diese Funktion aktiviert ist, wird das Gerät daran gehindert, bestimmte Domänen zu kontaktieren, die bekanntermaßen Werbung schalten."
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
+msgstr "Wenn diese Funktion aktiviert ist, wird das Gerät daran gehindert, bestimmte Websites und Dienste zu kontaktieren, die dafür bekannt sind, dass sie Inhalte für Erwachsene enthalten."
+
+msgctxt "preferences-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
+msgstr "Wenn diese Funktion aktiviert ist, wird das Gerät daran gehindert, bestimmte Websites und Dienste zu kontaktieren, die dafür bekannt sind, dass sie Glücksspielinhalte enthalten."
+
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -1009,20 +1197,12 @@ msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
 msgctxt "select-location-view"
-msgid "Closest to exit server"
-msgstr "Am nächsten zum Ausgangsserver"
-
-msgctxt "select-location-view"
 msgid "Entry"
 msgstr "Eingang"
 
 msgctxt "select-location-view"
 msgid "Exit"
 msgstr "Ausgang"
-
-msgctxt "select-location-view"
-msgid "Filter by provider"
-msgstr "Nach Provider filtern"
 
 msgctxt "select-location-view"
 msgid "Filtered:"
@@ -1036,6 +1216,10 @@ msgstr "Provider: %(numberOfProviders)d"
 msgctxt "select-location-view"
 msgid "Select location"
 msgstr "Ort auswählen"
+
+msgctxt "select-location-view"
+msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
+msgstr "Die App wählt einen zufälligen Brückenserver aus. Je näher ein Server an Ihnen liegt, desto wahrscheinlicher wird er ausgewählt."
 
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
@@ -1095,11 +1279,6 @@ msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
 msgstr "Update verfügbar. Installieren Sie die neueste Version der App, um auf dem neuesten Stand zu bleiben."
 
-#. Title label in navigation bar
-msgctxt "split-tunneling-nav"
-msgid "Split tunneling"
-msgstr "Split Tunneling"
-
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr "%(applicationName)s ist problematisch und kann nicht vom VPN-Tunnel ausgeschlossen werden."
@@ -1142,8 +1321,8 @@ msgid "Launch"
 msgstr "Starten"
 
 msgctxt "split-tunneling-view"
-msgid "No result for %(searchTerm)s."
-msgstr "Kein Ergebnis für %(searchTerm)s gefunden."
+msgid "No result for **%(searchTerm)s**."
+msgstr "Kein Ergebnis für **%(searchTerm)s** gefunden**."
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1157,14 +1336,6 @@ msgstr "Bitte kontaktieren Sie den Support."
 msgctxt "split-tunneling-view"
 msgid "Please try again or contact support."
 msgstr "Bitte versuchen Sie es erneut oder kontaktieren Sie den Support."
-
-msgctxt "split-tunneling-view"
-msgid "Split tunneling"
-msgstr "Split Tunneling"
-
-msgctxt "split-tunneling-view"
-msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
-msgstr "Split Tunneling wurde von der Kommandozeilenschnittstelle ausgeschaltet und wird automatisch aktiviert, wenn Anwendungen zu den unteren Listen hinzugefügt oder entfernt werden."
 
 msgctxt "split-tunneling-view"
 msgid "Try a different search."
@@ -1260,8 +1431,24 @@ msgid "Your email (optional)"
 msgstr "Ihre E-Mail-Adresse (optional)"
 
 msgctxt "tray-icon-context-menu"
+msgid "Disconnected from system service"
+msgstr "Vom Systemdienst getrennt"
+
+msgctxt "tray-icon-context-menu"
 msgid "Open %(mullvadVpn)s"
 msgstr "%(mullvadVpn)s öffnen"
+
+msgctxt "tray-icon-tooltip"
+msgid "%(city)s, %(country)s"
+msgstr "%(city)s, %(country)s"
+
+msgctxt "tray-icon-tooltip"
+msgid "Connected. %(location)s"
+msgstr "Verbunden. %(location)s"
+
+msgctxt "tray-icon-tooltip"
+msgid "Connecting. %(location)s"
+msgstr "Wird verbunden. %(location)s"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
@@ -1271,76 +1458,18 @@ msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "Ort wechseln"
 
-msgctxt "wireguard-key-view"
-msgid "Failed to generate a key"
-msgstr "Fehler beim Generieren eines Schlüssels"
-
-msgctxt "wireguard-key-view"
-msgid "Generate key"
-msgstr "Schlüssel generieren"
-
-msgctxt "wireguard-key-view"
-msgid "Generating key"
-msgstr "Schlüssel wird generiert"
-
-msgctxt "wireguard-key-view"
-msgid "Key generated"
-msgstr "Schlüssel generiert"
-
-msgctxt "wireguard-key-view"
-msgid "Key is invalid"
-msgstr "Schlüssel ist ungültig"
-
-msgctxt "wireguard-key-view"
-msgid "Key is valid"
-msgstr "Schlüssel ist gültig"
-
-msgctxt "wireguard-key-view"
-msgid "Key verification failed"
-msgstr "Schlüsselverifikation fehlgeschlagen"
-
-msgctxt "wireguard-key-view"
-msgid "Manage keys"
-msgstr "Schlüssel verwalten"
-
-msgctxt "wireguard-key-view"
-msgid "No key set"
-msgstr "Kein Schlüssel eingestellt"
-
-msgctxt "wireguard-key-view"
-msgid "Public key"
-msgstr "Öffentlicher Schlüssel"
-
-msgctxt "wireguard-key-view"
-msgid "Reconnecting with new WireGuard key..."
-msgstr "Es wird mit einem neuem WireGuard-Schlüssel erneut verbunden ..."
-
-msgctxt "wireguard-key-view"
-msgid "Regenerate key"
-msgstr "Schlüssel neu generieren"
-
-msgctxt "wireguard-key-view"
-msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
-msgstr "Schlüssel konnte nicht erneut generiert werden: Sie haben bereits die maximale Anzahl an Schlüsseln. Um einen neuen Schlüssel zu generieren, müssen Sie zunächst unter „Schlüssel verwalten“ einen alten Schlüssel widerrufen."
-
-msgctxt "wireguard-key-view"
-msgid "Verify key"
-msgstr "Schlüssel verifizieren"
-
 #. Title label in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "WireGuard key"
-msgstr "WireGuard-Schlüssel"
-
-#. Back button in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "WireGuard settings"
-msgstr "WireGuard-Einstellungen"
-
-#. Title label in navigation bar
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-nav"
-msgid "WireGuard settings"
-msgstr "WireGuard-Einstellungen"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s-Einstellungen"
+
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
+msgctxt "wireguard-settings-view"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s-Einstellungen"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -1356,11 +1485,12 @@ msgstr "Port"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
 msgctxt "wireguard-settings-view"
-msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
-msgstr "WireGuard MTU-Wert einstellen. Gültiger Bereich: %(min)d – %(max)d."
+msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
+msgstr "%(wireguard)s MTU-Wert einstellen. Gültiger Bereich: %(min)d - %(max)d."
 
 #. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
@@ -1368,9 +1498,11 @@ msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "Die automatische Einstellung wählt willkürlich aus einer Vielzahl von Ports."
 
 #. The hint displayed below the WireGuard IP version selector.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr "Dies ermöglicht den Zugriff auf WireGuard für Geräte, welche ausschließlich IPv6 unterstützen."
+msgid "This allows access to %(wireguard)s for devices that only support IPv6."
+msgstr "Dies ermöglicht den Zugriff auf %(wireguard)s für Geräte, welche ausschließlich IPv6 unterstützen."
 
 msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
