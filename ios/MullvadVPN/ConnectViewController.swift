@@ -24,6 +24,8 @@ protocol ConnectViewControllerDelegate: AnyObject {
 
 class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainment, TunnelObserver {
 
+    private static let geoJSONSourceFileName = "countries.geo.json"
+
     weak var delegate: ConnectViewControllerDelegate?
 
     let notificationController = NotificationController()
@@ -383,18 +385,6 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             return renderer
         }
 
-        if #available(iOS 13, *) {
-            if let multiPolygon = overlay as? MKMultiPolygon {
-                let renderer = MKMultiPolygonRenderer(multiPolygon: multiPolygon)
-                renderer.fillColor = UIColor.primaryColor
-                renderer.strokeColor = UIColor.secondaryColor
-                renderer.lineWidth = 1.0
-                renderer.lineCap = .round
-                renderer.lineJoin = .round
-                return renderer
-            }
-        }
-
         if let tileOverlay = overlay as? MKTileOverlay {
             return CustomOverlayRenderer(overlay: tileOverlay)
         }
@@ -450,11 +440,22 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     private func loadGeoJSONData() {
-        let fileURL = Bundle.main.url(forResource: "countries.geo", withExtension: "json")!
-        let data = try! Data(contentsOf: fileURL)
+        guard let fileURL = Bundle.main.url(
+            forResource: Self.geoJSONSourceFileName,
+            withExtension: nil
+        ) else {
+            logger.debug("Failed to locate \(Self.geoJSONSourceFileName) in main bundle.")
+            return
+        }
 
-        let overlays = try! GeoJSON.decodeGeoJSON(data)
-        mainContentView.mapView.addOverlays(overlays, level: .aboveLabels)
+        do {
+            let data = try Data(contentsOf: fileURL)
+            let overlays = try GeoJSON.decodeGeoJSON(data)
+
+            mainContentView.mapView.addOverlays(overlays)
+        } catch {
+            logger.error(chainedError: AnyChainedError(error), message: "Failed to load geojson.")
+        }
     }
 }
 
