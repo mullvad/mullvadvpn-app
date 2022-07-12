@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.ui
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,31 +11,42 @@ import androidx.lifecycle.repeatOnLifecycle
 import java.text.DateFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
+import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
+import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
 import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
+import net.mullvad.mullvadvpn.util.JobTracker
+import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
+import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
+import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 import org.koin.android.ext.android.inject
 
-class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
+class AccountFragment : BaseFragment() {
 
     // Injected dependencies
     private val accountRepository: AccountRepository by inject()
     private val deviceRepository: DeviceRepository by inject()
-
-    override val isSecureScreen = true
+    private val serviceConnectionManager: ServiceConnectionManager by inject()
 
     private val dateStyle = DateFormat.MEDIUM
     private val timeStyle = DateFormat.SHORT
@@ -72,7 +84,20 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var redeemVoucherButton: RedeemVoucherButton
     private lateinit var titleController: CollapsibleTitleController
 
-    override fun onSafelyCreateView(
+    @Deprecated("Refactor code to instead rely on Lifecycle.")
+    private val jobTracker = JobTracker()
+
+    override fun onAttach(activity: Activity) {
+        super.onAttach(activity)
+        requireMainActivity().enterSecureScreen(this)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
+
+    override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -80,7 +105,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         val view = inflater.inflate(R.layout.account, container, false)
 
         view.findViewById<View>(R.id.back).setOnClickListener {
-            parentActivity.onBackPressed()
+            requireMainActivity().onBackPressed()
         }
 
         sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
@@ -88,8 +113,11 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
             setOnClickAction("openAccountPageInBrowser", jobTracker) {
                 setEnabled(false)
-                context.openAccountPageInBrowser(authTokenCache.fetchAuthToken())
+                serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
+                    context.openAccountPageInBrowser(token)
+                }
                 setEnabled(true)
+                checkForAddedTime()
             }
         }
 
@@ -112,40 +140,35 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        lifecycleScope.launchUiSubscriptionsOnResume()
-    }
-
-    override fun onSafelyStart() {
-        connectionProxy.onUiStateChange.subscribe(this) { uiState ->
-            jobTracker.newUiJob("updateHasConnectivity") {
-                hasConnectivity = uiState is TunnelState.Connected ||
-                    uiState is TunnelState.Disconnected ||
-                    (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
-                isOffline = uiState is TunnelState.Error &&
-                    uiState.errorState.cause is ErrorStateCause.IsOffline
-            }
-        }
-    }
-
-    override fun onSafelyStop() {
+    override fun onStop() {
         jobTracker.cancelAllJobs()
+        super.onStop()
     }
 
-    override fun onSafelyDestroyView() {
+    override fun onDestroyView() {
         titleController.onDestroy()
+        super.onDestroyView()
+    }
+
+    override fun onDetach() {
+        requireMainActivity().leaveSecureScreen(this)
+        super.onDetach()
     }
 
     private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
         repeatOnLifecycle(Lifecycle.State.RESUMED) {
             launchUpdateTextOnDeviceChanges()
             launchUpdateTextOnExpiryChanges()
+            launchTunnelStateSubscription()
         }
     }
 
     private fun CoroutineScope.launchUpdateTextOnDeviceChanges() {
         launch {
             deviceRepository.deviceState
+                .debounce {
+                    it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS)
+                }
                 .collect { state ->
                     accountNumberView.information = state.token()
                     deviceNameView.information =
@@ -162,6 +185,28 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
                 .collect { expiryDate ->
                     currentAccountExpiry = expiryDate
                     updateAccountExpiry(expiryDate)
+                }
+        }
+    }
+
+    private fun CoroutineScope.launchTunnelStateSubscription() {
+        launch {
+            serviceConnectionManager.connectionState
+                .flatMapLatest { state ->
+                    if (state is ServiceConnectionState.ConnectedReady) {
+                        callbackFlowFromNotifier(
+                            state.container.connectionProxy.onUiStateChange
+                        )
+                    } else {
+                        emptyFlow()
+                    }
+                }
+                .collect { uiState ->
+                    hasConnectivity = uiState is TunnelState.Connected ||
+                        uiState is TunnelState.Disconnected ||
+                        (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
+                    isOffline = uiState is TunnelState.Error &&
+                        uiState.errorState.cause is ErrorStateCause.IsOffline
                 }
         }
     }
