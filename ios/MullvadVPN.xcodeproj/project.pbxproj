@@ -157,7 +157,6 @@
 		58655DCF27DA0A5D00911834 /* TunnelMonitorConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58655DCD27DA0A5D00911834 /* TunnelMonitorConfiguration.swift */; };
 		5868585524054096000B8131 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868585424054096000B8131 /* AppButton.swift */; };
 		5868BD33261DCD2600E6027F /* CustomSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868BD32261DCD2600E6027F /* CustomSplitViewController.swift */; };
-		586ADD4723FC13F400CE9E87 /* countries.geo.json in Resources */ = {isa = PBXBuildFile; fileRef = 586ADD4523FC13F400CE9E87 /* countries.geo.json */; };
 		586E54FB27A2DF6D0029B88B /* TunnelIPCRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E54FA27A2DF6D0029B88B /* TunnelIPCRequestOperation.swift */; };
 		5871FB8325498CA20051A0A4 /* Swizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB8225498CA20051A0A4 /* Swizzle.swift */; };
 		5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
@@ -185,6 +184,7 @@
 		587C575326D2615F005EF767 /* PacketTunnelOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587C575226D2615F005EF767 /* PacketTunnelOptions.swift */; };
 		587C575426D2615F005EF767 /* PacketTunnelOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587C575226D2615F005EF767 /* PacketTunnelOptions.swift */; };
 		587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587CBFE222807F530028DED3 /* UIColor+Helpers.swift */; };
+		587DCCEF287D84A500CE821E /* countries.geo.json in Resources */ = {isa = PBXBuildFile; fileRef = 587DCCEE287D84A500CE821E /* countries.geo.json */; };
 		587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */; };
 		587EB67027143B6500123C75 /* DataSourceSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB66F27143B6500123C75 /* DataSourceSnapshot.swift */; };
 		587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB671271451E300123C75 /* PreferencesViewModel.swift */; };
@@ -457,7 +457,6 @@
 		5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MullvadVPN.entitlements; sourceTree = "<group>"; };
 		5868585424054096000B8131 /* AppButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
 		5868BD32261DCD2600E6027F /* CustomSplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSplitViewController.swift; sourceTree = "<group>"; };
-		586ADD4523FC13F400CE9E87 /* countries.geo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = countries.geo.json; sourceTree = "<group>"; };
 		586E54FA27A2DF6D0029B88B /* TunnelIPCRequestOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelIPCRequestOperation.swift; sourceTree = "<group>"; };
 		5871FB8225498CA20051A0A4 /* Swizzle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swizzle.swift; sourceTree = "<group>"; };
 		5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsolidatedApplicationLog.swift; sourceTree = "<group>"; };
@@ -480,6 +479,7 @@
 		587B7544266922BF00DEF7E9 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		587C575226D2615F005EF767 /* PacketTunnelOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelOptions.swift; sourceTree = "<group>"; };
 		587CBFE222807F530028DED3 /* UIColor+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Helpers.swift"; sourceTree = "<group>"; };
+		587DCCEE287D84A500CE821E /* countries.geo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = countries.geo.json; sourceTree = "<group>"; };
 		587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CharacterSet+IPAddress.swift"; sourceTree = "<group>"; };
 		587EB66F27143B6500123C75 /* DataSourceSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceSnapshot.swift; sourceTree = "<group>"; };
 		587EB671271451E300123C75 /* PreferencesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesViewModel.swift; sourceTree = "<group>"; };
@@ -799,14 +799,6 @@
 			path = TunnelIPC;
 			sourceTree = "<group>";
 		};
-		586ADD4323FC13AD00CE9E87 /* GeoJSON */ = {
-			isa = PBXGroup;
-			children = (
-				586ADD4523FC13F400CE9E87 /* countries.geo.json */,
-			);
-			path = GeoJSON;
-			sourceTree = "<group>";
-		};
 		587B75422669034500DEF7E9 /* Notifications */ = {
 			isa = PBXGroup;
 			children = (
@@ -839,7 +831,6 @@
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
 				0E15C74FDCF763609B367486 /* Frameworks */,
-				586ADD4323FC13AD00CE9E87 /* GeoJSON */,
 				582CFEE1269448160072883A /* Localizations */,
 				58CE5E62224146200008646E /* MullvadVPN */,
 				58D0C79423F1CE7000FE9BA7 /* MullvadVPNScreenshots */,
@@ -1025,6 +1016,7 @@
 			isa = PBXGroup;
 			children = (
 				58095C562760F47900890776 /* api-ip-address.json */,
+				587DCCEE287D84A500CE821E /* countries.geo.json */,
 				584789B7264D4A2A000E45FB /* le_root_cert.cer */,
 				58F3C0A524A50155003E76BE /* relays.json */,
 			);
@@ -1219,8 +1211,8 @@
 			files = (
 				58F3C0A624A50157003E76BE /* relays.json in Resources */,
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
-				586ADD4723FC13F400CE9E87 /* countries.geo.json in Resources */,
 				58095C572760F47900890776 /* api-ip-address.json in Resources */,
+				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 				5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */,
 				584789BE264D4A2A000E45FB /* le_root_cert.cer in Resources */,
