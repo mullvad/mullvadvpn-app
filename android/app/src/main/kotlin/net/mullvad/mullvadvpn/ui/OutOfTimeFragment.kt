@@ -12,25 +12,35 @@ import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
+import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
 import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
+import net.mullvad.mullvadvpn.util.JobTracker
+import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 import org.koin.android.ext.android.inject
 
-class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+class OutOfTimeFragment : BaseFragment() {
 
     // Injected dependencies
     private val accountRepository: AccountRepository by inject()
+    private val serviceConnectionManager: ServiceConnectionManager by inject()
 
     private lateinit var headerBar: HeaderBar
 
@@ -44,11 +54,19 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
         headerBar.tunnelState = state
     }
 
-    override fun onSafelyCreateView(
+    @Deprecated("Refactor code to instead rely on Lifecycle.")
+    private val jobTracker = JobTracker()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
+
+    override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         val view = inflater.inflate(R.layout.out_of_time, container, false)
 
         headerBar = view.findViewById<HeaderBar>(R.id.header_bar).apply {
@@ -56,14 +74,14 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
         }
 
         view.findViewById<TextView>(R.id.account_credit_has_expired).text = buildString {
-            append(parentActivity.getString(R.string.account_credit_has_expired))
+            append(requireActivity().getString(R.string.account_credit_has_expired))
             append(" ")
-            parentActivity.getString(R.string.add_time_to_account)
+            requireActivity().getString(R.string.add_time_to_account)
         }
 
         disconnectButton = view.findViewById<Button>(R.id.disconnect).apply {
             setOnClickAction("disconnect", jobTracker) {
-                connectionProxy.disconnect()
+                serviceConnectionManager.connectionProxy()?.disconnect()
             }
         }
 
@@ -72,48 +90,32 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
 
             setOnClickAction("openAccountPageInBrowser", jobTracker) {
                 setEnabled(false)
-                context.openAccountPageInBrowser(authTokenCache.fetchAuthToken())
+                serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
+                    context.openAccountPageInBrowser(token)
+                }
                 setEnabled(true)
             }
+
+            isEnabled = true
         }
 
         redeemButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
             prepare(parentFragmentManager, jobTracker)
         }
 
-        connectionProxy.onStateChange.subscribe(this) { newState ->
-            jobTracker.newUiJob("updateTunnelState") {
-                tunnelState = newState
-            }
-        }
-
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        lifecycleScope.launchUiSubscriptionsOnResume()
-    }
-
-    override fun onSafelyStart() {
-        jobTracker.newBackgroundJob("pollAccountData") {
-            while (true) {
-                accountRepository.fetchAccountExpiry()
-                delay(POLL_INTERVAL)
-            }
-        }
-    }
-
-    override fun onSafelyStop() {
+    override fun onStop() {
         jobTracker.cancelAllJobs()
-    }
-
-    override fun onSafelyDestroyView() {
-        connectionProxy.onStateChange.unsubscribe(this)
+        super.onStop()
     }
 
     private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
         repeatOnLifecycle(Lifecycle.State.RESUMED) {
             launchProceedToConnectViewIfExpiryExtended()
+            launchExpiryPolling()
+            launchTunnelStateSubscription()
         }
     }
 
@@ -122,6 +124,29 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             .map { state -> state.date() }
             .collect { expiryDate ->
                 checkExpiry(expiryDate)
+            }
+    }
+
+    private fun CoroutineScope.launchExpiryPolling() = launch {
+        while (true) {
+            accountRepository.fetchAccountExpiry()
+            delay(POLL_INTERVAL)
+        }
+    }
+
+    private fun CoroutineScope.launchTunnelStateSubscription() = launch {
+        serviceConnectionManager.connectionState
+            .flatMapLatest { state ->
+                if (state is ServiceConnectionState.ConnectedReady) {
+                    callbackFlowFromNotifier(
+                        state.container.connectionProxy.onStateChange
+                    )
+                } else {
+                    emptyFlow()
+                }
+            }
+            .collect { newState ->
+                tunnelState = newState
             }
     }
 
