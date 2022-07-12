@@ -258,12 +258,12 @@ impl TunnelMonitor {
             match route_manager
                 .get_mtu_for_route(params.connection.peer.endpoint.ip())
                 .await
-                {
-                    Ok(mtu) => Self::set_mtu(params, mtu),
-                    Err(e) => {
-                        log::error!("Could not get the MTU for route {}", e);
-                    }
+            {
+                Ok(mtu) => Self::set_mtu(params, mtu),
+                Err(e) => {
+                    log::error!("Could not get the MTU for route {}", e);
                 }
+            }
         }
     }
 

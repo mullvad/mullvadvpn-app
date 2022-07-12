@@ -197,13 +197,11 @@ fn get_mtu_for_route(addr_family: WinNetAddrFamily) -> Result<Option<u16>> {
             let luid = NET_LUID {
                 Value: route.interface_luid,
             };
-            let interface_row = match crate::windows::get_ip_interface_entry(addr_family, &luid) {
-                Err(e) => {
+            let interface_row = crate::windows::get_ip_interface_entry(addr_family, &luid)
+                .map_err(|e| {
                     log::error!("Could not get ip interface entry: {}", e);
-                    return Err(Error::GetMtu);
-                },
-                Ok(i) => i,
-            };
+                    Error::GetMtu
+                })?;
             let mtu = interface_row.NlMtu;
             let mtu = u16::try_from(mtu).map_err(|_| Error::GetMtu)?;
             Ok(Some(mtu))
