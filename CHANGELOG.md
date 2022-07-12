@@ -27,6 +27,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Add device management to the Android app. This simplifies knowing which device is which and adds
   the option to log other devices out when the account already has five devices.
+#### Windows
+- Windows daemon now looks up the MTU on the default interface and uses this MTU instead of the
+  default 1500. The 1500 is still the fallback if this for some reason fails. This may stop
+  fragmentation.
 
 ### Changed
 - Reject invalid WireGuard ports in the CLI.
