@@ -627,36 +627,18 @@ extension LocationDataSource {
         private func sortChildren() {
             switch nodeType {
             case .root, .country:
-                children.sort { a, b -> Bool in
-                    if a.isPinned && b.isPinned {
+                children.sort { (a, b) -> Bool in
+                    if a.isPinned == b.isPinned {
                         return lexicalSortComparator(a.displayName, b.displayName)
                     }
-                    if a.isPinned {
-                        return true
-                    }
-                    if b.isPinned {
-                        return false
-                    }
-                    return lexicalSortComparator(a.displayName, b.displayName)
+                    return a.isPinned
                 }
             case .city:
-                children.sort { a, b -> Bool in
-                    if a.isPinned && b.isPinned {
-                        return fileSortComparator(
-                            a.location.stringRepresentation,
-                            b.location.stringRepresentation
-                        )
+                children.sort { (a, b) -> Bool in
+                    if a.isPinned == b.isPinned {
+                        return fileSortComparator(a.location.stringRepresentation, b.location.stringRepresentation)
                     }
-                    if a.isPinned {
-                        return true
-                    }
-                    if b.isPinned {
-                        return false
-                    }
-                    return fileSortComparator(
-                        a.location.stringRepresentation,
-                        b.location.stringRepresentation
-                    )
+                    return a.isPinned
                 }
             case .relay:
                 break
