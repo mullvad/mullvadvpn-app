@@ -45,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Connect to TCP endpoints over IPv6 if IPv6 is enabled for WireGuard.
+- Fix udp2tcp not working when quantum-resistant tunnels are enabled.
 
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.
