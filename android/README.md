@@ -4,6 +4,12 @@ This directory contains the files specific to the Android app.
 
 ## Translations / Localization
 
+### How to update translations
+
+See [/gui/locales/README.md][gui-locales-readme] for how to easily update translations.
+
+### Detailed structure and script documentation
+
 The app has localized messages stored in `src/main/res/values-<locale>/` directories, where
 `<locale>` is a two letter locale and can be followed by a two letter region code. For example: `en`
 or `en-rGB`.
@@ -25,5 +31,6 @@ did not find any translation, making it simpler to use the template for obtainin
 translations.
 
 [root-readme]: ../README.md
+[gui-locales-readme]: ../gui/locales/README.md
 [gui-locales]: ../gui/locales/
 [messages.pot]: ../gui/locales/messages.pot
