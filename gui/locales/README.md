@@ -40,56 +40,39 @@ This is a folder with gettext translations for Mullvad VPN app.
 
 ## Updating translations template
 
-### messages.pot
+Use the localization script to prepare the pot-files by running the following command from the
+root-directory:
+```
+./scripts/localization prepare
+```
 
-Run `npm run update-translations` to extract the new translations from the source
-code.
-
-#### Android translations
-
-The Android app uses translation strings stored in a different format, but which can be generated
-from the translations in this directory. For more information, see [here](../../android/README.md).
-
-### relay-locations.pot
-
-To update the countries and cities you have to run the geo data scripts. Follow the instructions
-in [`gui/scripts/README.md`](../scripts/README.md).
+It will update `messages.pot` with localization strings from both the desktop app and Android app,
+and will update `relay-localizations.pot`. The changes to each file will also be committed
+individually.
 
 ## Uploading translations template to Crowdin
 
 After updating the translations template (POT) locally, make sure to upload it to Crowdin:
-
 ```
-CROWDIN_API_KEY=$YOUR_CROWDIN_KEY ./gui/scripts/crowdin.sh upload
+CROWDIN_API_KEY=$YOUR_CROWDIN_KEY `./scripts/localization upload`
 ```
 
 Triggering Crowdin to start translating has to be done manually. Speak to the project owner
 
 ## Downloading translations from Crowdin
 
-Before downloading from Crowdin the project must be "built" first. When you
-later download you will receive the translations from the last point in time when it was built.
-
-In order to make a fresh build with translations, use the following command:
-
+When the translations are done, download it by running:
 ```
-CROWDIN_API_KEY=$YOUR_CROWDIN_KEY ./gui/scripts/crowdin.sh export
+CROWDIN_API_KEY=$YOUR_CROWDIN_KEY `./scripts/localization download`
 ```
 
-In order to download and integrate the new translations from Crowdin into the app, use the following
-command:
+## Keeping messages.pot in sync
 
-```
-CROWDIN_API_KEY=$YOUR_CROWDIN_KEY ./gui/scripts/crowdin.sh download
-```
+This is only relevant when running the different tools for updating `messages.pot` manually, and
+is not relevant when using the localization script mentioned above.
 
-## Add new translations to the Android app
-
-Adding the new translations to the Android app after downloading them from Crowdin is similar to how
-the translations template is updated. First run:
-```
-npm run update-translations
-```
-
-And then run the Android translations converter tool as described in the
-[Android readme](../../android/README.md).
+It's important that `messages.pot` reflect both the desktop app and the Android app. To prevent it
+from getting out of sync with the strings in the source code, always run both
+`npm run update-translations` and the `translations-converter` tool in that order. If the first one
+is run on it's own it will remove the strings specific to Android. The easiest way to accomplish
+this is to just run `./scripts/localization prepare` as described above.
