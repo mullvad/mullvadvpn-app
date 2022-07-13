@@ -260,7 +260,7 @@ class ApplicationMain {
 
   private macOsScrollbarVisibility?: MacOsScrollbarVisibility;
 
-  private quitWithoutDisconnect = false;
+  private stayConnectedOnQuit = false;
 
   private changelog?: IChangelog;
   private forceShowChanges = process.argv.includes(Options.showChanges);
@@ -283,8 +283,7 @@ class ApplicationMain {
     // This ensures that only a single instance is running at the same time, but also exits if
     // there's no already running instance when the quit without disconnect flag is supplied.
     if (!app.requestSingleInstanceLock() || process.argv.includes(Options.quitWithoutDisconnect)) {
-      this.quitWithoutDisconnect = true;
-      app.quit();
+      this.quitWithoutDisconnect();
       return;
     }
 
@@ -318,6 +317,7 @@ class ApplicationMain {
       log.error(
         `Render process exited with exit code ${details.exitCode} due to ${details.reason}`,
       );
+      this.quitWithoutDisconnect();
     });
     app.on('child-process-gone', (_event, details) => {
       log.error(
@@ -336,8 +336,7 @@ class ApplicationMain {
     app.on('second-instance', (_event, argv, _workingDirectory) => {
       if (argv.includes(Options.quitWithoutDisconnect)) {
         // Quit if another instance is started with the quit without disconnect flag.
-        this.quitWithoutDisconnect = true;
-        app.quit();
+        this.quitWithoutDisconnect();
       } else if (this.windowController) {
         // If no action was provided to the new instance the window is opened.
         this.windowController.show();
@@ -402,6 +401,11 @@ class ApplicationMain {
     }
   };
 
+  private quitWithoutDisconnect() {
+    this.stayConnectedOnQuit = true;
+    app.quit();
+  }
+
   // This is a last try to disconnect and quit gracefully if the app quits without having received
   // the before-quit event.
   private onQuit = async () => {
@@ -439,7 +443,7 @@ class ApplicationMain {
   };
 
   private async prepareToQuit() {
-    if (this.quitWithoutDisconnect) {
+    if (this.stayConnectedOnQuit) {
       log.info('Not disconnecting tunnel on quit');
     } else {
       if (this.connectedToDaemon) {

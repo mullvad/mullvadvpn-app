@@ -44,6 +44,8 @@ Line wrap the file at 100 chars.                                              Th
 - Remove WireGuard view as it's no longer needed with the new way of managing devices.
 
 ### Fixed
+- Quit app gracefully if renderer process is killed or crashes.
+
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.
 - Fix missing IPC message unregistration causing multiple copies of some messages to be received.
