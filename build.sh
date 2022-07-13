@@ -8,35 +8,7 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-function log {
-    local NO_COLOR="0m"
-    local msg=$1
-    local color=${2:-"$NO_COLOR"}
-    echo -e "\033[$color$msg\033[$NO_COLOR"
-}
-
-function log_header {
-    local YELLOW="33m"
-    echo ""
-    log "### $1 ###" $YELLOW
-    echo ""
-}
-
-function log_success {
-    local GREEN="32m"
-    log "$1" $GREEN
-}
-
-function log_error {
-    local RED="31m"
-    log "!! $1" $RED
-}
-
-function log_info {
-    local BOLD="1m"
-    log "$1" $BOLD
-}
-
+source scripts/utils/log
 
 ################################################################################
 # Analyze environment and parse arguments
