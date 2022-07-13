@@ -40,7 +40,7 @@ open class NavigateCell : Cell {
             (context as? FragmentActivity)?.supportFragmentManager?.beginTransaction()?.apply {
                 setCustomAnimations(
                     R.anim.fragment_enter_from_right,
-                    R.anim.fragment_half_exit_to_left,
+                    R.anim.fragment_exit_to_left,
                     R.anim.fragment_half_enter_from_left,
                     R.anim.fragment_exit_to_right
                 )
