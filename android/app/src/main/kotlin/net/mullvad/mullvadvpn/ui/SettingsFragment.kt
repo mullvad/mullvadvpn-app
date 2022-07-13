@@ -11,23 +11,35 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.DeviceState
+import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.appVersionInfoCache
 import net.mullvad.mullvadvpn.ui.widget.AccountCell
 import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
 import net.mullvad.mullvadvpn.ui.widget.NavigateCell
+import net.mullvad.mullvadvpn.util.JobTracker
+import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
+import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
+import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import org.koin.android.ext.android.inject
 
-class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBarPainter {
+class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
+
+    // Injected dependencies
     private val accountRepository: AccountRepository by inject()
     private val deviceRepository: DeviceRepository by inject()
+    private val serviceConnectionManager: ServiceConnectionManager by inject()
 
     private lateinit var accountMenu: AccountCell
     private lateinit var appVersionMenu: AppVersionCell
@@ -35,20 +47,12 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
     private lateinit var advancedMenu: View
     private lateinit var titleController: CollapsibleTitleController
 
-    private var active = false
+    @Deprecated("Refactor code to instead rely on Lifecycle.")
+    private val jobTracker = JobTracker()
 
-    private var versionInfoCache: AppVersionInfoCache? = null
-
-    override fun onNewServiceConnection(serviceConnectionContainer: ServiceConnectionContainer) {
-        versionInfoCache = serviceConnectionContainer.appVersionInfoCache
-
-        if (active) {
-            configureListeners()
-        }
-    }
-
-    override fun onNoServiceConnection() {
-        versionInfoCache = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launchUiSubscriptionsOnResume()
     }
 
     override fun onCreateView(
@@ -86,7 +90,7 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        lifecycleScope.launchUiSubscriptionsOnResume()
+        initializeUiState()
     }
 
     override fun onResume() {
@@ -94,25 +98,38 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
         paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        configureListeners()
-        active = true
-    }
-
     override fun onStop() {
-        active = false
-        versionInfoCache?.onUpdate = null
-
         jobTracker.cancelAllJobs()
-
         super.onStop()
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         titleController.onDestroy()
+        super.onDestroyView()
+    }
+
+    private fun initializeUiState() {
+        updateLoggedInStatus(deviceRepository.deviceState.value is DeviceState.LoggedIn)
+        accountMenu.accountExpiry = accountRepository.accountExpiryState.value.date()
+        serviceConnectionManager.appVersionInfoCache().let { cache ->
+            updateVersionInfo(
+                if (cache != null) {
+                    VersionInfo(
+                        currentVersion = cache.version,
+                        upgradeVersion = cache.upgradeVersion,
+                        isOutdated = cache.isOutdated,
+                        isSupported = cache.isSupported
+                    )
+                } else {
+                    VersionInfo(
+                        currentVersion = null,
+                        upgradeVersion = null,
+                        isOutdated = false,
+                        isSupported = true
+                    )
+                }
+            )
+        }
     }
 
     private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
@@ -120,6 +137,7 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
             launchPaintStatusBarAfterTransition()
             luanchConfigureMenuOnDeviceChanges()
             launchUpdateExpiryTextOnExpiryChanges()
+            launchVersionInfoSubscription()
         }
     }
 
@@ -131,6 +149,9 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
 
     private fun CoroutineScope.luanchConfigureMenuOnDeviceChanges() = launch {
         deviceRepository.deviceState
+            .debounce {
+                it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS)
+            }
             .collect { device ->
                 updateLoggedInStatus(device is DeviceState.LoggedIn)
             }
@@ -145,12 +166,18 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
             }
     }
 
-    private fun configureListeners() {
-        versionInfoCache?.onUpdate = {
-            jobTracker.newUiJob("updateVersionInfo") {
-                updateVersionInfo()
+    private fun CoroutineScope.launchVersionInfoSubscription() = launch {
+        serviceConnectionManager.connectionState
+            .flatMapLatest { state ->
+                if (state is ServiceConnectionState.ConnectedReady) {
+                    state.container.appVersionInfoCache.appVersionCallbackFlow()
+                } else {
+                    emptyFlow()
+                }
             }
-        }
+            .collect { versionInfo ->
+                updateVersionInfo(versionInfo)
+            }
     }
 
     private fun updateLoggedInStatus(loggedIn: Boolean) {
@@ -165,11 +192,10 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBar
         advancedMenu.visibility = visibility
     }
 
-    private fun updateVersionInfo() {
-        val isOutdated = versionInfoCache?.isOutdated ?: false
-        val isSupported = versionInfoCache?.isSupported ?: true
-
-        appVersionMenu.updateAvailable = isOutdated || !isSupported
-        appVersionMenu.version = versionInfoCache?.version ?: ""
+    private fun updateVersionInfo(
+        versionInfo: VersionInfo
+    ) {
+        appVersionMenu.updateAvailable = versionInfo.isOutdated || !versionInfo.isSupported
+        appVersionMenu.version = versionInfo.currentVersion ?: ""
     }
 }
