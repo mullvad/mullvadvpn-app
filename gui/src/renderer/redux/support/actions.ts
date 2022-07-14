@@ -1,11 +1,11 @@
-export interface ISupportReportForm {
+export interface IProblemReportForm {
   email: string;
   message: string;
 }
 
 export interface IKeepReportFormAction {
   type: 'SAVE_REPORT_FORM';
-  form: ISupportReportForm;
+  form: IProblemReportForm;
 }
 
 export interface IClearReportFormAction {
@@ -14,7 +14,7 @@ export interface IClearReportFormAction {
 
 export type SupportAction = IKeepReportFormAction | IClearReportFormAction;
 
-function saveReportForm(form: ISupportReportForm): IKeepReportFormAction {
+function saveReportForm(form: IProblemReportForm): IKeepReportFormAction {
   return {
     type: 'SAVE_REPORT_FORM',
     form,

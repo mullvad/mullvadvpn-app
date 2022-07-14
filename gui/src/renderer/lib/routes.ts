@@ -20,7 +20,7 @@ export enum RoutePath {
   wireguardSettings = '/settings/advanced/wireguard',
   openVpnSettings = '/settings/advanced/openvpn',
   splitTunneling = '/settings/advanced/split-tunneling',
-  support = '/settings/support',
+  problemReport = '/settings/problem-report',
   selectLocation = '/select-location',
   filter = '/select-location/filter',
 }

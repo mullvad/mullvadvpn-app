@@ -3,7 +3,7 @@ import * as React from 'react';
 import { links } from '../../config.json';
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import { ISupportReportForm } from '../redux/support/actions';
+import { IProblemReportForm } from '../redux/support/actions';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
@@ -11,7 +11,6 @@ import { BackAction } from './KeyboardNavigation';
 import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
-import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
   StyledBlueButton,
   StyledContainer,
@@ -28,7 +27,8 @@ import {
   StyledSentMessage,
   StyledStatusIcon,
   StyledThanks,
-} from './SupportStyles';
+} from './ProblemReportStyles';
+import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
 enum SendState {
   initial,
@@ -38,7 +38,7 @@ enum SendState {
   failed,
 }
 
-interface ISupportState {
+interface IProblemReportState {
   email: string;
   message: string;
   savedReportId?: string;
@@ -47,14 +47,14 @@ interface ISupportState {
   showOutdatedVersionWarning: boolean;
 }
 
-interface ISupportProps {
+interface IProblemReportProps {
   defaultEmail: string;
   defaultMessage: string;
   accountHistory?: AccountToken;
   isOffline: boolean;
   onClose: () => void;
   viewLog: (path: string) => void;
-  saveReportForm: (form: ISupportReportForm) => void;
+  saveReportForm: (form: IProblemReportForm) => void;
   clearReportForm: () => void;
   collectProblemReport: (accountToRedact?: string) => Promise<string>;
   sendProblemReport: (email: string, message: string, savedReportId: string) => Promise<void>;
@@ -63,7 +63,10 @@ interface ISupportProps {
   onExternalLink: (url: string) => void;
 }
 
-export default class Support extends React.Component<ISupportProps, ISupportState> {
+export default class ProblemReport extends React.Component<
+  IProblemReportProps,
+  IProblemReportState
+> {
   public state = {
     email: '',
     message: '',
@@ -75,7 +78,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
 
   private collectLogPromise?: Promise<string>;
 
-  constructor(props: ISupportProps) {
+  constructor(props: IProblemReportProps) {
     super(props);
 
     // seed initial data from props
