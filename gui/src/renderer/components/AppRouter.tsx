@@ -7,10 +7,10 @@ import AdvancedSettingsPage from '../containers/AdvancedSettingsPage';
 import LoginPage from '../containers/LoginPage';
 import OpenVPNSettingsPage from '../containers/OpenVPNSettingsPage';
 import PreferencesPage from '../containers/PreferencesPage';
+import ProblemReportPage from '../containers/ProblemReportPage';
 import SelectLanguagePage from '../containers/SelectLanguagePage';
 import SelectLocationPage from '../containers/SelectLocationPage';
 import SettingsPage from '../containers/SettingsPage';
-import SupportPage from '../containers/SupportPage';
 import WireguardSettingsPage from '../containers/WireguardSettingsPage';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, ITransitionSpecification, transitions, withHistory } from '../lib/history';
@@ -94,7 +94,7 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
               <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsPage} />
               <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettingsPage} />
               <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
-              <Route exact path={RoutePath.support} component={SupportPage} />
+              <Route exact path={RoutePath.problemReport} component={ProblemReportPage} />
               <Route exact path={RoutePath.selectLocation} component={SelectLocationPage} />
               <Route exact path={RoutePath.filter} component={Filter} />
             </Switch>
