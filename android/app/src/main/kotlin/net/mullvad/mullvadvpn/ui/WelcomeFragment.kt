@@ -16,6 +16,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -24,6 +26,7 @@ import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
@@ -31,6 +34,7 @@ import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
+import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import org.joda.time.DateTime
 import org.koin.android.ext.android.inject
 
@@ -44,6 +48,7 @@ class WelcomeFragment : BaseFragment() {
     private val serviceConnectionManager: ServiceConnectionManager by inject()
 
     private lateinit var accountLabel: TextView
+    private lateinit var headerBar: HeaderBar
     private lateinit var sitePaymentButton: SitePaymentButton
 
     @Deprecated("Refactor code to instead rely on Lifecycle.")
@@ -61,7 +66,7 @@ class WelcomeFragment : BaseFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.welcome, container, false)
 
-        view.findViewById<HeaderBar>(R.id.header_bar).apply {
+        headerBar = view.findViewById<HeaderBar>(R.id.header_bar).apply {
             tunnelState = TunnelState.Disconnected
         }
 
@@ -104,6 +109,7 @@ class WelcomeFragment : BaseFragment() {
             launchUpdateAccountNumberOnDeviceChanges()
             launchAdvanceToConnectViewOnExpiryExtended()
             launchExpiryPolling()
+            launchTunnelStateSubscription()
         }
     }
 
@@ -126,6 +132,25 @@ class WelcomeFragment : BaseFragment() {
             accountRepository.fetchAccountExpiry()
             delay(POLL_INTERVAL)
         }
+    }
+
+    private fun CoroutineScope.launchTunnelStateSubscription() = launch {
+        serviceConnectionManager.connectionState
+            .flatMapLatest { state ->
+                if (state is ServiceConnectionState.ConnectedReady) {
+                    callbackFlowFromNotifier(
+                        state.container.connectionProxy.onStateChange
+                    )
+                } else {
+                    emptyFlow()
+                }
+            }
+            .collect { state -> updateUiForTunnelState(state) }
+    }
+
+    private fun updateUiForTunnelState(tunnelState: TunnelState) {
+        headerBar.tunnelState = tunnelState
+        sitePaymentButton.isEnabled = tunnelState is TunnelState.Disconnected
     }
 
     private fun updateAccountNumber(rawAccountNumber: String?) {
