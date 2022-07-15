@@ -573,11 +573,11 @@ export default class AppRenderer {
     loadTranslations(relayLocations, translations.locale, translations.relayLocations);
   }
 
-  public getPreferredLocaleDisplayName(localeCode: string): string {
+  public getPreferredLocaleDisplayName = (localeCode: string): string => {
     const preferredLocale = this.getPreferredLocaleList().find((item) => item.code === localeCode);
 
     return preferredLocale ? preferredLocale.name : '';
-  }
+  };
 
   public setDisplayedChangelog = (): void => {
     IpcRendererEventChannel.currentVersion.displayedChangelog();
