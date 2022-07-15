@@ -1053,7 +1053,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "Deaktiver all innholdsblokkering (under %(preferencesPageName)s) for å aktivere denne innstillingen."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Aktiver eller deaktiver systemmeldinger. Kritiske meldinger vil alltid vises."
 
@@ -1061,7 +1061,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Aktiver for å bli varslet når betaversjoner av appen lanseres."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Aktiver for å flytte appen rundt som et frittstående vindu."
 
@@ -1077,11 +1077,11 @@ msgctxt "preferences-view"
 msgid "Local network sharing"
 msgstr "Deling over lokalt nettverk"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Ensfarget skuffeikon"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Notifications"
 msgstr "Meldinger"
 
@@ -1089,11 +1089,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "Preferanser"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "Vis bare skuffeikonet når appen starter."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Start minimized"
 msgstr "Start i minimert tilstand"
 
@@ -1105,11 +1105,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Dette alternativet er utilgjengelig i betaversjonen."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "Fjern appen fra menylinjen"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Bruk ensfarget skuffeikon i stedet for flerfarget."
 
@@ -1253,7 +1253,7 @@ msgid "FAQs & Guides"
 msgstr "Ofte stilte spørsmål og veiledninger"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "settings-view"
+msgctxt "interface-settings-view"
 msgid "Language"
 msgstr "Språk"
 
