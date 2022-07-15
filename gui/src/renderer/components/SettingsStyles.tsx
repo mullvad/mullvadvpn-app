@@ -34,12 +34,6 @@ export const StyledSettingsContent = styled.div({
   flexDirection: 'column',
 });
 
-export const StyledCellSpacer = styled.div({
-  height: '20px',
-  minHeight: '20px',
-  flex: 0,
-});
-
 export const StyledQuitButton = styled(AppButton.RedButton)({
   margin: '20px 22px 22px',
 });
