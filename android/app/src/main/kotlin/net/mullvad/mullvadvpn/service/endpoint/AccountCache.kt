@@ -7,7 +7,6 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.lastOrNull
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.AccountCreationResult
@@ -43,10 +42,17 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     private var accountExpiry by onAccountExpiryChange.notifiable()
     private var accountHistory by onAccountHistoryChange.notifiable()
 
+    private var cachedAccountToken: String? = null
+    private var cachedCreatedAccountToken: String? = null
+
+    val isNewAccount: Boolean
+        get() = cachedAccountToken == cachedCreatedAccountToken
+
     init {
         jobTracker.newBackgroundJob("autoFetchAccountExpiry") {
             daemon.await().deviceStateUpdates.collect { deviceState ->
                 accountExpiry = deviceState.token()
+                    .also { cachedAccountToken = it }
                     ?.let { fetchAccountExpiry(it) } ?: AccountExpiry.Missing
             }
         }
@@ -76,8 +82,8 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
             registerHandler(Request.FetchAccountExpiry::class) { _ ->
                 jobTracker.newBackgroundJob("fetchAccountExpiry") {
-                    accountExpiry =
-                        accountToken()?.let { fetchAccountExpiry(it) } ?: AccountExpiry.Missing
+                    accountExpiry = cachedAccountToken
+                        ?.let { fetchAccountExpiry(it) } ?: AccountExpiry.Missing
                 }
             }
 
@@ -104,10 +110,6 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         commandChannel.close()
     }
 
-    private suspend fun accountToken(): String? {
-        return daemon.await().deviceStateUpdates.lastOrNull()?.token()
-    }
-
     private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
         try {
             for (command in channel) {
@@ -129,9 +131,12 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
     private suspend fun doCreateAccount() {
         daemon.await().createNewAccount()
-            .let { newAccountNumber ->
-                if (newAccountNumber != null) {
-                    AccountCreationResult.Success(newAccountNumber)
+            .also { newAccountToken ->
+                cachedCreatedAccountToken = newAccountToken
+            }
+            .let { newAccountToken ->
+                if (newAccountToken != null) {
+                    AccountCreationResult.Success(newAccountToken)
                 } else {
                     AccountCreationResult.Failure
                 }
