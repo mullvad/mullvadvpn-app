@@ -15,7 +15,7 @@ export enum RoutePath {
   settings = '/settings',
   selectLanguage = '/settings/language',
   accountSettings = '/settings/account',
-  preferences = '/settings/preferences',
+  interfaceSettings = '/settings/interface',
   advancedSettings = '/settings/advanced',
   wireguardSettings = '/settings/advanced/wireguard',
   openVpnSettings = '/settings/advanced/openvpn',
