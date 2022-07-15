@@ -310,20 +310,20 @@ msgid "Advanced"
 msgstr "Gelişmiş"
 
 #. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "%(openvpn)s settings"
 msgstr "%(openvpn)s ayarları"
 
 #. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s ayarları"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "Sunucu ekle"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "Yine de ekle"
 
@@ -339,24 +339,24 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Dikkat: bu seçeneğin etkinleştirilmesi, internete erişim için her zaman bir Mullvad VPN bağlantısı gerektirir."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "IPv6'yı etkinleştir"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "Tünel üzerinden IPv6 iletişimini etkinleştir."
 
 #. The label next to the multihop settings toggle.
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable multihop"
 msgstr "Çoklu geçişi etkinleştir"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "En az bir DNS sunucusu eklemek için etkinleştirin."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr "IP'yi girin"
 
@@ -367,7 +367,7 @@ msgstr "Uygulamanın bağlantısını keserseniz veya uygulamadan çıkarsanız,
 #. Description for multihop settings toggle.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
 msgstr "Trafiğinizi bir %(wireguard)s sunucusundan diğerine yönlendirerek gizliliği artırır ve izlemeyi zorlaştırır."
 
@@ -375,22 +375,22 @@ msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "Uygulamanın dahili Kill Switch seçeneği her zaman açıktır. Bu ayar, Bağlantıyı Kes veya Çık seçeneklerini tıklamanız durumunda ayrıca İnternet'i de engeller."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "Eklemek istediğiniz DNS sunucusu özel bir IP'dir. Ağ arayüzlerinizin bu IP'yi kullanacak şekilde yapılandırıldığından emin olun."
 
 #. Available placeholders:
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
 msgstr "Eklemek istediğiniz DNS sunucusu herkese açıktır ve sadece %(wireguard)s ile çalışır. Daima çalışması için \"%(tunnelProtocol)s\" seçeneğini (Gelişmiş ayarlardan) %(wireguard)s olarak ayarlayın."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr "Tünel protokolü"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "Özel DNS sunucusu kullanın"
 
@@ -999,15 +999,15 @@ msgctxt "preferences-nav"
 msgid "Preferences"
 msgstr "Tercihler"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "Paylaşım, yazdırma vb. için aynı ağdaki diğer cihazlara erişime izin verir."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Auto-connect"
 msgstr "Otomatik Bağlan"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "Uygulama başladığında bir sunucuya otomatik olarak bağlan."
 
@@ -1015,23 +1015,23 @@ msgctxt "support-view"
 msgid "Beta program"
 msgstr "Beta program"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block ads"
 msgstr "Reklamları engelle"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block adult content"
 msgstr "Yetişkinlere özel içerikleri engelle"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block gambling"
 msgstr "Kumar ve bahis içeriklerini engelle"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block malware"
 msgstr "Kötü amaçlı yazılımları engelle"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "İzleyicileri engelle"
 
@@ -1040,7 +1040,7 @@ msgstr "İzleyicileri engelle"
 #. Advanced settings refer to the name of the page with the title "Advanced".
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
 msgstr "Bu ayarları etkinleştirmek için **%(customDnsFeatureName)s** (Gelişmiş Ayarlar altından) seçeneğini devre dışı bırakın."
 
@@ -1065,15 +1065,15 @@ msgctxt "interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Uygulamayı bağımsız bir pencere olarak taşımak için etkinleştirin."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "Kill Switch"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Launch app on start-up"
 msgstr "Uygulamayı başlangıçta çalıştır"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Local network sharing"
 msgstr "Yerel ağ paylaşımı"
 
@@ -1097,7 +1097,7 @@ msgctxt "interface-settings-view"
 msgid "Start minimized"
 msgstr "Küçültülmüş olarak başlat"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
 msgstr "Uygulama, varsayılan olarak etkinleştirilen ve devre dışı bırakılamayan yerleşik bir ağ kapatma anahtarına sahiptir. Bu özellik, ağınız aniden çökerse veya tünel herhangi bir nedenle başarısız olursa, trafiğinizin VPN tünelinden sızmasını önler. Mullvad, bağlantınız yeniden kurulana kadar verilerinizi otomatik olarak korur."
 
@@ -1113,31 +1113,31 @@ msgctxt "interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Renkli yerine monokrom bir sistem çubuğu simgesi kullan."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
 msgstr "Uyarı: Bu özellik bir virüsten koruma yazılımı değildir, sadece ek bir koruma düzeyidir. Virüsten koruma yazılımı olarak kullanılmamalıdır."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Warning: This might cause issues on certain websites, services, and programs."
 msgstr "Uyarı: Bu özellik belirli web sitelerinde, hizmetlerde ve programlarda sorunlara neden olabilir."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
 msgstr "Bu özellik etkinleştirildiğinde, cihazın kötü amaçlı yazılım barındırdığı bilinen belirli alan adlarıyla iletişim kurması engellenecektir."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
 msgstr "Bu özellik etkinleştirildiğinde, cihazın kullanıcıları takip ettiği bilinen belirli alan adlarıyla iletişim kurması engellenecektir."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain known ad domains."
 msgstr "Bu özellik etkinleştirildiğinde, cihazın bilinen belirli reklam alanlarıyla iletişim kurması engellenecektir."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
 msgstr "Bu özellik etkinleştirildiğinde, cihazın yetişkinlere özel içerik barındırdığı bilinen belirli web siteleri ve hizmetlerle iletişim kurması engellenecektir."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
 msgstr "Bu özellik etkinleştirildiğinde, cihazın kumar ve bahis içeriği barındırdığı bilinen belirli web siteleri ve hizmetlerle iletişim kurması engellenecektir."
 

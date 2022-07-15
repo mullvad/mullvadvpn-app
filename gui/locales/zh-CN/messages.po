@@ -299,20 +299,20 @@ msgid "Advanced"
 msgstr "高级"
 
 #. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "%(openvpn)s settings"
 msgstr "%(openvpn)s 设置"
 
 #. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 设置"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "添加服务器"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "仍然添加"
 
@@ -328,24 +328,24 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意：启用此选项后，将始终需要 Mullvad VPN 才能连接到网络。"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "启用 IPv6"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "启用通过隧道进行 IPv6 通信。"
 
 #. The label next to the multihop settings toggle.
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable multihop"
 msgstr "启用多跳"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "启用以添加至少一个 DNS 服务器。"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr "输入 IP"
 
@@ -356,7 +356,7 @@ msgstr "如果断开连接或退出应用，此设置将阻止您的网络连接
 #. Description for multihop settings toggle.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
 msgstr "通过将您的流量路由到一个 %(wireguard)s 服务器中并从另一个服务器传出的方式增加匿名性，提高追踪难度。"
 
@@ -364,22 +364,22 @@ msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "应用的内置切断开关始终处于开启状态。如果点击“断开连接”或“退出”，此设置还将阻止您的网络连接。"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "您要添加的 DNS 服务器是私有 IP。您必须确保将网络接口配置为使用它。"
 
 #. Available placeholders:
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
 msgstr "您想要添加的 DNS 服务器为公共服务器，仅可以与 %(wireguard)s 搭配使用。为了确保它始终有效，请为 %(wireguard)s 设置“%(tunnelProtocol)s”（在“高级”设置中）。"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr "隧道协议"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "使用自定义 DNS 服务器"
 
@@ -988,15 +988,15 @@ msgctxt "preferences-nav"
 msgid "Preferences"
 msgstr "偏好设置"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "允许访问同一个网络上的其他设备以进行共享和打印等。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Auto-connect"
 msgstr "自动连接"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "在应用启动时自动连接到服务器。"
 
@@ -1004,23 +1004,23 @@ msgctxt "support-view"
 msgid "Beta program"
 msgstr "测试计划"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block ads"
 msgstr "屏蔽广告"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block adult content"
 msgstr "屏蔽成人内容"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block gambling"
 msgstr "屏蔽赌博"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block malware"
 msgstr "屏蔽恶意软件"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "屏蔽跟踪广告代码"
 
@@ -1029,7 +1029,7 @@ msgstr "屏蔽跟踪广告代码"
 #. Advanced settings refer to the name of the page with the title "Advanced".
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
 msgstr "禁用**%(customDnsFeatureName)s**（在“高级”设置下）以激活这些设置。"
 
@@ -1054,15 +1054,15 @@ msgctxt "interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "启用以将应用作为独立窗口自由移动。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "终止开关"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Launch app on start-up"
 msgstr "设备启动时启动应用"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Local network sharing"
 msgstr "本地网络共享"
 
@@ -1086,7 +1086,7 @@ msgctxt "interface-settings-view"
 msgid "Start minimized"
 msgstr "启动时最小化"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
 msgstr "该应用有一个内置的终止开关，默认情况下处于启用状态且无法禁用。这是为了防止您的流量在您的网络突然停止工作或隧道因任何原因出现故障时泄漏到 VPN 隧道之外。Mullvad 会自动保护您的数据，直到您重新建立连接。"
 
@@ -1102,31 +1102,31 @@ msgctxt "interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "使用单色托盘图标而不是彩色图标。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
 msgstr "警告：这并不是且不应被视为防病毒软件，它只是提供了一层额外的保护。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Warning: This might cause issues on certain websites, services, and programs."
 msgstr "警告：这可能会导致某些网站、服务和程序出现问题。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
 msgstr "启用后，此功能会阻止设备联系某些已知包含恶意软件的域。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
 msgstr "启用后，此功能会阻止设备联系某些已知会跟踪用户的域。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain known ad domains."
 msgstr "启用后，此功能会阻止设备联系某些已知的广告域。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
 msgstr "启用后，此功能会阻止设备联系某些已知包含成人内容的网站和服务。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
 msgstr "启用后，此功能会阻止设备联系某些已知包含赌博内容的网站和服务。"
 

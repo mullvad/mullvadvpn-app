@@ -310,20 +310,20 @@ msgid "Advanced"
 msgstr "Avansert"
 
 #. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "%(openvpn)s settings"
 msgstr "%(openvpn)s-innstillinger"
 
 #. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s-innstillinger"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "Legg til en server"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "Legg til likevel"
 
@@ -339,24 +339,24 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Advarsel: Hvis du aktiverer dette, må du alltid ha en Mullvad VPN-tilkobling for å være tilkoblet internett."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "Aktiver IPv6"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "Aktiver IPv6-kommunikasjon gjennom tunnelen."
 
 #. The label next to the multihop settings toggle.
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable multihop"
 msgstr "Aktiver multihop"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "Aktiver for å legge til minst én DNS-server."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr "Angi IP"
 
@@ -367,7 +367,7 @@ msgstr "Hvis du kobler fra eller lukker appen, vil denne innstillingen blokkere 
 #. Description for multihop settings toggle.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
 msgstr "Øker anonymiteten ved å dirigere trafikken til én %(wireguard)s-server og ut en annen, noe som gjør det vanskeligere å spore."
 
@@ -375,22 +375,22 @@ msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "Appens innebygde «Kill Switch» er alltid på. Innstillingen bil også blokkere tilgangen til internettet hvis du trykker på Koble fra eller Lukk."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "DNS-serveren som du vil legge til, er en privat IP. Du må forsikre deg om at nettverksgrensesnittene er konfigurert til å kunne bruke den."
 
 #. Available placeholders:
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
 msgstr "DNS-serveren du vil legge til er offentlig og fungerer bare med %(wireguard)s. For å sikre at den alltid fungerer, se %(wireguard)s «%(tunnelProtocol)s» (i avanserte innstillinger)."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr "Tunnelprotokoll"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "Bruk egendefinert DNS-server"
 
@@ -999,15 +999,15 @@ msgctxt "preferences-nav"
 msgid "Preferences"
 msgstr "Preferanser"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "Gir tilgang til andre enheter på samme nettverk for deling, utskrift osv."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Auto-connect"
 msgstr "Automatisk tilkobling"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "Kobler automatisk til en server når appen starter."
 
@@ -1015,23 +1015,23 @@ msgctxt "support-view"
 msgid "Beta program"
 msgstr "Betaprogram"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block ads"
 msgstr "Blokker annonser"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block adult content"
 msgstr "Blokker voksent innhold"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block gambling"
 msgstr "Blokker gambling"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block malware"
 msgstr "Blokker skadelig programvare"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "Blokker sporere"
 
@@ -1040,7 +1040,7 @@ msgstr "Blokker sporere"
 #. Advanced settings refer to the name of the page with the title "Advanced".
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
 msgstr "Deaktiver **%(customDnsFeatureName)s** (under Avanserte innstillinger) for å aktivere disse innstillingene."
 
@@ -1065,15 +1065,15 @@ msgctxt "interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Aktiver for å flytte appen rundt som et frittstående vindu."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "Avbruddsbryter"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Launch app on start-up"
 msgstr "Kjør app ved oppstart"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Local network sharing"
 msgstr "Deling over lokalt nettverk"
 
@@ -1097,7 +1097,7 @@ msgctxt "interface-settings-view"
 msgid "Start minimized"
 msgstr "Start i minimert tilstand"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
 msgstr "Appen har en innebygd avbruddsbryter som er aktivert som standard og ikke kan deaktiveres. Dette er for å forhindre at trafikken din lekker utenfor VPN-tunnelen hvis nettverket ditt plutselig slutter å fungere eller hvis tunnelen av en eller annen grunn svikter. Mullvad beskytter automatisk dataene dine til tilkoblingen er gjenopprettet."
 
@@ -1113,31 +1113,31 @@ msgctxt "interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Bruk ensfarget skuffeikon i stedet for flerfarget."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
 msgstr "Advarsel: Dette er ikke et antivirusprogram og skal ikke brukes som dette. Det er bare et ekstra lag med beskyttelse."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Warning: This might cause issues on certain websites, services, and programs."
 msgstr "Advarsel: Dette kan føre til problemer på enkelte nettsteder, tjenester og programmer."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
 msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse domener som er kjent for å inneholde skadelig programvare."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
 msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse domener som er kjent for å spore brukere."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain known ad domains."
 msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse annonsedomener."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
 msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse nettsteder og tjenester som er kjent for å inneholde voksent innhold."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
 msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse nettsteder og tjenester som er kjent for å inneholde gambling-innhold."
 
