@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+source utils/log
+
+function main {
+    case ${1:-""} in
+        prepare) prepare_localization_strings;;
+        upload) upload_to_crowdin;;
+        download) download_from_crowdin;;
+        "")
+            echo "Available subcommands: prepare, upload and download"
+            ;;
+        *)
+            echo "Unknown parameter: $1"
+            exit 1
+            ;;
+    esac
+}
+
+function update_messages_pot {
+    # Update desktop strings in messages.pot
+    log_header "Extracting localization strings from desktop app source code"
+    pushd ../gui
+    npm run update-translations
+    popd
+
+    # Update android strings and add Android strings to messages.pot
+    log_header "Extracting localization strings from android app source code"
+    pushd ../android/translations-converter/
+    cargo run
+    popd
+}
+
+function update_relay_locations_pot {
+    log_header "Retrieving relay locations from server list and translating by using map data"
+    pushd ../gui/scripts
+    # Download geo data
+    curl -L -O https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/cultural/ne_50m_admin_0_countries.zip
+    curl -L -O https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/cultural/ne_50m_admin_1_states_provinces_lines.zip
+    curl -L -O https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_populated_places.zip
+
+    unzip ne_50m_admin_0_countries.zip -d ne_50m_admin_0_countries/
+    unzip ne_50m_admin_1_states_provinces_lines.zip -d ne_50m_admin_1_states_provinces_lines/
+    unzip ne_10m_populated_places.zip -d ne_10m_populated_places/
+
+    # Add translations from geo data
+    python3 extract-geo-data.py
+    python3 integrate-into-app.py
+
+    # Remove geo data
+    rm ne_10m_populated_places.zip \
+        ne_50m_admin_0_countries.zip \
+        ne_50m_admin_1_states_provinces_lines.zip
+    rm -r ne_10m_populated_places ne_50m_admin_0_countries ne_50m_admin_1_states_provinces_lines
+
+    git restore ../assets
+
+    popd
+}
+
+function commit_changes {
+    if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
+        git commit -a -S -m "$1"
+    fi
+}
+
+function prepare_localization_strings {
+    update_messages_pot
+    commit_changes "Update messages.pot"
+
+    update_relay_locations_pot
+    commit_changes "Update relay-locations.pot"
+}
+
+function ensure_crowdin_api_key {
+    test ! -z "$CROWDIN_API_KEY"
+}
+
+function upload_to_crowdin {
+    ensure_crowdin_api_key
+
+    log_header "Uploading translations to crowdin"
+    ../gui/scripts/crowdin.sh upload
+}
+
+function download_from_crowdin {
+    ensure_crowdin_api_key
+
+    log_header "Downloading translations from crowdin"
+    ../gui/scripts/crowdin.sh export
+    ../gui/scripts/crowdin.sh download
+
+    # Add new translations to Android xml-files
+    log_header "Updating Android xml-files with new translations"
+    update_messages_pot
+    commit_changes "Update translations"
+}
+
+main "$@"
+
