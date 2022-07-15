@@ -25,9 +25,6 @@ class LocationDataSource: NSObject, UITableViewDataSource {
     private var locationList = [RelayLocation]()
     private var rootNode = makeRootNode()
 
-    /// The root node that holds filtered relay locations during the search.
-    private var searchResultNode: Node?
-
     typealias CellProviderBlock = (UITableView, IndexPath, LocationDataSourceItemProtocol)
         -> UITableViewCell?
 
@@ -35,6 +32,7 @@ class LocationDataSource: NSObject, UITableViewDataSource {
     private let cellProvider: CellProviderBlock
 
     private(set) var selectedRelayLocation: RelayLocation?
+    private(set) var searchText = ""
     private var lastShowHiddenParents = false
     private var lastScrollPosition: UITableView.ScrollPosition = .none
 
@@ -46,6 +44,7 @@ class LocationDataSource: NSObject, UITableViewDataSource {
             showsChildren: true,
             isActive: true,
             isPinned: false,
+            isHidden: false,
             children: []
         )
     }
@@ -138,6 +137,7 @@ class LocationDataSource: NSObject, UITableViewDataSource {
                         showsChildren: wasShowingChildren,
                         isActive: true,
                         isPinned: pinnedLocationNames.contains(serverLocation.country),
+                        isHidden: false,
                         children: []
                     )
                     rootNode.addChild(node)
@@ -150,6 +150,7 @@ class LocationDataSource: NSObject, UITableViewDataSource {
                         showsChildren: wasShowingChildren,
                         isActive: true,
                         isPinned: pinnedLocationNames.contains(serverLocation.city),
+                        isHidden: false,
                         children: []
                     )
                     nodeByLocation[.country(countryCode)]!.addChild(node)
@@ -162,6 +163,7 @@ class LocationDataSource: NSObject, UITableViewDataSource {
                         showsChildren: false,
                         isActive: relay.active,
                         isPinned: pinnedLocationNames.contains(relay.hostname),
+                        isHidden: false,
                         children: []
                     )
                     nodeByLocation[.city(countryCode, cityCode)]!.addChild(node)
@@ -254,57 +256,69 @@ class LocationDataSource: NSObject, UITableViewDataSource {
 
     func filterLocations(by searchText: String) {
 
-        // Reset root node and location list on empty search text
+        self.searchText = searchText
+
+        // Reset location list on empty search text
         guard !searchText.isEmpty else {
             nodeByLocation.forEach { element in
                 element.value.showsChildren = false
+                element.value.isHidden = false
             }
             rootNode.sortChildrenRecursive()
             locationList = rootNode.flatRelayLocationList()
-            searchResultNode = nil
             tableView.reloadData()
             return
         }
 
         // Filter nodes by search text
-        let searchResultChildren = nodeByLocation
-            .reduce(into: [RelayLocation: Node]()) { result, element in
-                let node = element.value
-                // Exclude relay type from search
-                guard node.nodeType != .relay else {
-                    return
-                }
-                guard node.displayName.hasPrefixCaseDiacriticInsensitive(searchText) else {
-                    return
-                }
-                // Include collapsed node if there are no ascendants
-                guard !node.location.ascendants.isEmpty else {
+        nodeByLocation.forEach { element in
+            let node = element.value
+            switch node.location {
+            case .country:
+                // Include node collapsed if it's display name starts with search text
+                if node.displayName.hasPrefixCaseDiacriticInsensitive(searchText) {
+                    node.isHidden = false
                     node.showsChildren = false
-                    result[node.location] = node
                     return
                 }
-                // Include hierarchy expanded if there are ascendants
-                node.location.ascendants.forEach { ascendantLocation in
-                    guard let ascendantNode = nodeByLocation[ascendantLocation] else {
-                        return
-                    }
-                    ascendantNode.showsChildren = true
-                    result[ascendantLocation] = ascendantNode
+                // Include node expanded if it has child which display name starts with search text
+                if node.children.contains(where: { child in
+                    child.displayName.hasPrefixCaseDiacriticInsensitive(searchText)
+                }) {
+                    node.isHidden = false
+                    node.showsChildren = true
+                    return
                 }
+            case let .city(country, _):
+                // Include node collapsed if it's display name starts with search text
+                if node.displayName.hasPrefixCaseDiacriticInsensitive(searchText) {
+                    node.isHidden = false
+                    node.showsChildren = false
+                    return
+                }
+                // Include node collapsed if it has ascendant which display name starts with search text
+                if let ascendantNode = nodeByLocation[.country(country)],
+                   ascendantNode.displayName.hasPrefixCaseDiacriticInsensitive(searchText) {
+                    node.isHidden = false
+                    node.showsChildren = false
+                    return
+                }
+            case .hostname:
+                return
             }
-            .map(\.value)
+            // Exclude node from search
+            node.isHidden = true
+            node.showsChildren = false
+        }
 
-        // Configure search root node and location list
-        let searchResultNode = Self.makeRootNode()
-        searchResultNode.children = searchResultChildren
-        searchResultNode.sortChildrenRecursive()
-        self.searchResultNode = searchResultNode
-        locationList = searchResultNode.flatRelayLocationList()
-
-        // Update table view
+        // Update location list and table view
+        rootNode.sortChildrenRecursive()
+        locationList = rootNode.flatRelayLocationList()
         tableView.reloadData()
-        if !searchResultChildren.isEmpty {
-            tableView.scrollToRow(at: .init(row: 0, section: 0), at: .middle, animated: false)
+        if !locationList.isEmpty {
+            tableView.scrollToRow(at: .init(row: 0, section: 0), at: .top, animated: false)
+        } else {
+            filterLocations(by: "")
         }
     }
 
@@ -316,10 +330,8 @@ class LocationDataSource: NSObject, UITableViewDataSource {
 
         node.isPinned.toggle()
 
-        // Use `searchResultNode` to sync indices before and after pinning during the search
-        let currentRootNode = searchResultNode ?? rootNode
-        currentRootNode.sortChildrenRecursive()
-        let newLocationList = currentRootNode.flatRelayLocationList()
+        rootNode.sortChildrenRecursive()
+        let newLocationList = rootNode.flatRelayLocationList()
 
         // Calculate table view changes
         let relayLocationsToMove = [relayLocation] + node.flatRelayLocationList()
@@ -551,6 +563,7 @@ extension LocationDataSource {
         var showsChildren: Bool
         var isActive: Bool
         var isPinned: Bool
+        var isHidden: Bool
         var children: [Node]
 
         var isCollapsible: Bool {
@@ -589,6 +602,7 @@ extension LocationDataSource {
             showsChildren: Bool,
             isActive: Bool,
             isPinned: Bool,
+            isHidden: Bool,
             children: [Node]
         ) {
             nodeType = type
@@ -598,6 +612,7 @@ extension LocationDataSource {
             self.isActive = isActive
             self.isPinned = isPinned
             self.children = children
+            self.isHidden = isHidden
         }
 
         func addChild(_ child: Node) {
@@ -629,6 +644,9 @@ extension LocationDataSource {
 
         func countChildrenRecursive(where condition: @escaping (Node) -> Bool) -> Int {
             return children.reduce(into: 0) { numVisibleChildren, node in
+                guard !node.isHidden else {
+                    return
+                }
                 numVisibleChildren += 1
                 if condition(node) {
                     numVisibleChildren += node.countChildrenRecursive(where: condition)
@@ -667,6 +685,9 @@ extension LocationDataSource {
         }
 
         private class func flatten(node: Node, into array: inout [RelayLocation]) {
+            guard !node.isHidden else {
+                return
+            }
             array.append(node.location)
             if node.showsChildren {
                 for child in node.children {
