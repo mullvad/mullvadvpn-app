@@ -32,6 +32,7 @@ use talpid_types::{
     },
     ErrorExt,
 };
+use tokio::sync::Mutex as AsyncMutex;
 use tunnel_obfuscation::{
     create_obfuscator, Error as ObfuscationError, Settings as ObfuscationSettings, Udp2TcpSettings,
 };
@@ -104,7 +105,7 @@ pub struct WireguardMonitor {
     event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
     pinger_stop_sender: sync_mpsc::Sender<()>,
-    _obfuscator: Option<ObfuscatorHandle>,
+    obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
 }
 
 const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(4);
@@ -119,6 +120,10 @@ struct ObfuscatorHandle {
 impl ObfuscatorHandle {
     pub fn new(abort_handle: FutureAbortHandle) -> Self {
         Self { abort_handle }
+    }
+
+    pub fn abort(&self) {
+        self.abort_handle.abort();
     }
 }
 
@@ -140,8 +145,7 @@ lazy_static! {
         .unwrap_or(false);
 }
 
-fn maybe_create_obfuscator(
-    runtime: &tokio::runtime::Handle,
+async fn maybe_create_obfuscator(
     config: &mut Config,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
 ) -> Result<Option<ObfuscatorHandle>> {
@@ -158,8 +162,8 @@ fn maybe_create_obfuscator(
                     #[cfg(target_os = "linux")]
                     fwmark: Some(crate::linux::TUNNEL_FW_MARK),
                 };
-                let obfuscator = runtime
-                    .block_on(create_obfuscator(&ObfuscationSettings::Udp2Tcp(settings)))
+                let obfuscator = create_obfuscator(&ObfuscationSettings::Udp2Tcp(settings))
+                    .await
                     .map_err(Error::CreateObfuscatorError)?;
                 let endpoint = obfuscator.endpoint();
                 log::trace!("Patching first WireGuard peer to become {:?}", endpoint);
@@ -179,7 +183,7 @@ fn maybe_create_obfuscator(
                         }
                     }
                 });
-                runtime.spawn(runner);
+                tokio::spawn(runner);
                 return Ok(Some(ObfuscatorHandle::new(abort_handle)));
             }
         }
@@ -207,8 +211,10 @@ impl WireguardMonitor {
             config.peers.iter().map(|peer| peer.endpoint.ip()).collect();
         let (close_msg_sender, close_msg_receiver) = sync_mpsc::channel();
 
-        let obfuscator =
-            maybe_create_obfuscator(&args.runtime, &mut config, close_msg_sender.clone())?;
+        let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
+            &mut config,
+            close_msg_sender.clone(),
+        ))?;
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
@@ -232,7 +238,7 @@ impl WireguardMonitor {
             event_callback,
             close_msg_receiver,
             pinger_stop_sender: pinger_tx,
-            _obfuscator: obfuscator,
+            obfuscator: Arc::new(AsyncMutex::new(obfuscator)),
         };
 
         let gateway = config.ipv4_gateway;
@@ -247,6 +253,8 @@ impl WireguardMonitor {
 
         let metadata = Self::tunnel_metadata(&iface_name, &config);
         let tunnel = monitor.tunnel.clone();
+        let obfs_handle = monitor.obfuscator.clone();
+        let obfs_close_sender = close_msg_sender.clone();
 
         let tunnel_fut = async move {
             #[cfg(windows)]
@@ -282,8 +290,15 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
 
             if let Some(pubkey) = psk_negotiation {
-                Self::perform_psk_negotiation(tunnel, args.retry_attempt, pubkey, &mut config)
-                    .await?;
+                Self::perform_psk_negotiation(
+                    tunnel,
+                    obfs_handle,
+                    obfs_close_sender,
+                    args.retry_attempt,
+                    pubkey,
+                    &mut config,
+                )
+                .await?;
                 (on_event)(TunnelEvent::InterfaceUp(
                     metadata.clone(),
                     AllowedTunnelTraffic::All,
@@ -412,6 +427,8 @@ impl WireguardMonitor {
 
     async fn perform_psk_negotiation(
         tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        obfuscation_handle: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
+        obfs_close_sender: sync_mpsc::Sender<CloseMsg>,
         retry_attempt: u32,
         current_pubkey: PublicKey,
         config: &mut Config,
@@ -452,6 +469,15 @@ impl WireguardMonitor {
             "Ephemeral pubkey: {}",
             config.tunnel.private_key.public_key()
         );
+
+        // Restart the obfuscation server
+        let mut obfs_guard = obfuscation_handle.lock().await;
+        if let Some(obfs_abort_handle) = obfs_guard.take() {
+            obfs_abort_handle.abort();
+            *obfs_guard = maybe_create_obfuscator(config, obfs_close_sender)
+                .await
+                .map_err(CloseMsg::SetupError)?;
+        }
 
         let set_config_future = tunnel
             .lock()
