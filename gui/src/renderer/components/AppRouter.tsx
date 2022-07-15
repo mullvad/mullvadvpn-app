@@ -6,7 +6,6 @@ import AccountPage from '../containers/AccountPage';
 import AdvancedSettingsPage from '../containers/AdvancedSettingsPage';
 import LoginPage from '../containers/LoginPage';
 import OpenVPNSettingsPage from '../containers/OpenVPNSettingsPage';
-import PreferencesPage from '../containers/PreferencesPage';
 import ProblemReportPage from '../containers/ProblemReportPage';
 import SelectLanguagePage from '../containers/SelectLanguagePage';
 import SelectLocationPage from '../containers/SelectLocationPage';
@@ -24,6 +23,7 @@ import {
 } from './ExpiredAccountAddTime';
 import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
+import InterfaceSettings from './InterfaceSettings';
 import Launch from './Launch';
 import MainView from './MainView';
 import SplitTunnelingSettings from './SplitTunnelingSettings';
@@ -90,7 +90,7 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
               <Route exact path={RoutePath.settings} component={SettingsPage} />
               <Route exact path={RoutePath.selectLanguage} component={SelectLanguagePage} />
               <Route exact path={RoutePath.accountSettings} component={AccountPage} />
-              <Route exact path={RoutePath.preferences} component={PreferencesPage} />
+              <Route exact path={RoutePath.interfaceSettings} component={InterfaceSettings} />
               <Route exact path={RoutePath.advancedSettings} component={AdvancedSettingsPage} />
               <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsPage} />
               <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettingsPage} />
