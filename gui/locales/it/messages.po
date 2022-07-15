@@ -1053,7 +1053,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "Disabilita tutti i blocchi dei contenuti (sotto %(preferencesPageName)s) per attivare questa impostazione."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Attiva o disattiva le notifiche di sistema. Le notifiche critiche saranno sempre visualizzate."
 
@@ -1061,7 +1061,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Abilita per ricevere una notifica quando sono rilasciate nuove versioni beta dell'app."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Abilita per spostare l'app come una finestra indipendente."
 
@@ -1077,11 +1077,11 @@ msgctxt "preferences-view"
 msgid "Local network sharing"
 msgstr "Condivisione rete locale"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Icona nell'area di notifica monocromatica"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Notifications"
 msgstr "Notifiche"
 
@@ -1089,11 +1089,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "Preferenze"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "Mostra solo l'icona nell'area di notifica all'avvio dell'app."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Start minimized"
 msgstr "Avvia ridotta a icona"
 
@@ -1105,11 +1105,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Opzione non disponibile nelle versioni beta."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "Sblocca l'app dalla barra delle applicazioni"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Usa un'icona nell'area di notifica monocromatica e non colorata."
 
@@ -1253,7 +1253,7 @@ msgid "FAQs & Guides"
 msgstr "FAQ e guide"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "settings-view"
+msgctxt "interface-settings-view"
 msgid "Language"
 msgstr "Lingua"
 

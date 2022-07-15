@@ -1042,7 +1042,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "ปิดตัวบล็อกเนื้อหาทั้งหมด (ภายใต้ %(preferencesPageName)s) เพื่อเปิดใช้งานการตั้งค่านี้"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "เปิดใช้งานหรือปิดใช้งานการแจ้งเตือนระบบ การแจ้งเตือนที่สำคัญมากจะแสดงเสมอ"
 
@@ -1050,7 +1050,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "เปิดใช้งานเพื่อรับการแจ้งเตือน เมื่อมีการแผยแพร่แอปเวอร์ชันเบต้ารุ่นใหม่"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "เปิดใช้งานเพื่อให้เคลื่อนย้ายแอปไปรอบ ๆ เหมือนเป็นหน้าต่างอิสระได้"
 
@@ -1066,11 +1066,11 @@ msgctxt "preferences-view"
 msgid "Local network sharing"
 msgstr "การแชร์ในเครือข่ายท้องถิ่น"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "ไอคอนถาดแบบสีโทนเดียว"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Notifications"
 msgstr "การแจ้งเตือน"
 
@@ -1078,11 +1078,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "การกำหนดค่า"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "แสดงเฉพาะไอคอนถาด เมื่อเริ่มใช้งานแอป"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Start minimized"
 msgstr "เริ่มใช้งานในมุมมองแบบย่อ"
 
@@ -1094,11 +1094,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "ตัวเลือกนี้จะไม่พร้อมใช้งาน ในขณะที่ใช้งานแอปเวอร์ชันเบต้า"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "ถอนหมุดแอปจากแถบงาน"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "ใช้งานไอคอนถาดสีเดียว แทนถาดหลายสี"
 
@@ -1242,7 +1242,7 @@ msgid "FAQs & Guides"
 msgstr "FAQ และคำแนะนำ"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "settings-view"
+msgctxt "interface-settings-view"
 msgid "Language"
 msgstr "ภาษา"
 

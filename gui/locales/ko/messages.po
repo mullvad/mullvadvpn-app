@@ -1042,7 +1042,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "이 설정을 활성화하려면 모든 콘텐츠 차단기(%(preferencesPageName)s에서)를 비활성화하세요."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "시스템 알림을 활성화 또는 비활성화합니다. 중요한 알림은 항상 표시됩니다."
 
@@ -1050,7 +1050,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "베타 버전의 새로운 앱이 출시될 때 알림을 받도록 설정합니다."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "앱을 독립 실행 창으로 이동할 수 있습니다."
 
@@ -1066,11 +1066,11 @@ msgctxt "preferences-view"
 msgid "Local network sharing"
 msgstr "로컬 네트워크 공유"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "단색 트레이 아이콘"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Notifications"
 msgstr "알림"
 
@@ -1078,11 +1078,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "환경 설정"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "앱이 시작될 때 트레이 아이콘만 표시합니다."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Start minimized"
 msgstr "최소화 상태로 시작"
 
@@ -1094,11 +1094,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "이 옵션은 베타 버전을 사용하는 동안 사용할 수 없습니다."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "작업 표시줄에서 앱 고정 해제"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "컬러 트레이 대신 단색 트레이 아이콘을 사용합니다."
 
@@ -1242,7 +1242,7 @@ msgid "FAQs & Guides"
 msgstr "FAQ 및 가이드"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "settings-view"
+msgctxt "interface-settings-view"
 msgid "Language"
 msgstr "언어"
 

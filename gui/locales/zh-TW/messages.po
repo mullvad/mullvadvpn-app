@@ -1042,7 +1042,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "停用所有內容封鎖程式 (在 %(preferencesPageName)s 下)，以便啟動此設定。"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "啟用或停用系統通知。重要通知一律會顯示。"
 
@@ -1050,7 +1050,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "啟用後，即可在新測試版應用程式發佈時獲得通知"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "啟用以將應用程式作為獨立視窗自由移動。"
 
@@ -1066,11 +1066,11 @@ msgctxt "preferences-view"
 msgid "Local network sharing"
 msgstr "本機網路分享"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "單色系統匣圖示"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Notifications"
 msgstr "通知"
 
@@ -1078,11 +1078,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "喜好設定"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "啟動應用程式時，僅顯示系統匣圖示。"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Start minimized"
 msgstr "啟動時永遠最小化"
 
@@ -1094,11 +1094,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "測試版無法使用此選項。"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "將應用程式從工作列中取消釘選"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "使用單色系統匣圖示，而不是彩色的圖示。"
 
@@ -1242,7 +1242,7 @@ msgid "FAQs & Guides"
 msgstr "常見問題集與指南"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "settings-view"
+msgctxt "interface-settings-view"
 msgid "Language"
 msgstr "語言"
 
