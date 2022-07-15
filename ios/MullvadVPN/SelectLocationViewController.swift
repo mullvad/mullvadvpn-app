@@ -120,7 +120,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
                 cell.accessibilityIdentifier = item.location.stringRepresentation
                 cell.isDisabled = !item.isActive
-                cell.locationLabel.text = item.displayName
+                cell.setLocationText(item.displayName, highlightedText: self.dataSource?.searchText ?? "")
                 cell.showsCollapseControl = item.isCollapsible
                 cell.isExpanded = item.showsChildren
                 cell.isPinned = item.isPinned

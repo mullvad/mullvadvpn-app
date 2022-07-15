@@ -13,6 +13,7 @@ private let kRelayIndicatorSize: CGFloat = 16
 
 class SelectLocationCell: UITableViewCell {
     typealias CollapseHandler = (SelectLocationCell) -> Void
+    typealias PinHandler = (SelectLocationCell) -> Void
 
     let locationLabel = UILabel()
     let statusIndicator: UIView = {
@@ -30,7 +31,39 @@ class SelectLocationCell: UITableViewCell {
 
     private let chevronDown = UIImage(named: "IconChevronDown")
     private let chevronUp = UIImage(named: "IconChevronUp")
+    private let pinned = UIImage(named: "IconPinned")
+    private let unpinned = UIImage(named: "IconUnpinned")
 
+    func setLocationText(_ text: String, highlightedText: String) {
+        
+        let highlightColor = UIColor.Cell.titleTextColor
+        let foregroundColor: UIColor = highlightedText.isEmpty
+            ? highlightColor
+            : highlightColor.withAlphaComponent(0.6)
+        
+        let string = NSMutableAttributedString(
+            string: text,
+            attributes: [
+                .foregroundColor: foregroundColor,
+                .font: UIFont.systemFont(ofSize: 17)
+            ]
+        )
+        
+        let highlightedRange = NSString(string: text).range(
+            of: highlightedText,
+            options: [.anchored, .caseInsensitive, .diacriticInsensitive]
+        )
+        string.addAttributes(
+            [
+                .foregroundColor: highlightColor,
+                .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
+            ],
+            range: highlightedRange
+        )
+        
+        locationLabel.attributedText = string
+    }
+    
     var isDisabled = false {
         didSet {
             updateDisabled()
@@ -41,8 +74,7 @@ class SelectLocationCell: UITableViewCell {
 
     var isPinned = false {
         didSet {
-            let imageName = isPinned ? "IconPinned" : "IconUnpinned"
-            pinButton.setImage(.init(named: imageName), for: .normal)
+            pinButton.setImage(isPinned ? pinned : unpinned, for: .normal)
             pinButton.alpha = isPinned ? 1 : 0.3
         }
     }
@@ -62,7 +94,7 @@ class SelectLocationCell: UITableViewCell {
     }
 
     var didCollapseHandler: CollapseHandler?
-    var didTapPinHandler: CollapseHandler?
+    var didTapPinHandler: PinHandler?
 
     override var indentationLevel: Int {
         didSet {
@@ -115,8 +147,6 @@ class SelectLocationCell: UITableViewCell {
         selectedBackgroundView = UIView()
         selectedBackgroundView?.backgroundColor = UIColor.Cell.selectedBackgroundColor
 
-        locationLabel.font = UIFont.systemFont(ofSize: 17)
-        locationLabel.textColor = .white
         locationLabel.lineBreakMode = .byWordWrapping
         locationLabel.numberOfLines = 0
         if #available(iOS 14.0, *) {
@@ -209,11 +239,11 @@ class SelectLocationCell: UITableViewCell {
     }
 
     private func updateBackgroundColor() {
-        backgroundView?.backgroundColor = backgroundColorForIdentationLevel()
+        backgroundView?.backgroundColor = backgroundColorForIndentationLevel()
         selectedBackgroundView?.backgroundColor = selectedBackgroundColorForIndentationLevel()
     }
 
-    private func backgroundColorForIdentationLevel() -> UIColor {
+    private func backgroundColorForIndentationLevel() -> UIColor {
         switch indentationLevel {
         case 1:
             return UIColor.SubCell.backgroundColor
