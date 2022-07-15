@@ -442,10 +442,7 @@ function BlockMessage() {
     }
   }, [blockWhenDisconnected, tunnelState, setBlockWhenDisconnected, disconnectTunnel]);
 
-  const alwaysRequireVpnSettingsName = messages.pgettext(
-    'advanced-settings-view',
-    'Always require VPN',
-  );
+  const alwaysRequireVpnSettingsName = messages.pgettext('vpn-settings-view', 'Lockdown mode');
   const message = formatMarkdown(
     blockWhenDisconnected
       ? sprintf(
