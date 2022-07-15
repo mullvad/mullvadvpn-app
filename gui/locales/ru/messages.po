@@ -1075,7 +1075,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "Чтобы активировать этот параметр, отключите все блокировщики контента (в разделе %(preferencesPageName)s)."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Включить или отключить системные уведомления. Критические уведомления будут отображаться в любом случае."
 
@@ -1083,7 +1083,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Включить оповещения о выходе новых бета-версий приложения."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Возможность передвигать приложение на экране как незакрепленное окно."
 
@@ -1099,11 +1099,11 @@ msgctxt "preferences-view"
 msgid "Local network sharing"
 msgstr "Обмен данными в локальной сети"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Черно-белый значок в области уведомлений"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Notifications"
 msgstr "Уведомления"
 
@@ -1111,11 +1111,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "Параметры"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "При запуске приложения показывать только значок в области уведомлений."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Start minimized"
 msgstr "Запускать свернутым"
 
@@ -1127,11 +1127,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Параметр недоступен в бета-версии."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "Открепить приложение от панели задач"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Использовать в области уведомлений черно-белый значок вместо цветного."
 
@@ -1275,7 +1275,7 @@ msgid "FAQs & Guides"
 msgstr "Ответы на вопросы и руководства"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "settings-view"
+msgctxt "interface-settings-view"
 msgid "Language"
 msgstr "Язык"
 
