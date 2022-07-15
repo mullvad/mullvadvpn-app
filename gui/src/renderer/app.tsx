@@ -418,11 +418,11 @@ export default class AppRenderer {
     void this.openUrl(`${link}?token=${token}`);
   };
 
-  public async setAllowLan(allowLan: boolean) {
+  public setAllowLan = async (allowLan: boolean) => {
     const actions = this.reduxActions;
     await IpcRendererEventChannel.settings.setAllowLan(allowLan);
     actions.settings.updateAllowLan(allowLan);
-  }
+  };
 
   public setShowBetaReleases = async (showBetaReleases: boolean) => {
     const actions = this.reduxActions;
@@ -430,11 +430,11 @@ export default class AppRenderer {
     actions.settings.updateShowBetaReleases(showBetaReleases);
   };
 
-  public async setEnableIpv6(enableIpv6: boolean) {
+  public setEnableIpv6 = async (enableIpv6: boolean) => {
     const actions = this.reduxActions;
     await IpcRendererEventChannel.settings.setEnableIpv6(enableIpv6);
     actions.settings.updateEnableIpv6(enableIpv6);
-  }
+  };
 
   public async setBridgeState(bridgeState: BridgeState) {
     const actions = this.reduxActions;
@@ -468,11 +468,11 @@ export default class AppRenderer {
     IpcRendererEventChannel.guiSettings.setEnableSystemNotifications(flag);
   }
 
-  public setAutoStart(autoStart: boolean): Promise<void> {
+  public setAutoStart = (autoStart: boolean): Promise<void> => {
     this.storeAutoStart(autoStart);
 
     return IpcRendererEventChannel.autoStart.set(autoStart);
-  }
+  };
 
   public setStartMinimized(startMinimized: boolean) {
     IpcRendererEventChannel.guiSettings.setStartMinimized(startMinimized);

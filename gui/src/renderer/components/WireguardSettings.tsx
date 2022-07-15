@@ -159,7 +159,7 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
                       <Cell.InputLabel>
                         {
                           // TRANSLATORS: The label next to the multihop settings toggle.
-                          messages.pgettext('advanced-settings-view', 'Enable multihop')
+                          messages.pgettext('vpn-settings-view', 'Enable multihop')
                         }
                       </Cell.InputLabel>
                     </AriaLabel>
@@ -179,7 +179,7 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
                           // TRANSLATORS: Available placeholders:
                           // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
                           messages.pgettext(
-                            'advanced-settings-view',
+                            'vpn-settings-view',
                             'Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace.',
                           ),
                           { wireguard: strings.wireguard },

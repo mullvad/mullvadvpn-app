@@ -3,7 +3,6 @@ import * as React from 'react';
 import { Route, Switch } from 'react-router';
 
 import AccountPage from '../containers/AccountPage';
-import AdvancedSettingsPage from '../containers/AdvancedSettingsPage';
 import LoginPage from '../containers/LoginPage';
 import OpenVPNSettingsPage from '../containers/OpenVPNSettingsPage';
 import ProblemReportPage from '../containers/ProblemReportPage';
@@ -30,6 +29,7 @@ import SplitTunnelingSettings from './SplitTunnelingSettings';
 import Support from './Support';
 import TooManyDevices from './TooManyDevices';
 import TransitionContainer, { TransitionView } from './TransitionContainer';
+import VpnSettings from './VpnSettings';
 
 interface IAppRoutesState {
   currentLocation: IHistoryProps['history']['location'];
@@ -91,7 +91,7 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
               <Route exact path={RoutePath.selectLanguage} component={SelectLanguagePage} />
               <Route exact path={RoutePath.accountSettings} component={AccountPage} />
               <Route exact path={RoutePath.interfaceSettings} component={InterfaceSettings} />
-              <Route exact path={RoutePath.advancedSettings} component={AdvancedSettingsPage} />
+              <Route exact path={RoutePath.vpnSettings} component={VpnSettings} />
               <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsPage} />
               <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettingsPage} />
               <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />

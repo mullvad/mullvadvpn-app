@@ -321,7 +321,7 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
               'To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**.',
             ),
             {
-              tunnelProtocol: messages.pgettext('advanced-settings-view', 'Tunnel protocol'),
+              tunnelProtocol: messages.pgettext('vpn-settings-view', 'Tunnel protocol'),
               openvpn: strings.openvpn,
             },
           ),
