@@ -288,7 +288,6 @@ const StyledRow = styled.div({
   height: '44px',
   alignItems: 'center',
   padding: '0 22px',
-  marginBottom: '1px',
   backgroundColor: colors.blue,
 });
 

@@ -23,7 +23,6 @@ const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps) => {
     display: 'flex',
     minHeight: '44px',
     padding: '0 16px 0 22px',
-    marginBottom: '1px',
     flex: 1,
     alignItems: 'center',
     alignContent: 'center',

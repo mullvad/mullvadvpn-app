@@ -24,7 +24,6 @@ import {
   StyledButton,
   StyledContainer,
   StyledCustomDnsFooter,
-  StyledCustomDnsSwitchContainer,
   StyledLabel,
   StyledRemoveButton,
   StyledRemoveIcon,
@@ -216,7 +215,7 @@ export default function CustomDnsSettings() {
 
   return (
     <>
-      <StyledCustomDnsSwitchContainer disabled={!featureAvailable}>
+      <Cell.Container disabled={!featureAvailable}>
         <AriaInputGroup>
           <AriaLabel>
             <Cell.InputLabel>
@@ -231,7 +230,7 @@ export default function CustomDnsSettings() {
             />
           </AriaInput>
         </AriaInputGroup>
-      </StyledCustomDnsSwitchContainer>
+      </Cell.Container>
       <Accordion expanded={listExpanded}>
         <Cell.Section role="listbox">
           <List
