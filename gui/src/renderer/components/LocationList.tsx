@@ -329,7 +329,7 @@ export class RelayLocations extends React.PureComponent<
 
   public render() {
     return (
-      <>
+      <Cell.Group noMarginBottom>
         {this.state.countries.map((relayCountry) => {
           const countryLocation: RelayLocation = { country: relayCountry.code };
 
@@ -384,7 +384,7 @@ export class RelayLocations extends React.PureComponent<
             </LocationRow>
           );
         })}
-      </>
+      </Cell.Group>
     );
   }
 

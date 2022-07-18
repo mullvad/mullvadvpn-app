@@ -41,7 +41,6 @@ const buttonColor = (props: IButtonColorProps) => {
 const Container = styled(Cell.Container)({
   display: 'flex',
   padding: 0,
-  marginBottom: '1px',
   background: 'none',
 });
 
@@ -154,7 +153,7 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
           onWillExpand={onWillExpand}
           onTransitionEnd={props.onTransitionEnd}
           animationDuration={150}>
-          {props.children}
+          <Cell.Group noMarginBottom>{props.children}</Cell.Group>
         </Accordion>
       )}
     </>
