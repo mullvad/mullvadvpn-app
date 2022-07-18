@@ -4,10 +4,6 @@ import { colors } from '../../config.json';
 import * as Cell from './cell';
 import ImageView from './ImageView';
 
-export const StyledCustomDnsSwitchContainer = styled(Cell.Container)({
-  marginBottom: '1px',
-});
-
 export const StyledCustomDnsFooter = styled(Cell.Footer)({
   marginBottom: '2px',
 });
@@ -32,7 +28,6 @@ export const StyledAddCustomDnsLabel = styled(Cell.Label)(
 
 export const StyledContainer = styled(Cell.Container)({
   display: 'flex',
-  marginBottom: '1px',
   backgroundColor: colors.blue40,
 });
 

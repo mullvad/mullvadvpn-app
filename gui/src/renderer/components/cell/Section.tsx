@@ -15,7 +15,6 @@ export const SectionTitle = styled.span(buttonText, {
   alignItems: 'center',
   backgroundColor: colors.blue,
   padding: '0 16px 0 22px',
-  marginBottom: '1px',
 });
 
 export const CellSectionContext = React.createContext<boolean>(false);
