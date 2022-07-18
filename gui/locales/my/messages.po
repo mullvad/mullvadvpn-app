@@ -1000,7 +1000,7 @@ msgctxt "preferences-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "အက်ပ် စတင်ဆောင်ရွက်ချိန်တွင် ဆာဗာနှင့် အော်တို ချိတ်ဆက်သွားပါမည်။"
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Beta program"
 msgstr "စမ်းသပ် ပရိုဂရမ်"
 
@@ -1046,7 +1046,7 @@ msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "စနစ် အသိပေးချက်များကို ဖွင့်ပါ သို့မဟုတ် ပိတ်ပါ။ အလွန်အရေးပါသည့် အသိပေးချက်များကို အမြဲပြသပါလိမ့်မည်။"
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "အက်ပ်၏ စမ်းသပ်ဗားရှင်း အသစ်ကို ဖြန့်ချိသည့်အခါ အသိပေးစေရန် ဖွင့်ထားပါ။"
 
@@ -1090,7 +1090,7 @@ msgctxt "preferences-view"
 msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
 msgstr "ဤအက်ပ်တွင် ပုံသေ ဖွင့်ထားပြီး ပိတ်မရနိုင်သည့် မူလပါရှိသော Kill Switch တစ်ခု ရှိပါသည်။ ၎င်းသည် သင့်ကွန်ရက် အလုပ်လုပ်နေသည်မှ ရုတ်တရတ် ရပ်သွားသည့်အခါ သို့မဟုတ် Tunnel သည် အကြောင်းတစ်ခုခုကြောင့် အလုပ်မလုပ်နိုင်သည့်အခါ သင်၏ ကူးလူးမှုကို VPN Tunnel ပြင်ပသို့ ပေါက်ကြားမှု မရှိစေရန် ကာကွယ်ပေးပါသည်။ Mullvad သည် သင်၏ ချိတ်ဆက်မှု ပြန်အစပြုသည်အထိ သင့်ဒေတာများကို အော်တိုကာကွယ်ပေးပါသည်။"
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "စမ်းသပ်ဗားရှင်းကို သုံးနေစဉ် ဤရွေးချယ်မှုကို မရရှိနိုင်ပါ။"
 
@@ -1237,7 +1237,7 @@ msgid "App version"
 msgstr "အက်ပ်ဗားရှင်း"
 
 #. Link to the webpage
-msgctxt "settings-view"
+msgctxt "support-view"
 msgid "FAQs & Guides"
 msgstr "မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ"
 

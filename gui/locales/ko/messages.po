@@ -1000,7 +1000,7 @@ msgctxt "preferences-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "앱이 시작되면 자동으로 서버에 연결합니다."
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Beta program"
 msgstr "베타 프로그램"
 
@@ -1046,7 +1046,7 @@ msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "시스템 알림을 활성화 또는 비활성화합니다. 중요한 알림은 항상 표시됩니다."
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "베타 버전의 새로운 앱이 출시될 때 알림을 받도록 설정합니다."
 
@@ -1090,7 +1090,7 @@ msgctxt "preferences-view"
 msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
 msgstr "이 앱에는 기본적으로 활성화되어 비활성화할 수 없는 내장 킬 스위치가 있습니다. 이는 네트워크 작동이 갑자기 중지되거나 어떤 이유로든 터널이 실패할 경우 VPN 터널 외부로 트래픽이 유출되는 것을 방지하기 위한 것입니다. Mullvad는 연결이 다시 설정될 때까지 데이터를 자동으로 보호합니다."
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "이 옵션은 베타 버전을 사용하는 동안 사용할 수 없습니다."
 
@@ -1237,7 +1237,7 @@ msgid "App version"
 msgstr "앱 버전"
 
 #. Link to the webpage
-msgctxt "settings-view"
+msgctxt "support-view"
 msgid "FAQs & Guides"
 msgstr "FAQ 및 가이드"
 

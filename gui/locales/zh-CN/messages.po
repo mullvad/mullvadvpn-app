@@ -1000,7 +1000,7 @@ msgctxt "preferences-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "在应用启动时自动连接到服务器。"
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Beta program"
 msgstr "测试计划"
 
@@ -1046,7 +1046,7 @@ msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "启用或禁用系统通知。将始终显示关键通知。"
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "启用以在新的测试版应用发布时获得通知。"
 
@@ -1090,7 +1090,7 @@ msgctxt "preferences-view"
 msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
 msgstr "该应用有一个内置的终止开关，默认情况下处于启用状态且无法禁用。这是为了防止您的流量在您的网络突然停止工作或隧道因任何原因出现故障时泄漏到 VPN 隧道之外。Mullvad 会自动保护您的数据，直到您重新建立连接。"
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "使用测试版本时此选项不可用。"
 
@@ -1237,7 +1237,7 @@ msgid "App version"
 msgstr "应用版本"
 
 #. Link to the webpage
-msgctxt "settings-view"
+msgctxt "support-view"
 msgid "FAQs & Guides"
 msgstr "常见问题解答与指南"
 
