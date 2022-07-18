@@ -336,7 +336,7 @@ name = "classic-mceliece-rust"
 version = "1.0.1"
 source = "git+https://github.com/mullvad/classic-mceliece-rust?rev=5130d9e3bfbf54735177e15636a643366c250b78#5130d9e3bfbf54735177e15636a643366c250b78"
 dependencies = [
- "rand 0.8.4",
+ "rand 0.8.5",
  "sha3",
 ]
 
@@ -1571,7 +1571,7 @@ dependencies = [
  "mullvad-types",
  "nix 0.23.1",
  "parking_lot 0.11.2",
- "rand 0.7.3",
+ "rand 0.8.5",
  "regex",
  "serde",
  "serde_json",
@@ -1614,7 +1614,7 @@ dependencies = [
  "mullvad-problem-report",
  "mullvad-types",
  "nix 0.23.1",
- "rand 0.7.3",
+ "rand 0.8.5",
  "talpid-core",
  "talpid-types",
  "tokio",
@@ -1686,7 +1686,7 @@ dependencies = [
  "mullvad-api",
  "mullvad-types",
  "parking_lot 0.11.2",
- "rand 0.7.3",
+ "rand 0.8.5",
  "serde",
  "serde_json",
  "talpid-core",
@@ -2133,7 +2133,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5d5285893bb5eb82e6aaf5d59ee909a06a16737a8970984dd7746ba9283498d6"
 dependencies = [
  "phf_shared",
- "rand 0.8.4",
+ "rand 0.8.5",
 ]
 
 [[package]]
@@ -2369,7 +2369,7 @@ checksum = "588f6378e4dd99458b60ec275b4477add41ce4fa9f64dcba6f15adccb19b50d6"
 dependencies = [
  "env_logger 0.8.4",
  "log",
- "rand 0.8.4",
+ "rand 0.8.5",
 ]
 
 [[package]]
@@ -2412,19 +2412,18 @@ dependencies = [
  "libc",
  "rand_chacha 0.2.2",
  "rand_core 0.5.1",
- "rand_hc 0.2.0",
+ "rand_hc",
 ]
 
 [[package]]
 name = "rand"
-version = "0.8.4"
+version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e7573632e6454cf6b99d7aac4ccca54be06da05aca2ef7423d22d27d4d4bcd8"
+checksum = "34af8d1a0e25924bc5b7c43c079c942339d8f0a8b57c39049bef581b46327404"
 dependencies = [
  "libc",
  "rand_chacha 0.3.1",
  "rand_core 0.6.3",
- "rand_hc 0.3.1",
 ]
 
 [[package]]
@@ -2472,15 +2471,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca3129af7b92a17112d59ad498c6f81eaf463253766b90396d39ea7a39d6613c"
 dependencies = [
  "rand_core 0.5.1",
-]
-
-[[package]]
-name = "rand_hc"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d51e9f596de227fda2ea6c84607f5558e196eeaf43c986b724ba4fb8fdf497e7"
-dependencies = [
- "rand_core 0.6.3",
 ]
 
 [[package]]
@@ -2845,7 +2835,7 @@ dependencies = [
  "chacha20poly1305",
  "hkdf",
  "md-5",
- "rand 0.8.4",
+ "rand 0.8.5",
  "ring-compat",
  "sha1",
 ]
@@ -3078,7 +3068,7 @@ dependencies = [
  "prost 0.8.0",
  "quickcheck",
  "quickcheck_macros",
- "rand 0.7.3",
+ "rand 0.8.5",
  "regex",
  "resolv-conf",
  "rtnetlink",
@@ -3165,7 +3155,7 @@ dependencies = [
  "log",
  "prost 0.8.0",
  "prost-types 0.9.0",
- "rand 0.8.4",
+ "rand 0.8.5",
  "talpid-types",
  "tokio",
  "tonic",
@@ -3181,7 +3171,7 @@ dependencies = [
  "err-derive",
  "ipnetwork",
  "jnix",
- "rand 0.7.3",
+ "rand 0.8.5",
  "serde",
  "x25519-dalek",
 ]
@@ -3194,7 +3184,7 @@ checksum = "dac1c663cfc93810f88aed9b8941d48cabf856a1b111c29a40439018d870eb22"
 dependencies = [
  "cfg-if",
  "libc",
- "rand 0.8.4",
+ "rand 0.8.5",
  "redox_syscall",
  "remove_dir_all",
  "winapi",
@@ -3425,7 +3415,7 @@ dependencies = [
  "futures-util",
  "indexmap",
  "pin-project",
- "rand 0.8.4",
+ "rand 0.8.5",
  "slab",
  "tokio",
  "tokio-stream",
@@ -3521,7 +3511,7 @@ dependencies = [
  "lazy_static",
  "log",
  "radix_trie",
- "rand 0.8.4",
+ "rand 0.8.5",
  "thiserror",
  "time 0.3.5",
  "tokio",
@@ -3545,7 +3535,7 @@ dependencies = [
  "ipnet",
  "lazy_static",
  "log",
- "rand 0.8.4",
+ "rand 0.8.5",
  "serde",
  "smallvec",
  "thiserror",
@@ -3990,12 +3980,12 @@ dependencies = [
 
 [[package]]
 name = "x25519-dalek"
-version = "1.2.0"
+version = "2.0.0-pre.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2392b6b94a576b4e2bf3c5b2757d63f10ada8020a2e4d08ac849ebcf6ea8e077"
+checksum = "e5da623d8af10a62342bcbbb230e33e58a63255a58012f8653c578e54bab48df"
 dependencies = [
  "curve25519-dalek",
- "rand_core 0.5.1",
+ "rand_core 0.6.3",
  "zeroize",
 ]
 

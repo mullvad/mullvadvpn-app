@@ -32,7 +32,7 @@ zeroize = "1"
 chrono = "0.4.19"
 tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
-rand = "0.7"
+rand = "0.8.5"
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 shadowsocks-service = { version = "1.14.3", default-features = false, features = ["local", "stream-cipher"] }
 

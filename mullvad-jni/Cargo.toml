@@ -19,7 +19,7 @@ lazy_static = "1"
 log = "0.4"
 log-panics = "2"
 nix = "0.23"
-rand = "0.7"
+rand = "0.8.5"
 tokio = "1.8"
 
 mullvad-daemon = { path = "../mullvad-daemon" }
