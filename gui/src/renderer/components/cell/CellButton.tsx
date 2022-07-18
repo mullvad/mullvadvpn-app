@@ -49,10 +49,3 @@ export const CellButton = styled(
     );
   }),
 )({});
-
-export const CellButtonGroup = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  marginBottom: '20px',
-});
