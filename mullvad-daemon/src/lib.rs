@@ -36,7 +36,7 @@ use futures::{
 };
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
-    RelaySelector, SelectorConfig, DefaultTunnelProtocol
+    DefaultTunnelProtocol, RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -1039,7 +1039,8 @@ where
 
     fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
         self.app_version_info = Some(app_version_info.clone());
-        self.relay_selector.set_config(new_selector_config(&self.settings, &self.app_version_info));
+        self.relay_selector
+            .set_config(new_selector_config(&self.settings, &self.app_version_info));
         self.event_listener.notify_app_version(app_version_info);
     }
 
@@ -2254,9 +2255,15 @@ impl DaemonShutdownHandle {
     }
 }
 
-fn new_selector_config(settings: &Settings, app_version_info: &Option<AppVersionInfo>) -> SelectorConfig {
+fn new_selector_config(
+    settings: &Settings,
+    app_version_info: &Option<AppVersionInfo>,
+) -> SelectorConfig {
     // MAGIC NUMBER 1.0 is the default threshold of 100%
-    let x_threshold_wg_default = app_version_info.as_ref().map(|f| f.x_threshold_wg_default).unwrap_or(1.0);
+    let x_threshold_wg_default = app_version_info
+        .as_ref()
+        .map(|f| f.x_threshold_wg_default)
+        .unwrap_or(1.0);
 
     let default_tunnel_protocol = if settings.x_wg_migration_rand_num < x_threshold_wg_default {
         DefaultTunnelProtocol::Wireguard
