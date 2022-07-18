@@ -164,11 +164,18 @@ impl ParsedRelays {
 }
 
 #[derive(Clone)]
+pub enum DefaultTunnelProtocol {
+    Wireguard,
+    OpenVpn,
+}
+
+#[derive(Clone)]
 pub struct SelectorConfig {
     pub relay_settings: RelaySettings,
     pub bridge_state: BridgeState,
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
+    pub default_tunnel_protocol: DefaultTunnelProtocol,
 }
 
 #[derive(Clone)]
