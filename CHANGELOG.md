@@ -34,6 +34,9 @@ Line wrap the file at 100 chars.                                              Th
 - Windows daemon now looks up the MTU on the default interface and uses this MTU instead of the
   default 1500. The 1500 is still the fallback if this for some reason fails. This may stop
   fragmentation.
+- Daemon now sometimes defaults to using WireGuard tunnels rather than OpenVPN tunnels.
+  The proportion of users that use Wireguard rather than OpenVpn changes dynamically based
+  on a value provided by the API.
 
 #### Linux
 - GUI: Add electron flags to run Wayland native if in a compositor/desktop known to work well
