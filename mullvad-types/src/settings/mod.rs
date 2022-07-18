@@ -95,7 +95,7 @@ pub struct Settings {
     /// NOTE: This field will be removed completely in future versions.
     // TODO: Should be windows only
     #[serde(default = "out_of_range_wg_migration_rand_num")]
-    pub x_wg_migration_rand_num: f32,
+    pub wg_migration_rand_num: f32,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     settings_version: SettingsVersion,
@@ -133,7 +133,7 @@ impl Default for Settings {
             tunnel_options: TunnelOptions::default(),
             show_beta_releases: false,
             // TODO: Should be windows only
-            x_wg_migration_rand_num: out_of_range_wg_migration_rand_num(),
+            wg_migration_rand_num: out_of_range_wg_migration_rand_num(),
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
