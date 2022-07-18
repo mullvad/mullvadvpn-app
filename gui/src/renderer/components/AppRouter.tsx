@@ -27,6 +27,7 @@ import Focus, { IFocusHandle } from './Focus';
 import Launch from './Launch';
 import MainView from './MainView';
 import SplitTunnelingSettings from './SplitTunnelingSettings';
+import Support from './Support';
 import TooManyDevices from './TooManyDevices';
 import TransitionContainer, { TransitionView } from './TransitionContainer';
 
@@ -94,6 +95,7 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
               <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsPage} />
               <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettingsPage} />
               <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
+              <Route exact path={RoutePath.support} component={Support} />
               <Route exact path={RoutePath.problemReport} component={ProblemReportPage} />
               <Route exact path={RoutePath.selectLocation} component={SelectLocationPage} />
               <Route exact path={RoutePath.filter} component={Filter} />
