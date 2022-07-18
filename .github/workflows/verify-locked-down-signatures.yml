@@ -7,6 +7,7 @@ on:
             - gui/package-lock.json
             - ci/keys/
             - ci/verify-locked-down-signatures.sh
+            - ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
     workflow_dispatch:
 jobs:
     verify-signatures:
