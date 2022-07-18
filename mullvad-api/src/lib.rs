@@ -477,6 +477,15 @@ pub struct AppVersionResponse {
     pub latest: AppVersion,
     pub latest_stable: Option<AppVersion>,
     pub latest_beta: AppVersion,
+    #[serde(default = "default_wg_threshold")]
+    pub x_threshold_wg_default: f32,
+}
+
+/// Temporary function that will be removed later. Used to generate default wg_threshold.
+// TODO: Should be windows only
+fn default_wg_threshold() -> f32 {
+    // MAGIC NUMBER 1.0 is the default threshold of 100%
+    1.0
 }
 
 impl AppVersionProxy {

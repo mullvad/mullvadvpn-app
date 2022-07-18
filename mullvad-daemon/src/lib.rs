@@ -36,7 +36,7 @@ use futures::{
 };
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
-    RelaySelector, SelectorConfig,
+    RelaySelector, SelectorConfig, DefaultTunnelProtocol
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -586,8 +586,9 @@ where
                 None
             });
         let settings = SettingsPersister::load(&settings_dir).await;
+        let app_version_info = version_check::load_cache(&cache_dir).await;
 
-        let initial_selector_config = new_selector_config(&settings);
+        let initial_selector_config = new_selector_config(&settings, &app_version_info);
         let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
 
         let proxy_provider =
@@ -697,7 +698,6 @@ where
             on_relay_list_update,
         );
 
-        let app_version_info = version_check::load_cache(&cache_dir).await;
         let (version_updater, version_updater_handle) = version_check::VersionUpdater::new(
             api_handle.clone(),
             api_availability.clone(),
@@ -822,7 +822,7 @@ where
             Command(command) => self.handle_command(command).await,
             TriggerShutdown => self.trigger_shutdown_event(),
             NewAppVersionInfo(app_version_info) => {
-                self.handle_new_app_version_info(app_version_info)
+                self.handle_new_app_version_info(app_version_info);
             }
             DeviceEvent(event) => self.handle_device_event(event).await,
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event).await,
@@ -1032,6 +1032,7 @@ where
 
     fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
         self.app_version_info = Some(app_version_info.clone());
+        self.relay_selector.set_config(new_selector_config(&self.settings, &self.app_version_info));
         self.event_listener.notify_app_version(app_version_info);
     }
 
@@ -1742,7 +1743,7 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
+                        .set_config(new_selector_config(&self.settings, &self.app_version_info));
                     log::info!("Initiating tunnel restart because the relay settings changed");
                     self.reconnect_tunnel();
                 }
@@ -1884,7 +1885,7 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
+                        .set_config(new_selector_config(&self.settings, &self.app_version_info));
                     if let Err(error) = self.api_handle.service().next_api_endpoint().await {
                         log::error!("Failed to rotate API endpoint: {}", error);
                     }
@@ -1914,7 +1915,7 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
+                        .set_config(new_selector_config(&self.settings, &self.app_version_info));
                     self.reconnect_tunnel();
                 }
                 Self::oneshot_send(tx, Ok(()), "set_obfuscation_settings");
@@ -1940,7 +1941,7 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
+                        .set_config(new_selector_config(&self.settings, &self.app_version_info));
                     log::info!("Initiating tunnel restart because bridge state changed");
                     self.reconnect_tunnel();
                 }
@@ -2253,11 +2254,21 @@ impl DaemonShutdownHandle {
     }
 }
 
-fn new_selector_config(settings: &Settings) -> SelectorConfig {
+fn new_selector_config(settings: &Settings, app_version_info: &Option<AppVersionInfo>) -> SelectorConfig {
+    // MAGIC NUMBER 1.0 is the default threshold of 100%
+    let x_threshold_wg_default = app_version_info.as_ref().map(|f| f.x_threshold_wg_default).unwrap_or(1.0);
+
+    let default_tunnel_protocol = if settings.x_wg_migration_rand_num < x_threshold_wg_default {
+        DefaultTunnelProtocol::Wireguard
+    } else {
+        DefaultTunnelProtocol::OpenVpn
+    };
+
     SelectorConfig {
         relay_settings: settings.get_relay_settings(),
         bridge_state: settings.get_bridge_state(),
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
+        default_tunnel_protocol,
     }
 }
