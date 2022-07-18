@@ -5,6 +5,7 @@ use mullvad_types::{
     settings::{DnsOptions, Settings},
     wireguard::RotationInterval,
 };
+use rand::Rng;
 #[cfg(target_os = "windows")]
 use std::collections::HashSet;
 use std::{
@@ -68,6 +69,15 @@ impl SettingsPersister {
                 (settings, true)
             }
         };
+
+        // If the settings file did not contain a wg_migration_rand_num then it will be initialized
+        // to -1.0 by serde. This block ensures that this value is correctly intitialzed to a
+        // percentage.
+        if settings.wg_migration_rand_num < 0.0 || settings.wg_migration_rand_num > 1.0 {
+            let mut rng = rand::thread_rng();
+            settings.wg_migration_rand_num = rng.gen_range(0.0..=1.0);
+            should_save |= true
+        }
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
@@ -185,6 +195,7 @@ impl SettingsPersister {
     /// is being run or not.
     fn default_settings() -> Settings {
         let mut settings = Settings::default();
+
         if crate::version::is_beta_version() {
             settings.show_beta_releases = true;
         }

@@ -15,7 +15,7 @@ lazy_static::lazy_static! {
 
 /// AppVersionInfo represents the current stable and the current latest release versions of the
 /// Mullvad VPN app.
-#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct AppVersionInfo {
@@ -35,6 +35,11 @@ pub struct AppVersionInfo {
     pub latest_beta: AppVersion,
     /// Whether should update to newer version
     pub suggested_upgrade: Option<AppVersion>,
+    /// Temporary field provided by the API used to decide if a user should default to Wireguard or
+    /// OpenVpn. Represents the percentage of users which should use Wireguard.
+    /// NOTE: This field will be removed completely in future versions.
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub wg_migration_threshold: f32,
 }
 
 pub type AppVersion = String;
