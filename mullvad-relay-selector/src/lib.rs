@@ -169,6 +169,7 @@ pub struct SelectorConfig {
     pub bridge_state: BridgeState,
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
+    pub default_tunnel_type: TunnelType,
 }
 
 #[derive(Clone)]
@@ -231,8 +232,12 @@ impl RelaySelector {
                 Ok((SelectedRelay::Custom(custom_relay.clone()), None, None))
             }
             RelaySettings::Normal(constraints) => {
-                let relay =
-                    self.get_tunnel_endpoint(constraints, config.bridge_state, retry_attempt)?;
+                let relay = self.get_tunnel_endpoint(
+                    constraints,
+                    config.bridge_state,
+                    retry_attempt,
+                    config.default_tunnel_type,
+                )?;
                 let bridge = match relay.endpoint {
                     MullvadEndpoint::OpenVpn(endpoint)
                         if endpoint.protocol == TransportProtocol::Tcp =>
@@ -271,6 +276,7 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
+        default_tunnel_type: TunnelType,
     ) -> Result<NormalSelectedRelay, Error> {
         match relay_constraints.tunnel_protocol {
             Constraint::Only(TunnelType::OpenVpn) => self.get_openvpn_endpoint(
@@ -289,9 +295,12 @@ impl RelaySelector {
                 &relay_constraints.wireguard_constraints,
                 retry_attempt,
             ),
-            Constraint::Any => {
-                self.get_any_tunnel_endpoint(relay_constraints, bridge_state, retry_attempt)
-            }
+            Constraint::Any => self.get_any_tunnel_endpoint(
+                relay_constraints,
+                bridge_state,
+                retry_attempt,
+                default_tunnel_type,
+            ),
         }
     }
 
@@ -576,9 +585,14 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
+        default_tunnel_type: TunnelType,
     ) -> Result<NormalSelectedRelay, Error> {
-        let preferred_constraints =
-            self.preferred_constraints(relay_constraints, bridge_state, retry_attempt);
+        let preferred_constraints = self.preferred_constraints(
+            relay_constraints,
+            bridge_state,
+            retry_attempt,
+            default_tunnel_type,
+        );
 
         if let Ok(result) = self.get_multihop_tunnel_endpoint_internal(&preferred_constraints) {
             log::debug!(
@@ -604,10 +618,12 @@ impl RelaySelector {
         original_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
+        default_tunnel_type: TunnelType,
     ) -> RelayConstraints {
         let (preferred_port, preferred_protocol, preferred_tunnel) = self
             .preferred_tunnel_constraints(
                 retry_attempt,
+                default_tunnel_type,
                 &original_constraints.location,
                 &original_constraints.providers,
                 &original_constraints.ownership,
@@ -929,40 +945,46 @@ impl RelaySelector {
     fn preferred_tunnel_constraints(
         &self,
         retry_attempt: u32,
+        default_tunnel_type: TunnelType,
         location_constraint: &Constraint<LocationConstraint>,
         providers_constraint: &Constraint<Providers>,
         ownership_constraint: &Constraint<Ownership>,
     ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
-        #[cfg(target_os = "windows")]
-        {
-            let location_supports_openvpn =
-                self.parsed_relays.lock().relays().iter().any(|relay| {
-                    relay.active
-                        && relay.endpoint_data == RelayEndpointData::Openvpn
-                        && location_constraint.matches(relay)
-                        && providers_constraint.matches(relay)
-                        && ownership_constraint.matches(relay)
-                });
-            if location_supports_openvpn {
-                let (preferred_port, preferred_protocol) =
-                    Self::preferred_openvpn_constraints(retry_attempt);
-                return (preferred_port, preferred_protocol, TunnelType::OpenVpn);
-            }
-        }
+        match default_tunnel_type {
+            TunnelType::OpenVpn => {
+                let location_supports_openvpn =
+                    self.parsed_relays.lock().relays().iter().any(|relay| {
+                        relay.active
+                            && relay.endpoint_data == RelayEndpointData::Openvpn
+                            && location_constraint.matches(relay)
+                            && providers_constraint.matches(relay)
+                            && ownership_constraint.matches(relay)
+                    });
 
-        let location_supports_wireguard = self.parsed_relays.lock().relays().iter().any(|relay| {
-            relay.active
-                && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-                && location_constraint.matches(relay)
-                && providers_constraint.matches(relay)
-                && ownership_constraint.matches(relay)
-        });
-        // If location does not support WireGuard, defer to preferred OpenVPN tunnel
-        // constraints
-        if !location_supports_wireguard {
-            let (preferred_port, preferred_protocol) =
-                Self::preferred_openvpn_constraints(retry_attempt);
-            return (preferred_port, preferred_protocol, TunnelType::OpenVpn);
+                if location_supports_openvpn {
+                    let (preferred_port, preferred_protocol) =
+                        Self::preferred_openvpn_constraints(retry_attempt);
+                    return (preferred_port, preferred_protocol, TunnelType::OpenVpn);
+                }
+            }
+            TunnelType::Wireguard => {
+                let location_supports_wireguard =
+                    self.parsed_relays.lock().relays().iter().any(|relay| {
+                        relay.active
+                            && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
+                            && location_constraint.matches(relay)
+                            && providers_constraint.matches(relay)
+                            && ownership_constraint.matches(relay)
+                    });
+
+                // If location does not support WireGuard, defer to preferred OpenVPN tunnel
+                // constraints
+                if !location_supports_wireguard {
+                    let (preferred_port, preferred_protocol) =
+                        Self::preferred_openvpn_constraints(retry_attempt);
+                    return (preferred_port, preferred_protocol, TunnelType::OpenVpn);
+                }
+            }
         }
 
         // Try out WireGuard in the first two connection attempts, first with any port,
@@ -1318,6 +1340,7 @@ mod test {
                     ..Default::default()
                 },
                 bridge_state: BridgeState::Auto,
+                default_tunnel_type: TunnelType::Wireguard,
             })),
         }
     }
@@ -1338,8 +1361,12 @@ mod test {
             ..RelayConstraints::default()
         };
 
-        let preferred =
-            relay_selector.preferred_constraints(&relay_constraints, BridgeState::Off, 0);
+        let preferred = relay_selector.preferred_constraints(
+            &relay_constraints,
+            BridgeState::Off,
+            0,
+            TunnelType::Wireguard,
+        );
         assert_eq!(
             preferred.tunnel_protocol,
             Constraint::Only(TunnelType::Wireguard)
@@ -1347,7 +1374,12 @@ mod test {
 
         for attempt in 0..10 {
             assert!(relay_selector
-                .get_any_tunnel_endpoint(&relay_constraints, BridgeState::Off, attempt)
+                .get_any_tunnel_endpoint(
+                    &relay_constraints,
+                    BridgeState::Off,
+                    attempt,
+                    TunnelType::Wireguard,
+                )
                 .is_ok());
         }
 
@@ -1363,8 +1395,12 @@ mod test {
             ..RelayConstraints::default()
         };
 
-        let preferred =
-            relay_selector.preferred_constraints(&relay_constraints, BridgeState::Off, 0);
+        let preferred = relay_selector.preferred_constraints(
+            &relay_constraints,
+            BridgeState::Off,
+            0,
+            TunnelType::Wireguard,
+        );
         assert_eq!(
             preferred.tunnel_protocol,
             Constraint::Only(TunnelType::OpenVpn)
@@ -1372,7 +1408,12 @@ mod test {
 
         for attempt in 0..10 {
             assert!(relay_selector
-                .get_any_tunnel_endpoint(&relay_constraints, BridgeState::Off, attempt)
+                .get_any_tunnel_endpoint(
+                    &relay_constraints,
+                    BridgeState::Off,
+                    attempt,
+                    TunnelType::Wireguard,
+                )
                 .is_ok());
         }
 
@@ -1385,6 +1426,7 @@ mod test {
                     &relay_constraints,
                     BridgeState::Off,
                     attempt,
+                    TunnelType::OpenVpn,
                 );
                 assert_eq!(
                     preferred.tunnel_protocol,
@@ -1394,6 +1436,7 @@ mod test {
                     &relay_constraints,
                     BridgeState::Off,
                     attempt,
+                    TunnelType::OpenVpn,
                 ) {
                     Ok(result) if matches!(result.endpoint, MullvadEndpoint::OpenVpn(_)) => (),
                     _ => panic!("OpenVPN endpoint was not selected"),
@@ -1428,14 +1471,24 @@ mod test {
 
         // The same host cannot be used for entry and exit
         assert!(relay_selector
-            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0)
+            .get_tunnel_endpoint(
+                &relay_constraints,
+                BridgeState::Off,
+                0,
+                TunnelType::Wireguard,
+            )
             .is_err());
 
         relay_constraints.wireguard_constraints.entry_location = Constraint::Only(location2);
 
         // If the entry and exit differ, this should succeed
         assert!(relay_selector
-            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0)
+            .get_tunnel_endpoint(
+                &relay_constraints,
+                BridgeState::Off,
+                0,
+                TunnelType::Wireguard,
+            )
             .is_ok());
     }
 
@@ -1464,7 +1517,7 @@ mod test {
 
         // The exit must not equal the entry
         let exit_relay = relay_selector
-            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0)
+            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, TunnelType::OpenVpn)
             .map_err(|error| error.to_string())?
             .exit_relay;
 
@@ -1479,7 +1532,12 @@ mod test {
             endpoint,
             ..
         } = relay_selector
-            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0)
+            .get_tunnel_endpoint(
+                &relay_constraints,
+                BridgeState::Off,
+                0,
+                TunnelType::Wireguard,
+            )
             .map_err(|error| error.to_string())?;
 
         assert_eq!(exit_relay.hostname, specific_hostname);
@@ -1513,8 +1571,12 @@ mod test {
             port: Constraint::Any,
         });
 
-        let preferred =
-            relay_selector.preferred_constraints(&relay_constraints, BridgeState::On, 0);
+        let preferred = relay_selector.preferred_constraints(
+            &relay_constraints,
+            BridgeState::On,
+            0,
+            TunnelType::Wireguard,
+        );
         assert_eq!(
             preferred.tunnel_protocol,
             Constraint::Only(TunnelType::OpenVpn)
@@ -1539,8 +1601,12 @@ mod test {
             tunnel_protocol: Constraint::Any,
             ..RelayConstraints::default()
         };
-        let preferred =
-            relay_selector.preferred_constraints(&relay_constraints, BridgeState::On, 0);
+        let preferred = relay_selector.preferred_constraints(
+            &relay_constraints,
+            BridgeState::On,
+            0,
+            TunnelType::Wireguard,
+        );
         assert_eq!(
             preferred.tunnel_protocol,
             Constraint::Only(TunnelType::Wireguard)
@@ -1558,15 +1624,23 @@ mod test {
         });
         #[cfg(all(unix, not(target_os = "android")))]
         {
-            let preferred =
-                relay_selector.preferred_constraints(&relay_constraints, BridgeState::On, 0);
+            let preferred = relay_selector.preferred_constraints(
+                &relay_constraints,
+                BridgeState::On,
+                0,
+                TunnelType::Wireguard,
+            );
             assert_eq!(
                 preferred.tunnel_protocol,
                 Constraint::Only(TunnelType::Wireguard)
             );
         }
-        let preferred =
-            relay_selector.preferred_constraints(&relay_constraints, BridgeState::On, 2);
+        let preferred = relay_selector.preferred_constraints(
+            &relay_constraints,
+            BridgeState::On,
+            2,
+            TunnelType::Wireguard,
+        );
         assert_eq!(
             preferred.tunnel_protocol,
             Constraint::Only(TunnelType::OpenVpn)
@@ -1597,7 +1671,13 @@ mod test {
 
         let relay_selector = new_relay_selector();
 
-        let result = relay_selector.get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0)
+        let default_tunnel_type = if cfg!(target_os = "windows") {
+            TunnelType::OpenVpn
+        } else {
+            TunnelType::Wireguard
+        };
+
+        let result = relay_selector.get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, default_tunnel_type)
             .expect("Failed to get relay when tunnel constraints are set to Any and retrying the selection");
         // Windows will ignore WireGuard until WireGuard is supported well enough
         // TODO: Remove this caveat once Windows defaults to using WireGuard
@@ -1649,7 +1729,7 @@ mod test {
     fn test_selecting_wireguard_location_will_consider_multihop() {
         let relay_selector = new_relay_selector();
 
-        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_MULTIHOP_CONSTRAINTS, BridgeState::Off, 0)
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_MULTIHOP_CONSTRAINTS, BridgeState::Off, 0, TunnelType::Wireguard)
             .expect("Failed to get relay when tunnel constraints are set to default WireGuard multihop constraints");
 
         assert!(result.entry_relay.is_some());
@@ -1660,7 +1740,7 @@ mod test {
     fn test_selecting_wg_endpoint_with_udp2tcp_obfuscation() {
         let relay_selector = new_relay_selector();
 
-        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0)
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0, TunnelType::Wireguard)
             .expect("Failed to get relay when tunnel constraints are set to default WireGuard constraints");
 
         assert!(result.entry_relay.is_none());
@@ -1689,7 +1769,7 @@ mod test {
     fn test_selecting_wg_endpoint_with_auto_obfuscation() {
         let relay_selector = new_relay_selector();
 
-        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0)
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0, TunnelType::Wireguard)
             .expect("Failed to get relay when tunnel constraints are set to default WireGuard constraints");
 
         assert!(result.entry_relay.is_none());
@@ -1729,7 +1809,12 @@ mod test {
 
         for attempt in 0..1000 {
             let result = relay_selector
-                .get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, attempt)
+                .get_tunnel_endpoint(
+                    &WIREGUARD_SINGLEHOP_CONSTRAINTS,
+                    BridgeState::Off,
+                    attempt,
+                    TunnelType::Wireguard,
+                )
                 .expect("Failed to select a WireGuard relay");
             assert!(result.entry_relay.is_none());
 
@@ -1765,7 +1850,7 @@ mod test {
         for i in 0..10 {
             constraints.ownership = Constraint::Only(Ownership::MullvadOwned);
             let relay = relay_selector
-                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i)
+                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i, TunnelType::Wireguard)
                 .unwrap();
             assert!(matches!(
                 relay,
@@ -1777,7 +1862,7 @@ mod test {
 
             constraints.ownership = Constraint::Only(Ownership::Rented);
             let relay = relay_selector
-                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i)
+                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i, TunnelType::Wireguard)
                 .unwrap();
             assert!(matches!(
                 relay,

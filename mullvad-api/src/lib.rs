@@ -477,6 +477,16 @@ pub struct AppVersionResponse {
     pub latest: AppVersion,
     pub latest_stable: Option<AppVersion>,
     pub latest_beta: AppVersion,
+    #[serde(default = "default_wg_threshold")]
+    pub x_threshold_wg_default: f32,
+}
+
+/// Temporary function that will be removed later. Used to generate default wg_threshold.
+/// In case there is no `x_threshold_wg_default` returned by the API result we interpret that to
+/// mean that the migration is done and WireGuard should be the default. In that case the threshold
+/// value should be 1.0
+fn default_wg_threshold() -> f32 {
+    1.0
 }
 
 impl AppVersionProxy {
