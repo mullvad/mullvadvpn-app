@@ -2265,7 +2265,7 @@ fn new_selector_config(
         .map(|f| f.x_threshold_wg_default)
         .unwrap_or(1.0);
 
-    let default_tunnel_protocol = if settings.x_wg_migration_rand_num < x_threshold_wg_default {
+    let default_tunnel_protocol = if x_threshold_wg_default >= settings.x_wg_migration_rand_num {
         DefaultTunnelProtocol::Wireguard
     } else {
         DefaultTunnelProtocol::OpenVpn
