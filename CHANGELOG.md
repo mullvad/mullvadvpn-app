@@ -34,6 +34,8 @@ Line wrap the file at 100 chars.                                              Th
 - Windows daemon now looks up the MTU on the default interface and uses this MTU instead of the
   default 1500. The 1500 is still the fallback if this for some reason fails. This may stop
   fragmentation.
+- The default VPN protocol is slowly being changed from OpenVPN to WireGuard.
+  The app fetches the ratio between the protocols from the API.
 
 #### Linux
 - GUI: Add electron flags to run Wayland native if in a compositor/desktop known to work well
