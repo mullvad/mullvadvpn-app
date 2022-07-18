@@ -281,7 +281,7 @@ impl VersionUpdater {
             self.show_beta_releases || is_beta_version(),
         );
 
-        let x_threshold_wg_default = if response.x_threshold_wg_default.is_nan() {
+        let threshold_wg_default = if response.x_threshold_wg_default.is_nan() {
             1.0
         } else {
             response.x_threshold_wg_default.clamp(0.0, 1.0)
@@ -292,7 +292,7 @@ impl VersionUpdater {
             latest_stable: response.latest_stable.unwrap_or_else(|| "".to_owned()),
             latest_beta: response.latest_beta,
             suggested_upgrade,
-            x_threshold_wg_default,
+            threshold_wg_default,
         }
     }
 
@@ -382,7 +382,7 @@ impl VersionUpdater {
                                     latest_stable: last_app_version_info.latest_stable,
                                     latest_beta: last_app_version_info.latest_beta,
                                     suggested_upgrade,
-                                    x_threshold_wg_default: last_app_version_info.x_threshold_wg_default,
+                                    threshold_wg_default: last_app_version_info.threshold_wg_default,
                                 }).await;
                             }
                         }
