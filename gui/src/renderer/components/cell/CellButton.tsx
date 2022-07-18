@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { CellDisabledContext } from './Container';
+import { Icon } from './Label';
 import { CellSectionContext } from './Section';
 
 interface IStyledCellButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
@@ -49,3 +50,14 @@ export const CellButton = styled(
     );
   }),
 )({});
+
+export function CellNavigationButton(props: ICellButtonProps) {
+  const { children, ...otherProps } = props;
+
+  return (
+    <CellButton {...otherProps}>
+      {children}
+      <Icon height={12} width={7} source="icon-chevron" />
+    </CellButton>
+  );
+}
