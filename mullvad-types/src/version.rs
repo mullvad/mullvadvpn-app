@@ -40,7 +40,7 @@ pub struct AppVersionInfo {
     /// NOTE: This field will be removed completely in future versions.
     // TODO: Should be windows only
     #[serde(default = "default_wg_threshold")]
-    pub x_threshold_wg_default: f32,
+    pub threshold_wg_default: f32,
 }
 
 /// Temporary function that will be removed later. Used to generate default wg_threshold.
