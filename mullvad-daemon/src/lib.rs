@@ -2260,12 +2260,12 @@ fn new_selector_config(
     app_version_info: &Option<AppVersionInfo>,
 ) -> SelectorConfig {
     // MAGIC NUMBER 1.0 is the default threshold of 100%
-    let x_threshold_wg_default = app_version_info
+    let threshold_wg_default = app_version_info
         .as_ref()
-        .map(|f| f.x_threshold_wg_default)
+        .map(|f| f.threshold_wg_default)
         .unwrap_or(1.0);
 
-    let default_tunnel_protocol = if x_threshold_wg_default >= settings.x_wg_migration_rand_num {
+    let default_tunnel_protocol = if threshold_wg_default >= settings.wg_migration_rand_num {
         DefaultTunnelProtocol::Wireguard
     } else {
         DefaultTunnelProtocol::OpenVpn

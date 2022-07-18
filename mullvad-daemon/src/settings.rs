@@ -70,10 +70,10 @@ impl SettingsPersister {
         };
 
         // TODO: Should be windows only
-        if settings.x_wg_migration_rand_num < 0.0 || settings.x_wg_migration_rand_num > 1.0 {
+        if settings.wg_migration_rand_num < 0.0 || settings.wg_migration_rand_num > 1.0 {
             use rand::Rng;
             let mut rng = rand::thread_rng();
-            settings.x_wg_migration_rand_num = rng.gen_range(0.0, 1.0);
+            settings.wg_migration_rand_num = rng.gen_range(0.0, 1.0);
             should_save |= true;
         }
 
