@@ -49,6 +49,11 @@ Line wrap the file at 100 chars.                                              Th
 - Prevent location request responses from being received outside the tunnel when in the connected
   state.
 
+#### Windows
+- Fix potential leak window when stopping the service and auto-connect is enabled and always require
+  VPN is disabled. When stopped, usually due to a reboot, the daemon would disconnect before
+  entering a blocking state.
+
 
 ## [2022.3-beta2] - 2022-06-29
 ### Fixed
