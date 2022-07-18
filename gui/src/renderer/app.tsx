@@ -424,11 +424,11 @@ export default class AppRenderer {
     actions.settings.updateAllowLan(allowLan);
   }
 
-  public async setShowBetaReleases(showBetaReleases: boolean) {
+  public setShowBetaReleases = async (showBetaReleases: boolean) => {
     const actions = this.reduxActions;
     await IpcRendererEventChannel.settings.setShowBetaReleases(showBetaReleases);
     actions.settings.updateShowBetaReleases(showBetaReleases);
-  }
+  };
 
   public async setEnableIpv6(enableIpv6: boolean) {
     const actions = this.reduxActions;

@@ -33,6 +33,7 @@ export type LocalizationContexts =
   | 'split-tunneling-view'
   | 'split-tunneling-nav'
   | 'support-view'
+  | 'support-nav'
   | 'select-language-nav'
   | 'tray-icon-context-menu'
   | 'tray-icon-tooltip';
