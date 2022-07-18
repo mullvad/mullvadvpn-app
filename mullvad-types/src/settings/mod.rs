@@ -88,9 +88,24 @@ pub struct Settings {
     /// Split tunneling settings
     #[cfg(windows)]
     pub split_tunnel: SplitTunnelSettings,
+    /// Temporary variable for a random number between 0 and 1 that determines if the user should
+    /// use wireguard or openvpn when the automatic feature is set. This variable will be removed
+    /// in future versions. Value is generated randomly if missing.
+    /// NOTE: This field will be removed completely in future versions.
+    // TODO: Should be windows only
+    #[serde(default = "rand_percentage")]
+    pub x_wg_migration_rand_num: f32,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     settings_version: SettingsVersion,
+}
+
+/// Temporary function that will be removed later. Used to generate a random value between 0.0 and 1.0
+// TODO: Should be windows only
+fn rand_percentage() -> f32 {
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+    rng.gen_range(0.0..=1.0)
 }
 
 #[cfg(windows)]
@@ -120,6 +135,8 @@ impl Default for Settings {
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
             show_beta_releases: false,
+            // TODO: Should be windows only
+            x_wg_migration_rand_num: rand_percentage(),
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,

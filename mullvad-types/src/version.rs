@@ -15,7 +15,7 @@ lazy_static::lazy_static! {
 
 /// AppVersionInfo represents the current stable and the current latest release versions of the
 /// Mullvad VPN app.
-#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct AppVersionInfo {
@@ -35,6 +35,19 @@ pub struct AppVersionInfo {
     pub latest_beta: AppVersion,
     /// Whether should update to newer version
     pub suggested_upgrade: Option<AppVersion>,
+    /// Temporary field provided by the API used to decide if a user should default to Wireguard or OpenVpn.
+    /// Represents the percentage of users which should use Wireguard.
+    /// NOTE: This field will be removed completely in future versions.
+    // TODO: Should be windows only
+    #[serde(default = "default_wg_threshold")]
+    pub x_threshold_wg_default: f32,
+}
+
+/// Temporary function that will be removed later. Used to generate default wg_threshold.
+// TODO: Should be windows only
+fn default_wg_threshold() -> f32 {
+    // MAGIC NUMBER 1.0 is the default threshold of 100%
+    1.0
 }
 
 pub type AppVersion = String;
