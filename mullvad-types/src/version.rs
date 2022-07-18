@@ -35,8 +35,8 @@ pub struct AppVersionInfo {
     pub latest_beta: AppVersion,
     /// Whether should update to newer version
     pub suggested_upgrade: Option<AppVersion>,
-    /// Temporary field provided by the API used to decide if a user should default to Wireguard or OpenVpn.
-    /// Represents the percentage of users which should use Wireguard.
+    /// Temporary field provided by the API used to decide if a user should default to Wireguard or
+    /// OpenVpn. Represents the percentage of users which should use Wireguard.
     /// NOTE: This field will be removed completely in future versions.
     // TODO: Should be windows only
     #[serde(default = "default_wg_threshold")]
