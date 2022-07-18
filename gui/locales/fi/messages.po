@@ -1011,7 +1011,7 @@ msgctxt "preferences-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "Yhdistä palvelimeen automaattisesti, kun sovellus avataan."
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Beta program"
 msgstr "Betaohjelma"
 
@@ -1057,7 +1057,7 @@ msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Salli tai estä järjestelmän ilmoitukset. Tärkeät ilmoitukset näytetään aina."
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Ota käyttöön niin saat ilmoituksen uusista sovelluksen betaversioista."
 
@@ -1101,7 +1101,7 @@ msgctxt "preferences-view"
 msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
 msgstr "Sovelluksessa on sisäänrakennettu tappokytkin, ja se on aina poikkeuksetta käytössä; näin liikenteesi vuotaminen VPN-tunnelin ulkopuolelle estetään, jos verkkosi yhtäkkiä lakkaa toimimasta tai tunnelin yhteys jostakin syystä katkeaa. Mullvad suojaa tietojasi automaattisesti, kunnes yhteys on muodostettu uudelleen."
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Tämä toiminto ei ole käytössä betaversiossa."
 
@@ -1248,7 +1248,7 @@ msgid "App version"
 msgstr "Sovelluksen versio"
 
 #. Link to the webpage
-msgctxt "settings-view"
+msgctxt "support-view"
 msgid "FAQs & Guides"
 msgstr "UKK:t ja oppaat"
 
