@@ -39,15 +39,7 @@ pub struct AppVersionInfo {
     /// OpenVpn. Represents the percentage of users which should use Wireguard.
     /// NOTE: This field will be removed completely in future versions.
     // TODO: Should be windows only
-    #[serde(default = "default_wg_threshold")]
     pub threshold_wg_default: f32,
-}
-
-/// Temporary function that will be removed later. Used to generate default wg_threshold.
-// TODO: Should be windows only
-fn default_wg_threshold() -> f32 {
-    // MAGIC NUMBER 1.0 is the default threshold of 100%
-    1.0
 }
 
 pub type AppVersion = String;
