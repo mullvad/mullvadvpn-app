@@ -482,9 +482,11 @@ pub struct AppVersionResponse {
 }
 
 /// Temporary function that will be removed later. Used to generate default wg_threshold.
+/// In case there is no `x_threshold_wg_default` returned by the API result we interpret that to
+/// mean that the migration is done and WireGuard should be the default. In that case the threshold
+/// value should be 1.0
 // TODO: Should be windows only
 fn default_wg_threshold() -> f32 {
-    // MAGIC NUMBER 1.0 is the default threshold of 100%
     1.0
 }
 
