@@ -1,5 +1,6 @@
 mod driver;
 mod path_monitor;
+mod service;
 mod volume_monitor;
 mod windows;
 
@@ -39,6 +40,10 @@ const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
+    /// Failed to install or start driver service
+    #[error(display = "Failed to start driver service")]
+    ServiceError(#[error(source)] service::Error),
+
     /// Failed to initialize the driver
     #[error(display = "Failed to initialize driver")]
     InitializationError(#[error(source)] driver::DeviceHandleError),
@@ -173,6 +178,7 @@ impl SplitTunnel {
     /// Initialize the split tunnel device.
     pub fn new(
         runtime: tokio::runtime::Handle,
+        resource_dir: PathBuf,
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
         power_mgmt_rx: PowerManagementListener,
@@ -180,7 +186,7 @@ impl SplitTunnel {
         let excluded_processes = Arc::new(RwLock::new(HashMap::new()));
 
         let (request_tx, handle) =
-            Self::spawn_request_thread(volume_update_rx, excluded_processes.clone())?;
+            Self::spawn_request_thread(resource_dir, volume_update_rx, excluded_processes.clone())?;
 
         let (event_thread, quit_event) =
             Self::spawn_event_listener(handle, excluded_processes.clone())?;
@@ -400,6 +406,7 @@ impl SplitTunnel {
     }
 
     fn spawn_request_thread(
+        resource_dir: PathBuf,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
         excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
     ) -> Result<(RequestTx, Arc<driver::DeviceHandle>), Error> {
@@ -421,10 +428,14 @@ impl SplitTunnel {
         );
 
         std::thread::spawn(move || {
-            let result = driver::DeviceHandle::new()
-                .map(Arc::new)
-                .map_err(Error::InitializationError);
-            let handle = match result {
+            let init_fn = || {
+                service::install_driver_if_required(&resource_dir).map_err(Error::ServiceError)?;
+                driver::DeviceHandle::new()
+                    .map(Arc::new)
+                    .map_err(Error::InitializationError)
+            };
+
+            let handle = match init_fn() {
                 Ok(handle) => {
                     let _ = init_tx.send(Ok(handle.clone()));
                     handle

@@ -90,6 +90,7 @@ version = "0.36.1"
 features = [
     "Win32_Foundation",
     "Win32_Globalization",
+    "Win32_Security",
     "Win32_System_Com",
     "Win32_System_Diagnostics_ToolHelp",
     "Win32_System_Ioctl",
@@ -97,6 +98,7 @@ features = [
     "Win32_System_LibraryLoader",
     "Win32_System_ProcessStatus",
     "Win32_System_Registry",
+    "Win32_System_Services",
     "Win32_System_SystemServices",
     "Win32_System_Threading",
     "Win32_System_WindowsProgramming",
