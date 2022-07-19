@@ -368,13 +368,8 @@ pub fn add_ip_address_for_interface(luid: NET_LUID, address: IpAddr) -> Result<(
     let mut row = unsafe { mem::zeroed() };
     unsafe { InitializeUnicastIpAddressEntry(&mut row) };
 
-    let socketaddr = match address {
-        IpAddr::V4(addr) => SocketAddr::V4(SocketAddrV4::new(addr, 0)),
-        IpAddr::V6(addr) => SocketAddr::V6(SocketAddrV6::new(addr, 0, 0, 0)),
-    };
-
     row.InterfaceLuid = luid;
-    row.Address = inet_sockaddr_from_socketaddr(socketaddr);
+    row.Address = inet_sockaddr_from_socketaddr(SocketAddr::new(address, 0));
     row.DadState = IpDadStatePreferred;
     row.OnLinkPrefixLength = 255;
 
