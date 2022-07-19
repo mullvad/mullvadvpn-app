@@ -218,8 +218,14 @@ pub enum DeviceHandleError {
 
 impl DeviceHandle {
     pub fn new() -> Result<Self, DeviceHandleError> {
-        // Connect to the driver
+        let device = Self::new_handle_only()?;
+        device.reinitialize()?;
+        Ok(device)
+    }
+
+    pub(super) fn new_handle_only() -> Result<Self, DeviceHandleError> {
         log::trace!("Connecting to the driver");
+
         let handle = OpenOptions::new()
             .read(true)
             .write(true)
@@ -232,10 +238,7 @@ impl DeviceHandle {
                 Some(ERROR_ACCESS_DENIED) => DeviceHandleError::ConnectionDenied,
                 _ => DeviceHandleError::ConnectionError(e),
             })?;
-
-        let device = Self { handle };
-        device.reinitialize()?;
-        Ok(device)
+        Ok(Self { handle })
     }
 
     pub fn reinitialize(&self) -> Result<(), DeviceHandleError> {
@@ -389,7 +392,7 @@ impl DeviceHandle {
         Ok(())
     }
 
-    fn reset(&self) -> io::Result<()> {
+    pub(super) fn reset(&self) -> io::Result<()> {
         device_io_control(self, DriverIoctlCode::Reset as u32, None, 0)?;
         Ok(())
     }

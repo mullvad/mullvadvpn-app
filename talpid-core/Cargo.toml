@@ -89,7 +89,10 @@ memoffset = "0.6"
 version = "0.36.1"
 features = [
     "Win32_Foundation",
+    "Win32_Security",
     "Win32_System_LibraryLoader",
+    "Win32_System_Services",
+    "Win32_System_SystemServices",
 ]
 
 [build-dependencies]
