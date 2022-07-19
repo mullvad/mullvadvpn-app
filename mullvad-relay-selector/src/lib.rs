@@ -272,7 +272,7 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-        default_tunnel_protocol: &DefaultTunnelProtocol,
+        default_tunnel_protocol: &TunnelType,
     ) -> Result<NormalSelectedRelay, Error> {
         match relay_constraints.tunnel_protocol {
             Constraint::Only(TunnelType::OpenVpn) => self.get_openvpn_endpoint(
@@ -578,7 +578,7 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-        default_tunnel_protocol: &DefaultTunnelProtocol,
+        default_tunnel_protocol: &TunnelType,
     ) -> Result<NormalSelectedRelay, Error> {
         let preferred_constraints =
             self.preferred_constraints(relay_constraints, bridge_state, retry_attempt, default_tunnel_protocol);
@@ -607,7 +607,7 @@ impl RelaySelector {
         original_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-        default_tunnel_protocol: &DefaultTunnelProtocol,
+        default_tunnel_protocol: &TunnelType,
     ) -> RelayConstraints {
         let (preferred_port, preferred_protocol, preferred_tunnel) = self
             .preferred_tunnel_constraints(
@@ -934,7 +934,7 @@ impl RelaySelector {
     fn preferred_tunnel_constraints(
         &self,
         retry_attempt: u32,
-        default_tunnel_protocol: &DefaultTunnelProtocol,
+        default_tunnel_protocol: &TunnelType,
         location_constraint: &Constraint<LocationConstraint>,
         providers_constraint: &Constraint<Providers>,
         ownership_constraint: &Constraint<Ownership>,

@@ -70,12 +70,7 @@ impl SettingsPersister {
         };
 
         // TODO: Should be windows only
-        if settings.wg_migration_rand_num < 0.0 || settings.wg_migration_rand_num > 1.0 {
-            use rand::Rng;
-            let mut rng = rand::thread_rng();
-            settings.wg_migration_rand_num = rng.gen_range(0.0, 1.0);
-            should_save |= true;
-        }
+        should_save |= Self::ensure_wg_migration_rand_num_is_set(&mut settings);
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
@@ -193,10 +188,24 @@ impl SettingsPersister {
     /// is being run or not.
     fn default_settings() -> Settings {
         let mut settings = Settings::default();
+
+        Self::ensure_wg_migration_rand_num_is_set(&mut settings);
+
         if crate::version::is_beta_version() {
             settings.show_beta_releases = true;
         }
         settings
+    }
+
+    fn ensure_wg_migration_rand_num_is_set (settings: &mut Settings) -> bool {
+        if settings.wg_migration_rand_num < 0.0 || settings.wg_migration_rand_num > 1.0 {
+            use rand::Rng;
+            let mut rng = rand::thread_rng();
+            settings.wg_migration_rand_num = rng.gen_range(0.0, 1.0);
+            true
+        } else {
+            false
+        }
     }
 
     pub async fn update_relay_settings(

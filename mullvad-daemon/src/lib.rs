@@ -36,7 +36,7 @@ use futures::{
 };
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
-    DefaultTunnelProtocol, RelaySelector, SelectorConfig,
+    RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -2266,9 +2266,9 @@ fn new_selector_config(
         .unwrap_or(1.0);
 
     let default_tunnel_protocol = if threshold_wg_default >= settings.wg_migration_rand_num {
-        DefaultTunnelProtocol::Wireguard
+        TunnelType::Wireguard
     } else {
-        DefaultTunnelProtocol::OpenVpn
+        TunnelType::OpenVpn
     };
 
     SelectorConfig {
