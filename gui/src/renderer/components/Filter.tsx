@@ -49,6 +49,7 @@ export default function Filter() {
   const initialProviders = useSelector(providersSelector);
   const [providers, setProviders] = useState<Record<string, boolean>>(initialProviders);
 
+  // The daemon expects the value to be an empty list if all are selected.
   const formattedProviderList = useMemo(() => {
     // If all providers are selected it's represented as an empty array.
     return Object.values(providers).every((provider) => provider)
@@ -65,11 +66,13 @@ export default function Filter() {
   );
   const [ownership, setOwnership] = useState<Ownership>(initialOwnership);
 
+  // Available providers are used to only show compatible options after activating a filter.
   const { availableProviders, availableOwnershipOptions } = useFilteredFilters(
     formattedProviderList,
     ownership,
   );
 
+  // Applies the changes by sending them to the daemon.
   const onApply = useCallback(async () => {
     await updateRelaySettings({ normal: { providers: formattedProviderList, ownership } });
     history.pop();
@@ -116,6 +119,7 @@ export default function Filter() {
   );
 }
 
+// Returns only the options for each filter that are compatible with current filter selection.
 function useFilteredFilters(providers: string[], ownership: Ownership) {
   const locations = useSelector((state) =>
     state.settings.relayLocations.concat(
@@ -127,6 +131,7 @@ function useFilteredFilters(providers: string[], ownership: Ownership) {
     const filteredRelays = filterLocations(locations, [], ownership);
     return providersFromRelays(filteredRelays);
   }, [locations, ownership]);
+
   const availableOwnershipOptions = useMemo(() => {
     const filteredRelays = filterLocations(locations, providers, Ownership.any);
     const filteredRelayOwnership = filteredRelays.flatMap((country) =>
@@ -147,6 +152,7 @@ function useFilteredFilters(providers: string[], ownership: Ownership) {
   return { availableProviders, availableOwnershipOptions };
 }
 
+// Returns all available providers in the provided relay list.
 function providersFromRelays(relays: IRelayLocationRedux[]) {
   const providers = relays.flatMap((country) =>
     country.cities.flatMap((city) => city.relays.map((relay) => relay.provider)),
