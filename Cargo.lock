@@ -1726,7 +1726,7 @@ dependencies = [
  "jnix",
  "lazy_static",
  "log",
- "rand 0.8.4",
+ "rand 0.8.5",
  "regex",
  "serde",
  "talpid-types",
