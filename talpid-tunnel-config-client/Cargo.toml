@@ -9,7 +9,7 @@ publish = false
 
 [dependencies]
 log = "0.4"
-rand = "0.8"
+rand = "0.8.5"
 talpid-types = { path = "../talpid-types" }
 tonic = "0.5"
 prost = "0.8"
