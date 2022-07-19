@@ -39,6 +39,7 @@ pub struct AppVersionInfo {
     /// OpenVpn. Represents the percentage of users which should use Wireguard.
     /// NOTE: This field will be removed completely in future versions.
     // TODO: Should be windows only
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub threshold_wg_default: f32,
 }
 
