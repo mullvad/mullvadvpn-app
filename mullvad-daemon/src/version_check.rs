@@ -282,8 +282,10 @@ impl VersionUpdater {
         );
 
         let threshold_wg_default = if response.x_threshold_wg_default.is_nan() {
-            1.0
+            // If the value should for some strange reason be NaN then safe default to 0.0
+            0.0
         } else {
+            // Make sure that the returned value is between 0% and 100%
             response.x_threshold_wg_default.clamp(0.0, 1.0)
         };
 

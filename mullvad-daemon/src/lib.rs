@@ -2259,11 +2259,14 @@ fn new_selector_config(
     settings: &Settings,
     app_version_info: &Option<AppVersionInfo>,
 ) -> SelectorConfig {
-    // MAGIC NUMBER 1.0 is the default threshold of 100%
+    // In case of the app not having a version we safety default to OpenVPN to guard against the
+    // case where some error causes users to not recieve a version and in that case all going to
+    // wireguard. Magic number 0.0 implies that 0% of users should use Wireguard.
+    // This will be removed in the future when we the migration is done.
     let threshold_wg_default = app_version_info
         .as_ref()
         .map(|f| f.threshold_wg_default)
-        .unwrap_or(1.0);
+        .unwrap_or(0.0);
 
     let default_tunnel_protocol = if threshold_wg_default >= settings.wg_migration_rand_num {
         TunnelType::Wireguard
