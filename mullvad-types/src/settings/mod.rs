@@ -95,6 +95,7 @@ pub struct Settings {
     /// NOTE: This field will be removed completely in future versions.
     // TODO: Should be windows only
     #[serde(default = "out_of_range_wg_migration_rand_num")]
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub wg_migration_rand_num: f32,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]

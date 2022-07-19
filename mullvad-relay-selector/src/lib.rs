@@ -951,7 +951,7 @@ impl RelaySelector {
         ownership_constraint: &Constraint<Ownership>,
     ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
         #[cfg(target_os = "windows")]
-        if matches!(default_tunnel_protocol, DefaultTunnelProtocol::OpenVpn) {
+        if matches!(default_tunnel_protocol, TunnelType::OpenVpn) {
             let location_supports_openvpn =
                 self.parsed_relays.lock().relays().iter().any(|relay| {
                     relay.active
