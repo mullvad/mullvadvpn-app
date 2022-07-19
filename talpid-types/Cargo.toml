@@ -11,8 +11,8 @@ publish = false
 serde = { version = "1.0", features = ["derive"] }
 ipnetwork = "0.16"
 base64 = "0.13"
-x25519-dalek = { version = "1.1", features = ["std", "u64_backend"], default-features = false }
-rand = "0.7"
+x25519-dalek = { version = "2.0.0-pre.1" }
+rand = "0.8.5"
 err-derive = "0.3.1"
 
 [target.'cfg(target_os = "android")'.dependencies]

@@ -16,7 +16,7 @@ use mullvad_types::{
     CustomTunnelEndpoint,
 };
 use parking_lot::{Mutex, MutexGuard};
-use rand::{self, seq::SliceRandom, Rng};
+use rand::{seq::SliceRandom, Rng};
 use std::{
     io,
     net::{IpAddr, SocketAddr},
@@ -1075,7 +1075,7 @@ impl RelaySelector {
         } else {
             // Pick a random number in the range 1..=total_weight. This choses the relay with a
             // non-zero weight.
-            let mut i: u64 = rng.gen_range(1, total_weight + 1);
+            let mut i: u64 = rng.gen_range(1..=total_weight);
             Some(
                 relays
                     .iter()

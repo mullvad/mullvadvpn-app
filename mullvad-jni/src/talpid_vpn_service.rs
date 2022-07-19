@@ -129,7 +129,7 @@ fn try_sending_random_udp(is_ipv6_enabled: bool) -> Result<(), SendRandomDataErr
 
         let socket = UdpSocket::bind(local_addr).map_err(SendRandomDataError::BindUdpSocket)?;
 
-        let mut buf = vec![0u8; thread_rng().gen_range(17, 214)];
+        let mut buf = vec![0u8; thread_rng().gen_range(17..214)];
         // fill buff with random data
         thread_rng().fill(buf.as_mut_slice());
         match socket.send_to(&buf, rand_dest_addr) {
