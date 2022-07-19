@@ -454,11 +454,11 @@ export default class AppRenderer {
     await IpcRendererEventChannel.settings.setOpenVpnMssfix(mssfix);
   }
 
-  public async setWireguardMtu(mtu?: number) {
+  public setWireguardMtu = async (mtu?: number) => {
     const actions = this.reduxActions;
     actions.settings.updateWireguardMtu(mtu);
     await IpcRendererEventChannel.settings.setWireguardMtu(mtu);
-  }
+  };
 
   public setAutoConnect(autoConnect: boolean) {
     IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);

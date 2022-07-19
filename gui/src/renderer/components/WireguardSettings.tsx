@@ -1,16 +1,23 @@
-import * as React from 'react';
+import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../config.json';
+import { colors, strings } from '../../config.json';
 import { IpVersion } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import log from '../../shared/logging';
+import { useAppContext } from '../context';
+import { createWireguardRelayUpdater } from '../lib/constraint-updater';
+import { useHistory } from '../lib/history';
+import { useBoolean } from '../lib/utilityHooks';
+import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { ISelectorItem } from './cell/Selector';
+import { InfoIcon } from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import { Container, Layout } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import {
   NavigationBar,
@@ -20,7 +27,6 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import Switch from './Switch';
 
 const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
@@ -33,54 +39,259 @@ function mapPortToSelectorItem(value: number): ISelectorItem<number> {
   return { label: value.toString(), value };
 }
 
-export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
+export const StyledContainer = styled(Container)({
+  backgroundColor: colors.darkBlue,
+});
+
+export const StyledContent = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
   flex: 1,
+  marginBottom: '2px',
+});
+
+export const StyledCellIcon = styled(Cell.UntintedIcon)({
+  marginRight: '8px',
+});
+
+export const StyledInfoIcon = styled(InfoIcon)({
+  marginRight: '16px',
 });
 
 export const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export const StyledSelectorForFooter = (styled(Selector)({
-  marginBottom: 0,
-}) as unknown) as new <T>() => Selector<T>;
+export default function WireguardSettings() {
+  const { pop } = useHistory();
 
-interface IProps {
-  wireguard: { port?: number; ipVersion?: IpVersion };
-  wireguardMtu?: number;
-  wireguardMultihop: boolean;
-  setWireguardMtu: (value: number | undefined) => void;
-  setWireguardMultihop: (value: boolean) => void;
-  setWireguardPort: (port?: number) => void;
-  setWireguardIpVersion: (ipVersion?: IpVersion) => void;
-  onClose: () => void;
+  return (
+    <BackAction action={pop}>
+      <Layout>
+        <StyledContainer>
+          <NavigationContainer>
+            <NavigationBar>
+              <NavigationItems>
+                <TitleBarItem>
+                  {sprintf(
+                    // TRANSLATORS: Title label in navigation bar
+                    // TRANSLATORS: Available placeholders:
+                    // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+                    messages.pgettext('wireguard-settings-nav', '%(wireguard)s settings'),
+                    { wireguard: strings.wireguard },
+                  )}
+                </TitleBarItem>
+              </NavigationItems>
+            </NavigationBar>
+
+            <NavigationScrollbars>
+              <SettingsHeader>
+                <HeaderTitle>
+                  {sprintf(
+                    // TRANSLATORS: Available placeholders:
+                    // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+                    messages.pgettext('wireguard-settings-view', '%(wireguard)s settings'),
+                    { wireguard: strings.wireguard },
+                  )}
+                </HeaderTitle>
+              </SettingsHeader>
+
+              <StyledContent>
+                <Cell.Group>
+                  <PortSelector />
+                </Cell.Group>
+
+                <Cell.Group>
+                  <MultihopSetting />
+                </Cell.Group>
+
+                <Cell.Group>
+                  <IpVersionSetting />
+                </Cell.Group>
+
+                <Cell.Group>
+                  <MtuSetting />
+                </Cell.Group>
+              </StyledContent>
+            </NavigationScrollbars>
+          </NavigationContainer>
+        </StyledContainer>
+      </Layout>
+    </BackAction>
+  );
 }
 
-interface IState {
-  showMultihopConfirmationDialog: boolean;
-}
+function PortSelector() {
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+  const { updateRelaySettings } = useAppContext();
 
-export default class WireguardSettings extends React.Component<IProps, IState> {
-  public state = { showMultihopConfirmationDialog: false };
-
-  private multihopRef = React.createRef<Switch>();
-
-  private wireguardPortItems: Array<ISelectorItem<OptionalPort>>;
-  private wireguardIpVersionItems: Array<ISelectorItem<OptionalIpVersion>>;
-
-  constructor(props: IProps) {
-    super(props);
-
+  const wireguardPortItems = useMemo(() => {
     const automaticPort: ISelectorItem<OptionalPort> = {
       label: messages.gettext('Automatic'),
       value: undefined,
     };
 
-    this.wireguardPortItems = [automaticPort].concat(
-      WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem),
-    );
+    return [automaticPort].concat(WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem));
+  }, []);
 
-    this.wireguardIpVersionItems = [
+  const port = useMemo(() => {
+    const port = 'normal' in relaySettings ? relaySettings.normal.wireguard.port : undefined;
+    return port === 'any' ? undefined : port;
+  }, [relaySettings]);
+
+  const setWireguardPort = useCallback(
+    async (port?: number) => {
+      const relayUpdate = createWireguardRelayUpdater(relaySettings)
+        .tunnel.wireguard((wireguard) => {
+          if (port) {
+            wireguard.port.exact(port);
+          } else {
+            wireguard.port.any();
+          }
+        })
+        .build();
+      try {
+        await updateRelaySettings(relayUpdate);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to update relay settings', error.message);
+      }
+    },
+    [relaySettings],
+  );
+
+  return (
+    <AriaInputGroup>
+      <StyledSelectorContainer>
+        <Selector
+          // TRANSLATORS: The title for the WireGuard port selector.
+          title={messages.pgettext('wireguard-settings-view', 'Port')}
+          values={wireguardPortItems}
+          value={port}
+          onSelect={setWireguardPort}
+        />
+      </StyledSelectorContainer>
+      <Cell.Footer>
+        <AriaDescription>
+          <Cell.FooterText>
+            {
+              // TRANSLATORS: The hint displayed below the WireGuard port selector.
+              messages.pgettext(
+                'wireguard-settings-view',
+                'The automatic setting will randomly choose from a wide range of ports.',
+              )
+            }
+          </Cell.FooterText>
+        </AriaDescription>
+      </Cell.Footer>
+    </AriaInputGroup>
+  );
+}
+
+function MultihopSetting() {
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+  const { updateRelaySettings } = useAppContext();
+
+  const multihop = 'normal' in relaySettings ? relaySettings.normal.wireguard.useMultihop : false;
+
+  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
+
+  const setMultihopImpl = useCallback(
+    async (enabled: boolean) => {
+      const relayUpdate = createWireguardRelayUpdater(relaySettings)
+        .tunnel.wireguard((wireguard) => wireguard.useMultihop(enabled))
+        .build();
+      try {
+        await updateRelaySettings(relayUpdate);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to update WireGuard multihop settings', error.message);
+      }
+    },
+    [relaySettings, updateRelaySettings],
+  );
+
+  const setMultihop = useCallback(
+    async (newValue: boolean) => {
+      if (newValue) {
+        showConfirmationDialog();
+      } else {
+        await setMultihopImpl(false);
+      }
+    },
+    [setMultihopImpl],
+  );
+
+  const confirmMultihop = useCallback(async () => {
+    await setMultihopImpl(true);
+    hideConfirmationDialog();
+  }, [setMultihopImpl]);
+
+  return (
+    <>
+      <AriaInputGroup>
+        <Cell.Container>
+          <AriaLabel>
+            <Cell.InputLabel>
+              {
+                // TRANSLATORS: The label next to the multihop settings toggle.
+                messages.pgettext('vpn-settings-view', 'Enable multihop')
+              }
+            </Cell.InputLabel>
+          </AriaLabel>
+          <AriaInput>
+            <Cell.Switch isOn={multihop} onChange={setMultihop} />
+          </AriaInput>
+        </Cell.Container>
+        <Cell.Footer>
+          <AriaDescription>
+            <Cell.FooterText>
+              {sprintf(
+                // TRANSLATORS: Description for multihop settings toggle.
+                // TRANSLATORS: Available placeholders:
+                // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+                messages.pgettext(
+                  'vpn-settings-view',
+                  'Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace.',
+                ),
+                { wireguard: strings.wireguard },
+              )}
+            </Cell.FooterText>
+          </AriaDescription>
+        </Cell.Footer>
+      </AriaInputGroup>
+      <ModalAlert
+        isOpen={confirmationDialogVisible}
+        type={ModalAlertType.info}
+        message={
+          // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
+          messages.gettext('This setting increases latency. Use only if needed.')
+        }
+        buttons={[
+          <AppButton.RedButton key="confirm" onClick={confirmMultihop}>
+            {messages.gettext('Enable anyway')}
+          </AppButton.RedButton>,
+          <AppButton.BlueButton key="back" onClick={hideConfirmationDialog}>
+            {messages.gettext('Back')}
+          </AppButton.BlueButton>,
+        ]}
+        close={hideConfirmationDialog}
+      />
+    </>
+  );
+}
+
+function IpVersionSetting() {
+  const { updateRelaySettings } = useAppContext();
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+  const ipVersion = useMemo(() => {
+    const ipVersion =
+      'normal' in relaySettings ? relaySettings.normal.wireguard.ipVersion : undefined;
+    return ipVersion === 'any' ? undefined : ipVersion;
+  }, [relaySettings]);
+
+  const ipVersionItems: ISelectorItem<OptionalIpVersion>[] = useMemo(
+    () => [
       {
         label: messages.gettext('Automatic'),
         value: undefined,
@@ -93,245 +304,141 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
         label: messages.gettext('IPv6'),
         value: 'ipv6',
       },
-    ];
-  }
+    ],
+    [],
+  );
 
-  public render() {
-    return (
-      <BackAction action={this.props.onClose}>
-        <Layout>
-          <SettingsContainer>
-            <NavigationContainer>
-              <NavigationBar>
-                <NavigationItems>
-                  <TitleBarItem>
-                    {sprintf(
-                      // TRANSLATORS: Title label in navigation bar
-                      // TRANSLATORS: Available placeholders:
-                      // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-                      messages.pgettext('wireguard-settings-nav', '%(wireguard)s settings'),
-                      { wireguard: strings.wireguard },
-                    )}
-                  </TitleBarItem>
-                </NavigationItems>
-              </NavigationBar>
+  const setIpVersion = useCallback(
+    async (ipVersion?: IpVersion) => {
+      const relayUpdate = createWireguardRelayUpdater(relaySettings)
+        .tunnel.wireguard((wireguard) => {
+          if (ipVersion) {
+            wireguard.ipVersion.exact(ipVersion);
+          } else {
+            wireguard.ipVersion.any();
+          }
+        })
+        .build();
+      try {
+        await updateRelaySettings(relayUpdate);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to update relay settings', error.message);
+      }
+    },
+    [relaySettings, updateRelaySettings],
+  );
 
-              <StyledNavigationScrollbars>
-                <SettingsHeader>
-                  <HeaderTitle>
-                    {sprintf(
-                      // TRANSLATORS: Available placeholders:
-                      // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-                      messages.pgettext('wireguard-settings-view', '%(wireguard)s settings'),
-                      { wireguard: strings.wireguard },
-                    )}
-                  </HeaderTitle>
-                </SettingsHeader>
+  return (
+    <AriaInputGroup>
+      <StyledSelectorContainer>
+        <Selector
+          // TRANSLATORS: The title for the WireGuard IP version selector.
+          title={messages.pgettext('wireguard-settings-view', 'IP version')}
+          values={ipVersionItems}
+          value={ipVersion}
+          onSelect={setIpVersion}
+        />
+      </StyledSelectorContainer>
+      <Cell.Footer>
+        <AriaDescription>
+          <Cell.FooterText>
+            {sprintf(
+              // TRANSLATORS: The hint displayed below the WireGuard IP version selector.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+              messages.pgettext(
+                'wireguard-settings-view',
+                'This allows access to %(wireguard)s for devices that only support IPv6.',
+              ),
+              { wireguard: strings.wireguard },
+            )}
+          </Cell.FooterText>
+        </AriaDescription>
+      </Cell.Footer>
+    </AriaInputGroup>
+  );
+}
 
-                <Cell.Group>
-                  <AriaInputGroup>
-                    <StyledSelectorContainer>
-                      <StyledSelectorForFooter
-                        // TRANSLATORS: The title for the WireGuard port selector.
-                        title={messages.pgettext('wireguard-settings-view', 'Port')}
-                        values={this.wireguardPortItems}
-                        value={this.props.wireguard.port}
-                        onSelect={this.props.setWireguardPort}
-                      />
-                    </StyledSelectorContainer>
-                    <Cell.Footer>
-                      <AriaDescription>
-                        <Cell.FooterText>
-                          {
-                            // TRANSLATORS: The hint displayed below the WireGuard port selector.
-                            messages.pgettext(
-                              'wireguard-settings-view',
-                              'The automatic setting will randomly choose from a wide range of ports.',
-                            )
-                          }
-                        </Cell.FooterText>
-                      </AriaDescription>
-                    </Cell.Footer>
-                  </AriaInputGroup>
-                </Cell.Group>
+function removeNonNumericCharacters(value: string) {
+  return value.replace(/[^0-9]/g, '');
+}
 
-                <Cell.Group>
-                  <AriaInputGroup>
-                    <Cell.Container>
-                      <AriaLabel>
-                        <Cell.InputLabel>
-                          {
-                            // TRANSLATORS: The label next to the multihop settings toggle.
-                            messages.pgettext('vpn-settings-view', 'Enable multihop')
-                          }
-                        </Cell.InputLabel>
-                      </AriaLabel>
-                      <AriaInput>
-                        <Cell.Switch
-                          ref={this.multihopRef}
-                          isOn={this.props.wireguardMultihop}
-                          onChange={this.setWireguardMultihop}
-                        />
-                      </AriaInput>
-                    </Cell.Container>
-                    <Cell.Footer>
-                      <AriaDescription>
-                        <Cell.FooterText>
-                          {sprintf(
-                            // TRANSLATORS: Description for multihop settings toggle.
-                            // TRANSLATORS: Available placeholders:
-                            // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-                            messages.pgettext(
-                              'vpn-settings-view',
-                              'Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace.',
-                            ),
-                            { wireguard: strings.wireguard },
-                          )}
-                        </Cell.FooterText>
-                      </AriaDescription>
-                    </Cell.Footer>
-                  </AriaInputGroup>
-                </Cell.Group>
+function mtuIsValid(mtu: string): boolean {
+  const parsedMtu = mtu ? parseInt(mtu) : undefined;
+  return (
+    parsedMtu === undefined ||
+    (parsedMtu >= MIN_WIREGUARD_MTU_VALUE && parsedMtu <= MAX_WIREGUARD_MTU_VALUE)
+  );
+}
 
-                <Cell.Group>
-                  <AriaInputGroup>
-                    <StyledSelectorContainer>
-                      <StyledSelectorForFooter
-                        // TRANSLATORS: The title for the WireGuard IP version selector.
-                        title={messages.pgettext('wireguard-settings-view', 'IP version')}
-                        values={this.wireguardIpVersionItems}
-                        value={this.props.wireguard.ipVersion}
-                        onSelect={this.props.setWireguardIpVersion}
-                      />
-                    </StyledSelectorContainer>
-                    <Cell.Footer>
-                      <AriaDescription>
-                        <Cell.FooterText>
-                          {sprintf(
-                            // TRANSLATORS: The hint displayed below the WireGuard IP version selector.
-                            // TRANSLATORS: Available placeholders:
-                            // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-                            messages.pgettext(
-                              'wireguard-settings-view',
-                              'This allows access to %(wireguard)s for devices that only support IPv6.',
-                            ),
-                            { wireguard: strings.wireguard },
-                          )}
-                        </Cell.FooterText>
-                      </AriaDescription>
-                    </Cell.Footer>
-                  </AriaInputGroup>
-                </Cell.Group>
+function MtuSetting() {
+  const { setWireguardMtu: setWireguardMtuImpl } = useAppContext();
+  const mtu = useSelector((state) => state.settings.wireguard.mtu);
 
-                <Cell.Group>
-                  <AriaInputGroup>
-                    <Cell.Container>
-                      <AriaLabel>
-                        <Cell.InputLabel>
-                          {messages.pgettext('wireguard-settings-view', 'MTU')}
-                        </Cell.InputLabel>
-                      </AriaLabel>
-                      <AriaInput>
-                        <Cell.AutoSizingTextInput
-                          value={this.props.wireguardMtu ? this.props.wireguardMtu.toString() : ''}
-                          inputMode={'numeric'}
-                          maxLength={4}
-                          placeholder={messages.gettext('Default')}
-                          onSubmitValue={this.onWireguardMtuSubmit}
-                          validateValue={WireguardSettings.wireguarMtuIsValid}
-                          submitOnBlur={true}
-                          modifyValue={WireguardSettings.removeNonNumericCharacters}
-                        />
-                      </AriaInput>
-                    </Cell.Container>
-                    <Cell.Footer>
-                      <AriaDescription>
-                        <Cell.FooterText>
-                          {sprintf(
-                            // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
-                            // TRANSLATORS: Available placeholders:
-                            // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-                            // TRANSLATORS: %(max)d - the maximum possible wireguard mtu value
-                            // TRANSLATORS: %(min)d - the minimum possible wireguard mtu value
-                            messages.pgettext(
-                              'wireguard-settings-view',
-                              'Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d.',
-                            ),
-                            {
-                              wireguard: strings.wireguard,
-                              min: MIN_WIREGUARD_MTU_VALUE,
-                              max: MAX_WIREGUARD_MTU_VALUE,
-                            },
-                          )}
-                        </Cell.FooterText>
-                      </AriaDescription>
-                    </Cell.Footer>
-                  </AriaInputGroup>
-                </Cell.Group>
-              </StyledNavigationScrollbars>
-            </NavigationContainer>
-          </SettingsContainer>
+  const setMtu = useCallback(
+    async (mtu?: number) => {
+      try {
+        await setWireguardMtuImpl(mtu);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to update mtu value', error.message);
+      }
+    },
+    [setWireguardMtuImpl],
+  );
 
-          {this.renderMultihopConfirmation()}
-        </Layout>
-      </BackAction>
-    );
-  }
+  const onSubmit = useCallback(
+    async (value: string) => {
+      const parsedValue = value === '' ? undefined : parseInt(value, 10);
+      if (mtuIsValid(value)) {
+        await setMtu(parsedValue);
+      }
+    },
+    [setMtu],
+  );
 
-  private static removeNonNumericCharacters(value: string) {
-    return value.replace(/[^0-9]/g, '');
-  }
-
-  private onWireguardMtuSubmit = (value: string) => {
-    const parsedValue = value === '' ? undefined : parseInt(value, 10);
-    if (WireguardSettings.wireguarMtuIsValid(value)) {
-      this.props.setWireguardMtu(parsedValue);
-    }
-  };
-
-  private static wireguarMtuIsValid(mtu: string): boolean {
-    const parsedMtu = mtu ? parseInt(mtu) : undefined;
-    return (
-      parsedMtu === undefined ||
-      (parsedMtu >= MIN_WIREGUARD_MTU_VALUE && parsedMtu <= MAX_WIREGUARD_MTU_VALUE)
-    );
-  }
-
-  private renderMultihopConfirmation = () => {
-    return (
-      <ModalAlert
-        isOpen={this.state.showMultihopConfirmationDialog}
-        type={ModalAlertType.info}
-        message={
-          // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
-          messages.gettext('This setting increases latency. Use only if needed.')
-        }
-        buttons={[
-          <AppButton.RedButton key="confirm" onClick={this.confirmWireguardMultihop}>
-            {messages.gettext('Enable anyway')}
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onClick={this.hideWireguardMultihopConfirmationDialog}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
-        ]}
-        close={this.hideWireguardMultihopConfirmationDialog}></ModalAlert>
-    );
-  };
-
-  private setWireguardMultihop = (newValue: boolean) => {
-    if (newValue) {
-      this.setState({ showMultihopConfirmationDialog: true });
-    } else {
-      this.props.setWireguardMultihop(false);
-    }
-  };
-
-  private hideWireguardMultihopConfirmationDialog = () => {
-    this.setState({ showMultihopConfirmationDialog: false });
-  };
-
-  private confirmWireguardMultihop = () => {
-    this.setState({ showMultihopConfirmationDialog: false });
-    this.props.setWireguardMultihop(true);
-  };
+  return (
+    <AriaInputGroup>
+      <Cell.Container>
+        <AriaLabel>
+          <Cell.InputLabel>{messages.pgettext('wireguard-settings-view', 'MTU')}</Cell.InputLabel>
+        </AriaLabel>
+        <AriaInput>
+          <Cell.AutoSizingTextInput
+            value={mtu ? mtu.toString() : ''}
+            inputMode={'numeric'}
+            maxLength={4}
+            placeholder={messages.gettext('Default')}
+            onSubmitValue={onSubmit}
+            validateValue={mtuIsValid}
+            submitOnBlur={true}
+            modifyValue={removeNonNumericCharacters}
+          />
+        </AriaInput>
+      </Cell.Container>
+      <Cell.Footer>
+        <AriaDescription>
+          <Cell.FooterText>
+            {sprintf(
+              // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+              // TRANSLATORS: %(max)d - the maximum possible wireguard mtu value
+              // TRANSLATORS: %(min)d - the minimum possible wireguard mtu value
+              messages.pgettext(
+                'wireguard-settings-view',
+                'Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d.',
+              ),
+              {
+                wireguard: strings.wireguard,
+                min: MIN_WIREGUARD_MTU_VALUE,
+                max: MAX_WIREGUARD_MTU_VALUE,
+              },
+            )}
+          </Cell.FooterText>
+        </AriaDescription>
+      </Cell.Footer>
+    </AriaInputGroup>
+  );
 }
