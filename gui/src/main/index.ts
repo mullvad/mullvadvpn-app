@@ -919,7 +919,7 @@ class ApplicationMain {
     // If there's a fallback state set then the app is in an assumed next state and need to check
     // if it's now reached or if the current state should be ignored and set as the fallback state.
     if (this.tunnelStateFallback) {
-      if (this.tunnelState.state === newState.state) {
+      if (this.tunnelState.state === newState.state || newState.state === 'error') {
         this.tunnelStateFallbackScheduler.cancel();
         this.tunnelStateFallback = undefined;
       } else {

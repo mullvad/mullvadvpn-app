@@ -48,6 +48,7 @@ Line wrap the file at 100 chars.                                              Th
 - Connect to TCP endpoints over IPv6 if IPv6 is enabled for WireGuard.
 - Fix udp2tcp not working when quantum-resistant tunnels are enabled.
 - Quit app gracefully if renderer process is killed or crashes.
+- Enable reconnect in blocked state in desktop app.
 
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.
