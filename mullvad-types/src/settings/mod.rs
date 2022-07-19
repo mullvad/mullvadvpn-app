@@ -105,6 +105,12 @@ fn out_of_range_wg_migration_rand_num() -> f32 {
     -1.0
 }
 
+fn rand_percent() -> f32 {
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+    rng.gen_range(0.0..1.0)
+}
+
 #[cfg(windows)]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 pub struct SplitTunnelSettings {
@@ -133,7 +139,7 @@ impl Default for Settings {
             tunnel_options: TunnelOptions::default(),
             show_beta_releases: false,
             // TODO: Should be windows only
-            wg_migration_rand_num: out_of_range_wg_migration_rand_num(),
+            wg_migration_rand_num: rand_percent(),
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
