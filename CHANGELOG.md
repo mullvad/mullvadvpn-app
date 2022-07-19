@@ -49,6 +49,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix udp2tcp not working when quantum-resistant tunnels are enabled.
 - Quit app gracefully if renderer process is killed or crashes.
 - Enable reconnect in blocked state in desktop app.
+- Fix showing incompatible relay filtering options in desktop app. The filtering options are now
+  dependent on the other filters.
 
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.
