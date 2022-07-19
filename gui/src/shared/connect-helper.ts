@@ -18,7 +18,9 @@ export function reconnectEnabled(
   tunnelState: TunnelState['state'],
 ) {
   return (
-    connectedToDaemon && loggedIn && (tunnelState === 'connected' || tunnelState === 'connecting')
+    connectedToDaemon &&
+    loggedIn &&
+    (tunnelState === 'connected' || tunnelState === 'connecting' || tunnelState === 'error')
   );
 }
 
