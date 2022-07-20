@@ -1677,9 +1677,9 @@ mod test {
         let relay_selector = new_relay_selector();
 
         let default_tunnel_type = if cfg!(target_os = "windows") {
-            TunnelType::OpenVpn 
+            TunnelType::OpenVpn
         } else {
-            TunnelType::Wireguard 
+            TunnelType::Wireguard
         };
 
         let result = relay_selector.get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, &default_tunnel_type)
