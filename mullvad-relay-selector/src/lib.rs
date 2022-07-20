@@ -1676,7 +1676,13 @@ mod test {
 
         let relay_selector = new_relay_selector();
 
-        let result = relay_selector.get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, &TunnelType::Wireguard)
+        let default_tunnel_type = if cfg!(target_os = "windows") {
+            TunnelType::OpenVpn 
+        } else {
+            TunnelType::Wireguard 
+        };
+
+        let result = relay_selector.get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, &default_tunnel_type)
             .expect("Failed to get relay when tunnel constraints are set to Any and retrying the selection");
         // Windows will ignore WireGuard until WireGuard is supported well enough
         // TODO: Remove this caveat once Windows defaults to using WireGuard
