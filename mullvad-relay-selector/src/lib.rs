@@ -1335,7 +1335,7 @@ mod test {
                     ..Default::default()
                 },
                 bridge_state: BridgeState::Auto,
-                default_tunnel_protocol: TunnelType::OpenVpn,
+                default_tunnel_type: TunnelType::OpenVpn,
             })),
         }
     }
