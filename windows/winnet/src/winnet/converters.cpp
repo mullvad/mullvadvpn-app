@@ -129,19 +129,6 @@ std::vector<Route> ConvertRoutes(const WINNET_ROUTE *routes, uint32_t numRoutes)
 	return out;
 }
 
-std::vector<SOCKADDR_INET> ConvertAddresses(const WINNET_IP *addresses, uint32_t numAddresses)
-{
-	std::vector<SOCKADDR_INET> out;
-	out.reserve(numAddresses);
-
-	for (uint32_t i = 0; i < numAddresses; ++i)
-	{
-		out.emplace_back(IpToNative(addresses[i]));
-	}
-
-	return out;
-}
-
 std::vector<WINNET_IP> ConvertNativeAddresses(const SOCKADDR_INET *addresses, uint32_t numAddresses)
 {
 	std::vector<WINNET_IP> out;

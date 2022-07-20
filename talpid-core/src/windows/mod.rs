@@ -3,7 +3,7 @@ use std::{
     ffi::{OsStr, OsString},
     fmt, io,
     mem::{self, MaybeUninit},
-    net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
         io::RawHandle,
@@ -22,10 +22,11 @@ use winapi::{
         inaddr::IN_ADDR,
         netioapi::{
             CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
-            ConvertInterfaceLuidToGuid, FreeMibTable, GetIpInterfaceEntry,
-            GetUnicastIpAddressEntry, GetUnicastIpAddressTable, MibAddInstance,
-            NotifyIpInterfaceChange, SetIpInterfaceEntry, MIB_IPINTERFACE_ROW,
-            MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE,
+            ConvertInterfaceLuidToGuid, CreateUnicastIpAddressEntry, FreeMibTable,
+            GetIpInterfaceEntry, GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
+            InitializeUnicastIpAddressEntry, MibAddInstance, NotifyIpInterfaceChange,
+            SetIpInterfaceEntry, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW,
+            MIB_UNICASTIPADDRESS_TABLE,
         },
         nldef::{IpDadStatePreferred, IpDadStateTentative, NL_DAD_STATE},
         ntddndis::NDIS_IF_MAX_STRING_SIZE,
@@ -71,6 +72,11 @@ pub enum Error {
     #[cfg(windows)]
     #[error(display = "Found no addresses for the given adapter")]
     NoUnicastAddress,
+
+    /// Error returned from `CreateUnicastIpAddressEntry`
+    #[cfg(windows)]
+    #[error(display = "Failed to create unicast IP address")]
+    CreateUnicastEntry(#[error(source)] io::Error),
 
     /// Unexpected DAD state returned for a unicast address
     #[cfg(windows)]
@@ -340,6 +346,40 @@ pub async fn wait_for_addresses(luid: NET_LUID) -> Result<()> {
         let _ = tx.send(addr_check_thread());
     });
     rx.await.map_err(|_| Error::UnicastSenderDropped)?
+}
+
+/// Returns the first unicast IP address for the given interface.
+pub fn get_ip_address_for_interface(
+    family: AddressFamily,
+    luid: NET_LUID,
+) -> Result<Option<IpAddr>> {
+    match get_unicast_table(Some(family))
+        .map_err(Error::ObtainUnicastAddress)?
+        .into_iter()
+        .find(|row| row.InterfaceLuid.Value == luid.Value)
+    {
+        Some(row) => Ok(Some(try_socketaddr_from_inet_sockaddr(row.Address)?.ip())),
+        None => Ok(None),
+    }
+}
+
+/// Adds a unicast IP address for the given interface.
+pub fn add_ip_address_for_interface(luid: NET_LUID, address: IpAddr) -> Result<()> {
+    let mut row = unsafe { mem::zeroed() };
+    unsafe { InitializeUnicastIpAddressEntry(&mut row) };
+
+    row.InterfaceLuid = luid;
+    row.Address = inet_sockaddr_from_socketaddr(SocketAddr::new(address, 0));
+    row.DadState = IpDadStatePreferred;
+    row.OnLinkPrefixLength = 255;
+
+    let status = unsafe { CreateUnicastIpAddressEntry(&row) };
+    if status != NO_ERROR {
+        return Err(Error::CreateUnicastEntry(io::Error::from_raw_os_error(
+            status as i32,
+        )));
+    }
+    Ok(())
 }
 
 /// Returns the unicast IP address table. If `family` is `None`, then addresses for all families are

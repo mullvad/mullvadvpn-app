@@ -134,18 +134,6 @@ WinNet_GetBestDefaultRoute(
 	void *logSinkContext
 );
 
-extern "C"
-WINNET_LINKAGE
-WINNET_STATUS
-WINNET_API
-WinNet_InterfaceLuidToIpAddress(
-	WINNET_ADDR_FAMILY family,
-	uint64_t interfaceLuid,
-	WINNET_IP *ip,
-	MullvadLogSink logSink,
-	void *logSinkContext
-);
-
 enum WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE
 {
 	// Best default route changed.
@@ -196,16 +184,3 @@ void
 WINNET_API
 WinNet_DeactivateRouteManager(
 );
-
-extern "C"
-WINNET_LINKAGE
-bool
-WINNET_API
-WinNet_AddDeviceIpAddresses(
-	const wchar_t *deviceAlias,
-	const WINNET_IP *addresses,
-	uint32_t numAddresses,
-	MullvadLogSink logSink,
-	void *logSinkContext
-);
-

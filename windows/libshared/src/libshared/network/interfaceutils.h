@@ -62,8 +62,6 @@ public:
 	};
 
 	static std::set<NetworkAdapter> GetAllAdapters(ULONG family, ULONG flags);
-
-	static void AddDeviceIpAddresses(NET_LUID device, const std::vector<SOCKADDR_INET> &addresses);
 };
 
 }

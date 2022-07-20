@@ -6,10 +6,12 @@ mod windows;
 use crate::{
     tunnel::TunnelMetadata,
     tunnel_state_machine::TunnelCommand,
-    windows::window::{PowerManagementEvent, PowerManagementListener},
-    winnet::{
-        self, get_best_default_route, interface_luid_to_ip, WinNetAddrFamily, WinNetCallbackHandle,
+    windows::{
+        get_ip_address_for_interface,
+        window::{PowerManagementEvent, PowerManagementListener},
+        AddressFamily,
     },
+    winnet::{self, get_best_default_route, WinNetAddrFamily, WinNetCallbackHandle},
 };
 use futures::channel::{mpsc, oneshot};
 use std::{
@@ -27,7 +29,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
-use winapi::shared::winerror::ERROR_OPERATION_ABORTED;
+use winapi::shared::{ifdef::NET_LUID, winerror::ERROR_OPERATION_ABORTED};
 
 const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;
 const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
@@ -66,7 +68,7 @@ pub enum Error {
 
     /// Failed to obtain an IP address given a network interface LUID
     #[error(display = "Failed to obtain IP address for interface LUID")]
-    LuidToIp(#[error(source)] winnet::Error),
+    LuidToIp(#[error(source)] crate::windows::Error),
 
     /// Failed to set up callback for monitoring default route changes
     #[error(display = "Failed to register default route change callback")]
@@ -761,11 +763,19 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
         let internet_ipv4 = get_best_default_route(WinNetAddrFamily::IPV4)
             .map_err(Error::ObtainDefaultRoute)?
             .map(|route| {
-                interface_luid_to_ip(WinNetAddrFamily::IPV4, route.interface_luid).map(|ip| {
-                    ip.or_else(|| {
+                get_ip_address_for_interface(
+                    AddressFamily::Ipv4,
+                    NET_LUID {
+                        Value: route.interface_luid,
+                    },
+                )
+                .map(|ip| match ip {
+                    Some(IpAddr::V4(addr)) => Some(addr),
+                    Some(_) => unreachable!("wrong address family (expected IPv4)"),
+                    None => {
                         log::warn!("No IPv4 address was found for the default route interface");
                         None
-                    })
+                    }
                 })
             })
             .transpose()
@@ -774,23 +784,28 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
         let internet_ipv6 = get_best_default_route(WinNetAddrFamily::IPV6)
             .map_err(Error::ObtainDefaultRoute)?
             .map(|route| {
-                interface_luid_to_ip(WinNetAddrFamily::IPV6, route.interface_luid).map(|ip| {
-                    ip.or_else(|| {
+                get_ip_address_for_interface(
+                    AddressFamily::Ipv6,
+                    NET_LUID {
+                        Value: route.interface_luid,
+                    },
+                )
+                .map(|ip| match ip {
+                    Some(IpAddr::V6(addr)) => Some(addr),
+                    Some(_) => unreachable!("wrong address family (expected IPv6)"),
+                    None => {
                         log::warn!("No IPv6 address was found for the default route interface");
                         None
-                    })
+                    }
                 })
             })
             .transpose()
             .map_err(Error::LuidToIp)?
             .flatten();
 
-        self.addresses.internet_ipv4 = internet_ipv4
-            .map(|addr| Ipv4Addr::try_from(addr).map_err(|_| Error::IpParseError))
-            .transpose()?;
-        self.addresses.internet_ipv6 = internet_ipv6
-            .map(|addr| Ipv6Addr::try_from(addr).map_err(|_| Error::IpParseError))
-            .transpose()?;
+        self.addresses.internet_ipv4 = internet_ipv4;
+        self.addresses.internet_ipv6 = internet_ipv6;
+
         Ok(())
     }
 }
@@ -814,9 +829,16 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
         }
     };
 
+    let translated_family = winnet_to_talpid_family(address_family);
+
     let result = match event_type {
         DefaultRouteChanged | DefaultRouteUpdatedDetails => {
-            match interface_luid_to_ip(address_family, default_route.interface_luid) {
+            match get_ip_address_for_interface(
+                translated_family,
+                NET_LUID {
+                    Value: default_route.interface_luid,
+                },
+            ) {
                 Ok(Some(ip)) => match IpAddr::from(ip) {
                     IpAddr::V4(addr) => ctx.addresses.internet_ipv4 = Some(addr),
                     IpAddr::V6(addr) => ctx.addresses.internet_ipv6 = Some(addr),
@@ -866,5 +888,12 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
             error.display_chain_with_msg("Failed to register new addresses in split tunnel driver")
         );
         maybe_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
+    }
+}
+
+fn winnet_to_talpid_family(address_family: WinNetAddrFamily) -> AddressFamily {
+    match address_family {
+        WinNetAddrFamily::IPV4 => AddressFamily::Ipv4,
+        WinNetAddrFamily::IPV6 => AddressFamily::Ipv6,
     }
 }
