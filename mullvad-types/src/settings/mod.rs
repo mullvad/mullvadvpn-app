@@ -93,7 +93,6 @@ pub struct Settings {
     /// in future versions.
     /// A value of -1.0 implies that the variable should be initialized to a random number.
     /// NOTE: This field will be removed completely in future versions.
-    // TODO: Should be windows only
     #[serde(default = "out_of_range_wg_migration_rand_num")]
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub wg_migration_rand_num: f32,
@@ -139,7 +138,6 @@ impl Default for Settings {
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
             show_beta_releases: false,
-            // TODO: Should be windows only
             wg_migration_rand_num: rand_percent(),
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),

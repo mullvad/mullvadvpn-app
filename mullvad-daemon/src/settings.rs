@@ -69,7 +69,6 @@ impl SettingsPersister {
             }
         };
 
-        // TODO: Should be windows only
         // If the settings file did not contain a wg_migration_rand_num then it will be initialized
         // to -1.0 by serde. This block ensures that this value is correctly intitialzed to a
         // percentage.
