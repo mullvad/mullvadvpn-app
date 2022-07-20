@@ -478,6 +478,7 @@ fn dev_version_cache() -> AppVersionInfo {
         latest_stable: PRODUCT_VERSION.to_owned(),
         latest_beta: PRODUCT_VERSION.to_owned(),
         suggested_upgrade: None,
+        wg_migration_threshold: 1.0,
     }
 }
 
