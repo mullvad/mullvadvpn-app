@@ -15,16 +15,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.ui.fragments.ACCOUNT_TOKEN_ARGUMENT_KEY
+import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
 import net.mullvad.mullvadvpn.ui.fragments.DeviceListFragment
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
+import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class LoginFragment :
-    ServiceDependentFragment(OnNoService.GoToLaunchScreen),
-    NavigationBarPainter {
+class LoginFragment : BaseFragment(), NavigationBarPainter {
 
     private val loginViewModel: LoginViewModel by viewModel()
 
@@ -38,11 +39,19 @@ class LoginFragment :
     private lateinit var background: View
     private lateinit var headerBar: HeaderBar
 
-    override fun onSafelyCreateView(
+    @Deprecated("Refactor code to instead rely on Lifecycle.")
+    private val jobTracker = JobTracker()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
+
+    override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         val view = inflater.inflate(R.layout.login, container, false)
 
         headerBar = view.findViewById(R.id.header_bar)
@@ -74,12 +83,9 @@ class LoginFragment :
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        lifecycleScope.launchUiSubscriptionsOnResume()
-    }
-
-    override fun onSafelyStart() {
-        parentActivity.backButtonHandler = {
+    override fun onStart() {
+        super.onStart()
+        requireMainActivity().backButtonHandler = {
             if (accountLogin.hasFocus) {
                 background.requestFocus()
                 true
@@ -94,8 +100,10 @@ class LoginFragment :
         paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
     }
 
-    override fun onSafelyStop() {
-        parentActivity.backButtonHandler = null
+    override fun onStop() {
+        jobTracker.cancelAllJobs()
+        requireMainActivity().backButtonHandler = null
+        super.onStop()
     }
 
     private fun triggerAutoLoginIfAccountTokenPresent() {

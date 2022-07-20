@@ -23,9 +23,6 @@ class AccountRepository(
     private val serviceConnectionManager: ServiceConnectionManager,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    private val dataSource
-        get() = serviceConnectionManager.connectionState.value.readyContainer()?.accountDataSource
-
     private val _cachedCreatedAccount = MutableStateFlow<String?>(null)
     val cachedCreatedAccount = _cachedCreatedAccount.asStateFlow()
 
@@ -78,28 +75,28 @@ class AccountRepository(
         )
 
     fun createAccount() {
-        dataSource?.createAccount()
+        serviceConnectionManager.accountDataSource()?.createAccount()
     }
 
     fun login(accountToken: String) {
-        dataSource?.login(accountToken)
+        serviceConnectionManager.accountDataSource()?.login(accountToken)
     }
 
     fun logout() {
         clearCreatedAccountCache()
-        dataSource?.logout()
+        serviceConnectionManager.accountDataSource()?.logout()
     }
 
     fun fetchAccountExpiry() {
-        dataSource?.fetchAccountExpiry()
+        serviceConnectionManager.accountDataSource()?.fetchAccountExpiry()
     }
 
     fun fetchAccountHistory() {
-        dataSource?.fetchAccountHistory()
+        serviceConnectionManager.accountDataSource()?.fetchAccountHistory()
     }
 
     fun clearAccountHistory() {
-        dataSource?.clearAccountHistory()
+        serviceConnectionManager.accountDataSource()?.clearAccountHistory()
     }
 
     private fun clearCreatedAccountCache() {

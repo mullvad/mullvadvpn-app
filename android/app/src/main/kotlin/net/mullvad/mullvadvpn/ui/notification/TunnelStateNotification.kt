@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.ui.notification
 import android.content.Context
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
@@ -12,7 +11,6 @@ import net.mullvad.talpid.util.addressString
 
 class TunnelStateNotification(
     private val context: Context,
-    private val connectionProxy: ConnectionProxy
 ) : InAppNotification() {
     private val blockingTitle = context.getString(R.string.blocking_internet)
     private val notBlockingTitle = context.getString(R.string.not_blocking_internet)
@@ -23,19 +21,7 @@ class TunnelStateNotification(
         showIcon = false
     }
 
-    override fun onResume() {
-        connectionProxy.onStateChange.subscribe(this) { tunnelState ->
-            jobTracker.newUiJob("updateTunnelState") {
-                updateTunnelState(tunnelState)
-            }
-        }
-    }
-
-    override fun onPause() {
-        connectionProxy.onStateChange.unsubscribe(this)
-    }
-
-    private fun updateTunnelState(state: TunnelState) {
+    fun updateTunnelState(state: TunnelState) {
         when (state) {
             is TunnelState.Disconnecting -> {
                 when (state.actionAfterDisconnect) {

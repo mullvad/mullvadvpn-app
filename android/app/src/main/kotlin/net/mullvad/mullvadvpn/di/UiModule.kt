@@ -6,6 +6,9 @@ import kotlinx.coroutines.Dispatchers
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
+import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
+import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -38,6 +41,10 @@ val uiModule = module {
     }
 
     single { ServiceConnectionManager(androidContext()) }
+
+    single { AccountExpiryNotification(get()) }
+    single { TunnelStateNotification(get()) }
+    single { VersionInfoNotification(get()) }
 
     single { AccountRepository(get()) }
     single { DeviceRepository(get()) }

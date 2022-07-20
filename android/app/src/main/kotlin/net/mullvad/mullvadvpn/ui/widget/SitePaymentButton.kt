@@ -20,9 +20,4 @@ class SitePaymentButton : UrlButton {
             label = context.getString(R.string.buy_more_credit)
         }
     }
-
-    init {
-        url = context.getString(R.string.account_url)
-        withToken = true
-    }
 }

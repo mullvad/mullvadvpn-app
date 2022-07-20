@@ -10,19 +10,38 @@ import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationUtils
 import android.widget.ImageButton
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
+import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
+import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
+import net.mullvad.mullvadvpn.ui.serviceconnection.relayListListener
 import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
+import net.mullvad.mullvadvpn.util.JobTracker
+import org.koin.android.ext.android.inject
 
-class SelectLocationFragment :
-    ServiceDependentFragment(OnNoService.GoToLaunchScreen), StatusBarPainter, NavigationBarPainter {
+class SelectLocationFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
+
+    // Injected dependencies
+    private val serviceConnectionManager: ServiceConnectionManager by inject()
+
     private enum class RelayListState {
         Initializing,
         Loading,
@@ -35,28 +54,32 @@ class SelectLocationFragment :
     private var loadingSpinner = CompletableDeferred<View>()
     private var relayListState = RelayListState.Initializing
 
+    @Deprecated("Refactor code to instead rely on Lifecycle.")
+    private val jobTracker = JobTracker()
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
         relayListAdapter = RelayListAdapter(context.resources).apply {
             onSelect = { relayItem ->
-                jobTracker.newBackgroundJob("selectRelay") {
-                    relayListListener.selectedRelayLocation = relayItem?.location
-                    connectionProxy.connect()
-
-                    jobTracker.newUiJob("close") {
-                        close()
-                    }
-                }
+                serviceConnectionManager.relayListListener()?.selectedRelayLocation =
+                    relayItem?.location
+                serviceConnectionManager.connectionProxy()?.connect()
+                close()
             }
         }
     }
 
-    override fun onSafelyCreateView(
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
+
+    override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         val view = inflater.inflate(R.layout.select_location, container, false)
 
         view.findViewById<ImageButton>(R.id.close).setOnClickListener { close() }
@@ -64,7 +87,7 @@ class SelectLocationFragment :
         titleController = CollapsibleTitleController(view, R.id.relay_list)
 
         view.findViewById<CustomRecyclerView>(R.id.relay_list).apply {
-            layoutManager = LinearLayoutManager(parentActivity)
+            layoutManager = LinearLayoutManager(requireMainActivity())
 
             adapter = AdapterWithHeader(relayListAdapter, R.layout.select_location_header).apply {
                 onHeaderAvailable = { headerView ->
@@ -83,68 +106,75 @@ class SelectLocationFragment :
         return view
     }
 
-    override fun onSafelyStart() {
-        // If the relay list is immediately available, setting the listener will cause it to be
-        // called right away, while the state is still Initializing. In that case we can skip
-        // showing the spinner animation and go directly to the Visible state.
-        //
-        // If it's not immediately available, then when the listener is called later the state will
-        // have changed to Loading, and an animation from the spinner to the new relay items will be
-        // shown.
-        //
-        // If the state is ready, it means that the relay list has already been shown, and we can
-        // update it in place.
-        relayListListener.onRelayListChange = { relayList, selectedItem ->
-            when (relayListState) {
-                RelayListState.Initializing -> {
-                    jobTracker.newUiJob("updateRelayList") {
-                        updateRelayList(relayList, selectedItem)
-                    }
-
-                    relayListState = RelayListState.Visible
-                }
-                RelayListState.Loading -> {
-                    jobTracker.newUiJob("updateRelayList") {
-                        animateRelayListInitialization(relayList, selectedItem)
-                    }
-                }
-                RelayListState.Visible -> {
-                    jobTracker.newUiJob("updateRelayList") {
-                        updateRelayList(relayList, selectedItem)
-                    }
-                }
-            }
-        }
-
-        if (relayListState == RelayListState.Initializing) {
-            relayListState = RelayListState.Loading
-        }
-    }
-
-    override fun onSafelyStop() {
-        relayListListener.onRelayListChange = null
-    }
-
-    override fun onSafelyDestroyView() {
-        titleController.onDestroy()
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launchWhenResumed {
-            transitionFinishedFlow.collect {
-                paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
-            }
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
     }
 
+    override fun onDestroyView() {
+        titleController.onDestroy()
+        super.onDestroyView()
+    }
+
     fun close() {
         activity?.onBackPressed()
+    }
+
+    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            launchPaintStatusBarAfterTransition()
+            launchRelayListSubscription()
+        }
+    }
+
+    private fun CoroutineScope.launchPaintStatusBarAfterTransition() = launch {
+        transitionFinishedFlow.collect {
+            paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
+        }
+    }
+
+    private fun CoroutineScope.launchRelayListSubscription() = launch {
+        serviceConnectionManager.connectionState
+            .flatMapLatest { state ->
+                if (state is ServiceConnectionState.ConnectedReady) {
+                    callbackFlow {
+                        state.container.relayListListener.onRelayListChange =
+                            { list, item ->
+                                this.trySend(Pair(list, item))
+                            }
+
+                        awaitClose {
+                            state.container.relayListListener.onRelayListChange = null
+                        }
+                    }
+                } else {
+                    emptyFlow()
+                }
+            }
+            .collect { (relayList, selectedItem) ->
+                when (relayListState) {
+                    RelayListState.Initializing -> {
+                        jobTracker.newUiJob("updateRelayList") {
+                            updateRelayList(relayList, selectedItem)
+                        }
+                        relayListState = RelayListState.Visible
+                    }
+                    RelayListState.Loading -> {
+                        jobTracker.newUiJob("updateRelayList") {
+                            animateRelayListInitialization(relayList, selectedItem)
+                        }
+                    }
+                    RelayListState.Visible -> {
+                        jobTracker.newUiJob("updateRelayList") {
+                            updateRelayList(relayList, selectedItem)
+                        }
+                    }
+                }
+
+                if (relayListState == RelayListState.Initializing) {
+                    relayListState = RelayListState.Loading
+                }
+            }
     }
 
     private fun updateRelayList(relayList: RelayList, selectedItem: RelayItem?) {
@@ -181,9 +211,10 @@ class SelectLocationFragment :
             override fun onAnimationRepeat(animation: Animation) {}
         }
 
-        val fadeOut = AnimationUtils.loadAnimation(parentActivity, R.anim.fade_out).apply {
-            setAnimationListener(animationListener)
-        }
+        val fadeOut =
+            AnimationUtils.loadAnimation(requireMainActivity(), R.anim.fade_out).apply {
+                setAnimationListener(animationListener)
+            }
 
         loadingSpinner.await().let { spinner ->
             spinner.startAnimation(fadeOut)

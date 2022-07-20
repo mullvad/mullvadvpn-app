@@ -61,20 +61,16 @@ class DeviceRepository(
         .stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(), emptyList())
 
     fun refreshDeviceState() {
-        container()?.deviceDataSource?.refreshDevice()
-    }
-
-    private fun container(): ServiceConnectionContainer? {
-        return serviceConnectionManager.connectionState.value.readyContainer()
+        serviceConnectionManager.deviceDataSource()?.refreshDevice()
     }
 
     fun removeDevice(accountToken: String, deviceId: String) {
         cachedDeviceList.value = emptyList()
-        container()?.deviceDataSource?.removeDevice(accountToken, deviceId)
+        serviceConnectionManager.deviceDataSource()?.removeDevice(accountToken, deviceId)
     }
 
     fun refreshDeviceList(accountToken: String) {
-        container()?.deviceDataSource?.refreshDeviceList(accountToken)
+        serviceConnectionManager.deviceDataSource()?.refreshDeviceList(accountToken)
     }
 
     suspend fun getDeviceList(accountToken: String): DeviceListEvent {

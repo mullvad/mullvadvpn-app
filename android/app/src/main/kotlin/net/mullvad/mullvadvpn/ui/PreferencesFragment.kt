@@ -4,48 +4,71 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
+import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.settingsListener
 import net.mullvad.mullvadvpn.ui.widget.CellSwitch
 import net.mullvad.mullvadvpn.ui.widget.ToggleCell
+import net.mullvad.mullvadvpn.util.JobTracker
+import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
+import org.koin.android.ext.android.inject
 
-class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
+class PreferencesFragment : BaseFragment() {
+
+    // Injected dependencies
+    private val serviceConnectionManager: ServiceConnectionManager by inject()
+
     private lateinit var allowLanToggle: ToggleCell
     private lateinit var autoConnectToggle: ToggleCell
     private lateinit var titleController: CollapsibleTitleController
 
-    override fun onSafelyCreateView(
+    @Deprecated("Refactor code to instead rely on Lifecycle.")
+    private val jobTracker = JobTracker()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
+
+    override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         val view = inflater.inflate(R.layout.preferences, container, false)
 
         view.findViewById<View>(R.id.back).setOnClickListener {
-            parentActivity.onBackPressed()
+            requireMainActivity().onBackPressed()
         }
 
         allowLanToggle = view.findViewById<ToggleCell>(R.id.allow_lan).apply {
             listener = { state ->
-                when (state) {
-                    CellSwitch.State.ON -> settingsListener.allowLan = true
-                    CellSwitch.State.OFF -> settingsListener.allowLan = false
+                serviceConnectionManager.settingsListener()?.allowLan = when (state) {
+                    CellSwitch.State.ON -> true
+                    else -> false
                 }
             }
         }
 
         autoConnectToggle = view.findViewById<ToggleCell>(R.id.auto_connect).apply {
             listener = { state ->
-                when (state) {
-                    CellSwitch.State.ON -> settingsListener.autoConnect = true
-                    CellSwitch.State.OFF -> settingsListener.autoConnect = false
+                serviceConnectionManager.settingsListener()?.autoConnect = when (state) {
+                    CellSwitch.State.ON -> true
+                    else -> false
                 }
-            }
-        }
-
-        settingsListener.settingsNotifier.subscribe(this) { maybeSettings ->
-            maybeSettings?.let { settings ->
-                updateUi(settings)
             }
         }
 
@@ -54,9 +77,34 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         return view
     }
 
-    override fun onSafelyDestroyView() {
+    override fun onDestroyView() {
         titleController.onDestroy()
-        settingsListener.settingsNotifier.unsubscribe(this)
+        super.onDestroyView()
+    }
+
+    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            launchSettingsSubscription()
+        }
+    }
+
+    private fun CoroutineScope.launchSettingsSubscription() = launch {
+        serviceConnectionManager.connectionState
+            .flatMapLatest { state ->
+                if (state is ServiceConnectionState.ConnectedReady) {
+                    flowOf(state.container)
+                } else {
+                    emptyFlow()
+                }
+            }
+            .flatMapLatest {
+                callbackFlowFromNotifier(it.settingsListener.settingsNotifier)
+            }
+            .collect { settings ->
+                if (settings != null) {
+                    updateUi(settings)
+                }
+            }
     }
 
     private fun updateUi(settings: Settings) {

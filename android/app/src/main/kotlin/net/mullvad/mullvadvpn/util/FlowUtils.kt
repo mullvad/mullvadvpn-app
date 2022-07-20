@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.take
 import net.mullvad.mullvadvpn.model.ServiceResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.talpid.util.EventNotifier
 
 fun <T> SendChannel<T>.safeOffer(element: T): Boolean {
     return runCatching { offer(element) }.getOrDefault(false)
@@ -77,4 +78,10 @@ fun <R> Flow<ServiceConnectionState>.flatMapReadyConnectionOrDefault(
             default
         }
     }
+}
+
+fun <T> callbackFlowFromNotifier(notifier: EventNotifier<T>) = callbackFlow<T> {
+    val handler: (T) -> Unit = { value -> trySend(value) }
+    notifier.subscribe(this, handler)
+    awaitClose { notifier.unsubscribe(this) }
 }

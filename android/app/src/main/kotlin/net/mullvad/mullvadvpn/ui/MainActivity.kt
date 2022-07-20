@@ -27,6 +27,8 @@ import net.mullvad.mullvadvpn.ui.fragments.DeviceRevokedFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
+import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 
@@ -159,7 +161,7 @@ open class MainActivity : FragmentActivity() {
                 .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
                 .debounce {
                     // Debounce DeviceState.Unknown to delay view transitions during reconnect.
-                    it.addDebounceForUnknownState()
+                    it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS)
                 }
                 .collect { newState ->
                     if (newState != currentState) {
@@ -175,14 +177,6 @@ open class MainActivity : FragmentActivity() {
                         currentState = newState
                     }
                 }
-        }
-    }
-
-    private fun DeviceState.addDebounceForUnknownState(): Long {
-        return if (this is DeviceState.Unknown) {
-            UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
-        } else {
-            ZERO_DEBOUNCE_DELAY_MILLISECONDS
         }
     }
 
@@ -242,10 +236,5 @@ open class MainActivity : FragmentActivity() {
                 popBackStack(firstEntry.id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             }
         }
-    }
-
-    companion object {
-        private const val ZERO_DEBOUNCE_DELAY_MILLISECONDS = 0L
-        private const val UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS = 2000L
     }
 }
