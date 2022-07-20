@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Reject invalid WireGuard ports in the CLI.
+- Reorganize settings into more logical categories.
 
 #### Android
 - Lowered default MTU to 1280 on Android.
