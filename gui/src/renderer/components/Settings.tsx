@@ -10,12 +10,11 @@ import { useSelector } from '../redux/store';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
-import { Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import {
   StyledCellIcon,
-  StyledContainer,
   StyledContent,
   StyledNavigationScrollbars,
   StyledOutOfTimeSubText,
@@ -42,7 +41,7 @@ export default function Support() {
   return (
     <BackAction icon="close" action={history.dismiss}>
       <Layout>
-        <StyledContainer>
+        <SettingsContainer>
           <NavigationContainer>
             <NavigationBar alwaysDisplayBarTitle={!showLargeTitle}>
               <NavigationItems>
@@ -90,7 +89,7 @@ export default function Support() {
               <QuitButton />
             </StyledNavigationScrollbars>
           </NavigationContainer>
-        </StyledContainer>
+        </SettingsContainer>
       </Layout>
     </BackAction>
   );

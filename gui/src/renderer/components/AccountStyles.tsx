@@ -3,13 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import { normalText, tinyText } from './common-styles';
-import { Container } from './Layout';
 import { RedeemVoucherButton } from './RedeemVoucher';
-
-export const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
-  flexDirection: 'column',
-});
 
 export const AccountContainer = styled.div({
   display: 'flex',

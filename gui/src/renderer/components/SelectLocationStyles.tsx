@@ -2,13 +2,8 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { tinyText } from './common-styles';
-import { Container } from './Layout';
 import { ScopeBar } from './ScopeBar';
 import SettingsHeader from './SettingsHeader';
-
-export const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
-});
 
 export const StyledScopeBar = styled(ScopeBar)({
   marginTop: '8px',

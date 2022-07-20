@@ -13,7 +13,6 @@ import {
   AccountRowValue,
   DeviceRowValue,
   StyledBuyCreditButton,
-  StyledContainer,
   StyledRedeemVoucherButton,
   StyledSpinnerContainer,
 } from './AccountStyles';
@@ -22,7 +21,7 @@ import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
@@ -57,7 +56,7 @@ export default class Account extends React.Component<IProps, IState> {
     return (
       <BackAction action={this.props.onClose}>
         <Layout>
-          <StyledContainer>
+          <SettingsContainer>
             <NavigationBar>
               <NavigationItems>
                 <TitleBarItem>
@@ -131,7 +130,7 @@ export default class Account extends React.Component<IProps, IState> {
                 </AppButton.RedButton>
               </AccountFooter>
             </AccountContainer>
-          </StyledContainer>
+          </SettingsContainer>
 
           {this.renderLogoutDialog()}
         </Layout>

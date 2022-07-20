@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { colors, strings } from '../../config.json';
+import { strings } from '../../config.json';
 import { IpVersion } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
@@ -17,7 +17,7 @@ import * as Cell from './cell';
 import Selector, { ISelectorItem } from './cell/Selector';
 import { InfoIcon } from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
-import { Container, Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import {
   NavigationBar,
@@ -38,10 +38,6 @@ type OptionalIpVersion = IpVersion | undefined;
 function mapPortToSelectorItem(value: number): ISelectorItem<number> {
   return { label: value.toString(), value };
 }
-
-export const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
-});
 
 export const StyledContent = styled.div({
   display: 'flex',
@@ -68,7 +64,7 @@ export default function WireguardSettings() {
   return (
     <BackAction action={pop}>
       <Layout>
-        <StyledContainer>
+        <SettingsContainer>
           <NavigationContainer>
             <NavigationBar>
               <NavigationItems>
@@ -115,7 +111,7 @@ export default function WireguardSettings() {
               </StyledContent>
             </NavigationScrollbars>
           </NavigationContainer>
-        </StyledContainer>
+        </SettingsContainer>
       </Layout>
     </BackAction>
   );

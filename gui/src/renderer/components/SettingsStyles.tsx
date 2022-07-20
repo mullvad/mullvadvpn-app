@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { Container } from './Layout';
 import { NavigationScrollbars } from './NavigationBar';
 
 export const StyledOutOfTimeSubText = styled(Cell.SubText)((props: { isOutOfTime: boolean }) => ({
@@ -16,10 +15,6 @@ export const StyledCellIcon = styled(Cell.UntintedIcon)({
 
 export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   flex: 1,
-});
-
-export const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
 });
 
 export const StyledContent = styled.div({
