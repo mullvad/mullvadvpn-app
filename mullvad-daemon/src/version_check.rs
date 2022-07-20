@@ -343,7 +343,12 @@ impl VersionUpdater {
         // If this is a dev build, there's no need to pester the API for version checks.
         if *IS_DEV_BUILD {
             log::warn!("Not checking for updates because this is a development build");
-            while rx.next().await.is_some() {}
+            while let Some(cmd) = rx.next().await {
+                if let VersionUpdaterCommand::RunVersionCheck(done_tx) = cmd {
+                    log::info!("Version check is disabled in dev builds");
+                    let _ = done_tx.send(dev_version_cache());
+                }
+            }
             return;
         }
 
@@ -423,6 +428,10 @@ impl VersionUpdater {
 }
 
 async fn try_load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
+    if *IS_DEV_BUILD {
+        return Ok(dev_version_cache());
+    }
+
     let path = cache_dir.join(VERSION_INFO_FILENAME);
     log::debug!("Loading version check cache from {}", path.display());
     let content = fs::read_to_string(&path)
@@ -448,6 +457,17 @@ pub async fn load_cache(cache_dir: &Path) -> Option<AppVersionInfo> {
             );
             None
         }
+    }
+}
+
+fn dev_version_cache() -> AppVersionInfo {
+    assert!(*IS_DEV_BUILD);
+
+    AppVersionInfo {
+        supported: false,
+        latest_stable: PRODUCT_VERSION.to_owned(),
+        latest_beta: PRODUCT_VERSION.to_owned(),
+        suggested_upgrade: None,
     }
 }
 
