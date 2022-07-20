@@ -169,7 +169,7 @@ pub struct SelectorConfig {
     pub bridge_state: BridgeState,
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
-    pub default_tunnel_protocol: TunnelType,
+    pub default_tunnel_type: TunnelType,
 }
 
 #[derive(Clone)]
@@ -236,7 +236,7 @@ impl RelaySelector {
                     constraints,
                     config.bridge_state,
                     retry_attempt,
-                    &config.default_tunnel_protocol,
+                    &config.default_tunnel_type,
                 )?;
                 let bridge = match relay.endpoint {
                     MullvadEndpoint::OpenVpn(endpoint)
@@ -276,7 +276,7 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-        default_tunnel_protocol: &TunnelType,
+        default_tunnel_type: &TunnelType,
     ) -> Result<NormalSelectedRelay, Error> {
         match relay_constraints.tunnel_protocol {
             Constraint::Only(TunnelType::OpenVpn) => self.get_openvpn_endpoint(
@@ -299,7 +299,7 @@ impl RelaySelector {
                 relay_constraints,
                 bridge_state,
                 retry_attempt,
-                default_tunnel_protocol,
+                default_tunnel_type,
             ),
         }
     }
@@ -585,13 +585,13 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-        default_tunnel_protocol: &TunnelType,
+        default_tunnel_type: &TunnelType,
     ) -> Result<NormalSelectedRelay, Error> {
         let preferred_constraints = self.preferred_constraints(
             relay_constraints,
             bridge_state,
             retry_attempt,
-            default_tunnel_protocol,
+            default_tunnel_type,
         );
 
         if let Ok(result) = self.get_multihop_tunnel_endpoint_internal(&preferred_constraints) {
@@ -618,12 +618,12 @@ impl RelaySelector {
         original_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-        default_tunnel_protocol: &TunnelType,
+        default_tunnel_type: &TunnelType,
     ) -> RelayConstraints {
         let (preferred_port, preferred_protocol, preferred_tunnel) = self
             .preferred_tunnel_constraints(
                 retry_attempt,
-                default_tunnel_protocol,
+                default_tunnel_type,
                 &original_constraints.location,
                 &original_constraints.providers,
                 &original_constraints.ownership,
@@ -945,13 +945,13 @@ impl RelaySelector {
     fn preferred_tunnel_constraints(
         &self,
         retry_attempt: u32,
-        default_tunnel_protocol: &TunnelType,
+        default_tunnel_type: &TunnelType,
         location_constraint: &Constraint<LocationConstraint>,
         providers_constraint: &Constraint<Providers>,
         ownership_constraint: &Constraint<Ownership>,
     ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
         #[cfg(target_os = "windows")]
-        if matches!(default_tunnel_protocol, TunnelType::OpenVpn) {
+        if matches!(default_tunnel_type, TunnelType::OpenVpn) {
             let location_supports_openvpn =
                 self.parsed_relays.lock().relays().iter().any(|relay| {
                     relay.active

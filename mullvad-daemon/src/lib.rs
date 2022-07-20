@@ -2263,12 +2263,12 @@ fn new_selector_config(
     // case where some error causes users to not recieve a version and in that case all going to
     // wireguard. Magic number 0.0 implies that 0% of users should use Wireguard.
     // This will be removed in the future when we the migration is done.
-    let threshold_wg_default = app_version_info
+    let wg_migration_threshold = app_version_info
         .as_ref()
-        .map(|f| f.threshold_wg_default)
+        .map(|f| f.wg_migration_threshold)
         .unwrap_or(0.0);
 
-    let default_tunnel_protocol = if threshold_wg_default >= settings.wg_migration_rand_num {
+    let default_tunnel_type = if wg_migration_threshold >= settings.wg_migration_rand_num {
         TunnelType::Wireguard
     } else {
         TunnelType::OpenVpn
@@ -2279,6 +2279,6 @@ fn new_selector_config(
         bridge_state: settings.get_bridge_state(),
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
-        default_tunnel_protocol,
+        default_tunnel_type,
     }
 }
