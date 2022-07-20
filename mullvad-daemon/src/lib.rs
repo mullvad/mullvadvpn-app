@@ -2268,10 +2268,14 @@ fn new_selector_config(
         .map(|f| f.wg_migration_threshold)
         .unwrap_or(0.0);
 
-    let default_tunnel_type = if wg_migration_threshold >= settings.wg_migration_rand_num {
-        TunnelType::Wireguard
+    let default_tunnel_type = if cfg!(target_os = "windows") {
+        if wg_migration_threshold >= settings.wg_migration_rand_num {
+            TunnelType::Wireguard
+        } else {
+            TunnelType::OpenVpn
+        }
     } else {
-        TunnelType::OpenVpn
+        TunnelType::Wireguard
     };
 
     SelectorConfig {
