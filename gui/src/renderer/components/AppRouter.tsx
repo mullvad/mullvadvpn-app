@@ -22,7 +22,7 @@ import Focus, { IFocusHandle } from './Focus';
 import InterfaceSettings from './InterfaceSettings';
 import Launch from './Launch';
 import MainView from './MainView';
-import OpenVPNSettings from './OpenVPNSettings';
+import OpenVpnSettings from './OpenVpnSettings';
 import Settings from './Settings';
 import SplitTunnelingSettings from './SplitTunnelingSettings';
 import Support from './Support';
@@ -93,7 +93,7 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
               <Route exact path={RoutePath.interfaceSettings} component={InterfaceSettings} />
               <Route exact path={RoutePath.vpnSettings} component={VpnSettings} />
               <Route exact path={RoutePath.wireguardSettings} component={WireguardSettings} />
-              <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettings} />
+              <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettings} />
               <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
               <Route exact path={RoutePath.support} component={Support} />
               <Route exact path={RoutePath.problemReport} component={ProblemReportPage} />
