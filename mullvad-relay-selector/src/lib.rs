@@ -966,15 +966,16 @@ impl RelaySelector {
                         Self::preferred_openvpn_constraints(retry_attempt);
                     return (preferred_port, preferred_protocol, TunnelType::OpenVpn);
                 }
-            },
+            }
             TunnelType::Wireguard => {
-                let location_supports_wireguard = self.parsed_relays.lock().relays().iter().any(|relay| {
-                    relay.active
-                        && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-                        && location_constraint.matches(relay)
-                        && providers_constraint.matches(relay)
-                        && ownership_constraint.matches(relay)
-                });
+                let location_supports_wireguard =
+                    self.parsed_relays.lock().relays().iter().any(|relay| {
+                        relay.active
+                            && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
+                            && location_constraint.matches(relay)
+                            && providers_constraint.matches(relay)
+                            && ownership_constraint.matches(relay)
+                    });
 
                 // If location does not support WireGuard, defer to preferred OpenVPN tunnel
                 // constraints
