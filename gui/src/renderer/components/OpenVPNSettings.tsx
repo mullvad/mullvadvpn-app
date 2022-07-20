@@ -1,11 +1,17 @@
-import * as React from 'react';
+import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { strings } from '../../config.json';
-import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
+import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import log from '../../shared/logging';
+import RelaySettingsBuilder from '../../shared/relay-settings-builder';
+import { useAppContext } from '../context';
+import { useHistory } from '../lib/history';
+import { useBoolean } from '../lib/utilityHooks';
 import { formatMarkdown } from '../markdown-formatter';
+import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
@@ -49,226 +55,86 @@ export const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-interface IProps {
-  bridgeModeAvailablity: BridgeModeAvailability;
-  openvpn: {
-    protocol?: RelayProtocol;
-    port?: number;
-  };
-  mssfix?: number;
-  bridgeState: BridgeState;
-  setOpenVpnMssfix: (value: number | undefined) => void;
-  setOpenVpnRelayProtocolAndPort: (protocol?: RelayProtocol, port?: number) => void;
-  setBridgeState: (value: BridgeState) => void;
-  onClose: () => void;
+export default function OpenVpnSettings() {
+  const { pop } = useHistory();
+
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+
+  const protocol = useMemo(() => {
+    const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : undefined;
+    return protocol === 'any' ? undefined : protocol;
+  }, [relaySettings]);
+
+  return (
+    <BackAction action={pop}>
+      <Layout>
+        <SettingsContainer>
+          <NavigationContainer>
+            <NavigationBar>
+              <NavigationItems>
+                <TitleBarItem>
+                  {sprintf(
+                    // TRANSLATORS: Title label in navigation bar
+                    // TRANSLATORS: Available placeholders:
+                    // TRANSLATORS: %(openvpn)s - Will be replaced with "OpenVPN"
+                    messages.pgettext('openvpn-settings-nav', '%(openvpn)s settings'),
+                    { openvpn: strings.openvpn },
+                  )}
+                </TitleBarItem>
+              </NavigationItems>
+            </NavigationBar>
+
+            <NavigationScrollbars>
+              <SettingsHeader>
+                <HeaderTitle>
+                  {sprintf(
+                    // TRANSLATORS: %(openvpn)s will be replaced with "OpenVPN"
+                    messages.pgettext('openvpn-settings-view', '%(openvpn)s settings'),
+                    {
+                      openvpn: strings.openvpn,
+                    },
+                  )}
+                </HeaderTitle>
+              </SettingsHeader>
+
+              <Cell.Group>
+                <TransportProtocolSelector />
+              </Cell.Group>
+
+              {protocol ? (
+                <Cell.Group>
+                  <PortSelector />
+                </Cell.Group>
+              ) : undefined}
+
+              <Cell.Group>
+                <BridgeModeSelector />
+              </Cell.Group>
+
+              <Cell.Group>
+                <MssFixSetting />
+              </Cell.Group>
+            </NavigationScrollbars>
+          </NavigationContainer>
+        </SettingsContainer>
+      </Layout>
+    </BackAction>
+  );
 }
 
-interface IState {
-  showBridgeStateConfirmationDialog: boolean;
-}
+function TransportProtocolSelector() {
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+  const bridgeState = useSelector((state) => state.settings.bridgeState);
 
-export default class OpenVpnSettings extends React.Component<IProps, IState> {
-  public state = { showBridgeStateConfirmationDialog: false };
+  const protocol = useMemo(() => {
+    const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : undefined;
+    return protocol === 'any' ? undefined : protocol;
+  }, [relaySettings]);
 
-  private portItems: { [key in RelayProtocol]: Array<ISelectorItem<OptionalPort>> };
+  const protocolAndPortUpdater = useProtocolAndPortUpdater();
 
-  constructor(props: IProps) {
-    super(props);
-
-    const automaticPort: ISelectorItem<OptionalPort> = {
-      label: messages.gettext('Automatic'),
-      value: undefined,
-    };
-
-    this.portItems = {
-      udp: [automaticPort].concat(UDP_PORTS.map(mapPortToSelectorItem)),
-      tcp: [automaticPort].concat(TCP_PORTS.map(mapPortToSelectorItem)),
-    };
-  }
-
-  public render() {
-    return (
-      <BackAction action={this.props.onClose}>
-        <Layout>
-          <SettingsContainer>
-            <NavigationContainer>
-              <NavigationBar>
-                <NavigationItems>
-                  <TitleBarItem>
-                    {sprintf(
-                      // TRANSLATORS: Title label in navigation bar
-                      // TRANSLATORS: Available placeholders:
-                      // TRANSLATORS: %(openvpn)s - Will be replaced with "OpenVPN"
-                      messages.pgettext('openvpn-settings-nav', '%(openvpn)s settings'),
-                      { openvpn: strings.openvpn },
-                    )}
-                  </TitleBarItem>
-                </NavigationItems>
-              </NavigationBar>
-
-              <StyledNavigationScrollbars>
-                <SettingsHeader>
-                  <HeaderTitle>
-                    {sprintf(
-                      // TRANSLATORS: %(openvpn)s will be replaced with "OpenVPN"
-                      messages.pgettext('openvpn-settings-view', '%(openvpn)s settings'),
-                      {
-                        openvpn: strings.openvpn,
-                      },
-                    )}
-                  </HeaderTitle>
-                </SettingsHeader>
-
-                <Cell.Group>
-                  <StyledSelectorContainer>
-                    <AriaInputGroup>
-                      <Selector
-                        title={messages.pgettext('openvpn-settings-view', 'Transport protocol')}
-                        values={this.protocolItems(this.props.bridgeState !== 'on')}
-                        value={this.props.openvpn.protocol}
-                        onSelect={this.onSelectOpenvpnProtocol}
-                      />
-                      {this.props.bridgeState === 'on' && (
-                        <Cell.Footer>
-                          <AriaDescription>
-                            <Cell.FooterText>
-                              {formatMarkdown(
-                                // TRANSLATORS: This is used to instruct users how to make UDP mode
-                                // TRANSLATORS: available.
-                                messages.pgettext(
-                                  'openvpn-settings-view',
-                                  'To activate UDP, change **Bridge mode** to **Automatic** or **Off**.',
-                                ),
-                              )}
-                            </Cell.FooterText>
-                          </AriaDescription>
-                        </Cell.Footer>
-                      )}
-                    </AriaInputGroup>
-                  </StyledSelectorContainer>
-                </Cell.Group>
-
-                {this.props.openvpn.protocol ? (
-                  <Cell.Group>
-                    <StyledSelectorContainer>
-                      <AriaInputGroup>
-                        <Selector
-                          title={sprintf(
-                            // TRANSLATORS: The title for the port selector section.
-                            // TRANSLATORS: Available placeholders:
-                            // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
-                            messages.pgettext('openvpn-settings-view', '%(portType)s port'),
-                            {
-                              portType: this.props.openvpn.protocol.toUpperCase(),
-                            },
-                          )}
-                          values={this.portItems[this.props.openvpn.protocol]}
-                          value={this.props.openvpn.port}
-                          onSelect={this.onSelectOpenVpnPort}
-                        />
-                      </AriaInputGroup>
-                    </StyledSelectorContainer>
-                  </Cell.Group>
-                ) : undefined}
-
-                <Cell.Group>
-                  <AriaInputGroup>
-                    <StyledSelectorContainer>
-                      <Selector
-                        title={
-                          // TRANSLATORS: The title for the shadowsocks bridge selector section.
-                          messages.pgettext('openvpn-settings-view', 'Bridge mode')
-                        }
-                        values={this.bridgeStateItems(
-                          this.props.bridgeModeAvailablity === BridgeModeAvailability.available,
-                        )}
-                        value={this.props.bridgeState}
-                        onSelect={this.onSelectBridgeState}
-                      />
-                    </StyledSelectorContainer>
-                    <Cell.Footer>
-                      <AriaDescription>
-                        <Cell.FooterText>{this.bridgeModeFooterText()}</Cell.FooterText>
-                      </AriaDescription>
-                    </Cell.Footer>
-                  </AriaInputGroup>
-                </Cell.Group>
-
-                <Cell.Group>
-                  <AriaInputGroup>
-                    <Cell.Container>
-                      <AriaLabel>
-                        <Cell.InputLabel>
-                          {messages.pgettext('openvpn-settings-view', 'Mssfix')}
-                        </Cell.InputLabel>
-                      </AriaLabel>
-                      <AriaInput>
-                        <Cell.AutoSizingTextInput
-                          value={this.props.mssfix ? this.props.mssfix.toString() : ''}
-                          inputMode={'numeric'}
-                          maxLength={4}
-                          placeholder={messages.gettext('Default')}
-                          onSubmitValue={this.onMssfixSubmit}
-                          validateValue={OpenVpnSettings.mssfixIsValid}
-                          submitOnBlur={true}
-                          modifyValue={OpenVpnSettings.removeNonNumericCharacters}
-                        />
-                      </AriaInput>
-                    </Cell.Container>
-                    <Cell.Footer>
-                      <AriaDescription>
-                        <Cell.FooterText>
-                          {sprintf(
-                            // TRANSLATORS: The hint displayed below the Mssfix input field.
-                            // TRANSLATORS: Available placeholders:
-                            // TRANSLATORS: %(openvpn)s - will be replaced with "OpenVPN"
-                            // TRANSLATORS: %(max)d - the maximum possible mssfix value
-                            // TRANSLATORS: %(min)d - the minimum possible mssfix value
-                            messages.pgettext(
-                              'openvpn-settings-view',
-                              'Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d.',
-                            ),
-                            {
-                              openvpn: strings.openvpn,
-                              min: MIN_MSSFIX_VALUE,
-                              max: MAX_MSSFIX_VALUE,
-                            },
-                          )}
-                        </Cell.FooterText>
-                      </AriaDescription>
-                    </Cell.Footer>
-                  </AriaInputGroup>
-                </Cell.Group>
-              </StyledNavigationScrollbars>
-            </NavigationContainer>
-          </SettingsContainer>
-
-          {this.renderBridgeStateConfirmation()}
-        </Layout>
-      </BackAction>
-    );
-  }
-
-  private bridgeStateItems(onAvailable: boolean): Array<ISelectorItem<BridgeState>> {
-    return [
-      {
-        label: messages.gettext('Automatic'),
-        value: 'auto',
-      },
-      {
-        label: messages.gettext('On'),
-        value: 'on',
-        disabled: !onAvailable,
-      },
-      {
-        label: messages.gettext('Off'),
-        value: 'off',
-      },
-    ];
-  }
-
-  private protocolItems(udpAvailable: boolean): Array<ISelectorItem<OptionalRelayProtocol>> {
-    return [
+  const items: ISelectorItem<OptionalRelayProtocol>[] = useMemo(
+    () => [
       {
         label: messages.gettext('Automatic'),
         value: undefined,
@@ -280,125 +146,372 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
       {
         label: messages.gettext('UDP'),
         value: 'udp',
-        disabled: !udpAvailable,
+        disabled: bridgeState === 'on',
       },
-    ];
-  }
+    ],
+    [bridgeState],
+  );
 
-  private onSelectOpenvpnProtocol = (protocol?: RelayProtocol) => {
-    this.props.setOpenVpnRelayProtocolAndPort(protocol);
+  return (
+    <StyledSelectorContainer>
+      <AriaInputGroup>
+        <Selector
+          title={messages.pgettext('openvpn-settings-view', 'Transport protocol')}
+          values={items}
+          value={protocol}
+          onSelect={protocolAndPortUpdater}
+        />
+        {bridgeState === 'on' && (
+          <Cell.Footer>
+            <AriaDescription>
+              <Cell.FooterText>
+                {formatMarkdown(
+                  // TRANSLATORS: This is used to instruct users how to make UDP mode
+                  // TRANSLATORS: available.
+                  messages.pgettext(
+                    'openvpn-settings-view',
+                    'To activate UDP, change **Bridge mode** to **Automatic** or **Off**.',
+                  ),
+                )}
+              </Cell.FooterText>
+            </AriaDescription>
+          </Cell.Footer>
+        )}
+      </AriaInputGroup>
+    </StyledSelectorContainer>
+  );
+}
+
+function useProtocolAndPortUpdater() {
+  const { updateRelaySettings } = useAppContext();
+
+  const updater = useCallback(
+    async (protocol?: RelayProtocol, port?: number) => {
+      const relayUpdate = RelaySettingsBuilder.normal()
+        .tunnel.openvpn((openvpn) => {
+          if (protocol) {
+            openvpn.protocol.exact(protocol);
+          } else {
+            openvpn.protocol.any();
+          }
+
+          if (port) {
+            openvpn.port.exact(port);
+          } else {
+            openvpn.port.any();
+          }
+        })
+        .build();
+
+      try {
+        await updateRelaySettings(relayUpdate);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to update relay settings', error.message);
+      }
+    },
+    [updateRelaySettings],
+  );
+
+  return updater;
+}
+
+function PortSelector() {
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+
+  const protocol = useMemo(() => {
+    const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : undefined;
+    return protocol === 'any' ? undefined : protocol;
+  }, [relaySettings]);
+
+  const port = useMemo(() => {
+    const port = 'normal' in relaySettings ? relaySettings.normal.openvpn.port : undefined;
+    return port === 'any' ? undefined : port;
+  }, [relaySettings]);
+
+  const protocolAndPortUpdater = useProtocolAndPortUpdater();
+
+  const onSelect = useCallback(
+    async (port?: number) => {
+      await protocolAndPortUpdater(protocol, port);
+    },
+    [protocolAndPortUpdater, protocol],
+  );
+
+  const automaticPort: ISelectorItem<OptionalPort> = {
+    label: messages.gettext('Automatic'),
+    value: undefined,
   };
 
-  private onSelectOpenVpnPort = (port?: number) => {
-    this.props.setOpenVpnRelayProtocolAndPort(this.props.openvpn.protocol, port);
+  const portItems = {
+    udp: [automaticPort].concat(UDP_PORTS.map(mapPortToSelectorItem)),
+    tcp: [automaticPort].concat(TCP_PORTS.map(mapPortToSelectorItem)),
   };
 
-  private onMssfixSubmit = (value: string) => {
-    const parsedValue = value === '' ? undefined : parseInt(value, 10);
-    if (OpenVpnSettings.mssfixIsValid(value)) {
-      this.props.setOpenVpnMssfix(parsedValue);
-    }
-  };
-
-  private static removeNonNumericCharacters(value: string) {
-    return value.replace(/[^0-9]/g, '');
+  if (protocol === undefined) {
+    return null;
   }
 
-  private static mssfixIsValid(mssfix: string): boolean {
-    const parsedMssFix = mssfix ? parseInt(mssfix) : undefined;
-    return (
-      parsedMssFix === undefined ||
-      (parsedMssFix >= MIN_MSSFIX_VALUE && parsedMssFix <= MAX_MSSFIX_VALUE)
-    );
-  }
-
-  private bridgeModeFooterText() {
-    switch (this.props.bridgeModeAvailablity) {
-      case BridgeModeAvailability.blockedDueToTunnelProtocol:
-        return formatMarkdown(
-          sprintf(
-            // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
-            // TRANSLATORS: available.
+  return (
+    <StyledSelectorContainer>
+      <AriaInputGroup>
+        <Selector
+          title={sprintf(
+            // TRANSLATORS: The title for the port selector section.
             // TRANSLATORS: Available placeholders:
-            // TRANSLATORS: %(tunnelProtocol)s - the name of the tunnel protocol setting
-            // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
-            messages.pgettext(
-              'openvpn-settings-view',
-              'To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**.',
-            ),
+            // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
+            messages.pgettext('openvpn-settings-view', '%(portType)s port'),
             {
-              tunnelProtocol: messages.pgettext('vpn-settings-view', 'Tunnel protocol'),
-              openvpn: strings.openvpn,
+              portType: protocol.toUpperCase(),
             },
-          ),
-        );
-      case BridgeModeAvailability.blockedDueToTransportProtocol:
-        return formatMarkdown(
-          sprintf(
-            // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
-            // TRANSLATORS: available.
-            // TRANSLATORS: Available placeholders:
-            // TRANSLATORS: %(transportProtocol)s - the name of the transport protocol setting
-            // TRANSLATORS: %(automat)s - the translation of "Automatic"
-            // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
-            messages.pgettext(
-              'openvpn-settings-view',
-              'To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**.',
-            ),
-            {
-              transportProtocol: messages.pgettext('openvpn-settings-view', 'Transport protocol'),
-              automatic: messages.gettext('Automatic'),
-              tcp: messages.gettext('TCP'),
-            },
-          ),
-        );
-      case BridgeModeAvailability.available:
-        return sprintf(
-          // TRANSLATORS: This is used as a description for the bridge mode
-          // TRANSLATORS: setting.
-          // TRANSLATORS: Available placeholders:
-          // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
-          messages.pgettext(
-            'openvpn-settings-view',
-            'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder.',
-          ),
-          { openvpn: strings.openvpn },
-        );
-    }
-  }
+          )}
+          values={portItems[protocol]}
+          value={port}
+          onSelect={onSelect}
+        />
+      </AriaInputGroup>
+    </StyledSelectorContainer>
+  );
+}
 
-  private renderBridgeStateConfirmation = () => {
-    return (
+function BridgeModeSelector() {
+  const { setBridgeState: setBridgeStateImpl } = useAppContext();
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+
+  const bridgeState = useSelector((state) => state.settings.bridgeState);
+
+  const tunnelProtocol = useMemo(() => {
+    const protocol = 'normal' in relaySettings ? relaySettings.normal.tunnelProtocol : undefined;
+    return protocol === 'any' ? undefined : protocol;
+  }, [relaySettings]);
+
+  const transportProtocol = useMemo(() => {
+    const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : undefined;
+    return protocol === 'any' ? undefined : protocol;
+  }, [relaySettings]);
+
+  const options: ISelectorItem<BridgeState>[] = useMemo(
+    () => [
+      {
+        label: messages.gettext('Automatic'),
+        value: 'auto',
+      },
+      {
+        label: messages.gettext('On'),
+        value: 'on',
+        disabled: tunnelProtocol !== 'openvpn' || transportProtocol === 'udp',
+      },
+      {
+        label: messages.gettext('Off'),
+        value: 'off',
+      },
+    ],
+    [tunnelProtocol, transportProtocol],
+  );
+
+  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
+
+  const setBridgeState = useCallback(
+    async (bridgeState: BridgeState) => {
+      try {
+        await setBridgeStateImpl(bridgeState);
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to update bridge state: ${error.message}`);
+      }
+    },
+    [setBridgeStateImpl],
+  );
+
+  const onSelectBridgeState = useCallback(
+    async (newValue: BridgeState) => {
+      if (newValue === 'on') {
+        showConfirmationDialog();
+      } else {
+        await setBridgeState(newValue);
+      }
+    },
+    [showConfirmationDialog, setBridgeState],
+  );
+
+  const confirmBridgeState = useCallback(async () => {
+    hideConfirmationDialog();
+    await setBridgeState('on');
+  }, [hideConfirmationDialog, setBridgeState]);
+
+  return (
+    <>
+      <AriaInputGroup>
+        <StyledSelectorContainer>
+          <Selector
+            title={
+              // TRANSLATORS: The title for the shadowsocks bridge selector section.
+              messages.pgettext('openvpn-settings-view', 'Bridge mode')
+            }
+            values={options}
+            value={bridgeState}
+            onSelect={onSelectBridgeState}
+          />
+        </StyledSelectorContainer>
+        <Cell.Footer>
+          <AriaDescription>
+            <Cell.FooterText>
+              {bridgeModeFooterText(tunnelProtocol, transportProtocol)}
+            </Cell.FooterText>
+          </AriaDescription>
+        </Cell.Footer>
+      </AriaInputGroup>
       <ModalAlert
-        isOpen={this.state.showBridgeStateConfirmationDialog}
+        isOpen={confirmationDialogVisible}
         type={ModalAlertType.info}
         message={messages.gettext('This setting increases latency. Use only if needed.')}
         buttons={[
-          <AppButton.RedButton key="confirm" onClick={this.confirmBridgeState}>
+          <AppButton.RedButton key="confirm" onClick={confirmBridgeState}>
             {messages.gettext('Enable anyway')}
           </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onClick={this.hideBridgeStateConfirmationDialog}>
+          <AppButton.BlueButton key="back" onClick={hideConfirmationDialog}>
             {messages.gettext('Back')}
           </AppButton.BlueButton>,
         ]}
-        close={this.hideBridgeStateConfirmationDialog}></ModalAlert>
+        close={hideConfirmationDialog}
+      />
+    </>
+  );
+}
+
+function bridgeModeFooterText(tunnelProtocol?: TunnelProtocol, transportProtocol?: RelayProtocol) {
+  if (tunnelProtocol !== 'openvpn') {
+    return formatMarkdown(
+      sprintf(
+        // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
+        // TRANSLATORS: available.
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(tunnelProtocol)s - the name of the tunnel protocol setting
+        // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
+        messages.pgettext(
+          'openvpn-settings-view',
+          'To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**.',
+        ),
+        {
+          tunnelProtocol: messages.pgettext('vpn-settings-view', 'Tunnel protocol'),
+          openvpn: strings.openvpn,
+        },
+      ),
     );
-  };
+  } else if (transportProtocol === 'udp') {
+    return formatMarkdown(
+      sprintf(
+        // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
+        // TRANSLATORS: available.
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(transportProtocol)s - the name of the transport protocol setting
+        // TRANSLATORS: %(automat)s - the translation of "Automatic"
+        // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
+        messages.pgettext(
+          'openvpn-settings-view',
+          'To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**.',
+        ),
+        {
+          transportProtocol: messages.pgettext('openvpn-settings-view', 'Transport protocol'),
+          automatic: messages.gettext('Automatic'),
+          tcp: messages.gettext('TCP'),
+        },
+      ),
+    );
+  } else {
+    return sprintf(
+      // TRANSLATORS: This is used as a description for the bridge mode
+      // TRANSLATORS: setting.
+      // TRANSLATORS: Available placeholders:
+      // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
+      messages.pgettext(
+        'openvpn-settings-view',
+        'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder.',
+      ),
+      { openvpn: strings.openvpn },
+    );
+  }
+}
 
-  private onSelectBridgeState = (newValue: BridgeState) => {
-    if (newValue === 'on') {
-      this.setState({ showBridgeStateConfirmationDialog: true });
-    } else {
-      this.props.setBridgeState(newValue);
-    }
-  };
+function removeNonNumericCharacters(value: string) {
+  return value.replace(/[^0-9]/g, '');
+}
 
-  private hideBridgeStateConfirmationDialog = () => {
-    this.setState({ showBridgeStateConfirmationDialog: false });
-  };
+function mssfixIsValid(mssfix: string): boolean {
+  const parsedMssFix = mssfix ? parseInt(mssfix) : undefined;
+  return (
+    parsedMssFix === undefined ||
+    (parsedMssFix >= MIN_MSSFIX_VALUE && parsedMssFix <= MAX_MSSFIX_VALUE)
+  );
+}
 
-  private confirmBridgeState = () => {
-    this.setState({ showBridgeStateConfirmationDialog: false });
-    this.props.setBridgeState('on');
-  };
+function MssFixSetting() {
+  const { setOpenVpnMssfix: setOpenVpnMssfixImpl } = useAppContext();
+  const mssfix = useSelector((state) => state.settings.openVpn.mssfix);
+
+  const setOpenVpnMssfix = useCallback(
+    async (mssfix?: number) => {
+      try {
+        await setOpenVpnMssfixImpl(mssfix);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to update mssfix value', error.message);
+      }
+    },
+    [setOpenVpnMssfixImpl],
+  );
+
+  const onMssfixSubmit = useCallback(
+    async (value: string) => {
+      const parsedValue = value === '' ? undefined : parseInt(value, 10);
+      if (mssfixIsValid(value)) {
+        await setOpenVpnMssfix(parsedValue);
+      }
+    },
+    [setOpenVpnMssfix],
+  );
+
+  return (
+    <AriaInputGroup>
+      <Cell.Container>
+        <AriaLabel>
+          <Cell.InputLabel>{messages.pgettext('openvpn-settings-view', 'Mssfix')}</Cell.InputLabel>
+        </AriaLabel>
+        <AriaInput>
+          <Cell.AutoSizingTextInput
+            value={mssfix ? mssfix.toString() : ''}
+            inputMode={'numeric'}
+            maxLength={4}
+            placeholder={messages.gettext('Default')}
+            onSubmitValue={onMssfixSubmit}
+            validateValue={mssfixIsValid}
+            submitOnBlur={true}
+            modifyValue={removeNonNumericCharacters}
+          />
+        </AriaInput>
+      </Cell.Container>
+      <Cell.Footer>
+        <AriaDescription>
+          <Cell.FooterText>
+            {sprintf(
+              // TRANSLATORS: The hint displayed below the Mssfix input field.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(openvpn)s - will be replaced with "OpenVPN"
+              // TRANSLATORS: %(max)d - the maximum possible mssfix value
+              // TRANSLATORS: %(min)d - the minimum possible mssfix value
+              messages.pgettext(
+                'openvpn-settings-view',
+                'Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d.',
+              ),
+              {
+                openvpn: strings.openvpn,
+                min: MIN_MSSFIX_VALUE,
+                max: MAX_MSSFIX_VALUE,
+              },
+            )}
+          </Cell.FooterText>
+        </AriaDescription>
+      </Cell.Footer>
+    </AriaInputGroup>
+  );
 }

@@ -4,7 +4,6 @@ import { Route, Switch } from 'react-router';
 
 import AccountPage from '../containers/AccountPage';
 import LoginPage from '../containers/LoginPage';
-import OpenVPNSettingsPage from '../containers/OpenVPNSettingsPage';
 import ProblemReportPage from '../containers/ProblemReportPage';
 import SelectLanguagePage from '../containers/SelectLanguagePage';
 import SelectLocationPage from '../containers/SelectLocationPage';
@@ -23,6 +22,7 @@ import Focus, { IFocusHandle } from './Focus';
 import InterfaceSettings from './InterfaceSettings';
 import Launch from './Launch';
 import MainView from './MainView';
+import OpenVPNSettings from './OpenVPNSettings';
 import Settings from './Settings';
 import SplitTunnelingSettings from './SplitTunnelingSettings';
 import Support from './Support';
@@ -93,7 +93,7 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
               <Route exact path={RoutePath.interfaceSettings} component={InterfaceSettings} />
               <Route exact path={RoutePath.vpnSettings} component={VpnSettings} />
               <Route exact path={RoutePath.wireguardSettings} component={WireguardSettings} />
-              <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettingsPage} />
+              <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettings} />
               <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
               <Route exact path={RoutePath.support} component={Support} />
               <Route exact path={RoutePath.problemReport} component={ProblemReportPage} />
