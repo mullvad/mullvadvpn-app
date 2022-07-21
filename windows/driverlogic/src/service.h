@@ -2,6 +2,6 @@
 
 #include <windows.h>
 
-void WaitUntilServiceStopped(SC_HANDLE service, DWORD maxWaitMs);
+bool ServiceIsRunning(const std::wstring &serviceName);
 
 void PokeService(const std::wstring &serviceName, bool stopService, bool deleteService);

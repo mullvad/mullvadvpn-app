@@ -13,7 +13,6 @@
     <ClCompile Include="src\device.cpp" />
     <ClCompile Include="src\service.cpp" />
     <ClCompile Include="src\log.cpp" />
-    <ClCompile Include="src\version.cpp" />
     <ClCompile Include="src\util.cpp" />
     <ClCompile Include="src\devenum.cpp" />
   </ItemGroup>
@@ -24,7 +23,6 @@
     <ClInclude Include="src\device.h" />
     <ClInclude Include="src\service.h" />
     <ClInclude Include="src\log.h" />
-    <ClInclude Include="src\version.h" />
     <ClInclude Include="src\util.h" />
     <ClInclude Include="src\wintun.h" />
     <ClInclude Include="src\devenum.h" />

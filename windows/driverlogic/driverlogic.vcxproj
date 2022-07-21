@@ -104,7 +104,6 @@
     <ClCompile Include="src\service.cpp" />
     <ClCompile Include="src\stdafx.cpp" />
     <ClCompile Include="src\util.cpp" />
-    <ClCompile Include="src\version.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\devenum.h" />
@@ -115,7 +114,6 @@
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\targetver.h" />
     <ClInclude Include="src\util.h" />
-    <ClInclude Include="src\version.h" />
     <ClInclude Include="src\wintun.h" />
     <ClInclude Include="src\wireguard.h" />
   </ItemGroup>
