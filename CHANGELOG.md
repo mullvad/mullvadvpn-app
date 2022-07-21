@@ -37,6 +37,9 @@ Line wrap the file at 100 chars.                                              Th
 - Remove WireGuard view as it's no longer needed with the new way of managing devices.
 
 ### Fixed
+- Fix showing incompatible relay filtering options in desktop app. The filtering options are now
+  dependent on the other filters.
+
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.
 - Fix missing IPC message unregistration causing multiple copies of some messages to be received.

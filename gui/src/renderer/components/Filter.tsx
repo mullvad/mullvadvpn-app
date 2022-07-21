@@ -5,8 +5,10 @@ import { colors } from '../../config.json';
 import { Ownership } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
+import filterLocations from '../lib/filter-locations';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utilityHooks';
+import { IRelayLocationRedux } from '../redux/settings/reducers';
 import { IReduxState, useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
@@ -47,6 +49,16 @@ export default function Filter() {
   const initialProviders = useSelector(providersSelector);
   const [providers, setProviders] = useState<Record<string, boolean>>(initialProviders);
 
+  // The daemon expects the value to be an empty list if all are selected.
+  const formattedProviderList = useMemo(() => {
+    // If all providers are selected it's represented as an empty array.
+    return Object.values(providers).every((provider) => provider)
+      ? []
+      : Object.entries(providers)
+          .filter(([, selected]) => selected)
+          .map(([name]) => name);
+  }, [providers]);
+
   const initialOwnership = useSelector((state) =>
     'normal' in state.settings.relaySettings
       ? state.settings.relaySettings.normal.ownership
@@ -54,17 +66,17 @@ export default function Filter() {
   );
   const [ownership, setOwnership] = useState<Ownership>(initialOwnership);
 
-  const onApply = useCallback(async () => {
-    // If all providers are selected it's represented as an empty array.
-    const selectedProviders = Object.values(providers).every((provider) => provider)
-      ? []
-      : Object.entries(providers)
-          .filter(([, selected]) => selected)
-          .map(([name]) => name);
+  // Available providers are used to only show compatible options after activating a filter.
+  const { availableProviders, availableOwnershipOptions } = useFilteredFilters(
+    formattedProviderList,
+    ownership,
+  );
 
-    await updateRelaySettings({ normal: { providers: selectedProviders, ownership } });
+  // Applies the changes by sending them to the daemon.
+  const onApply = useCallback(async () => {
+    await updateRelaySettings({ normal: { providers: formattedProviderList, ownership } });
     history.pop();
-  }, [providers, ownership, history, updateRelaySettings]);
+  }, [formattedProviderList, ownership, history, updateRelaySettings]);
 
   return (
     <BackAction action={history.pop}>
@@ -82,8 +94,16 @@ export default function Filter() {
               </NavigationItems>
             </NavigationBar>
             <StyledNavigationScrollbars>
-              <FilterByOwnership ownership={ownership} setOwnership={setOwnership} />
-              <FilterByProvider providers={providers} setProviders={setProviders} />
+              <FilterByOwnership
+                ownership={ownership}
+                availableOptions={availableOwnershipOptions}
+                setOwnership={setOwnership}
+              />
+              <FilterByProvider
+                providers={providers}
+                availableOptions={availableProviders}
+                setProviders={setProviders}
+              />
             </StyledNavigationScrollbars>
             <StyledFooter>
               <AppButton.GreenButton
@@ -99,6 +119,47 @@ export default function Filter() {
   );
 }
 
+// Returns only the options for each filter that are compatible with current filter selection.
+function useFilteredFilters(providers: string[], ownership: Ownership) {
+  const locations = useSelector((state) =>
+    state.settings.relayLocations.concat(
+      state.settings.bridgeState === 'on' ? state.settings.bridgeLocations : [],
+    ),
+  );
+
+  const availableProviders = useMemo(() => {
+    const filteredRelays = filterLocations(locations, [], ownership);
+    return providersFromRelays(filteredRelays);
+  }, [locations, ownership]);
+
+  const availableOwnershipOptions = useMemo(() => {
+    const filteredRelays = filterLocations(locations, providers, Ownership.any);
+    const filteredRelayOwnership = filteredRelays.flatMap((country) =>
+      country.cities.flatMap((city) => city.relays.map((relay) => relay.owned)),
+    );
+
+    const ownershipOptions = [Ownership.any];
+    if (filteredRelayOwnership.includes(true)) {
+      ownershipOptions.push(Ownership.mullvadOwned);
+    }
+    if (filteredRelayOwnership.includes(false)) {
+      ownershipOptions.push(Ownership.rented);
+    }
+
+    return ownershipOptions;
+  }, [locations, providers]);
+
+  return { availableProviders, availableOwnershipOptions };
+}
+
+// Returns all available providers in the provided relay list.
+function providersFromRelays(relays: IRelayLocationRedux[]) {
+  const providers = relays.flatMap((country) =>
+    country.cities.flatMap((city) => city.relays.map((relay) => relay.provider)),
+  );
+  return removeDuplicates(providers).sort((a, b) => a.localeCompare(b));
+}
+
 function providersSelector(state: IReduxState): Record<string, boolean> {
   const providerConstraint =
     'normal' in state.settings.relaySettings ? state.settings.relaySettings.normal.providers : [];
@@ -106,14 +167,11 @@ function providersSelector(state: IReduxState): Record<string, boolean> {
   const relays = state.settings.relayLocations.concat(
     state.settings.bridgeState === 'on' ? state.settings.bridgeLocations : [],
   );
-  const providers = relays.flatMap((country) =>
-    country.cities.flatMap((city) => city.relays.map((relay) => relay.provider)),
-  );
-  const uniqueProviders = removeDuplicates(providers).sort((a, b) => a.localeCompare(b));
+  const providers = providersFromRelays(relays);
 
   // Empty containt array means that all providers are selected. No selection isn't possible.
   return Object.fromEntries(
-    uniqueProviders.map((provider) => [
+    providers.map((provider) => [
       provider,
       providerConstraint.length === 0 || providerConstraint.includes(provider),
     ]),
@@ -126,6 +184,7 @@ const StyledSelector = (styled(Selector)({
 
 interface IFilterByOwnershipProps {
   ownership: Ownership;
+  availableOptions: Ownership[];
   setOwnership: (ownership: Ownership) => void;
 }
 
@@ -133,21 +192,22 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
   const [expanded, , , toggleExpanded] = useBoolean(false);
 
   const values = useMemo(
-    () => [
-      {
-        label: messages.gettext('Any'),
-        value: Ownership.any,
-      },
-      {
-        label: messages.pgettext('filter-view', 'Mullvad owned only'),
-        value: Ownership.mullvadOwned,
-      },
-      {
-        label: messages.pgettext('filter-view', 'Rented only'),
-        value: Ownership.rented,
-      },
-    ],
-    [],
+    () =>
+      [
+        {
+          label: messages.gettext('Any'),
+          value: Ownership.any,
+        },
+        {
+          label: messages.pgettext('filter-view', 'Mullvad owned only'),
+          value: Ownership.mullvadOwned,
+        },
+        {
+          label: messages.pgettext('filter-view', 'Rented only'),
+          value: Ownership.rented,
+        },
+      ].filter((option) => props.availableOptions.includes(option.value)),
+    [props.availableOptions],
   );
 
   return (
@@ -172,6 +232,7 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
 
 interface IFilterByProviderProps {
   providers: Record<string, boolean>;
+  availableOptions: string[];
   setProviders: (providers: (previous: Record<string, boolean>) => Record<string, boolean>) => void;
 }
 
@@ -208,9 +269,11 @@ function FilterByProvider(props: IFilterByProviderProps) {
           checked={Object.values(props.providers).every((value) => value)}
           onChange={toggleAll}
         />
-        {Object.entries(props.providers).map(([provider, checked]) => (
-          <CheckboxRow key={provider} label={provider} checked={checked} onChange={onToggle} />
-        ))}
+        {Object.entries(props.providers)
+          .filter(([provider]) => props.availableOptions.includes(provider))
+          .map(([provider, checked]) => (
+            <CheckboxRow key={provider} label={provider} checked={checked} onChange={onToggle} />
+          ))}
       </Accordion>
     </>
   );
