@@ -236,7 +236,7 @@ impl RelaySelector {
                     constraints,
                     config.bridge_state,
                     retry_attempt,
-                    &config.default_tunnel_type,
+                    config.default_tunnel_type,
                 )?;
                 let bridge = match relay.endpoint {
                     MullvadEndpoint::OpenVpn(endpoint)
@@ -276,7 +276,7 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-        default_tunnel_type: &TunnelType,
+        default_tunnel_type: TunnelType,
     ) -> Result<NormalSelectedRelay, Error> {
         match relay_constraints.tunnel_protocol {
             Constraint::Only(TunnelType::OpenVpn) => self.get_openvpn_endpoint(
@@ -585,7 +585,7 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-        default_tunnel_type: &TunnelType,
+        default_tunnel_type: TunnelType,
     ) -> Result<NormalSelectedRelay, Error> {
         let preferred_constraints = self.preferred_constraints(
             relay_constraints,
@@ -618,7 +618,7 @@ impl RelaySelector {
         original_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-        default_tunnel_type: &TunnelType,
+        default_tunnel_type: TunnelType,
     ) -> RelayConstraints {
         let (preferred_port, preferred_protocol, preferred_tunnel) = self
             .preferred_tunnel_constraints(
@@ -945,7 +945,7 @@ impl RelaySelector {
     fn preferred_tunnel_constraints(
         &self,
         retry_attempt: u32,
-        default_tunnel_type: &TunnelType,
+        default_tunnel_type: TunnelType,
         location_constraint: &Constraint<LocationConstraint>,
         providers_constraint: &Constraint<Providers>,
         ownership_constraint: &Constraint<Ownership>,
