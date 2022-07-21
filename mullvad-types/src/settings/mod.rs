@@ -8,11 +8,11 @@ use crate::{
 };
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
+use rand::Rng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(target_os = "windows")]
 use std::{collections::HashSet, path::PathBuf};
 use talpid_types::net::{self, openvpn, GenericTunnelOptions};
-use rand::Rng;
 
 mod dns;
 
