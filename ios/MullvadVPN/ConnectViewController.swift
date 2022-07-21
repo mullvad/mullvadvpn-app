@@ -38,9 +38,10 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     private let logger = Logger(label: "ConnectViewController")
 
-    private var lastLocation: CLLocationCoordinate2D?
+    private var targetRegion: MKCoordinateRegion?
     private let locationMarker = MKPointAnnotation()
 
+    private var isAnimatingMap = false
     private var mapRegionAnimationDidEnd: (() -> Void)?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -123,12 +124,24 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     private func addSubviews() {
         view.addSubview(mainContentView)
+
         NSLayoutConstraint.activate([
             mainContentView.topAnchor.constraint(equalTo: view.topAnchor),
             mainContentView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             mainContentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             mainContentView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+
+        // Force layout since we rely on view frames when positioning map camera.
+        view.layoutIfNeeded()
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        coordinator.animate(alongsideTransition: { _ in }, completion: { context in
+            self.updateLocation(animated: context.isAnimated)
+        })
     }
 
     // MARK: - TunnelObserver
@@ -245,17 +258,15 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         return CGPoint(x: 0, y: offsetY)
     }
 
-    private func computeCoordinateRegion(centerCoordinate: CLLocationCoordinate2D, centerOffsetInPoints: CGPoint) -> MKCoordinateRegion  {
+    private func computeCoordinateRegion(center: CLLocationCoordinate2D, offset: CGPoint) -> MKCoordinateRegion {
         let span = MKCoordinateSpan(latitudeDelta: 30, longitudeDelta: 30)
-        var region = MKCoordinateRegion(center: centerCoordinate, span: span)
-        region = mainContentView.mapView.regionThatFits(region)
+        var region = mainContentView.mapView.regionThatFits(MKCoordinateRegion(center: center, span: span))
 
-        let latitudeDeltaPerPoint = region.span.latitudeDelta / Double(mainContentView.mapView.frame.height)
-        var offsetCenter = centerCoordinate
-        offsetCenter.latitude += CLLocationDegrees(latitudeDeltaPerPoint * Double(centerOffsetInPoints.y))
-        region.center = offsetCenter
+        let latitudeDeltaPerPoint = region.span.latitudeDelta / mainContentView.mapView.frame.height
+        region.center = center
+        region.center.latitude += CLLocationDegrees(latitudeDeltaPerPoint * offset.y)
 
-        return region
+        return mainContentView.mapView.regionThatFits(region)
     }
 
     private func updateLocation(animated: Bool) {
@@ -277,9 +288,19 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated)
 
         case .connected(let tunnelRelay):
+            // Show marker right away if activity indicator is not animating, i.e when the app
+            // launches with connected tunnel.
+            let showMarkerRightAway = !mainContentView.activityIndicator.isAnimating
+
+            if showMarkerRightAway {
+                addLocationMarker(coordinate: tunnelRelay.location.geoCoordinate)
+            }
+
             setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated) { [weak self] in
-                self?.mainContentView.activityIndicator.stopAnimating()
-                self?.addLocationMarker(coordinate: tunnelRelay.location.geoCoordinate)
+                if !showMarkerRightAway {
+                    self?.mainContentView.activityIndicator.stopAnimating()
+                    self?.addLocationMarker(coordinate: tunnelRelay.location.geoCoordinate)
+                }
             }
 
         case .pendingReconnect:
@@ -304,37 +325,42 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     private func setLocation(coordinate: CLLocationCoordinate2D, animated: Bool, animationDidEnd: (() -> Void)? = nil) {
-        if let lastLocation = lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
-            mapRegionAnimationDidEnd = nil
-            animationDidEnd?()
+        let markerOffset = locationMarkerOffset()
+        let region = computeCoordinateRegion(center: coordinate, offset: markerOffset)
+
+        if targetRegion?.isApproximatelyEqualTo(region) ?? false {
+            if isAnimatingMap {
+                mapRegionAnimationDidEnd = animationDidEnd
+            } else {
+                animationDidEnd?()
+            }
             return
         }
 
         mapRegionAnimationDidEnd = animationDidEnd
-
-        let markerOffset = locationMarkerOffset()
-        let region = computeCoordinateRegion(centerCoordinate: coordinate, centerOffsetInPoints: markerOffset)
-
-        mainContentView.mapView.setRegion(region, animated: animated)
-
-        self.lastLocation = coordinate
+        setMapRegion(region, animated: animated)
     }
 
-    private func unsetLocation(animated: Bool, animationDidEnd: (() -> Void)? = nil) {
+    private func unsetLocation(animated: Bool) {
+        let span = MKCoordinateSpan(latitudeDelta: 90, longitudeDelta: 90)
         let coordinate = CLLocationCoordinate2D(latitude: 0, longitude: 0)
-        if let lastLocation = lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
-            mapRegionAnimationDidEnd = nil
-            animationDidEnd?()
+        let region = mainContentView.mapView.regionThatFits(
+            MKCoordinateRegion(center: coordinate, span: span)
+        )
+
+        mapRegionAnimationDidEnd = nil
+
+        if targetRegion?.isApproximatelyEqualTo(region) ?? false {
             return
         }
 
-        mapRegionAnimationDidEnd = animationDidEnd
+        setMapRegion(region, animated: animated)
+    }
 
-        let span = MKCoordinateSpan(latitudeDelta: 90, longitudeDelta: 90)
-        let region = MKCoordinateRegion(center: coordinate, span: span)
+    private func setMapRegion(_ region: MKCoordinateRegion, animated: Bool) {
         mainContentView.mapView.setRegion(region, animated: animated)
-
-        self.lastLocation = coordinate
+        isAnimatingMap = true
+        targetRegion = region
     }
 
     private func addNotificationController() {
@@ -406,6 +432,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         mapRegionAnimationDidEnd?()
         mapRegionAnimationDidEnd = nil
+        isAnimatingMap = false
     }
 
     // MARK: - Private
@@ -637,9 +664,12 @@ private extension TunnelState {
 
 }
 
-private extension CLLocationCoordinate2D {
-    func approximatelyEqualTo(_ other: CLLocationCoordinate2D) -> Bool {
-        return fabs(self.latitude - other.latitude) <= .ulpOfOne &&
-            fabs(self.longitude - other.longitude) <= .ulpOfOne
+private extension MKCoordinateRegion {
+    func isApproximatelyEqualTo(_ other: MKCoordinateRegion) -> Bool {
+        return fabs(center.latitude - other.center.latitude) <= .ulpOfOne &&
+            fabs(center.longitude - other.center.longitude) <= .ulpOfOne &&
+            fabs(span.latitudeDelta - other.span.latitudeDelta) <= .ulpOfOne &&
+            fabs(span.longitudeDelta - other.span.longitudeDelta) <= .ulpOfOne
     }
+
 }
