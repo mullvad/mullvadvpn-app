@@ -58,6 +58,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix quick settings tile being unresponsive and causing crashes on some devices.
 - Fix quick settings tile not working when the device is locked. It will now prompt the user to
   unlock the device before attempting to toggle the tunnel state.
+- Fix crash when clicking in-app URL notifications. 
 
 #### Windows
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
