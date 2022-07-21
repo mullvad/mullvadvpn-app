@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.ui.notification
 
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
 
 abstract class NotificationWithUrl(
@@ -11,7 +12,10 @@ abstract class NotificationWithUrl(
     private val url = Uri.parse(context.getString(urlId))
 
     protected val openUrl: suspend () -> Unit = {
-        context.startActivity(Intent(Intent.ACTION_VIEW, url))
+        val intent = Intent(Intent.ACTION_VIEW, url).apply {
+            flags = FLAG_ACTIVITY_NEW_TASK
+        }
+        context.startActivity(intent)
     }
 
     init {
