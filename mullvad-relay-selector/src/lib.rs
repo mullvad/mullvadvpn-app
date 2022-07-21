@@ -1517,12 +1517,7 @@ mod test {
 
         // The exit must not equal the entry
         let exit_relay = relay_selector
-            .get_tunnel_endpoint(
-                &relay_constraints,
-                BridgeState::Off,
-                0,
-                TunnelType::OpenVpn,
-            )
+            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, TunnelType::OpenVpn)
             .map_err(|error| error.to_string())?
             .exit_relay;
 
