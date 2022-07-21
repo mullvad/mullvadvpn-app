@@ -23,12 +23,8 @@ pub enum Error {
     InterfaceGuidError(#[error(source)] io::Error),
 
     /// Failure to flush DNS cache.
-    #[error(display = "Failed to execute ipconfig")]
-    ExecuteIpconfigError(#[error(source)] io::Error),
-
-    /// Failure to flush DNS cache.
     #[error(display = "Failed to flush DNS resolver cache")]
-    FlushResolverCacheError(dnsapi::Error),
+    FlushResolverCacheError(#[error(source)] dnsapi::Error),
 
     /// Failed to update DNS servers for interface.
     #[error(display = "Failed to update interface DNS servers")]
