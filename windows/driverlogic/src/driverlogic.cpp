@@ -3,7 +3,6 @@
 #include "device.h"
 #include "service.h"
 #include "log.h"
-#include "version.h"
 #include "wintun.h"
 #include "wireguard.h"
 #include "devenum.h"
@@ -20,8 +19,6 @@
 namespace
 {
 
-constexpr wchar_t SPLIT_TUNNEL_HARDWARE_ID[] = L"Root\\mullvad-split-tunnel";
-
 DEFINE_GUID(WFP_CALLOUTS_CLASS_ID,
 	0x57465043, 0x616C, 0x6C6F, 0x75, 0x74, 0x5F, 0x63, 0x6C, 0x61, 0x73, 0x73);
 
@@ -30,11 +27,7 @@ constexpr wchar_t SPLIT_TUNNEL_DEVICE_NAME[] = L"Mullvad Split Tunnel Device";
 enum ReturnCode
 {
 	GENERAL_SUCCESS = 0,
-	GENERAL_ERROR = 1,
-	ST_DRIVER_NONE_INSTALLED = 2,
-	ST_DRIVER_SAME_VERSION_INSTALLED = 3,
-	ST_DRIVER_OLDER_VERSION_INSTALLED = 4,
-	ST_DRIVER_NEWER_VERSION_INSTALLED = 5
+	GENERAL_ERROR = 1
 };
 
 class ArgumentContext
@@ -105,74 +98,6 @@ std::unique_ptr<DeviceEnumerator> CreateSplitTunnelDeviceEnumerator()
 }
 
 //
-// CommandSplitTunnelEvaluate()
-//
-// Search for existing device.
-// Evaluate if provided inf can/should be installed.
-//
-ReturnCode CommandSplitTunnelEvaluate(const std::vector<std::wstring> &args)
-{
-	ArgumentContext argsContext(args);
-
-	argsContext.ensureExactArgumentCount(1);
-
-	const auto infPath = argsContext.next();
-
-	//
-	// Find first matching device
-	//
-
-	auto enumerator = CreateSplitTunnelDeviceEnumerator();
-
-	EnumeratedDevice device;
-
-	if (!enumerator->next(device))
-	{
-		return ReturnCode::ST_DRIVER_NONE_INSTALLED;
-	}
-
-	//
-	// Retrieve driver versions
-	//
-
-	auto existingVersion = GetDriverVersion(device);
-	auto proposedVersion = InfGetDriverVersion(infPath);
-
-	//
-	// Compare driver versions
-	//
-
-	switch (EvaluateDriverUpgrade(existingVersion, proposedVersion))
-	{
-		case DRIVER_UPGRADE_STATUS::WOULD_UPGRADE:
-			return ReturnCode::ST_DRIVER_OLDER_VERSION_INSTALLED;
-		case DRIVER_UPGRADE_STATUS::WOULD_DOWNGRADE:
-			return ReturnCode::ST_DRIVER_NEWER_VERSION_INSTALLED;
-		case DRIVER_UPGRADE_STATUS::WOULD_INSTALL_SAME_VERSION:
-			return ReturnCode::ST_DRIVER_SAME_VERSION_INSTALLED;
-		default:
-			Log(L"Unexpected return value from EvaluateDriverUpgrade()");
-	}
-
-	return ReturnCode::GENERAL_ERROR;
-}
-
-ReturnCode CommandSplitTunnelNewInstall(const std::vector<std::wstring> &args)
-{
-	ArgumentContext argsContext(args);
-
-	argsContext.ensureExactArgumentCount(1);
-
-	const auto infPath = argsContext.next();
-
-	CreateDevice(WFP_CALLOUTS_CLASS_ID, SPLIT_TUNNEL_DEVICE_NAME, SPLIT_TUNNEL_HARDWARE_ID);
-
-	InstallDriverForDevice(SPLIT_TUNNEL_HARDWARE_ID, infPath);
-
-	return ReturnCode::GENERAL_SUCCESS;
-}
-
-//
 // CommandSplitTunnelRemove()
 //
 // Reset driver
@@ -186,46 +111,27 @@ ReturnCode CommandSplitTunnelRemove(const std::vector<std::wstring> &args)
 
 	argsContext.ensureExactArgumentCount(0);
 
+	if (ServiceIsRunning(L"mullvad-split-tunnel"))
+	{
+		ResetDriverState();
+	}
+
 	//
-	// Find first matching device
+	// Uninstall device, if it exists
 	//
 
 	auto enumerator = CreateSplitTunnelDeviceEnumerator();
 
 	EnumeratedDevice device;
 
-	if (!enumerator->next(device))
+	if (enumerator->next(device))
 	{
-		Log(L"Could not find split tunnel device");
-
-		return ReturnCode::GENERAL_SUCCESS;
+		UninstallDevice(device);
 	}
-
-	ResetDriverState();
-
-	UninstallDevice(device);
 
 	PokeService(L"mullvad-split-tunnel", true, true);
 
 	return ReturnCode::GENERAL_SUCCESS;
-}
-
-//
-// CommandSplitTunnelForceInstall()
-//
-// There's an existing device that needs to be stopped and removed.
-// After this, create a new device and associate the specified inf.
-//
-ReturnCode CommandSplitTunnelForceInstall(const std::vector<std::wstring> &args)
-{
-	auto status = CommandSplitTunnelRemove({});
-
-	if (ReturnCode::GENERAL_SUCCESS != status)
-	{
-		return status;
-	}
-
-	return CommandSplitTunnelNewInstall(args);
 }
 
 ReturnCode CommandWintunDeleteDriver(const std::vector<std::wstring> &args)
@@ -336,9 +242,6 @@ int wmain(int argc, const wchar_t *argv[])
 
 	std::vector<CommandHandler> handlers =
 	{
-		{ L"st-evaluate", CommandSplitTunnelEvaluate },
-		{ L"st-new-install", CommandSplitTunnelNewInstall },
-		{ L"st-force-install", CommandSplitTunnelForceInstall },
 		{ L"st-remove", CommandSplitTunnelRemove },
 		{ L"wintun-delete-driver", CommandWintunDeleteDriver },
 		{ L"wintun-delete-abandoned-device", CommandWintunDeleteAbandonedDevice },

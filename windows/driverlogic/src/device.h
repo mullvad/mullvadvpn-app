@@ -39,13 +39,6 @@ CreateDevice
 );
 
 void
-InstallDriverForDevice
-(
-	const std::wstring &deviceHardwareId,
-	const std::wstring &infPath
-);
-
-void
 UninstallDevice
 (
 	const EnumeratedDevice &device
