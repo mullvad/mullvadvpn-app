@@ -67,7 +67,7 @@ class AccountExpiryNotification(
         val expiryDate = expiry.date()
         val durationUntilExpiry = expiryDate?.remainingTime()
 
-        if (durationUntilExpiry?.isCloseToExpiry() == true) {
+        if (accountCache.isNewAccount.not() && durationUntilExpiry?.isCloseToExpiry() == true) {
             val notification = build(expiryDate, durationUntilExpiry)
             channel.notificationManager.notify(NOTIFICATION_ID, notification)
             jobTracker.newUiJob("scheduleUpdate") { scheduleUpdate() }
