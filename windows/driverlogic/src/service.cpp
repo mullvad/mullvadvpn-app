@@ -124,7 +124,10 @@ bool ServiceIsRunning(const std::wstring &serviceName)
 		return false;
 	}
 
-	CloseServiceHandle(service);
+	dtor += [service]()
+	{
+		CloseServiceHandle(service);
+	};
 
 	return GetServiceProcessStatus(service).dwCurrentState == SERVICE_RUNNING;
 }

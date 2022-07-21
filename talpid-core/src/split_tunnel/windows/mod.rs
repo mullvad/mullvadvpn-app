@@ -48,6 +48,10 @@ pub enum Error {
     #[error(display = "Failed to initialize driver")]
     InitializationError(#[error(source)] driver::DeviceHandleError),
 
+    /// Failed to reset the driver
+    #[error(display = "Failed to reset driver")]
+    ResetError(#[error(source)] io::Error),
+
     /// Failed to set paths to excluded applications
     #[error(display = "Failed to set list of excluded applications")]
     SetConfiguration(#[error(source)] io::Error),
@@ -122,6 +126,7 @@ enum Request {
     SetPaths(Vec<OsString>),
     RegisterIps(InterfaceAddresses),
     Restart,
+    Stop,
 }
 type RequestResponseTx = sync_mpsc::Sender<Result<(), Error>>;
 type RequestTx = sync_mpsc::Sender<(Request, RequestResponseTx)>;
@@ -529,6 +534,20 @@ impl SplitTunnel {
                             Ok(())
                         })()
                     }
+                    Request::Stop => {
+                        if let Err(error) = handle.reset().map_err(Error::ResetError) {
+                            let _ = response_tx.send(Err(error));
+                            continue;
+                        }
+
+                        monitored_paths.lock().unwrap().clear();
+                        excluded_processes.write().unwrap().clear();
+
+                        let _ = response_tx.send(Ok(()));
+
+                        // Stop listening to commands
+                        break;
+                    }
                 };
                 if response_tx.send(response).is_err() {
                     log::error!("A response could not be sent for a completed request");
@@ -540,6 +559,16 @@ impl SplitTunnel {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to shut down path monitor")
+                );
+            }
+
+            drop(handle);
+
+            log::debug!("Stopping ST service");
+            if let Err(error) = service::stop_driver_service() {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to stop ST service")
                 );
             }
         });
@@ -729,9 +758,11 @@ impl Drop for SplitTunnel {
             // Not joining `event_thread`: It may be unresponsive.
         }
 
-        let paths: [&OsStr; 0] = [];
-        if let Err(error) = self.set_paths_sync(&paths) {
-            log::error!("{}", error.display_chain());
+        if let Err(error) = self.send_request(Request::Stop) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to stop ST driver service")
+            );
         }
     }
 }
