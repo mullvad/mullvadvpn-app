@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.
+- Fix invalid map camera position during the app launch and keep it up to date when multitasking.
 
 
 ## [2022.2] - 2022-04-28
