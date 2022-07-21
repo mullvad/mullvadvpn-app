@@ -6,8 +6,8 @@ import { RoutePath } from '../src/renderer/lib/routes';
 const BASE_PATH = RoutePath.launch;
 const FIRST_PATH = RoutePath.main;
 const SECOND_PATH = RoutePath.settings;
-const THIRD_PATH = RoutePath.advancedSettings;
-const FOURTH_PATH = RoutePath.preferences;
+const THIRD_PATH = RoutePath.vpnSettings;
+const FOURTH_PATH = RoutePath.interfaceSettings;
 const FIFTH_PATH = RoutePath.splitTunneling;
 
 describe('History', () => {
