@@ -3096,6 +3096,7 @@ dependencies = [
  "widestring 0.5.1",
  "winapi",
  "windows",
+ "windows-service",
  "winreg",
  "zeroize",
 ]
