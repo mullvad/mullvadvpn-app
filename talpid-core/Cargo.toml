@@ -84,6 +84,7 @@ winreg = { version = "0.7", features = ["transactions"] }
 winapi = { version = "0.3.6", features = ["ws2def"] }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 memoffset = "0.6"
+windows-service = "0.5.0"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 version = "0.36.1"
