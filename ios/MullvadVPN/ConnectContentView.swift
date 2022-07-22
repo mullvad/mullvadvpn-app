@@ -1,5 +1,5 @@
 //
-//  ConnectMainContentView.swift
+//  ConnectContentView.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 09/03/2021.
@@ -9,7 +9,7 @@
 import UIKit
 import MapKit
 
-class ConnectMainContentView: UIView {
+class ConnectContentView: UIView {
     enum ActionButton {
         case connect
         case disconnect

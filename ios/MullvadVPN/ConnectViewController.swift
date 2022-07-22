@@ -30,17 +30,18 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     let notificationController = NotificationController()
 
-    private let mainContentView: ConnectMainContentView = {
-        let view = ConnectMainContentView(frame: UIScreen.main.bounds)
+    private let contentView: ConnectContentView = {
+        let view = ConnectContentView(frame: UIScreen.main.bounds)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
 
     private let logger = Logger(label: "ConnectViewController")
 
-    private var lastLocation: CLLocationCoordinate2D?
+    private var targetRegion: MKCoordinateRegion?
     private let locationMarker = MKPointAnnotation()
 
+    private var isAnimatingMap = false
     private var mapRegionAnimationDidEnd: (() -> Void)?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -82,12 +83,12 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        mainContentView.connectButton.addTarget(self, action: #selector(handleConnect(_:)), for: .touchUpInside)
-        mainContentView.cancelButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
-        mainContentView.splitDisconnectButton.primaryButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
-        mainContentView.splitDisconnectButton.secondaryButton.addTarget(self, action: #selector(handleReconnect(_:)), for: .touchUpInside)
+        contentView.connectButton.addTarget(self, action: #selector(handleConnect(_:)), for: .touchUpInside)
+        contentView.cancelButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
+        contentView.splitDisconnectButton.primaryButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
+        contentView.splitDisconnectButton.secondaryButton.addTarget(self, action: #selector(handleReconnect(_:)), for: .touchUpInside)
 
-        mainContentView.selectLocationButton.addTarget(self, action: #selector(handleSelectLocation(_:)), for: .touchUpInside)
+        contentView.selectLocationButton.addTarget(self, action: #selector(handleSelectLocation(_:)), for: .touchUpInside)
 
         TunnelManager.shared.addObserver(self)
         self.tunnelState = TunnelManager.shared.tunnelState
@@ -111,7 +112,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     func setMainContentHidden(_ isHidden: Bool, animated: Bool) {
         let actions = {
-            self.mainContentView.containerView.alpha = isHidden ? 0 : 1
+            self.contentView.containerView.alpha = isHidden ? 0 : 1
         }
 
         if animated {
@@ -122,13 +123,25 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     private func addSubviews() {
-        view.addSubview(mainContentView)
+        view.addSubview(contentView)
+
         NSLayoutConstraint.activate([
-            mainContentView.topAnchor.constraint(equalTo: view.topAnchor),
-            mainContentView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            mainContentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            mainContentView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            contentView.topAnchor.constraint(equalTo: view.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+
+        // Force layout since we rely on view frames when positioning map camera.
+        view.layoutIfNeeded()
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        coordinator.animate(alongsideTransition: { _ in }, completion: { context in
+            self.updateLocation(animated: context.isAnimated)
+        })
     }
 
     // MARK: - TunnelObserver
@@ -152,10 +165,10 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     // MARK: - Private
 
     private func updateUserInterfaceForTunnelStateChange() {
-        mainContentView.secureLabel.text = tunnelState.localizedTitleForSecureLabel.uppercased()
-        mainContentView.secureLabel.textColor = tunnelState.textColorForSecureLabel
+        contentView.secureLabel.text = tunnelState.localizedTitleForSecureLabel.uppercased()
+        contentView.secureLabel.textColor = tunnelState.textColorForSecureLabel
 
-        mainContentView.connectButton.setTitle(
+        contentView.connectButton.setTitle(
             NSLocalizedString(
                 "CONNECT_BUTTON_TITLE",
                 tableName: "Main",
@@ -163,15 +176,15 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
                 comment: ""
             ), for: .normal
         )
-        mainContentView.selectLocationButton.setTitle(tunnelState.localizedTitleForSelectLocationButton, for: .normal)
-        mainContentView.cancelButton.setTitle(
+        contentView.selectLocationButton.setTitle(tunnelState.localizedTitleForSelectLocationButton, for: .normal)
+        contentView.cancelButton.setTitle(
             NSLocalizedString(
                 "CANCEL_BUTTON_TITLE",
                 tableName: "Main",
                 value: "Cancel",
                 comment: ""
             ), for: .normal)
-        mainContentView.splitDisconnectButton.primaryButton.setTitle(
+        contentView.splitDisconnectButton.primaryButton.setTitle(
             NSLocalizedString(
                 "DISCONNECT_BUTTON_TITLE",
                 tableName: "Main",
@@ -179,7 +192,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
                 comment: ""
             ), for: .normal
         )
-        mainContentView.splitDisconnectButton.secondaryButton.accessibilityLabel = NSLocalizedString(
+        contentView.splitDisconnectButton.secondaryButton.accessibilityLabel = NSLocalizedString(
             "RECONNECT_BUTTON_ACCESSIBILITY_LABEL",
             tableName: "Main",
             value: "Reconnect",
@@ -190,7 +203,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     private func updateTraitDependentViews() {
-        mainContentView.setActionButtons(tunnelState.actionButtons(traitCollection: self.traitCollection))
+        contentView.setActionButtons(tunnelState.actionButtons(traitCollection: self.traitCollection))
     }
 
     private func attributedStringForLocation(string: String) -> NSAttributedString {
@@ -213,56 +226,54 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             setTunnelRelay(nil)
         }
 
-        mainContentView.locationContainerView.accessibilityLabel = tunnelState.localizedAccessibilityLabel
+        contentView.locationContainerView.accessibilityLabel = tunnelState.localizedAccessibilityLabel
     }
 
     private func setTunnelRelay(_ tunnelRelay: PacketTunnelRelay?) {
         if let tunnelRelay = tunnelRelay {
-            mainContentView.cityLabel.attributedText = attributedStringForLocation(string: tunnelRelay.location.city)
-            mainContentView.countryLabel.attributedText = attributedStringForLocation(string: tunnelRelay.location.country)
+            contentView.cityLabel.attributedText = attributedStringForLocation(string: tunnelRelay.location.city)
+            contentView.countryLabel.attributedText = attributedStringForLocation(string: tunnelRelay.location.country)
 
-            mainContentView.connectionPanel.dataSource = ConnectionPanelData(
+            contentView.connectionPanel.dataSource = ConnectionPanelData(
                 inAddress: "\(tunnelRelay.ipv4Relay) UDP",
                 outAddress: nil
             )
-            mainContentView.connectionPanel.isHidden = false
-            mainContentView.connectionPanel.connectedRelayName = tunnelRelay.hostname
+            contentView.connectionPanel.isHidden = false
+            contentView.connectionPanel.connectedRelayName = tunnelRelay.hostname
         } else {
-            mainContentView.countryLabel.attributedText = attributedStringForLocation(string: " ")
-            mainContentView.cityLabel.attributedText = attributedStringForLocation(string: " ")
-            mainContentView.connectionPanel.dataSource = nil
-            mainContentView.connectionPanel.isHidden = true
+            contentView.countryLabel.attributedText = attributedStringForLocation(string: " ")
+            contentView.cityLabel.attributedText = attributedStringForLocation(string: " ")
+            contentView.connectionPanel.dataSource = nil
+            contentView.connectionPanel.isHidden = true
         }
     }
 
     private func locationMarkerOffset() -> CGPoint {
         // Compute the activity indicator frame within the view coordinate system.
-        let activityIndicatorFrame = mainContentView.activityIndicator.convert(mainContentView.activityIndicator.bounds, to: view)
+        let activityIndicatorFrame = contentView.activityIndicator.convert(contentView.activityIndicator.bounds, to: view)
 
         // Compute the offset to align the marker on the map with activity indicator.
-        let offsetY = activityIndicatorFrame.midY - mainContentView.mapView.frame.midY
+        let offsetY = activityIndicatorFrame.midY - contentView.mapView.frame.midY
 
         return CGPoint(x: 0, y: offsetY)
     }
 
-    private func computeCoordinateRegion(centerCoordinate: CLLocationCoordinate2D, centerOffsetInPoints: CGPoint) -> MKCoordinateRegion  {
+    private func computeCoordinateRegion(center: CLLocationCoordinate2D, offset: CGPoint) -> MKCoordinateRegion {
         let span = MKCoordinateSpan(latitudeDelta: 30, longitudeDelta: 30)
-        var region = MKCoordinateRegion(center: centerCoordinate, span: span)
-        region = mainContentView.mapView.regionThatFits(region)
+        var region = contentView.mapView.regionThatFits(MKCoordinateRegion(center: center, span: span))
 
-        let latitudeDeltaPerPoint = region.span.latitudeDelta / Double(mainContentView.mapView.frame.height)
-        var offsetCenter = centerCoordinate
-        offsetCenter.latitude += CLLocationDegrees(latitudeDeltaPerPoint * Double(centerOffsetInPoints.y))
-        region.center = offsetCenter
+        let latitudeDeltaPerPoint = region.span.latitudeDelta / contentView.mapView.frame.height
+        region.center = center
+        region.center.latitude += CLLocationDegrees(latitudeDeltaPerPoint * offset.y)
 
-        return region
+        return contentView.mapView.regionThatFits(region)
     }
 
     private func updateLocation(animated: Bool) {
         switch tunnelState {
         case .connecting(let tunnelRelay):
             removeLocationMarker()
-            mainContentView.activityIndicator.startAnimating()
+            contentView.activityIndicator.startAnimating()
 
             if let tunnelRelay = tunnelRelay {
                 setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated)
@@ -272,23 +283,33 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
         case .reconnecting(let tunnelRelay):
             removeLocationMarker()
-            mainContentView.activityIndicator.startAnimating()
+            contentView.activityIndicator.startAnimating()
 
             setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated)
 
         case .connected(let tunnelRelay):
+            // Show marker right away if activity indicator is not animating, i.e when the app
+            // launches with connected tunnel.
+            let showMarkerRightAway = !contentView.activityIndicator.isAnimating
+
+            if showMarkerRightAway {
+                addLocationMarker(coordinate: tunnelRelay.location.geoCoordinate)
+            }
+
             setLocation(coordinate: tunnelRelay.location.geoCoordinate, animated: animated) { [weak self] in
-                self?.mainContentView.activityIndicator.stopAnimating()
-                self?.addLocationMarker(coordinate: tunnelRelay.location.geoCoordinate)
+                if !showMarkerRightAway {
+                    self?.contentView.activityIndicator.stopAnimating()
+                    self?.addLocationMarker(coordinate: tunnelRelay.location.geoCoordinate)
+                }
             }
 
         case .pendingReconnect:
             removeLocationMarker()
-            mainContentView.activityIndicator.startAnimating()
+            contentView.activityIndicator.startAnimating()
 
         case .disconnected, .disconnecting:
             removeLocationMarker()
-            mainContentView.activityIndicator.stopAnimating()
+            contentView.activityIndicator.stopAnimating()
 
             unsetLocation(animated: animated)
         }
@@ -296,45 +317,50 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     private func addLocationMarker(coordinate: CLLocationCoordinate2D) {
         locationMarker.coordinate = coordinate
-        mainContentView.mapView.addAnnotation(locationMarker)
+        contentView.mapView.addAnnotation(locationMarker)
     }
 
     private func removeLocationMarker() {
-        mainContentView.mapView.removeAnnotation(locationMarker)
+        contentView.mapView.removeAnnotation(locationMarker)
     }
 
     private func setLocation(coordinate: CLLocationCoordinate2D, animated: Bool, animationDidEnd: (() -> Void)? = nil) {
-        if let lastLocation = lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
-            mapRegionAnimationDidEnd = nil
-            animationDidEnd?()
+        let markerOffset = locationMarkerOffset()
+        let region = computeCoordinateRegion(center: coordinate, offset: markerOffset)
+
+        if targetRegion?.isApproximatelyEqualTo(region) ?? false {
+            if isAnimatingMap {
+                mapRegionAnimationDidEnd = animationDidEnd
+            } else {
+                animationDidEnd?()
+            }
             return
         }
 
         mapRegionAnimationDidEnd = animationDidEnd
-
-        let markerOffset = locationMarkerOffset()
-        let region = computeCoordinateRegion(centerCoordinate: coordinate, centerOffsetInPoints: markerOffset)
-
-        mainContentView.mapView.setRegion(region, animated: animated)
-
-        self.lastLocation = coordinate
+        setMapRegion(region, animated: animated)
     }
 
-    private func unsetLocation(animated: Bool, animationDidEnd: (() -> Void)? = nil) {
+    private func unsetLocation(animated: Bool) {
+        let span = MKCoordinateSpan(latitudeDelta: 90, longitudeDelta: 90)
         let coordinate = CLLocationCoordinate2D(latitude: 0, longitude: 0)
-        if let lastLocation = lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
-            mapRegionAnimationDidEnd = nil
-            animationDidEnd?()
+        let region = contentView.mapView.regionThatFits(
+            MKCoordinateRegion(center: coordinate, span: span)
+        )
+
+        mapRegionAnimationDidEnd = nil
+
+        if targetRegion?.isApproximatelyEqualTo(region) ?? false {
             return
         }
 
-        mapRegionAnimationDidEnd = animationDidEnd
+        setMapRegion(region, animated: animated)
+    }
 
-        let span = MKCoordinateSpan(latitudeDelta: 90, longitudeDelta: 90)
-        let region = MKCoordinateRegion(center: coordinate, span: span)
-        mainContentView.mapView.setRegion(region, animated: animated)
-
-        self.lastLocation = coordinate
+    private func setMapRegion(_ region: MKCoordinateRegion, animated: Bool) {
+        contentView.mapView.setRegion(region, animated: animated)
+        isAnimatingMap = true
+        targetRegion = region
     }
 
     private func addNotificationController() {
@@ -406,6 +432,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         mapRegionAnimationDidEnd?()
         mapRegionAnimationDidEnd = nil
+        isAnimatingMap = false
     }
 
     // MARK: - Private
@@ -415,13 +442,13 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     private func setupMapView() {
-        mainContentView.mapView.insetsLayoutMarginsFromSafeArea = false
-        mainContentView.mapView.delegate = self
-        mainContentView.mapView.register(MKAnnotationView.self, forAnnotationViewWithReuseIdentifier: "location")
+        contentView.mapView.insetsLayoutMarginsFromSafeArea = false
+        contentView.mapView.delegate = self
+        contentView.mapView.register(MKAnnotationView.self, forAnnotationViewWithReuseIdentifier: "location")
 
         if #available(iOS 13.0, *) {
             // Use dark style for the map to dim the map grid
-            mainContentView.mapView.overrideUserInterfaceStyle = .dark
+            contentView.mapView.overrideUserInterfaceStyle = .dark
         }
 
         addTileOverlay()
@@ -436,7 +463,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         // Replace the default map tiles
         tileOverlay.canReplaceMapContent = true
 
-        mainContentView.mapView.addOverlay(tileOverlay)
+        contentView.mapView.addOverlay(tileOverlay)
     }
 
     private func loadGeoJSONData() {
@@ -452,7 +479,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             let data = try Data(contentsOf: fileURL)
             let overlays = try GeoJSON.decodeGeoJSON(data)
 
-            mainContentView.mapView.addOverlays(overlays)
+            contentView.mapView.addOverlays(overlays)
         } catch {
             logger.error(chainedError: AnyChainedError(error), message: "Failed to load geojson.")
         }
@@ -604,7 +631,7 @@ private extension TunnelState {
         }
     }
 
-    func actionButtons(traitCollection: UITraitCollection) -> [ConnectMainContentView.ActionButton] {
+    func actionButtons(traitCollection: UITraitCollection) -> [ConnectContentView.ActionButton] {
         switch (traitCollection.userInterfaceIdiom, traitCollection.horizontalSizeClass) {
         case (.phone, _), (.pad, .compact):
             switch self {
@@ -637,9 +664,12 @@ private extension TunnelState {
 
 }
 
-private extension CLLocationCoordinate2D {
-    func approximatelyEqualTo(_ other: CLLocationCoordinate2D) -> Bool {
-        return fabs(self.latitude - other.latitude) <= .ulpOfOne &&
-            fabs(self.longitude - other.longitude) <= .ulpOfOne
+private extension MKCoordinateRegion {
+    func isApproximatelyEqualTo(_ other: MKCoordinateRegion) -> Bool {
+        return fabs(center.latitude - other.center.latitude) <= .ulpOfOne &&
+            fabs(center.longitude - other.center.longitude) <= .ulpOfOne &&
+            fabs(span.latitudeDelta - other.span.latitudeDelta) <= .ulpOfOne &&
+            fabs(span.longitudeDelta - other.span.longitudeDelta) <= .ulpOfOne
     }
+
 }
