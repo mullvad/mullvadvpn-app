@@ -1030,6 +1030,7 @@
 
 	Pop $Silent
 
+	${ExtractDriverlogic}
 	${ExtractMullvadSetup}
 
 	${If} $Silent == 1
@@ -1072,6 +1073,11 @@
 
 	${StopAndDeleteService}
 
+	# Precaution: If the daemon fails to exit gracefully,
+	# attempt to remove the driver here. Otherwise, the
+	# installer may fail to delete the install dir.
+	${RemoveSplitTunnelDriver}
+
 	${If} $R0 != 0
 		Goto customRemoveFiles_abort
 	${EndIf}
@@ -1105,11 +1111,9 @@
 		${ClearFirewallRules}
 		${RemoveCurrentDevice}
 
-		${ExtractDriverlogic}
 		${ExtractWireGuard}
 		${RemoveWintun}
 		${RemoveWireGuardNt}
-		${RemoveSplitTunnelDriver}
 
 		log::SetLogTarget ${LOG_VOID}
 
