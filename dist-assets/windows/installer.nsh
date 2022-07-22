@@ -795,13 +795,19 @@
 
 	${ExtractDriverlogic}
 	${RemoveAbandonedWintunAdapter}
+
+	${If} $R0 != 0
+		MessageBox MB_OK "$R0"
+		Goto customInstall_abort_installation
+	${EndIf}
+
 	${RemoveSplitTunnelDriver}
 
 	${If} $R0 != 0
 		MessageBox MB_OK "$R0"
 		Goto customInstall_abort_installation
 	${EndIf}
-	
+
 	${InstallService}
 
 	${If} $R0 != 0
@@ -1030,6 +1036,7 @@
 
 	Pop $Silent
 
+	${ExtractDriverlogic}
 	${ExtractMullvadSetup}
 
 	${If} $Silent == 1
@@ -1076,6 +1083,16 @@
 		Goto customRemoveFiles_abort
 	${EndIf}
 
+	# Precaution: If the daemon fails to exit gracefully,
+	# attempt to remove the driver here. Otherwise, the
+	# installer may fail to delete the install dir.
+
+	${RemoveSplitTunnelDriver}
+
+	${If} $R0 != 0
+		Goto customRemoveFiles_abort
+	${EndIf}
+
 	# Remove application files
 	log::Log "Deleting $INSTDIR"
 	RMDir /r $INSTDIR
@@ -1105,11 +1122,9 @@
 		${ClearFirewallRules}
 		${RemoveCurrentDevice}
 
-		${ExtractDriverlogic}
 		${ExtractWireGuard}
 		${RemoveWintun}
 		${RemoveWireGuardNt}
-		${RemoveSplitTunnelDriver}
 
 		log::SetLogTarget ${LOG_VOID}
 
