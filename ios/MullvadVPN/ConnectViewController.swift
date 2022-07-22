@@ -30,8 +30,8 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     let notificationController = NotificationController()
 
-    private let contentView: ConnectMainContentView = {
-        let view = ConnectMainContentView(frame: UIScreen.main.bounds)
+    private let contentView: ConnectContentView = {
+        let view = ConnectContentView(frame: UIScreen.main.bounds)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -631,7 +631,7 @@ private extension TunnelState {
         }
     }
 
-    func actionButtons(traitCollection: UITraitCollection) -> [ConnectMainContentView.ActionButton] {
+    func actionButtons(traitCollection: UITraitCollection) -> [ConnectContentView.ActionButton] {
         switch (traitCollection.userInterfaceIdiom, traitCollection.horizontalSizeClass) {
         case (.phone, _), (.pad, .compact):
             switch self {
