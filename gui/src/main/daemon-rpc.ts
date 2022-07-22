@@ -17,6 +17,7 @@ import {
   DaemonEvent,
   DeviceEvent,
   DeviceState,
+  EndpointObfuscationType,
   ErrorStateCause,
   FirewallPolicyError,
   IAccountData,
@@ -40,6 +41,7 @@ import {
   IWireguardConstraints,
   LoggedInDeviceState,
   LoggedOutDeviceState,
+  ObfuscationSettings,
   ObfuscationType,
   Ownership,
   ProxySettings,
@@ -375,6 +377,42 @@ export class DaemonRpc {
     await this.call<grpcTypes.BridgeSettings, Empty>(
       this.client.setBridgeSettings,
       grpcBridgeSettings,
+    );
+  }
+
+  public async setObfuscationSettings(obfuscationSettings: ObfuscationSettings): Promise<void> {
+    const grpcObfuscationSettings = new grpcTypes.ObfuscationSettings();
+    switch (obfuscationSettings.selectedObfuscation) {
+      case ObfuscationType.auto:
+        grpcObfuscationSettings.setSelectedObfuscation(
+          grpcTypes.ObfuscationSettings.SelectedObfuscation.AUTO,
+        );
+        break;
+      case ObfuscationType.off:
+        grpcObfuscationSettings.setSelectedObfuscation(
+          grpcTypes.ObfuscationSettings.SelectedObfuscation.OFF,
+        );
+        break;
+      case ObfuscationType.udp2tcp:
+        grpcObfuscationSettings.setSelectedObfuscation(
+          grpcTypes.ObfuscationSettings.SelectedObfuscation.UDP2TCP,
+        );
+        break;
+    }
+
+    if (obfuscationSettings.udp2tcpSettings) {
+      const grpcUdp2tcpSettings = new grpcTypes.Udp2TcpObfuscationSettings();
+      grpcUdp2tcpSettings.setPort(
+        obfuscationSettings.udp2tcpSettings.port === 'any'
+          ? 0
+          : obfuscationSettings.udp2tcpSettings.port.only,
+      );
+      grpcObfuscationSettings.setUdp2tcp(grpcUdp2tcpSettings);
+    }
+
+    await this.call<grpcTypes.ObfuscationSettings, Empty>(
+      this.client.setObfuscationSettings,
+      grpcObfuscationSettings,
     );
   }
 
@@ -922,7 +960,7 @@ function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObjec
 function convertFromObfuscationEndpoint(
   obfuscationEndpoint: grpcTypes.ObfuscationEndpoint.AsObject,
 ): IObfuscationEndpoint {
-  const obfuscationTypes: Record<grpcTypes.ObfuscationType, ObfuscationType> = {
+  const obfuscationTypes: Record<grpcTypes.ObfuscationType, EndpointObfuscationType> = {
     [grpcTypes.ObfuscationType.UDP2TCP]: 'udp2tcp',
   };
 
@@ -947,6 +985,7 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
   const bridgeSettings = convertFromBridgeSettings(settingsObject.bridgeSettings!);
   const tunnelOptions = convertFromTunnelOptions(settingsObject.tunnelOptions!);
   const splitTunnel = settingsObject.splitTunnel ?? { enableExclusions: false, appsList: [] };
+  const obfuscationSettings = convertFromObfuscationSettings(settingsObject.obfuscationSettings);
   return {
     ...settings.toObject(),
     bridgeState,
@@ -954,6 +993,7 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
     bridgeSettings,
     tunnelOptions,
     splitTunnel,
+    obfuscationSettings,
   };
 }
 
@@ -1147,6 +1187,28 @@ function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObjec
         addresses: tunnelOptions.dnsOptions?.customOptions?.addressesList ?? [],
       },
     },
+  };
+}
+
+function convertFromObfuscationSettings(
+  obfuscationSettings?: grpcTypes.ObfuscationSettings.AsObject,
+): ObfuscationSettings {
+  let selectedObfuscationType = ObfuscationType.auto;
+  switch (obfuscationSettings?.selectedObfuscation) {
+    case grpcTypes.ObfuscationSettings.SelectedObfuscation.OFF:
+      selectedObfuscationType = ObfuscationType.off;
+      break;
+    case grpcTypes.ObfuscationSettings.SelectedObfuscation.UDP2TCP:
+      selectedObfuscationType = ObfuscationType.udp2tcp;
+      break;
+  }
+
+  return {
+    selectedObfuscation: selectedObfuscationType,
+    udp2tcpSettings:
+      obfuscationSettings?.udp2tcp && obfuscationSettings.udp2tcp.port !== 0
+        ? { port: { only: obfuscationSettings.udp2tcp.port } }
+        : { port: 'any' },
   };
 }
 

@@ -15,6 +15,7 @@ import {
   ILocation,
   IRelayList,
   ISettings,
+  ObfuscationSettings,
   RelaySettingsUpdate,
   TunnelState,
   VoucherResponse,
@@ -170,6 +171,7 @@ export const ipcSchema = {
     updateRelaySettings: invoke<RelaySettingsUpdate, void>(),
     updateBridgeSettings: invoke<BridgeSettings, void>(),
     setDnsOptions: invoke<IDnsOptions, void>(),
+    setObfuscationSettings: invoke<ObfuscationSettings, void>(),
   },
   guiSettings: {
     '': notifyRenderer<IGuiSettingsState>(),

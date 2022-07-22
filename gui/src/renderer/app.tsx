@@ -17,6 +17,7 @@ import {
   ILocation,
   ISettings,
   liftConstraint,
+  ObfuscationSettings,
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -518,6 +519,10 @@ export default class AppRenderer {
     );
   }
 
+  public setObfuscationSettings(obfuscationSettings: ObfuscationSettings) {
+    return IpcRendererEventChannel.settings.setObfuscationSettings(obfuscationSettings);
+  }
+
   public collectProblemReport(toRedact?: string): Promise<string> {
     return IpcRendererEventChannel.problemReport.collectLogs(toRedact);
   }
@@ -812,6 +817,7 @@ export default class AppRenderer {
     reduxSettings.updateBridgeState(newSettings.bridgeState);
     reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
     reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel.enableExclusions);
+    reduxSettings.updateObfuscationSettings(newSettings.obfuscationSettings);
 
     this.setRelaySettings(newSettings.relaySettings);
     this.setBridgeSettings(newSettings.bridgeSettings);
