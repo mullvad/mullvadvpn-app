@@ -4,3 +4,4 @@ export * from './Footer';
 export * from './Input';
 export * from './Label';
 export * from './Section';
+export * from './Group';

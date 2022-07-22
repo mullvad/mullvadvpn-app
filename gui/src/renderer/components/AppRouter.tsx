@@ -3,14 +3,11 @@ import * as React from 'react';
 import { Route, Switch } from 'react-router';
 
 import AccountPage from '../containers/AccountPage';
-import AdvancedSettingsPage from '../containers/AdvancedSettingsPage';
 import LoginPage from '../containers/LoginPage';
 import OpenVPNSettingsPage from '../containers/OpenVPNSettingsPage';
-import PreferencesPage from '../containers/PreferencesPage';
+import ProblemReportPage from '../containers/ProblemReportPage';
 import SelectLanguagePage from '../containers/SelectLanguagePage';
 import SelectLocationPage from '../containers/SelectLocationPage';
-import SettingsPage from '../containers/SettingsPage';
-import SupportPage from '../containers/SupportPage';
 import WireguardSettingsPage from '../containers/WireguardSettingsPage';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, ITransitionSpecification, transitions, withHistory } from '../lib/history';
@@ -24,11 +21,15 @@ import {
 } from './ExpiredAccountAddTime';
 import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
+import InterfaceSettings from './InterfaceSettings';
 import Launch from './Launch';
 import MainView from './MainView';
+import Settings from './Settings';
 import SplitTunnelingSettings from './SplitTunnelingSettings';
+import Support from './Support';
 import TooManyDevices from './TooManyDevices';
 import TransitionContainer, { TransitionView } from './TransitionContainer';
+import VpnSettings from './VpnSettings';
 
 interface IAppRoutesState {
   currentLocation: IHistoryProps['history']['location'];
@@ -86,15 +87,16 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
               <Route exact path={RoutePath.voucherSuccess} component={VoucherVerificationSuccess} />
               <Route exact path={RoutePath.timeAdded} component={TimeAdded} />
               <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
-              <Route exact path={RoutePath.settings} component={SettingsPage} />
+              <Route exact path={RoutePath.settings} component={Settings} />
               <Route exact path={RoutePath.selectLanguage} component={SelectLanguagePage} />
               <Route exact path={RoutePath.accountSettings} component={AccountPage} />
-              <Route exact path={RoutePath.preferences} component={PreferencesPage} />
-              <Route exact path={RoutePath.advancedSettings} component={AdvancedSettingsPage} />
+              <Route exact path={RoutePath.interfaceSettings} component={InterfaceSettings} />
+              <Route exact path={RoutePath.vpnSettings} component={VpnSettings} />
               <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsPage} />
               <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettingsPage} />
               <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
-              <Route exact path={RoutePath.support} component={SupportPage} />
+              <Route exact path={RoutePath.support} component={Support} />
+              <Route exact path={RoutePath.problemReport} component={ProblemReportPage} />
               <Route exact path={RoutePath.selectLocation} component={SelectLocationPage} />
               <Route exact path={RoutePath.filter} component={Filter} />
             </Switch>

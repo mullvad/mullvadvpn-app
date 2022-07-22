@@ -19,12 +19,7 @@ interface ISelectorProps<T> {
   onSelect: (value: T) => void;
   selectedCellRef?: React.Ref<HTMLButtonElement>;
   className?: string;
-  hasFooter?: boolean;
 }
-
-const Section = styled(Cell.Section)((props: { hasFooter: boolean }) => ({
-  marginBottom: props.hasFooter ? 0 : '20px',
-}));
 
 export default class Selector<T> extends React.Component<ISelectorProps<T>> {
   public render() {
@@ -52,13 +47,10 @@ export default class Selector<T> extends React.Component<ISelectorProps<T>> {
 
     return (
       <AriaInput>
-        <Section
-          role="listbox"
-          className={this.props.className}
-          hasFooter={this.props.hasFooter ?? false}>
+        <Cell.Section role="listbox" className={this.props.className}>
           {title}
           {items}
-        </Section>
+        </Cell.Section>
       </AriaInput>
     );
   }

@@ -67,17 +67,8 @@ const StyledLabel = styled.span({
   margin: '0 22px 18px',
 });
 
-const StyledDeviceList = styled(Cell.CellButtonGroup)({
-  marginBottom: 0,
-  flex: '0 0',
-});
-
 const StyledSpacer = styled.div({
   flex: '1',
-});
-
-const StyledCellContainer = styled(Cell.Container)({
-  marginBottom: '1px',
 });
 
 const StyledDeviceName = styled(Cell.Label)({
@@ -175,11 +166,9 @@ interface IDeviceListProps {
 function DeviceList(props: IDeviceListProps) {
   return (
     <StyledSpacer>
-      <StyledDeviceList>
-        <List items={props.devices} getKey={getDeviceKey}>
-          {(device) => <Device device={device} onRemove={props.onRemoveDevice} />}
-        </List>
-      </StyledDeviceList>
+      <List items={props.devices} getKey={getDeviceKey}>
+        {(device) => <Device device={device} onRemove={props.onRemoveDevice} />}
+      </List>
     </StyledSpacer>
   );
 }
@@ -205,7 +194,7 @@ function Device(props: IDeviceProps) {
 
   return (
     <>
-      <StyledCellContainer>
+      <Cell.Container>
         <StyledDeviceName aria-hidden>{props.device.name}</StyledDeviceName>
         <StyledRemoveDeviceButton
           onClick={showConfirmation}
@@ -223,7 +212,7 @@ function Device(props: IDeviceProps) {
             tintHoverColor={colors.white60}
           />
         </StyledRemoveDeviceButton>
-      </StyledCellContainer>
+      </Cell.Container>
       <ModalAlert
         isOpen={confirmationVisible}
         type={ModalAlertType.warning}

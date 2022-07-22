@@ -128,138 +128,146 @@ export default class WireguardSettings extends React.Component<IProps, IState> {
                   </HeaderTitle>
                 </SettingsHeader>
 
-                <AriaInputGroup>
-                  <StyledSelectorContainer>
-                    <StyledSelectorForFooter
-                      // TRANSLATORS: The title for the WireGuard port selector.
-                      title={messages.pgettext('wireguard-settings-view', 'Port')}
-                      values={this.wireguardPortItems}
-                      value={this.props.wireguard.port}
-                      onSelect={this.props.setWireguardPort}
-                    />
-                  </StyledSelectorContainer>
-                  <Cell.Footer>
-                    <AriaDescription>
-                      <Cell.FooterText>
-                        {
-                          // TRANSLATORS: The hint displayed below the WireGuard port selector.
-                          messages.pgettext(
-                            'wireguard-settings-view',
-                            'The automatic setting will randomly choose from a wide range of ports.',
-                          )
-                        }
-                      </Cell.FooterText>
-                    </AriaDescription>
-                  </Cell.Footer>
-                </AriaInputGroup>
-
-                <AriaInputGroup>
-                  <Cell.Container>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {
-                          // TRANSLATORS: The label next to the multihop settings toggle.
-                          messages.pgettext('advanced-settings-view', 'Enable multihop')
-                        }
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.Switch
-                        ref={this.multihopRef}
-                        isOn={this.props.wireguardMultihop}
-                        onChange={this.setWireguardMultihop}
+                <Cell.Group>
+                  <AriaInputGroup>
+                    <StyledSelectorContainer>
+                      <StyledSelectorForFooter
+                        // TRANSLATORS: The title for the WireGuard port selector.
+                        title={messages.pgettext('wireguard-settings-view', 'Port')}
+                        values={this.wireguardPortItems}
+                        value={this.props.wireguard.port}
+                        onSelect={this.props.setWireguardPort}
                       />
-                    </AriaInput>
-                  </Cell.Container>
-                  <Cell.Footer>
-                    <AriaDescription>
-                      <Cell.FooterText>
-                        {sprintf(
-                          // TRANSLATORS: Description for multihop settings toggle.
-                          // TRANSLATORS: Available placeholders:
-                          // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-                          messages.pgettext(
-                            'advanced-settings-view',
-                            'Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace.',
-                          ),
-                          { wireguard: strings.wireguard },
-                        )}
-                      </Cell.FooterText>
-                    </AriaDescription>
-                  </Cell.Footer>
-                </AriaInputGroup>
-
-                <AriaInputGroup>
-                  <StyledSelectorContainer>
-                    <StyledSelectorForFooter
-                      // TRANSLATORS: The title for the WireGuard IP version selector.
-                      title={messages.pgettext('wireguard-settings-view', 'IP version')}
-                      values={this.wireguardIpVersionItems}
-                      value={this.props.wireguard.ipVersion}
-                      onSelect={this.props.setWireguardIpVersion}
-                    />
-                  </StyledSelectorContainer>
-                  <Cell.Footer>
-                    <AriaDescription>
-                      <Cell.FooterText>
-                        {sprintf(
-                          // TRANSLATORS: The hint displayed below the WireGuard IP version selector.
-                          // TRANSLATORS: Available placeholders:
-                          // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-                          messages.pgettext(
-                            'wireguard-settings-view',
-                            'This allows access to %(wireguard)s for devices that only support IPv6.',
-                          ),
-                          { wireguard: strings.wireguard },
-                        )}
-                      </Cell.FooterText>
-                    </AriaDescription>
-                  </Cell.Footer>
-                </AriaInputGroup>
-
-                <AriaInputGroup>
-                  <Cell.Container>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('wireguard-settings-view', 'MTU')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.AutoSizingTextInput
-                        value={this.props.wireguardMtu ? this.props.wireguardMtu.toString() : ''}
-                        inputMode={'numeric'}
-                        maxLength={4}
-                        placeholder={messages.gettext('Default')}
-                        onSubmitValue={this.onWireguardMtuSubmit}
-                        validateValue={WireguardSettings.wireguarMtuIsValid}
-                        submitOnBlur={true}
-                        modifyValue={WireguardSettings.removeNonNumericCharacters}
-                      />
-                    </AriaInput>
-                  </Cell.Container>
-                  <Cell.Footer>
-                    <AriaDescription>
-                      <Cell.FooterText>
-                        {sprintf(
-                          // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
-                          // TRANSLATORS: Available placeholders:
-                          // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-                          // TRANSLATORS: %(max)d - the maximum possible wireguard mtu value
-                          // TRANSLATORS: %(min)d - the minimum possible wireguard mtu value
-                          messages.pgettext(
-                            'wireguard-settings-view',
-                            'Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d.',
-                          ),
+                    </StyledSelectorContainer>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>
                           {
-                            wireguard: strings.wireguard,
-                            min: MIN_WIREGUARD_MTU_VALUE,
-                            max: MAX_WIREGUARD_MTU_VALUE,
-                          },
-                        )}
-                      </Cell.FooterText>
-                    </AriaDescription>
-                  </Cell.Footer>
-                </AriaInputGroup>
+                            // TRANSLATORS: The hint displayed below the WireGuard port selector.
+                            messages.pgettext(
+                              'wireguard-settings-view',
+                              'The automatic setting will randomly choose from a wide range of ports.',
+                            )
+                          }
+                        </Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
+                  </AriaInputGroup>
+                </Cell.Group>
+
+                <Cell.Group>
+                  <AriaInputGroup>
+                    <Cell.Container>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {
+                            // TRANSLATORS: The label next to the multihop settings toggle.
+                            messages.pgettext('vpn-settings-view', 'Enable multihop')
+                          }
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch
+                          ref={this.multihopRef}
+                          isOn={this.props.wireguardMultihop}
+                          onChange={this.setWireguardMultihop}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>
+                          {sprintf(
+                            // TRANSLATORS: Description for multihop settings toggle.
+                            // TRANSLATORS: Available placeholders:
+                            // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+                            messages.pgettext(
+                              'vpn-settings-view',
+                              'Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace.',
+                            ),
+                            { wireguard: strings.wireguard },
+                          )}
+                        </Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
+                  </AriaInputGroup>
+                </Cell.Group>
+
+                <Cell.Group>
+                  <AriaInputGroup>
+                    <StyledSelectorContainer>
+                      <StyledSelectorForFooter
+                        // TRANSLATORS: The title for the WireGuard IP version selector.
+                        title={messages.pgettext('wireguard-settings-view', 'IP version')}
+                        values={this.wireguardIpVersionItems}
+                        value={this.props.wireguard.ipVersion}
+                        onSelect={this.props.setWireguardIpVersion}
+                      />
+                    </StyledSelectorContainer>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>
+                          {sprintf(
+                            // TRANSLATORS: The hint displayed below the WireGuard IP version selector.
+                            // TRANSLATORS: Available placeholders:
+                            // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+                            messages.pgettext(
+                              'wireguard-settings-view',
+                              'This allows access to %(wireguard)s for devices that only support IPv6.',
+                            ),
+                            { wireguard: strings.wireguard },
+                          )}
+                        </Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
+                  </AriaInputGroup>
+                </Cell.Group>
+
+                <Cell.Group>
+                  <AriaInputGroup>
+                    <Cell.Container>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('wireguard-settings-view', 'MTU')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.AutoSizingTextInput
+                          value={this.props.wireguardMtu ? this.props.wireguardMtu.toString() : ''}
+                          inputMode={'numeric'}
+                          maxLength={4}
+                          placeholder={messages.gettext('Default')}
+                          onSubmitValue={this.onWireguardMtuSubmit}
+                          validateValue={WireguardSettings.wireguarMtuIsValid}
+                          submitOnBlur={true}
+                          modifyValue={WireguardSettings.removeNonNumericCharacters}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>
+                          {sprintf(
+                            // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
+                            // TRANSLATORS: Available placeholders:
+                            // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+                            // TRANSLATORS: %(max)d - the maximum possible wireguard mtu value
+                            // TRANSLATORS: %(min)d - the minimum possible wireguard mtu value
+                            messages.pgettext(
+                              'wireguard-settings-view',
+                              'Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d.',
+                            ),
+                            {
+                              wireguard: strings.wireguard,
+                              min: MIN_WIREGUARD_MTU_VALUE,
+                              max: MAX_WIREGUARD_MTU_VALUE,
+                            },
+                          )}
+                        </Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
+                  </AriaInputGroup>
+                </Cell.Group>
               </StyledNavigationScrollbars>
             </NavigationContainer>
           </SettingsContainer>

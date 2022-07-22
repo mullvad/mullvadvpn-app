@@ -299,20 +299,20 @@ msgid "Advanced"
 msgstr "詳細"
 
 #. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "%(openvpn)s settings"
 msgstr "%(openvpn)sの設定"
 
 #. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)sの設定"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "サーバーを追加"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "追加を続ける"
 
@@ -328,24 +328,24 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意：この設定を有効化すると、インターネットにアクセスするために常にMullvad VPNへの接続が必要になります。"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "IPv6を有効化する"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "トンネルを通じてIPv6 通信を有効化する"
 
 #. The label next to the multihop settings toggle.
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable multihop"
 msgstr "マルチホップを有効化する"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "1つ以上のDNSサーバーを追加できるようにします。"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr "IP を入力"
 
@@ -356,7 +356,7 @@ msgstr "アプリを接続解除したり終了したりすると、この設定
 #. Description for multihop settings toggle.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
 msgstr "トラフィックをある%(wireguard)sサーバーにルーティングし、別サーバーに送出することで匿名性を高め、追跡を困難にします。"
 
@@ -364,22 +364,22 @@ msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "アプリに組み込まれているキルスイッチは常にオンになっています。この設定を有効にすると、「接続解除」または「終了」をクリックした場合にインターネットが補助的にブロックされます。"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "追加する DNS サーバーの IP アドレスは、プライベート IP です。ネットワークインターフェイスがこのアドレスを使用するように構成されていることを確認してください。"
 
 #. Available placeholders:
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
 msgstr "追加対象のDNSサーバーは公開されており、%(wireguard)sでのみ動作します。常に動作させるためには、(詳細設定で) \"%(tunnelProtocol)s\" に%(wireguard)sを設定してください。"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr "トンネルプロトコル"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "カスタムDNSサーバーを使う"
 
@@ -988,39 +988,39 @@ msgctxt "preferences-nav"
 msgid "Preferences"
 msgstr "環境設定"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "共有や印刷のため、同一ネットワーク上の他のデバイスへのアクセスを許可します。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Auto-connect"
 msgstr "自動接続"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "アプリ起動時に自動的にサーバーに接続します。"
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Beta program"
 msgstr "ベータプログラム"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block ads"
 msgstr "広告のブロック"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block adult content"
 msgstr "アダルトコンテンツのブロック"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block gambling"
 msgstr "ギャンブルのブロック"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block malware"
 msgstr "マルウェアのブロック"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "トラッカーのブロック"
 
@@ -1029,7 +1029,7 @@ msgstr "トラッカーのブロック"
 #. Advanced settings refer to the name of the page with the title "Advanced".
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
 msgstr "これらの設定を有効にするには、(詳細設定で) **%(customDnsFeatureName)s** を無効にしてください。"
 
@@ -1042,35 +1042,35 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "この設定を有効にするには、(%(preferencesPageName)sで) すべてのコンテンツブロッカーを無効にしてください。"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "システム通知を有効または無効にします。重要な通知は必ず表示されます。"
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "有効化すると、アプリの新しいベータ版がリリースされたとき通知が届きます。"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "アプリを独立したウィンドウとして移動できるようにします。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "キルスイッチ"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Launch app on start-up"
 msgstr "システム起動時にアプリを起動"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Local network sharing"
 msgstr "ローカルネットワーク共有"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "単色のトレイアイコン"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Notifications"
 msgstr "通知"
 
@@ -1078,55 +1078,55 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "環境設定"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "アプリ開始時にトレイアイコンのみを表示します。"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Start minimized"
 msgstr "最小化状態で起動"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
 msgstr "このアプリにはデフォルトで有効なキルスイッチが内蔵されており、無効にすることはできません。これは、ネットワークが突然停止したり、何らかの理由でトンネリングに失敗した場合にトラフィックがVPNトンネルの外に漏洩してしまうことを防止するための措置です。接続が再確立されるまでの間、Mullvadは自動的にデータを保護します。"
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "ベータ版を使用中はこのオプションを利用できません。"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "タスクバーからアプリの固定を解除"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "多色ではなく単色のトレイアイコンを使います。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
 msgstr "警告: これはウィルス対策ではありませんので、そのような用途には使用しないでください。あくまで追加の保護レイヤーに過ぎません。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Warning: This might cause issues on certain websites, services, and programs."
 msgstr "警告: これにより、特定のWebサイト、サービス、プログラムなどで問題が発生する可能性があります。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
 msgstr "この機能を有効にすると、マルウェアの存在が確認されている特定ドメインへのデバイスの接続が停止されます。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
 msgstr "この機能を有効にすると、ユーザーのトラッキングが確認されている特定ドメインへのデバイスの接続が停止されます。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain known ad domains."
 msgstr "この機能を有効にすると、確認されている特定の広告ドメインへのデバイスの接続が停止されます。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
 msgstr "この機能を有効にすると、アダルトコンテンツの提供が確認されている特定Webサイトまたはサービスへのデバイスの接続が停止されます。"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
 msgstr "この機能を有効にすると、ギャンブル関連コンテンツの提供が確認されている特定Webサイトまたはサービスへのデバイスの接続が停止されます。"
 
@@ -1237,12 +1237,12 @@ msgid "App version"
 msgstr "アプリのバージョン"
 
 #. Link to the webpage
-msgctxt "settings-view"
+msgctxt "support-view"
 msgid "FAQs & Guides"
 msgstr "よくある質問とガイド"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "settings-view"
+msgctxt "interface-settings-view"
 msgid "Language"
 msgstr "言語"
 

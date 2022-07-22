@@ -119,120 +119,126 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
                   </HeaderTitle>
                 </SettingsHeader>
 
-                <StyledSelectorContainer>
-                  <AriaInputGroup>
-                    <Selector
-                      title={messages.pgettext('openvpn-settings-view', 'Transport protocol')}
-                      values={this.protocolItems(this.props.bridgeState !== 'on')}
-                      value={this.props.openvpn.protocol}
-                      onSelect={this.onSelectOpenvpnProtocol}
-                      hasFooter={this.props.bridgeState === 'on'}
-                    />
-                    {this.props.bridgeState === 'on' && (
-                      <Cell.Footer>
-                        <AriaDescription>
-                          <Cell.FooterText>
-                            {formatMarkdown(
-                              // TRANSLATORS: This is used to instruct users how to make UDP mode
-                              // TRANSLATORS: available.
-                              messages.pgettext(
-                                'openvpn-settings-view',
-                                'To activate UDP, change **Bridge mode** to **Automatic** or **Off**.',
-                              ),
-                            )}
-                          </Cell.FooterText>
-                        </AriaDescription>
-                      </Cell.Footer>
-                    )}
-                  </AriaInputGroup>
-                </StyledSelectorContainer>
-
-                <StyledSelectorContainer>
-                  <AriaInputGroup>
-                    {this.props.openvpn.protocol ? (
-                      <Selector
-                        title={sprintf(
-                          // TRANSLATORS: The title for the port selector section.
-                          // TRANSLATORS: Available placeholders:
-                          // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
-                          messages.pgettext('openvpn-settings-view', '%(portType)s port'),
-                          {
-                            portType: this.props.openvpn.protocol.toUpperCase(),
-                          },
-                        )}
-                        values={this.portItems[this.props.openvpn.protocol]}
-                        value={this.props.openvpn.port}
-                        onSelect={this.onSelectOpenVpnPort}
-                      />
-                    ) : undefined}
-                  </AriaInputGroup>
-                </StyledSelectorContainer>
-
-                <AriaInputGroup>
+                <Cell.Group>
                   <StyledSelectorContainer>
-                    <Selector
-                      title={
-                        // TRANSLATORS: The title for the shadowsocks bridge selector section.
-                        messages.pgettext('openvpn-settings-view', 'Bridge mode')
-                      }
-                      values={this.bridgeStateItems(
-                        this.props.bridgeModeAvailablity === BridgeModeAvailability.available,
-                      )}
-                      value={this.props.bridgeState}
-                      onSelect={this.onSelectBridgeState}
-                      hasFooter
-                    />
-                  </StyledSelectorContainer>
-                  <Cell.Footer>
-                    <AriaDescription>
-                      <Cell.FooterText>{this.bridgeModeFooterText()}</Cell.FooterText>
-                    </AriaDescription>
-                  </Cell.Footer>
-                </AriaInputGroup>
-
-                <AriaInputGroup>
-                  <Cell.Container>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('openvpn-settings-view', 'Mssfix')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.AutoSizingTextInput
-                        value={this.props.mssfix ? this.props.mssfix.toString() : ''}
-                        inputMode={'numeric'}
-                        maxLength={4}
-                        placeholder={messages.gettext('Default')}
-                        onSubmitValue={this.onMssfixSubmit}
-                        validateValue={OpenVpnSettings.mssfixIsValid}
-                        submitOnBlur={true}
-                        modifyValue={OpenVpnSettings.removeNonNumericCharacters}
+                    <AriaInputGroup>
+                      <Selector
+                        title={messages.pgettext('openvpn-settings-view', 'Transport protocol')}
+                        values={this.protocolItems(this.props.bridgeState !== 'on')}
+                        value={this.props.openvpn.protocol}
+                        onSelect={this.onSelectOpenvpnProtocol}
                       />
-                    </AriaInput>
-                  </Cell.Container>
-                  <Cell.Footer>
-                    <AriaDescription>
-                      <Cell.FooterText>
-                        {sprintf(
-                          // TRANSLATORS: The hint displayed below the Mssfix input field.
-                          // TRANSLATORS: Available placeholders:
-                          // TRANSLATORS: %(openvpn)s - will be replaced with "OpenVPN"
-                          // TRANSLATORS: %(max)d - the maximum possible mssfix value
-                          // TRANSLATORS: %(min)d - the minimum possible mssfix value
-                          messages.pgettext(
-                            'openvpn-settings-view',
-                            'Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d.',
-                          ),
-                          {
-                            openvpn: strings.openvpn,
-                            min: MIN_MSSFIX_VALUE,
-                            max: MAX_MSSFIX_VALUE,
-                          },
+                      {this.props.bridgeState === 'on' && (
+                        <Cell.Footer>
+                          <AriaDescription>
+                            <Cell.FooterText>
+                              {formatMarkdown(
+                                // TRANSLATORS: This is used to instruct users how to make UDP mode
+                                // TRANSLATORS: available.
+                                messages.pgettext(
+                                  'openvpn-settings-view',
+                                  'To activate UDP, change **Bridge mode** to **Automatic** or **Off**.',
+                                ),
+                              )}
+                            </Cell.FooterText>
+                          </AriaDescription>
+                        </Cell.Footer>
+                      )}
+                    </AriaInputGroup>
+                  </StyledSelectorContainer>
+                </Cell.Group>
+
+                {this.props.openvpn.protocol ? (
+                  <Cell.Group>
+                    <StyledSelectorContainer>
+                      <AriaInputGroup>
+                        <Selector
+                          title={sprintf(
+                            // TRANSLATORS: The title for the port selector section.
+                            // TRANSLATORS: Available placeholders:
+                            // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
+                            messages.pgettext('openvpn-settings-view', '%(portType)s port'),
+                            {
+                              portType: this.props.openvpn.protocol.toUpperCase(),
+                            },
+                          )}
+                          values={this.portItems[this.props.openvpn.protocol]}
+                          value={this.props.openvpn.port}
+                          onSelect={this.onSelectOpenVpnPort}
+                        />
+                      </AriaInputGroup>
+                    </StyledSelectorContainer>
+                  </Cell.Group>
+                ) : undefined}
+
+                <Cell.Group>
+                  <AriaInputGroup>
+                    <StyledSelectorContainer>
+                      <Selector
+                        title={
+                          // TRANSLATORS: The title for the shadowsocks bridge selector section.
+                          messages.pgettext('openvpn-settings-view', 'Bridge mode')
+                        }
+                        values={this.bridgeStateItems(
+                          this.props.bridgeModeAvailablity === BridgeModeAvailability.available,
                         )}
-                      </Cell.FooterText>
-                    </AriaDescription>
-                  </Cell.Footer>
-                </AriaInputGroup>
+                        value={this.props.bridgeState}
+                        onSelect={this.onSelectBridgeState}
+                      />
+                    </StyledSelectorContainer>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>{this.bridgeModeFooterText()}</Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
+                  </AriaInputGroup>
+                </Cell.Group>
+
+                <Cell.Group>
+                  <AriaInputGroup>
+                    <Cell.Container>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('openvpn-settings-view', 'Mssfix')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.AutoSizingTextInput
+                          value={this.props.mssfix ? this.props.mssfix.toString() : ''}
+                          inputMode={'numeric'}
+                          maxLength={4}
+                          placeholder={messages.gettext('Default')}
+                          onSubmitValue={this.onMssfixSubmit}
+                          validateValue={OpenVpnSettings.mssfixIsValid}
+                          submitOnBlur={true}
+                          modifyValue={OpenVpnSettings.removeNonNumericCharacters}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>
+                          {sprintf(
+                            // TRANSLATORS: The hint displayed below the Mssfix input field.
+                            // TRANSLATORS: Available placeholders:
+                            // TRANSLATORS: %(openvpn)s - will be replaced with "OpenVPN"
+                            // TRANSLATORS: %(max)d - the maximum possible mssfix value
+                            // TRANSLATORS: %(min)d - the minimum possible mssfix value
+                            messages.pgettext(
+                              'openvpn-settings-view',
+                              'Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d.',
+                            ),
+                            {
+                              openvpn: strings.openvpn,
+                              min: MIN_MSSFIX_VALUE,
+                              max: MAX_MSSFIX_VALUE,
+                            },
+                          )}
+                        </Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
+                  </AriaInputGroup>
+                </Cell.Group>
               </StyledNavigationScrollbars>
             </NavigationContainer>
           </SettingsContainer>
@@ -321,7 +327,7 @@ export default class OpenVpnSettings extends React.Component<IProps, IState> {
               'To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**.',
             ),
             {
-              tunnelProtocol: messages.pgettext('advanced-settings-view', 'Tunnel protocol'),
+              tunnelProtocol: messages.pgettext('vpn-settings-view', 'Tunnel protocol'),
               openvpn: strings.openvpn,
             },
           ),

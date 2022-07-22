@@ -332,20 +332,20 @@ msgid "Advanced"
 msgstr "Zaawansowane"
 
 #. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "%(openvpn)s settings"
 msgstr "Ustawienia %(openvpn)s"
 
 #. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "Ustawienia %(wireguard)s"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "Dodaj serwer"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "Mimo to dodaj"
 
@@ -361,24 +361,24 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Uwaga: wskutek włączenia tej opcji w celu uzyskania dostępu do Internetu zawsze wymagane będzie połączenie przez Mullvad VPN."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "Włącz IPv6"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "Włącz komunikację IPv6 przez tunel."
 
 #. The label next to the multihop settings toggle.
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable multihop"
 msgstr "Włącz wielokrotne przeskoki"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "Włącz, aby dodać co najmniej jeden serwer DNS."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr "Wprowadź adres IP"
 
@@ -389,7 +389,7 @@ msgstr "Jeśli rozłączysz się lub zamkniesz aplikację, to ustawienie będzie
 #. Description for multihop settings toggle.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
 msgstr "Zwiększa anonimowość, kierując ruch do jednego serwera %(wireguard)s i wyprowadzając go z drugiego, co utrudnia śledzenie."
 
@@ -397,22 +397,22 @@ msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "Wbudowany kill switch aplikacji jest zawsze włączony. To ustawienie dodatkowo blokuje dostęp do Internetu w razie kliknięcia przycisku Rozłącz lub Zamknij."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "Serwer DNS, który chcesz dodać, ma prywatny adres IP. Upewnij się, że Twoje interfejsy sieciowe są skonfigurowane do korzystania z niego."
 
 #. Available placeholders:
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
 msgstr "Serwer DNS, który chcesz dodać, jest publiczny i będzie działał wyłącznie z %(wireguard)s. Aby zapewnić ciągłe działanie, ustaw „%(tunnelProtocol)s” (w Ustawieniach zaawansowanych) na %(wireguard)s."
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr "Protokół tunelowania"
 
-msgctxt "advanced-settings-view"
+msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "Użyj niestandardowego serwera DNS"
 
@@ -1021,39 +1021,39 @@ msgctxt "preferences-nav"
 msgid "Preferences"
 msgstr "Preferencje"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "Umożliwia dostęp do innych urządzeń w tej samej sieci w celu udostępniania, drukowania itd."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Auto-connect"
 msgstr "Automatyczne łączenie"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "Automatycznie łącz z serwerem po uruchomieniu aplikacji."
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Beta program"
 msgstr "Program Beta"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block ads"
 msgstr "Blokuj reklamy"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block adult content"
 msgstr "Blokuj treści dla dorosłych"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block gambling"
 msgstr "Blokuj treści hazardowe"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block malware"
 msgstr "Blokuj malware"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "Blokuj trackery"
 
@@ -1062,7 +1062,7 @@ msgstr "Blokuj trackery"
 #. Advanced settings refer to the name of the page with the title "Advanced".
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
 msgstr "Aby aktywować te ustawienia, wyłącz **%(customDnsFeatureName)s** (w Ustawieniach zaawansowanych)."
 
@@ -1075,35 +1075,35 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "Aby to ustawić, wyłącz wszystkie funkcje blokowania treści (w sekcji %(preferencesPageName)s)."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Włącz lub wyłącz powiadomienia systemowe. Krytyczne powiadomienia będą zawsze wyświetlane."
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Włącz, aby otrzymywać powiadomienia o wydaniu nowych wersji beta aplikacji."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Włącz, aby przenosić aplikację jako swobodne okno."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "Kill switch"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Launch app on start-up"
 msgstr "Uruchom aplikację na starcie"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Local network sharing"
 msgstr "Udostępnianie sieci lokalnej"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Monochromatyczna ikona na pasku"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Notifications"
 msgstr "Powiadomienia"
 
@@ -1111,55 +1111,55 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "Preferencje"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "Ikonę na pasku pokazuj tylko przy uruchamianiu aplikacji."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Start minimized"
 msgstr "Uruchom zminimalizowaną"
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
 msgstr "Aplikacja ma wbudowany kill switch, który jest domyślnie włączony i nie można go wyłączyć. Ma to na celu zapobieganie wyciekom ruchu poza tunel VPN, jeśli sieć nagle przestanie działać lub tunel ulegnie awarii z jakiegokolwiek powodu. Mullvad automatycznie chroni dane do momentu ponownego nawiązania połączenia."
 
-msgctxt "preferences-view"
+msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "W wersji beta ta opcja jest niedostępna."
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "Odepnij aplikację od paska zadań"
 
-msgctxt "preferences-view"
+msgctxt "interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Użyj monochromatycznej ikony na pasku, zamiast kolorowej."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
 msgstr "Ostrzeżenie: to nie jest program antywirusowy i nie należy go tak traktować. To jedynie dodatkowa warstwa zabezpieczeń."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "Warning: This might cause issues on certain websites, services, and programs."
 msgstr "Ostrzeżenie: może to powodować problemy z niektórymi witrynami, usługami i programami."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
 msgstr "Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi domenami, zawierającymi złośliwe oprogramowanie."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
 msgstr "Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi domenami, które śledzą użytkowników."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain known ad domains."
 msgstr "Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt ze znanymi domenami reklamowymi."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
 msgstr "Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi witrynami i usługami, które udostępniają treści dla dorosłych."
 
-msgctxt "preferences-view"
+msgctxt "vpn-settings-view"
 msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
 msgstr "Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi witrynami i usługami, które udostępniają treści hazardowe."
 
@@ -1270,12 +1270,12 @@ msgid "App version"
 msgstr "Wersja aplikacji"
 
 #. Link to the webpage
-msgctxt "settings-view"
+msgctxt "support-view"
 msgid "FAQs & Guides"
 msgstr "Często zadawane pytania i poradniki"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "settings-view"
+msgctxt "interface-settings-view"
 msgid "Language"
 msgstr "Język"
 

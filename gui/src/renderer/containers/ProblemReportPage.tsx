@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import Support from '../components/Support';
+import ProblemReport from '../components/ProblemReport';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
 import { IReduxState, ReduxDispatch } from '../redux/store';
@@ -34,4 +34,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext & IHisto
   };
 };
 
-export default withAppContext(withHistory(connect(mapStateToProps, mapDispatchToProps)(Support)));
+export default withAppContext(
+  withHistory(connect(mapStateToProps, mapDispatchToProps)(ProblemReport)),
+);

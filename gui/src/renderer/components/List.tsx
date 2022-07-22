@@ -1,9 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 
 import { Scheduler } from '../../shared/scheduler';
 import Accordion from './Accordion';
 
 export const stringValueAsKey = (value: string): string => value;
+
+const StyledListItem = styled.div({
+  marginBottom: '1px',
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+});
 
 interface ListProps<T> {
   items: Array<T>;
@@ -112,7 +120,7 @@ function ListItem<T>(props: ListItemProps<T>) {
 
   return (
     <Accordion expanded={expanded} onTransitionEnd={onTransitionEnd}>
-      {props.render(props.data.data)}
+      <StyledListItem>{props.render(props.data.data)}</StyledListItem>
     </Accordion>
   );
 }

@@ -6,7 +6,6 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { IpAddress } from '../lib/ip';
 import { useBoolean, useMounted } from '../lib/utilityHooks';
-import { formatMarkdown } from '../markdown-formatter';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
@@ -25,7 +24,6 @@ import {
   StyledButton,
   StyledContainer,
   StyledCustomDnsFooter,
-  StyledCustomDnsSwitchContainer,
   StyledLabel,
   StyledRemoveButton,
   StyledRemoveIcon,
@@ -217,11 +215,11 @@ export default function CustomDnsSettings() {
 
   return (
     <>
-      <StyledCustomDnsSwitchContainer disabled={!featureAvailable}>
+      <Cell.Container disabled={!featureAvailable}>
         <AriaInputGroup>
           <AriaLabel>
             <Cell.InputLabel>
-              {messages.pgettext('advanced-settings-view', 'Use custom DNS server')}
+              {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
             </Cell.InputLabel>
           </AriaLabel>
           <AriaInput>
@@ -232,7 +230,7 @@ export default function CustomDnsSettings() {
             />
           </AriaInput>
         </AriaInputGroup>
-      </StyledCustomDnsSwitchContainer>
+      </Cell.Container>
       <Accordion expanded={listExpanded}>
         <Cell.Section role="listbox">
           <List
@@ -254,7 +252,7 @@ export default function CustomDnsSettings() {
         {inputVisible && (
           <div ref={inputContainerRef}>
             <Cell.RowInput
-              placeholder={messages.pgettext('advanced-settings-view', 'Enter IP')}
+              placeholder={messages.pgettext('vpn-settings-view', 'Enter IP')}
               onSubmit={onAdd}
               onChange={setValid}
               invalid={invalid}
@@ -271,7 +269,7 @@ export default function CustomDnsSettings() {
           disabled={inputVisible}
           tabIndex={-1}>
           <StyledAddCustomDnsLabel tabIndex={-1}>
-            {messages.pgettext('advanced-settings-view', 'Add a server')}
+            {messages.pgettext('vpn-settings-view', 'Add a server')}
           </StyledAddCustomDnsLabel>
           <Cell.Icon
             source="icon-add"
@@ -286,11 +284,18 @@ export default function CustomDnsSettings() {
 
       <StyledCustomDnsFooter>
         <Cell.FooterText>
-          {featureAvailable ? (
-            messages.pgettext('advanced-settings-view', 'Enable to add at least one DNS server.')
-          ) : (
-            <DisabledMessage />
-          )}
+          {featureAvailable
+            ? messages.pgettext('vpn-settings-view', 'Enable to add at least one DNS server.')
+            : // This line makes sure that the next one isn't prefixed by the color.
+              // TRANSLATORS: This is displayed when either or both of the block ads/trackers settings are
+              // TRANSLATORS: turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+              // TRANSLATORS: will appear bold.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(preferencesPageName)s - The page title showed on top in the preferences page.
+              messages.pgettext(
+                'vpn-settings-view',
+                'Disable all content blockers to activate this setting.',
+              )}
         </Cell.FooterText>
       </StyledCustomDnsFooter>
 
@@ -302,22 +307,6 @@ export default function CustomDnsSettings() {
       />
     </>
   );
-}
-
-function DisabledMessage() {
-  const preferencesPageName = messages.pgettext('preferences-nav', 'Preferences');
-
-  // TRANSLATORS: This is displayed when either or both of the block ads/trackers settings are
-  // TRANSLATORS: turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-  // TRANSLATORS: will appear bold.
-  // TRANSLATORS: Available placeholders:
-  // TRANSLATORS: %(preferencesPageName)s - The page title showed on top in the preferences page.
-  const customDnsDisabledMessage = messages.pgettext(
-    'preferences-view',
-    'Disable all content blockers (under %(preferencesPageName)s) to activate this setting.',
-  );
-
-  return formatMarkdown(sprintf(customDnsDisabledMessage, { preferencesPageName }));
 }
 
 interface ICellListItemProps {
@@ -372,7 +361,7 @@ function CellListItem(props: ICellListItemProps) {
         <div ref={inputContainerRef}>
           <Cell.RowInput
             initialValue={props.children}
-            placeholder={messages.pgettext('advanced-settings-view', 'Enter IP')}
+            placeholder={messages.pgettext('vpn-settings-view', 'Enter IP')}
             onSubmit={onSubmit}
             onChange={setValid}
             invalid={invalid}
@@ -417,7 +406,7 @@ function ConfirmationDialog(props: IConfirmationDialogProps) {
   let message;
   if (props.isLocal.current) {
     message = messages.pgettext(
-      'advanced-settings-view',
+      'vpn-settings-view',
       'The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it.',
     );
   } else {
@@ -426,12 +415,12 @@ function ConfirmationDialog(props: IConfirmationDialogProps) {
       // TRANSLATORS: %(tunnelProtocol)s - the name of the tunnel protocol setting
       // TRANSLATORS: %(wireguard)s - will be replaced with "WireGuard"
       messages.pgettext(
-        'advanced-settings-view',
+        'vpn-settings-view',
         'The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the "%(tunnelProtocol)s" (in Advanced settings) to %(wireguard)s.',
       ),
       {
         wireguard: strings.wireguard,
-        tunnelProtocol: messages.pgettext('advanced-settings-view', 'Tunnel protocol'),
+        tunnelProtocol: messages.pgettext('vpn-settings-view', 'Tunnel protocol'),
       },
     );
   }
@@ -441,7 +430,7 @@ function ConfirmationDialog(props: IConfirmationDialogProps) {
       type={ModalAlertType.caution}
       buttons={[
         <AppButton.RedButton key="confirm" onClick={props.confirm}>
-          {messages.pgettext('advanced-settings-view', 'Add anyway')}
+          {messages.pgettext('vpn-settings-view', 'Add anyway')}
         </AppButton.RedButton>,
         <AppButton.BlueButton key="back" onClick={props.abort}>
           {messages.gettext('Back')}

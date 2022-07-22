@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { CellDisabledContext } from './Container';
+import { Icon } from './Label';
 import { CellSectionContext } from './Section';
 
 interface IStyledCellButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
@@ -22,7 +23,6 @@ const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps) => {
     display: 'flex',
     minHeight: '44px',
     padding: '0 16px 0 22px',
-    marginBottom: '1px',
     flex: 1,
     alignItems: 'center',
     alignContent: 'center',
@@ -50,9 +50,13 @@ export const CellButton = styled(
   }),
 )({});
 
-export const CellButtonGroup = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  marginBottom: '20px',
-});
+export function CellNavigationButton(props: ICellButtonProps) {
+  const { children, ...otherProps } = props;
+
+  return (
+    <CellButton {...otherProps}>
+      {children}
+      <Icon height={12} width={7} source="icon-chevron" />
+    </CellButton>
+  );
+}
