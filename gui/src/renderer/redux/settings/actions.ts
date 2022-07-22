@@ -1,5 +1,5 @@
 import { IWindowsApplication } from '../../../shared/application-types';
-import { BridgeState, IDnsOptions } from '../../../shared/daemon-rpc-types';
+import { BridgeState, IDnsOptions, ObfuscationSettings } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { BridgeSettingsRedux, IRelayLocationRedux, RelaySettingsRedux } from './reducers';
 
@@ -83,6 +83,11 @@ export interface ISetSplitTunnelingApplicationsAction {
   applications: IWindowsApplication[];
 }
 
+export interface ISetObfuscationSettings {
+  type: 'SET_OBFUSCATION_SETTINGS';
+  obfuscationSettings: ObfuscationSettings;
+}
+
 export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
@@ -99,7 +104,8 @@ export type SettingsAction =
   | IUpdateAutoStartAction
   | IUpdateDnsOptionsAction
   | IUpdateSplitTunnelingStateAction
-  | ISetSplitTunnelingApplicationsAction;
+  | ISetSplitTunnelingApplicationsAction
+  | ISetObfuscationSettings;
 
 function updateGuiSettings(guiSettings: IGuiSettingsState): IUpdateGuiSettingsAction {
   return {
@@ -219,6 +225,15 @@ function setSplitTunnelingApplications(
   };
 }
 
+function updateObfuscationSettings(
+  obfuscationSettings: ObfuscationSettings,
+): ISetObfuscationSettings {
+  return {
+    type: 'SET_OBFUSCATION_SETTINGS',
+    obfuscationSettings,
+  };
+}
+
 export default {
   updateGuiSettings,
   updateRelay,
@@ -236,4 +251,5 @@ export default {
   updateDnsOptions,
   updateSplitTunnelingState,
   setSplitTunnelingApplications,
+  updateObfuscationSettings,
 };

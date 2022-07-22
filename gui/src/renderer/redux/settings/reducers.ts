@@ -4,6 +4,8 @@ import {
   IDnsOptions,
   IpVersion,
   LiftedConstraint,
+  ObfuscationSettings,
+  ObfuscationType,
   Ownership,
   ProxySettings,
   RelayLocation,
@@ -95,6 +97,7 @@ export interface ISettingsReduxState {
   dns: IDnsOptions;
   splitTunneling: boolean;
   splitTunnelingApplications: IWindowsApplication[];
+  obfuscationSettings: ObfuscationSettings;
 }
 
 const initialState: ISettingsReduxState = {
@@ -151,6 +154,12 @@ const initialState: ISettingsReduxState = {
   },
   splitTunneling: false,
   splitTunnelingApplications: [],
+  obfuscationSettings: {
+    selectedObfuscation: ObfuscationType.auto,
+    udp2tcpSettings: {
+      port: 'any',
+    },
+  },
 };
 
 export default function (
@@ -258,6 +267,12 @@ export default function (
       return {
         ...state,
         splitTunnelingApplications: action.applications,
+      };
+
+    case 'SET_OBFUSCATION_SETTINGS':
+      return {
+        ...state,
+        obfuscationSettings: action.obfuscationSettings,
       };
 
     default:

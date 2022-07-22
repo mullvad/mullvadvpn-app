@@ -36,6 +36,7 @@ import {
   IRelayList,
   ISettings,
   liftConstraint,
+  ObfuscationType,
   Ownership,
   RelaySettings,
   RelaySettingsUpdate,
@@ -210,6 +211,12 @@ class ApplicationMain {
         customOptions: {
           addresses: [],
         },
+      },
+    },
+    obfuscationSettings: {
+      selectedObfuscation: ObfuscationType.auto,
+      udp2tcpSettings: {
+        port: 'any',
       },
     },
   };
@@ -1339,6 +1346,9 @@ class ApplicationMain {
     });
     IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {
       return this.setAutoStart(autoStart);
+    });
+    IpcMainEventChannel.settings.handleSetObfuscationSettings((obfuscationSettings) => {
+      return this.daemonRpc.setObfuscationSettings(obfuscationSettings);
     });
 
     IpcMainEventChannel.location.handleGet(() => this.daemonRpc.getLocation());

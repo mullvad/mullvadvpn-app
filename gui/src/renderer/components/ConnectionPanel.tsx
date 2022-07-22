@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import {
-  ObfuscationType,
+  EndpointObfuscationType,
   ProxyType,
   proxyTypeToString,
   RelayProtocol,
@@ -31,7 +31,7 @@ export interface IBridgeData extends IEndpoint {
 }
 
 export interface IObfuscationData extends IEndpoint {
-  obfuscationType: ObfuscationType;
+  obfuscationType: EndpointObfuscationType;
 }
 
 export interface IOutAddress {
