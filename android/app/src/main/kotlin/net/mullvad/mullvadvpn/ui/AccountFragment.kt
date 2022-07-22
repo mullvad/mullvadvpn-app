@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -192,7 +191,6 @@ class AccountFragment : BaseFragment() {
     private fun CoroutineScope.launchUpdateTextOnExpiryChanges() {
         launch {
             accountRepository.accountExpiryState
-                .onStart { accountRepository.fetchAccountExpiry() }
                 .map { state -> state.date() }
                 .collect { expiryDate ->
                     currentAccountExpiry = expiryDate
