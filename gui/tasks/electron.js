@@ -4,7 +4,12 @@ const electron = require('electron');
 let subprocess;
 
 function startElectron(done) {
-  subprocess = spawn(electron, ['.'], {
+  const args = [];
+  if (process.argv.includes('--disable-reset-navigation')) {
+    args.push('--disable-reset-navigation');
+  }
+
+  subprocess = spawn(electron, ['.', ...args], {
     env: { ...process.env, NODE_ENV: 'development' },
     stdio: 'inherit',
   });

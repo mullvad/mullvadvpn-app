@@ -109,6 +109,7 @@ const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 enum Options {
   quitWithoutDisconnect = '--quit-without-disconnect',
   showChanges = '--show-changes',
+  disableResetNavigation = '--disable-reset-navigation', // development only
 }
 
 enum AppQuitStage {
@@ -250,6 +251,7 @@ class ApplicationMain {
     },
   );
 
+  private disableResetNavigation = process.argv.includes(Options.disableResetNavigation);
   private blurNavigationResetScheduler = new Scheduler();
   private backgroundThrottleScheduler = new Scheduler();
 
@@ -1261,14 +1263,16 @@ class ApplicationMain {
     // Use hide instead of blur to prevent the navigation reset from happening when bluring an
     // unpinned window.
     windowController.window?.on('hide', () => {
-      this.blurNavigationResetScheduler.schedule(() => {
-        this.windowController?.webContents?.setBackgroundThrottling(false);
-        IpcMainEventChannel.navigation.notifyReset(windowController.webContents);
+      if (process.env.NODE_ENV !== 'development' || !this.disableResetNavigation) {
+        this.blurNavigationResetScheduler.schedule(() => {
+          this.windowController?.webContents?.setBackgroundThrottling(false);
+          IpcMainEventChannel.navigation.notifyReset(windowController.webContents);
 
-        this.backgroundThrottleScheduler.schedule(() => {
-          this.windowController?.webContents?.setBackgroundThrottling(true);
-        }, 1_000);
-      }, 120_000);
+          this.backgroundThrottleScheduler.schedule(() => {
+            this.windowController?.webContents?.setBackgroundThrottling(true);
+          }, 1_000);
+        }, 120_000);
+      }
     });
   }
 
