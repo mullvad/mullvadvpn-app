@@ -31,9 +31,9 @@ const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   flex: 1,
 });
 
-const StyledSelector = (styled(Selector)({
+const StyledSelector = styled(Selector)({
   marginBottom: 0,
-}) as unknown) as new <T>() => Selector<T>;
+}) as typeof Selector;
 
 export default class SelectLanguage extends React.Component<IProps, IState> {
   private scrollView = React.createRef<CustomScrollbarsRef>();

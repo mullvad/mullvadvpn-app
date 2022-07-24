@@ -2,9 +2,27 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
-import { AriaInput, AriaLabel } from '../AriaGroup';
+import { useBoolean } from '../../lib/utilityHooks';
+import Accordion from '../Accordion';
+import { AriaDetails, AriaInput, AriaLabel } from '../AriaGroup';
+import ChevronButton from '../ChevronButton';
 import { normalText } from '../common-styles';
+import InfoButton from '../InfoButton';
 import * as Cell from '.';
+
+const StyledTitle = styled(Cell.Container)({
+  display: 'flex',
+  padding: 0,
+});
+
+const StyledTitleLabel = styled(Cell.SectionTitle)({
+  flex: 1,
+});
+
+const StyledChevronButton = styled(ChevronButton)({
+  padding: 0,
+  marginRight: '16px',
+});
 
 export interface ISelectorItem<T> {
   label: string;
@@ -19,41 +37,55 @@ interface ISelectorProps<T> {
   onSelect: (value: T) => void;
   selectedCellRef?: React.Ref<HTMLButtonElement>;
   className?: string;
+  details?: React.ReactElement;
+  expandable?: boolean;
+  disabled?: boolean;
+  thinTitle?: boolean;
 }
 
-export default class Selector<T> extends React.Component<ISelectorProps<T>> {
-  public render() {
-    const items = this.props.values.map((item, i) => {
-      const selected = item.value === this.props.value;
+export default function Selector<T>(props: ISelectorProps<T>) {
+  const [expanded, , , toggleExpanded] = useBoolean(!props.expandable);
 
-      return (
-        <SelectorCell
-          key={i}
-          value={item.value}
-          selected={selected}
-          disabled={item.disabled}
-          forwardedRef={selected ? this.props.selectedCellRef : undefined}
-          onSelect={this.props.onSelect}>
-          {item.label}
-        </SelectorCell>
-      );
-    });
-
-    const title = this.props.title && (
-      <AriaLabel>
-        <Cell.SectionTitle as="label">{this.props.title}</Cell.SectionTitle>
-      </AriaLabel>
-    );
+  const items = props.values.map((item, i) => {
+    const selected = item.value === props.value;
 
     return (
-      <AriaInput>
-        <Cell.Section role="listbox" className={this.props.className}>
-          {title}
-          {items}
-        </Cell.Section>
-      </AriaInput>
+      <SelectorCell
+        key={i}
+        value={item.value}
+        selected={selected}
+        disabled={props.disabled || item.disabled}
+        forwardedRef={selected ? props.selectedCellRef : undefined}
+        onSelect={props.onSelect}>
+        {item.label}
+      </SelectorCell>
     );
-  }
+  });
+
+  const title = props.title && (
+    <StyledTitle>
+      <AriaLabel>
+        <StyledTitleLabel as="label" disabled={props.disabled} thin={props.thinTitle}>
+          {props.title}
+        </StyledTitleLabel>
+      </AriaLabel>
+      {props.details && (
+        <AriaDetails>
+          <InfoButton>{props.details}</InfoButton>
+        </AriaDetails>
+      )}
+      {props.expandable && <StyledChevronButton up={expanded} onClick={toggleExpanded} />}
+    </StyledTitle>
+  );
+
+  return (
+    <AriaInput>
+      <Cell.Section role="listbox" className={props.className}>
+        {title}
+        {props.expandable ? <Accordion expanded={expanded}>{items}</Accordion> : items}
+      </Cell.Section>
+    </AriaInput>
+  );
 }
 
 const StyledCellIcon = styled(Cell.Icon)((props: { visible: boolean }) => ({
