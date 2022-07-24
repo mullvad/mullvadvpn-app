@@ -3,7 +3,12 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { strings } from '../../config.json';
-import { IpVersion } from '../../shared/daemon-rpc-types';
+import {
+  IpVersion,
+  liftConstraint,
+  LiftedConstraint,
+  ObfuscationType,
+} from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
@@ -18,7 +23,7 @@ import Selector, { ISelectorItem } from './cell/Selector';
 import { InfoIcon } from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
-import { ModalAlert, ModalAlertType } from './Modal';
+import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import {
   NavigationBar,
   NavigationContainer,
@@ -31,6 +36,7 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
 const WIREUGARD_UDP_PORTS = [51820, 53];
+const UDP2TCP_PORTS = [80, 443, 5001];
 
 type OptionalPort = number | undefined;
 type OptionalIpVersion = IpVersion | undefined;
@@ -95,6 +101,11 @@ export default function WireguardSettings() {
               <StyledContent>
                 <Cell.Group>
                   <PortSelector />
+                </Cell.Group>
+
+                <Cell.Group>
+                  <ObfuscationSettings />
+                  <Udp2tcpPortSetting />
                 </Cell.Group>
 
                 <Cell.Group>
@@ -180,6 +191,115 @@ function PortSelector() {
           </Cell.FooterText>
         </AriaDescription>
       </Cell.Footer>
+    </AriaInputGroup>
+  );
+}
+
+function ObfuscationSettings() {
+  const { setObfuscationSettings } = useAppContext();
+  const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
+
+  const obfuscationType = obfuscationSettings.selectedObfuscation;
+  const obfuscationTypeItems: ISelectorItem<ObfuscationType>[] = useMemo(
+    () => [
+      {
+        label: messages.gettext('Automatic'),
+        value: ObfuscationType.auto,
+      },
+      {
+        label: messages.pgettext('wireguard-settings-view', 'On (UDP-over-TCP)'),
+        value: ObfuscationType.udp2tcp,
+      },
+      {
+        label: messages.gettext('Off'),
+        value: ObfuscationType.off,
+      },
+    ],
+    [],
+  );
+
+  const selectObfuscationType = useCallback(
+    async (value: ObfuscationType) => {
+      await setObfuscationSettings({
+        ...obfuscationSettings,
+        selectedObfuscation: value,
+      });
+    },
+    [setObfuscationSettings, obfuscationSettings],
+  );
+
+  return (
+    <AriaInputGroup>
+      <StyledSelectorContainer>
+        <Selector
+          // TRANSLATORS: The title for the WireGuard obfuscation selector.
+          title={messages.pgettext('wireguard-settings-view', 'Obfuscation')}
+          details={
+            <ModalMessage>
+              {messages.pgettext(
+                'wireguard-settings-view',
+                'Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked.',
+              )}
+            </ModalMessage>
+          }
+          values={obfuscationTypeItems}
+          value={obfuscationType}
+          onSelect={selectObfuscationType}
+        />
+      </StyledSelectorContainer>
+    </AriaInputGroup>
+  );
+}
+
+function Udp2tcpPortSetting() {
+  const { setObfuscationSettings } = useAppContext();
+  const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
+
+  const port = liftConstraint(obfuscationSettings.udp2tcpSettings.port);
+  const portItems: ISelectorItem<LiftedConstraint<number>>[] = useMemo(() => {
+    const automaticItem: ISelectorItem<LiftedConstraint<number>> = {
+      label: messages.gettext('Automatic'),
+      value: 'any',
+    };
+
+    return [automaticItem].concat(UDP2TCP_PORTS.map(mapPortToSelectorItem));
+  }, []);
+
+  const selectPort = useCallback(
+    async (port: LiftedConstraint<number>) => {
+      await setObfuscationSettings({
+        ...obfuscationSettings,
+        udp2tcpSettings: {
+          ...obfuscationSettings.udp2tcpSettings,
+          port: port === 'any' ? 'any' : { only: port },
+        },
+      });
+    },
+    [setObfuscationSettings, obfuscationSettings],
+  );
+
+  return (
+    <AriaInputGroup>
+      <StyledSelectorContainer>
+        <Selector
+          // TRANSLATORS: The title for the UDP-over-TCP port selector.
+          title={messages.pgettext('wireguard-settings-view', 'UDP-over-TCP port')}
+          details={
+            <ModalMessage>
+              {messages.pgettext(
+                'wireguard-settings-view',
+                'Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.',
+              )}
+            </ModalMessage>
+          }
+          values={portItems}
+          value={port}
+          onSelect={selectPort}
+          disabled={obfuscationSettings.selectedObfuscation === ObfuscationType.off}
+          expandable
+          thinTitle
+        />
+      </StyledSelectorContainer>
     </AriaInputGroup>
   );
 }
