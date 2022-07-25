@@ -449,6 +449,10 @@ msgid "Device name"
 msgstr ""
 
 msgctxt "device-management"
+msgid "Failed to remove device"
+msgstr ""
+
+msgctxt "device-management"
 msgid "Go to login"
 msgstr ""
 
