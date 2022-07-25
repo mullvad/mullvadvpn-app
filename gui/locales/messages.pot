@@ -1483,6 +1483,18 @@ msgid "MTU"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
+msgid "Obfuscation"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "On (UDP-over-TCP)"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr ""
 
@@ -1505,6 +1517,14 @@ msgstr ""
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "UDP-over-TCP port"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
 
 msgid "Account authentication failed."
