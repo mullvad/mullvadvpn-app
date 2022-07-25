@@ -146,7 +146,7 @@ impl DeviceMessage {
     }
 }
 
-impl NetlinkSerializable<DeviceMessage> for DeviceMessage {
+impl NetlinkSerializable for DeviceMessage {
     fn message_type(&self) -> u16 {
         self.message_type
     }
@@ -171,7 +171,7 @@ impl From<DeviceMessage> for NetlinkPayload<DeviceMessage> {
     }
 }
 
-impl NetlinkDeserializable<DeviceMessage> for DeviceMessage {
+impl NetlinkDeserializable for DeviceMessage {
     type Error = Error;
     fn deserialize(header: &NetlinkHeader, payload: &[u8]) -> Result<DeviceMessage, Self::Error> {
         let command = Self::read_genlmsghdr(payload)?;
@@ -725,14 +725,16 @@ mod test {
                 ProtocolVersion(1),
                 Endpoint(InetAddr::from_std(&"192.168.40.1:9797".parse().unwrap())),
                 AllowedIps(
-                    [AllowedIpMessage(
-                        [
-                            CidrMask(32),
-                            AddressFamily(2),
-                            IpAddr(Ipv4Addr::new(192, 168, 39, 1).into()),
-                        ]
-                        .to_vec(),
-                    )]
+                    [
+                        AllowedIpMessage(
+                            [
+                                CidrMask(32),
+                                AddressFamily(2),
+                                IpAddr(Ipv4Addr::new(192, 168, 39, 1).into()),
+                            ]
+                            .to_vec(),
+                        ),
+                    ]
                     .to_vec()
                     .to_vec(),
                 ),
@@ -757,14 +759,16 @@ mod test {
                 ProtocolVersion(1),
                 Endpoint(InetAddr::from_std(&"192.168.40.2:9797".parse().unwrap())),
                 AllowedIps(
-                    [AllowedIpMessage(
-                        vec![
-                            CidrMask(32),
-                            AddressFamily(2),
-                            IpAddr(Ipv4Addr::new(192, 168, 39, 2).into()),
-                        ]
-                        .to_vec(),
-                    )]
+                    [
+                        AllowedIpMessage(
+                            vec![
+                                CidrMask(32),
+                                AddressFamily(2),
+                                IpAddr(Ipv4Addr::new(192, 168, 39, 2).into()),
+                            ]
+                            .to_vec(),
+                        ),
+                    ]
                     .to_vec(),
                 ),
             ]
@@ -809,14 +813,16 @@ mod test {
                 Endpoint(InetAddr::from_std(&"192.168.40.1:9797".parse().unwrap())),
                 PeerNla::Flags(WGPEER_F_REPLACE_ALLOWEDIPS),
                 AllowedIps(
-                    [AllowedIpMessage(
-                        [
-                            AddressFamily(2),
-                            IpAddr(Ipv4Addr::new(192, 168, 39, 1).into()),
-                            CidrMask(32),
-                        ]
-                        .to_vec(),
-                    )]
+                    [
+                        AllowedIpMessage(
+                            [
+                                AddressFamily(2),
+                                IpAddr(Ipv4Addr::new(192, 168, 39, 1).into()),
+                                CidrMask(32),
+                            ]
+                            .to_vec(),
+                        ),
+                    ]
                     .to_vec()
                     .to_vec(),
                 ),
@@ -833,14 +839,16 @@ mod test {
                 Endpoint(InetAddr::from_std(&"192.168.40.2:9797".parse().unwrap())),
                 PeerNla::Flags(WGPEER_F_REPLACE_ALLOWEDIPS),
                 AllowedIps(
-                    [AllowedIpMessage(
-                        vec![
-                            AddressFamily(2),
-                            IpAddr(Ipv4Addr::new(192, 168, 39, 2).into()),
-                            CidrMask(32),
-                        ]
-                        .to_vec(),
-                    )]
+                    [
+                        AllowedIpMessage(
+                            vec![
+                                AddressFamily(2),
+                                IpAddr(Ipv4Addr::new(192, 168, 39, 2).into()),
+                                CidrMask(32),
+                            ]
+                            .to_vec(),
+                        ),
+                    ]
                     .to_vec(),
                 ),
             ]
