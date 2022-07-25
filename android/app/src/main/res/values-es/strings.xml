@@ -34,6 +34,7 @@
     <string name="copied_mullvad_account_number">El número de cuenta de Mullvad se copió en el Portapapeles</string>
     <string name="copied_to_clipboard">Copiado en el Portapapeles</string>
     <string name="copied_wireguard_public_key">La clave pública de WireGuard se copió en el Portapapeles</string>
+    <string name="copy_account_number">Copiar número de cuenta</string>
     <string name="create_account">Crear cuenta</string>
     <string name="creating_new_account">Creando cuenta…</string>
     <string name="creating_secure_connection">CREANDO CONEXIÓN SEGURA</string>
@@ -64,6 +65,7 @@
     <string name="foreground_notification_channel_name">Estado del túnel VPN</string>
     <string name="go_to_login">Iniciar sesión</string>
     <string name="here_is_your_account_number">Este es un número de cuenta. ¡Guárdelo bien!</string>
+    <string name="hide_account_number">Ocultar número de cuenta</string>
     <string name="hint_default">Predeterminado</string>
     <string name="in_address">Entrada</string>
     <string name="invalid_dns_servers">Las direcciones del servidor DNS personalizado %1$s no son válidas</string>
@@ -114,6 +116,7 @@
     <string name="settings_account">Cuenta</string>
     <string name="settings_advanced">Avanzadas</string>
     <string name="settings_preferences">Preferencias</string>
+    <string name="show_account_number">Mostrar número de cuenta</string>
     <string name="show_system_apps">Mostrar aplicaciones del sistema</string>
     <string name="split_tunneling_description">La tunelización dividida permite seleccionar qué aplicaciones no deben enrutarse a través del túnel VPN.</string>
     <string name="start_tunnel_error">No se pudo iniciar la conexión del túnel</string>

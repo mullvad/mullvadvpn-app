@@ -34,6 +34,7 @@
     <string name="copied_mullvad_account_number">Kopierede Mullvad-kontonummer til udklipsholder</string>
     <string name="copied_to_clipboard">Kopieret til udklipsholder</string>
     <string name="copied_wireguard_public_key">Kopierede offentlig WireGuard-nøgle til udklipsholder</string>
+    <string name="copy_account_number">Kopiér kontonummer</string>
     <string name="create_account">Opret konto</string>
     <string name="creating_new_account">Opretter konto...</string>
     <string name="creating_secure_connection">OPRETTER SIKKER FORBINDELSE</string>
@@ -64,6 +65,7 @@
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til login</string>
     <string name="here_is_your_account_number">Her er dit kontonummer. Gem det!</string>
+    <string name="hide_account_number">Skjul kontonummer</string>
     <string name="hint_default">Standard</string>
     <string name="in_address">Ind</string>
     <string name="invalid_dns_servers">Tilpassede DNS-serveradresser %1$s er ugyldige</string>
@@ -114,6 +116,7 @@
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Avanceret</string>
     <string name="settings_preferences">Indstillinger</string>
+    <string name="show_account_number">Vis kontonummer</string>
     <string name="show_system_apps">Vis systemapps</string>
     <string name="split_tunneling_description">Split tunneling gør det muligt at vælge, hvilke applikationer der ikke skal dirigeres gennem VPN-tunnelen.</string>
     <string name="start_tunnel_error">Kunne ikke starte tunnelforbindelsen</string>

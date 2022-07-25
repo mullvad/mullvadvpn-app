@@ -34,6 +34,7 @@
     <string name="copied_mullvad_account_number">已将 Mullvad 帐号复制到剪贴板</string>
     <string name="copied_to_clipboard">已复制到剪贴板</string>
     <string name="copied_wireguard_public_key">已将 WireGuard 公钥复制到剪贴板</string>
+    <string name="copy_account_number">复制帐号</string>
     <string name="create_account">创建帐户</string>
     <string name="creating_new_account">正在创建帐户…</string>
     <string name="creating_secure_connection">正在创建安全连接</string>
@@ -64,6 +65,7 @@
     <string name="foreground_notification_channel_name">VPN 隧道状态</string>
     <string name="go_to_login">前往登录</string>
     <string name="here_is_your_account_number">以下是您的帐号。请妥善保存！</string>
+    <string name="hide_account_number">隐藏帐号</string>
     <string name="hint_default">默认</string>
     <string name="in_address">内部</string>
     <string name="invalid_dns_servers">自定义 DNS 服务器地址 %1$s 无效</string>
@@ -114,6 +116,7 @@
     <string name="settings_account">帐户</string>
     <string name="settings_advanced">高级</string>
     <string name="settings_preferences">偏好设置</string>
+    <string name="show_account_number">显示帐号</string>
     <string name="show_system_apps">显示系统应用</string>
     <string name="split_tunneling_description">利用拆分隧道，您可以选择哪些应用程序不应通过 VPN 隧道进行路由。</string>
     <string name="start_tunnel_error">无法启动隧道连接</string>
