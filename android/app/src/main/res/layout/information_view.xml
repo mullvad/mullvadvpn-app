@@ -31,6 +31,15 @@
                          android:indeterminateOnly="true"
                          android:visibility="visible"
                          android:layout_alignParentStart="true" />
+            <ImageButton android:id="@+id/copy_button"
+                         android:layout_width="24dp"
+                         android:layout_height="24dp"
+                         android:layout_alignParentEnd="true"
+                         android:background="@drawable/icon_copy"
+                         android:visibility="gone"
+                         android:clickable="true"
+                         android:focusable="true"
+                         android:contentDescription="@string/copy_account_number" />
         </RelativeLayout>
     </LinearLayout>
 </merge>

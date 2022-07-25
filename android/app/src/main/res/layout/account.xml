@@ -57,7 +57,8 @@
                                                                           mullvad:clipboardLabel="@string/mullvad_account_number"
                                                                           mullvad:copiedToast="@string/copied_mullvad_account_number"
                                                                           mullvad:description="@string/account_number"
-                                                                          mullvad:whenMissing="hide" />
+                                                                          mullvad:whenMissing="hide"
+                                                                          android:descendantFocusability="afterDescendants" />
                 <net.mullvad.mullvadvpn.ui.widget.InformationView android:id="@+id/account_expiry"
                                                                   android:layout_width="match_parent"
                                                                   android:layout_height="wrap_content"
