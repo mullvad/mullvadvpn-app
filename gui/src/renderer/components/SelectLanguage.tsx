@@ -1,13 +1,12 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { AriaInputGroup } from './AriaGroup';
 import Selector, { ISelectorItem } from './cell/Selector';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import { BackAction } from './KeyboardNavigation';
-import { Container, Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import {
   NavigationBar,
   NavigationContainer,
@@ -27,10 +26,6 @@ interface IProps {
 interface IState {
   source: Array<ISelectorItem<string>>;
 }
-
-const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
-});
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   flex: 1,
@@ -62,7 +57,7 @@ export default class SelectLanguage extends React.Component<IProps, IState> {
     return (
       <BackAction action={this.props.onClose}>
         <Layout>
-          <StyledContainer>
+          <SettingsContainer>
             <NavigationContainer>
               <NavigationBar>
                 <NavigationItems>
@@ -92,7 +87,7 @@ export default class SelectLanguage extends React.Component<IProps, IState> {
                 </AriaInputGroup>
               </StyledNavigationScrollbars>
             </NavigationContainer>
-          </StyledContainer>
+          </SettingsContainer>
         </Layout>
       </BackAction>
     );

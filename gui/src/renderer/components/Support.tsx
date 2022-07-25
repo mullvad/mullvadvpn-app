@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { colors, links } from '../../config.json';
+import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
@@ -17,7 +17,7 @@ import {
 } from './AriaGroup';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
-import { Container, Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import {
   NavigationBar,
   NavigationContainer,
@@ -26,10 +26,6 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-
-const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
-});
 
 const StyledContent = styled.div({
   display: 'flex',
@@ -44,7 +40,7 @@ export default function Support() {
   return (
     <BackAction action={pop}>
       <Layout>
-        <StyledContainer>
+        <SettingsContainer>
           <NavigationContainer>
             <NavigationBar>
               <NavigationItems>
@@ -74,7 +70,7 @@ export default function Support() {
               </StyledContent>
             </NavigationScrollbars>
           </NavigationContainer>
-        </StyledContainer>
+        </SettingsContainer>
       </Layout>
     </BackAction>
   );

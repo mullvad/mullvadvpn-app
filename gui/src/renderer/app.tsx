@@ -436,11 +436,11 @@ export default class AppRenderer {
     actions.settings.updateEnableIpv6(enableIpv6);
   };
 
-  public async setBridgeState(bridgeState: BridgeState) {
+  public setBridgeState = async (bridgeState: BridgeState) => {
     const actions = this.reduxActions;
     await IpcRendererEventChannel.settings.setBridgeState(bridgeState);
     actions.settings.updateBridgeState(bridgeState);
-  }
+  };
 
   public setBlockWhenDisconnected = async (blockWhenDisconnected: boolean) => {
     const actions = this.reduxActions;
@@ -448,17 +448,17 @@ export default class AppRenderer {
     actions.settings.updateBlockWhenDisconnected(blockWhenDisconnected);
   };
 
-  public async setOpenVpnMssfix(mssfix?: number) {
+  public setOpenVpnMssfix = async (mssfix?: number) => {
     const actions = this.reduxActions;
     actions.settings.updateOpenVpnMssfix(mssfix);
     await IpcRendererEventChannel.settings.setOpenVpnMssfix(mssfix);
-  }
+  };
 
-  public async setWireguardMtu(mtu?: number) {
+  public setWireguardMtu = async (mtu?: number) => {
     const actions = this.reduxActions;
     actions.settings.updateWireguardMtu(mtu);
     await IpcRendererEventChannel.settings.setWireguardMtu(mtu);
-  }
+  };
 
   public setAutoConnect(autoConnect: boolean) {
     IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);

@@ -20,7 +20,7 @@ import * as Cell from './cell';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import List from './List';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
@@ -33,7 +33,6 @@ import {
   StyledCellWarningIcon,
   StyledClearButton,
   StyledClearIcon,
-  StyledContainer,
   StyledContent,
   StyledHeaderTitle,
   StyledHeaderTitleContainer,
@@ -63,7 +62,7 @@ export default function SplitTunneling() {
       <StyledPageCover show={browsing} />
       <BackAction action={pop}>
         <Layout>
-          <StyledContainer>
+          <SettingsContainer>
             <NavigationContainer>
               <NavigationBar>
                 <NavigationItems>
@@ -80,7 +79,7 @@ export default function SplitTunneling() {
                 </StyledContent>
               </StyledNavigationScrollbars>
             </NavigationContainer>
-          </StyledContainer>
+          </SettingsContainer>
         </Layout>
       </BackAction>
     </>

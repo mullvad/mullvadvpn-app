@@ -8,12 +8,11 @@ import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import {
   StyledBlueButton,
-  StyledContainer,
   StyledContent,
   StyledContentContainer,
   StyledEmail,
@@ -156,7 +155,7 @@ export default class ProblemReport extends React.Component<
     return (
       <BackAction action={this.props.onClose}>
         <Layout>
-          <StyledContainer>
+          <SettingsContainer>
             <NavigationBar>
               <NavigationItems>
                 <TitleBarItem>
@@ -174,7 +173,7 @@ export default class ProblemReport extends React.Component<
 
             {this.renderNoEmailDialog()}
             {this.renderOutdateVersionWarningDialog()}
-          </StyledContainer>
+          </SettingsContainer>
         </Layout>
       </BackAction>
     );

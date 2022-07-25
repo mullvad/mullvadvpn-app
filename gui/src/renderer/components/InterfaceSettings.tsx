@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
@@ -10,7 +9,7 @@ import { useSelector } from '../redux/store';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
-import { Container, Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import {
   NavigationBar,
   NavigationContainer,
@@ -19,10 +18,6 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-
-const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
-});
 
 const StyledContent = styled.div({
   display: 'flex',
@@ -42,7 +37,7 @@ export default function InterfaceSettings() {
   return (
     <BackAction action={pop}>
       <Layout>
-        <StyledContainer>
+        <SettingsContainer>
           <NavigationContainer>
             <NavigationBar>
               <NavigationItems>
@@ -89,7 +84,7 @@ export default function InterfaceSettings() {
               </StyledContent>
             </NavigationScrollbars>
           </NavigationContainer>
-        </StyledContainer>
+        </SettingsContainer>
       </Layout>
     </BackAction>
   );

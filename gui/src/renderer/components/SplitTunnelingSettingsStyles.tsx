@@ -5,7 +5,6 @@ import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { normalText } from './common-styles';
 import ImageView from './ImageView';
-import { Container } from './Layout';
 import { NavigationScrollbars } from './NavigationBar';
 import { HeaderTitle } from './SettingsHeader';
 
@@ -20,10 +19,6 @@ export const StyledPageCover = styled.div({}, (props: { show: boolean }) => ({
   opacity: 0.5,
   display: props.show ? 'block' : 'none',
 }));
-
-export const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
-});
 
 export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   flex: 1,

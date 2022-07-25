@@ -3,14 +3,9 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import { hugeText, smallText } from './common-styles';
-import { Container } from './Layout';
 
 export const StyledBlueButton = styled(AppButton.BlueButton)({
   marginBottom: '18px',
-});
-
-export const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
 });
 
 export const StyledContentContainer = styled.div({

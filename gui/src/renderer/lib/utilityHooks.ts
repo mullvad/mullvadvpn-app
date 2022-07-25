@@ -44,7 +44,7 @@ export function useAsyncEffect(
   }, dependencies);
 }
 
-export function useBoolean(initialValue: boolean) {
+export function useBoolean(initialValue = false) {
   const [value, setValue] = useState(initialValue);
 
   const setTrue = useCallback(() => setValue(true), []);

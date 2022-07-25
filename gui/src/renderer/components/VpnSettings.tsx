@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { colors, strings } from '../../config.json';
+import { strings } from '../../config.json';
 import { IDnsOptions, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
@@ -21,7 +21,7 @@ import Selector, { ISelectorItem } from './cell/Selector';
 import CustomDnsSettings from './CustomDnsSettings';
 import InfoButton, { InfoIcon } from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
-import { Container, Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import {
   NavigationBar,
@@ -31,10 +31,6 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-
-const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
-});
 
 const StyledContent = styled.div({
   display: 'flex',
@@ -57,7 +53,7 @@ export default function VpnSettings() {
   return (
     <BackAction action={pop}>
       <Layout>
-        <StyledContainer>
+        <SettingsContainer>
           <NavigationContainer>
             <NavigationBar>
               <NavigationItems>
@@ -117,7 +113,7 @@ export default function VpnSettings() {
               </StyledContent>
             </NavigationScrollbars>
           </NavigationContainer>
-        </StyledContainer>
+        </SettingsContainer>
       </Layout>
     </BackAction>
   );

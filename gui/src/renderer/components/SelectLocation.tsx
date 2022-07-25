@@ -14,7 +14,7 @@ import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import LocationList, {
   DisabledReason,
   LocationSelection,
@@ -31,7 +31,6 @@ import {
 import { ScopeBarItem } from './ScopeBar';
 import {
   StyledClearFilterButton,
-  StyledContainer,
   StyledContent,
   StyledFilter,
   StyledFilterIconButton,
@@ -140,7 +139,7 @@ export default class SelectLocation extends React.Component<IProps, IState> {
     return (
       <BackAction icon="close" action={this.props.onClose}>
         <Layout>
-          <StyledContainer>
+          <SettingsContainer>
             <NavigationContainer>
               <NavigationBar>
                 <NavigationItems>
@@ -242,7 +241,7 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                 </SpacePreAllocationView>
               </NavigationScrollbars>
             </NavigationContainer>
-          </StyledContainer>
+          </SettingsContainer>
         </Layout>
       </BackAction>
     );

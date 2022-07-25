@@ -18,7 +18,7 @@ import Selector from './cell/Selector';
 import { normalText } from './common-styles';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Container, Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import {
   NavigationBar,
   NavigationContainer,
@@ -26,10 +26,6 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
-
-const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
-});
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   backgroundColor: colors.darkBlue,
@@ -81,7 +77,7 @@ export default function Filter() {
   return (
     <BackAction action={history.pop}>
       <Layout>
-        <StyledContainer>
+        <SettingsContainer>
           <NavigationContainer>
             <NavigationBar alwaysDisplayBarTitle={true}>
               <NavigationItems>
@@ -113,7 +109,7 @@ export default function Filter() {
               </AppButton.GreenButton>
             </StyledFooter>
           </NavigationContainer>
-        </StyledContainer>
+        </SettingsContainer>
       </Layout>
     </BackAction>
   );
