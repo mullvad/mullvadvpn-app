@@ -31,6 +31,17 @@
                          android:indeterminateOnly="true"
                          android:visibility="visible"
                          android:layout_alignParentStart="true" />
+            <ImageButton android:id="@+id/toggle_masking_button"
+                         android:layout_width="24dp"
+                         android:layout_height="24dp"
+                         android:layout_alignWithParentIfMissing="true"
+                         android:layout_marginEnd="20dp"
+                         android:layout_toStartOf="@id/copy_button"
+                         android:background="@drawable/icon_show"
+                         android:visibility="gone"
+                         android:clickable="true"
+                         android:focusable="true"
+                         android:contentDescription="@string/show_account_number" />
             <ImageButton android:id="@+id/copy_button"
                          android:layout_width="24dp"
                          android:layout_height="24dp"

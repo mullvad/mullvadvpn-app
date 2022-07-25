@@ -196,4 +196,6 @@
     <string name="port_removal_notice">This will delete all forwarded ports. Local settings will be
     saved.</string>
     <string name="copy_account_number">Copy account number</string>
+    <string name="hide_account_number">Hide account number</string>
+    <string name="show_account_number">Show account number</string>
 </resources>

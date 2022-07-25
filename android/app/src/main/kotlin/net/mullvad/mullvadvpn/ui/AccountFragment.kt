@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import java.text.DateFormat
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
@@ -77,6 +78,14 @@ class AccountFragment : BaseFragment() {
             redeemVoucherButton.setEnabled(!value)
         }
 
+    private var isAccountNumberShown by observable(false) { _, _, doShow ->
+        accountNumberView.informationState = if (doShow) {
+            InformationView.Masking.Show(GroupedTransformationMethod())
+        } else {
+            InformationView.Masking.Hide(GroupedPasswordTransformationMethod())
+        }
+    }
+
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
     private lateinit var deviceNameView: InformationView
@@ -130,7 +139,10 @@ class AccountFragment : BaseFragment() {
         }
 
         accountNumberView = view.findViewById<CopyableInformationView>(R.id.account_number).apply {
-            displayFormatter = { rawAccountNumber -> addSpacesToAccountNumber(rawAccountNumber) }
+            informationState = InformationView.Masking.Hide(GroupedPasswordTransformationMethod())
+            onToggleMaskingClicked = {
+                isAccountNumberShown = isAccountNumberShown.not()
+            }
         }
 
         accountExpiryView = view.findViewById(R.id.account_expiry)
@@ -232,18 +244,5 @@ class AccountFragment : BaseFragment() {
         transaction.addToBackStack(null)
 
         RedeemVoucherDialogFragment().show(transaction, null)
-    }
-
-    private fun addSpacesToAccountNumber(rawAccountNumber: String): String {
-        return rawAccountNumber
-            .asSequence()
-            .fold(StringBuilder()) { formattedAccountNumber, nextDigit ->
-                if ((formattedAccountNumber.length % 5) == 4) {
-                    formattedAccountNumber.append(' ')
-                }
-
-                formattedAccountNumber.append(nextDigit)
-            }
-            .toString()
     }
 }
