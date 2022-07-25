@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add obfuscation settings under "WireGuard settings".
+
 #### Android
 - Add device management to the Android app. This simplifies knowing which device is which and adds
   the option to log other devices out when the account already has five devices.
