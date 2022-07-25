@@ -52,6 +52,7 @@ Line wrap the file at 100 chars.                                              Th
 - Enable reconnect in blocked state in desktop app.
 - Fix showing incompatible relay filtering options in desktop app. The filtering options are now
   dependent on the other filters.
+- Fix error handling during device removal in the desktop app.
 
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.

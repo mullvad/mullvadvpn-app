@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { IDevice } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { transitions, useHistory } from '../lib/history';
@@ -181,14 +182,41 @@ interface IDeviceProps {
 }
 
 function Device(props: IDeviceProps) {
+  const { fetchDevices } = useAppContext();
+  const accountToken = useSelector((state) => state.account.accountToken)!;
   const [confirmationVisible, showConfirmation, hideConfirmation] = useBoolean(false);
-  const [deleting, setDeleting] = useBoolean(false);
+  const [deleting, setDeleting, unsetDeleting] = useBoolean(false);
+  const [error, setError, resetError] = useBoolean(false);
+
+  const handleError = useCallback(
+    async (error: Error) => {
+      log.error(`Failede to remove device: ${error.message}`);
+
+      let devices: Array<IDevice> | undefined = undefined;
+      try {
+        devices = await fetchDevices(accountToken);
+      } catch {
+        /* no-op */
+      }
+
+      if (devices === undefined || devices.find((device) => device.id === props.device.id)) {
+        hideConfirmation();
+        unsetDeleting();
+        setError();
+      }
+    },
+    [fetchDevices, accountToken, hideConfirmation, setError],
+  );
 
   const onRemove = useCallback(async () => {
-    await props.onRemove(props.device.id);
-    hideConfirmation();
     setDeleting();
-  }, [props.onRemove, props.device.id, hideConfirmation, setDeleting]);
+    try {
+      await props.onRemove(props.device.id);
+      hideConfirmation();
+    } catch (e) {
+      await handleError(e as Error);
+    }
+  }, [props.onRemove, props.device.id, hideConfirmation, setDeleting, handleError]);
 
   const capitalizedDeviceName = capitalizeEveryWord(props.device.name);
 
@@ -262,6 +290,18 @@ function Device(props: IDeviceProps) {
           </>
         )}
       </ModalAlert>
+      <ModalAlert
+        isOpen={error}
+        type={ModalAlertType.warning}
+        iconColor={colors.red}
+        buttons={[
+          <AppButton.BlueButton key="close" onClick={resetError}>
+            {messages.gettext('Close')}
+          </AppButton.BlueButton>,
+        ]}
+        close={resetError}
+        message={messages.pgettext('device-management', 'Failed to remove device')}
+      />
     </>
   );
 }
