@@ -309,8 +309,7 @@ impl WireguardConnection {
 }
 
 fn consume_netlink_error<
-    T,
-    I: NetlinkDeserializable<T> + Clone + Eq + std::fmt::Debug,
+    I: NetlinkDeserializable + Clone + Eq + std::fmt::Debug,
     F: Fn(rtnetlink::Error) -> Error,
 >(
     message: NetlinkMessage<I>,
