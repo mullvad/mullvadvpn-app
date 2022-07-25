@@ -146,7 +146,7 @@ impl DeviceMessage {
     }
 }
 
-impl NetlinkSerializable<DeviceMessage> for DeviceMessage {
+impl NetlinkSerializable for DeviceMessage {
     fn message_type(&self) -> u16 {
         self.message_type
     }
@@ -171,7 +171,7 @@ impl From<DeviceMessage> for NetlinkPayload<DeviceMessage> {
     }
 }
 
-impl NetlinkDeserializable<DeviceMessage> for DeviceMessage {
+impl NetlinkDeserializable for DeviceMessage {
     type Error = Error;
     fn deserialize(header: &NetlinkHeader, payload: &[u8]) -> Result<DeviceMessage, Self::Error> {
         let command = Self::read_genlmsghdr(payload)?;
