@@ -328,14 +328,50 @@ class LocationDataSource: NSObject, UITableViewDataSource {
             return
         }
 
-        node.isPinned.toggle()
+        var movedRelayLocations = Set<RelayLocation>()
+
+        switch node.location {
+        case .country:
+            // Include the relay tree in the list to move
+            node.isPinned.toggle()
+            movedRelayLocations.insert(node.location)
+            node.flatRelayLocationList().forEach { relayLocation in
+                movedRelayLocations.insert(relayLocation)
+            }
+            // Unpin all nested locations when the current is unpinned
+            if !node.isPinned {
+                node.children.forEach { child in
+                    child.isPinned = false
+                    movedRelayLocations.insert(child.location)
+                    child.flatRelayLocationList().forEach { relayLocation in
+                        movedRelayLocations.insert(relayLocation)
+                    }
+                }
+            }
+        case let .city(country, _):
+            // Include the relay tree in the list to move
+            node.isPinned.toggle()
+            movedRelayLocations.insert(node.location)
+            node.flatRelayLocationList().forEach { relayLocation in
+                movedRelayLocations.insert(relayLocation)
+            }
+            // Pin the preceding location when the current is pinned
+            if node.isPinned, let ascendantNode = nodeByLocation[.country(country)] {
+                ascendantNode.isPinned = true
+                movedRelayLocations.insert(ascendantNode.location)
+                ascendantNode.flatRelayLocationList().forEach { relayLocation in
+                    movedRelayLocations.insert(relayLocation)
+                }
+            }
+        case .hostname:
+            return
+        }
 
         rootNode.sortChildrenRecursive()
         let newLocationList = rootNode.flatRelayLocationList()
 
         // Calculate table view changes
-        let relayLocationsToMove = [relayLocation] + node.flatRelayLocationList()
-        let changes = relayLocationsToMove
+        let changes = movedRelayLocations
             .compactMap { relayLocation -> (IndexPath, IndexPath)? in
                 let fromIndexPath = locationList
                     .firstIndex(of: relayLocation)
@@ -577,9 +613,9 @@ extension LocationDataSource {
 
         var isPinnable: Bool {
             switch nodeType {
-            case .country:
+            case .country, .city:
                 return true
-            case .root, .city, .relay:
+            case .root, .relay:
                 return false
             }
         }

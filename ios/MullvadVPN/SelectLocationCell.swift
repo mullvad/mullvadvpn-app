@@ -35,12 +35,12 @@ class SelectLocationCell: UITableViewCell {
     private let unpinned = UIImage(named: "IconUnpinned")
 
     func setLocationText(_ text: String, highlightedText: String) {
-        
+
         let highlightColor = UIColor.Cell.titleTextColor
         let foregroundColor: UIColor = highlightedText.isEmpty
             ? highlightColor
             : highlightColor.withAlphaComponent(0.6)
-        
+
         let string = NSMutableAttributedString(
             string: text,
             attributes: [
@@ -48,7 +48,7 @@ class SelectLocationCell: UITableViewCell {
                 .font: UIFont.systemFont(ofSize: 17)
             ]
         )
-        
+
         let highlightedRange = NSString(string: text).range(
             of: highlightedText,
             options: [.anchored, .caseInsensitive, .diacriticInsensitive]
@@ -60,10 +60,10 @@ class SelectLocationCell: UITableViewCell {
             ],
             range: highlightedRange
         )
-        
+
         locationLabel.attributedText = string
     }
-    
+
     var isDisabled = false {
         didSet {
             updateDisabled()
@@ -196,8 +196,7 @@ class SelectLocationCell: UITableViewCell {
                 equalTo: statusIndicator.trailingAnchor,
                 constant: 12
             ),
-            locationLabel.trailingAnchor.constraint(lessThanOrEqualTo: collapseButton.leadingAnchor)
-                .withPriority(.defaultHigh),
+            locationLabel.trailingAnchor.constraint(lessThanOrEqualTo: pinButton.leadingAnchor),
             locationLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
             locationLabel.bottomAnchor
                 .constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
