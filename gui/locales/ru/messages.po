@@ -1504,6 +1504,18 @@ msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "Порт"
 
+msgctxt "wireguard-settings-view"
+msgid "Obfuscation"
+msgstr "Обфускация трафика"
+
+msgctxt "wireguard-settings-view"
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
+msgstr "Обфускация скрывает трафик WireGuard внутри другого протокола. Это может использоваться для обхода цензуры и других видов фильтрации, когда обычное соединение WireGuard было бы заблокировано."
+
+msgctxt "wireguard-settings-view"
+msgid "On (UDP-over-TCP)"
+msgstr "Включить (UDP-over-TCP)"
+
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -1524,6 +1536,16 @@ msgstr "При автоматической настройке порт буде
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Это обеспечивает доступ к %(wireguard)s для устройств, поддерживающих только IPv6."
+
+msgctxt "wireguard-settings-view"
+msgid "UDP-over-TCP port"
+msgstr "UDP-over-TCP Порт"
+
+msgctxt "wireguard-settings-view"
+msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
+msgstr "К какому TCP-порту на VPN-сервере должен подключаться протокол обфускации UDP-over-TCP."
+
+
 
 msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
