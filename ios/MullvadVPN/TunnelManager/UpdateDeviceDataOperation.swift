@@ -52,25 +52,22 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
         task = nil
     }
 
-    private func didReceiveDeviceResponse(completion: OperationCompletion<REST.Device?, REST.Error>)
+    private func didReceiveDeviceResponse(completion: OperationCompletion<REST.Device, REST.Error>)
     {
-        let mappedCompletion = completion.tryMap { device -> StoredDeviceData in
-            guard let device = device else {
-                throw RevokedDeviceError()
+        let mappedCompletion = completion
+            .tryMap { device -> StoredDeviceData in
+                switch interactor.deviceState {
+                case .loggedIn(let storedAccount, var storedDevice):
+                    storedDevice.update(from: device)
+                    let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
+                    interactor.setDeviceState(newDeviceState, persist: true)
+
+                    return storedDevice
+
+                default:
+                    throw InvalidDeviceStateError()
+                }
             }
-
-            switch interactor.deviceState {
-            case .loggedIn(let storedAccount, var storedDevice):
-                storedDevice.update(from: device)
-                let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
-                interactor.setDeviceState(newDeviceState, persist: true)
-
-                return storedDevice
-
-            default:
-                throw InvalidDeviceStateError()
-            }
-        }
 
         finish(completion: mappedCompletion)
     }

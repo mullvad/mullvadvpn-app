@@ -247,7 +247,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
                 self.updateViewState(.verifiedKey(true))
 
             case .failure(let error):
-                if error is RevokedDeviceError {
+                if let restError = error as? REST.Error,
+                   restError.compareErrorCode(.deviceNotFound) {
                     self.updateViewState(.verifiedKey(false))
                 } else {
                     self.showKeyVerificationFailureAlert(error)
@@ -255,7 +256,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
                 }
 
             case .cancelled:
-                break
+                self.updateViewState(.default)
             }
         }
     }
@@ -264,11 +265,23 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         self.updateViewState(.regeneratingKey)
 
         _ = TunnelManager.shared.rotatePrivateKey(forceRotate: true) { [weak self] completion in
-            if let error = completion.error {
-                self?.showKeyRegenerationFailureAlert(error)
-                self?.updateViewState(.regeneratedKey(false))
-            } else {
-                self?.updateViewState(.regeneratedKey(true))
+            guard let self = self else { return }
+
+            switch completion {
+            case .success:
+                self.updateViewState(.regeneratedKey(true))
+
+            case .failure(let error):
+                if let restError = error as? REST.Error,
+                   restError.compareErrorCode(.deviceNotFound) {
+                    self.updateViewState(.regeneratedKey(false))
+                } else {
+                    self.showKeyRegenerationFailureAlert(error)
+                    self.updateViewState(.default)
+                }
+
+            case .cancelled:
+                self.updateViewState(.default)
             }
         }
     }

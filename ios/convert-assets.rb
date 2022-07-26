@@ -32,6 +32,7 @@ GRAPHICAL_ASSETS = [
   "location-marker-unsecure.svg",
   "logo-icon.svg",
   "logo-text.svg",
+  "icon-close.svg",
   "icon-close-sml.svg",
   "icon-copy.svg",
   "icon-obscure.svg",

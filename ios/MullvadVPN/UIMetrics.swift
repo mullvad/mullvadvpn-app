@@ -15,6 +15,10 @@ extension UIMetrics {
     /// Common layout margins for content presentation
     static let contentLayoutMargins = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
 
+    /// Common layout margins for row views presentation
+    /// Similar to `settingsCellLayoutMargins` however maintains equal horizontal spacing
+    static let rowViewLayoutMargins = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 24)
+
     /// Common layout margins for settings cell presentation
     static let settingsCellLayoutMargins = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 12)
 
