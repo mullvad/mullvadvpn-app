@@ -59,6 +59,9 @@ class ApplicationConfiguration {
     /// Default network timeout for API requests.
     static let defaultAPINetworkTimeout: TimeInterval = 10
 
+    /// Maximum number of devices per account.
+    static let maxAllowedDevices = 5
+
     /// Background fetch minimum interval
     static let minimumBackgroundFetchInterval: TimeInterval = 3600
 

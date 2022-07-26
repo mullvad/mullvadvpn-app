@@ -9,30 +9,35 @@
 import UIKit
 import Logging
 
-enum AuthenticationMethod {
-    case existingAccount, newAccount
+enum LoginAction {
+    case useExistingAccount(String)
+    case createAccount
+
+    var setAccountAction: SetAccountAction {
+        switch self {
+        case .useExistingAccount(let accountNumber):
+            return .existing(accountNumber)
+        case .createAccount:
+            return .new
+        }
+    }
 }
 
 enum LoginState {
     case `default`
-    case authenticating(AuthenticationMethod)
+    case authenticating(LoginAction)
     case failure(Error)
-    case success(AuthenticationMethod)
+    case success(LoginAction)
 }
 
 protocol LoginViewControllerDelegate: AnyObject {
     func loginViewController(
         _ controller: LoginViewController,
-        loginWithAccountToken accountToken: String,
+        shouldHandleLoginAction action: LoginAction,
         completion: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void
     )
 
-    func loginViewControllerLoginWithNewAccount(
-        _ controller: LoginViewController,
-        completion: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void
-    )
-
-    func loginViewControllerDidLogin(_ controller: LoginViewController)
+    func loginViewControllerDidFinishLogin(_ controller: LoginViewController)
 }
 
 class LoginViewController: UIViewController, RootContainment {
@@ -156,6 +161,25 @@ class LoginViewController: UIViewController, RootContainment {
 
     // MARK: - Public
 
+    func start(action: LoginAction) {
+        beginLogin(action)
+
+        delegate?.loginViewController(self, shouldHandleLoginAction: action) { [weak self] completion in
+            switch completion {
+            case .success(let accountData):
+                if case .createAccount = action {
+                    self?.contentView.accountInputGroup.setAccount(accountData?.number ?? "")
+                }
+
+                self?.endLogin(.success(action))
+            case .failure(let error):
+                self?.endLogin(.failure(error))
+            case .cancelled:
+                self?.endLogin(.default)
+            }
+        }
+    }
+
     func reset() {
         contentView.accountInputGroup.clearAccount()
         loginState = .default
@@ -180,43 +204,18 @@ class LoginViewController: UIViewController, RootContainment {
 
     // MARK: - Actions
 
-    @objc func cancelLogin() {
+    @objc private func cancelLogin() {
         view.endEditing(true)
     }
 
-    @objc func doLogin() {
-        let accountToken = contentView.accountInputGroup.parsedToken
+    @objc private func doLogin() {
+        let accountNumber = contentView.accountInputGroup.parsedToken
 
-        beginLogin(method: .existingAccount)
-        self.delegate?.loginViewController(self, loginWithAccountToken: accountToken, completion: { [weak self] completion in
-            switch completion {
-            case .success:
-                self?.endLogin(.success(.existingAccount))
-            case .failure(let error):
-                self?.endLogin(.failure(error))
-            case .cancelled:
-                self?.endLogin(.default)
-            }
-        })
+        start(action: .useExistingAccount(accountNumber))
     }
 
-    @objc func createNewAccount() {
-        beginLogin(method: .newAccount)
-
-        contentView.accountInputGroup.clearAccount()
-        updateKeyboardToolbar()
-
-        self.delegate?.loginViewControllerLoginWithNewAccount(self, completion: { [weak self] completion in
-            switch completion {
-            case .success(let accountData):
-                self?.contentView.accountInputGroup.setAccount(accountData?.number ?? "")
-                self?.endLogin(.success(.newAccount))
-            case .failure(let error):
-                self?.endLogin(.failure(error))
-            case .cancelled:
-                self?.endLogin(.default)
-            }
-        })
+    @objc private func createNewAccount() {
+        start(action: .createAccount)
     }
 
     // MARK: - Private
@@ -261,8 +260,8 @@ class LoginViewController: UIViewController, RootContainment {
         }
     }
 
-    private func beginLogin(method: AuthenticationMethod) {
-        loginState = .authenticating(method)
+    private func beginLogin(_ action: LoginAction) {
+        loginState = .authenticating(action)
 
         view.endEditing(true)
     }
@@ -272,12 +271,12 @@ class LoginViewController: UIViewController, RootContainment {
 
         loginState = nextLoginState
 
-        if case .authenticating(.existingAccount) = oldLoginState, case .failure = loginState {
+        if case .authenticating(.useExistingAccount) = oldLoginState, case .failure = loginState {
             contentView.accountInputGroup.textField.becomeFirstResponder()
         } else if case .success = loginState {
             // Navigate to the main view after 1s delay
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-                self.delegate?.loginViewControllerDidLogin(self)
+                self.delegate?.loginViewControllerDidFinishLogin(self)
             }
         }
     }
@@ -372,14 +371,14 @@ private extension LoginState {
 
         case .authenticating(let method):
             switch method {
-            case .existingAccount:
+            case .useExistingAccount:
                 return NSLocalizedString(
                     "SUBHEAD_TITLE_AUTHENTICATING",
                     tableName: "Login",
                     value: "Checking account number",
                     comment: ""
                 )
-            case .newAccount:
+            case .createAccount:
                 return NSLocalizedString(
                     "SUBHEAD_TITLE_CREATING_ACCOUNT",
                     tableName: "Login",
@@ -393,14 +392,14 @@ private extension LoginState {
 
         case .success(let method):
             switch method {
-            case .existingAccount:
+            case .useExistingAccount:
                 return NSLocalizedString(
                     "SUBHEAD_TITLE_SUCCESS",
                     tableName: "Login",
                     value: "Correct account number",
                     comment: ""
                 )
-            case .newAccount:
+            case .createAccount:
                 return NSLocalizedString(
                     "SUBHEAD_TITLE_CREATED_ACCOUNT",
                     tableName: "Login",
@@ -420,7 +419,7 @@ extension LoginViewController: AccountInputGroupViewDelegate {
             try SettingsManager.setLastUsedAccount(nil)
             return true
         } catch {
-            self.logger.error(chainedError: AnyChainedError(error),
+            logger.error(chainedError: AnyChainedError(error),
                               message: "Failed to remove last used account.")
             return false
         }

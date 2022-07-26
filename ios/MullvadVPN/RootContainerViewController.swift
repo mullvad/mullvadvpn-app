@@ -189,6 +189,15 @@ class RootContainerViewController: UIViewController {
         setViewControllersInternal(newViewControllers, isUnwinding: false, animated: animated, completion: completion)
     }
 
+    func popViewController(animated: Bool, completion: CompletionHandler? = nil) {
+        guard viewControllers.count > 1 else { return }
+
+        var newViewControllers = viewControllers
+        newViewControllers.removeLast()
+
+        setViewControllersInternal(newViewControllers, isUnwinding: true, animated: animated, completion: completion)
+    }
+
     func popToRootViewController(animated: Bool, completion: CompletionHandler? = nil) {
         if let rootController = self.viewControllers.first, self.viewControllers.count > 1 {
             setViewControllersInternal([rootController], isUnwinding: true, animated: animated, completion: completion)
