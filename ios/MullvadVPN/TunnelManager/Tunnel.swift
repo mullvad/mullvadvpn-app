@@ -90,8 +90,8 @@ class Tunnel {
         tunnelProvider.removeFromPreferences(completionHandler: completion)
     }
 
-    func addBlockObserver(queue: DispatchQueue? = nil, handler: @escaping (Tunnel, NEVPNStatus) -> Void) -> StatusBlockObserver {
-        let observer = StatusBlockObserver(tunnel: self, queue: queue, handler: handler)
+    func addBlockObserver(queue: DispatchQueue? = nil, handler: @escaping (Tunnel, NEVPNStatus) -> Void) -> TunnelStatusBlockObserver {
+        let observer = TunnelStatusBlockObserver(tunnel: self, queue: queue, handler: handler)
 
         addObserver(observer)
 
@@ -152,47 +152,32 @@ extension Tunnel: Equatable {
     }
 }
 
-extension Tunnel {
+final class TunnelStatusBlockObserver: TunnelStatusObserver {
+    typealias Handler = (Tunnel, NEVPNStatus) -> Void
 
-    final class StatusBlockObserver: TunnelStatusObserver {
-        typealias Handler = (Tunnel, NEVPNStatus) -> Void
+    private weak var tunnel: Tunnel?
+    private let queue: DispatchQueue?
+    private let handler: Handler
 
-        private weak var tunnel: Tunnel?
-        private let queue: DispatchQueue?
-        private let lock = NSLock()
-        private var handler: Handler?
-
-        fileprivate init(tunnel: Tunnel, queue: DispatchQueue?, handler: @escaping Handler) {
-            self.tunnel = tunnel
-            self.queue = queue
-            self.handler = handler
-        }
-
-        func invalidate() {
-            lock.lock()
-            handler = nil
-            lock.unlock()
-
-            tunnel?.removeObserver(self)
-        }
-
-        func tunnel(_ tunnel: Tunnel, didReceiveStatus status: NEVPNStatus) {
-            if let queue = queue {
-                queue.async {
-                    self.invokeHandler(tunnel: tunnel, status: status)
-                }
-            } else {
-                invokeHandler(tunnel: tunnel, status: status)
-            }
-        }
-
-        private func invokeHandler(tunnel: Tunnel, status: NEVPNStatus) {
-            lock.lock()
-            let block = handler
-            lock.unlock()
-
-            block?(tunnel, status)
-        }
+    fileprivate init(tunnel: Tunnel, queue: DispatchQueue?, handler: @escaping Handler) {
+        self.tunnel = tunnel
+        self.queue = queue
+        self.handler = handler
     }
 
+    func invalidate() {
+        tunnel?.removeObserver(self)
+    }
+
+    func tunnel(_ tunnel: Tunnel, didReceiveStatus status: NEVPNStatus) {
+        let block = {
+            self.handler(tunnel, status)
+        }
+
+        if let queue = queue {
+            queue.async(execute: block)
+        } else {
+            block()
+        }
+    }
 }
