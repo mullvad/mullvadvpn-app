@@ -61,7 +61,7 @@ export function tunnelTypeToString(tunnel: TunnelType): string {
 }
 
 export type RelayProtocol = 'tcp' | 'udp';
-export type ObfuscationType = 'udp2tcp';
+export type EndpointObfuscationType = 'udp2tcp';
 
 export type Constraint<T> = 'any' | { only: T };
 export type LiftedConstraint<T> = 'any' | T;
@@ -107,7 +107,7 @@ export interface IObfuscationEndpoint {
   address: string;
   port: number;
   protocol: RelayProtocol;
-  obfuscationType: ObfuscationType;
+  obfuscationType: EndpointObfuscationType;
 }
 
 export interface IProxyEndpoint {
@@ -347,6 +347,7 @@ export interface ISettings {
   bridgeSettings: BridgeSettings;
   bridgeState: BridgeState;
   splitTunnel: SplitTunnelSettings;
+  obfuscationSettings: ObfuscationSettings;
 }
 
 export type BridgeState = 'auto' | 'on' | 'off';
@@ -354,6 +355,21 @@ export type BridgeState = 'auto' | 'on' | 'off';
 export type SplitTunnelSettings = {
   enableExclusions: boolean;
   appsList: string[];
+};
+
+export type Udp2TcpObfuscationSettings = {
+  port: Constraint<number>;
+};
+
+export enum ObfuscationType {
+  auto,
+  off,
+  udp2tcp,
+}
+
+export type ObfuscationSettings = {
+  selectedObfuscation: ObfuscationType;
+  udp2tcpSettings: Udp2TcpObfuscationSettings;
 };
 
 export interface IBridgeConstraints {
