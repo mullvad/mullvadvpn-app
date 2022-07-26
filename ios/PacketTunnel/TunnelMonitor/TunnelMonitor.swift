@@ -11,17 +11,6 @@ import NetworkExtension
 import WireGuardKit
 import Logging
 
-protocol TunnelMonitorDelegate: AnyObject {
-    /// Invoked when tunnel monitor determined that connection is established.
-    func tunnelMonitorDidDetermineConnectionEstablished(_ tunnelMonitor: TunnelMonitor)
-
-    /// Invoked when tunnel monitor determined that connection attempt has failed.
-    func tunnelMonitorDelegateShouldHandleConnectionRecovery(_ tunnelMonitor: TunnelMonitor)
-
-    /// Invoked when network reachability status changes.
-    func tunnelMonitor(_ tunnelMonitor: TunnelMonitor, networkReachabilityStatusDidChange isNetworkReachable: Bool)
-}
-
 final class TunnelMonitor {
     private let adapter: WireGuardAdapter
     private let internalQueue = DispatchQueue(label: "TunnelMonitor")
