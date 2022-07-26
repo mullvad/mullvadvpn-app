@@ -59,14 +59,11 @@ private struct SetAccountContext: OperationInputContext {
     }
 }
 
-class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Error> {
-    typealias WillDeleteVPNConfigurationHandler = () -> Void
-
-    private let state: TunnelManager.State
+class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
+    private let interactor: TunnelInteractor
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
     private let action: SetAccountAction
-    private var willDeleteVPNConfigurationHandler: WillDeleteVPNConfigurationHandler?
 
     private let logger = Logger(label: "SetAccountOperation")
     private let operationQueue = AsyncOperationQueue()
@@ -75,36 +72,37 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
 
     init(
         dispatchQueue: DispatchQueue,
-        state: TunnelManager.State,
+        interactor: TunnelInteractor,
         accountsProxy: REST.AccountsProxy,
         devicesProxy: REST.DevicesProxy,
-        action: SetAccountAction,
-        willDeleteVPNConfigurationHandler: @escaping WillDeleteVPNConfigurationHandler
+        action: SetAccountAction
     )
     {
-        self.state = state
+        self.interactor = interactor
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
         self.action = action
-        self.willDeleteVPNConfigurationHandler = willDeleteVPNConfigurationHandler
 
         super.init(dispatchQueue: dispatchQueue)
     }
 
     override func main() {
         var deleteDeviceOperation: AsyncOperation?
-        if let tunnelSettings = state.tunnelSettings {
-            let operation = getDeleteDeviceOperation(tunnelSettings: tunnelSettings)
+        if case .loggedIn(let accountData, let deviceData) = interactor.deviceState {
+            let operation = getDeleteDeviceOperation(
+                accounNumber: accountData.number,
+                deviceIdentifier: deviceData.identifier
+            )
             deleteDeviceOperation = operation
         }
 
-        let deleteSettingsOperation = getDeleteSettingsOperation()
-        deleteSettingsOperation.addCondition(
+        let unsetDeviceStateOperation = getUnsetDeviceStateOperation()
+        unsetDeviceStateOperation.addCondition(
             NoFailedDependenciesCondition(ignoreCancellations: false)
         )
 
         if let deleteDeviceOperation = deleteDeviceOperation {
-            deleteSettingsOperation.addDependency(deleteDeviceOperation)
+            unsetDeviceStateOperation.addDependency(deleteDeviceOperation)
         }
 
         let setupAccountOperations = getAccountDataOperation()
@@ -112,7 +110,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
                 accountOperation.addCondition(
                     NoFailedDependenciesCondition(ignoreCancellations: false)
                 )
-                accountOperation.addDependency(deleteSettingsOperation)
+                accountOperation.addDependency(unsetDeviceStateOperation)
 
                 let createDeviceOperation = getCreateDeviceOperation()
                 createDeviceOperation.addCondition(
@@ -144,7 +142,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
                 return [accountOperation, createDeviceOperation, saveSettingsOperation]
             } ?? []
 
-        var enqueueOperations: [Operation] = [deleteDeviceOperation, deleteSettingsOperation]
+        var enqueueOperations: [Operation] = [deleteDeviceOperation, unsetDeviceStateOperation]
             .compactMap { $0 }
         enqueueOperations.append(contentsOf: setupAccountOperations)
 
@@ -173,8 +171,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
             return
         }
 
-        let errors = children.compactMap { operation -> TunnelManager.Error? in
-            return (operation as? AsyncOperation)?.error as? TunnelManager.Error
+        let errors = children.compactMap { operation -> Error? in
+            return (operation as? AsyncOperation)?.error
         }
 
         if let error = errors.first {
@@ -184,9 +182,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
         }
     }
 
-    private func getAccountDataOperation()
-        -> ResultOperation<StoredAccountData, TunnelManager.Error>?
-    {
+    private func getAccountDataOperation() -> ResultOperation<StoredAccountData, Error>? {
         switch action {
         case .new:
             return getCreateAccountOperation()
@@ -199,41 +195,30 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
         }
     }
 
-    private func getCreateAccountOperation()
-        -> ResultBlockOperation<StoredAccountData, TunnelManager.Error>
-    {
-        let operation = ResultBlockOperation<
-            StoredAccountData,
-            TunnelManager.Error
-        >(dispatchQueue: dispatchQueue)
+    private func getCreateAccountOperation() -> ResultBlockOperation<StoredAccountData, Error> {
+        let operation = ResultBlockOperation<StoredAccountData, Error>(dispatchQueue: dispatchQueue)
 
         operation.setExecutionBlock { operation in
             self.logger.debug("Create new account...")
 
             let task = self.accountsProxy.createAccount(retryStrategy: .default) { completion in
-                let mappedCompletion = completion.mapError { error -> TunnelManager.Error in
+                let mappedCompletion = completion.mapError { error -> Error in
                     self.logger.error(
                         chainedError: AnyChainedError(error),
                         message: "Failed to create new account."
                     )
+                    return error
+                }.map { newAccountData -> StoredAccountData in
+                    self.logger.debug("Created new account.")
 
-                    return .createAccount(error)
+                    return StoredAccountData(
+                        identifier: newAccountData.id,
+                        number: newAccountData.number,
+                        expiry: newAccountData.expiry
+                    )
                 }
 
-                guard let newAccountData = mappedCompletion.value else {
-                    operation.finish(completion: mappedCompletion.assertNoSuccess())
-                    return
-                }
-
-                self.logger.debug("Created new account.")
-
-                let storedAccountData = StoredAccountData(
-                    identifier: newAccountData.id,
-                    number: newAccountData.number,
-                    expiry: newAccountData.expiry
-                )
-
-                operation.finish(completion: .success(storedAccountData))
+                operation.finish(completion: mappedCompletion)
             }
 
             operation.addCancellationBlock {
@@ -245,11 +230,9 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
     }
 
     private func getExistingAccountOperation(accountNumber: String)
-        -> ResultOperation<StoredAccountData, TunnelManager.Error>
+        -> ResultOperation<StoredAccountData, Error>
     {
-        let operation = ResultBlockOperation<StoredAccountData, TunnelManager.Error>(
-            dispatchQueue: dispatchQueue
-        )
+        let operation = ResultBlockOperation<StoredAccountData, Error>(dispatchQueue: dispatchQueue)
 
         operation.setExecutionBlock { operation in
             self.logger.debug("Request account data...")
@@ -258,29 +241,23 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
                 accountNumber: accountNumber,
                 retryStrategy: .default
             ) { completion in
-                let mappedCompletion = completion.mapError { error -> TunnelManager.Error in
+                let mappedCompletion = completion.mapError { error -> Error in
                     self.logger.error(
                         chainedError: AnyChainedError(error),
                         message: "Failed to receive account data."
                     )
+                    return error
+                }.map { accountData -> StoredAccountData in
+                    self.logger.debug("Received account data.")
 
-                    return .getAccountData(error)
+                    return StoredAccountData(
+                        identifier: accountData.id,
+                        number: accountNumber,
+                        expiry: accountData.expiry
+                    )
                 }
 
-                guard let accountData = mappedCompletion.value else {
-                    operation.finish(completion: mappedCompletion.assertNoSuccess())
-                    return
-                }
-
-                self.logger.debug("Received account data.")
-
-                let storedAccountData = StoredAccountData(
-                    identifier: accountData.id,
-                    number: accountNumber,
-                    expiry: accountData.expiry
-                )
-
-                operation.finish(completion: .success(storedAccountData))
+                operation.finish(completion: mappedCompletion)
             }
 
             operation.addCancellationBlock {
@@ -291,10 +268,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
         return operation
     }
 
-    private func getDeleteDeviceOperation(tunnelSettings: TunnelSettingsV2)
-        -> ResultBlockOperation<Void, TunnelManager.Error>
+    private func getDeleteDeviceOperation(accounNumber: String, deviceIdentifier: String)
+        -> ResultBlockOperation<Void, Error>
     {
-        let operation = ResultBlockOperation<Void, TunnelManager.Error>(
+        let operation = ResultBlockOperation<Void, Error>(
             dispatchQueue: dispatchQueue
         )
 
@@ -302,28 +279,26 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
             self.logger.debug("Delete current device...")
 
             let task = self.devicesProxy.deleteDevice(
-                accountNumber: tunnelSettings.account.number,
-                identifier: tunnelSettings.device.identifier,
+                accountNumber: accounNumber,
+                identifier: deviceIdentifier,
                 retryStrategy: .default
             ) { completion in
-                let mappedCompletion = completion.mapError { error -> TunnelManager.Error in
-                    self.logger.error(chainedError: error, message: "Failed to delete device.")
+                let mappedCompletion = completion
+                    .mapError { error -> Error in
+                        self.logger.error(
+                            chainedError: AnyChainedError(error),
+                            message: "Failed to delete device."
+                        )
+                        return error
+                    }.map { isDeleted in
+                        if isDeleted {
+                            self.logger.debug("Deleted device.")
+                        } else {
+                            self.logger.debug("Device is already deleted.")
+                        }
+                    }
 
-                    return .deleteDevice(error)
-                }
-
-                guard let isDeleted = mappedCompletion.value else {
-                    operation.finish(completion: mappedCompletion.assertNoSuccess())
-                    return
-                }
-
-                if isDeleted {
-                    self.logger.debug("Deleted device.")
-                } else {
-                    self.logger.debug("Device is already deleted.")
-                }
-
-                operation.finish(completion: .success(()))
+                operation.finish(completion: mappedCompletion)
             }
 
             operation.addCancellationBlock {
@@ -334,47 +309,25 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
         return operation
     }
 
-    private func getDeleteSettingsOperation() -> ResultBlockOperation<Void, TunnelManager.Error> {
-        let deleteSettingsOperation = ResultBlockOperation<Void, TunnelManager.Error>(
-            dispatchQueue: dispatchQueue
-        )
-
-        deleteSettingsOperation.setExecutionBlock { operation in
-            self.logger.debug("Delete settings.")
-
-            do {
-                try SettingsManager.deleteSettings()
-            } catch .itemNotFound as KeychainError {
-                self.logger.debug("Settings are already deleted.")
-            } catch {
-                self.logger.error(
-                    chainedError: AnyChainedError(error),
-                    message: "Failed to delete settings."
-                )
-                operation.finish(completion: .failure(.deleteSettings(error)))
-                return
-            }
-
+    private func getUnsetDeviceStateOperation() -> AsyncBlockOperation {
+        return AsyncBlockOperation(dispatchQueue: dispatchQueue) { operation in
             // Tell the caller to unsubscribe from VPN status notifications.
-            self.willDeleteVPNConfigurationHandler?()
-            self.willDeleteVPNConfigurationHandler = nil
+            self.interactor.prepareForVPNConfigurationDeletion()
 
-            // Reset tunnel state to disconnected
-            self.state.tunnelStatus.reset(to: .disconnected)
-
-            // Remove tunnel settins
-            self.state.tunnelSettings = nil
+            // Reset tunnel and device state.
+            self.interactor.resetTunnelState(to: .disconnected)
+            self.interactor.setDeviceState(.loggedOut, persist: true)
 
             // Finish immediately if tunnel provider is not set.
-            guard let tunnel = self.state.tunnel else {
-                operation.finish(completion: .success(()))
+            guard let tunnel = self.interactor.tunnel else {
+                operation.finish()
                 return
             }
 
-            // Remove VPN configuration
+            // Remove VPN configuration.
             tunnel.removeFromPreferences { error in
                 self.dispatchQueue.async {
-                    // Ignore error but log it
+                    // Ignore error but log it.
                     if let error = error {
                         self.logger.error(
                             chainedError: AnyChainedError(error),
@@ -382,23 +335,21 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
                         )
                     }
 
-                    self.state.setTunnel(nil, shouldRefreshTunnelState: false)
+                    self.interactor.setTunnel(nil, shouldRefreshTunnelState: false)
 
-                    operation.finish(completion: .success(()))
+                    operation.finish()
                 }
             }
         }
-
-        return deleteSettingsOperation
     }
 
     private func getCreateDeviceOperation()
-        -> TransformOperation<StoredAccountData, (PrivateKey, REST.Device), TunnelManager.Error>
+        -> TransformOperation<StoredAccountData, (PrivateKey, REST.Device), Error>
     {
         let createDeviceOperation = TransformOperation<
             StoredAccountData,
             (PrivateKey, REST.Device),
-            TunnelManager.Error
+            Error
         >(dispatchQueue: dispatchQueue)
 
         createDeviceOperation.setExecutionBlock { storedAccountData, operation in
@@ -431,9 +382,9 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
                     .map { device in
                         return (privateKey, device)
                     }
-                    .mapError { error -> TunnelManager.Error in
+                    .mapError { error -> Error in
                         self.logger.error(chainedError: error, message: "Failed to create device.")
-                        return .createDevice(error)
+                        return error
                     }
 
                 operation.finish(completion: mappedCompletion)
@@ -448,21 +399,19 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
     }
 
     private func getSaveSettingsOperation()
-        -> TransformOperation<SetAccountResult, StoredAccountData, TunnelManager.Error>
+        -> TransformOperation<SetAccountResult, StoredAccountData, Error>
     {
         let saveSettingsOperation = TransformOperation<
-            SetAccountResult,
-            StoredAccountData,
-            TunnelManager.Error
+            SetAccountResult, StoredAccountData, Error
         >(dispatchQueue: dispatchQueue)
 
         saveSettingsOperation.setExecutionBlock { input in
             self.logger.debug("Saving settings...")
 
             let device = input.device
-            let tunnelSettings = TunnelSettingsV2(
-                account: input.accountData,
-                device: StoredDeviceData(
+            let newDeviceState = DeviceState.loggedIn(
+                input.accountData,
+                StoredDeviceData(
                     creationDate: device.created,
                     identifier: device.id,
                     name: device.name,
@@ -473,25 +422,13 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
                         creationDate: Date(),
                         privateKey: input.privateKey
                     )
-                ),
-                relayConstraints: RelayConstraints(),
-                dnsSettings: DNSSettings()
+                )
             )
 
-            do {
-                try SettingsManager.writeSettings(tunnelSettings)
+            self.interactor.setSettings(TunnelSettingsV2(), persist: true)
+            self.interactor.setDeviceState(newDeviceState, persist: true)
 
-                self.state.tunnelSettings = tunnelSettings
-
-                return input.accountData
-            } catch {
-                self.logger.error(
-                    chainedError: AnyChainedError(error),
-                    message: "Failed to write settings."
-                )
-
-                throw TunnelManager.Error.writeSettings(error)
-            }
+            return input.accountData
         }
 
         return saveSettingsOperation

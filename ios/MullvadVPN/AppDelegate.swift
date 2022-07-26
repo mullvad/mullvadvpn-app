@@ -32,7 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Application lifecycle
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Setup logging
         initLoggingSystem(bundleIdentifier: Bundle.main.bundleIdentifier!)
 
         logger = Logger(label: "AppDelegate")
@@ -43,10 +42,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #endif
 
         if #available(iOS 13.0, *) {
-            // Register background tasks on iOS 13
             registerBackgroundTasks()
         } else {
-            // Set background refresh interval on iOS 12
             application.setMinimumBackgroundFetchInterval(
                 ApplicationConfiguration.minimumBackgroundFetchInterval
             )
@@ -55,44 +52,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         setupPaymentHandler()
         setupNotificationHandler()
 
-        // Start initialization
-        let setupTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { blockOperation in
+        let setupTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             TunnelManager.shared.loadConfiguration { error in
-                dispatchPrecondition(condition: .onQueue(.main))
-
+                // TODO: avoid throwing fatal error and show the problem report UI instead.
                 if let error = error {
-                    self.logger.error(chainedError: error, message: "Failed to load tunnels")
-
-                    // TODO: avoid throwing fatal error and show the problem report UI instead.
-                    fatalError(
-                        error.displayChain(message: "Failed to load VPN tunnel configuration")
-                    )
+                    fatalError(error.localizedDescription)
                 }
 
-                blockOperation.finish()
+                self.logger.debug("Finished initialization.")
+
+                NotificationManager.shared.updateNotifications()
+                AppStorePaymentManager.shared.startPaymentQueueMonitoring()
+
+                operation.finish()
             }
         }
 
-        let setupUIOperation = AsyncBlockOperation(dispatchQueue: .main) {
-            self.logger.debug("Finished initialization.")
-
-            NotificationManager.shared.updateNotifications()
-            AppStorePaymentManager.shared.startPaymentQueueMonitoring()
-        }
-
-        operationQueue.addOperations([
-            setupTunnelManagerOperation,
-            setupUIOperation
-        ], waitUntilFinished: false)
+        operationQueue.addOperation(setupTunnelManagerOperation)
 
         if #available(iOS 13, *) {
-            return true
+            // no-op
         } else {
             sceneDelegate = SceneDelegate()
             sceneDelegate?.setupScene(windowFactory: ClassicWindowFactory())
-
-            return true
         }
+
+        return true
     }
 
     func application(
@@ -123,7 +108,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        let rotatePrivateKeyOperation = ResultBlockOperation<Bool, TunnelManager.Error>
+        let rotatePrivateKeyOperation = ResultBlockOperation<Bool, Error>
         { operation in
             let handle = TunnelManager.shared.rotatePrivateKey(forceRotate: false) { completion in
                 operation.finish(completion: completion)
@@ -387,21 +372,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 // MARK: - AppStorePaymentManagerDelegate
 
 extension AppDelegate: AppStorePaymentManagerDelegate {
-
-    func appStorePaymentManager(_ manager: AppStorePaymentManager,
-                                didRequestAccountTokenFor payment: SKPayment) -> String?
+    func appStorePaymentManager(
+        _ manager: AppStorePaymentManager,
+        didRequestAccountTokenFor payment: SKPayment
+    ) -> String?
     {
-        // Since we do not persist the relation between the payment and account token between the
-        // app launches, we assume that all successful purchases belong to the active account token.
-        return TunnelManager.shared.accountNumber
+        // Since we do not persist the relation between payment and account number between the
+        // app launches, we assume that all successful purchases belong to the active account
+        // number.
+        return TunnelManager.shared.deviceState.accountData?.number
     }
-
 }
 
 // MARK: - UNUserNotificationCenterDelegate
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
-
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let blockOperation = AsyncBlockOperation(dispatchQueue: .main) {
             if response.notification.request.identifier == accountExpiryNotificationIdentifier,
@@ -429,5 +414,4 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             completionHandler([])
         }
     }
-
 }

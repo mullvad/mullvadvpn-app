@@ -10,40 +10,37 @@ import Foundation
 import Logging
 import class WireGuardKitTypes.PublicKey
 
-class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, TunnelManager.Error> {
-    private let logger = Logger(label: "UpdateDeviceDataOperation")
-
-    private let state: TunnelManager.State
+class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
+    private let interactor: TunnelInteractor
     private let devicesProxy: REST.DevicesProxy
 
     private var task: Cancellable?
 
     init(
         dispatchQueue: DispatchQueue,
-        state: TunnelManager.State,
+        interactor: TunnelInteractor,
         devicesProxy: REST.DevicesProxy
     )
     {
-        self.state = state
+        self.interactor = interactor
         self.devicesProxy = devicesProxy
 
         super.init(dispatchQueue: dispatchQueue)
     }
 
     override func main() {
-        guard let tunnelSettings = state.tunnelSettings else {
-            finish(completion: .failure(.unsetAccount))
+        guard case .loggedIn(let accountData, let deviceData) = interactor.deviceState else {
+            finish(completion: .failure(InvalidDeviceStateError()))
             return
         }
 
         task = devicesProxy.getDevice(
-            accountNumber: tunnelSettings.account.number,
-            identifier: tunnelSettings.device.identifier,
+            accountNumber: accountData.number,
+            identifier: deviceData.identifier,
             retryStrategy: .default,
             completion: { [weak self] completion in
                 self?.dispatchQueue.async {
                     self?.didReceiveDeviceResponse(
-                        tunnelSettings: tunnelSettings,
                         completion: completion
                     )
                 }
@@ -55,42 +52,27 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, TunnelManager
         task = nil
     }
 
-    private func didReceiveDeviceResponse(
-        tunnelSettings: TunnelSettingsV2,
-        completion: OperationCompletion<REST.Device?, REST.Error>
-    ) {
-        let mappedCompletion = completion
-            .mapError { error -> TunnelManager.Error in
-                return .getDevice(error)
-            }
-            .flatMap { device -> OperationCompletion<REST.Device, TunnelManager.Error> in
-                if let device = device {
-                    return .success(device)
-                } else {
-                    return .failure(.deviceRevoked)
-                }
+    private func didReceiveDeviceResponse(completion: OperationCompletion<REST.Device?, REST.Error>)
+    {
+        let mappedCompletion = completion.tryMap { device -> StoredDeviceData in
+            guard let device = device else {
+                throw RevokedDeviceError()
             }
 
-        guard let device = mappedCompletion.value else {
-            finish(completion: mappedCompletion.assertNoSuccess())
-            return
+            switch interactor.deviceState {
+            case .loggedIn(let storedAccount, var storedDevice):
+                storedDevice.update(from: device)
+                let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
+                interactor.setDeviceState(newDeviceState, persist: true)
+
+                return storedDevice
+
+            default:
+                throw InvalidDeviceStateError()
+            }
         }
 
-        do {
-            var newTunnelSettings = tunnelSettings
-            newTunnelSettings.device.update(from: device)
-
-            try SettingsManager.writeSettings(newTunnelSettings)
-
-            finish(completion: .success(newTunnelSettings.device))
-        } catch {
-            logger.error(
-                chainedError: AnyChainedError(error),
-                message: "Failed to write settings."
-            )
-
-            finish(completion: .failure(.writeSettings(error)))
-        }
+        finish(completion: mappedCompletion)
     }
 
 }

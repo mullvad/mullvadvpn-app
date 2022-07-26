@@ -19,7 +19,9 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         let securityGroupIdentifier = ApplicationConfiguration.securityGroupIdentifier
 
         // TODO: make sure we redact old tokens
-        let redactStrings = TunnelManager.shared.accountNumber.flatMap { [$0] } ?? []
+
+        let redactStrings = [TunnelManager.shared.deviceState.accountData?.number]
+            .compactMap { $0 }
 
         let report = ConsolidatedApplicationLog(
             redactCustomStrings: redactStrings,

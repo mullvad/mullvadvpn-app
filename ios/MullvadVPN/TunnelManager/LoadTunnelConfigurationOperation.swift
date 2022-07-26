@@ -9,12 +9,12 @@
 import Foundation
 import Logging
 
-class LoadTunnelConfigurationOperation: ResultOperation<(), TunnelManager.Error> {
+class LoadTunnelConfigurationOperation: ResultOperation<(), Error> {
     private let logger = Logger(label: "LoadTunnelConfigurationOperation")
-    private let state: TunnelManager.State
+    private let interactor: TunnelInteractor
 
-    init(dispatchQueue: DispatchQueue, state: TunnelManager.State) {
-        self.state = state
+    init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor) {
+        self.interactor = interactor
 
         super.init(dispatchQueue: dispatchQueue)
     }
@@ -23,7 +23,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<(), TunnelManager.Error>
         TunnelProviderManagerType.loadAllFromPreferences { tunnels, error in
             self.dispatchQueue.async {
                 if let error = error {
-                    self.finish(completion: .failure(.loadAllVPNConfigurations(error)))
+                    self.finish(completion: .failure(error))
                 } else {
                     self.didLoadVPNConfigurations(tunnels: tunnels)
                 }
@@ -32,73 +32,101 @@ class LoadTunnelConfigurationOperation: ResultOperation<(), TunnelManager.Error>
     }
 
     private func didLoadVPNConfigurations(tunnels: [TunnelProviderManagerType]?) {
-        var returnError: TunnelManager.Error?
-        var tunnelSettings: TunnelSettingsV2?
-        do {
-            tunnelSettings = try SettingsManager.readSettings()
-        } catch .itemNotFound as KeychainError  {
-            logger.debug("Settings not found in keychain.")
-        } catch let error as DecodingError {
-            logger.error(
-                chainedError: AnyChainedError(error),
-                message: "Cannot decode settings. Will attempt to delete them from keychain."
-            )
-
-            do {
-                try SettingsManager.deleteSettings()
-            } catch {
-                returnError = .deleteSettings(error)
-
-                logger.error(
-                    chainedError: AnyChainedError(error),
-                    message: "Failed to delete settings from keychain."
-                )
-            }
-        } catch {
-            returnError = .readSettings(error)
-
-            logger.error(
-                chainedError: AnyChainedError(error),
-                message: "Unexpected error when reading settings."
-            )
-        }
+        let settingsResult = readSettings()
+        let deviceStateResult = readDeviceState()
 
         let tunnel = tunnels?.first.map { tunnelProvider in
             return Tunnel(tunnelProvider: tunnelProvider)
         }
 
-        if let tunnelSettings = tunnelSettings {
-            state.tunnelSettings = tunnelSettings
-            state.setTunnel(tunnel, shouldRefreshTunnelState: true)
-            state.isLoadedConfiguration = true
+        let settings = settingsResult.flattenValue()
+        let deviceState = deviceStateResult.flattenValue()
 
-            finish(completion: .success(()))
-        } else {
-            let onFinish = {
-                self.state.tunnelSettings = nil
-                self.state.setTunnel(nil, shouldRefreshTunnelState: true)
-                self.state.isLoadedConfiguration = returnError == nil
+        interactor.setSettings(settings ?? TunnelSettingsV2(), persist: false)
+        interactor.setDeviceState(deviceState ?? .loggedOut, persist: false)
 
-                self.finish(completion: returnError.map { .failure($0) } ?? .success(()))
-            }
+        if let tunnel = tunnel, deviceState == nil {
+            logger.debug("Remove orphaned VPN configuration.")
 
-            if let tunnel = tunnel {
-                logger.debug("Remove orphaned VPN configuration.")
-
-                tunnel.removeFromPreferences { error in
-                    self.dispatchQueue.async {
-                        if let error = error {
-                            self.logger.error(
-                                chainedError: AnyChainedError(error),
-                                message: "Failed to remove VPN configuration."
-                            )
-                        }
-                        onFinish()
-                    }
+            tunnel.removeFromPreferences { error in
+                if let error = error {
+                    self.logger.error(
+                        chainedError: AnyChainedError(error),
+                        message: "Failed to remove VPN configuration."
+                    )
                 }
-            } else {
-                onFinish()
+                self.finishOperation(tunnel: nil)
             }
+        } else {
+            finishOperation(tunnel: tunnel)
         }
+    }
+    private func finishOperation(tunnel: Tunnel?) {
+        interactor.setTunnel(tunnel, shouldRefreshTunnelState: true)
+        interactor.setConfigurationLoaded()
+
+        finish(completion: .success(()))
+    }
+
+    private func readSettings() -> Result<TunnelSettingsV2?, Error> {
+        return Result { try SettingsManager.readSettings() }
+            .flatMapError { error in
+                if let error = error as? KeychainError, error == .itemNotFound {
+                    logger.debug("Settings not found in keychain.")
+
+                    return .success(nil)
+                } else if let error = error as? DecodingError {
+                    logger.error(
+                        chainedError: AnyChainedError(error),
+                        message: "Cannot decode settings. Will attempt to delete them from keychain."
+                    )
+
+                    return Result { try SettingsManager.deleteSettings() }
+                        .mapError { error in
+                            logger.error(
+                                chainedError: AnyChainedError(error),
+                                message: "Failed to delete settings from keychain."
+                            )
+
+                            return error
+                        }
+                        .map { _ in
+                            return nil
+                        }
+                } else {
+                    return .failure(error)
+                }
+            }
+    }
+
+    private func readDeviceState() -> Result<DeviceState?, Error> {
+        return Result { try SettingsManager.readDeviceState() }
+            .flatMapError { error in
+                if let error = error as? KeychainError, error == .itemNotFound {
+                    logger.debug("Device state not found in keychain.")
+
+                    return .success(nil)
+                } else if let error = error as? DecodingError {
+                    logger.error(
+                        chainedError: AnyChainedError(error),
+                        message: "Cannot decode device state. Will attempt to delete it from keychain."
+                    )
+
+                    return Result { try SettingsManager.deleteDeviceState() }
+                        .mapError { error in
+                            logger.error(
+                                chainedError: AnyChainedError(error),
+                                message: "Failed to delete device state from keychain."
+                            )
+
+                            return error
+                        }
+                        .map { _ in
+                            return nil
+                        }
+                } else {
+                    return .failure(error)
+                }
+            }
     }
 }

@@ -39,7 +39,7 @@ class SceneDelegate: UIResponder {
         window?.makeKeyAndVisible()
 
         TunnelManager.shared.addObserver(self)
-        if TunnelManager.shared.isLoadedConfiguration {
+        if TunnelManager.shared.isConfigurationLoaded {
             configureScene()
         }
     }
@@ -207,9 +207,9 @@ extension SceneDelegate: RootContainerViewControllerDelegate {
     }
 
     func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController) -> Bool {
-        guard TunnelManager.shared.isAccountSet else { return false }
+        guard TunnelManager.shared.deviceState.isLoggedIn else { return false }
 
-        switch TunnelManager.shared.tunnelState {
+        switch TunnelManager.shared.tunnelStatus.state {
         case .connected, .connecting, .reconnecting:
             TunnelManager.shared.reconnectTunnel(selectNewRelay: true)
         case .disconnecting, .disconnected:
@@ -240,7 +240,9 @@ extension SceneDelegate {
         self.connectController = connectController
 
         rootContainer.setViewControllers([splitViewController], animated: false)
-        showSplitViewMaster(TunnelManager.shared.isAccountSet, animated: false)
+        showSplitViewMaster(TunnelManager.shared.deviceState.isLoggedIn, animated: false)
+
+        // TODO: handle revoked state!
 
         let rootContainerWrapper = makeLoginContainerController()
 
@@ -248,7 +250,7 @@ extension SceneDelegate {
             let termsOfServiceViewController = self.makeTermsOfServiceController { [weak self] viewController in
                 guard let self = self else { return }
 
-                if TunnelManager.shared.isAccountSet {
+                if TunnelManager.shared.deviceState.isLoggedIn {
                     rootContainerWrapper.dismiss(animated: true) {
                         self.showAccountSettingsControllerIfAccountExpired()
                     }
@@ -258,7 +260,7 @@ extension SceneDelegate {
             }
             rootContainerWrapper.setViewControllers([termsOfServiceViewController], animated: false)
             rootContainer.present(rootContainerWrapper, animated: false)
-        } else if !TunnelManager.shared.isAccountSet {
+        } else if !TunnelManager.shared.deviceState.isLoggedIn {
             rootContainerWrapper.setViewControllers([makeLoginController()], animated: false)
             rootContainer.present(rootContainerWrapper, animated: false)
         } else {
@@ -273,10 +275,17 @@ extension SceneDelegate {
             let loginViewController = self.makeLoginController()
             var viewControllers: [UIViewController] = [loginViewController]
 
-            if TunnelManager.shared.isAccountSet {
+            switch TunnelManager.shared.deviceState {
+            case .loggedIn:
                 let connectController = self.makeConnectViewController()
                 viewControllers.append(connectController)
                 self.connectController = connectController
+
+            case .loggedOut:
+                break
+
+            case .revoked:
+                viewControllers.append(self.makeRevokedDeviceController())
             }
 
             self.rootContainer.setViewControllers(viewControllers, animated: animated) {
@@ -328,14 +337,13 @@ extension SceneDelegate {
             selectLocationController.setCachedRelays(cachedRelays)
         }
 
-        let relayConstraints = TunnelManager.shared.tunnelSettings?.relayConstraints
-        if let relayLocation = relayConstraints?.location.value {
-            selectLocationController.setSelectedRelayLocation(
-                relayLocation,
-                animated: false,
-                scrollPosition: .middle
-            )
-        }
+        let relayConstraints = TunnelManager.shared.settings.relayConstraints
+
+        selectLocationController.setSelectedRelayLocation(
+            relayConstraints.location.value,
+            animated: false,
+            scrollPosition: .middle
+        )
 
         return selectLocationController
     }
@@ -379,6 +387,12 @@ extension SceneDelegate {
         return rootContainerWrapper
     }
 
+    private func makeRevokedDeviceController() -> RevokedDeviceViewController {
+        let controller = RevokedDeviceViewController()
+        controller.delegate = self
+        return controller
+    }
+
     private func makeLoginController() -> LoginViewController {
         let controller = LoginViewController()
         controller.delegate = self
@@ -386,14 +400,48 @@ extension SceneDelegate {
     }
 
     private func showAccountSettingsControllerIfAccountExpired() {
-        guard let accountExpiry = TunnelManager.shared.accountExpiry, accountExpiry <= Date() else { return }
+        guard case .loggedIn(let accountData, _) = TunnelManager.shared.deviceState else {
+            return
+        }
 
-        rootContainer.showSettings(navigateTo: .account, animated: true)
+        if accountData.expiry <= Date() {
+            rootContainer.showSettings(navigateTo: .account, animated: true)
+        }
     }
 
     private func showSplitViewMaster(_ show: Bool, animated: Bool) {
         splitViewController?.preferredDisplayMode = show ? .allVisible : .primaryHidden
         connectController?.setMainContentHidden(!show, animated: animated)
+    }
+
+    private func showLoginViewAfterLogout(dismissController: UIViewController?) {
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+            let loginController = rootContainer.viewControllers.first as? LoginViewController
+            loginController?.reset()
+
+            rootContainer.popToRootViewController(animated: false)
+            dismissController?.dismiss(animated: true)
+
+        case .pad:
+            let loginContainer = makeLoginContainerController()
+            loginContainer.setViewControllers([makeLoginController()], animated: false)
+
+            let presentLogin = {
+                self.rootContainer.present(loginContainer, animated: true)
+            }
+
+            showSplitViewMaster(false, animated: true)
+
+            if let dismissController = dismissController {
+                dismissController.dismiss(animated: true, completion: presentLogin)
+            } else {
+                presentLogin()
+            }
+
+        default:
+            fatalError()
+        }
     }
 }
 
@@ -401,7 +449,7 @@ extension SceneDelegate {
 
 extension SceneDelegate: LoginViewControllerDelegate {
 
-    func loginViewController(_ controller: LoginViewController, loginWithAccountToken accountNumber: String, completion: @escaping (OperationCompletion<StoredAccountData?, TunnelManager.Error>) -> Void) {
+    func loginViewController(_ controller: LoginViewController, loginWithAccountToken accountNumber: String, completion: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void) {
         rootContainer.setEnableSettingsButton(false)
 
         TunnelManager.shared.setAccount(action: .existing(accountNumber)) { operationCompletion in
@@ -411,7 +459,10 @@ extension SceneDelegate: LoginViewControllerDelegate {
                 // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
 
             case .failure(let error):
-                self.logger.error(chainedError: error, message: "Failed to log in with existing account.")
+                self.logger.error(
+                    chainedError: AnyChainedError(error),
+                    message: "Failed to log in with existing account."
+                )
                 fallthrough
 
             case .cancelled:
@@ -422,7 +473,7 @@ extension SceneDelegate: LoginViewControllerDelegate {
         }
     }
 
-    func loginViewControllerLoginWithNewAccount(_ controller: LoginViewController, completion: @escaping (OperationCompletion<StoredAccountData?, TunnelManager.Error>) -> Void) {
+    func loginViewControllerLoginWithNewAccount(_ controller: LoginViewController, completion: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void) {
         rootContainer.setEnableSettingsButton(false)
 
         TunnelManager.shared.setAccount(action: .new) { operationCompletion in
@@ -432,7 +483,10 @@ extension SceneDelegate: LoginViewControllerDelegate {
                 // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
 
             case .failure(let error):
-                self.logger.error(chainedError: error, message: "Failed to log in with new account.")
+                self.logger.error(
+                    chainedError: AnyChainedError(error),
+                    message: "Failed to log in with new account."
+                )
                 fallthrough
 
             case .cancelled:
@@ -449,9 +503,9 @@ extension SceneDelegate: LoginViewControllerDelegate {
         // Move the settings button back into header bar
         rootContainer.removeSettingsButtonFromPresentationContainer()
 
-        let relayConstraints = TunnelManager.shared.tunnelSettings?.relayConstraints
+        let relayConstraints = TunnelManager.shared.settings.relayConstraints
         self.selectLocationViewController?.setSelectedRelayLocation(
-            relayConstraints?.location.value,
+            relayConstraints.location.value,
             animated: false,
             scrollPosition: .middle
         )
@@ -484,34 +538,11 @@ extension SceneDelegate: LoginViewControllerDelegate {
 extension SceneDelegate: SettingsNavigationControllerDelegate {
 
     func settingsNavigationController(_ controller: SettingsNavigationController, didFinishWithReason reason: SettingsDismissReason) {
-        switch UIDevice.current.userInterfaceIdiom {
-        case .phone:
-            if case .userLoggedOut = reason {
-                rootContainer.popToRootViewController(animated: false)
-
-                let loginController = rootContainer.topViewController as? LoginViewController
-
-                loginController?.reset()
-            }
+        if case .userLoggedOut = reason {
+            showLoginViewAfterLogout(dismissController: controller)
+        } else {
             controller.dismiss(animated: true)
-
-        case .pad:
-            if case .userLoggedOut = reason {
-                self.showSplitViewMaster(false, animated: true)
-            }
-
-            controller.dismiss(animated: true) {
-                if case .userLoggedOut = reason {
-                    let rootContainerWrapper = self.makeLoginContainerController()
-                    rootContainerWrapper.setViewControllers([self.makeLoginController()], animated: false)
-                    self.rootContainer.present(rootContainerWrapper, animated: true)
-                }
-            }
-
-        default:
-            fatalError()
         }
-
     }
 
 }
@@ -565,14 +596,18 @@ extension SceneDelegate: SelectLocationViewControllerDelegate {
     private func selectLocationControllerDidSelectRelayLocation(_ relayLocation: RelayLocation) {
         let relayConstraints = RelayConstraints(location: .only(relayLocation))
 
-        TunnelManager.shared.setRelayConstraints(relayConstraints) { error in
-            if let error = error {
-                self.logger.error(chainedError: error, message: "Failed to update relay constraints")
-            } else {
-                self.logger.debug("Updated relay constraints: \(relayConstraints)")
+        TunnelManager.shared.setRelayConstraints(relayConstraints) {
+            TunnelManager.shared.startTunnel()
+        }
+    }
+}
 
-                TunnelManager.shared.startTunnel()
-            }
+// MARK: - RevokedDeviceViewControllerDelegate
+
+extension SceneDelegate: RevokedDeviceViewControllerDelegate {
+    func revokedDeviceControllerDidRequestLogout(_ controller: RevokedDeviceViewController) {
+        TunnelManager.shared.unsetAccount { [weak self] in
+            self?.showLoginViewAfterLogout(dismissController: nil)
         }
     }
 }
@@ -640,11 +675,37 @@ extension SceneDelegate: TunnelObserver {
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
+        guard deviceState == .revoked else { return }
+
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+            guard let loginController = rootContainer.viewControllers.first as? LoginViewController else {
+                return
+            }
+
+            loginController.reset()
+
+            let viewControllers = [
+                loginController,
+                makeRevokedDeviceController()
+            ]
+
+            rootContainer.setViewControllers(viewControllers, animated: true)
+
+        case .pad:
+            break
+
+        default:
+            fatalError()
+        }
+    }
+
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
         // no-op
     }
 }
@@ -654,9 +715,7 @@ extension SceneDelegate: TunnelObserver {
 extension SceneDelegate: RelayCacheObserver {
 
     func relayCache(_ relayCache: RelayCache.Tracker, didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays) {
-        DispatchQueue.main.async {
-            self.selectLocationViewController?.setCachedRelays(cachedRelays)
-        }
+        selectLocationViewController?.setCachedRelays(cachedRelays)
     }
 
 }
