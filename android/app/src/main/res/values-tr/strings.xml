@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">bir dakikadan az</string>
     <string name="local_network_sharing">Yerel ağ paylaşımı</string>
     <string name="log_out">Oturumu kapat</string>
+    <string name="logged_in_description">Geçerli hesap numarası</string>
     <string name="logged_in_title">Oturum açıldı</string>
     <string name="logging_in_description">Hesap numarası kontrol ediliyor</string>
     <string name="logging_in_title">Oturum açılıyor...</string>

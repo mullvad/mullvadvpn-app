@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">alle minuutti sitten</string>
     <string name="local_network_sharing">Paikallisen verkon jakaminen</string>
     <string name="log_out">Kirjaudu ulos</string>
+    <string name="logged_in_description">Oikea tilin numero</string>
     <string name="logged_in_title">Kirjautuneena sisään</string>
     <string name="logging_in_description">Tarkistetaan tilin numeroa</string>
     <string name="logging_in_title">Kirjaudutaan sisään...</string>

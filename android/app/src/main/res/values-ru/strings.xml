@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">менее минуты назад</string>
     <string name="local_network_sharing">Обмен данными в локальной сети</string>
     <string name="log_out">Выйти</string>
+    <string name="logged_in_description">Действительный номер учетной записи</string>
     <string name="logged_in_title">Вход выполнен</string>
     <string name="logging_in_description">Проверка номера учетной записи</string>
     <string name="logging_in_title">Выполняется вход...</string>

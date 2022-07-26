@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">不到 1 分鐘前</string>
     <string name="local_network_sharing">本機網路分享</string>
     <string name="log_out">登出</string>
+    <string name="logged_in_description">有效帳號</string>
     <string name="logged_in_title">已登入</string>
     <string name="logging_in_description">檢查帳號中</string>
     <string name="logging_in_title">登入中...</string>
