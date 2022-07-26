@@ -143,17 +143,6 @@ open class MainActivity : FragmentActivity() {
         }
     }
 
-    fun returnToLaunchScreen() {
-        supportFragmentManager.apply {
-            popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-
-            beginTransaction().apply {
-                replace(R.id.main_fragment, LaunchFragment())
-                commit()
-            }
-        }
-    }
-
     private fun launchDeviceStateHandler() {
         var currentState: DeviceState? = null
 
