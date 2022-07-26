@@ -34,6 +34,7 @@
     <string name="copied_mullvad_account_number">Mullvad-Kontonummer wurde in die Zwischenablage kopiert</string>
     <string name="copied_to_clipboard">In die Zwischenablage kopiert</string>
     <string name="copied_wireguard_public_key">Der öffentliche WireGuard Schlüssel wurde in die Zwischenablage kopiert</string>
+    <string name="copy_account_number">Kontonummer kopieren</string>
     <string name="create_account">Konto erstellen</string>
     <string name="creating_new_account">Konto wird erstellt ...</string>
     <string name="creating_secure_connection">SICHERE VERBINDUNG WIRD ERSTELLT</string>
@@ -64,6 +65,7 @@
     <string name="foreground_notification_channel_name">Status des VPN-Tunnels</string>
     <string name="go_to_login">Zur Anmeldung</string>
     <string name="here_is_your_account_number">Hier ist Ihre Kontonummer. Verlieren Sie sie nicht!</string>
+    <string name="hide_account_number">Kontonummer verbergen</string>
     <string name="hint_default">Standard</string>
     <string name="in_address">Eingehend</string>
     <string name="invalid_dns_servers">Eigene DNS-Server Adressen %1$s sind ungültig</string>
@@ -114,6 +116,7 @@
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Erweitert</string>
     <string name="settings_preferences">Präferenzen</string>
+    <string name="show_account_number">Kontonummer anzeigen</string>
     <string name="show_system_apps">Systemapps anzeigen</string>
     <string name="split_tunneling_description">Split-Tunnel-Steuerung macht es möglich, auszuwählen, welche Anwendungen nicht durch den VPN-Tunnel geroutet werden.</string>
     <string name="start_tunnel_error">Fehler beim Starten der Tunnel-Verbindung</string>

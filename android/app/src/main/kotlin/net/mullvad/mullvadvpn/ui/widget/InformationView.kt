@@ -1,12 +1,14 @@
 package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
+import android.text.method.TransformationMethod
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 
@@ -41,6 +43,7 @@ open class InformationView : LinearLayout {
     private val description: TextView = findViewById(R.id.description)
     private val informationDisplay: TextView = findViewById(R.id.information_display)
     private val spinner: View = findViewById(R.id.spinner)
+    private val toggleMaskingButton: View = findViewById(R.id.toggle_masking_button)
 
     var error by observable<String?>(null) { _, _, _ -> updateStatus() }
     var information by observable<String?>(null) { _, _, _ -> updateStatus() }
@@ -50,7 +53,6 @@ open class InformationView : LinearLayout {
         updateStatus()
     }
 
-    var displayFormatter by observable<((String) -> String)?>(null) { _, _, _ -> updateStatus() }
     var maxLength by observable(0) { _, _, _ -> updateStatus() }
     var whenMissing by observable(WhenMissing.Nothing) { _, _, _ -> updateStatus() }
 
@@ -58,6 +60,47 @@ open class InformationView : LinearLayout {
 
     var onClick by observable<(() -> Unit)?>(null) { _, _, callback ->
         container.setFocusable(callback != null)
+    }
+
+    sealed class Masking {
+        object None : Masking()
+        data class Hide(val transformationMethod: TransformationMethod) : Masking()
+        data class Show(val transformationMethod: TransformationMethod) : Masking()
+    }
+
+    var informationState by observable<Masking>(Masking.None) { _, _, newState ->
+        when (newState) {
+            is Masking.Hide -> {
+                informationDisplay.transformationMethod = newState.transformationMethod
+
+                toggleMaskingButton.apply {
+                    visibility = VISIBLE
+                    contentDescription = context.getString(R.string.show_account_number)
+                    background = AppCompatResources.getDrawable(context, R.drawable.icon_show)
+                }
+            }
+
+            is Masking.Show -> {
+                informationDisplay.transformationMethod = newState.transformationMethod
+
+                toggleMaskingButton.apply {
+                    visibility = VISIBLE
+                    contentDescription = context.getString(R.string.hide_account_number)
+                    background = AppCompatResources.getDrawable(context, R.drawable.icon_hide)
+                }
+            }
+
+            is Masking.None -> {
+                informationDisplay.transformationMethod = null
+                toggleMaskingButton.visibility = GONE
+            }
+        }
+
+        updateStatus()
+    }
+
+    var onToggleMaskingClicked by observable<(() -> Unit)?>(null) { _, _, callback ->
+        toggleMaskingButton.setOnClickListener { callback?.invoke() }
     }
 
     constructor(context: Context) : super(context) {}
@@ -125,14 +168,12 @@ open class InformationView : LinearLayout {
             informationDisplay.setTextColor(errorColor)
             informationDisplay.text = error
         } else if (information != null) {
-            val formattedInformation = displayFormatter?.invoke(information) ?: information
-
             informationDisplay.setTextColor(informationColor)
 
-            if (maxLength == 0 || formattedInformation.length <= maxLength) {
-                informationDisplay.text = formattedInformation
+            if (maxLength == 0 || information.length <= maxLength) {
+                informationDisplay.text = information
             } else {
-                informationDisplay.text = formattedInformation.substring(0, maxLength) + "..."
+                informationDisplay.text = information.substring(0, maxLength) + "..."
             }
         }
 

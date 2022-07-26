@@ -4,6 +4,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
+import android.widget.ImageButton
 import android.widget.Toast
 import net.mullvad.mullvadvpn.R
 
@@ -38,6 +40,11 @@ class CopyableInformationView : InformationView {
 
     init {
         onClick = { copyToClipboard() }
+
+        findViewById<ImageButton>(R.id.copy_button).apply {
+            visibility = View.VISIBLE
+            setOnClickListener { copyToClipboard() }
+        }
     }
 
     private fun loadAttributes(attributes: AttributeSet) {
