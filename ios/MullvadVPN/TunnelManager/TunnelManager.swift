@@ -139,10 +139,6 @@ final class TunnelManager {
                 return nil
             }
 
-            if completion.error is RevokedDeviceError {
-                return nil
-            }
-
             // Do not rotate the key if account or device is not found.
             if let restError = completion.error as? REST.Error,
                restError.compareErrorCode(.invalidAccount) ||
@@ -417,9 +413,12 @@ final class TunnelManager {
 
         operation.completionQueue = .main
         operation.completionHandler = { [weak self] completion in
-            if completion.error is RevokedDeviceError {
-                self?.didDetectDeviceRevoked()
+            guard let self = self else { return }
+
+            if let error = completion.error {
+                self.checkIfDeviceRevoked(error)
             }
+
             completionHandler(completion)
         }
 
@@ -465,12 +464,9 @@ final class TunnelManager {
                 }
 
             case .failure(let error):
-                self.logger.error(
-                    chainedError: AnyChainedError(error),
-                    message: "Failed to rotate private key."
-                )
+                self.checkIfDeviceRevoked(error)
 
-                completionHandler(completion)
+                completionHandler(.failure(error))
 
             case .cancelled:
                 completionHandler(completion)
@@ -724,6 +720,12 @@ final class TunnelManager {
         // Cancel last VPN status mapping operation
         lastMapConnectionStatusOperation?.cancel()
         lastMapConnectionStatusOperation = nil
+    }
+
+    private func checkIfDeviceRevoked(_ error: Error) {
+        if let error = error as? REST.Error, error.compareErrorCode(.deviceNotFound) {
+            didDetectDeviceRevoked()
+        }
     }
 
     private func didDetectDeviceRevoked() {

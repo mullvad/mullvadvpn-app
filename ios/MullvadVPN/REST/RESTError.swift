@@ -34,11 +34,11 @@ extension REST {
                 var str = "Failure to handle server response: HTTP/\(statusCode)."
 
                 if let code = serverResponse?.code {
-                    str += " Error code: \(code)."
+                    str += " Error code: \(code.rawValue)."
                 }
 
                 if let detail = serverResponse?.detail {
-                    str += " Detail: \(detail)."
+                    str += " Detail: \(detail)"
                 }
 
                 return str

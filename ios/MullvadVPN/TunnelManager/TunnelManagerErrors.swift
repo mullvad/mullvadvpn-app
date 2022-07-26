@@ -31,17 +31,6 @@ struct InvalidDeviceStateError: LocalizedError {
     }
 }
 
-struct RevokedDeviceError: LocalizedError {
-    var errorDescription: String? {
-        return NSLocalizedString(
-            "REVOKED_DEVICE_ERROR",
-            tableName: "TunnelManager",
-            value: "Device is revoked.",
-            comment: ""
-        )
-    }
-}
-
 struct StartTunnelError: LocalizedError {
     var errorDescription: String? {
         return NSLocalizedString(
