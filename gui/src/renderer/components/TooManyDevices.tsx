@@ -84,11 +84,6 @@ const StyledRemoveDeviceButton = styled.button({
   border: 'none',
 });
 
-const StyledRemoveSpinner = styled(ImageView)({
-  alignSelf: 'center',
-  marginTop: '10px',
-});
-
 export default function TooManyDevices() {
   const history = useHistory();
   const { removeDevice, login, cancelLogin } = useAppContext();
@@ -210,9 +205,9 @@ function Device(props: IDeviceProps) {
 
   const onRemove = useCallback(async () => {
     setDeleting();
+    hideConfirmation();
     try {
       await props.onRemove(props.device.id);
-      hideConfirmation();
     } catch (e) {
       await handleError(e as Error);
     }
@@ -224,22 +219,26 @@ function Device(props: IDeviceProps) {
     <>
       <Cell.Container>
         <StyledDeviceName aria-hidden>{props.device.name}</StyledDeviceName>
-        <StyledRemoveDeviceButton
-          onClick={showConfirmation}
-          aria-label={sprintf(
-            // TRANSLATORS: Button action description provided to accessibility tools such as screen
-            // TRANSLATORS: readers.
-            // TRANSLATORS: Available placeholders:
-            // TRANSLATORS: %(deviceName)s - The device name to remove.
-            messages.pgettext('accessibility', 'Remove device named %(deviceName)s'),
-            { deviceName: props.device.name },
-          )}>
-          <ImageView
-            source="icon-close"
-            tintColor={colors.white40}
-            tintHoverColor={colors.white60}
-          />
-        </StyledRemoveDeviceButton>
+        {deleting ? (
+          <ImageView source="icon-spinner" width={24} />
+        ) : (
+          <StyledRemoveDeviceButton
+            onClick={showConfirmation}
+            aria-label={sprintf(
+              // TRANSLATORS: Button action description provided to accessibility tools such as screen
+              // TRANSLATORS: readers.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(deviceName)s - The device name to remove.
+              messages.pgettext('accessibility', 'Remove device named %(deviceName)s'),
+              { deviceName: props.device.name },
+            )}>
+            <ImageView
+              source="icon-close"
+              tintColor={colors.white40}
+              tintHoverColor={colors.white60}
+            />
+          </StyledRemoveDeviceButton>
+        )}
       </Cell.Container>
       <ModalAlert
         isOpen={confirmationVisible}
@@ -257,37 +256,31 @@ function Device(props: IDeviceProps) {
           </AppButton.BlueButton>,
         ]}
         close={hideConfirmation}>
-        {deleting ? (
-          <StyledRemoveSpinner source="icon-spinner" width={60} />
-        ) : (
-          <>
-            <ModalMessage>
-              {formatMarkdown(
-                sprintf(
-                  // TRANSLATORS: Text displayed above button which logs out another device.
-                  // TRANSLATORS: The text enclosed in "**" will appear bold.
-                  // TRANSLATORS: Available placeholders:
-                  // TRANSLATORS: %(deviceName)s - The name of the device to log out.
-                  messages.pgettext(
-                    'device-management',
-                    'Are you sure you want to log out of **%(deviceName)s**?',
-                  ),
-                  { deviceName: capitalizedDeviceName },
-                ),
-              )}
-            </ModalMessage>
-            {props.device.ports && props.device.ports.length > 0 && (
-              <ModalMessage>
-                {
-                  // TRANSLATORS: Further information about consequences of logging out device.
-                  messages.pgettext(
-                    'device-management',
-                    'This will delete all forwarded ports. Local settings will be saved.',
-                  )
-                }
-              </ModalMessage>
-            )}
-          </>
+        <ModalMessage>
+          {formatMarkdown(
+            sprintf(
+              // TRANSLATORS: Text displayed above button which logs out another device.
+              // TRANSLATORS: The text enclosed in "**" will appear bold.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(deviceName)s - The name of the device to log out.
+              messages.pgettext(
+                'device-management',
+                'Are you sure you want to log out of **%(deviceName)s**?',
+              ),
+              { deviceName: capitalizedDeviceName },
+            ),
+          )}
+        </ModalMessage>
+        {props.device.ports && props.device.ports.length > 0 && (
+          <ModalMessage>
+            {
+              // TRANSLATORS: Further information about consequences of logging out device.
+              messages.pgettext(
+                'device-management',
+                'This will delete all forwarded ports. Local settings will be saved.',
+              )
+            }
+          </ModalMessage>
         )}
       </ModalAlert>
       <ModalAlert
