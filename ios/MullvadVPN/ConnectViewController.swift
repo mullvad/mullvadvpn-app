@@ -25,6 +25,7 @@ protocol ConnectViewControllerDelegate: AnyObject {
 class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainment, TunnelObserver {
 
     private static let geoJSONSourceFileName = "countries.geo.json"
+    private static let locationMarkerReuseIdentifier = "location"
 
     weak var delegate: ConnectViewControllerDelegate?
 
@@ -402,12 +403,11 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         if let polygon = overlay as? MKPolygon {
             let renderer = MKPolygonRenderer(polygon: polygon)
-            renderer.fillColor = UIColor.primaryColor
-            renderer.strokeColor = UIColor.secondaryColor
-            renderer.lineWidth = 1.0
+            renderer.fillColor = .primaryColor
+            renderer.strokeColor = .secondaryColor
+            renderer.lineWidth = 1
             renderer.lineCap = .round
             renderer.lineJoin = .round
-
             return renderer
         }
 
@@ -415,15 +415,18 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             return CustomOverlayRenderer(overlay: tileOverlay)
         }
 
-        fatalError()
+        return MKOverlayRenderer()
     }
 
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if annotation === locationMarker {
-            let view = mapView.dequeueReusableAnnotationView(withIdentifier: "location", for: annotation)
+            let view = mapView.dequeueReusableAnnotationView(
+                withIdentifier: Self.locationMarkerReuseIdentifier,
+                for: annotation
+            )
             view.isDraggable = false
             view.canShowCallout = false
-            view.image = self.locationMarkerSecureImage
+            view.image = UIImage(named: "LocationMarkerSecure")
             return view
         }
         return nil
@@ -437,14 +440,13 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     // MARK: - Private
 
-    private var locationMarkerSecureImage: UIImage {
-        return UIImage(named: "LocationMarkerSecure")!
-    }
-
     private func setupMapView() {
         contentView.mapView.insetsLayoutMarginsFromSafeArea = false
         contentView.mapView.delegate = self
-        contentView.mapView.register(MKAnnotationView.self, forAnnotationViewWithReuseIdentifier: "location")
+        contentView.mapView.register(
+            MKAnnotationView.self,
+            forAnnotationViewWithReuseIdentifier: Self.locationMarkerReuseIdentifier
+        )
 
         if #available(iOS 13.0, *) {
             // Use dark style for the map to dim the map grid
