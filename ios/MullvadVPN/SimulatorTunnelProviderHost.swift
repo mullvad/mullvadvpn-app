@@ -13,13 +13,13 @@ import enum NetworkExtension.NEProviderStopReason
 import Logging
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
+    private var selectorResult: RelaySelectorResult?
 
-    private var tunnelStatus = PacketTunnelStatus(isNetworkReachable: true, connectingDate: nil, tunnelRelay: nil)
     private let providerLogger = Logger(label: "SimulatorTunnelProviderHost")
-    private let stateQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
+    private let dispatchQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
 
     override func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
-        stateQueue.async {
+        dispatchQueue.async {
             var selectorResult: RelaySelectorResult?
 
             do {
@@ -29,79 +29,81 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             } catch {
                 self.providerLogger.error(
                     chainedError: AnyChainedError(error),
-                    message: "Failed to decode relay selector result passed from the app. Will continue by picking new relay."
+                    message: """
+                             Failed to decode relay selector result passed from the app. \
+                             Will continue by picking new relay.
+                             """
                 )
             }
 
-            if selectorResult == nil {
-                selectorResult = self.pickRelay()
+            do {
+                self.selectorResult = try selectorResult ?? self.pickRelay()
+
+                completionHandler(nil)
+            } catch {
+                self.providerLogger.error(
+                    chainedError: AnyChainedError(error),
+                    message: "Failed to pick relay."
+                )
+                completionHandler(error)
             }
-
-            self.tunnelStatus.tunnelRelay = selectorResult?.packetTunnelRelay
-
-            completionHandler(nil)
         }
     }
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
-        stateQueue.async {
-            self.tunnelStatus = PacketTunnelStatus(isNetworkReachable: true, connectingDate: nil, tunnelRelay: nil)
+        dispatchQueue.async {
+            self.selectorResult = nil
 
             completionHandler()
         }
     }
 
     override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
-        stateQueue.async {
-            let request: TunnelIPC.Request
+        dispatchQueue.async {
             do {
-                request = try TunnelIPC.Coding.decodeRequest(messageData)
+                let response = try self.processMessage(messageData)
+
+                completionHandler?(response)
             } catch {
-                self.providerLogger.error(chainedError: AnyChainedError(error), message: "Failed to decode the IPC request.")
+                self.providerLogger.error(
+                    chainedError: AnyChainedError(error),
+                    message: "Failed to handle app message."
+                )
+
                 completionHandler?(nil)
-                return
             }
-
-            var response: Data?
-
-            switch request {
-            case .getTunnelStatus:
-                do {
-                    response = try TunnelIPC.Coding.encodeResponse(self.tunnelStatus)
-                } catch {
-                    self.providerLogger.error(chainedError: AnyChainedError(error), message: "Failed to encode tunnel status IPC response.")
-                }
-
-            case .reloadTunnelSettings:
-                self.reasserting = true
-                self.tunnelStatus.tunnelRelay = self.pickRelay()?.packetTunnelRelay
-                self.reasserting = false
-            }
-
-            completionHandler?(response)
         }
     }
 
-    private func pickRelay() -> RelaySelectorResult? {
-        guard let cachedRelays = try? RelayCache.Tracker.shared.getCachedRelays() else {
-            providerLogger.error("Failed to obtain relays when picking relay.")
+    private func processMessage(_ messageData: Data) throws -> Data? {
+        let message = try TunnelProviderMessage(messageData: messageData)
+
+        switch message {
+        case .getTunnelStatus:
+            var tunnelStatus = PacketTunnelStatus()
+            tunnelStatus.tunnelRelay = self.selectorResult?.packetTunnelRelay
+
+            return try TunnelProviderReply(tunnelStatus).encode()
+
+        case .reconnectTunnel(let aSelectorResult):
+            reasserting = true
+            if let aSelectorResult = aSelectorResult {
+                selectorResult = aSelectorResult
+            }
+            reasserting = false
+
             return nil
         }
+    }
 
-        do {
-            let tunnelSettings = try SettingsManager.readSettings()
+    private func pickRelay() throws -> RelaySelectorResult {
+        let cachedRelays = try RelayCache.Tracker.shared.getCachedRelays()
+        let tunnelSettings = try SettingsManager.readSettings()
 
-            return try RelaySelector.evaluate(
-                relays: cachedRelays.relays,
-                constraints: tunnelSettings.relayConstraints
-            )
-        } catch {
-            providerLogger.error(
-                chainedError: AnyChainedError(error),
-                message: "Failed to read settings when picking relay."
-            )
-            return nil
-        }
+        return try RelaySelector.evaluate(
+            relays: cachedRelays.relays,
+            constraints: tunnelSettings.relayConstraints
+        )
     }
 
 }
