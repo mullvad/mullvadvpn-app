@@ -62,12 +62,10 @@ class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
     }
 
     private func didReceiveRelays(tunnelSettings: TunnelSettingsV2, cachedRelays: RelayCache.CachedRelays) {
-        let selectorResult = RelaySelector.evaluate(
+        guard let selectorResult = try? RelaySelector.evaluate(
             relays: cachedRelays.relays,
             constraints: tunnelSettings.relayConstraints
-        )
-
-        guard let selectorResult = selectorResult else {
+        ) else {
             finish(completion: .failure(.cannotSatisfyRelayConstraints))
             return
         }

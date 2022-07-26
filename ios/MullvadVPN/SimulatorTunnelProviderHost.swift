@@ -91,7 +91,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         do {
             let tunnelSettings = try SettingsManager.readSettings()
 
-            return RelaySelector.evaluate(
+            return try RelaySelector.evaluate(
                 relays: cachedRelays.relays,
                 constraints: tunnelSettings.relayConstraints
             )

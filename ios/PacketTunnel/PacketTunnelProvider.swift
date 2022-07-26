@@ -420,7 +420,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             throw PacketTunnelProviderError.readRelayCache(error)
         }
 
-        if let selectorResult = RelaySelector.evaluate(
+        if let selectorResult = try? RelaySelector.evaluate(
             relays: cachedRelayList.relays,
             constraints: relayConstraints
         ) {
