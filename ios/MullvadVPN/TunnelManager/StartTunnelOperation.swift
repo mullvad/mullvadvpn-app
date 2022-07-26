@@ -45,7 +45,7 @@ class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
             finish(completion: .success(()))
 
         case .disconnected, .pendingReconnect:
-            guard let cachedRelays = RelayCache.Tracker.shared.getCachedRelays() else {
+            guard let cachedRelays = try? RelayCache.Tracker.shared.getCachedRelays() else {
                 finish(completion: .failure(.readRelays))
                 return
             }
