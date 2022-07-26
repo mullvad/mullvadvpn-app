@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.View
 import android.view.View.OnLayoutChangeListener
 import android.view.inputmethod.InputMethodManager
 import android.widget.RelativeLayout
@@ -114,10 +113,6 @@ class AccountLogin : RelativeLayout {
         input.loginState = newState
 
         updateBorder()
-
-        if (newState == LoginState.Success) {
-            visibility = View.INVISIBLE
-        }
     }
 
     var onLogin: ((String) -> Unit)?

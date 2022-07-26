@@ -131,10 +131,15 @@ class AccountInput : LinearLayout {
     }
 
     private fun successState() {
+        input.apply {
+            setTextColor(disabledTextColor)
+            setEnabled(false)
+            setFocusable(false)
+            visibility = View.VISIBLE
+        }
+
         button.visibility = View.GONE
         setButtonEnabled(false)
-
-        input.visibility = View.GONE
     }
 
     private fun failureState() {
