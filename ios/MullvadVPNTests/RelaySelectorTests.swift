@@ -11,27 +11,27 @@ import Network
 
 class RelaySelectorTests: XCTestCase {
 
-    func testCountryConstraint() {
+    func testCountryConstraint() throws {
         let constraints = RelayConstraints(location: .only(.country("es")))
 
-        let result = RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
+        let result = try RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
 
-        XCTAssertEqual(result?.relay.hostname, "es1-wireguard")
+        XCTAssertEqual(result.relay.hostname, "es1-wireguard")
     }
 
-    func testCityConstraint() {
+    func testCityConstraint() throws {
         let constraints = RelayConstraints(location: .only(.city("se", "got")))
-        let result = RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
+        let result = try RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
 
-        XCTAssertEqual(result?.relay.hostname, "se10-wireguard")
+        XCTAssertEqual(result.relay.hostname, "se10-wireguard")
     }
 
-    func testHostnameConstraint() {
+    func testHostnameConstraint() throws {
         let constraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")))
 
-        let result = RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
+        let result = try RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
 
-        XCTAssertEqual(result?.relay.hostname, "se6-wireguard")
+        XCTAssertEqual(result.relay.hostname, "se6-wireguard")
     }
 
 }
