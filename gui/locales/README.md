@@ -38,7 +38,18 @@ This is a folder with gettext translations for Mullvad VPN app.
 
 1. Add the language to `SUPPORTED_LOCALE_LIST` in `app.tsx`.
 
-## Updating translations template
+## Sync localizations
+
+Use the localization script to sync localizations by running the following command from the
+root-directory:
+```
+./scripts/localization sync-local-files
+```
+
+It will sync `messages.pot` with localization strings in the desktop app and Android app to ensure
+all local files are in sync.
+
+## Prepare strings for Crowdin translation
 
 Use the localization script to prepare the pot-files by running the following command from the
 root-directory:
@@ -46,9 +57,8 @@ root-directory:
 ./scripts/localization prepare
 ```
 
-It will update `messages.pot` with localization strings from both the desktop app and Android app,
-and will update `relay-localizations.pot`. The changes to each file will also be committed
-individually.
+It will sync `messages.pot` with localization strings in the desktop app and Android app, and will
+update `relay-localizations.pot`. The changes to each file will also be committed individually.
 
 ## Uploading translations template to Crowdin
 
