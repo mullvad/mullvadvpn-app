@@ -184,6 +184,7 @@
 		587C575326D2615F005EF767 /* PacketTunnelOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587C575226D2615F005EF767 /* PacketTunnelOptions.swift */; };
 		587C575426D2615F005EF767 /* PacketTunnelOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587C575226D2615F005EF767 /* PacketTunnelOptions.swift */; };
 		587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587CBFE222807F530028DED3 /* UIColor+Helpers.swift */; };
+		587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587D9675288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift */; };
 		587DCCEF287D84A500CE821E /* countries.geo.json in Resources */ = {isa = PBXBuildFile; fileRef = 587DCCEE287D84A500CE821E /* countries.geo.json */; };
 		587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */; };
 		587EB67027143B6500123C75 /* DataSourceSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB66F27143B6500123C75 /* DataSourceSnapshot.swift */; };
@@ -479,6 +480,7 @@
 		587B7544266922BF00DEF7E9 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		587C575226D2615F005EF767 /* PacketTunnelOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelOptions.swift; sourceTree = "<group>"; };
 		587CBFE222807F530028DED3 /* UIColor+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Helpers.swift"; sourceTree = "<group>"; };
+		587D9675288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSLayoutConstraint+Helpers.swift"; sourceTree = "<group>"; };
 		587DCCEE287D84A500CE821E /* countries.geo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = countries.geo.json; sourceTree = "<group>"; };
 		587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CharacterSet+IPAddress.swift"; sourceTree = "<group>"; };
 		587EB66F27143B6500123C75 /* DataSourceSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceSnapshot.swift; sourceTree = "<group>"; };
@@ -919,6 +921,7 @@
 				587B7535266528A200DEF7E9 /* NotificationManager.swift */,
 				587B75422669034500DEF7E9 /* Notifications */,
 				584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */,
+				587D9675288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift */,
 				5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */,
 				58CC40EE24A601900019D96E /* ObserverList.swift */,
 				580EE1FF24B3218800F9D8A1 /* Operations */,
@@ -1446,6 +1449,7 @@
 				580F8B8628197958002E0998 /* DNSSettings.swift in Sources */,
 				58FB865526E8BF3100F188BC /* AppStorePaymentManagerError.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
+				587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */,
 				580EE22424B3243100F9D8A1 /* AsyncBlockOperation.swift in Sources */,
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
 				58B9EB152489139B00095626 /* DisplayChainedError.swift in Sources */,

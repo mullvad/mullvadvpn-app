@@ -24,14 +24,12 @@ class SettingsStaticTextFooterView: UITableViewHeaderFooterView {
         contentView.layoutMargins = UIMetrics.settingsCellLayoutMargins
         contentView.addSubview(titleLabel)
 
-        let bottomConstraint = titleLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor)
-        bottomConstraint.priority = .defaultLow
-
         contentView.addConstraints([
             titleLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
-            bottomConstraint
+            titleLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor)
+                .withPriority(.defaultLow)
         ])
     }
 

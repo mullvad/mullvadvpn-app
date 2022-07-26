@@ -198,12 +198,11 @@ class ConnectContentView: UIView {
         case .pad:
             // Max container width is 70% width of iPad in portrait mode
             let maxWidth = min(UIScreen.main.nativeBounds.width * 0.7, UIMetrics.maximumSplitViewContentContainerWidth)
-            let containerWidthConstraint = containerView.widthAnchor.constraint(equalToConstant: maxWidth)
-            containerWidthConstraint.priority = .defaultHigh
 
-            layoutConstraints.append(contentsOf:[
+            layoutConstraints.append(contentsOf: [
                 containerView.trailingAnchor.constraint(lessThanOrEqualTo: layoutMarginsGuide.trailingAnchor),
-                containerWidthConstraint
+                containerView.widthAnchor.constraint(equalToConstant: maxWidth)
+                    .withPriority(.defaultHigh)
             ])
 
         case .phone:
