@@ -129,4 +129,12 @@ enum OperationCompletion<Success, Failure: Error> {
             return error as! NewFailure
         }
     }
+
+    func ignoreOutput() -> OperationCompletion<Void, Failure> {
+        return map { _ in () }
+    }
+
+    func eraseFailureType() -> OperationCompletion<Success, Error> {
+        return mapError { $0 }
+    }
 }
