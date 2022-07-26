@@ -62,6 +62,10 @@ class AsyncOperation: Operation {
     /// Access must be guarded with `stateLock`.
     private var __isCancelled: Bool = false
 
+    /// Backing variable for `error`.
+    /// Access must be guarded with `stateLock`.
+    private var _error: Error?
+
     /// Operation state.
     @objc private var state: State {
         get {
@@ -93,6 +97,19 @@ class AsyncOperation: Operation {
             __isCancelled = newValue
             stateLock.unlock()
             didChangeValue(for: \.isCancelled)
+        }
+    }
+
+    private(set) var error: Error? {
+        get {
+            stateLock.lock()
+            defer { stateLock.unlock() }
+            return _error
+        }
+        set {
+            stateLock.lock()
+            defer { stateLock.unlock() }
+            _error = newValue
         }
     }
 
@@ -323,10 +340,15 @@ class AsyncOperation: Operation {
     }
 
     func finish() {
+        finish(error: nil)
+    }
+
+    func finish(error: Error?) {
         var notifyDidFinish = false
 
         operationLock.lock()
         if state < .finished {
+            self.error = error
             state = .finished
             notifyDidFinish = true
         }
@@ -336,8 +358,9 @@ class AsyncOperation: Operation {
             dispatchQueue.async {
                 self.operationDidFinish()
 
+                let anError = self.error
                 for observer in self.observers {
-                    observer.operationDidFinish(self)
+                    observer.operationDidFinish(self, error: anError)
                 }
             }
         }

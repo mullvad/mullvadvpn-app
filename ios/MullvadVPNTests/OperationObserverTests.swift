@@ -25,7 +25,7 @@ class OperationObserverTests: XCTestCase {
                 expectDidStart.fulfill()
             }, didCancel: { op in
                 expectDidCancel.fulfill()
-            }, didFinish: { op in
+            }, didFinish: { op, error in
                 expectDidFinish.fulfill()
             }
         ))
@@ -52,7 +52,7 @@ class OperationObserverTests: XCTestCase {
                 expectDidStart.fulfill()
             }, didCancel: { op in
                 expectDidCancel.fulfill()
-            }, didFinish: { op in
+            }, didFinish: { op, error in
                 expectDidFinish.fulfill()
             }
         ))
