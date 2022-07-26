@@ -112,7 +112,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        let updateRelaysOperation = ResultBlockOperation<RelayCache.FetchResult, RelayCache.Error>
+        let updateRelaysOperation = ResultBlockOperation<RelayCache.FetchResult, Error>
         { operation in
             let handle = RelayCache.Tracker.shared.updateRelays { completion in
                 operation.finish(completion: completion)
