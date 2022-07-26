@@ -46,6 +46,14 @@ extension REST {
                 return "Failure to decode URL response data."
             }
         }
+
+        func compareErrorCode(_ code: ServerResponseCode) -> Bool {
+            if case .unhandledResponse(_, let serverResponse) = self {
+                return serverResponse?.code == code
+            } else {
+                return false
+            }
+        }
     }
 
     struct ServerErrorResponse: Decodable {
