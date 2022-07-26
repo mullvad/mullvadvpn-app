@@ -13,17 +13,11 @@ import class WireGuardKitTypes.PrivateKey
 import struct WireGuardKitTypes.IPAddressRange
 
 struct TunnelSettingsV2: Codable, Equatable {
-    /// Mullvad account data.
-    var account: StoredAccountData
-
-    /// Device data.
-    var device: StoredDeviceData
-
     /// Relay constraints.
-    var relayConstraints: RelayConstraints
+    var relayConstraints: RelayConstraints = RelayConstraints()
 
     /// DNS settings.
-    var dnsSettings: DNSSettings
+    var dnsSettings: DNSSettings = DNSSettings()
 }
 
 struct StoredAccountData: Codable, Equatable {
@@ -35,6 +29,44 @@ struct StoredAccountData: Codable, Equatable {
 
     /// Account expiry.
     var expiry: Date
+}
+
+enum DeviceState: Codable, Equatable {
+    case loggedIn(StoredAccountData, StoredDeviceData)
+    case loggedOut
+    case revoked
+
+    private enum LoggedInCodableKeys: String, CodingKey {
+        case _0 = "account"
+        case _1 = "device"
+    }
+
+    var isLoggedIn: Bool {
+        switch self {
+        case .loggedIn:
+            return true
+        case .loggedOut, .revoked:
+            return false
+        }
+    }
+
+    var accountData: StoredAccountData? {
+        switch self {
+        case .loggedIn(let accountData, _):
+            return accountData
+        case .loggedOut, .revoked:
+            return nil
+        }
+    }
+
+    var deviceData: StoredDeviceData? {
+        switch self {
+        case .loggedIn(_, let deviceData):
+            return deviceData
+        case .loggedOut, .revoked:
+            return nil
+        }
+    }
 }
 
 struct StoredDeviceData: Codable, Equatable {

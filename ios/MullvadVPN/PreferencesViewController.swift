@@ -11,8 +11,6 @@ import Logging
 
 class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate, TunnelObserver {
 
-    private let logger = Logger(label: "PreferencesViewController")
-
     private let dataSource = PreferencesDataSource()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -47,10 +45,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         navigationItem.rightBarButtonItem = editButtonItem
 
         TunnelManager.shared.addObserver(self)
-
-        if let dnsSettings = TunnelManager.shared.tunnelSettings?.dnsSettings {
-            dataSource.update(from: dnsSettings)
-        }
+        dataSource.update(from: TunnelManager.shared.settings.dnsSettings)
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -73,11 +68,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     func preferencesDataSource(_ dataSource: PreferencesDataSource, didChangeViewModel dataModel: PreferencesViewModel) {
         let dnsSettings = dataModel.asDNSSettings()
 
-        TunnelManager.shared.setDNSSettings(dnsSettings) { [weak self] error in
-            if let error = error {
-                self?.logger.error(chainedError: error, message: "Failed to save DNS settings")
-            }
-        }
+        TunnelManager.shared.setDNSSettings(dnsSettings)
     }
 
     // MARK: - TunnelObserver
@@ -90,14 +81,17 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
-        guard let dnsSettings = tunnelSettings?.dnsSettings else { return }
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+        dataSource.update(from: tunnelSettings.dnsSettings)
+    }
 
-        dataSource.update(from: dnsSettings)
+
+    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
+        // no-op
     }
 
 }

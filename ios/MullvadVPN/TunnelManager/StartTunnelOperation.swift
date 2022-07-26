@@ -8,22 +8,21 @@
 
 import Foundation
 import NetworkExtension
+import Logging
 
-class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
+class StartTunnelOperation: ResultOperation<(), Error> {
     typealias EncodeErrorHandler = (Error) -> Void
 
-    private let state: TunnelManager.State
-    private var encodeErrorHandler: EncodeErrorHandler?
+    private let interactor: TunnelInteractor
+    private let logger = Logger(label: "StartTunnelOperation")
 
     init(
         dispatchQueue: DispatchQueue,
-        state: TunnelManager.State,
-        encodeErrorHandler: @escaping EncodeErrorHandler,
+        interactor: TunnelInteractor,
         completionHandler: @escaping CompletionHandler
     )
     {
-        self.state = state
-        self.encodeErrorHandler = encodeErrorHandler
+        self.interactor = interactor
 
         super.init(
             dispatchQueue: dispatchQueue,
@@ -33,118 +32,119 @@ class StartTunnelOperation: ResultOperation<(), TunnelManager.Error> {
     }
 
     override func main() {
-        guard let tunnelSettings = state.tunnelSettings else {
-            finish(completion: .failure(.unsetAccount))
+        guard case .loggedIn = interactor.deviceState else {
+            finish(completion: .failure(InvalidDeviceStateError()))
             return
         }
 
-        switch state.tunnelStatus.state {
+        switch interactor.tunnelStatus.state {
         case .disconnecting(.nothing):
-            state.tunnelStatus.state = .disconnecting(.reconnect)
+            interactor.updateTunnelState(.disconnecting(.reconnect))
 
             finish(completion: .success(()))
 
         case .disconnected, .pendingReconnect:
-            guard let cachedRelays = try? RelayCache.Tracker.shared.getCachedRelays() else {
-                finish(completion: .failure(.readRelays))
-                return
+            do {
+                let cachedRelays = try RelayCache.Tracker.shared.getCachedRelays()
+                let selectorResult = try RelaySelector.evaluate(
+                    relays: cachedRelays.relays,
+                    constraints: interactor.settings.relayConstraints
+                )
+
+                makeTunnelProviderAndStartTunnel(selectorResult: selectorResult) { error in
+                    self.finish(completion: OperationCompletion(error: error))
+                }
+            } catch {
+                finish(completion: .failure(error))
             }
 
-            didReceiveRelays(
-                tunnelSettings: tunnelSettings,
-                cachedRelays: cachedRelays
-            )
-
         default:
-            // Do not attempt to start the tunnel in all other cases.
             finish(completion: .success(()))
         }
     }
 
-    private func didReceiveRelays(tunnelSettings: TunnelSettingsV2, cachedRelays: RelayCache.CachedRelays) {
-        guard let selectorResult = try? RelaySelector.evaluate(
-            relays: cachedRelays.relays,
-            constraints: tunnelSettings.relayConstraints
-        ) else {
-            finish(completion: .failure(.cannotSatisfyRelayConstraints))
-            return
-        }
-
-        Self.makeTunnelProvider { makeTunnelProviderResult in
+    private func makeTunnelProviderAndStartTunnel(
+        selectorResult: RelaySelectorResult,
+        completionHandler: @escaping (Error?) -> Void
+    ) {
+        Self.makeTunnelProvider { result in
             self.dispatchQueue.async {
-                switch makeTunnelProviderResult {
-                case .success(let tunnelProvider):
-                    let startTunnelResult = Result { try self.startTunnel(tunnelProvider: tunnelProvider, selectorResult: selectorResult) }
-                        .mapError { error -> TunnelManager.Error in
-                            return .startVPNTunnel(error)
-                        }
+                do {
+                    let tunnelProvider = try result.get()
 
-                    self.finish(completion: OperationCompletion(result: startTunnelResult))
+                    try self.startTunnel(
+                        tunnelProvider: tunnelProvider,
+                        selectorResult: selectorResult
+                    )
 
-                case .failure(let error):
-                    self.finish(completion: .failure(error))
+                    completionHandler(nil)
+                } catch {
+                    completionHandler(error)
                 }
             }
         }
     }
 
-    private func startTunnel(tunnelProvider: TunnelProviderManagerType, selectorResult: RelaySelectorResult) throws {
+    private func startTunnel(
+        tunnelProvider: TunnelProviderManagerType,
+        selectorResult: RelaySelectorResult
+    ) throws {
         var tunnelOptions = PacketTunnelOptions()
 
         do {
             try tunnelOptions.setSelectorResult(selectorResult)
         } catch {
-            encodeErrorHandler?(error)
+            logger.error(
+                chainedError: AnyChainedError(error),
+                message: "Failed to encode the selector result."
+            )
         }
 
-        encodeErrorHandler = nil
-
-        state.setTunnel(Tunnel(tunnelProvider: tunnelProvider), shouldRefreshTunnelState: false)
-        state.tunnelStatus.reset(to: .connecting(selectorResult.packetTunnelRelay))
+        interactor.setTunnel(Tunnel(tunnelProvider: tunnelProvider), shouldRefreshTunnelState: false)
+        interactor.resetTunnelState(to: .connecting(selectorResult.packetTunnelRelay))
 
         try tunnelProvider.connection.startVPNTunnel(options: tunnelOptions.rawOptions())
     }
 
-    private class func makeTunnelProvider(completionHandler: @escaping (Result<TunnelProviderManagerType, TunnelManager.Error>) -> Void) {
+    private class func makeTunnelProvider(completionHandler: @escaping (Result<TunnelProviderManagerType, Error>) -> Void) {
         TunnelProviderManagerType.loadAllFromPreferences { tunnelProviders, error in
             if let error = error {
-                completionHandler(.failure(.loadAllVPNConfigurations(error)))
+                completionHandler(.failure(error))
                 return
             }
 
-            let protocolConfig = NETunnelProviderProtocol()
-            protocolConfig.providerBundleIdentifier = ApplicationConfiguration.packetTunnelExtensionIdentifier
-            protocolConfig.serverAddress = ""
-
             let tunnelProvider = tunnelProviders?.first ?? TunnelProviderManagerType()
-            tunnelProvider.isEnabled = true
-            tunnelProvider.localizedDescription = "WireGuard"
-            tunnelProvider.protocolConfiguration = protocolConfig
 
-            // Enable on-demand VPN, always connect the tunnel when on Wi-Fi or cellular.
-            let alwaysOnRule = NEOnDemandRuleConnect()
-            alwaysOnRule.interfaceTypeMatch = .any
-            tunnelProvider.onDemandRules = [alwaysOnRule]
-            tunnelProvider.isOnDemandEnabled = true
+            configureTunnelProvider(tunnelProvider)
 
             tunnelProvider.saveToPreferences { error in
                 if let error = error {
-                    completionHandler(.failure(.saveVPNConfiguration(error)))
-                    return
-                }
-
-                // Refresh connection status after saving the tunnel preferences.
-                // Basically it's only necessary to do for new instances of
-                // `NETunnelProviderManager`, but we do that for the existing ones too
-                // for simplicity as it has no side effects.
-                tunnelProvider.loadFromPreferences { error in
-                    if let error = error {
-                        completionHandler(.failure(.reloadVPNConfiguration(error)))
-                    } else {
-                        completionHandler(.success(tunnelProvider))
+                    completionHandler(.failure(error))
+                } else {
+                    // Refresh connection status after saving the tunnel preferences.
+                    // Basically it's only necessary to do for new instances of
+                    // `NETunnelProviderManager`, but we do that for the existing ones too
+                    // for simplicity as it has no side effects.
+                    tunnelProvider.loadFromPreferences { error in
+                        completionHandler(error.map { .failure($0) } ?? .success(tunnelProvider))
                     }
                 }
             }
         }
+    }
+
+    private class func configureTunnelProvider(_ tunnelProvider: TunnelProviderManagerType) {
+        let protocolConfig = NETunnelProviderProtocol()
+        protocolConfig.providerBundleIdentifier = ApplicationConfiguration.packetTunnelExtensionIdentifier
+        protocolConfig.serverAddress = ""
+
+        tunnelProvider.isEnabled = true
+        tunnelProvider.localizedDescription = "WireGuard"
+        tunnelProvider.protocolConfiguration = protocolConfig
+
+        let alwaysOnRule = NEOnDemandRuleConnect()
+        alwaysOnRule.interfaceTypeMatch = .any
+        tunnelProvider.onDemandRules = [alwaysOnRule]
+        tunnelProvider.isOnDemandEnabled = true
     }
 }

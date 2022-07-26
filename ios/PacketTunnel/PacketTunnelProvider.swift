@@ -334,6 +334,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private func makeConfiguration(_ appSelectorResult: RelaySelectorResult? = nil)
         throws -> PacketTunnelConfiguration
     {
+        let deviceState = try SettingsManager.readDeviceState()
         let tunnelSettings = try SettingsManager.readSettings()
         let selectorResult = try appSelectorResult
             ?? Self.selectRelayEndpoint(
@@ -341,6 +342,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             )
 
         return PacketTunnelConfiguration(
+            deviceState: deviceState,
             tunnelSettings: tunnelSettings,
             selectorResult: selectorResult
         )

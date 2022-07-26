@@ -16,19 +16,22 @@ class TunnelErrorNotificationProvider: NotificationProvider, InAppNotificationPr
     var notificationDescriptor: InAppNotificationDescriptor? {
         guard let lastError = lastError else { return nil }
 
+        let body = (lastError as? LocalizedNotificationError)?.localizedNotificationBody
+            ?? lastError.localizedDescription
+
         return InAppNotificationDescriptor(
             identifier: identifier,
             style: .error,
             title: NSLocalizedString(
                 "TUNNEL_ERROR_INAPP_NOTIFICATION_TITLE",
-                value: "Tunnel error",
+                value: "TUNNEL ERROR",
                 comment: ""
             ),
-            body: lastError.errorChainDescription ?? "No error description provided."
+            body: body
         )
     }
 
-    private var lastError: TunnelManager.Error?
+    private var lastError: Error?
 
     override init() {
         super.init()
@@ -52,17 +55,49 @@ class TunnelErrorNotificationProvider: NotificationProvider, InAppNotificationPr
         invalidate()
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
+        // no-op
+    }
+
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
         // Save tunnel error
         lastError = error
 
         // Tell manager to refresh displayed notifications
         invalidate()
     }
+}
 
+protocol LocalizedNotificationError {
+    var localizedNotificationBody: String? { get }
+}
 
+extension StartTunnelError: LocalizedNotificationError {
+    var localizedNotificationBody: String? {
+        return String(
+            format: NSLocalizedString(
+                "START_TUNNEL_ERROR_INAPP_NOTIFICATION_BODY",
+                value: "Failed to start the tunnel: %@.",
+                comment: ""
+            ),
+            underlyingError.localizedDescription
+        )
+    }
+}
+
+extension StopTunnelError: LocalizedNotificationError {
+    var localizedNotificationBody: String? {
+        return String(
+            format: NSLocalizedString(
+                "STOP_TUNNEL_ERROR_INAPP_NOTIFICATION_BODY",
+                value: "Failed to stop the tunnel: %@.",
+                comment: ""
+            ),
+            underlyingError.localizedDescription
+        )
+    }
 }

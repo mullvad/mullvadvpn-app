@@ -200,13 +200,13 @@ class MigrateSettingsOperation: AsyncOperation {
         logger.debug("Store new settings...")
 
         // Create new settings.
-        let newSettings = TunnelSettingsV2(
-            account: StoredAccountData(
+        let newDeviceState = DeviceState.loggedIn(
+            StoredAccountData(
                 identifier: accountData.id,
                 number: settings.accountNumber,
                 expiry: accountData.expiry
             ),
-            device: StoredDeviceData(
+            StoredDeviceData(
                 creationDate: device.created,
                 identifier: device.id,
                 name: device.name,
@@ -217,7 +217,10 @@ class MigrateSettingsOperation: AsyncOperation {
                     creationDate: privateKeyWithMetadata.creationDate,
                     privateKey: privateKeyWithMetadata.privateKey
                 )
-            ),
+            )
+        )
+
+        let newSettings = TunnelSettingsV2(
             relayConstraints: tunnelSettings.relayConstraints,
             dnsSettings: interfaceData.dnsSettings
         )
@@ -225,6 +228,7 @@ class MigrateSettingsOperation: AsyncOperation {
         // Save settings.
         do {
             try SettingsManager.writeSettings(newSettings)
+            try SettingsManager.writeDeviceState(newDeviceState)
         } catch {
             logger.error(
                 chainedError: AnyChainedError(error),

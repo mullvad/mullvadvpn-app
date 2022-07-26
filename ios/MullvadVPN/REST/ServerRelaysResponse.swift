@@ -18,7 +18,7 @@ extension REST {
         let longitude: Double
     }
 
-    struct ServerRelay: Codable {
+    struct ServerRelay: Codable, Equatable {
         let hostname: String
         let active: Bool
         let owned: Bool

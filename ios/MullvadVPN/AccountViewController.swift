@@ -25,7 +25,6 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     private var pendingPayment: SKPayment?
     private let alertPresenter = AlertPresenter()
-    private let logger = Logger(label: "AccountViewController")
 
     weak var delegate: AccountViewControllerDelegate?
 
@@ -84,7 +83,6 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             comment: ""
         )
 
-        contentView.accountTokenRowView.accountNumber = TunnelManager.shared.accountNumber
         contentView.accountTokenRowView.copyAccountNumber = { [weak self] in
             self?.copyAccountToken()
         }
@@ -96,8 +94,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         AppStorePaymentManager.shared.addPaymentObserver(self)
         TunnelManager.shared.addObserver(self)
 
-        updateAccountExpiry(expiryDate: TunnelManager.shared.accountExpiry)
-        updateDeviceName(TunnelManager.shared.device?.name)
+        updateView(from: TunnelManager.shared.deviceState)
 
         // Make sure to disable IAPs when payments are restricted
         if AppStorePaymentManager.canMakePayments {
@@ -109,12 +106,14 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     // MARK: - Private methods
 
-    private func updateDeviceName(_ deviceName: String?) {
-        contentView.accountDeviceRow.deviceName = deviceName
-    }
+    private func updateView(from deviceState: DeviceState?) {
+        guard case .loggedIn(let accountData, let deviceData) = deviceState else {
+            return
+        }
 
-    private func updateAccountExpiry(expiryDate: Date?) {
-        contentView.accountExpiryRowView.value = expiryDate
+        contentView.accountDeviceRow.deviceName = deviceData.name
+        contentView.accountTokenRowView.accountNumber = accountData.number
+        contentView.accountExpiryRowView.value = accountData.expiry
     }
 
     private func requestStoreProducts() {
@@ -320,17 +319,16 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
-        guard let tunnelSettings = tunnelSettings else {
-            return
-        }
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+        // no-op
+    }
 
-        updateDeviceName(tunnelSettings.device.name)
-        updateAccountExpiry(expiryDate: tunnelSettings.account.expiry)
+    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
+        updateView(from: deviceState)
     }
 
     // MARK: - AppStorePaymentObserver
@@ -384,26 +382,35 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
     }
 
     private func copyAccountToken() {
-        UIPasteboard.general.string = TunnelManager.shared.accountNumber
+        guard let accountData = TunnelManager.shared.deviceState.accountData else {
+            return
+        }
+
+        UIPasteboard.general.string = accountData.number
     }
 
     @objc private func doPurchase() {
-        guard let product = product, let accountNumber = TunnelManager.shared.accountNumber else { return }
+        guard let accountData = TunnelManager.shared.deviceState.accountData,
+              let product = product else {
+            return
+        }
 
         let payment = SKPayment(product: product)
 
         pendingPayment = payment
         compoundInteractionRestriction.increase(animated: true)
 
-        AppStorePaymentManager.shared.addPayment(payment, for: accountNumber)
+        AppStorePaymentManager.shared.addPayment(payment, for: accountData.number)
     }
 
     @objc private func restorePurchases() {
-        guard let accountNumber = TunnelManager.shared.accountNumber  else { return }
+        guard let accountData = TunnelManager.shared.deviceState.accountData else {
+            return
+        }
 
         compoundInteractionRestriction.increase(animated: true)
 
-        _ = AppStorePaymentManager.shared.restorePurchases(for: accountNumber) { completion in
+        _ = AppStorePaymentManager.shared.restorePurchases(for: accountData.number) { completion in
             switch completion {
             case .success(let response):
                 self.showTimeAddedConfirmationAlert(with: response, context: .restoration)

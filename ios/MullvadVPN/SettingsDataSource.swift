@@ -67,7 +67,7 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
         super.init()
 
         TunnelManager.shared.addObserver(self)
-        storedAccountData = TunnelManager.shared.tunnelSettings?.account
+        storedAccountData = TunnelManager.shared.deviceState.accountData
 
         updateDataSnapshot()
     }
@@ -85,7 +85,7 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
     private func updateDataSnapshot() {
         var newSnapshot = DataSourceSnapshot<Section, Item>()
 
-        if TunnelManager.shared.isAccountSet {
+        if TunnelManager.shared.deviceState.isLoggedIn {
             newSnapshot.appendSections([.main])
             newSnapshot.appendItems([.account, .preferences, .wireguardKey], in: .main)
         }
@@ -121,7 +121,7 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
                 value: "Account",
                 comment: ""
             )
-            cell.accountExpiryDate = TunnelManager.shared.accountExpiry
+            cell.accountExpiryDate = TunnelManager.shared.deviceState.accountData?.expiry
             cell.accessibilityIdentifier = "AccountCell"
             cell.disclosureType = .chevron
 
@@ -238,7 +238,7 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
         // no-op
     }
 
@@ -246,8 +246,8 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
-        let newAccountData = tunnelSettings?.account
+    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
+        let newAccountData = deviceState.accountData
         let oldAccountData = storedAccountData
 
         storedAccountData = newAccountData
@@ -266,5 +266,9 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
 
         updateDataSnapshot()
         tableView?.reloadData()
+    }
+
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+        // no-op
     }
 }

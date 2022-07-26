@@ -27,8 +27,8 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
 
         super.init()
 
-        accountExpiry = TunnelManager.shared.accountExpiry
         TunnelManager.shared.addObserver(self)
+        accountExpiry = TunnelManager.shared.deviceState.accountData?.expiry
     }
 
     private var trigger: UNNotificationTrigger? {
@@ -124,23 +124,31 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         )
     }
 
+    private func invalidate(deviceState: DeviceState) {
+        accountExpiry = deviceState.accountData?.expiry
+        invalidate()
+    }
+
     // MARK: - TunnelObserver
 
     func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
-        // no-op
+        invalidate(deviceState: manager.deviceState)
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
-        accountExpiry = tunnelSettings?.account.expiry
-        invalidate()
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+        // no-op
+    }
+
+    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
+        invalidate(deviceState: manager.deviceState)
     }
 
 }

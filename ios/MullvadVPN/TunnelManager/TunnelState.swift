@@ -91,6 +91,15 @@ enum TunnelState: Equatable, CustomStringConvertible {
             return "reconnecting to \(tunnelRelay.hostname)"
         }
     }
+
+    var isSecured: Bool {
+        switch self {
+        case .reconnecting, .connecting, .connected:
+            return true
+        case .pendingReconnect, .disconnecting, .disconnected:
+            return false
+        }
+    }
 }
 
 /// A enum that describes the action to perform after disconnect

@@ -11,6 +11,7 @@ import WireGuardKit
 import protocol Network.IPAddress
 
 struct PacketTunnelConfiguration {
+    var deviceState: DeviceState
     var tunnelSettings: TunnelSettingsV2
     var selectorResult: RelaySelectorResult
 }
@@ -34,15 +35,19 @@ extension PacketTunnelConfiguration {
             return peerConfig
         }
 
-        var interfaceConfig = InterfaceConfiguration(
-            privateKey: tunnelSettings.device.wgKeyData.privateKey
-        )
+        var interfaceConfig: InterfaceConfiguration
+
+        switch deviceState {
+        case .loggedIn(_, let device):
+            interfaceConfig = InterfaceConfiguration(privateKey: device.wgKeyData.privateKey)
+            interfaceConfig.addresses = [device.ipv4Address, device.ipv6Address]
+            interfaceConfig.dns = dnsServers.map { DNSServer(address: $0) }
+
+        case .loggedOut, .revoked:
+            interfaceConfig = InterfaceConfiguration(privateKey: PrivateKey())
+        }
+
         interfaceConfig.listenPort = 0
-        interfaceConfig.dns = dnsServers.map { DNSServer(address: $0) }
-        interfaceConfig.addresses = [
-            tunnelSettings.device.ipv4Address,
-            tunnelSettings.device.ipv6Address
-        ]
 
         return TunnelConfiguration(name: nil, interface: interfaceConfig, peers: peerConfigs)
     }
