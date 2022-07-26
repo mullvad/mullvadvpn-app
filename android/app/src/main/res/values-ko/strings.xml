@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">1분 이내</string>
     <string name="local_network_sharing">로컬 네트워크 공유</string>
     <string name="log_out">로그아웃</string>
+    <string name="logged_in_description">유효한 계정 번호</string>
     <string name="logged_in_title">다음으로 로그인</string>
     <string name="logging_in_description">계정 번호 확인 중</string>
     <string name="logging_in_title">로그인 중...</string>

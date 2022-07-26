@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">1分未満前</string>
     <string name="local_network_sharing">ローカルネットワーク共有</string>
     <string name="log_out">ログアウト</string>
+    <string name="logged_in_description">有効なアカウント番号</string>
     <string name="logged_in_title">ログインしました</string>
     <string name="logging_in_description">アカウント番号を確認中</string>
     <string name="logging_in_title">ログイン中...</string>

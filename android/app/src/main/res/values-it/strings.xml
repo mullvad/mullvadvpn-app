@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">meno di un minuto fa</string>
     <string name="local_network_sharing">Condivisione rete locale</string>
     <string name="log_out">Esci</string>
+    <string name="logged_in_description">Numero di account valido</string>
     <string name="logged_in_title">Accesso effettuato</string>
     <string name="logging_in_description">Verifica numero di account</string>
     <string name="logging_in_title">Accesso...</string>

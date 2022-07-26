@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">vor weniger als einer Minute</string>
     <string name="local_network_sharing">Teilen im lokalen Netzwerk</string>
     <string name="log_out">Abmelden</string>
+    <string name="logged_in_description">Gültige Kontonummer</string>
     <string name="logged_in_title">Angemeldet</string>
     <string name="logging_in_description">Ihre Kontonummer wird geprüft</string>
     <string name="logging_in_title">Anmeldung läuft...</string>

@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">mindre enn ett minutt siden</string>
     <string name="local_network_sharing">Deling over lokalt nettverk</string>
     <string name="log_out">Logg ut</string>
+    <string name="logged_in_description">Gyldig kontonummer</string>
     <string name="logged_in_title">Du er logget inn</string>
     <string name="logging_in_description">Kontrollerer kontonummer</string>
     <string name="logging_in_title">Logger inn ...</string>

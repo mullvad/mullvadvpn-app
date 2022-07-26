@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">น้อยกว่าหนึ่งนาทีก่อน</string>
     <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
     <string name="log_out">ลงชื่อออก</string>
+    <string name="logged_in_description">หมายเลขบัญชีที่ถูกต้อง</string>
     <string name="logged_in_title">เข้าสู่ระบบแล้ว</string>
     <string name="logging_in_description">กำลังตรวจสอบหมายเลขบัญชี</string>
     <string name="logging_in_title">กำลังเข้าสู่ระบบ...</string>

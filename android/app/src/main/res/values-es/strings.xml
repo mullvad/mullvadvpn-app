@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">hace menos de un minuto</string>
     <string name="local_network_sharing">Uso compartido de la red local</string>
     <string name="log_out">Cerrar sesión</string>
+    <string name="logged_in_description">Número de cuenta válido</string>
     <string name="logged_in_title">Sesión iniciada</string>
     <string name="logging_in_description">Comprobando número de cuenta</string>
     <string name="logging_in_title">Iniciando la sesión…</string>

@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">လွန်ခဲ့သော စက္ကန့်ပိုင်း</string>
     <string name="local_network_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
     <string name="log_out">ထွက်ရန်</string>
+    <string name="logged_in_description">မှန်ကန်သည့် အကောင့်နံပါတ်</string>
     <string name="logged_in_title">ဝင်ရောက်ထားပြီး</string>
     <string name="logging_in_description">အကောင့်နံပါတ်ကို စစ်နေပါသည်</string>
     <string name="logging_in_title">ဝင်ရောက်နေဆဲ...</string>

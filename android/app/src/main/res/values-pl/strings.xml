@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">mniej niż minutę temu</string>
     <string name="local_network_sharing">Udostępnianie sieci lokalnej</string>
     <string name="log_out">Wyloguj się</string>
+    <string name="logged_in_description">Prawidłowy numer konta</string>
     <string name="logged_in_title">Zalogowano jako</string>
     <string name="logging_in_description">Sprawdzanie numeru konta</string>
     <string name="logging_in_title">Logowanie...</string>
