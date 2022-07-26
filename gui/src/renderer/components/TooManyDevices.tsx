@@ -98,7 +98,10 @@ export default function TooManyDevices() {
     [removeDevice, accountToken],
   );
 
-  const continueLogin = useCallback(() => login(accountToken), [login, accountToken]);
+  const continueLogin = useCallback(() => {
+    void login(accountToken);
+    history.reset(RoutePath.login, transitions.pop);
+  }, [login, accountToken]);
   const cancel = useCallback(() => {
     cancelLogin();
     history.reset(RoutePath.login, transitions.pop);
