@@ -8,10 +8,6 @@
 
 import Foundation
 
-protocol FallibleOperation {
-    var error: Error? { get }
-}
-
 protocol OperationCondition {
     var name: String { get }
     var isMutuallyExclusive: Bool { get }
@@ -53,8 +49,7 @@ final class NoFailedDependenciesCondition: OperationCondition {
 
     func evaluate(for operation: Operation, completion: @escaping (Bool) -> Void) {
         let satisfy = operation.dependencies.allSatisfy { operation in
-            if let fallibleOperation = operation as? FallibleOperation,
-                fallibleOperation.error != nil {
+            if let operation = operation as? AsyncOperation, operation.error != nil {
                 return false
             }
 

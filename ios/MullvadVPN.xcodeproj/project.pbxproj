@@ -11,7 +11,6 @@
 		58059DDC28465E8F002B1049 /* TransformOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DDB28465E8F002B1049 /* TransformOperation.swift */; };
 		58059DDE28468158002B1049 /* OutputOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DDD28468158002B1049 /* OutputOperation.swift */; };
 		58059DE02846823E002B1049 /* ResultOperation+Output.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DDF2846823E002B1049 /* ResultOperation+Output.swift */; };
-		58059DE228468255002B1049 /* ResultOperation+Fallible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DE128468255002B1049 /* ResultOperation+Fallible.swift */; };
 		5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
 		5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 5807483A27DB8A980020ECBF /* WireGuardKitTypes */; };
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
@@ -74,7 +73,6 @@
 		5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5835B7CB233B76CB0096D79F /* TunnelManager.swift */; };
 		5838318B27C40A3900000571 /* Pinger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838318A27C40A3900000571 /* Pinger.swift */; };
 		583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583DA21325FA4B5C00318683 /* LocationDataSource.swift */; };
-		583E1E1B2848DE1C004838B3 /* ResultOperation+Fallible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DE128468255002B1049 /* ResultOperation+Fallible.swift */; };
 		583E1E1C2848DE1C004838B3 /* AsyncOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */; };
 		583E1E1E2848DE1C004838B3 /* OperationCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28772846250500F9A7B3 /* OperationCondition.swift */; };
 		583E1E202848DE1C004838B3 /* OperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28792846250500F9A7B3 /* OperationObserver.swift */; };
@@ -361,7 +359,6 @@
 		58059DDB28465E8F002B1049 /* TransformOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransformOperation.swift; sourceTree = "<group>"; };
 		58059DDD28468158002B1049 /* OutputOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputOperation.swift; sourceTree = "<group>"; };
 		58059DDF2846823E002B1049 /* ResultOperation+Output.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResultOperation+Output.swift"; sourceTree = "<group>"; };
-		58059DE128468255002B1049 /* ResultOperation+Fallible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResultOperation+Fallible.swift"; sourceTree = "<group>"; };
 		5807E2BF2432038B00F5FF30 /* String+Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Split.swift"; sourceTree = "<group>"; };
 		5807E2C1243203D000F5FF30 /* StringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringTests.swift; sourceTree = "<group>"; };
 		5808273928487E3E006B77A4 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
@@ -668,7 +665,6 @@
 				5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */,
 				5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */,
 				58F7D26427EB50A300E4D821 /* ResultOperation.swift */,
-				58059DE128468255002B1049 /* ResultOperation+Fallible.swift */,
 				58059DDF2846823E002B1049 /* ResultOperation+Output.swift */,
 				58059DDB28465E8F002B1049 /* TransformOperation.swift */,
 			);
@@ -1279,7 +1275,6 @@
 				583E1E1C2848DE1C004838B3 /* AsyncOperationQueue.swift in Sources */,
 				5820676226E75D8500655B05 /* REST.swift in Sources */,
 				58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */,
-				583E1E1B2848DE1C004838B3 /* ResultOperation+Fallible.swift in Sources */,
 				58DF5B7D28521AAC00E92647 /* OutputOperation.swift in Sources */,
 				58DF5B79285217F300E92647 /* TransformOperation.swift in Sources */,
 				5857F23024C843ED00CF6F47 /* ChainedError.swift in Sources */,
@@ -1323,7 +1318,6 @@
 				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
 				58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */,
 				58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */,
-				58059DE228468255002B1049 /* ResultOperation+Fallible.swift in Sources */,
 				582BB1B3229574F40055B6EF /* SettingsAccountCell.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				58289082286B590900478596 /* UIFont+Monospaced.swift in Sources */,

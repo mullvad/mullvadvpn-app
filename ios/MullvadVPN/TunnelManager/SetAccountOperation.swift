@@ -136,7 +136,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
                     .reduce()
 
                 saveSettingsOperation.addBlockObserver(
-                    OperationBlockObserver(didFinish: { operation in
+                    OperationBlockObserver(didFinish: { operation, error in
                         self.completeOperation(accountData: operation.output)
                     })
                 )
@@ -174,9 +174,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, TunnelManager.Err
         }
 
         let errors = children.compactMap { operation -> TunnelManager.Error? in
-            let fallibleOperation = operation as? FallibleOperation
-
-            return fallibleOperation?.error as? TunnelManager.Error
+            return (operation as? AsyncOperation)?.error as? TunnelManager.Error
         }
 
         if let error = errors.first {
