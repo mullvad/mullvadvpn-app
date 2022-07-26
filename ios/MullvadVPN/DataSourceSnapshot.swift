@@ -385,6 +385,12 @@ extension DataSourceSnapshot {
     }
 }
 
+struct StackViewApplyDataSnapshotConfiguration {
+    var animationDuration: TimeInterval = 0.25
+    var animationOptions: UIView.AnimationOptions = [.curveEaseInOut]
+    var makeView: (IndexPath) -> UIView
+}
+
 struct DataSnapshotDifference: CustomDebugStringConvertible {
     var indexPathsToInsert = [IndexPath]()
     var indexPathsToDelete = [IndexPath]()
@@ -443,5 +449,82 @@ struct DataSnapshotDifference: CustomDebugStringConvertible {
                 }
             }
         }, completion: completion)
+    }
+
+    func apply(
+        to stackView: UIStackView,
+        configuration: StackViewApplyDataSnapshotConfiguration,
+        animateDifferences: Bool,
+        completion: ((Bool) -> Void)? = nil
+    )
+    {
+        let viewsToRemove = indexPathsToDelete.map { indexPath in
+            return stackView.arrangedSubviews[indexPath.row]
+        }
+
+        let viewsToAdd = indexPathsToInsert.map { indexPath -> UIView in
+            let view = configuration.makeView(indexPath)
+
+            view.isHidden = true
+            view.alpha = 0
+
+            var viewIndex = indexPath.row
+
+            // Adjust insertion index since views are not removed from stack view during animation.
+            for view in stackView.arrangedSubviews[..<indexPath.row] {
+                if viewsToRemove.contains(view) {
+                    viewIndex += 1
+                }
+            }
+
+            stackView.insertArrangedSubview(view, at: viewIndex)
+
+            return view
+        }
+
+        // Layout inserted subviews before running animations to achieve a folding effect.
+        if animateDifferences {
+            UIView.performWithoutAnimation {
+                stackView.layoutIfNeeded()
+            }
+        }
+
+        let showHideViews = {
+            for view in viewsToRemove {
+                view.alpha = 0
+                view.isHidden = true
+            }
+
+            for view in viewsToAdd {
+                view.alpha = 1
+                view.isHidden = false
+            }
+        }
+
+        let removeViews = {
+            for view in viewsToRemove {
+                view.removeFromSuperview()
+            }
+        }
+
+        if animateDifferences {
+            UIView.animate(
+                withDuration: configuration.animationDuration,
+                delay: 0,
+                options: configuration.animationOptions,
+                animations: {
+                    showHideViews()
+                    stackView.layoutIfNeeded()
+                },
+                completion: { isComplete in
+                    removeViews()
+                    completion?(isComplete)
+                }
+            )
+        } else {
+            showHideViews()
+            removeViews()
+            completion?(true)
+        }
     }
 }

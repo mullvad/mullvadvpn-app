@@ -30,7 +30,7 @@ extension REST {
             accountNumber: String,
             identifier: String,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<Device?>
+            completion: @escaping CompletionHandler<Device>
         ) -> Cancellable
         {
             let requestHandler = AnyRequestHandler(
@@ -59,19 +59,14 @@ extension REST {
                 )
             )
 
-            let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<Device?> in
+            let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<Device> in
                 let httpStatus = HTTPStatus(rawValue: response.statusCode)
 
-                switch httpStatus {
-                case let httpStatus where httpStatus.isSuccess:
+                if httpStatus.isSuccess {
                     return .decoding {
                         return try self.responseDecoder.decode(Device.self, from: data)
                     }
-
-                case .notFound:
-                    return .success(nil)
-
-                default:
+                } else {
                     return .unhandledResponse(
                         try? self.responseDecoder.decode(
                             ServerErrorResponse.self,

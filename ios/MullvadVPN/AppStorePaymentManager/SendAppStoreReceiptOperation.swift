@@ -17,7 +17,7 @@ class SendAppStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentRespo
     private var fetchReceiptTask: Cancellable?
     private var submitReceiptTask: Cancellable?
 
-    private let logger = Logger(label: "AppStorePaymentManager.SendAppStoreReceiptOperation")
+    private let logger = Logger(label: "SendAppStoreReceiptOperation")
 
     init(apiProxy: REST.APIProxy, accountToken: String, forceRefresh: Bool, receiptProperties: [String: Any]?, completionHandler: @escaping CompletionHandler) {
         self.apiProxy = apiProxy

@@ -26,6 +26,7 @@ class SceneDelegate: UIResponder {
     private var selectLocationViewController: SelectLocationViewController?
     private var connectController: ConnectViewController?
     private weak var settingsNavController: SettingsNavigationController?
+    private var lastLoginAction: LoginAction?
 
     override init() {
         super.init()
@@ -481,62 +482,64 @@ extension SceneDelegate {
 
 extension SceneDelegate: LoginViewControllerDelegate {
 
-    func loginViewController(_ controller: LoginViewController, loginWithAccountToken accountNumber: String, completion: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void) {
-        rootContainer.setEnableSettingsButton(false)
+    func loginViewController(
+        _ controller: LoginViewController,
+        shouldHandleLoginAction action: LoginAction,
+        completion: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void
+    ) {
+        setEnableSettingsButton(isEnabled: false, from: controller)
 
-        TunnelManager.shared.setAccount(action: .existing(accountNumber)) { operationCompletion in
+        TunnelManager.shared.setAccount(action: action.setAccountAction) { operationCompletion in
             switch operationCompletion {
             case .success:
-                self.logger.debug("Logged in with existing account.")
-                // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
+                // RootContainer's settings button will be re-enabled in `loginViewControllerDidFinishLogin`
+                completion(operationCompletion)
 
             case .failure(let error):
-                self.logger.error(
-                    chainedError: AnyChainedError(error),
-                    message: "Failed to log in with existing account."
-                )
-                fallthrough
+                // Show device management controller when too many devices detected during log in.
+                if  case .useExistingAccount(let accountNumber) = action,
+                    let restError = error as? REST.Error,
+                    restError.compareErrorCode(.maxDevicesReached)
+                {
+                    self.lastLoginAction = action
+
+                    let deviceController = DeviceManagementViewController(
+                        interactor: DeviceManagementInteractor(accountNumber: accountNumber)
+                    )
+                    deviceController.delegate = self
+
+                    deviceController.fetchDevices(animateUpdates: false) { [weak self] operationCompletion in
+                        controller.rootContainerController?.pushViewController(
+                            deviceController,
+                            animated: true
+                        )
+
+                        // Return .cancelled to login controller upon success.
+                        completion(operationCompletion.flatMap { .cancelled })
+
+                        self?.setEnableSettingsButton(isEnabled: true, from: controller)
+                    }
+                } else {
+                    fallthrough
+                }
 
             case .cancelled:
-                self.rootContainer.setEnableSettingsButton(true)
+                self.setEnableSettingsButton(isEnabled: true, from: controller)
+                completion(operationCompletion)
             }
 
-            completion(operationCompletion)
         }
     }
 
-    func loginViewControllerLoginWithNewAccount(_ controller: LoginViewController, completion: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void) {
-        rootContainer.setEnableSettingsButton(false)
-
-        TunnelManager.shared.setAccount(action: .new) { operationCompletion in
-            switch operationCompletion {
-            case .success:
-                self.logger.debug("Logged in with new account number.")
-                // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
-
-            case .failure(let error):
-                self.logger.error(
-                    chainedError: AnyChainedError(error),
-                    message: "Failed to log in with new account."
-                )
-                fallthrough
-
-            case .cancelled:
-                self.rootContainer.setEnableSettingsButton(true)
-            }
-
-            completion(operationCompletion)
-        }
-    }
-
-    func loginViewControllerDidLogin(_ controller: LoginViewController) {
-        window?.isUserInteractionEnabled = false
+    func loginViewControllerDidFinishLogin(_ controller: LoginViewController) {
+        self.lastLoginAction = nil
 
         // Move the settings button back into header bar
         rootContainer.removeSettingsButtonFromPresentationContainer()
+        setEnableSettingsButton(isEnabled: true, from: controller)
 
         let relayConstraints = TunnelManager.shared.settings.relayConstraints
-        self.selectLocationViewController?.setSelectedRelayLocation(
+        selectLocationViewController?.setSelectedRelayLocation(
             relayConstraints.location.value,
             animated: false,
             scrollPosition: .middle
@@ -558,11 +561,35 @@ extension SceneDelegate: LoginViewControllerDelegate {
         default:
             fatalError()
         }
-
-        window?.isUserInteractionEnabled = true
-        rootContainer.setEnableSettingsButton(true)
     }
 
+    private func setEnableSettingsButton(isEnabled: Bool, from viewController: UIViewController?) {
+        let containers = [viewController?.rootContainerController, rootContainer].compactMap { $0 }
+
+        for container in Set(containers) {
+            container.setEnableSettingsButton(isEnabled)
+        }
+    }
+
+}
+
+// MARK: - DeviceManagementViewControllerDelegate
+
+extension SceneDelegate: DeviceManagementViewControllerDelegate {
+    func deviceManagementViewControllerDidCancel(_ controller: DeviceManagementViewController) {
+        controller.rootContainerController?.popViewController(animated: true)
+    }
+
+    func deviceManagementViewControllerDidFinish(_ controller: DeviceManagementViewController) {
+        let currentRootContainer = controller.rootContainerController
+        let loginViewController = currentRootContainer?.viewControllers.first as? LoginViewController
+
+        currentRootContainer?.popViewController(animated: true) {
+            if let lastLoginAction = self.lastLoginAction {
+                loginViewController?.start(action: lastLoginAction)
+            }
+        }
+    }
 }
 
 // MARK: - SettingsNavigationControllerDelegate
