@@ -169,7 +169,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
             }
 
             is LoginViewModel.LoginUiState.OtherError -> {
-                loginFailure(uiState.errorMessage)
+                loginFailure(resources.getString(R.string.error_occurred))
             }
         }
     }
