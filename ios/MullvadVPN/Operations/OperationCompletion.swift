@@ -57,6 +57,14 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
+    init(error: Failure?) where Success == Void {
+        if let error = error {
+            self = .failure(error)
+        } else {
+            self = .success(())
+        }
+    }
+
     func map<NewSuccess>(_ block: (Success) -> NewSuccess) -> OperationCompletion<NewSuccess, Failure> {
         switch self {
         case .success(let value):
