@@ -119,10 +119,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         adapter.start(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
             self.dispatchQueue.async {
                 if let error = error {
-                    let tunnelProviderError = PacketTunnelProviderError.startWireguardAdapter(error)
-                    self.providerLogger.error(chainedError: tunnelProviderError, message: "Failed to start the tunnel.")
+                    self.providerLogger.error(
+                        chainedError: AnyChainedError(error),
+                        message: "Failed to start the tunnel."
+                    )
 
-                    completionHandler(tunnelProviderError)
+                    completionHandler(error)
                 } else {
                     self.providerLogger.debug("Started the tunnel.")
 
@@ -158,13 +160,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         adapter.stop { error in
             self.dispatchQueue.async {
-                let tunnelProviderError = error.map { PacketTunnelProviderError.stopWireguardAdapter($0) }
-
-                if let tunnelProviderError = tunnelProviderError {
-                    self.providerLogger.error(chainedError: tunnelProviderError, message: "Failed to stop the tunnel gracefully.")
+                if let error = error {
+                    self.providerLogger.error(
+                        chainedError: AnyChainedError(error),
+                        message: "Failed to stop the tunnel gracefully."
+                    )
+                } else {
+                    self.providerLogger.debug("Stopped the tunnel.")
                 }
-
-                self.providerLogger.debug("Stopped the tunnel.")
                 completionHandler()
             }
         }
@@ -281,10 +284,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         adapter.update(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
             self.dispatchQueue.async {
                 if let error = error {
-                    let providerError: PacketTunnelProviderError =
-                        .updateWireGuardConfiguration(error)
-
-                    handleRecoveryFailure(providerError)
+                    handleRecoveryFailure(error)
                 }
             }
         }
@@ -305,13 +305,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private func makeConfiguration(_ appSelectorResult: RelaySelectorResult? = nil)
         throws -> PacketTunnelConfiguration
     {
-        let tunnelSettings: TunnelSettingsV2
-        do {
-            tunnelSettings = try SettingsManager.readSettings()
-        } catch {
-            throw PacketTunnelProviderError.readSettings(error)
-        }
-
+        let tunnelSettings = try SettingsManager.readSettings()
         let selectorResult = try appSelectorResult
             ?? Self.selectRelayEndpoint(
                 relayConstraints: tunnelSettings.relayConstraints
@@ -370,7 +364,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                     }
 
                     // Call completion handler immediately.
-                    completionHandler(PacketTunnelProviderError.updateWireGuardConfiguration(error))
+                    completionHandler(error)
                 } else {
                     // Store completion handler and call it from TunnelMonitorDelegate once
                     // the connection is established.
@@ -410,66 +404,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
         )!
         let prebundledRelaysURL = RelayCache.IO.preBundledRelaysFileURL!
-        let cachedRelayList: RelayCache.CachedRelays
-        do {
-            cachedRelayList = try RelayCache.IO.readWithFallback(
-                cacheFileURL: cacheFileURL,
-                preBundledRelaysFileURL: prebundledRelaysURL
-            )
-        } catch {
-            throw PacketTunnelProviderError.readRelayCache(error)
-        }
+        let cachedRelayList = try RelayCache.IO.readWithFallback(
+            cacheFileURL: cacheFileURL,
+            preBundledRelaysFileURL: prebundledRelaysURL
+        )
 
-        if let selectorResult = try? RelaySelector.evaluate(
+        return try RelaySelector.evaluate(
             relays: cachedRelayList.relays,
             constraints: relayConstraints
-        ) {
-            return selectorResult
-        } else {
-            throw PacketTunnelProviderError.noRelaySatisfyingConstraint
-        }
-    }
-}
-
-enum PacketTunnelProviderError: ChainedError {
-    /// Failure to read the relay cache.
-    case readRelayCache(Error)
-
-    /// Failure to satisfy the relay constraint.
-    case noRelaySatisfyingConstraint
-
-    /// Failure to read settings from keychain.
-    case readSettings(Error)
-
-    /// Failure to start the Wireguard backend.
-    case startWireguardAdapter(WireGuardAdapterError)
-
-    /// Failure to stop the Wireguard backend.
-    case stopWireguardAdapter(WireGuardAdapterError)
-
-    /// Failure to update Wireguard configuration.
-    case updateWireGuardConfiguration(WireGuardAdapterError)
-
-    var errorDescription: String? {
-        switch self {
-        case .readRelayCache:
-            return "Failure to read the relay cache."
-
-        case .noRelaySatisfyingConstraint:
-            return "No relay satisfying the given constraint."
-
-        case .readSettings:
-            return "Failure to read settings."
-
-        case .startWireguardAdapter:
-            return "Failure to start the WireGuard adapter."
-
-        case .stopWireguardAdapter:
-            return "Failure to stop the WireGuard adapter."
-
-        case .updateWireGuardConfiguration:
-            return "Failure to update the WireGuard configuration."
-        }
+        )
     }
 }
 
