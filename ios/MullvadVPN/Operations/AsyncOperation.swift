@@ -344,24 +344,14 @@ class AsyncOperation: Operation {
     }
 
     func finish(error: Error?) {
-        var notifyDidFinish = false
+        guard tryFinish(error: error) else { return }
 
-        operationLock.lock()
-        if state < .finished {
-            self.error = error
-            state = .finished
-            notifyDidFinish = true
-        }
-        operationLock.unlock()
+        dispatchQueue.async {
+            self.operationDidFinish()
 
-        if notifyDidFinish {
-            dispatchQueue.async {
-                self.operationDidFinish()
-
-                let anError = self.error
-                for observer in self.observers {
-                    observer.operationDidFinish(self, error: anError)
-                }
+            let anError = self.error
+            for observer in self.observers {
+                observer.operationDidFinish(self, error: anError)
             }
         }
     }
@@ -389,6 +379,17 @@ class AsyncOperation: Operation {
         operationLock.unlock()
     }
 
+    private func tryFinish(error: Error?) -> Bool {
+        operationLock.lock()
+        defer { operationLock.unlock() }
+
+        guard state < .finished else { return false }
+
+        self.error = error
+        state = .finished
+
+        return true
+    }
 
     // MARK: - Subclass overrides
 
