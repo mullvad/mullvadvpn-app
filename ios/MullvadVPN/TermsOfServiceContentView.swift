@@ -25,8 +25,6 @@ class TermsOfServiceContentView: UIView {
         )
         titleLabel.lineBreakMode = .byWordWrapping
         if #available(iOS 14.0, *) {
-            // Disable the new line break strategy used by UIKit that moves at least two words
-            // to the next line which makes the title look odd.
             // See: https://stackoverflow.com/q/46200027/351305
             titleLabel.lineBreakStrategy = []
         }
