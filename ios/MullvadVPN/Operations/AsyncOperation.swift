@@ -371,12 +371,11 @@ class AsyncOperation: Operation {
 
     private func checkReadiness() {
         operationLock.lock()
+        defer { operationLock.unlock() }
 
         if state == .pending, !_isCancelled, super.isReady {
             evaluateConditions()
         }
-
-        operationLock.unlock()
     }
 
     private func tryFinish(error: Error?) -> Bool {
