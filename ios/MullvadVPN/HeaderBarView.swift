@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 class HeaderBarView: UIView {
-    private let brandNameImage = UIImage(named: "LogoText")!
+    private let brandNameImage = UIImage(named: "LogoText")?
         .backport_withTintColor(UIColor.HeaderBar.brandNameColor, renderingMode: .alwaysOriginal)
 
     let logoImageView: UIImageView = {
@@ -75,7 +75,7 @@ class HeaderBarView: UIView {
             accessibilityContainerType = .semanticGroup
         }
 
-        let imageSize = brandNameImage.size
+        let imageSize = brandNameImage?.size ?? .zero
         let brandNameAspectRatio = imageSize.width / max(imageSize.height, 1)
 
         let constraints = [
