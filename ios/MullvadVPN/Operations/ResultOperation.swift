@@ -13,42 +13,42 @@ class ResultOperation<Success, Failure: Error>: AsyncOperation {
     typealias Completion = OperationCompletion<Success, Failure>
     typealias CompletionHandler = (Completion) -> Void
 
-    fileprivate let stateLock = NSLock()
+    private let nslock = NSLock()
     private var completionValue: Completion?
     private var _completionQueue: DispatchQueue?
     private var _completionHandler: CompletionHandler?
     private var pendingFinish = false
 
     var completion: Completion? {
-        stateLock.lock()
-        defer { stateLock.unlock() }
+        nslock.lock()
+        defer { nslock.unlock() }
         return completionValue
     }
 
     var completionQueue: DispatchQueue? {
         get {
-            stateLock.lock()
-            defer { stateLock.unlock() }
+            nslock.lock()
+            defer { nslock.unlock() }
 
             return _completionQueue
         }
         set {
-            stateLock.lock()
+            nslock.lock()
             _completionQueue = newValue
-            stateLock.unlock()
+            nslock.unlock()
         }
     }
 
     var completionHandler: CompletionHandler? {
         get {
-            stateLock.lock()
-            defer { stateLock.unlock() }
+            nslock.lock()
+            defer { nslock.unlock() }
 
             return _completionHandler
         }
         set {
-            stateLock.lock()
-            defer { stateLock.unlock() }
+            nslock.lock()
+            defer { nslock.unlock() }
             if !pendingFinish {
                 _completionHandler = newValue
             }
@@ -73,24 +73,29 @@ class ResultOperation<Success, Failure: Error>: AsyncOperation {
 
     @available(*, unavailable)
     override func finish() {
-        _finish()
+        _finish(error: nil)
+    }
+
+    @available(*, unavailable)
+    override func finish(error: Error?) {
+        _finish(error: error)
     }
 
     func finish(completion: Completion) {
-        stateLock.lock()
+        nslock.lock()
         if completionValue == nil {
             completionValue = completion
         }
-        stateLock.unlock()
+        nslock.unlock()
 
-        _finish()
+        _finish(error: completion.error)
     }
 
-    fileprivate func _finish() {
-        stateLock.lock()
+    private func _finish(error: Error?) {
+        nslock.lock()
         // Bail if operation is already finishing.
         guard !pendingFinish else {
-            stateLock.unlock()
+            nslock.unlock()
             return
         }
 
@@ -108,14 +113,14 @@ class ResultOperation<Success, Failure: Error>: AsyncOperation {
 
         // Copy completion queue.
         let completionQueue = _completionQueue
-        stateLock.unlock()
+        nslock.unlock()
 
         let block = {
             // Call completion handler.
             completionHandler?(completion)
 
             // Finish operation.
-            super.finish()
+            super.finish(error: error)
         }
 
         if let completionQueue = completionQueue {

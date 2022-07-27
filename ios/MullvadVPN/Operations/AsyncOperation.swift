@@ -62,6 +62,10 @@ class AsyncOperation: Operation {
     /// Access must be guarded with `stateLock`.
     private var __isCancelled: Bool = false
 
+    /// Backing variable for `error`.
+    /// Access must be guarded with `stateLock`.
+    private var _error: Error?
+
     /// Operation state.
     @objc private var state: State {
         get {
@@ -93,6 +97,19 @@ class AsyncOperation: Operation {
             __isCancelled = newValue
             stateLock.unlock()
             didChangeValue(for: \.isCancelled)
+        }
+    }
+
+    private(set) var error: Error? {
+        get {
+            stateLock.lock()
+            defer { stateLock.unlock() }
+            return _error
+        }
+        set {
+            stateLock.lock()
+            defer { stateLock.unlock() }
+            _error = newValue
         }
     }
 
@@ -323,22 +340,18 @@ class AsyncOperation: Operation {
     }
 
     func finish() {
-        var notifyDidFinish = false
+        finish(error: nil)
+    }
 
-        operationLock.lock()
-        if state < .finished {
-            state = .finished
-            notifyDidFinish = true
-        }
-        operationLock.unlock()
+    func finish(error: Error?) {
+        guard tryFinish(error: error) else { return }
 
-        if notifyDidFinish {
-            dispatchQueue.async {
-                self.operationDidFinish()
+        dispatchQueue.async {
+            self.operationDidFinish()
 
-                for observer in self.observers {
-                    observer.operationDidFinish(self)
-                }
+            let anError = self.error
+            for observer in self.observers {
+                observer.operationDidFinish(self, error: anError)
             }
         }
     }
@@ -358,14 +371,24 @@ class AsyncOperation: Operation {
 
     private func checkReadiness() {
         operationLock.lock()
+        defer { operationLock.unlock() }
 
         if state == .pending, !_isCancelled, super.isReady {
             evaluateConditions()
         }
-
-        operationLock.unlock()
     }
 
+    private func tryFinish(error: Error?) -> Bool {
+        operationLock.lock()
+        defer { operationLock.unlock() }
+
+        guard state < .finished else { return false }
+
+        self.error = error
+        state = .finished
+
+        return true
+    }
 
     // MARK: - Subclass overrides
 

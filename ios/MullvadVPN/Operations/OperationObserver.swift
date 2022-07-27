@@ -12,23 +12,24 @@ protocol OperationObserver {
     func didAttach(to operation: Operation)
     func operationDidStart(_ operation: Operation)
     func operationDidCancel(_ operation: Operation)
-    func operationDidFinish(_ operation: Operation)
+    func operationDidFinish(_ operation: Operation, error: Error?)
 }
 
 /// Block based operation observer.
 class OperationBlockObserver<OperationType: Operation>: OperationObserver {
     typealias VoidBlock = (OperationType) -> Void
+    typealias FinishBlock = (OperationType, Error?) -> Void
 
     private let _didAttach: VoidBlock?
     private let _didStart: VoidBlock?
     private let _didCancel: VoidBlock?
-    private let _didFinish: VoidBlock?
+    private let _didFinish: FinishBlock?
 
     init(
         didAttach: VoidBlock? = nil,
         didStart: VoidBlock? = nil,
         didCancel: VoidBlock? = nil,
-        didFinish: VoidBlock? = nil
+        didFinish: FinishBlock? = nil
     )
     {
         _didAttach = didAttach
@@ -55,9 +56,9 @@ class OperationBlockObserver<OperationType: Operation>: OperationObserver {
         }
     }
 
-    func operationDidFinish(_ operation: Operation) {
+    func operationDidFinish(_ operation: Operation, error: Error?) {
         if let operation = operation as? OperationType {
-            _didFinish?(operation)
+            _didFinish?(operation, error)
         }
     }
 }
