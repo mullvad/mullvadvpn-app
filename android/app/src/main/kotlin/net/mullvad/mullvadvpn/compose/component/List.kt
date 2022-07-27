@@ -32,10 +32,7 @@ fun DeviceRow(
             .fillMaxWidth()
             .padding(vertical = 1.dp)
             .height(50.dp)
-            .background(itemColor)
-            .clickable {
-                onItemClicked()
-            },
+            .background(itemColor),
     ) {
         Text(
             text = name,
@@ -55,6 +52,9 @@ fun DeviceRow(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(horizontal = 12.dp)
+                    .clickable {
+                        onItemClicked()
+                    }
             )
         }
     }
