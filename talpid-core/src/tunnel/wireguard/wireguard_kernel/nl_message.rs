@@ -36,7 +36,7 @@ impl NetlinkControlMessage {
     }
 }
 
-impl NetlinkSerializable<NetlinkControlMessage> for NetlinkControlMessage {
+impl NetlinkSerializable for NetlinkControlMessage {
     fn message_type(&self) -> u16 {
         libc::GENL_ID_CTRL as u16
     }
@@ -57,7 +57,7 @@ impl From<NetlinkControlMessage> for NetlinkPayload<NetlinkControlMessage> {
     }
 }
 
-impl NetlinkDeserializable<NetlinkControlMessage> for NetlinkControlMessage {
+impl NetlinkDeserializable for NetlinkControlMessage {
     type Error = DecodeError;
     fn deserialize(
         _header: &NetlinkHeader,

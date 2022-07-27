@@ -221,7 +221,7 @@ impl Handle {
         link_message.header.index = index;
 
         let mut request = NetlinkMessage::from(RtnlMessage::DelLink(link_message));
-        request.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_EXCL | NLM_F_CREATE;
+        request.header.flags = NLM_F_REQUEST | NLM_F_ACK;
 
         let mut response = self
             .route_handle
@@ -309,8 +309,7 @@ impl WireguardConnection {
 }
 
 fn consume_netlink_error<
-    T,
-    I: NetlinkDeserializable<T> + Clone + Eq + std::fmt::Debug,
+    I: NetlinkDeserializable + Clone + Eq + std::fmt::Debug,
     F: Fn(rtnetlink::Error) -> Error,
 >(
     message: NetlinkMessage<I>,
