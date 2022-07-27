@@ -37,8 +37,8 @@ class DeviceListFragment : Fragment() {
                     content = {
                         DeviceListScreen(
                             viewModel = deviceListViewModel,
-                            onBackClick = this@DeviceListFragment::goBack,
-                            onContinueWithLogin = this@DeviceListFragment::openLoginView
+                            onBackClick = { openLoginView(doTriggerAutoLogin = false) },
+                            onContinueWithLogin = { openLoginView(doTriggerAutoLogin = true) }
                         )
                     }
                 )
@@ -46,10 +46,10 @@ class DeviceListFragment : Fragment() {
         }
     }
 
-    private fun openLoginView() {
+    private fun openLoginView(doTriggerAutoLogin: Boolean) {
         parentActivity()?.clearBackStack()
         val loginFragment = LoginFragment().apply {
-            if (deviceListViewModel.accountToken != null) {
+            if (doTriggerAutoLogin && deviceListViewModel.accountToken != null) {
                 arguments = Bundle().apply {
                     putString(
                         ACCOUNT_TOKEN_ARGUMENT_KEY,
@@ -62,10 +62,6 @@ class DeviceListFragment : Fragment() {
             replace(R.id.main_fragment, loginFragment)
             commit()
         }
-    }
-
-    private fun goBack() {
-        parentActivity()?.onBackPressed()
     }
 
     private fun parentActivity(): MainActivity? {
