@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">minder dan een minuut geleden</string>
     <string name="local_network_sharing">Delen op lokaal netwerk</string>
     <string name="log_out">Afmelden</string>
+    <string name="logged_in_description">Geldig accountnummer</string>
     <string name="logged_in_title">Aangemeld</string>
     <string name="logging_in_description">Accountnummer wordt gecontroleerd</string>
     <string name="logging_in_title">Aanmelden...</string>

@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
@@ -142,17 +143,6 @@ open class MainActivity : FragmentActivity() {
         }
     }
 
-    fun returnToLaunchScreen() {
-        supportFragmentManager.apply {
-            popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-
-            beginTransaction().apply {
-                replace(R.id.main_fragment, LaunchFragment())
-                commit()
-            }
-        }
-    }
-
     private fun launchDeviceStateHandler() {
         var currentState: DeviceState? = null
 
@@ -171,7 +161,10 @@ open class MainActivity : FragmentActivity() {
                             is DeviceState.LoggedOut -> openLoginView()
                             is DeviceState.Revoked -> openRevokedView()
                             is DeviceState.LoggedIn -> {
-                                openLoggedInView(newState.accountAndDevice.account_token)
+                                openLoggedInView(
+                                    accountToken = newState.accountAndDevice.account_token,
+                                    shouldDelayLogin = currentState is DeviceState.LoggedOut
+                                )
                             }
                         }
                         currentState = newState
@@ -194,12 +187,17 @@ open class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun openLoggedInView(accountToken: String) {
+    private suspend fun openLoggedInView(accountToken: String, shouldDelayLogin: Boolean) {
         val isNewAccount = accountToken == accountRepository.cachedCreatedAccount.value
 
         val fragment = when {
             isNewAccount -> WelcomeFragment()
-            else -> ConnectFragment()
+            else -> {
+                if (shouldDelayLogin) {
+                    delay(LOGIN_DELAY_MILLIS)
+                }
+                ConnectFragment()
+            }
         }
 
         supportFragmentManager.beginTransaction().apply {
@@ -236,5 +234,9 @@ open class MainActivity : FragmentActivity() {
                 popBackStack(firstEntry.id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             }
         }
+    }
+
+    companion object {
+        private const val LOGIN_DELAY_MILLIS = 1000L
     }
 }

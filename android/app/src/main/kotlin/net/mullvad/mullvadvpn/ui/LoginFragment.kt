@@ -138,6 +138,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
 
             is LoginViewModel.LoginUiState.Success -> {
                 // MainActivity responsible for transition to connect/out-of-time view.
+                showLoggedIn()
             }
 
             is LoginViewModel.LoginUiState.AccountCreated -> {
@@ -213,6 +214,19 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
         accountLogin.state = LoginState.InProgress
 
         scrollToShow(loggingInStatus)
+    }
+
+    private fun showLoggedIn() {
+        title.setText(R.string.logged_in_title)
+        subtitle.setText(R.string.logged_in_description)
+
+        loggingInStatus.visibility = View.GONE
+        loginFailStatus.visibility = View.GONE
+        loggedInStatus.visibility = View.VISIBLE
+
+        accountLogin.state = LoginState.Success
+
+        scrollToShow(loggedInStatus)
     }
 
     private fun showCreatingAccount() {

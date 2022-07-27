@@ -76,6 +76,7 @@
     <string name="less_than_a_minute_ago">il y a moins d\'une minute</string>
     <string name="local_network_sharing">Partage réseau local</string>
     <string name="log_out">Déconnexion</string>
+    <string name="logged_in_description">Numéro de compte valide</string>
     <string name="logged_in_title">Connecté</string>
     <string name="logging_in_description">Vérification du numéro de compte</string>
     <string name="logging_in_title">Connexion...</string>
