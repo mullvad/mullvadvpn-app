@@ -47,6 +47,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix app occasionally getting stuck in the offline state after being suspended.
 
+#### Linux
+- Fixed incompatibility with newer kernel versions (5.19 and up).
+
 ### Security
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected
