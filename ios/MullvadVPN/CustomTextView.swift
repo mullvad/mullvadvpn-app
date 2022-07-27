@@ -81,6 +81,8 @@ class CustomTextView: UITextView {
         }
     }
 
+    private var notificationObserver: Any?
+
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
 
@@ -112,7 +114,7 @@ class CustomTextView: UITextView {
         self.textContainer.lineFragmentPadding = 0
 
         // Handle placeholder visibility
-        NotificationCenter.default.addObserver(
+        notificationObserver = NotificationCenter.default.addObserver(
             forName: NSTextStorage.didProcessEditingNotification,
             object: textStorage,
             queue: OperationQueue.main) { [weak self] (note) in
@@ -124,6 +126,12 @@ class CustomTextView: UITextView {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    deinit {
+        if let notificationObserver = notificationObserver {
+            NotificationCenter.default.removeObserver(notificationObserver)
+        }
     }
 
     override func updateConstraints() {
