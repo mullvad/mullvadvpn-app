@@ -32,17 +32,23 @@ extension RelaySelectorResult {
     }
 }
 
+struct NoRelaysSatisfyingConstraintsError: LocalizedError {
+    var errorDescription: String? {
+        return "No relays satisfying constraints."
+    }
+}
+
 enum RelaySelector {}
 
 extension RelaySelector {
 
-    static func evaluate(relays: REST.ServerRelaysResponse, constraints: RelayConstraints) -> RelaySelectorResult? {
+    static func evaluate(relays: REST.ServerRelaysResponse, constraints: RelayConstraints) throws -> RelaySelectorResult {
         let filteredRelays = applyConstraints(constraints, relays: Self.parseRelaysResponse(relays))
 
         guard let relayWithLocation = pickRandomRelay(relays: filteredRelays),
               let port = pickRandomPort(rawPortRanges: relays.wireguard.portRanges) else {
-                  return nil
-              }
+            throw NoRelaysSatisfyingConstraintsError()
+        }
 
         let endpoint = MullvadEndpoint(
             ipv4Relay: IPv4Endpoint(

@@ -45,7 +45,6 @@
 		5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */; };
 		5820674E26E6510200655B05 /* REST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820674D26E6510200655B05 /* REST.swift */; };
 		5820675026E6514100655B05 /* HTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820674F26E6514100655B05 /* HTTP.swift */; };
-		5820675526E6528200655B05 /* RelayCacheError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87926B024F900B8C587 /* RelayCacheError.swift */; };
 		5820675626E6528A00655B05 /* RESTError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA88626B0277200B8C587 /* RESTError.swift */; };
 		5820675726E652A600655B05 /* REST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820674D26E6510200655B05 /* REST.swift */; };
 		5820675826E652AF00655B05 /* RelayCacheIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87C26B0254000B8C587 /* RelayCacheIO.swift */; };
@@ -131,7 +130,6 @@
 		585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585CA70E25F8C44600B47C62 /* UIMetrics.swift */; };
 		585DA87726B024A600B8C587 /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
 		585DA87826B024A900B8C587 /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
-		585DA87A26B024F900B8C587 /* RelayCacheError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87926B024F900B8C587 /* RelayCacheError.swift */; };
 		585DA87D26B0254000B8C587 /* RelayCacheIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87C26B0254000B8C587 /* RelayCacheIO.swift */; };
 		585DA88426B0270700B8C587 /* ServerRelaysResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA88326B0270700B8C587 /* ServerRelaysResponse.swift */; };
 		585DA88526B0270700B8C587 /* ServerRelaysResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA88326B0270700B8C587 /* ServerRelaysResponse.swift */; };
@@ -440,7 +438,6 @@
 		5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationNavigationController.swift; sourceTree = "<group>"; };
 		585CA70E25F8C44600B47C62 /* UIMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIMetrics.swift; sourceTree = "<group>"; };
 		585DA87626B024A600B8C587 /* CachedRelays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedRelays.swift; sourceTree = "<group>"; };
-		585DA87926B024F900B8C587 /* RelayCacheError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheError.swift; sourceTree = "<group>"; };
 		585DA87C26B0254000B8C587 /* RelayCacheIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheIO.swift; sourceTree = "<group>"; };
 		585DA88326B0270700B8C587 /* ServerRelaysResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerRelaysResponse.swift; sourceTree = "<group>"; };
 		585DA88626B0277200B8C587 /* RESTError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTError.swift; sourceTree = "<group>"; };
@@ -746,7 +743,6 @@
 			children = (
 				585DA87626B024A600B8C587 /* CachedRelays.swift */,
 				5820675A26E6576800655B05 /* RelayCache.swift */,
-				585DA87926B024F900B8C587 /* RelayCacheError.swift */,
 				585DA87C26B0254000B8C587 /* RelayCacheIO.swift */,
 				58FB865926EA214400F188BC /* RelayCacheObserver.swift */,
 				58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */,
@@ -1355,7 +1351,6 @@
 				5846227326E22A160035F7C2 /* AppStorePaymentObserver.swift in Sources */,
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
 				58DF5B762852108E00E92647 /* InputInjectionBuilder.swift in Sources */,
-				585DA87A26B024F900B8C587 /* RelayCacheError.swift in Sources */,
 				5856D13727450A8A00DFD627 /* UIImage+TintColor.swift in Sources */,
 				58CB0EE024B86751001EF0D8 /* RESTAPIProxy.swift in Sources */,
 				58095C532760EEC700890776 /* RESTNetworkOperation.swift in Sources */,
@@ -1530,7 +1525,6 @@
 				58F840B32464491D0044E708 /* ChainedError.swift in Sources */,
 				58D67A0A26D7AE3300557C3C /* OSLogHandler.swift in Sources */,
 				5820675626E6528A00655B05 /* RESTError.swift in Sources */,
-				5820675526E6528200655B05 /* RelayCacheError.swift in Sources */,
 				58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				58781CCE22AE8918009B9D8E /* RelayConstraints.swift in Sources */,
 				581503A024D6F01E00C9C50E /* LogRotation.swift in Sources */,

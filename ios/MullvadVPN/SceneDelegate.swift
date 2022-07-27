@@ -324,7 +324,7 @@ extension SceneDelegate {
         let selectLocationController = SelectLocationViewController()
         selectLocationController.delegate = self
 
-        if let cachedRelays = RelayCache.Tracker.shared.getCachedRelays() {
+        if let cachedRelays = try? RelayCache.Tracker.shared.getCachedRelays() {
             selectLocationController.setCachedRelays(cachedRelays)
         }
 
