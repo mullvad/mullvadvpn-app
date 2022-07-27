@@ -6,16 +6,14 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
-private let kTextViewCornerRadius = CGFloat(4)
-
 class CustomTextView: UITextView {
+    private static let textViewCornerRadius: CGFloat = 4
 
     var roundCorners: Bool = true {
         didSet {
-            layer.cornerRadius = roundCorners ? kTextViewCornerRadius : 0
+            layer.cornerRadius = roundCorners ? Self.textViewCornerRadius : 0
         }
     }
 
@@ -76,7 +74,7 @@ class CustomTextView: UITextView {
         }
         get {
             if roundCorners {
-                return UIBezierPath(roundedRect: accessibilityFrame, cornerRadius: kTextViewCornerRadius)
+                return UIBezierPath(roundedRect: accessibilityFrame, cornerRadius: Self.textViewCornerRadius)
             } else {
                 return UIBezierPath(rect: accessibilityFrame)
             }
@@ -105,7 +103,7 @@ class CustomTextView: UITextView {
 
         // Set visual appearance
         textColor = UIColor.TextField.textColor
-        layer.cornerRadius = kTextViewCornerRadius
+        layer.cornerRadius = Self.textViewCornerRadius
         clipsToBounds = true
 
         // Set content padding
