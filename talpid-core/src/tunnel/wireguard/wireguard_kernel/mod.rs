@@ -221,7 +221,7 @@ impl Handle {
         link_message.header.index = index;
 
         let mut request = NetlinkMessage::from(RtnlMessage::DelLink(link_message));
-        request.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_EXCL | NLM_F_CREATE;
+        request.header.flags = NLM_F_REQUEST | NLM_F_ACK;
 
         let mut response = self
             .route_handle
