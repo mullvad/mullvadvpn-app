@@ -141,13 +141,13 @@ fun DeviceListScreen(
                         }
                 ) {
                     Column {
-                        state.devices.forEach { device ->
+                        state.deviceUiItems.forEach { deviceUiState ->
                             ListItem(
-                                text = device.name.capitalizeFirstCharOfEachWord(),
-                                isLoading = false,
+                                text = deviceUiState.device.name.capitalizeFirstCharOfEachWord(),
+                                isLoading = deviceUiState.isLoading,
                                 iconResourceId = R.drawable.icon_close
                             ) {
-                                viewModel.stageDeviceForRemoval(device.id)
+                                viewModel.stageDeviceForRemoval(deviceUiState.device.id)
                             }
                         }
                     }
