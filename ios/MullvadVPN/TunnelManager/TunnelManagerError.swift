@@ -69,7 +69,7 @@ extension TunnelManager {
         case rotateKey(REST.Error)
 
         /// Failure to reload tunnel.
-        case reloadTunnel(TunnelIPC.Error)
+        case reloadTunnel(Swift.Error)
 
         var errorDescription: String? {
             switch self {

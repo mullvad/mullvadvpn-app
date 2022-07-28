@@ -51,58 +51,21 @@ class MapConnectionStatusOperation: AsyncOperation {
                 state.tunnelStatus.state = .connecting(nil)
             }
 
-            let session = TunnelIPC.Session(tunnel: tunnel)
-
-            request = session.getTunnelStatus { [weak self] completion in
-                guard let self = self else { return }
-
-                self.dispatchQueue.async {
-                    if case .success(let packetTunnelStatus) = completion, !self.isCancelled {
-                        self.state.tunnelStatus.update(from: packetTunnelStatus) { relay in
-                            return .connecting(relay)
-                        }
-                    }
-
-                    self.finish()
-                }
+            updateTunnelRelayAndFinish(tunnel: tunnel) { relay in
+                return relay.map { .connecting($0) }
             }
+            return
 
         case .reasserting:
-            let session = TunnelIPC.Session(tunnel: tunnel)
-
-            request = session.getTunnelStatus { [weak self] completion in
-                guard let self = self else { return }
-
-                self.dispatchQueue.async {
-                    if case .success(let packetTunnelStatus) = completion, !self.isCancelled {
-                        self.state.tunnelStatus.update(from: packetTunnelStatus) { relay in
-                            return relay.map { .reconnecting($0) }
-                        }
-                    }
-
-                    self.finish()
-                }
+            updateTunnelRelayAndFinish(tunnel: tunnel) { relay in
+                return relay.map { .reconnecting($0) }
             }
-
             return
 
         case .connected:
-            let session = TunnelIPC.Session(tunnel: tunnel)
-
-            request = session.getTunnelStatus { [weak self] completion in
-                guard let self = self else { return }
-
-                self.dispatchQueue.async {
-                    if case .success(let packetTunnelStatus) = completion, !self.isCancelled {
-                        self.state.tunnelStatus.update(from: packetTunnelStatus) { relay in
-                            return relay.map { .connected($0) }
-                        }
-                    }
-
-                    self.finish()
-                }
+            updateTunnelRelayAndFinish(tunnel: tunnel) { relay in
+                return relay.map { .connected($0) }
             }
-
             return
 
         case .disconnected:
@@ -142,5 +105,26 @@ class MapConnectionStatusOperation: AsyncOperation {
 
     override func operationDidCancel() {
         request?.cancel()
+    }
+
+    private func updateTunnelRelayAndFinish(
+        tunnel: Tunnel,
+        mapRelayToState: @escaping (PacketTunnelRelay?) -> TunnelState?
+    )
+    {
+        request = tunnel.getTunnelStatus { [weak self] completion in
+            guard let self = self else { return }
+
+            self.dispatchQueue.async {
+                if case .success(let packetTunnelStatus) = completion, !self.isCancelled {
+                    self.state.tunnelStatus.update(
+                        from: packetTunnelStatus,
+                        mappingRelayToState: mapRelayToState
+                    )
+                }
+
+                self.finish()
+            }
+        }
     }
 }
