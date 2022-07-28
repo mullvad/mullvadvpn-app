@@ -62,7 +62,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
     private let stateQueue = DispatchQueue(label: "TunnelManager.stateQueue")
     private let operationQueue = AsyncOperationQueue()
 
-    private var statusObserver: Tunnel.StatusBlockObserver?
+    private var statusObserver: TunnelStatusBlockObserver?
     private var lastMapConnectionStatusOperation: Operation?
     private let observerList = ObserverList<TunnelObserver>()
 
@@ -328,8 +328,16 @@ final class TunnelManager: TunnelManagerStateDelegate {
         operationQueue.addOperation(operation)
     }
 
-    func reconnectTunnel(completionHandler: ((OperationCompletion<(), TunnelManager.Error>) -> Void)? = nil) {
-        let operation = ReloadTunnelOperation(dispatchQueue: stateQueue, state: state)
+    func reconnectTunnel(
+        selectNewRelay: Bool,
+        completionHandler: ((OperationCompletion<(), TunnelManager.Error>) -> Void)? = nil
+    )
+    {
+        let operation = ReloadTunnelOperation(
+            dispatchQueue: stateQueue,
+            state: state,
+            selectNewRelay: selectNewRelay
+        )
 
         operation.completionHandler = { [weak self] completion in
             guard let self = self else { return }
@@ -485,7 +493,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
 
             switch completion {
             case .success:
-                self.reconnectTunnel { _ in
+                self.reconnectTunnel(selectNewRelay: true) { _ in
                     completionHandler(completion)
                 }
 
@@ -682,18 +690,25 @@ final class TunnelManager: TunnelManagerStateDelegate {
         let operation = ResultBlockOperation<Void, TunnelManager.Error>(
             dispatchQueue: stateQueue
         ) { operation in
-            guard var tunnelSettings = self.tunnelSettings else {
+            guard let currentSettings = self.tunnelSettings else {
                 operation.finish(completion: .failure(.unsetAccount))
                 return
             }
 
             do {
-                modificationBlock(&tunnelSettings)
+                var updatedSettings = currentSettings
 
-                try SettingsManager.writeSettings(tunnelSettings)
+                modificationBlock(&updatedSettings)
 
-                self.state.tunnelSettings = tunnelSettings
-                self.reconnectTunnel(completionHandler: nil)
+                // Select new relay only when relay constraints change.
+                let currentConstraints = currentSettings.relayConstraints
+                let updatedConstraints = updatedSettings.relayConstraints
+                let selectNewRelay = currentConstraints != updatedConstraints
+
+                try SettingsManager.writeSettings(updatedSettings)
+
+                self.state.tunnelSettings = updatedSettings
+                self.reconnectTunnel(selectNewRelay: selectNewRelay, completionHandler: nil)
 
                 operation.finish(completion: .success(()))
             } catch {
