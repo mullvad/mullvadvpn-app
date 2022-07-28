@@ -48,7 +48,9 @@ class DaemonDeviceDataSource(
 
         endpoint.dispatcher.registerHandler(Request.RemoveDevice::class) { request ->
             tracker.newBackgroundJob("removeDeviceJob") {
-                daemon.removeDevice(request.accountToken, request.deviceId)
+                daemon.removeDevice(request.accountToken, request.deviceId).also { result ->
+                    endpoint.sendEvent(Event.DeviceRemovalEvent(request.deviceId, result))
+                }
             }
         }
 
