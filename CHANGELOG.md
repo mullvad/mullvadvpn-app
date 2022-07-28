@@ -52,9 +52,11 @@ Line wrap the file at 100 chars.                                              Th
 - Fix udp2tcp not working when quantum-resistant tunnels are enabled.
 - Quit app gracefully if renderer process is killed or crashes.
 - Enable reconnect in blocked state in desktop app.
-- Fix showing incompatible relay filtering options in desktop app. The filtering options are now
-  dependent on the other filters.
 - Fix error handling during device removal in the desktop app.
+
+#### Windows
+- Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
+  it was successful.
 
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.
@@ -64,23 +66,28 @@ Line wrap the file at 100 chars.                                              Th
   unlock the device before attempting to toggle the tunnel state.
 - Fix crash when clicking in-app URL notifications.
 
+### Security
+#### Android
+- Prevent location request responses from being received outside the tunnel when in the connected
+  state.
+
+
+## [2022.3-beta3] - 2022-07-28
+### Fixed
+- Fix showing incompatible relay filtering options in desktop app. The filtering options are now
+  dependent on the other filters.
+
 #### Windows
-- Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
-  it was successful.
 - Fix app occasionally getting stuck in the offline state after being suspended.
 
 #### Linux
 - Fixed incompatibility with newer kernel versions (5.19 and up).
 
 ### Security
-#### Android
-- Prevent location request responses from being received outside the tunnel when in the connected
-  state.
-
 #### Windows
-- Fix potential leak window when stopping the service and auto-connect is enabled and always require
-  VPN is disabled. When stopped, usually due to a reboot, the daemon would disconnect before
-  entering a blocking state.
+- Fix potential leak window when stopping the service and auto-connect is enabled and always
+  require VPN is disabled. When stopped, usually due to a reboot, the daemon would disconnect
+  before entering a blocking state.
 
 
 ## [2022.3-beta2] - 2022-06-29
