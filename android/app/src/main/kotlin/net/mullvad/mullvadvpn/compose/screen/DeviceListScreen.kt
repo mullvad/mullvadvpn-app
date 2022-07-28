@@ -144,6 +144,7 @@ fun DeviceListScreen(
                         state.devices.forEach { device ->
                             ListItem(
                                 text = device.name.capitalizeFirstCharOfEachWord(),
+                                isLoading = false,
                                 iconResourceId = R.drawable.icon_close
                             ) {
                                 viewModel.stageDeviceForRemoval(device)

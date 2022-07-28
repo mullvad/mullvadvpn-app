@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,6 +24,7 @@ import net.mullvad.mullvadvpn.R
 @Composable
 fun ListItem(
     text: String,
+    isLoading: Boolean,
     @DrawableRes iconResourceId: Int? = null,
     onClick: () -> Unit
 ) {
@@ -50,7 +53,15 @@ fun ListItem(
                 .align(Alignment.CenterEnd)
                 .padding(horizontal = 12.dp)
         ) {
-            if (iconResourceId != null) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    strokeWidth = 3.dp,
+                    color = Color.White,
+                    modifier = Modifier
+                        .height(24.dp)
+                        .width(24.dp)
+                )
+            } else if (iconResourceId != null) {
                 Image(
                     painter = painterResource(id = iconResourceId),
                     contentDescription = "Remove",
