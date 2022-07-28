@@ -2,8 +2,10 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
@@ -15,6 +17,10 @@ class DeviceListViewModel(
     private val deviceRepository: DeviceRepository
 ) : ViewModel() {
     private val _stagedForRemoval = MutableStateFlow<Device?>(null)
+
+    private val _toastMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val toastMessages = _toastMessages.asSharedFlow()
+
     var accountToken: String? = null
 
     val uiState = deviceRepository.deviceList
