@@ -136,5 +136,4 @@ class DeviceRepository(
 
         return result
     }
-
 }
