@@ -37,12 +37,20 @@ Line wrap the file at 100 chars.                                              Th
 - Remove WireGuard view as it's no longer needed with the new way of managing devices.
 
 ### Fixed
-- Fix showing incompatible relay filtering options in desktop app. The filtering options are now
-  dependent on the other filters.
-
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.
 - Fix missing IPC message unregistration causing multiple copies of some messages to be received.
+
+### Security
+#### Android
+- Prevent location request responses from being received outside the tunnel when in the connected
+  state.
+
+
+## [2022.3-beta3] - 2022-07-28
+### Fixed
+- Fix showing incompatible relay filtering options in desktop app. The filtering options are now
+  dependent on the other filters.
 
 #### Windows
 - Fix app occasionally getting stuck in the offline state after being suspended.
@@ -51,14 +59,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fixed incompatibility with newer kernel versions (5.19 and up).
 
 ### Security
-#### Android
-- Prevent location request responses from being received outside the tunnel when in the connected
-  state.
-
 #### Windows
-- Fix potential leak window when stopping the service and auto-connect is enabled and always require
-  VPN is disabled. When stopped, usually due to a reboot, the daemon would disconnect before
-  entering a blocking state.
+- Fix potential leak window when stopping the service and auto-connect is enabled and always
+  require VPN is disabled. When stopped, usually due to a reboot, the daemon would disconnect
+  before entering a blocking state.
 
 
 ## [2022.3-beta2] - 2022-06-29
