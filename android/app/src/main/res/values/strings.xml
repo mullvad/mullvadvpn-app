@@ -199,4 +199,5 @@
     <string name="copy_account_number">Copy account number</string>
     <string name="hide_account_number">Hide account number</string>
     <string name="show_account_number">Show account number</string>
+    <string name="failed_to_remove_device">Failed to remove device</string>
 </resources>
