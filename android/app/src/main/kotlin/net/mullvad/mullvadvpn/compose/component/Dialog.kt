@@ -86,7 +86,7 @@ fun ShowDeviceRemovalDialog(viewModel: DeviceListViewModel, device: Device) {
                         contentColor = Color.White
                     ),
                     onClick = {
-                        viewModel.confirmRemoval()
+                        viewModel.confirmRemovalOfStagedDevice()
                     }
                 ) {
                     Text(

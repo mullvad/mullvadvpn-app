@@ -9,14 +9,15 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
-import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.util.safeLet
+
+typealias DeviceId = String
 
 class DeviceListViewModel(
     private val deviceRepository: DeviceRepository
 ) : ViewModel() {
-    private val _stagedForRemoval = MutableStateFlow<Device?>(null)
+    private val _stagedDeviceId = MutableStateFlow<DeviceId?>(null)
 
     private val _toastMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val toastMessages = _toastMessages.asSharedFlow()
@@ -24,27 +25,30 @@ class DeviceListViewModel(
     var accountToken: String? = null
 
     val uiState = deviceRepository.deviceList
-        .combine(_stagedForRemoval) { deviceList, deviceStagedForRemoval ->
+        .combine(_stagedDeviceId) { deviceList, stagedDeviceId ->
+            val stagedDevice = deviceList.firstOrNull { device ->
+                device.id == stagedDeviceId
+            }
             DeviceListUiState(
                 devices = deviceList,
                 isLoading = false,
-                deviceStagedForRemoval = deviceStagedForRemoval
+                stagedDevice = stagedDevice
             )
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DeviceListUiState.INITIAL)
 
-    fun stageDeviceForRemoval(device: Device) {
-        _stagedForRemoval.value = device
+    fun stageDeviceForRemoval(deviceId: DeviceId) {
+        _stagedDeviceId.value = deviceId
     }
 
     fun clearStagedDevice() {
-        _stagedForRemoval.value = null
+        _stagedDeviceId.value = null
     }
 
-    fun confirmRemoval() {
-        safeLet(accountToken, _stagedForRemoval.value) { token, device ->
-            deviceRepository.removeDevice(token, device.id)
-            _stagedForRemoval.value = null
+    fun confirmRemovalOfStagedDevice() {
+        safeLet(accountToken, _stagedDeviceId.value) { token, deviceId ->
+            deviceRepository.removeDevice(token, deviceId)
+            _stagedDeviceId.value = null
         }
     }
 
