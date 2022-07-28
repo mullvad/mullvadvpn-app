@@ -33,6 +33,7 @@ class DeviceListViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
     private val _stagedDeviceId = MutableStateFlow<DeviceId?>(null)
+    private val _loadingDevices = MutableStateFlow<List<DeviceId>>(emptyList())
 
     private val _toastMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val toastMessages = _toastMessages.asSharedFlow()
@@ -40,27 +41,29 @@ class DeviceListViewModel(
     var accountToken: String? = null
     private var cachedDeviceList: List<Device>? = null
 
-    val uiState = deviceRepository.deviceList
-        .combine(_stagedDeviceId) { deviceList, stagedDeviceId ->
-            val devices = if (deviceList is DeviceList.Available) {
-                deviceList.devices.also { cachedDeviceList = it }
-            } else {
-                cachedDeviceList
-            }
-            val deviceUiItems = devices?.map { device ->
-                DeviceListItemUiState(device, false)
-            } ?: emptyList()
-            val isLoading = devices == null
-            val stagedDevice = devices?.firstOrNull { device ->
-                device.id == stagedDeviceId
-            }
-            DeviceListUiState(
-                deviceUiItems = deviceUiItems,
-                isLoading = isLoading,
-                stagedDevice = stagedDevice
-            )
+    val uiState = combine(
+        deviceRepository.deviceList,
+        _stagedDeviceId,
+        _loadingDevices
+    ) { deviceList, stagedDeviceId, loadingDevices ->
+        val devices = if (deviceList is DeviceList.Available) {
+            deviceList.devices.also { cachedDeviceList = it }
+        } else {
+            cachedDeviceList
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DeviceListUiState.INITIAL)
+        val deviceUiItems = devices?.map { device ->
+            DeviceListItemUiState(device, loadingDevices.any { device.id == it })
+        } ?: emptyList()
+        val isLoading = devices == null
+        val stagedDevice = devices?.firstOrNull { device ->
+            device.id == stagedDeviceId
+        }
+        DeviceListUiState(
+            deviceUiItems = deviceUiItems,
+            isLoading = isLoading,
+            stagedDevice = stagedDevice
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DeviceListUiState.INITIAL)
 
     fun stageDeviceForRemoval(deviceId: DeviceId) {
         _stagedDeviceId.value = deviceId
@@ -81,6 +84,7 @@ class DeviceListViewModel(
                         deviceRepository.deviceRemovalEvent
                             .onSubscription {
                                 clearStagedDevice()
+                                setLoadingDevice(stagedDeviceId)
                                 deviceRepository.removeDevice(token, stagedDeviceId)
                             }
                             .filter { (deviceId, result) ->
@@ -88,6 +92,8 @@ class DeviceListViewModel(
                             }
                             .first()
                     }
+
+                    clearLoadingDevice(stagedDeviceId)
 
                     if (result == null) {
                         _toastMessages.tryEmit(
@@ -99,6 +105,7 @@ class DeviceListViewModel(
             }
         } else {
             _toastMessages.tryEmit(resources.getString(R.string.error_occurred))
+            clearLoadingDevices()
             clearStagedDevice()
             refreshDeviceList()
         }
@@ -108,6 +115,18 @@ class DeviceListViewModel(
 
     fun refreshDeviceList() = accountToken?.let { token ->
         deviceRepository.refreshDeviceList(token)
+    }
+
+    private fun setLoadingDevice(deviceId: DeviceId) {
+        _loadingDevices.value = _loadingDevices.value.toMutableList().apply { add(deviceId) }
+    }
+
+    private fun clearLoadingDevice(deviceId: DeviceId) {
+        _loadingDevices.value = _loadingDevices.value.toMutableList().apply { remove(deviceId) }
+    }
+
+    private fun clearLoadingDevices() {
+        _loadingDevices.value = emptyList()
     }
 
     companion object {
