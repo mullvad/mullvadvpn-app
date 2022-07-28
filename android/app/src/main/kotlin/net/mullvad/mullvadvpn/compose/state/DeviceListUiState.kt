@@ -3,17 +3,22 @@ package net.mullvad.mullvadvpn.compose.state
 import net.mullvad.mullvadvpn.model.Device
 
 data class DeviceListUiState(
-    val devices: List<Device>,
+    val deviceUiItems: List<DeviceListItemUiState>,
     val isLoading: Boolean,
     val stagedDevice: Device?
 ) {
-    val hasTooManyDevices = devices.count() >= 5
+    val hasTooManyDevices = deviceUiItems.count() >= 5
 
     companion object {
         val INITIAL = DeviceListUiState(
-            devices = listOf(),
+            deviceUiItems = emptyList(),
             isLoading = true,
             stagedDevice = null
         )
     }
 }
+
+data class DeviceListItemUiState(
+    val device: Device,
+    val isLoading: Boolean
+)

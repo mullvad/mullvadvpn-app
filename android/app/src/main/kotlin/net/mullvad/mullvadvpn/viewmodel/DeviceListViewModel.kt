@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.util.safeLet
@@ -30,7 +31,7 @@ class DeviceListViewModel(
                 device.id == stagedDeviceId
             }
             DeviceListUiState(
-                devices = deviceList,
+                deviceUiItems = deviceList.map { DeviceListItemUiState(it, false) },
                 isLoading = false,
                 stagedDevice = stagedDevice
             )
