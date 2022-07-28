@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
+import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceList
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.util.safeLet
@@ -25,12 +26,17 @@ class DeviceListViewModel(
     val toastMessages = _toastMessages.asSharedFlow()
 
     var accountToken: String? = null
+    private var cachedDeviceList: List<Device>? = null
 
     val uiState = deviceRepository.deviceList
         .combine(_stagedDeviceId) { deviceList, stagedDeviceId ->
-            val devices = (deviceList as? DeviceList.Available)?.devices
-            val deviceUiItems = devices?.map {
-                DeviceListItemUiState(it, false)
+            val devices = if (deviceList is DeviceList.Available) {
+                deviceList.devices.also { cachedDeviceList = it }
+            } else {
+                cachedDeviceList
+            }
+            val deviceUiItems = devices?.map { device ->
+                DeviceListItemUiState(device, false)
             } ?: emptyList()
             val isLoading = devices == null
             val stagedDevice = devices?.firstOrNull { device ->
