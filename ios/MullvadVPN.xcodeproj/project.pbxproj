@@ -16,7 +16,6 @@
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
 		5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2C1243203D000F5FF30 /* StringTests.swift */; };
 		5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
-		58095C4B2760B4F200890776 /* AddressCacheStoreError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C4A2760B4F200890776 /* AddressCacheStoreError.swift */; };
 		58095C4F2760BA9100890776 /* AddressCacheStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C4E2760BA9100890776 /* AddressCacheStore.swift */; };
 		58095C512760BBB500890776 /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C502760BBB400890776 /* AddressCacheTracker.swift */; };
 		58095C532760EEC700890776 /* RESTNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C522760EEC700890776 /* RESTNetworkOperation.swift */; };
@@ -362,7 +361,6 @@
 		5808273928487E3E006B77A4 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		5808273B284888BC006B77A4 /* App.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = App.xcconfig; sourceTree = "<group>"; };
 		5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = PacketTunnel.xcconfig; sourceTree = "<group>"; };
-		58095C4A2760B4F200890776 /* AddressCacheStoreError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheStoreError.swift; sourceTree = "<group>"; };
 		58095C4E2760BA9100890776 /* AddressCacheStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheStore.swift; sourceTree = "<group>"; };
 		58095C502760BBB400890776 /* AddressCacheTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheTracker.swift; sourceTree = "<group>"; };
 		58095C522760EEC700890776 /* RESTNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTNetworkOperation.swift; sourceTree = "<group>"; };
@@ -638,7 +636,6 @@
 			children = (
 				58FEAFB82750DA2F003C1625 /* AddressCache.swift */,
 				58095C4E2760BA9100890776 /* AddressCacheStore.swift */,
-				58095C4A2760B4F200890776 /* AddressCacheStoreError.swift */,
 				58095C502760BBB400890776 /* AddressCacheTracker.swift */,
 			);
 			path = AddressCache;
@@ -1383,7 +1380,6 @@
 				58F7CA882692E34000FC59FD /* WireguardKeysContentView.swift in Sources */,
 				58554F7B280B125F00013055 /* RESTAccountsProxy.swift in Sources */,
 				5801C9A527A14B2A0031566A /* TunnelManagerState.swift in Sources */,
-				58095C4B2760B4F200890776 /* AddressCacheStoreError.swift in Sources */,
 				5868585524054096000B8131 /* AppButton.swift in Sources */,
 				58781CC922AE7CA8009B9D8E /* RelayConstraints.swift in Sources */,
 				584E96BC240FD4DA00D3334F /* Location.swift in Sources */,

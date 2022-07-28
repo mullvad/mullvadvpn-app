@@ -104,9 +104,12 @@ extension AddressCache {
                 }
 
                 let task = self.apiProxy.getAddressList(retryStrategy: .default) { completion in
-                    operation.finish(
-                        completion: self.handleResponse(completion: completion)
-                    )
+                    self.setEndpoints(from: completion)
+
+                    let mappedCompletion = completion.map { _ in true }
+                        .eraseFailureType()
+
+                    operation.finish(completion: mappedCompletion)
                 }
 
                 operation.addCancellationBlock {
@@ -133,36 +136,26 @@ extension AddressCache {
             return _nextScheduleDate()
         }
 
-        private func handleResponse(
-            completion: OperationCompletion<[AnyIPEndpoint], REST.Error>
-        ) -> OperationCompletion<Bool, Error>
+        private func setEndpoints(from completion: OperationCompletion<[AnyIPEndpoint], REST.Error>)
         {
-            let mappedCompletion = completion
-                .flatMapError { error -> OperationCompletion<[AnyIPEndpoint], REST.Error> in
-                    if case URLError.cancelled = error {
-                        return .cancelled
-                    } else {
-                        return .failure(error)
-                    }
-                }
-                .tryMap { endpoints -> Bool in
-                    try store.setEndpoints(endpoints)
-
-                    return true
-                }
-
             nslock.lock()
-            lastFailureAttemptDate = mappedCompletion.isSuccess ? nil : Date()
-            nslock.unlock()
+            defer { nslock.unlock() }
 
-            if let error = mappedCompletion.error {
+            switch completion {
+            case .success(let endpoints):
+                store.setEndpoints(endpoints)
+
+            case .failure(let error):
                 logger.error(
                     chainedError: AnyChainedError(error),
                     message: "Failed to update address cache."
                 )
+
+            case .cancelled:
+                break
             }
 
-            return mappedCompletion
+            lastFailureAttemptDate = completion.isSuccess ? nil : Date()
         }
 
         private func scheduleEndpointsUpdate(startTime: DispatchWallTime) {
