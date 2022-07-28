@@ -1,6 +1,6 @@
 {
   "name": "mullvad-vpn",
-  "version": "2022.3.0-beta2",
+  "version": "2022.3.0-beta3",
   "productName": "Mullvad VPN",
   "private": true,
   "description": "Mullvad VPN client",
