@@ -11,22 +11,20 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.model.Device
+import net.mullvad.mullvadvpn.model.DeviceList
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
 
 class DeviceRepository(
     private val serviceConnectionManager: ServiceConnectionManager,
-    private val deviceListTimeoutMillis: Long = 5000L,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    private val cachedDeviceList = MutableStateFlow<List<Device>>(emptyList())
+    private val cachedDeviceList = MutableStateFlow<DeviceList>(DeviceList.Unavailable)
 
     val deviceState = serviceConnectionManager.connectionState
         .flatMapLatest { state ->
@@ -55,13 +53,22 @@ class DeviceRepository(
         }
 
     val deviceList = deviceListEvents
-        .map { (it as? DeviceListEvent.Available)?.devices ?: emptyList() }
+        .map {
+            if (it is DeviceListEvent.Available) {
+                DeviceList.Available(it.devices)
+            } else {
+                DeviceList.Error
+            }
+        }
         .onStart {
-            if (cachedDeviceList.value.isNotEmpty()) {
+            if (cachedDeviceList.value is DeviceList.Available) {
                 emit(cachedDeviceList.value)
             }
         }
-        .stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(), emptyList())
+        .shareIn(
+            CoroutineScope(Dispatchers.IO),
+            SharingStarted.WhileSubscribed()
+        )
 
     val deviceRemovalEvent: SharedFlow<Event.DeviceRemovalEvent> =
         serviceConnectionManager.connectionState
@@ -82,7 +89,7 @@ class DeviceRepository(
     }
 
     fun removeDevice(accountToken: String, deviceId: String) {
-        cachedDeviceList.value = emptyList()
+        clearCache()
         serviceConnectionManager.deviceDataSource()?.removeDevice(accountToken, deviceId)
     }
 
@@ -90,17 +97,44 @@ class DeviceRepository(
         serviceConnectionManager.deviceDataSource()?.refreshDeviceList(accountToken)
     }
 
-    suspend fun getDeviceList(accountToken: String): DeviceListEvent {
-        return withTimeoutOrNull(deviceListTimeoutMillis) {
+    fun clearCache() {
+        cachedDeviceList.value = DeviceList.Unavailable
+    }
+
+    private fun updateCache(event: DeviceListEvent, accountToken: String) {
+        cachedDeviceList.value =
+            if (event is DeviceListEvent.Available && event.accountToken == accountToken) {
+                DeviceList.Available(event.devices)
+            } else if (event is DeviceListEvent.Error) {
+                DeviceList.Error
+            } else {
+                DeviceList.Unavailable
+            }
+    }
+
+    suspend fun refreshAndAwaitDeviceListWithTimeout(
+        accountToken: String,
+        shouldClearCache: Boolean,
+        shouldOverrideCache: Boolean,
+        timeoutMillis: Long,
+    ): DeviceListEvent {
+        if (shouldClearCache) {
+            clearCache()
+        }
+
+        val result = withTimeoutOrNull(timeoutMillis) {
             deviceListEvents
                 .onStart {
                     refreshDeviceList(accountToken)
                 }
-                .onEach {
-                    cachedDeviceList.value =
-                        (it as? DeviceListEvent.Available)?.devices ?: emptyList()
-                }
                 .firstOrNull() ?: DeviceListEvent.Error
         } ?: DeviceListEvent.Error
+
+        if (shouldOverrideCache) {
+            updateCache(result, accountToken)
+        }
+
+        return result
     }
+
 }
