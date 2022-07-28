@@ -23,7 +23,7 @@ extension PacketTunnelConfiguration {
             peers.append(ipv6RelayEndpoint)
         }
 
-        let peerConfigs = peers.compactMap { (endpoint) -> PeerConfiguration in
+        let peerConfigs = peers.compactMap { endpoint -> PeerConfiguration in
             let pubKey = PublicKey(rawValue: selectorResult.endpoint.publicKey)!
             var peerConfig = PeerConfiguration(publicKey: pubKey)
             peerConfig.endpoint = endpoint
