@@ -333,7 +333,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
         completionHandler: ((OperationCompletion<(), TunnelManager.Error>) -> Void)? = nil
     )
     {
-        let operation = ReloadTunnelOperation(
+        let operation = ReconnectTunnelOperation(
             dispatchQueue: stateQueue,
             state: state,
             selectNewRelay: selectNewRelay

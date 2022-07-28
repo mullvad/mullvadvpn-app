@@ -1,5 +1,5 @@
 //
-//  ReloadTunnelOperation.swift
+//  ReconnectTunnelOperation.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 10/12/2021.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ReloadTunnelOperation: ResultOperation<(), TunnelManager.Error> {
+class ReconnectTunnelOperation: ResultOperation<(), TunnelManager.Error> {
     private let state: TunnelManager.State
     private let selectNewRelay: Bool
     private var task: Cancellable?
