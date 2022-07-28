@@ -43,11 +43,7 @@ extension TunnelManager {
         private var _isLoadedConfiguration = false
         private var _tunnelSettings: TunnelSettingsV2?
         private var _tunnelObject: Tunnel?
-        private var _tunnelStatus = TunnelStatus(
-            isNetworkReachable: false,
-            connectingDate: nil,
-            state: .disconnected
-        )
+        private var _tunnelStatus = TunnelStatus()
 
         var isLoadedConfiguration: Bool {
             get {

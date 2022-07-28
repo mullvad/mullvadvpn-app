@@ -597,7 +597,7 @@ final class TunnelManager: TunnelManagerStateDelegate {
         case .connecting, .reconnecting:
             // Start polling tunnel status to keep the relay information up to date
             // while the tunnel process is trying to connect.
-            startPollingTunnelStatus(connectingDate: newTunnelStatus.connectingDate)
+            startPollingTunnelStatus(connectingDate: newTunnelStatus.packetTunnelStatus.connectingDate)
 
         case .pendingReconnect, .connected, .disconnecting, .disconnected:
             // Stop polling tunnel status once connection moved to final state.
