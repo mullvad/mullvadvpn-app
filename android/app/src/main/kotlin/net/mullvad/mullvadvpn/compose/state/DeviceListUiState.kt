@@ -5,7 +5,7 @@ import net.mullvad.mullvadvpn.model.Device
 data class DeviceListUiState(
     val devices: List<Device>,
     val isLoading: Boolean,
-    val deviceStagedForRemoval: Device?
+    val stagedDevice: Device?
 ) {
     val hasTooManyDevices = devices.count() >= 5
 
@@ -13,7 +13,7 @@ data class DeviceListUiState(
         val INITIAL = DeviceListUiState(
             devices = listOf(),
             isLoading = true,
-            deviceStagedForRemoval = null
+            stagedDevice = null
         )
     }
 }

@@ -42,10 +42,10 @@ fun DeviceListScreen(
 ) {
     val state = viewModel.uiState.collectAsState().value
 
-    if (state.deviceStagedForRemoval != null) {
+    if (state.stagedDevice != null) {
         ShowDeviceRemovalDialog(
             viewModel = viewModel,
-            device = state.deviceStagedForRemoval
+            device = state.stagedDevice
         )
     }
 
@@ -147,7 +147,7 @@ fun DeviceListScreen(
                                 isLoading = false,
                                 iconResourceId = R.drawable.icon_close
                             ) {
-                                viewModel.stageDeviceForRemoval(device)
+                                viewModel.stageDeviceForRemoval(device.id)
                             }
                         }
                     }
