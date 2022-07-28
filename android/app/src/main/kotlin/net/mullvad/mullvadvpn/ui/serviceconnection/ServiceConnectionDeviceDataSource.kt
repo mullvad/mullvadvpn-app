@@ -31,6 +31,16 @@ class ServiceConnectionDeviceDataSource(
         }
     }
 
+    val deviceRemovalResult = callbackFlow {
+        val handler: (Event.DeviceRemovalEvent) -> Unit = { event ->
+            trySend(event)
+        }
+        dispatcher.registerHandler(Event.DeviceRemovalEvent::class, handler)
+        awaitClose {
+            // The current dispatcher doesn't support unregistration of handlers.
+        }
+    }
+
     // Async result: Event.DeviceChanged
     fun refreshDevice() {
         connection.send(Request.RefreshDeviceState.message)

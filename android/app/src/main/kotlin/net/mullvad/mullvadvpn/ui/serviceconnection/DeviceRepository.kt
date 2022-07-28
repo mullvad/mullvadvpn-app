@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -12,8 +13,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withTimeoutOrNull
+import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -59,6 +62,20 @@ class DeviceRepository(
             }
         }
         .stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(), emptyList())
+
+    val deviceRemovalEvent: SharedFlow<Event.DeviceRemovalEvent> =
+        serviceConnectionManager.connectionState
+            .flatMapLatest { state ->
+                if (state is ServiceConnectionState.ConnectedReady) {
+                    state.container.deviceDataSource.deviceRemovalResult
+                } else {
+                    emptyFlow()
+                }
+            }
+            .shareIn(
+                CoroutineScope(dispatcher),
+                SharingStarted.WhileSubscribed()
+            )
 
     fun refreshDeviceState() {
         serviceConnectionManager.deviceDataSource()?.refreshDevice()
