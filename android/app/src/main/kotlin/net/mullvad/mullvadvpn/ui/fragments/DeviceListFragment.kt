@@ -58,6 +58,11 @@ class DeviceListFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        deviceListViewModel.clearStagedDevice()
+    }
+
     private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
         deviceListViewModel.toastMessages
             .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
