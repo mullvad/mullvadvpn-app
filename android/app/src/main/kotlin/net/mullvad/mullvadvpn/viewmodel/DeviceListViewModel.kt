@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
+import net.mullvad.mullvadvpn.model.DeviceList
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.util.safeLet
 
@@ -27,12 +28,17 @@ class DeviceListViewModel(
 
     val uiState = deviceRepository.deviceList
         .combine(_stagedDeviceId) { deviceList, stagedDeviceId ->
-            val stagedDevice = deviceList.firstOrNull { device ->
+            val devices = (deviceList as? DeviceList.Available)?.devices
+            val deviceUiItems = devices?.map {
+                DeviceListItemUiState(it, false)
+            } ?: emptyList()
+            val isLoading = devices == null
+            val stagedDevice = devices?.firstOrNull { device ->
                 device.id == stagedDeviceId
             }
             DeviceListUiState(
-                deviceUiItems = deviceList.map { DeviceListItemUiState(it, false) },
-                isLoading = false,
+                deviceUiItems = deviceUiItems,
+                isLoading = isLoading,
                 stagedDevice = stagedDevice
             )
         }
