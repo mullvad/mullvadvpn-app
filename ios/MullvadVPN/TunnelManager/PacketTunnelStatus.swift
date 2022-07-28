@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// A struct that holds packet tunnel process status.
+/// Struct describing packet tunnel process status.
 struct PacketTunnelStatus: Codable, Equatable {
     /// Flag indicating whether network is reachable.
     var isNetworkReachable: Bool = true
@@ -20,7 +20,7 @@ struct PacketTunnelStatus: Codable, Equatable {
     var tunnelRelay: PacketTunnelRelay?
 }
 
-/// A struct that holds the relay endpoints and location.
+/// Struct holding tunnel relay information.
 struct PacketTunnelRelay: Codable, Equatable {
     /// IPv4 relay endpoint.
     let ipv4Relay: IPv4Endpoint
