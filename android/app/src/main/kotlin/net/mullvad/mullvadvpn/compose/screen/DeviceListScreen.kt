@@ -29,7 +29,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ActionButton
-import net.mullvad.mullvadvpn.compose.component.ItemList
+import net.mullvad.mullvadvpn.compose.component.ListItem
 import net.mullvad.mullvadvpn.compose.component.ShowDeviceRemovalDialog
 import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
@@ -140,14 +140,16 @@ fun DeviceListScreen(
                             width = Dimension.matchParent
                         }
                 ) {
-                    ItemList(
-                        state.devices,
-                        itemText = { it.name.capitalizeFirstCharOfEachWord() },
-                        onItemClicked = {
-                            viewModel.stageDeviceForRemoval(it)
-                        },
-                        itemPainter = painterResource(id = R.drawable.icon_close)
-                    )
+                    Column {
+                        state.devices.forEach { device ->
+                            ListItem(
+                                text = device.name.capitalizeFirstCharOfEachWord(),
+                                iconResourceId = R.drawable.icon_close
+                            ) {
+                                viewModel.stageDeviceForRemoval(device)
+                            }
+                        }
+                    }
                 }
             }
         }
