@@ -253,7 +253,6 @@ extension SceneDelegate {
         let showNextController = { [weak self] (animated: Bool) in
             guard let self = self else { return }
 
-            let isModalRootPresented = self.modalRootContainer.presentingViewController != nil
             lazy var viewControllers: [UIViewController] = [self.makeLoginController()]
 
             switch tunnelManager.deviceState {
@@ -312,6 +311,10 @@ extension SceneDelegate {
         if modalRootContainer.presentingViewController == nil {
             rootContainer.present(modalRootContainer, animated: animated)
         }
+    }
+
+    private var isModalRootPresented: Bool {
+        return modalRootContainer.presentingViewController != nil
     }
 
     private func setupPhoneUI() {
@@ -453,7 +456,6 @@ extension SceneDelegate {
             dismissController?.dismiss(animated: true)
 
         case .pad:
-            let isModalRootPresented = modalRootContainer.presentingViewController != nil
             let didDismissSourceController = {
                 self.presentModalRootContainerIfNeeded(animated: true)
             }
@@ -739,8 +741,6 @@ extension SceneDelegate: TunnelObserver {
                 loginController,
                 makeRevokedDeviceController()
             ]
-
-            let isModalRootPresented = modalRootContainer.presentingViewController != nil
 
             let didDismissSettings = {
                 self.showSplitViewMaster(false, animated: true)
