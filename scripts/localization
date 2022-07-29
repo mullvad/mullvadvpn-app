@@ -12,8 +12,9 @@ function main {
         prepare) prepare_localization_strings;;
         upload) upload_to_crowdin;;
         download) download_from_crowdin;;
+        sync-local-files) sync_localizations;;
         "")
-            echo "Available subcommands: prepare, upload and download"
+            echo "Available subcommands: prepare, upload, download and sync-local-files"
             ;;
         *)
             echo "Unknown parameter: $1"
@@ -22,7 +23,7 @@ function main {
     esac
 }
 
-function update_messages_pot {
+function sync_localizations {
     # Update desktop strings in messages.pot
     log_header "Extracting localization strings from desktop app source code"
     pushd ../gui
@@ -70,7 +71,7 @@ function commit_changes {
 }
 
 function prepare_localization_strings {
-    update_messages_pot
+    sync_localizations
     commit_changes "Update messages.pot"
 
     update_relay_locations_pot
@@ -97,7 +98,7 @@ function download_from_crowdin {
 
     # Add new translations to Android xml-files
     log_header "Updating Android xml-files with new translations"
-    update_messages_pot
+    sync_localizations
     commit_changes "Update translations"
 }
 
