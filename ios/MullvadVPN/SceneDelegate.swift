@@ -334,8 +334,7 @@ extension SceneDelegate {
                 break
 
             case .revoked:
-                let revokedDeviceContrller = self.makeRevokedDeviceController()
-                viewControllers.append(revokedDeviceContrller)
+                viewControllers.append(self.makeRevokedDeviceController())
             }
 
             self.rootContainer.setViewControllers(viewControllers, animated: animated) {
