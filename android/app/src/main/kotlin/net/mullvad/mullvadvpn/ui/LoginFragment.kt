@@ -158,6 +158,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
             }
 
             is LoginViewModel.LoginUiState.TooManyDevicesError -> {
+                showLoading(overrideSpinnerWithErrorIcon = true)
                 openDeviceListFragment(uiState.accountToken)
             }
 
@@ -176,6 +177,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
     }
 
     private fun openDeviceListFragment(accountToken: String) {
+
         val deviceFragment = DeviceListFragment().apply {
             arguments = Bundle().apply { putString(ACCOUNT_TOKEN_ARGUMENT_KEY, accountToken) }
         }
@@ -199,19 +201,27 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
         paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
     }
 
-    private fun showLoading() {
+    private fun showLoading(overrideSpinnerWithErrorIcon: Boolean = false) {
         accountLogin.state = LoginState.InProgress
 
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.logging_in_description)
 
-        loggingInStatus.visibility = View.VISIBLE
-        loginFailStatus.visibility = View.GONE
+        loggingInStatus.visibility = if (overrideSpinnerWithErrorIcon == false) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
+        loginFailStatus.visibility = if (overrideSpinnerWithErrorIcon == false) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
+
         loggedInStatus.visibility = View.GONE
 
         background.requestFocus()
-
-        accountLogin.state = LoginState.InProgress
 
         scrollToShow(loggingInStatus)
     }
