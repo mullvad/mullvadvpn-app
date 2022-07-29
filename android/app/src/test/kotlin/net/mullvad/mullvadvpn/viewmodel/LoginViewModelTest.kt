@@ -108,7 +108,14 @@ class LoginViewModelTest {
 
     @Test
     fun testLoginWithTooManyDevicesError() = runBlockingTest {
-        coEvery { mockedDeviceRepository.getDeviceList(any()) } returns DeviceListEvent.Available(
+        coEvery {
+            mockedDeviceRepository.refreshAndAwaitDeviceListWithTimeout(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns DeviceListEvent.Available(
             DUMMY_ACCOUNT_TOKEN, listOf()
         )
 

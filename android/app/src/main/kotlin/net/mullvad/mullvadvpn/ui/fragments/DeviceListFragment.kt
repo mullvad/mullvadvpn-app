@@ -4,9 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.colorResource
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.screen.DeviceListScreen
@@ -18,6 +25,11 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class DeviceListFragment : Fragment() {
 
     private val deviceListViewModel by viewModel<DeviceListViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,8 +49,8 @@ class DeviceListFragment : Fragment() {
                     content = {
                         DeviceListScreen(
                             viewModel = deviceListViewModel,
-                            onBackClick = this@DeviceListFragment::goBack,
-                            onContinueWithLogin = this@DeviceListFragment::openLoginView
+                            onBackClick = { openLoginView(doTriggerAutoLogin = false) },
+                            onContinueWithLogin = { openLoginView(doTriggerAutoLogin = true) }
                         )
                     }
                 )
@@ -46,10 +58,23 @@ class DeviceListFragment : Fragment() {
         }
     }
 
-    private fun openLoginView() {
+    override fun onResume() {
+        super.onResume()
+        deviceListViewModel.clearStagedDevice()
+    }
+
+    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
+        deviceListViewModel.toastMessages
+            .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+            .collect {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun openLoginView(doTriggerAutoLogin: Boolean) {
         parentActivity()?.clearBackStack()
         val loginFragment = LoginFragment().apply {
-            if (deviceListViewModel.accountToken != null) {
+            if (doTriggerAutoLogin && deviceListViewModel.accountToken != null) {
                 arguments = Bundle().apply {
                     putString(
                         ACCOUNT_TOKEN_ARGUMENT_KEY,
@@ -62,10 +87,6 @@ class DeviceListFragment : Fragment() {
             replace(R.id.main_fragment, loginFragment)
             commit()
         }
-    }
-
-    private fun goBack() {
-        parentActivity()?.onBackPressed()
     }
 
     private fun parentActivity(): MainActivity? {

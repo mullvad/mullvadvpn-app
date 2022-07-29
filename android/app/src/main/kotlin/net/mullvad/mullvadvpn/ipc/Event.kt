@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.RelayList
+import net.mullvad.mullvadvpn.model.RemoveDeviceResult
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult as VoucherSubmissionResultData
@@ -43,6 +44,9 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize
     data class DeviceListUpdate(val event: DeviceListEvent) : Event()
+
+    @Parcelize
+    data class DeviceRemovalEvent(val deviceId: String, val result: RemoveDeviceResult) : Event()
 
     @Parcelize
     data class ListenerReady(val connection: Messenger, val listenerId: Int) : Event()

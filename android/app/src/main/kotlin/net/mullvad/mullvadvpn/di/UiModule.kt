@@ -41,6 +41,7 @@ val uiModule = module {
     }
 
     single { ServiceConnectionManager(androidContext()) }
+    single { androidContext().resources }
 
     single { AccountExpiryNotification(get()) }
     single { TunnelStateNotification(get()) }
@@ -50,7 +51,7 @@ val uiModule = module {
     single { DeviceRepository(get()) }
     viewModel { LoginViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
-    viewModel { DeviceListViewModel(get()) }
+    viewModel { DeviceListViewModel(get(), get()) }
 }
 
 const val APPS_SCOPE = "APPS_SCOPE"

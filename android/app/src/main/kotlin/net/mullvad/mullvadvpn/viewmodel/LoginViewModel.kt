@@ -80,7 +80,14 @@ class LoginViewModel(
             LoginResult.Ok -> LoginUiState.Success(false)
             LoginResult.InvalidAccount -> LoginUiState.InvalidAccountError
             LoginResult.MaxDevicesReached -> {
-                if (deviceRepository.getDeviceList(accountToken).isAvailable()) {
+                val refreshResult = deviceRepository.refreshAndAwaitDeviceListWithTimeout(
+                    accountToken = accountToken,
+                    shouldClearCache = true,
+                    shouldOverrideCache = true,
+                    timeoutMillis = 5000L
+                )
+
+                if (refreshResult.isAvailable()) {
                     LoginUiState.TooManyDevicesError(accountToken)
                 } else {
                     LoginUiState.TooManyDevicesMissingListError
