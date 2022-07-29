@@ -35,6 +35,9 @@ Line wrap the file at 100 chars.                                              Th
   default 1500. The 1500 is still the fallback if this for some reason fails. This may stop
   fragmentation.
 
+#### Linux
+- GUI: Add electron flags to run Wayland native if in a compositor/desktop known to work well
+
 ### Changed
 - Reject invalid WireGuard ports in the CLI.
 - Reorganize settings into more logical categories.
