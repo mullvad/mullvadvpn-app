@@ -18,11 +18,16 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
+import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.ui.fragments.DeviceRevokedFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
@@ -189,9 +194,16 @@ open class MainActivity : FragmentActivity() {
 
     private suspend fun openLoggedInView(accountToken: String, shouldDelayLogin: Boolean) {
         val isNewAccount = accountToken == accountRepository.cachedCreatedAccount.value
+        val isExpired = isNewAccount.not() && isExpired(LOGIN_AWAIT_EXPIRY_MILLIS)
 
         val fragment = when {
             isNewAccount -> WelcomeFragment()
+            isExpired -> {
+                if (shouldDelayLogin) {
+                    delay(LOGIN_DELAY_MILLIS)
+                }
+                OutOfTimeFragment()
+            }
             else -> {
                 if (shouldDelayLogin) {
                     delay(LOGIN_DELAY_MILLIS)
@@ -204,6 +216,15 @@ open class MainActivity : FragmentActivity() {
             replace(R.id.main_fragment, fragment)
             commit()
         }
+    }
+
+    private suspend fun isExpired(timeoutMillis: Long): Boolean {
+        return withTimeoutOrNull(timeoutMillis) {
+            accountRepository.accountExpiryState
+                .filter { it is AccountExpiry.Available }
+                .map { it.date()?.isBeforeNow }
+                .first()
+        } ?: false
     }
 
     private fun openLoginView() {
@@ -238,5 +259,6 @@ open class MainActivity : FragmentActivity() {
 
     companion object {
         private const val LOGIN_DELAY_MILLIS = 1000L
+        private const val LOGIN_AWAIT_EXPIRY_MILLIS = 1000L
     }
 }
