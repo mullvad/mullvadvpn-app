@@ -17,6 +17,11 @@ class SceneDelegate: UIResponder {
     private var isSceneConfigured = false
 
     private let rootContainer = RootContainerViewController()
+
+    // Modal root container is used on iPad to present login, TOS, revoked device, device management
+    // view controllers above `rootContainer` which only contains split controller.
+    private lazy var modalRootContainer = RootContainerViewController()
+
     private var splitViewController: CustomSplitViewController?
     private var selectLocationViewController: SelectLocationViewController?
     private var connectController: ConnectViewController?
@@ -224,6 +229,7 @@ extension SceneDelegate: RootContainerViewControllerDelegate {
 extension SceneDelegate {
 
     private func setupPadUI() {
+        let tunnelManager = TunnelManager.shared
         let selectLocationController = makeSelectLocationController()
         let connectController = makeConnectViewController()
 
@@ -240,32 +246,75 @@ extension SceneDelegate {
         self.connectController = connectController
 
         rootContainer.setViewControllers([splitViewController], animated: false)
-        showSplitViewMaster(TunnelManager.shared.deviceState.isLoggedIn, animated: false)
+        showSplitViewMaster(tunnelManager.deviceState.isLoggedIn, animated: false)
 
-        // TODO: handle revoked state!
+        modalRootContainer.delegate = self
 
-        let rootContainerWrapper = makeLoginContainerController()
+        let showNextController = { [weak self] (animated: Bool) in
+            guard let self = self else { return }
 
-        if !TermsOfService.isAgreed {
-            let termsOfServiceViewController = self.makeTermsOfServiceController { [weak self] viewController in
-                guard let self = self else { return }
+            lazy var viewControllers: [UIViewController] = [self.makeLoginController()]
 
-                if TunnelManager.shared.deviceState.isLoggedIn {
-                    rootContainerWrapper.dismiss(animated: true) {
-                        self.showAccountSettingsControllerIfAccountExpired()
-                    }
-                } else {
-                    rootContainerWrapper.pushViewController(self.makeLoginController(), animated: true)
+            switch tunnelManager.deviceState {
+            case .loggedIn:
+                let didDismissModalRoot = {
+                    self.showAccountSettingsControllerIfAccountExpired()
                 }
+
+                // Dismiss modal root container if needed before proceeding.
+                if self.isModalRootPresented {
+                    self.modalRootContainer.dismiss(animated: animated, completion: didDismissModalRoot)
+                } else {
+                    didDismissModalRoot()
+                }
+
+                return
+
+            case .loggedOut:
+                break
+
+            case .revoked:
+                viewControllers.append(self.makeRevokedDeviceController())
             }
-            rootContainerWrapper.setViewControllers([termsOfServiceViewController], animated: false)
-            rootContainer.present(rootContainerWrapper, animated: false)
-        } else if !TunnelManager.shared.deviceState.isLoggedIn {
-            rootContainerWrapper.setViewControllers([makeLoginController()], animated: false)
-            rootContainer.present(rootContainerWrapper, animated: false)
-        } else {
-            self.showAccountSettingsControllerIfAccountExpired()
+
+            // Configure modal container.
+            self.modalRootContainer.setViewControllers(
+                viewControllers,
+                animated: self.isModalRootPresented && animated
+            )
+
+            // Present modal container if not presented yet.
+            self.presentModalRootContainerIfNeeded(animated: animated)
         }
+
+        if TermsOfService.isAgreed {
+            showNextController(false)
+        } else {
+            let termsOfServiceController = self.makeTermsOfServiceController { _ in
+                showNextController(true)
+            }
+
+            modalRootContainer.setViewControllers([termsOfServiceController], animated: false)
+            presentModalRootContainerIfNeeded(animated: false)
+        }
+    }
+
+    private func presentModalRootContainerIfNeeded(animated: Bool) {
+        modalRootContainer.preferredContentSize = CGSize(width: 480, height: 600)
+        modalRootContainer.modalPresentationStyle = .formSheet
+        modalRootContainer.presentationController?.delegate = self
+
+        if #available(iOS 13.0, *) {
+            modalRootContainer.isModalInPresentation = true
+        }
+
+        if modalRootContainer.presentingViewController == nil {
+            rootContainer.present(modalRootContainer, animated: animated)
+        }
+    }
+
+    private var isModalRootPresented: Bool {
+        return modalRootContainer.presentingViewController != nil
     }
 
     private func setupPhoneUI() {
@@ -369,24 +418,6 @@ extension SceneDelegate {
         return controller
     }
 
-    private func makeLoginContainerController() -> RootContainerViewController {
-        let rootContainerWrapper = RootContainerViewController()
-        rootContainerWrapper.delegate = self
-        rootContainerWrapper.preferredContentSize = CGSize(width: 480, height: 600)
-
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            rootContainerWrapper.modalPresentationStyle = .formSheet
-            if #available(iOS 13.0, *) {
-                // Prevent swiping off the login or terms of service controllers
-                rootContainerWrapper.isModalInPresentation = true
-            }
-        }
-
-        rootContainerWrapper.presentationController?.delegate = self
-
-        return rootContainerWrapper
-    }
-
     private func makeRevokedDeviceController() -> RevokedDeviceViewController {
         let controller = RevokedDeviceViewController()
         controller.delegate = self
@@ -424,19 +455,20 @@ extension SceneDelegate {
             dismissController?.dismiss(animated: true)
 
         case .pad:
-            let loginContainer = makeLoginContainerController()
-            loginContainer.setViewControllers([makeLoginController()], animated: false)
-
-            let presentLogin = {
-                self.rootContainer.present(loginContainer, animated: true)
+            let didDismissSourceController = {
+                self.presentModalRootContainerIfNeeded(animated: true)
             }
 
+            let loginController = modalRootContainer.viewControllers.first as? LoginViewController
+            loginController?.reset()
+
+            modalRootContainer.popToRootViewController(animated: isModalRootPresented)
             showSplitViewMaster(false, animated: true)
 
             if let dismissController = dismissController {
-                dismissController.dismiss(animated: true, completion: presentLogin)
+                dismissController.dismiss(animated: true, completion: didDismissSourceController)
             } else {
-                presentLogin()
+                didDismissSourceController()
             }
 
         default:
@@ -698,7 +730,29 @@ extension SceneDelegate: TunnelObserver {
             rootContainer.setViewControllers(viewControllers, animated: true)
 
         case .pad:
-            break
+            guard let loginController = modalRootContainer.viewControllers.first as? LoginViewController else {
+                return
+            }
+
+            loginController.reset()
+
+            let viewControllers = [
+                loginController,
+                makeRevokedDeviceController()
+            ]
+
+            let didDismissSettings = {
+                self.showSplitViewMaster(false, animated: true)
+                self.presentModalRootContainerIfNeeded(animated: true)
+            }
+
+            modalRootContainer.setViewControllers(viewControllers, animated: isModalRootPresented)
+
+            if let settingsNavController = settingsNavController {
+                settingsNavController.dismiss(animated: true, completion: didDismissSettings)
+            } else {
+                didDismissSettings()
+            }
 
         default:
             fatalError()
