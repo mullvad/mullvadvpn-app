@@ -89,7 +89,6 @@ class DeviceRepository(
     }
 
     fun removeDevice(accountToken: String, deviceId: String) {
-        clearCache()
         serviceConnectionManager.deviceDataSource()?.removeDevice(accountToken, deviceId)
     }
 
