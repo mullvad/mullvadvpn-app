@@ -6,9 +6,10 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
@@ -23,8 +24,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class MullvadTileService : TileService() {
-    private val scope = MainScope()
-    private var listenerJob: Job? = null
+    private var scope: CoroutineScope? = null
 
     private lateinit var securedIcon: Icon
     private lateinit var unsecuredIcon: Icon
@@ -65,11 +65,11 @@ class MullvadTileService : TileService() {
     }
 
     override fun onStartListening() {
-        listenerJob = scope.launch { listenToTunnelState() }
+        scope = MainScope().apply { launchListenToTunnelState() }
     }
 
     override fun onStopListening() {
-        listenerJob?.cancel()
+        scope?.cancel()
     }
 
     private fun toggleTunnel() {
@@ -86,8 +86,8 @@ class MullvadTileService : TileService() {
     }
 
     @OptIn(FlowPreview::class)
-    private suspend fun listenToTunnelState() {
-        ServiceConnection(this@MullvadTileService, scope)
+    private fun CoroutineScope.launchListenToTunnelState() = launch {
+        ServiceConnection(this@MullvadTileService, this)
             .tunnelState
             .debounce(300L)
             .map { (tunnelState, connectionState) -> mapToTileState(tunnelState, connectionState) }
