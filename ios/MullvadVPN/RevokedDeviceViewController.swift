@@ -106,8 +106,8 @@ class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObse
         view.backgroundColor = .secondaryColor
         view.layoutMargins = UIMetrics.contentLayoutMargins
 
-        for child in [imageView, titleLabel, bodyLabel, footerLabel, logoutButton] {
-            view.addSubview(child)
+        for subview in [imageView, titleLabel, bodyLabel, footerLabel, logoutButton] {
+            view.addSubview(subview)
         }
 
         logoutButton.addTarget(
