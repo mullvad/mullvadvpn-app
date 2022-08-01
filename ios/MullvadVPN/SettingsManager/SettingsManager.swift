@@ -16,128 +16,169 @@ struct LegacyTunnelSettings {
     let tunnelSettings: TunnelSettingsV1
 }
 
-let keychainServiceName = "Mullvad VPN"
+private let keychainServiceName = "Mullvad VPN"
 
-enum KeychainAccountName: String, CaseIterable {
+private enum Item: String, CaseIterable {
     case settings = "Settings"
+    case deviceState = "DeviceState"
     case lastUsedAccount = "LastUsedAccount"
+}
+
+struct StringDecodingError: LocalizedError {
+    let data: Data
+
+    var errorDescription: String? {
+        return "Failed to decode string from data."
+    }
+}
+
+struct StringEncodingError: LocalizedError {
+    let string: String
+
+    var errorDescription: String? {
+        return "Failed to encode string into data."
+    }
 }
 
 extension SettingsManager {
 
-    // MARK: -
+    // MARK: - Lsat used account
 
     static func getLastUsedAccount() throws -> String {
-        var query = createDefaultAttributes(accountName: .lastUsedAccount)
-        query[kSecReturnData] = true
+        let data = try readItemData(.lastUsedAccount)
 
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        guard status == errSecSuccess else {
-            throw KeychainError(code: status)
+        if let string = String(data: data, encoding: .utf8) {
+            return string
+        } else {
+            throw StringDecodingError(data: data)
         }
-
-        let data = result as! Data
-
-        return String(data: data, encoding: .utf8)!
     }
 
     static func setLastUsedAccount(_ string: String?) throws {
-        let query = createDefaultAttributes(accountName: .lastUsedAccount)
+        if let string = string {
+            guard let data = string.data(using: .utf8) else {
+                throw StringEncodingError(string: string)
+            }
 
-        guard let string = string else {
-            switch SecItemDelete(query as CFDictionary) {
-            case errSecSuccess, errSecItemNotFound:
+            try addOrUpdateItem(.lastUsedAccount, data: data)
+        } else {
+            do {
+                try deleteItem(.lastUsedAccount)
+            } catch let error as KeychainError where error == .itemNotFound {
                 return
-            case let status:
-                throw KeychainError(code: status)
+            } catch {
+                throw error
             }
         }
+    }
 
-        let data = string.data(using: .utf8)!
-        var status = SecItemUpdate(
-            query as CFDictionary,
-            [kSecValueData: data] as CFDictionary
-        )
+    // MARK: - Settings
 
-        switch status {
-        case errSecItemNotFound:
-            var insert = query
-            insert[kSecAttrAccessible] = kSecAttrAccessibleAfterFirstUnlock
-            insert[kSecValueData] = data
+    static func readSettings() throws -> TunnelSettingsV2 {
+        let data = try readItemData(.settings)
 
-            status = SecItemAdd(insert as CFDictionary, nil)
-            if status != errSecSuccess {
-                throw KeychainError(code: status)
-            }
-        case errSecSuccess:
-            break
-        default:
+        return try JSONDecoder().decode(TunnelSettingsV2.self, from: data)
+    }
+
+    static func writeSettings(_ settings: TunnelSettingsV2) throws {
+        let data = try JSONEncoder().encode(settings)
+
+        try addOrUpdateItem(.settings, data: data)
+    }
+
+    static func deleteSettings() throws {
+        try deleteItem(.settings)
+    }
+
+    // MARK: - Device state
+
+    static func readDeviceState() throws -> DeviceState {
+        let data = try readItemData(.deviceState)
+
+        return try JSONDecoder().decode(DeviceState.self, from: data)
+    }
+
+    static func writeDeviceState(_ deviceState: DeviceState) throws {
+        let data = try JSONEncoder().encode(deviceState)
+
+        try addOrUpdateItem(.deviceState, data: data)
+    }
+
+
+    static func deleteDeviceState() throws {
+        try deleteItem(.deviceState)
+    }
+
+    // MARK: - Keychain helpers
+
+    private static func addItem(_ item: Item, data: Data) throws {
+        var query = createDefaultAttributes(item: item)
+        query.merge(createAccessAttributes()) { current, _ in
+            return current
+        }
+        query[kSecValueData] = data
+
+        let status = SecItemAdd(query as CFDictionary, nil)
+        if status != errSecSuccess {
             throw KeychainError(code: status)
         }
     }
 
-    // MARK: -
+    private static func updateItem(_ item: Item, data: Data) throws {
+        let query = createDefaultAttributes(item: item)
+        let status = SecItemUpdate(
+            query as CFDictionary,
+            [kSecValueData: data] as CFDictionary
+        )
 
-    static func readSettings() throws -> TunnelSettingsV2 {
-        var query = createDefaultAttributes(accountName: .settings)
+        if status != errSecSuccess {
+            throw KeychainError(code: status)
+        }
+    }
+    private static func addOrUpdateItem(_ item: Item, data: Data) throws {
+        do {
+            try updateItem(item, data: data)
+        } catch let error as KeychainError where error == .itemNotFound {
+            try addItem(item, data: data)
+        } catch {
+            throw error
+        }
+    }
+
+    private static func readItemData(_ item: Item) throws -> Data {
+        var query = createDefaultAttributes(item: item)
         query[kSecReturnData] = true
 
         var result: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
 
-        guard status == errSecSuccess else {
-            throw KeychainError(code: status)
-        }
-
-        let data = result as! Data
-
-        let decoder = JSONDecoder()
-        return try decoder.decode(TunnelSettingsV2.self, from: data)
-    }
-
-    static func writeSettings(_ settings: TunnelSettingsV2) throws {
-        let encoder = JSONEncoder()
-        let data = try encoder.encode(settings)
-
-        let query = createDefaultAttributes(accountName: .settings)
-        var status = SecItemUpdate(
-            query as CFDictionary,
-            [kSecValueData: data] as CFDictionary
-        )
-
-        switch status {
-        case errSecItemNotFound:
-            var insert = query
-            insert[kSecAttrAccessGroup] = ApplicationConfiguration.securityGroupIdentifier
-            insert[kSecAttrAccessible] = kSecAttrAccessibleAfterFirstUnlock
-            insert[kSecValueData] = data
-
-            status = SecItemAdd(insert as CFDictionary, nil)
-            if status != errSecSuccess {
-                throw KeychainError(code: status)
-            }
-        case errSecSuccess:
-            break
-        default:
+        if status == errSecSuccess {
+            return result as? Data ?? Data()
+        } else {
             throw KeychainError(code: status)
         }
     }
 
-    static func deleteSettings() throws {
-        let query = createDefaultAttributes(accountName: .settings)
+    private static func deleteItem(_ item: Item) throws {
+        let query = createDefaultAttributes(item: item)
         let status = SecItemDelete(query as CFDictionary)
         if status != errSecSuccess {
             throw KeychainError(code: status)
         }
     }
 
-    private static func createDefaultAttributes(accountName: KeychainAccountName) -> [CFString: Any]  {
+    private static func createDefaultAttributes(item: Item) -> [CFString: Any]  {
         return [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: keychainServiceName,
-            kSecAttrAccount: accountName.rawValue
+            kSecAttrAccount: item.rawValue
+        ]
+    }
+
+    private static func createAccessAttributes() -> [CFString: Any] {
+        return [
+            kSecAttrAccessGroup: ApplicationConfiguration.securityGroupIdentifier,
+            kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock
         ]
     }
 
@@ -251,6 +292,6 @@ extension SettingsManager {
             return false
         }
 
-        return KeychainAccountName(rawValue: accountNumber) == nil
+        return Item(rawValue: accountNumber) == nil
     }
 }

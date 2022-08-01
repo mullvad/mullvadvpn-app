@@ -50,16 +50,14 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
-        guard TunnelManager.shared.isAccountSet else {
+        switch TunnelManager.shared.deviceState {
+        case .loggedIn, .revoked:
+            return HeaderBarPresentation(
+                style: tunnelState.isSecured ? .secured : .unsecured,
+                showsDivider: false
+            )
+        case .loggedOut:
             return HeaderBarPresentation(style: .default, showsDivider: true)
-        }
-
-        switch tunnelState {
-        case .connecting, .reconnecting, .connected:
-            return HeaderBarPresentation(style: .secured, showsDivider: false)
-
-        case .disconnecting, .disconnected, .pendingReconnect:
-            return HeaderBarPresentation(style: .unsecured, showsDivider: false)
         }
     }
 
@@ -92,7 +90,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         contentView.selectLocationButton.addTarget(self, action: #selector(handleSelectLocation(_:)), for: .touchUpInside)
 
         TunnelManager.shared.addObserver(self)
-        self.tunnelState = TunnelManager.shared.tunnelState
+        self.tunnelState = TunnelManager.shared.tunnelStatus.state
 
         addSubviews()
         setupMapView()
@@ -151,7 +149,11 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2?) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+        // no-op
+    }
+
+    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
         setNeedsHeaderBarStyleAppearanceUpdate()
     }
 
@@ -159,7 +161,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         self.tunnelState = tunnelState
     }
 
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
         // no-op
     }
 

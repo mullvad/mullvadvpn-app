@@ -11,36 +11,31 @@ import NetworkExtension
 import Logging
 
 class MapConnectionStatusOperation: AsyncOperation {
-    typealias StartTunnelHandler = () -> Void
-
-    private let state: TunnelManager.State
+    private let interactor: TunnelInteractor
     private let connectionStatus: NEVPNStatus
-    private var startTunnelHandler: StartTunnelHandler?
     private var request: Cancellable?
 
     private let logger = Logger(label: "TunnelManager.MapConnectionStatusOperation")
 
     init(
         queue: DispatchQueue,
-        state: TunnelManager.State,
-        connectionStatus: NEVPNStatus,
-        startTunnelHandler: @escaping StartTunnelHandler
+        interactor: TunnelInteractor,
+        connectionStatus: NEVPNStatus
     )
     {
-        self.state = state
+        self.interactor = interactor
         self.connectionStatus = connectionStatus
-        self.startTunnelHandler = startTunnelHandler
 
         super.init(dispatchQueue: queue)
     }
 
     override func main() {
-        guard let tunnel = state.tunnel else {
+        guard let tunnel = interactor.tunnel else {
             finish()
             return
         }
 
-        let tunnelState = state.tunnelStatus.state
+        let tunnelState = interactor.tunnelStatus.state
 
         switch connectionStatus {
         case .connecting:
@@ -48,7 +43,7 @@ class MapConnectionStatusOperation: AsyncOperation {
             case .connecting(.some(_)):
                 break
             default:
-                state.tunnelStatus.state = .connecting(nil)
+                interactor.updateTunnelState(.connecting(nil))
             }
 
             updateTunnelRelayAndFinish(tunnel: tunnel) { relay in
@@ -76,13 +71,11 @@ class MapConnectionStatusOperation: AsyncOperation {
             case .disconnecting(.reconnect):
                 logger.debug("Restart the tunnel on disconnect.")
 
-                state.tunnelStatus.reset(to: .pendingReconnect)
-
-                startTunnelHandler?()
-                startTunnelHandler = nil
+                interactor.resetTunnelState(to: .pendingReconnect)
+                interactor.startTunnel()
 
             default:
-                state.tunnelStatus.reset(to: .disconnected)
+                interactor.resetTunnelState(to: .disconnected)
             }
 
         case .disconnecting:
@@ -90,11 +83,11 @@ class MapConnectionStatusOperation: AsyncOperation {
             case .disconnecting:
                 break
             default:
-                state.tunnelStatus.reset(to: .disconnecting(.nothing))
+                interactor.resetTunnelState(to: .disconnecting(.nothing))
             }
 
         case .invalid:
-            state.tunnelStatus.reset(to: .disconnected)
+            interactor.resetTunnelState(to: .disconnected)
 
         @unknown default:
             logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")
@@ -117,7 +110,7 @@ class MapConnectionStatusOperation: AsyncOperation {
 
             self.dispatchQueue.async {
                 if case .success(let packetTunnelStatus) = completion, !self.isCancelled {
-                    self.state.tunnelStatus.update(
+                    self.interactor.updateTunnelStatus(
                         from: packetTunnelStatus,
                         mappingRelayToState: mapRelayToState
                     )

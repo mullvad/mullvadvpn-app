@@ -57,6 +57,14 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
+    init(error: Failure?) where Success == Void {
+        if let error = error {
+            self = .failure(error)
+        } else {
+            self = .success(())
+        }
+    }
+
     func map<NewSuccess>(_ block: (Success) -> NewSuccess) -> OperationCompletion<NewSuccess, Failure> {
         switch self {
         case .success(let value):
@@ -113,20 +121,6 @@ enum OperationCompletion<Success, Failure: Error> {
             return .failure(error)
         case .cancelled:
             return .cancelled
-        }
-    }
-
-    func assertNoSuccess<NewSuccess>() -> OperationCompletion<NewSuccess, Failure> {
-        return map { success in
-            return success as! NewSuccess
-        }
-    }
-
-    func assertFailure<NewFailure: Error>(_ failureType: NewFailure.Type)
-        -> OperationCompletion<Success, NewFailure>
-    {
-        return mapError { error -> NewFailure in
-            return error as! NewFailure
         }
     }
 

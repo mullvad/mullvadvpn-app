@@ -8,27 +8,26 @@
 
 import Foundation
 
-class ReconnectTunnelOperation: ResultOperation<(), TunnelManager.Error> {
-    private let state: TunnelManager.State
+class ReconnectTunnelOperation: ResultOperation<(), Error> {
+    private let interactor: TunnelInteractor
     private let selectNewRelay: Bool
     private var task: Cancellable?
 
     init(
         dispatchQueue: DispatchQueue,
-        state: TunnelManager.State,
+        interactor: TunnelInteractor,
         selectNewRelay: Bool
     )
     {
-        self.state = state
+        self.interactor = interactor
         self.selectNewRelay = selectNewRelay
 
         super.init(dispatchQueue: dispatchQueue)
     }
 
     override func main() {
-        guard let tunnel = self.state.tunnel,
-              let relayConstraints = state.tunnelSettings?.relayConstraints else {
-            finish(completion: .failure(.unsetTunnel))
+        guard let tunnel = interactor.tunnel else {
+            finish(completion: .failure(UnsetTunnelError()))
             return
         }
 
@@ -39,17 +38,17 @@ class ReconnectTunnelOperation: ResultOperation<(), TunnelManager.Error> {
                 let cachedRelays = try RelayCache.Tracker.shared.getCachedRelays()
                 selectorResult = try RelaySelector.evaluate(
                     relays: cachedRelays.relays,
-                    constraints: relayConstraints
+                    constraints: interactor.settings.relayConstraints
                 )
             }
 
             task = tunnel.reconnectTunnel(
                 relaySelectorResult: selectorResult
             ) { [weak self] completion in
-                self?.finish(completion: completion.mapError { .reloadTunnel($0) })
+                self?.finish(completion: completion)
             }
         } catch {
-            finish(completion: .failure(.reloadTunnel(error)))
+            finish(completion: .failure(error))
         }
     }
 

@@ -16,7 +16,7 @@ enum AuthenticationMethod {
 enum LoginState {
     case `default`
     case authenticating(AuthenticationMethod)
-    case failure(TunnelManager.Error)
+    case failure(Error)
     case success(AuthenticationMethod)
 }
 
@@ -24,12 +24,12 @@ protocol LoginViewControllerDelegate: AnyObject {
     func loginViewController(
         _ controller: LoginViewController,
         loginWithAccountToken accountToken: String,
-        completion: @escaping (OperationCompletion<StoredAccountData?, TunnelManager.Error>) -> Void
+        completion: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void
     )
 
     func loginViewControllerLoginWithNewAccount(
         _ controller: LoginViewController,
-        completion: @escaping (OperationCompletion<StoredAccountData?, TunnelManager.Error>) -> Void
+        completion: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void
     )
 
     func loginViewControllerDidLogin(_ controller: LoginViewController)
@@ -389,7 +389,7 @@ private extension LoginState {
             }
 
         case .failure(let error):
-            return error.errorChainDescription ?? ""
+            return error.localizedDescription
 
         case .success(let method):
             switch method {

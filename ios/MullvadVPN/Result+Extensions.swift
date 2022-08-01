@@ -27,3 +27,14 @@ extension Result {
         }
     }
 }
+
+extension Result {
+    func flattenValue<T>() -> T? where Success == Optional<T> {
+        switch self {
+        case .success(let optional):
+            return optional.flatMap { $0 }
+        case .failure:
+            return nil
+        }
+    }
+}
