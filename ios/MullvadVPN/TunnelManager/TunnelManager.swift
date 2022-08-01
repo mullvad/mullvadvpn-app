@@ -174,9 +174,8 @@ final class TunnelManager {
         privateKeyRotationTimer?.cancel()
         privateKeyRotationTimer = nil
 
-        guard isRunningPeriodicPrivateKeyRotation else { return }
-
-        guard let scheduleDate = getNextKeyRotationDate() else { return }
+        guard isRunningPeriodicPrivateKeyRotation,
+              let scheduleDate = getNextKeyRotationDate() else { return }
 
         let timer = DispatchSource.makeTimerSource(queue: .main)
 
