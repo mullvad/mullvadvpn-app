@@ -63,7 +63,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<(), Error> {
     }
     private func finishOperation(tunnel: Tunnel?) {
         interactor.setTunnel(tunnel, shouldRefreshTunnelState: true)
-        interactor.setLoadedConfiguration()
+        interactor.setConfigurationLoaded()
 
         finish(completion: .success(()))
     }

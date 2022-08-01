@@ -36,7 +36,7 @@ protocol TunnelInteractor {
     var settings: TunnelSettingsV2 { get }
     var deviceState: DeviceState { get }
 
-    func setLoadedConfiguration()
+    func setConfigurationLoaded()
     func setSettings(_ settings: TunnelSettingsV2, persist: Bool)
     func setDeviceState(_ deviceState: DeviceState, persist: Bool)
 

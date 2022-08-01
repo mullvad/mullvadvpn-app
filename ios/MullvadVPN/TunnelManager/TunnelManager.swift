@@ -561,7 +561,7 @@ final class TunnelManager {
         return _deviceState
     }
 
-    fileprivate func setLoadedConfiguration() {
+    fileprivate func setConfigurationLoaded() {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -1045,8 +1045,8 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         return tunnelManager.deviceState
     }
 
-    func setLoadedConfiguration() {
-        tunnelManager.setLoadedConfiguration()
+    func setConfigurationLoaded() {
+        tunnelManager.setConfigurationLoaded()
     }
 
     func setSettings(_ settings: TunnelSettingsV2, persist: Bool) {
