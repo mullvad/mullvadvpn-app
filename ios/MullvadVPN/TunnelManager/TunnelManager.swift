@@ -660,7 +660,7 @@ final class TunnelManager {
         nslock.lock()
         defer { nslock.unlock() }
 
-        let callDelegate = _tunnelSettings != settings && _isLoadedConfiguration
+        let shouldCallDelegate = _tunnelSettings != settings && _isConfigurationLoaded
 
         _tunnelSettings = settings
 
@@ -675,7 +675,7 @@ final class TunnelManager {
             }
         }
 
-        if callDelegate {
+        if shouldCallDelegate {
             DispatchQueue.main.async {
                 self.observerList.forEach { observer in
                     observer.tunnelManager(self, didUpdateTunnelSettings: settings)
@@ -688,7 +688,7 @@ final class TunnelManager {
         nslock.lock()
         defer { nslock.unlock() }
 
-        let callDelegate = _deviceState != deviceState && _isLoadedConfiguration
+        let shouldCallDelegate = _deviceState != deviceState && _isConfigurationLoaded
 
         _deviceState = deviceState
 
@@ -703,7 +703,7 @@ final class TunnelManager {
             }
         }
 
-        if callDelegate {
+        if shouldCallDelegate {
             DispatchQueue.main.async {
                 self.observerList.forEach { observer in
                     observer.tunnelManager(self, didUpdateDeviceState: deviceState)
