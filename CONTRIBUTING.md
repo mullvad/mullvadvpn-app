@@ -23,6 +23,17 @@ While we appreciate your interest in helping us to improve Mullvad VPN, please u
 choosing which submitted changes to merge is fully at our discretion, based upon our development
 plans for the app.
 
+### Localization / translations
+
+The app is translated and proofread via a third party company. We can't take in user improvements
+to the translations directly, since we can't verify their correctness. All translations have to
+go via the translation company. As a result, if you want to improve an existing
+translation, please don't edit the PO files and submit to us. Instead fill in your suggested
+improvement in [this spreadsheet], and the translation company will pick it up and process the
+suggestion after a while.
+
+[this spreadsheet]: https://docs.google.com/spreadsheets/d/1JeWs5Fzen2oWrMCmZKvue_iAM4VUlhwTWnodBQYz0c0/edit#gid=1649013858
+
 ### Copyright and ownership of contributed code and changes
 
 Any code, binaries, tools, documentation, graphics, or any other material that you submit to this
