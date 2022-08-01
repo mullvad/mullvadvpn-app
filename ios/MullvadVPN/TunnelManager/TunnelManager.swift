@@ -601,9 +601,9 @@ final class TunnelManager {
         nslock.lock()
         defer { nslock.unlock() }
 
-        var s = _tunnelStatus
-        s.state = state
-        setTunnelStatus(s)
+        var updatedStatus = _tunnelStatus
+        updatedStatus.state = state
+        setTunnelStatus(updatedStatus)
     }
 
     fileprivate func updateTunnelStatus(
@@ -614,18 +614,18 @@ final class TunnelManager {
         nslock.lock()
         defer { nslock.unlock() }
 
-        var s = _tunnelStatus
-        s.update(from: packetTunnelStatus, mappingRelayToState: mapper)
-        setTunnelStatus(s)
+        var updatedStatus = _tunnelStatus
+        updatedStatus.update(from: packetTunnelStatus, mappingRelayToState: mapper)
+        setTunnelStatus(updatedStatus)
     }
 
     fileprivate func resetTunnelStatus(to state: TunnelState) {
         nslock.lock()
         defer { nslock.unlock() }
 
-        var s = _tunnelStatus
-        s.reset(to: state)
-        setTunnelStatus(s)
+        var updatedStatus = _tunnelStatus
+        updatedStatus.reset(to: state)
+        setTunnelStatus(updatedStatus)
     }
 
     fileprivate func setTunnelStatus(_ newTunnelStatus: TunnelStatus) {
