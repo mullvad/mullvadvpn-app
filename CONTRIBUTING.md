@@ -42,16 +42,6 @@ author of the entire contribution and grant us the full right to use, publish, c
 the entire, or part of, your contribution under the terms defined by the GPL 3.0 license at any
 point in time.
 
-### Toolchain versions
+### Code style and design
 
-All Rust code must work on the latest stable release of Rust as well as the latest Mullvad beta
-release. It should also work on nightly Rust, but this can, from time to time, be overlooked when
-nightly is broken.
-
-All JavaScript code must work with Node 8 and 9.
-
-### Code formatting
-
-All Rust code in this repository must always be formatted with the latest available version of
-rustfmt (`rustfmt-nightly` at the moment). Please run `./format.sh` to automatically format
-the entire repository.
+Please follow the [coding guidelines](https://github.com/mullvad/coding-guidelines).
