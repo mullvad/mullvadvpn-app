@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add option to block gambling and adult content.
 - Add last used account field to login view.
 - Display device name under account view.
+- Add revoked device view displayed when the app detects that device is no longer registered on
+  backend.
+- Add ability to manage registered devices if too many devices detected during log-in.
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.
