@@ -32,7 +32,7 @@ protocol TunnelInteractor {
 
     // MARK: - Configuration
 
-    var isLoadedConfiguration: Bool { get }
+    var isConfigurationLoaded: Bool { get }
     var settings: TunnelSettingsV2 { get }
     var deviceState: DeviceState { get }
 

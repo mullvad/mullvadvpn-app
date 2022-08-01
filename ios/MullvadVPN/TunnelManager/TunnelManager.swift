@@ -82,7 +82,7 @@ final class TunnelManager {
     private var isPolling = false
     private var lastConnectingDate: Date?
 
-    private var _isLoadedConfiguration = false
+    private var _isConfigurationLoaded = false
     private var _deviceState: DeviceState = .loggedOut
     private var _tunnelSettings = TunnelSettingsV2()
 
@@ -527,11 +527,11 @@ final class TunnelManager {
 
     // MARK: - TunnelInteractor
 
-    var isLoadedConfiguration: Bool {
+    var isConfigurationLoaded: Bool {
         nslock.lock()
         defer { nslock.unlock() }
 
-        return _isLoadedConfiguration
+        return _isConfigurationLoaded
     }
 
     fileprivate var tunnel: Tunnel? {
@@ -566,11 +566,11 @@ final class TunnelManager {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard !_isLoadedConfiguration else {
+        guard !_isConfigurationLoaded else {
             return
         }
 
-        _isLoadedConfiguration = true
+        _isConfigurationLoaded = true
 
         DispatchQueue.main.async {
             self.observerList.forEach { observer in
@@ -1034,8 +1034,8 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.resetTunnelStatus(to: state)
     }
 
-    var isLoadedConfiguration: Bool {
-        return tunnelManager.isLoadedConfiguration
+    var isConfigurationLoaded: Bool {
+        return tunnelManager.isConfigurationLoaded
     }
 
     var settings: TunnelSettingsV2 {

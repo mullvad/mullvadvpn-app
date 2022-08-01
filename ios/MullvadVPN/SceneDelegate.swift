@@ -44,7 +44,7 @@ class SceneDelegate: UIResponder {
         window?.makeKeyAndVisible()
 
         TunnelManager.shared.addObserver(self)
-        if TunnelManager.shared.isLoadedConfiguration {
+        if TunnelManager.shared.isConfigurationLoaded {
             configureScene()
         }
     }
