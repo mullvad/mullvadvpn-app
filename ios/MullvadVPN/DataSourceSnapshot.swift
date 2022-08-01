@@ -511,7 +511,7 @@ struct DataSnapshotDifference: CustomDebugStringConvertible {
             UIView.animate(
                 withDuration: configuration.animationDuration,
                 delay: 0,
-                options: .curveEaseInOut,
+                options: configuration.animationOptions,
                 animations: {
                     showHideViews()
                     stackView.layoutIfNeeded()
