@@ -262,7 +262,7 @@ extension SceneDelegate {
                 }
 
                 // Dismiss modal root container if needed before proceeding.
-                if isModalRootPresented {
+                if self.isModalRootPresented {
                     self.modalRootContainer.dismiss(animated: animated, completion: didDismissModalRoot)
                 } else {
                     didDismissModalRoot()
@@ -280,7 +280,7 @@ extension SceneDelegate {
             // Configure modal container.
             self.modalRootContainer.setViewControllers(
                 viewControllers,
-                animated: isModalRootPresented && animated
+                animated: self.isModalRootPresented && animated
             )
 
             // Present modal container if not presented yet.
