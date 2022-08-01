@@ -112,7 +112,7 @@ class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObse
 
         logoutButton.addTarget(
             self,
-            action: #selector(handleLogoutButtonTap(_:)),
+            action: #selector(didTapLogoutButton(_:)),
             for: .touchUpInside
         )
 
@@ -154,7 +154,7 @@ class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObse
         updateView(tunnelState: TunnelManager.shared.tunnelStatus.state)
     }
 
-    @objc private func handleLogoutButtonTap(_ sender: Any?) {
+    @objc private func didTapLogoutButton(_ sender: Any?) {
         logoutButton.isEnabled = false
 
         delegate?.revokedDeviceControllerDidRequestLogout(self)
