@@ -23,7 +23,6 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     private var tableHeaderFooterViewTopConstraints: [NSLayoutConstraint] = []
     private var tableHeaderFooterViewBottomConstraints: [NSLayoutConstraint] = []
 
-    private let logger = Logger(label: "SelectLocationController")
     private var dataSource: LocationDataSource?
     private var setCachedRelaysOnViewDidLoad: RelayCache.CachedRelays?
     private var setRelayLocationOnViewDidLoad: RelayLocation?

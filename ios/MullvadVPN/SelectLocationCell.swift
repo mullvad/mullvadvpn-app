@@ -141,7 +141,8 @@ class SelectLocationCell: UITableViewCell {
             statusIndicator.centerYAnchor.constraint(equalTo: tickImageView.centerYAnchor),
 
             locationLabel.leadingAnchor.constraint(equalTo: statusIndicator.trailingAnchor, constant: 12),
-            locationLabel.trailingAnchor.constraint(lessThanOrEqualTo: collapseButton.leadingAnchor),
+            locationLabel.trailingAnchor.constraint(lessThanOrEqualTo: collapseButton.leadingAnchor)
+                .withPriority(.defaultHigh),
             locationLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
             locationLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
 
