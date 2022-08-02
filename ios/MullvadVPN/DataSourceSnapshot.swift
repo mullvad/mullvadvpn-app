@@ -501,7 +501,7 @@ struct DataSnapshotDifference: CustomDebugStringConvertible {
             }
         }
 
-        let removeViewsAfterAnimationFinished = {
+        let removeViews = {
             for view in viewsToRemove {
                 view.removeFromSuperview()
             }
@@ -517,13 +517,13 @@ struct DataSnapshotDifference: CustomDebugStringConvertible {
                     stackView.layoutIfNeeded()
                 },
                 completion: { isComplete in
-                    removeViewsAfterAnimationFinished()
+                    removeViews()
                     completion?(isComplete)
                 }
             )
         } else {
             showHideViews()
-            removeViewsAfterAnimationFinished()
+            removeViews()
             completion?(true)
         }
     }

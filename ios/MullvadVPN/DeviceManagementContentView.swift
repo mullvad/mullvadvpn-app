@@ -102,14 +102,12 @@ class DeviceManagementContentView: UIView {
         currentSnapshot = newSnapshot
 
         let applyConfiguration = StackViewApplyDataSnapshotConfiguration { indexPath in
-            let view = DeviceRowView()
             let viewModel = newModels[indexPath.row]
-
-            view.deviceName = viewModel.displayName
+            let view = DeviceRowView(viewModel: viewModel)
             view.deleteHandler = { [weak self] view in
                 view.showsActivityIndicator = true
 
-                self?.handleDeviceDeletion?(viewModel) {
+                self?.handleDeviceDeletion?(view.viewModel) {
                     view.showsActivityIndicator = false
                 }
             }

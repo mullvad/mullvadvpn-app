@@ -180,8 +180,10 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
-    private func showDeleteConfirmation(deviceName: String, _ completion: @escaping (Bool) -> Void)
-    {
+    private func showDeleteConfirmation(
+        deviceName: String,
+        completion: @escaping (_ shouldDelete: Bool) -> Void
+    ) {
         let localizedTitle = String(
             format: NSLocalizedString(
                 "DELETE_ALERT_TITLE",

@@ -9,12 +9,7 @@
 import UIKit
 
 class DeviceRowView: UIView {
-    var deviceName: String? {
-        didSet {
-            textLabel.text = deviceName
-        }
-    }
-
+    let viewModel: DeviceViewModel
     var deleteHandler: ((DeviceRowView) -> Void)?
 
     let textLabel: UILabel = {
@@ -62,8 +57,10 @@ class DeviceRowView: UIView {
         }
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(viewModel: DeviceViewModel) {
+        self.viewModel = viewModel
+
+        super.init(frame: .zero)
 
         backgroundColor = .primaryColor
         layoutMargins = UIMetrics.rowViewLayoutMargins
@@ -71,6 +68,8 @@ class DeviceRowView: UIView {
         for subview in [textLabel, removeButton, activityIndicator] {
             addSubview(subview)
         }
+
+        textLabel.text = viewModel.displayName
 
         removeButton.addTarget(self, action: #selector(handleButtonTap(_:)), for: .touchUpInside)
 
