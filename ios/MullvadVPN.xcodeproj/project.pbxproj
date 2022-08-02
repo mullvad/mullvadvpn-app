@@ -22,7 +22,6 @@
 		58095C572760F47900890776 /* api-ip-address.json in Resources */ = {isa = PBXBuildFile; fileRef = 58095C562760F47900890776 /* api-ip-address.json */; };
 		58095C592762155700890776 /* RESTRetryStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58095C582762155700890776 /* RESTRetryStrategy.swift */; };
 		580CBFB82848D503007878F0 /* OperationConditionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580CBFB72848D503007878F0 /* OperationConditionTests.swift */; };
-		580D9C5E289298FD00B77A26 /* TunnelMonitorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E072A428814C28008902F8 /* TunnelMonitorDelegate.swift */; };
 		580EE22424B3243100F9D8A1 /* AsyncBlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */; };
 		580F8B8328197881002E0998 /* TunnelSettingsV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580F8B8228197881002E0998 /* TunnelSettingsV2.swift */; };
 		580F8B8428197884002E0998 /* TunnelSettingsV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580F8B8228197881002E0998 /* TunnelSettingsV2.swift */; };
@@ -246,6 +245,8 @@
 		58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA0152242560B004F3011 /* UIColor+Palette.swift */; };
 		58CCA01822426713004F3011 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA01722426713004F3011 /* AccountViewController.swift */; };
 		58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA01D2242787B004F3011 /* AccountTextField.swift */; };
+		58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E07298288031D5008902F8 /* WireGuardAdapterError+Localization.swift */; };
+		58CE38C828992C9200A6D6E5 /* TunnelMonitorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E072A428814C28008902F8 /* TunnelMonitorDelegate.swift */; };
 		58CE5E64224146200008646E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E63224146200008646E /* AppDelegate.swift */; };
 		58CE5E66224146200008646E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E65224146200008646E /* LoginViewController.swift */; };
 		58CE5E6B224146210008646E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58CE5E6A224146210008646E /* Assets.xcassets */; };
@@ -1503,7 +1504,6 @@
 			files = (
 				5850366825A47AC700A43E93 /* IPAddressRange+Codable.swift in Sources */,
 				58FB865F26EA2E6D00F188BC /* LogFormatting.swift in Sources */,
-				58E072A528814C28008902F8 /* TunnelMonitorDelegate.swift in Sources */,
 				587C575426D2615F005EF767 /* PacketTunnelOptions.swift in Sources */,
 				58BFA5CD22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
 				5820675826E652AF00655B05 /* RelayCacheIO.swift in Sources */,
@@ -1512,8 +1512,8 @@
 				5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */,
 				585DA89426B0323E00B8C587 /* TunnelProviderMessage.swift in Sources */,
 				587AD7C723421D8600E93A53 /* TunnelSettingsV1.swift in Sources */,
-				58E07299288031D5008902F8 /* WireGuardAdapterError+Localization.swift in Sources */,
 				58AEEF662344A37400C9BBD5 /* KeychainError.swift in Sources */,
+				58CE38C828992C9200A6D6E5 /* TunnelMonitorDelegate.swift in Sources */,
 				582AD44127BE6178002A6BFC /* CodingErrors+ChainedError.swift in Sources */,
 				5840250222B1124600E4CFEC /* IPAddress+Codable.swift in Sources */,
 				58FC040A27B3EE03001C21F0 /* TunnelMonitor.swift in Sources */,
@@ -1538,12 +1538,12 @@
 				58F840B32464491D0044E708 /* ChainedError.swift in Sources */,
 				58D67A0A26D7AE3300557C3C /* OSLogHandler.swift in Sources */,
 				5820675626E6528A00655B05 /* RESTError.swift in Sources */,
-				580D9C5E289298FD00B77A26 /* TunnelMonitorDelegate.swift in Sources */,
 				58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				58781CCE22AE8918009B9D8E /* RelayConstraints.swift in Sources */,
 				581503A024D6F01E00C9C50E /* LogRotation.swift in Sources */,
 				58781CD522AFBA39009B9D8E /* RelaySelector.swift in Sources */,
 				5877D70F282137E8002FCFC7 /* SettingsManager.swift in Sources */,
+				58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */,
 				5820675926E652BE00655B05 /* RESTCoding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
