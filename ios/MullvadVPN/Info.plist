@@ -28,6 +28,12 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>INIntentsRestrictedWhileLocked</key>
+	<array>
+		<string>StartVPNIntent</string>
+		<string>StopVPNIntent</string>
+		<string>ReconnectVPNIntent</string>
+	</array>
 	<key>INIntentsSupported</key>
 	<array>
 		<string>StartVPNIntent</string>
