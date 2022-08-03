@@ -28,6 +28,10 @@ class CustomDns(private val connection: Messenger, private val settingsListener:
         connection.send(Request.SetEnableCustomDns(false).message)
     }
 
+    fun isCustomDnsEnabled(): Boolean {
+        return onEnabledChanged.latestEvent ?: false
+    }
+
     fun addDnsServer(server: InetAddress): Boolean {
         val didntAlreadyHaveServer = !onDnsServersChanged.latestEvent.contains(server)
 
