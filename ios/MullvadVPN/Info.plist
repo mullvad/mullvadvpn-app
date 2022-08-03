@@ -4,11 +4,6 @@
 <dict>
 	<key>ApplicationSecurityGroupIdentifier</key>
 	<string>$(SECURITY_GROUP_IDENTIFIER)</string>
-	<key>UIApplicationSceneManifest</key>
-	<dict>
-		<key>UIApplicationSupportsMultipleScenes</key>
-		<true/>
-	</dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>net.mullvad.MullvadVPN.AppRefresh</string>
@@ -33,10 +28,27 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>INIntentsSupported</key>
+	<array>
+		<string>StartVPNIntent</string>
+		<string>StopVPNIntent</string>
+		<string>ReconnectVPNIntent</string>
+	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>StartVPNIntent</string>
+		<string>StopVPNIntent</string>
+		<string>ReconnectVPNIntent</string>
+	</array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<true/>
+	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

@@ -152,6 +152,8 @@
 		5871FB8325498CA20051A0A4 /* Swizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB8225498CA20051A0A4 /* Swizzle.swift */; };
 		5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
 		5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */; };
+		5872631B283F6EAB00E14ADF /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 5872631A283F6EAB00E14ADF /* Intents.intentdefinition */; };
+		5872631D283F755900E14ADF /* IntentHandlers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5872631C283F755900E14ADF /* IntentHandlers.swift */; };
 		58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58727282265D173C00F315B2 /* LaunchScreen.storyboard */; };
 		5872D6E8286304DE00DB5F4E /* TermsOfService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5872D6E7286304DE00DB5F4E /* TermsOfService.swift */; };
 		587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587425C02299833500CA2045 /* RootContainerViewController.swift */; };
@@ -456,6 +458,8 @@
 		5871FB8225498CA20051A0A4 /* Swizzle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swizzle.swift; sourceTree = "<group>"; };
 		5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsolidatedApplicationLog.swift; sourceTree = "<group>"; };
 		5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegularExpression+IPAddress.swift"; sourceTree = "<group>"; };
+		5872631A283F6EAB00E14ADF /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
+		5872631C283F755900E14ADF /* IntentHandlers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandlers.swift; sourceTree = "<group>"; };
 		58727282265D173C00F315B2 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5872D6E7286304DE00DB5F4E /* TermsOfService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfService.swift; sourceTree = "<group>"; };
 		587425C02299833500CA2045 /* RootContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootContainerViewController.swift; sourceTree = "<group>"; };
@@ -890,6 +894,8 @@
 				58F3C0A3249CB069003E76BE /* HeaderBarView.swift */,
 				58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */,
 				58CE5E6F224146210008646E /* Info.plist */,
+				5872631C283F755900E14ADF /* IntentHandlers.swift */,
+				5872631A283F6EAB00E14ADF /* Intents.intentdefinition */,
 				5840250022B1124600E4CFEC /* IPAddress+Codable.swift */,
 				5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */,
 				58561C98239A5D1500BD6B5E /* IPEndpoint.swift */,
@@ -1331,6 +1337,7 @@
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				58289082286B590900478596 /* UIFont+Monospaced.swift in Sources */,
 				58F1311527E0B2AB007AC5BC /* Result+Extensions.swift in Sources */,
+				5872631B283F6EAB00E14ADF /* Intents.intentdefinition in Sources */,
 				585DA88426B0270700B8C587 /* ServerRelaysResponse.swift in Sources */,
 				58DF5B742851FF3F00E92647 /* InputOperation.swift in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
@@ -1447,6 +1454,7 @@
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */,
+				5872631D283F755900E14ADF /* IntentHandlers.swift in Sources */,
 				581503A624D6F4AE00C9C50E /* Logging.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
 				580F8B8628197958002E0998 /* DNSSettings.swift in Sources */,
