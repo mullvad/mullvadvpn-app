@@ -12,7 +12,6 @@ import UIKit
 enum SettingsNavigationRoute {
     case account
     case preferences
-    case wireguardKeys
     case problemReport
 }
 
@@ -101,9 +100,6 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
 
         case .preferences:
             return PreferencesViewController()
-
-        case .wireguardKeys:
-            return WireguardKeysViewController()
 
         case .problemReport:
             return ProblemReportViewController()

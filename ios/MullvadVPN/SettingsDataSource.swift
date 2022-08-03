@@ -43,7 +43,6 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
     enum Item: String {
         case account
         case preferences
-        case wireguardKey
         case version
         case problemReport
         case faq
@@ -93,7 +92,7 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
 
         if TunnelManager.shared.deviceState.isLoggedIn {
             newSnapshot.appendSections([.main])
-            newSnapshot.appendItems([.account, .preferences, .wireguardKey], in: .main)
+            newSnapshot.appendItems([.account, .preferences], in: .main)
         }
 
         newSnapshot.appendSections([.version, .problemReport])
@@ -149,23 +148,6 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
             )
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = nil
-            cell.disclosureType = .chevron
-
-            return cell
-
-        case .wireguardKey:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
-                for: indexPath
-            ) as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString(
-                "WIREGUARD_KEY_CELL_LABEL",
-                tableName: "Settings",
-                value: "WireGuard key",
-                comment: ""
-            )
-            cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = "WireGuardKeyCell"
             cell.disclosureType = .chevron
 
             return cell

@@ -103,8 +103,6 @@ extension SettingsDataSource.Item {
             return .account
         case .preferences:
             return .preferences
-        case .wireguardKey:
-            return .wireguardKeys
         case .version:
             return nil
         case .problemReport:
