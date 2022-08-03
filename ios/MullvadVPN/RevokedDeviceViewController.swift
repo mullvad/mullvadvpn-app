@@ -13,9 +13,8 @@ protocol RevokedDeviceViewControllerDelegate: AnyObject {
 }
 
 class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObserver {
-
     private lazy var imageView: StatusImageView = {
-        let statusImageView =  StatusImageView(style: .failure)
+        let statusImageView = StatusImageView(style: .failure)
         statusImageView.translatesAutoresizingMaskIntoConstraints = false
         return statusImageView
     }()
@@ -147,7 +146,7 @@ class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObse
             logoutButton.topAnchor.constraint(greaterThanOrEqualTo: footerLabel.bottomAnchor),
             logoutButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             logoutButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-            logoutButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor)
+            logoutButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor),
         ])
 
         TunnelManager.shared.addObserver(self)
@@ -180,12 +179,14 @@ class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObse
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+    func tunnelManager(
+        _ manager: TunnelManager,
+        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
+    ) {
         // no-op
     }
 
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
         // no-op
     }
-
 }

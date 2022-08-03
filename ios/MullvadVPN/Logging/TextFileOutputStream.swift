@@ -14,19 +14,27 @@ class TextFileOutputStream: TextOutputStream {
     private let queue = DispatchQueue.global(qos: .utility)
 
     class func standardOutputStream(encoding: String.Encoding = .utf8) -> TextFileOutputStream {
-        return TextFileOutputStream(fileDescriptor: FileHandle.standardOutput.fileDescriptor, encoding: encoding)
+        return TextFileOutputStream(
+            fileDescriptor: FileHandle.standardOutput.fileDescriptor,
+            encoding: encoding
+        )
     }
 
     init(fileDescriptor: Int32, encoding: String.Encoding = .utf8) {
         self.encoding = encoding
-        writer = DispatchIO(type: .stream, fileDescriptor: fileDescriptor, queue: queue) { (errno) in
+        writer = DispatchIO(type: .stream, fileDescriptor: fileDescriptor, queue: queue) { errno in
             if errno != 0 {
                 print("TextFileOutputStream: closed channel with error: \(errno)")
             }
         }
     }
 
-    init?(fileURL: URL, createFile: Bool, filePermissions: mode_t = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, encoding: String.Encoding = .utf8) {
+    init?(
+        fileURL: URL,
+        createFile: Bool,
+        filePermissions: mode_t = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH,
+        encoding: String.Encoding = .utf8
+    ) {
         var oflag: Int32 = O_WRONLY
         var mode: mode_t = .zero
         if createFile {
@@ -34,13 +42,20 @@ class TextFileOutputStream: TextOutputStream {
             mode = filePermissions
         }
 
-        let queue = self.queue
-        let writer = fileURL.path.withCString { (filePathPointer) -> DispatchIO? in
-            return DispatchIO(type: .stream, path: filePathPointer, oflag: oflag, mode: mode, queue: queue, cleanupHandler: { (errno) in
-                if errno != 0 {
-                    print("TextFileOutputStream: closed channel with error: \(errno)")
+        let queue = queue
+        let writer = fileURL.path.withCString { filePathPointer -> DispatchIO? in
+            return DispatchIO(
+                type: .stream,
+                path: filePathPointer,
+                oflag: oflag,
+                mode: mode,
+                queue: queue,
+                cleanupHandler: { errno in
+                    if errno != 0 {
+                        print("TextFileOutputStream: closed channel with error: \(errno)")
+                    }
                 }
-            })
+            )
         }
 
         if let writer = writer {
@@ -56,12 +71,17 @@ class TextFileOutputStream: TextOutputStream {
     }
 
     func write(_ string: String) {
-        string.data(using: encoding)?.withUnsafeBytes { (bytes) in
-            writer.write(offset: .zero, data: DispatchData(bytes: bytes), queue: queue) { (done, data, errno) in
-                if errno != 0 {
-                    print("TextFileOutputStream: write error: \(errno)")
+        string.data(using: encoding)?.withUnsafeBytes { bytes in
+            writer
+                .write(
+                    offset: .zero,
+                    data: DispatchData(bytes: bytes),
+                    queue: queue
+                ) { done, data, errno in
+                    if errno != 0 {
+                        print("TextFileOutputStream: write error: \(errno)")
+                    }
                 }
-            }
         }
     }
 }

@@ -6,19 +6,19 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import UIKit
 import BackgroundTasks
-import StoreKit
-import UserNotifications
 import Intents
 import Logging
+import StoreKit
+import UIKit
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private var logger: Logger!
 
     #if targetEnvironment(simulator)
-    private let simulatorTunnelProvider = SimulatorTunnelProviderHost()
+        private let simulatorTunnelProvider = SimulatorTunnelProviderHost()
     #endif
 
     private let operationQueue: AsyncOperationQueue = {
@@ -32,14 +32,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Application lifecycle
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
         initLoggingSystem(bundleIdentifier: Bundle.main.bundleIdentifier!)
 
         logger = Logger(label: "AppDelegate")
 
         #if targetEnvironment(simulator)
-        // Configure mock tunnel provider on simulator
-        SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
+            // Configure mock tunnel provider on simulator
+            SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
         #endif
 
         if #available(iOS 13.0, *) {
@@ -96,9 +99,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(
         _ application: UIApplication,
-        performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-    )
-    {
+        performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult)
+            -> Void
+    ) {
         logger.debug("Start background refresh.")
 
         let updateAddressCacheOperation = ResultBlockOperation<Bool, Error> { operation in
@@ -122,8 +125,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        let rotatePrivateKeyOperation = ResultBlockOperation<Bool, Error>
-        { operation in
+        let rotatePrivateKeyOperation = ResultBlockOperation<Bool, Error> { operation in
             let handle = TunnelManager.shared.rotatePrivateKey(forceRotate: false) { completion in
                 operation.finish(completion: completion)
             }
@@ -134,13 +136,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         rotatePrivateKeyOperation.addDependencies([
             updateRelaysOperation,
-            updateAddressCacheOperation
+            updateAddressCacheOperation,
         ])
 
         let operations = [
             updateAddressCacheOperation,
             updateRelaysOperation,
-            rotatePrivateKeyOperation
+            rotatePrivateKeyOperation,
         ]
 
         let completeOperation = TransformOperation<UIBackgroundFetchResult, Void, Never>(
@@ -377,7 +379,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func setupNotificationHandler() {
         NotificationManager.shared.notificationProviders = [
             AccountExpiryNotificationProvider(),
-            TunnelErrorNotificationProvider()
+            TunnelErrorNotificationProvider(),
         ]
         UNUserNotificationCenter.current().delegate = self
     }
@@ -389,8 +391,7 @@ extension AppDelegate: AppStorePaymentManagerDelegate {
     func appStorePaymentManager(
         _ manager: AppStorePaymentManager,
         didRequestAccountTokenFor payment: SKPayment
-    ) -> String?
-    {
+    ) -> String? {
         // Since we do not persist the relation between payment and account number between the
         // app launches, we assume that all successful purchases belong to the active account
         // number.
@@ -401,10 +402,15 @@ extension AppDelegate: AppStorePaymentManagerDelegate {
 // MARK: - UNUserNotificationCenterDelegate
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
         let blockOperation = AsyncBlockOperation(dispatchQueue: .main) {
             if response.notification.request.identifier == accountExpiryNotificationIdentifier,
-               response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+               response.actionIdentifier == UNNotificationDefaultActionIdentifier
+            {
                 if #available(iOS 13.0, *) {
                     let sceneDelegate = UIApplication.shared.connectedScenes
                         .first?.delegate as? SceneDelegate
@@ -421,7 +427,12 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         operationQueue.addOperation(blockOperation)
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions)
+            -> Void
+    ) {
         if #available(iOS 14.0, *) {
             completionHandler([.list])
         } else {

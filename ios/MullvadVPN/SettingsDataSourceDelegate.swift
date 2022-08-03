@@ -9,5 +9,8 @@
 import UIKit
 
 protocol SettingsDataSourceDelegate: AnyObject {
-    func settingsDataSource(_ dataSource: SettingsDataSource, didSelectItem item: SettingsDataSource.Item)
+    func settingsDataSource(
+        _ dataSource: SettingsDataSource,
+        didSelectItem item: SettingsDataSource.Item
+    )
 }

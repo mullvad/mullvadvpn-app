@@ -8,9 +8,9 @@
 
 import Foundation
 import struct Network.IPv4Address
-import class WireGuardKitTypes.PublicKey
-import class WireGuardKitTypes.PrivateKey
 import struct WireGuardKitTypes.IPAddressRange
+import class WireGuardKitTypes.PrivateKey
+import class WireGuardKitTypes.PublicKey
 
 /// A struct that holds the configuration passed via `NETunnelProviderProtocol`.
 struct TunnelSettingsV1: Codable, Equatable {
@@ -35,8 +35,7 @@ struct InterfaceSettings: Codable, Equatable {
         nextPrivateKey: PrivateKeyWithMetadata? = nil,
         addresses: [IPAddressRange] = [],
         dnsSettings: DNSSettings = DNSSettings()
-    )
-    {
+    ) {
         self.privateKey = privateKey
         self.nextPrivateKey = nextPrivateKey
         self.addresses = addresses
@@ -50,7 +49,10 @@ struct InterfaceSettings: Codable, Equatable {
         addresses = try container.decode([IPAddressRange].self, forKey: .addresses)
 
         // Added in 2022.1
-        nextPrivateKey = try container.decodeIfPresent(PrivateKeyWithMetadata.self, forKey: .nextPrivateKey)
+        nextPrivateKey = try container.decodeIfPresent(
+            PrivateKeyWithMetadata.self,
+            forKey: .nextPrivateKey
+        )
 
         // Provide default value, since `dnsSettings` key does not exist in <= 2021.2
         dnsSettings = try container.decodeIfPresent(DNSSettings.self, forKey: .dnsSettings)

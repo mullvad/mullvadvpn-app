@@ -18,8 +18,7 @@ extension Logger {
         file: String = #file,
         function: String = #function,
         line: UInt = #line
-    )
-    {
+    ) {
         log(
             level: .error,
             Message(

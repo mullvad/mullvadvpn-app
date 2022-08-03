@@ -10,10 +10,9 @@ import Foundation
 import UIKit
 
 class InAppPurchaseButton: AppButton {
-
     let activityIndicator = SpinnerActivityIndicatorView(style: .medium)
 
-    var isLoading: Bool = false {
+    var isLoading = false {
         didSet {
             if isLoading {
                 activityIndicator.startAnimating()
@@ -51,7 +50,7 @@ class InAppPurchaseButton: AppButton {
 
     override func titleRect(forContentRect contentRect: CGRect) -> CGRect {
         var titleRect = super.titleRect(forContentRect: contentRect)
-        let activityIndicatorRect = self.activityIndicatorRect(forContentRect: contentRect)
+        let activityIndicatorRect = activityIndicatorRect(forContentRect: contentRect)
 
         // Adjust the title frame in case if it overlaps the activity indicator
         let intersection = titleRect.intersection(activityIndicatorRect)

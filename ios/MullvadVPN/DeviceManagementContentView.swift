@@ -83,7 +83,7 @@ class DeviceManagementContentView: UIView {
         return stackView
     }()
 
-    var canContinue: Bool = false {
+    var canContinue = false {
         didSet {
             updateView()
         }
@@ -133,7 +133,7 @@ class DeviceManagementContentView: UIView {
         spacer.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
         let subviewsToAdd = [
-            statusImageView, titleLabel, messageLabel, deviceStackView, spacer, buttonStackView
+            statusImageView, titleLabel, messageLabel, deviceStackView, spacer, buttonStackView,
         ]
         for subview in subviewsToAdd {
             addSubview(subview)
@@ -168,7 +168,7 @@ class DeviceManagementContentView: UIView {
             buttonStackView.topAnchor.constraint(equalTo: spacer.bottomAnchor),
             buttonStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             buttonStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            buttonStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+            buttonStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
         ])
     }
 
@@ -214,9 +214,9 @@ class DeviceManagementContentView: UIView {
                 "LOGOUT_DEVICES_MESSAGE",
                 tableName: "DeviceManagement",
                 value: """
-                       Please log out of at least one by removing it from the list below. You can find \
-                       the corresponding device name under the device’s Account settings.
-                       """,
+                Please log out of at least one by removing it from the list below. You can find \
+                the corresponding device name under the device’s Account settings.
+                """,
                 comment: ""
             )
         }

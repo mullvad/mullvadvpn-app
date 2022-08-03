@@ -9,7 +9,6 @@
 import Foundation
 
 extension REST {
-
     /// An error type returned by REST API classes.
     enum Error: ChainedError {
         /// A failure to create URL request.
@@ -30,7 +29,7 @@ extension REST {
                 return "Failure to create URL request."
             case .network:
                 return "Network error."
-            case .unhandledResponse(let statusCode, let serverResponse):
+            case let .unhandledResponse(statusCode, serverResponse):
                 var str = "Failure to handle server response: HTTP/\(statusCode)."
 
                 if let code = serverResponse?.code {
@@ -48,7 +47,7 @@ extension REST {
         }
 
         func compareErrorCode(_ code: ServerResponseCode) -> Bool {
-            if case .unhandledResponse(_, let serverResponse) = self {
+            if case let .unhandledResponse(_, serverResponse) = self {
                 return serverResponse?.code == code
             } else {
                 return false
@@ -88,5 +87,4 @@ extension REST {
             self.rawValue = rawValue
         }
     }
-
 }

@@ -16,7 +16,7 @@ protocol DisplayChainedError {
 extension REST.Error: DisplayChainedError {
     var errorChainDescription: String? {
         switch self {
-        case .network(let urlError):
+        case let .network(urlError):
             return String(
                 format: NSLocalizedString(
                     "NETWORK_ERROR",
@@ -26,7 +26,7 @@ extension REST.Error: DisplayChainedError {
                 ),
                 urlError.localizedDescription
             )
-        case .unhandledResponse(let statusCode, let serverResponse):
+        case let .unhandledResponse(statusCode, serverResponse):
             return String(
                 format: NSLocalizedString(
                     "SERVER_ERROR",
@@ -57,7 +57,7 @@ extension REST.Error: DisplayChainedError {
 
 extension SKError: LocalizedError {
     public var errorDescription: String? {
-        switch self.code {
+        switch code {
         case .unknown:
             return NSLocalizedString(
                 "UNKNOWN_ERROR",
@@ -94,7 +94,7 @@ extension SKError: LocalizedError {
                 comment: ""
             )
         default:
-            return self.localizedDescription
+            return localizedDescription
         }
     }
 }
@@ -110,7 +110,7 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
                 comment: ""
             )
 
-        case .validateAccount(let restError):
+        case let .validateAccount(restError):
             let reason = restError.errorChainDescription ?? ""
 
             if restError.compareErrorCode(.invalidAccount) {
@@ -135,10 +135,11 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
                 )
             }
 
-        case .readReceipt(let readReceiptError):
+        case let .readReceipt(readReceiptError):
             switch readReceiptError {
-            case .refresh(let storeError):
-                let skErrorMessage = (storeError as? SKError)?.errorDescription ?? storeError.localizedDescription
+            case let .refresh(storeError):
+                let skErrorMessage = (storeError as? SKError)?.errorDescription ?? storeError
+                    .localizedDescription
 
                 return String(
                     format: NSLocalizedString(
@@ -149,7 +150,7 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
                     ),
                     skErrorMessage
                 )
-            case .io(let ioError):
+            case let .io(ioError):
                 return String(
                     format: NSLocalizedString(
                         "READ_RECEIPT_ERROR",
@@ -168,7 +169,7 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
                 )
             }
 
-        case .sendReceipt(let restError):
+        case let .sendReceipt(restError):
             let reason = restError.errorChainDescription ?? ""
             let errorFormat = NSLocalizedString(
                 "SEND_RECEIPT_ERROR",
@@ -187,7 +188,7 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
             errorString.append(recoverySuggestion)
             return errorString
 
-        case .storePayment(let storeError):
+        case let .storePayment(storeError):
             return (storeError as? SKError)?.errorDescription ?? storeError.localizedDescription
         }
     }

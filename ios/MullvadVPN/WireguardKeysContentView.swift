@@ -9,7 +9,6 @@
 import UIKit
 
 class WireguardKeysContentView: UIView {
-
     let regenerateKeyButton: AppButton = {
         let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -81,10 +80,13 @@ class WireguardKeysContentView: UIView {
             contentStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             contentStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
 
-            buttonStackView.topAnchor.constraint(greaterThanOrEqualTo: contentStackView.bottomAnchor, constant: UIMetrics.sectionSpacing),
+            buttonStackView.topAnchor.constraint(
+                greaterThanOrEqualTo: contentStackView.bottomAnchor,
+                constant: UIMetrics.sectionSpacing
+            ),
             buttonStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             buttonStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            buttonStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+            buttonStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
         ])
     }
 
@@ -94,7 +96,6 @@ class WireguardKeysContentView: UIView {
 }
 
 class WireguardKeysPublicKeyRow: UIView {
-
     var value: String? {
         didSet {
             valueButton.setTitle(value, for: .normal)
@@ -159,7 +160,10 @@ class WireguardKeysPublicKeyRow: UIView {
         NSLayoutConstraint.activate([
             textLabel.topAnchor.constraint(equalTo: topAnchor),
             textLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            textLabel.trailingAnchor.constraint(greaterThanOrEqualTo: statusView.leadingAnchor, constant: -8),
+            textLabel.trailingAnchor.constraint(
+                greaterThanOrEqualTo: statusView.leadingAnchor,
+                constant: -8
+            ),
 
             statusView.topAnchor.constraint(equalTo: textLabel.topAnchor),
             statusView.bottomAnchor.constraint(equalTo: textLabel.bottomAnchor),
@@ -168,7 +172,7 @@ class WireguardKeysPublicKeyRow: UIView {
             valueButton.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 8),
             valueButton.leadingAnchor.constraint(equalTo: leadingAnchor),
             valueButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            valueButton.bottomAnchor.constraint(equalTo: bottomAnchor)
+            valueButton.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
 
         isAccessibilityElement = true
@@ -185,7 +189,7 @@ class WireguardKeysPublicKeyRow: UIView {
                 name: actionName,
                 target: self,
                 selector: #selector(performAccessibilityAction)
-            )
+            ),
         ]
 
         valueButton.addTarget(self, action: #selector(handleTap), for: .touchUpInside)
@@ -196,9 +200,9 @@ class WireguardKeysPublicKeyRow: UIView {
     }
 
     private func updateAccessibilityLabel() {
-        var accessibilityLabelString = self.textLabel.text ?? ""
+        var accessibilityLabelString = textLabel.text ?? ""
 
-        if case .verified(let isValid) = status {
+        if case let .verified(isValid) = status {
             accessibilityLabelString += ", "
 
             if isValid {
@@ -230,12 +234,11 @@ class WireguardKeysPublicKeyRow: UIView {
     }
 
     @objc private func performAccessibilityAction() {
-        self.actionHandler?()
+        actionHandler?()
     }
 }
 
 class WireguardKeysCreationRow: UIView {
-
     var value: String? {
         didSet {
             accessibilityValue = value
@@ -279,7 +282,7 @@ class WireguardKeysCreationRow: UIView {
             valueLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 8),
             valueLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             valueLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            valueLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+            valueLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
 
         isAccessibilityElement = true
@@ -335,7 +338,7 @@ class WireguardKeyStatusView: UIView {
             stackView.topAnchor.constraint(equalTo: topAnchor),
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor)
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
 
         updateView()
@@ -354,7 +357,7 @@ class WireguardKeyStatusView: UIView {
         case .regenerating, .verifying:
             startSpinner()
 
-        case .verified(let isValid):
+        case let .verified(isValid):
             textLabel.isHidden = false
             activityIndicator.stopAnimating()
 
@@ -382,5 +385,4 @@ class WireguardKeyStatusView: UIView {
         textLabel.isHidden = true
         activityIndicator.startAnimating()
     }
-
 }

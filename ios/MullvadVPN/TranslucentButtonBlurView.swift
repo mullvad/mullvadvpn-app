@@ -22,7 +22,7 @@ class TranslucentButtonBlurView: UIVisualEffectView {
             button.topAnchor.constraint(equalTo: contentView.topAnchor),
             button.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
         ])
 
         layer.cornerRadius = UIMetrics.controlCornerRadius
@@ -36,16 +36,20 @@ class TranslucentButtonBlurView: UIVisualEffectView {
 }
 
 private extension AppButton.Style {
-    func cornerMask(_ userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection) -> CACornerMask {
+    func cornerMask(_ userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection)
+        -> CACornerMask
+    {
         switch (self, userInterfaceLayoutDirection) {
-        case (.translucentDangerSplitLeft, .leftToRight), (.translucentDangerSplitRight, .rightToLeft):
+        case (.translucentDangerSplitLeft, .leftToRight),
+             (.translucentDangerSplitRight, .rightToLeft):
             return [.layerMinXMinYCorner, .layerMinXMaxYCorner]
-        case (.translucentDangerSplitRight, .leftToRight), (.translucentDangerSplitLeft, .rightToLeft):
+        case (.translucentDangerSplitRight, .leftToRight),
+             (.translucentDangerSplitLeft, .rightToLeft):
             return [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
         default:
             return [
                 .layerMinXMinYCorner, .layerMinXMaxYCorner,
-                .layerMaxXMinYCorner, .layerMaxXMaxYCorner
+                .layerMaxXMinYCorner, .layerMaxXMaxYCorner,
             ]
         }
     }

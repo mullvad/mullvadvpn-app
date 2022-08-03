@@ -50,8 +50,8 @@ class CustomSwitchContainer: UIView {
         control.sizeToFit()
         sizeToFit()
 
-        borderShape.cornerRadius = self.bounds.height * 0.5
-        borderShape.frame = self.bounds
+        borderShape.cornerRadius = bounds.height * 0.5
+        borderShape.frame = bounds
 
         updateBorderOpacity()
     }
@@ -83,5 +83,4 @@ class CustomSwitchContainer: UIView {
 
         CATransaction.commit()
     }
-
 }

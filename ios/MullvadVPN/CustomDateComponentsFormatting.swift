@@ -11,7 +11,6 @@ import Foundation
 enum CustomDateComponentsFormatting {}
 
 extension CustomDateComponentsFormatting {
-
     /// Format a duration between the given dates returning a string that only contains one unit.
     ///
     /// The behaviour of that method differs from `DateComponentsFormatter`:
@@ -25,8 +24,8 @@ extension CustomDateComponentsFormatting {
         from start: Date,
         to end: Date,
         calendar: Calendar = Calendar.current,
-        unitsStyle: DateComponentsFormatter.UnitsStyle) -> String?
-    {
+        unitsStyle: DateComponentsFormatter.UnitsStyle
+    ) -> String? {
         let formatter = DateComponentsFormatter()
         formatter.calendar = calendar
         formatter.unitsStyle = unitsStyle
@@ -41,16 +40,16 @@ extension CustomDateComponentsFormatting {
         let minutes = dateComponents.minute ?? 0
         let seconds = dateComponents.second ?? 0
 
-        if days == 0 && hours == 0 && minutes == 0 && seconds < 60 {
+        if days == 0, hours == 0, minutes == 0, seconds < 60 {
             return NSLocalizedString(
                 "LESS_THAN_ONE_MINUTE",
                 tableName: "CustomDateComponentsFormatting",
                 value: "Less than a minute",
                 comment: "Phrase used for less than 1 minute duration."
             )
-        } else if days == 0 && hours == 23 && minutes >= 30 {
+        } else if days == 0, hours == 23, minutes >= 30 {
             return formatter.string(from: DateComponents(calendar: calendar, day: 1))
-        } else if days >= 1 && days <= 90 {
+        } else if days >= 1, days <= 90 {
             formatter.allowedUnits = [.day]
             return formatter.string(from: dateComponents)
         } else {

@@ -6,11 +6,10 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import UIKit
 import Foundation
+import UIKit
 
 class ProblemReportSubmissionOverlayView: UIView {
-
     var editButtonAction: (() -> Void)?
     var retryButtonAction: (() -> Void)?
 
@@ -49,7 +48,7 @@ class ProblemReportSubmissionOverlayView: UIView {
             switch self {
             case .sending:
                 return nil
-            case .sent(let email):
+            case let .sent(email):
                 let combinedAttributedString = NSMutableAttributedString(
                     string: NSLocalizedString(
                         "THANKS_MESSAGE",
@@ -79,7 +78,8 @@ class ProblemReportSubmissionOverlayView: UIView {
                             tableName: "ProblemReport",
                             value: "If needed we will contact you at %@",
                             comment: ""
-                        ), email)
+                        ), email
+                    )
                     let emailAttributedString = NSMutableAttributedString(string: emailText)
                     if let emailRange = emailText.range(of: email) {
                         let font = UIFont.systemFont(ofSize: 17, weight: .bold)
@@ -94,7 +94,7 @@ class ProblemReportSubmissionOverlayView: UIView {
 
                 return combinedAttributedString
 
-            case .failure(let error):
+            case let .failure(error):
                 return error.errorChainDescription.flatMap { NSAttributedString(string: $0) }
             }
         }
@@ -102,7 +102,7 @@ class ProblemReportSubmissionOverlayView: UIView {
 
     var state: State = .sending {
         didSet {
-            transitionToState(self.state)
+            transitionToState(state)
         }
     }
 
@@ -111,6 +111,7 @@ class ProblemReportSubmissionOverlayView: UIView {
         indicator.tintColor = .white
         return indicator
     }()
+
     let statusImageView = StatusImageView(style: .success)
 
     let titleLabel: UILabel = {
@@ -179,13 +180,22 @@ class ProblemReportSubmissionOverlayView: UIView {
     }
 
     private func addSubviews() {
-        for subview in [titleLabel, bodyLabel, activityIndicator, statusImageView, buttonsStackView] {
+        for subview in [
+            titleLabel,
+            bodyLabel,
+            activityIndicator,
+            statusImageView,
+            buttonsStackView,
+        ] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             addSubview(subview)
         }
 
         NSLayoutConstraint.activate([
-            statusImageView.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor, constant: 32),
+            statusImageView.topAnchor.constraint(
+                equalTo: layoutMarginsGuide.topAnchor,
+                constant: 32
+            ),
             statusImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
 
             activityIndicator.centerXAnchor.constraint(equalTo: statusImageView.centerXAnchor),
@@ -195,14 +205,20 @@ class ProblemReportSubmissionOverlayView: UIView {
             titleLabel.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
 
-            bodyLabel.topAnchor.constraint(equalToSystemSpacingBelow: titleLabel.bottomAnchor, multiplier: 1),
+            bodyLabel.topAnchor.constraint(
+                equalToSystemSpacingBelow: titleLabel.bottomAnchor,
+                multiplier: 1
+            ),
             bodyLabel.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             bodyLabel.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            buttonsStackView.topAnchor.constraint(greaterThanOrEqualTo: bodyLabel.bottomAnchor, constant: 18),
+            buttonsStackView.topAnchor.constraint(
+                greaterThanOrEqualTo: bodyLabel.bottomAnchor,
+                constant: 18
+            ),
 
             buttonsStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             buttonsStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            buttonsStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+            buttonsStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
         ])
     }
 

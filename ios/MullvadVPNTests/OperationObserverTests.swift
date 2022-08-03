@@ -9,7 +9,6 @@
 import XCTest
 
 class OperationObserverTests: XCTestCase {
-
     func testBlockObserver() throws {
         let expectDidAttach = expectation(description: "didAttach handler")
         let expectDidStart = expectation(description: "didStart handler")
@@ -64,5 +63,4 @@ class OperationObserverTests: XCTestCase {
         let expectations = [expectDidAttach, expectDidCancel, expectDidStart, expectDidFinish]
         wait(for: expectations, timeout: 1, enforceOrder: true)
     }
-
 }

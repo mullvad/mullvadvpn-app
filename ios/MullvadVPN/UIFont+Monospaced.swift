@@ -17,8 +17,8 @@ extension UIFont {
             let fontDescriptor = UIFontDescriptor(fontAttributes: [
                 .name: "Menlo",
                 .traits: [
-                    UIFontDescriptor.TraitKey.weight: weight
-                ]
+                    UIFontDescriptor.TraitKey.weight: weight,
+                ],
             ])
 
             return UIFont(descriptor: fontDescriptor, size: size)

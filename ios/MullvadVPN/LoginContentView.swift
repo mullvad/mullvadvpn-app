@@ -9,7 +9,6 @@
 import UIKit
 
 class LoginContentView: UIView {
-
     private var keyboardResponder: AutomaticKeyboardResponder?
 
     let titleLabel: UILabel = {
@@ -114,12 +113,15 @@ class LoginContentView: UIView {
 
         accountInputGroup.textField.accessibilityIdentifier = "LoginTextField"
 
-        keyboardResponder = AutomaticKeyboardResponder(targetView: self, handler: { [weak self] (view, adjustment) in
-            self?.contentContainerBottomConstraint?.constant = adjustment
+        keyboardResponder = AutomaticKeyboardResponder(
+            targetView: self,
+            handler: { [weak self] view, adjustment in
+                self?.contentContainerBottomConstraint?.constant = adjustment
 
-            self?.layoutIfNeeded()
-            self?.updateStatusImageVisibility(animated: false)
-        })
+                self?.layoutIfNeeded()
+                self?.updateStatusImageVisibility(animated: false)
+            }
+        )
 
         addSubviews()
     }
@@ -139,7 +141,8 @@ class LoginContentView: UIView {
 
     private func updateStatusImageVisibility(animated: Bool) {
         let statusImageFrame = statusImageView.convert(statusImageView.bounds, to: self)
-        let shouldShow = isStatusImageVisible && safeAreaLayoutGuide.layoutFrame.contains(statusImageFrame)
+        let shouldShow = isStatusImageVisible && safeAreaLayoutGuide.layoutFrame
+            .contains(statusImageFrame)
 
         let actions = {
             // Only display the status image if it doesn't overlap the safe area layout guide.
@@ -175,7 +178,8 @@ class LoginContentView: UIView {
         addSubview(contentContainer)
         addSubview(footerContainer)
 
-        let contentContainerBottomConstraint = bottomAnchor.constraint(equalTo: contentContainer.bottomAnchor)
+        let contentContainerBottomConstraint = bottomAnchor
+            .constraint(equalTo: contentContainer.bottomAnchor)
         self.contentContainerBottomConstraint = contentContainerBottomConstraint
 
         NSLayoutConstraint.activate([
@@ -189,17 +193,28 @@ class LoginContentView: UIView {
             footerContainer.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             footerLabel.topAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.topAnchor),
-            footerLabel.leadingAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.leadingAnchor),
-            footerLabel.trailingAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.trailingAnchor),
+            footerLabel.leadingAnchor
+                .constraint(equalTo: footerContainer.layoutMarginsGuide.leadingAnchor),
+            footerLabel.trailingAnchor
+                .constraint(equalTo: footerContainer.layoutMarginsGuide.trailingAnchor),
 
-            createAccountButton.topAnchor.constraint(equalToSystemSpacingBelow: footerLabel.bottomAnchor, multiplier: 1),
-            createAccountButton.leadingAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.leadingAnchor),
-            createAccountButton.trailingAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.trailingAnchor),
-            createAccountButton.bottomAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.bottomAnchor),
+            createAccountButton.topAnchor.constraint(
+                equalToSystemSpacingBelow: footerLabel.bottomAnchor,
+                multiplier: 1
+            ),
+            createAccountButton.leadingAnchor
+                .constraint(equalTo: footerContainer.layoutMarginsGuide.leadingAnchor),
+            createAccountButton.trailingAnchor
+                .constraint(equalTo: footerContainer.layoutMarginsGuide.trailingAnchor),
+            createAccountButton.bottomAnchor
+                .constraint(equalTo: footerContainer.layoutMarginsGuide.bottomAnchor),
 
             statusImageView.centerXAnchor.constraint(equalTo: contentContainer.centerXAnchor),
             formContainer.topAnchor.constraint(equalTo: statusImageView.bottomAnchor, constant: 30),
-            formContainer.centerYAnchor.constraint(equalTo: contentContainer.centerYAnchor, constant: -20),
+            formContainer.centerYAnchor.constraint(
+                equalTo: contentContainer.centerYAnchor,
+                constant: -20
+            ),
             formContainer.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor),
             formContainer.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor),
             formContainer.bottomAnchor.constraint(equalTo: accountInputGroupWrapper.bottomAnchor),
@@ -208,22 +223,36 @@ class LoginContentView: UIView {
             activityIndicator.centerYAnchor.constraint(equalTo: statusImageView.centerYAnchor),
 
             titleLabel.topAnchor.constraint(equalTo: formContainer.topAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
+            titleLabel.leadingAnchor
+                .constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
+            titleLabel.trailingAnchor
+                .constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
 
-            messageLabel.topAnchor.constraint(equalToSystemSpacingBelow: titleLabel.bottomAnchor, multiplier: 1),
-            messageLabel.leadingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
-            messageLabel.trailingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
+            messageLabel.topAnchor.constraint(
+                equalToSystemSpacingBelow: titleLabel.bottomAnchor,
+                multiplier: 1
+            ),
+            messageLabel.leadingAnchor
+                .constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
+            messageLabel.trailingAnchor
+                .constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
 
-            accountInputGroupWrapper.topAnchor.constraint(equalToSystemSpacingBelow: messageLabel.bottomAnchor, multiplier: 1),
-            accountInputGroupWrapper.leadingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
-            accountInputGroupWrapper.trailingAnchor.constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
-            accountInputGroupWrapper.heightAnchor.constraint(equalTo: accountInputGroup.contentView.heightAnchor),
+            accountInputGroupWrapper.topAnchor.constraint(
+                equalToSystemSpacingBelow: messageLabel.bottomAnchor,
+                multiplier: 1
+            ),
+            accountInputGroupWrapper.leadingAnchor
+                .constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
+            accountInputGroupWrapper.trailingAnchor
+                .constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
+            accountInputGroupWrapper.heightAnchor
+                .constraint(equalTo: accountInputGroup.contentView.heightAnchor),
 
             accountInputGroup.topAnchor.constraint(equalTo: accountInputGroupWrapper.topAnchor),
-            accountInputGroup.leadingAnchor.constraint(equalTo: accountInputGroupWrapper.leadingAnchor),
-            accountInputGroup.trailingAnchor.constraint(equalTo: accountInputGroupWrapper.trailingAnchor),
+            accountInputGroup.leadingAnchor
+                .constraint(equalTo: accountInputGroupWrapper.leadingAnchor),
+            accountInputGroup.trailingAnchor
+                .constraint(equalTo: accountInputGroupWrapper.trailingAnchor),
         ])
     }
-
 }

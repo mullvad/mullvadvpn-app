@@ -11,7 +11,7 @@ import UIKit
 extension OperationCompletion {
     func backgroundFetchResult(_ hasNewData: (Success) -> Bool) -> UIBackgroundFetchResult {
         switch self {
-        case .success(let value):
+        case let .success(value):
             return hasNewData(value) ? .newData : .noData
         case .cancelled:
             return .noData
@@ -31,7 +31,7 @@ extension UIBackgroundFetchResult: CustomStringConvertible {
         case .failed:
             return "failed"
         @unknown default:
-            return "unknown (rawValue: \(self.rawValue)"
+            return "unknown (rawValue: \(rawValue)"
         }
     }
 

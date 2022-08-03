@@ -105,7 +105,8 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
 
         // Reconfigure cells for items with corresponding DNS entries that were changed during sanitization.
         let itemsToReload: [Item] = oldDNSDomains.filter { oldDNSEntry in
-            guard let newDNSEntry = viewModel.dnsEntry(entryIdentifier: oldDNSEntry.identifier) else { return false }
+            guard let newDNSEntry = viewModel.dnsEntry(entryIdentifier: oldDNSEntry.identifier)
+            else { return false }
 
             return newDNSEntry.address != oldDNSEntry.address
         }.map { dnsEntry in
@@ -124,7 +125,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             tableView?.reloadData()
         }
 
-        if !editing && viewModelBeforeEditing != viewModel {
+        if !editing, viewModelBeforeEditing != viewModel {
             delegate?.preferencesDataSource(self, didChangeViewModel: viewModel)
         }
     }
@@ -172,14 +173,18 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         }
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(
+        _ tableView: UITableView,
+        commit editingStyle: UITableViewCell.EditingStyle,
+        forRowAt indexPath: IndexPath
+    ) {
         let item = snapshot.itemForIndexPath(indexPath)
 
         if case .addDNSServer = item, editingStyle == .insert {
             addDNSServerEntry()
         }
 
-        if case .dnsServer(let entryIdentifier) = item, editingStyle == .delete {
+        if case let .dnsServer(entryIdentifier) = item, editingStyle == .delete {
             deleteDNSServerEntry(entryIdentifier: entryIdentifier)
         }
     }
@@ -195,14 +200,19 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         }
     }
 
-    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    func tableView(
+        _ tableView: UITableView,
+        moveRowAt sourceIndexPath: IndexPath,
+        to destinationIndexPath: IndexPath
+    ) {
         let sourceItem = snapshot.itemForIndexPath(sourceIndexPath)!
         let destinationItem = snapshot.itemForIndexPath(destinationIndexPath)!
 
-        guard case .dnsServer(let sourceIdentifier) = sourceItem,
-              case .dnsServer(let targetIdentifier) = destinationItem,
+        guard case let .dnsServer(sourceIdentifier) = sourceItem,
+              case let .dnsServer(targetIdentifier) = destinationItem,
               let sourceIndex = viewModel.indexOfDNSEntry(entryIdentifier: sourceIdentifier),
-              let destinationIndex = viewModel.indexOfDNSEntry(entryIdentifier: targetIdentifier) else { return }
+              let destinationIndex = viewModel.indexOfDNSEntry(entryIdentifier: targetIdentifier)
+        else { return }
 
         let removedEntry = viewModel.customDNSDomains.remove(at: sourceIndex)
         viewModel.customDNSDomains.insert(removedEntry, at: destinationIndex)
@@ -217,7 +227,11 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return tableView.dequeueReusableHeaderFooterView(withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue)
+        return tableView
+            .dequeueReusableHeaderFooterView(
+                withIdentifier: HeaderFooterReuseIdentifiers.spacer
+                    .rawValue
+            )
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
@@ -228,7 +242,11 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             return nil
 
         case .customDNS:
-            let reusableView = tableView.dequeueReusableHeaderFooterView(withIdentifier: HeaderFooterReuseIdentifiers.customDNSFooter.rawValue) as! SettingsStaticTextFooterView
+            let reusableView = tableView
+                .dequeueReusableHeaderFooterView(
+                    withIdentifier: HeaderFooterReuseIdentifiers
+                        .customDNSFooter.rawValue
+                ) as! SettingsStaticTextFooterView
             configureFooterView(reusableView)
             return reusableView
         }
@@ -255,7 +273,10 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         }
     }
 
-    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+    func tableView(
+        _ tableView: UITableView,
+        editingStyleForRowAt indexPath: IndexPath
+    ) -> UITableViewCell.EditingStyle {
         let item = snapshot.itemForIndexPath(indexPath)
 
         switch item {
@@ -268,7 +289,11 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         }
     }
 
-    func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+    func tableView(
+        _ tableView: UITableView,
+        targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath,
+        toProposedIndexPath proposedDestinationIndexPath: IndexPath
+    ) -> IndexPath {
         guard let sectionIdentifier = snapshot.section(at: sourceIndexPath.section),
               case .customDNS = sectionIdentifier else { return sourceIndexPath }
 
@@ -300,18 +325,27 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
 
     private func registerClasses() {
         CellReuseIdentifiers.allCases.forEach { enumCase in
-            tableView?.register(enumCase.reusableViewClass, forCellReuseIdentifier: enumCase.rawValue)
+            tableView?.register(
+                enumCase.reusableViewClass,
+                forCellReuseIdentifier: enumCase.rawValue
+            )
         }
 
         HeaderFooterReuseIdentifiers.allCases.forEach { enumCase in
-            tableView?.register(enumCase.reusableViewClass, forHeaderFooterViewReuseIdentifier: enumCase.rawValue)
+            tableView?.register(
+                enumCase.reusableViewClass,
+                forHeaderFooterViewReuseIdentifier: enumCase.rawValue
+            )
         }
     }
 
     private func updateSnapshot() {
         var newSnapshot = DataSourceSnapshot<Section, Item>()
         newSnapshot.appendSections([.mullvadDNS, .customDNS])
-        newSnapshot.appendItems([.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling], in: .mullvadDNS)
+        newSnapshot.appendItems(
+            [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling],
+            in: .mullvadDNS
+        )
         newSnapshot.appendItems([.useCustomDNS], in: .customDNS)
 
         let dnsServerItems = viewModel.customDNSDomains.map { entry in
@@ -319,17 +353,24 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         }
         newSnapshot.appendItems(dnsServerItems, in: .customDNS)
 
-        if isEditing && viewModel.customDNSDomains.count < DNSSettings.maxAllowedCustomDNSDomains {
+        if isEditing, viewModel.customDNSDomains.count < DNSSettings.maxAllowedCustomDNSDomains {
             newSnapshot.appendItems([.addDNSServer], in: .customDNS)
         }
 
         snapshot = newSnapshot
     }
 
-    private func dequeueCellForItem(_ item: Item, in tableView: UITableView, at indexPath: IndexPath) -> UITableViewCell {
+    private func dequeueCellForItem(
+        _ item: Item,
+        in tableView: UITableView,
+        at indexPath: IndexPath
+    ) -> UITableViewCell {
         switch item {
         case .blockAdvertising:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue, for: indexPath) as! SettingsSwitchCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue,
+                for: indexPath
+            ) as! SettingsSwitchCell
 
             cell.titleLabel.text = NSLocalizedString(
                 "BLOCK_ADS_CELL_LABEL",
@@ -346,7 +387,10 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             return cell
 
         case .blockTracking:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue, for: indexPath) as! SettingsSwitchCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue,
+                for: indexPath
+            ) as! SettingsSwitchCell
 
             cell.titleLabel.text = NSLocalizedString(
                 "BLOCK_TRACKERS_CELL_LABEL",
@@ -363,7 +407,10 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             return cell
 
         case .blockMalware:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue, for: indexPath) as! SettingsSwitchCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue,
+                for: indexPath
+            ) as! SettingsSwitchCell
 
             cell.titleLabel.text = NSLocalizedString(
                 "BLOCK_MALWARE_CELL_LABEL",
@@ -380,7 +427,10 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             return cell
 
         case .blockAdultContent:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue, for: indexPath) as! SettingsSwitchCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue,
+                for: indexPath
+            ) as! SettingsSwitchCell
 
             cell.titleLabel.text = NSLocalizedString(
                 "BLOCK_ADULT_CELL_LABEL",
@@ -397,7 +447,10 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             return cell
 
         case .blockGambling:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue, for: indexPath) as! SettingsSwitchCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue,
+                for: indexPath
+            ) as! SettingsSwitchCell
 
             cell.titleLabel.text = NSLocalizedString(
                 "BLOCK_GAMBLING_CELL_LABEL",
@@ -414,7 +467,10 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
             return cell
 
         case .useCustomDNS:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue, for: indexPath) as! SettingsSwitchCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.settingSwitch.rawValue,
+                for: indexPath
+            ) as! SettingsSwitchCell
 
             cell.titleLabel.text = NSLocalizedString(
                 "CUSTOM_DNS_CELL_LABEL",
@@ -428,12 +484,16 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
                 self?.setEnableCustomDNS(isOn)
             }
 
-            cell.accessibilityHint = viewModel.customDNSPrecondition.localizedDescription(isEditing: isEditing)
+            cell.accessibilityHint = viewModel.customDNSPrecondition
+                .localizedDescription(isEditing: isEditing)
 
             return cell
 
         case .addDNSServer:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.addDNSServer.rawValue, for: indexPath) as! SettingsAddDNSEntryCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.addDNSServer.rawValue,
+                for: indexPath
+            ) as! SettingsAddDNSEntryCell
             cell.titleLabel.text = NSLocalizedString(
                 "ADD_CUSTOM_DNS_SERVER_CELL_LABEL",
                 tableName: "Preferences",
@@ -447,17 +507,23 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
 
             return cell
 
-        case .dnsServer(let entryIdentifier):
+        case let .dnsServer(entryIdentifier):
             let dnsServerEntry = viewModel.dnsEntry(entryIdentifier: entryIdentifier)!
 
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.dnsServer.rawValue, for: indexPath) as! SettingsDNSTextCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.dnsServer.rawValue,
+                for: indexPath
+            ) as! SettingsDNSTextCell
             cell.textField.text = dnsServerEntry.address
             cell.isValidInput = viewModel.validateDNSDomainUserInput(dnsServerEntry.address)
 
             cell.onTextChange = { [weak self] cell in
-                guard let self = self, let indexPath = self.tableView?.indexPath(for: cell) else { return }
+                guard let self = self,
+                      let indexPath = self.tableView?.indexPath(for: cell) else { return }
 
-                if case .dnsServer(let entryIdentifier) = self.snapshot.itemForIndexPath(indexPath) {
+                if case let .dnsServer(entryIdentifier) = self.snapshot
+                    .itemForIndexPath(indexPath)
+                {
                     self.handleDNSEntryChange(entryIdentifier: entryIdentifier, cell: cell)
                 }
             }
@@ -581,14 +647,16 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
                 if completed {
                     // Focus on the new entry text field.
                     let lastDNSEntry = self.snapshot.items(in: .customDNS).last { item in
-                        if case .dnsServer(let entryIdentifier) = item {
+                        if case let .dnsServer(entryIdentifier) = item {
                             return entryIdentifier == newDNSEntry.identifier
                         } else {
                             return false
                         }
                     }
 
-                    if let lastDNSEntry = lastDNSEntry, let indexPath = self.snapshot.indexPathForItem(lastDNSEntry) {
+                    if let lastDNSEntry = lastDNSEntry,
+                       let indexPath = self.snapshot.indexPathForItem(lastDNSEntry)
+                    {
                         let cell = self.tableView?.cellForRow(at: indexPath) as? SettingsDNSTextCell
 
                         self.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
@@ -629,7 +697,9 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
 
         // Reload footer view
         tableView?.performBatchUpdates {
-            if let reusableView = tableView?.footerView(forSection: sectionIndex) as? SettingsStaticTextFooterView {
+            if let reusableView = tableView?
+                .footerView(forSection: sectionIndex) as? SettingsStaticTextFooterView
+            {
                 configureFooterView(reusableView)
             }
         }
@@ -647,5 +717,4 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         reusableView.titleLabel.attributedText = viewModel.customDNSPrecondition
             .attributedLocalizedDescription(isEditing: isEditing, preferredFont: font)
     }
-
 }

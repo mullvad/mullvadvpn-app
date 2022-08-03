@@ -11,9 +11,9 @@ import NetworkExtension
 
 // Switch to stabs on simulator
 #if targetEnvironment(simulator)
-typealias TunnelProviderManagerType = SimulatorTunnelProviderManager
+    typealias TunnelProviderManagerType = SimulatorTunnelProviderManager
 #else
-typealias TunnelProviderManagerType = NETunnelProviderManager
+    typealias TunnelProviderManagerType = NETunnelProviderManager
 #endif
 
 protocol TunnelStatusObserver {
@@ -23,7 +23,7 @@ protocol TunnelStatusObserver {
 /// Tunnel wrapper class.
 class Tunnel {
     /// Tunnel provider manager.
-    fileprivate let tunnelProvider: TunnelProviderManagerType
+    private let tunnelProvider: TunnelProviderManagerType
 
     /// Tunnel start date.
     ///
@@ -90,7 +90,10 @@ class Tunnel {
         tunnelProvider.removeFromPreferences(completionHandler: completion)
     }
 
-    func addBlockObserver(queue: DispatchQueue? = nil, handler: @escaping (Tunnel, NEVPNStatus) -> Void) -> TunnelStatusBlockObserver {
+    func addBlockObserver(
+        queue: DispatchQueue? = nil,
+        handler: @escaping (Tunnel, NEVPNStatus) -> Void
+    ) -> TunnelStatusBlockObserver {
         let observer = TunnelStatusBlockObserver(tunnel: self, queue: queue, handler: handler)
 
         addObserver(observer)

@@ -121,7 +121,8 @@ class SpinnerActivityIndicatorView: UIView {
             object: object,
             queue: .main, using: { [weak self] _ in
                 self?.restartAnimationIfNeeded()
-            })
+            }
+        )
     }
 
     private func unregisterSceneActivationObserver() {
@@ -134,7 +135,7 @@ class SpinnerActivityIndicatorView: UIView {
     private func restartAnimationIfNeeded() {
         let animation = layer.animation(forKey: Self.rotationAnimationKey)
 
-        if isAnimating && animation == nil {
+        if isAnimating, animation == nil {
             removeAnimation()
             addAnimation()
         }

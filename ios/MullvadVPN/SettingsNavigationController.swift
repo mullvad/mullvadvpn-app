@@ -22,11 +22,15 @@ enum SettingsDismissReason {
 }
 
 protocol SettingsNavigationControllerDelegate: AnyObject {
-    func settingsNavigationController(_ controller: SettingsNavigationController, didFinishWithReason reason: SettingsDismissReason)
+    func settingsNavigationController(
+        _ controller: SettingsNavigationController,
+        didFinishWithReason reason: SettingsDismissReason
+    )
 }
 
-class SettingsNavigationController: CustomNavigationController, SettingsViewControllerDelegate, AccountViewControllerDelegate, UIAdaptivePresentationControllerDelegate {
-
+class SettingsNavigationController: CustomNavigationController, SettingsViewControllerDelegate,
+    AccountViewControllerDelegate, UIAdaptivePresentationControllerDelegate
+{
     weak var settingsDelegate: SettingsNavigationControllerDelegate?
 
     override var childForStatusBarStyle: UIViewController? {
@@ -68,20 +72,20 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
     // MARK: - SettingsViewControllerDelegate
 
     func settingsViewControllerDidFinish(_ controller: SettingsViewController) {
-        self.settingsDelegate?.settingsNavigationController(self, didFinishWithReason: .none)
+        settingsDelegate?.settingsNavigationController(self, didFinishWithReason: .none)
     }
 
     // MARK: - AccountViewControllerDelegate
 
     func accountViewControllerDidLogout(_ controller: AccountViewController) {
-        self.settingsDelegate?.settingsNavigationController(self, didFinishWithReason: .userLoggedOut)
+        settingsDelegate?.settingsNavigationController(self, didFinishWithReason: .userLoggedOut)
     }
 
     // MARK: - Navigation
 
     func navigate(to route: SettingsNavigationRoute, animated: Bool) {
         let nextViewController = makeViewController(for: route)
-        if let rootController = self.viewControllers.first, viewControllers.count > 1 {
+        if let rootController = viewControllers.first, viewControllers.count > 1 {
             setViewControllers([rootController, nextViewController], animated: animated)
         } else {
             pushViewController(nextViewController, animated: animated)

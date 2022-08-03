@@ -9,8 +9,9 @@
 import SafariServices
 import UIKit
 
-class TermsOfServiceViewController: UIViewController, RootContainment, SFSafariViewControllerDelegate {
-
+class TermsOfServiceViewController: UIViewController, RootContainment,
+    SFSafariViewControllerDelegate
+{
     var completionHandler: ((UIViewController) -> Void)?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -32,8 +33,16 @@ class TermsOfServiceViewController: UIViewController, RootContainment, SFSafariV
 
         let contentView = TermsOfServiceContentView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.agreeButton.addTarget(self, action: #selector(handleAgreeButton(_:)), for: .touchUpInside)
-        contentView.privacyPolicyLink.addTarget(self, action: #selector(handlePrivacyPolicyButton(_:)), for: .touchUpInside)
+        contentView.agreeButton.addTarget(
+            self,
+            action: #selector(handleAgreeButton(_:)),
+            for: .touchUpInside
+        )
+        contentView.privacyPolicyLink.addTarget(
+            self,
+            action: #selector(handlePrivacyPolicyButton(_:)),
+            for: .touchUpInside
+        )
 
         view.backgroundColor = .primaryColor
         view.addSubview(contentView)
@@ -49,7 +58,10 @@ class TermsOfServiceViewController: UIViewController, RootContainment, SFSafariV
     // MARK: - Actions
 
     @objc private func handlePrivacyPolicyButton(_ sender: Any) {
-        let safariController = SFSafariViewController(url: ApplicationConfiguration.privacyPolicyURL)
+        let safariController = SFSafariViewController(
+            url: ApplicationConfiguration
+                .privacyPolicyURL
+        )
         safariController.delegate = self
 
         present(safariController, animated: true)

@@ -10,36 +10,46 @@ import UIKit
 
 class CustomNavigationBar: UINavigationBar {
     private static let titleTextAttributes: [NSAttributedString.Key: Any] = [
-        .foregroundColor: UIColor.NavigationBar.titleColor
+        .foregroundColor: UIColor.NavigationBar.titleColor,
     ]
 
     private static let backButtonTitlePositionOffset = UIOffset(horizontal: 4, vertical: 0)
     private static let backButtonTitleTextAttributes: [NSAttributedString.Key: Any] = [
-        .foregroundColor: UIColor.NavigationBar.backButtonTitleColor
+        .foregroundColor: UIColor.NavigationBar.backButtonTitleColor,
     ]
 
     private static let setupAppearanceForIOS12Once: Void = {
         if #available(iOS 13, *) {
             // no-op
         } else {
-            let buttonAppearance = UIBarButtonItem.appearance(whenContainedInInstancesOf: [CustomNavigationBar.self])
-            buttonAppearance.setBackButtonTitlePositionAdjustment(CustomNavigationBar.backButtonTitlePositionOffset, for: .default)
-            buttonAppearance.setTitleTextAttributes(CustomNavigationBar.titleTextAttributes, for: .normal)
+            let buttonAppearance = UIBarButtonItem
+                .appearance(whenContainedInInstancesOf: [CustomNavigationBar.self])
+            buttonAppearance.setBackButtonTitlePositionAdjustment(
+                CustomNavigationBar.backButtonTitlePositionOffset,
+                for: .default
+            )
+            buttonAppearance.setTitleTextAttributes(
+                CustomNavigationBar.titleTextAttributes,
+                for: .normal
+            )
         }
     }()
 
     private let customBackIndicatorImage = UIImage(named: "IconBack")?
-        .backport_withTintColor(UIColor.NavigationBar.backButtonIndicatorColor, renderingMode: .alwaysOriginal)
+        .backport_withTintColor(
+            UIColor.NavigationBar.backButtonIndicatorColor,
+            renderingMode: .alwaysOriginal
+        )
     private let customBackIndicatorTransitionMask = UIImage(named: "IconBackTransitionMask")
 
     // Returns the distance from the title label to the bottom of navigation bar
     var titleLabelBottomInset: CGFloat {
         // Go two levels deep only
-        let subviewsToExamine = subviews.flatMap { (view) -> [UIView] in
+        let subviewsToExamine = subviews.flatMap { view -> [UIView] in
             return [view] + view.subviews
         }
 
-        let titleLabel = subviewsToExamine.first { (view) -> Bool in
+        let titleLabel = subviewsToExamine.first { view -> Bool in
             return view is UILabel
         }
 
@@ -109,14 +119,19 @@ class CustomNavigationBar: UINavigationBar {
         navigationBarAppearance.backButtonAppearance = backButtonAppearance
 
         if #available(iOS 14, *) {
-            navigationBarAppearance.setBackIndicatorImage(customBackIndicatorImage, transitionMaskImage: customBackIndicatorTransitionMask)
+            navigationBarAppearance.setBackIndicatorImage(
+                customBackIndicatorImage,
+                transitionMaskImage: customBackIndicatorTransitionMask
+            )
         } else {
             // Bug: on iOS 13 setBackIndicatorImage accepts parameters in backward order
             // https://stackoverflow.com/a/58171229/351305
-            navigationBarAppearance.setBackIndicatorImage(customBackIndicatorTransitionMask, transitionMaskImage: customBackIndicatorImage)
+            navigationBarAppearance.setBackIndicatorImage(
+                customBackIndicatorTransitionMask,
+                transitionMaskImage: customBackIndicatorImage
+            )
         }
 
         return navigationBarAppearance
     }
-
 }

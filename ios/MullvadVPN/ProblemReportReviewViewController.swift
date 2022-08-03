@@ -9,12 +9,15 @@
 import UIKit
 
 class ProblemReportReviewViewController: UIViewController {
-
     private var textView = UITextView()
     private let reportString: String
 
     private var dismissButtonItem: UIBarButtonItem {
-        return UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handleDismissButton(_:)))
+        return UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: self,
+            action: #selector(handleDismissButton(_:))
+        )
     }
 
     init(reportString: String) {
@@ -51,7 +54,7 @@ class ProblemReportReviewViewController: UIViewController {
             textView.topAnchor.constraint(equalTo: view.topAnchor),
             textView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             textView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            textView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            textView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
         // Used to layout constraints so that navigation controller could properly adjust the text

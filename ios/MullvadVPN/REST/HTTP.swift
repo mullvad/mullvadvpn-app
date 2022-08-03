@@ -27,7 +27,7 @@ struct HTTPStatus: RawRepresentable, Equatable {
     static let notFound = HTTPStatus(rawValue: 404)
 
     static func isSuccess(_ code: Int) -> Bool {
-        return (200..<300).contains(code)
+        return (200 ..< 300).contains(code)
     }
 
     let rawValue: Int
@@ -54,7 +54,7 @@ extension HTTPURLResponse {
         if #available(iOS 13.0, *) {
             return self.value(forHTTPHeaderField: headerField)
         } else {
-            for case let key as String in self.allHeaderFields.keys {
+            for case let key as String in allHeaderFields.keys {
                 if case .orderedSame = key.caseInsensitiveCompare(headerField) {
                     return self.allHeaderFields[key] as? String
                 }

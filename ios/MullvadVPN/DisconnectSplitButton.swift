@@ -10,10 +10,9 @@ import Foundation
 import UIKit
 
 class DisconnectSplitButton: UIView {
-
     private var secondaryButtonSize: CGSize {
         // TODO: make it less hardcoded
-        switch self.traitCollection.userInterfaceIdiom {
+        switch traitCollection.userInterfaceIdiom {
         case .phone:
             return CGSize(width: 42, height: 42)
         case .pad:
@@ -42,11 +41,15 @@ class DisconnectSplitButton: UIView {
         stackView.alignment = .fill
         stackView.spacing = 1
 
-        secondaryButton.setImage(UIImage(named: "IconReload")?.imageFlippedForRightToLeftLayoutDirection(), for: .normal)
+        secondaryButton.setImage(
+            UIImage(named: "IconReload")?.imageFlippedForRightToLeftLayoutDirection(),
+            for: .normal
+        )
 
         primaryButton.overrideContentEdgeInsets = true
         secondaryButtonWidthConstraint = secondaryButton.widthAnchor.constraint(equalToConstant: 0)
-        secondaryButtonHeightConstraint = secondaryButton.heightAnchor.constraint(equalToConstant: 0)
+        secondaryButtonHeightConstraint = secondaryButton.heightAnchor
+            .constraint(equalToConstant: 0)
 
         super.init(frame: .zero)
 
@@ -59,7 +62,7 @@ class DisconnectSplitButton: UIView {
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             secondaryButtonWidthConstraint,
-            secondaryButtonHeightConstraint
+            secondaryButtonHeightConstraint,
         ])
 
         updateTraitConstraints()
@@ -78,7 +81,7 @@ class DisconnectSplitButton: UIView {
     }
 
     private func updateTraitConstraints() {
-        let newSize = self.secondaryButtonSize
+        let newSize = secondaryButtonSize
         secondaryButtonWidthConstraint.constant = newSize.width
         secondaryButtonHeightConstraint.constant = newSize.height
         adjustTitleLabelPosition()
@@ -87,7 +90,7 @@ class DisconnectSplitButton: UIView {
     private func adjustTitleLabelPosition() {
         var contentInsets = primaryButton.defaultContentInsets
 
-        let offset = stackView.spacing + self.secondaryButtonSize.width
+        let offset = stackView.spacing + secondaryButtonSize.width
 
         if case .leftToRight = effectiveUserInterfaceLayoutDirection {
             contentInsets.left = offset

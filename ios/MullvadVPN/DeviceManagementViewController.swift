@@ -6,8 +6,8 @@
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
-import UIKit
 import Logging
+import UIKit
 
 protocol DeviceManagementViewControllerDelegate: AnyObject {
     func deviceManagementViewControllerDidFinish(_ controller: DeviceManagementViewController)
@@ -94,7 +94,10 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         ])
     }
 
-    func fetchDevices(animateUpdates: Bool, completionHandler: ((OperationCompletion<Void, Error>) -> Void)? = nil) {
+    func fetchDevices(
+        animateUpdates: Bool,
+        completionHandler: ((OperationCompletion<Void, Error>) -> Void)? = nil
+    ) {
         interactor.getDevices { [weak self] completion in
             guard let self = self else { return }
 
@@ -151,7 +154,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
     }
 
     private func getErrorDescription(_ error: Error) -> String {
-        if case .network(let urlError) = error as? REST.Error {
+        if case let .network(urlError) = error as? REST.Error {
             return urlError.localizedDescription
         } else {
             return error.localizedDescription
@@ -223,7 +226,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
                 handler: { _ in
                     completion(true)
                 }
-            )
+            ),
         ]
 
         for action in actions {
@@ -243,7 +246,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
                     completionHandler(completion.error)
                 }
 
-            case .failure(let error):
+            case let .failure(error):
                 self.logger.error(
                     chainedError: AnyChainedError(error),
                     message: "Failed to delete device."

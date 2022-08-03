@@ -101,7 +101,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
     }
 
     private func handleVPNStatus(_ status: NEVPNStatus) {
-        guard !isCancelled && !messageSent else {
+        guard !isCancelled, !messageSent else {
             return
         }
 
@@ -201,8 +201,7 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
         tunnel: Tunnel,
         message: TunnelProviderMessage,
         completionHandler: @escaping CompletionHandler
-    )
-    {
+    ) {
         self.init(
             dispatchQueue: dispatchQueue,
             tunnel: tunnel,
@@ -248,7 +247,7 @@ enum SendTunnelProviderMessageError: ChainedError {
 
     var errorDescription: String? {
         switch self {
-        case .tunnelDown(let status):
+        case let .tunnelDown(status):
             return "Tunnel is either down or about to go down (status: \(status))."
         case .timeout:
             return "Send timeout."

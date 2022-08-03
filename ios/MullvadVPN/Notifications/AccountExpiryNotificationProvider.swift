@@ -12,7 +12,9 @@ import UserNotifications
 let accountExpiryNotificationIdentifier = "net.mullvad.MullvadVPN.AccountExpiryNotification"
 let accountExpiryDefaultTriggerInterval = 3
 
-class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificationProvider, InAppNotificationProvider, TunnelObserver {
+class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificationProvider,
+    InAppNotificationProvider, TunnelObserver
+{
     private var accountExpiry: Date?
 
     /// Interval prior to expiry used to calculate when to trigger notifications.
@@ -35,13 +37,20 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         guard let accountExpiry = accountExpiry else { return nil }
 
         // Subtract 3 days from expiry date
-        guard let triggerDate = Calendar.current.date(byAdding: .day, value: -triggerInterval, to: accountExpiry) else { return nil }
+        guard let triggerDate = Calendar.current.date(
+            byAdding: .day,
+            value: -triggerInterval,
+            to: accountExpiry
+        ) else { return nil }
 
         // Do not produce notification if less than 3 days left till expiry
         guard triggerDate > Date() else { return nil }
 
         // Create date components for calendar trigger
-        let dateComponents = Calendar.current.dateComponents([.second, .minute, .hour, .day, .month, .year], from: triggerDate)
+        let dateComponents = Calendar.current.dateComponents(
+            [.second, .minute, .hour, .day, .month, .year],
+            from: triggerDate
+        )
 
         return UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
     }
@@ -65,8 +74,14 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         )
 
         let content = UNMutableNotificationContent()
-        content.title = NSString.localizedUserNotificationString(forKey: "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE", arguments: nil)
-        content.body = NSString.localizedUserNotificationString(forKey: "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY", arguments: nil)
+        content.title = NSString.localizedUserNotificationString(
+            forKey: "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE",
+            arguments: nil
+        )
+        content.body = NSString.localizedUserNotificationString(
+            forKey: "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY",
+            arguments: nil
+        )
         content.sound = UNNotificationSound.default
 
         return UNNotificationRequest(
@@ -92,11 +107,15 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         guard let accountExpiry = accountExpiry else { return nil }
 
         // Subtract 3 days from expiry date
-        guard let triggerDate = Calendar.current.date(byAdding: .day, value: -triggerInterval, to: accountExpiry) else { return nil }
+        guard let triggerDate = Calendar.current.date(
+            byAdding: .day,
+            value: -triggerInterval,
+            to: accountExpiry
+        ) else { return nil }
 
         // Only produce in-app notification within the last 3 days till expiry
         let now = Date()
-        guard triggerDate < now && now < accountExpiry else { return nil }
+        guard triggerDate < now, now < accountExpiry else { return nil }
 
         // Format the remaining duration
         let formatter = DateComponentsFormatter()
@@ -107,7 +126,7 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         guard let duration = formatter.string(from: now, to: accountExpiry) else { return nil }
 
         return InAppNotificationDescriptor(
-            identifier: self.identifier,
+            identifier: identifier,
             style: .warning,
             title: NSLocalizedString(
                 "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_TITLE",
@@ -143,12 +162,14 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+    func tunnelManager(
+        _ manager: TunnelManager,
+        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
+    ) {
         // no-op
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
         invalidate(deviceState: manager.deviceState)
     }
-
 }

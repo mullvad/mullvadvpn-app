@@ -9,7 +9,10 @@
 import Foundation
 import Logging
 
-class SendAppStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse, AppStorePaymentManager.Error> {
+class SendAppStoreReceiptOperation: ResultOperation<
+    REST.CreateApplePaymentResponse,
+    AppStorePaymentManager.Error
+> {
     private let apiProxy: REST.APIProxy
     private let accountToken: String
     private let forceRefresh: Bool
@@ -19,7 +22,13 @@ class SendAppStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentRespo
 
     private let logger = Logger(label: "SendAppStoreReceiptOperation")
 
-    init(apiProxy: REST.APIProxy, accountToken: String, forceRefresh: Bool, receiptProperties: [String: Any]?, completionHandler: @escaping CompletionHandler) {
+    init(
+        apiProxy: REST.APIProxy,
+        accountToken: String,
+        forceRefresh: Bool,
+        receiptProperties: [String: Any]?,
+        completionHandler: @escaping CompletionHandler
+    ) {
         self.apiProxy = apiProxy
         self.accountToken = accountToken
         self.forceRefresh = forceRefresh
@@ -41,13 +50,19 @@ class SendAppStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentRespo
     }
 
     override func main() {
-        fetchReceiptTask = AppStoreReceipt.fetch(forceRefresh: self.forceRefresh, receiptProperties: self.receiptProperties) { completion in
+        fetchReceiptTask = AppStoreReceipt.fetch(
+            forceRefresh: forceRefresh,
+            receiptProperties: receiptProperties
+        ) { completion in
             switch completion {
-            case .success(let receiptData):
+            case let .success(receiptData):
                 self.sendReceipt(receiptData)
 
-            case .failure(let error):
-                self.logger.error(chainedError: error, message: "Failed to fetch the AppStore receipt.")
+            case let .failure(error):
+                self.logger.error(
+                    chainedError: error,
+                    message: "Failed to fetch the AppStore receipt."
+                )
                 self.finish(completion: .failure(.readReceipt(error)))
 
             case .cancelled:
@@ -58,22 +73,29 @@ class SendAppStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentRespo
 
     private func sendReceipt(_ receiptData: Data) {
         submitReceiptTask = apiProxy.createApplePayment(
-            accountNumber: self.accountToken,
+            accountNumber: accountToken,
             receiptString: receiptData,
-            retryStrategy: .noRetry) { result in
-                switch result {
-                case .success(let response):
-                    self.logger.info("AppStore receipt was processed. Time added: \(response.timeAdded), New expiry: \(response.newExpiry.logFormatDate())")
-                    self.finish(completion: .success(response))
+            retryStrategy: .noRetry
+        ) { result in
+            switch result {
+            case let .success(response):
+                self.logger
+                    .info(
+                        "AppStore receipt was processed. Time added: \(response.timeAdded), New expiry: \(response.newExpiry.logFormatDate())"
+                    )
+                self.finish(completion: .success(response))
 
-                case .failure(let error):
-                    self.logger.error(chainedError: error, message: "Failed to send the AppStore receipt.")
-                    self.finish(completion: .failure(.sendReceipt(error)))
+            case let .failure(error):
+                self.logger.error(
+                    chainedError: error,
+                    message: "Failed to send the AppStore receipt."
+                )
+                self.finish(completion: .failure(.sendReceipt(error)))
 
-                case .cancelled:
-                    self.logger.debug("Receipt submission cancelled.")
-                    self.finish(completion: .cancelled)
-                }
+            case .cancelled:
+                self.logger.debug("Receipt submission cancelled.")
+                self.finish(completion: .cancelled)
             }
+        }
     }
 }

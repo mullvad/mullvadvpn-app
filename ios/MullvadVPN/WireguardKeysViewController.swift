@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import UIKit
 import Logging
+import UIKit
 
 /// A UI refresh interval for the public key creation date (in seconds)
 private let creationDateRefreshInterval = Int(60)
@@ -25,7 +25,6 @@ private enum WireguardKeysViewState {
 }
 
 class WireguardKeysViewController: UIViewController, TunnelObserver {
-
     private let contentView: WireguardKeysContentView = {
         let contentView = WireguardKeysContentView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
@@ -64,7 +63,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.bottomAnchor.constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
+            contentView.bottomAnchor
+                .constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
@@ -81,8 +81,16 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             self?.copyPublicKey()
         }
 
-        contentView.regenerateKeyButton.addTarget(self, action: #selector(handleRegenerateKey(_:)), for: .touchUpInside)
-        contentView.verifyKeyButton.addTarget(self, action: #selector(handleVerifyKey(_:)), for: .touchUpInside)
+        contentView.regenerateKeyButton.addTarget(
+            self,
+            action: #selector(handleRegenerateKey(_:)),
+            for: .touchUpInside
+        )
+        contentView.verifyKeyButton.addTarget(
+            self,
+            action: #selector(handleVerifyKey(_:)),
+            for: .touchUpInside
+        )
 
         TunnelManager.shared.addObserver(self)
         updatePublicKey(deviceData: TunnelManager.shared.deviceState.deviceData, animated: false)
@@ -93,13 +101,16 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     private func startPublicKeyPeriodicUpdate() {
         let interval = DispatchTimeInterval.seconds(creationDateRefreshInterval)
         let timerSource = DispatchSource.makeTimerSource(queue: .main)
-        timerSource.setEventHandler { [weak self] () -> Void in
-            self?.updatePublicKey(deviceData: TunnelManager.shared.deviceState.deviceData, animated: true)
+        timerSource.setEventHandler { [weak self] () in
+            self?.updatePublicKey(
+                deviceData: TunnelManager.shared.deviceState.deviceData,
+                animated: true
+            )
         }
         timerSource.schedule(deadline: .now() + interval, repeating: interval)
         timerSource.activate()
 
-        self.publicKeyPeriodicUpdateTimer = timerSource
+        publicKeyPeriodicUpdateTimer = timerSource
     }
 
     // MARK: - TunnelObserver
@@ -112,8 +123,11 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
-       // no-op
+    func tunnelManager(
+        _ manager: TunnelManager,
+        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
+    ) {
+        // no-op
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
@@ -138,7 +152,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
                 value: "COPIED TO PASTEBOARD!",
                 comment: ""
             ),
-            animated: true)
+            animated: true
+        )
 
         let workItem = DispatchWorkItem { [weak self] in
             self?.updatePublicKey(
@@ -167,7 +182,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             from: creationDate,
             to: Date(),
             unitsStyle: .full
-        ).map { (formattedInterval) -> String in
+        ).map { formattedInterval -> String in
             return String(
                 format: NSLocalizedString(
                     "KEY_GENERATED_SINCE_FORMAT",
@@ -181,7 +196,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     }
 
     private func updateCreationDateLabel(with creationDate: Date) {
-        contentView.creationRowView.value = formatKeyGenerationElapsedTime(with: creationDate) ?? "-"
+        contentView.creationRowView
+            .value = formatKeyGenerationElapsedTime(with: creationDate) ?? "-"
     }
 
     private func updatePublicKey(deviceData: StoredDeviceData?, animated: Bool) {
@@ -210,7 +226,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             setKeyActionButtonsEnabled(false)
             contentView.publicKeyRowView.status = .verifying
 
-        case .verifiedKey(let isValid):
+        case let .verifiedKey(isValid):
             setKeyActionButtonsEnabled(true)
             contentView.publicKeyRowView.status = .verified(isValid)
             announceKeyVerificationResult(isValid: isValid)
@@ -219,13 +235,12 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             setKeyActionButtonsEnabled(false)
             contentView.publicKeyRowView.status = .regenerating
 
-        case .regeneratedKey(let success):
+        case let .regeneratedKey(success):
             setKeyActionButtonsEnabled(true)
             contentView.publicKeyRowView.status = .default
             if success {
                 announceKeyRegenerated()
             }
-
         }
     }
 
@@ -246,9 +261,10 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             case .success:
                 self.updateViewState(.verifiedKey(true))
 
-            case .failure(let error):
+            case let .failure(error):
                 if let restError = error as? REST.Error,
-                   restError.compareErrorCode(.deviceNotFound) {
+                   restError.compareErrorCode(.deviceNotFound)
+                {
                     self.updateViewState(.verifiedKey(false))
                 } else {
                     self.showKeyVerificationFailureAlert(error)
@@ -262,7 +278,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     }
 
     private func regeneratePrivateKey() {
-        self.updateViewState(.regeneratingKey)
+        updateViewState(.regeneratingKey)
 
         _ = TunnelManager.shared.rotatePrivateKey(forceRotate: true) { [weak self] completion in
             guard let self = self else { return }
@@ -271,9 +287,10 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             case .success:
                 self.updateViewState(.regeneratedKey(true))
 
-            case .failure(let error):
+            case let .failure(error):
                 if let restError = error as? REST.Error,
-                   restError.compareErrorCode(.deviceNotFound) {
+                   restError.compareErrorCode(.deviceNotFound)
+                {
                     self.updateViewState(.regeneratedKey(false))
                 } else {
                     self.showKeyRegenerationFailureAlert(error)
@@ -349,7 +366,6 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
-
     private func setPublicKeyTitle(string: String, animated: Bool) {
         let updateTitle = {
             self.contentView.publicKeyRowView.value = string
@@ -396,5 +412,4 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         )
         UIAccessibility.post(notification: .announcement, argument: announcementString)
     }
-
 }

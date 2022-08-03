@@ -40,8 +40,8 @@ struct OSLogHandler: LogHandler {
     }
 
     init(subsystem: String, category: String) {
-        self.label = category
-        self.osLog = OSLogHandler.getOSLog(subsystem: subsystem, category: category)
+        label = category
+        osLog = OSLogHandler.getOSLog(subsystem: subsystem, category: category)
     }
 
     subscript(metadataKey metadataKey: String) -> Logging.Logger.Metadata.Value? {
@@ -53,17 +53,19 @@ struct OSLogHandler: LogHandler {
         }
     }
 
-    func log(level: Logging.Logger.Level,
-             message: Logging.Logger.Message,
-             metadata: Logging.Logger.Metadata?,
-             source: String,
-             file: String,
-             function: String,
-             line: UInt)
-    {
-        let mergedMetadata = self.metadata.merging(metadata ?? [:]) { (lhs, rhs) -> Logging.Logger.MetadataValue in
-            return rhs
-        }
+    func log(
+        level: Logging.Logger.Level,
+        message: Logging.Logger.Message,
+        metadata: Logging.Logger.Metadata?,
+        source: String,
+        file: String,
+        function: String,
+        line: UInt
+    ) {
+        let mergedMetadata = self.metadata
+            .merging(metadata ?? [:]) { lhs, rhs -> Logging.Logger.MetadataValue in
+                return rhs
+            }
         let prettyMetadata = Self.formatMetadata(mergedMetadata)
         let logMessage = prettyMetadata.isEmpty ? message : "\(prettyMetadata) \(message)"
 
@@ -74,6 +76,7 @@ struct OSLogHandler: LogHandler {
         return metadata.map { "\($0)=\($1)" }.joined(separator: " ")
     }
 }
+
 extension Logging.Logger.Level {
     var osLogType: OSLogType {
         switch self {

@@ -9,16 +9,15 @@
 import UIKit
 
 class CustomSwitch: UISwitch {
-
     /// Returns the private `UISwitch` background view
     private var backgroundView: UIView? {
         // Go two levels deep only
-        let subviewsToExamine = subviews.flatMap { (view) -> [UIView] in
+        let subviewsToExamine = subviews.flatMap { view -> [UIView] in
             return [view] + view.subviews
         }
 
         // Find the first subview that has background color set.
-        let backgroundView = subviewsToExamine.first { (subview) in
+        let backgroundView = subviewsToExamine.first { subview in
             return subview.backgroundColor != nil
         }
 
@@ -35,7 +34,7 @@ class CustomSwitch: UISwitch {
             overrideUserInterfaceStyle = .light
         }
 
-        updateThumbColor(isOn: self.isOn, animated: false)
+        updateThumbColor(isOn: isOn, animated: false)
 
         addTarget(self, action: #selector(valueChanged(_:)), for: .valueChanged)
     }

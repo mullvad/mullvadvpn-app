@@ -9,12 +9,11 @@
 import XCTest
 
 class OperationSmokeTests: XCTestCase {
-
     func testBatch() {
         let expect = expectation(description: "Expect all operations to finish.")
         let operationQueue = AsyncOperationQueue()
 
-        let operations = (1...500).flatMap { i -> [Operation] in
+        let operations = (1 ... 500).flatMap { i -> [Operation] in
             let parent = BlockOperation()
             parent.cancel()
 
@@ -35,5 +34,4 @@ class OperationSmokeTests: XCTestCase {
 
         waitForExpectations(timeout: 1)
     }
-
 }

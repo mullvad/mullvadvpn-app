@@ -6,8 +6,8 @@
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
-import UIKit
 import Logging
+import UIKit
 
 class SceneDelegate: UIResponder {
     private let logger = Logger(label: "SceneDelegate")
@@ -177,7 +177,11 @@ extension SceneDelegate: UIWindowSceneDelegate {
 // MARK: - RootContainerViewControllerDelegate
 
 extension SceneDelegate: RootContainerViewControllerDelegate {
-    func rootContainerViewControllerShouldShowSettings(_ controller: RootContainerViewController, navigateTo route: SettingsNavigationRoute?, animated: Bool) {
+    func rootContainerViewControllerShouldShowSettings(
+        _ controller: RootContainerViewController,
+        navigateTo route: SettingsNavigationRoute?,
+        animated: Bool
+    ) {
         // Check if settings controller is already presented.
         if let settingsNavController = settingsNavController {
             if let route = route {
@@ -197,11 +201,13 @@ extension SceneDelegate: RootContainerViewControllerDelegate {
             }
 
             // Save the reference for later.
-            self.settingsNavController = navController
+            settingsNavController = navController
         }
     }
 
-    func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController) -> UIInterfaceOrientationMask {
+    func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController)
+        -> UIInterfaceOrientationMask
+    {
         switch UIDevice.current.userInterfaceIdiom {
         case .pad:
             return [.landscape, .portrait]
@@ -212,7 +218,9 @@ extension SceneDelegate: RootContainerViewControllerDelegate {
         }
     }
 
-    func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController) -> Bool {
+    func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController)
+        -> Bool
+    {
         guard TunnelManager.shared.deviceState.isLoggedIn else { return false }
 
         switch TunnelManager.shared.tunnelStatus.state {
@@ -228,7 +236,6 @@ extension SceneDelegate: RootContainerViewControllerDelegate {
 }
 
 extension SceneDelegate {
-
     private func setupPadUI() {
         let tunnelManager = TunnelManager.shared
         let selectLocationController = makeSelectLocationController()
@@ -237,12 +244,13 @@ extension SceneDelegate {
         let splitViewController = CustomSplitViewController()
         splitViewController.delegate = self
         splitViewController.minimumPrimaryColumnWidth = UIMetrics.minimumSplitViewSidebarWidth
-        splitViewController.preferredPrimaryColumnWidthFraction = UIMetrics.maximumSplitViewSidebarWidthFraction
+        splitViewController.preferredPrimaryColumnWidthFraction = UIMetrics
+            .maximumSplitViewSidebarWidthFraction
         splitViewController.primaryEdge = .trailing
         splitViewController.dividerColor = UIColor.MainSplitView.dividerColor
         splitViewController.viewControllers = [selectLocationController, connectController]
 
-        self.selectLocationViewController = selectLocationController
+        selectLocationViewController = selectLocationController
         self.splitViewController = splitViewController
         self.connectController = connectController
 
@@ -264,7 +272,10 @@ extension SceneDelegate {
 
                 // Dismiss modal root container if needed before proceeding.
                 if self.isModalRootPresented {
-                    self.modalRootContainer.dismiss(animated: animated, completion: didDismissModalRoot)
+                    self.modalRootContainer.dismiss(
+                        animated: animated,
+                        completion: didDismissModalRoot
+                    )
                 } else {
                     didDismissModalRoot()
                 }
@@ -291,7 +302,7 @@ extension SceneDelegate {
         if TermsOfService.isAgreed {
             showNextController(false)
         } else {
-            let termsOfServiceController = self.makeTermsOfServiceController { _ in
+            let termsOfServiceController = makeTermsOfServiceController { _ in
                 showNextController(true)
             }
 
@@ -346,7 +357,7 @@ extension SceneDelegate {
         if TermsOfService.isAgreed {
             showNextController(false)
         } else {
-            let termsOfServiceController = self.makeTermsOfServiceController { _ in
+            let termsOfServiceController = makeTermsOfServiceController { _ in
                 showNextController(true)
             }
 
@@ -354,7 +365,9 @@ extension SceneDelegate {
         }
     }
 
-    private func makeSettingsNavigationController(route: SettingsNavigationRoute?) -> SettingsNavigationController {
+    private func makeSettingsNavigationController(route: SettingsNavigationRoute?)
+        -> SettingsNavigationController
+    {
         let navController = SettingsNavigationController()
         navController.settingsDelegate = self
 
@@ -400,8 +413,7 @@ extension SceneDelegate {
 
     private func makeTermsOfServiceController(
         completion: @escaping (UIViewController) -> Void
-    ) -> TermsOfServiceViewController
-    {
+    ) -> TermsOfServiceViewController {
         let controller = TermsOfServiceViewController()
 
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -432,7 +444,7 @@ extension SceneDelegate {
     }
 
     private func showAccountSettingsControllerIfAccountExpired() {
-        guard case .loggedIn(let accountData, _) = TunnelManager.shared.deviceState else {
+        guard case let .loggedIn(accountData, _) = TunnelManager.shared.deviceState else {
             return
         }
 
@@ -481,7 +493,6 @@ extension SceneDelegate {
 // MARK: - LoginViewControllerDelegate
 
 extension SceneDelegate: LoginViewControllerDelegate {
-
     func loginViewController(
         _ controller: LoginViewController,
         shouldHandleLoginAction action: LoginAction,
@@ -495,11 +506,11 @@ extension SceneDelegate: LoginViewControllerDelegate {
                 // RootContainer's settings button will be re-enabled in `loginViewControllerDidFinishLogin`
                 completion(operationCompletion)
 
-            case .failure(let error):
+            case let .failure(error):
                 // Show device management controller when too many devices detected during log in.
-                if  case .useExistingAccount(let accountNumber) = action,
-                    let restError = error as? REST.Error,
-                    restError.compareErrorCode(.maxDevicesReached)
+                if case let .useExistingAccount(accountNumber) = action,
+                   let restError = error as? REST.Error,
+                   restError.compareErrorCode(.maxDevicesReached)
                 {
                     self.lastLoginAction = action
 
@@ -508,17 +519,18 @@ extension SceneDelegate: LoginViewControllerDelegate {
                     )
                     deviceController.delegate = self
 
-                    deviceController.fetchDevices(animateUpdates: false) { [weak self] operationCompletion in
-                        controller.rootContainerController?.pushViewController(
-                            deviceController,
-                            animated: true
-                        )
+                    deviceController
+                        .fetchDevices(animateUpdates: false) { [weak self] operationCompletion in
+                            controller.rootContainerController?.pushViewController(
+                                deviceController,
+                                animated: true
+                            )
 
-                        // Return .cancelled to login controller upon success.
-                        completion(operationCompletion.flatMap { .cancelled })
+                            // Return .cancelled to login controller upon success.
+                            completion(operationCompletion.flatMap { .cancelled })
 
-                        self?.setEnableSettingsButton(isEnabled: true, from: controller)
-                    }
+                            self?.setEnableSettingsButton(isEnabled: true, from: controller)
+                        }
                 } else {
                     fallthrough
                 }
@@ -527,12 +539,11 @@ extension SceneDelegate: LoginViewControllerDelegate {
                 self.setEnableSettingsButton(isEnabled: true, from: controller)
                 completion(operationCompletion)
             }
-
         }
     }
 
     func loginViewControllerDidFinishLogin(_ controller: LoginViewController) {
-        self.lastLoginAction = nil
+        lastLoginAction = nil
 
         // Move the settings button back into header bar
         rootContainer.removeSettingsButtonFromPresentationContainer()
@@ -547,13 +558,13 @@ extension SceneDelegate: LoginViewControllerDelegate {
 
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:
-            let connectController = self.makeConnectViewController()
+            let connectController = makeConnectViewController()
             rootContainer.pushViewController(connectController, animated: true) {
                 self.showAccountSettingsControllerIfAccountExpired()
             }
             self.connectController = connectController
         case .pad:
-            self.showSplitViewMaster(true, animated: true)
+            showSplitViewMaster(true, animated: true)
 
             controller.dismiss(animated: true) {
                 self.showAccountSettingsControllerIfAccountExpired()
@@ -570,7 +581,6 @@ extension SceneDelegate: LoginViewControllerDelegate {
             container.setEnableSettingsButton(isEnabled)
         }
     }
-
 }
 
 // MARK: - DeviceManagementViewControllerDelegate
@@ -582,7 +592,8 @@ extension SceneDelegate: DeviceManagementViewControllerDelegate {
 
     func deviceManagementViewControllerDidFinish(_ controller: DeviceManagementViewController) {
         let currentRootContainer = controller.rootContainerController
-        let loginViewController = currentRootContainer?.viewControllers.first as? LoginViewController
+        let loginViewController = currentRootContainer?.viewControllers
+            .first as? LoginViewController
 
         currentRootContainer?.popViewController(animated: true) {
             if let lastLoginAction = self.lastLoginAction {
@@ -595,25 +606,29 @@ extension SceneDelegate: DeviceManagementViewControllerDelegate {
 // MARK: - SettingsNavigationControllerDelegate
 
 extension SceneDelegate: SettingsNavigationControllerDelegate {
-
-    func settingsNavigationController(_ controller: SettingsNavigationController, didFinishWithReason reason: SettingsDismissReason) {
+    func settingsNavigationController(
+        _ controller: SettingsNavigationController,
+        didFinishWithReason reason: SettingsDismissReason
+    ) {
         if case .userLoggedOut = reason {
             showLoginViewAfterLogout(dismissController: controller)
         } else {
             controller.dismiss(animated: true)
         }
     }
-
 }
 
 // MARK: - ConnectViewControllerDelegate
 
 extension SceneDelegate: ConnectViewControllerDelegate {
-
     func connectViewControllerShouldShowSelectLocationPicker(_ controller: ConnectViewController) {
         let contentController = makeSelectLocationController()
         contentController.navigationItem.largeTitleDisplayMode = .never
-        contentController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handleDismissSelectLocationController(_:)))
+        contentController.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: self,
+            action: #selector(handleDismissSelectLocationController(_:))
+        )
 
         let navController = SelectLocationNavigationController(contentController: contentController)
         rootContainer.present(navController, animated: true)
@@ -629,7 +644,10 @@ extension SceneDelegate: ConnectViewControllerDelegate {
 // MARK: - NotificationManagerDelegate
 
 extension SceneDelegate: NotificationManagerDelegate {
-    func notificationManagerDidUpdateInAppNotifications(_ manager: NotificationManager, notifications: [InAppNotificationDescriptor]) {
+    func notificationManagerDidUpdateInAppNotifications(
+        _ manager: NotificationManager,
+        notifications: [InAppNotificationDescriptor]
+    ) {
         connectController?.notificationController.setNotifications(notifications, animated: true)
     }
 }
@@ -637,10 +655,13 @@ extension SceneDelegate: NotificationManagerDelegate {
 // MARK: - SelectLocationViewControllerDelegate
 
 extension SceneDelegate: SelectLocationViewControllerDelegate {
-    func selectLocationViewController(_ controller: SelectLocationViewController, didSelectRelayLocation relayLocation: RelayLocation) {
+    func selectLocationViewController(
+        _ controller: SelectLocationViewController,
+        didSelectRelayLocation relayLocation: RelayLocation
+    ) {
         // Dismiss view controller in modal presentation
         if controller.presentingViewController != nil {
-            self.window?.isUserInteractionEnabled = false
+            window?.isUserInteractionEnabled = false
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(250)) {
                 self.window?.isUserInteractionEnabled = true
                 controller.dismiss(animated: true) {
@@ -674,8 +695,10 @@ extension SceneDelegate: RevokedDeviceViewControllerDelegate {
 // MARK: - UIAdaptivePresentationControllerDelegate
 
 extension SceneDelegate: UIAdaptivePresentationControllerDelegate {
-
-    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+    func adaptivePresentationStyle(
+        for controller: UIPresentationController,
+        traitCollection: UITraitCollection
+    ) -> UIModalPresentationStyle {
         if controller.presentedViewController is RootContainerViewController {
             return traitCollection.horizontalSizeClass == .regular ? .formSheet : .fullScreen
         } else {
@@ -683,7 +706,11 @@ extension SceneDelegate: UIAdaptivePresentationControllerDelegate {
         }
     }
 
-    func presentationController(_ presentationController: UIPresentationController, willPresentWithAdaptiveStyle style: UIModalPresentationStyle, transitionCoordinator: UIViewControllerTransitionCoordinator?) {
+    func presentationController(
+        _ presentationController: UIPresentationController,
+        willPresentWithAdaptiveStyle style: UIModalPresentationStyle,
+        transitionCoordinator: UIViewControllerTransitionCoordinator?
+    ) {
         let actualStyle: UIModalPresentationStyle
 
         // When adaptive presentation is not changing, the `style` is set to `.none`
@@ -694,7 +721,9 @@ extension SceneDelegate: UIAdaptivePresentationControllerDelegate {
         }
 
         // Force hide header bar in .formSheet presentation and show it in .fullScreen presentation
-        if let wrapper = presentationController.presentedViewController as? RootContainerViewController {
+        if let wrapper = presentationController
+            .presentedViewController as? RootContainerViewController
+        {
             wrapper.setOverrideHeaderBarHidden(actualStyle == .formSheet, animated: false)
         }
 
@@ -734,7 +763,10 @@ extension SceneDelegate: TunnelObserver {
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+    func tunnelManager(
+        _ manager: TunnelManager,
+        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
+    ) {
         // no-op
     }
 
@@ -743,7 +775,8 @@ extension SceneDelegate: TunnelObserver {
 
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:
-            guard let loginController = rootContainer.viewControllers.first as? LoginViewController else {
+            guard let loginController = rootContainer.viewControllers.first as? LoginViewController
+            else {
                 return
             }
 
@@ -751,13 +784,15 @@ extension SceneDelegate: TunnelObserver {
 
             let viewControllers = [
                 loginController,
-                makeRevokedDeviceController()
+                makeRevokedDeviceController(),
             ]
 
             rootContainer.setViewControllers(viewControllers, animated: true)
 
         case .pad:
-            guard let loginController = modalRootContainer.viewControllers.first as? LoginViewController else {
+            guard let loginController = modalRootContainer.viewControllers
+                .first as? LoginViewController
+            else {
                 return
             }
 
@@ -765,7 +800,7 @@ extension SceneDelegate: TunnelObserver {
 
             let viewControllers = [
                 loginController,
-                makeRevokedDeviceController()
+                makeRevokedDeviceController(),
             ]
 
             let didDismissSettings = {
@@ -794,36 +829,41 @@ extension SceneDelegate: TunnelObserver {
 // MARK: - RelayCacheObserver
 
 extension SceneDelegate: RelayCacheObserver {
-
-    func relayCache(_ relayCache: RelayCache.Tracker, didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays) {
+    func relayCache(
+        _ relayCache: RelayCache.Tracker,
+        didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays
+    ) {
         selectLocationViewController?.setCachedRelays(cachedRelays)
     }
-
 }
-
 
 // MARK: - UISplitViewControllerDelegate
 
 extension SceneDelegate: UISplitViewControllerDelegate {
-
-    func primaryViewController(forExpanding splitViewController: UISplitViewController) -> UIViewController? {
+    func primaryViewController(forExpanding splitViewController: UISplitViewController)
+        -> UIViewController?
+    {
         // Restore the select location controller as primary when expanding the split view
         return selectLocationViewController
     }
 
-    func primaryViewController(forCollapsing splitViewController: UISplitViewController) -> UIViewController? {
+    func primaryViewController(forCollapsing splitViewController: UISplitViewController)
+        -> UIViewController?
+    {
         // Set the connect controller as primary when collapsing the split view
         return connectController
     }
 
-    func splitViewController(_ splitViewController: UISplitViewController, separateSecondaryFrom primaryViewController: UIViewController) -> UIViewController? {
+    func splitViewController(
+        _ splitViewController: UISplitViewController,
+        separateSecondaryFrom primaryViewController: UIViewController
+    ) -> UIViewController? {
         // Dismiss the select location controller when expanding the split view
-        if self.selectLocationViewController?.presentingViewController != nil {
-            self.selectLocationViewController?.dismiss(animated: false)
+        if selectLocationViewController?.presentingViewController != nil {
+            selectLocationViewController?.dismiss(animated: false)
         }
         return nil
     }
-
 }
 
 // MARK: - Window factory
@@ -837,6 +877,7 @@ struct ClassicWindowFactory: WindowFactory {
         return UIWindow(frame: UIScreen.main.bounds)
     }
 }
+
 @available(iOS 13.0, *)
 struct SceneWindowFactory: WindowFactory {
     let windowScene: UIWindowScene

@@ -7,11 +7,10 @@
 //
 
 import Foundation
-import Security
 import Logging
+import Security
 
 class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
-
     private let sslHostname: String
     private let trustedRootCertificates: [SecCertificate]
 
@@ -24,10 +23,15 @@ class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
 
     // MARK: - URLSessionDelegate
 
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
            let serverTrust = challenge.protectionSpace.serverTrust,
-           verifyServerTrust(serverTrust) {
+           verifyServerTrust(serverTrust)
+        {
             completionHandler(.useCredential, URLCredential(trust: serverTrust))
         } else {
             completionHandler(.rejectProtectionSpace, nil)
@@ -43,21 +47,27 @@ class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
         let sslPolicy = SecPolicyCreateSSL(true, sslHostname as CFString)
         secResult = SecTrustSetPolicies(serverTrust, sslPolicy)
         guard secResult == errSecSuccess else {
-            logger.error("SecTrustSetPolicies failure: \(self.formatErrorMessage(code: secResult))")
+            logger.error("SecTrustSetPolicies failure: \(formatErrorMessage(code: secResult))")
             return false
         }
 
         // Set trusted root certificates
         secResult = SecTrustSetAnchorCertificates(serverTrust, trustedRootCertificates as CFArray)
         guard secResult == errSecSuccess else {
-            logger.error("SecTrustSetAnchorCertificates failure: \(self.formatErrorMessage(code: secResult))")
+            logger
+                .error(
+                    "SecTrustSetAnchorCertificates failure: \(formatErrorMessage(code: secResult))"
+                )
             return false
         }
 
         // Tell security framework to only trust the provided root certificates
         secResult = SecTrustSetAnchorCertificatesOnly(serverTrust, true)
         guard secResult == errSecSuccess else {
-            logger.error("SecTrustSetAnchorCertificatesOnly failure: \(self.formatErrorMessage(code: secResult))")
+            logger
+                .error(
+                    "SecTrustSetAnchorCertificatesOnly failure: \(formatErrorMessage(code: secResult))"
+                )
             return false
         }
 
@@ -65,7 +75,10 @@ class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
         if SecTrustEvaluateWithError(serverTrust, &error) {
             return true
         } else {
-            logger.error("SecTrustEvaluateWithError failure: \(error?.localizedDescription ?? "<nil>")")
+            logger
+                .error(
+                    "SecTrustEvaluateWithError failure: \(error?.localizedDescription ?? "<nil>")"
+                )
             return false
         }
     }

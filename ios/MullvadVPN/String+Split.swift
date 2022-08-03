@@ -9,7 +9,6 @@
 import Foundation
 
 extension String {
-
     /// Returns the array of the longest possible subsequences of the given length.
     func split(every length: Int) -> [Substring] {
         guard length > 0 else { return [prefix(upTo: endIndex)] }

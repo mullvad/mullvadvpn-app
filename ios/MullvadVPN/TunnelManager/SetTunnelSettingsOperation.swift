@@ -8,13 +8,18 @@
 
 import Foundation
 
-class SetTunnelSettingsOperation: ResultOperation<(), TunnelManager.Error> {
+class SetTunnelSettingsOperation: ResultOperation<Void, TunnelManager.Error> {
     typealias ModificationHandler = (inout TunnelSettings) -> Void
 
     private let state: TunnelManager.State
     private let modificationBlock: ModificationHandler
 
-    init(dispatchQueue: DispatchQueue, state: TunnelManager.State, modificationBlock: @escaping ModificationHandler, completionHandler: @escaping CompletionHandler) {
+    init(
+        dispatchQueue: DispatchQueue,
+        state: TunnelManager.State,
+        modificationBlock: @escaping ModificationHandler,
+        completionHandler: @escaping CompletionHandler
+    ) {
         self.state = state
         self.modificationBlock = modificationBlock
 
@@ -31,16 +36,17 @@ class SetTunnelSettingsOperation: ResultOperation<(), TunnelManager.Error> {
             return
         }
 
-        let result = TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { tunnelSettings in
-            modificationBlock(&tunnelSettings)
-        }
+        let result = TunnelSettingsManager
+            .update(searchTerm: .accountToken(accountToken)) { tunnelSettings in
+                modificationBlock(&tunnelSettings)
+            }
 
         switch result {
-        case .success(let newTunnelSettings):
+        case let .success(newTunnelSettings):
             state.tunnelInfo?.tunnelSettings = newTunnelSettings
             finish(completion: .success(()))
 
-        case .failure(let error):
+        case let .failure(error):
             finish(completion: .failure(.updateTunnelSettings(error)))
         }
     }

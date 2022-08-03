@@ -13,7 +13,7 @@ struct WeakBox<T> {
         return valueProvider()
     }
 
-    private let valueProvider: (() -> T?)
+    private let valueProvider: () -> T?
 
     init(_ value: T) {
         let reference = value as AnyObject

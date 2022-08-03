@@ -11,13 +11,13 @@ import Foundation
 extension DecodingError: CustomChainedErrorDescriptionProtocol {
     var customErrorDescription: String? {
         switch self {
-        case .typeMismatch(let type, let context):
+        case let .typeMismatch(type, context):
             return "Type mismatch, expected \(type) for key at \"\(context.codingPath.codingPathString)\"."
 
-        case .valueNotFound(_, let context):
+        case let .valueNotFound(_, context):
             return "Value not found at \"\(context.codingPath.codingPathString)\"."
 
-        case .keyNotFound(let codingKey, let context):
+        case let .keyNotFound(codingKey, context):
             return "Key \"\(codingKey.stringValue)\" not found at \"\(context.codingPath.codingPathString)\"."
 
         case .dataCorrupted:
@@ -32,7 +32,7 @@ extension DecodingError: CustomChainedErrorDescriptionProtocol {
 extension EncodingError: CustomChainedErrorDescriptionProtocol {
     var customErrorDescription: String? {
         switch self {
-        case .invalidValue(_, let context):
+        case let .invalidValue(_, context):
             return "Invalid value at \"\(context.codingPath.codingPathString)\""
 
         @unknown default:

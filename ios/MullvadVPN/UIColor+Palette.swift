@@ -9,7 +9,6 @@
 import UIKit
 
 extension UIColor {
-
     enum AccountTextField {
         enum NormalState {
             static let borderColor = secondaryColor

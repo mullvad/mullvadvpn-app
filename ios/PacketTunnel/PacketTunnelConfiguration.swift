@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import WireGuardKit
 import protocol Network.IPAddress
+import WireGuardKit
 
 struct PacketTunnelConfiguration {
     var deviceState: DeviceState
@@ -30,7 +30,7 @@ extension PacketTunnelConfiguration {
             peerConfig.endpoint = endpoint
             peerConfig.allowedIPs = [
                 IPAddressRange(from: "0.0.0.0/0")!,
-                IPAddressRange(from: "::/0")!
+                IPAddressRange(from: "::/0")!,
             ]
             return peerConfig
         }
@@ -38,7 +38,7 @@ extension PacketTunnelConfiguration {
         var interfaceConfig: InterfaceConfiguration
 
         switch deviceState {
-        case .loggedIn(_, let device):
+        case let .loggedIn(_, device):
             interfaceConfig = InterfaceConfiguration(privateKey: device.wgKeyData.privateKey)
             interfaceConfig.addresses = [device.ipv4Address, device.ipv6Address]
             interfaceConfig.dns = dnsServers.map { DNSServer(address: $0) }

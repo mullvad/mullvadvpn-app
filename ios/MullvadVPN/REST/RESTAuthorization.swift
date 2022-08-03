@@ -25,7 +25,11 @@ extension REST {
         private let accountNumber: String
         private let retryStrategy: REST.RetryStrategy
 
-        init(accessTokenManager: AccessTokenManager, accountNumber: String, retryStrategy: REST.RetryStrategy) {
+        init(
+            accessTokenManager: AccessTokenManager,
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy
+        ) {
             self.accessTokenManager = accessTokenManager
             self.accountNumber = accountNumber
             self.retryStrategy = retryStrategy

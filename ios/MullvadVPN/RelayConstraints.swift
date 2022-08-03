@@ -15,7 +15,7 @@ enum RelayConstraint<T>: Codable, Equatable where T: Codable & Equatable {
     case only(T)
 
     var value: T? {
-        if case .only(let value) = self {
+        if case let .only(value) = self {
             return value
         } else {
             return nil
@@ -45,7 +45,7 @@ enum RelayConstraint<T>: Codable, Equatable where T: Codable & Equatable {
         switch self {
         case .any:
             try container.encode(kRelayConstraintAnyRepr)
-        case .only(let inner):
+        case let .only(inner):
             try container.encode(OnlyRepr(only: inner))
         }
     }
@@ -57,7 +57,7 @@ extension RelayConstraint: CustomDebugStringConvertible {
         switch self {
         case .any:
             output += "any"
-        case .only(let value):
+        case let .only(value):
             output += "only(\(String(reflecting: value)))"
         }
         return output
@@ -99,7 +99,8 @@ enum RelayLocation: Codable, Hashable {
         default:
             throw DecodingError.dataCorruptedError(
                 in: container,
-                debugDescription: "Invalid enum representation")
+                debugDescription: "Invalid enum representation"
+            )
         }
     }
 
@@ -107,13 +108,13 @@ enum RelayLocation: Codable, Hashable {
         var container = encoder.singleValueContainer()
 
         switch self {
-        case .country(let code):
+        case let .country(code):
             try container.encode([code])
 
-        case .city(let countryCode, let cityCode):
+        case let .city(countryCode, cityCode):
             try container.encode([countryCode, cityCode])
 
-        case .hostname(let countryCode, let cityCode, let hostname):
+        case let .hostname(countryCode, cityCode, hostname):
             try container.encode([countryCode, cityCode, hostname])
         }
     }
@@ -121,17 +122,16 @@ enum RelayLocation: Codable, Hashable {
     /// A list of `RelayLocation` items preceding the given one in the relay tree
     var ascendants: [RelayLocation] {
         switch self {
-        case .hostname(let country, let city, _):
+        case let .hostname(country, city, _):
             return [.country(country), .city(country, city)]
 
-        case .city(let country, _):
+        case let .city(country, _):
             return [.country(country)]
 
         case .country:
             return []
         }
     }
-
 }
 
 extension RelayLocation: CustomDebugStringConvertible {
@@ -139,13 +139,13 @@ extension RelayLocation: CustomDebugStringConvertible {
         var output = "RelayLocation."
 
         switch self {
-        case .country(let country):
+        case let .country(country):
             output += "country(\(String(reflecting: country)))"
 
-        case .city(let country, let city):
+        case let .city(country, city):
             output += "city(\(String(reflecting: country)), \(String(reflecting: city)))"
 
-        case .hostname(let country, let city, let host):
+        case let .hostname(country, city, host):
             output += "hostname(\(String(reflecting: country)), " +
                 "\(String(reflecting: city)), " +
                 "\(String(reflecting: host)))"
@@ -156,11 +156,11 @@ extension RelayLocation: CustomDebugStringConvertible {
 
     var stringRepresentation: String {
         switch self {
-        case .country(let country):
+        case let .country(country):
             return country
-        case .city(let country, let city):
+        case let .city(country, city):
             return "\(country)-\(city)"
-        case .hostname(let country, let city, let host):
+        case let .hostname(country, city, host):
             return "\(country)-\(city)-\(host)"
         }
     }

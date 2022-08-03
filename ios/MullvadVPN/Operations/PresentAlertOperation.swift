@@ -13,7 +13,11 @@ class PresentAlertOperation: AsyncOperation {
     private let presentingController: UIViewController
     private let presentCompletion: (() -> Void)?
 
-    init(alertController: UIAlertController, presentingController: UIViewController, presentCompletion: (() -> Void)? = nil) {
+    init(
+        alertController: UIAlertController,
+        presentingController: UIViewController,
+        presentCompletion: (() -> Void)? = nil
+    ) {
         self.alertController = alertController
         self.presentingController = presentingController
         self.presentCompletion = presentCompletion
@@ -26,7 +30,7 @@ class PresentAlertOperation: AsyncOperation {
         guard isExecuting else { return }
 
         // Guard against dismissing controller during transition.
-        if !alertController.isBeingPresented && !alertController.isBeingDismissed {
+        if !alertController.isBeingPresented, !alertController.isBeingDismissed {
             dismissAndFinish()
         }
     }
@@ -34,12 +38,12 @@ class PresentAlertOperation: AsyncOperation {
     override func main() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(self.alertControllerDidDismiss(_:)),
+            selector: #selector(alertControllerDidDismiss(_:)),
             name: AlertPresenter.alertControllerDidDismissNotification,
-            object: self.alertController
+            object: alertController
         )
 
-        presentingController.present(self.alertController, animated: true) {
+        presentingController.present(alertController, animated: true) {
             self.presentCompletion?()
 
             // Alert operation was cancelled during transition?
@@ -53,7 +57,7 @@ class PresentAlertOperation: AsyncOperation {
         NotificationCenter.default.removeObserver(
             self,
             name: AlertPresenter.alertControllerDidDismissNotification,
-            object: self.alertController
+            object: alertController
         )
 
         alertController.dismiss(animated: false) {

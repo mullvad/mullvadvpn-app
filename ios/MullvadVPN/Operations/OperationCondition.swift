@@ -53,7 +53,7 @@ final class NoFailedDependenciesCondition: OperationCondition {
                 return false
             }
 
-            if operation.isCancelled && !self.ignoreCancellations {
+            if operation.isCancelled, !self.ignoreCancellations {
                 return false
             }
 

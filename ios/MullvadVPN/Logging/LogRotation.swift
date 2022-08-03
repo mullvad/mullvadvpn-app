@@ -9,7 +9,6 @@
 import Foundation
 
 enum LogRotation {
-
     enum Error: ChainedError {
         case noSourceLogFile
         case moveSourceLogFile(Swift.Error)
@@ -49,7 +48,8 @@ enum LogRotation {
                 // .fileNoSuchFile is returned when both backup and source log files do not exist
                 // .fileReadNoSuchFile is returned when backup exists but source log file does not
                 if fileError.code == .fileNoSuchFile || fileError.code == .fileReadNoSuchFile,
-                    fileError.url == source {
+                   fileError.url == source
+                {
                     throw Error.noSourceLogFile
                 }
             }

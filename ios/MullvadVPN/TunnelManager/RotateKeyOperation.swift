@@ -37,7 +37,7 @@ class RotateKeyOperation: ResultOperation<Bool, Error> {
     }
 
     override func main() {
-        guard case .loggedIn(let accountData, let deviceData) = interactor.deviceState else {
+        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
             finish(completion: .failure(InvalidDeviceStateError()))
             return
         }
@@ -85,10 +85,9 @@ class RotateKeyOperation: ResultOperation<Bool, Error> {
     private func didRotateKey(
         newPrivateKey: PrivateKey,
         completion: OperationCompletion<REST.Device, REST.Error>
-    )
-    {
+    ) {
         switch completion {
-        case .success(let device):
+        case let .success(device):
             logger.debug("Successfully rotated device key. Persisting settings...")
 
             switch interactor.deviceState {
@@ -106,7 +105,7 @@ class RotateKeyOperation: ResultOperation<Bool, Error> {
                 finish(completion: .failure(InvalidDeviceStateError()))
             }
 
-        case .failure(let error):
+        case let .failure(error):
             logger.error(
                 chainedError: AnyChainedError(error),
                 message: "Failed to rotate device key."
@@ -116,6 +115,5 @@ class RotateKeyOperation: ResultOperation<Bool, Error> {
         case .cancelled:
             finish(completion: .cancelled)
         }
-
     }
 }

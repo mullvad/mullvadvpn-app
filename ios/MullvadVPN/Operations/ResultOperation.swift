@@ -63,8 +63,7 @@ class ResultOperation<Success, Failure: Error>: AsyncOperation {
         dispatchQueue: DispatchQueue?,
         completionQueue: DispatchQueue?,
         completionHandler: CompletionHandler?
-    )
-    {
+    ) {
         _completionQueue = completionQueue
         _completionHandler = completionHandler
 

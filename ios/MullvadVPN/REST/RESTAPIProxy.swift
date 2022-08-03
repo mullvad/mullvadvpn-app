@@ -8,8 +8,8 @@
 
 import Foundation
 import Network
-import class WireGuardKitTypes.PublicKey
 import struct WireGuardKitTypes.IPAddressRange
+import class WireGuardKitTypes.PublicKey
 
 extension REST {
     class APIProxy: Proxy<ProxyConfiguration> {
@@ -28,8 +28,7 @@ extension REST {
         func getAddressList(
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<[AnyIPEndpoint]>
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 return try self.requestFactory.createRequest(
                     endpoint: endpoint,
@@ -56,8 +55,7 @@ extension REST {
             etag: String?,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<ServerRelaysCacheResponse>
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 var requestBuilder = try self.requestFactory.createRequestBuilder(
                     endpoint: endpoint,
@@ -72,33 +70,35 @@ extension REST {
                 return requestBuilder.getRequest()
             }
 
-            let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<ServerRelaysCacheResponse> in
-                let httpStatus = HTTPStatus(rawValue: response.statusCode)
+            let responseHandler =
+                AnyResponseHandler { response, data -> ResponseHandlerResult<ServerRelaysCacheResponse> in
+                    let httpStatus = HTTPStatus(rawValue: response.statusCode)
 
-                switch httpStatus {
-                case let httpStatus where httpStatus.isSuccess:
-                    return .decoding {
-                        let serverRelays = try self.responseDecoder.decode(
-                            ServerRelaysResponse.self,
-                            from: data
+                    switch httpStatus {
+                    case let httpStatus where httpStatus.isSuccess:
+                        return .decoding {
+                            let serverRelays = try self.responseDecoder.decode(
+                                ServerRelaysResponse.self,
+                                from: data
+                            )
+                            let newEtag = response
+                                .value(forCaseInsensitiveHTTPHeaderField: HTTPHeader.etag)
+
+                            return .newContent(newEtag, serverRelays)
+                        }
+
+                    case .notModified where etag != nil:
+                        return .success(.notModified)
+
+                    default:
+                        return .unhandledResponse(
+                            try? self.responseDecoder.decode(
+                                ServerErrorResponse.self,
+                                from: data
+                            )
                         )
-                        let newEtag = response.value(forCaseInsensitiveHTTPHeaderField: HTTPHeader.etag)
-
-                        return .newContent(newEtag, serverRelays)
                     }
-
-                case .notModified where etag != nil:
-                    return .success(.notModified)
-
-                default:
-                    return .unhandledResponse(
-                        try? self.responseDecoder.decode(
-                            ServerErrorResponse.self,
-                            from: data
-                        )
-                    )
                 }
-            }
 
             return addOperation(
                 name: "get-relays",
@@ -114,8 +114,7 @@ extension REST {
             receiptString: Data,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<CreateApplePaymentResponse>
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 var requestBuilder = try self.requestFactory
                     .createRequestBuilder(
@@ -133,28 +132,32 @@ extension REST {
                 return requestBuilder.getRequest()
             }
 
-            let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<CreateApplePaymentResponse> in
-                if HTTPStatus.isSuccess(response.statusCode) {
-                    return .decoding {
-                        let serverResponse = try self.responseDecoder.decode(
-                            CreateApplePaymentRawResponse.self,
-                            from: data
-                        )
-                        if serverResponse.timeAdded > 0 {
-                            return .timeAdded(serverResponse.timeAdded, serverResponse.newExpiry)
-                        } else {
-                            return .noTimeAdded(serverResponse.newExpiry)
+            let responseHandler =
+                AnyResponseHandler { response, data -> ResponseHandlerResult<CreateApplePaymentResponse> in
+                    if HTTPStatus.isSuccess(response.statusCode) {
+                        return .decoding {
+                            let serverResponse = try self.responseDecoder.decode(
+                                CreateApplePaymentRawResponse.self,
+                                from: data
+                            )
+                            if serverResponse.timeAdded > 0 {
+                                return .timeAdded(
+                                    serverResponse.timeAdded,
+                                    serverResponse.newExpiry
+                                )
+                            } else {
+                                return .noTimeAdded(serverResponse.newExpiry)
+                            }
                         }
-                    }
-                } else {
-                    return .unhandledResponse(
-                        try? self.responseDecoder.decode(
-                            ServerErrorResponse.self,
-                            from: data
+                    } else {
+                        return .unhandledResponse(
+                            try? self.responseDecoder.decode(
+                                ServerErrorResponse.self,
+                                from: data
+                            )
                         )
-                    )
+                    }
                 }
-            }
 
             return addOperation(
                 name: "create-apple-payment",
@@ -169,8 +172,7 @@ extension REST {
             _ body: ProblemReportRequest,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<Void>
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 var requestBuilder = try self.requestFactory.createRequestBuilder(
                     endpoint: endpoint,
@@ -183,18 +185,19 @@ extension REST {
                 return requestBuilder.getRequest()
             }
 
-            let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<Void> in
-                if HTTPStatus.isSuccess(response.statusCode) {
-                    return .success(())
-                } else {
-                    return .unhandledResponse(
-                        try? self.responseDecoder.decode(
-                            ServerErrorResponse.self,
-                            from: data
+            let responseHandler =
+                AnyResponseHandler { response, data -> ResponseHandlerResult<Void> in
+                    if HTTPStatus.isSuccess(response.statusCode) {
+                        return .success(())
+                    } else {
+                        return .unhandledResponse(
+                            try? self.responseDecoder.decode(
+                                ServerErrorResponse.self,
+                                from: data
+                            )
                         )
-                    )
+                    }
                 }
-            }
 
             return addOperation(
                 name: "send-problem-report",
@@ -223,7 +226,7 @@ extension REST {
 
         var newExpiry: Date {
             switch self {
-            case .noTimeAdded(let expiry), .timeAdded(_, let expiry):
+            case let .noTimeAdded(expiry), let .timeAdded(_, expiry):
                 return expiry
             }
         }
@@ -232,7 +235,7 @@ extension REST {
             switch self {
             case .noTimeAdded:
                 return 0
-            case .timeAdded(let timeAdded, _):
+            case let .timeAdded(timeAdded, _):
                 return TimeInterval(timeAdded)
             }
         }
@@ -258,5 +261,4 @@ extension REST {
         let log: String
         let metadata: [String: String]
     }
-
 }

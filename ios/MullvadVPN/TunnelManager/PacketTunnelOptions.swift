@@ -9,7 +9,6 @@
 import Foundation
 
 struct PacketTunnelOptions {
-
     /// Keys for options dictionary
     private enum Keys: String {
         /// Option key that holds the `NSData` value with `RelaySelectorResult` encoded using `JSONEncoder`.

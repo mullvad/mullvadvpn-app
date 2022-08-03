@@ -6,8 +6,8 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import UIKit
 import MapKit
+import UIKit
 
 class ConnectContentView: UIView {
     enum ActionButton {
@@ -84,13 +84,9 @@ class ConnectContentView: UIView {
         return button
     }()
 
-    lazy var selectLocationBlurView: TranslucentButtonBlurView = {
-        return TranslucentButtonBlurView(button: selectLocationButton)
-    }()
+    lazy var selectLocationBlurView = TranslucentButtonBlurView(button: selectLocationButton)
 
-    lazy var cancelButtonBlurView: TranslucentButtonBlurView = {
-        return TranslucentButtonBlurView(button: cancelButton)
-    }()
+    lazy var cancelButtonBlurView = TranslucentButtonBlurView(button: cancelButton)
 
     let splitDisconnectButton: DisconnectSplitButton = {
         let button = DisconnectSplitButton()
@@ -139,7 +135,7 @@ class ConnectContentView: UIView {
     }
 
     private func addSubviews() {
-        mapView.frame = self.bounds
+        mapView.frame = bounds
 
         locationContainerView.addSubview(secureLabel)
         locationContainerView.addSubview(cityLabel)
@@ -158,12 +154,16 @@ class ConnectContentView: UIView {
             containerView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             containerView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
 
-            locationContainerView.topAnchor.constraint(greaterThanOrEqualTo: containerView.topAnchor),
+            locationContainerView.topAnchor
+                .constraint(greaterThanOrEqualTo: containerView.topAnchor),
             locationContainerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             locationContainerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
 
             activityIndicator.centerXAnchor.constraint(equalTo: mapView.centerXAnchor),
-            locationContainerView.topAnchor.constraint(equalTo: activityIndicator.bottomAnchor, constant: 22),
+            locationContainerView.topAnchor.constraint(
+                equalTo: activityIndicator.bottomAnchor,
+                constant: 22
+            ),
 
             secureLabel.topAnchor.constraint(equalTo: locationContainerView.topAnchor),
             secureLabel.leadingAnchor.constraint(equalTo: locationContainerView.leadingAnchor),
@@ -178,14 +178,20 @@ class ConnectContentView: UIView {
             countryLabel.trailingAnchor.constraint(equalTo: locationContainerView.trailingAnchor),
             countryLabel.bottomAnchor.constraint(equalTo: locationContainerView.bottomAnchor),
 
-            connectionPanel.topAnchor.constraint(equalTo: locationContainerView.bottomAnchor, constant: 8),
+            connectionPanel.topAnchor.constraint(
+                equalTo: locationContainerView.bottomAnchor,
+                constant: 8
+            ),
             connectionPanel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             connectionPanel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
 
-            buttonsStackView.topAnchor.constraint(equalTo: connectionPanel.bottomAnchor, constant: 24),
+            buttonsStackView.topAnchor.constraint(
+                equalTo: connectionPanel.bottomAnchor,
+                constant: 24
+            ),
             buttonsStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             buttonsStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            buttonsStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+            buttonsStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
         ])
 
         updateTraitConstraints()
@@ -197,16 +203,24 @@ class ConnectContentView: UIView {
         switch traitCollection.userInterfaceIdiom {
         case .pad:
             // Max container width is 70% width of iPad in portrait mode
-            let maxWidth = min(UIScreen.main.nativeBounds.width * 0.7, UIMetrics.maximumSplitViewContentContainerWidth)
+            let maxWidth = min(
+                UIScreen.main.nativeBounds.width * 0.7,
+                UIMetrics.maximumSplitViewContentContainerWidth
+            )
 
             layoutConstraints.append(contentsOf: [
-                containerView.trailingAnchor.constraint(lessThanOrEqualTo: layoutMarginsGuide.trailingAnchor),
+                containerView.trailingAnchor
+                    .constraint(lessThanOrEqualTo: layoutMarginsGuide.trailingAnchor),
                 containerView.widthAnchor.constraint(equalToConstant: maxWidth)
-                    .withPriority(.defaultHigh)
+                    .withPriority(.defaultHigh),
             ])
 
         case .phone:
-            layoutConstraints.append(containerView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor))
+            layoutConstraints
+                .append(
+                    containerView.trailingAnchor
+                        .constraint(equalTo: layoutMarginsGuide.trailingAnchor)
+                )
 
         default:
             break
@@ -226,14 +240,14 @@ class ConnectContentView: UIView {
     }
 
     private func setArrangedButtons(_ newButtons: [UIView]) {
-        buttonsStackView.arrangedSubviews.forEach { (button) in
+        buttonsStackView.arrangedSubviews.forEach { button in
             if !newButtons.contains(button) {
                 buttonsStackView.removeArrangedSubview(button)
                 button.removeFromSuperview()
             }
         }
 
-        newButtons.forEach { (button) in
+        newButtons.forEach { button in
             buttonsStackView.addArrangedSubview(button)
         }
     }

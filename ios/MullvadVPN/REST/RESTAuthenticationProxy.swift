@@ -26,8 +26,7 @@ extension REST {
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<AccessTokenData>
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 var requestBuilder = try self.requestFactory.createRequestBuilder(
                     endpoint: endpoint,

@@ -16,7 +16,10 @@ class SettingsAddDNSEntryCell: SettingsCell {
 
         backgroundView?.backgroundColor = UIColor.SubSubCell.backgroundColor
 
-        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        let gestureRecognizer = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTap(_:))
+        )
         contentView.addGestureRecognizer(gestureRecognizer)
     }
 

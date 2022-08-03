@@ -42,7 +42,11 @@ enum AppStoreReceipt {
 
     /// Read AppStore receipt from disk or refresh it from AppStore if it's missing.
     /// This call may trigger a sign in with AppStore prompt to appear.
-    static func fetch(forceRefresh: Bool = false, receiptProperties: [String: Any]? = nil, completionHandler: @escaping (OperationCompletion<Data, Error>) -> Void) -> Cancellable {
+    static func fetch(
+        forceRefresh: Bool = false,
+        receiptProperties: [String: Any]? = nil,
+        completionHandler: @escaping (OperationCompletion<Data, Error>) -> Void
+    ) -> Cancellable {
         let operation = FetchAppStoreReceiptOperation(
             forceRefresh: forceRefresh,
             receiptProperties: receiptProperties,
@@ -59,7 +63,9 @@ enum AppStoreReceipt {
     }
 }
 
-fileprivate class FetchAppStoreReceiptOperation: ResultOperation<Data, AppStoreReceipt.Error>, SKRequestDelegate {
+private class FetchAppStoreReceiptOperation: ResultOperation<Data, AppStoreReceipt.Error>,
+    SKRequestDelegate
+{
     private var request: SKReceiptRefreshRequest?
     private let receiptProperties: [String: Any]?
     private let forceRefresh: Bool
@@ -68,8 +74,7 @@ fileprivate class FetchAppStoreReceiptOperation: ResultOperation<Data, AppStoreR
         forceRefresh: Bool,
         receiptProperties: [String: Any]?,
         completionHandler: @escaping (Completion) -> Void
-    )
-    {
+    ) {
         self.forceRefresh = forceRefresh
         self.receiptProperties = receiptProperties
 
@@ -99,7 +104,7 @@ fileprivate class FetchAppStoreReceiptOperation: ResultOperation<Data, AppStoreR
     }
 
     override func operationDidCancel() {
-        self.request?.cancel()
+        request?.cancel()
     }
 
     // - MARK: SKRequestDelegate
@@ -150,13 +155,14 @@ fileprivate class FetchAppStoreReceiptOperation: ResultOperation<Data, AppStoreR
 
         let readResult = Result { try Data(contentsOf: appStoreReceiptURL) }
 
-        return readResult.mapError { (error) -> AppStoreReceipt.Error in
-            if let cocoaError = error as? CocoaError, cocoaError.code == .fileReadNoSuchFile || cocoaError.code == .fileNoSuchFile {
+        return readResult.mapError { error -> AppStoreReceipt.Error in
+            if let cocoaError = error as? CocoaError,
+               cocoaError.code == .fileReadNoSuchFile || cocoaError.code == .fileNoSuchFile
+            {
                 return .doesNotExist
             } else {
                 return .io(error)
             }
         }
     }
-
 }

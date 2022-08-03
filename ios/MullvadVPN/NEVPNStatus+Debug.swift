@@ -21,11 +21,11 @@ extension NEVPNStatus: CustomStringConvertible {
         case .disconnecting:
             return "disconnecting"
         case .invalid:
-            return  "invalid"
+            return "invalid"
         case .reasserting:
             return "reasserting"
         @unknown default:
-            return  "unknown value (\(self.rawValue))"
+            return "unknown value (\(rawValue))"
         }
     }
 }

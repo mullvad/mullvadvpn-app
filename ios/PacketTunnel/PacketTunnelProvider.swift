@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import Logging
 import Network
 import NetworkExtension
-import Logging
 import WireGuardKit
 
 class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
@@ -71,17 +71,24 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         super.init()
 
-        adapter = WireGuardAdapter(with: self, shouldHandleReasserting: false, logHandler: { [weak self] (logLevel, message) in
-            self?.dispatchQueue.async {
-                self?.tunnelLogger.log(level: logLevel.loggerLevel, "\(message)")
+        adapter = WireGuardAdapter(
+            with: self,
+            shouldHandleReasserting: false,
+            logHandler: { [weak self] logLevel, message in
+                self?.dispatchQueue.async {
+                    self?.tunnelLogger.log(level: logLevel.loggerLevel, "\(message)")
+                }
             }
-        })
+        )
 
         tunnelMonitor = TunnelMonitor(queue: dispatchQueue, adapter: adapter)
         tunnelMonitor.delegate = self
     }
 
-    override func startTunnel(options: [String : NSObject]?, completionHandler: @escaping (Error?) -> Void) {
+    override func startTunnel(
+        options: [String: NSObject]?,
+        completionHandler: @escaping (Error?) -> Void
+    ) {
         let tunnelOptions = PacketTunnelOptions(rawOptions: options ?? [:])
         var appSelectorResult: RelaySelectorResult?
 
@@ -90,7 +97,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             appSelectorResult = try tunnelOptions.getSelectorResult()
 
             switch appSelectorResult {
-            case .some(let selectorResult):
+            case let .some(selectorResult):
                 providerLogger.debug(
                     "Start the tunnel via app, connect to \(selectorResult.relay.hostname)."
                 )
@@ -107,9 +114,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             providerLogger.error(
                 chainedError: AnyChainedError(error),
                 message: """
-                         Failed to decode relay selector result passed from the app. \
-                         Will continue by picking new relay.
-                         """
+                Failed to decode relay selector result passed from the app. \
+                Will continue by picking new relay.
+                """
             )
         }
 
@@ -166,7 +173,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         }
     }
 
-    override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
+    override func stopTunnel(
+        with reason: NEProviderStopReason,
+        completionHandler: @escaping () -> Void
+    ) {
         providerLogger.debug("Stop the tunnel: \(reason)")
 
         dispatchQueue.async {
@@ -210,7 +220,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             self.providerLogger.debug("Received app message: \(message)")
 
             switch message {
-            case .reconnectTunnel(let appSelectorResult):
+            case let .reconnectTunnel(appSelectorResult):
                 self.providerLogger.debug("Reconnecting the tunnel...")
 
                 self.reconnectTunnel(selectorResult: appSelectorResult) { [weak self] error in
@@ -318,8 +328,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     func tunnelMonitor(
         _ tunnelMonitor: TunnelMonitor,
         networkReachabilityStatusDidChange isNetworkReachable: Bool
-    )
-    {
+    ) {
         self.isNetworkReachable = isNetworkReachable
 
         // Adjust the start reconnect date if tunnel monitor re-started pinging in response to
@@ -351,8 +360,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private func reconnectTunnel(
         selectorResult aSelectorResult: RelaySelectorResult?,
         completionHandler: @escaping (Error?) -> Void
-    )
-    {
+    ) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
         // Read tunnel configuration.

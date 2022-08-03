@@ -9,7 +9,6 @@
 import UIKit
 
 class SelectLocationHeaderView: UIView {
-
     lazy var textContentLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -45,12 +44,11 @@ class SelectLocationHeaderView: UIView {
             textContentLabel.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
             textContentLabel.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             textContentLabel.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            textContentLabel.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+            textContentLabel.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
         ])
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
 }

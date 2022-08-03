@@ -51,7 +51,6 @@ private extension UIControl.State {
 
 /// A subclass that implements the button that visually look like URL links on the web
 class LinkButton: CustomButton {
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         commonInit()
@@ -77,15 +76,18 @@ class LinkButton: CustomButton {
 
     private func updateAttributedTitle(string: String?) {
         let states: [UIControl.State] = [.normal, .highlighted, .disabled]
-        states.forEach { (state) in
+        states.forEach { state in
             let attributedTitle = string.flatMap { makeAttributedTitle($0, for: state) }
             self.setAttributedTitle(attributedTitle, for: state)
         }
     }
 
-    private func makeAttributedTitle(_ title: String, for state: UIControl.State) -> NSAttributedString {
+    private func makeAttributedTitle(
+        _ title: String,
+        for state: UIControl.State
+    ) -> NSAttributedString {
         var attributes: [NSAttributedString.Key: Any] = [
-            .underlineStyle: NSUnderlineStyle.single.rawValue
+            .underlineStyle: NSUnderlineStyle.single.rawValue,
         ]
 
         if let titleColor = state.customButtonTitleColor {
@@ -98,7 +100,6 @@ class LinkButton: CustomButton {
 
 /// A subclass that implements action buttons used across the app
 class AppButton: CustomButton {
-
     var defaultContentInsets: UIEdgeInsets {
         switch traitCollection.userInterfaceIdiom {
         case .phone:
@@ -132,9 +133,11 @@ class AppButton: CustomButton {
             case .translucentNeutral:
                 return UIImage(named: "TranslucentNeutralButton")
             case .translucentDangerSplitLeft:
-                return UIImage(named: "TranslucentDangerSplitLeftButton")?.imageFlippedForRightToLeftLayoutDirection()
+                return UIImage(named: "TranslucentDangerSplitLeftButton")?
+                    .imageFlippedForRightToLeftLayoutDirection()
             case .translucentDangerSplitRight:
-                return UIImage(named: "TranslucentDangerSplitRightButton")?.imageFlippedForRightToLeftLayoutDirection()
+                return UIImage(named: "TranslucentDangerSplitRightButton")?
+                    .imageFlippedForRightToLeftLayoutDirection()
             }
         }
     }
@@ -167,19 +170,19 @@ class AppButton: CustomButton {
         var contentInsets = contentEdgeInsets
 
         if contentInsets.top == 0 {
-            contentInsets.top = self.defaultContentInsets.top
+            contentInsets.top = defaultContentInsets.top
         }
 
         if contentInsets.bottom == 0 {
-            contentInsets.bottom = self.defaultContentInsets.bottom
+            contentInsets.bottom = defaultContentInsets.bottom
         }
 
         if contentInsets.right == 0 {
-            contentInsets.right = self.defaultContentInsets.right
+            contentInsets.right = defaultContentInsets.right
         }
 
         if contentInsets.left == 0 {
-            contentInsets.left = self.defaultContentInsets.left
+            contentInsets.left = defaultContentInsets.left
         }
 
         contentEdgeInsets = contentInsets
@@ -188,7 +191,7 @@ class AppButton: CustomButton {
         titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
 
         let states: [UIControl.State] = [.normal, .highlighted, .disabled]
-        states.forEach { (state) in
+        states.forEach { state in
             if let titleColor = state.customButtonTitleColor {
                 setTitleColor(titleColor, for: state)
             }
@@ -207,16 +210,16 @@ class AppButton: CustomButton {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
 
-        if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom, !overrideContentEdgeInsets {
-            contentEdgeInsets = self.defaultContentInsets
+        if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom,
+           !overrideContentEdgeInsets
+        {
+            contentEdgeInsets = defaultContentInsets
         }
     }
-
 }
 
 /// A custom `UIButton` subclass that implements additional layouts for the image
 class CustomButton: UIButton {
-
     var imageAlignment: ButtonImageAlignment = .leading {
         didSet {
             invalidateIntrinsicContentSize()
@@ -292,7 +295,7 @@ class CustomButton: UIButton {
         } else {
             // Fix: on iOS 12 the image view frame is not always set, even though the `UIButton`
             // calls `imageRect` to compute the image layout frame.
-            let imageRect = self.imageRect(forContentRect: contentRect(forBounds: bounds))
+            let imageRect = imageRect(forContentRect: contentRect(forBounds: bounds))
             if imageView?.frame != imageRect {
                 imageView?.frame = imageRect
             }
@@ -368,5 +371,4 @@ class CustomButton: UIButton {
     override func titleRect(forContentRect contentRect: CGRect) -> CGRect {
         return computeLayout(forContentRect: contentRect).0
     }
-
 }

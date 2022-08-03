@@ -74,11 +74,17 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
 
     private func registerClasses() {
         CellReuseIdentifiers.allCases.forEach { cellIdentifier in
-            tableView?.register(cellIdentifier.reusableViewClass, forCellReuseIdentifier: cellIdentifier.rawValue)
+            tableView?.register(
+                cellIdentifier.reusableViewClass,
+                forCellReuseIdentifier: cellIdentifier.rawValue
+            )
         }
 
         HeaderFooterReuseIdentifier.allCases.forEach { reuseIdentifier in
-            tableView?.register(reuseIdentifier.reusableViewClass, forHeaderFooterViewReuseIdentifier: reuseIdentifier.rawValue)
+            tableView?.register(
+                reuseIdentifier.reusableViewClass,
+                forHeaderFooterViewReuseIdentifier: reuseIdentifier.rawValue
+            )
         }
     }
 
@@ -114,7 +120,10 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
 
         switch item {
         case .account:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.accountCell.rawValue, for: indexPath) as! SettingsAccountCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.accountCell.rawValue,
+                for: indexPath
+            ) as! SettingsAccountCell
             cell.titleLabel.text = NSLocalizedString(
                 "ACCOUNT_CELL_LABEL",
                 tableName: "Settings",
@@ -128,7 +137,10 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
             return cell
 
         case .preferences:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
+                for: indexPath
+            ) as! SettingsCell
             cell.titleLabel.text = NSLocalizedString(
                 "PREFERENCES_CELL_LABEL",
                 tableName: "Settings",
@@ -142,7 +154,10 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
             return cell
 
         case .wireguardKey:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
+                for: indexPath
+            ) as! SettingsCell
             cell.titleLabel.text = NSLocalizedString(
                 "WIREGUARD_KEY_CELL_LABEL",
                 tableName: "Settings",
@@ -156,7 +171,10 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
             return cell
 
         case .version:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
+                for: indexPath
+            ) as! SettingsCell
             cell.titleLabel.text = NSLocalizedString(
                 "APP_VERSION_CELL_LABEL",
                 tableName: "Settings",
@@ -170,7 +188,10 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
             return cell
 
         case .problemReport:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
+                for: indexPath
+            ) as! SettingsCell
             cell.titleLabel.text = NSLocalizedString(
                 "REPORT_PROBLEM_CELL_LABEL",
                 tableName: "Settings",
@@ -184,7 +205,10 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
             return cell
 
         case .faq:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellReuseIdentifiers.basicCell.rawValue, for: indexPath) as! SettingsCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
+                for: indexPath
+            ) as! SettingsCell
             cell.titleLabel.text = NSLocalizedString(
                 "FAQ_AND_GUIDES_CELL_LABEL",
                 tableName: "Settings",
@@ -196,7 +220,6 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
             cell.disclosureType = .externalLink
 
             return cell
-
         }
     }
 
@@ -217,7 +240,11 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return tableView.dequeueReusableHeaderFooterView(withIdentifier: HeaderFooterReuseIdentifier.spacer.rawValue)
+        return tableView
+            .dequeueReusableHeaderFooterView(
+                withIdentifier: HeaderFooterReuseIdentifier.spacer
+                    .rawValue
+            )
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
@@ -255,7 +282,8 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
         // Refresh individual row if expiry changed.
         if let newAccountData = newAccountData, let oldAccountData = oldAccountData,
            oldAccountData.number == newAccountData.number,
-           oldAccountData.expiry != newAccountData.expiry {
+           oldAccountData.expiry != newAccountData.expiry
+        {
             tableView?.performBatchUpdates {
                 if let indexPath = snapshot.indexPathForItem(.account) {
                     tableView?.reloadRows(at: [indexPath], with: .none)
@@ -268,7 +296,10 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
         tableView?.reloadData()
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+    func tunnelManager(
+        _ manager: TunnelManager,
+        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
+    ) {
         // no-op
     }
 }

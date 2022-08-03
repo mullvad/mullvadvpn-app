@@ -11,7 +11,6 @@ import Logging
 import UIKit
 
 extension RelayCache {
-
     /// Type describing the result of an attempt to fetch the new relay list from server.
     enum FetchResult: CustomStringConvertible {
         /// Request to update relays was throttled.
@@ -81,7 +80,11 @@ extension RelayCache {
 
         /// A shared instance of `RelayCache`
         static let shared: RelayCache.Tracker = {
-            let cacheFileURL = RelayCache.IO.defaultCacheFileURL(forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier)!
+            let cacheFileURL = RelayCache.IO
+                .defaultCacheFileURL(
+                    forSecurityApplicationGroupIdentifier: ApplicationConfiguration
+                        .securityGroupIdentifier
+                )!
             let prebundledRelaysFileURL = RelayCache.IO.preBundledRelaysFileURL!
 
             return Tracker(
@@ -142,8 +145,7 @@ extension RelayCache {
             completionHandler: (
                 (OperationCompletion<RelayCache.FetchResult, Error>) -> Void
             )? = nil
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let operation = ResultBlockOperation<RelayCache.FetchResult, Error>(
                 dispatchQueue: nil
             ) { operation in
@@ -224,11 +226,10 @@ extension RelayCache {
 
         private func handleResponse(
             completion: OperationCompletion<REST.ServerRelaysCacheResponse, REST.Error>
-        ) -> OperationCompletion<FetchResult, Error>
-        {
+        ) -> OperationCompletion<FetchResult, Error> {
             let mappedCompletion = completion.tryMap { response -> FetchResult in
                 switch response {
-                case .newContent(let etag, let relays):
+                case let .newContent(etag, relays):
                     try self.storeResponse(etag: etag, relays: relays)
 
                     return .newContent
@@ -275,7 +276,6 @@ extension RelayCache {
             }
         }
 
-
         private func scheduleRepeatingTimer(startTime: DispatchWallTime) {
             let timerSource = DispatchSource.makeTimerSource()
             timerSource.setEventHandler { [weak self] in
@@ -291,5 +291,4 @@ extension RelayCache {
             self.timerSource = timerSource
         }
     }
-
 }

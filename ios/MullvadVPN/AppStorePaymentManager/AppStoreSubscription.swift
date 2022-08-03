@@ -34,6 +34,6 @@ extension SKProduct {
 
 extension Set where Element == AppStoreSubscription {
     var productIdentifiersSet: Set<String> {
-        Set<String>(self.map { $0.rawValue })
+        Set<String>(map { $0.rawValue })
     }
 }

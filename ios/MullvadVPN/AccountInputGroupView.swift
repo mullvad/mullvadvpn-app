@@ -6,8 +6,8 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import UIKit
 import Logging
+import UIKit
 
 private let accountInputGroupViewAnimationDuration: TimeInterval = 0.25
 
@@ -17,7 +17,6 @@ protocol AccountInputGroupViewDelegate: AnyObject {
 }
 
 class AccountInputGroupView: UIView {
-
     enum Style {
         case normal, error, authenticating
     }
@@ -95,7 +94,7 @@ class AccountInputGroupView: UIView {
         return view
     }()
 
-    private var showsLastUsedAccountRow: Bool = false
+    private var showsLastUsedAccountRow = false
 
     private let lastUsedAccountButton: UIButton = {
         let button = UIButton(type: .system)
@@ -147,8 +146,8 @@ class AccountInputGroupView: UIView {
         switch loginState {
         case .default:
             return privateTextField.isEditing
-                             ? UIColor.AccountTextField.NormalState.borderColor
-                             : UIColor.clear
+                ? UIColor.AccountTextField.NormalState.borderColor
+                : UIColor.clear
 
         case .failure:
             return UIColor.AccountTextField.ErrorState.borderColor
@@ -208,9 +207,13 @@ class AccountInputGroupView: UIView {
         sendButton.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 
         lastUsedAccountButton.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        removeLastUsedAccountButton.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        removeLastUsedAccountButton.setContentCompressionResistancePriority(
+            .defaultHigh,
+            for: .horizontal
+        )
 
-        lastUsedAccountVisibleConstraint = heightAnchor.constraint(equalTo: contentView.heightAnchor)
+        lastUsedAccountVisibleConstraint = heightAnchor
+            .constraint(equalTo: contentView.heightAnchor)
         lastUsedAccountHiddenConstraint = heightAnchor.constraint(equalTo: topRowView.heightAnchor)
 
         NSLayoutConstraint.activate([
@@ -248,11 +251,14 @@ class AccountInputGroupView: UIView {
             lastUsedAccountButton.topAnchor.constraint(equalTo: bottomRowView.topAnchor),
             lastUsedAccountButton.bottomAnchor.constraint(equalTo: bottomRowView.bottomAnchor),
             lastUsedAccountButton.leadingAnchor.constraint(equalTo: bottomRowView.leadingAnchor),
-            lastUsedAccountButton.trailingAnchor.constraint(equalTo: removeLastUsedAccountButton.leadingAnchor),
+            lastUsedAccountButton.trailingAnchor
+                .constraint(equalTo: removeLastUsedAccountButton.leadingAnchor),
 
             removeLastUsedAccountButton.topAnchor.constraint(equalTo: bottomRowView.topAnchor),
-            removeLastUsedAccountButton.bottomAnchor.constraint(equalTo: bottomRowView.bottomAnchor),
-            removeLastUsedAccountButton.trailingAnchor.constraint(equalTo: bottomRowView.trailingAnchor),
+            removeLastUsedAccountButton.bottomAnchor
+                .constraint(equalTo: bottomRowView.bottomAnchor),
+            removeLastUsedAccountButton.trailingAnchor
+                .constraint(equalTo: bottomRowView.trailingAnchor),
             removeLastUsedAccountButton.widthAnchor.constraint(equalTo: sendButton.widthAnchor),
         ])
 
@@ -268,9 +274,17 @@ class AccountInputGroupView: UIView {
         updateSendButtonAppearance(animated: false)
         updateKeyboardReturnKeyEnabled()
 
-        lastUsedAccountButton.addTarget(self, action: #selector(didTapLastUsedAccount), for: .touchUpInside)
+        lastUsedAccountButton.addTarget(
+            self,
+            action: #selector(didTapLastUsedAccount),
+            for: .touchUpInside
+        )
 
-        removeLastUsedAccountButton.addTarget(self, action: #selector(didTapRemoveLastUsedAccount), for: .touchUpInside)
+        removeLastUsedAccountButton.addTarget(
+            self,
+            action: #selector(didTapRemoveLastUsedAccount),
+            for: .touchUpInside
+        )
 
         addTextFieldNotificationObservers()
         addAccessibilityNotificationObservers()
@@ -403,18 +417,24 @@ class AccountInputGroupView: UIView {
     private func addTextFieldNotificationObservers() {
         let notificationCenter = NotificationCenter.default
 
-        notificationCenter.addObserver(self,
-                                       selector: #selector(textDidBeginEditing),
-                                       name: UITextField.textDidBeginEditingNotification,
-                                       object: privateTextField)
-        notificationCenter.addObserver(self,
-                                       selector: #selector(textDidChange),
-                                       name: UITextField.textDidChangeNotification,
-                                       object: privateTextField)
-        notificationCenter.addObserver(self,
-                                       selector: #selector(textDidEndEditing),
-                                       name: UITextField.textDidEndEditingNotification,
-                                       object: privateTextField)
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(textDidBeginEditing),
+            name: UITextField.textDidBeginEditingNotification,
+            object: privateTextField
+        )
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(textDidChange),
+            name: UITextField.textDidChangeNotification,
+            object: privateTextField
+        )
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(textDidEndEditing),
+            name: UITextField.textDidEndEditingNotification,
+            object: privateTextField
+        )
     }
 
     private func updateAppearance() {
@@ -485,7 +505,8 @@ class AccountInputGroupView: UIView {
         bottomRowView.accessibilityElementsHidden = !shouldShow
 
         if lastUsedAccountButton.accessibilityElementIsFocused() ||
-            removeLastUsedAccountButton.accessibilityElementIsFocused() {
+            removeLastUsedAccountButton.accessibilityElementIsFocused()
+        {
             UIAccessibility.post(notification: .layoutChanged, argument: textField)
         }
     }
@@ -529,7 +550,10 @@ class AccountInputGroupView: UIView {
     }
 
     private func borderBezierPath(size: CGSize) -> UIBezierPath {
-        let borderPath = UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: borderRadius)
+        let borderPath = UIBezierPath(
+            roundedRect: CGRect(origin: .zero, size: size),
+            cornerRadius: borderRadius
+        )
         borderPath.lineWidth = borderWidth
 
         return borderPath
@@ -537,7 +561,7 @@ class AccountInputGroupView: UIView {
 
     private func backgroundMaskImage(borderPath: UIBezierPath) -> UIImage {
         let renderer = UIGraphicsImageRenderer(bounds: borderPath.bounds)
-        return renderer.image { (ctx) in
+        return renderer.image { ctx in
             borderPath.fill()
 
             // strip out any overlapping pixels between the border and the background
@@ -548,13 +572,17 @@ class AccountInputGroupView: UIView {
     // MARK: - Accessibility
 
     private func addAccessibilityNotificationObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(voiceOverStatusDidChange(_:)), name: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(voiceOverStatusDidChange(_:)),
+            name: UIAccessibility.voiceOverStatusDidChangeNotification,
+            object: nil
+        )
     }
 
     @objc private func voiceOverStatusDidChange(_ notification: Notification) {
         updateSendButtonAppearance(animated: true)
     }
-
 }
 
 private class AccountInputBorderLayer: CAShapeLayer {

@@ -41,7 +41,6 @@ struct StringEncodingError: LocalizedError {
 }
 
 extension SettingsManager {
-
     // MARK: - Lsat used account
 
     static func getLastUsedAccount() throws -> String {
@@ -104,7 +103,6 @@ extension SettingsManager {
         try addOrUpdateItem(.deviceState, data: data)
     }
 
-
     static func deleteDeviceState() throws {
         try deleteItem(.deviceState)
     }
@@ -135,6 +133,7 @@ extension SettingsManager {
             throw KeychainError(code: status)
         }
     }
+
     private static func addOrUpdateItem(_ item: Item, data: Data) throws {
         do {
             try updateItem(item, data: data)
@@ -167,18 +166,18 @@ extension SettingsManager {
         }
     }
 
-    private static func createDefaultAttributes(item: Item) -> [CFString: Any]  {
+    private static func createDefaultAttributes(item: Item) -> [CFString: Any] {
         return [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: keychainServiceName,
-            kSecAttrAccount: item.rawValue
+            kSecAttrAccount: item.rawValue,
         ]
     }
 
     private static func createAccessAttributes() -> [CFString: Any] {
         return [
             kSecAttrAccessGroup: ApplicationConfiguration.securityGroupIdentifier,
-            kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock
+            kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
         ]
     }
 
@@ -192,7 +191,7 @@ extension SettingsManager {
             kSecAttrService: keychainServiceName,
             kSecReturnAttributes: true,
             kSecReturnData: true,
-            kSecMatchLimit: kSecMatchLimitAll
+            kSecMatchLimit: kSecMatchLimitAll,
         ]
 
         var result: CFTypeRef?
@@ -209,9 +208,10 @@ extension SettingsManager {
         return items.filter(Self.filterLegacySettings)
             .compactMap { item -> LegacyTunnelSettings? in
                 guard let accountNumber = item[kSecAttrAccount] as? String,
-                      let data = item[kSecValueData] as? Data else {
-                          return nil
-                      }
+                      let data = item[kSecValueData] as? Data
+                else {
+                    return nil
+                }
                 do {
                     let tunnelSettings = try JSONDecoder().decode(
                         TunnelSettingsV1.self,
@@ -237,7 +237,7 @@ extension SettingsManager {
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: keychainServiceName,
             kSecReturnAttributes: true,
-            kSecMatchLimit: kSecMatchLimitAll
+            kSecMatchLimit: kSecMatchLimitAll,
         ]
 
         var result: CFTypeRef?
@@ -262,7 +262,7 @@ extension SettingsManager {
 
         items.filter(Self.filterLegacySettings)
             .enumerated()
-            .forEach { (index, item) in
+            .forEach { index, item in
                 guard let account = item[kSecAttrAccount] else {
                     return
                 }
@@ -270,7 +270,7 @@ extension SettingsManager {
                 let deleteQuery: [CFString: Any] = [
                     kSecClass: kSecClassGenericPassword,
                     kSecAttrService: keychainServiceName,
-                    kSecAttrAccount: account
+                    kSecAttrAccount: account,
                 ]
 
                 let status = SecItemDelete(deleteQuery as CFDictionary)
