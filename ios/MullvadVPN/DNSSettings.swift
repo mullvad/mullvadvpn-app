@@ -56,7 +56,7 @@ struct DNSSettings: Codable, Equatable {
     var blockingOptions: DNSBlockingOptions = []
 
     /// Enable custom DNS.
-    var enableCustomDNS: Bool = false
+    var enableCustomDNS = false
 
     /// Custom DNS domains.
     var customDNSDomains: [AnyIPAddress] = []
@@ -82,23 +82,38 @@ struct DNSSettings: Codable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         // Added in 2022.1
-        if let storedBlockingOptions = try container.decodeIfPresent(DNSBlockingOptions.self, forKey: .blockingOptions) {
+        if let storedBlockingOptions = try container.decodeIfPresent(
+            DNSBlockingOptions.self,
+            forKey: .blockingOptions
+        ) {
             blockingOptions = storedBlockingOptions
         }
 
-        if let storedBlockAdvertising = try container.decodeIfPresent(Bool.self, forKey: .blockAdvertising), storedBlockAdvertising {
+        if let storedBlockAdvertising = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .blockAdvertising
+        ), storedBlockAdvertising {
             blockingOptions.insert(.blockAdvertising)
         }
 
-        if let storedBlockTracking = try container.decodeIfPresent(Bool.self, forKey: .blockTracking), storedBlockTracking {
+        if let storedBlockTracking = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .blockTracking
+        ), storedBlockTracking {
             blockingOptions.insert(.blockTracking)
         }
 
-        if let storedEnableCustomDNS = try container.decodeIfPresent(Bool.self, forKey: .enableCustomDNS) {
+        if let storedEnableCustomDNS = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .enableCustomDNS
+        ) {
             enableCustomDNS = storedEnableCustomDNS
         }
 
-        if let storedCustomDNSDomains = try container.decodeIfPresent([AnyIPAddress].self, forKey: .customDNSDomains) {
+        if let storedCustomDNSDomains = try container.decodeIfPresent(
+            [AnyIPAddress].self,
+            forKey: .customDNSDomains
+        ) {
             customDNSDomains = storedCustomDNSDomains
         }
     }

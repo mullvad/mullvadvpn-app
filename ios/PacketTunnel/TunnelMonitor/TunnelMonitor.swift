@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import Logging
 import NetworkExtension
 import WireGuardKit
-import Logging
 
 final class TunnelMonitor {
     private let adapter: WireGuardAdapter
@@ -97,7 +97,7 @@ final class TunnelMonitor {
     }
 
     private func stopNoQueue(forRestart: Bool) {
-        if isStarted && !forRestart {
+        if isStarted, !forRestart {
             logger.debug("Stop tunnel monitor.")
         }
 
@@ -142,7 +142,10 @@ final class TunnelMonitor {
         timer?.setEventHandler { [weak self] in
             self?.onWgStatsTimer()
         }
-        timer?.schedule(wallDeadline: .now(), repeating: TunnelMonitorConfiguration.wgStatsQueryInterval)
+        timer?.schedule(
+            wallDeadline: .now(),
+            repeating: TunnelMonitorConfiguration.wgStatsQueryInterval
+        )
         timer?.resume()
 
         logger.debug("Set WG stats timer.")
@@ -174,11 +177,14 @@ final class TunnelMonitor {
             return
         }
 
-        let oldNetworkBytesReceived = self.networkBytesReceived
+        let oldNetworkBytesReceived = networkBytesReceived
         networkBytesReceived = newNetworkBytesReceived
 
         if newNetworkBytesReceived < oldNetworkBytesReceived {
-            logger.debug("Stats was reset? newNetworkBytesReceived = \(newNetworkBytesReceived), oldNetworkBytesReceived = \(oldNetworkBytesReceived)")
+            logger
+                .debug(
+                    "Stats was reset? newNetworkBytesReceived = \(newNetworkBytesReceived), oldNetworkBytesReceived = \(oldNetworkBytesReceived)"
+                )
             return
         }
 
@@ -194,7 +200,10 @@ final class TunnelMonitor {
             return
         }
 
-        if let nextAttemptDate = lastAttemptDate?.addingTimeInterval(TunnelMonitorConfiguration.connectionTimeout), nextAttemptDate <= Date() {
+        if let nextAttemptDate = lastAttemptDate?
+            .addingTimeInterval(TunnelMonitorConfiguration.connectionTimeout),
+            nextAttemptDate <= Date()
+        {
             // Reset the last recovery attempt date.
             lastAttemptDate = nextAttemptDate
 
@@ -230,7 +239,10 @@ final class TunnelMonitor {
                 setWgStatsTimer()
 
                 delegateQueue.async {
-                    self.delegate?.tunnelMonitor(self, networkReachabilityStatusDidChange: isNetworkReachable)
+                    self.delegate?.tunnelMonitor(
+                        self,
+                        networkReachabilityStatusDidChange: isNetworkReachable
+                    )
                 }
             } catch {
                 let error = error as! Pinger.Error
@@ -255,7 +267,10 @@ final class TunnelMonitor {
             lastAttemptDate = nil
 
             delegateQueue.async {
-                self.delegate?.tunnelMonitor(self, networkReachabilityStatusDidChange: isNetworkReachable)
+                self.delegate?.tunnelMonitor(
+                    self,
+                    networkReachabilityStatusDidChange: isNetworkReachable
+                )
             }
 
         default:
@@ -301,7 +316,7 @@ final class TunnelMonitor {
         }
 
         if let endIndex = endIndex {
-            return UInt64(string[startIndex..<endIndex])
+            return UInt64(string[startIndex ..< endIndex])
         } else {
             return nil
         }

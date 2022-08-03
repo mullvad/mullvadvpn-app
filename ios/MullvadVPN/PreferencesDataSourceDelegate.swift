@@ -9,5 +9,8 @@
 import Foundation
 
 protocol PreferencesDataSourceDelegate: AnyObject {
-    func preferencesDataSource(_ dataSource: PreferencesDataSource, didChangeViewModel viewModel: PreferencesViewModel)
+    func preferencesDataSource(
+        _ dataSource: PreferencesDataSource,
+        didChangeViewModel viewModel: PreferencesViewModel
+    )
 }

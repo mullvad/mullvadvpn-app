@@ -9,7 +9,6 @@
 import UIKit
 
 class AccountContentView: UIView {
-
     let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -60,7 +59,12 @@ class AccountContentView: UIView {
     }()
 
     lazy var contentStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [accountDeviceRow, accountTokenRowView, accountExpiryRowView])
+        let stackView =
+            UIStackView(arrangedSubviews: [
+                accountDeviceRow,
+                accountTokenRowView,
+                accountExpiryRowView,
+            ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.sectionSpacing
@@ -68,7 +72,8 @@ class AccountContentView: UIView {
     }()
 
     lazy var buttonStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [purchaseButton, restorePurchasesButton, logoutButton])
+        let stackView =
+            UIStackView(arrangedSubviews: [purchaseButton, restorePurchasesButton, logoutButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.interButtonSpacing
@@ -89,10 +94,13 @@ class AccountContentView: UIView {
             contentStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             contentStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
 
-            buttonStackView.topAnchor.constraint(greaterThanOrEqualTo: contentStackView.bottomAnchor, constant: UIMetrics.sectionSpacing),
+            buttonStackView.topAnchor.constraint(
+                greaterThanOrEqualTo: contentStackView.bottomAnchor,
+                constant: UIMetrics.sectionSpacing
+            ),
             buttonStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             buttonStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            buttonStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+            buttonStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
         ])
     }
 
@@ -102,7 +110,6 @@ class AccountContentView: UIView {
 }
 
 class AccountDeviceRow: UIView {
-
     var deviceName: String? {
         didSet {
             deviceLabel.text = deviceName?.capitalized ?? ""
@@ -146,7 +153,7 @@ class AccountDeviceRow: UIView {
             deviceLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             deviceLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             deviceLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            deviceLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+            deviceLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
 
         isAccessibilityElement = true
@@ -237,7 +244,10 @@ class AccountNumberRow: UIView {
 
             copyButton.heightAnchor.constraint(equalTo: accountNumberLabel.heightAnchor),
             copyButton.centerYAnchor.constraint(equalTo: accountNumberLabel.centerYAnchor),
-            copyButton.leadingAnchor.constraint(equalTo: showHideButton.trailingAnchor, constant: 24),
+            copyButton.leadingAnchor.constraint(
+                equalTo: showHideButton.trailingAnchor,
+                constant: 24
+            ),
             copyButton.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
 
@@ -298,7 +308,6 @@ class AccountNumberRow: UIView {
         }
     }
 
-
     private var _accessibilityAttributedValue: NSAttributedString? {
         guard let accountNumber = accountNumber else {
             return nil
@@ -330,7 +339,7 @@ class AccountNumberRow: UIView {
             UIAccessibilityCustomAction(
                 name: showHideAccessibilityActionName,
                 target: self,
-                selector:  #selector(didTapShowHideAccount)
+                selector: #selector(didTapShowHideAccount)
             ),
             UIAccessibilityCustomAction(
                 name: NSLocalizedString(
@@ -340,8 +349,8 @@ class AccountNumberRow: UIView {
                     comment: ""
                 ),
                 target: self,
-                selector:  #selector(didTapCopyAccountNumber)
-            )
+                selector: #selector(didTapCopyAccountNumber)
+            ),
         ]
     }
 
@@ -368,12 +377,12 @@ class AccountNumberRow: UIView {
             let tickIcon = UIImage(named: "IconTick")
 
             copyButton.setImage(tickIcon, for: .normal)
-            copyButton.tintColor  = .successColor
+            copyButton.tintColor = .successColor
         } else {
             let copyIcon = UIImage(named: "IconCopy")
 
             copyButton.setImage(copyIcon, for: .normal)
-            copyButton.tintColor  = .white
+            copyButton.tintColor = .white
         }
     }
 
@@ -405,12 +414,11 @@ class AccountNumberRow: UIView {
 }
 
 class AccountExpiryRow: UIView {
-
     var value: Date? {
         didSet {
             let expiry = value
 
-            if let expiry = expiry, expiry <= Date()  {
+            if let expiry = expiry, expiry <= Date() {
                 let localizedString = NSLocalizedString(
                     "ACCOUNT_OUT_OF_TIME_LABEL",
                     tableName: "Account",
@@ -480,7 +488,10 @@ class AccountExpiryRow: UIView {
         NSLayoutConstraint.activate([
             textLabel.topAnchor.constraint(equalTo: topAnchor),
             textLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            textLabel.trailingAnchor.constraint(greaterThanOrEqualTo: activityIndicator.leadingAnchor, constant: -8),
+            textLabel.trailingAnchor.constraint(
+                greaterThanOrEqualTo: activityIndicator.leadingAnchor,
+                constant: -8
+            ),
 
             activityIndicator.topAnchor.constraint(equalTo: textLabel.topAnchor),
             activityIndicator.bottomAnchor.constraint(equalTo: textLabel.bottomAnchor),
@@ -489,7 +500,7 @@ class AccountExpiryRow: UIView {
             valueLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 8),
             valueLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             valueLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            valueLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+            valueLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
 
         isAccessibilityElement = true

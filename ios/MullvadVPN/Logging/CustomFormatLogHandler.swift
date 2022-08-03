@@ -38,21 +38,23 @@ struct CustomFormatLogHandler: LogHandler {
         }
     }
 
-    func log(level: Logger.Level,
-             message: Logger.Message,
-             metadata: Logger.Metadata?,
-             source: String,
-             file: String,
-             function: String,
-             line: UInt)
-    {
-        let mergedMetadata = self.metadata.merging(metadata ?? [:]) { (lhs, rhs) -> Logger.MetadataValue in
-            return rhs
-        }
+    func log(
+        level: Logger.Level,
+        message: Logger.Message,
+        metadata: Logger.Metadata?,
+        source: String,
+        file: String,
+        function: String,
+        line: UInt
+    ) {
+        let mergedMetadata = self.metadata
+            .merging(metadata ?? [:]) { lhs, rhs -> Logger.MetadataValue in
+                return rhs
+            }
         let prettyMetadata = Self.formatMetadata(mergedMetadata)
-        let metadataOutput = prettyMetadata.isEmpty ? "" :  " \(prettyMetadata)"
+        let metadataOutput = prettyMetadata.isEmpty ? "" : " \(prettyMetadata)"
         let timestamp = dateFormatter.string(from: Date())
-        let formattedMessage = "[\(timestamp)][\(self.label)][\(level)]\(metadataOutput) \(message)\n"
+        let formattedMessage = "[\(timestamp)][\(label)][\(level)]\(metadataOutput) \(message)\n"
 
         for var stream in streams {
             stream.write(formattedMessage)

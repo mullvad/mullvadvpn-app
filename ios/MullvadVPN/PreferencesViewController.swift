@@ -6,11 +6,12 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import UIKit
 import Logging
+import UIKit
 
-class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate, TunnelObserver {
-
+class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate,
+    TunnelObserver
+{
     private let dataSource = PreferencesDataSource()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -65,7 +66,10 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
     // MARK: - PreferencesDataSourceDelegate
 
-    func preferencesDataSource(_ dataSource: PreferencesDataSource, didChangeViewModel dataModel: PreferencesViewModel) {
+    func preferencesDataSource(
+        _ dataSource: PreferencesDataSource,
+        didChangeViewModel dataModel: PreferencesViewModel
+    ) {
         let dnsSettings = dataModel.asDNSSettings()
 
         TunnelManager.shared.setDNSSettings(dnsSettings)
@@ -85,13 +89,14 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+    func tunnelManager(
+        _ manager: TunnelManager,
+        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
+    ) {
         dataSource.update(from: tunnelSettings.dnsSettings)
     }
-
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
         // no-op
     }
-
 }

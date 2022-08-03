@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import struct Network.IPv4Address
 import Logging
+import struct Network.IPv4Address
 
 final class Pinger {
     // Sender identifier passed along with ICMP packet.
@@ -39,7 +39,15 @@ final class Pinger {
 
         stop()
 
-        guard let newSocket = CFSocketCreate(kCFAllocatorDefault, AF_INET, SOCK_DGRAM, IPPROTO_ICMP, 0, nil, nil) else {
+        guard let newSocket = CFSocketCreate(
+            kCFAllocatorDefault,
+            AF_INET,
+            SOCK_DGRAM,
+            IPPROTO_ICMP,
+            0,
+            nil,
+            nil
+        ) else {
             throw Error.createSocket
         }
 
@@ -98,7 +106,11 @@ final class Pinger {
         }
 
         let sequenceNumber = nextSequenceNumber()
-        let packetData = Self.createICMPPacket(identifier: identifier, sequenceNumber: sequenceNumber, payload: nil)
+        let packetData = Self.createICMPPacket(
+            identifier: identifier,
+            sequenceNumber: sequenceNumber,
+            payload: nil
+        )
 
         let bytesSent = packetData.withUnsafeBytes { dataBuffer -> Int in
             return withUnsafeBytes(of: &sa) { bufferPointer in
@@ -153,13 +165,20 @@ final class Pinger {
         )
 
         if result == -1 {
-            logger.error("Failed to bind socket to \"\(interfaceName)\" (index: \(index), errno: \(errno)).")
+            logger
+                .error(
+                    "Failed to bind socket to \"\(interfaceName)\" (index: \(index), errno: \(errno))."
+                )
 
             throw Error.bindSocket(errno)
         }
     }
 
-    private class func createICMPPacket(identifier: UInt16, sequenceNumber: UInt16, payload: Data?) -> Data {
+    private class func createICMPPacket(
+        identifier: UInt16,
+        sequenceNumber: UInt16,
+        payload: Data?
+    ) -> Data {
         // Create data buffer.
         var data = Data()
 

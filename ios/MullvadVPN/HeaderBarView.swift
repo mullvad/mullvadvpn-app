@@ -82,17 +82,35 @@ class HeaderBarView: UIView {
             logoImageView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             logoImageView.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor),
             logoImageView.widthAnchor.constraint(equalToConstant: 44),
-            logoImageView.heightAnchor.constraint(equalTo: logoImageView.widthAnchor, multiplier: 1),
+            logoImageView.heightAnchor.constraint(
+                equalTo: logoImageView.widthAnchor,
+                multiplier: 1
+            ),
 
-            brandNameImageView.leadingAnchor.constraint(equalTo: logoImageView.trailingAnchor, constant: 9),
-            brandNameImageView.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor, constant: 22),
-            brandNameImageView.widthAnchor.constraint(equalTo: brandNameImageView.heightAnchor, multiplier: brandNameAspectRatio),
+            brandNameImageView.leadingAnchor.constraint(
+                equalTo: logoImageView.trailingAnchor,
+                constant: 9
+            ),
+            brandNameImageView.topAnchor.constraint(
+                equalTo: layoutMarginsGuide.topAnchor,
+                constant: 22
+            ),
+            brandNameImageView.widthAnchor.constraint(
+                equalTo: brandNameImageView.heightAnchor,
+                multiplier: brandNameAspectRatio
+            ),
             brandNameImageView.heightAnchor.constraint(equalToConstant: 18),
-            layoutMarginsGuide.bottomAnchor.constraint(equalTo: brandNameImageView.bottomAnchor, constant: 22),
+            layoutMarginsGuide.bottomAnchor.constraint(
+                equalTo: brandNameImageView.bottomAnchor,
+                constant: 22
+            ),
 
-            settingsButton.leadingAnchor.constraint(greaterThanOrEqualTo: brandNameImageView.trailingAnchor, constant: 8),
+            settingsButton.leadingAnchor.constraint(
+                greaterThanOrEqualTo: brandNameImageView.trailingAnchor,
+                constant: 8
+            ),
             settingsButton.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            settingsButton.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
+            settingsButton.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor),
         ]
 
         [logoImageView, brandNameImageView, settingsButton].forEach { addSubview($0) }

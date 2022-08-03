@@ -13,42 +13,41 @@ extension NEProviderStopReason: CustomStringConvertible {
     public var description: String {
         switch self {
         case .none:
-            return  "none"
+            return "none"
         case .userInitiated:
-            return  "user initiated"
+            return "user initiated"
         case .providerFailed:
-            return  "provider failed"
+            return "provider failed"
         case .noNetworkAvailable:
-            return  "no network available"
+            return "no network available"
         case .unrecoverableNetworkChange:
-            return  "unrecoverable network change"
+            return "unrecoverable network change"
         case .providerDisabled:
-            return  "provider disabled"
+            return "provider disabled"
         case .authenticationCanceled:
-            return  "authentication cancelled"
+            return "authentication cancelled"
         case .configurationFailed:
-            return  "configuration failed"
+            return "configuration failed"
         case .idleTimeout:
-            return  "idle timeout"
+            return "idle timeout"
         case .configurationDisabled:
-            return  "configuration disabled"
+            return "configuration disabled"
         case .configurationRemoved:
-            return  "configuration removed"
+            return "configuration removed"
         case .superceded:
-            return  "superceded"
+            return "superceded"
         case .userLogout:
-            return  "user logout"
+            return "user logout"
         case .userSwitch:
-            return  "user switch"
+            return "user switch"
         case .connectionFailed:
-            return  "connection failed"
+            return "connection failed"
         case .sleep:
-            return  "sleep"
+            return "sleep"
         case .appUpdate:
-            return  "app update"
+            return "app update"
         @unknown default:
-            return  "unknown value (\(self.rawValue))"
+            return "unknown value (\(rawValue))"
         }
     }
 }
-

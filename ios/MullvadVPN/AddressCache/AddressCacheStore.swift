@@ -10,7 +10,6 @@ import Foundation
 import Logging
 
 extension AddressCache {
-
     struct CachedAddresses: Codable {
         /// Date when the cached addresses were last updated.
         var updatedAt: Date
@@ -50,12 +49,20 @@ extension AddressCache {
     }
 
     class Store {
-
         static let shared: Store = {
             let cacheFilename = "api-ip-address.json"
-            let cacheDirectoryURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            let cacheFileURL = cacheDirectoryURL.appendingPathComponent(cacheFilename, isDirectory: false)
-            let prebundledCacheFileURL = Bundle.main.url(forResource: cacheFilename, withExtension: nil)!
+            let cacheDirectoryURL = FileManager.default.urls(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask
+            ).first!
+            let cacheFileURL = cacheDirectoryURL.appendingPathComponent(
+                cacheFilename,
+                isDirectory: false
+            )
+            let prebundledCacheFileURL = Bundle.main.url(
+                forResource: cacheFilename,
+                withExtension: nil
+            )!
 
             return Store(
                 cacheFileURL: cacheFileURL,
@@ -67,7 +74,7 @@ extension AddressCache {
             return CachedAddresses(
                 updatedAt: Date(timeIntervalSince1970: 0),
                 endpoints: [
-                    ApplicationConfiguration.defaultAPIEndpoint
+                    ApplicationConfiguration.defaultAPIEndpoint,
                 ]
             )
         }
@@ -154,7 +161,10 @@ extension AddressCache {
 
             currentEndpoint = cachedAddresses.endpoints.first!
 
-            logger.debug("Failed to communicate using \(failedEndpoint). Next endpoint: \(currentEndpoint)")
+            logger
+                .debug(
+                    "Failed to communicate using \(failedEndpoint). Next endpoint: \(currentEndpoint)"
+                )
 
             do {
                 try writeToDisk()
@@ -216,8 +226,7 @@ extension AddressCache {
             cacheFileURL: URL,
             prebundledCacheFileURL: URL,
             logger: Logger
-        ) throws -> ReadResult
-        {
+        ) throws -> ReadResult {
             do {
                 let readResult = ReadResult(
                     cachedAddresses: try readFromCacheLocation(cacheFileURL),
@@ -265,7 +274,9 @@ extension AddressCache {
             return try JSONDecoder().decode(CachedAddresses.self, from: data)
         }
 
-        private static func readFromBundle(_ prebundledCacheFileURL: URL) throws -> CachedAddresses {
+        private static func readFromBundle(_ prebundledCacheFileURL: URL) throws
+            -> CachedAddresses
+        {
             let data = try Data(contentsOf: prebundledCacheFileURL)
             let endpoints = try JSONDecoder().decode([AnyIPEndpoint].self, from: data)
 
@@ -287,6 +298,5 @@ extension AddressCache {
             let data = try JSONEncoder().encode(cachedAddresses)
             try data.write(to: cacheFileURL, options: .atomic)
         }
-
     }
 }

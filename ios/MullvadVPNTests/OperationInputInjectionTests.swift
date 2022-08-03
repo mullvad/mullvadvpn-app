@@ -9,7 +9,6 @@
 import XCTest
 
 class OperationInputInjectionTests: XCTestCase {
-
     func testInject() throws {
         let provider = ResultBlockOperation<Int, Error> {
             return 1
@@ -86,5 +85,4 @@ class OperationInputInjectionTests: XCTestCase {
 
         XCTAssertEqual(consumer.output, "3")
     }
-
 }

@@ -11,7 +11,6 @@ import XCTest
 private let kSampleToken = "12345678"
 
 class AccountTokenInputTests: XCTestCase {
-
     func testInitialValue() {
         let input = AccountTokenInput(string: kSampleToken)
 
@@ -33,7 +32,8 @@ class AccountTokenInputTests: XCTestCase {
         input.replaceCharacters(
             in: input.formattedString.range(withOffset: 4, length: 1),
             replacementString: "",
-            emptySelection: true)
+            emptySelection: true
+        )
 
         XCTAssertEqual(input.formattedString, "1235 678")
         XCTAssertEqual(input.caretPosition, 3)
@@ -45,7 +45,8 @@ class AccountTokenInputTests: XCTestCase {
         input.replaceCharacters(
             in: input.formattedString.range(withOffset: 4, length: 1),
             replacementString: "",
-            emptySelection: false)
+            emptySelection: false
+        )
 
         XCTAssertEqual(input.formattedString, "1234 5678")
         XCTAssertEqual(input.caretPosition, 4)
@@ -57,7 +58,8 @@ class AccountTokenInputTests: XCTestCase {
         input.replaceCharacters(
             in: input.formattedString.range(withOffset: 7, length: 2),
             replacementString: "",
-            emptySelection: false)
+            emptySelection: false
+        )
 
         XCTAssertEqual(input.formattedString, "1234 56")
         XCTAssertEqual(input.caretPosition, 7)
@@ -69,7 +71,8 @@ class AccountTokenInputTests: XCTestCase {
         input.replaceCharacters(
             in: input.formattedString.range(withOffset: 5, length: 0),
             replacementString: "0000",
-            emptySelection: true)
+            emptySelection: true
+        )
 
         XCTAssertEqual(input.formattedString, "1234 0000 5678")
         XCTAssertEqual(input.caretPosition, 9)
@@ -81,12 +84,12 @@ class AccountTokenInputTests: XCTestCase {
         input.replaceCharacters(
             in: input.formattedString.range(withOffset: 5, length: 4),
             replacementString: "0000",
-            emptySelection: false)
+            emptySelection: false
+        )
 
         XCTAssertEqual(input.formattedString, "1234 0000")
         XCTAssertEqual(input.caretPosition, 9)
     }
-
 }
 
 private extension String {

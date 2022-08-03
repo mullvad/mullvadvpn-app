@@ -20,9 +20,9 @@ enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
 
     private var innerAddress: IPAddress {
         switch self {
-        case .ipv4(let ipv4Address):
+        case let .ipv4(ipv4Address):
             return ipv4Address
-        case .ipv6(let ipv6Address):
+        case let .ipv6(ipv6Address):
             return ipv6Address
         }
     }
@@ -39,7 +39,11 @@ enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
         } else if container.contains(.ipv6) {
             self = .ipv6(try container.decode(IPv6Address.self, forKey: .ipv6))
         } else {
-            throw DecodingError.dataCorruptedError(forKey: .ipv4, in: container, debugDescription: "Invalid AnyIPAddress representation")
+            throw DecodingError.dataCorruptedError(
+                forKey: .ipv4,
+                in: container,
+                debugDescription: "Invalid AnyIPAddress representation"
+            )
         }
     }
 
@@ -47,9 +51,9 @@ enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         switch self {
-        case .ipv4(let ipv4Address):
+        case let .ipv4(ipv4Address):
             try container.encode(ipv4Address, forKey: .ipv4)
-        case .ipv6(let ipv6Address):
+        case let .ipv6(ipv6Address):
             try container.encode(ipv6Address, forKey: .ipv6)
         }
     }
@@ -92,9 +96,9 @@ enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
 
     var debugDescription: String {
         switch self {
-        case .ipv4(let ipv4Address):
+        case let .ipv4(ipv4Address):
             return "\(ipv4Address)"
-        case .ipv6(let ipv6Address):
+        case let .ipv6(ipv6Address):
             return "\(ipv6Address)"
         }
     }

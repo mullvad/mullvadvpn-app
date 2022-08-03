@@ -9,7 +9,6 @@
 import UIKit
 
 class AccountTextField: CustomTextField, UITextFieldDelegate {
-
     private let input = AccountTokenInput()
 
     var onReturnKey: ((AccountTextField) -> Bool)?
@@ -49,7 +48,7 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
         return input.parsedString
     }
 
-    var enableReturnKey: Bool = true {
+    var enableReturnKey = true {
         didSet {
             updateKeyboardReturnKey()
         }
@@ -66,8 +65,16 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
 
     // MARK: - UITextFieldDelegate
 
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        return input.textField(textField, shouldChangeCharactersIn: range, replacementString: string)
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        return input.textField(
+            textField,
+            shouldChangeCharactersIn: range,
+            replacementString: string
+        )
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -77,7 +84,7 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
     // MARK: - Notifications
 
     @objc private func keyboardWillShow(_ notification: Notification) {
-        if self.isFirstResponder {
+        if isFirstResponder {
             updateKeyboardReturnKey()
         }
     }
@@ -90,7 +97,7 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
 
     private func setEnableKeyboardReturnKey(_ enableReturnKey: Bool) {
         let selector = NSSelectorFromString("setReturnKeyEnabled:")
-        if let inputDelegate = self.inputDelegate as? NSObject, inputDelegate.responds(to: selector) {
+        if let inputDelegate = inputDelegate as? NSObject, inputDelegate.responds(to: selector) {
             inputDelegate.setValue(enableReturnKey, forKey: "returnKeyEnabled")
         }
     }
@@ -102,12 +109,11 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
             super.accessibilityValue = newValue
         }
         get {
-            if self.text?.isEmpty ?? true {
+            if text?.isEmpty ?? true {
                 return ""
             } else {
                 return super.accessibilityValue
             }
         }
     }
-
 }

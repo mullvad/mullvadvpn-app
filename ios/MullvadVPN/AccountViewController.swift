@@ -6,9 +6,9 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
+import Logging
 import StoreKit
 import UIKit
-import Logging
 
 protocol AccountViewControllerDelegate: AnyObject {
     func accountViewControllerDidLogout(_ controller: AccountViewController)
@@ -29,21 +29,22 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
     weak var delegate: AccountViewControllerDelegate?
 
     private lazy var purchaseButtonInteractionRestriction =
-        UserInterfaceInteractionRestriction { [weak self] (enableUserInteraction, _) in
+        UserInterfaceInteractionRestriction { [weak self] enableUserInteraction, _ in
             // Make sure to disable the button if the product is not loaded
             self?.contentView.purchaseButton.isEnabled = enableUserInteraction &&
                 self?.product != nil &&
                 AppStorePaymentManager.canMakePayments
-    }
+        }
 
     private lazy var viewControllerInteractionRestriction =
-        UserInterfaceInteractionRestriction { [weak self] (enableUserInteraction, animated) in
+        UserInterfaceInteractionRestriction { [weak self] enableUserInteraction, animated in
             self?.setEnableUserInteraction(enableUserInteraction, animated: true)
-    }
+        }
 
     private lazy var compoundInteractionRestriction =
         CompoundUserInterfaceInteractionRestriction(restrictions: [
-            purchaseButtonInteractionRestriction, viewControllerInteractionRestriction])
+            purchaseButtonInteractionRestriction, viewControllerInteractionRestriction,
+        ])
 
     private var product: SKProduct?
 
@@ -70,7 +71,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.bottomAnchor.constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
+            contentView.bottomAnchor
+                .constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
@@ -87,8 +89,16 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             self?.copyAccountToken()
         }
 
-        contentView.restorePurchasesButton.addTarget(self, action: #selector(restorePurchases), for: .touchUpInside)
-        contentView.purchaseButton.addTarget(self, action: #selector(doPurchase), for: .touchUpInside)
+        contentView.restorePurchasesButton.addTarget(
+            self,
+            action: #selector(restorePurchases),
+            for: .touchUpInside
+        )
+        contentView.purchaseButton.addTarget(
+            self,
+            action: #selector(doPurchase),
+            for: .touchUpInside
+        )
         contentView.logoutButton.addTarget(self, action: #selector(doLogout), for: .touchUpInside)
 
         AppStorePaymentManager.shared.addPaymentObserver(self)
@@ -107,7 +117,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
     // MARK: - Private methods
 
     private func updateView(from deviceState: DeviceState?) {
-        guard case .loggedIn(let accountData, let deviceData) = deviceState else {
+        guard case let .loggedIn(accountData, deviceData) = deviceState else {
             return
         }
 
@@ -124,25 +134,26 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
         purchaseButtonInteractionRestriction.increase(animated: true)
 
-        _ = AppStorePaymentManager.shared.requestProducts(with: [inAppPurchase]) { [weak self] completion in
-            guard let self = self else { return }
+        _ = AppStorePaymentManager.shared
+            .requestProducts(with: [inAppPurchase]) { [weak self] completion in
+                guard let self = self else { return }
 
-            switch completion {
-            case .success(let response):
-                if let product = response.products.first {
-                    self.setProduct(product, animated: true)
+                switch completion {
+                case let .success(response):
+                    if let product = response.products.first {
+                        self.setProduct(product, animated: true)
+                    }
+
+                case let .failure(error):
+                    self.didFailLoadingProducts(with: error)
+
+                case .cancelled:
+                    break
                 }
 
-            case .failure(let error):
-                self.didFailLoadingProducts(with: error)
-
-            case .cancelled:
-                break
+                self.contentView.purchaseButton.isLoading = false
+                self.purchaseButtonInteractionRestriction.decrease(animated: true)
             }
-
-            self.contentView.purchaseButton.isLoading = false
-            self.purchaseButtonInteractionRestriction.decrease(animated: true)
-        }
     }
 
     private func setProduct(_ product: SKProduct, animated: Bool) {
@@ -187,7 +198,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     private func setEnableUserInteraction(_ enableUserInteraction: Bool, animated: Bool) {
         // Disable all buttons
-        [contentView.restorePurchasesButton, contentView.logoutButton].forEach { (button) in
+        [contentView.restorePurchasesButton, contentView.logoutButton].forEach { button in
             button?.isEnabled = enableUserInteraction
         }
 
@@ -214,8 +225,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     private func showTimeAddedConfirmationAlert(
         with response: REST.CreateApplePaymentResponse,
-        context: REST.CreateApplePaymentResponse.Context)
-    {
+        context: REST.CreateApplePaymentResponse.Context
+    ) {
         let alertController = UIAlertController(
             title: response.alertTitle(context: context),
             message: response.alertMessage(context: context),
@@ -262,9 +273,10 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
                     comment: ""
                 ),
                 style: .cancel,
-                handler: { (alertAction) in
+                handler: { alertAction in
                     completion(false)
-            })
+                }
+            )
         )
 
         alertController.addAction(
@@ -276,9 +288,10 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
                     comment: ""
                 ),
                 style: .destructive,
-                handler: { (alertAction) in
+                handler: { alertAction in
                     completion(true)
-            })
+                }
+            )
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)
@@ -323,7 +336,10 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+    func tunnelManager(
+        _ manager: TunnelManager,
+        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
+    ) {
         // no-op
     }
 
@@ -333,7 +349,13 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     // MARK: - AppStorePaymentObserver
 
-    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction?, payment: SKPayment, accountToken: String?, didFailWithError error: AppStorePaymentManager.Error) {
+    func appStorePaymentManager(
+        _ manager: AppStorePaymentManager,
+        transaction: SKPaymentTransaction?,
+        payment: SKPayment,
+        accountToken: String?,
+        didFailWithError error: AppStorePaymentManager.Error
+    ) {
         let alertController = UIAlertController(
             title: NSLocalizedString(
                 "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
@@ -352,7 +374,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
                     tableName: "Account",
                     value: "OK",
                     comment: ""
-                ), style: .cancel)
+                ), style: .cancel
+            )
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)
@@ -362,14 +385,18 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         }
     }
 
-    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: REST.CreateApplePaymentResponse) {
+    func appStorePaymentManager(
+        _ manager: AppStorePaymentManager,
+        transaction: SKPaymentTransaction,
+        accountToken: String,
+        didFinishWithResponse response: REST.CreateApplePaymentResponse
+    ) {
         showTimeAddedConfirmationAlert(with: response, context: .purchase)
 
         if transaction.payment == pendingPayment {
             compoundInteractionRestriction.decrease(animated: true)
         }
     }
-
 
     // MARK: - Actions
 
@@ -391,7 +418,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     @objc private func doPurchase() {
         guard let accountData = TunnelManager.shared.deviceState.accountData,
-              let product = product else {
+              let product = product
+        else {
             return
         }
 
@@ -412,10 +440,10 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
         _ = AppStorePaymentManager.shared.restorePurchases(for: accountData.number) { completion in
             switch completion {
-            case .success(let response):
+            case let .success(response):
                 self.showTimeAddedConfirmationAlert(with: response, context: .restoration)
 
-            case .failure(let error):
+            case let .failure(error):
                 let alertController = UIAlertController(
                     title: NSLocalizedString(
                         "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
@@ -443,11 +471,9 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             self.compoundInteractionRestriction.decrease(animated: true)
         }
     }
-
 }
 
 private extension REST.CreateApplePaymentResponse {
-
     enum Context {
         case purchase
         case restoration

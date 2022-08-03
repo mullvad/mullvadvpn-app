@@ -9,7 +9,6 @@
 import Foundation
 
 protocol TunnelInteractor {
-
     // MARK: - Tunnel manipulation
 
     var tunnel: Tunnel? { get }

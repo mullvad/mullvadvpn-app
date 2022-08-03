@@ -77,7 +77,7 @@ class OperationConditionTests: XCTestCase {
         let expectToNeverExecute = expectation(description: "Expect child to never execute.")
         expectToNeverExecute.isInverted = true
 
-        let parent = ResultBlockOperation<(), URLError> {
+        let parent = ResultBlockOperation<Void, URLError> {
             throw URLError(.badURL)
         }
 
@@ -140,5 +140,4 @@ class OperationConditionTests: XCTestCase {
         let expectations = [expectFirstOperationExecution, expectSecondOperationExecution]
         wait(for: expectations, timeout: 2, enforceOrder: true)
     }
-
 }

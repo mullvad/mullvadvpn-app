@@ -26,7 +26,6 @@ enum SettingsDisclosureType {
 }
 
 class SettingsCell: UITableViewCell {
-
     let titleLabel = UILabel()
     let detailTitleLabel = UILabel()
     let disclosureImageView = UIImageView(image: nil)
@@ -83,15 +82,23 @@ class SettingsCell: UITableViewCell {
         setLayoutMargins()
 
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
+            titleLabel.leadingAnchor
+                .constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
             titleLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
+            titleLabel.bottomAnchor
+                .constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
 
-            detailTitleLabel.leadingAnchor.constraint(greaterThanOrEqualToSystemSpacingAfter: titleLabel.trailingAnchor, multiplier: 1),
+            detailTitleLabel.leadingAnchor.constraint(
+                greaterThanOrEqualToSystemSpacingAfter: titleLabel.trailingAnchor,
+                multiplier: 1
+            ),
 
-            detailTitleLabel.trailingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
-            detailTitleLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            detailTitleLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
+            detailTitleLabel.trailingAnchor
+                .constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
+            detailTitleLabel.topAnchor
+                .constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
+            detailTitleLabel.bottomAnchor
+                .constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
         ])
     }
 
@@ -134,7 +141,9 @@ class SettingsCell: UITableViewCell {
         for subview in subviews {
             // Detect the edit control and move it, so that the nested image view is aligned along the left edge of the
             // layout margins.
-            if subview.description.starts(with: "<UITableViewCellEditControl"), let imageView = subview.subviews.first {
+            if subview.description.starts(with: "<UITableViewCellEditControl"),
+               let imageView = subview.subviews.first
+            {
                 let imageOffset = imageView.frame.minX
                 var pos = subview.frame.origin
                 pos.x = layoutMargins.left - imageOffset

@@ -18,8 +18,7 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
     convenience init(
         dispatchQueue: DispatchQueue? = nil,
         executionBlock: ExecutionBlock? = nil
-    )
-    {
+    ) {
         self.init(
             dispatchQueue: dispatchQueue,
             executionBlock: executionBlock,
@@ -31,8 +30,7 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
     convenience init(
         dispatchQueue: DispatchQueue? = nil,
         executionBlock: @escaping ThrowingExecutionBlock
-    )
-    {
+    ) {
         self.init(
             dispatchQueue: dispatchQueue,
             executionBlock: Self.wrapThrowingBlock(executionBlock),
@@ -46,8 +44,7 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
         executionBlock: ExecutionBlock?,
         completionQueue: DispatchQueue?,
         completionHandler: CompletionHandler?
-    )
-    {
+    ) {
         self.executionBlock = executionBlock
 
         super.init(
@@ -99,7 +96,9 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
         }
     }
 
-    private class func wrapThrowingBlock(_ executionBlock: @escaping ThrowingExecutionBlock) -> ExecutionBlock {
+    private class func wrapThrowingBlock(_ executionBlock: @escaping ThrowingExecutionBlock)
+        -> ExecutionBlock
+    {
         return { operation in
             do {
                 let value = try executionBlock()
@@ -113,4 +112,3 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
         }
     }
 }
-

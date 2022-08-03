@@ -10,21 +10,29 @@ import Foundation
 import Logging
 
 func initLoggingSystem(bundleIdentifier: String, metadata: Logger.Metadata? = nil) {
-    let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier)!
+    let containerURL = FileManager.default
+        .containerURL(
+            forSecurityApplicationGroupIdentifier: ApplicationConfiguration
+                .securityGroupIdentifier
+        )!
     let logsDirectoryURL = containerURL.appendingPathComponent("Logs", isDirectory: true)
     let logFileName = "\(bundleIdentifier).log"
     let logFileURL = logsDirectoryURL.appendingPathComponent(logFileName)
 
     // Create Logs folder within container if it doesn't exist
-    try? FileManager.default.createDirectory(at: logsDirectoryURL, withIntermediateDirectories: false, attributes: nil)
+    try? FileManager.default.createDirectory(
+        at: logsDirectoryURL,
+        withIntermediateDirectories: false,
+        attributes: nil
+    )
 
     // Rotate log
     var logRotationError: Error?
     do {
         try LogRotation.rotateLog(
-           logsDirectory: logsDirectoryURL,
-           logFileName: logFileName
-       )
+            logsDirectory: logsDirectoryURL,
+            logFileName: logFileName
+        )
     } catch {
         logRotationError = error
     }
@@ -38,11 +46,11 @@ func initLoggingSystem(bundleIdentifier: String, metadata: Logger.Metadata? = ni
     }
 
     // Configure Logging system
-    LoggingSystem.bootstrap { (label) -> LogHandler in
+    LoggingSystem.bootstrap { label -> LogHandler in
         var logHandlers: [LogHandler] = []
 
         #if DEBUG
-        logHandlers.append(OSLogHandler(subsystem: bundleIdentifier, category: label))
+            logHandlers.append(OSLogHandler(subsystem: bundleIdentifier, category: label))
         #endif
 
         if !streams.isEmpty {

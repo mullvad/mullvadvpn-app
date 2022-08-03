@@ -16,7 +16,10 @@ extension IPv4Address: Codable {
         if let decoded = IPv4Address(ipString) {
             self = decoded
         } else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid IPv4 representation")
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Invalid IPv4 representation"
+            )
         }
     }
 
@@ -35,7 +38,10 @@ extension IPv6Address: Codable {
         if let decoded = IPv6Address(ipString) {
             self = decoded
         } else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid IPv6 representation")
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Invalid IPv6 representation"
+            )
         }
     }
 

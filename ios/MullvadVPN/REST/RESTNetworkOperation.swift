@@ -36,16 +36,15 @@ extension REST {
             requestHandler: AnyRequestHandler,
             responseHandler: AnyResponseHandler<Success>,
             completionHandler: @escaping CompletionHandler
-        )
-        {
-            self.urlSession = configuration.session
-            self.addressCacheStore = configuration.addressCacheStore
+        ) {
+            urlSession = configuration.session
+            addressCacheStore = configuration.addressCacheStore
             self.retryStrategy = retryStrategy
             self.requestHandler = requestHandler
             self.responseHandler = responseHandler
 
             var logger = Logger(label: "REST.NetworkOperation")
-            logger[metadataKey: "name"] =  .string(name)
+            logger[metadataKey: "name"] = .string(name)
             self.logger = logger
 
             super.init(
@@ -87,10 +86,10 @@ extension REST {
             authorizationTask = authorizationProvider.getAuthorization { completion in
                 self.dispatchQueue.async {
                     switch completion {
-                    case .success(let authorization):
+                    case let .success(authorization):
                         self.didReceiveAuthorization(authorization)
 
-                    case .failure(let error):
+                    case let .failure(error):
                         self.didFailToRequestAuthorization(error)
 
                     case .cancelled:
@@ -108,7 +107,7 @@ extension REST {
                 return
             }
 
-            let endpoint = self.addressCacheStore.getCurrentEndpoint()
+            let endpoint = addressCacheStore.getCurrentEndpoint()
 
             do {
                 let request = try requestHandler.createURLRequest(
@@ -136,24 +135,28 @@ extension REST {
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            logger.debug("Send request to \(restRequest.pathTemplate.templateString) via \(endpoint).")
+            logger
+                .debug(
+                    "Send request to \(restRequest.pathTemplate.templateString) via \(endpoint)."
+                )
 
-            networkTask = urlSession.dataTask(with: restRequest.urlRequest) { [weak self] data, response, error in
-                guard let self = self else { return }
+            networkTask = urlSession
+                .dataTask(with: restRequest.urlRequest) { [weak self] data, response, error in
+                    guard let self = self else { return }
 
-                self.dispatchQueue.async {
-                    if let error = error {
-                        let urlError = error as! URLError
+                    self.dispatchQueue.async {
+                        if let error = error {
+                            let urlError = error as! URLError
 
-                        self.didReceiveURLError(urlError, endpoint: endpoint)
-                    } else {
-                        let httpResponse = response as! HTTPURLResponse
-                        let data = data ?? Data()
+                            self.didReceiveURLError(urlError, endpoint: endpoint)
+                        } else {
+                            let httpResponse = response as! HTTPURLResponse
+                            let data = data ?? Data()
 
-                        self.didReceiveURLResponse(httpResponse, data: data, endpoint: endpoint)
+                            self.didReceiveURLResponse(httpResponse, data: data, endpoint: endpoint)
+                        }
                     }
                 }
-            }
 
             networkTask?.resume()
         }
@@ -225,7 +228,11 @@ extension REST {
             retryTimer = timer
         }
 
-        private func didReceiveURLResponse(_ response: HTTPURLResponse, data: Data, endpoint: AnyIPEndpoint) {
+        private func didReceiveURLResponse(
+            _ response: HTTPURLResponse,
+            data: Data,
+            endpoint: AnyIPEndpoint
+        ) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             logger.debug("Response: \(response.statusCode).")
@@ -233,11 +240,11 @@ extension REST {
             let handlerResult = responseHandler.handleURLResponse(response, data: data)
 
             switch handlerResult {
-            case .success(let output):
+            case let .success(output):
                 // Response handler produced value.
                 finish(completion: .success(output))
 
-            case .decoding(let decoderBlock):
+            case let .decoding(decoderBlock):
                 // Response handler returned a block decoding value.
                 let decodeResult = Result { try decoderBlock() }
                     .mapError { error -> REST.Error in
@@ -245,11 +252,11 @@ extension REST {
                     }
                 finish(completion: OperationCompletion(result: decodeResult))
 
-            case .unhandledResponse(let serverErrorResponse):
+            case let .unhandledResponse(serverErrorResponse):
                 // Response handler couldn't handle the response.
                 if serverErrorResponse?.code == .invalidAccessToken,
-                    requiresAuthorization,
-                    retryInvalidAccessTokenError
+                   requiresAuthorization,
+                   retryInvalidAccessTokenError
                 {
                     logger.debug("Received invalid access token error. Retry once.")
                     retryInvalidAccessTokenError = false
@@ -264,5 +271,4 @@ extension REST {
             }
         }
     }
-
 }

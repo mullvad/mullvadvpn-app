@@ -52,8 +52,7 @@ extension REST {
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<AccountData>
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
                     var requestBuilder = try self.requestFactory.createRequestBuilder(

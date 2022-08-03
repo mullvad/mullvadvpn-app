@@ -10,7 +10,6 @@ import Foundation
 import UIKit
 
 class SelectLocationNavigationController: UINavigationController {
-
     override var childForStatusBarStyle: UIViewController? {
         return topViewController
     }

@@ -9,7 +9,6 @@
 import UIKit
 
 class CustomSplitViewController: UISplitViewController, RootContainment {
-
     var preferredHeaderBarPresentation: HeaderBarPresentation {
         for case let viewController as RootContainment in viewControllers {
             return viewController.preferredHeaderBarPresentation
@@ -60,11 +59,11 @@ class CustomSplitViewController: UISplitViewController, RootContainment {
     }
 
     private var dividerView: UIView? {
-        let subviews = view.subviews.flatMap { (view) -> [UIView] in
+        let subviews = view.subviews.flatMap { view -> [UIView] in
             return [view] + view.subviews
         }
 
-        return subviews.first { (view) -> Bool in
+        return subviews.first { view -> Bool in
             return view.description.hasPrefix("<UIPanelBorderView")
         }
     }
@@ -75,18 +74,23 @@ class CustomSplitViewController: UISplitViewController, RootContainment {
         dividerView?.backgroundColor = dividerColor
     }
 
-    override func overrideTraitCollection(forChild childViewController: UIViewController) -> UITraitCollection? {
-        guard let traitCollection = super.overrideTraitCollection(forChild: childViewController) else { return nil }
+    override func overrideTraitCollection(forChild childViewController: UIViewController)
+        -> UITraitCollection?
+    {
+        guard let traitCollection = super.overrideTraitCollection(forChild: childViewController)
+        else { return nil }
 
         // Pass the split controller's horizontal size class to the primary controller when split
         // view is expanded.
-        if !self.isCollapsed, childViewController == self.viewControllers.last {
-            let sizeOverrideTraitCollection = UITraitCollection(horizontalSizeClass: self.traitCollection.horizontalSizeClass)
+        if !isCollapsed, childViewController == viewControllers.last {
+            let sizeOverrideTraitCollection = UITraitCollection(
+                horizontalSizeClass: self
+                    .traitCollection.horizontalSizeClass
+            )
 
             return UITraitCollection(traitsFrom: [traitCollection, sizeOverrideTraitCollection])
         } else {
             return traitCollection
         }
     }
-
 }

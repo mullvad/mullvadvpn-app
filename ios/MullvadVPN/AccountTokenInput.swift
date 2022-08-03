@@ -11,8 +11,7 @@ import UIKit
 
 /// A class describing the account token input and caret management.
 /// Suitable to be used with `UITextField`.
-class AccountTokenInput: NSObject
-{
+class AccountTokenInput: NSObject {
     /// The group separator character
     static let groupSeparator: Character = " "
 
@@ -41,7 +40,8 @@ class AccountTokenInput: NSObject
         replaceCharacters(
             in: stringRange,
             replacementString: replacementString,
-            emptySelection: false)
+            emptySelection: false
+        )
     }
 
     /// Replace characters in range maintaining the caret position
@@ -52,15 +52,16 @@ class AccountTokenInput: NSObject
     ///                             This is normally the default state unless a text range is
     ///                             selected.
     ///
-    func replaceCharacters(in range: Range<String.Index>,
-                           replacementString: String,
-                           emptySelection: Bool)
-    {
+    func replaceCharacters(
+        in range: Range<String.Index>,
+        replacementString: String,
+        emptySelection: Bool
+    ) {
         var stringRange = range
 
         // Since removing separator alone makes no sense, this computation extends the string range
         // to include the digit preceding a separator.
-        if replacementString.isEmpty && emptySelection && !formattedString.isEmpty  {
+        if replacementString.isEmpty, emptySelection, !formattedString.isEmpty {
             let precedingDigitIndex = formattedString
                 .prefix(through: stringRange.lowerBound)
                 .lastIndex { Self.isDigit($0) } ?? formattedString.startIndex
@@ -69,8 +70,10 @@ class AccountTokenInput: NSObject
         }
 
         // Replace the given range within a formatted string
-        let newString = formattedString.replacingCharacters(in: stringRange,
-                                                            with: replacementString)
+        let newString = formattedString.replacingCharacters(
+            in: stringRange,
+            with: replacementString
+        )
 
         // Number of digits within a string
         var numDigits = 0
@@ -102,7 +105,7 @@ class AccountTokenInput: NSObject
             }
 
             // Add separator between the groups of digits
-            if numDigits > 0 && numDigits % Self.groupSize == 0 {
+            if numDigits > 0, numDigits % Self.groupSize == 0 {
                 reformattedString.append(Self.groupSeparator)
 
                 if originalCaretPosition > index {
@@ -124,17 +127,15 @@ class AccountTokenInput: NSObject
 
     private class func isDigit(_ character: Character) -> Bool {
         switch character {
-        case "0"..."9":
+        case "0" ... "9":
             return true
         default:
             return false
         }
     }
-
 }
 
 extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
-
     /// Update the text and caret position in the given text field
     func updateTextField(_ textField: UITextField) {
         updateTextField(textField, notifyDelegate: false)
@@ -142,14 +143,19 @@ extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
 
     // MARK: - UITextFieldDelegate
 
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         let emptySelection = textField.selectedTextRange?.isEmpty ?? false
         let stringRange = Range(range, in: formattedString)!
 
         replaceCharacters(
             in: stringRange,
             replacementString: string,
-            emptySelection: emptySelection)
+            emptySelection: emptySelection
+        )
 
         updateTextField(textField, notifyDelegate: true)
 
@@ -161,8 +167,8 @@ extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
     func textPasteConfigurationSupporting(
         _ textPasteConfigurationSupporting: UITextPasteConfigurationSupporting,
         performPasteOf attributedString: NSAttributedString,
-        to textRange: UITextRange) -> UITextRange
-    {
+        to textRange: UITextRange
+    ) -> UITextRange {
         guard let textField = textPasteConfigurationSupporting as? UITextField else {
             return textRange
         }
@@ -176,7 +182,8 @@ extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
         replaceCharacters(
             in: stringRange,
             replacementString: attributedString.string,
-            emptySelection: textRange.isEmpty)
+            emptySelection: textRange.isEmpty
+        )
         updateTextField(textField, notifyDelegate: true)
 
         return caretTextRange(in: textField)!
@@ -196,7 +203,8 @@ extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
     private func caretTextRange(in textField: UITextField) -> UITextRange? {
         guard let position = textField.position(
             from: textField.beginningOfDocument,
-            offset: caretPositionUtf16) else { return nil }
+            offset: caretPositionUtf16
+        ) else { return nil }
 
         return textField.textRange(from: position, to: position)
     }
@@ -213,10 +221,10 @@ extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
     }
 
     /// Post `UITextField.textDidChange` notification
-    class private func notifyTextDidChange(in textField: UITextField) {
+    private class func notifyTextDidChange(in textField: UITextField) {
         NotificationCenter.default.post(
             name: UITextField.textDidChangeNotification,
-            object: textField)
+            object: textField
+        )
     }
 }
-

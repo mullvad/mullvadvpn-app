@@ -10,7 +10,8 @@ import Foundation
 import UIKit
 
 class AlertPresenter {
-    static let alertControllerDidDismissNotification = Notification.Name("UIAlertControllerDidDismiss")
+    static let alertControllerDidDismissNotification = Notification
+        .Name("UIAlertControllerDidDismiss")
 
     private let operationQueue: OperationQueue = {
         let operationQueue = AsyncOperationQueue()
@@ -23,14 +24,22 @@ class AlertPresenter {
         /// Swizzle `viewDidDisappear` on `UIAlertController` in order to be able to
         /// detect when the controller disappears.
         /// The event is broadcasted via `AlertPresenter.alertControllerDidDismissNotification` notification.
-        swizzleMethod(aClass: UIAlertController.self, originalSelector: #selector(UIAlertController.viewDidDisappear(_:)), newSelector: #selector(UIAlertController.alertPresenter_viewDidDisappear(_:)))
+        swizzleMethod(
+            aClass: UIAlertController.self,
+            originalSelector: #selector(UIAlertController.viewDidDisappear(_:)),
+            newSelector: #selector(UIAlertController.alertPresenter_viewDidDisappear(_:))
+        )
     }()
 
     init() {
         _ = Self.initClass
     }
 
-    func enqueue(_ alertController: UIAlertController, presentingController: UIViewController, presentCompletion: (() -> Void)? = nil) {
+    func enqueue(
+        _ alertController: UIAlertController,
+        presentingController: UIViewController,
+        presentCompletion: (() -> Void)? = nil
+    ) {
         let operation = PresentAlertOperation(
             alertController: alertController,
             presentingController: presentingController,
@@ -43,16 +52,18 @@ class AlertPresenter {
     func cancelAll() {
         operationQueue.cancelAllOperations()
     }
-
 }
 
-fileprivate extension UIAlertController {
+private extension UIAlertController {
     @objc dynamic func alertPresenter_viewDidDisappear(_ animated: Bool) {
         // Call super implementation
         alertPresenter_viewDidDisappear(animated)
 
         if presentingViewController == nil {
-            NotificationCenter.default.post(name: AlertPresenter.alertControllerDidDismissNotification, object: self)
+            NotificationCenter.default.post(
+                name: AlertPresenter.alertControllerDidDismissNotification,
+                object: self
+            )
         }
     }
 }

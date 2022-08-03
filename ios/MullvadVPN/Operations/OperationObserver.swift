@@ -30,8 +30,7 @@ class OperationBlockObserver<OperationType: Operation>: OperationObserver {
         didStart: VoidBlock? = nil,
         didCancel: VoidBlock? = nil,
         didFinish: FinishBlock? = nil
-    )
-    {
+    ) {
         _didAttach = didAttach
         _didStart = didStart
         _didCancel = didCancel

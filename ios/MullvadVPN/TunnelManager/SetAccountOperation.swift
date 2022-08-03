@@ -7,9 +7,9 @@
 //
 
 import Foundation
-import class WireGuardKitTypes.PublicKey
-import class WireGuardKitTypes.PrivateKey
 import Logging
+import class WireGuardKitTypes.PrivateKey
+import class WireGuardKitTypes.PublicKey
 
 enum SetAccountAction {
     /// Set new account.
@@ -47,9 +47,10 @@ private struct SetAccountContext: OperationInputContext {
     func reduce() -> SetAccountResult? {
         guard let accountData = accountData,
               let privateKey = privateKey,
-              let device = device else {
-                  return nil
-              }
+              let device = device
+        else {
+            return nil
+        }
 
         return SetAccountResult(
             accountData: accountData,
@@ -76,8 +77,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
         accountsProxy: REST.AccountsProxy,
         devicesProxy: REST.DevicesProxy,
         action: SetAccountAction
-    )
-    {
+    ) {
         self.interactor = interactor
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
@@ -88,7 +88,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
 
     override func main() {
         var deleteDeviceOperation: AsyncOperation?
-        if case .loggedIn(let accountData, let deviceData) = interactor.deviceState {
+        if case let .loggedIn(accountData, deviceData) = interactor.deviceState {
             let operation = getDeleteDeviceOperation(
                 accounNumber: accountData.number,
                 deviceIdentifier: deviceData.identifier
@@ -187,7 +187,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
         case .new:
             return getCreateAccountOperation()
 
-        case .existing(let accountNumber):
+        case let .existing(accountNumber):
             return getExistingAccountOperation(accountNumber: accountNumber)
 
         case .unset:

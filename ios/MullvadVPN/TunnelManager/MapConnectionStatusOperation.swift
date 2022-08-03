@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import NetworkExtension
 import Logging
+import NetworkExtension
 
 class MapConnectionStatusOperation: AsyncOperation {
     private let interactor: TunnelInteractor
@@ -21,8 +21,7 @@ class MapConnectionStatusOperation: AsyncOperation {
         queue: DispatchQueue,
         interactor: TunnelInteractor,
         connectionStatus: NEVPNStatus
-    )
-    {
+    ) {
         self.interactor = interactor
         self.connectionStatus = connectionStatus
 
@@ -103,13 +102,12 @@ class MapConnectionStatusOperation: AsyncOperation {
     private func updateTunnelRelayAndFinish(
         tunnel: Tunnel,
         mapRelayToState: @escaping (PacketTunnelRelay?) -> TunnelState?
-    )
-    {
+    ) {
         request = tunnel.getTunnelStatus { [weak self] completion in
             guard let self = self else { return }
 
             self.dispatchQueue.async {
-                if case .success(let packetTunnelStatus) = completion, !self.isCancelled {
+                if case let .success(packetTunnelStatus) = completion, !self.isCancelled {
                     self.interactor.updateTunnelStatus(
                         from: packetTunnelStatus,
                         mappingRelayToState: mapRelayToState

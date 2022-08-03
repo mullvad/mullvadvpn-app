@@ -26,17 +26,24 @@ class ApplicationConfiguration {
 
     /// Container URL for security group
     static var containerURL: URL? {
-        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Self.securityGroupIdentifier)
+        return FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: Self.securityGroupIdentifier)
     }
 
     /// The main application log file located in a shared container
     static var mainApplicationLogFileURL: URL? {
-        return Self.containerURL?.appendingPathComponent("Logs/net.mullvad.MullvadVPN.log", isDirectory: false)
+        return Self.containerURL?.appendingPathComponent(
+            "Logs/net.mullvad.MullvadVPN.log",
+            isDirectory: false
+        )
     }
 
     /// The packet tunnel log file located in a shared container
     static var packetTunnelLogFileURL: URL? {
-        return Self.containerURL?.appendingPathComponent("Logs/net.mullvad.MullvadVPN.PacketTunnel.log", isDirectory: false)
+        return Self.containerURL?.appendingPathComponent(
+            "Logs/net.mullvad.MullvadVPN.PacketTunnel.log",
+            isDirectory: false
+        )
     }
 
     /// All log files located in a shared container

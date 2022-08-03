@@ -9,7 +9,6 @@
 import XCTest
 
 class StringTests: XCTestCase {
-
     func testEmptyString() {
         XCTAssertTrue("".split(every: 4).isEmpty)
     }
@@ -25,5 +24,4 @@ class StringTests: XCTestCase {
     func testStringShorterThanLength() {
         XCTAssertEqual("1".split(every: 4), ["1"])
     }
-
 }

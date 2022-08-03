@@ -6,8 +6,8 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import UIKit
 import Logging
+import UIKit
 
 class AutomaticKeyboardResponder {
     weak var targetView: UIView?
@@ -21,13 +21,28 @@ class AutomaticKeyboardResponder {
 
     init<T: UIView>(targetView: T, handler: @escaping (T, CGFloat) -> Void) {
         self.targetView = targetView
-        self.handler = { (view, adjustment) in
+        self.handler = { view, adjustment in
             handler(view as! T, adjustment)
         }
 
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChangeFrame(_:)), name: UIWindow.keyboardWillChangeFrameNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIWindow.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide(_:)), name: UIWindow.keyboardDidHideNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillChangeFrame(_:)),
+            name: UIWindow.keyboardWillChangeFrameNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow(_:)),
+            name: UIWindow.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardDidHide(_:)),
+            name: UIWindow.keyboardDidHideNotification,
+            object: nil
+        )
     }
 
     func updateContentInsets() {
@@ -59,11 +74,12 @@ class AutomaticKeyboardResponder {
     // MARK: - Private
 
     private func handleKeyboardNotification(_ notification: Notification) {
-        guard let keyboardFrameValue = notification.userInfo?[UIWindow.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        guard let keyboardFrameValue = notification
+            .userInfo?[UIWindow.keyboardFrameEndUserInfoKey] as? NSValue else { return }
 
         lastKeyboardRect = keyboardFrameValue.cgRectValue
 
-        self.adjustContentInsets(keyboardRect: keyboardFrameValue.cgRectValue)
+        adjustContentInsets(keyboardRect: keyboardFrameValue.cgRectValue)
     }
 
     private func addPresentationControllerObserver() {
@@ -77,11 +93,16 @@ class AutomaticKeyboardResponder {
             return
         }
 
-        presentationFrameObserver = containerView.observe(\.frame, options: [.new], changeHandler: { [weak self] (containingView, change) in
-            guard let self = self, let keyboardFrameValue = self.lastKeyboardRect else { return }
+        presentationFrameObserver = containerView.observe(
+            \.frame,
+            options: [.new],
+            changeHandler: { [weak self] containingView, change in
+                guard let self = self,
+                      let keyboardFrameValue = self.lastKeyboardRect else { return }
 
-            self.adjustContentInsets(keyboardRect: keyboardFrameValue)
-        })
+                self.adjustContentInsets(keyboardRect: keyboardFrameValue)
+            }
+        )
     }
 
     /// Returns the first parent controller in the responder chain
@@ -105,7 +126,7 @@ class AutomaticKeyboardResponder {
 
         // Find the container view that private `_UIFormSheetPresentationController` moves
         // along with the keyboard.
-        return iterator.first { (view) -> Bool in
+        return iterator.first { view -> Bool in
             return view.description.starts(with: "<UIDropShadowView")
         }
     }
@@ -145,10 +166,9 @@ class AutomaticKeyboardResponder {
 }
 
 extension AutomaticKeyboardResponder {
-
     /// A convenience initializer that automatically assigns the offset to the scroll view subclasses
     convenience init<T: UIScrollView>(targetView: T) {
-        self.init(targetView: targetView) { (scrollView, offset) in
+        self.init(targetView: targetView) { scrollView, offset in
             if scrollView.canBecomeFirstResponder {
                 scrollView.contentInset.bottom = targetView.isFirstResponder ? offset : 0
                 scrollView.scrollIndicatorInsets.bottom = targetView.isFirstResponder ? offset : 0

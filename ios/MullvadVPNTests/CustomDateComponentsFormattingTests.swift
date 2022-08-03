@@ -9,7 +9,6 @@
 import XCTest
 
 class CustomDateComponentsFormattingTests: XCTestCase {
-
     func testCloseToOneDayFormatting() throws {
         var dateComponents = DateComponents()
         dateComponents.hour = 23
@@ -20,7 +19,7 @@ class CustomDateComponentsFormattingTests: XCTestCase {
         let result = CustomDateComponentsFormatting.localizedString(
             from: startDate,
             to: endDate,
-            calendar: self.calendar,
+            calendar: calendar,
             unitsStyle: .full
         )
 
@@ -36,7 +35,7 @@ class CustomDateComponentsFormattingTests: XCTestCase {
         let result = CustomDateComponentsFormatting.localizedString(
             from: startDate,
             to: endDate,
-            calendar: self.calendar,
+            calendar: calendar,
             unitsStyle: .full
         )
 
@@ -55,5 +54,4 @@ class CustomDateComponentsFormattingTests: XCTestCase {
         calendar.locale = Locale(identifier: "en_US_POSIX")
         return calendar
     }
-
 }

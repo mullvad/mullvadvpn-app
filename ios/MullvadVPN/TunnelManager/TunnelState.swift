@@ -33,7 +33,10 @@ struct TunnelStatus: Equatable, CustomStringConvertible {
     }
 
     /// Updates the tunnel status from packet tunnel status, mapping relay to tunnel state.
-    mutating func update(from packetTunnelStatus: PacketTunnelStatus, mappingRelayToState mapper: (PacketTunnelRelay?) -> TunnelState?) {
+    mutating func update(
+        from packetTunnelStatus: PacketTunnelStatus,
+        mappingRelayToState mapper: (PacketTunnelRelay?) -> TunnelState?
+    ) {
         self.packetTunnelStatus = packetTunnelStatus
 
         if let newState = mapper(packetTunnelStatus.tunnelRelay) {
@@ -75,19 +78,19 @@ enum TunnelState: Equatable, CustomStringConvertible {
         switch self {
         case .pendingReconnect:
             return "pending reconnect after disconnect"
-        case .connecting(let tunnelRelay):
+        case let .connecting(tunnelRelay):
             if let tunnelRelay = tunnelRelay {
                 return "connecting to \(tunnelRelay.hostname)"
             } else {
                 return "connecting, fetching relay"
             }
-        case .connected(let tunnelRelay):
+        case let .connected(tunnelRelay):
             return "connected to \(tunnelRelay.hostname)"
-        case .disconnecting(let actionAfterDisconnect):
+        case let .disconnecting(actionAfterDisconnect):
             return "disconnecting and then \(actionAfterDisconnect)"
         case .disconnected:
             return "disconnected"
-        case .reconnecting(let tunnelRelay):
+        case let .reconnecting(tunnelRelay):
             return "reconnecting to \(tunnelRelay.hostname)"
         }
     }

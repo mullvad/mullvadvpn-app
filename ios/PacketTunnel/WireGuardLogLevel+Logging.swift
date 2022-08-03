@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import WireGuardKit
 import Logging
+import WireGuardKit
 
 extension WireGuardLogLevel {
     var loggerLevel: Logger.Level {

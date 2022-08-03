@@ -9,7 +9,9 @@
 import Foundation
 import StoreKit
 
-class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>, SKProductsRequestDelegate {
+class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>,
+    SKProductsRequestDelegate
+{
     private let productIdentifiers: Set<String>
 
     private let maxRetryCount = 10
@@ -78,7 +80,7 @@ class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>, SKPr
             self?.finish(completion: .failure(error))
         }
 
-        retryTimer?.schedule(wallDeadline: .now() + self.retryDelay)
+        retryTimer?.schedule(wallDeadline: .now() + retryDelay)
         retryTimer?.activate()
     }
 }

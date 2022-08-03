@@ -41,8 +41,7 @@ final class TransformOperation<Input, Output, Failure: Error>:
         dispatchQueue: DispatchQueue? = nil,
         input: Input? = nil,
         block: ExecutionBlock? = nil
-    )
-    {
+    ) {
         _input = input
         executionBlock = block
 
@@ -53,8 +52,7 @@ final class TransformOperation<Input, Output, Failure: Error>:
         dispatchQueue: DispatchQueue? = nil,
         input: Input? = nil,
         throwingBlock: @escaping ThrowingExecutionBlock
-    )
-    {
+    ) {
         _input = input
         executionBlock = Self.wrapThrowingBlock(throwingBlock)
 
@@ -119,7 +117,9 @@ final class TransformOperation<Input, Output, Failure: Error>:
         }
     }
 
-    private class func wrapThrowingBlock(_ executionBlock: @escaping ThrowingExecutionBlock) -> ExecutionBlock {
+    private class func wrapThrowingBlock(_ executionBlock: @escaping ThrowingExecutionBlock)
+        -> ExecutionBlock
+    {
         return { input, operation in
             do {
                 let value = try executionBlock(input)
@@ -133,4 +133,3 @@ final class TransformOperation<Input, Output, Failure: Error>:
         }
     }
 }
-

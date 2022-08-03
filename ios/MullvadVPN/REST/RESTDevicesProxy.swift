@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import class WireGuardKitTypes.PublicKey
 import struct WireGuardKitTypes.IPAddressRange
+import class WireGuardKitTypes.PublicKey
 
 extension REST {
     class DevicesProxy: Proxy<AuthProxyConfiguration> {
@@ -31,8 +31,7 @@ extension REST {
             identifier: String,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<Device>
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
                     var path: URLPathTemplate = "devices/{id}"
@@ -59,22 +58,23 @@ extension REST {
                 )
             )
 
-            let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<Device> in
-                let httpStatus = HTTPStatus(rawValue: response.statusCode)
+            let responseHandler =
+                AnyResponseHandler { response, data -> ResponseHandlerResult<Device> in
+                    let httpStatus = HTTPStatus(rawValue: response.statusCode)
 
-                if httpStatus.isSuccess {
-                    return .decoding {
-                        return try self.responseDecoder.decode(Device.self, from: data)
-                    }
-                } else {
-                    return .unhandledResponse(
-                        try? self.responseDecoder.decode(
-                            ServerErrorResponse.self,
-                            from: data
+                    if httpStatus.isSuccess {
+                        return .decoding {
+                            return try self.responseDecoder.decode(Device.self, from: data)
+                        }
+                    } else {
+                        return .unhandledResponse(
+                            try? self.responseDecoder.decode(
+                                ServerErrorResponse.self,
+                                from: data
+                            )
                         )
-                    )
+                    }
                 }
-            }
 
             return addOperation(
                 name: "get-device",
@@ -90,8 +90,7 @@ extension REST {
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<[Device]>
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
                     var requestBuilder = try self.requestFactory.createRequestBuilder(
@@ -132,8 +131,7 @@ extension REST {
             request: CreateDeviceRequest,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<Device>
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
                     var requestBuilder = try self.requestFactory.createRequestBuilder(
@@ -175,8 +173,7 @@ extension REST {
             identifier: String,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<Bool>
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
                     var path: URLPathTemplate = "devices/{id}"
@@ -204,25 +201,26 @@ extension REST {
                 )
             )
 
-            let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<Bool> in
-                let statusCode = HTTPStatus(rawValue: response.statusCode)
+            let responseHandler =
+                AnyResponseHandler { response, data -> ResponseHandlerResult<Bool> in
+                    let statusCode = HTTPStatus(rawValue: response.statusCode)
 
-                switch statusCode {
-                case let statusCode where statusCode.isSuccess:
-                    return .success(true)
+                    switch statusCode {
+                    case let statusCode where statusCode.isSuccess:
+                        return .success(true)
 
-                case .notFound:
-                    return .success(false)
+                    case .notFound:
+                        return .success(false)
 
-                default:
-                    return .unhandledResponse(
-                        try? self.responseDecoder.decode(
-                            ServerErrorResponse.self,
-                            from: data
+                    default:
+                        return .unhandledResponse(
+                            try? self.responseDecoder.decode(
+                                ServerErrorResponse.self,
+                                from: data
+                            )
                         )
-                    )
+                    }
                 }
-            }
 
             return addOperation(
                 name: "delete-device",
@@ -288,7 +286,6 @@ extension REST {
                 completionHandler: completion
             )
         }
-
     }
 
     struct CreateDeviceRequest: Encodable {
@@ -341,5 +338,4 @@ extension REST {
     struct Port: Decodable {
         let id: String
     }
-
 }

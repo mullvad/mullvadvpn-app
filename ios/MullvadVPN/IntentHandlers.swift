@@ -12,7 +12,8 @@ final class StartVPNIntentHandler: NSObject, StartVPNIntentHandling {
     func handle(intent: StartVPNIntent, completion: @escaping (StartVPNIntentResponse) -> Void) {
         TunnelManager.shared.startTunnel { operationCompletion in
             let code: StartVPNIntentResponseCode = operationCompletion.isSuccess
-                ? .success : .failure
+                ? .success
+                : .failure
             let response = StartVPNIntentResponse(code: code, userActivity: nil)
 
             completion(response)
@@ -24,7 +25,8 @@ final class StopVPNIntentHandler: NSObject, StopVPNIntentHandling {
     func handle(intent: StopVPNIntent, completion: @escaping (StopVPNIntentResponse) -> Void) {
         TunnelManager.shared.stopTunnel { operationCompletion in
             let code: StopVPNIntentResponseCode = operationCompletion.isSuccess
-                ? .success : .failure
+                ? .success
+                : .failure
             let response = StopVPNIntentResponse(code: code, userActivity: nil)
 
             completion(response)
@@ -33,7 +35,10 @@ final class StopVPNIntentHandler: NSObject, StopVPNIntentHandling {
 }
 
 final class ReconnectVPNIntentHandler: NSObject, ReconnectVPNIntentHandling {
-    func handle(intent: ReconnectVPNIntent, completion: @escaping (ReconnectVPNIntentResponse) -> Void) {
+    func handle(
+        intent: ReconnectVPNIntent,
+        completion: @escaping (ReconnectVPNIntentResponse) -> Void
+    ) {
         let tunnelManager = TunnelManager.shared
 
         tunnelManager.reconnectTunnel(selectNewRelay: true) { operationCompletion in

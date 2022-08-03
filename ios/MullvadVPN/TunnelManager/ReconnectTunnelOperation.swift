@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ReconnectTunnelOperation: ResultOperation<(), Error> {
+class ReconnectTunnelOperation: ResultOperation<Void, Error> {
     private let interactor: TunnelInteractor
     private let selectNewRelay: Bool
     private var task: Cancellable?
@@ -17,8 +17,7 @@ class ReconnectTunnelOperation: ResultOperation<(), Error> {
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
         selectNewRelay: Bool
-    )
-    {
+    ) {
         self.interactor = interactor
         self.selectNewRelay = selectNewRelay
 

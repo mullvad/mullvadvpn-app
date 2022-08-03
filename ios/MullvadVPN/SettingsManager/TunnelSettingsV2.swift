@@ -8,16 +8,16 @@
 
 import Foundation
 import struct Network.IPv4Address
-import class WireGuardKitTypes.PublicKey
-import class WireGuardKitTypes.PrivateKey
 import struct WireGuardKitTypes.IPAddressRange
+import class WireGuardKitTypes.PrivateKey
+import class WireGuardKitTypes.PublicKey
 
 struct TunnelSettingsV2: Codable, Equatable {
     /// Relay constraints.
-    var relayConstraints: RelayConstraints = RelayConstraints()
+    var relayConstraints = RelayConstraints()
 
     /// DNS settings.
-    var dnsSettings: DNSSettings = DNSSettings()
+    var dnsSettings = DNSSettings()
 }
 
 struct StoredAccountData: Codable, Equatable {
@@ -52,7 +52,7 @@ enum DeviceState: Codable, Equatable {
 
     var accountData: StoredAccountData? {
         switch self {
-        case .loggedIn(let accountData, _):
+        case let .loggedIn(accountData, _):
             return accountData
         case .loggedOut, .revoked:
             return nil
@@ -61,7 +61,7 @@ enum DeviceState: Codable, Equatable {
 
     var deviceData: StoredDeviceData? {
         switch self {
-        case .loggedIn(_, let deviceData):
+        case let .loggedIn(_, deviceData):
             return deviceData
         case .loggedOut, .revoked:
             return nil

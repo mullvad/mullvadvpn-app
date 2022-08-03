@@ -9,7 +9,7 @@
 import Foundation
 import Logging
 
-class LoadTunnelConfigurationOperation: ResultOperation<(), Error> {
+class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {
     private let logger = Logger(label: "LoadTunnelConfigurationOperation")
     private let interactor: TunnelInteractor
 
@@ -61,6 +61,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<(), Error> {
             finishOperation(tunnel: tunnel)
         }
     }
+
     private func finishOperation(tunnel: Tunnel?) {
         interactor.setTunnel(tunnel, shouldRefreshTunnelState: true)
         interactor.setConfigurationLoaded()

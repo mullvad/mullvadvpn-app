@@ -45,7 +45,7 @@ class DeviceRowView: UIView {
         return button
     }()
 
-    var showsActivityIndicator: Bool = false {
+    var showsActivityIndicator = false {
         didSet {
             removeButton.isHidden = showsActivityIndicator
 

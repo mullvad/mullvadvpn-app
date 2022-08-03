@@ -24,7 +24,6 @@ enum NotificationBannerStyle {
 }
 
 class NotificationBannerView: UIView {
-
     private static let indicatorViewSize = CGSize(width: 12, height: 12)
 
     private let backgroundView: UIVisualEffectView = {
@@ -116,22 +115,31 @@ class NotificationBannerView: UIView {
 
             wrapperView.topAnchor.constraint(equalTo: backgroundView.contentView.topAnchor),
             wrapperView.leadingAnchor.constraint(equalTo: backgroundView.contentView.leadingAnchor),
-            wrapperView.trailingAnchor.constraint(equalTo: backgroundView.contentView.trailingAnchor),
+            wrapperView.trailingAnchor
+                .constraint(equalTo: backgroundView.contentView.trailingAnchor),
             wrapperView.bottomAnchor.constraint(equalTo: backgroundView.contentView.bottomAnchor),
 
             indicatorView.bottomAnchor.constraint(equalTo: titleLabel.firstBaselineAnchor),
-            indicatorView.leadingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.leadingAnchor),
+            indicatorView.leadingAnchor
+                .constraint(equalTo: wrapperView.layoutMarginsGuide.leadingAnchor),
             indicatorView.widthAnchor.constraint(equalToConstant: Self.indicatorViewSize.width),
             indicatorView.heightAnchor.constraint(equalToConstant: Self.indicatorViewSize.height),
 
             titleLabel.topAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.topAnchor),
-            titleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: indicatorView.trailingAnchor, multiplier: 1),
-            titleLabel.trailingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.trailingAnchor),
+            titleLabel.leadingAnchor.constraint(
+                equalToSystemSpacingAfter: indicatorView.trailingAnchor,
+                multiplier: 1
+            ),
+            titleLabel.trailingAnchor
+                .constraint(equalTo: wrapperView.layoutMarginsGuide.trailingAnchor),
 
-            bodyLabel.topAnchor.constraint(equalToSystemSpacingBelow: titleLabel.bottomAnchor, multiplier: 1),
+            bodyLabel.topAnchor.constraint(
+                equalToSystemSpacingBelow: titleLabel.bottomAnchor,
+                multiplier: 1
+            ),
             bodyLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             bodyLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            bodyLabel.bottomAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.bottomAnchor)
+            bodyLabel.bottomAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.bottomAnchor),
         ])
     }
 

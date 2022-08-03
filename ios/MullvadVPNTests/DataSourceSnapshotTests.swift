@@ -9,7 +9,6 @@
 import XCTest
 
 class DataSourceSnapshotTests: XCTestCase {
-
     func testInsertingItem() throws {
         var a = DataSourceSnapshot<String, Int>()
         var b = DataSourceSnapshot<String, Int>()
@@ -65,7 +64,7 @@ class DataSourceSnapshotTests: XCTestCase {
         a.appendSections(["First", "Second"])
         b.appendSections(["First", "Second"])
 
-        a.appendItems([1, 2, 3 ,4], in: "First")
+        a.appendItems([1, 2, 3, 4], in: "First")
         a.appendItems([5, 6, 7, 8], in: "Second")
 
         b.appendItems([5, 1, 2, 8, 4], in: "First")
@@ -76,13 +75,13 @@ class DataSourceSnapshotTests: XCTestCase {
         XCTAssertEqual(diff.indexPathsToDelete, [
             IndexPath(row: 3, section: 1),
             IndexPath(row: 0, section: 1),
-            IndexPath(row: 2, section: 0)
+            IndexPath(row: 2, section: 0),
         ])
 
         XCTAssertEqual(diff.indexPathsToInsert, [
             IndexPath(row: 0, section: 0),
             IndexPath(row: 3, section: 0),
-            IndexPath(row: 1, section: 1)
+            IndexPath(row: 1, section: 1),
         ])
     }
 
@@ -100,12 +99,12 @@ class DataSourceSnapshotTests: XCTestCase {
 
         XCTAssertEqual(diff.indexPathsToDelete, [
             IndexPath(row: 2, section: 0),
-            IndexPath(row: 0, section: 0)
+            IndexPath(row: 0, section: 0),
         ])
 
         XCTAssertEqual(diff.indexPathsToInsert, [
             IndexPath(row: 0, section: 0),
-            IndexPath(row: 2, section: 0)
+            IndexPath(row: 2, section: 0),
         ])
     }
 
@@ -143,5 +142,4 @@ class DataSourceSnapshotTests: XCTestCase {
         XCTAssertEqual(diff.indexPathsToReload, [IndexPath(row: 0, section: 0)])
         XCTAssertEqual(diff.indexPathsToReconfigure, [IndexPath(row: 1, section: 0)])
     }
-
 }

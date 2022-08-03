@@ -15,7 +15,6 @@ struct ConnectionPanelData {
 }
 
 class ConnectionPanelView: UIView {
-
     var dataSource: ConnectionPanelData? {
         didSet {
             didChangeDataSource()
@@ -28,7 +27,7 @@ class ConnectionPanelView: UIView {
         }
     }
 
-    var connectedRelayName: String = "" {
+    var connectedRelayName = "" {
         didSet {
             collapseButton.setTitle(connectedRelayName, for: .normal)
             collapseButton.accessibilityLabel = NSLocalizedString(
@@ -38,8 +37,11 @@ class ConnectionPanelView: UIView {
                 comment: ""
             )
             collapseButton.accessibilityAttributedValue = NSAttributedString(
-                string: connectedRelayName.replacingOccurrences(of: "-wireguard", with: " WireGuard"),
-                attributes: [ .accessibilitySpeechLanguage: "en" ]
+                string: connectedRelayName.replacingOccurrences(
+                    of: "-wireguard",
+                    with: " WireGuard"
+                ),
+                attributes: [.accessibilitySpeechLanguage: "en"]
             )
         }
     }
@@ -107,7 +109,7 @@ class ConnectionPanelView: UIView {
             textLabelLayoutGuide.trailingAnchor
                 .constraint(equalTo: inAddressRow.textLabelLayoutGuide.trailingAnchor),
             textLabelLayoutGuide.trailingAnchor
-                .constraint(equalTo: outAddressRow.textLabelLayoutGuide.trailingAnchor)
+                .constraint(equalTo: outAddressRow.textLabelLayoutGuide.trailingAnchor),
         ])
 
         updateConnectionInfoVisibility()
@@ -138,7 +140,10 @@ class ConnectionPanelView: UIView {
         collapseButton.style = showsConnectionInfo ? .up : .down
 
         if collapseButton.accessibilityElementIsFocused(), showsConnectionInfo {
-            UIAccessibility.post(notification: .layoutChanged, argument: stackView.arrangedSubviews.first)
+            UIAccessibility.post(
+                notification: .layoutChanged,
+                argument: stackView.arrangedSubviews.first
+            )
         }
         updateCollapseButtonAccessibilityHint()
     }
@@ -163,7 +168,6 @@ class ConnectionPanelView: UIView {
 }
 
 class ConnectionPanelAddressRow: UIView {
-
     private let textLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.font = .systemFont(ofSize: 17)
@@ -227,7 +231,7 @@ class ConnectionPanelAddressRow: UIView {
             textLabelLayoutGuide.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
             textLabelLayoutGuide.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
             textLabelLayoutGuide.topAnchor.constraint(equalTo: textLabel.topAnchor),
-            textLabelLayoutGuide.bottomAnchor.constraint(equalTo: textLabel.bottomAnchor)
+            textLabelLayoutGuide.bottomAnchor.constraint(equalTo: textLabel.bottomAnchor),
         ])
     }
 
@@ -237,7 +241,6 @@ class ConnectionPanelAddressRow: UIView {
 }
 
 class ConnectionPanelCollapseButton: CustomButton {
-
     enum Style {
         case up, down
 
@@ -282,5 +285,4 @@ class ConnectionPanelCollapseButton: CustomButton {
     private func updateButtonImage() {
         setImage(style.image, for: .normal)
     }
-
 }

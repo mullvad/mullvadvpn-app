@@ -60,7 +60,7 @@ class AsyncOperation: Operation {
 
     /// Backing variable for `_isCancelled`.
     /// Access must be guarded with `stateLock`.
-    private var __isCancelled: Bool = false
+    private var __isCancelled = false
 
     /// Backing variable for `error`.
     /// Access must be guarded with `stateLock`.
@@ -113,7 +113,7 @@ class AsyncOperation: Operation {
         }
     }
 
-    final override var isReady: Bool {
+    override final var isReady: Bool {
         stateLock.lock()
         defer { stateLock.unlock() }
 
@@ -136,19 +136,19 @@ class AsyncOperation: Operation {
         }
     }
 
-    final override var isExecuting: Bool {
+    override final var isExecuting: Bool {
         return state == .executing
     }
 
-    final override var isFinished: Bool {
+    override final var isFinished: Bool {
         return state == .finished
     }
 
-    final override var isCancelled: Bool {
+    override final var isCancelled: Bool {
         return _isCancelled
     }
 
-    final override var isAsynchronous: Bool {
+    override final var isAsynchronous: Bool {
         return true
     }
 
@@ -237,7 +237,12 @@ class AsyncOperation: Operation {
         self.dispatchQueue = dispatchQueue ?? DispatchQueue(label: "AsyncOperation.dispatchQueue")
         super.init()
 
-        addObserver(self, forKeyPath: #keyPath(isReady), options: [], context: &Self.observerContext)
+        addObserver(
+            self,
+            forKeyPath: #keyPath(isReady),
+            options: [],
+            context: &Self.observerContext
+        )
     }
 
     deinit {
@@ -251,10 +256,9 @@ class AsyncOperation: Operation {
     override func observeValue(
         forKeyPath keyPath: String?,
         of object: Any?,
-        change: [NSKeyValueChangeKey : Any]?,
+        change: [NSKeyValueChangeKey: Any]?,
         context: UnsafeMutableRawPointer?
-    )
-    {
+    ) {
         if context == &Self.observerContext {
             checkReadiness()
             return
@@ -282,7 +286,7 @@ class AsyncOperation: Operation {
 
     // MARK: - Lifecycle
 
-    final override func start() {
+    override final func start() {
         let currentQueue = OperationQueue.current
         let underlyingQueue = currentQueue?.underlyingQueue
 
@@ -316,7 +320,7 @@ class AsyncOperation: Operation {
         // Override in subclasses
     }
 
-    final override func cancel() {
+    override final func cancel() {
         var notifyDidCancel = false
 
         operationLock.lock()
@@ -414,7 +418,6 @@ extension Operation {
         return name ?? "\(self)"
     }
 }
-
 
 protocol OperationBlockObserverSupport {}
 extension AsyncOperation: OperationBlockObserverSupport {}

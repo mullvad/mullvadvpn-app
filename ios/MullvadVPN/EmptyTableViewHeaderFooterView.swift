@@ -9,13 +9,12 @@
 import UIKit
 
 class EmptyTableViewHeaderFooterView: UITableViewHeaderFooterView {
-
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
 
-        self.textLabel?.isHidden = true
-        self.contentView.backgroundColor = .clear
-        self.backgroundView?.backgroundColor = .clear
+        textLabel?.isHidden = true
+        contentView.backgroundColor = .clear
+        backgroundView?.backgroundColor = .clear
     }
 
     required init?(coder: NSCoder) {

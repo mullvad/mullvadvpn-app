@@ -33,9 +33,9 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
 
         var errorDescription: String? {
             switch self {
-            case .logFileDoesNotExist(let path):
+            case let .logFileDoesNotExist(path):
                 return "Log file does not exist: \(path)."
-            case .invalidLogFileURL(let url):
+            case let .invalidLogFileURL(url):
                 return "Invalid log file URL: \(url.absoluteString)."
             }
         }
@@ -47,13 +47,18 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
 
     private var logs: [LogAttachment] = []
 
-    init(redactCustomStrings: [String], redactContainerPathsForSecurityGroupIdentifiers securityGroupIdentifiers: [String]) {
-        self.metadata = Self.makeMetadata()
+    init(
+        redactCustomStrings: [String],
+        redactContainerPathsForSecurityGroupIdentifiers securityGroupIdentifiers: [String]
+    ) {
+        metadata = Self.makeMetadata()
         self.redactCustomStrings = redactCustomStrings
 
-        applicationGroupContainers = securityGroupIdentifiers.compactMap { (securityGroupIdentifier) -> URL? in
-            return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)
-        }
+        applicationGroupContainers = securityGroupIdentifiers
+            .compactMap { securityGroupIdentifier -> URL? in
+                return FileManager.default
+                    .containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)
+            }
     }
 
     func addLogFile(fileURL: URL, includeLogBackup: Bool) {
@@ -119,12 +124,13 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
 
     private static func makeMetadata() -> Metadata {
         let osVersion = ProcessInfo.processInfo.operatingSystemVersion
-        let osVersionString = "iOS \(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)"
+        let osVersionString =
+            "iOS \(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)"
 
         return [
-            .id : UUID().uuidString,
+            .id: UUID().uuidString,
             .productVersion: Bundle.main.productVersion,
-            .os: osVersionString
+            .os: osVersionString,
         ]
     }
 
@@ -142,59 +148,74 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
 
         let data = fileHandle.readData(ofLength: Int(kLogMaxReadBytes))
         let replacementCharacter = Character(UTF8.decode(UTF8.encodedReplacementCharacter))
-        let lossyString = String(String(decoding: data, as: UTF8.self)
-            .drop { ch in
-                // Drop leading replacement characters produced when decoding data
-                return ch == replacementCharacter
-            })
+        let lossyString = String(
+            String(decoding: data, as: UTF8.self)
+                .drop { ch in
+                    // Drop leading replacement characters produced when decoding data
+                    return ch == replacementCharacter
+                }
+        )
 
         return lossyString
     }
 
     private func redactCustomStrings(string: String) -> String {
-        return redactCustomStrings.reduce(string) { (resultString, redact) -> String in
+        return redactCustomStrings.reduce(string) { resultString, redact -> String in
             return resultString.replacingOccurrences(of: redact, with: kRedactedPlaceholder)
         }
     }
 
     private func redact(string: String) -> String {
         return [
-            self.redactContainerPaths,
+            redactContainerPaths,
             Self.redactAccountNumber,
             Self.redactIPv4Address,
             Self.redactIPv6Address,
-            self.redactCustomStrings
-        ].reduce(string) { (resultString, transform) -> String in
+            redactCustomStrings,
+        ].reduce(string) { resultString, transform -> String in
             return transform(resultString)
         }
     }
 
     private func redactContainerPaths(string: String) -> String {
-        return applicationGroupContainers.reduce(string) { (resultString, containerURL) -> String in
-            return resultString.replacingOccurrences(of: containerURL.path, with: kRedactedContainerPlaceholder)
+        return applicationGroupContainers.reduce(string) { resultString, containerURL -> String in
+            return resultString.replacingOccurrences(
+                of: containerURL.path,
+                with: kRedactedContainerPlaceholder
+            )
         }
     }
 
     private static func redactAccountNumber(string: String) -> String {
-        return redact(regularExpression: try! NSRegularExpression(pattern: #"\d{16}"#),
-                      string: string,
-                      replacementString: kRedactedAccountPlaceholder)
+        return redact(
+            regularExpression: try! NSRegularExpression(pattern: #"\d{16}"#),
+            string: string,
+            replacementString: kRedactedAccountPlaceholder
+        )
     }
 
     private static func redactIPv4Address(string: String) -> String {
-        return redact(regularExpression: NSRegularExpression.ipv4RegularExpression,
-                      string: string,
-                      replacementString: kRedactedPlaceholder)
+        return redact(
+            regularExpression: NSRegularExpression.ipv4RegularExpression,
+            string: string,
+            replacementString: kRedactedPlaceholder
+        )
     }
 
     private static func redactIPv6Address(string: String) -> String {
-        return redact(regularExpression: NSRegularExpression.ipv6RegularExpression,
-                      string: string,
-                      replacementString: kRedactedPlaceholder)
+        return redact(
+            regularExpression: NSRegularExpression.ipv6RegularExpression,
+            string: string,
+            replacementString: kRedactedPlaceholder
+        )
     }
 
-    private static func redact(regularExpression: NSRegularExpression, string: String, replacementString: String) -> String {
-        let nsRange = NSRange((string.startIndex..<string.endIndex), in: string)
+    private static func redact(
+        regularExpression: NSRegularExpression,
+        string: String,
+        replacementString: String
+    ) -> String {
+        let nsRange = NSRange(string.startIndex ..< string.endIndex, in: string)
         let template = NSRegularExpression.escapedTemplate(for: replacementString)
 
         return regularExpression.stringByReplacingMatches(
@@ -204,5 +225,4 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
             withTemplate: template
         )
     }
-
 }

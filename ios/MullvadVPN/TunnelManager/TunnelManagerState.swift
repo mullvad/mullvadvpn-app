@@ -10,7 +10,6 @@ import Foundation
 import NetworkExtension
 
 protocol TunnelManagerStateDelegate: AnyObject {
-
     func tunnelManagerState(
         _ state: TunnelManager.State,
         didChangeLoadedConfiguration isLoadedConfiguration: Bool
@@ -34,7 +33,6 @@ protocol TunnelManagerStateDelegate: AnyObject {
 }
 
 extension TunnelManager {
-
     class State {
         weak var delegate: TunnelManagerStateDelegate?
         let delegateQueue: DispatchQueue

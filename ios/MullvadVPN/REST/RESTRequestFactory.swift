@@ -15,7 +15,10 @@ extension REST {
         let networkTimeout: TimeInterval
         let bodyEncoder: JSONEncoder
 
-        class func withDefaultAPICredentials(pathPrefix: String, bodyEncoder: JSONEncoder) -> RequestFactory {
+        class func withDefaultAPICredentials(
+            pathPrefix: String,
+            bodyEncoder: JSONEncoder
+        ) -> RequestFactory {
             return RequestFactory(
                 hostname: ApplicationConfiguration.defaultAPIHostname,
                 pathPrefix: pathPrefix,
@@ -29,15 +32,18 @@ extension REST {
             pathPrefix: String,
             networkTimeout: TimeInterval,
             bodyEncoder: JSONEncoder
-        )
-        {
+        ) {
             self.hostname = hostname
             self.pathPrefix = pathPrefix
             self.networkTimeout = networkTimeout
             self.bodyEncoder = bodyEncoder
         }
 
-        func createRequest(endpoint: AnyIPEndpoint, method: HTTPMethod, pathTemplate: URLPathTemplate) throws -> REST.Request {
+        func createRequest(
+            endpoint: AnyIPEndpoint,
+            method: HTTPMethod,
+            pathTemplate: URLPathTemplate
+        ) throws -> REST.Request {
             var urlComponents = URLComponents()
             urlComponents.scheme = "https"
             urlComponents.path = pathPrefix
@@ -108,10 +114,10 @@ extension REST {
         mutating func setAuthorization(_ authorization: REST.Authorization) {
             let value: String
             switch authorization {
-            case .accountNumber(let accountNumber):
+            case let .accountNumber(accountNumber):
                 value = "Token \(accountNumber)"
 
-            case .accessToken(let accessToken):
+            case let .accessToken(accessToken):
                 value = "Bearer \(accessToken)"
             }
 
@@ -138,7 +144,7 @@ extension REST {
 
             var errorDescription: String? {
                 switch self {
-                case .noReplacement(let placeholder):
+                case let .noReplacement(placeholder):
                     return "Replacement is not provided for \(placeholder)."
 
                 case .percentEncoding:
@@ -154,7 +160,7 @@ extension REST {
             let slashCharset = CharacterSet(charactersIn: "/")
 
             components = value.split(separator: "/").map { subpath -> Component in
-                if subpath.hasPrefix("{") && subpath.hasSuffix("}") {
+                if subpath.hasPrefix("{"), subpath.hasSuffix("}") {
                     let name = String(subpath.dropFirst().dropLast())
 
                     return .placeholder(name)
@@ -193,9 +199,9 @@ extension REST {
                 combinedString += "/"
 
                 switch component {
-                case .literal(let string):
+                case let .literal(string):
                     combinedString += string
-                case .placeholder(let name):
+                case let .placeholder(name):
                     combinedString += "{\(name)}"
                 }
             }
@@ -210,10 +216,10 @@ extension REST {
                 combinedPath += "/"
 
                 switch component {
-                case .literal(let string):
+                case let .literal(string):
                     combinedPath += string
 
-                case .placeholder(let name):
+                case let .placeholder(name):
                     if let string = replacements[name] {
                         combinedPath += string
                     } else {
@@ -229,5 +235,4 @@ extension REST {
             return URLPathTemplate(components: lhs.components + rhs.components)
         }
     }
-
 }

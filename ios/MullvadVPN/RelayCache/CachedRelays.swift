@@ -9,7 +9,6 @@
 import Foundation
 
 extension RelayCache {
-
     /// A struct that represents the relay cache on disk
     struct CachedRelays: Codable {
         /// E-tag returned by server
@@ -21,5 +20,4 @@ extension RelayCache {
         /// The date when this cache was last updated
         var updatedAt: Date
     }
-
 }

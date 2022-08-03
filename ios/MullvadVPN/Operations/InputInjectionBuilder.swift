@@ -84,7 +84,7 @@ class InputInjectionBuilder<OperationType, Context> where OperationType: InputOp
 
 extension InputInjectionBuilder
     where Context: OperationInputContext,
-          Context.Input == OperationType.Input
+    Context.Input == OperationType.Input
 {
     func reduce() {
         reduce { context in

@@ -86,7 +86,7 @@ extension RelayCache.IO {
 
     /// Safely write the cache file on disk using file coordinator.
     static func write(cacheFileURL: URL, record: RelayCache.CachedRelays) throws {
-        var result: Result<(), Error>?
+        var result: Result<Void, Error>?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
         let accessor = { (fileURLForWriting: URL) in

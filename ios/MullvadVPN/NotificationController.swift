@@ -85,7 +85,10 @@ class NotificationController: UIViewController {
         }
 
         if animated {
-            let timing = UISpringTimingParameters(dampingRatio: 0.7, initialVelocity: CGVector(dx: 0, dy: 1))
+            let timing = UISpringTimingParameters(
+                dampingRatio: 0.7,
+                initialVelocity: CGVector(dx: 0, dy: 1)
+            )
             let animator = UIViewPropertyAnimator(duration: 0.8, timingParameters: timing)
             animator.isInterruptible = false
             animator.addAnimations {
@@ -112,7 +115,10 @@ class NotificationController: UIViewController {
         bannerView.accessibilityLabel = "\(notification.title)\n\(notification.body)"
 
         if animated {
-            let animator = UIViewPropertyAnimator(duration: 0.25, timingParameters: UICubicTimingParameters(animationCurve: .easeOut))
+            let animator = UIViewPropertyAnimator(
+                duration: 0.25,
+                timingParameters: UICubicTimingParameters(animationCurve: .easeOut)
+            )
             animator.addAnimations {
                 self.view.layoutIfNeeded()
             }
@@ -138,7 +144,9 @@ class NotificationController: UIViewController {
 
     private func updateAccessibilityFrame() {
         let layoutFrame = bannerView.layoutMarginsGuide.layoutFrame
-        bannerView.accessibilityFrame = UIAccessibility.convertToScreenCoordinates(layoutFrame, in: view)
+        bannerView.accessibilityFrame = UIAccessibility.convertToScreenCoordinates(
+            layoutFrame,
+            in: view
+        )
     }
-
 }

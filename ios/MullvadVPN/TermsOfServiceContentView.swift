@@ -9,7 +9,6 @@
 import UIKit
 
 class TermsOfServiceContentView: UIView {
-
     let titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -133,24 +132,37 @@ class TermsOfServiceContentView: UIView {
             footerContainer.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             agreeButton.topAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.topAnchor),
-            agreeButton.leadingAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.leadingAnchor),
-            agreeButton.trailingAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.trailingAnchor),
-            agreeButton.bottomAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.bottomAnchor),
+            agreeButton.leadingAnchor
+                .constraint(equalTo: footerContainer.layoutMarginsGuide.leadingAnchor),
+            agreeButton.trailingAnchor
+                .constraint(equalTo: footerContainer.layoutMarginsGuide.trailingAnchor),
+            agreeButton.bottomAnchor
+                .constraint(equalTo: footerContainer.layoutMarginsGuide.bottomAnchor),
 
-            titleLabel.topAnchor.constraint(equalTo: scrollContentContainer.layoutMarginsGuide.topAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: scrollContentContainer.layoutMarginsGuide.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: scrollContentContainer.layoutMarginsGuide.trailingAnchor),
+            titleLabel.topAnchor
+                .constraint(equalTo: scrollContentContainer.layoutMarginsGuide.topAnchor),
+            titleLabel.leadingAnchor
+                .constraint(equalTo: scrollContentContainer.layoutMarginsGuide.leadingAnchor),
+            titleLabel.trailingAnchor
+                .constraint(equalTo: scrollContentContainer.layoutMarginsGuide.trailingAnchor),
 
             bodyLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
-            bodyLabel.leadingAnchor.constraint(equalTo: scrollContentContainer.layoutMarginsGuide.leadingAnchor),
-            bodyLabel.trailingAnchor.constraint(equalTo: scrollContentContainer.layoutMarginsGuide.trailingAnchor),
+            bodyLabel.leadingAnchor
+                .constraint(equalTo: scrollContentContainer.layoutMarginsGuide.leadingAnchor),
+            bodyLabel.trailingAnchor
+                .constraint(equalTo: scrollContentContainer.layoutMarginsGuide.trailingAnchor),
 
             privacyPolicyLink.topAnchor.constraint(equalTo: bodyLabel.bottomAnchor, constant: 24),
-            privacyPolicyLink.leadingAnchor.constraint(equalTo: scrollContentContainer.layoutMarginsGuide.leadingAnchor),
-            privacyPolicyLink.trailingAnchor.constraint(lessThanOrEqualTo: scrollContentContainer.layoutMarginsGuide.trailingAnchor),
-            privacyPolicyLink.bottomAnchor.constraint(equalTo: scrollContentContainer.layoutMarginsGuide.bottomAnchor),
+            privacyPolicyLink.leadingAnchor
+                .constraint(equalTo: scrollContentContainer.layoutMarginsGuide.leadingAnchor),
+            privacyPolicyLink.trailingAnchor
+                .constraint(
+                    lessThanOrEqualTo: scrollContentContainer.layoutMarginsGuide
+                        .trailingAnchor
+                ),
+            privacyPolicyLink.bottomAnchor
+                .constraint(equalTo: scrollContentContainer.layoutMarginsGuide.bottomAnchor),
 
         ])
     }
-
 }

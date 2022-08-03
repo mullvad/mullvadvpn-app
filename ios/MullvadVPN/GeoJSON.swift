@@ -6,8 +6,8 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import CoreLocation
+import Foundation
 import MapKit
 
 enum GeoJSON {}
@@ -32,15 +32,15 @@ extension GeoJSON {
         }
 
         var mkOverlays: [MKOverlay] {
-            return features.flatMap { (feature) -> [MKOverlay] in
+            return features.flatMap { feature -> [MKOverlay] in
                 // Some tools like mapshaper output empty features after optimizing out the geometry
                 guard let geometry = feature.geometry else { return [] }
 
                 switch geometry {
-                case .polygon(let polygon):
+                case let .polygon(polygon):
                     return polygon.mkPolygons
 
-                case .multiPolygon(let multiPolygon):
+                case let .multiPolygon(multiPolygon):
                     return multiPolygon.mkPolygons
                 }
             }
@@ -90,7 +90,11 @@ extension GeoJSON {
                 self = .multiPolygon(try decoder.singleValueContainer().decode(MultiPolygon.self))
 
             default:
-                throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Geometry: Unknown type \(type)")
+                throw DecodingError.dataCorruptedError(
+                    forKey: .type,
+                    in: container,
+                    debugDescription: "Geometry: Unknown type \(type)"
+                )
             }
         }
 
@@ -103,7 +107,7 @@ extension GeoJSON {
         let coordinates: [[[Double]]]
 
         var mkPolygons: [MKPolygon] {
-            let coords = self.geoCoordinates
+            let coords = geoCoordinates
             let exteriorCoordinates = coords.first ?? []
 
             let exteriorPolygon = MKPolygon(
@@ -125,7 +129,10 @@ extension GeoJSON {
         private var geoCoordinates: [[CLLocationCoordinate2D]] {
             return coordinates.map { values -> [CLLocationCoordinate2D] in
                 return values.map { coordinates -> CLLocationCoordinate2D in
-                    return CLLocationCoordinate2D(latitude: coordinates[1], longitude: coordinates[0])
+                    return CLLocationCoordinate2D(
+                        latitude: coordinates[1],
+                        longitude: coordinates[0]
+                    )
                 }
             }
         }

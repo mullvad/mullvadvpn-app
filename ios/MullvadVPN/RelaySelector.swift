@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import Network
 import Logging
+import Network
 
 struct RelaySelectorResult: Codable {
     var endpoint: MullvadEndpoint
@@ -41,12 +41,15 @@ struct NoRelaysSatisfyingConstraintsError: LocalizedError {
 enum RelaySelector {}
 
 extension RelaySelector {
-
-    static func evaluate(relays: REST.ServerRelaysResponse, constraints: RelayConstraints) throws -> RelaySelectorResult {
+    static func evaluate(
+        relays: REST.ServerRelaysResponse,
+        constraints: RelayConstraints
+    ) throws -> RelaySelectorResult {
         let filteredRelays = applyConstraints(constraints, relays: Self.parseRelaysResponse(relays))
 
         guard let relayWithLocation = pickRandomRelay(relays: filteredRelays),
-              let port = pickRandomPort(rawPortRanges: relays.wireguard.portRanges) else {
+              let port = pickRandomPort(rawPortRanges: relays.wireguard.portRanges)
+        else {
             throw NoRelaysSatisfyingConstraintsError()
         }
 
@@ -69,28 +72,31 @@ extension RelaySelector {
     }
 
     /// Produce a list of `RelayWithLocation` items satisfying the given constraints
-    private static func applyConstraints(_ constraints: RelayConstraints, relays: [RelayWithLocation]) -> [RelayWithLocation] {
-        return relays.filter { (relayWithLocation) -> Bool in
+    private static func applyConstraints(
+        _ constraints: RelayConstraints,
+        relays: [RelayWithLocation]
+    ) -> [RelayWithLocation] {
+        return relays.filter { relayWithLocation -> Bool in
             switch constraints.location {
             case .any:
                 return true
-            case .only(let relayConstraint):
+            case let .only(relayConstraint):
                 switch relayConstraint {
-                case .country(let countryCode):
+                case let .country(countryCode):
                     return relayWithLocation.location.countryCode == countryCode &&
                         relayWithLocation.relay.includeInCountry
 
-                case .city(let countryCode, let cityCode):
+                case let .city(countryCode, cityCode):
                     return relayWithLocation.location.countryCode == countryCode &&
                         relayWithLocation.location.cityCode == cityCode
 
-                case .hostname(let countryCode, let cityCode, let hostname):
+                case let .hostname(countryCode, cityCode, hostname):
                     return relayWithLocation.location.countryCode == countryCode &&
                         relayWithLocation.location.cityCode == cityCode &&
                         relayWithLocation.relay.hostname == hostname
                 }
             }
-        }.filter { (relayWithLocation) -> Bool in
+        }.filter { relayWithLocation -> Bool in
             return relayWithLocation.relay.active
         }
     }
@@ -107,10 +113,11 @@ extension RelaySelector {
 
         // Pick a random number in the range 1 - totalWeight. This choses the relay with a
         // non-zero weight.
-        var i = (1...totalWeight).randomElement()!
+        var i = (1 ... totalWeight).randomElement()!
 
-        let randomRelay = relays.first { (relayWithLocation) -> Bool in
-            let (result, isOverflow) = i.subtractingReportingOverflow(relayWithLocation.relay.weight)
+        let randomRelay = relays.first { relayWithLocation -> Bool in
+            let (result, isOverflow) = i
+                .subtractingReportingOverflow(relayWithLocation.relay.weight)
 
             i = isOverflow ? 0 : result
 
@@ -128,7 +135,7 @@ extension RelaySelector {
             return partialResult + closedRange.count
         }
 
-        guard var portIndex = (0..<portAmount).randomElement() else {
+        guard var portIndex = (0 ..< portAmount).randomElement() else {
             return nil
         }
 
@@ -154,15 +161,18 @@ extension RelaySelector {
             let endPort = inputRange[1]
 
             if startPort <= endPort {
-                return (startPort...endPort)
+                return (startPort ... endPort)
             } else {
                 return nil
             }
         }
     }
 
-    private static func parseRelaysResponse(_ response: REST.ServerRelaysResponse) -> [RelayWithLocation] {
-        return response.wireguard.relays.compactMap { (serverRelay) -> RelayWithLocation? in
+    private static func parseRelaysResponse(
+        _ response: REST
+            .ServerRelaysResponse
+    ) -> [RelayWithLocation] {
+        return response.wireguard.relays.compactMap { serverRelay -> RelayWithLocation? in
             guard let serverLocation = response.locations[serverRelay.location] else { return nil }
 
             let locationComponents = serverRelay.location.split(separator: "-")
@@ -180,5 +190,4 @@ extension RelaySelector {
             return RelayWithLocation(relay: serverRelay, location: location)
         }
     }
-
 }

@@ -7,11 +7,10 @@
 //
 
 import Foundation
-import StoreKit
 import Logging
+import StoreKit
 
 class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
-
     private enum OperationCategory {
         static let sendAppStoreReceipt = "AppStorePaymentManager.sendAppStoreReceipt"
         static let productsRequest = "AppStorePaymentManager.productsRequest"
@@ -75,7 +74,10 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     // MARK: - SKPaymentTransactionObserver
 
-    func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
+    func paymentQueue(
+        _ queue: SKPaymentQueue,
+        updatedTransactions transactions: [SKPaymentTransaction]
+    ) {
         // Ensure that all calls happen on main queue
         if Thread.isMainThread {
             handleTransactions(transactions)
@@ -98,7 +100,10 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     // MARK: - Products and payments
 
-    func requestProducts(with productIdentifiers: Set<AppStoreSubscription>, completionHandler: @escaping (OperationCompletion<SKProductsResponse, Swift.Error>) -> Void) -> Cancellable {
+    func requestProducts(
+        with productIdentifiers: Set<AppStoreSubscription>,
+        completionHandler: @escaping (OperationCompletion<SKProductsResponse, Swift.Error>) -> Void
+    ) -> Cancellable {
         let productIdentifiers = productIdentifiers.productIdentifiersSet
         let operation = ProductsRequestOperation(
             productIdentifiers: productIdentifiers,
@@ -113,9 +118,10 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     func addPayment(_ payment: SKPayment, for accountToken: String) {
         var task: Cancellable?
-        let backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "Validate account token") {
-            task?.cancel()
-        }
+        let backgroundTaskIdentifier = UIApplication.shared
+            .beginBackgroundTask(withName: "Validate account token") {
+                task?.cancel()
+            }
 
         // Validate account token before adding new payment to the queue.
         task = accountsProxy.getAccountData(
@@ -129,7 +135,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                 self.associateAccountToken(accountToken, and: payment)
                 self.paymentQueue.add(payment)
 
-            case .failure(let error):
+            case let .failure(error):
                 self.observerList.forEach { observer in
                     observer.appStorePaymentManager(
                         self,
@@ -156,10 +162,19 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
     }
 
-    func restorePurchases(for accountToken: String, completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, AppStorePaymentManager.Error>) -> Void) -> Cancellable {
-        return sendAppStoreReceipt(accountToken: accountToken, forceRefresh: true, completionHandler: completionHandler)
+    func restorePurchases(
+        for accountToken: String,
+        completionHandler: @escaping (OperationCompletion<
+            REST.CreateApplePaymentResponse,
+            AppStorePaymentManager.Error
+        >) -> Void
+    ) -> Cancellable {
+        return sendAppStoreReceipt(
+            accountToken: accountToken,
+            forceRefresh: true,
+            completionHandler: completionHandler
+        )
     }
-
 
     // MARK: - Private methods
 
@@ -180,7 +195,12 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
     }
 
-    private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool, completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, Error>) -> Void) -> Cancellable {
+    private func sendAppStoreReceipt(
+        accountToken: String,
+        forceRefresh: Bool,
+        completionHandler: @escaping (OperationCompletion<REST.CreateApplePaymentResponse, Error>)
+            -> Void
+    ) -> Cancellable {
         let operation = SendAppStoreReceiptOperation(
             apiProxy: apiProxy,
             accountToken: accountToken,
@@ -214,7 +234,10 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
             logger.info("Deferred \(transaction.payment.productIdentifier)")
 
         case .failed:
-            logger.error("Failed to purchase \(transaction.payment.productIdentifier): \(transaction.error?.localizedDescription ?? "No error")")
+            logger
+                .error(
+                    "Failed to purchase \(transaction.payment.productIdentifier): \(transaction.error?.localizedDescription ?? "No error")"
+                )
 
             didFailPurchase(transaction: transaction)
 
@@ -246,7 +269,8 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                     transaction: transaction,
                     payment: transaction.payment,
                     accountToken: accountToken,
-                    didFailWithError: .storePayment(transaction.error!))
+                    didFailWithError: .storePayment(transaction.error!)
+                )
             }
         } else {
             observerList.forEach { observer in
@@ -255,7 +279,8 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                     transaction: transaction,
                     payment: transaction.payment,
                     accountToken: nil,
-                    didFailWithError: .noAccountSet)
+                    didFailWithError: .noAccountSet
+                )
             }
         }
     }
@@ -268,14 +293,15 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                     transaction: transaction,
                     payment: transaction.payment,
                     accountToken: nil,
-                    didFailWithError: .noAccountSet)
+                    didFailWithError: .noAccountSet
+                )
             }
             return
         }
 
         _ = sendAppStoreReceipt(accountToken: accountToken, forceRefresh: false) { completion in
             switch completion {
-            case .success(let response):
+            case let .success(response):
                 self.paymentQueue.finishTransaction(transaction)
 
                 self.observerList.forEach { observer in
@@ -283,17 +309,19 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                         self,
                         transaction: transaction,
                         accountToken: accountToken,
-                        didFinishWithResponse: response)
+                        didFinishWithResponse: response
+                    )
                 }
 
-            case .failure(let error):
+            case let .failure(error):
                 self.observerList.forEach { observer in
                     observer.appStorePaymentManager(
                         self,
                         transaction: transaction,
                         payment: transaction.payment,
                         accountToken: accountToken,
-                        didFailWithError: error)
+                        didFailWithError: error
+                    )
                 }
 
             case .cancelled:
@@ -301,5 +329,4 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
             }
         }
     }
-
 }

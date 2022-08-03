@@ -22,7 +22,7 @@ enum OperationCompletion<Success, Failure: Error> {
     }
 
     var value: Success? {
-        if case .success(let value) = self {
+        if case let .success(value) = self {
             return value
         } else {
             return nil
@@ -30,7 +30,7 @@ enum OperationCompletion<Success, Failure: Error> {
     }
 
     var error: Failure? {
-        if case .failure(let error) = self {
+        if case let .failure(error) = self {
             return error
         } else {
             return nil
@@ -39,9 +39,9 @@ enum OperationCompletion<Success, Failure: Error> {
 
     var result: Result<Success, Failure>? {
         switch self {
-        case .success(let value):
+        case let .success(value):
             return .success(value)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error)
         case .cancelled:
             return nil
@@ -50,9 +50,9 @@ enum OperationCompletion<Success, Failure: Error> {
 
     init(result: Result<Success, Failure>) {
         switch result {
-        case .success(let value):
+        case let .success(value):
             self = .success(value)
-        case .failure(let error):
+        case let .failure(error):
             self = .failure(error)
         }
     }
@@ -65,59 +65,70 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    func map<NewSuccess>(_ block: (Success) -> NewSuccess) -> OperationCompletion<NewSuccess, Failure> {
+    func map<NewSuccess>(_ block: (Success) -> NewSuccess)
+        -> OperationCompletion<NewSuccess, Failure>
+    {
         switch self {
-        case .success(let value):
+        case let .success(value):
             return .success(block(value))
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error)
         case .cancelled:
             return .cancelled
         }
     }
 
-    func mapError<NewFailure: Error>(_ block: (Failure) -> NewFailure) -> OperationCompletion<Success, NewFailure> {
+    func mapError<NewFailure: Error>(_ block: (Failure) -> NewFailure)
+        -> OperationCompletion<Success, NewFailure>
+    {
         switch self {
-        case .success(let value):
+        case let .success(value):
             return .success(value)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(block(error))
         case .cancelled:
             return .cancelled
         }
     }
 
-    func flatMap<NewSuccess>(_ block: (Success) -> OperationCompletion<NewSuccess, Failure>) -> OperationCompletion<NewSuccess, Failure> {
+    func flatMap<NewSuccess>(_ block: (Success) -> OperationCompletion<NewSuccess, Failure>)
+        -> OperationCompletion<NewSuccess, Failure>
+    {
         switch self {
-        case .success(let value):
+        case let .success(value):
             return block(value)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error)
         case .cancelled:
             return .cancelled
         }
     }
 
-    func flatMapError<NewFailure: Error>(_ block: (Failure) -> OperationCompletion<Success, NewFailure>) -> OperationCompletion<Success, NewFailure> {
+    func flatMapError<NewFailure: Error>(
+        _ block: (Failure)
+            -> OperationCompletion<Success, NewFailure>
+    ) -> OperationCompletion<Success, NewFailure> {
         switch self {
-        case .success(let value):
+        case let .success(value):
             return .success(value)
-        case .failure(let error):
+        case let .failure(error):
             return block(error)
         case .cancelled:
             return .cancelled
         }
     }
 
-    func tryMap<NewSuccess>(_ block: (Success) throws -> NewSuccess) -> OperationCompletion<NewSuccess, Error> {
+    func tryMap<NewSuccess>(_ block: (Success) throws -> NewSuccess)
+        -> OperationCompletion<NewSuccess, Error>
+    {
         switch self {
-        case .success(let value):
+        case let .success(value):
             do {
                 return .success(try block(value))
             } catch {
                 return .failure(error)
             }
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error)
         case .cancelled:
             return .cancelled

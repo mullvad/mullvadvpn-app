@@ -19,8 +19,7 @@ class UpdateAccountDataOperation: ResultOperation<Void, Error> {
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
         accountsProxy: REST.AccountsProxy
-    )
-    {
+    ) {
         self.interactor = interactor
         self.accountsProxy = accountsProxy
 
@@ -28,7 +27,7 @@ class UpdateAccountDataOperation: ResultOperation<Void, Error> {
     }
 
     override func main() {
-        guard case .loggedIn(let accountData, _) = interactor.deviceState else {
+        guard case let .loggedIn(accountData, _) = interactor.deviceState else {
             finish(completion: .failure(InvalidDeviceStateError()))
             return
         }

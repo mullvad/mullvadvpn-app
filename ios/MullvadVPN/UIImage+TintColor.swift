@@ -9,7 +9,6 @@
 import UIKit
 
 extension UIImage {
-
     func backport_withTintColor(_ tintColor: UIColor) -> UIImage {
         return backport_withTintColor(tintColor, renderingMode: renderingMode)
     }
@@ -30,5 +29,4 @@ extension UIImage {
 
         return renderedImage.withRenderingMode(renderingMode)
     }
-
 }

@@ -11,7 +11,8 @@ import Foundation
 protocol RESTResponseHandler {
     associatedtype Success
 
-    func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST.ResponseHandlerResult<Success>
+    func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST
+        .ResponseHandlerResult<Success>
 }
 
 extension REST {
@@ -37,7 +38,9 @@ extension REST {
             handlerBlock = block
         }
 
-        func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST.ResponseHandlerResult<Success> {
+        func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST
+            .ResponseHandlerResult<Success>
+        {
             return handlerBlock(response, data)
         }
     }

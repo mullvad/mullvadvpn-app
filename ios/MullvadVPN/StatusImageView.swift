@@ -35,13 +35,13 @@ class StatusImageView: UIImageView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.image = style.image
+        image = style.image
     }
 
     init(style: Style) {
         self.style = style
         super.init(image: style.image)
-        self.image = style.image
+        image = style.image
     }
 
     required init?(coder: NSCoder) {

@@ -7,10 +7,10 @@
 //
 
 import Foundation
-import NetworkExtension
 import Logging
+import NetworkExtension
 
-class StartTunnelOperation: ResultOperation<(), Error> {
+class StartTunnelOperation: ResultOperation<Void, Error> {
     typealias EncodeErrorHandler = (Error) -> Void
 
     private let interactor: TunnelInteractor
@@ -20,8 +20,7 @@ class StartTunnelOperation: ResultOperation<(), Error> {
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
         completionHandler: @escaping CompletionHandler
-    )
-    {
+    ) {
         self.interactor = interactor
 
         super.init(
@@ -100,13 +99,21 @@ class StartTunnelOperation: ResultOperation<(), Error> {
             )
         }
 
-        interactor.setTunnel(Tunnel(tunnelProvider: tunnelProvider), shouldRefreshTunnelState: false)
+        interactor.setTunnel(
+            Tunnel(tunnelProvider: tunnelProvider),
+            shouldRefreshTunnelState: false
+        )
         interactor.resetTunnelState(to: .connecting(selectorResult.packetTunnelRelay))
 
         try tunnelProvider.connection.startVPNTunnel(options: tunnelOptions.rawOptions())
     }
 
-    private class func makeTunnelProvider(completionHandler: @escaping (Result<TunnelProviderManagerType, Error>) -> Void) {
+    private class func makeTunnelProvider(
+        completionHandler: @escaping (Result<
+            TunnelProviderManagerType,
+            Error
+        >) -> Void
+    ) {
         TunnelProviderManagerType.loadAllFromPreferences { tunnelProviders, error in
             if let error = error {
                 completionHandler(.failure(error))
@@ -135,7 +142,8 @@ class StartTunnelOperation: ResultOperation<(), Error> {
 
     private class func configureTunnelProvider(_ tunnelProvider: TunnelProviderManagerType) {
         let protocolConfig = NETunnelProviderProtocol()
-        protocolConfig.providerBundleIdentifier = ApplicationConfiguration.packetTunnelExtensionIdentifier
+        protocolConfig.providerBundleIdentifier = ApplicationConfiguration
+            .packetTunnelExtensionIdentifier
         protocolConfig.serverAddress = ""
 
         tunnelProvider.isEnabled = true

@@ -11,7 +11,7 @@ import UIKit
 class CustomTextView: UITextView {
     private static let textViewCornerRadius: CGFloat = 4
 
-    var roundCorners: Bool = true {
+    var roundCorners = true {
         didSet {
             layer.cornerRadius = roundCorners ? Self.textViewCornerRadius : 0
         }
@@ -41,7 +41,7 @@ class CustomTextView: UITextView {
 
     override var font: UIFont? {
         didSet {
-            placeholderTextLabel.font = self.font ?? UIFont.preferredFont(forTextStyle: .body)
+            placeholderTextLabel.font = font ?? UIFont.preferredFont(forTextStyle: .body)
         }
     }
 
@@ -74,7 +74,10 @@ class CustomTextView: UITextView {
         }
         get {
             if roundCorners {
-                return UIBezierPath(roundedRect: accessibilityFrame, cornerRadius: Self.textViewCornerRadius)
+                return UIBezierPath(
+                    roundedRect: accessibilityFrame,
+                    cornerRadius: Self.textViewCornerRadius
+                )
             } else {
                 return UIBezierPath(rect: accessibilityFrame)
             }
@@ -97,9 +100,12 @@ class CustomTextView: UITextView {
         // Create placeholder constraints
         placeholderConstraints = [
             placeholderTextLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
-            placeholderTextLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
-            placeholderTextLabel.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
-            placeholderTextLabel.bottomAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.bottomAnchor),
+            placeholderTextLabel.leadingAnchor
+                .constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
+            placeholderTextLabel.trailingAnchor
+                .constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
+            placeholderTextLabel.bottomAnchor
+                .constraint(lessThanOrEqualTo: safeAreaLayoutGuide.bottomAnchor),
         ]
         NSLayoutConstraint.activate(placeholderConstraints)
 
@@ -117,8 +123,9 @@ class CustomTextView: UITextView {
         notificationObserver = NotificationCenter.default.addObserver(
             forName: NSTextStorage.didProcessEditingNotification,
             object: textStorage,
-            queue: OperationQueue.main) { [weak self] (note) in
-                self?.updatePlaceholderVisibility()
+            queue: OperationQueue.main
+        ) { [weak self] note in
+            self?.updatePlaceholderVisibility()
         }
 
         updatePlaceholderVisibility()
@@ -158,5 +165,4 @@ class CustomTextView: UITextView {
     private func updatePlaceholderVisibility() {
         placeholderTextLabel.isHidden = textStorage.length > 0
     }
-
 }

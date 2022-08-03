@@ -20,8 +20,7 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
         devicesProxy: REST.DevicesProxy
-    )
-    {
+    ) {
         self.interactor = interactor
         self.devicesProxy = devicesProxy
 
@@ -29,7 +28,7 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
     }
 
     override func main() {
-        guard case .loggedIn(let accountData, let deviceData) = interactor.deviceState else {
+        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
             finish(completion: .failure(InvalidDeviceStateError()))
             return
         }
@@ -44,7 +43,8 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
                         completion: completion
                     )
                 }
-            })
+            }
+        )
     }
 
     override func operationDidCancel() {
@@ -71,5 +71,4 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
 
         finish(completion: mappedCompletion)
     }
-
 }

@@ -29,8 +29,7 @@ class MigrateSettingsOperation: AsyncOperation {
         dispatchQueue: DispatchQueue,
         accountsProxy: REST.AccountsProxy,
         devicesProxy: REST.DevicesProxy
-    )
-    {
+    ) {
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
 
@@ -139,12 +138,15 @@ class MigrateSettingsOperation: AsyncOperation {
         }
     }
 
-    private func didFinishAccountRequest(_ completion: OperationCompletion<REST.AccountData, REST.Error>) {
+    private func didFinishAccountRequest(_ completion: OperationCompletion<
+        REST.AccountData,
+        REST.Error
+    >) {
         switch completion {
-        case .success(let accountData):
+        case let .success(accountData):
             self.accountData = accountData
 
-        case .failure(let error):
+        case let .failure(error):
             logger.error(chainedError: error, message: "Failed to fetch accound data.")
 
         case .cancelled:
@@ -152,12 +154,15 @@ class MigrateSettingsOperation: AsyncOperation {
         }
     }
 
-    private func didFinishDeviceRequest(_ completion: OperationCompletion<[REST.Device], REST.Error>) {
+    private func didFinishDeviceRequest(_ completion: OperationCompletion<
+        [REST.Device],
+        REST.Error
+    >) {
         switch completion {
-        case .success(let devices):
+        case let .success(devices):
             self.devices = devices
 
-        case .failure(let error):
+        case let .failure(error):
             logger.error(chainedError: error, message: "Failed to fetch devices.")
 
         case .cancelled:
@@ -176,7 +181,7 @@ class MigrateSettingsOperation: AsyncOperation {
         // Find device that matches the public key stored in legacy settings.
         let device = devices.first { device in
             return device.pubkey == interfaceData.privateKey.publicKey ||
-                   device.pubkey == interfaceData.nextPrivateKey?.publicKey
+                device.pubkey == interfaceData.nextPrivateKey?.publicKey
         }
 
         guard let device = device else {
@@ -190,8 +195,7 @@ class MigrateSettingsOperation: AsyncOperation {
 
         // Match private key.
         let privateKeyWithMetadata: PrivateKeyWithMetadata
-        if let nextKey = interfaceData.nextPrivateKey, nextKey.publicKey == device.pubkey
-        {
+        if let nextKey = interfaceData.nextPrivateKey, nextKey.publicKey == device.pubkey {
             privateKeyWithMetadata = nextKey
         } else {
             privateKeyWithMetadata = interfaceData.privateKey
@@ -249,5 +253,4 @@ class MigrateSettingsOperation: AsyncOperation {
 
         finish()
     }
-
 }

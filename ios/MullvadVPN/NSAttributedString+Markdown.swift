@@ -13,7 +13,8 @@ extension NSAttributedString {
         let attributedString = NSMutableAttributedString()
         let components = markdownString.components(separatedBy: "**")
 
-        let fontDescriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) ?? font.fontDescriptor
+        let fontDescriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) ?? font
+            .fontDescriptor
         let boldFont = UIFont(descriptor: fontDescriptor, size: font.pointSize)
 
         for (index, string) in components.enumerated() {

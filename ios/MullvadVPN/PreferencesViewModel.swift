@@ -27,7 +27,10 @@ enum CustomDNSPrecondition {
     }
 
     /// Returns attributed localized description explaining how to enable Custom DNS.
-    func attributedLocalizedDescription(isEditing: Bool, preferredFont: UIFont) -> NSAttributedString? {
+    func attributedLocalizedDescription(
+        isEditing: Bool,
+        preferredFont: UIFont
+    ) -> NSAttributedString? {
         switch self {
         case .satisfied:
             return nil

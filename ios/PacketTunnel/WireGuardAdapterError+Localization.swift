@@ -18,7 +18,7 @@ extension WireGuardAdapterError: LocalizedError {
         case .invalidState:
             return "Failure to perform an operation in such state."
 
-        case .dnsResolution(let resolutionErrors):
+        case let .dnsResolution(resolutionErrors):
             let detailedErrorDescription = resolutionErrors
                 .enumerated()
                 .map { index, dnsResolutionError in
@@ -33,7 +33,7 @@ extension WireGuardAdapterError: LocalizedError {
         case .setNetworkSettings:
             return "Failure to set network settings."
 
-        case .startWireGuardBackend(let code):
+        case let .startWireGuardBackend(code):
             return "Failure to start WireGuard backend (error code: \(code))."
         }
     }

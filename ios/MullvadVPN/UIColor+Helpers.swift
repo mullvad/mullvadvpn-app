@@ -9,7 +9,6 @@
 import UIKit
 
 extension UIColor {
-
     /// Returns the color lighter by the given percent (in range from 0..1)
     func lightened(by percent: CGFloat) -> UIColor? {
         return darkened(by: -percent)
@@ -21,15 +20,16 @@ extension UIColor {
         let factor = 1.0 - percent
 
         if getRed(&r, green: &g, blue: &b, alpha: &a) {
-            return UIColor(red: clampColorComponent(r * factor),
-                    green: clampColorComponent(g * factor),
-                    blue: clampColorComponent(b * factor),
-                    alpha: a)
+            return UIColor(
+                red: clampColorComponent(r * factor),
+                green: clampColorComponent(g * factor),
+                blue: clampColorComponent(b * factor),
+                alpha: a
+            )
         }
 
         return nil
     }
-
 }
 
 private func clampColorComponent(_ value: CGFloat) -> CGFloat {

@@ -9,7 +9,7 @@
 import Foundation
 
 class RegeneratePrivateKeyOperation: AsyncOperation {
-    typealias CompletionHandler = (OperationCompletion<(), TunnelManager.Error>) -> Void
+    typealias CompletionHandler = (OperationCompletion<Void, TunnelManager.Error>) -> Void
 
     private let queue: DispatchQueue
     private let state: TunnelManager.State
@@ -17,7 +17,12 @@ class RegeneratePrivateKeyOperation: AsyncOperation {
     private var completionHandler: CompletionHandler?
     private var restRequest: Cancellable?
 
-    init(queue: DispatchQueue, state: TunnelManager.State, restClient: REST.Client, completionHandler: @escaping CompletionHandler) {
+    init(
+        queue: DispatchQueue,
+        state: TunnelManager.State,
+        restClient: REST.Client,
+        completionHandler: @escaping CompletionHandler
+    ) {
         self.queue = queue
         self.state = state
         self.restClient = restClient
@@ -46,7 +51,7 @@ class RegeneratePrivateKeyOperation: AsyncOperation {
     }
 
     private func execute(completionHandler: @escaping CompletionHandler) {
-        guard !self.isCancelled else {
+        guard !isCancelled else {
             completionHandler(.cancelled)
             return
         }
@@ -59,7 +64,7 @@ class RegeneratePrivateKeyOperation: AsyncOperation {
         let newPrivateKey = PrivateKeyWithMetadata()
         let oldPublicKey = tunnelInfo.tunnelSettings.interface.publicKey
 
-        let restRequestAdapter = self.restClient.replaceWireguardKey(
+        let restRequestAdapter = restClient.replaceWireguardKey(
             token: tunnelInfo.token,
             oldPublicKey: oldPublicKey,
             newPublicKey: newPrivateKey.publicKey
@@ -67,9 +72,13 @@ class RegeneratePrivateKeyOperation: AsyncOperation {
 
         restRequest = restRequestAdapter.execute(retryStrategy: .default) { restResult in
             self.queue.async {
-                let saveResult = Self.handleResponse(accountToken: tunnelInfo.token, newPrivateKey: newPrivateKey, result: restResult)
+                let saveResult = Self.handleResponse(
+                    accountToken: tunnelInfo.token,
+                    newPrivateKey: newPrivateKey,
+                    result: restResult
+                )
 
-                if case .success(let newTunnelSettings) = saveResult {
+                if case let .success(newTunnelSettings) = saveResult {
                     self.state.tunnelInfo?.tunnelSettings = newTunnelSettings
                 }
 
@@ -78,21 +87,25 @@ class RegeneratePrivateKeyOperation: AsyncOperation {
         }
     }
 
-    private class func handleResponse(accountToken: String, newPrivateKey: PrivateKeyWithMetadata, result: Result<REST.WireguardAddressesResponse, REST.Error>) -> Result<TunnelSettings, TunnelManager.Error> {
+    private class func handleResponse(
+        accountToken: String,
+        newPrivateKey: PrivateKeyWithMetadata,
+        result: Result<REST.WireguardAddressesResponse, REST.Error>
+    ) -> Result<TunnelSettings, TunnelManager.Error> {
         return result.flatMapError { restError in
             return .failure(.replaceWireguardKey(restError))
         }
         .flatMap { associatedAddresses in
-            return TunnelSettingsManager.update(searchTerm: .accountToken(accountToken)) { newTunnelSettings in
-                newTunnelSettings.interface.privateKey = newPrivateKey
-                newTunnelSettings.interface.addresses = [
-                    associatedAddresses.ipv4Address,
-                    associatedAddresses.ipv6Address
-                ]
-            }.mapError { error -> TunnelManager.Error in
-                return .updateTunnelSettings(error)
-            }
+            return TunnelSettingsManager
+                .update(searchTerm: .accountToken(accountToken)) { newTunnelSettings in
+                    newTunnelSettings.interface.privateKey = newPrivateKey
+                    newTunnelSettings.interface.addresses = [
+                        associatedAddresses.ipv4Address,
+                        associatedAddresses.ipv6Address,
+                    ]
+                }.mapError { error -> TunnelManager.Error in
+                    return .updateTunnelSettings(error)
+                }
         }
     }
-
 }

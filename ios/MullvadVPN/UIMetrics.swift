@@ -11,7 +11,6 @@ import UIKit
 enum UIMetrics {}
 
 extension UIMetrics {
-
     /// Common layout margins for content presentation
     static let contentLayoutMargins = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
 
@@ -23,13 +22,23 @@ extension UIMetrics {
     static let settingsCellLayoutMargins = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 12)
 
     /// Common layout margins for location cell presentation
-    static let selectLocationCellLayoutMargins = UIEdgeInsets(top: 16, left: 28, bottom: 16, right: 12)
+    static let selectLocationCellLayoutMargins = UIEdgeInsets(
+        top: 16,
+        left: 28,
+        bottom: 16,
+        right: 12
+    )
 
     /// Common cell indentation width
     static let cellIndentationWidth: CGFloat = 16
 
     /// Layout margins for in-app notification banner presentation
-    static let inAppBannerNotificationLayoutMargins = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 24)
+    static let inAppBannerNotificationLayoutMargins = UIEdgeInsets(
+        top: 16,
+        left: 24,
+        bottom: 16,
+        right: 24
+    )
 
     /// Spacing used in stack views of buttons
     static let interButtonSpacing: CGFloat = 16
@@ -51,5 +60,4 @@ extension UIMetrics {
 
     /// Maximum sidebar width in percentage points (0...1)
     static let maximumSplitViewSidebarWidthFraction: CGFloat = 0.3
-
 }

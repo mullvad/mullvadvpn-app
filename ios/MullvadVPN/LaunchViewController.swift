@@ -9,7 +9,6 @@
 import UIKit
 
 class LaunchViewController: UIViewController {
-
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
@@ -28,7 +27,7 @@ class LaunchViewController: UIViewController {
         initialController.didMove(toParent: self)
 
         NSLayoutConstraint.activate([
-            initialController.view.topAnchor.constraint(equalTo:  view.topAnchor),
+            initialController.view.topAnchor.constraint(equalTo: view.topAnchor),
             initialController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             initialController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             initialController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),

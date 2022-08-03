@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import protocol Network.IPAddress
 import struct Network.IPv4Address
 import struct Network.IPv6Address
-import protocol Network.IPAddress
 
 struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
     let ip: IPv4Address
@@ -21,9 +21,15 @@ struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
     }
 
     init?<S>(string: S) where S: StringProtocol {
-        let components = string.split(separator: ":", maxSplits: 2, omittingEmptySubsequences: false)
+        let components = string.split(
+            separator: ":",
+            maxSplits: 2,
+            omittingEmptySubsequences: false
+        )
 
-        if components.count == 2, let parsedIP = IPv4Address(String(components[0])), let parsedPort = UInt16(components[1]) {
+        if components.count == 2, let parsedIP = IPv4Address(String(components[0])),
+           let parsedPort = UInt16(components[1])
+        {
             ip = parsedIP
             port = parsedPort
         } else {
@@ -38,7 +44,10 @@ struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         if let parsedAddress = IPv4Endpoint(string: string) {
             self = parsedAddress
         } else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot parse the IPv4 endpoint")
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Cannot parse the IPv4 endpoint"
+            )
         }
     }
 
@@ -75,7 +84,7 @@ struct IPv6Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         let addressString = string[..<lastColon]
         let portString = string[portIndex...]
 
-        guard addressString.first == "[" && addressString.last == "]" else {
+        guard addressString.first == "[", addressString.last == "]" else {
             return nil
         }
 
@@ -96,7 +105,10 @@ struct IPv6Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         if let parsedAddress = IPv6Endpoint(string: string) {
             self = parsedAddress
         } else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot parse the IPv6 endpoint")
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Cannot parse the IPv6 endpoint"
+            )
         }
     }
 
@@ -121,18 +133,18 @@ enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible {
 
     var ip: IPAddress {
         switch self {
-        case .ipv4(let ipv4Endpoint):
+        case let .ipv4(ipv4Endpoint):
             return ipv4Endpoint.ip
-        case .ipv6(let ipv6Endpoint):
+        case let .ipv6(ipv6Endpoint):
             return ipv6Endpoint.ip
         }
     }
 
     var port: UInt16 {
         switch self {
-        case .ipv4(let ipv4Endpoint):
+        case let .ipv4(ipv4Endpoint):
             return ipv4Endpoint.port
-        case .ipv6(let ipv6Endpoint):
+        case let .ipv6(ipv6Endpoint):
             return ipv6Endpoint.port
         }
     }
@@ -156,7 +168,10 @@ enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         } else if let ipv6Endpoint = IPv6Endpoint(string: string) {
             self = .ipv6(ipv6Endpoint)
         } else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot parse the endpoint")
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Cannot parse the endpoint"
+            )
         }
     }
 
@@ -168,19 +183,19 @@ enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible {
 
     var description: String {
         switch self {
-        case .ipv4(let ipv4Endpoint):
+        case let .ipv4(ipv4Endpoint):
             return "\(ipv4Endpoint)"
-        case .ipv6(let ipv6Endpoint):
+        case let .ipv6(ipv6Endpoint):
             return "\(ipv6Endpoint)"
         }
     }
 
     static func == (lhs: AnyIPEndpoint, rhs: AnyIPEndpoint) -> Bool {
         switch (lhs, rhs) {
-        case (.ipv4(let lhsEndpoint), .ipv4(let rhsEndpoint)):
+        case let (.ipv4(lhsEndpoint), .ipv4(rhsEndpoint)):
             return lhsEndpoint == rhsEndpoint
 
-        case (.ipv6(let lhsEndpoint), .ipv6(let rhsEndpoint)):
+        case let (.ipv6(lhsEndpoint), .ipv6(rhsEndpoint)):
             return lhsEndpoint == rhsEndpoint
 
         default:

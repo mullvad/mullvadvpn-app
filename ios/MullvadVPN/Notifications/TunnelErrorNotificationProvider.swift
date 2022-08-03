@@ -8,7 +8,9 @@
 
 import Foundation
 
-class TunnelErrorNotificationProvider: NotificationProvider, InAppNotificationProvider, TunnelObserver {
+class TunnelErrorNotificationProvider: NotificationProvider, InAppNotificationProvider,
+    TunnelObserver
+{
     override var identifier: String {
         return "net.mullvad.MullvadVPN.TunnelErrorNotificationProvider"
     }
@@ -55,7 +57,10 @@ class TunnelErrorNotificationProvider: NotificationProvider, InAppNotificationPr
         invalidate()
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
+    func tunnelManager(
+        _ manager: TunnelManager,
+        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
+    ) {
         // no-op
     }
 

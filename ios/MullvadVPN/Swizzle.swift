@@ -12,8 +12,18 @@ import Foundation
     guard let originalMethod = class_getInstanceMethod(aClass, originalSelector),
           let newMethod = class_getInstanceMethod(aClass, newSelector) else { return }
 
-    if class_addMethod(aClass, originalSelector, method_getImplementation(newMethod), method_getTypeEncoding(newMethod)) {
-        class_replaceMethod(aClass, newSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
+    if class_addMethod(
+        aClass,
+        originalSelector,
+        method_getImplementation(newMethod),
+        method_getTypeEncoding(newMethod)
+    ) {
+        class_replaceMethod(
+            aClass,
+            newSelector,
+            method_getImplementation(originalMethod),
+            method_getTypeEncoding(originalMethod)
+        )
     } else {
         method_exchangeImplementations(originalMethod, newMethod)
     }

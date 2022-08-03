@@ -10,7 +10,6 @@ import Foundation
 import UIKit
 
 class CustomTextField: UITextField {
-
     var cornerRadius: CGFloat = UIMetrics.controlCornerRadius {
         didSet {
             layer.cornerRadius = cornerRadius
@@ -23,7 +22,7 @@ class CustomTextField: UITextField {
         }
     }
 
-    var placeholderTextColor: UIColor = UIColor.TextField.placeholderTextColor {
+    var placeholderTextColor = UIColor.TextField.placeholderTextColor {
         didSet {
             updatePlaceholderTextColor()
         }

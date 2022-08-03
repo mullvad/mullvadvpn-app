@@ -8,15 +8,14 @@
 
 import Foundation
 
-class StopTunnelOperation: ResultOperation<(), Error> {
+class StopTunnelOperation: ResultOperation<Void, Error> {
     private let interactor: TunnelInteractor
 
     init(
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
         completionHandler: @escaping CompletionHandler
-    )
-    {
+    ) {
         self.interactor = interactor
 
         super.init(

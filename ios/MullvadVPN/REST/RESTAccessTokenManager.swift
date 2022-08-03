@@ -10,7 +10,6 @@ import Foundation
 import Logging
 
 extension REST {
-
     final class AccessTokenManager {
         private let logger = Logger(label: "REST.AccessTokenManager")
         private let operationQueue = AsyncOperationQueue()
@@ -28,9 +27,9 @@ extension REST {
         func getAccessToken(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping (OperationCompletion<REST.AccessTokenData, REST.Error>) -> Void
-        ) -> Cancellable
-        {
+            completionHandler: @escaping (OperationCompletion<REST.AccessTokenData, REST.Error>)
+                -> Void
+        ) -> Cancellable {
             let operation = ResultBlockOperation<REST.AccessTokenData, REST.Error>(
                 dispatchQueue: dispatchQueue
             ) { operation in
@@ -45,11 +44,14 @@ extension REST {
                 ) { completion in
                     self.dispatchQueue.async {
                         switch completion {
-                        case .success(let tokenData):
+                        case let .success(tokenData):
                             self.tokens[accountNumber] = tokenData
 
-                        case .failure(let error):
-                            self.logger.error(chainedError: error, message: "Failed to fetch access token.")
+                        case let .failure(error):
+                            self.logger.error(
+                                chainedError: error,
+                                message: "Failed to fetch access token."
+                            )
 
                         case .cancelled:
                             break
@@ -72,5 +74,4 @@ extension REST {
             return operation
         }
     }
-
 }

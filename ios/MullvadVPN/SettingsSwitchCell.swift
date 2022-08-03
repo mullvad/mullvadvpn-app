@@ -9,7 +9,6 @@
 import UIKit
 
 class SettingsSwitchCell: SettingsCell {
-
     private let switchContainer = CustomSwitchContainer()
 
     var action: ((Bool) -> Void)?
@@ -19,7 +18,11 @@ class SettingsSwitchCell: SettingsCell {
 
         accessoryView = switchContainer
 
-        switchContainer.control.addTarget(self, action: #selector(switchValueDidChange), for: .valueChanged)
+        switchContainer.control.addTarget(
+            self,
+            action: #selector(switchValueDidChange),
+            for: .valueChanged
+        )
 
         isAccessibilityElement = true
     }
@@ -45,7 +48,7 @@ class SettingsSwitchCell: SettingsCell {
     // MARK: - Actions
 
     @objc private func switchValueDidChange() {
-        action?(self.switchContainer.control.isOn)
+        action?(switchContainer.control.isOn)
     }
 
     // MARK: -  Accessibility
@@ -99,7 +102,7 @@ class SettingsSwitchCell: SettingsCell {
     override func accessibilityActivate() -> Bool {
         guard switchContainer.isEnabled else { return false }
 
-        let newValue = !self.switchContainer.control.isOn
+        let newValue = !switchContainer.control.isOn
 
         setOn(newValue, animated: true)
         action?(newValue)

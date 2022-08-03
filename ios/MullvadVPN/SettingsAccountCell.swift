@@ -9,7 +9,6 @@
 import UIKit
 
 class SettingsAccountCell: SettingsCell {
-
     var accountExpiryDate: Date? {
         didSet {
             didUpdateAccountExpiry()

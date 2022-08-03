@@ -32,8 +32,7 @@ extension REST {
             configuration: ConfigurationType,
             requestFactory: REST.RequestFactory,
             responseDecoder: JSONDecoder
-        )
-        {
+        ) {
             dispatchQueue = DispatchQueue(label: "REST.\(name).dispatchQueue")
             operationQueue.name = "REST.\(name).operationQueue"
 
@@ -48,8 +47,7 @@ extension REST {
             requestHandler: REST.AnyRequestHandler,
             responseHandler: REST.AnyResponseHandler<Success>,
             completionHandler: @escaping NetworkOperation<Success>.CompletionHandler
-        ) -> Cancellable
-        {
+        ) -> Cancellable {
             let operation = NetworkOperation(
                 name: getTaskIdentifier(name: name),
                 dispatchQueue: dispatchQueue,
