@@ -32,6 +32,7 @@ class NotificationProvider {
     func invalidate() {
         let executor = { () in
             self.delegate?.notificationProviderDidInvalidate(self)
+            return
         }
 
         if Thread.isMainThread {
