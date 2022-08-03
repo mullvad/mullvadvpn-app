@@ -13,7 +13,7 @@ jobs:
         runs-on: macos-11
         steps:
             - name: Install SwiftFormat
-              run: brew upgrade "swiftformat"
+              run: brew upgrade swiftformat --fetch-HEAD
 
             - name: Checkout repository
               uses: actions/checkout@v3
