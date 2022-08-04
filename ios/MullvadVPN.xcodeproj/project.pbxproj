@@ -310,6 +310,7 @@
 		58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF2C02281BDE02009EF542 /* SettingsManager.swift */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
+		E1187ABF289BE76F0024E748 /* RESTCreateApplePaymentResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABE289BE76F0024E748 /* RESTCreateApplePaymentResponse.swift */; };
 		E158B360285381C60002F069 /* StringFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* StringFormatter.swift */; };
 /* End PBXBuildFile section */
 
@@ -600,6 +601,7 @@
 		58FF2C02281BDE02009EF542 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
+		E1187ABE289BE76F0024E748 /* RESTCreateApplePaymentResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTCreateApplePaymentResponse.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* StringFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -780,6 +782,7 @@
 				58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */,
 				58B5A898280AB0D7009FDE99 /* RESTAuthorization.swift */,
 				585DA88926B027A300B8C587 /* RESTCoding.swift */,
+				E1187ABE289BE76F0024E748 /* RESTCreateApplePaymentResponse.swift */,
 				588BCF23280FE43D009ADCEC /* RESTDevicesProxy.swift */,
 				585DA88626B0277200B8C587 /* RESTError.swift */,
 				58095C522760EEC700890776 /* RESTNetworkOperation.swift */,
@@ -1358,6 +1361,7 @@
 				58B3F30F2742708B00A2DD38 /* HeaderBarButton.swift in Sources */,
 				584789E026529D72000E45FB /* SSLPinningURLSessionDelegate.swift in Sources */,
 				58161C9C28352F850028ECFD /* MigrateSettingsOperation.swift in Sources */,
+				E1187ABF289BE76F0024E748 /* RESTCreateApplePaymentResponse.swift in Sources */,
 				58ACF6492655365700ACE4B7 /* PreferencesViewController.swift in Sources */,
 				58968FAE28743E2000B799DC /* TunnelInteractor.swift in Sources */,
 				588D2FE3248AC27F00E313F7 /* AsyncOperation.swift in Sources */,
