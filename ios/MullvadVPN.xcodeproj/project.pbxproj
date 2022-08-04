@@ -308,6 +308,8 @@
 		58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB45260A028D00A621A8 /* GeoJSON.swift */; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 		58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF2C02281BDE02009EF542 /* SettingsManager.swift */; };
+		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
+		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* StringFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* StringFormatter.swift */; };
 /* End PBXBuildFile section */
 
@@ -596,6 +598,8 @@
 		58FEEB45260A028D00A621A8 /* GeoJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoJSON.swift; sourceTree = "<group>"; };
 		58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyboardResponder.swift; sourceTree = "<group>"; };
 		58FF2C02281BDE02009EF542 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
+		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
+		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* StringFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -921,6 +925,8 @@
 				5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */,
 				58CC40EE24A601900019D96E /* ObserverList.swift */,
 				580EE1FF24B3218800F9D8A1 /* Operations */,
+				E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */,
+				E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */,
 				584D26C3270C855A004EA533 /* PreferencesDataSource.swift */,
 				587EB6732714520600123C75 /* PreferencesDataSourceDelegate.swift */,
 				58ACF6482655365700ACE4B7 /* PreferencesViewController.swift */,
@@ -1371,6 +1377,7 @@
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* AppStorePaymentObserver.swift in Sources */,
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
+				E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */,
 				58DF5B762852108E00E92647 /* InputInjectionBuilder.swift in Sources */,
 				5856D13727450A8A00DFD627 /* UIImage+TintColor.swift in Sources */,
 				58CB0EE024B86751001EF0D8 /* RESTAPIProxy.swift in Sources */,
@@ -1396,6 +1403,7 @@
 				588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
 				58F97A1B280EEBC00050C2FC /* RESTProxyFactory.swift in Sources */,
+				E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */,
 				58095C592762155700890776 /* RESTRetryStrategy.swift in Sources */,
 				5840250422B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */,
 				58CC40EF24A601900019D96E /* ObserverList.swift in Sources */,
