@@ -248,6 +248,7 @@ class RootContainerViewController: UIViewController {
 
     /// Enable or disable the settings bar button displayed in the header bar
     func setEnableSettingsButton(_ isEnabled: Bool) {
+        headerBarView.settingsButton.alpha = isEnabled ? 1 : 0.5
         headerBarView.settingsButton.isEnabled = isEnabled
         presentationContainerSettingsButton?.isEnabled = isEnabled
     }

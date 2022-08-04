@@ -422,67 +422,6 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
     }
 }
 
-private extension REST.CreateApplePaymentResponse {
-    enum Context {
-        case purchase
-        case restoration
-    }
-
-    func alertTitle(context: Context) -> String {
-        switch context {
-        case .purchase:
-            return NSLocalizedString(
-                "TIME_ADDED_ALERT_SUCCESS_TITLE",
-                tableName: "Account",
-                value: "Thanks for your purchase",
-                comment: ""
-            )
-        case .restoration:
-            return NSLocalizedString(
-                "RESTORE_PURCHASES_ALERT_TITLE",
-                tableName: "Account",
-                value: "Restore purchases",
-                comment: ""
-            )
-        }
-    }
-
-    func alertMessage(context: Context) -> String {
-        switch context {
-        case .purchase:
-            return String(
-                format: NSLocalizedString(
-                    "TIME_ADDED_ALERT_SUCCESS_MESSAGE",
-                    tableName: "Account",
-                    value: "%@ have been added to your account",
-                    comment: ""
-                ),
-                formattedTimeAdded ?? ""
-            )
-        case .restoration:
-            switch self {
-            case .noTimeAdded:
-                return NSLocalizedString(
-                    "RESTORE_PURCHASES_ALERT_NO_TIME_ADDED_MESSAGE",
-                    tableName: "Account",
-                    value: "Your previous purchases have already been added to this account.",
-                    comment: ""
-                )
-            case .timeAdded:
-                return String(
-                    format: NSLocalizedString(
-                        "RESTORE_PURCHASES_ALERT_TIME_ADDED_MESSAGE",
-                        tableName: "Account",
-                        value: "%@ have been added to your account",
-                        comment: ""
-                    ),
-                    formattedTimeAdded ?? ""
-                )
-            }
-        }
-    }
-}
-
 private extension AccountViewController {
     enum PaymentState: Equatable {
         case none
