@@ -98,6 +98,7 @@ extension UIColor {
         static let dividerColor = secondaryColor
         static let brandNameColor = UIColor(white: 1.0, alpha: 0.8)
         static let buttonColor = UIColor(white: 1.0, alpha: 0.8)
+        static let disabledButtonColor = UIColor(white: 1.0, alpha: 0.5)
     }
 
     enum InAppNotificationBanner {
