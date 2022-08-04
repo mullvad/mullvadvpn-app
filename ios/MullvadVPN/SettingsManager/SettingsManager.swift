@@ -302,7 +302,7 @@ extension SettingsManager {
     // MARK: - Pinned location names
 
     static func getPinnedLocationNames() throws -> Set<String> {
-        var query = createDefaultAttributes(accountName: .pinnedLocationNames)
+        var query = createDefaultAttributes(item: .pinnedLocationNames)
         query[kSecReturnData] = true
 
         var result: CFTypeRef?
@@ -327,7 +327,7 @@ extension SettingsManager {
     }
 
     static func setPinnedLocationNames(_ displayNames: Set<String>?) throws {
-        let query = createDefaultAttributes(accountName: .pinnedLocationNames)
+        let query = createDefaultAttributes(item: .pinnedLocationNames)
 
         guard let displayNames = displayNames else {
             switch SecItemDelete(query as CFDictionary) {
