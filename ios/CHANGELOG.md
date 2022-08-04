@@ -30,8 +30,12 @@ Line wrap the file at 100 chars.                                              Th
 - Add revoked device view displayed when the app detects that device is no longer registered on
   backend.
 - Add ability to manage registered devices if too many devices detected during log-in.
-- Add intents: start VPN, stop VPN, reconnect VPN (acts as start VPN when the tunnel is down, 
+- Add intents: start VPN, stop VPN, reconnect VPN (acts as start VPN when the tunnel is down,
   otherwise picks new relay).
+
+### Changed
+- When logged into an account with no time left, a new view is shown instead of account settings,
+with the option to buy more time.
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.
@@ -49,8 +53,8 @@ Line wrap the file at 100 chars.                                              Th
 - Delete leftover settings in Keychain during login. WireGuard keys will be removed from
   server too if old settings can be read. This is usually the case when uninstalling the app and
   then reinstalling it without logging out first.
-- Validate account token before charging user (in-app purchases). Safeguards from trying to add 
-  credits on accounts that no longer exist on our backend. Usually the case with newly created 
+- Validate account token before charging user (in-app purchases). Safeguards from trying to add
+  credits on accounts that no longer exist on our backend. Usually the case with newly created
   accounts that went stale.
 
 
@@ -62,13 +66,13 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix crash occurring after completing in-app purchase.
 - Fix error when changing relays while in airplane mode.
-- Prevent key rotation from clogging the server key list by storing the next key and reusing it 
+- Prevent key rotation from clogging the server key list by storing the next key and reusing it
   until receiving the successful response from Mullvad API. Add up to three retry attempts.
 
 ### Changed
 - Increase hit area of settings (cog) button.
 - Update launch screen.
-- Never use DNS to talk to Mullvad API. Instead use the list of IP addresses bundled with the app 
+- Never use DNS to talk to Mullvad API. Instead use the list of IP addresses bundled with the app
   and update it periodically.
 
 
@@ -86,7 +90,7 @@ Line wrap the file at 100 chars.                                              Th
 - Drop leading replacement characters (`\u{FFFD}`) when decoding UTF-8 from a part of log file.
 
 ### Security
-- Move REST API networking from the packet tunnel process to the main process to prevent leaking 
+- Move REST API networking from the packet tunnel process to the main process to prevent leaking
   traffic outside of the tunnel.
 
 
@@ -106,7 +110,7 @@ Line wrap the file at 100 chars.                                              Th
 - Enable option to "Select all" when viewing app logs.
 - Split view interface for iPad.
 - Add interactive map.
-- Reduce network traffic consumption by leveraging HTTP caching via ETag HTTP header to avoid 
+- Reduce network traffic consumption by leveraging HTTP caching via ETag HTTP header to avoid
   re-downloading the relay list if it hasn't changed.
 - Pin root SSL certificates.
 - Add option to use Mullvad's ad-blocking DNS servers.
@@ -134,7 +138,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [2020.5] - 2020-11-04
 ### Fixed
-- Fix regression where "Internal error" was displayed instead of server error (i.e too many 
+- Fix regression where "Internal error" was displayed instead of server error (i.e too many
   WireGuard keys)
 
 
@@ -164,11 +168,11 @@ Line wrap the file at 100 chars.                                              Th
 - Add automatic key rotation every 4 days.
 
 ### Fixed
-- Fix relay selection for country wide constraints by respecting the `include_in_country` 
+- Fix relay selection for country wide constraints by respecting the `include_in_country`
   parameter.
 - Fix defect when manually regenerating the private key from Settings would automatically connect
   the tunnel.
-- Properly format date intervals close to 1 day or less than 1 minute. Enforce intervals between 1 
+- Properly format date intervals close to 1 day or less than 1 minute. Enforce intervals between 1
   and 90 days to always be displayed in days quantity.
 - Fix a number of errors in DNS64 resolution and IPv6 support.
 - Update the tunnel state when the app returns from suspended state.
@@ -184,8 +188,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Added
 - Format account number in groups of 4 digits separated by whitespace on login screen.
-- Enable on-demand VPN with a single rule to always connect the tunnel when on Wi-Fi or cellular. 
-  Automatically disable on-demand VPN when manually disconnecting the tunnel from GUI to prevent the 
+- Enable on-demand VPN with a single rule to always connect the tunnel when on Wi-Fi or cellular.
+  Automatically disable on-demand VPN when manually disconnecting the tunnel from GUI to prevent the
   tunnel from coming back up.
 
 
