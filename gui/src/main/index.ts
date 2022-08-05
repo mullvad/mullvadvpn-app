@@ -1,24 +1,12 @@
 import { exec, execFile } from 'child_process';
 import { randomUUID } from 'crypto';
-import {
-  app,
-  BrowserWindow,
-  dialog,
-  Menu,
-  nativeImage,
-  nativeTheme,
-  screen,
-  session,
-  shell,
-  systemPreferences,
-  Tray,
-} from 'electron';
+import { app, dialog, nativeTheme, session, shell, systemPreferences } from 'electron';
 import fs from 'fs';
 import * as path from 'path';
 import util from 'util';
 
 import config from '../config.json';
-import { closeToExpiry, hasExpired } from '../shared/account-expiry';
+import { hasExpired } from '../shared/account-expiry';
 import { IWindowsApplication } from '../shared/application-types';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
@@ -81,12 +69,10 @@ import {
   IpcInput,
   OLD_LOG_FILES,
 } from './logging';
-import NotificationController from './notification-controller';
-import { isMacOs11OrNewer } from './platform-version';
+import NotificationController, { NotificationControllerDelegate } from './notification-controller';
 import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
-import TrayIconController, { TrayIconType } from './tray-icon-controller';
-import WindowController from './window-controller';
+import UserInterface, { UserInterfaceDelegate } from './user-interface';
 
 const execAsync = util.promisify(exec);
 
@@ -100,32 +86,28 @@ const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
 
 const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION === '1';
 
-const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
-
 const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 
-enum Options {
+enum CommandLineOptions {
   quitWithoutDisconnect = '--quit-without-disconnect',
   showChanges = '--show-changes',
   disableResetNavigation = '--disable-reset-navigation', // development only
 }
 
-enum AppQuitStage {
+const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
+const QUIT_WITHOUT_DISCONNECT = process.argv.includes(CommandLineOptions.quitWithoutDisconnect);
+const FORCE_SHOW_CHANGES = process.argv.includes(CommandLineOptions.showChanges);
+const NAVIGATION_RESET_DISABLED = process.argv.includes(CommandLineOptions.disableResetNavigation);
+
+export enum AppQuitStage {
   unready,
   initiated,
   ready,
 }
 
-class ApplicationMain {
-  private notificationController = new NotificationController({
-    openApp: () => this.windowController?.show(),
-    openLink: (url: string, withAuth?: boolean) => this.openLink(url, withAuth),
-    isWindowVisible: () => this.windowController?.isVisible() ?? false,
-    areSystemNotificationsEnabled: () => this.guiSettings.enableSystemNotifications,
-  });
-  private windowController?: WindowController;
-  private tray?: Tray;
-  private trayIconController?: TrayIconController;
+class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDelegate {
+  private notificationController = new NotificationController(this);
+  private userInterface?: UserInterface;
 
   // True while file pickers are displayed which is used to decide if the Browser window should be
   // hidden when losing focus.
@@ -246,17 +228,11 @@ class ApplicationMain {
     (accountData) => {
       this.accountData = accountData;
 
-      if (this.windowController) {
-        IpcMainEventChannel.account.notify(this.windowController.webContents, this.accountData);
-      }
+      IpcMainEventChannel.account.notify?.(this.accountData);
 
       this.handleAccountExpiry();
     },
   );
-
-  private disableResetNavigation = process.argv.includes(Options.disableResetNavigation);
-  private blurNavigationResetScheduler = new Scheduler();
-  private backgroundThrottleScheduler = new Scheduler();
 
   private rendererLog?: Logger;
   private translations: ITranslations = { locale: this.locale };
@@ -268,7 +244,6 @@ class ApplicationMain {
   private stayConnectedOnQuit = false;
 
   private changelog?: IChangelog;
-  private forceShowChanges = process.argv.includes(Options.showChanges);
 
   private navigationHistory?: IHistoryObject;
   private scrollPositions: ScrollPositions = {};
@@ -287,7 +262,7 @@ class ApplicationMain {
 
     // This ensures that only a single instance is running at the same time, but also exits if
     // there's no already running instance when the quit without disconnect flag is supplied.
-    if (!app.requestSingleInstanceLock() || process.argv.includes(Options.quitWithoutDisconnect)) {
+    if (!app.requestSingleInstanceLock() || QUIT_WITHOUT_DISCONNECT) {
       this.quitWithoutDisconnect();
       return;
     }
@@ -311,7 +286,7 @@ class ApplicationMain {
     // the signal `SIGUSR2`.
     if (process.env.NODE_ENV === 'development') {
       process.on('SIGUSR2', () => {
-        this.windowController?.window?.reload();
+        this.userInterface?.reloadWindow();
       });
     }
 
@@ -339,12 +314,12 @@ class ApplicationMain {
 
   private addSecondInstanceEventHandler() {
     app.on('second-instance', (_event, argv, _workingDirectory) => {
-      if (argv.includes(Options.quitWithoutDisconnect)) {
+      if (argv.includes(CommandLineOptions.quitWithoutDisconnect)) {
         // Quit if another instance is started with the quit without disconnect flag.
         this.quitWithoutDisconnect();
-      } else if (this.windowController) {
+      } else {
         // If no action was provided to the new instance the window is opened.
-        this.windowController.show();
+        this.userInterface?.showWindow();
       }
     });
   }
@@ -400,11 +375,7 @@ class ApplicationMain {
     log.addOutput(new ConsoleOutput(LogLevel.debug));
   }
 
-  private onActivate = () => {
-    if (this.windowController) {
-      this.windowController.show();
-    }
-  };
+  private onActivate = () => this.userInterface?.showWindow();
 
   private quitWithoutDisconnect() {
     this.stayConnectedOnQuit = true;
@@ -481,8 +452,8 @@ class ApplicationMain {
     // closing normally, even programmatically. Therefore re-enable the close button just before
     // quitting the app.
     // Github issue: https://github.com/electron/electron/issues/15008
-    if (process.platform === 'darwin' && this.windowController?.window) {
-      this.windowController.window.closable = true;
+    if (process.platform === 'darwin') {
+      this.userInterface?.setWindowClosable(true);
     }
 
     if (this.daemonRpc.isConnected) {
@@ -498,7 +469,7 @@ class ApplicationMain {
       }
     }
 
-    this.trayIconController?.dispose();
+    this.userInterface?.dispose();
   }
 
   private detectLocale(): string {
@@ -544,29 +515,28 @@ class ApplicationMain {
       });
     }
 
-    const window = await this.createWindow();
-    const tray = this.createTray();
+    this.userInterface = new UserInterface(
+      this,
+      this.daemonRpc,
+      SANDBOX_DISABLED,
+      NAVIGATION_RESET_DISABLED,
+    );
 
-    const windowController = new WindowController(window, tray, this.guiSettings.unpinnedWindow);
     this.tunnelStateExpectation = new Expectation(async () => {
-      this.trayIconController = new TrayIconController(
-        tray,
-        windowController,
-        this.trayIconType(this.tunnelState, this.settings.blockWhenDisconnected),
+      this.userInterface?.createTrayIconController(
+        this.tunnelState,
+        this.settings.blockWhenDisconnected,
         this.guiSettings.monochromaticIcon,
-        () => setImmediate(() => void this.connectTunnel()),
-        () => setImmediate(() => void this.reconnectTunnel()),
-        () => setImmediate(() => void this.disconnectTunnel()),
       );
-      await this.trayIconController.updateTheme();
+      await this.userInterface?.updateTrayTheme();
 
-      this.setTrayContextMenu();
-      this.trayIconController?.setTooltip(this.daemonRpc.isConnected, this.tunnelState);
+      this.userInterface?.setTrayContextMenu();
+      this.userInterface?.setTrayTooltip();
 
       if (process.platform === 'win32') {
         nativeTheme.on('updated', async () => {
           if (this.guiSettings.monochromaticIcon) {
-            await this.trayIconController?.updateTheme();
+            await this.userInterface?.updateTrayTheme();
           }
         });
       }
@@ -574,79 +544,31 @@ class ApplicationMain {
 
     this.registerIpcListeners();
 
-    this.windowController = windowController;
-    this.tray = tray;
-
     this.guiSettings.onChange = async (newState, oldState) => {
       if (oldState.monochromaticIcon !== newState.monochromaticIcon) {
-        if (this.trayIconController) {
-          await this.trayIconController.setUseMonochromaticIcon(newState.monochromaticIcon);
-        }
+        await this.userInterface?.setUseMonochromaticTrayIcon(newState.monochromaticIcon);
       }
 
       if (newState.autoConnect !== oldState.autoConnect) {
         this.updateDaemonsAutoConnect();
       }
 
-      if (this.windowController) {
-        IpcMainEventChannel.guiSettings.notify(this.windowController.webContents, newState);
-      }
+      IpcMainEventChannel.guiSettings.notify?.(newState);
     };
 
     if (this.shouldShowWindowOnStart() || process.env.NODE_ENV === 'development') {
-      windowController.show();
+      this.userInterface.showWindow();
     }
 
-    await this.initializeWindow();
+    if (process.platform === 'linux') {
+      const icon = await findIconPath('mullvad-vpn');
+      if (icon) {
+        this.userInterface.setWindowIcon(icon);
+      }
+    }
+
+    await this.userInterface.initializeWindow();
   };
-
-  private async initializeWindow() {
-    if (this.windowController?.window && this.tray) {
-      this.registerWindowListener(this.windowController);
-      this.addContextMenu(this.windowController);
-
-      if (process.env.NODE_ENV === 'development') {
-        await this.installDevTools();
-
-        // The devtools doesn't open on Windows if openDevTools is called without a delay here.
-        this.windowController.window.once('ready-to-show', () => {
-          this.windowController?.window?.webContents.openDevTools({ mode: 'detach' });
-        });
-      }
-
-      switch (process.platform) {
-        case 'win32':
-          this.installWindowsMenubarAppWindowHandlers(this.tray, this.windowController);
-          break;
-        case 'darwin':
-          this.installMacOsMenubarAppWindowHandlers(this.windowController);
-          this.setMacOsAppMenu();
-          break;
-        case 'linux':
-          this.setTrayContextMenu();
-          this.setLinuxAppMenu();
-          this.windowController.window.setMenuBarVisibility(false);
-          break;
-      }
-
-      this.installWindowCloseHandler(this.windowController);
-      this.installTrayClickHandlers();
-      this.trayIconController?.setWindowController(this.windowController);
-
-      const filePath = path.resolve(path.join(__dirname, '../renderer/index.html'));
-      try {
-        await this.windowController.window.loadFile(filePath);
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to load index file: ${error.message}`);
-      }
-
-      // disable pinch to zoom
-      if (this.windowController.webContents) {
-        void this.windowController.webContents.setVisualZoomLevelLimits(1, 1);
-      }
-    }
-  }
 
   private onDaemonConnected = async () => {
     const firstDaemonConnection = this.beforeFirstDaemonConnection;
@@ -760,8 +682,8 @@ class ApplicationMain {
 
     // notify renderer, this.daemonRpc.isConnected could have changed if the daemon disconnected
     // again before this if-statement is reached.
-    if (this.windowController && this.daemonRpc.isConnected) {
-      IpcMainEventChannel.daemon.notifyConnected(this.windowController.webContents);
+    if (this.daemonRpc.isConnected) {
+      IpcMainEventChannel.daemon.notifyConnected?.();
     }
 
     if (firstDaemonConnection) {
@@ -770,7 +692,7 @@ class ApplicationMain {
 
     // show window when account is not set
     if (!this.isLoggedIn()) {
-      this.windowController?.show();
+      this.userInterface?.showWindow();
     }
   };
 
@@ -788,16 +710,13 @@ class ApplicationMain {
     this.tunnelStateFallback = undefined;
 
     if (wasConnected) {
-
       // update the tray icon to indicate that the computer is not secure anymore
-      this.updateTrayIcon({ state: 'disconnected' }, false);
-      this.setTrayContextMenu();
-      this.trayIconController?.setTooltip(this.daemonRpc.isConnected, this.tunnelState);
+      this.userInterface?.updateTrayIcon({ state: 'disconnected' }, false);
+      this.userInterface?.setTrayContextMenu();
+      this.userInterface?.setTrayTooltip();
 
       // notify renderer process
-      if (this.windowController) {
-        IpcMainEventChannel.daemon.notifyDisconnected(this.windowController.webContents);
-      }
+      IpcMainEventChannel.daemon.notifyDisconnected?.();
     }
 
     // recover connection on error
@@ -843,12 +762,7 @@ class ApplicationMain {
         } else if ('device' in daemonEvent) {
           this.handleDeviceEvent(daemonEvent.device);
         } else if ('deviceRemoval' in daemonEvent) {
-          if (this.windowController) {
-            IpcMainEventChannel.account.notifyDevices(
-              this.windowController.webContents,
-              daemonEvent.deviceRemoval,
-            );
-          }
+          IpcMainEventChannel.account.notifyDevices?.(daemonEvent.deviceRemoval);
         }
       },
       (error: Error) => {
@@ -864,41 +778,15 @@ class ApplicationMain {
   private async performPostUpgradeCheck(): Promise<void> {
     const oldValue = this.isPerformingPostUpgrade;
     this.isPerformingPostUpgrade = await this.daemonRpc.isPerformingPostUpgrade();
-    if (this.windowController && this.isPerformingPostUpgrade !== oldValue) {
-      IpcMainEventChannel.daemon.notifyIsPerformingPostUpgrade(
-        this.windowController.webContents,
-        this.isPerformingPostUpgrade,
-      );
+    if (this.isPerformingPostUpgrade !== oldValue) {
+      IpcMainEventChannel.daemon.notifyIsPerformingPostUpgrade?.(this.isPerformingPostUpgrade);
     }
   }
-
-  private connectTunnel = async (): Promise<void> => {
-    if (connectEnabled(this.daemonRpc.isConnected, this.isLoggedIn(), this.tunnelState.state)) {
-      this.setOptimisticTunnelState('connecting');
-      await this.daemonRpc.connectTunnel();
-    }
-  };
-
-  private reconnectTunnel = async (): Promise<void> => {
-    if (reconnectEnabled(this.daemonRpc.isConnected, this.isLoggedIn(), this.tunnelState.state)) {
-      this.setOptimisticTunnelState('connecting');
-      await this.daemonRpc.reconnectTunnel();
-    }
-  };
-
-  private disconnectTunnel = async (): Promise<void> => {
-    if (disconnectEnabled(this.daemonRpc.isConnected, this.tunnelState.state)) {
-      this.setOptimisticTunnelState('disconnecting');
-      await this.daemonRpc.disconnectTunnel();
-    }
-  };
 
   private setAccountHistory(accountHistory?: AccountToken) {
     this.accountHistory = accountHistory;
 
-    if (this.windowController) {
-      IpcMainEventChannel.accountHistory.notify(this.windowController.webContents, accountHistory);
-    }
+    IpcMainEventChannel.accountHistory.notify?.(accountHistory);
   }
 
   // This function sets a new tunnel state as an assumed next state and saves the current state as
@@ -943,10 +831,10 @@ class ApplicationMain {
 
   private setTunnelStateImpl(newState: TunnelState) {
     this.tunnelState = newState;
-    this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
+    this.userInterface?.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
 
-    this.setTrayContextMenu();
-    this.trayIconController?.setTooltip(this.daemonRpc.isConnected, this.tunnelState);
+    this.userInterface?.setTrayContextMenu();
+    this.userInterface?.setTrayTooltip();
 
     this.notificationController.notifyTunnelState(
       newState,
@@ -955,9 +843,7 @@ class ApplicationMain {
       this.accountData?.expiry,
     );
 
-    if (this.windowController) {
-      IpcMainEventChannel.tunnel.notify(this.windowController.webContents, newState);
-    }
+    IpcMainEventChannel.tunnel.notify?.(newState);
 
     if (this.accountData) {
       this.detectStaleAccountExpiry(newState, new Date(this.accountData.expiry));
@@ -968,18 +854,16 @@ class ApplicationMain {
     const oldSettings = this.settings;
     this.settings = newSettings;
 
-    this.updateTrayIcon(this.tunnelState, newSettings.blockWhenDisconnected);
+    this.userInterface?.updateTrayIcon(this.tunnelState, newSettings.blockWhenDisconnected);
 
     if (oldSettings.showBetaReleases !== newSettings.showBetaReleases) {
       this.setLatestVersion(this.upgradeVersion);
     }
 
-    if (this.windowController) {
-      IpcMainEventChannel.settings.notify(this.windowController.webContents, newSettings);
+    IpcMainEventChannel.settings.notify?.(newSettings);
 
-      if (windowsSplitTunneling) {
-        void this.updateSplitTunnelingApplications(newSettings.splitTunnel.appsList);
-      }
+    if (windowsSplitTunneling) {
+      void this.updateSplitTunnelingApplications(newSettings.splitTunnel.appsList);
     }
 
     // since settings can have the relay constraints changed, the relay
@@ -993,12 +877,7 @@ class ApplicationMain {
     });
     this.windowsSplitTunnelingApplications = applications;
 
-    if (this.windowController) {
-      IpcMainEventChannel.windowsSplitTunneling.notify(
-        this.windowController.webContents,
-        applications,
-      );
-    }
+    IpcMainEventChannel.windowsSplitTunneling.notify?.(applications);
   }
 
   private setRelays(
@@ -1011,12 +890,7 @@ class ApplicationMain {
     const filteredRelays = this.processRelaysForPresentation(newRelayList, relaySettings);
     const filteredBridges = this.processBridgesForPresentation(newRelayList, bridgeState);
 
-    if (this.windowController) {
-      IpcMainEventChannel.relays.notify(this.windowController.webContents, {
-        relays: filteredRelays,
-        bridges: filteredBridges,
-      });
-    }
+    IpcMainEventChannel.relays.notify?.({ relays: filteredRelays, bridges: filteredBridges });
   }
 
   private processRelaysForPresentation(
@@ -1112,9 +986,7 @@ class ApplicationMain {
     }
 
     // notify renderer
-    if (this.windowController) {
-      IpcMainEventChannel.currentVersion.notify(this.windowController.webContents, versionInfo);
-    }
+    IpcMainEventChannel.currentVersion.notify?.(versionInfo);
   }
 
   private setLatestVersion(latestVersionInfo: IAppVersionInfo) {
@@ -1153,9 +1025,7 @@ class ApplicationMain {
       this.notificationController.notify(notificationProvider.getSystemNotification());
     }
 
-    if (this.windowController) {
-      IpcMainEventChannel.upgradeVersion.notify(this.windowController.webContents, upgradeVersion);
-    }
+    IpcMainEventChannel.upgradeVersion.notify?.(upgradeVersion);
   }
 
   private async fetchLatestVersion() {
@@ -1185,96 +1055,15 @@ class ApplicationMain {
     }
 
     void this.updateAccountHistory();
-    this.setTrayContextMenu();
+    this.userInterface?.setTrayContextMenu();
 
-    if (this.windowController) {
-      IpcMainEventChannel.account.notifyDevice(this.windowController.webContents, deviceEvent);
-    }
-  }
-
-  private isLoggedIn(): boolean {
-    return this.deviceState?.type === 'logged in';
+    IpcMainEventChannel.account.notifyDevice?.(deviceEvent);
   }
 
   private getAccountToken(): AccountToken | undefined {
     return this.deviceState?.type === 'logged in'
       ? this.deviceState.accountAndDevice.accountToken
       : undefined;
-  }
-
-  private trayIconType(tunnelState: TunnelState, blockWhenDisconnected: boolean): TrayIconType {
-    switch (tunnelState.state) {
-      case 'connected':
-        return 'secured';
-
-      case 'connecting':
-        return 'securing';
-
-      case 'error':
-        if (!tunnelState.details.blockFailure) {
-          return 'securing';
-        } else {
-          return 'unsecured';
-        }
-      case 'disconnecting':
-        return 'securing';
-
-      case 'disconnected':
-        if (blockWhenDisconnected) {
-          return 'securing';
-        } else {
-          return 'unsecured';
-        }
-    }
-  }
-
-  private updateTrayIcon(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
-    const type = this.trayIconType(tunnelState, blockWhenDisconnected);
-
-    if (this.trayIconController) {
-      this.trayIconController.animateToIcon(type);
-    }
-  }
-
-  private registerWindowListener(windowController: WindowController) {
-    windowController.window?.on('focus', () => {
-      IpcMainEventChannel.window.notifyFocus(windowController.webContents, true);
-
-      this.blurNavigationResetScheduler.cancel();
-
-      // cancel notifications when window appears
-      this.notificationController.cancelPendingNotifications();
-
-      if (
-        !this.accountData ||
-        closeToExpiry(this.accountData.expiry, 4) ||
-        hasExpired(this.accountData.expiry)
-      ) {
-        this.updateAccountData();
-      }
-    });
-
-    windowController.window?.on('blur', () => {
-      IpcMainEventChannel.window.notifyFocus(windowController.webContents, false);
-
-      // ensure notification guard is reset
-      this.notificationController.resetTunnelStateAnnouncements();
-    });
-
-    // Use hide instead of blur to prevent the navigation reset from happening when bluring an
-    // unpinned window.
-    windowController.window?.on('hide', () => {
-      if (process.env.NODE_ENV !== 'development' || !this.disableResetNavigation) {
-        this.blurNavigationResetScheduler.schedule(() => {
-          this.windowController?.webContents?.setBackgroundThrottling(false);
-          IpcMainEventChannel.navigation.notifyReset(windowController.webContents);
-
-          this.backgroundThrottleScheduler.schedule(() => {
-            this.windowController?.webContents?.setBackgroundThrottling(true);
-          }, 1_000);
-        }, 120_000);
-      }
-    });
   }
 
   private registerIpcListeners() {
@@ -1298,7 +1087,7 @@ class ApplicationMain {
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
       changelog: this.changelog ?? [],
-      forceShowChanges: this.forceShowChanges,
+      forceShowChanges: FORCE_SHOW_CHANGES,
       navigationHistory: this.navigationHistory,
       scrollPositions: this.scrollPositions,
     }));
@@ -1595,12 +1384,6 @@ class ApplicationMain {
     }
   }
 
-  private updateAccountData() {
-    if (this.daemonRpc.isConnected && this.isLoggedIn()) {
-      this.accountDataCache.fetch(this.getAccountToken()!);
-    }
-  }
-
   private detectStaleAccountExpiry(tunnelState: TunnelState, accountExpiry: Date) {
     const hasExpired = new Date() >= accountExpiry;
 
@@ -1659,9 +1442,7 @@ class ApplicationMain {
     try {
       await setOpenAtLogin(autoStart);
 
-      if (this.windowController) {
-        IpcMainEventChannel.autoStart.notify(this.windowController.webContents, autoStart);
-      }
+      IpcMainEventChannel.autoStart.notify?.(autoStart);
 
       this.updateDaemonsAutoConnect();
     } catch (e) {
@@ -1673,24 +1454,9 @@ class ApplicationMain {
     return Promise.resolve();
   }
 
-  private async setUnpinnedWindow(unpinnedWindow: boolean): Promise<void> {
+  private async setUnpinnedWindow(unpinnedWindow: boolean) {
     this.guiSettings.unpinnedWindow = unpinnedWindow;
-
-    if (this.tray && this.windowController) {
-      this.tray.removeAllListeners();
-
-      const window = await this.createWindow();
-
-      this.windowController.close();
-      this.windowController = new WindowController(
-        window,
-        this.tray,
-        this.guiSettings.unpinnedWindow,
-      );
-
-      await this.initializeWindow();
-      this.windowController.show();
-    }
+    await this.userInterface?.recreateWindow();
   }
 
   private updateCurrentLocale() {
@@ -1707,8 +1473,8 @@ class ApplicationMain {
       relayLocations: relayLocationsTranslations,
     };
 
-    this.setTrayContextMenu();
-    this.trayIconController?.setTooltip(this.daemonRpc.isConnected, this.tunnelState);
+    this.userInterface?.setTrayContextMenu();
+    this.userInterface?.setTrayTooltip();
   }
 
   private blockPermissionRequests() {
@@ -1776,335 +1542,8 @@ class ApplicationMain {
     });
   }
 
-  private async installDevTools() {
-    const { default: installer, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = await import(
-      'electron-devtools-installer'
-    );
-    const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-    const options = { forceDownload, loadExtensionOptions: { allowFileAccess: true } };
-    try {
-      await installer(REACT_DEVELOPER_TOOLS, options);
-      await installer(REDUX_DEVTOOLS, options);
-    } catch (e) {
-      const error = e as Error;
-      log.info(`Error installing extension: ${error.message}`);
-    }
-  }
-
-  private async createWindow(): Promise<BrowserWindow> {
-    const { width, height } = WindowController.getContentSize(this.guiSettings.unpinnedWindow);
-
-    const options: Electron.BrowserWindowConstructorOptions = {
-      useContentSize: true,
-      width,
-      height,
-      resizable: false,
-      maximizable: false,
-      fullscreenable: false,
-      show: false,
-      frame: this.guiSettings.unpinnedWindow,
-      webPreferences: {
-        preload: path.join(__dirname, '../renderer/preloadBundle.js'),
-        nodeIntegration: false,
-        nodeIntegrationInWorker: false,
-        nodeIntegrationInSubFrames: false,
-        sandbox: !SANDBOX_DISABLED,
-        contextIsolation: true,
-        spellcheck: false,
-        devTools: process.env.NODE_ENV === 'development',
-      },
-    };
-
-    switch (process.platform) {
-      case 'darwin': {
-        // setup window flags to mimic popover on macOS
-        const appWindow = new BrowserWindow({
-          ...options,
-          titleBarStyle: this.guiSettings.unpinnedWindow ? 'default' : 'customButtonsOnHover',
-          minimizable: this.guiSettings.unpinnedWindow,
-          closable: this.guiSettings.unpinnedWindow,
-          transparent: !this.guiSettings.unpinnedWindow,
-        });
-
-        // make the window visible on all workspaces and prevent the icon from showing in the dock
-        // and app switcher.
-        if (this.guiSettings.unpinnedWindow) {
-          void app.dock.show();
-        } else {
-          appWindow.setVisibleOnAllWorkspaces(true);
-          app.dock.hide();
-        }
-
-        return appWindow;
-      }
-
-      case 'win32': {
-        // setup window flags to mimic an overlay window
-        const appWindow = new BrowserWindow({
-          ...options,
-          // Due to a bug in Electron the app is sometimes placed behind other apps when opened.
-          // Setting alwaysOnTop to true ensures that the app is placed on top. Electron issue:
-          // https://github.com/electron/electron/issues/25915
-          alwaysOnTop: !this.guiSettings.unpinnedWindow,
-          skipTaskbar: !this.guiSettings.unpinnedWindow,
-          // Workaround for sub-pixel anti-aliasing
-          // https://github.com/electron/electron/blob/main/docs/faq.md#the-font-looks-blurry-what-is-this-and-what-can-i-do
-          backgroundColor: '#fff',
-        });
-        const WM_DEVICECHANGE = 0x0219;
-        const DBT_DEVICEARRIVAL = 0x8000;
-        const DBT_DEVICEREMOVECOMPLETE = 0x8004;
-        appWindow.hookWindowMessage(WM_DEVICECHANGE, (wParam) => {
-          const wParamL = wParam.readBigInt64LE(0);
-          if (wParamL != DBT_DEVICEARRIVAL && wParamL != DBT_DEVICEREMOVECOMPLETE) {
-            return;
-          }
-          this.daemonRpc
-            .checkVolumes()
-            .catch((error) =>
-              log.error(`Unable to notify daemon of device event: ${error.message}`),
-            );
-        });
-
-        appWindow.removeMenu();
-
-        return appWindow;
-      }
-
-      case 'linux':
-        return new BrowserWindow({
-          ...options,
-          icon: await findIconPath('mullvad-vpn'),
-        });
-
-      default: {
-        return new BrowserWindow(options);
-      }
-    }
-  }
-
-  // On macOS, hotkeys are bound to the app menu and won't work if it's not set,
-  // even though the app menu itself is not visible because the app does not appear in the dock.
-  private setMacOsAppMenu() {
-    const mullvadVpnSubmenu: Electron.MenuItemConstructorOptions[] = [{ role: 'quit' }];
-    if (process.env.NODE_ENV === 'development') {
-      mullvadVpnSubmenu.unshift({ role: 'reload' }, { role: 'forceReload' });
-    }
-
-    const template: Electron.MenuItemConstructorOptions[] = [
-      {
-        label: 'Mullvad VPN',
-        submenu: mullvadVpnSubmenu,
-      },
-      {
-        label: 'Edit',
-        submenu: [
-          { role: 'cut' },
-          { role: 'copy' },
-          { role: 'paste' },
-          { type: 'separator' },
-          { role: 'selectAll' },
-        ],
-      },
-    ];
-    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-  }
-
-  private setLinuxAppMenu() {
-    const template: Electron.MenuItemConstructorOptions[] = [
-      {
-        label: 'Mullvad VPN',
-        submenu: [{ role: 'quit' }],
-      },
-    ];
-    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-  }
-
-  private addContextMenu(windowController: WindowController) {
-    const menuTemplate: Electron.MenuItemConstructorOptions[] = [
-      { role: 'cut' },
-      { role: 'copy' },
-      { role: 'paste' },
-      { type: 'separator' },
-      { role: 'selectAll' },
-    ];
-
-    // add inspect element on right click menu
-    windowController.window?.webContents.on(
-      'context-menu',
-      (_e: Event, props: { x: number; y: number; isEditable: boolean }) => {
-        const inspectTemplate = [
-          {
-            label: 'Inspect element',
-            click() {
-              windowController.window?.webContents.openDevTools({ mode: 'detach' });
-              windowController.window?.webContents.inspectElement(props.x, props.y);
-            },
-          },
-        ];
-
-        if (props.isEditable) {
-          // mixin 'inspect element' into standard menu when in development mode
-          if (process.env.NODE_ENV === 'development') {
-            const inputMenu: Electron.MenuItemConstructorOptions[] = [
-              { type: 'separator' },
-              ...inspectTemplate,
-            ];
-
-            Menu.buildFromTemplate(inputMenu).popup({ window: windowController.window });
-          } else {
-            Menu.buildFromTemplate(menuTemplate).popup({ window: windowController.window });
-          }
-        } else if (process.env.NODE_ENV === 'development') {
-          // display inspect element for all non-editable
-          // elements when in development mode
-          Menu.buildFromTemplate(inspectTemplate).popup({ window: windowController.window });
-        }
-      },
-    );
-  }
-
-  private createTray(): Tray {
-    const tray = new Tray(nativeImage.createEmpty());
-    tray.setToolTip('Mullvad VPN');
-
-    // disable double click on tray icon since it causes weird delay
-    tray.setIgnoreDoubleClickEvents(true);
-
-    return tray;
-  }
-
-  private installTrayClickHandlers() {
-    switch (process.platform) {
-      case 'win32':
-        if (this.guiSettings.unpinnedWindow) {
-          // This needs to be executed on click since if it is added to the tray icon it will be
-          // displayed on left click as well.
-          this.tray?.on('right-click', () =>
-            this.trayIconController?.popUpContextMenu(
-              this.daemonRpc.isConnected,
-              this.isLoggedIn(),
-              this.tunnelState,
-            ),
-          );
-          this.tray?.on('click', () => this.windowController?.show());
-        } else {
-          this.tray?.on('right-click', () => this.windowController?.hide());
-          this.tray?.on('click', () => this.windowController?.toggle());
-        }
-        break;
-      case 'darwin':
-        this.tray?.on('right-click', () => this.windowController?.hide());
-        this.tray?.on('click', (event) => {
-          if (event.metaKey) {
-            setImmediate(() => this.windowController?.updatePosition());
-          } else {
-            if (isMacOs11OrNewer() && !this.windowController?.isVisible()) {
-              // This is a workaround for this Electron issue, when it's resolved
-              // `this.windowController?.toggle()` should do the trick on all platforms:
-              // https://github.com/electron/electron/issues/28776
-              const contextMenu = Menu.buildFromTemplate([]);
-              contextMenu.on('menu-will-show', () => this.windowController?.show());
-              this.tray?.popUpContextMenu(contextMenu);
-            } else {
-              this.windowController?.toggle();
-            }
-          }
-        });
-        break;
-      case 'linux':
-        this.tray?.on('click', () => this.windowController?.show());
-        break;
-    }
-  }
-
-  private setTrayContextMenu() {
-    this.trayIconController?.setContextMenu(
-      this.daemonRpc.isConnected,
-      this.isLoggedIn(),
-      this.tunnelState,
-    );
-  }
-
-  private installWindowsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
-    if (!this.guiSettings.unpinnedWindow) {
-      windowController.window?.on('blur', () => {
-        // Detect if blur happened when user had a cursor above the tray icon.
-        const trayBounds = tray.getBounds();
-        const cursorPos = screen.getCursorScreenPoint();
-        const isCursorInside =
-          cursorPos.x >= trayBounds.x &&
-          cursorPos.y >= trayBounds.y &&
-          cursorPos.x <= trayBounds.x + trayBounds.width &&
-          cursorPos.y <= trayBounds.y + trayBounds.height;
-        if (!isCursorInside && !this.browsingFiles) {
-          windowController.hide();
-        }
-      });
-    }
-  }
-
-  // setup NSEvent monitor to fix inconsistent window.blur on macOS
-  // see https://github.com/electron/electron/issues/8689
-  private installMacOsMenubarAppWindowHandlers(windowController: WindowController) {
-    if (!this.guiSettings.unpinnedWindow) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
-      const macEventMonitor = new NSEventMonitor();
-      const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
-
-      windowController.window?.on('show', () =>
-        macEventMonitor.start(eventMask, () => windowController.hide()),
-      );
-      windowController.window?.on('hide', () => macEventMonitor.stop());
-      windowController.window?.on('blur', () => {
-        // Make sure to hide the menubar window when other program captures the focus.
-        // But avoid doing that when dev tools capture the focus to make it possible to inspect the UI
-        if (
-          windowController.window?.isVisible() &&
-          !windowController.window?.webContents.isDevToolsFocused()
-        ) {
-          windowController.hide();
-        }
-      });
-    }
-  }
-
-  private installWindowCloseHandler(windowController: WindowController) {
-    if (this.guiSettings.unpinnedWindow) {
-      windowController.window?.on('close', (closeEvent: Event) => {
-        if (this.quitStage !== AppQuitStage.ready) {
-          closeEvent.preventDefault();
-          windowController.hide();
-        }
-      });
-    }
-  }
-
   private shouldShowWindowOnStart(): boolean {
-    switch (process.platform) {
-      case 'win32':
-      case 'darwin':
-      case 'linux':
-        return this.guiSettings.unpinnedWindow && !this.guiSettings.startMinimized;
-      default:
-        return true;
-    }
-  }
-
-  private async openLink(url: string, withAuth?: boolean) {
-    if (withAuth) {
-      let token = '';
-      try {
-        token = await this.daemonRpc.getWwwAuthToken();
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to get the WWW auth token: ${error.message}`);
-      }
-      return shell.openExternal(`${url}?token=${token}`);
-    } else {
-      return shell.openExternal(url);
-    }
+    return this.guiSettings.unpinnedWindow && !this.guiSettings.startMinimized;
   }
 
   private getProblemReportPath(id: string): string {
@@ -2128,13 +1567,71 @@ class ApplicationMain {
         break;
     }
 
-    if (this.windowController?.webContents) {
-      IpcMainEventChannel.window.notifyMacOsScrollbarVisibility(
-        this.windowController.webContents,
-        this.macOsScrollbarVisibility,
-      );
-    }
+    IpcMainEventChannel.window.notifyMacOsScrollbarVisibility?.(this.macOsScrollbarVisibility);
   }
+
+  /* eslint-disable @typescript-eslint/member-ordering */
+  // NotificationControllerDelagate
+  public openApp = () => this.userInterface?.showWindow();
+  public openLink = async (url: string, withAuth?: boolean) => {
+    if (withAuth) {
+      let token = '';
+      try {
+        token = await this.daemonRpc.getWwwAuthToken();
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to get the WWW auth token: ${error.message}`);
+      }
+      return shell.openExternal(`${url}?token=${token}`);
+    } else {
+      return shell.openExternal(url);
+    }
+  };
+  public isWindowVisible = () => this.userInterface?.isWindowVisible() ?? false;
+  public areSystemNotificationsEnabled = () => this.guiSettings.enableSystemNotifications;
+
+  // UserInterfaceDelegate
+  public cancelPendingNotifications = () =>
+    this.notificationController.cancelPendingNotifications();
+  public resetTunnelStateAnnouncements = () =>
+    this.notificationController.resetTunnelStateAnnouncements();
+  public isUnpinnedWindow = () => this.guiSettings.unpinnedWindow;
+  public checkVolumes = () => this.daemonRpc.checkVolumes();
+  public getAppQuitStage = () => this.quitStage;
+  public isConnectedToDaemon = () => this.daemonRpc.isConnected;
+  public getTunnelState = () => this.tunnelState;
+  public updateAccountData = () => {
+    if (this.daemonRpc.isConnected && this.isLoggedIn()) {
+      this.accountDataCache.fetch(this.getAccountToken()!);
+    }
+  };
+  public isLoggedIn(): boolean {
+    return this.deviceState?.type === 'logged in';
+  }
+  public isBrowsingFiles = () => this.browsingFiles;
+  public getAccountData = () => this.accountData;
+
+  public connectTunnel = async (): Promise<void> => {
+    if (connectEnabled(this.daemonRpc.isConnected, this.isLoggedIn(), this.tunnelState.state)) {
+      this.setOptimisticTunnelState('connecting');
+      await this.daemonRpc.connectTunnel();
+    }
+  };
+
+  public reconnectTunnel = async (): Promise<void> => {
+    if (reconnectEnabled(this.daemonRpc.isConnected, this.isLoggedIn(), this.tunnelState.state)) {
+      this.setOptimisticTunnelState('connecting');
+      await this.daemonRpc.reconnectTunnel();
+    }
+  };
+
+  public disconnectTunnel = async (): Promise<void> => {
+    if (disconnectEnabled(this.daemonRpc.isConnected, this.tunnelState.state)) {
+      this.setOptimisticTunnelState('disconnecting');
+      await this.daemonRpc.disconnectTunnel();
+    }
+  };
+  /* eslint-enable @typescript-eslint/member-ordering */
 }
 
 const applicationMain = new ApplicationMain();
