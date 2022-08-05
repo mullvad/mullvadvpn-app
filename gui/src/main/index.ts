@@ -94,9 +94,6 @@ const execAsync = util.promisify(exec);
 const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
 const windowsSplitTunneling = process.platform === 'win32' && require('./windows-split-tunneling');
 
-const DAEMON_RPC_PATH =
-  process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
-
 const GUI_VERSION = app.getVersion().replace('.0', '');
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
 const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
@@ -134,7 +131,7 @@ class ApplicationMain {
   // hidden when losing focus.
   private browsingFiles = false;
 
-  private daemonRpc = new DaemonRpc(DAEMON_RPC_PATH);
+  private daemonRpc = new DaemonRpc();
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;

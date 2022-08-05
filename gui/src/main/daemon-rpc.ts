@@ -67,6 +67,9 @@ import {
 import { ManagementServiceClient } from './management_interface/management_interface_grpc_pb';
 import * as grpcTypes from './management_interface/management_interface_pb';
 
+const DAEMON_RPC_PATH =
+  process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
+
 const NETWORK_CALL_TIMEOUT = 10000;
 const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;
 
@@ -133,9 +136,9 @@ export class DaemonRpc {
   private subscriptions: Map<number, grpc.ClientReadableStream<grpcTypes.DaemonEvent>> = new Map();
   private reconnectionTimeout?: NodeJS.Timer;
 
-  constructor(connectionParams: string) {
+  constructor() {
     this.client = new ManagementServiceClient(
-      connectionParams,
+      DAEMON_RPC_PATH,
       grpc.credentials.createInsecure(),
       this.channelOptions(),
     );
