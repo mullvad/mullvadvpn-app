@@ -15,6 +15,11 @@ interface IWindowPositioning {
   getWindowShapeParameters(window: BrowserWindow): IWindowShapeParameters;
 }
 
+export interface WindowControllerDelegate {
+  getTrayBounds: Tray['getBounds'];
+  isUnpinnedWindow(): boolean;
+}
+
 // Tray applications are positioned aproximately 10px from the tray in Windows 11.
 const MARGIN = isWindows11OrNewer() ? 10 : 0;
 
@@ -39,15 +44,11 @@ class StandaloneWindowPositioning implements IWindowPositioning {
 }
 
 class AttachedToTrayWindowPositioning implements IWindowPositioning {
-  private tray: Tray;
-
-  constructor(tray: Tray) {
-    this.tray = tray;
-  }
+  constructor(private delegate: WindowControllerDelegate) {}
 
   public getPosition(window: BrowserWindow): IPosition {
     const windowBounds = window.getBounds();
-    const trayBounds = this.tray.getBounds();
+    const trayBounds = this.delegate.getTrayBounds();
 
     const activeDisplay = screen.getDisplayNearestPoint({
       x: trayBounds.x,
@@ -98,7 +99,7 @@ class AttachedToTrayWindowPositioning implements IWindowPositioning {
   }
 
   public getWindowShapeParameters(window: BrowserWindow): IWindowShapeParameters {
-    const trayBounds = this.tray.getBounds();
+    const trayBounds = this.delegate.getTrayBounds();
     const windowBounds = window.getBounds();
     const arrowPosition = trayBounds.x - windowBounds.x + trayBounds.width * 0.5;
     return {
@@ -148,12 +149,12 @@ export default class WindowController {
     return this.webContentsValue.isDestroyed() ? undefined : this.webContentsValue;
   }
 
-  constructor(windowValue: BrowserWindow, tray: Tray, private unpinnedWindow: boolean) {
+  constructor(private delegate: WindowControllerDelegate, windowValue: BrowserWindow) {
     this.windowValue = windowValue;
     this.webContentsValue = windowValue.webContents;
-    this.windowPositioning = unpinnedWindow
+    this.windowPositioning = delegate.isUnpinnedWindow()
       ? new StandaloneWindowPositioning()
-      : new AttachedToTrayWindowPositioning(tray);
+      : new AttachedToTrayWindowPositioning(delegate);
 
     this.installDisplayMetricsHandler();
     this.installHideHandler();
@@ -239,7 +240,7 @@ export default class WindowController {
     if (this.window) {
       const shapeParameters = this.windowPositioning.getWindowShapeParameters(this.window);
 
-      IpcMainEventChannel.window.notifyShape(this.webContentsValue, shapeParameters);
+      IpcMainEventChannel.window.notifyShape?.(shapeParameters);
     }
   }
 
@@ -282,7 +283,7 @@ export default class WindowController {
   }
 
   private forceResizeWindow() {
-    const { width, height } = WindowController.getContentSize(this.unpinnedWindow);
+    const { width, height } = WindowController.getContentSize(this.delegate.isUnpinnedWindow());
     this.window?.setContentSize(width, height);
   }
 

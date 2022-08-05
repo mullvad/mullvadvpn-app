@@ -15,7 +15,7 @@ import {
   SystemNotificationProvider,
 } from '../shared/notifications/notification';
 
-interface NotificationControllerDelegate {
+export interface NotificationControllerDelegate {
   openApp(): void;
   openLink(url: string, withAuth?: boolean): Promise<void>;
   isWindowVisible(): boolean;

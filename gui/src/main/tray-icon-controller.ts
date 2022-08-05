@@ -1,15 +1,10 @@
 import { exec as execAsync } from 'child_process';
-import { Menu, NativeImage, nativeImage, Tray } from 'electron';
+import { NativeImage, nativeImage, Tray } from 'electron';
 import path from 'path';
-import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
 
-import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
-import { ILocation, TunnelState } from '../shared/daemon-rpc-types';
-import { messages, relayLocations } from '../shared/gettext';
 import log from '../shared/logging';
 import KeyframeAnimation from './keyframe-animation';
-import WindowController from './window-controller';
 
 const exec = promisify(execAsync);
 
@@ -29,12 +24,8 @@ export default class TrayIconController {
 
   constructor(
     private tray: Tray,
-    private windowController: WindowController,
     private iconTypeValue: TrayIconType,
     private useMonochromaticIconValue: boolean,
-    private connect: () => void,
-    private reconnect: () => void,
-    private disconnect: () => void,
   ) {
     this.loadImages();
   }
@@ -44,10 +35,6 @@ export default class TrayIconController {
       this.animation.stop();
       this.animation = undefined;
     }
-  }
-
-  public setWindowController(windowController: WindowController) {
-    this.windowController = windowController;
   }
 
   get iconType(): TrayIconType {
@@ -100,66 +87,6 @@ export default class TrayIconController {
     const frame = this.targetFrame();
 
     animation.play({ end: frame });
-  }
-
-  public setContextMenu(connectedToDaemon: boolean, loggedIn: boolean, tunnelState: TunnelState) {
-    if (process.platform === 'linux') {
-      this.tray.setContextMenu(this.createContextMenu(connectedToDaemon, loggedIn, tunnelState));
-    }
-  }
-
-  public setTooltip(connectedToDaemon: boolean, tunnelState: TunnelState) {
-    const tooltip = this.createTooltipText(connectedToDaemon, tunnelState);
-    this.tray?.setToolTip(tooltip);
-  }
-
-  public popUpContextMenu(connectedToDaemon: boolean, loggedIn: boolean, tunnelState: TunnelState) {
-    this.tray.popUpContextMenu(this.createContextMenu(connectedToDaemon, loggedIn, tunnelState));
-  }
-
-  private createTooltipText(connectedToDaemon: boolean, tunnelState: TunnelState): string {
-    if (!connectedToDaemon) {
-      return messages.pgettext('tray-icon-context-menu', 'Disconnected from system service');
-    }
-
-    switch (tunnelState.state) {
-      case 'disconnected':
-        return messages.gettext('Disconnected');
-      case 'disconnecting':
-        return messages.gettext('Disconnecting');
-      case 'connecting': {
-        const location = this.createLocationString(tunnelState.details?.location);
-        return location
-          ? sprintf(messages.pgettext('tray-icon-tooltip', 'Connecting. %(location)s'), {
-              location,
-            })
-          : messages.gettext('Connecting');
-      }
-      case 'connected': {
-        const location = this.createLocationString(tunnelState.details.location);
-        return location
-          ? sprintf(messages.pgettext('tray-icon-tooltip', 'Connected. %(location)s'), {
-              location,
-            })
-          : messages.gettext('Connected');
-      }
-    }
-
-    return 'Mullvad VPN';
-  }
-
-  private createLocationString(location?: ILocation): string | undefined {
-    if (location === undefined) {
-      return undefined;
-    }
-
-    const country = relayLocations.gettext(location.country);
-    return location.city
-      ? sprintf(messages.pgettext('tray-icon-tooltip', '%(city)s, %(country)s'), {
-          city: relayLocations.gettext(location.city),
-          country,
-        })
-      : country;
   }
 
   private initAnimation() {
@@ -251,41 +178,5 @@ export default class TrayIconController {
       case 'secured':
         return 8;
     }
-  }
-
-  private createContextMenu(
-    connectedToDaemon: boolean,
-    loggedIn: boolean,
-    tunnelState: TunnelState,
-  ) {
-    const template: Electron.MenuItemConstructorOptions[] = [
-      {
-        label: sprintf(messages.pgettext('tray-icon-context-menu', 'Open %(mullvadVpn)s'), {
-          mullvadVpn: 'Mullvad VPN',
-        }),
-        click: () => this.windowController.show(),
-      },
-      { type: 'separator' },
-      {
-        id: 'connect',
-        label: messages.gettext('Connect'),
-        enabled: connectEnabled(connectedToDaemon, loggedIn, tunnelState.state),
-        click: this.connect,
-      },
-      {
-        id: 'reconnect',
-        label: messages.gettext('Reconnect'),
-        enabled: reconnectEnabled(connectedToDaemon, loggedIn, tunnelState.state),
-        click: this.reconnect,
-      },
-      {
-        id: 'disconnect',
-        label: messages.gettext('Disconnect'),
-        enabled: disconnectEnabled(connectedToDaemon, tunnelState.state),
-        click: this.disconnect,
-      },
-    ];
-
-    return Menu.buildFromTemplate(template);
   }
 }
