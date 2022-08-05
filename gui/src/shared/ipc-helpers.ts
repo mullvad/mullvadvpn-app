@@ -23,7 +23,7 @@ interface RendererToMain<T, R> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyIpcCall = MainToRenderer<any> | RendererToMain<any, any>;
 
-type Schema = Record<string, Record<string, AnyIpcCall>>;
+export type Schema = Record<string, Record<string, AnyIpcCall>>;
 
 // Renames all IPC calls, e.g. `callName` to either `notifyCallName` or `handleCallName` depending
 // on direction.
@@ -48,14 +48,14 @@ type IpcRendererFn<I extends AnyIpcCall> = I['direction'] extends 'main-to-rende
   : ReturnType<I['send']>;
 
 // Transforms the provided schema to the correct type for the main event channel.
-type IpcMain<S extends Schema> = {
+export type IpcMain<S extends Schema> = {
   [G in keyof S]: {
     [K in keyof S[G] as IpcMainKey<string & K, S[G][K]>]: IpcMainFn<S[G][K]>;
   };
 };
 
 // Transforms the provided schema to the correct type for the renderer event channel.
-type IpcRenderer<S extends Schema> = {
+export type IpcRenderer<S extends Schema> = {
   [G in keyof S]: {
     [K in keyof S[G] as IpcRendererKey<string & K, S[G][K]>]: IpcRendererFn<S[G][K]>;
   };
