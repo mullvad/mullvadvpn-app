@@ -459,8 +459,9 @@ extension SceneDelegate {
     }
 
     private func handleExpiredAccount() {
-        guard case let .loggedIn(accountData, _) = TunnelManager.shared.deviceState,
-              accountData.expiry <= Date() else { return }
+        // TODO: Temp
+        guard case let .loggedIn(accountData, _) = TunnelManager.shared.deviceState else { return }
+        //              accountData.expiry <= Date() else { return }
 
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:

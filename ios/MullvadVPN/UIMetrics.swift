@@ -46,6 +46,8 @@ extension UIMetrics {
     /// Spacing used between distinct sections of views
     static let sectionSpacing: CGFloat = 24
 
+    static let verticalCenterOffset: CGFloat = -20
+
     /// Text field margins
     static let textFieldMargins = UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14)
 

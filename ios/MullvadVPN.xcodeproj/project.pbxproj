@@ -61,9 +61,7 @@
 		58293FB725138B88005D0BB5 /* CustomNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB625138B88005D0BB5 /* CustomNavigationController.swift */; };
 		582A8A3A28BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582A8A3928BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift */; };
 		582A8A3B28BCE1AB00D0F9FB /* FixedWidthInteger+Arithmetics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58900D0228BBDCC70094E4F0 /* FixedWidthInteger+Arithmetics.swift */; };
-		582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */; };
 		582AE3122440CA0D00E6733A /* AccountTokenInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582AE3112440CA0D00E6733A /* AccountTokenInputTests.swift */; };
-		582AE3132440CA2700E6733A /* AccountTokenInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */; };
 		582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1AE229566420055B6EF /* SettingsCell.swift */; };
 		582BB1B1229569620055B6EF /* CustomNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1B0229569620055B6EF /* CustomNavigationBar.swift */; };
 		582BB1B3229574F40055B6EF /* SettingsAccountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1B2229574F40055B6EF /* SettingsAccountCell.swift */; };
@@ -309,7 +307,16 @@
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E1187ABF289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABE289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift */; };
+		E1328433289CF23D00C3BD27 /* RedeemVoucherContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1328432289CF23D00C3BD27 /* RedeemVoucherContentView.swift */; };
+		E1328435289CF24C00C3BD27 /* RedeemVoucherViewConrtoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1328434289CF24C00C3BD27 /* RedeemVoucherViewConrtoller.swift */; };
+		E132843B289D52A900C3BD27 /* VoucherTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843A289D52A900C3BD27 /* VoucherTextField.swift */; };
+		E132843D289D5B3700C3BD27 /* InputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843C289D5B3700C3BD27 /* InputFormatter.swift */; };
 		E158B360285381C60002F069 /* StringFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* StringFormatter.swift */; };
+		E1862A0028B6433600687FE6 /* SubmitVoucherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18629FF28B6433600687FE6 /* SubmitVoucherResponse.swift */; };
+		E1862A0228B656DF00687FE6 /* RedeemVoucherSuccessViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1862A0128B656DF00687FE6 /* RedeemVoucherSuccessViewController.swift */; };
+		E1862A0428B65ABF00687FE6 /* RedeemVoucherSuccessContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1862A0328B65ABF00687FE6 /* RedeemVoucherSuccessContentView.swift */; };
+		E1862A0828B76DAD00687FE6 /* DateFormatter+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1862A0728B76DAD00687FE6 /* DateFormatter+.swift */; };
+		E1F72EE028B8AE5600A23A8F /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F72EDF28B8AE5600A23A8F /* Array+.swift */; };
 		E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */; };
 /* End PBXBuildFile section */
 
@@ -437,7 +444,6 @@
 		58293FB2251241B3005D0BB5 /* CustomTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
 		58293FB625138B88005D0BB5 /* CustomNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationController.swift; sourceTree = "<group>"; };
 		582A8A3928BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedWidthIntegerArithmeticsTests.swift; sourceTree = "<group>"; };
-		582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountTokenInput.swift; sourceTree = "<group>"; };
 		582AE3112440CA0D00E6733A /* AccountTokenInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTokenInputTests.swift; sourceTree = "<group>"; };
 		582BB1AE229566420055B6EF /* SettingsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsCell.swift; sourceTree = "<group>"; };
 		582BB1B0229569620055B6EF /* CustomNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationBar.swift; sourceTree = "<group>"; };
@@ -644,7 +650,16 @@
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E1187ABE289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RESTCreateApplePaymentResponse+Localization.swift"; sourceTree = "<group>"; };
+		E1328432289CF23D00C3BD27 /* RedeemVoucherContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherContentView.swift; sourceTree = "<group>"; };
+		E1328434289CF24C00C3BD27 /* RedeemVoucherViewConrtoller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewConrtoller.swift; sourceTree = "<group>"; };
+		E132843A289D52A900C3BD27 /* VoucherTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoucherTextField.swift; sourceTree = "<group>"; };
+		E132843C289D5B3700C3BD27 /* InputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFormatter.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* StringFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatter.swift; sourceTree = "<group>"; };
+		E18629FF28B6433600687FE6 /* SubmitVoucherResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmitVoucherResponse.swift; sourceTree = "<group>"; };
+		E1862A0128B656DF00687FE6 /* RedeemVoucherSuccessViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherSuccessViewController.swift; sourceTree = "<group>"; };
+		E1862A0328B65ABF00687FE6 /* RedeemVoucherSuccessContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherSuccessContentView.swift; sourceTree = "<group>"; };
+		E1862A0728B76DAD00687FE6 /* DateFormatter+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatter+.swift"; sourceTree = "<group>"; };
+		E1F72EDF28B8AE5600A23A8F /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
 		E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusActivityView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -832,6 +847,7 @@
 				58554F7C280D6FE000013055 /* RESTURLSession.swift */,
 				585DA88326B0270700B8C587 /* ServerRelaysResponse.swift */,
 				584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */,
+				E18629FF28B6433600687FE6 /* SubmitVoucherResponse.swift */,
 			);
 			path = REST;
 			sourceTree = "<group>";
@@ -916,7 +932,6 @@
 				587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */,
 				58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */,
 				58CCA01D2242787B004F3011 /* AccountTextField.swift */,
-				582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */,
 				58CCA01722426713004F3011 /* AccountViewController.swift */,
 				58095C49275FA24800890776 /* AddressCache */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
@@ -925,6 +940,7 @@
 				58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */,
 				5846226F26E229CD0035F7C2 /* AppStorePaymentManager */,
 				58FD5BE624192A2B00112C88 /* AppStoreReceipt.swift */,
+				E1F72EDF28B8AE5600A23A8F /* Array+.swift */,
 				58CE5E6A224146210008646E /* Assets.xcassets */,
 				58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */,
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
@@ -945,6 +961,7 @@
 				58293FB025124117005D0BB5 /* CustomTextField.swift */,
 				58293FB2251241B3005D0BB5 /* CustomTextView.swift */,
 				587EB66F27143B6500123C75 /* DataSourceSnapshot.swift */,
+				E1862A0728B76DAD00687FE6 /* DateFormatter+.swift */,
 				587D96732886D87C00CD8F1C /* DeviceManagementContentView.swift */,
 				5820EDA8288FE064006BF4E4 /* DeviceManagementInteractor.swift */,
 				5893716928817A45004EE76C /* DeviceManagementViewController.swift */,
@@ -959,6 +976,7 @@
 				58F3C0A3249CB069003E76BE /* HeaderBarView.swift */,
 				58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */,
 				58CE5E6F224146210008646E /* Info.plist */,
+				E132843C289D5B3700C3BD27 /* InputFormatter.swift */,
 				5872631C283F755900E14ADF /* IntentHandlers.swift */,
 				5872631A283F6EAB00E14ADF /* Intents.intentdefinition */,
 				5840250022B1124600E4CFEC /* IPAddress+Codable.swift */,
@@ -994,6 +1012,10 @@
 				58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */,
 				58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */,
 				58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */,
+				E1328432289CF23D00C3BD27 /* RedeemVoucherContentView.swift */,
+				E1328434289CF24C00C3BD27 /* RedeemVoucherViewConrtoller.swift */,
+				E1862A0128B656DF00687FE6 /* RedeemVoucherSuccessViewController.swift */,
+				E1862A0328B65ABF00687FE6 /* RedeemVoucherSuccessContentView.swift */,
 				585DA87526B0249A00B8C587 /* RelayCache */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
 				58781CD422AFBA39009B9D8E /* RelaySelector.swift */,
@@ -1040,6 +1062,7 @@
 				585CA70E25F8C44600B47C62 /* UIMetrics.swift */,
 				58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
+				E132843A289D52A900C3BD27 /* VoucherTextField.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -1416,7 +1439,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				582AE3132440CA2700E6733A /* AccountTokenInput.swift in Sources */,
 				58CAF4EF26025954007C5886 /* SimulatorTunnelProvider.swift in Sources */,
 				58B0A2AA238EE6A900BC001D /* RelaySelector.swift in Sources */,
 				5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */,
@@ -1490,6 +1512,7 @@
 				582BB1B1229569620055B6EF /* CustomNavigationBar.swift in Sources */,
 				58B3F30F2742708B00A2DD38 /* HeaderBarButton.swift in Sources */,
 				58E511E428DDDE8900B0BCDE /* CustomErrorDescriptionProtocol.swift in Sources */,
+				E132843D289D5B3700C3BD27 /* InputFormatter.swift in Sources */,
 				584789E026529D72000E45FB /* SSLPinningURLSessionDelegate.swift in Sources */,
 				58161C9C28352F850028ECFD /* MigrateSettingsOperation.swift in Sources */,
 				E1187ABF289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
@@ -1502,6 +1525,8 @@
 				5820EDA9288FE064006BF4E4 /* DeviceManagementInteractor.swift in Sources */,
 				58FB865A26EA214400F188BC /* RelayCacheObserver.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
+				58655DCE27DA0A5D00911834 /* TunnelMonitorConfiguration.swift in Sources */,
+				E1328433289CF23D00C3BD27 /* RedeemVoucherContentView.swift in Sources */,
 				5850367F25A481D800A43E93 /* IPAddressRange+Codable.swift in Sources */,
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
@@ -1512,7 +1537,7 @@
 				58CB0EE024B86751001EF0D8 /* RESTAPIProxy.swift in Sources */,
 				58095C532760EEC700890776 /* RESTNetworkOperation.swift in Sources */,
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
-				582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */,
+				E1862A0428B65ABF00687FE6 /* RedeemVoucherSuccessContentView.swift in Sources */,
 				58554F7D280D6FE000013055 /* RESTURLSession.swift in Sources */,
 				5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */,
 				75FD0C2128B108570021E33E /* ShortcutsDataSource.swift in Sources */,
@@ -1526,6 +1551,7 @@
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
 				58A99ED3240014A0006599E9 /* TermsOfServiceViewController.swift in Sources */,
 				58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */,
+				E1862A0028B6433600687FE6 /* SubmitVoucherResponse.swift in Sources */,
 				58095C4F2760BA9100890776 /* AddressCacheStore.swift in Sources */,
 				587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */,
 				588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */,
@@ -1572,6 +1598,7 @@
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
+				E1F72EE028B8AE5600A23A8F /* Array+.swift in Sources */,
 				58FD5BE724192A2C00112C88 /* AppStoreReceipt.swift in Sources */,
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
 				580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */,
@@ -1586,6 +1613,8 @@
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
 				5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */,
+				5840BE35279EDB16002836BA /* OperationCompletion.swift in Sources */,
+				E1862A0828B76DAD00687FE6 /* DateFormatter+.swift in Sources */,
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */,
@@ -1620,7 +1649,9 @@
 				587AD7C623421D7000E93A53 /* TunnelSettingsV1.swift in Sources */,
 				581503A324D6F1EC00C9C50E /* Logger+Errors.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
+				E1328435289CF24C00C3BD27 /* RedeemVoucherViewConrtoller.swift in Sources */,
 				584D26C4270C855B004EA533 /* PreferencesDataSource.swift in Sources */,
+				E1862A0228B656DF00687FE6 /* RedeemVoucherSuccessViewController.swift in Sources */,
 				58B5A899280AB0D7009FDE99 /* RESTAuthorization.swift in Sources */,
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58B43C1925F77DB60002C8C3 /* ConnectContentView.swift in Sources */,
@@ -1628,6 +1659,7 @@
 				58F97A1E280FDE230050C2FC /* RESTRequestHandler.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
+				E132843B289D52A900C3BD27 /* VoucherTextField.swift in Sources */,
 				588BCF24280FE43D009ADCEC /* RESTDevicesProxy.swift in Sources */,
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
 				587EB67027143B6500123C75 /* DataSourceSnapshot.swift in Sources */,
