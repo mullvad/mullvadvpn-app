@@ -19,40 +19,68 @@ class OutOfTimeViewController: UIViewController {
 
     private let alertPresenter = AlertPresenter()
 
-    private lazy var contentView = OutOfTimeContentView()
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.indicatorStyle = .white
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+
+    private let contentView: OutOfTimeContentView = {
+        let contentView = OutOfTimeContentView()
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        return contentView
+    }()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
 
-    private var tunnelState: TunnelState = .disconnected {
-        didSet {
-            setNeedsHeaderBarStyleAppearanceUpdate()
-            applyViewState(animated: true)
-        }
-    }
+    private var tunnelState: TunnelState = .disconnected
 
     override func viewDidLoad() {
-        setUpContentView()
+        super.viewDidLoad()
+
+        view.backgroundColor = .secondaryColor
+        setUpSubviews()
         setUpButtonTargets()
         setUpInAppPurchases()
         addObservers()
-        tunnelState = TunnelManager.shared.tunnelStatus.state
+        setTunnelState(TunnelManager.shared.tunnelStatus.state, animated: false)
     }
 }
 
 // MARK: - Private Functions
 
 private extension OutOfTimeViewController {
-    func setUpContentView() {
-        view.addSubview(contentView)
+    func setUpSubviews() {
+        scrollView.addSubview(contentView)
+        view.addSubview(scrollView)
 
+        configureConstraints()
+    }
+
+    func configureConstraints() {
         NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: view.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.heightAnchor
+                .constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.heightAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
         ])
+    }
+
+    func setTunnelState(_ newState: TunnelState, animated: Bool) {
+        tunnelState = newState
+        setNeedsHeaderBarStyleAppearanceUpdate()
+        applyViewState(animated: animated)
     }
 
     func setUpButtonTargets() {
@@ -72,24 +100,24 @@ private extension OutOfTimeViewController {
             action: #selector(restorePurchases),
             for: .touchUpInside
         )
+        contentView.redeemButton.addTarget(
+            self,
+            action: #selector(didTapRedeemVoucher),
+            for: .touchUpInside
+        )
     }
 
     @objc func handleDisconnect(_ sender: Any) {
         TunnelManager.shared.stopTunnel()
     }
 
+    @objc func didTapRedeemVoucher() {
+        rootContainerController?.pushViewController(RedeemVoucherViewController(), animated: true)
+    }
+
     func addObservers() {
         AppStorePaymentManager.shared.addPaymentObserver(self)
         TunnelManager.shared.addObserver(self)
-    }
-
-    func setEnableUserInteraction(_ enableUserInteraction: Bool) {
-        [contentView.purchaseButton, contentView.restoreButton]
-            .forEach { button in
-                button?.isEnabled = enableUserInteraction
-            }
-
-        view.isUserInteractionEnabled = enableUserInteraction
     }
 
     func bodyText(for tunnelState: TunnelState) -> String {
@@ -145,7 +173,7 @@ private extension OutOfTimeViewController {
     func setProductState(_ newState: ProductState, animated: Bool) {
         productState = newState
 
-        applyViewState(animated: animated)
+        applyViewState(animated: false)
     }
 
     func applyViewState(animated: Bool) {
@@ -163,7 +191,10 @@ private extension OutOfTimeViewController {
 
             purchaseButton.isEnabled = self.productState.isReceived && isInteractionEnabled && !self
                 .tunnelState.isSecured
-            self.contentView.restoreButton.isEnabled = isInteractionEnabled
+            self.contentView.redeemButton.isEnabled = isInteractionEnabled && !self
+                .tunnelState.isSecured
+            self.contentView.restoreButton.isEnabled = isInteractionEnabled && !self.tunnelState
+                .isSecured
             self.contentView.disconnectButton.isEnabled = self.tunnelState.isSecured
             self.contentView.disconnectButton.alpha = self.tunnelState.isSecured ? 1 : 0
             self.contentView.bodyLabel.text = self.bodyText(for: self.tunnelState)
@@ -180,7 +211,15 @@ private extension OutOfTimeViewController {
             )
         }
         if animated {
-            UIView.animate(withDuration: 0.25, animations: actions)
+            UIView.animate(
+                withDuration: 0.25,
+                animations: { [weak self] in
+                    guard let self = self else { return }
+
+                    actions()
+                    self.view.layoutIfNeeded()
+                }
+            )
         } else {
             actions()
         }
@@ -344,8 +383,8 @@ extension OutOfTimeViewController: AppStorePaymentObserver {
 extension OutOfTimeViewController: TunnelObserver {
     func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {}
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
-        tunnelState = tunnelStatus.state
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
+        setTunnelState(tunnelState, animated: true)
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {}
