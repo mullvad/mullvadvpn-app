@@ -1,5 +1,4 @@
-import { exec, execFile } from 'child_process';
-import { randomUUID } from 'crypto';
+import { exec } from 'child_process';
 import { app, dialog, nativeTheme, session, shell, systemPreferences } from 'electron';
 import fs from 'fs';
 import * as path from 'path';
@@ -62,7 +61,7 @@ import {
   OLD_LOG_FILES,
 } from './logging';
 import NotificationController, { NotificationControllerDelegate } from './notification-controller';
-import { resolveBin } from './proc';
+import * as problemReport from './problem-report';
 import ReconnectionBackoff from './reconnection-backoff';
 import UserInterface, { UserInterfaceDelegate } from './user-interface';
 import Version, { VersionDelegate } from './version';
@@ -939,6 +938,7 @@ class ApplicationMain
       return { countries: [] };
     }
   }
+
   private handleDeviceEvent(deviceEvent: DeviceEvent) {
     this.deviceState = deviceEvent.deviceState;
 
@@ -1141,58 +1141,6 @@ class ApplicationMain
       },
     );
 
-    IpcMainEventChannel.problemReport.handleCollectLogs((toRedact) => {
-      const id = randomUUID();
-      const reportPath = this.getProblemReportPath(id);
-      const executable = resolveBin('mullvad-problem-report');
-      const args = ['collect', '--output', reportPath];
-      if (toRedact) {
-        args.push('--redact', toRedact);
-      }
-
-      return new Promise((resolve, reject) => {
-        execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
-          if (error) {
-            log.error(
-              `Failed to collect a problem report.
-                Stdout: ${stdout.toString()}
-                Stderr: ${stderr.toString()}`,
-            );
-            reject(error.message);
-          } else {
-            log.verbose(`Problem report was written to ${reportPath}`);
-            resolve(id);
-          }
-        });
-      });
-    });
-
-    IpcMainEventChannel.problemReport.handleSendReport(({ email, message, savedReportId }) => {
-      const executable = resolveBin('mullvad-problem-report');
-      const reportPath = this.getProblemReportPath(savedReportId);
-      const args = ['send', '--email', email, '--message', message, '--report', reportPath];
-
-      return new Promise((resolve, reject) => {
-        execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
-          if (error) {
-            log.error(
-              `Failed to send a problem report.
-              Stdout: ${stdout.toString()}
-              Stderr: ${stderr.toString()}`,
-            );
-            reject(error.message);
-          } else {
-            log.info('Problem report was sent.');
-            resolve();
-          }
-        });
-      });
-    });
-
-    IpcMainEventChannel.problemReport.handleViewLog((savedReportId) =>
-      shell.openPath(this.getProblemReportPath(savedReportId)),
-    );
-
     IpcMainEventChannel.app.handleQuit(() => app.quit());
     IpcMainEventChannel.app.handleOpenUrl(async (url) => {
       if (Object.values(config.links).find((link) => url.startsWith(link))) {
@@ -1219,6 +1167,8 @@ class ApplicationMain
     IpcMainEventChannel.navigation.handleSetScrollPositions((scrollPositions) => {
       this.scrollPositions = scrollPositions;
     });
+
+    problemReport.registerIpcListeners();
 
     if (windowsSplitTunneling) {
       this.guiSettings.browsedForSplitTunnelingApplications.forEach(
@@ -1446,10 +1396,6 @@ class ApplicationMain
 
   private shouldShowWindowOnStart(): boolean {
     return this.guiSettings.unpinnedWindow && !this.guiSettings.startMinimized;
-  }
-
-  private getProblemReportPath(id: string): string {
-    return path.join(app.getPath('temp'), `${id}.log`);
   }
 
   private async updateMacOsScrollbarVisibility(): Promise<void> {
