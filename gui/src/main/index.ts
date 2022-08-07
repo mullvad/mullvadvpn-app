@@ -18,7 +18,6 @@ import {
   DeviceEvent,
   DeviceState,
   IAccountData,
-  IAppVersionInfo,
   IDeviceRemoval,
   IDnsOptions,
   IRelayList,
@@ -33,20 +32,13 @@ import {
 import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
-import {
-  IChangelog,
-  ICurrentAppVersionInfo,
-  IHistoryObject,
-  ScrollPositions,
-} from '../shared/ipc-types';
+import { IChangelog, IHistoryObject, ScrollPositions } from '../shared/ipc-types';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import {
   AccountExpiredNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
-  InconsistentVersionNotificationProvider,
-  UnsupportedVersionNotificationProvider,
-  UpdateAvailableNotificationProvider,
+  SystemNotification,
 } from '../shared/notifications/notification';
 import { Scheduler } from '../shared/scheduler';
 import AccountDataCache from './account-data-cache';
@@ -73,6 +65,7 @@ import NotificationController, { NotificationControllerDelegate } from './notifi
 import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
 import UserInterface, { UserInterfaceDelegate } from './user-interface';
+import Version, { VersionDelegate } from './version';
 
 const execAsync = util.promisify(exec);
 
@@ -80,24 +73,11 @@ const execAsync = util.promisify(exec);
 const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
 const windowsSplitTunneling = process.platform === 'win32' && require('./windows-split-tunneling');
 
-const GUI_VERSION = app.getVersion().replace('.0', '');
-/// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
-const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
-
-const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION === '1';
-
-const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
-
 enum CommandLineOptions {
   quitWithoutDisconnect = '--quit-without-disconnect',
   showChanges = '--show-changes',
   disableResetNavigation = '--disable-reset-navigation', // development only
 }
-
-const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
-const QUIT_WITHOUT_DISCONNECT = process.argv.includes(CommandLineOptions.quitWithoutDisconnect);
-const FORCE_SHOW_CHANGES = process.argv.includes(CommandLineOptions.showChanges);
-const NAVIGATION_RESET_DISABLED = process.argv.includes(CommandLineOptions.disableResetNavigation);
 
 export enum AppQuitStage {
   unready,
@@ -105,9 +85,20 @@ export enum AppQuitStage {
   ready,
 }
 
-class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDelegate {
+const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
+
+const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
+const QUIT_WITHOUT_DISCONNECT = process.argv.includes(CommandLineOptions.quitWithoutDisconnect);
+const FORCE_SHOW_CHANGES = process.argv.includes(CommandLineOptions.showChanges);
+const NAVIGATION_RESET_DISABLED = process.argv.includes(CommandLineOptions.disableResetNavigation);
+const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION === '1';
+
+class ApplicationMain
+  implements NotificationControllerDelegate, UserInterfaceDelegate, VersionDelegate {
   private notificationController = new NotificationController(this);
   private userInterface?: UserInterface;
+
+  private version = new Version(this, UPDATE_NOTIFICATION_DISABLED);
 
   // True while file pickers are displayed which is used to decide if the Browser window should be
   // hidden when losing focus.
@@ -204,18 +195,6 @@ class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDe
 
   private relays: IRelayList = { countries: [] };
 
-  private currentVersion: ICurrentAppVersionInfo = {
-    daemon: undefined,
-    gui: GUI_VERSION,
-    isConsistent: true,
-    isBeta: IS_BETA.test(GUI_VERSION),
-  };
-
-  private upgradeVersion: IAppVersionInfo = {
-    supported: true,
-    suggestedUpgrade: undefined,
-  };
-
   // The UI locale which is set once from onReady handler
   private locale = 'en';
 
@@ -276,7 +255,7 @@ class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDe
       app.enableSandbox();
     }
 
-    log.info(`Running version ${this.currentVersion.gui}`);
+    log.info(`Running version ${this.version.currentVersion.gui}`);
 
     if (process.platform === 'win32') {
       app.setAppUserModelId('net.mullvad.vpn');
@@ -664,7 +643,7 @@ class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDe
 
     // fetch the daemon's version
     try {
-      this.setDaemonVersion(await this.daemonRpc.getCurrentVersion());
+      this.version.setDaemonVersion(await this.daemonRpc.getCurrentVersion());
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch the daemon's version: ${error.message}`);
@@ -674,7 +653,7 @@ class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDe
 
     // fetch the latest version info in background
     if (!UPDATE_NOTIFICATION_DISABLED) {
-      void this.fetchLatestVersion();
+      void this.version.fetchLatestVersion();
     }
 
     // reset the reconnect backoff when connection established.
@@ -758,7 +737,7 @@ class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDe
             this.settings.bridgeState,
           );
         } else if ('appVersionInfo' in daemonEvent) {
-          this.setLatestVersion(daemonEvent.appVersionInfo);
+          this.version.setLatestVersion(daemonEvent.appVersionInfo);
         } else if ('device' in daemonEvent) {
           this.handleDeviceEvent(daemonEvent.device);
         } else if ('deviceRemoval' in daemonEvent) {
@@ -857,7 +836,7 @@ class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDe
     this.userInterface?.updateTrayIcon(this.tunnelState, newSettings.blockWhenDisconnected);
 
     if (oldSettings.showBetaReleases !== newSettings.showBetaReleases) {
-      this.setLatestVersion(this.upgradeVersion);
+      this.version.setLatestVersion(this.version.upgradeVersion);
     }
 
     IpcMainEventChannel.settings.notify?.(newSettings);
@@ -960,83 +939,6 @@ class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDe
       return { countries: [] };
     }
   }
-
-  private setDaemonVersion(daemonVersion: string) {
-    const versionInfo = {
-      ...this.currentVersion,
-      daemon: daemonVersion,
-      isConsistent: daemonVersion === this.currentVersion.gui,
-    };
-
-    this.currentVersion = versionInfo;
-
-    if (!versionInfo.isConsistent) {
-      log.info('Inconsistent version', {
-        guiVersion: versionInfo.gui,
-        daemonVersion: versionInfo.daemon,
-      });
-    }
-
-    // notify user about inconsistent version
-    const notificationProvider = new InconsistentVersionNotificationProvider({
-      consistent: versionInfo.isConsistent,
-    });
-    if (notificationProvider.mayDisplay()) {
-      this.notificationController.notify(notificationProvider.getSystemNotification());
-    }
-
-    // notify renderer
-    IpcMainEventChannel.currentVersion.notify?.(versionInfo);
-  }
-
-  private setLatestVersion(latestVersionInfo: IAppVersionInfo) {
-    if (UPDATE_NOTIFICATION_DISABLED) {
-      return;
-    }
-
-    const suggestedIsBeta =
-      latestVersionInfo.suggestedUpgrade !== undefined &&
-      IS_BETA.test(latestVersionInfo.suggestedUpgrade);
-
-    const upgradeVersion = {
-      ...latestVersionInfo,
-      suggestedIsBeta,
-    };
-
-    this.upgradeVersion = upgradeVersion;
-
-    // notify user to update the app if it became unsupported
-    const notificationProviders = [
-      new UnsupportedVersionNotificationProvider({
-        supported: latestVersionInfo.supported,
-        consistent: this.currentVersion.isConsistent,
-        suggestedUpgrade: latestVersionInfo.suggestedUpgrade,
-        suggestedIsBeta,
-      }),
-      new UpdateAvailableNotificationProvider({
-        suggestedUpgrade: latestVersionInfo.suggestedUpgrade,
-        suggestedIsBeta,
-      }),
-    ];
-    const notificationProvider = notificationProviders.find((notificationProvider) =>
-      notificationProvider.mayDisplay(),
-    );
-    if (notificationProvider) {
-      this.notificationController.notify(notificationProvider.getSystemNotification());
-    }
-
-    IpcMainEventChannel.upgradeVersion.notify?.(upgradeVersion);
-  }
-
-  private async fetchLatestVersion() {
-    try {
-      this.setLatestVersion(await this.daemonRpc.getVersionInfo());
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to request the version info: ${error.message}`);
-    }
-  }
-
   private handleDeviceEvent(deviceEvent: DeviceEvent) {
     this.deviceState = deviceEvent.deviceState;
 
@@ -1080,8 +982,8 @@ class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDe
         relays: this.processRelaysForPresentation(this.relays, this.settings.relaySettings),
         bridges: this.processBridgesForPresentation(this.relays, this.settings.bridgeState),
       },
-      currentVersion: this.currentVersion,
-      upgradeVersion: this.upgradeVersion,
+      currentVersion: this.version.currentVersion,
+      upgradeVersion: this.version.upgradeVersion,
       guiSettings: this.guiSettings.state,
       translations: this.translations,
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
@@ -1308,7 +1210,7 @@ class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDe
     });
 
     IpcMainEventChannel.currentVersion.handleDisplayedChangelog(() => {
-      this.guiSettings.changelogDisplayedForVersion = this.currentVersion.gui;
+      this.guiSettings.changelogDisplayedForVersion = this.version.currentVersion.gui;
     });
 
     IpcMainEventChannel.navigation.handleSetHistory((history) => {
@@ -1631,6 +1533,13 @@ class ApplicationMain implements NotificationControllerDelegate, UserInterfaceDe
       await this.daemonRpc.disconnectTunnel();
     }
   };
+
+  // VersionDelegate
+  public notify = (notification: SystemNotification) => {
+    this.notificationController.notify(notification);
+  };
+  public getVersionInfo = () => this.daemonRpc.getVersionInfo();
+
   /* eslint-enable @typescript-eslint/member-ordering */
 }
 
