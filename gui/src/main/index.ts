@@ -7,33 +7,18 @@ import util from 'util';
 import config from '../config.json';
 import { hasExpired } from '../shared/account-expiry';
 import { IWindowsApplication } from '../shared/application-types';
-import {
-  AccountToken,
-  DaemonEvent,
-  DeviceEvent,
-  DeviceState,
-  IAccountData,
-  IDeviceRemoval,
-  ISettings,
-  TunnelState,
-} from '../shared/daemon-rpc-types';
+import { DaemonEvent, DeviceEvent, ISettings, TunnelState } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
 import { IChangelog, IHistoryObject, ScrollPositions } from '../shared/ipc-types';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
-import {
-  AccountExpiredNotificationProvider,
-  CloseToAccountExpiryNotificationProvider,
-  SystemNotification,
-} from '../shared/notifications/notification';
-import { Scheduler } from '../shared/scheduler';
-import AccountDataCache from './account-data-cache';
+import { SystemNotification } from '../shared/notifications/notification';
+import Account, { AccountDelegate } from './account';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
-import { InvalidAccountError } from './errors';
 import Expectation from './expectation';
 import { IpcMainEventChannel } from './ipc-event-channel';
 import { findIconPath } from './linux-desktop-entry';
@@ -89,14 +74,15 @@ class ApplicationMain
     UserInterfaceDelegate,
     VersionDelegate,
     TunnelStateHandlerDelegate,
-    SettingsDelegate {
+    SettingsDelegate,
+    AccountDelegate {
   private daemonRpc = new DaemonRpc();
   private notificationController = new NotificationController(this);
   private version = new Version(this, UPDATE_NOTIFICATION_DISABLED);
   private settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
   private relayList = new RelayList();
   private userInterface?: UserInterface;
-
+  private account: Account = new Account(this, this.daemonRpc);
   private tunnelState = new TunnelStateHandler(this);
 
   // True while file pickers are displayed which is used to decide if the Browser window should be
@@ -109,29 +95,10 @@ class ApplicationMain
   private isPerformingPostUpgrade = false;
   private quitStage = AppQuitStage.unready;
 
-  private accountData?: IAccountData = undefined;
-  private accountHistory?: AccountToken = undefined;
-
-  private deviceState?: DeviceState;
   private tunnelStateExpectation?: Expectation;
 
   // The UI locale which is set once from onReady handler
   private locale = 'en';
-
-  private accountExpiryNotificationScheduler = new Scheduler();
-
-  private accountDataCache = new AccountDataCache(
-    (accountToken) => {
-      return this.daemonRpc.getAccountData(accountToken);
-    },
-    (accountData) => {
-      this.accountData = accountData;
-
-      IpcMainEventChannel.account.notify?.(this.accountData);
-
-      this.handleAccountExpiry();
-    },
-  );
 
   private rendererLog?: Logger;
   private translations: ITranslations = { locale: this.locale };
@@ -209,6 +176,14 @@ class ApplicationMain
     app.on('window-all-closed', () => app.quit());
     app.on('before-quit', this.onBeforeQuit);
     app.on('quit', this.onQuit);
+  }
+
+  public async performPostUpgradeCheck(): Promise<void> {
+    const oldValue = this.isPerformingPostUpgrade;
+    this.isPerformingPostUpgrade = await this.daemonRpc.isPerformingPostUpgrade();
+    if (this.isPerformingPostUpgrade !== oldValue) {
+      IpcMainEventChannel.daemon.notifyIsPerformingPostUpgrade?.(this.isPerformingPostUpgrade);
+    }
   }
 
   private addSecondInstanceEventHandler() {
@@ -487,7 +462,7 @@ class ApplicationMain
 
     // fetch account history
     try {
-      this.setAccountHistory(await this.daemonRpc.getAccountHistory());
+      this.account.setAccountHistory(await this.daemonRpc.getAccountHistory());
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch the account history: ${error.message}`);
@@ -508,7 +483,7 @@ class ApplicationMain
     // fetch device
     try {
       const deviceState = await this.daemonRpc.getDevice();
-      this.handleDeviceEvent({ type: deviceState.type, deviceState } as DeviceEvent);
+      this.account.handleDeviceEvent({ type: deviceState.type, deviceState } as DeviceEvent);
       if (deviceState.type === 'logged in') {
         void this.daemonRpc
           .updateDevice()
@@ -578,7 +553,7 @@ class ApplicationMain
     }
 
     // show window when account is not set
-    if (!this.isLoggedIn()) {
+    if (!this.account.isLoggedIn()) {
       this.userInterface?.showWindow();
     }
   };
@@ -647,7 +622,7 @@ class ApplicationMain
         } else if ('appVersionInfo' in daemonEvent) {
           this.version.setLatestVersion(daemonEvent.appVersionInfo);
         } else if ('device' in daemonEvent) {
-          this.handleDeviceEvent(daemonEvent.device);
+          this.account.handleDeviceEvent(daemonEvent.device);
         } else if ('deviceRemoval' in daemonEvent) {
           IpcMainEventChannel.account.notifyDevices?.(daemonEvent.deviceRemoval);
         }
@@ -660,20 +635,6 @@ class ApplicationMain
     this.daemonRpc.subscribeDaemonEventListener(daemonEventListener);
 
     return daemonEventListener;
-  }
-
-  private async performPostUpgradeCheck(): Promise<void> {
-    const oldValue = this.isPerformingPostUpgrade;
-    this.isPerformingPostUpgrade = await this.daemonRpc.isPerformingPostUpgrade();
-    if (this.isPerformingPostUpgrade !== oldValue) {
-      IpcMainEventChannel.daemon.notifyIsPerformingPostUpgrade?.(this.isPerformingPostUpgrade);
-    }
-  }
-
-  private setAccountHistory(accountHistory?: AccountToken) {
-    this.accountHistory = accountHistory;
-
-    IpcMainEventChannel.accountHistory.notify?.(accountHistory);
   }
 
   private setSettings(newSettings: ISettings) {
@@ -709,45 +670,16 @@ class ApplicationMain
     IpcMainEventChannel.windowsSplitTunneling.notify?.(applications);
   }
 
-  private handleDeviceEvent(deviceEvent: DeviceEvent) {
-    this.deviceState = deviceEvent.deviceState;
-
-    if (this.isPerformingPostUpgrade) {
-      void this.performPostUpgradeCheck();
-    }
-
-    switch (deviceEvent.deviceState.type) {
-      case 'logged in':
-        this.accountDataCache.fetch(deviceEvent.deviceState.accountAndDevice.accountToken);
-        break;
-      case 'logged out':
-      case 'revoked':
-        this.accountDataCache.invalidate();
-        break;
-    }
-
-    void this.updateAccountHistory();
-    this.userInterface?.setTrayContextMenu();
-
-    IpcMainEventChannel.account.notifyDevice?.(deviceEvent);
-  }
-
-  private getAccountToken(): AccountToken | undefined {
-    return this.deviceState?.type === 'logged in'
-      ? this.deviceState.accountAndDevice.accountToken
-      : undefined;
-  }
-
   private registerIpcListeners() {
     IpcMainEventChannel.state.handleGet(() => ({
       isConnected: this.daemonRpc.isConnected,
       autoStart: getOpenAtLogin(),
-      accountData: this.accountData,
-      accountHistory: this.accountHistory,
+      accountData: this.account.accountData,
+      accountHistory: this.account.accountHistory,
       tunnelState: this.tunnelState.tunnelState,
       settings: this.settings.all,
       isPerformingPostUpgrade: this.isPerformingPostUpgrade,
-      deviceState: this.deviceState,
+      deviceState: this.account.deviceState,
       relayListPair: this.relayList.getProcessedRelays(
         this.settings.relaySettings,
         this.settings.bridgeState,
@@ -774,43 +706,6 @@ class ApplicationMain
       this.settings.gui.preferredLocale = locale;
       this.updateCurrentLocale();
       return Promise.resolve(this.translations);
-    });
-
-    IpcMainEventChannel.account.handleCreate(() => this.createNewAccount());
-    IpcMainEventChannel.account.handleLogin((token: AccountToken) => this.login(token));
-    IpcMainEventChannel.account.handleLogout(() => this.logout());
-    IpcMainEventChannel.account.handleGetWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
-    IpcMainEventChannel.account.handleSubmitVoucher(async (voucherCode: string) => {
-      const currentAccountToken = this.getAccountToken();
-      const response = await this.daemonRpc.submitVoucher(voucherCode);
-
-      if (currentAccountToken) {
-        this.accountDataCache.handleVoucherResponse(currentAccountToken, response);
-      }
-
-      return response;
-    });
-    IpcMainEventChannel.account.handleUpdateData(() => this.updateAccountData());
-
-    IpcMainEventChannel.account.handleGetDeviceState(async () => {
-      try {
-        await this.daemonRpc.updateDevice();
-      } catch (e) {
-        const error = e as Error;
-        log.warn(`Failed to update device info: ${error.message}`);
-      }
-      return this.daemonRpc.getDevice();
-    });
-    IpcMainEventChannel.account.handleListDevices((accountToken: AccountToken) => {
-      return this.daemonRpc.listDevices(accountToken);
-    });
-    IpcMainEventChannel.account.handleRemoveDevice((deviceRemoval: IDeviceRemoval) => {
-      return this.daemonRpc.removeDevice(deviceRemoval);
-    });
-
-    IpcMainEventChannel.accountHistory.handleClear(async () => {
-      await this.daemonRpc.clearAccountHistory();
-      void this.updateAccountHistory();
     });
 
     IpcMainEventChannel.linuxSplitTunneling.handleGetApplications(() => {
@@ -874,6 +769,7 @@ class ApplicationMain
 
     problemReport.registerIpcListeners();
     this.settings.registerIpcListeners();
+    this.account.registerIpcListeners();
 
     if (windowsSplitTunneling) {
       this.settings.gui.browsedForSplitTunnelingApplications.forEach(
@@ -882,35 +778,13 @@ class ApplicationMain
     }
   }
 
-  private async createNewAccount(): Promise<string> {
-    try {
-      return await this.daemonRpc.createNewAccount();
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to create account: ${error.message}`);
-      throw error;
-    }
-  }
-
-  private async login(accountToken: AccountToken): Promise<void> {
-    try {
-      await this.daemonRpc.loginAccount(accountToken);
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to login: ${error.message}`);
-
-      if (error instanceof InvalidAccountError) {
-        throw Error(messages.gettext('Invalid account number'));
-      } else {
-        throw error;
-      }
-    }
-  }
-
   private async autoConnect() {
     if (process.env.NODE_ENV === 'development') {
       log.info('Skip autoconnect in development');
-    } else if (this.isLoggedIn() && (!this.accountData || !hasExpired(this.accountData.expiry))) {
+    } else if (
+      this.account.isLoggedIn() &&
+      (!this.account.accountData || !hasExpired(this.account.accountData.expiry))
+    ) {
       if (this.settings.gui.autoConnect) {
         try {
           log.info('Autoconnect the tunnel');
@@ -925,66 +799,6 @@ class ApplicationMain
       }
     } else {
       log.info('Skip autoconnect because account token is not set');
-    }
-  }
-
-  private async logout(): Promise<void> {
-    try {
-      await this.daemonRpc.logoutAccount();
-
-      this.accountExpiryNotificationScheduler.cancel();
-    } catch (e) {
-      const error = e as Error;
-      log.info(`Failed to logout: ${error.message}`);
-
-      throw error;
-    }
-  }
-
-  private detectStaleAccountExpiry(tunnelState: TunnelState, accountExpiry: Date) {
-    const hasExpired = new Date() >= accountExpiry;
-
-    // It's likely that the account expiry is stale if the daemon managed to establish the tunnel.
-    if (tunnelState.state === 'connected' && hasExpired) {
-      log.info('Detected the stale account expiry.');
-      this.accountDataCache.invalidate();
-    }
-  }
-
-  private handleAccountExpiry() {
-    if (this.accountData) {
-      const expiredNotification = new AccountExpiredNotificationProvider({
-        accountExpiry: this.accountData.expiry,
-        tunnelState: this.tunnelState.tunnelState,
-      });
-      const closeToExpiryNotification = new CloseToAccountExpiryNotificationProvider({
-        accountExpiry: this.accountData.expiry,
-        locale: this.locale,
-      });
-
-      if (expiredNotification.mayDisplay()) {
-        this.accountExpiryNotificationScheduler.cancel();
-        this.notificationController.notify(expiredNotification.getSystemNotification());
-      } else if (
-        !this.accountExpiryNotificationScheduler.isRunning &&
-        closeToExpiryNotification.mayDisplay()
-      ) {
-        this.notificationController.notify(closeToExpiryNotification.getSystemNotification());
-
-        const twelveHours = 12 * 60 * 60 * 1000;
-        const remainingMilliseconds = new Date(this.accountData.expiry).getTime() - Date.now();
-        const delay = Math.min(twelveHours, remainingMilliseconds);
-        this.accountExpiryNotificationScheduler.schedule(() => this.handleAccountExpiry(), delay);
-      }
-    }
-  }
-
-  private async updateAccountHistory(): Promise<void> {
-    try {
-      this.setAccountHistory(await this.daemonRpc.getAccountHistory());
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to fetch the account history: ${error.message}`);
     }
   }
 
@@ -1125,26 +939,20 @@ class ApplicationMain
   public getAppQuitStage = () => this.quitStage;
   public isConnectedToDaemon = () => this.daemonRpc.isConnected;
   public getTunnelState = () => this.tunnelState.tunnelState;
-  public updateAccountData = () => {
-    if (this.daemonRpc.isConnected && this.isLoggedIn()) {
-      this.accountDataCache.fetch(this.getAccountToken()!);
-    }
-  };
-  public isLoggedIn(): boolean {
-    return this.deviceState?.type === 'logged in';
-  }
+  public updateAccountData = () => this.account.updateAccountData();
+  public isLoggedIn = () => this.account.isLoggedIn();
   public isBrowsingFiles = () => this.browsingFiles;
-  public getAccountData = () => this.accountData;
+  public getAccountData = () => this.account.accountData;
 
   public connectTunnel = async (): Promise<void> => {
-    if (this.tunnelState.allowConnect(this.daemonRpc.isConnected, this.isLoggedIn())) {
+    if (this.tunnelState.allowConnect(this.daemonRpc.isConnected, this.account.isLoggedIn())) {
       this.tunnelState.expectNextTunnelState('connecting');
       await this.daemonRpc.connectTunnel();
     }
   };
 
   public reconnectTunnel = async (): Promise<void> => {
-    if (this.tunnelState.allowReconnect(this.daemonRpc.isConnected, this.isLoggedIn())) {
+    if (this.tunnelState.allowReconnect(this.daemonRpc.isConnected, this.account.isLoggedIn())) {
       this.tunnelState.expectNextTunnelState('connecting');
       await this.daemonRpc.reconnectTunnel();
     }
@@ -1174,13 +982,13 @@ class ApplicationMain
       tunnelState,
       this.settings.blockWhenDisconnected,
       this.settings.splitTunnel.enableExclusions && this.settings.splitTunnel.appsList.length > 0,
-      this.accountData?.expiry,
+      this.account.accountData?.expiry,
     );
 
     IpcMainEventChannel.tunnel.notify?.(tunnelState);
 
-    if (this.accountData) {
-      this.detectStaleAccountExpiry(tunnelState, new Date(this.accountData.expiry));
+    if (this.account.accountData) {
+      this.account.detectStaleAccountExpiry(tunnelState);
     }
   };
 
@@ -1190,6 +998,13 @@ class ApplicationMain
   }
   public handleUnpinnedWindowChange() {
     void this.userInterface?.recreateWindow();
+  }
+
+  // AccountDelegate
+  public getLocale = () => this.locale;
+  public isPerformingPostUpgradeCheck = () => this.isPerformingPostUpgrade;
+  public setTrayContextMenu() {
+    this.userInterface?.setTrayContextMenu();
   }
   /* eslint-enable @typescript-eslint/member-ordering */
 }
