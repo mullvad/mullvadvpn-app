@@ -5,6 +5,7 @@ use mullvad_types::{
     settings::{DnsOptions, Settings},
     wireguard::RotationInterval,
 };
+use rand::Rng;
 #[cfg(target_os = "windows")]
 use std::collections::HashSet;
 use std::{
@@ -16,7 +17,6 @@ use tokio::{
     fs,
     io::{self, AsyncWriteExt},
 };
-use rand::Rng;
 
 const SETTINGS_FILE: &str = "settings.json";
 
