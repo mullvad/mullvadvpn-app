@@ -315,7 +315,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
             self.interactor.prepareForVPNConfigurationDeletion()
 
             // Reset tunnel and device state.
-            self.interactor.resetTunnelState(to: .disconnected)
+            self.interactor.updateTunnelStatus { tunnelStatus in
+                tunnelStatus = TunnelStatus()
+                tunnelStatus.state = .disconnected
+            }
             self.interactor.setDeviceState(.loggedOut, persist: true)
 
             // Finish immediately if tunnel provider is not set.

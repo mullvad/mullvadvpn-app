@@ -10,7 +10,7 @@ import Foundation
 
 protocol TunnelObserver: AnyObject {
     func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager)
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState)
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus)
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState)
 
     func tunnelManager(

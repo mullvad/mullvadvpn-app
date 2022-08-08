@@ -81,7 +81,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
         // no-op
     }
 

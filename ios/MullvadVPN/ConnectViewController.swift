@@ -183,8 +183,8 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         setNeedsHeaderBarStyleAppearanceUpdate()
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
-        self.tunnelState = tunnelState
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
+        tunnelState = tunnelStatus.state
     }
 
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
@@ -256,7 +256,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         case let .connected(tunnelRelay), let .reconnecting(tunnelRelay):
             setTunnelRelay(tunnelRelay)
 
-        case .disconnected, .disconnecting, .pendingReconnect:
+        case .disconnected, .disconnecting, .pendingReconnect, .waitingForConnectivity:
             setTunnelRelay(nil)
         }
 
@@ -353,6 +353,9 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         case .pendingReconnect:
             removeLocationMarker()
             contentView.activityIndicator.startAnimating()
+
+        case .waitingForConnectivity:
+            removeLocationMarker()
 
         case .disconnected, .disconnecting:
             removeLocationMarker()
@@ -541,7 +544,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 private extension TunnelState {
     var textColorForSecureLabel: UIColor {
         switch self {
-        case .connecting, .reconnecting:
+        case .connecting, .reconnecting, .waitingForConnectivity:
             return .white
 
         case .connected:
@@ -592,6 +595,14 @@ private extension TunnelState {
                 value: "Unsecured connection",
                 comment: ""
             )
+
+        case .waitingForConnectivity:
+            return NSLocalizedString(
+                "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY",
+                tableName: "Main",
+                value: "Blocked connection",
+                comment: ""
+            )
         }
     }
 
@@ -612,7 +623,7 @@ private extension TunnelState {
                 value: "Select location",
                 comment: ""
             )
-        case .connecting, .connected, .reconnecting:
+        case .connecting, .connected, .reconnecting, .waitingForConnectivity:
             return NSLocalizedString(
                 "SWITCH_LOCATION_BUTTON_TITLE",
                 tableName: "Main",
@@ -664,6 +675,14 @@ private extension TunnelState {
                 tunnelInfo.location.country
             )
 
+        case .waitingForConnectivity:
+            return NSLocalizedString(
+                "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY_ACCESSIBILITY_LABEL",
+                tableName: "Main",
+                value: "Blocked connection",
+                comment: ""
+            )
+
         case .disconnecting(.nothing):
             return NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTING_ACCESSIBILITY_LABEL",
@@ -689,7 +708,8 @@ private extension TunnelState {
             case .disconnected, .disconnecting(.nothing):
                 return [.selectLocation, .connect]
 
-            case .connecting, .pendingReconnect, .disconnecting(.reconnect):
+            case .connecting, .pendingReconnect, .disconnecting(.reconnect),
+                 .waitingForConnectivity:
                 return [.selectLocation, .cancel]
 
             case .connected, .reconnecting:
@@ -701,7 +721,8 @@ private extension TunnelState {
             case .disconnected, .disconnecting(.nothing):
                 return [.connect]
 
-            case .connecting, .pendingReconnect, .disconnecting(.reconnect):
+            case .connecting, .pendingReconnect, .disconnecting(.reconnect),
+                 .waitingForConnectivity:
                 return [.cancel]
 
             case .connected, .reconnecting:
