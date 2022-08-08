@@ -19,12 +19,9 @@ import {
   IAccountData,
   IDeviceRemoval,
   IDnsOptions,
-  IRelayList,
   ISettings,
-  liftConstraint,
   ObfuscationType,
   Ownership,
-  RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
 } from '../shared/daemon-rpc-types';
@@ -63,6 +60,7 @@ import {
 import NotificationController, { NotificationControllerDelegate } from './notification-controller';
 import * as problemReport from './problem-report';
 import ReconnectionBackoff from './reconnection-backoff';
+import RelayList from './relay-list';
 import UserInterface, { UserInterfaceDelegate } from './user-interface';
 import Version, { VersionDelegate } from './version';
 
@@ -98,6 +96,8 @@ class ApplicationMain
   private userInterface?: UserInterface;
 
   private version = new Version(this, UPDATE_NOTIFICATION_DISABLED);
+
+  private relayList = new RelayList();
 
   // True while file pickers are displayed which is used to decide if the Browser window should be
   // hidden when losing focus.
@@ -191,8 +191,6 @@ class ApplicationMain
   private deviceState?: DeviceState;
   private guiSettings = new GuiSettings();
   private tunnelStateExpectation?: Expectation;
-
-  private relays: IRelayList = { countries: [] };
 
   // The UI locale which is set once from onReady handler
   private locale = 'en';
@@ -628,7 +626,7 @@ class ApplicationMain
 
     // fetch relays
     try {
-      this.setRelays(
+      this.relayList.setRelays(
         await this.daemonRpc.getRelayLocations(),
         this.settings.relaySettings,
         this.settings.bridgeState,
@@ -730,7 +728,7 @@ class ApplicationMain
         } else if ('settings' in daemonEvent) {
           this.setSettings(daemonEvent.settings);
         } else if ('relayList' in daemonEvent) {
-          this.setRelays(
+          this.relayList.setRelays(
             daemonEvent.relayList,
             this.settings.relaySettings,
             this.settings.bridgeState,
@@ -846,7 +844,7 @@ class ApplicationMain
 
     // since settings can have the relay constraints changed, the relay
     // list should also be updated
-    this.setRelays(this.relays, newSettings.relaySettings, newSettings.bridgeState);
+    this.relayList.updateSettings(newSettings.relaySettings, newSettings.bridgeState);
   }
 
   private async updateSplitTunnelingApplications(appList: string[]): Promise<void> {
@@ -856,87 +854,6 @@ class ApplicationMain
     this.windowsSplitTunnelingApplications = applications;
 
     IpcMainEventChannel.windowsSplitTunneling.notify?.(applications);
-  }
-
-  private setRelays(
-    newRelayList: IRelayList,
-    relaySettings: RelaySettings,
-    bridgeState: BridgeState,
-  ) {
-    this.relays = newRelayList;
-
-    const filteredRelays = this.processRelaysForPresentation(newRelayList, relaySettings);
-    const filteredBridges = this.processBridgesForPresentation(newRelayList, bridgeState);
-
-    IpcMainEventChannel.relays.notify?.({ relays: filteredRelays, bridges: filteredBridges });
-  }
-
-  private processRelaysForPresentation(
-    relayList: IRelayList,
-    relaySettings: RelaySettings,
-  ): IRelayList {
-    const tunnelProtocol =
-      'normal' in relaySettings ? liftConstraint(relaySettings.normal.tunnelProtocol) : undefined;
-
-    const filteredCountries = relayList.countries
-      .map((country) => ({
-        ...country,
-        cities: country.cities
-          .map((city) => ({
-            ...city,
-            relays: city.relays.filter((relay) => {
-              if (relay.endpointType != 'bridge') {
-                switch (tunnelProtocol) {
-                  case 'openvpn':
-                    return relay.endpointType == 'openvpn';
-
-                  case 'wireguard':
-                    return relay.endpointType == 'wireguard';
-
-                  case 'any': {
-                    const useMultihop =
-                      'normal' in relaySettings &&
-                      relaySettings.normal.wireguardConstraints.useMultihop;
-                    return !useMultihop || relay.endpointType == 'wireguard';
-                  }
-                  default:
-                    return false;
-                }
-              } else {
-                return false;
-              }
-            }),
-          }))
-          .filter((city) => city.relays.length > 0),
-      }))
-      .filter((country) => country.cities.length > 0);
-
-    return {
-      countries: filteredCountries,
-    };
-  }
-
-  private processBridgesForPresentation(
-    relayList: IRelayList,
-    bridgeState: BridgeState,
-  ): IRelayList {
-    if (bridgeState === 'on') {
-      const filteredCountries = relayList.countries
-        .map((country) => ({
-          ...country,
-          cities: country.cities
-            .map((city) => ({
-              ...city,
-              relays: city.relays.filter((relay) => relay.endpointType == 'bridge'),
-            }))
-            .filter((city) => city.relays.length > 0),
-        }))
-        .filter((country) => country.cities.length > 0);
-
-      return { countries: filteredCountries };
-    } else {
-      return { countries: [] };
-    }
   }
 
   private handleDeviceEvent(deviceEvent: DeviceEvent) {
@@ -978,10 +895,10 @@ class ApplicationMain
       settings: this.settings,
       isPerformingPostUpgrade: this.isPerformingPostUpgrade,
       deviceState: this.deviceState,
-      relayListPair: {
-        relays: this.processRelaysForPresentation(this.relays, this.settings.relaySettings),
-        bridges: this.processBridgesForPresentation(this.relays, this.settings.bridgeState),
-      },
+      relayListPair: this.relayList.getProcessedRelays(
+        this.settings.relaySettings,
+        this.settings.bridgeState,
+      ),
       currentVersion: this.version.currentVersion,
       upgradeVersion: this.version.upgradeVersion,
       guiSettings: this.guiSettings.state,
