@@ -4,20 +4,16 @@
 #include "converters.h"
 #include <libshared/logging/logsinkadapter.h>
 #include <libshared/logging/unwind.h>
-#include <libshared/network/interfaceutils.h>
 #include <libcommon/error.h>
 #include <libcommon/memory.h>
 #include <libcommon/valuemapper.h>
-#include <libcommon/network.h>
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <mutex>
 
 using namespace winnet::routing;
-using namespace common::network;
 using AutoLockType = std::scoped_lock<std::mutex>;
-using namespace shared::network;
 
 namespace
 {

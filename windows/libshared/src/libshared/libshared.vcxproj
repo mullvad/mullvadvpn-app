@@ -176,7 +176,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="network\interfaceutils.h" />
     <ClInclude Include="logging\logsink.h" />
     <ClInclude Include="logging\logsinkadapter.h" />
     <ClInclude Include="logging\stdoutlogger.h" />
@@ -185,7 +184,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="network\interfaceutils.cpp" />
     <ClCompile Include="logging\logsinkadapter.cpp" />
     <ClCompile Include="logging\stdoutlogger.cpp" />
     <ClCompile Include="logging\unwind.cpp" />
