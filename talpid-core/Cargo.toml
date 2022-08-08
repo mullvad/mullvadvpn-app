@@ -85,6 +85,13 @@ winapi = { version = "0.3.6", features = ["combaseapi", "handleapi", "ifdef", "i
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 memoffset = "0.6"
 
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.36.1"
+features = [
+    "Win32_Foundation",
+    "Win32_System_LibraryLoader",
+]
+
 [build-dependencies]
 tonic-build = { version = "0.5", default-features = false, features = ["transport", "prost"] }
 
