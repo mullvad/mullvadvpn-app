@@ -8,7 +8,6 @@ import config from '../config.json';
 import { hasExpired } from '../shared/account-expiry';
 import { IWindowsApplication } from '../shared/application-types';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
-import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
 import {
   AccountToken,
   BridgeSettings,
@@ -61,6 +60,7 @@ import NotificationController, { NotificationControllerDelegate } from './notifi
 import * as problemReport from './problem-report';
 import ReconnectionBackoff from './reconnection-backoff';
 import RelayList from './relay-list';
+import TunnelStateHandler, { TunnelStateHandlerDelegate } from './tunnel-state';
 import UserInterface, { UserInterfaceDelegate } from './user-interface';
 import Version, { VersionDelegate } from './version';
 
@@ -91,13 +91,19 @@ const NAVIGATION_RESET_DISABLED = process.argv.includes(CommandLineOptions.disab
 const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION === '1';
 
 class ApplicationMain
-  implements NotificationControllerDelegate, UserInterfaceDelegate, VersionDelegate {
+  implements
+    NotificationControllerDelegate,
+    UserInterfaceDelegate,
+    VersionDelegate,
+    TunnelStateHandlerDelegate {
   private notificationController = new NotificationController(this);
   private userInterface?: UserInterface;
 
   private version = new Version(this, UPDATE_NOTIFICATION_DISABLED);
 
   private relayList = new RelayList();
+
+  private tunnelState = new TunnelStateHandler(this);
 
   // True while file pickers are displayed which is used to decide if the Browser window should be
   // hidden when losing focus.
@@ -113,15 +119,6 @@ class ApplicationMain
 
   private accountData?: IAccountData = undefined;
   private accountHistory?: AccountToken = undefined;
-
-  // The current tunnel state
-  private tunnelState: TunnelState = { state: 'disconnected' };
-  // When pressing connect/disconnect/reconnect the app assumes what the next state will be before
-  // it get's the new state from the daemon. The latest state from the daemon is saved as fallback
-  // if the assumed state isn't reached.
-  private tunnelStateFallback?: TunnelState;
-  // Scheduler for discarding the assumed next state.
-  private tunnelStateFallbackScheduler = new Scheduler();
 
   private settings: ISettings = {
     allowLan: false,
@@ -496,7 +493,7 @@ class ApplicationMain
 
     this.tunnelStateExpectation = new Expectation(async () => {
       this.userInterface?.createTrayIconController(
-        this.tunnelState,
+        this.tunnelState.tunnelState,
         this.settings.blockWhenDisconnected,
         this.guiSettings.monochromaticIcon,
       );
@@ -583,7 +580,7 @@ class ApplicationMain
 
     // fetch the tunnel state
     try {
-      this.setTunnelState(await this.daemonRpc.getState());
+      this.tunnelState.handleNewTunnelState(await this.daemonRpc.getState());
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch the tunnel state: ${error.message}`);
@@ -680,7 +677,7 @@ class ApplicationMain
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
 
-    this.tunnelStateFallback = undefined;
+    this.tunnelState.resetFallback();
 
     if (wasConnected) {
       this.connectedToDaemon = false;
@@ -723,7 +720,7 @@ class ApplicationMain
     const daemonEventListener = new SubscriptionListener(
       (daemonEvent: DaemonEvent) => {
         if ('tunnelState' in daemonEvent) {
-          this.setTunnelState(daemonEvent.tunnelState);
+          this.tunnelState.handleNewTunnelState(daemonEvent.tunnelState);
         } else if ('settings' in daemonEvent) {
           this.setSettings(daemonEvent.settings);
         } else if ('relayList' in daemonEvent) {
@@ -764,72 +761,14 @@ class ApplicationMain
     IpcMainEventChannel.accountHistory.notify?.(accountHistory);
   }
 
-  // This function sets a new tunnel state as an assumed next state and saves the current state as
-  // fallback. The fallback is used if the assumed next state isn't reached.
-  private setOptimisticTunnelState(state: 'connecting' | 'disconnecting') {
-    this.tunnelStateFallback = this.tunnelState;
-
-    this.setTunnelStateImpl(
-      state === 'disconnecting' ? { state, details: 'nothing' as const } : { state },
-    );
-
-    this.tunnelStateFallbackScheduler.schedule(() => {
-      if (this.tunnelStateFallback) {
-        this.setTunnelStateImpl(this.tunnelStateFallback);
-        this.tunnelStateFallback = undefined;
-      }
-    }, 3000);
-  }
-
-  private setTunnelState(newState: TunnelState) {
-    // If there's a fallback state set then the app is in an assumed next state and need to check
-    // if it's now reached or if the current state should be ignored and set as the fallback state.
-    if (this.tunnelStateFallback) {
-      if (this.tunnelState.state === newState.state || newState.state === 'error') {
-        this.tunnelStateFallbackScheduler.cancel();
-        this.tunnelStateFallback = undefined;
-      } else {
-        this.tunnelStateFallback = newState;
-        return;
-      }
-    }
-
-    if (newState.state === 'disconnecting' && newState.details === 'reconnect') {
-      // When reconnecting there's no need of showing the disconnecting state. This switches to the
-      // connecting state immediately.
-      this.setOptimisticTunnelState('connecting');
-      this.tunnelStateFallback = newState;
-    } else {
-      this.setTunnelStateImpl(newState);
-    }
-  }
-
-  private setTunnelStateImpl(newState: TunnelState) {
-    this.tunnelState = newState;
-    this.userInterface?.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
-
-    this.userInterface?.setTrayContextMenu();
-    this.userInterface?.setTrayTooltip();
-
-    this.notificationController.notifyTunnelState(
-      newState,
-      this.settings.blockWhenDisconnected,
-      this.settings.splitTunnel.enableExclusions && this.settings.splitTunnel.appsList.length > 0,
-      this.accountData?.expiry,
-    );
-
-    IpcMainEventChannel.tunnel.notify?.(newState);
-
-    if (this.accountData) {
-      this.detectStaleAccountExpiry(newState, new Date(this.accountData.expiry));
-    }
-  }
-
   private setSettings(newSettings: ISettings) {
     const oldSettings = this.settings;
     this.settings = newSettings;
 
-    this.userInterface?.updateTrayIcon(this.tunnelState, newSettings.blockWhenDisconnected);
+    this.userInterface?.updateTrayIcon(
+      this.tunnelState.tunnelState,
+      newSettings.blockWhenDisconnected,
+    );
 
     if (oldSettings.showBetaReleases !== newSettings.showBetaReleases) {
       this.version.setLatestVersion(this.version.upgradeVersion);
@@ -890,7 +829,7 @@ class ApplicationMain
       autoStart: getOpenAtLogin(),
       accountData: this.accountData,
       accountHistory: this.accountHistory,
-      tunnelState: this.tunnelState,
+      tunnelState: this.tunnelState.tunnelState,
       settings: this.settings,
       isPerformingPostUpgrade: this.isPerformingPostUpgrade,
       deviceState: this.deviceState,
@@ -1166,7 +1105,7 @@ class ApplicationMain
     if (this.accountData) {
       const expiredNotification = new AccountExpiredNotificationProvider({
         accountExpiry: this.accountData.expiry,
-        tunnelState: this.tunnelState,
+        tunnelState: this.tunnelState.tunnelState,
       });
       const closeToExpiryNotification = new CloseToAccountExpiryNotificationProvider({
         accountExpiry: this.accountData.expiry,
@@ -1370,7 +1309,7 @@ class ApplicationMain
   public checkVolumes = () => this.daemonRpc.checkVolumes();
   public getAppQuitStage = () => this.quitStage;
   public isConnectedToDaemon = () => this.connectedToDaemon;
-  public getTunnelState = () => this.tunnelState;
+  public getTunnelState = () => this.tunnelState.tunnelState;
   public updateAccountData = () => {
     if (this.connectedToDaemon && this.isLoggedIn()) {
       this.accountDataCache.fetch(this.getAccountToken()!);
@@ -1383,22 +1322,22 @@ class ApplicationMain
   public getAccountData = () => this.accountData;
 
   public connectTunnel = async (): Promise<void> => {
-    if (connectEnabled(this.connectedToDaemon, this.isLoggedIn(), this.tunnelState.state)) {
-      this.setOptimisticTunnelState('connecting');
+    if (this.tunnelState.allowConnect(this.connectedToDaemon, this.isLoggedIn())) {
+      this.tunnelState.expectNextTunnelState('connecting');
       await this.daemonRpc.connectTunnel();
     }
   };
 
   public reconnectTunnel = async (): Promise<void> => {
-    if (reconnectEnabled(this.connectedToDaemon, this.isLoggedIn(), this.tunnelState.state)) {
-      this.setOptimisticTunnelState('connecting');
+    if (this.tunnelState.allowReconnect(this.connectedToDaemon, this.isLoggedIn())) {
+      this.tunnelState.expectNextTunnelState('connecting');
       await this.daemonRpc.reconnectTunnel();
     }
   };
 
   public disconnectTunnel = async (): Promise<void> => {
-    if (disconnectEnabled(this.connectedToDaemon, this.tunnelState.state)) {
-      this.setOptimisticTunnelState('disconnecting');
+    if (this.tunnelState.allowDisconnect(this.connectedToDaemon)) {
+      this.tunnelState.expectNextTunnelState('disconnecting');
       await this.daemonRpc.disconnectTunnel();
     }
   };
@@ -1409,6 +1348,26 @@ class ApplicationMain
   };
   public getVersionInfo = () => this.daemonRpc.getVersionInfo();
 
+  // TunnelStateHandlerDelegate
+  public handleTunnelStateUpdate = (tunnelState: TunnelState) => {
+    this.userInterface?.updateTrayIcon(tunnelState, this.settings.blockWhenDisconnected);
+
+    this.userInterface?.setTrayContextMenu();
+    this.userInterface?.setTrayTooltip();
+
+    this.notificationController.notifyTunnelState(
+      tunnelState,
+      this.settings.blockWhenDisconnected,
+      this.settings.splitTunnel.enableExclusions && this.settings.splitTunnel.appsList.length > 0,
+      this.accountData?.expiry,
+    );
+
+    IpcMainEventChannel.tunnel.notify?.(tunnelState);
+
+    if (this.accountData) {
+      this.detectStaleAccountExpiry(tunnelState, new Date(this.accountData.expiry));
+    }
+  };
   /* eslint-enable @typescript-eslint/member-ordering */
 }
 
