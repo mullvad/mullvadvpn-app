@@ -10,7 +10,7 @@ import Foundation
 
 /// A struct describing the tunnel status.
 struct TunnelStatus: Equatable, CustomStringConvertible {
-    /// Tunnel status returned by the tunnel process.
+    /// Tunnel status returned by tunnel process.
     var packetTunnelStatus = PacketTunnelStatus()
 
     /// Tunnel state.
@@ -25,31 +25,7 @@ struct TunnelStatus: Equatable, CustomStringConvertible {
             s += "unreachable"
         }
 
-        if let connectingDate = packetTunnelStatus.connectingDate {
-            s += ", started connecting at \(connectingDate.logFormatDate())"
-        }
-
         return s
-    }
-
-    /// Updates the tunnel status from packet tunnel status, mapping relay to tunnel state.
-    mutating func update(
-        from packetTunnelStatus: PacketTunnelStatus,
-        mappingRelayToState mapper: (PacketTunnelRelay?) -> TunnelState?
-    ) {
-        self.packetTunnelStatus = packetTunnelStatus
-
-        if let newState = mapper(packetTunnelStatus.tunnelRelay) {
-            state = newState
-        }
-    }
-
-    /// Resets all fields to their defaults and assigns the next tunnel state.
-    mutating func reset(to newState: TunnelState) {
-        let currentRelay = packetTunnelStatus.tunnelRelay
-        packetTunnelStatus = PacketTunnelStatus()
-        packetTunnelStatus.tunnelRelay = currentRelay
-        state = newState
     }
 }
 
@@ -59,7 +35,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
     case pendingReconnect
 
     /// Connecting the tunnel.
-    case connecting(_ relay: PacketTunnelRelay?)
+    case connecting(PacketTunnelRelay?)
 
     /// Connected the tunnel
     case connected(PacketTunnelRelay)
@@ -70,9 +46,15 @@ enum TunnelState: Equatable, CustomStringConvertible {
     /// Disconnected the tunnel
     case disconnected
 
-    /// Reconnecting the tunnel. Normally this state appears in response to changing the
-    /// relay constraints and asking the running tunnel to reload the configuration.
-    case reconnecting(_ relay: PacketTunnelRelay)
+    /// Reconnecting the tunnel.
+    /// Transition to this state happens when:
+    /// 1. Asking the running tunnel to reconnect to new relay via IPC.
+    /// 2. Tunnel attempts to reconnect to new relay as the current relay appears to be
+    ///    dysfunctional.
+    case reconnecting(PacketTunnelRelay)
+
+    /// Waiting for connectivity to come back up.
+    case waitingForConnectivity
 
     var description: String {
         switch self {
@@ -92,12 +74,14 @@ enum TunnelState: Equatable, CustomStringConvertible {
             return "disconnected"
         case let .reconnecting(tunnelRelay):
             return "reconnecting to \(tunnelRelay.hostname)"
+        case .waitingForConnectivity:
+            return "waiting for connectivity"
         }
     }
 
     var isSecured: Bool {
         switch self {
-        case .reconnecting, .connecting, .connected:
+        case .reconnecting, .connecting, .connected, .waitingForConnectivity:
             return true
         case .pendingReconnect, .disconnecting, .disconnected:
             return false
@@ -105,12 +89,12 @@ enum TunnelState: Equatable, CustomStringConvertible {
     }
 }
 
-/// A enum that describes the action to perform after disconnect
-enum ActionAfterDisconnect {
-    /// Do nothing after disconnecting
+/// A enum that describes the action to perform after disconnect.
+enum ActionAfterDisconnect: CustomStringConvertible {
+    /// Do nothing after disconnecting.
     case nothing
 
-    /// Reconnect after disconnecting
+    /// Reconnect after disconnecting.
     case reconnect
 
     var description: String {

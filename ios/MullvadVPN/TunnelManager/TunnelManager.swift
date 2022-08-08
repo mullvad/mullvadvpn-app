@@ -13,28 +13,19 @@ import StoreKit
 import UIKit
 import class WireGuardKitTypes.PublicKey
 
-enum TunnelManagerConfiguration {
-    /// Delay used before starting to quickly poll the tunnel (in seconds).
-    /// Usually when the tunnel is either starting or when reconnecting for a brief moment, until
-    /// the tunnel broadcasts the connecting date which is later used to synchronize polling.
-    static let tunnelStatusQuickPollDelay: TimeInterval = 1
+/// Interval used for periodic pollingg of tunnel relay status when tunnel is establishing
+/// connection.
+private let establishingTunnelStatusPollInterval: TimeInterval = 3
 
-    /// Poll interval used when connecting date is unknown (in seconds).
-    static let tunnelStatusQuickPollInterval: TimeInterval = 3
+/// Interval used for periodic polling of tunnel connectivity status once the tunnel connection
+/// is established.
+private let establishedTunnelStatusPollInterval: TimeInterval = 5
 
-    /// Delay used for when connecting date is known (in seconds).
-    /// Since both GUI and packet tunnel run timers, this accounts for some leeway.
-    static let tunnelStatusLongPollDelay: TimeInterval = 0.25
+/// Private key rotation interval (in seconds).
+private let privateKeyRotationInterval: TimeInterval = 60 * 60 * 24 * 4
 
-    /// Poll interval used for when connecting date is known (in seconds).
-    static let tunnelStatusLongPollInterval = TunnelMonitorConfiguration.connectionTimeout
-
-    /// Private key rotation interval (in seconds).
-    static let privateKeyRotationInterval: TimeInterval = 60 * 60 * 24 * 4
-
-    /// Private key rotation retry interval (in seconds).
-    static let privateKeyRotationFailureRetryInterval: TimeInterval = 60 * 15
-}
+/// Private key rotation retry interval (in seconds).
+private let privateKeyRotationFailureRetryInterval: TimeInterval = 60 * 15
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
@@ -78,7 +69,6 @@ final class TunnelManager {
 
     private var tunnelStatusPollTimer: DispatchSourceTimer?
     private var isPolling = false
-    private var lastConnectingDate: Date?
 
     private var _isConfigurationLoaded = false
     private var _deviceState: DeviceState = .loggedOut
@@ -148,7 +138,7 @@ final class TunnelManager {
             // Retry at equal interval if failed or cancelled.
             if !completion.isSuccess {
                 let date = lastAttemptDate.addingTimeInterval(
-                    TunnelManagerConfiguration.privateKeyRotationFailureRetryInterval
+                    privateKeyRotationFailureRetryInterval
                 )
 
                 return max(date, Date())
@@ -156,8 +146,7 @@ final class TunnelManager {
         }
 
         // Rotate at long intervals otherwise.
-        let date = deviceData.wgKeyData.creationDate
-            .addingTimeInterval(TunnelManagerConfiguration.privateKeyRotationInterval)
+        let date = deviceData.wgKeyData.creationDate.addingTimeInterval(privateKeyRotationInterval)
 
         return max(date, Date())
     }
@@ -256,7 +245,9 @@ final class TunnelManager {
     }
 
     func refreshTunnelStatus() {
-        logger.debug("Refresh tunnel status due to application becoming active.")
+        #if DEBUG
+            logger.debug("Refresh tunnel status due to application becoming active.")
+        #endif
         _refreshTunnelStatus()
     }
 
@@ -453,7 +444,7 @@ final class TunnelManager {
     ) -> Cancellable {
         var rotationInterval: TimeInterval?
         if !forceRotate {
-            rotationInterval = TunnelManagerConfiguration.privateKeyRotationInterval
+            rotationInterval = privateKeyRotationInterval
         }
 
         let operation = RotateKeyOperation(
@@ -608,39 +599,16 @@ final class TunnelManager {
         }
     }
 
-    fileprivate func updateTunnelState(_ state: TunnelState) {
+    fileprivate func setTunnelStatus(_ block: (inout TunnelStatus) -> Void) -> TunnelStatus {
         nslock.lock()
         defer { nslock.unlock() }
 
-        var updatedStatus = _tunnelStatus
-        updatedStatus.state = state
-        setTunnelStatus(updatedStatus)
-    }
+        var newTunnelStatus = _tunnelStatus
+        block(&newTunnelStatus)
 
-    fileprivate func updateTunnelStatus(
-        from packetTunnelStatus: PacketTunnelStatus,
-        mappingRelayToState mapper: (PacketTunnelRelay?) -> TunnelState?
-    ) {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        var updatedStatus = _tunnelStatus
-        updatedStatus.update(from: packetTunnelStatus, mappingRelayToState: mapper)
-        setTunnelStatus(updatedStatus)
-    }
-
-    fileprivate func resetTunnelStatus(to state: TunnelState) {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        var updatedStatus = _tunnelStatus
-        updatedStatus.reset(to: state)
-        setTunnelStatus(updatedStatus)
-    }
-
-    fileprivate func setTunnelStatus(_ newTunnelStatus: TunnelStatus) {
-        nslock.lock()
-        defer { nslock.unlock() }
+        guard _tunnelStatus != newTunnelStatus else {
+            return newTunnelStatus
+        }
 
         logger.info("Status: \(newTunnelStatus).")
 
@@ -650,20 +618,24 @@ final class TunnelManager {
         case .connecting, .reconnecting:
             // Start polling tunnel status to keep the relay information up to date
             // while the tunnel process is trying to connect.
-            startPollingTunnelStatus(
-                connectingDate: newTunnelStatus.packetTunnelStatus.connectingDate
-            )
+            startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
 
-        case .pendingReconnect, .connected, .disconnecting, .disconnected:
+        case .connected, .waitingForConnectivity:
+            // Start polling tunnel status to keep connectivity status up to date.
+            startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
+
+        case .pendingReconnect, .disconnecting, .disconnected:
             // Stop polling tunnel status once connection moved to final state.
             cancelPollingTunnelStatus()
         }
 
         DispatchQueue.main.async {
             self.observerList.forEach { observer in
-                observer.tunnelManager(self, didUpdateTunnelState: newTunnelStatus.state)
+                observer.tunnelManager(self, didUpdateTunnelStatus: newTunnelStatus)
             }
         }
+
+        return newTunnelStatus
     }
 
     fileprivate func setSettings(_ settings: TunnelSettingsV2, persist: Bool) {
@@ -896,69 +868,21 @@ final class TunnelManager {
 
     // MARK: - Tunnel status polling
 
-    private func computeNextPollDateAndRepeatInterval(connectingDate: Date?)
-        -> (Date, TimeInterval)
-    {
-        let delay, repeating: TimeInterval
-        let fireDate: Date
+    private func startPollingTunnelStatus(interval: TimeInterval) {
+        guard !isPolling else { return }
 
-        if let connectingDate = connectingDate {
-            // Compute the schedule date for timer relative to when the packet tunnel started
-            // connecting.
-            delay = TunnelManagerConfiguration.tunnelStatusLongPollDelay
-            repeating = TunnelManagerConfiguration.tunnelStatusLongPollInterval
-
-            // Compute the time elapsed since connecting date.
-            let elapsed = max(0, Date().timeIntervalSince(connectingDate))
-
-            // Compute how many times the timer has fired so far.
-            let fireCount = floor(elapsed / repeating)
-
-            // Compute when the timer will fire next time.
-            let nextDelta = (fireCount + 1) * repeating
-
-            // Compute the fire date adding extra delay to account for leeway.
-            fireDate = connectingDate.addingTimeInterval(nextDelta + delay)
-        } else {
-            // Do quick polling until it's known when the packet tunnel started connecting.
-            delay = TunnelManagerConfiguration.tunnelStatusQuickPollDelay
-            repeating = TunnelManagerConfiguration.tunnelStatusQuickPollInterval
-
-            fireDate = Date(timeIntervalSinceNow: delay)
-        }
-
-        return (fireDate, repeating)
-    }
-
-    private func startPollingTunnelStatus(connectingDate: Date?) {
-        guard lastConnectingDate != connectingDate || !isPolling else { return }
-
-        lastConnectingDate = connectingDate
         isPolling = true
 
-        let (
-            fireDate,
-            repeating
-        ) = computeNextPollDateAndRepeatInterval(connectingDate: connectingDate)
-        logger
-            .debug(
-                "Start polling tunnel status at \(fireDate.logFormatDate()) every \(repeating) second(s)."
-            )
+        logger.debug(
+            "Start polling tunnel status every \(interval) second(s)."
+        )
 
         let timer = DispatchSource.makeTimerSource(queue: .main)
         timer.setEventHandler { [weak self] in
-            guard let self = self else { return }
-
-            self.logger.debug("Refresh tunnel status (poll).")
-            self._refreshTunnelStatus()
+            self?._refreshTunnelStatus()
         }
-
-        timer.schedule(
-            wallDeadline: .now() + fireDate.timeIntervalSinceNow,
-            repeating: repeating
-        )
-
-        timer.resume()
+        timer.schedule(wallDeadline: .now() + interval, repeating: interval)
+        timer.activate()
 
         tunnelStatusPollTimer?.cancel()
         tunnelStatusPollTimer = timer
@@ -971,7 +895,6 @@ final class TunnelManager {
 
         tunnelStatusPollTimer?.cancel()
         tunnelStatusPollTimer = nil
-        lastConnectingDate = nil
         isPolling = false
     }
 }
@@ -1033,23 +956,8 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         return tunnelManager.tunnelStatus
     }
 
-    func setTunnelStatus(_ tunnelStatus: TunnelStatus) {
-        tunnelManager.setTunnelStatus(tunnelStatus)
-    }
-
-    func updateTunnelStatus(
-        from packetTunnelStatus: PacketTunnelStatus,
-        mappingRelayToState mapper: (PacketTunnelRelay?) -> TunnelState?
-    ) {
-        tunnelManager.updateTunnelStatus(from: packetTunnelStatus, mappingRelayToState: mapper)
-    }
-
-    func updateTunnelState(_ state: TunnelState) {
-        tunnelManager.updateTunnelState(state)
-    }
-
-    func resetTunnelState(to state: TunnelState) {
-        tunnelManager.resetTunnelStatus(to: state)
+    func updateTunnelStatus(_ block: (inout TunnelStatus) -> Void) -> TunnelStatus {
+        return tunnelManager.setTunnelStatus(block)
     }
 
     var isConfigurationLoaded: Bool {

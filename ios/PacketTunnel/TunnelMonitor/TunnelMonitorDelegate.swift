@@ -13,7 +13,10 @@ protocol TunnelMonitorDelegate: AnyObject {
     func tunnelMonitorDidDetermineConnectionEstablished(_ tunnelMonitor: TunnelMonitor)
 
     /// Invoked when tunnel monitor determined that connection attempt has failed.
-    func tunnelMonitorDelegateShouldHandleConnectionRecovery(_ tunnelMonitor: TunnelMonitor)
+    func tunnelMonitorDelegate(
+        _ tunnelMonitor: TunnelMonitor,
+        shouldHandleConnectionRecoveryWithCompletion completionHandler: @escaping () -> Void
+    )
 
     /// Invoked when network reachability status changes.
     func tunnelMonitor(

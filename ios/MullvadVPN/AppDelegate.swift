@@ -379,7 +379,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func setupNotificationHandler() {
         NotificationManager.shared.notificationProviders = [
             AccountExpiryNotificationProvider(),
-            TunnelErrorNotificationProvider(),
+            TunnelStatusNotificationProvider(),
         ]
         UNUserNotificationCenter.current().delegate = self
     }

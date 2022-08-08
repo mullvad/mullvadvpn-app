@@ -170,9 +170,9 @@ class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObse
         // no-op
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
         setNeedsHeaderBarStyleAppearanceUpdate()
-        updateView(tunnelState: tunnelState)
+        updateView(tunnelState: tunnelStatus.state)
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {

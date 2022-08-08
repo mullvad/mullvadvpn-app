@@ -344,8 +344,8 @@ extension OutOfTimeViewController: AppStorePaymentObserver {
 extension OutOfTimeViewController: TunnelObserver {
     func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {}
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
-        self.tunnelState = tunnelState
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
+        tunnelState = tunnelStatus.state
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {}

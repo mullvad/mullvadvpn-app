@@ -28,11 +28,13 @@ class StopTunnelOperation: ResultOperation<Void, Error> {
     override func main() {
         switch interactor.tunnelStatus.state {
         case .disconnecting(.reconnect):
-            interactor.updateTunnelState(.disconnecting(.nothing))
+            interactor.updateTunnelStatus { tunnelStatus in
+                tunnelStatus.state = .disconnecting(.nothing)
+            }
 
             finish(completion: .success(()))
 
-        case .connected, .connecting, .reconnecting:
+        case .connected, .connecting, .reconnecting, .waitingForConnectivity:
             guard let tunnel = interactor.tunnel else {
                 finish(completion: .failure(UnsetTunnelError()))
                 return
@@ -52,7 +54,7 @@ class StopTunnelOperation: ResultOperation<Void, Error> {
                 }
             }
 
-        default:
+        case .disconnected, .disconnecting, .pendingReconnect:
             finish(completion: .success(()))
         }
     }
