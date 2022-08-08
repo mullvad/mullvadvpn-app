@@ -1,15 +1,20 @@
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import { ISettings, ObfuscationType, Ownership } from '../shared/daemon-rpc-types';
+import { ICurrentAppVersionInfo } from '../shared/ipc-types';
 import log from '../shared/logging';
-import { setOpenAtLogin } from './autostart';
+import { getOpenAtLogin, setOpenAtLogin } from './autostart';
 import { DaemonRpc } from './daemon-rpc';
+import GuiSettings from './gui-settings';
 import { IpcMainEventChannel } from './ipc-event-channel';
 
 export interface SettingsDelegate {
-  updateDaemonsAutoConnect(): void;
+  handleMonochromaticIconChange(value: boolean): Promise<void>;
+  handleUnpinnedWindowChange(): void;
 }
 
 export default class Settings implements Readonly<ISettings> {
+  private guiSettings = new GuiSettings();
+
   private settingsValue: ISettings = {
     allowLan: false,
     autoConnect: false,
@@ -77,9 +82,15 @@ export default class Settings implements Readonly<ISettings> {
     },
   };
 
-  public constructor(private delegate: SettingsDelegate, private daemonRpc: DaemonRpc) {}
+  public constructor(
+    private delegate: SettingsDelegate,
+    private daemonRpc: DaemonRpc,
+    private currentVersion: ICurrentAppVersionInfo,
+  ) {}
 
   public registerIpcListeners() {
+    this.registerGuiSettingsListener();
+
     IpcMainEventChannel.settings.handleSetAllowLan((allowLan) =>
       this.daemonRpc.setAllowLan(allowLan),
     );
@@ -121,6 +132,31 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetObfuscationSettings((obfuscationSettings) => {
       return this.daemonRpc.setObfuscationSettings(obfuscationSettings);
     });
+
+    IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
+      this.guiSettings.enableSystemNotifications = flag;
+    });
+
+    IpcMainEventChannel.guiSettings.handleSetAutoConnect((autoConnect: boolean) => {
+      this.guiSettings.autoConnect = autoConnect;
+    });
+
+    IpcMainEventChannel.guiSettings.handleSetStartMinimized((startMinimized: boolean) => {
+      this.guiSettings.startMinimized = startMinimized;
+    });
+
+    IpcMainEventChannel.guiSettings.handleSetMonochromaticIcon((monochromaticIcon: boolean) => {
+      this.guiSettings.monochromaticIcon = monochromaticIcon;
+    });
+
+    IpcMainEventChannel.guiSettings.handleSetUnpinnedWindow((unpinnedWindow: boolean) => {
+      this.guiSettings.unpinnedWindow = unpinnedWindow;
+      this.delegate.handleUnpinnedWindowChange();
+    });
+
+    IpcMainEventChannel.currentVersion.handleDisplayedChangelog(() => {
+      this.guiSettings.changelogDisplayedForVersion = this.currentVersion.gui;
+    });
   }
 
   public get all() {
@@ -158,8 +194,26 @@ export default class Settings implements Readonly<ISettings> {
     return this.settingsValue.obfuscationSettings;
   }
 
+  public get gui() {
+    return this.guiSettings;
+  }
+
   public handleNewSettings(newSettings: ISettings) {
     this.settingsValue = newSettings;
+  }
+
+  private registerGuiSettingsListener() {
+    this.guiSettings.onChange = async (newState, oldState) => {
+      if (oldState.monochromaticIcon !== newState.monochromaticIcon) {
+        await this.delegate.handleMonochromaticIconChange(newState.monochromaticIcon);
+      }
+
+      if (newState.autoConnect !== oldState.autoConnect) {
+        this.updateDaemonsAutoConnect();
+      }
+
+      IpcMainEventChannel.guiSettings.notify?.(newState);
+    };
   }
 
   private async setAutoStart(autoStart: boolean): Promise<void> {
@@ -168,7 +222,7 @@ export default class Settings implements Readonly<ISettings> {
 
       IpcMainEventChannel.autoStart.notify?.(autoStart);
 
-      this.delegate.updateDaemonsAutoConnect();
+      this.updateDaemonsAutoConnect();
     } catch (e) {
       const error = e as Error;
       log.error(
@@ -176,5 +230,12 @@ export default class Settings implements Readonly<ISettings> {
       );
     }
     return Promise.resolve();
+  }
+
+  private updateDaemonsAutoConnect() {
+    const daemonAutoConnect = this.guiSettings.autoConnect && getOpenAtLogin();
+    if (daemonAutoConnect !== this.settingsValue.autoConnect) {
+      void this.daemonRpc.setAutoConnect(daemonAutoConnect);
+    }
   }
 }

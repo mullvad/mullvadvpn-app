@@ -35,7 +35,6 @@ import { readChangelog } from './changelog';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import { InvalidAccountError } from './errors';
 import Expectation from './expectation';
-import GuiSettings from './gui-settings';
 import { IpcMainEventChannel } from './ipc-event-channel';
 import { findIconPath } from './linux-desktop-entry';
 import { loadTranslations } from './load-translations';
@@ -93,8 +92,8 @@ class ApplicationMain
     SettingsDelegate {
   private daemonRpc = new DaemonRpc();
   private notificationController = new NotificationController(this);
-  private settings = new Settings(this, this.daemonRpc);
   private version = new Version(this, UPDATE_NOTIFICATION_DISABLED);
+  private settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
   private relayList = new RelayList();
   private userInterface?: UserInterface;
 
@@ -114,7 +113,6 @@ class ApplicationMain
   private accountHistory?: AccountToken = undefined;
 
   private deviceState?: DeviceState;
-  private guiSettings = new GuiSettings();
   private tunnelStateExpectation?: Expectation;
 
   // The UI locale which is set once from onReady handler
@@ -191,7 +189,7 @@ class ApplicationMain
       });
     }
 
-    this.guiSettings.load();
+    this.settings.gui.load();
     this.changelog = readChangelog();
 
     app.on('render-process-gone', (_event, _webContents, details) => {
@@ -374,7 +372,7 @@ class ApplicationMain
   }
 
   private detectLocale(): string {
-    const preferredLocale = this.guiSettings.preferredLocale;
+    const preferredLocale = this.settings.gui.preferredLocale;
     if (preferredLocale === SYSTEM_PREFERRED_LOCALE_KEY) {
       return app.getLocale();
     } else {
@@ -427,7 +425,7 @@ class ApplicationMain
       this.userInterface?.createTrayIconController(
         this.tunnelState.tunnelState,
         this.settings.blockWhenDisconnected,
-        this.guiSettings.monochromaticIcon,
+        this.settings.gui.monochromaticIcon,
       );
       await this.userInterface?.updateTrayTheme();
 
@@ -436,7 +434,7 @@ class ApplicationMain
 
       if (process.platform === 'win32') {
         nativeTheme.on('updated', async () => {
-          if (this.guiSettings.monochromaticIcon) {
+          if (this.settings.gui.monochromaticIcon) {
             await this.userInterface?.updateTrayTheme();
           }
         });
@@ -444,18 +442,6 @@ class ApplicationMain
     });
 
     this.registerIpcListeners();
-
-    this.guiSettings.onChange = async (newState, oldState) => {
-      if (oldState.monochromaticIcon !== newState.monochromaticIcon) {
-        await this.userInterface?.setUseMonochromaticTrayIcon(newState.monochromaticIcon);
-      }
-
-      if (newState.autoConnect !== oldState.autoConnect) {
-        this.updateDaemonsAutoConnect();
-      }
-
-      IpcMainEventChannel.guiSettings.notify?.(newState);
-    };
 
     if (this.shouldShowWindowOnStart() || process.env.NODE_ENV === 'development') {
       this.userInterface.showWindow();
@@ -768,7 +754,7 @@ class ApplicationMain
       ),
       currentVersion: this.version.currentVersion,
       upgradeVersion: this.version.upgradeVersion,
-      guiSettings: this.guiSettings.state,
+      guiSettings: this.settings.gui.state,
       translations: this.translations,
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
@@ -784,28 +770,8 @@ class ApplicationMain
     IpcMainEventChannel.tunnel.handleReconnect(this.reconnectTunnel);
     IpcMainEventChannel.tunnel.handleDisconnect(this.disconnectTunnel);
 
-    IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
-      this.guiSettings.enableSystemNotifications = flag;
-    });
-
-    IpcMainEventChannel.guiSettings.handleSetAutoConnect((autoConnect: boolean) => {
-      this.guiSettings.autoConnect = autoConnect;
-    });
-
-    IpcMainEventChannel.guiSettings.handleSetStartMinimized((startMinimized: boolean) => {
-      this.guiSettings.startMinimized = startMinimized;
-    });
-
-    IpcMainEventChannel.guiSettings.handleSetMonochromaticIcon((monochromaticIcon: boolean) => {
-      this.guiSettings.monochromaticIcon = monochromaticIcon;
-    });
-
-    IpcMainEventChannel.guiSettings.handleSetUnpinnedWindow((unpinnedWindow: boolean) => {
-      void this.setUnpinnedWindow(unpinnedWindow);
-    });
-
     IpcMainEventChannel.guiSettings.handleSetPreferredLocale((locale: string) => {
-      this.guiSettings.preferredLocale = locale;
+      this.settings.gui.preferredLocale = locale;
       this.updateCurrentLocale();
       return Promise.resolve(this.translations);
     });
@@ -864,7 +830,7 @@ class ApplicationMain
       // If the applications is a string (path) it's an application picked with the file picker
       // that we want to add to the list of additional applications.
       if (typeof application === 'string') {
-        this.guiSettings.addBrowsedForSplitTunnelingApplications(application);
+        this.settings.gui.addBrowsedForSplitTunnelingApplications(application);
         const applicationPath = await windowsSplitTunneling.addApplicationPathToCache(application);
         await this.daemonRpc.addSplitTunnelingApplication(applicationPath);
       } else {
@@ -878,7 +844,7 @@ class ApplicationMain
     });
     IpcMainEventChannel.windowsSplitTunneling.handleForgetManuallyAddedApplication(
       (application) => {
-        this.guiSettings.deleteBrowsedForSplitTunnelingApplications(application.absolutepath);
+        this.settings.gui.deleteBrowsedForSplitTunnelingApplications(application.absolutepath);
         return windowsSplitTunneling.removeApplicationFromCache(application);
       },
     );
@@ -899,10 +865,6 @@ class ApplicationMain
       return response;
     });
 
-    IpcMainEventChannel.currentVersion.handleDisplayedChangelog(() => {
-      this.guiSettings.changelogDisplayedForVersion = this.version.currentVersion.gui;
-    });
-
     IpcMainEventChannel.navigation.handleSetHistory((history) => {
       this.navigationHistory = history;
     });
@@ -914,7 +876,7 @@ class ApplicationMain
     this.settings.registerIpcListeners();
 
     if (windowsSplitTunneling) {
-      this.guiSettings.browsedForSplitTunnelingApplications.forEach(
+      this.settings.gui.browsedForSplitTunnelingApplications.forEach(
         windowsSplitTunneling.addApplicationPathToCache,
       );
     }
@@ -949,7 +911,7 @@ class ApplicationMain
     if (process.env.NODE_ENV === 'development') {
       log.info('Skip autoconnect in development');
     } else if (this.isLoggedIn() && (!this.accountData || !hasExpired(this.accountData.expiry))) {
-      if (this.guiSettings.autoConnect) {
+      if (this.settings.gui.autoConnect) {
         try {
           log.info('Autoconnect the tunnel');
 
@@ -1024,11 +986,6 @@ class ApplicationMain
       const error = e as Error;
       log.error(`Failed to fetch the account history: ${error.message}`);
     }
-  }
-
-  private async setUnpinnedWindow(unpinnedWindow: boolean) {
-    this.guiSettings.unpinnedWindow = unpinnedWindow;
-    await this.userInterface?.recreateWindow();
   }
 
   private updateCurrentLocale() {
@@ -1115,7 +1072,7 @@ class ApplicationMain
   }
 
   private shouldShowWindowOnStart(): boolean {
-    return this.guiSettings.unpinnedWindow && !this.guiSettings.startMinimized;
+    return this.settings.gui.unpinnedWindow && !this.settings.gui.startMinimized;
   }
 
   private async updateMacOsScrollbarVisibility(): Promise<void> {
@@ -1156,14 +1113,14 @@ class ApplicationMain
     }
   };
   public isWindowVisible = () => this.userInterface?.isWindowVisible() ?? false;
-  public areSystemNotificationsEnabled = () => this.guiSettings.enableSystemNotifications;
+  public areSystemNotificationsEnabled = () => this.settings.gui.enableSystemNotifications;
 
   // UserInterfaceDelegate
   public cancelPendingNotifications = () =>
     this.notificationController.cancelPendingNotifications();
   public resetTunnelStateAnnouncements = () =>
     this.notificationController.resetTunnelStateAnnouncements();
-  public isUnpinnedWindow = () => this.guiSettings.unpinnedWindow;
+  public isUnpinnedWindow = () => this.settings.gui.unpinnedWindow;
   public checkVolumes = () => this.daemonRpc.checkVolumes();
   public getAppQuitStage = () => this.quitStage;
   public isConnectedToDaemon = () => this.daemonRpc.isConnected;
@@ -1228,11 +1185,11 @@ class ApplicationMain
   };
 
   // SettingsDelegate
-  public updateDaemonsAutoConnect() {
-    const daemonAutoConnect = this.guiSettings.autoConnect && getOpenAtLogin();
-    if (daemonAutoConnect !== this.settings.autoConnect) {
-      void this.daemonRpc.setAutoConnect(daemonAutoConnect);
-    }
+  public async handleMonochromaticIconChange(value: boolean) {
+    await this.userInterface?.setUseMonochromaticTrayIcon(value);
+  }
+  public handleUnpinnedWindowChange() {
+    void this.userInterface?.recreateWindow();
   }
   /* eslint-enable @typescript-eslint/member-ordering */
 }
