@@ -5,7 +5,7 @@ use std::{
         atomic::{AtomicUsize, Ordering},
         mpsc, Arc,
     },
-    time::Duration,
+    time::{Duration, Instant},
 };
 use winapi::{
     shared::minwindef::{BOOL, FALSE},
@@ -105,10 +105,20 @@ impl DnsApi {
         let flush_fn = self.flush_fn;
 
         std::thread::spawn(move || {
+            let begin = Instant::now();
+
             let result = if unsafe { (flush_fn)() } == FALSE {
                 Err(Error::FlushCache)
             } else {
-                log::debug!("Flushed DNS resolver cache");
+                let elapsed = begin.elapsed();
+                if elapsed >= FLUSH_TIMEOUT {
+                    log::warn!(
+                        "Flushing system DNS cache took {} seconds",
+                        elapsed.as_secs()
+                    );
+                } else {
+                    log::debug!("Flushed system DNS cache");
+                }
                 Ok(())
             };
             let _ = tx.send(result);
