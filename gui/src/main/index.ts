@@ -7,21 +7,14 @@ import util from 'util';
 import config from '../config.json';
 import { hasExpired } from '../shared/account-expiry';
 import { IWindowsApplication } from '../shared/application-types';
-import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import {
   AccountToken,
-  BridgeSettings,
-  BridgeState,
   DaemonEvent,
   DeviceEvent,
   DeviceState,
   IAccountData,
   IDeviceRemoval,
-  IDnsOptions,
   ISettings,
-  ObfuscationType,
-  Ownership,
-  RelaySettingsUpdate,
   TunnelState,
 } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
@@ -37,7 +30,7 @@ import {
 } from '../shared/notifications/notification';
 import { Scheduler } from '../shared/scheduler';
 import AccountDataCache from './account-data-cache';
-import { getOpenAtLogin, setOpenAtLogin } from './autostart';
+import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import { InvalidAccountError } from './errors';
@@ -60,6 +53,7 @@ import NotificationController, { NotificationControllerDelegate } from './notifi
 import * as problemReport from './problem-report';
 import ReconnectionBackoff from './reconnection-backoff';
 import RelayList from './relay-list';
+import Settings, { SettingsDelegate } from './settings';
 import TunnelStateHandler, { TunnelStateHandlerDelegate } from './tunnel-state';
 import UserInterface, { UserInterfaceDelegate } from './user-interface';
 import Version, { VersionDelegate } from './version';
@@ -95,13 +89,14 @@ class ApplicationMain
     NotificationControllerDelegate,
     UserInterfaceDelegate,
     VersionDelegate,
-    TunnelStateHandlerDelegate {
+    TunnelStateHandlerDelegate,
+    SettingsDelegate {
+  private daemonRpc = new DaemonRpc();
   private notificationController = new NotificationController(this);
-  private userInterface?: UserInterface;
-
+  private settings = new Settings(this, this.daemonRpc);
   private version = new Version(this, UPDATE_NOTIFICATION_DISABLED);
-
   private relayList = new RelayList();
+  private userInterface?: UserInterface;
 
   private tunnelState = new TunnelStateHandler(this);
 
@@ -109,7 +104,6 @@ class ApplicationMain
   // hidden when losing focus.
   private browsingFiles = false;
 
-  private daemonRpc = new DaemonRpc();
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;
@@ -119,72 +113,6 @@ class ApplicationMain
   private accountData?: IAccountData = undefined;
   private accountHistory?: AccountToken = undefined;
 
-  private settings: ISettings = {
-    allowLan: false,
-    autoConnect: false,
-    blockWhenDisconnected: false,
-    showBetaReleases: false,
-    splitTunnel: {
-      enableExclusions: false,
-      appsList: [],
-    },
-    relaySettings: {
-      normal: {
-        location: 'any',
-        tunnelProtocol: 'any',
-        providers: [],
-        ownership: Ownership.any,
-        openvpnConstraints: {
-          port: 'any',
-          protocol: 'any',
-        },
-        wireguardConstraints: {
-          port: 'any',
-          ipVersion: 'any',
-          useMultihop: false,
-          entryLocation: 'any',
-        },
-      },
-    },
-    bridgeSettings: {
-      normal: {
-        location: 'any',
-        providers: [],
-        ownership: Ownership.any,
-      },
-    },
-    bridgeState: 'auto',
-    tunnelOptions: {
-      generic: {
-        enableIpv6: false,
-      },
-      openvpn: {
-        mssfix: undefined,
-      },
-      wireguard: {
-        mtu: undefined,
-      },
-      dns: {
-        state: 'default',
-        defaultOptions: {
-          blockAds: false,
-          blockTrackers: false,
-          blockMalware: false,
-          blockAdultContent: false,
-          blockGambling: false,
-        },
-        customOptions: {
-          addresses: [],
-        },
-      },
-    },
-    obfuscationSettings: {
-      selectedObfuscation: ObfuscationType.auto,
-      udp2tcpSettings: {
-        port: 'any',
-      },
-    },
-  };
   private deviceState?: DeviceState;
   private guiSettings = new GuiSettings();
   private tunnelStateExpectation?: Expectation;
@@ -764,7 +692,7 @@ class ApplicationMain
 
   private setSettings(newSettings: ISettings) {
     const oldSettings = this.settings;
-    this.settings = newSettings;
+    this.settings.handleNewSettings(newSettings);
 
     this.userInterface?.updateTrayIcon(
       this.tunnelState.tunnelState,
@@ -831,7 +759,7 @@ class ApplicationMain
       accountData: this.accountData,
       accountHistory: this.accountHistory,
       tunnelState: this.tunnelState.tunnelState,
-      settings: this.settings,
+      settings: this.settings.all,
       isPerformingPostUpgrade: this.isPerformingPostUpgrade,
       deviceState: this.deviceState,
       relayListPair: this.relayList.getProcessedRelays(
@@ -849,48 +777,6 @@ class ApplicationMain
       navigationHistory: this.navigationHistory,
       scrollPositions: this.scrollPositions,
     }));
-
-    IpcMainEventChannel.settings.handleSetAllowLan((allowLan: boolean) =>
-      this.daemonRpc.setAllowLan(allowLan),
-    );
-    IpcMainEventChannel.settings.handleSetShowBetaReleases((showBetaReleases: boolean) =>
-      this.daemonRpc.setShowBetaReleases(showBetaReleases),
-    );
-    IpcMainEventChannel.settings.handleSetEnableIpv6((enableIpv6: boolean) =>
-      this.daemonRpc.setEnableIpv6(enableIpv6),
-    );
-    IpcMainEventChannel.settings.handleSetBlockWhenDisconnected((blockWhenDisconnected: boolean) =>
-      this.daemonRpc.setBlockWhenDisconnected(blockWhenDisconnected),
-    );
-    IpcMainEventChannel.settings.handleSetBridgeState(async (bridgeState: BridgeState) => {
-      await this.daemonRpc.setBridgeState(bridgeState);
-
-      // Reset bridge constraints to `any` when the state is set to auto or off
-      if (bridgeState === 'auto' || bridgeState === 'off') {
-        await this.daemonRpc.setBridgeSettings(new BridgeSettingsBuilder().location.any().build());
-      }
-    });
-    IpcMainEventChannel.settings.handleSetOpenVpnMssfix((mssfix?: number) =>
-      this.daemonRpc.setOpenVpnMssfix(mssfix),
-    );
-    IpcMainEventChannel.settings.handleSetWireguardMtu((mtu?: number) =>
-      this.daemonRpc.setWireguardMtu(mtu),
-    );
-    IpcMainEventChannel.settings.handleUpdateRelaySettings((update: RelaySettingsUpdate) =>
-      this.daemonRpc.updateRelaySettings(update),
-    );
-    IpcMainEventChannel.settings.handleUpdateBridgeSettings((bridgeSettings: BridgeSettings) => {
-      return this.daemonRpc.setBridgeSettings(bridgeSettings);
-    });
-    IpcMainEventChannel.settings.handleSetDnsOptions((dns: IDnsOptions) => {
-      return this.daemonRpc.setDnsOptions(dns);
-    });
-    IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {
-      return this.setAutoStart(autoStart);
-    });
-    IpcMainEventChannel.settings.handleSetObfuscationSettings((obfuscationSettings) => {
-      return this.daemonRpc.setObfuscationSettings(obfuscationSettings);
-    });
 
     IpcMainEventChannel.location.handleGet(() => this.daemonRpc.getLocation());
 
@@ -1025,6 +911,7 @@ class ApplicationMain
     });
 
     problemReport.registerIpcListeners();
+    this.settings.registerIpcListeners();
 
     if (windowsSplitTunneling) {
       this.guiSettings.browsedForSplitTunnelingApplications.forEach(
@@ -1137,29 +1024,6 @@ class ApplicationMain
       const error = e as Error;
       log.error(`Failed to fetch the account history: ${error.message}`);
     }
-  }
-
-  private updateDaemonsAutoConnect() {
-    const daemonAutoConnect = this.guiSettings.autoConnect && getOpenAtLogin();
-    if (daemonAutoConnect !== this.settings.autoConnect) {
-      void this.daemonRpc.setAutoConnect(daemonAutoConnect);
-    }
-  }
-
-  private async setAutoStart(autoStart: boolean): Promise<void> {
-    try {
-      await setOpenAtLogin(autoStart);
-
-      IpcMainEventChannel.autoStart.notify?.(autoStart);
-
-      this.updateDaemonsAutoConnect();
-    } catch (e) {
-      const error = e as Error;
-      log.error(
-        `Failed to update the autostart to ${autoStart.toString()}. ${error.message.toString()}`,
-      );
-    }
-    return Promise.resolve();
   }
 
   private async setUnpinnedWindow(unpinnedWindow: boolean) {
@@ -1362,6 +1226,14 @@ class ApplicationMain
       this.detectStaleAccountExpiry(tunnelState, new Date(this.accountData.expiry));
     }
   };
+
+  // SettingsDelegate
+  public updateDaemonsAutoConnect() {
+    const daemonAutoConnect = this.guiSettings.autoConnect && getOpenAtLogin();
+    if (daemonAutoConnect !== this.settings.autoConnect) {
+      void this.daemonRpc.setAutoConnect(daemonAutoConnect);
+    }
+  }
   /* eslint-enable @typescript-eslint/member-ordering */
 }
 
