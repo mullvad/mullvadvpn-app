@@ -1,15 +1,17 @@
 use once_cell::sync::OnceCell;
 use std::{
-    io, ptr,
+    io,
     sync::{
         atomic::{AtomicUsize, Ordering},
         mpsc, Arc,
     },
     time::{Duration, Instant},
 };
-use winapi::{
-    shared::minwindef::{BOOL, FALSE},
-    um::libloaderapi::{FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_LIBRARY_SEARCH_SYSTEM32},
+use windows_sys::Win32::{
+    Foundation::BOOL,
+    System::LibraryLoader::{
+        FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_LIBRARY_SEARCH_SYSTEM32,
+    },
 };
 
 type FlushResolverCacheFn = unsafe extern "stdcall" fn() -> BOOL;
@@ -63,21 +65,20 @@ impl DnsApi {
         let handle = unsafe {
             LoadLibraryExW(
                 b"d\0n\0s\0a\0p\0i\0.\0d\0l\0l\0\0\0" as *const u8 as *const u16,
-                ptr::null_mut(),
+                0,
                 LOAD_LIBRARY_SEARCH_SYSTEM32,
             )
         };
-        if handle.is_null() {
+        if handle == 0 {
             return Err(Error::LoadDll(io::Error::last_os_error()));
         }
 
-        let flush_fn =
-            unsafe { GetProcAddress(handle, b"DnsFlushResolverCache\0" as *const _ as *const i8) };
-        if flush_fn.is_null() {
+        let flush_fn = unsafe { GetProcAddress(handle, b"DnsFlushResolverCache\0" as *const u8) };
+        let flush_fn = flush_fn.ok_or_else(|| {
             let error = io::Error::last_os_error();
             unsafe { FreeLibrary(handle) };
-            return Err(Error::GetFunction(error));
-        }
+            Error::GetFunction(error)
+        })?;
 
         Ok(DnsApi {
             in_flight_flush_count: Arc::new(AtomicUsize::new(0)),
@@ -107,9 +108,7 @@ impl DnsApi {
         std::thread::spawn(move || {
             let begin = Instant::now();
 
-            let result = if unsafe { (flush_fn)() } == FALSE {
-                Err(Error::FlushCache)
-            } else {
+            let result = if unsafe { (flush_fn)() } != 0 {
                 let elapsed = begin.elapsed();
                 if elapsed >= FLUSH_TIMEOUT {
                     log::warn!(
@@ -120,6 +119,8 @@ impl DnsApi {
                     log::debug!("Flushed system DNS cache");
                 }
                 Ok(())
+            } else {
+                Err(Error::FlushCache)
             };
             let _ = tx.send(result);
 
