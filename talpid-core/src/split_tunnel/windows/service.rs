@@ -4,7 +4,6 @@ use std::{
     path::{Path, PathBuf},
     time::Duration,
 };
-use windows::Win32::Foundation::{ERROR_SERVICE_ALREADY_RUNNING, ERROR_SERVICE_DOES_NOT_EXIST};
 use windows_service::{
     service::{
         Service, ServiceAccess, ServiceErrorControl, ServiceInfo, ServiceStartType, ServiceState,
@@ -12,6 +11,7 @@ use windows_service::{
     },
     service_manager::{ServiceManager, ServiceManagerAccess},
 };
+use windows_sys::Win32::Foundation::{ERROR_SERVICE_ALREADY_RUNNING, ERROR_SERVICE_DOES_NOT_EXIST};
 
 const SPLIT_TUNNEL_SERVICE: &str = "mullvad-split-tunnel";
 const SPLIT_TUNNEL_DISPLAY_NAME: &str = "Mullvad Split Tunnel Service";
@@ -73,7 +73,7 @@ pub fn install_driver_if_required(resource_dir: &Path) -> Result<(), Error> {
         Err(error) => {
             return match error {
                 windows_service::Error::Winapi(io_error)
-                    if io_error.raw_os_error() == Some(ERROR_SERVICE_DOES_NOT_EXIST.0 as i32) =>
+                    if io_error.raw_os_error() == Some(ERROR_SERVICE_DOES_NOT_EXIST as i32) =>
                 {
                     // TODO: could be marked for deletion
                     install_driver(&scm, &expected_syspath)
@@ -103,7 +103,7 @@ pub fn stop_driver_service() -> Result<(), Error> {
         Err(error) => {
             return match error {
                 windows_service::Error::Winapi(io_error)
-                    if io_error.raw_os_error() == Some(ERROR_SERVICE_DOES_NOT_EXIST.0 as i32) =>
+                    if io_error.raw_os_error() == Some(ERROR_SERVICE_DOES_NOT_EXIST as i32) =>
                 {
                     Ok(())
                 }
@@ -170,7 +170,7 @@ fn start_and_wait_for_service(service: &Service) -> Result<(), Error> {
 
     if let Err(error) = service.start::<&OsStr>(&[]) {
         if let windows_service::Error::Winapi(error) = &error {
-            if error.raw_os_error() == Some(ERROR_SERVICE_ALREADY_RUNNING.0 as i32) {
+            if error.raw_os_error() == Some(ERROR_SERVICE_ALREADY_RUNNING as i32) {
                 return Ok(());
             }
         }
