@@ -56,11 +56,17 @@ class CustomNavigationController: UINavigationController, UINavigationBarDelegat
 
         // Only call super implementation when we want to pop the controller
         if shouldPop {
+            willPop(navigationItem: item)
+
             // Call super implementation
             return customNavigationController_navigationBar(navigationBar, shouldPop: item)
         } else {
             return shouldPop
         }
+    }
+
+    func willPop(navigationItem: UINavigationItem) {
+        // Override in subclasses
     }
 }
 
