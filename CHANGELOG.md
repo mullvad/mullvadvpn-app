@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 - Reorganize settings into more logical categories.
 - Upgrade wireguard-go to 20220703234212 (Windows: v0.5.3).
 - Prune bridges far away from the selected relay.
+- Update Electron from 18.0.3 to 19.0.13.
 
 #### Windows
 - Remove dependency on `ipconfig.exe`. Call `DnsFlushResolverCache` to flush the DNS cache.
