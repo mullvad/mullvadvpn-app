@@ -187,6 +187,29 @@ class ApplicationMain
     }
   }
 
+  public connectTunnel = async (): Promise<void> => {
+    if (this.tunnelState.allowConnect(this.connectedToDaemon, this.account.isLoggedIn())) {
+      this.tunnelState.expectNextTunnelState('connecting');
+      await this.daemonRpc.connectTunnel();
+    }
+  };
+
+  public reconnectTunnel = async (): Promise<void> => {
+    if (this.tunnelState.allowReconnect(this.connectedToDaemon, this.account.isLoggedIn())) {
+      this.tunnelState.expectNextTunnelState('connecting');
+      await this.daemonRpc.reconnectTunnel();
+    }
+  };
+
+  public disconnectTunnel = async (): Promise<void> => {
+    if (this.tunnelState.allowDisconnect(this.connectedToDaemon)) {
+      this.tunnelState.expectNextTunnelState('disconnecting');
+      await this.daemonRpc.disconnectTunnel();
+    }
+  };
+
+  public isLoggedIn = () => this.account.isLoggedIn();
+
   private addSecondInstanceEventHandler() {
     app.on('second-instance', (_event, argv, _workingDirectory) => {
       if (argv.includes(CommandLineOptions.quitWithoutDisconnect)) {
@@ -946,30 +969,8 @@ class ApplicationMain
   public isConnectedToDaemon = () => this.connectedToDaemon;
   public getTunnelState = () => this.tunnelState.tunnelState;
   public updateAccountData = () => this.account.updateAccountData();
-  public isLoggedIn = () => this.account.isLoggedIn();
   public isBrowsingFiles = () => this.browsingFiles;
   public getAccountData = () => this.account.accountData;
-
-  public connectTunnel = async (): Promise<void> => {
-    if (this.tunnelState.allowConnect(this.connectedToDaemon, this.account.isLoggedIn())) {
-      this.tunnelState.expectNextTunnelState('connecting');
-      await this.daemonRpc.connectTunnel();
-    }
-  };
-
-  public reconnectTunnel = async (): Promise<void> => {
-    if (this.tunnelState.allowReconnect(this.connectedToDaemon, this.account.isLoggedIn())) {
-      this.tunnelState.expectNextTunnelState('connecting');
-      await this.daemonRpc.reconnectTunnel();
-    }
-  };
-
-  public disconnectTunnel = async (): Promise<void> => {
-    if (this.tunnelState.allowDisconnect(this.connectedToDaemon)) {
-      this.tunnelState.expectNextTunnelState('disconnecting');
-      await this.daemonRpc.disconnectTunnel();
-    }
-  };
 
   // VersionDelegate
   public notify = (notification: SystemNotification) => {
@@ -999,19 +1000,14 @@ class ApplicationMain
   };
 
   // SettingsDelegate
-  public async handleMonochromaticIconChange(value: boolean) {
-    await this.userInterface?.setUseMonochromaticTrayIcon(value);
-  }
-  public handleUnpinnedWindowChange() {
-    void this.userInterface?.recreateWindow();
-  }
+  public handleMonochromaticIconChange = (value: boolean) =>
+    this.userInterface?.setUseMonochromaticTrayIcon(value) ?? Promise.resolve();
+  public handleUnpinnedWindowChange = () => void this.userInterface?.recreateWindow();
 
   // AccountDelegate
   public getLocale = () => this.locale;
   public isPerformingPostUpgradeCheck = () => this.isPerformingPostUpgrade;
-  public setTrayContextMenu() {
-    this.userInterface?.setTrayContextMenu();
-  }
+  public setTrayContextMenu = () => this.userInterface?.setTrayContextMenu();
   /* eslint-enable @typescript-eslint/member-ordering */
 }
 
