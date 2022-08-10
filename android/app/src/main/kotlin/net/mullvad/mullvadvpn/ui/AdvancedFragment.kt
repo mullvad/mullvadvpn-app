@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -56,7 +57,7 @@ class AdvancedFragment : BaseFragment() {
     @Deprecated("Refactor code to instead rely on Lifecycle.")
     private val jobTracker = JobTracker()
 
-    val shared = serviceConnectionManager.connectionState
+    val sharedCustomDnsInstance = serviceConnectionManager.connectionState
         .flatMapLatest { state ->
             if (state is ServiceConnectionState.ConnectedReady) {
                 flowOf(state.container)
@@ -93,9 +94,12 @@ class AdvancedFragment : BaseFragment() {
                 }
 
                 launch {
-                    shared
-                        .flatMapLatest {
-                            callbackFlowFromNotifier(it.onEnabledChanged)
+                    sharedCustomDnsInstance
+                        .flatMapLatest { customDnsInstance ->
+                            callbackFlowFromNotifier(customDnsInstance.onEnabledChanged)
+                                .onStart {
+                                    emit(customDnsInstance.isCustomDnsEnabled())
+                                }
                         }
                         .collect { isEnabled ->
                             customDnsAdapter?.updateState(isEnabled)
@@ -110,7 +114,7 @@ class AdvancedFragment : BaseFragment() {
                 }
 
                 launch {
-                    shared
+                    sharedCustomDnsInstance
                         .flatMapLatest {
                             callbackFlowFromNotifier(it.onDnsServersChanged)
                         }
