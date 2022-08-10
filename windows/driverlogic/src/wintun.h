@@ -20,10 +20,7 @@ public:
 
 		try
 		{
-			createAdapter = getProcAddressOrThrow<WINTUN_CREATE_ADAPTER_FUNC>("WintunCreateAdapter");
-			openAdapter = getProcAddressOrThrow<WINTUN_OPEN_ADAPTER_FUNC>("WintunOpenAdapter");
-			freeAdapter = getProcAddressOrThrow<WINTUN_FREE_ADAPTER_FUNC>("WintunFreeAdapter");
-			deletePoolDriver = getProcAddressOrThrow<WINTUN_DELETE_POOL_DRIVER_FUNC>("WintunDeletePoolDriver");
+			deleteDriver = getProcAddressOrThrow<WINTUN_DELETE_DRIVER_FUNC*>("WintunDeleteDriver");
 		}
 		catch (...)
 		{
@@ -40,10 +37,7 @@ public:
 		}
 	}
 
-	WINTUN_CREATE_ADAPTER_FUNC createAdapter;
-	WINTUN_OPEN_ADAPTER_FUNC openAdapter;
-	WINTUN_FREE_ADAPTER_FUNC freeAdapter;
-	WINTUN_DELETE_POOL_DRIVER_FUNC deletePoolDriver;
+	WINTUN_DELETE_DRIVER_FUNC *deleteDriver;
 
 private:
 
