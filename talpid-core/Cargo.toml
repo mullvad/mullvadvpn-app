@@ -18,6 +18,7 @@ futures = "0.3.15"
 hex = "0.4"
 ipnetwork = "0.16"
 lazy_static = "1.0"
+once_cell = "1.13"
 libc = "0.2"
 log = "0.4"
 os_pipe = "0.9"
@@ -83,6 +84,13 @@ winreg = { version = "0.7", features = ["transactions"] }
 winapi = { version = "0.3.6", features = ["combaseapi", "handleapi", "ifdef", "ioapiset", "knownfolders", "libloaderapi", "netioapi", "psapi", "shlobj", "stringapiset", "synchapi", "tlhelp32", "winbase", "winioctl", "winuser", "dbt"] }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 memoffset = "0.6"
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.36.1"
+features = [
+    "Win32_Foundation",
+    "Win32_System_LibraryLoader",
+]
 
 [build-dependencies]
 tonic-build = { version = "0.5", default-features = false, features = ["transport", "prost"] }

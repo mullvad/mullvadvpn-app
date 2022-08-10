@@ -1,9 +1,5 @@
-use crate::windows::{get_system_dir, guid_from_luid, luid_from_alias, string_from_guid};
-use std::{
-    io,
-    net::IpAddr,
-    process::{Command, Stdio},
-};
+use crate::windows::{guid_from_luid, luid_from_alias, string_from_guid};
+use std::{io, net::IpAddr};
 use talpid_types::ErrorExt;
 use winapi::shared::guiddef::GUID;
 use winreg::{
@@ -11,6 +7,8 @@ use winreg::{
     transaction::Transaction,
     RegKey,
 };
+
+mod dnsapi;
 
 /// Errors that can happen when configuring DNS on Windows.
 #[derive(err_derive::Error, Debug)]
@@ -25,20 +23,12 @@ pub enum Error {
     InterfaceGuidError(#[error(source)] io::Error),
 
     /// Failure to flush DNS cache.
-    #[error(display = "Failed to execute ipconfig")]
-    ExecuteIpconfigError(#[error(source)] io::Error),
-
-    /// Failure to flush DNS cache.
     #[error(display = "Failed to flush DNS resolver cache")]
-    FlushResolverCacheError,
+    FlushResolverCacheError(#[error(source)] dnsapi::Error),
 
     /// Failed to update DNS servers for interface.
     #[error(display = "Failed to update interface DNS servers")]
     SetResolversError(#[error(source)] io::Error),
-
-    /// Failed to locate system dir.
-    #[error(display = "Failed to locate the system directory")]
-    SystemDirError(#[error(source)] io::Error),
 }
 
 pub struct DnsMonitor {
@@ -152,15 +142,5 @@ fn config_interface<'a>(
 }
 
 fn flush_dns_cache() -> Result<(), Error> {
-    let sysdir = get_system_dir().map_err(Error::SystemDirError)?;
-    Command::new(sysdir.join("ipconfig.exe"))
-        .arg("/flushdns")
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status()
-        .map_err(Error::ExecuteIpconfigError)?;
-    // The exit code cannot be trusted. And the stdout messages from Windows CLI tools
-    // are localized, so it can also not be checked. There is no way to verify if
-    // this flush succeeded or failed.
-    Ok(())
+    dnsapi::flush_resolver_cache().map_err(Error::FlushResolverCacheError)
 }

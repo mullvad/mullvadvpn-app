@@ -1906,9 +1906,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.8.0"
+version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "692fcb63b64b1758029e0a96ee63e049ce8c5948587f2f7208df04625e5f6b56"
+checksum = "18a6dbe30758c9f83eb00cbea4ac95966305f5a7772f3f42ebfc7fc7eddbd8e1"
 
 [[package]]
 name = "opaque-debug"
@@ -3061,6 +3061,7 @@ dependencies = [
  "netlink-sys",
  "nftnl",
  "nix 0.23.1",
+ "once_cell",
  "os_pipe",
  "parity-tokio-ipc",
  "parking_lot 0.11.2",
@@ -3095,6 +3096,7 @@ dependencies = [
  "which",
  "widestring 0.5.1",
  "winapi",
+ "windows-sys",
  "winreg",
  "zeroize",
 ]
