@@ -45,6 +45,16 @@ constraints, following default ones will take effect:
 
 - If no tunnel protocol is specified for tunnel endpoints, then the behavior is different on Windows
   and other platforms.
+  - On MacOS and Linux, first two connection attempts will use WireGuard, over a random port at
+    first and then port 53. From the third attempt onwards, OpenVPN will be used, alternating
+    between UDP on any port and TCP on port 443.
+  - On Windows, a migration to WireGuard is ongoing and a percentage value provided by the API tells
+    clients to randomly decide if they will use WireGuard as a default or OpenVPN as a default.
+    The clients decision will persist over time.
+    If the client decides to use WireGuard it will have the same behavior as MacOS and Linux.
+
+- If no tunnel protocol is specified for tunnel endpoints, then the behavior is different on Windows
+  and other platforms.
   - On Windows, OpenVPN is used.
   - On MacOS and Linux, first two connection attempts will use WireGuard, over a random port at
     first and then port 53. From the third attempt onwards, OpenVPN will be used, alternating
