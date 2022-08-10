@@ -133,7 +133,7 @@ impl Default for Settings {
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
             show_beta_releases: false,
-            wg_migration_rand_num: rand::thread_rng().gen_range(0.0..1.0),
+            wg_migration_rand_num: rand::thread_rng().gen_range(0.0..=1.0),
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,

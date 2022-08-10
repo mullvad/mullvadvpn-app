@@ -75,7 +75,7 @@ impl SettingsPersister {
         // percentage.
         if settings.wg_migration_rand_num < 0.0 || settings.wg_migration_rand_num > 1.0 {
             let mut rng = rand::thread_rng();
-            settings.wg_migration_rand_num = rng.gen_range(0.0..1.0);
+            settings.wg_migration_rand_num = rng.gen_range(0.0..=1.0);
             should_save |= true
         }
 
