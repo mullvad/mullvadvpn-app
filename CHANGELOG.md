@@ -75,6 +75,12 @@ Line wrap the file at 100 chars.                                              Th
   state.
 
 
+## [2022.3] - 2022-08-10
+This release is for desktop only.
+
+This release is identical to 2022.3-beta3.
+
+
 ## [2022.3-beta3] - 2022-07-28
 ### Fixed
 - Fix showing incompatible relay filtering options in desktop app. The filtering options are now
