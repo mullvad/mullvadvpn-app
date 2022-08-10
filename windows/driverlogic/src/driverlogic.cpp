@@ -228,26 +228,23 @@ ReturnCode CommandSplitTunnelForceInstall(const std::vector<std::wstring> &args)
 	return CommandSplitTunnelNewInstall(args);
 }
 
-ReturnCode CommandWintunDeletePool(const std::vector<std::wstring> &args)
+ReturnCode CommandWintunDeleteDriver(const std::vector<std::wstring> &args)
 {
 	ArgumentContext argsContext(args);
 
-	argsContext.ensureExactArgumentCount(1);
-
-	const auto poolName = argsContext.next();
+	argsContext.ensureExactArgumentCount(0);
 
 	WintunDll wintun;
 
-	BOOL rebootRequired;
-	
-	if (FALSE == wintun.deletePoolDriver(poolName.c_str(), &rebootRequired))
+	if (FALSE == wintun.deleteDriver())
 	{
-		throw std::runtime_error("Failed to delete wintun pool");
+		// NOTE: This is expected if there are other adapters in use.
+		throw std::runtime_error("Failed to delete wintun driver");
 	}
 
 	std::wstringstream ss;
 
-	ss << L"Successfully deleted wintun pool. Reboot required: " << rebootRequired;
+	ss << L"Deleted Wintun driver";
 
 	Log(ss.str());
 
@@ -343,7 +340,7 @@ int wmain(int argc, const wchar_t *argv[])
 		{ L"st-new-install", CommandSplitTunnelNewInstall },
 		{ L"st-force-install", CommandSplitTunnelForceInstall },
 		{ L"st-remove", CommandSplitTunnelRemove },
-		{ L"wintun-delete-pool-driver", CommandWintunDeletePool },
+		{ L"wintun-delete-driver", CommandWintunDeleteDriver },
 		{ L"wintun-delete-abandoned-device", CommandWintunDeleteAbandonedDevice },
 		{ L"wg-nt-cleanup", CommandWireGuardNtCleanup }
 	};
