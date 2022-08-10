@@ -15,9 +15,6 @@
     <ClInclude Include="logging\unwind.h">
       <Filter>logging</Filter>
     </ClInclude>
-    <ClInclude Include="network\interfaceutils.h">
-      <Filter>network</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -30,16 +27,10 @@
     <ClCompile Include="logging\unwind.cpp">
       <Filter>logging</Filter>
     </ClCompile>
-    <ClCompile Include="network\interfaceutils.cpp">
-      <Filter>network</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="logging">
       <UniqueIdentifier>{8d3be7e9-117c-44d3-a799-0bc6e2712776}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="network">
-      <UniqueIdentifier>{c36884fc-7afc-42a8-b852-c0aafcfcc1c2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
