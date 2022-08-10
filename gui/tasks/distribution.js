@@ -49,14 +49,17 @@ const config = {
 
   // Make sure that all files declared in "extraResources" exists and abort if they don't.
   afterPack: (context) => {
-    const resources = context.packager.platformSpecificBuildOptions.extraResources;
-    for (const resource of resources) {
-      const filePath = resource.from.replace(/\$\{env\.(.*)\}/, function (match, captureGroup) {
-        return process.env[captureGroup];
-      });
+    // 4 represents packaging of universal build which doesn't have any new binaries.
+    if (context.arch !== 4) {
+      const resources = context.packager.platformSpecificBuildOptions.extraResources;
+      for (const resource of resources) {
+        const filePath = resource.from.replace(/\$\{env\.(.*)\}/, function (match, captureGroup) {
+          return process.env[captureGroup];
+        });
 
-      if (!fs.existsSync(filePath)) {
-        throw new Error(`Can't find file: ${filePath}`);
+        if (!fs.existsSync(filePath)) {
+          throw new Error(`Can't find file: ${filePath}`);
+        }
       }
     }
   },
@@ -248,8 +251,12 @@ function packMac() {
       afterPack: (context) => {
         config.afterPack?.(context);
 
-        delete process.env.TARGET_TRIPLE;
-        appOutDirs.push(context.appOutDir);
+        // 4 represents packaging of universal build which doesn't have any new binaries.
+        if (context.arch !== 4) {
+          delete process.env.TARGET_TRIPLE;
+          appOutDirs.push(context.appOutDir);
+        }
+
         return Promise.resolve();
       },
       afterAllArtifactBuild: async (buildResult) => {
