@@ -12,8 +12,6 @@
 # Do not compare variables using the <> operator - broken
 #
 
-!define WINTUN_POOL "Mullvad"
-
 # "sc" exit code
 !define SERVICE_STARTED 0
 !define SERVICE_START_PENDING 2
@@ -148,13 +146,12 @@
 
 	log::Log "RemoveWintun()"
 
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun-delete-pool-driver ${WINTUN_POOL}'
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun-delete-driver'
 	Pop $0
 	Pop $1
 
 	${If} $0 != ${DL_GENERAL_SUCCESS}
-		IntFmt $0 "0x%X" $0
-		StrCpy $R0 "Failed to remove Wintun pool: error $0"
+		StrCpy $R0 "Failed to remove Wintun driver. It may be in use."
 		log::LogWithDetails $R0 $1
 		Goto RemoveWintun_return_only
 	${EndIf}
