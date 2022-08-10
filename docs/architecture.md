@@ -200,14 +200,13 @@ routing table.
 
 #### Windows
 
-On Windows, connectivity is inferred if there exists an enabled interface with either an IPv4 or an
-IPv6 address and the machine is not suspended. The suspend/wakeup events matter because previously
-the TAP driver and currently Wintun might not work correctly early after boot, as such, the offline
-mode is used to enforce a grace period.
+On Windows, connectivity is inferred if there is a default route and the machine is not suspended.
+The suspend/wakeup events matter because tunnel device drivers might not work correctly early after
+wakeup. As such, the offline mode is used to enforce a grace period.
 
 The conditions are affirmed by doing the following:
-- Listening for changes in the network adapter state via [`NotifyIpInterfaceChange`] - receiving
-  callbacks whenever a network interface is changed or added via winnet.
+- Listening for changes to the default route, primarily via [`NotifyRouteChange2`] - receiving
+  callbacks whenever a default route is changed or added via winnet.
 - Checking if the machine is suspended by listening for power state broadcasts by creating a window
   and listening for power state messages.
 
@@ -261,7 +260,7 @@ See the [split tunneling documentation](split-tunneling.md).
 
 ### CLI
 
-[`NotifyIpInterfaceChange`]: https://docs.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-notifyipinterfacechange
+[`NotifyRouteChange2`]: https://docs.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-notifyroutechange2
 [`SCNetworkReachability`]: https://developer.apple.com/documentation/systemconfiguration/scnetworkreachability-g7d
 [`SCDynamicStore`]: https://developer.apple.com/documentation/systemconfiguration/scdynamicstore-gb2
 [`ConnectivityManager`]: https://developer.android.com/reference/android/net/ConnectivityManager
