@@ -26,10 +26,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add obfuscation settings under "WireGuard settings".
 
-#### Android
-- Add device management to the Android app. This simplifies knowing which device is which and adds
-  the option to log other devices out when the account already has five devices.
-
 #### Windows
 - Windows daemon now looks up the MTU on the default interface and uses this MTU instead of the
   default 1500. The 1500 is still the fallback if this for some reason fails. This may stop
@@ -45,17 +41,9 @@ Line wrap the file at 100 chars.                                              Th
 - Reorganize settings into more logical categories.
 - Upgrade wireguard-go to 20220703234212 (Windows: v0.5.3).
 
-#### Android
-- Lowered default MTU to 1280 on Android.
-- Disable app icon badge for tunnel state notification/status.
-
 #### Windows
 - Remove dependency on `ipconfig.exe`. Call `DnsFlushResolverCache` to flush the DNS cache.
 - Upgrade Wintun to 0.14.1.
-
-### Removed
-#### Android
-- Remove WireGuard view as it's no longer needed with the new way of managing devices.
 
 ### Fixed
 - Connect to TCP endpoints over IPv6 if IPv6 is enabled for WireGuard.
@@ -68,6 +56,22 @@ Line wrap the file at 100 chars.                                              Th
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
   it was successful.
 
+## [android/2022.2-beta1] - 2022-08-11
+### Added
+#### Android
+- Add device management to the Android app. This simplifies knowing which device is which and adds
+  the option to log other devices out when the account already has five devices.
+
+### Changed
+#### Android
+- Lowered default MTU to 1280 on Android.
+- Disable app icon badge for tunnel state notification/status.
+
+### Removed
+#### Android
+- Remove WireGuard view as it's no longer needed with the new way of managing devices.
+
+### Fixed
 #### Android
 - Fix unused dependencies loaded in the service/tile DI graph.
 - Fix missing IPC message unregistration causing multiple copies of some messages to be received.
