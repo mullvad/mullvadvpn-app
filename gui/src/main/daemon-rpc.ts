@@ -130,7 +130,7 @@ type CallFunctionArgument<T, R> =
 
 export class DaemonRpc {
   private client: ManagementServiceClient;
-  private isConnected = false;
+  private isConnectedValue = false;
   private connectionObservers: ConnectionObserver[] = [];
   private nextSubscriptionId = 0;
   private subscriptions: Map<number, grpc.ClientReadableStream<grpcTypes.DaemonEvent>> = new Map();
@@ -144,6 +144,10 @@ export class DaemonRpc {
     );
   }
 
+  public get isConnected() {
+    return this.isConnectedValue;
+  }
+
   public connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.client.waitForReady(this.deadlineFromNow(), (error) => {
@@ -153,7 +157,7 @@ export class DaemonRpc {
           reject(error);
         } else {
           this.reconnectionTimeout = undefined;
-          this.isConnected = true;
+          this.isConnectedValue = true;
           this.connectionObservers.forEach((observer) => observer.onOpen());
           this.setChannelCallback();
           resolve();
@@ -163,7 +167,7 @@ export class DaemonRpc {
   }
 
   public disconnect() {
-    this.isConnected = false;
+    this.isConnectedValue = false;
 
     for (const subscriptionId of this.subscriptions.keys()) {
       this.removeSubscription(subscriptionId);
@@ -683,14 +687,14 @@ export class DaemonRpc {
       const wasConnected = this.isConnected;
       if (this.channelDisconnected(currentState)) {
         this.connectionObservers.forEach((observer) => observer.onClose());
-        this.isConnected = false;
+        this.isConnectedValue = false;
         // Try and reconnect in case
         void this.connect().catch((error) => {
           log.error(`Failed to reconnect - ${error}`);
         });
         this.setChannelCallback(currentState);
       } else if (!wasConnected && currentState === grpc.connectivityState.READY) {
-        this.isConnected = true;
+        this.isConnectedValue = true;
         this.connectionObservers.forEach((observer) => observer.onOpen());
         this.setChannelCallback(currentState);
       }
@@ -727,7 +731,7 @@ export class DaemonRpc {
       const lastState = this.client.getChannel().getConnectivityState(true);
       if (this.channelDisconnected(lastState)) {
         this.connectionObservers.forEach((observer) => observer.onClose());
-        this.isConnected = false;
+        this.isConnectedValue = false;
       }
       if (!this.isConnected) {
         void this.connect().catch((error) => {
