@@ -11,7 +11,6 @@ import "C"
 
 import (
 	"bufio"
-	"fmt"
 	"strings"
 	"unsafe"
 
@@ -20,7 +19,6 @@ import (
 	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
-	"golang.zx2c4.com/wireguard/tun/wintun"
 
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/logging"
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/tunnelcontainer"
@@ -30,16 +28,6 @@ import (
 // Taken from the contained logging package.
 type LogSink = unsafe.Pointer
 type LogContext = unsafe.Pointer
-
-var MullvadPool *wintun.Pool
-
-func init() {
-	var err error
-	MullvadPool, err = wintun.MakePool("Mullvad")
-	if err != nil {
-		panic(fmt.Errorf("Failed to make pool: %w", err))
-	}
-}
 
 //export wgTurnOn
 func wgTurnOn(cIfaceName *C.char, mtu int, cSettings *C.char, cIfaceNameOut **C.char, cLuidOut *uint64, logSink LogSink, logContext LogContext) int32 {
@@ -64,9 +52,7 @@ func wgTurnOn(cIfaceName *C.char, mtu int, cSettings *C.char, cIfaceNameOut **C.
 	// {AFE43773-E1F8-4EBB-8536-576AB86AFE9A}
 	networkId := windows.GUID{0xafe43773, 0xe1f8, 0x4ebb, [8]byte{0x85, 0x36, 0x57, 0x6a, 0xb8, 0x6a, 0xfe, 0x9a}}
 
-	if tun.WintunPool != MullvadPool {
-		tun.WintunPool = MullvadPool
-	}
+	tun.WintunTunnelType = "Mullvad"
 
 	wintun, err := tun.CreateTUNWithRequestedGUID(ifaceName, &networkId, mtu)
 	if err != nil {
