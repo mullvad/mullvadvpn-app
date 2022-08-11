@@ -344,6 +344,26 @@ class LocationDataSource: NSObject, UITableViewDataSource {
             }
         }
 
+        let scrollToInsertedIndexPaths = { [weak tableView] (changeSet: ChangeSet) in
+            guard let lastInsertedIndexPath = changeSet.insertIndexPaths.last,
+                  let lastUpdatedIndexPath = changeSet.updateIndexPaths.last,
+                  let visibleIndexPaths = tableView?.indexPathsForVisibleRows,
+                  let lastVisibleIndexPath = visibleIndexPaths.last,
+                  lastInsertedIndexPath >= lastVisibleIndexPath
+            else {
+                return
+            }
+            if changeSet.insertIndexPaths.count >= visibleIndexPaths.count {
+                tableView?.scrollToRow(at: lastUpdatedIndexPath, at: .top, animated: true)
+            } else {
+                tableView?.scrollToRow(
+                    at: lastInsertedIndexPath,
+                    at: .bottom,
+                    animated: true
+                )
+            }
+        }
+
         if animated {
             guard let changeSet = applyChanges() else { return }
             tableView.performBatchUpdates {
@@ -357,6 +377,7 @@ class LocationDataSource: NSObject, UITableViewDataSource {
                     cellUpdater(tableView, indexPath, item)
                 }
             } completion: { finished in
+                scrollToInsertedIndexPaths(changeSet)
                 restoreSelection()
                 completion?()
             }
