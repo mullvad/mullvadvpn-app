@@ -14,9 +14,9 @@ RUN apt update -y && apt install build-essential \
 
 
 # Install golang
-ENV GOLANG_VERSION 1.18.1
+ENV GOLANG_VERSION 1.18.5
 # Checksum from: https://go.dev/dl/
-ENV GOLANG_HASH b3b815f47ababac13810fc6021eb73d65478e0b2db4b09d348eefad9581a2334
+ENV GOLANG_HASH 9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
 RUN curl -Lo go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
 	echo $(sha256sum go.tgz) && \
 	echo "${GOLANG_HASH} go.tgz" | sha256sum -c - && \

@@ -22,7 +22,7 @@ default: $(DESTDIR)/libwg.so
 
 GOBUILDARCH := $(NDK_GO_ARCH_MAP_$(shell uname -m))
 GOBUILDOS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
-GOBUILDVERSION := 1.18.1
+GOBUILDVERSION := 1.18.5
 # TODO: Add checksum?
 GOBUILDTARBALL := https://go.dev/dl/go$(GOBUILDVERSION).$(GOBUILDOS)-$(GOBUILDARCH).tar.gz
 GOBUILDVERSION_NEEDED := go version go$(GOBUILDVERSION) $(GOBUILDOS)/$(GOBUILDARCH)
