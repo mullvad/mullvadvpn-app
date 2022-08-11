@@ -135,7 +135,6 @@ class ApplicationMain {
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;
-  private connectedToDaemon = false;
   private isPerformingPostUpgrade = false;
   private quitStage = AppQuitStage.unready;
 
@@ -452,7 +451,7 @@ class ApplicationMain {
     if (this.stayConnectedOnQuit) {
       log.info('Not disconnecting tunnel on quit');
     } else {
-      if (this.connectedToDaemon) {
+      if (this.daemonRpc.isConnected) {
         try {
           await this.daemonRpc.disconnectTunnel();
           log.info('Disconnected the tunnel');
@@ -486,7 +485,7 @@ class ApplicationMain {
       this.windowController.window.closable = true;
     }
 
-    if (this.connectedToDaemon) {
+    if (this.daemonRpc.isConnected) {
       this.daemonRpc.disconnect();
     }
 
@@ -562,7 +561,7 @@ class ApplicationMain {
       await this.trayIconController.updateTheme();
 
       this.setTrayContextMenu();
-      this.trayIconController?.setTooltip(this.connectedToDaemon, this.tunnelState);
+      this.trayIconController?.setTooltip(this.daemonRpc.isConnected, this.tunnelState);
 
       if (process.platform === 'win32') {
         nativeTheme.on('updated', async () => {
@@ -652,7 +651,6 @@ class ApplicationMain {
   private onDaemonConnected = async () => {
     const firstDaemonConnection = this.beforeFirstDaemonConnection;
     this.beforeFirstDaemonConnection = false;
-    this.connectedToDaemon = true;
 
     log.info('Connected to the daemon');
 
@@ -760,9 +758,9 @@ class ApplicationMain {
     // reset the reconnect backoff when connection established.
     this.reconnectBackoff.reset();
 
-    // notify renderer, this.connectedToDaemon could have changed if the daemon disconnected again
-    // before this if-statement is reached.
-    if (this.windowController && this.connectedToDaemon) {
+    // notify renderer, this.daemonRpc.isConnected could have changed if the daemon disconnected
+    // again before this if-statement is reached.
+    if (this.windowController && this.daemonRpc.isConnected) {
       IpcMainEventChannel.daemon.notifyConnected(this.windowController.webContents);
     }
 
@@ -782,7 +780,7 @@ class ApplicationMain {
     }
     // make sure we were connected before to distinguish between a failed attempt to reconnect and
     // connection loss.
-    const wasConnected = this.connectedToDaemon;
+    const wasConnected = this.daemonRpc.isConnected;
 
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
@@ -790,12 +788,11 @@ class ApplicationMain {
     this.tunnelStateFallback = undefined;
 
     if (wasConnected) {
-      this.connectedToDaemon = false;
 
       // update the tray icon to indicate that the computer is not secure anymore
       this.updateTrayIcon({ state: 'disconnected' }, false);
       this.setTrayContextMenu();
-      this.trayIconController?.setTooltip(this.connectedToDaemon, this.tunnelState);
+      this.trayIconController?.setTooltip(this.daemonRpc.isConnected, this.tunnelState);
 
       // notify renderer process
       if (this.windowController) {
@@ -876,21 +873,21 @@ class ApplicationMain {
   }
 
   private connectTunnel = async (): Promise<void> => {
-    if (connectEnabled(this.connectedToDaemon, this.isLoggedIn(), this.tunnelState.state)) {
+    if (connectEnabled(this.daemonRpc.isConnected, this.isLoggedIn(), this.tunnelState.state)) {
       this.setOptimisticTunnelState('connecting');
       await this.daemonRpc.connectTunnel();
     }
   };
 
   private reconnectTunnel = async (): Promise<void> => {
-    if (reconnectEnabled(this.connectedToDaemon, this.isLoggedIn(), this.tunnelState.state)) {
+    if (reconnectEnabled(this.daemonRpc.isConnected, this.isLoggedIn(), this.tunnelState.state)) {
       this.setOptimisticTunnelState('connecting');
       await this.daemonRpc.reconnectTunnel();
     }
   };
 
   private disconnectTunnel = async (): Promise<void> => {
-    if (disconnectEnabled(this.connectedToDaemon, this.tunnelState.state)) {
+    if (disconnectEnabled(this.daemonRpc.isConnected, this.tunnelState.state)) {
       this.setOptimisticTunnelState('disconnecting');
       await this.daemonRpc.disconnectTunnel();
     }
@@ -949,7 +946,7 @@ class ApplicationMain {
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
 
     this.setTrayContextMenu();
-    this.trayIconController?.setTooltip(this.connectedToDaemon, this.tunnelState);
+    this.trayIconController?.setTooltip(this.daemonRpc.isConnected, this.tunnelState);
 
     this.notificationController.notifyTunnelState(
       newState,
@@ -1282,7 +1279,7 @@ class ApplicationMain {
 
   private registerIpcListeners() {
     IpcMainEventChannel.state.handleGet(() => ({
-      isConnected: this.connectedToDaemon,
+      isConnected: this.daemonRpc.isConnected,
       autoStart: getOpenAtLogin(),
       accountData: this.accountData,
       accountHistory: this.accountHistory,
@@ -1599,7 +1596,7 @@ class ApplicationMain {
   }
 
   private updateAccountData() {
-    if (this.connectedToDaemon && this.isLoggedIn()) {
+    if (this.daemonRpc.isConnected && this.isLoggedIn()) {
       this.accountDataCache.fetch(this.getAccountToken()!);
     }
   }
@@ -1711,7 +1708,7 @@ class ApplicationMain {
     };
 
     this.setTrayContextMenu();
-    this.trayIconController?.setTooltip(this.connectedToDaemon, this.tunnelState);
+    this.trayIconController?.setTooltip(this.daemonRpc.isConnected, this.tunnelState);
   }
 
   private blockPermissionRequests() {
@@ -1985,7 +1982,7 @@ class ApplicationMain {
           // displayed on left click as well.
           this.tray?.on('right-click', () =>
             this.trayIconController?.popUpContextMenu(
-              this.connectedToDaemon,
+              this.daemonRpc.isConnected,
               this.isLoggedIn(),
               this.tunnelState,
             ),
@@ -2023,7 +2020,7 @@ class ApplicationMain {
 
   private setTrayContextMenu() {
     this.trayIconController?.setContextMenu(
-      this.connectedToDaemon,
+      this.daemonRpc.isConnected,
       this.isLoggedIn(),
       this.tunnelState,
     );
