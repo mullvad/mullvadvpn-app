@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Reject invalid WireGuard ports in the CLI.
 - Reorganize settings into more logical categories.
+- Upgrade wireguard-go to 20220703234212 (Windows: v0.5.3).
 
 #### Android
 - Lowered default MTU to 1280 on Android.
@@ -48,6 +49,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Remove dependency on `ipconfig.exe`. Call `DnsFlushResolverCache` to flush the DNS cache.
+- Upgrade Wintun to 0.14.1.
 
 ### Removed
 #### Android
