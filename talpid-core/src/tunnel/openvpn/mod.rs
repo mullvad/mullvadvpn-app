@@ -43,7 +43,7 @@ mod wintun;
 #[cfg(windows)]
 lazy_static! {
     static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
-    static ref ADAPTER_POOL: U16CString = U16CString::from_str("Mullvad").unwrap();
+    static ref ADAPTER_TUNNEL_TYPE: U16CString = U16CString::from_str("Mullvad").unwrap();
 }
 
 #[cfg(windows)]
@@ -86,11 +86,6 @@ pub enum Error {
     #[cfg(windows)]
     #[error(display = "Failed to create Wintun adapter")]
     WintunCreateAdapterError(#[error(source)] io::Error),
-
-    /// cannot determine adapter name
-    #[cfg(windows)]
-    #[error(display = "Failed to determine alias of Wintun adapter")]
-    WintunFindAlias(#[error(source)] io::Error),
 
     /// OpenVPN process died unexpectedly
     #[error(display = "OpenVPN process died unexpectedly")]
@@ -215,7 +210,7 @@ impl std::fmt::Debug for dyn WintunContext {
 #[cfg(windows)]
 #[derive(Debug)]
 struct WintunContextImpl {
-    adapter: wintun::TemporaryWintunAdapter,
+    adapter: wintun::WintunAdapter,
     wait_v6_interface: bool,
     _logger: wintun::WintunLoggerHandle,
 }
@@ -224,7 +219,7 @@ struct WintunContextImpl {
 #[async_trait::async_trait]
 impl WintunContext for WintunContextImpl {
     fn luid(&self) -> NET_LUID {
-        self.adapter.adapter().luid()
+        self.adapter.luid()
     }
 
     fn ipv6(&self) -> bool {
@@ -232,22 +227,19 @@ impl WintunContext for WintunContextImpl {
     }
 
     async fn wait_for_interfaces(&self) -> io::Result<()> {
-        let luid = self.adapter.adapter().luid();
+        let luid = self.adapter.luid();
         crate::windows::wait_for_interfaces(luid, true, self.wait_v6_interface).await
     }
 
     fn prepare_interface(&self) {
-        self.adapter.adapter().prepare_interface();
+        self.adapter.prepare_interface();
     }
 }
 
 #[cfg(windows)]
 impl WintunContextImpl {
-    fn alias(&self) -> Result<U16CString> {
-        self.adapter
-            .adapter()
-            .name()
-            .map_err(Error::WintunFindAlias)
+    fn alias(&self) -> U16CString {
+        self.adapter.name()
     }
 }
 
@@ -300,7 +292,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             resource_dir,
             &proxy_monitor,
             #[cfg(windows)]
-            wintun.alias()?.to_os_string(),
+            wintun.alias().to_os_string(),
         )?;
 
         let plugin_path = Self::get_plugin_path(resource_dir)?;
@@ -347,10 +339,10 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let dll = wintun::WintunDll::instance(resource_dir).map_err(Error::WintunDllError)?;
         let wintun_logger = dll.activate_logging();
 
-        let (wintun_adapter, _reboot_required) = wintun::TemporaryWintunAdapter::create(
+        let wintun_adapter = wintun::WintunAdapter::create(
             dll.clone(),
             &*ADAPTER_ALIAS,
-            &*ADAPTER_POOL,
+            &*ADAPTER_TUNNEL_TYPE,
             Some(ADAPTER_GUID.clone()),
         )
         .map_err(Error::WintunCreateAdapterError)?;
