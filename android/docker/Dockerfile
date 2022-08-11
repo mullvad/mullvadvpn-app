@@ -74,7 +74,7 @@ ENV PATH="${PATH}:/root/.cargo/bin" \
 
 RUN curl -sf -L https://sh.rustup.rs > /tmp/rustup.sh && \
     cd /tmp && \
-    echo "a3cb081f88a6789d104518b30d4aa410009cd08c3822a1226991d6cf0442a0f8 rustup.sh" | sha256sum -c && \
+    echo "173f4881e2de99ba9ad1acb59e65be01b2a44979d83b6ec648d0d22f8654cbce rustup.sh" | sha256sum -c && \
     chmod +x rustup.sh && \
     ./rustup.sh -y && \
     rm rustup.sh && \
