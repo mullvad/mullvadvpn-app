@@ -14,7 +14,7 @@ use winapi::{
     shared::{
         guiddef::GUID,
         ifdef::NET_LUID,
-        minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
+        minwindef::{FARPROC, HINSTANCE, HMODULE},
         netioapi::ConvertInterfaceLuidToGuid,
         winerror::NO_ERROR,
     },
@@ -35,33 +35,17 @@ lazy_static! {
     static ref WINTUN_DLL: Mutex<Option<Arc<WintunDll>>> = Mutex::new(None);
 }
 
-/// Longest possible adapter name (in characters), including null terminator
-const MAX_ADAPTER_NAME: usize = 128;
-
-type WintunOpenAdapterFn =
-    unsafe extern "stdcall" fn(pool: *const u16, name: *const u16) -> RawHandle;
-
 type WintunCreateAdapterFn = unsafe extern "stdcall" fn(
-    pool: *const u16,
     name: *const u16,
+    tunnel_type: *const u16,
     requested_guid: *const GUID,
-    reboot_required: *mut BOOL,
 ) -> RawHandle;
 
-type WintunFreeAdapterFn = unsafe extern "stdcall" fn(adapter: RawHandle);
-
-type WintunDeleteAdapterFn = unsafe extern "stdcall" fn(
-    adapter: RawHandle,
-    force_close_sessions: BOOL,
-    reboot_required: *mut BOOL,
-) -> BOOL;
-
-type WintunGetAdapterNameFn =
-    unsafe extern "stdcall" fn(adapter: RawHandle, name: *mut u16) -> BOOL;
+type WintunCloseAdapterFn = unsafe extern "stdcall" fn(adapter: RawHandle);
 
 type WintunGetAdapterLuidFn = unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID);
 
-type WintunLoggerCbFn = extern "stdcall" fn(WintunLoggerLevel, *const u16);
+type WintunLoggerCbFn = extern "stdcall" fn(WintunLoggerLevel, u64, *const u16);
 
 type WintunSetLoggerFn = unsafe extern "stdcall" fn(Option<WintunLoggerCbFn>);
 
@@ -75,11 +59,8 @@ enum WintunLoggerLevel {
 
 pub struct WintunDll {
     handle: HINSTANCE,
-    func_open: WintunOpenAdapterFn,
     func_create: WintunCreateAdapterFn,
-    func_free: WintunFreeAdapterFn,
-    func_delete: WintunDeleteAdapterFn,
-    func_get_adapter_name: WintunGetAdapterNameFn,
+    func_close: WintunCloseAdapterFn,
     func_get_adapter_luid: WintunGetAdapterLuidFn,
     func_set_logger: WintunSetLoggerFn,
 }
@@ -87,50 +68,11 @@ pub struct WintunDll {
 unsafe impl Send for WintunDll {}
 unsafe impl Sync for WintunDll {}
 
-type RebootRequired = bool;
-
-/// A new Wintun adapter that is destroyed when dropped.
-#[derive(Debug)]
-pub struct TemporaryWintunAdapter {
-    pub adapter: WintunAdapter,
-}
-
-impl TemporaryWintunAdapter {
-    pub fn create(
-        dll_handle: Arc<WintunDll>,
-        pool: &U16CStr,
-        name: &U16CStr,
-        requested_guid: Option<GUID>,
-    ) -> io::Result<(Self, RebootRequired)> {
-        let (adapter, reboot_required) =
-            WintunAdapter::create(dll_handle, pool, name, requested_guid)?;
-        Ok((TemporaryWintunAdapter { adapter }, reboot_required))
-    }
-
-    pub fn adapter(&self) -> &WintunAdapter {
-        &self.adapter
-    }
-}
-
-impl Drop for TemporaryWintunAdapter {
-    fn drop(&mut self) {
-        if let Err(error) = unsafe {
-            self.adapter
-                .dll_handle
-                .delete_adapter(self.adapter.handle, true)
-        } {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to delete Wintun adapter")
-            );
-        }
-    }
-}
-
 /// Represents a Wintun adapter.
 pub struct WintunAdapter {
     dll_handle: Arc<WintunDll>,
     handle: RawHandle,
+    name: U16CString,
 }
 
 impl fmt::Debug for WintunAdapter {
@@ -145,41 +87,20 @@ unsafe impl Send for WintunAdapter {}
 unsafe impl Sync for WintunAdapter {}
 
 impl WintunAdapter {
-    pub fn open(dll_handle: Arc<WintunDll>, pool: &U16CStr, name: &U16CStr) -> io::Result<Self> {
-        Ok(Self {
-            handle: dll_handle.open_adapter(pool, name)?,
-            dll_handle,
-        })
-    }
-
     pub fn create(
         dll_handle: Arc<WintunDll>,
-        pool: &U16CStr,
         name: &U16CStr,
+        tunnel_type: &U16CStr,
         requested_guid: Option<GUID>,
-    ) -> io::Result<(Self, RebootRequired)> {
-        {
-            if let Ok(adapter) = Self::open(dll_handle.clone(), name, pool) {
-                // Delete existing adapter in case it has residual config
-                adapter.delete(false).map_err(|error| {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to delete existing Wintun adapter")
-                    );
-                    error
-                })?;
-            }
-        }
-
-        let (handle, restart_required) = dll_handle.create_adapter(pool, name, requested_guid)?;
-
-        if restart_required {
-            log::warn!("You may need to restart Windows to complete the install of Wintun");
-        }
-
-        let adapter = Self { dll_handle, handle };
+    ) -> io::Result<Self> {
+        let handle = dll_handle.create_adapter(name, tunnel_type, requested_guid)?;
+        let adapter = Self {
+            dll_handle,
+            handle,
+            name: name.to_owned(),
+        };
         adapter.restore_missing_component_id();
-        Ok((adapter, restart_required))
+        Ok(adapter)
     }
 
     pub fn prepare_interface(&self) {
@@ -191,15 +112,8 @@ impl WintunAdapter {
         }
     }
 
-    pub fn delete(self, force_close_sessions: bool) -> io::Result<RebootRequired> {
-        unsafe {
-            self.dll_handle
-                .delete_adapter(self.handle, force_close_sessions)
-        }
-    }
-
-    pub fn name(&self) -> io::Result<U16CString> {
-        unsafe { self.dll_handle.get_adapter_name(self.handle) }
+    pub fn name(&self) -> U16CString {
+        self.name.to_owned()
     }
 
     pub fn luid(&self) -> NET_LUID {
@@ -262,7 +176,7 @@ impl WintunAdapter {
 
 impl Drop for WintunAdapter {
     fn drop(&mut self) {
-        unsafe { self.dll_handle.free_adapter(self.handle) };
+        unsafe { self.dll_handle.close_adapter(self.handle) };
     }
 }
 
@@ -301,34 +215,16 @@ impl WintunDll {
     ) -> io::Result<Self> {
         Ok(WintunDll {
             handle,
-            func_open: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WintunOpenAdapter\0").unwrap(),
-                )?) as *const _ as *const _)
-            },
             func_create: unsafe {
                 *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunCreateAdapter\0").unwrap(),
                 )?) as *const _ as *const _)
             },
-            func_delete: unsafe {
+            func_close: unsafe {
                 *((&get_proc_fn(
                     handle,
-                    CStr::from_bytes_with_nul(b"WintunDeleteAdapter\0").unwrap(),
-                )?) as *const _ as *const _)
-            },
-            func_free: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WintunFreeAdapter\0").unwrap(),
-                )?) as *const _ as *const _)
-            },
-            func_get_adapter_name: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WintunGetAdapterName\0").unwrap(),
+                    CStr::from_bytes_with_nul(b"WintunCloseAdapter\0").unwrap(),
                 )?) as *const _ as *const _)
             },
             func_get_adapter_luid: unsafe {
@@ -354,59 +250,25 @@ impl WintunDll {
         Ok(handle)
     }
 
-    pub fn open_adapter(&self, pool: &U16CStr, name: &U16CStr) -> io::Result<RawHandle> {
-        let handle = unsafe { (self.func_open)(pool.as_ptr(), name.as_ptr()) };
+    pub fn create_adapter(
+        &self,
+        name: &U16CStr,
+        tunnel_type: &U16CStr,
+        requested_guid: Option<GUID>,
+    ) -> io::Result<RawHandle> {
+        let guid_ptr = match requested_guid.as_ref() {
+            Some(guid) => guid as *const _,
+            None => ptr::null_mut(),
+        };
+        let handle = unsafe { (self.func_create)(name.as_ptr(), tunnel_type.as_ptr(), guid_ptr) };
         if handle == ptr::null_mut() {
             return Err(io::Error::last_os_error());
         }
         Ok(handle)
     }
 
-    pub fn create_adapter(
-        &self,
-        pool: &U16CStr,
-        name: &U16CStr,
-        requested_guid: Option<GUID>,
-    ) -> io::Result<(RawHandle, RebootRequired)> {
-        let guid_ptr = match requested_guid.as_ref() {
-            Some(guid) => guid as *const _,
-            None => ptr::null_mut(),
-        };
-        let mut reboot_required = 0;
-        let handle = unsafe {
-            (self.func_create)(pool.as_ptr(), name.as_ptr(), guid_ptr, &mut reboot_required)
-        };
-        if handle == ptr::null_mut() {
-            return Err(io::Error::last_os_error());
-        }
-        Ok((handle, reboot_required != 0))
-    }
-
-    pub unsafe fn delete_adapter(
-        &self,
-        adapter: RawHandle,
-        force_close_sessions: bool,
-    ) -> io::Result<RebootRequired> {
-        let mut reboot_required = 0;
-        let force_close_sessions = if force_close_sessions { 1 } else { 0 };
-        let result = (self.func_delete)(adapter, force_close_sessions, &mut reboot_required);
-        if result == 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(reboot_required != 0)
-    }
-
-    pub unsafe fn free_adapter(&self, adapter: RawHandle) {
-        (self.func_free)(adapter);
-    }
-
-    pub unsafe fn get_adapter_name(&self, adapter: RawHandle) -> io::Result<U16CString> {
-        let mut alias_buffer = vec![0u16; MAX_ADAPTER_NAME];
-        let result = (self.func_get_adapter_name)(adapter, alias_buffer.as_mut_ptr());
-        if result == 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(U16CString::from_vec_truncate(alias_buffer))
+    pub unsafe fn close_adapter(&self, adapter: RawHandle) {
+        (self.func_close)(adapter);
     }
 
     pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID {
@@ -440,7 +302,7 @@ impl WintunLoggerHandle {
         Self { dll_handle }
     }
 
-    extern "stdcall" fn callback(level: WintunLoggerLevel, message: *const u16) {
+    extern "stdcall" fn callback(level: WintunLoggerLevel, _timestamp: u64, message: *const u16) {
         if message.is_null() {
             return;
         }
