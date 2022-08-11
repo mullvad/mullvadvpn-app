@@ -25,9 +25,11 @@ class LocationDataSource: NSObject, UITableViewDataSource {
 
     typealias CellProviderBlock = (UITableView, IndexPath, LocationDataSourceItemProtocol)
         -> UITableViewCell?
+    typealias CellUpdaterBlock = (UITableView, IndexPath, LocationDataSourceItemProtocol) -> Void
 
     private let tableView: UITableView
     private let cellProvider: CellProviderBlock
+    private let cellUpdater: CellUpdaterBlock
 
     private(set) var selectedRelayLocation: RelayLocation?
     private var lastShowHiddenParents = false
@@ -44,9 +46,14 @@ class LocationDataSource: NSObject, UITableViewDataSource {
         )
     }
 
-    init(tableView: UITableView, cellProvider: @escaping CellProviderBlock) {
+    init(
+        tableView: UITableView,
+        cellProvider: @escaping CellProviderBlock,
+        cellUpdater: @escaping CellUpdaterBlock
+    ) {
         self.tableView = tableView
         self.cellProvider = cellProvider
+        self.cellUpdater = cellUpdater
         super.init()
 
         tableView.dataSource = self
@@ -338,11 +345,16 @@ class LocationDataSource: NSObject, UITableViewDataSource {
         }
 
         if animated {
+            guard let changeSet = applyChanges() else { return }
             tableView.performBatchUpdates {
-                if let changeSet = applyChanges() {
-                    tableView.insertRows(at: changeSet.insertIndexPaths, with: .fade)
-                    tableView.deleteRows(at: changeSet.deleteIndexPaths, with: .fade)
-                    tableView.reloadRows(at: changeSet.updateIndexPaths, with: .none)
+                tableView.insertRows(at: changeSet.insertIndexPaths, with: .fade)
+                tableView.deleteRows(at: changeSet.deleteIndexPaths, with: .fade)
+                changeSet.updateIndexPaths.forEach { indexPath in
+                    guard let item = item(for: indexPath) else {
+                        assertionFailure()
+                        return
+                    }
+                    cellUpdater(tableView, indexPath, item)
                 }
             } completion: { finished in
                 restoreSelection()

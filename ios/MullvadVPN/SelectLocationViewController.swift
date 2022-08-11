@@ -108,6 +108,13 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
                 }
 
                 return cell
+            },
+            cellUpdater: { tableView, indexPath, item in
+                guard let cell = tableView.cellForRow(at: indexPath) as? SelectLocationCell else {
+                    assertionFailure()
+                    return
+                }
+                cell.isExpanded = item.showsChildren
             }
         )
 
