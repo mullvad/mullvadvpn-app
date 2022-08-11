@@ -206,6 +206,14 @@ class AdvancedFragment : BaseFragment() {
         }
 
         customDnsToggle = view.findViewById<ToggleCell>(R.id.enable_custom_dns).apply {
+            state = serviceConnectionManager.customDns().let { customDns ->
+                if (customDns?.isCustomDnsEnabled() == true) {
+                    CellSwitch.State.ON
+                } else {
+                    CellSwitch.State.OFF
+                }
+            }
+
             listener = { state ->
                 jobTracker.newBackgroundJob("toggleCustomDns") {
                     if (state == CellSwitch.State.ON) {
