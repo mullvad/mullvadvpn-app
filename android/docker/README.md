@@ -39,7 +39,7 @@ The example below builds only for 64-bit ARM and x86-64:
 docker run \
     --rm \
     -it \
-    -e ARCHITECTURES="aarch64 x86_64"
+    -e ARCHITECTURES="aarch64 x86_64" \
     --name mullvad-android-build \
     -v /home/user/mullvadvpn-app:/project \
     -w /project \
