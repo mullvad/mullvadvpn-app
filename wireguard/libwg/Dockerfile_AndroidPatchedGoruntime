@@ -1,5 +1,5 @@
 # To build the image:
-# docker build . -t quay.io/mullvad/mullvad-android-app-build
+# docker build . -t quay.io/mullvad/mullvad-android-app-build -f Dockerfile_AndroidPatchedGoruntime
 # To push the image to Quay.io:
 # docker push quay.io/mullvad/mullvad-android-app-build
 
