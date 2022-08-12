@@ -19,7 +19,7 @@ use tokio::{
 
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
-#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub enum ApiConnectionMode {
     /// Connect directly to the target.
     Direct,
@@ -36,7 +36,7 @@ impl fmt::Display for ApiConnectionMode {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub enum ProxyConfig {
     Shadowsocks(ShadowsocksProxySettings),
 }

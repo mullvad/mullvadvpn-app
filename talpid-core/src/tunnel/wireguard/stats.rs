@@ -17,7 +17,7 @@ pub enum Error {
 }
 
 /// Contains bytes sent and received through a tunnel
-#[derive(Default, Debug, PartialEq, Clone, Copy)]
+#[derive(Default, Debug, PartialEq, Eq, Clone, Copy)]
 pub struct Stats {
     pub tx_bytes: u64,
     pub rx_bytes: u64,
