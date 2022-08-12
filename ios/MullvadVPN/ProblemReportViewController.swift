@@ -283,8 +283,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
     @objc func handleViewLogsButtonTap() {
         let reviewController = ProblemReportReviewViewController(
-            reportString: consolidatedLog
-                .string
+            reportString: consolidatedLog.string
         )
         let navigationController = UINavigationController(rootViewController: reviewController)
 
