@@ -345,7 +345,13 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         accountToken: String?,
         didFailWithError error: AppStorePaymentManager.Error
     ) {
-        showPaymentErrorAlert(error: error)
+        switch error {
+        case .storePayment(SKError.paymentCancelled):
+            break
+
+        default:
+            showPaymentErrorAlert(error: error)
+        }
 
         didProcessPayment(payment)
     }
