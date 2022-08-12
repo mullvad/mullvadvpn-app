@@ -19,14 +19,14 @@ protocol LocationDataSourceItemProtocol {
 }
 
 class LocationDataSource: NSObject, UITableViewDataSource {
-    private var nodeByLocation = [RelayLocation: Node]()
-    private var locationList = [RelayLocation]()
-    private var rootNode = makeRootNode()
-
     typealias CellProviderBlock = (UITableView, IndexPath, LocationDataSourceItemProtocol)
         -> UITableViewCell?
     typealias CellConfiguratorBlock = (UITableViewCell, IndexPath, LocationDataSourceItemProtocol)
         -> Void
+
+    private var nodeByLocation = [RelayLocation: Node]()
+    private var locationList = [RelayLocation]()
+    private var rootNode = makeRootNode()
 
     private let tableView: UITableView
     private let cellProvider: CellProviderBlock
