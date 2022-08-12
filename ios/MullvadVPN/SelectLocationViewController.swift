@@ -89,14 +89,14 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
         dataSource = LocationDataSource(
             tableView: tableView,
-            cellProvider: { [weak self] tableView, indexPath, item -> UITableViewCell? in
-                guard let self = self else { return nil }
-
-                let cell = tableView.dequeueReusableCell(
+            cellProvider: { tableView, indexPath, item in
+                return tableView.dequeueReusableCell(
                     withIdentifier: Self.cellReuseIdentifier,
                     for: indexPath
                 )
-                    as! SelectLocationCell
+            },
+            cellConfigurator: { [weak self] cell, indexPath, item in
+                guard let cell = cell as? SelectLocationCell else { return }
 
                 cell.accessibilityIdentifier = item.location.stringRepresentation
                 cell.isDisabled = !item.isActive
@@ -106,15 +106,6 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
                 cell.didCollapseHandler = { [weak self] cell in
                     self?.collapseCell(cell)
                 }
-
-                return cell
-            },
-            cellUpdater: { tableView, indexPath, item in
-                guard let cell = tableView.cellForRow(at: indexPath) as? SelectLocationCell else {
-                    assertionFailure()
-                    return
-                }
-                cell.isExpanded = item.showsChildren
             }
         )
 
