@@ -302,7 +302,6 @@
 		58FC040A27B3EE03001C21F0 /* TunnelMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FC040927B3EE03001C21F0 /* TunnelMonitor.swift */; };
 		58FD5BE724192A2C00112C88 /* AppStoreReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BE624192A2B00112C88 /* AppStoreReceipt.swift */; };
 		58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
-		58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BF12424F7D700112C88 /* UserInterfaceInteractionRestriction.swift */; };
 		58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */; };
 		58FEAFB92750DA2F003C1625 /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEAFB82750DA2F003C1625 /* AddressCache.swift */; };
 		58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB45260A028D00A621A8 /* GeoJSON.swift */; };
@@ -590,7 +589,6 @@
 		58FC040927B3EE03001C21F0 /* TunnelMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitor.swift; sourceTree = "<group>"; };
 		58FD5BE624192A2B00112C88 /* AppStoreReceipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreReceipt.swift; sourceTree = "<group>"; };
 		58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Formatting.swift"; sourceTree = "<group>"; };
-		58FD5BF12424F7D700112C88 /* UserInterfaceInteractionRestriction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInterfaceInteractionRestriction.swift; sourceTree = "<group>"; };
 		58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseButton.swift; sourceTree = "<group>"; };
 		58FEAFB82750DA2F003C1625 /* AddressCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCache.swift; sourceTree = "<group>"; };
 		58FEEB45260A028D00A621A8 /* GeoJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoJSON.swift; sourceTree = "<group>"; };
@@ -972,7 +970,6 @@
 				58289081286B590900478596 /* UIFont+Monospaced.swift */,
 				5856D13627450A8A00DFD627 /* UIImage+TintColor.swift */,
 				585CA70E25F8C44600B47C62 /* UIMetrics.swift */,
-				58FD5BF12424F7D700112C88 /* UserInterfaceInteractionRestriction.swift */,
 				58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */,
 			);
 			path = MullvadVPN;
@@ -1491,7 +1488,6 @@
 				58B43C1925F77DB60002C8C3 /* ConnectContentView.swift in Sources */,
 				58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				58F97A1E280FDE230050C2FC /* RESTRequestHandler.swift in Sources */,
-				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
 				58059DDE28468158002B1049 /* OutputOperation.swift in Sources */,
