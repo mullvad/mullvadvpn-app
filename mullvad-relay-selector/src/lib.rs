@@ -45,11 +45,6 @@ const WIREGUARD_EXIT_IP_VERSION: Constraint<IpVersion> = Constraint::Only(IpVers
 
 const UDP2TCP_PORTS: [u16; 3] = [80, 443, 5001];
 
-/// How much to favor bridges that are closer to the selected relay location. Each
-/// bridge is assigned a base weight based on its rank order proximity to the location.
-/// Its final weight equals `(base weight) ^ BRIDGE_PROXIMITY_BIAS`.
-const BRIDGE_PROXIMITY_BIAS: u32 = 1;
-
 /// Minimum number of bridges to keep for selection when filtering by distance.
 const MIN_BRIDGE_COUNT: usize = 5;
 
@@ -842,31 +837,32 @@ impl RelaySelector {
 
             let mut matching_relays: Vec<RelayWithDistance> = matching_relays
                 .into_iter()
-                .map(|relay| {
-                    RelayWithDistance {
-                        distance: relay.location.as_ref().unwrap().distance_from(&location),
-                        relay,
-                    }
+                .map(|relay| RelayWithDistance {
+                    distance: relay.location.as_ref().unwrap().distance_from(&location),
+                    relay,
                 })
                 .collect();
-            matching_relays.sort_unstable_by_key(|relay: &RelayWithDistance| relay.distance as usize);
+            matching_relays
+                .sort_unstable_by_key(|relay: &RelayWithDistance| relay.distance as usize);
 
+            let mut greatest_distance = 0f64;
             matching_relays = matching_relays
                 .into_iter()
                 .enumerate()
                 .filter_map(|(i, relay)| {
                     if i < MIN_BRIDGE_COUNT || relay.distance <= MAX_BRIDGE_DISTANCE {
+                        if relay.distance > greatest_distance {
+                            greatest_distance = relay.distance;
+                        }
                         return Some(relay);
                     }
                     None
                 })
                 .collect();
 
-            let max_weight = matching_relays.len();
-            let weight_fn = |index, _relay: &RelayWithDistance| {
-                let w = (max_weight - index) as u64;
-                w.saturating_pow(BRIDGE_PROXIMITY_BIAS)
-            };
+            let weight_fn =
+                |relay: &RelayWithDistance| 1 + (greatest_distance - relay.distance) as u64;
+
             self.pick_random_relay_fn(&matching_relays, weight_fn)
                 .cloned()
                 .map(|relay_with_distance| relay_with_distance.relay)
@@ -1108,7 +1104,7 @@ impl RelaySelector {
     /// Picks a relay using [Self::pick_random_relay_fn], using the `weight` member of each relay
     /// as the weight function.
     fn pick_random_relay<'a>(&self, relays: &'a [Relay]) -> Option<&'a Relay> {
-        self.pick_random_relay_fn(relays, |_index, relay| relay.weight)
+        self.pick_random_relay_fn(relays, |relay| relay.weight)
     }
 
     /// Pick a random relay from the given slice. Will return `None` if the given slice is empty.
@@ -1118,13 +1114,9 @@ impl RelaySelector {
     fn pick_random_relay_fn<'a, RelayType>(
         &self,
         relays: &'a [RelayType],
-        weight_fn: impl Fn(usize, &RelayType) -> u64,
+        weight_fn: impl Fn(&RelayType) -> u64,
     ) -> Option<&'a RelayType> {
-        let total_weight: u64 = relays
-            .iter()
-            .enumerate()
-            .map(|(index, relay)| weight_fn(index, relay))
-            .sum();
+        let total_weight: u64 = relays.iter().map(|relay| weight_fn(relay)).sum();
         let mut rng = rand::thread_rng();
         if total_weight == 0 {
             relays.choose(&mut rng)
@@ -1135,12 +1127,11 @@ impl RelaySelector {
             Some(
                 relays
                     .iter()
-                    .enumerate()
-                    .find(|(index, relay)| {
-                        i = i.saturating_sub(weight_fn(*index, relay));
+                    .find(|relay| {
+                        i = i.saturating_sub(weight_fn(relay));
                         i == 0
                     })
-                    .map(|(_, relay)| relay)
+                    .map(|relay| relay)
                     .expect("At least one relay must've had a weight above 0"),
             )
         }
