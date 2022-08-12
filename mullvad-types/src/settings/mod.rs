@@ -22,7 +22,7 @@ mod dns;
 /// being added to `mullvad-daemon`.
 pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V6;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Clone, Copy)]
 #[repr(u32)]
 pub enum SettingsVersion {
     V2 = 2,
@@ -107,7 +107,7 @@ fn out_of_range_wg_migration_rand_num() -> f32 {
 }
 
 #[cfg(windows)]
-#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, Eq)]
 pub struct SplitTunnelSettings {
     /// Toggles split tunneling on or off
     pub enable_exclusions: bool,

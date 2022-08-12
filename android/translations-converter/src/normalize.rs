@@ -21,7 +21,7 @@ mod android {
     impl Normalize for StringValue {
         fn normalize(&self) -> String {
             // Unescape apostrophes
-            let value = APOSTROPHES.replace_all(&*self, "'");
+            let value = APOSTROPHES.replace_all(self, "'");
             // Unescape double quotes
             let value = DOUBLE_QUOTES.replace_all(&value, r#"""#);
             // Mark where parameters are positioned, removing the parameter index
@@ -47,7 +47,7 @@ mod gettext {
     impl Normalize for MsgString {
         fn normalize(&self) -> String {
             // Use a single common apostrophe character
-            let string = APOSTROPHE_VARIATION.replace_all(&*self, "'");
+            let string = APOSTROPHE_VARIATION.replace_all(self, "'");
             // Mark where parameters are positioned, removing the parameter name
             let string = PARAMETERS.replace_all(&string, "%");
             // Remove escaped single-quotes

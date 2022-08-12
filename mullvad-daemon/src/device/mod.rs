@@ -74,7 +74,7 @@ pub enum Error {
 }
 
 /// Contains the current device state.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum PrivateDeviceState {
     LoggedIn(PrivateAccountAndDevice),
@@ -135,7 +135,7 @@ impl From<PrivateDeviceState> for DeviceState {
 }
 
 /// Same as [PrivateDevice] but also contains the associated account token.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct PrivateAccountAndDevice {
     pub account_token: AccountToken,
     pub device: PrivateDevice,
@@ -151,7 +151,7 @@ impl From<PrivateAccountAndDevice> for AccountAndDevice {
 }
 
 /// Device type that contains private data.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct PrivateDevice {
     pub id: DeviceId,
     pub name: DeviceName,
@@ -281,7 +281,7 @@ impl Error {
 
     pub fn unpack(&self) -> &Error {
         if let Error::ResponseFailure(ref inner) = self {
-            &*inner
+            inner
         } else {
             self
         }

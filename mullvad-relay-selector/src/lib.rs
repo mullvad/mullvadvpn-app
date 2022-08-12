@@ -1116,7 +1116,7 @@ impl RelaySelector {
         relays: &'a [RelayType],
         weight_fn: impl Fn(&RelayType) -> u64,
     ) -> Option<&'a RelayType> {
-        let total_weight: u64 = relays.iter().map(|relay| weight_fn(relay)).sum();
+        let total_weight: u64 = relays.iter().map(&weight_fn).sum();
         let mut rng = rand::thread_rng();
         if total_weight == 0 {
             relays.choose(&mut rng)
@@ -1131,7 +1131,6 @@ impl RelaySelector {
                         i = i.saturating_sub(weight_fn(relay));
                         i == 0
                     })
-                    .map(|relay| relay)
                     .expect("At least one relay must've had a weight above 0"),
             )
         }
