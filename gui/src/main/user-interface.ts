@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, nativeImage, screen, Tray } from 'electron';
+import { app, BrowserWindow, dialog, Menu, nativeImage, screen, Tray } from 'electron';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
 
@@ -18,16 +18,13 @@ import WindowController, { WindowControllerDelegate } from './window-controller'
 export interface UserInterfaceDelegate {
   cancelPendingNotifications(): void;
   resetTunnelStateAnnouncements(): void;
-  isUnpinnedWindow(): boolean;
-  getAppQuitStage(): AppQuitStage;
   updateAccountData(): void;
-  isLoggedIn(): boolean;
-  getTunnelState(): TunnelState;
-  isBrowsingFiles(): boolean;
-  getAccountData(): IAccountData | undefined;
   connectTunnel(): void;
   reconnectTunnel(): void;
   disconnectTunnel(): void;
+  isUnpinnedWindow(): boolean;
+  getAppQuitStage(): AppQuitStage;
+  getAccountData(): IAccountData | undefined;
 }
 
 export default class UserInterface implements WindowControllerDelegate {
@@ -35,6 +32,10 @@ export default class UserInterface implements WindowControllerDelegate {
 
   private tray: Tray;
   private trayIconController?: TrayIconController;
+
+  // True while file pickers are displayed which is used to decide if the Browser window should be
+  // hidden when losing focus.
+  private browsingFiles = false;
 
   private blurNavigationResetScheduler = new Scheduler();
   private backgroundThrottleScheduler = new Scheduler();
@@ -52,6 +53,18 @@ export default class UserInterface implements WindowControllerDelegate {
     this.tray = this.createTray();
   }
 
+  public registerIpcListeners() {
+    IpcMainEventChannel.app.handleShowOpenDialog(async (options) => {
+      this.browsingFiles = true;
+      const response = await dialog.showOpenDialog({
+        defaultPath: app.getPath('home'),
+        ...options,
+      });
+      this.browsingFiles = false;
+      return response;
+    });
+  }
+
   public createTrayIconController(
     tunnelState: TunnelState,
     blockWhenDisconnected: boolean,
@@ -61,14 +74,14 @@ export default class UserInterface implements WindowControllerDelegate {
     this.trayIconController = new TrayIconController(this.tray, iconType, monochromaticIcon);
   }
 
-  public async initializeWindow() {
+  public async initializeWindow(isLoggedIn: boolean, tunnelState: TunnelState) {
     if (!this.windowController.window) {
       throw new Error('No window available in initializeWindow');
     }
 
     const window = this.windowController.window;
 
-    this.registerWindowListener(this.delegate.getAccountData());
+    this.registerWindowListener();
     this.addContextMenu();
 
     if (process.env.NODE_ENV === 'development') {
@@ -80,21 +93,21 @@ export default class UserInterface implements WindowControllerDelegate {
 
     switch (process.platform) {
       case 'win32':
-        this.installWindowsMenubarAppWindowHandlers(this.delegate.isBrowsingFiles());
+        this.installWindowsMenubarAppWindowHandlers();
         break;
       case 'darwin':
         this.installMacOsMenubarAppWindowHandlers();
         this.setMacOsAppMenu();
         break;
       case 'linux':
-        this.setTrayContextMenu();
+        this.setTrayContextMenu(isLoggedIn, tunnelState);
         this.setLinuxAppMenu();
         window.setMenuBarVisibility(false);
         break;
     }
 
     this.installWindowCloseHandler();
-    this.installTrayClickHandlers();
+    this.installTrayClickHandlers(isLoggedIn, tunnelState);
 
     const filePath = path.resolve(path.join(__dirname, '../renderer/index.html'));
     try {
@@ -110,27 +123,17 @@ export default class UserInterface implements WindowControllerDelegate {
     }
   }
 
-  public setTrayContextMenu = () => {
-    if (process.platform === 'linux') {
-      this.tray.setContextMenu(
-        this.createContextMenu(
-          this.daemonRpc.isConnected,
-          this.delegate.isLoggedIn(),
-          this.delegate.getTunnelState(),
-        ),
-      );
-    }
+  public updateTray = (
+    isLoggedIn: boolean,
+    tunnelState: TunnelState,
+    blockWhenDisconnected: boolean,
+  ) => {
+    this.updateTrayIcon(tunnelState, blockWhenDisconnected);
+    this.setTrayContextMenu(isLoggedIn, tunnelState);
+    this.setTrayTooltip(tunnelState);
   };
 
-  public setTrayTooltip = () => {
-    const tooltip = this.createTooltipText(
-      this.daemonRpc.isConnected,
-      this.delegate.getTunnelState(),
-    );
-    this.tray?.setToolTip(tooltip);
-  };
-
-  public async recreateWindow(): Promise<void> {
+  public async recreateWindow(isLoggedIn: boolean, tunnelState: TunnelState): Promise<void> {
     if (this.tray) {
       this.tray.removeAllListeners();
 
@@ -140,7 +143,7 @@ export default class UserInterface implements WindowControllerDelegate {
       this.windowController.close();
       this.windowController = new WindowController(this, window);
 
-      await this.initializeWindow();
+      await this.initializeWindow(isLoggedIn, tunnelState);
       this.windowController.show();
     }
   }
@@ -151,7 +154,6 @@ export default class UserInterface implements WindowControllerDelegate {
   public updateTrayTheme = () => this.trayIconController?.updateTheme();
   public setUseMonochromaticTrayIcon = (value: boolean) =>
     this.trayIconController?.setUseMonochromaticIcon(value);
-  public animateTrayToIcon = (type: TrayIconType) => this.trayIconController?.animateToIcon(type);
   public setWindowIcon = (icon: string) => this.windowController.window?.setIcon(icon);
 
   public setWindowClosable = (value: boolean) => {
@@ -162,7 +164,7 @@ export default class UserInterface implements WindowControllerDelegate {
 
   public updateTrayIcon(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
     const type = this.trayIconType(tunnelState, blockWhenDisconnected);
-    this.animateTrayToIcon(type);
+    this.trayIconController?.animateToIcon(type);
   }
 
   public dispose = () => this.trayIconController?.dispose();
@@ -271,7 +273,7 @@ export default class UserInterface implements WindowControllerDelegate {
     return new WindowController(this, window);
   }
 
-  private registerWindowListener(accountData?: IAccountData) {
+  private registerWindowListener() {
     this.windowController.window?.on('focus', () => {
       IpcMainEventChannel.window.notifyFocus?.(true);
 
@@ -280,6 +282,7 @@ export default class UserInterface implements WindowControllerDelegate {
       // cancel notifications when window appears
       this.delegate.cancelPendingNotifications();
 
+      const accountData = this.delegate.getAccountData();
       if (!accountData || closeToExpiry(accountData.expiry, 4) || hasExpired(accountData.expiry)) {
         this.delegate.updateAccountData();
       }
@@ -306,6 +309,19 @@ export default class UserInterface implements WindowControllerDelegate {
         }, 120_000);
       }
     });
+  }
+
+  private setTrayContextMenu(isLoggedIn: boolean, tunnelState: TunnelState) {
+    if (process.platform === 'linux') {
+      this.tray.setContextMenu(
+        this.createContextMenu(this.daemonRpc.isConnected, isLoggedIn, tunnelState),
+      );
+    }
+  }
+
+  private setTrayTooltip(tunnelState: TunnelState) {
+    const tooltip = this.createTooltipText(this.daemonRpc.isConnected, tunnelState);
+    this.tray?.setToolTip(tooltip);
   }
 
   private addContextMenu() {
@@ -404,7 +420,7 @@ export default class UserInterface implements WindowControllerDelegate {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   }
 
-  private installWindowsMenubarAppWindowHandlers(browsingFiles: boolean) {
+  private installWindowsMenubarAppWindowHandlers() {
     if (this.delegate.isUnpinnedWindow()) {
       return;
     }
@@ -418,7 +434,7 @@ export default class UserInterface implements WindowControllerDelegate {
         cursorPos.y >= trayBounds.y &&
         cursorPos.x <= trayBounds.x + trayBounds.width &&
         cursorPos.y <= trayBounds.y + trayBounds.height;
-      if (!isCursorInside && !browsingFiles) {
+      if (!isCursorInside && !this.browsingFiles) {
         this.windowController.hide();
       }
     });
@@ -465,13 +481,13 @@ export default class UserInterface implements WindowControllerDelegate {
     });
   }
 
-  private installTrayClickHandlers() {
+  private installTrayClickHandlers(isLoggedIn: boolean, tunnelState: TunnelState) {
     switch (process.platform) {
       case 'win32':
         if (this.delegate.isUnpinnedWindow()) {
           // This needs to be executed on click since if it is added to the tray icon it will be
           // displayed on left click as well.
-          this.tray?.on('right-click', () => this.popUpContextMenu());
+          this.tray?.on('right-click', () => this.popUpContextMenu(isLoggedIn, tunnelState));
           this.tray?.on('click', () => this.windowController.show());
         } else {
           this.tray?.on('right-click', () => this.windowController.hide());
@@ -503,13 +519,9 @@ export default class UserInterface implements WindowControllerDelegate {
     }
   }
 
-  private popUpContextMenu() {
+  private popUpContextMenu(isLoggedIn: boolean, tunnelState: TunnelState) {
     this.tray.popUpContextMenu(
-      this.createContextMenu(
-        this.daemonRpc.isConnected,
-        this.delegate.isLoggedIn(),
-        this.delegate.getTunnelState(),
-      ),
+      this.createContextMenu(this.daemonRpc.isConnected, isLoggedIn, tunnelState),
     );
   }
 

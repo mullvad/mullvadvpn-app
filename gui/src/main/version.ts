@@ -5,20 +5,16 @@ import { ICurrentAppVersionInfo } from '../shared/ipc-types';
 import log from '../shared/logging';
 import {
   InconsistentVersionNotificationProvider,
-  SystemNotification,
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
 } from '../shared/notifications/notification';
+import { DaemonRpc } from './daemon-rpc';
 import { IpcMainEventChannel } from './ipc-event-channel';
+import { NotificationSender } from './notification-controller';
 
 const GUI_VERSION = app.getVersion().replace('.0', '');
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
 const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
-
-export interface VersionDelegate {
-  notify(notification: SystemNotification): void;
-  getVersionInfo(): Promise<IAppVersionInfo>;
-}
 
 export default class Version {
   private currentVersionData: ICurrentAppVersionInfo = {
@@ -34,7 +30,8 @@ export default class Version {
   };
 
   public constructor(
-    private delegate: VersionDelegate,
+    private delegate: NotificationSender,
+    private daemonRpc: DaemonRpc,
     private updateNotificationDisabled: boolean,
   ) {}
 
@@ -115,7 +112,7 @@ export default class Version {
 
   public async fetchLatestVersion() {
     try {
-      this.setLatestVersion(await this.delegate.getVersionInfo());
+      this.setLatestVersion(await this.daemonRpc.getVersionInfo());
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to request the version info: ${error.message}`);

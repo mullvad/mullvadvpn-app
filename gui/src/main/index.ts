@@ -1,5 +1,5 @@
 import { exec } from 'child_process';
-import { app, dialog, nativeTheme, session, shell, systemPreferences } from 'electron';
+import { app, nativeTheme, session, shell, systemPreferences } from 'electron';
 import fs from 'fs';
 import * as path from 'path';
 import util from 'util';
@@ -33,14 +33,17 @@ import {
   IpcInput,
   OLD_LOG_FILES,
 } from './logging';
-import NotificationController, { NotificationControllerDelegate } from './notification-controller';
+import NotificationController, {
+  NotificationControllerDelegate,
+  NotificationSender,
+} from './notification-controller';
 import * as problemReport from './problem-report';
 import ReconnectionBackoff from './reconnection-backoff';
 import RelayList from './relay-list';
 import Settings, { SettingsDelegate } from './settings';
 import TunnelStateHandler, { TunnelStateHandlerDelegate } from './tunnel-state';
 import UserInterface, { UserInterfaceDelegate } from './user-interface';
-import Version, { VersionDelegate } from './version';
+import Version from './version';
 
 const execAsync = util.promisify(exec);
 
@@ -70,24 +73,21 @@ const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICA
 
 class ApplicationMain
   implements
+    NotificationSender,
     NotificationControllerDelegate,
     UserInterfaceDelegate,
-    VersionDelegate,
     TunnelStateHandlerDelegate,
     SettingsDelegate,
     AccountDelegate {
   private daemonRpc = new DaemonRpc();
+
   private notificationController = new NotificationController(this);
-  private version = new Version(this, UPDATE_NOTIFICATION_DISABLED);
+  private version = new Version(this, this.daemonRpc, UPDATE_NOTIFICATION_DISABLED);
   private settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
   private relayList = new RelayList();
   private userInterface?: UserInterface;
   private account: Account = new Account(this, this.daemonRpc);
   private tunnelState = new TunnelStateHandler(this);
-
-  // True while file pickers are displayed which is used to decide if the Browser window should be
-  // hidden when losing focus.
-  private browsingFiles = false;
 
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
@@ -208,6 +208,14 @@ class ApplicationMain
   };
 
   public isLoggedIn = () => this.account.isLoggedIn();
+
+  public notify = (notification: SystemNotification) => {
+    this.notificationController.notify(
+      notification,
+      this.userInterface?.isWindowVisible() ?? false,
+      this.settings.gui.enableSystemNotifications,
+    );
+  };
 
   private addSecondInstanceEventHandler() {
     app.on('second-instance', (_event, argv, _workingDirectory) => {
@@ -427,8 +435,11 @@ class ApplicationMain
       );
       await this.userInterface?.updateTrayTheme();
 
-      this.userInterface?.setTrayContextMenu();
-      this.userInterface?.setTrayTooltip();
+      this.userInterface?.updateTray(
+        this.account.isLoggedIn(),
+        this.tunnelState.tunnelState,
+        this.settings.blockWhenDisconnected,
+      );
 
       if (process.platform === 'win32') {
         nativeTheme.on('updated', async () => {
@@ -452,7 +463,10 @@ class ApplicationMain
       }
     }
 
-    await this.userInterface.initializeWindow();
+    await this.userInterface.initializeWindow(
+      this.account.isLoggedIn(),
+      this.tunnelState.tunnelState,
+    );
   };
 
   private onDaemonConnected = async () => {
@@ -596,9 +610,7 @@ class ApplicationMain
 
     if (wasConnected) {
       // update the tray icon to indicate that the computer is not secure anymore
-      this.userInterface?.updateTrayIcon({ state: 'disconnected' }, false);
-      this.userInterface?.setTrayContextMenu();
-      this.userInterface?.setTrayTooltip();
+      this.userInterface?.updateTray(false, { state: 'disconnected' }, false);
 
       // notify renderer process
       IpcMainEventChannel.daemon.notifyDisconnected?.();
@@ -664,7 +676,8 @@ class ApplicationMain
     const oldSettings = this.settings;
     this.settings.handleNewSettings(newSettings);
 
-    this.userInterface?.updateTrayIcon(
+    this.userInterface?.updateTray(
+      this.account.isLoggedIn(),
       this.tunnelState.tunnelState,
       newSettings.blockWhenDisconnected,
     );
@@ -773,15 +786,6 @@ class ApplicationMain
         await shell.openExternal(url);
       }
     });
-    IpcMainEventChannel.app.handleShowOpenDialog(async (options) => {
-      this.browsingFiles = true;
-      const response = await dialog.showOpenDialog({
-        defaultPath: app.getPath('home'),
-        ...options,
-      });
-      this.browsingFiles = false;
-      return response;
-    });
 
     IpcMainEventChannel.navigation.handleSetHistory((history) => {
       this.navigationHistory = history;
@@ -791,6 +795,7 @@ class ApplicationMain
     });
 
     problemReport.registerIpcListeners();
+    this.userInterface!.registerIpcListeners();
     this.settings.registerIpcListeners();
     this.account.registerIpcListeners();
 
@@ -839,8 +844,11 @@ class ApplicationMain
       relayLocations: relayLocationsTranslations,
     };
 
-    this.userInterface?.setTrayContextMenu();
-    this.userInterface?.setTrayTooltip();
+    this.userInterface?.updateTray(
+      this.account.isLoggedIn(),
+      this.tunnelState.tunnelState,
+      this.settings.blockWhenDisconnected,
+    );
   }
 
   private blockPermissionRequests() {
@@ -956,8 +964,6 @@ class ApplicationMain
       return shell.openExternal(url);
     }
   };
-  public isWindowVisible = () => this.userInterface?.isWindowVisible() ?? false;
-  public areSystemNotificationsEnabled = () => this.settings.gui.enableSystemNotifications;
 
   // UserInterfaceDelegate
   public cancelPendingNotifications = () =>
@@ -965,31 +971,26 @@ class ApplicationMain
   public resetTunnelStateAnnouncements = () =>
     this.notificationController.resetTunnelStateAnnouncements();
   public isUnpinnedWindow = () => this.settings.gui.unpinnedWindow;
-  public checkVolumes = () => this.daemonRpc.checkVolumes();
   public getAppQuitStage = () => this.quitStage;
-  public isConnectedToDaemon = () => this.daemonRpc.isConnected;
-  public getTunnelState = () => this.tunnelState.tunnelState;
   public updateAccountData = () => this.account.updateAccountData();
-  public isBrowsingFiles = () => this.browsingFiles;
   public getAccountData = () => this.account.accountData;
 
   // VersionDelegate
-  public notify = (notification: SystemNotification) => {
-    this.notificationController.notify(notification);
-  };
-  public getVersionInfo = () => this.daemonRpc.getVersionInfo();
 
   // TunnelStateHandlerDelegate
   public handleTunnelStateUpdate = (tunnelState: TunnelState) => {
-    this.userInterface?.updateTrayIcon(tunnelState, this.settings.blockWhenDisconnected);
-
-    this.userInterface?.setTrayContextMenu();
-    this.userInterface?.setTrayTooltip();
+    this.userInterface?.updateTray(
+      this.account.isLoggedIn(),
+      tunnelState,
+      this.settings.blockWhenDisconnected,
+    );
 
     this.notificationController.notifyTunnelState(
       tunnelState,
       this.settings.blockWhenDisconnected,
       this.settings.splitTunnel.enableExclusions && this.settings.splitTunnel.appsList.length > 0,
+      this.userInterface?.isWindowVisible() ?? false,
+      this.settings.gui.enableSystemNotifications,
       this.account.accountData?.expiry,
     );
 
@@ -1003,12 +1004,26 @@ class ApplicationMain
   // SettingsDelegate
   public handleMonochromaticIconChange = (value: boolean) =>
     this.userInterface?.setUseMonochromaticTrayIcon(value) ?? Promise.resolve();
-  public handleUnpinnedWindowChange = () => void this.userInterface?.recreateWindow();
+  public handleUnpinnedWindowChange = () =>
+    void this.userInterface?.recreateWindow(
+      this.account.isLoggedIn(),
+      this.tunnelState.tunnelState,
+    );
 
   // AccountDelegate
   public getLocale = () => this.locale;
-  public isPerformingPostUpgradeCheck = () => this.isPerformingPostUpgrade;
-  public setTrayContextMenu = () => this.userInterface?.setTrayContextMenu();
+  public getTunnelState = () => this.tunnelState.tunnelState;
+  public onDeviceEvent = () => {
+    this.userInterface?.updateTray(
+      this.account.isLoggedIn(),
+      this.tunnelState.tunnelState,
+      this.settings.blockWhenDisconnected,
+    );
+
+    if (this.isPerformingPostUpgrade) {
+      void this.performPostUpgradeCheck();
+    }
+  };
   /* eslint-enable @typescript-eslint/member-ordering */
 }
 
