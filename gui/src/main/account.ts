@@ -11,21 +11,21 @@ import log from '../shared/logging';
 import {
   AccountExpiredNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
-  SystemNotification,
 } from '../shared/notifications/notification';
 import { Scheduler } from '../shared/scheduler';
 import AccountDataCache from './account-data-cache';
 import { DaemonRpc } from './daemon-rpc';
 import { InvalidAccountError } from './errors';
 import { IpcMainEventChannel } from './ipc-event-channel';
+import { NotificationSender } from './notification-controller';
+import { TunnelStateProvider } from './tunnel-state';
+
+export interface LocaleProvider {
+  getLocale(): string;
+}
 
 export interface AccountDelegate {
-  notify(notification: SystemNotification): void;
-  getTunnelState(): TunnelState;
-  getLocale(): string;
-  isPerformingPostUpgradeCheck(): boolean;
-  performPostUpgradeCheck(): void;
-  setTrayContextMenu(): void;
+  onDeviceEvent(): void;
 }
 
 export default class Account {
@@ -47,7 +47,10 @@ export default class Account {
 
   private deviceStateValue?: DeviceState;
 
-  public constructor(private delegate: AccountDelegate, private daemonRpc: DaemonRpc) {}
+  public constructor(
+    private delegate: AccountDelegate & TunnelStateProvider & LocaleProvider & NotificationSender,
+    private daemonRpc: DaemonRpc,
+  ) {}
 
   public get accountData() {
     return this.accountDataValue;
@@ -123,10 +126,6 @@ export default class Account {
   public handleDeviceEvent(deviceEvent: DeviceEvent) {
     this.deviceStateValue = deviceEvent.deviceState;
 
-    if (this.delegate.isPerformingPostUpgradeCheck()) {
-      void this.delegate.performPostUpgradeCheck();
-    }
-
     switch (deviceEvent.deviceState.type) {
       case 'logged in':
         this.accountDataCache.fetch(deviceEvent.deviceState.accountAndDevice.accountToken);
@@ -138,7 +137,7 @@ export default class Account {
     }
 
     void this.updateAccountHistory();
-    this.delegate.setTrayContextMenu();
+    this.delegate.onDeviceEvent();
 
     IpcMainEventChannel.account.notifyDevice?.(deviceEvent);
   }

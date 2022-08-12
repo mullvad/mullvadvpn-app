@@ -2,6 +2,10 @@ import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/c
 import { TunnelState } from '../shared/daemon-rpc-types';
 import { Scheduler } from '../shared/scheduler';
 
+export interface TunnelStateProvider {
+  getTunnelState(): TunnelState;
+}
+
 export interface TunnelStateHandlerDelegate {
   handleTunnelStateUpdate(tunnelState: TunnelState): void;
 }
