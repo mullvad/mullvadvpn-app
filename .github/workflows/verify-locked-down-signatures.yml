@@ -5,6 +5,7 @@ on:
             - .github/workflows/verify-locked-down-signatures.yml
             - Cargo.lock
             - gui/package-lock.json
+            - wireguard/libwg/go.sum
             - ci/keys/
             - ci/verify-locked-down-signatures.sh
             - ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
