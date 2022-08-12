@@ -48,7 +48,13 @@ const UDP2TCP_PORTS: [u16; 3] = [80, 443, 5001];
 /// How much to favor bridges that are closer to the selected relay location. Each
 /// bridge is assigned a base weight based on its rank order proximity to the location.
 /// Its final weight equals `(base weight) ^ BRIDGE_PROXIMITY_BIAS`.
-const BRIDGE_PROXIMITY_BIAS: u32 = 3;
+const BRIDGE_PROXIMITY_BIAS: u32 = 1;
+
+/// Minimum number of bridges to keep for selection when filtering by distance.
+const MIN_BRIDGE_COUNT: usize = 5;
+
+/// Max distance of bridges to consider for selection (km).
+const MAX_BRIDGE_DISTANCE: f64 = 1500f64;
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -812,7 +818,7 @@ impl RelaySelector {
         constraints: &InternalBridgeConstraints,
         location: Option<T>,
     ) -> Option<(ProxySettings, Relay)> {
-        let mut matching_relays: Vec<Relay> = self
+        let matching_relays: Vec<Relay> = self
             .parsed_relays
             .lock()
             .relays()
@@ -827,20 +833,48 @@ impl RelaySelector {
 
         let relay = if let Some(location) = location {
             let location = location.into();
-            matching_relays.sort_by_cached_key(|relay: &Relay| {
-                relay.location.as_ref().unwrap().distance_from(&location) as usize
-            });
+
+            #[derive(Debug, Clone)]
+            struct RelayWithDistance {
+                relay: Relay,
+                distance: f64,
+            }
+
+            let mut matching_relays: Vec<RelayWithDistance> = matching_relays
+                .into_iter()
+                .map(|relay| {
+                    RelayWithDistance {
+                        distance: relay.location.as_ref().unwrap().distance_from(&location),
+                        relay,
+                    }
+                })
+                .collect();
+            matching_relays.sort_unstable_by_key(|relay: &RelayWithDistance| relay.distance as usize);
+
+            matching_relays = matching_relays
+                .into_iter()
+                .enumerate()
+                .filter_map(|(i, relay)| {
+                    if i < MIN_BRIDGE_COUNT || relay.distance <= MAX_BRIDGE_DISTANCE {
+                        return Some(relay);
+                    }
+                    None
+                })
+                .collect();
+
             let max_weight = matching_relays.len();
-            let weight_fn = |index, _relay: &Relay| {
+            let weight_fn = |index, _relay: &RelayWithDistance| {
                 let w = (max_weight - index) as u64;
                 w.saturating_pow(BRIDGE_PROXIMITY_BIAS)
             };
             self.pick_random_relay_fn(&matching_relays, weight_fn)
+                .cloned()
+                .map(|relay_with_distance| relay_with_distance.relay)
         } else {
-            self.pick_random_relay(&matching_relays)
+            self.pick_random_relay(&matching_relays).cloned()
         };
         relay.and_then(|relay| {
-            self.pick_random_bridge(&self.parsed_relays.lock().locations.bridge, relay)
+            self.pick_random_bridge(&self.parsed_relays.lock().locations.bridge, &relay)
                 .map(|bridge| (bridge, relay.clone()))
         })
     }
@@ -1081,11 +1115,11 @@ impl RelaySelector {
     /// If all of the relays have a weight of 0, one will be picked at random without bias,
     /// otherwise roulette wheel selection will be used to pick only relays with non-zero
     /// weights.
-    fn pick_random_relay_fn<'a>(
+    fn pick_random_relay_fn<'a, RelayType>(
         &self,
-        relays: &'a [Relay],
-        weight_fn: impl Fn(usize, &Relay) -> u64,
-    ) -> Option<&'a Relay> {
+        relays: &'a [RelayType],
+        weight_fn: impl Fn(usize, &RelayType) -> u64,
+    ) -> Option<&'a RelayType> {
         let total_weight: u64 = relays
             .iter()
             .enumerate()
