@@ -21,7 +21,7 @@ extension AppStorePaymentManager {
         case storePayment(Swift.Error)
 
         /// Failure to read the AppStore receipt.
-        case readReceipt(AppStoreReceipt.Error)
+        case readReceipt(Swift.Error)
 
         /// Failure to send the AppStore receipt to backend.
         case sendReceipt(REST.Error)
