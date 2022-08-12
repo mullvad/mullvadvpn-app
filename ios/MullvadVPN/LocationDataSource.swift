@@ -25,11 +25,12 @@ class LocationDataSource: NSObject, UITableViewDataSource {
 
     typealias CellProviderBlock = (UITableView, IndexPath, LocationDataSourceItemProtocol)
         -> UITableViewCell?
-    typealias CellUpdaterBlock = (UITableView, IndexPath, LocationDataSourceItemProtocol) -> Void
+    typealias CellConfiguratorBlock = (UITableViewCell, IndexPath, LocationDataSourceItemProtocol)
+        -> Void
 
     private let tableView: UITableView
     private let cellProvider: CellProviderBlock
-    private let cellUpdater: CellUpdaterBlock
+    private let cellConfigurator: CellConfiguratorBlock
 
     private(set) var selectedRelayLocation: RelayLocation?
     private var lastShowHiddenParents = false
@@ -49,11 +50,12 @@ class LocationDataSource: NSObject, UITableViewDataSource {
     init(
         tableView: UITableView,
         cellProvider: @escaping CellProviderBlock,
-        cellUpdater: @escaping CellUpdaterBlock
+        cellConfigurator: @escaping CellConfiguratorBlock
     ) {
         self.tableView = tableView
         self.cellProvider = cellProvider
-        self.cellUpdater = cellUpdater
+        self.cellConfigurator = cellConfigurator
+
         super.init()
 
         tableView.dataSource = self
@@ -354,18 +356,18 @@ class LocationDataSource: NSObject, UITableViewDataSource {
                 return
             }
             if changeSet.insertIndexPaths.count >= visibleIndexPaths.count {
-                tableView?.scrollToRow(at: lastUpdatedIndexPath, at: .top, animated: true)
+                tableView?.scrollToRow(at: lastUpdatedIndexPath, at: .top, animated: animated)
             } else {
-                tableView?.scrollToRow(
-                    at: lastInsertedIndexPath,
-                    at: .bottom,
-                    animated: true
-                )
+                tableView?.scrollToRow(at: lastInsertedIndexPath, at: .bottom, animated: animated)
             }
         }
 
         if animated {
-            guard let changeSet = applyChanges() else { return }
+            guard let changeSet = applyChanges() else {
+                completion?()
+                return
+            }
+
             tableView.performBatchUpdates {
                 tableView.insertRows(at: changeSet.insertIndexPaths, with: .fade)
                 tableView.deleteRows(at: changeSet.deleteIndexPaths, with: .fade)
@@ -374,7 +376,10 @@ class LocationDataSource: NSObject, UITableViewDataSource {
                         assertionFailure()
                         return
                     }
-                    cellUpdater(tableView, indexPath, item)
+
+                    if let cell = tableView.cellForRow(at: indexPath) {
+                        cellConfigurator(cell, indexPath, item)
+                    }
                 }
             } completion: { finished in
                 scrollToInsertedIndexPaths(changeSet)
@@ -426,7 +431,11 @@ class LocationDataSource: NSObject, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         assert(indexPath.section == 0)
         let item = item(for: indexPath)!
-        return cellProvider(tableView, indexPath, item)!
+        let cell = cellProvider(tableView, indexPath, item)!
+
+        cellConfigurator(cell, indexPath, item)
+
+        return cell
     }
 }
 
