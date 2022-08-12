@@ -27,6 +27,7 @@ class SceneDelegate: UIResponder {
     private var connectController: ConnectViewController?
     private weak var settingsNavController: SettingsNavigationController?
     private var lastLoginAction: LoginAction?
+    private var accountDataThrottling = AccountDataThrottling()
 
     override init() {
         super.init()
@@ -73,6 +74,8 @@ class SceneDelegate: UIResponder {
 
         RelayCache.Tracker.shared.addObserver(self)
         NotificationManager.shared.delegate = self
+
+        accountDataThrottling.requestUpdate(condition: .always)
     }
 
     private func setShowsPrivacyOverlay(_ showOverlay: Bool) {
@@ -114,6 +117,14 @@ class SceneDelegate: UIResponder {
 
     @objc private func sceneDidBecomeActive() {
         TunnelManager.shared.refreshTunnelStatus()
+
+        if isSceneConfigured {
+            accountDataThrottling.requestUpdate(
+                condition: settingsNavController == nil
+                    ? .whenCloseToExpiryAndBeyond
+                    : .always
+            )
+        }
 
         RelayCache.Tracker.shared.startPeriodicUpdates()
         TunnelManager.shared.startPeriodicPrivateKeyRotation()
@@ -184,13 +195,12 @@ extension SceneDelegate: RootContainerViewControllerDelegate {
     ) {
         // Check if settings controller is already presented.
         if let settingsNavController = settingsNavController {
-            if let route = route {
-                settingsNavController.navigate(to: route, animated: animated)
-            } else {
-                settingsNavController.popToRootViewController(animated: animated)
-            }
+            settingsNavController.navigate(to: route ?? .root, animated: animated)
         } else {
             let navController = makeSettingsNavigationController(route: route)
+
+            // Refresh account data each time user opens settings
+            accountDataThrottling.requestUpdate(condition: .always)
 
             // On iPad the login controller can be presented modally above the root container.
             // in that case we have to use the presented controller to present the next modal.
@@ -488,6 +498,55 @@ extension SceneDelegate {
             fatalError()
         }
     }
+
+    private func showRevokedDeviceView() {
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+            guard let loginController = rootContainer.viewControllers.first as? LoginViewController
+            else {
+                return
+            }
+
+            loginController.reset()
+
+            let viewControllers = [
+                loginController,
+                makeRevokedDeviceController(),
+            ]
+
+            rootContainer.setViewControllers(viewControllers, animated: true)
+
+        case .pad:
+            guard let loginController = modalRootContainer.viewControllers
+                .first as? LoginViewController
+            else {
+                return
+            }
+
+            loginController.reset()
+
+            let viewControllers = [
+                loginController,
+                makeRevokedDeviceController(),
+            ]
+
+            let didDismissSettings = {
+                self.showSplitViewMaster(false, animated: true)
+                self.presentModalRootContainerIfNeeded(animated: true)
+            }
+
+            modalRootContainer.setViewControllers(viewControllers, animated: isModalRootPresented)
+
+            if let settingsNavController = settingsNavController {
+                settingsNavController.dismiss(animated: true, completion: didDismissSettings)
+            } else {
+                didDismissSettings()
+            }
+
+        default:
+            fatalError()
+        }
+    }
 }
 
 // MARK: - LoginViewControllerDelegate
@@ -606,6 +665,19 @@ extension SceneDelegate: DeviceManagementViewControllerDelegate {
 // MARK: - SettingsNavigationControllerDelegate
 
 extension SceneDelegate: SettingsNavigationControllerDelegate {
+    func settingsNavigationController(
+        _ controller: SettingsNavigationController,
+        willNavigateTo route: SettingsNavigationRoute
+    ) {
+        switch route {
+        case .root, .account:
+            accountDataThrottling.requestUpdate(condition: .always)
+
+        default:
+            break
+        }
+    }
+
     func settingsNavigationController(
         _ controller: SettingsNavigationController,
         didFinishWithReason reason: SettingsDismissReason
@@ -771,53 +843,16 @@ extension SceneDelegate: TunnelObserver {
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
-        guard deviceState == .revoked else { return }
+        switch deviceState {
+        case .loggedIn:
+            break
 
-        switch UIDevice.current.userInterfaceIdiom {
-        case .phone:
-            guard let loginController = rootContainer.viewControllers.first as? LoginViewController
-            else {
-                return
-            }
+        case .loggedOut:
+            accountDataThrottling.reset()
 
-            loginController.reset()
-
-            let viewControllers = [
-                loginController,
-                makeRevokedDeviceController(),
-            ]
-
-            rootContainer.setViewControllers(viewControllers, animated: true)
-
-        case .pad:
-            guard let loginController = modalRootContainer.viewControllers
-                .first as? LoginViewController
-            else {
-                return
-            }
-
-            loginController.reset()
-
-            let viewControllers = [
-                loginController,
-                makeRevokedDeviceController(),
-            ]
-
-            let didDismissSettings = {
-                self.showSplitViewMaster(false, animated: true)
-                self.presentModalRootContainerIfNeeded(animated: true)
-            }
-
-            modalRootContainer.setViewControllers(viewControllers, animated: isModalRootPresented)
-
-            if let settingsNavController = settingsNavController {
-                settingsNavController.dismiss(animated: true, completion: didDismissSettings)
-            } else {
-                didDismissSettings()
-            }
-
-        default:
-            fatalError()
+        case .revoked:
+            accountDataThrottling.reset()
+            showRevokedDeviceView()
         }
     }
 

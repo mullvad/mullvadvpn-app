@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 
 enum SettingsNavigationRoute {
+    case root
     case account
     case preferences
     case problemReport
@@ -21,6 +22,11 @@ enum SettingsDismissReason {
 }
 
 protocol SettingsNavigationControllerDelegate: AnyObject {
+    func settingsNavigationController(
+        _ controller: SettingsNavigationController,
+        willNavigateTo route: SettingsNavigationRoute
+    )
+
     func settingsNavigationController(
         _ controller: SettingsNavigationController,
         didFinishWithReason reason: SettingsDismissReason
@@ -43,10 +49,7 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
     init() {
         super.init(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
 
-        let settingsController = SettingsViewController()
-        settingsController.delegate = self
-
-        pushViewController(settingsController, animated: false)
+        setViewControllers([makeViewController(for: .root)], animated: false)
     }
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -63,9 +66,14 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
         super.viewDidLoad()
 
         navigationBar.prefersLargeTitles = true
+    }
 
-        // Update account expiry
-        TunnelManager.shared.updateAccountData()
+    override func willPop(navigationItem: UINavigationItem) {
+        let index = viewControllers.firstIndex { $0.navigationItem == navigationItem }
+
+        if viewControllers.count > 1, index == 1 {
+            settingsDelegate?.settingsNavigationController(self, willNavigateTo: .root)
+        }
     }
 
     // MARK: - SettingsViewControllerDelegate
@@ -83,7 +91,15 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
     // MARK: - Navigation
 
     func navigate(to route: SettingsNavigationRoute, animated: Bool) {
+        guard route != .root else {
+            popToRootViewController(animated: animated)
+            return
+        }
+
+        settingsDelegate?.settingsNavigationController(self, willNavigateTo: route)
+
         let nextViewController = makeViewController(for: route)
+
         if let rootController = viewControllers.first, viewControllers.count > 1 {
             setViewControllers([rootController, nextViewController], animated: animated)
         } else {
@@ -93,6 +109,11 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
 
     private func makeViewController(for route: SettingsNavigationRoute) -> UIViewController {
         switch route {
+        case .root:
+            let settingsController = SettingsViewController()
+            settingsController.delegate = self
+            return settingsController
+
         case .account:
             let controller = AccountViewController()
             controller.delegate = self
