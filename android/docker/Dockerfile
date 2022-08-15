@@ -43,17 +43,19 @@ RUN cd /tmp && \
 ENV ANDROID_NDK_HOME="/opt/android/android-ndk-r20b" \
     NDK_TOOLCHAIN_DIR="/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin"
 
-# Install Go
+# Install golang
+ENV GOLANG_VERSION 1.18.5
+# Checksum from: https://go.dev/dl/
+ENV GOLANG_HASH 9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
 COPY goruntime-boottime-over-monotonic.diff /tmp/goruntime-boottime-over-monotonic.diff
-
 RUN cd /tmp && \
-    curl -sf -L -O https://dl.google.com/go/go1.16.linux-amd64.tar.gz && \
-    echo "013a489ebb3e24ef3d915abe5b94c3286c070dfe0818d5bca8108f1d6e8440d2 go1.16.linux-amd64.tar.gz" | sha256sum -c && \
+    curl -sf -L -o go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
+    echo "$GOLANG_HASH go.tgz" | sha256sum -c && \
     cd /opt && \
-    tar -xzf /tmp/go1.16.linux-amd64.tar.gz && \
+    tar -xzf /tmp/go.tgz && \
     patch -p1 -f -N -r- -d "/opt/go" < /tmp/goruntime-boottime-over-monotonic.diff && \
     mkdir /opt/go/go-path && \
-    rm /tmp/goruntime-boottime-over-monotonic.diff /tmp/go1.16.linux-amd64.tar.gz
+    rm /tmp/goruntime-boottime-over-monotonic.diff /tmp/go.tgz
 
 ENV GOROOT=/opt/go GOPATH=/opt/go/go-path PATH=${PATH}:/opt/go/bin
 
@@ -72,7 +74,7 @@ ENV PATH="${PATH}:/root/.cargo/bin" \
 
 RUN curl -sf -L https://sh.rustup.rs > /tmp/rustup.sh && \
     cd /tmp && \
-    echo "a3cb081f88a6789d104518b30d4aa410009cd08c3822a1226991d6cf0442a0f8 rustup.sh" | sha256sum -c && \
+    echo "173f4881e2de99ba9ad1acb59e65be01b2a44979d83b6ec648d0d22f8654cbce rustup.sh" | sha256sum -c && \
     chmod +x rustup.sh && \
     ./rustup.sh -y && \
     rm rustup.sh && \

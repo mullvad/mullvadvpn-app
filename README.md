@@ -291,7 +291,7 @@ storePassword = keystore-password
    npm install -g npm
    ```
 
-1. Install Go (ideally version `1.16`) by following the [official
+1. Install Go (ideally version `1.18`) by following the [official
    instructions](https://golang.org/doc/install).  Newer versions may work
    too. Since `cgo` is being used, make sure to have a C compiler in your path. [*On
    Windows*](https://github.com/golang/go/wiki/cgo#windows) `mingw`'s `gcc` compiler should work.
@@ -337,9 +337,6 @@ npm ci
 After that copy the files from `gui/src/main/management_interface/` and `gui/build/src/main/management_interface/`
 directories into a single directory on your Apple Silicon Mac, and set the value of
 `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` to that directory while running the main build.
-
-Make sure that the version of Go on your Mac is 1.16 (the first version to add
-[support](https://tip.golang.org/doc/go1.16#darwin) for Apple Silicon) or newer.
 
 Install `protobuf` by running:
 

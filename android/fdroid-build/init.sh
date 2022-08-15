@@ -19,11 +19,14 @@ rustup target add \
     aarch64-linux-android \
     armv7-linux-androideabi
 
-# Install Go
+# Install golang
+GOLANG_VERSION="1.18.5"
+# Checksum from: https://golang.org/dl/
+GOLANG_HASH="9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2"
 cd "$HOME"
-curl -sf -L -O https://golang.org/dl/go1.16.linux-amd64.tar.gz
-echo "013a489ebb3e24ef3d915abe5b94c3286c070dfe0818d5bca8108f1d6e8440d2 go1.16.linux-amd64.tar.gz" | sha256sum -c
-tar -xzvf go1.16.linux-amd64.tar.gz
+curl -sf -L -o go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
+echo "$GOLANG_HASH go.tgz" | sha256sum -c
+tar -xzvf go.tgz
 patch -p1 -f -N -r- -d "$HOME/go" < "$REPO_DIR/wireguard/libwg/goruntime-boottime-over-monotonic.diff"
 
 # Configure Cargo for cross-compilation

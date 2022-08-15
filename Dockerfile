@@ -14,10 +14,10 @@ RUN apt update -y && apt install build-essential \
 
 
 # Install golang
-ENV GOLANG_VERSION 1.16
-# Found on https://golang.org/dl/
-ENV GOLANG_HASH 013a489ebb3e24ef3d915abe5b94c3286c070dfe0818d5bca8108f1d6e8440d2
-RUN curl -Lo go.tgz https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
+ENV GOLANG_VERSION 1.18.5
+# Checksum from: https://go.dev/dl/
+ENV GOLANG_HASH 9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
+RUN curl -Lo go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
 	echo $(sha256sum go.tgz) && \
 	echo "${GOLANG_HASH} go.tgz" | sha256sum -c - && \
 	tar -C /usr/local -xzf go.tgz && \
