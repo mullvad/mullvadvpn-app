@@ -27,20 +27,6 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         let content: String
     }
 
-    enum Error: ChainedError {
-        case logFileDoesNotExist(String)
-        case invalidLogFileURL(URL)
-
-        var errorDescription: String? {
-            switch self {
-            case let .logFileDoesNotExist(path):
-                return "Log file does not exist: \(path)."
-            case let .invalidLogFileURL(url):
-                return "Invalid log file URL: \(url.absoluteString)."
-            }
-        }
-    }
-
     let redactCustomStrings: [String]
     let applicationGroupContainers: [URL]
     let metadata: Metadata
@@ -75,8 +61,8 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         }
     }
 
-    func addError<ErrorType: ChainedError>(message: String, error: ErrorType) {
-        let redactedError = redact(string: error.displayChain())
+    func addError(message: String, error: String) {
+        let redactedError = redact(string: error)
 
         logs.append(LogAttachment(label: message, content: redactedError))
     }
@@ -105,20 +91,22 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
 
     private func addSingleLogFile(_ fileURL: URL) {
         guard fileURL.isFileURL else {
-            addError(message: fileURL.absoluteString, error: Error.invalidLogFileURL(fileURL))
+            addError(
+                message: fileURL.absoluteString,
+                error: "Invalid log file URL: \(fileURL.absoluteString)."
+            )
             return
         }
 
         let path = fileURL.path
         let redactedPath = redact(string: path)
 
-        do {
-            let lossyString = try Self.readFileLossy(path: path, maxBytes: kLogMaxReadBytes)
+        if let lossyString = Self.readFileLossy(path: path, maxBytes: kLogMaxReadBytes) {
             let redactedString = redact(string: lossyString)
 
             logs.append(LogAttachment(label: redactedPath, content: redactedString))
-        } catch {
-            addError(message: redactedPath, error: AnyChainedError(error))
+        } else {
+            addError(message: redactedPath, error: "Log file does not exist: \(path).")
         }
     }
 
@@ -134,9 +122,9 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         ]
     }
 
-    private static func readFileLossy(path: String, maxBytes: UInt64) throws -> String {
+    private static func readFileLossy(path: String, maxBytes: UInt64) -> String? {
         guard let fileHandle = FileHandle(forReadingAtPath: path) else {
-            throw Error.logFileDoesNotExist(path)
+            return nil
         }
 
         let endOfFileOffset = fileHandle.seekToEndOfFile()

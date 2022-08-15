@@ -9,29 +9,13 @@
 import Foundation
 import StoreKit
 
-enum AppStoreReceipt {
-    enum Error: ChainedError {
-        /// AppStore receipt file does not exist or file URL is not available.
-        case doesNotExist
-
-        /// IO error.
-        case io(Swift.Error)
-
-        /// Failure to refresh the receipt from AppStore.
-        case refresh(Swift.Error)
-
-        var errorDescription: String? {
-            switch self {
-            case .doesNotExist:
-                return "AppStore receipt file does not exist on disk."
-            case .io:
-                return "Read error."
-            case .refresh:
-                return "Receipt refresh error."
-            }
-        }
+struct AppStoreReceiptNotFound: LocalizedError {
+    var errorDescription: String? {
+        return "AppStore receipt file does not exist on disk."
     }
+}
 
+enum AppStoreReceipt {
     /// Internal operation queue.
     private static let operationQueue: OperationQueue = {
         let queue = AsyncOperationQueue()
@@ -63,9 +47,7 @@ enum AppStoreReceipt {
     }
 }
 
-private class FetchAppStoreReceiptOperation: ResultOperation<Data, AppStoreReceipt.Error>,
-    SKRequestDelegate
-{
+private class FetchAppStoreReceiptOperation: ResultOperation<Data, Error>, SKRequestDelegate {
     private var request: SKReceiptRefreshRequest?
     private let receiptProperties: [String: Any]?
     private let forceRefresh: Bool
@@ -93,13 +75,15 @@ private class FetchAppStoreReceiptOperation: ResultOperation<Data, AppStoreRecei
         }
 
         // Read AppStore receipt from disk.
-        let result = readReceiptFromDisk()
+        do {
+            let data = try readReceiptFromDisk()
 
-        // Pull receipt from AppStore if it's not cached locally.
-        if case .failure(.doesNotExist) = result {
+            finish(completion: .success(data))
+        } catch is AppStoreReceiptNotFound {
+            // Pull receipt from AppStore if it's not cached locally.
             startRefreshRequest()
-        } else {
-            finish(completion: OperationCompletion(result: result))
+        } catch {
+            finish(completion: .failure(error))
         }
     }
 
@@ -137,32 +121,28 @@ private class FetchAppStoreReceiptOperation: ResultOperation<Data, AppStoreRecei
             return
         }
 
-        let result: Result<Data, AppStoreReceipt.Error>
-
         if let error = error {
-            result = .failure(.refresh(error))
+            finish(completion: .failure(error))
         } else {
-            result = readReceiptFromDisk()
-        }
+            let result = Result { try readReceiptFromDisk() }
 
-        finish(completion: OperationCompletion(result: result))
+            finish(completion: OperationCompletion(result: result))
+        }
     }
 
-    private func readReceiptFromDisk() -> Result<Data, AppStoreReceipt.Error> {
+    private func readReceiptFromDisk() throws -> Data {
         guard let appStoreReceiptURL = Bundle.main.appStoreReceiptURL else {
-            return .failure(.doesNotExist)
+            throw AppStoreReceiptNotFound()
         }
 
-        let readResult = Result { try Data(contentsOf: appStoreReceiptURL) }
-
-        return readResult.mapError { error -> AppStoreReceipt.Error in
-            if let cocoaError = error as? CocoaError,
-               cocoaError.code == .fileReadNoSuchFile || cocoaError.code == .fileNoSuchFile
-            {
-                return .doesNotExist
-            } else {
-                return .io(error)
-            }
+        do {
+            return try Data(contentsOf: appStoreReceiptURL)
+        } catch let error as CocoaError
+            where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile
+        {
+            throw AppStoreReceiptNotFound()
+        } catch {
+            throw error
         }
     }
 }

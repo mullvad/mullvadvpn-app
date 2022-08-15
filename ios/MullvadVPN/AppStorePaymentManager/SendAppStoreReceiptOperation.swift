@@ -60,7 +60,7 @@ class SendAppStoreReceiptOperation: ResultOperation<
 
             case let .failure(error):
                 self.logger.error(
-                    chainedError: error,
+                    chainedError: AnyChainedError(error),
                     message: "Failed to fetch the AppStore receipt."
                 )
                 self.finish(completion: .failure(.readReceipt(error)))

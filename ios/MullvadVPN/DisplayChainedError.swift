@@ -136,11 +136,14 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
             }
 
         case let .readReceipt(readReceiptError):
-            switch readReceiptError {
-            case let .refresh(storeError):
-                let skErrorMessage = (storeError as? SKError)?.errorDescription ?? storeError
-                    .localizedDescription
-
+            if readReceiptError is AppStoreReceiptNotFound {
+                return NSLocalizedString(
+                    "RECEIPT_NOT_FOUND_ERROR",
+                    tableName: "AppStorePaymentManager",
+                    value: "AppStore receipt is not found on disk.",
+                    comment: ""
+                )
+            } else if let storeError = readReceiptError as? SKError {
                 return String(
                     format: NSLocalizedString(
                         "REFRESH_RECEIPT_ERROR",
@@ -148,9 +151,9 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
                         value: "Cannot refresh the AppStore receipt: %@",
                         comment: ""
                     ),
-                    skErrorMessage
+                    storeError.localizedDescription
                 )
-            case let .io(ioError):
+            } else {
                 return String(
                     format: NSLocalizedString(
                         "READ_RECEIPT_ERROR",
@@ -158,14 +161,7 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
                         value: "Cannot read the AppStore receipt from disk: %@",
                         comment: ""
                     ),
-                    ioError.localizedDescription
-                )
-            case .doesNotExist:
-                return NSLocalizedString(
-                    "RECEIPT_NOT_FOUND_ERROR",
-                    tableName: "AppStorePaymentManager",
-                    value: "AppStore receipt is not found on disk.",
-                    comment: ""
+                    readReceiptError.localizedDescription
                 )
             }
 
