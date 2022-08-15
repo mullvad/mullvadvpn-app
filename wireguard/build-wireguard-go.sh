@@ -70,7 +70,8 @@ function build_windows {
 function unix_target_triple {
     local platform="$(uname -s)"
     if [[ ("${platform}" == "Linux") ]]; then
-        echo "x86_64-unknown-linux-gnu"
+        local arch="$(uname -m)"
+        echo "${arch}-unknown-linux-gnu"
     elif [[ ("${platform}" == "Darwin") ]]; then
         local arch="$(uname -m)"
         if [[ ("${arch}" == "arm64") ]]; then
