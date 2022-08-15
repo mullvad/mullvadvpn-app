@@ -20,7 +20,7 @@ protocol LocationDataSourceItemProtocol {
 
 class LocationDataSource: NSObject, UITableViewDataSource {
     typealias CellProviderBlock = (UITableView, IndexPath, LocationDataSourceItemProtocol)
-        -> UITableViewCell?
+        -> UITableViewCell
     typealias CellConfiguratorBlock = (UITableViewCell, IndexPath, LocationDataSourceItemProtocol)
         -> Void
 
@@ -431,7 +431,7 @@ class LocationDataSource: NSObject, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         assert(indexPath.section == 0)
         let item = item(for: indexPath)!
-        let cell = cellProvider(tableView, indexPath, item)!
+        let cell = cellProvider(tableView, indexPath, item)
 
         cellConfigurator(cell, indexPath, item)
 
