@@ -152,6 +152,8 @@ private extension OutOfTimeViewController {
     func applyViewState(animated: Bool) {
         let isInteractionEnabled = paymentState.allowsViewInteraction
         let purchaseButton = contentView.purchaseButton
+        let isOutOfTime = TunnelManager.shared.deviceState.accountData?.expiry ?? Date()
+            .addingTimeInterval(-1) < Date()
 
         let actions = { [weak self] in
             guard let self = self else { return }

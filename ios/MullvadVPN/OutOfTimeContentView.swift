@@ -10,17 +10,10 @@ import Foundation
 import UIKit
 
 class OutOfTimeContentView: UIView {
-    private lazy var failImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "IconFail"))
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-
-    let statusImageView: StatusImageView = {
-        let imageView = StatusImageView(style: .failure)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.alpha = 0
-        return imageView
+    let statusActivityView: StatusActivityView = {
+        let statusActivityView = StatusActivityView(state: .failure)
+        statusActivityView.translatesAutoresizingMaskIntoConstraints = false
+        return statusActivityView
     }()
 
     private lazy var titleLabel: UILabel = {
@@ -90,7 +83,7 @@ class OutOfTimeContentView: UIView {
     }()
 
     private lazy var topStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [failImageView, titleLabel, bodyLabel])
+        let stackView = UIStackView(arrangedSubviews: [statusActivityView, titleLabel, bodyLabel])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.sectionSpacing

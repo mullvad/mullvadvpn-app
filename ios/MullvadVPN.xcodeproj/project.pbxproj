@@ -311,6 +311,7 @@
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E1187ABF289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABE289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift */; };
 		E158B360285381C60002F069 /* StringFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* StringFormatter.swift */; };
+		E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -601,6 +602,7 @@
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E1187ABE289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RESTCreateApplePaymentResponse+Localization.swift"; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* StringFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatter.swift; sourceTree = "<group>"; };
+		E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusActivityView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -964,6 +966,7 @@
 				587A01FB23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift */,
 				58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
+				E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */,
 				58EF581025D69DB400AEBA94 /* StatusImageView.swift */,
 				5807E2BF2432038B00F5FF30 /* String+Split.swift */,
 				E158B35F285381C60002F069 /* StringFormatter.swift */,
@@ -1361,6 +1364,7 @@
 				58161C9C28352F850028ECFD /* MigrateSettingsOperation.swift in Sources */,
 				E1187ABF289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				58ACF6492655365700ACE4B7 /* PreferencesViewController.swift in Sources */,
+				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
 				58968FAE28743E2000B799DC /* TunnelInteractor.swift in Sources */,
 				588D2FE3248AC27F00E313F7 /* AsyncOperation.swift in Sources */,
 				5820675026E6514100655B05 /* HTTP.swift in Sources */,
