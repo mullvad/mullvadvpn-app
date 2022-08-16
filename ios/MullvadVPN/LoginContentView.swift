@@ -40,11 +40,10 @@ class LoginContentView: UIView {
         return wrapperView
     }()
 
-    let statusImageView: StatusImageView = {
-        let imageView = StatusImageView(style: .failure)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.alpha = 0
-        return imageView
+    let statusActivityView: StatusActivityView = {
+        let statusActivityView = StatusActivityView(state: .hidden)
+        statusActivityView.translatesAutoresizingMaskIntoConstraints = false
+        return statusActivityView
     }()
 
     let contentContainer: UIView = {
@@ -95,13 +94,6 @@ class LoginContentView: UIView {
         return button
     }()
 
-    let activityIndicator: SpinnerActivityIndicatorView = {
-        let view = SpinnerActivityIndicatorView(style: .large)
-        view.tintColor = .white
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
     private var isStatusImageVisible = false
     private var contentContainerBottomConstraint: NSLayoutConstraint?
 
@@ -119,7 +111,6 @@ class LoginContentView: UIView {
                 self?.contentContainerBottomConstraint?.constant = adjustment
 
                 self?.layoutIfNeeded()
-                self?.updateStatusImageVisibility(animated: false)
             }
         )
 
@@ -130,46 +121,13 @@ class LoginContentView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func setStatusImage(style: StatusImageView.Style?, visible: Bool, animated: Bool) {
-        if let style = style {
-            statusImageView.style = style
-        }
-
-        isStatusImageVisible = visible
-        updateStatusImageVisibility(animated: animated)
-    }
-
-    private func updateStatusImageVisibility(animated: Bool) {
-        let statusImageFrame = statusImageView.convert(statusImageView.bounds, to: self)
-        let shouldShow = isStatusImageVisible && safeAreaLayoutGuide.layoutFrame
-            .contains(statusImageFrame)
-
-        let actions = {
-            // Only display the status image if it doesn't overlap the safe area layout guide.
-            if shouldShow {
-                self.statusImageView.alpha = 1
-            } else {
-                self.statusImageView.alpha = 0
-            }
-        }
-
-        if animated {
-            UIView.animate(withDuration: 0.25) {
-                actions()
-            }
-        } else {
-            actions()
-        }
-    }
-
     private func addSubviews() {
         formContainer.addSubview(titleLabel)
         formContainer.addSubview(messageLabel)
         formContainer.addSubview(accountInputGroupWrapper)
         accountInputGroupWrapper.addSubview(accountInputGroup)
 
-        contentContainer.addSubview(activityIndicator)
-        contentContainer.addSubview(statusImageView)
+        contentContainer.addSubview(statusActivityView)
         contentContainer.addSubview(formContainer)
 
         footerContainer.addSubview(footerLabel)
@@ -209,8 +167,11 @@ class LoginContentView: UIView {
             createAccountButton.bottomAnchor
                 .constraint(equalTo: footerContainer.layoutMarginsGuide.bottomAnchor),
 
-            statusImageView.centerXAnchor.constraint(equalTo: contentContainer.centerXAnchor),
-            formContainer.topAnchor.constraint(equalTo: statusImageView.bottomAnchor, constant: 30),
+            statusActivityView.centerXAnchor.constraint(equalTo: contentContainer.centerXAnchor),
+            formContainer.topAnchor.constraint(
+                equalTo: statusActivityView.bottomAnchor,
+                constant: 30
+            ),
             formContainer.centerYAnchor.constraint(
                 equalTo: contentContainer.centerYAnchor,
                 constant: -20
@@ -218,9 +179,6 @@ class LoginContentView: UIView {
             formContainer.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor),
             formContainer.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor),
             formContainer.bottomAnchor.constraint(equalTo: accountInputGroupWrapper.bottomAnchor),
-
-            activityIndicator.centerXAnchor.constraint(equalTo: statusImageView.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: statusImageView.centerYAnchor),
 
             titleLabel.topAnchor.constraint(equalTo: formContainer.topAnchor),
             titleLabel.leadingAnchor
