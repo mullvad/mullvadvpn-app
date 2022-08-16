@@ -19,15 +19,18 @@ protocol LocationDataSourceItemProtocol {
 }
 
 class LocationDataSource: NSObject, UITableViewDataSource {
+    typealias CellProviderBlock = (UITableView, IndexPath, LocationDataSourceItemProtocol)
+        -> UITableViewCell
+    typealias CellConfiguratorBlock = (UITableViewCell, IndexPath, LocationDataSourceItemProtocol)
+        -> Void
+
     private var nodeByLocation = [RelayLocation: Node]()
     private var locationList = [RelayLocation]()
     private var rootNode = makeRootNode()
 
-    typealias CellProviderBlock = (UITableView, IndexPath, LocationDataSourceItemProtocol)
-        -> UITableViewCell?
-
     private let tableView: UITableView
     private let cellProvider: CellProviderBlock
+    private let cellConfigurator: CellConfiguratorBlock
 
     private(set) var selectedRelayLocation: RelayLocation?
     private var lastShowHiddenParents = false
@@ -44,9 +47,15 @@ class LocationDataSource: NSObject, UITableViewDataSource {
         )
     }
 
-    init(tableView: UITableView, cellProvider: @escaping CellProviderBlock) {
+    init(
+        tableView: UITableView,
+        cellProvider: @escaping CellProviderBlock,
+        cellConfigurator: @escaping CellConfiguratorBlock
+    ) {
         self.tableView = tableView
         self.cellProvider = cellProvider
+        self.cellConfigurator = cellConfigurator
+
         super.init()
 
         tableView.dataSource = self
@@ -337,14 +346,43 @@ class LocationDataSource: NSObject, UITableViewDataSource {
             }
         }
 
+        let scrollToInsertedIndexPaths = { [weak tableView] (changeSet: ChangeSet) in
+            guard let lastInsertedIndexPath = changeSet.insertIndexPaths.last,
+                  let lastUpdatedIndexPath = changeSet.updateIndexPaths.last,
+                  let visibleIndexPaths = tableView?.indexPathsForVisibleRows,
+                  let lastVisibleIndexPath = visibleIndexPaths.last,
+                  lastInsertedIndexPath >= lastVisibleIndexPath
+            else {
+                return
+            }
+            if changeSet.insertIndexPaths.count >= visibleIndexPaths.count {
+                tableView?.scrollToRow(at: lastUpdatedIndexPath, at: .top, animated: animated)
+            } else {
+                tableView?.scrollToRow(at: lastInsertedIndexPath, at: .bottom, animated: animated)
+            }
+        }
+
         if animated {
+            guard let changeSet = applyChanges() else {
+                completion?()
+                return
+            }
+
             tableView.performBatchUpdates {
-                if let changeSet = applyChanges() {
-                    tableView.insertRows(at: changeSet.insertIndexPaths, with: .fade)
-                    tableView.deleteRows(at: changeSet.deleteIndexPaths, with: .fade)
-                    tableView.reloadRows(at: changeSet.updateIndexPaths, with: .none)
+                tableView.insertRows(at: changeSet.insertIndexPaths, with: .fade)
+                tableView.deleteRows(at: changeSet.deleteIndexPaths, with: .fade)
+                changeSet.updateIndexPaths.forEach { indexPath in
+                    guard let item = item(for: indexPath) else {
+                        assertionFailure()
+                        return
+                    }
+
+                    if let cell = tableView.cellForRow(at: indexPath) {
+                        cellConfigurator(cell, indexPath, item)
+                    }
                 }
             } completion: { finished in
+                scrollToInsertedIndexPaths(changeSet)
                 restoreSelection()
                 completion?()
             }
@@ -393,7 +431,11 @@ class LocationDataSource: NSObject, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         assert(indexPath.section == 0)
         let item = item(for: indexPath)!
-        return cellProvider(tableView, indexPath, item)!
+        let cell = cellProvider(tableView, indexPath, item)
+
+        cellConfigurator(cell, indexPath, item)
+
+        return cell
     }
 }
 
