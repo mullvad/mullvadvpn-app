@@ -245,14 +245,6 @@ class LoginViewController: UIViewController, RootContainment {
     private func loginStateDidChange() {
         contentView.accountInputGroup.setLoginState(loginState, animated: true)
 
-        switch loginState {
-        case .authenticating:
-            contentView.activityIndicator.startAnimating()
-
-        case .success, .default, .failure:
-            contentView.activityIndicator.stopAnimating()
-        }
-
         updateDisplayedMessage()
         updateStatusIcon()
         updateCreateButtonEnabled()
@@ -261,13 +253,13 @@ class LoginViewController: UIViewController, RootContainment {
     private func updateStatusIcon() {
         switch loginState {
         case .failure:
-            contentView.setStatusImage(style: .failure, visible: true, animated: true)
-
+            contentView.statusActivityView.state = .failure
         case .success:
-            contentView.setStatusImage(style: .success, visible: true, animated: true)
-
-        case .default, .authenticating:
-            contentView.setStatusImage(style: nil, visible: false, animated: true)
+            contentView.statusActivityView.state = .success
+        case .authenticating:
+            contentView.statusActivityView.state = .activity
+        case .default:
+            contentView.statusActivityView.state = .hidden
         }
     }
 
