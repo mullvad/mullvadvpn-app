@@ -35,6 +35,7 @@ export default class TrayIconController {
     private connect: () => void,
     private reconnect: () => void,
     private disconnect: () => void,
+    private quitWithoutDisconnect: () => void,
   ) {
     this.loadImages();
   }
@@ -284,6 +285,11 @@ export default class TrayIconController {
         enabled: disconnectEnabled(connectedToDaemon, tunnelState.state),
         click: this.disconnect,
       },
+      {
+        id: 'quit-without-disconnect',
+        label: messages.gettext("Quit without disconnect"),
+        click: this.quitWithoutDisconnect,
+      }
     ];
 
     return Menu.buildFromTemplate(template);

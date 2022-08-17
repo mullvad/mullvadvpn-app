@@ -561,6 +561,7 @@ class ApplicationMain {
         () => setImmediate(() => void this.connectTunnel()),
         () => setImmediate(() => void this.reconnectTunnel()),
         () => setImmediate(() => void this.disconnectTunnel()),
+        () => setImmediate(() => void this.quitWithoutDisconnect())
       );
       await this.trayIconController.updateTheme();
 
