@@ -65,6 +65,20 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
             comment: ""
         )
 
+        let searchBar = UISearchBar()
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        searchBar.searchBarStyle = .minimal
+        searchBar.barStyle = .black
+        searchBar.tintColor = .lightGray
+        searchBar.delegate = self
+        searchBar.placeholder = NSLocalizedString(
+            "SEARCH_PLACEHOLDER",
+            tableName: "SelectLocation",
+            value: "Search Location",
+            comment: ""
+        )
+        view.addSubview(searchBar)
+
         let tableView = UITableView(frame: view.bounds, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .clear
@@ -72,6 +86,10 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         tableView.separatorInset = .zero
         tableView.estimatedRowHeight = 53
         tableView.indicatorStyle = .white
+        tableView.keyboardDismissMode = .onDrag
+        if #available(iOS 13.0, *) {
+            tableView.automaticallyAdjustsScrollIndicatorInsets = false
+        }
 
         tableView.register(
             SelectLocationCell.self,
@@ -80,7 +98,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
         self.tableView = tableView
 
-        view.accessibilityElements = [tableHeaderFooterView, tableView]
+        view.accessibilityElements = [tableHeaderFooterView, searchBar, tableView]
         view.backgroundColor = .secondaryColor
         view.addSubview(tableView)
 
@@ -100,11 +118,19 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
                 cell.accessibilityIdentifier = item.location.stringRepresentation
                 cell.isDisabled = !item.isActive
-                cell.locationLabel.text = item.displayName
+                cell.setLocationText(
+                    item.displayName,
+                    highlightedText: self?.dataSource?.searchText ?? ""
+                )
                 cell.showsCollapseControl = item.isCollapsible
                 cell.isExpanded = item.showsChildren
+                cell.isPinned = item.isPinned
+                cell.pinButton.isHidden = !item.isPinnable
                 cell.didCollapseHandler = { [weak self] cell in
                     self?.collapseCell(cell)
+                }
+                cell.didTapPinHandler = { [weak self] cell in
+                    self?.dataSource?.togglePin(item.location)
                 }
             }
         )
@@ -114,18 +140,21 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
         tableHeaderFooterViewTopConstraints = [
             tableHeaderFooterView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.topAnchor.constraint(equalTo: tableHeaderFooterView.bottomAnchor),
+            searchBar.topAnchor.constraint(equalTo: tableHeaderFooterView.bottomAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ]
         tableHeaderFooterViewBottomConstraints = [
             tableHeaderFooterView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: tableHeaderFooterView.topAnchor),
         ]
 
         NSLayoutConstraint.activate([
             tableHeaderFooterView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableHeaderFooterView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
@@ -190,6 +219,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         super.viewDidLayoutSubviews()
 
         updateTableHeaderTopLayoutMargin()
+        adjustTableViewScrollIndicatorInsets()
     }
 
     // MARK: - UITableViewDelegate
@@ -297,5 +327,22 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
             NSLayoutConstraint.activate(tableHeaderFooterViewTopConstraints)
         }
         view.layoutIfNeeded()
+    }
+
+    private func adjustTableViewScrollIndicatorInsets() {
+        guard let tableView = tableView else { return }
+        tableView.verticalScrollIndicatorInsets = tableView.adjustedContentInset
+    }
+}
+
+// MARK: - UISearchBarDelegate
+
+extension SelectLocationViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        dataSource?.filterLocations(by: searchText)
     }
 }

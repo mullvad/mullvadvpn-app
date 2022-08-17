@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add ability to manage registered devices if too many devices detected during log-in.
 - Add intents: start VPN, stop VPN, reconnect VPN (acts as start VPN when the tunnel is down,
   otherwise picks new relay).
+- Add search and pin locations.
 
 ### Changed
 - When logged into an account with no time left, a new view is shown instead of account settings,
