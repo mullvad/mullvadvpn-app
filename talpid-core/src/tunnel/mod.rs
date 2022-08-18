@@ -229,8 +229,16 @@ impl TunnelMonitor {
         })
     }
 
+    /// Set the MTU in the tunnel parameters based on the inputted device MTU and some
+    /// calculations. `peer_mtu` is the detected device MTU.
     #[cfg(any(target_os = "linux", target_os = "windows"))]
     fn set_mtu(params: &mut wireguard_types::TunnelParameters, peer_mtu: u16) {
+        // Some users experience fragmentation issues even when we take the interface MTU and
+        // subtract the header sizes. This is likely due to some program that they use which does
+        // not change the interface MTU but adds its own header onto the outgoing packets. For this
+        // reason we subtract some extra bytes from our MTU in order to give other programs some
+        // safety margin.
+        const MTU_SAFETY_MARGIN: u16 = 60;
         const IPV4_HEADER_SIZE: u16 = 20;
         const IPV6_HEADER_SIZE: u16 = 40;
         const WIREGUARD_HEADER_SIZE: u16 = 40;
@@ -240,8 +248,8 @@ impl TunnelMonitor {
                 true => IPV6_HEADER_SIZE,
             };
         // The largest peer MTU that we allow
-        const MAX_PEER_MTU: u16 = 1500;
-        // The minimum allowed MTU size for our tunnel in IPv6 is 1280
+        const MAX_PEER_MTU: u16 = 1500 - MTU_SAFETY_MARGIN;
+        // The minimum allowed MTU size for our tunnel in IPv6 is 1280 and 576 for IPv4
         const MIN_IPV4_MTU: u16 = 576;
         const MIN_IPV6_MTU: u16 = 1280;
         let min_mtu = match params.generic_options.enable_ipv6 {
@@ -254,6 +262,8 @@ impl TunnelMonitor {
         params.options.mtu = Some(tunnel_mtu);
     }
 
+    /// Detects the MTU of the device, calculates what the virtual device MTU should be and sets
+    /// that in the tunnel parameters.
     #[cfg(any(target_os = "linux", target_os = "windows"))]
     async fn assign_mtu(
         route_manager: &RouteManagerHandle,
