@@ -42,7 +42,6 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate,
             value: "Settings",
             comment: ""
         )
-        navigationItem.largeTitleDisplayMode = .always
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .done,
             target: self,

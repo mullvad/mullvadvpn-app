@@ -40,6 +40,7 @@ with the option to buy more time.
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.
 - Fix invalid map camera position during the app launch and keep it up to date when multitasking.
+- Fix animation glitch when expanding partially visible cell in location picker.
 
 
 ## [2022.2] - 2022-04-28

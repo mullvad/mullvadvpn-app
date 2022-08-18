@@ -796,7 +796,6 @@ extension SceneDelegate: SettingsNavigationControllerDelegate {
 extension SceneDelegate: ConnectViewControllerDelegate {
     func connectViewControllerShouldShowSelectLocationPicker(_ controller: ConnectViewController) {
         let contentController = makeSelectLocationController()
-        contentController.navigationItem.largeTitleDisplayMode = .never
         contentController.navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .done,
             target: self,
