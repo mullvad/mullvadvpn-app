@@ -41,6 +41,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix unused dependencies loaded in the service/tile DI graph.
 - Fix missing IPC message unregistration causing multiple copies of some messages to be received.
 
+#### Linux
+- Fix issue where MTU could not be manually set in the app.
+
 ### Security
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected
