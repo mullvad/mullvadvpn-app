@@ -255,8 +255,8 @@ function build {
 
     if [[ -n $current_target ]]; then
         local cargo_output_dir="$CARGO_TARGET_DIR/$current_target/$RUST_BUILD_MODE"
-        # To make it easier to package universal builds on macOS the binaries are located in a
-        # directory with the name of the target triple.
+        # To make it easier to package multiple targets, the binaries are
+        # located in a directory with the name of the target triple.
         local destination_dir="dist-assets/$current_target"
         mkdir -p "$destination_dir"
     else
