@@ -49,7 +49,10 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
     init() {
         super.init(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
 
-        setViewControllers([makeViewController(for: .root)], animated: false)
+        navigationBar.prefersLargeTitles = true
+
+        // Navigation controller ignores `prefersLargeTitles` when using `setViewControllers()`.
+        pushViewController(makeViewController(for: .root), animated: false)
     }
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -60,12 +63,6 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        navigationBar.prefersLargeTitles = true
     }
 
     override func willPop(navigationItem: UINavigationItem) {
