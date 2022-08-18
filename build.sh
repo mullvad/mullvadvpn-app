@@ -65,7 +65,16 @@ fi
 CARGO_ARGS=()
 NPM_PACK_ARGS=()
 
+if [[ -n ${TARGETS:-""} ]]; then
+    NPM_PACK_ARGS+=(--targets "${TARGETS[*]}")
+fi
+
 if [[ "$UNIVERSAL" == "true" ]]; then
+    if [[ -n ${TARGETS:-""} ]]; then
+        log_error "'TARGETS' and '--universal' cannot be specified simultaneously."
+        exit 1
+    fi
+
     TARGETS=(x86_64-apple-darwin aarch64-apple-darwin)
     NPM_PACK_ARGS+=(--universal)
 fi
