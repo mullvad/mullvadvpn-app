@@ -57,6 +57,23 @@ Line wrap the file at 100 chars.                                              Th
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
   it was successful.
 
+
+## [2022.4] - 2022-08-19
+### Added
+#### Windows
+- Windows daemon now looks up the MTU on the default interface and uses this MTU instead of the
+  default 1500. The 1500 is still the fallback if this for some reason fails. This may stop
+  fragmentation.
+
+### Fixed
+#### Linux
+- Fix issue where MTU could not be manually set in the app.
+- Lower the max MTU from the automatic MTU detection down to 1380,
+  which was the hardcoded default before the automatic detection was implemented.
+  This solves issues where the physical interface MTU was set higher than it could
+  actually transport.
+
+
 ## [android/2022.2-beta1] - 2022-08-11
 ### Added
 #### Android
