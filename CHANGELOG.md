@@ -27,10 +27,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Add device management to the Android app. This simplifies knowing which device is which and adds
   the option to log other devices out when the account already has five devices.
-#### Windows
-- Windows daemon now looks up the MTU on the default interface and uses this MTU instead of the
-  default 1500. The 1500 is still the fallback if this for some reason fails. This may stop
-  fragmentation.
 
 ### Changed
 #### Android
@@ -45,13 +41,26 @@ Line wrap the file at 100 chars.                                              Th
 - Fix unused dependencies loaded in the service/tile DI graph.
 - Fix missing IPC message unregistration causing multiple copies of some messages to be received.
 
-#### Linux
-- Fix issue where MTU could not be manually set in the app.
-
 ### Security
 #### Android
 - Prevent location request responses from being received outside the tunnel when in the connected
   state.
+
+
+## [2022.4] - 2022-08-19
+### Added
+#### Windows
+- Windows daemon now looks up the MTU on the default interface and uses this MTU instead of the
+  default 1500. The 1500 is still the fallback if this for some reason fails. This may stop
+  fragmentation.
+
+### Fixed
+#### Linux
+- Fix issue where MTU could not be manually set in the app.
+- Lower the max MTU from the automatic MTU detection down to 1380,
+  which was the hardcoded default before the automatic detection was implemented.
+  This solves issues where the physical interface MTU was set higher than it could
+  actually transport.
 
 
 ## [2022.3] - 2022-08-10
