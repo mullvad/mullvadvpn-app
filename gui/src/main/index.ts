@@ -109,8 +109,6 @@ class ApplicationMain
 
   private macOsScrollbarVisibility?: MacOsScrollbarVisibility;
 
-  private stayConnectedOnQuit = false;
-
   private changelog?: IChangelog;
 
   private navigationHistory?: IHistoryObject;
@@ -134,7 +132,7 @@ class ApplicationMain
       !app.requestSingleInstanceLock() ||
       process.argv.includes(CommandLineOptions.quitWithoutDisconnect)
     ) {
-      this.quitWithoutDisconnect();
+      app.quit();
       return;
     }
 
@@ -168,7 +166,7 @@ class ApplicationMain
       log.error(
         `Render process exited with exit code ${details.exitCode} due to ${details.reason}`,
       );
-      this.quitWithoutDisconnect();
+      app.quit();
     });
     app.on('child-process-gone', (_event, details) => {
       log.error(
@@ -226,7 +224,7 @@ class ApplicationMain
     app.on('second-instance', (_event, argv, _workingDirectory) => {
       if (argv.includes(CommandLineOptions.quitWithoutDisconnect)) {
         // Quit if another instance is started with the quit without disconnect flag.
-        this.quitWithoutDisconnect();
+        app.quit();
       } else {
         // If no action was provided to the new instance the window is opened.
         this.userInterface?.showWindow();
@@ -287,20 +285,31 @@ class ApplicationMain
 
   private onActivate = () => this.userInterface?.showWindow();
 
-  private quitWithoutDisconnect() {
-    this.stayConnectedOnQuit = true;
+  private async disconnectAndQuit() {
+    if (this.daemonRpc.isConnected) {
+      try {
+        await this.daemonRpc.disconnectTunnel();
+        log.info('Disconnected the tunnel');
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to disconnect the tunnel: ${error.message}`);
+      }
+    } else {
+      log.info('Cannot close the tunnel because there is no active connection to daemon.');
+    }
+
     app.quit();
   }
 
   // This is a last try to disconnect and quit gracefully if the app quits without having received
   // the before-quit event.
-  private onQuit = async () => {
+  private onQuit = () => {
     if (this.quitStage !== AppQuitStage.ready) {
-      await this.prepareToQuit();
+      this.prepareToQuit();
     }
   };
 
-  private onBeforeQuit = async (event: Electron.Event) => {
+  private onBeforeQuit = (event: Electron.Event) => {
     switch (this.quitStage) {
       case AppQuitStage.unready:
         // postpone the app shutdown
@@ -310,7 +319,7 @@ class ApplicationMain
 
         log.info('Quit initiated');
 
-        await this.prepareToQuit();
+        this.prepareToQuit();
 
         // terminate the app
         this.quitStage = AppQuitStage.ready;
@@ -328,23 +337,7 @@ class ApplicationMain
     }
   };
 
-  private async prepareToQuit() {
-    if (this.stayConnectedOnQuit) {
-      log.info('Not disconnecting tunnel on quit');
-    } else {
-      if (this.daemonRpc.isConnected) {
-        try {
-          await this.daemonRpc.disconnectTunnel();
-          log.info('Disconnected the tunnel');
-        } catch (e) {
-          const error = e as Error;
-          log.error(`Failed to disconnect the tunnel: ${error.message}`);
-        }
-      } else {
-        log.info('Cannot close the tunnel because there is no active connection to daemon.');
-      }
-    }
-
+  private prepareToQuit() {
     // Unsubscribe the event handler
     try {
       if (this.daemonEventListener) {
@@ -781,7 +774,7 @@ class ApplicationMain
       },
     );
 
-    IpcMainEventChannel.app.handleQuit(() => app.quit());
+    IpcMainEventChannel.app.handleQuit(() => this.disconnectAndQuit());
     IpcMainEventChannel.app.handleOpenUrl(async (url) => {
       if (Object.values(config.links).find((link) => url.startsWith(link))) {
         await shell.openExternal(url);
