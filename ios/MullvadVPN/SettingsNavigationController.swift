@@ -13,6 +13,7 @@ enum SettingsNavigationRoute {
     case root
     case account
     case preferences
+    case shortcuts
     case problemReport
 }
 
@@ -118,6 +119,9 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
 
         case .preferences:
             return PreferencesViewController()
+
+        case .shortcuts:
+            return ShortcutsViewController()
 
         case .problemReport:
             return ProblemReportViewController()

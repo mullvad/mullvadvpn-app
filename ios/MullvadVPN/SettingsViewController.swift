@@ -102,6 +102,8 @@ extension SettingsDataSource.Item {
             return .account
         case .preferences:
             return .preferences
+        case .shortcuts:
+            return .shortcuts
         case .version:
             return nil
         case .problemReport:
