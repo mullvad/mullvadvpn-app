@@ -43,6 +43,7 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
     enum Item: String {
         case account
         case preferences
+        case shortcuts
         case version
         case problemReport
         case faq
@@ -92,7 +93,7 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
 
         if TunnelManager.shared.deviceState.isLoggedIn {
             newSnapshot.appendSections([.main])
-            newSnapshot.appendItems([.account, .preferences], in: .main)
+            newSnapshot.appendItems([.account, .preferences, .shortcuts], in: .main)
         }
 
         newSnapshot.appendSections([.version, .problemReport])
@@ -144,6 +145,23 @@ class SettingsDataSource: NSObject, TunnelObserver, UITableViewDataSource, UITab
                 "PREFERENCES_CELL_LABEL",
                 tableName: "Settings",
                 value: "Preferences",
+                comment: ""
+            )
+            cell.detailTitleLabel.text = nil
+            cell.accessibilityIdentifier = nil
+            cell.disclosureType = .chevron
+
+            return cell
+
+        case .shortcuts:
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
+                for: indexPath
+            ) as! SettingsCell
+            cell.titleLabel.text = NSLocalizedString(
+                "SHORTCUTS_CELL_LABEL",
+                tableName: "Settings",
+                value: "Shortcuts",
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
