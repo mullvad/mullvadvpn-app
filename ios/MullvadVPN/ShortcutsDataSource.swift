@@ -21,6 +21,17 @@ final class ShortcutsDataSource: NSObject, UITableViewDataSource, UITableViewDel
         }
     }
 
+    private enum HeaderFooterReuseIdentifier: String, CaseIterable {
+        case spacer
+
+        var reusableViewClass: AnyClass {
+            switch self {
+            case .spacer:
+                return EmptyTableViewHeaderFooterView.self
+            }
+        }
+    }
+
     enum Section: String {
         case shortcuts
     }
@@ -40,6 +51,12 @@ final class ShortcutsDataSource: NSObject, UITableViewDataSource, UITableViewDel
             tableView.register(
                 cellIdentifier.reusableViewClass,
                 forCellReuseIdentifier: cellIdentifier.rawValue
+            )
+        }
+        HeaderFooterReuseIdentifier.allCases.forEach { reuseIdentifier in
+            tableView.register(
+                reuseIdentifier.reusableViewClass,
+                forHeaderFooterViewReuseIdentifier: reuseIdentifier.rawValue
             )
         }
         tableView.dataSource = self
@@ -90,6 +107,24 @@ final class ShortcutsDataSource: NSObject, UITableViewDataSource, UITableViewDel
         guard let item = snapshot.itemForIndexPath(indexPath) else { return }
         delegate?.shortcutsDataSource(self, didSelectItem: item)
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return tableView.dequeueReusableHeaderFooterView(
+            withIdentifier: HeaderFooterReuseIdentifier.spacer.rawValue
+        )
+    }
+
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return nil
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return UIMetrics.sectionSpacing
+    }
+
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0
     }
 }
 
