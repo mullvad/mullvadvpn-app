@@ -147,6 +147,35 @@ sudo dnf install dbus-devel
 sudo dnf install rpm-build
 ```
 
+### Cross-compiling for Linux ARM64
+
+By default, the app will build for the host platform. It is also possible to cross-compile the app
+for ARM64 on x64.
+
+#### Debian
+
+```bash
+# As root
+dpkg --add-architecture arm64 && \
+    apt update && \
+    apt install libdbus-1-dev:arm64 gcc-aarch64-linux-gnu
+```
+
+```bash
+rustup target add aarch64-unknown-linux-gnu
+```
+
+To make sure the right linker and libraries are used, add the following to `~/.cargo/config.toml`:
+
+```
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"
+
+[target.aarch64-unknown-linux-gnu.dbus]
+rustc-link-search = ["/usr/aarch64-linux-gnu/lib"]
+rustc-link-lib = ["dbus-1"]
+```
+
 ### Android
 
 These instructions are for building the app for Android **under Linux**.
@@ -317,16 +346,27 @@ Building this requires at least 1GB of memory.
 By default, `build.sh` produces a pkg for your current architecture only. To build a universal
 app that works on both Intel and Apple Silicon macs, build with `--universal`.
 
-##### Apple ARM64 (aka Apple Silicon)
+#### Linux ARM64
+
+To cross-compile for ARM64 rather than the current architecture, set the `TARGETS` environment
+variable to `aarch64-unknown-linux-gnu`:
+
+```bash
+TARGETS="aarch64-unknown-linux-gnu" ./build.sh
+```
+
+##### ARM64
 
 Due to inability to build the management interface proto files on ARM64 (see
-[this](https://github.com/grpc/grpc-node/issues/1497) issue) the Apple ARM64 build must be done in 2 stages:
+[this](https://github.com/grpc/grpc-node/issues/1497) issue), building on ARM64 must be done in
+2 stages:
 
 1. Build management interface proto files on a non-ARM64 platform
-2. Use the built proto files during the main build by setting the `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR`
-   environment variable to the path the proto files
+2. Use the built proto files during the main build by setting the
+   `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` environment variable to the path the proto files
 
-To build the management interface proto files there is a script (execute it on a non-ARM64 platform):
+To build the management interface proto files there is a script (execute it on a non-ARM64
+platform):
 
 ```bash
 cd gui/scripts
@@ -334,11 +374,11 @@ npm ci
 ./build-proto.sh
 ```
 
-After that copy the files from `gui/src/main/management_interface/` and `gui/build/src/main/management_interface/`
-directories into a single directory on your Apple Silicon Mac, and set the value of
-`MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` to that directory while running the main build.
+After that copy the files from `gui/src/main/management_interface/` and
+`gui/build/src/main/management_interface/` directories into a single directory, and set the value
+of `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` to that directory while running the main build.
 
-Install `protobuf` by running:
+Install `protobuf`. On macOS, this can be done using Homebrew:
 
 ```bash
 brew install protobuf
@@ -350,6 +390,8 @@ directory, the build command will look as follows:
 ```bash
 MANAGEMENT_INTERFACE_PROTO_BUILD_DIR=/tmp/management_interface_proto ./build.sh --dev-build
 ```
+
+On Linux, you may also have to specify `USE_SYSTEM_FPM=true` to generate the deb/rpm packages.
 
 If you want to build each component individually, or run in development mode, read the following
 sections.
