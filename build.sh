@@ -206,8 +206,13 @@ function sign_win {
 function build {
     local current_target=${1:-""}
     local for_target_string=""
+    local stripbin="strip"
     if [[ -n $current_target ]]; then
         for_target_string=" for $current_target"
+
+        if [[ "$current_target" == "aarch64-unknown-linux-gnu" && "$(uname -m)" != "aarch64" ]]; then
+            stripbin="aarch64-linux-gnu-strip"
+        fi
     fi
 
     ################################################################################
@@ -282,7 +287,7 @@ function build {
             cp "$source" "$destination"
         else
             log_info "Stripping $source => $destination"
-            strip "$source" -o "$destination"
+            "${stripbin}" "$source" -o "$destination"
         fi
 
         if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
