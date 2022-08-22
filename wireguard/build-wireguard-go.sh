@@ -88,16 +88,26 @@ function unix_target_triple {
 function build_unix {
     echo "Building wireguard-go for $1"
 
-    # Flags for cross compiling for M1 macs
-    if [[ "$(unix_target_triple)" != "$1" && "$1" == "aarch64-apple-darwin" ]]; then
-        export CGO_ENABLED=1
-        export GOOS=darwin
-        export GOARCH=arm64
-        export CC="$(xcrun -sdk $SDKROOT --find clang) -arch $GOARCH -isysroot $SDKROOT"
-        export CFLAGS="-isysroot $SDKROOT -arch $GOARCH -I$SDKROOT/usr/include"
-        export LD_LIBRARY_PATH="$SDKROOT/usr/lib"
-        export CGO_CFLAGS="-isysroot $SDKROOT -arch $GOARCH"
-        export CGO_LDFLAGS="-isysroot $SDKROOT -arch $GOARCH"
+    # Flags for cross compiling
+    if [[ "$(unix_target_triple)" != "$1" ]]; then
+        # Linux arm
+        if [[ "$1" == "aarch64-unknown-linux-gnu" ]]; then
+            export CGO_ENABLED=1
+            export GOARCH=arm64
+            export CC=aarch64-linux-gnu-gcc
+        fi
+
+        # Apple silicon
+        if [[ "$1" == "aarch64-apple-darwin" ]]; then
+            export CGO_ENABLED=1
+            export GOOS=darwin
+            export GOARCH=arm64
+            export CC="$(xcrun -sdk $SDKROOT --find clang) -arch $GOARCH -isysroot $SDKROOT"
+            export CFLAGS="-isysroot $SDKROOT -arch $GOARCH -I$SDKROOT/usr/include"
+            export LD_LIBRARY_PATH="$SDKROOT/usr/lib"
+            export CGO_CFLAGS="-isysroot $SDKROOT -arch $GOARCH"
+            export CGO_LDFLAGS="-isysroot $SDKROOT -arch $GOARCH"
+        fi
     fi
 
     pushd libwg
