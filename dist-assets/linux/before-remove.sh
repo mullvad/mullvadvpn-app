@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
+pkill -x "mullvad-gui" || true
+
 is_number_re='^[0-9]+$'
 # Check if we're running during an upgrade step on Fedora
 # https://fedoraproject.org/wiki/Packaging:Scriptlets#Syntax
@@ -17,8 +19,6 @@ fi
 # the user might've disabled or stopped the service themselves already
 systemctl stop mullvad-daemon.service || true
 systemctl disable mullvad-daemon.service || true
-
-pkill -x "mullvad-gui" || true
 
 /opt/Mullvad\ VPN/resources/mullvad-setup reset-firewall || echo "Failed to reset firewall"
 /opt/Mullvad\ VPN/resources/mullvad-setup remove-device || echo "Failed to remove device from account"

@@ -1155,7 +1155,7 @@
 
 	Pop $FullUninstall
 
-	nsExec::Exec '"$INSTDIR\Mullvad VPN.exe" --quit-without-disconnect' $0
+	nsExec::Exec `taskkill /t /im "${APP_EXECUTABLE_FILENAME}"` $0
 	Sleep 500
 	nsExec::Exec `taskkill /f /t /im "${APP_EXECUTABLE_FILENAME}"` $0
 
