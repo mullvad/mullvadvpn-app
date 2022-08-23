@@ -44,8 +44,8 @@ lazy_static! {
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(255, 255, 255, 255), 32).unwrap()),
         // Local subnetwork multicast. Not routable
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap()),
-        // Local scope (mDNS and SSDP) address
-        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(239, 255, 0, 0), 16).unwrap()),
+        // Admin-local IPv4 multicast.
+        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(239, 0, 0, 0), 8).unwrap()),
         // Interface-local IPv6 multicast.
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xff01, 0, 0, 0, 0, 0, 0, 0), 16).unwrap()),
         // Link-local IPv6 multicast. IPv6 equivalent of 224.0.0.0/24
