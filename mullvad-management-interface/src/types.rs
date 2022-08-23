@@ -4,7 +4,12 @@ use mullvad_types::relay_constraints::Constraint;
 use std::convert::TryFrom;
 use talpid_types::{net::wireguard, ErrorExt};
 
-tonic::include_proto!("mullvad_daemon.management_interface");
+#[allow(clippy::derive_partial_eq_without_eq)]
+mod proto {
+    tonic::include_proto!("mullvad_daemon.management_interface");
+}
+
+pub use proto::*;
 
 impl From<mullvad_types::location::GeoIpLocation> for GeoIpLocation {
     fn from(geoip: mullvad_types::location::GeoIpLocation) -> GeoIpLocation {
