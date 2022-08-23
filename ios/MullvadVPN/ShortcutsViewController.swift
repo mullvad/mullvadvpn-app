@@ -36,7 +36,7 @@ final class ShortcutsViewController: UITableViewController,
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
 
-        dataSource.configure(tableView)
+        dataSource.tableView = tableView
         dataSource.delegate = self
 
         navigationItem.title = NSLocalizedString(
@@ -47,41 +47,28 @@ final class ShortcutsViewController: UITableViewController,
         )
     }
 
-    private func handleSelectShortcut(_ shortcut: INShortcut, item: ShortcutsDataSource.Item) {
-        INVoiceShortcutCenter.shared.getAllVoiceShortcuts { [weak self] shortcuts, error in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-                let controller: UIViewController
-                if let voiceShortcut = shortcuts?.first(where: { voiceShortcut in
-                    ShortcutsDataSource.Item(voiceShortcut: voiceShortcut) == item
-                }) {
-                    let editShortcutController = INUIEditVoiceShortcutViewController(
-                        voiceShortcut: voiceShortcut
-                    )
-                    editShortcutController.delegate = self
-                    controller = editShortcutController
-                } else {
-                    let addShortcutController = INUIAddVoiceShortcutViewController(
-                        shortcut: shortcut
-                    )
-                    addShortcutController.delegate = self
-                    controller = addShortcutController
-                }
-                controller.modalPresentationStyle = .formSheet
-                self.present(controller, animated: true)
-            }
-        }
-    }
-
     // MARK: - ShortcutsDataSourceDelegate
 
     func shortcutsDataSource(
         _ dataSource: ShortcutsDataSource,
         didSelectItem item: ShortcutsDataSource.Item
     ) {
-        if let shortcut = item.shortcut {
-            handleSelectShortcut(shortcut, item: item)
+        let controller: UIViewController
+        if let voiceShortcut = item.voiceShortcut {
+            let editShortcutController = INUIEditVoiceShortcutViewController(
+                voiceShortcut: voiceShortcut
+            )
+            editShortcutController.delegate = self
+            controller = editShortcutController
+        } else {
+            let addShortcutController = INUIAddVoiceShortcutViewController(
+                shortcut: item.shortcut
+            )
+            addShortcutController.delegate = self
+            controller = addShortcutController
         }
+        controller.modalPresentationStyle = .formSheet
+        present(controller, animated: true)
     }
 
     // MARK: - INUIAddVoiceShortcutViewControllerDelegate
@@ -91,6 +78,9 @@ final class ShortcutsViewController: UITableViewController,
         didFinishWith voiceShortcut: INVoiceShortcut?,
         error: Error?
     ) {
+        if let voiceShortcut = voiceShortcut {
+            ShortcutsManager.shared.addVoiceShortcut(voiceShortcut)
+        }
         controller.dismiss(animated: true)
     }
 
@@ -112,6 +102,9 @@ final class ShortcutsViewController: UITableViewController,
         _ controller: INUIEditVoiceShortcutViewController,
         didDeleteVoiceShortcutWithIdentifier deletedVoiceShortcutIdentifier: UUID
     ) {
+        ShortcutsManager.shared.deleteVoiceShortcut(
+            withIdentifier: deletedVoiceShortcutIdentifier
+        )
         controller.dismiss(animated: true)
     }
 
