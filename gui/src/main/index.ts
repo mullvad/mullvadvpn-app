@@ -55,7 +55,6 @@ const linuxSplitTunneling = process.platform === 'linux' && require('./linux-spl
 const windowsSplitTunneling = process.platform === 'win32' && require('./windows-split-tunneling');
 
 enum CommandLineOptions {
-  quitWithoutDisconnect = '--quit-without-disconnect',
   showChanges = '--show-changes',
   disableResetNavigation = '--disable-reset-navigation', // development only
 }
@@ -126,12 +125,8 @@ class ApplicationMain
 
     this.overrideAppPaths();
 
-    // This ensures that only a single instance is running at the same time, but also exits if
-    // there's no already running instance when the quit without disconnect flag is supplied.
-    if (
-      !app.requestSingleInstanceLock() ||
-      process.argv.includes(CommandLineOptions.quitWithoutDisconnect)
-    ) {
+    // This ensures that only a single instance is running at the same time.
+    if (!app.requestSingleInstanceLock()) {
       app.quit();
       return;
     }
@@ -221,14 +216,8 @@ class ApplicationMain
   };
 
   private addSecondInstanceEventHandler() {
-    app.on('second-instance', (_event, argv, _workingDirectory) => {
-      if (argv.includes(CommandLineOptions.quitWithoutDisconnect)) {
-        // Quit if another instance is started with the quit without disconnect flag.
-        app.quit();
-      } else {
-        // If no action was provided to the new instance the window is opened.
-        this.userInterface?.showWindow();
-      }
+    app.on('second-instance', (_event, _argv, _workingDirectory) => {
+      this.userInterface?.showWindow();
     });
   }
 
