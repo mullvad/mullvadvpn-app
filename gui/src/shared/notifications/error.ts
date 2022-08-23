@@ -145,7 +145,7 @@ function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
       case 'is_offline':
         return messages.pgettext(
           'notifications',
-          "Your device is offline. Try connecting when it's back online.",
+          'Your device is offline. The tunnel will automatically connect once your device is back online.',
         );
       case 'split_tunnel_error':
         return messages.pgettext(
