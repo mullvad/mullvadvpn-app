@@ -147,6 +147,7 @@ class SceneDelegate: UIResponder {
         RelayCache.Tracker.shared.startPeriodicUpdates()
         TunnelManager.shared.startPeriodicPrivateKeyRotation()
         AddressCache.Tracker.shared.startPeriodicUpdates()
+        ShortcutsManager.shared.updateVoiceShortcuts()
 
         setShowsPrivacyOverlay(false)
     }

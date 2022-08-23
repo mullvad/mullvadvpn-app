@@ -9,7 +9,11 @@
 import IntentsUI
 import UIKit
 
-final class ShortcutsDataSource: NSObject, UITableViewDataSource, UITableViewDelegate {
+final class ShortcutsDataSource: NSObject,
+    UITableViewDataSource,
+    UITableViewDelegate,
+    ShortcutsManagerDelegate
+{
     private enum CellReuseIdentifiers: String, CaseIterable {
         case basicCell
 
@@ -36,43 +40,84 @@ final class ShortcutsDataSource: NSObject, UITableViewDataSource, UITableViewDel
         case shortcuts
     }
 
-    enum Item: String, CaseIterable {
-        case start
-        case reconnect
-        case stop
+    struct Item: Hashable {
+        let title: String
+        let shortcut: INShortcut
+        let voiceShortcut: INVoiceShortcut?
+
+        var isAdded: Bool {
+            return voiceShortcut != nil
+        }
     }
 
     private var snapshot = DataSourceSnapshot<Section, Item>()
 
     weak var delegate: ShortcutsDataSourceDelegate?
 
-    func configure(_ tableView: UITableView) {
-        CellReuseIdentifiers.allCases.forEach { cellIdentifier in
-            tableView.register(
-                cellIdentifier.reusableViewClass,
-                forCellReuseIdentifier: cellIdentifier.rawValue
-            )
+    weak var tableView: UITableView? {
+        didSet {
+            tableView?.delegate = self
+            tableView?.dataSource = self
+
+            registerClasses()
         }
-        HeaderFooterReuseIdentifier.allCases.forEach { reuseIdentifier in
-            tableView.register(
-                reuseIdentifier.reusableViewClass,
-                forHeaderFooterViewReuseIdentifier: reuseIdentifier.rawValue
-            )
-        }
-        tableView.dataSource = self
-        tableView.delegate = self
     }
 
     override init() {
         super.init()
-        updateDataSnapshot()
+        updateDataSnapshot(voiceShortcuts: [])
+        ShortcutsManager.shared.delegate = self
+        ShortcutsManager.shared.updateVoiceShortcuts()
     }
 
-    private func updateDataSnapshot() {
+    private func registerClasses() {
+        CellReuseIdentifiers.allCases.forEach { cellIdentifier in
+            tableView?.register(
+                cellIdentifier.reusableViewClass,
+                forCellReuseIdentifier: cellIdentifier.rawValue
+            )
+        }
+
+        HeaderFooterReuseIdentifier.allCases.forEach { reuseIdentifier in
+            tableView?.register(
+                reuseIdentifier.reusableViewClass,
+                forHeaderFooterViewReuseIdentifier: reuseIdentifier.rawValue
+            )
+        }
+    }
+
+    private func updateDataSnapshot(voiceShortcuts: [INVoiceShortcut]) {
+        var items = [Item]()
+
+        for data in ShortcutData.allCases {
+            guard let shortcut = data.shortcut else { continue }
+            let voiceShortcut = voiceShortcuts.first(where: { voiceShortcut in
+                isVoiceShortcut(voiceShortcut, invokes: shortcut)
+            })
+            let item = Item(
+                title: data.title,
+                shortcut: shortcut,
+                voiceShortcut: voiceShortcut
+            )
+            items.append(item)
+        }
+
         var newSnapshot = DataSourceSnapshot<Section, Item>()
         newSnapshot.appendSections([.shortcuts])
-        newSnapshot.appendItems(Item.allCases, in: .shortcuts)
+        newSnapshot.appendItems(items, in: .shortcuts)
+
         snapshot = newSnapshot
+    }
+
+    /// Returns whether the voice shortcut performs the same action as the specified shortcut.
+    private func isVoiceShortcut(
+        _ voiceShortcut: INVoiceShortcut,
+        invokes shortcut: INShortcut
+    ) -> Bool {
+        if let a = voiceShortcut.shortcut.intent, let b = shortcut.intent {
+            return type(of: a) == type(of: b)
+        }
+        return false
     }
 
     // MARK: - UITableViewDataSource
@@ -88,17 +133,15 @@ final class ShortcutsDataSource: NSObject, UITableViewDataSource, UITableViewDel
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = snapshot.itemForIndexPath(indexPath)!
-        switch item {
-        case .start, .reconnect, .stop:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
-                for: indexPath
-            )
-            if let cell = cell as? SettingsCell {
-                cell.titleLabel.text = item.title
-            }
-            return cell
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
+            for: indexPath
+        )
+        if let cell = cell as? SettingsCell {
+            cell.titleLabel.text = item.title
+            cell.disclosureType = item.isAdded ? .tick : .none
         }
+        return cell
     }
 
     // MARK: - UITableViewDelegate
@@ -126,63 +169,66 @@ final class ShortcutsDataSource: NSObject, UITableViewDataSource, UITableViewDel
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 0
     }
+
+    // MARK: - ShortcutsManagerDelegate
+
+    func shortcutsManager(
+        _ shortcutsManager: ShortcutsManager,
+        didReceiveVoiceShortcuts voiceShortcuts: [INVoiceShortcut]
+    ) {
+        updateDataSnapshot(voiceShortcuts: voiceShortcuts)
+        tableView?.reloadData()
+    }
 }
 
-extension ShortcutsDataSource.Item {
-    var title: String {
-        switch self {
-        case .start:
-            return NSLocalizedString(
-                "SHORTCUTS_NAME_START_VPN",
-                tableName: "Shortcuts",
-                value: "Start VPN",
-                comment: ""
-            )
-        case .reconnect:
-            return NSLocalizedString(
-                "SHORTCUTS_NAME_RECONNECT_VPN",
-                tableName: "Shortcuts",
-                value: "Reconnect VPN",
-                comment: ""
-            )
-        case .stop:
-            return NSLocalizedString(
-                "SHORTCUTS_NAME_STOP_VPN",
-                tableName: "Shortcuts",
-                value: "Stop VPN",
-                comment: ""
-            )
-        }
-    }
+private extension ShortcutsDataSource {
+    enum ShortcutData: CaseIterable {
+        case start
+        case reconnect
+        case stop
 
-    var shortcut: INShortcut? {
-        let intent: INIntent
-        switch self {
-        case .start:
-            intent = StartVPNIntent()
-        case .reconnect:
-            intent = ReconnectVPNIntent()
-        case .stop:
-            intent = StopVPNIntent()
+        var title: String {
+            switch self {
+            case .start:
+                return NSLocalizedString(
+                    "SHORTCUTS_NAME_START_VPN",
+                    tableName: "Shortcuts",
+                    value: "Start VPN",
+                    comment: ""
+                )
+            case .reconnect:
+                return NSLocalizedString(
+                    "SHORTCUTS_NAME_RECONNECT_VPN",
+                    tableName: "Shortcuts",
+                    value: "Reconnect VPN",
+                    comment: ""
+                )
+            case .stop:
+                return NSLocalizedString(
+                    "SHORTCUTS_NAME_STOP_VPN",
+                    tableName: "Shortcuts",
+                    value: "Stop VPN",
+                    comment: ""
+                )
+            }
         }
-        intent.suggestedInvocationPhrase = title
-        guard let shortcut = INShortcut(intent: intent) else {
-            assertionFailure("The shortcut has an invalid intent.")
-            return nil
-        }
-        return shortcut
-    }
 
-    init?(voiceShortcut: INVoiceShortcut) {
-        switch voiceShortcut.shortcut.intent {
-        case is StartVPNIntent:
-            self = .start
-        case is ReconnectVPNIntent:
-            self = .reconnect
-        case is StopVPNIntent:
-            self = .stop
-        default:
-            return nil
+        var shortcut: INShortcut? {
+            let intent: INIntent
+            switch self {
+            case .start:
+                intent = StartVPNIntent()
+            case .reconnect:
+                intent = ReconnectVPNIntent()
+            case .stop:
+                intent = StopVPNIntent()
+            }
+            intent.suggestedInvocationPhrase = title
+            guard let shortcut = INShortcut(intent: intent) else {
+                assertionFailure("The shortcut has an invalid intent.")
+                return nil
+            }
+            return shortcut
         }
     }
 }

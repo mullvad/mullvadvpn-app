@@ -307,6 +307,7 @@
 		58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB45260A028D00A621A8 /* GeoJSON.swift */; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 		58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF2C02281BDE02009EF542 /* SettingsManager.swift */; };
+		753D6C0C28B4BF3E0052D9E1 /* ShortcutsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753D6C0B28B4BF3E0052D9E1 /* ShortcutsManager.swift */; };
 		75FD0C2128B108570021E33E /* ShortcutsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD0C2028B108570021E33E /* ShortcutsDataSource.swift */; };
 		75FD0C2328B109860021E33E /* ShortcutsDataSourceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD0C2228B109860021E33E /* ShortcutsDataSourceDelegate.swift */; };
 		75FD0C2528B117D30021E33E /* ShortcutsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD0C2428B117D30021E33E /* ShortcutsViewController.swift */; };
@@ -601,6 +602,7 @@
 		58FEEB45260A028D00A621A8 /* GeoJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoJSON.swift; sourceTree = "<group>"; };
 		58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyboardResponder.swift; sourceTree = "<group>"; };
 		58FF2C02281BDE02009EF542 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
+		753D6C0B28B4BF3E0052D9E1 /* ShortcutsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsManager.swift; sourceTree = "<group>"; };
 		75FD0C2028B108570021E33E /* ShortcutsDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsDataSource.swift; sourceTree = "<group>"; };
 		75FD0C2228B109860021E33E /* ShortcutsDataSourceDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsDataSourceDelegate.swift; sourceTree = "<group>"; };
 		75FD0C2428B117D30021E33E /* ShortcutsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsViewController.swift; sourceTree = "<group>"; };
@@ -968,6 +970,7 @@
 				75FD0C2428B117D30021E33E /* ShortcutsViewController.swift */,
 				75FD0C2228B109860021E33E /* ShortcutsDataSourceDelegate.swift */,
 				75FD0C2028B108570021E33E /* ShortcutsDataSource.swift */,
+				753D6C0B28B4BF3E0052D9E1 /* ShortcutsManager.swift */,
 				584D26C1270C8542004EA533 /* SettingsStaticTextFooterView.swift */,
 				58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */,
 				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
@@ -1469,6 +1472,7 @@
 				5815039724D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
 				5820675E26E6839900655B05 /* PresentAlertOperation.swift in Sources */,
 				5815039D24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
+				753D6C0C28B4BF3E0052D9E1 /* ShortcutsManager.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				5872D6E8286304DE00DB5F4E /* TermsOfService.swift in Sources */,
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
