@@ -855,6 +855,8 @@
 	${EndIf}
 
 	# Killing without /f will likely cause the daemon to disconnect.
+	# This can be removed when 2022.1 has been unsupported. That is the first version where the old
+	# version's installer properly quits the old app.
 	nsExec::Exec `taskkill /f /t /im "${APP_EXECUTABLE_FILENAME}"` $R0
 	Sleep 500
 
@@ -1155,7 +1157,7 @@
 
 	Pop $FullUninstall
 
-	nsExec::Exec '"$INSTDIR\Mullvad VPN.exe" --quit-without-disconnect' $0
+	nsExec::Exec `taskkill /t /im "${APP_EXECUTABLE_FILENAME}"` $0
 	Sleep 500
 	nsExec::Exec `taskkill /f /t /im "${APP_EXECUTABLE_FILENAME}"` $0
 
