@@ -12,6 +12,7 @@ enum SettingsDisclosureType {
     case none
     case chevron
     case externalLink
+    case tick
 
     var image: UIImage? {
         switch self {
@@ -21,6 +22,8 @@ enum SettingsDisclosureType {
             return UIImage(named: "IconChevron")
         case .externalLink:
             return UIImage(named: "IconExtlink")
+        case .tick:
+            return .iconTickSmall
         }
     }
 }
@@ -165,4 +168,15 @@ class SettingsCell: UITableViewCell {
         let contentInset = UIEdgeInsets(top: 0, left: leftOffset, bottom: 0, right: rightOffset)
         contentView.frame = contentView.frame.inset(by: contentInset)
     }
+}
+
+private extension UIImage {
+    static let iconTickSmall: UIImage? = {
+        guard let image = UIImage(named: "IconTick") else { return nil }
+        let size = CGSize(width: 16, height: 16)
+        return UIGraphicsImageRenderer(size: size).image { context in
+            let rect = CGRect(origin: .zero, size: size)
+            image.draw(in: rect)
+        }
+    }()
 }
