@@ -36,8 +36,13 @@ GRAPHICAL_ASSETS = [
   "icon-close-sml.svg",
   "icon-copy.svg",
   "icon-obscure.svg",
-  "icon-unobscure.svg"
+  "icon-unobscure.svg",
 ]
+
+# graphical assets to resize.
+RESIZE_ASSETS = {
+   "icon-tick.svg" => ["icon-tick-sml.svg", 16, 16],
+}
 
 # App icon sizes
 APP_ICON_SIZES = [
@@ -110,6 +115,26 @@ def generate_graphical_assets()
   end
 end
 
+def generate_resized_assets()
+  RESIZE_ASSETS.each do |asset_name, resize_options|
+    (new_asset_name, width, height) = resize_options
+
+    svg_file = File.join(GRAPHICAL_ASSETS_DIR, asset_name)
+    image_name = pascal_case(File.basename(new_asset_name, ".svg"))
+    output_dir = File.join(XCASSETS_DIR, "#{image_name}.imageset")
+
+    if !Dir.exists?(output_dir)
+      puts "Create directory #{output_dir}"
+      Dir.mkdir(output_dir)
+    end
+
+    output_file = File.join(output_dir, "#{image_name}.pdf")
+
+    puts "Convert and resize #{svg_file} -> #{output_file} (#{width} x #{height})"
+    system(SVG_CONVERT_ENVIRONMENT_VARIABLES, "rsvg-convert", "--width=#{width}", "--height=#{height}", "--format=pdf", svg_file, "--output", output_file)
+  end
+end
+
 def genereate_app_icon()
   for (icon_name, nominal_size, *retina_scales) in APP_ICON_SIZES do
     for retina_scale in retina_scales do
@@ -173,6 +198,7 @@ OptionParser.new do |opts|
 
   opts.on("--import-desktop-assets", "Import assets from the desktop app") do |v|
     generate_graphical_assets
+    generate_resized_assets
   end
 
   opts.on("--additional-assets", "Generate additional assets") do |v|
