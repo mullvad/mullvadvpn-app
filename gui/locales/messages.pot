@@ -432,7 +432,7 @@ msgstr ""
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log out of **%(deviceName)s**?"
+msgid "Are you sure you want to log **%(deviceName)s** out?"
 msgstr ""
 
 #. Button for continuing login process.
@@ -858,7 +858,7 @@ msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Your device is offline. Try connecting when it's back online."
+msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr ""
 
 #. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
