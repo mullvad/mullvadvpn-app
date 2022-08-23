@@ -65,7 +65,16 @@ fi
 CARGO_ARGS=()
 NPM_PACK_ARGS=()
 
+if [[ -n ${TARGETS:-""} ]]; then
+    NPM_PACK_ARGS+=(--targets "${TARGETS[*]}")
+fi
+
 if [[ "$UNIVERSAL" == "true" ]]; then
+    if [[ -n ${TARGETS:-""} ]]; then
+        log_error "'TARGETS' and '--universal' cannot be specified simultaneously."
+        exit 1
+    fi
+
     TARGETS=(x86_64-apple-darwin aarch64-apple-darwin)
     NPM_PACK_ARGS+=(--universal)
 fi
@@ -197,8 +206,13 @@ function sign_win {
 function build {
     local current_target=${1:-""}
     local for_target_string=""
+    local stripbin="strip"
     if [[ -n $current_target ]]; then
         for_target_string=" for $current_target"
+
+        if [[ "$current_target" == "aarch64-unknown-linux-gnu" && "$(uname -m)" != "aarch64" ]]; then
+            stripbin="aarch64-linux-gnu-strip"
+        fi
     fi
 
     ################################################################################
@@ -255,8 +269,8 @@ function build {
 
     if [[ -n $current_target ]]; then
         local cargo_output_dir="$CARGO_TARGET_DIR/$current_target/$RUST_BUILD_MODE"
-        # To make it easier to package universal builds on macOS the binaries are located in a
-        # directory with the name of the target triple.
+        # To make it easier to package multiple targets, the binaries are
+        # located in a directory with the name of the target triple.
         local destination_dir="dist-assets/$current_target"
         mkdir -p "$destination_dir"
     else
@@ -273,7 +287,7 @@ function build {
             cp "$source" "$destination"
         else
             log_info "Stripping $source => $destination"
-            strip "$source" -o "$destination"
+            "${stripbin}" "$source" -o "$destination"
         fi
 
         if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then

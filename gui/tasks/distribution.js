@@ -12,6 +12,13 @@ const noAppleNotarization = process.argv.includes('--no-apple-notarization');
 const universal = process.argv.includes('--universal');
 const release = process.argv.includes('--release');
 
+const targetsIndex = process.argv.indexOf('--targets');
+let targets = null;
+
+if (targetsIndex !== -1) {
+  targets = process.argv[targetsIndex + 1];
+}
+
 const config = {
   appId: 'net.mullvad.vpn',
   copyright: 'Mullvad VPN AB',
@@ -147,17 +154,26 @@ const config = {
   },
 
   linux: {
-    target: ['deb', 'rpm'],
+    target: [
+      {
+        target: 'deb',
+        arch: getLinuxTargetArch(),
+      },
+      {
+        target: 'rpm',
+        arch: getLinuxTargetArch(),
+      },
+    ],
     artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
     category: 'Network',
     icon: distAssets('icon.icns'),
     extraFiles: [{ from: distAssets('linux/mullvad-gui-launcher.sh'), to: '.' }],
     extraResources: [
-      { from: distAssets('mullvad-problem-report'), to: '.' },
-      { from: distAssets('mullvad-daemon'), to: '.' },
-      { from: distAssets('mullvad-setup'), to: '.' },
-      { from: distAssets('libtalpid_openvpn_plugin.so'), to: '.' },
-      { from: distAssets('binaries/x86_64-unknown-linux-gnu/openvpn'), to: '.' },
+      { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-problem-report')), to: '.' },
+      { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')), to: '.' },
+      { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-setup')), to: '.' },
+      { from: distAssets(path.join(getLinuxTargetSubdir(), 'libtalpid_openvpn_plugin.so')), to: '.' },
+      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
       { from: distAssets('linux/mullvad-daemon.service'), to: '.' },
     ],
   },
@@ -173,8 +189,8 @@ const config = {
       distAssets('linux/before-remove.sh'),
       '--config-files',
       '/opt/Mullvad VPN/resources/mullvad-daemon.service',
-      distAssets('mullvad') + '=/usr/bin/',
-      distAssets('mullvad-exclude') + '=/usr/bin/',
+      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
+      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
       distAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
@@ -196,8 +212,8 @@ const config = {
       distAssets('linux/post-transaction.sh'),
       '--config-files',
       '/opt/Mullvad VPN/resources/mullvad-daemon.service',
-      distAssets('mullvad') + '=/usr/bin/',
-      distAssets('mullvad-exclude') + '=/usr/bin/',
+      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
+      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
       distAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
@@ -304,6 +320,21 @@ function packLinux() {
     targets: builder.Platform.LINUX.createTarget(),
     config: {
       ...config,
+      beforeBuild: (options) => {
+        switch (options.arch) {
+          case 'x64':
+            process.env.TARGET_TRIPLE = 'x86_64-unknown-linux-gnu';
+            break;
+          case 'arm64':
+            process.env.TARGET_TRIPLE = 'aarch64-unknown-linux-gnu';
+            break;
+          default:
+            delete process.env.TARGET_TRIPLE;
+            break;
+        }
+
+        return true;
+      },
       afterPack: async (context) => {
         config.afterPack?.(context);
 
@@ -326,6 +357,27 @@ function distAssets(relativePath) {
 
 function root(relativePath) {
   return path.join(path.resolve(__dirname, '../../'), relativePath);
+}
+
+function getLinuxTargetArch() {
+  if (targets) {
+    if (targets === 'aarch64-unknown-linux-gnu') {
+      return 'arm64';
+    }
+    throw new Error(`Invalid or unknown target (only one may be specified)`);
+  }
+  // Use host architecture.
+  return undefined;
+}
+
+function getLinuxTargetSubdir() {
+  if (targets) {
+    if (targets === 'aarch64-unknown-linux-gnu') {
+      return targets;
+    }
+    throw new Error(`Invalid or unknown target (only one may be specified)`);
+  }
+  return '';
 }
 
 function getMacArch() {
