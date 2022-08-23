@@ -826,6 +826,7 @@ mod event_server {
         Request, Response,
     };
 
+    #[allow(clippy::derive_partial_eq_without_eq)]
     mod proto {
         tonic::include_proto!("talpid_openvpn_plugin");
     }
