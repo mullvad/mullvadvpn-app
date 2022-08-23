@@ -268,7 +268,7 @@ function Device(props: IDeviceProps) {
               // TRANSLATORS: %(deviceName)s - The name of the device to log out.
               messages.pgettext(
                 'device-management',
-                'Are you sure you want to log out of **%(deviceName)s**?',
+                'Are you sure you want to log **%(deviceName)s** out?',
               ),
               { deviceName: capitalizedDeviceName },
             ),
