@@ -29,6 +29,8 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
+    "scripts/**/*.ts",
+    "test/**/*.ts",
     "assets/geo/*.json"
   ]
 }
