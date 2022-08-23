@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Prune bridges far away from the selected relay.
 - Stay connected when desktop app is killed or crashes. The only situation where the app now
   disconnects on quit is when the user presses the quit button.
+- Update Electron from 18.0.3 to 19.0.13.
 
 #### Windows
 - Remove dependency on `ipconfig.exe`. Call `DnsFlushResolverCache` to flush the DNS cache.
