@@ -21,11 +21,10 @@ import {
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
-  VoucherResponse,
 } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
-import { IRelayListPair, LaunchApplicationResult } from '../shared/ipc-schema';
+import { IRelayListPair } from '../shared/ipc-schema';
 import {
   IChangelog,
   ICurrentAppVersionInfo,
@@ -289,6 +288,51 @@ export default class AppRenderer {
     );
   }
 
+  public submitVoucher = (code: string) => IpcRendererEventChannel.account.submitVoucher(code);
+  public updateAccountData = () => IpcRendererEventChannel.account.updateData();
+  public getDeviceState = () => IpcRendererEventChannel.account.getDeviceState();
+  public removeDevice = (device: IDeviceRemoval) =>
+    IpcRendererEventChannel.account.removeDevice(device);
+  public connectTunnel = () => IpcRendererEventChannel.tunnel.connect();
+  public disconnectTunnel = () => IpcRendererEventChannel.tunnel.disconnect();
+  public reconnectTunnel = () => IpcRendererEventChannel.tunnel.reconnect();
+  public updateRelaySettings = (relaySettings: RelaySettingsUpdate) =>
+    IpcRendererEventChannel.settings.updateRelaySettings(relaySettings);
+  public updateBridgeSettings = (bridgeSettings: BridgeSettings) =>
+    IpcRendererEventChannel.settings.updateBridgeSettings(bridgeSettings);
+  public setDnsOptions = (dnsOptions: IDnsOptions) =>
+    IpcRendererEventChannel.settings.setDnsOptions(dnsOptions);
+  public clearAccountHistory = () => IpcRendererEventChannel.accountHistory.clear();
+  public setAutoConnect = (value: boolean) =>
+    IpcRendererEventChannel.guiSettings.setAutoConnect(value);
+  public setEnableSystemNotifications = (value: boolean) =>
+    IpcRendererEventChannel.guiSettings.setEnableSystemNotifications(value);
+  public setStartMinimized = (value: boolean) =>
+    IpcRendererEventChannel.guiSettings.setStartMinimized(value);
+  public setMonochromaticIcon = (value: boolean) =>
+    IpcRendererEventChannel.guiSettings.setMonochromaticIcon(value);
+  public setUnpinnedWindow = (value: boolean) =>
+    IpcRendererEventChannel.guiSettings.setUnpinnedWindow(value);
+  public getLinuxSplitTunnelingApplications = () =>
+    IpcRendererEventChannel.linuxSplitTunneling.getApplications();
+  public launchExcludedApplication = (application: ILinuxSplitTunnelingApplication | string) =>
+    IpcRendererEventChannel.linuxSplitTunneling.launchApplication(application);
+  public setSplitTunnelingState = (state: boolean) =>
+    IpcRendererEventChannel.windowsSplitTunneling.setState(state);
+  public addSplitTunnelingApplication = (application: string | IWindowsApplication) =>
+    IpcRendererEventChannel.windowsSplitTunneling.addApplication(application);
+  public forgetManuallyAddedSplitTunnelingApplication = (application: IWindowsApplication) =>
+    IpcRendererEventChannel.windowsSplitTunneling.forgetManuallyAddedApplication(application);
+  public setObfuscationSettings = (obfuscationSettings: ObfuscationSettings) =>
+    IpcRendererEventChannel.settings.setObfuscationSettings(obfuscationSettings);
+  public collectProblemReport = (toRedact: string | undefined) =>
+    IpcRendererEventChannel.problemReport.collectLogs(toRedact);
+  public viewLog = (path: string) => IpcRendererEventChannel.problemReport.viewLog(path);
+  public quit = () => IpcRendererEventChannel.app.quit();
+  public openUrl = (url: string) => IpcRendererEventChannel.app.openUrl(url);
+  public showOpenDialog = (options: Electron.OpenDialogOptions) =>
+    IpcRendererEventChannel.app.showOpenDialog(options);
+
   public login = async (accountToken: AccountToken) => {
     const actions = this.reduxActions;
     actions.account.startLogin(accountToken);
@@ -358,55 +402,11 @@ export default class AppRenderer {
     }
   }
 
-  public submitVoucher(voucherCode: string): Promise<VoucherResponse> {
-    return IpcRendererEventChannel.account.submitVoucher(voucherCode);
-  }
-
-  public updateAccountData(): void {
-    IpcRendererEventChannel.account.updateData();
-  }
-
-  public getDeviceState = (): Promise<DeviceState> => {
-    return IpcRendererEventChannel.account.getDeviceState();
-  };
-
   public fetchDevices = async (accountToken: AccountToken): Promise<Array<IDevice>> => {
     const devices = await IpcRendererEventChannel.account.listDevices(accountToken);
     this.reduxActions.account.updateDevices(devices);
     return devices;
   };
-
-  public removeDevice(deviceRemoval: IDeviceRemoval): Promise<void> {
-    return IpcRendererEventChannel.account.removeDevice(deviceRemoval);
-  }
-
-  public async connectTunnel(): Promise<void> {
-    return IpcRendererEventChannel.tunnel.connect();
-  }
-
-  public async disconnectTunnel(): Promise<void> {
-    return IpcRendererEventChannel.tunnel.disconnect();
-  }
-
-  public async reconnectTunnel(): Promise<void> {
-    return IpcRendererEventChannel.tunnel.reconnect();
-  }
-
-  public updateRelaySettings(relaySettings: RelaySettingsUpdate) {
-    return IpcRendererEventChannel.settings.updateRelaySettings(relaySettings);
-  }
-
-  public updateBridgeSettings(bridgeSettings: BridgeSettings) {
-    return IpcRendererEventChannel.settings.updateBridgeSettings(bridgeSettings);
-  }
-
-  public setDnsOptions(dns: IDnsOptions) {
-    return IpcRendererEventChannel.settings.setDnsOptions(dns);
-  }
-
-  public clearAccountHistory(): Promise<void> {
-    return IpcRendererEventChannel.accountHistory.clear();
-  }
 
   public openLinkWithAuth = async (link: string): Promise<void> => {
     let token = '';
@@ -461,70 +461,18 @@ export default class AppRenderer {
     await IpcRendererEventChannel.settings.setWireguardMtu(mtu);
   };
 
-  public setAutoConnect(autoConnect: boolean) {
-    IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);
-  }
-
-  public setEnableSystemNotifications(flag: boolean) {
-    IpcRendererEventChannel.guiSettings.setEnableSystemNotifications(flag);
-  }
-
   public setAutoStart = (autoStart: boolean): Promise<void> => {
     this.storeAutoStart(autoStart);
 
     return IpcRendererEventChannel.autoStart.set(autoStart);
   };
 
-  public setStartMinimized(startMinimized: boolean) {
-    IpcRendererEventChannel.guiSettings.setStartMinimized(startMinimized);
-  }
-
-  public setMonochromaticIcon(monochromaticIcon: boolean) {
-    IpcRendererEventChannel.guiSettings.setMonochromaticIcon(monochromaticIcon);
-  }
-
-  public setUnpinnedWindow(unpinnedWindow: boolean) {
-    IpcRendererEventChannel.guiSettings.setUnpinnedWindow(unpinnedWindow);
-  }
-
-  public getLinuxSplitTunnelingApplications() {
-    return IpcRendererEventChannel.linuxSplitTunneling.getApplications();
-  }
-
   public getWindowsSplitTunnelingApplications(updateCache = false) {
     return IpcRendererEventChannel.windowsSplitTunneling.getApplications(updateCache);
   }
 
-  public launchExcludedApplication(
-    application: ILinuxSplitTunnelingApplication | string,
-  ): Promise<LaunchApplicationResult> {
-    return IpcRendererEventChannel.linuxSplitTunneling.launchApplication(application);
-  }
-
-  public setSplitTunnelingState = (enabled: boolean): Promise<void> => {
-    return IpcRendererEventChannel.windowsSplitTunneling.setState(enabled);
-  };
-
-  public addSplitTunnelingApplication(application: IWindowsApplication | string): Promise<void> {
-    return IpcRendererEventChannel.windowsSplitTunneling.addApplication(application);
-  }
-
   public removeSplitTunnelingApplication(application: IWindowsApplication) {
     void IpcRendererEventChannel.windowsSplitTunneling.removeApplication(application);
-  }
-
-  public forgetManuallyAddedSplitTunnelingApplication(application: IWindowsApplication) {
-    return IpcRendererEventChannel.windowsSplitTunneling.forgetManuallyAddedApplication(
-      application,
-    );
-  }
-
-  public setObfuscationSettings(obfuscationSettings: ObfuscationSettings) {
-    return IpcRendererEventChannel.settings.setObfuscationSettings(obfuscationSettings);
-  }
-
-  public collectProblemReport(toRedact?: string): Promise<string> {
-    return IpcRendererEventChannel.problemReport.collectLogs(toRedact);
   }
 
   public async sendProblemReport(
@@ -533,24 +481,6 @@ export default class AppRenderer {
     savedReportId: string,
   ): Promise<void> {
     await IpcRendererEventChannel.problemReport.sendReport({ email, message, savedReportId });
-  }
-
-  public viewLog(id: string): Promise<string> {
-    return IpcRendererEventChannel.problemReport.viewLog(id);
-  }
-
-  public quit(): void {
-    IpcRendererEventChannel.app.quit();
-  }
-
-  public openUrl(url: string): Promise<void> {
-    return IpcRendererEventChannel.app.openUrl(url);
-  }
-
-  public showOpenDialog(
-    options: Electron.OpenDialogOptions,
-  ): Promise<Electron.OpenDialogReturnValue> {
-    return IpcRendererEventChannel.app.showOpenDialog(options);
   }
 
   public getPreferredLocaleList(): IPreferredLocaleDescriptor[] {

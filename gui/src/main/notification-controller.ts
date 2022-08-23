@@ -15,11 +15,13 @@ import {
   SystemNotificationProvider,
 } from '../shared/notifications/notification';
 
-interface NotificationControllerDelegate {
+export interface NotificationSender {
+  notify(notification: SystemNotification): void;
+}
+
+export interface NotificationControllerDelegate {
   openApp(): void;
   openLink(url: string, withAuth?: boolean): Promise<void>;
-  isWindowVisible(): boolean;
-  areSystemNotificationsEnabled(): boolean;
 }
 
 export default class NotificationController {
@@ -52,6 +54,8 @@ export default class NotificationController {
     tunnelState: TunnelState,
     blockWhenDisconnected: boolean,
     hasExcludedApps: boolean,
+    isWindowVisible: boolean,
+    areSystemNotificationsEnabled: boolean,
     accountExpiry?: string,
   ) {
     const notificationProviders: SystemNotificationProvider[] = [
@@ -70,7 +74,11 @@ export default class NotificationController {
       const notification = notificationProvider.getSystemNotification();
 
       if (notification) {
-        this.showTunnelStateNotification(notification);
+        this.showTunnelStateNotification(
+          notification,
+          isWindowVisible,
+          areSystemNotificationsEnabled,
+        );
       } else {
         log.error(
           `Notification providers mayDisplay() returned true but getSystemNotification() returned undefined for ${notificationProvider.constructor.name}`,
@@ -92,8 +100,14 @@ export default class NotificationController {
     this.lastTunnelStateAnnouncement = undefined;
   }
 
-  public notify(systemNotification: SystemNotification) {
-    if (this.evaluateNotification(systemNotification)) {
+  public notify(
+    systemNotification: SystemNotification,
+    isWindowVisible: boolean,
+    areSystemNotificationsEnabled: boolean,
+  ) {
+    if (
+      this.evaluateNotification(systemNotification, isWindowVisible, areSystemNotificationsEnabled)
+    ) {
       const notification = this.createNotification(systemNotification);
       this.addPendingNotification(notification);
       notification.show();
@@ -141,7 +155,11 @@ export default class NotificationController {
     }
   }
 
-  private showTunnelStateNotification(systemNotification: SystemNotification) {
+  private showTunnelStateNotification(
+    systemNotification: SystemNotification,
+    isWindowVisible: boolean,
+    areSystemNotificationsEnabled: boolean,
+  ) {
     const message = systemNotification.message;
     const lastAnnouncement = this.lastTunnelStateAnnouncement;
     const sameAsLastNotification = lastAnnouncement && lastAnnouncement.body === message;
@@ -154,7 +172,11 @@ export default class NotificationController {
       lastAnnouncement.notification.close();
     }
 
-    const newNotification = this.notify(systemNotification);
+    const newNotification = this.notify(
+      systemNotification,
+      isWindowVisible,
+      areSystemNotificationsEnabled,
+    );
 
     if (newNotification) {
       this.lastTunnelStateAnnouncement = {
@@ -179,13 +201,15 @@ export default class NotificationController {
     }
   }
 
-  private evaluateNotification(notification: SystemNotification) {
+  private evaluateNotification(
+    notification: SystemNotification,
+    isWindowVisible: boolean,
+    areSystemNotificationsEnabled: boolean,
+  ) {
     const suppressDueToDevelopment =
       notification.suppressInDevelopment && process.env.NODE_ENV === 'development';
-    const suppressDueToVisibleWindow = this.notificationControllerDelegate.isWindowVisible();
-    const suppressDueToPreference =
-      !this.notificationControllerDelegate.areSystemNotificationsEnabled() &&
-      !notification.critical;
+    const suppressDueToVisibleWindow = isWindowVisible;
+    const suppressDueToPreference = !areSystemNotificationsEnabled && !notification.critical;
 
     return (
       !suppressDueToDevelopment &&

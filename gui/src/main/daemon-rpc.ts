@@ -67,6 +67,9 @@ import {
 import { ManagementServiceClient } from './management_interface/management_interface_grpc_pb';
 import * as grpcTypes from './management_interface/management_interface_pb';
 
+const DAEMON_RPC_PATH =
+  process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
+
 const NETWORK_CALL_TIMEOUT = 10000;
 const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;
 
@@ -77,7 +80,10 @@ const invalidErrorStateCause = new Error(
 );
 
 export class ConnectionObserver {
-  constructor(private openHandler: () => void, private closeHandler: (error?: Error) => void) {}
+  constructor(
+    private openHandler: () => void,
+    private closeHandler: (wasConnected: boolean, error?: Error) => void,
+  ) {}
 
   // Only meant to be called by DaemonRpc
   // @internal
@@ -87,8 +93,8 @@ export class ConnectionObserver {
 
   // Only meant to be called by DaemonRpc
   // @internal
-  public onClose = (error?: Error) => {
-    this.closeHandler(error);
+  public onClose = (wasConnected: boolean, error?: Error) => {
+    this.closeHandler(wasConnected, error);
   };
 }
 
@@ -127,30 +133,34 @@ type CallFunctionArgument<T, R> =
 
 export class DaemonRpc {
   private client: ManagementServiceClient;
-  private isConnected = false;
+  private isConnectedValue = false;
   private connectionObservers: ConnectionObserver[] = [];
   private nextSubscriptionId = 0;
   private subscriptions: Map<number, grpc.ClientReadableStream<grpcTypes.DaemonEvent>> = new Map();
   private reconnectionTimeout?: NodeJS.Timer;
 
-  constructor(connectionParams: string) {
+  constructor() {
     this.client = new ManagementServiceClient(
-      connectionParams,
+      DAEMON_RPC_PATH,
       grpc.credentials.createInsecure(),
       this.channelOptions(),
     );
+  }
+
+  public get isConnected() {
+    return this.isConnectedValue;
   }
 
   public connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.client.waitForReady(this.deadlineFromNow(), (error) => {
         if (error) {
-          this.connectionObservers.forEach((observer) => observer.onClose(error));
+          this.onClose(error);
           this.ensureConnectivity();
           reject(error);
         } else {
           this.reconnectionTimeout = undefined;
-          this.isConnected = true;
+          this.isConnectedValue = true;
           this.connectionObservers.forEach((observer) => observer.onOpen());
           this.setChannelCallback();
           resolve();
@@ -160,7 +170,7 @@ export class DaemonRpc {
   }
 
   public disconnect() {
-    this.isConnected = false;
+    this.isConnectedValue = false;
 
     for (const subscriptionId of this.subscriptions.keys()) {
       this.removeSubscription(subscriptionId);
@@ -637,6 +647,13 @@ export class DaemonRpc {
     }
   }
 
+  private onClose(error?: Error) {
+    const wasConnected = this.isConnectedValue;
+    this.isConnectedValue = false;
+
+    this.connectionObservers.forEach((observer) => observer.onClose(wasConnected, error));
+  }
+
   private removeSubscription(id: number) {
     const subscription = this.subscriptions.get(id);
     if (subscription !== undefined) {
@@ -679,15 +696,14 @@ export class DaemonRpc {
       }
       const wasConnected = this.isConnected;
       if (this.channelDisconnected(currentState)) {
-        this.connectionObservers.forEach((observer) => observer.onClose());
-        this.isConnected = false;
+        this.onClose();
         // Try and reconnect in case
         void this.connect().catch((error) => {
           log.error(`Failed to reconnect - ${error}`);
         });
         this.setChannelCallback(currentState);
       } else if (!wasConnected && currentState === grpc.connectivityState.READY) {
-        this.isConnected = true;
+        this.isConnectedValue = true;
         this.connectionObservers.forEach((observer) => observer.onOpen());
         this.setChannelCallback(currentState);
       }
@@ -723,8 +739,7 @@ export class DaemonRpc {
     this.reconnectionTimeout = setTimeout(() => {
       const lastState = this.client.getChannel().getConnectivityState(true);
       if (this.channelDisconnected(lastState)) {
-        this.connectionObservers.forEach((observer) => observer.onClose());
-        this.isConnected = false;
+        this.onClose();
       }
       if (!this.isConnected) {
         void this.connect().catch((error) => {
