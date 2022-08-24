@@ -9,7 +9,6 @@ import { messages, relayLocations } from '../shared/gettext';
 import log from '../shared/logging';
 import { Scheduler } from '../shared/scheduler';
 import { DaemonRpc } from './daemon-rpc';
-import { AppQuitStage } from './index';
 import { changeIpcWebContents, IpcMainEventChannel } from './ipc-event-channel';
 import { isMacOs11OrNewer } from './platform-version';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
@@ -24,7 +23,6 @@ export interface UserInterfaceDelegate {
   disconnectTunnel(): void;
   isUnpinnedWindow(): boolean;
   isLoggedIn(): boolean;
-  getAppQuitStage(): AppQuitStage;
   getAccountData(): IAccountData | undefined;
   getTunnelState(): TunnelState;
 }
@@ -158,18 +156,27 @@ export default class UserInterface implements WindowControllerDelegate {
     this.trayIconController?.setUseMonochromaticIcon(value);
   public setWindowIcon = (icon: string) => this.windowController.window?.setIcon(icon);
 
-  public setWindowClosable = (value: boolean) => {
-    if (this.windowController.window) {
-      this.windowController.window.closable = value;
-    }
-  };
-
   public updateTrayIcon(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
     const type = this.trayIconType(tunnelState, blockWhenDisconnected);
     this.trayIconController?.animateToIcon(type);
   }
 
-  public dispose = () => this.trayIconController?.dispose();
+  public dispose = () => {
+    this.tray.removeAllListeners();
+    this.windowController.window?.removeAllListeners();
+
+    // The window is not closable on macOS to be able to hide the titlebar and workaround
+    // a shadow bug rendered above the invisible title bar. This also prevents the window from
+    // closing normally, even programmatically. Therefore re-enable the close button just before
+    // quitting the app.
+    // Github issue: https://github.com/electron/electron/issues/15008
+    if (process.platform === 'darwin' && this.windowController.window) {
+      this.windowController.window.closable = true;
+    }
+
+    this.windowController.close();
+    this.trayIconController?.dispose();
+  };
 
   private createTray(): Tray {
     const tray = new Tray(nativeImage.createEmpty());
@@ -472,10 +479,8 @@ export default class UserInterface implements WindowControllerDelegate {
     }
 
     this.windowController.window?.on('close', (closeEvent: Event) => {
-      if (this.delegate.getAppQuitStage() !== AppQuitStage.ready) {
-        closeEvent.preventDefault();
-        this.windowController.hide();
-      }
+      closeEvent.preventDefault();
+      this.windowController.hide();
     });
   }
 

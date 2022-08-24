@@ -25,8 +25,12 @@ export class Logger {
   public verbose = (...data: unknown[]) => this.log(LogLevel.verbose, ...data);
   public debug = (...data: unknown[]) => this.log(LogLevel.debug, ...data);
 
-  public dispose() {
-    this.outputs.forEach((output) => output.dispose?.());
+  public disposeDisposableOutputs() {
+    // Keep the outputs that aren't disposable to continue to forward log messages to them.
+    this.outputs = this.outputs.filter((output) => {
+      output.dispose?.();
+      return output.dispose === undefined;
+    });
   }
 
   private getDateString(): string {
