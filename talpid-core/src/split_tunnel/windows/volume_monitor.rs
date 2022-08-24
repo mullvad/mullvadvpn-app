@@ -10,16 +10,13 @@ use std::{
     sync::{mpsc as sync_mpsc, Arc, Mutex, MutexGuard},
 };
 use talpid_types::ErrorExt;
-use winapi::{
-    shared::minwindef::TRUE,
-    um::{
-        dbt::{
-            DBTF_NET, DBT_DEVICEARRIVAL, DBT_DEVICEREMOVECOMPLETE, DBT_DEVTYP_VOLUME,
-            DEV_BROADCAST_HDR, DEV_BROADCAST_VOLUME, WM_DEVICECHANGE,
-        },
-        fileapi::GetLogicalDrives,
-        winuser::DefWindowProcW,
+use windows_sys::Win32::{
+    Storage::FileSystem::GetLogicalDrives,
+    System::SystemServices::{
+        DBTF_NET, DBT_DEVICEARRIVAL, DBT_DEVICEREMOVECOMPLETE, DBT_DEVTYP_VOLUME,
+        DEV_BROADCAST_HDR, DEV_BROADCAST_VOLUME,
     },
+    UI::WindowsAndMessaging::{DefWindowProcW, WM_DEVICECHANGE},
 };
 
 pub(super) struct VolumeMonitor(());
@@ -125,7 +122,7 @@ fn start_internal_monitor(
         let volumes = unsafe { parse_device_volume_broadcast(&*(l_param as *const _)) };
 
         let prev_state = *known_state_guard;
-        let is_arrival = w_param == DBT_DEVICEARRIVAL;
+        let is_arrival = w_param == DBT_DEVICEARRIVAL as usize;
         if is_arrival {
             *known_state_guard |= volumes;
         } else {
@@ -144,7 +141,7 @@ fn start_internal_monitor(
         }
 
         // Always grant the request
-        TRUE as isize
+        1
     })
 }
 
@@ -184,7 +181,7 @@ fn matches_volume(volumes: u32, paths_guard: &MutexGuard<'_, Vec<OsString>>) -> 
 
 fn is_device_arrival_or_removal(message: u32, w_param: usize) -> bool {
     message == WM_DEVICECHANGE
-        && (w_param == DBT_DEVICEARRIVAL || w_param == DBT_DEVICEREMOVECOMPLETE)
+        && (w_param == DBT_DEVICEARRIVAL as usize || w_param == DBT_DEVICEREMOVECOMPLETE as usize)
 }
 
 /// Return volumes affected by the device arrival or removal message as a mask.

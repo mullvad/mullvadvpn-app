@@ -20,7 +20,6 @@ use std::{
     ffi::{OsStr, OsString},
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
-    os::windows::io::AsRawHandle,
     path::{Path, PathBuf},
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -29,7 +28,9 @@ use std::{
     time::Duration,
 };
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
-use winapi::shared::{ifdef::NET_LUID, winerror::ERROR_OPERATION_ABORTED};
+use windows_sys::Win32::{
+    Foundation::ERROR_OPERATION_ABORTED, NetworkManagement::IpHelper::NET_LUID_LH,
+};
 
 const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;
 const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
@@ -254,10 +255,8 @@ impl SplitTunnel {
         overlapped: &mut windows::Overlapped,
         data_buffer: &mut Vec<u8>,
     ) -> io::Result<EventResult> {
-        if unsafe {
-            driver::wait_for_single_object(quit_event.as_raw_handle(), Some(Duration::ZERO))
-        }
-        .is_ok()
+        if unsafe { driver::wait_for_single_object(quit_event.as_handle(), Some(Duration::ZERO)) }
+            .is_ok()
         {
             return Ok(EventResult::Quit);
         }
@@ -283,8 +282,8 @@ impl SplitTunnel {
         })?;
 
         let event_objects = [
-            overlapped.get_event().unwrap().as_raw_handle(),
-            quit_event.as_raw_handle(),
+            overlapped.get_event().unwrap().as_handle(),
+            quit_event.as_handle(),
         ];
 
         let signaled_object =
@@ -298,7 +297,7 @@ impl SplitTunnel {
                 },
             )?;
 
-        if signaled_object == quit_event.as_raw_handle() {
+        if signaled_object == quit_event.as_handle() {
             // Quit event was signaled
             return Ok(EventResult::Quit);
         }
@@ -765,7 +764,7 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
             .map(|route| {
                 get_ip_address_for_interface(
                     AddressFamily::Ipv4,
-                    NET_LUID {
+                    NET_LUID_LH {
                         Value: route.interface_luid,
                     },
                 )
@@ -786,7 +785,7 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
             .map(|route| {
                 get_ip_address_for_interface(
                     AddressFamily::Ipv6,
-                    NET_LUID {
+                    NET_LUID_LH {
                         Value: route.interface_luid,
                     },
                 )
@@ -835,7 +834,7 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
         DefaultRouteChanged | DefaultRouteUpdatedDetails => {
             match get_ip_address_for_interface(
                 translated_family,
-                NET_LUID {
+                NET_LUID_LH {
                     Value: default_route.interface_luid,
                 },
             ) {

@@ -1,6 +1,6 @@
 use libc::{c_char, c_void};
 use std::{ffi::CStr, io, ptr};
-use winapi::um::{stringapiset::MultiByteToWideChar, winnls::CP_ACP};
+use windows_sys::Win32::Globalization::{MultiByteToWideChar, CP_ACP};
 
 /// Logging callback type.
 pub type LogSink = extern "system" fn(level: log::Level, msg: *const c_char, context: *mut c_void);
@@ -40,8 +40,16 @@ fn multibyte_to_wide(mb_string: &CStr, codepage: u32) -> Result<Vec<u16>, io::Er
         return Ok(vec![]);
     }
 
-    let wc_size =
-        unsafe { MultiByteToWideChar(codepage, 0, mb_string.as_ptr(), -1, ptr::null_mut(), 0) };
+    let wc_size = unsafe {
+        MultiByteToWideChar(
+            codepage,
+            0,
+            mb_string.as_ptr() as *const u8,
+            -1,
+            ptr::null_mut(),
+            0,
+        )
+    };
 
     if wc_size == 0 {
         return Err(io::Error::last_os_error());
@@ -53,7 +61,7 @@ fn multibyte_to_wide(mb_string: &CStr, codepage: u32) -> Result<Vec<u16>, io::Er
         MultiByteToWideChar(
             codepage,
             0,
-            mb_string.as_ptr(),
+            mb_string.as_ptr() as *const u8,
             -1,
             wc_buffer.as_mut_ptr(),
             wc_size,

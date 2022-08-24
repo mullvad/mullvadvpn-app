@@ -8,6 +8,7 @@ use futures::{
     StreamExt,
 };
 use std::{collections::HashSet, net::IpAddr};
+use windows_sys::Win32::NetworkManagement::IpHelper::NET_LUID_LH;
 use winnet::WinNetAddrFamily;
 
 /// Windows routing errors.
@@ -187,14 +188,13 @@ impl RouteManager {
 
 fn get_mtu_for_route(addr_family: WinNetAddrFamily) -> Result<Option<u16>> {
     use crate::windows::AddressFamily;
-    use winapi::shared::ifdef::NET_LUID;
     match winnet::get_best_default_route(addr_family) {
         Ok(Some(route)) => {
             let addr_family = match addr_family {
                 WinNetAddrFamily::IPV4 => AddressFamily::Ipv4,
                 WinNetAddrFamily::IPV6 => AddressFamily::Ipv6,
             };
-            let luid = NET_LUID {
+            let luid = NET_LUID_LH {
                 Value: route.interface_luid,
             };
             let interface_row = crate::windows::get_ip_interface_entry(addr_family, &luid)
