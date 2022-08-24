@@ -23,26 +23,22 @@ use std::{
     time::Duration,
 };
 use talpid_types::ErrorExt;
-use winapi::{
-    shared::{
-        in6addr::IN6_ADDR,
-        inaddr::IN_ADDR,
-        minwindef::{FALSE, TRUE},
-        ntdef::NTSTATUS,
-        winerror::{
-            ERROR_ACCESS_DENIED, ERROR_FILE_NOT_FOUND, ERROR_INVALID_PARAMETER, ERROR_IO_PENDING,
-        },
+use windows_sys::Win32::{
+    Foundation::{
+        ERROR_ACCESS_DENIED, ERROR_FILE_NOT_FOUND, ERROR_INVALID_PARAMETER, ERROR_IO_PENDING,
+        HANDLE, NTSTATUS, WAIT_FAILED,
     },
-    um::{
-        ioapiset::{DeviceIoControl, GetOverlappedResult},
-        minwinbase::OVERLAPPED,
-        synchapi::{WaitForMultipleObjects, WaitForSingleObject},
-        tlhelp32::TH32CS_SNAPPROCESS,
-        winbase::{
-            FILE_FLAG_OVERLAPPED, INFINITE, WAIT_ABANDONED, WAIT_ABANDONED_0, WAIT_FAILED,
+    Networking::WinSock::{IN6_ADDR, IN_ADDR},
+    Storage::FileSystem::FILE_FLAG_OVERLAPPED,
+    System::{
+        Diagnostics::ToolHelp::TH32CS_SNAPPROCESS,
+        Ioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
+        Threading::{
+            WaitForMultipleObjects, WaitForSingleObject, WAIT_ABANDONED, WAIT_ABANDONED_0,
             WAIT_OBJECT_0,
         },
-        winioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
+        WindowsProgramming::INFINITE,
+        IO::{DeviceIoControl, GetOverlappedResult, OVERLAPPED},
     },
 };
 
@@ -842,7 +838,7 @@ pub unsafe fn device_io_control_buffer_async(
     let input_len = input.map(|input| input.len()).unwrap_or(0);
 
     let result = DeviceIoControl(
-        device.as_raw_handle(),
+        device.as_raw_handle() as HANDLE,
         ioctl_code,
         input_ptr,
         u32::try_from(input_len).map_err(|_error| {
@@ -883,16 +879,16 @@ pub fn get_overlapped_result(
     let event = overlapped.get_event().unwrap();
 
     // SAFETY: This is a valid event object.
-    unsafe { wait_for_single_object(event.as_raw_handle(), None) }?;
+    unsafe { wait_for_single_object(event.as_handle(), None) }?;
 
     // SAFETY: The handle and overlapped object are valid.
     let mut returned_bytes = 0u32;
     let result = unsafe {
         GetOverlappedResult(
-            device.as_raw_handle(),
+            device.as_raw_handle() as HANDLE,
             overlapped.as_mut_ptr(),
             &mut returned_bytes,
-            FALSE,
+            0,
         )
     };
     if result == 0 {
@@ -906,10 +902,7 @@ pub fn get_overlapped_result(
 /// # Safety
 ///
 /// * `object` must be a valid object that can be signaled, such as an event object.
-pub unsafe fn wait_for_single_object(
-    object: RawHandle,
-    timeout: Option<Duration>,
-) -> io::Result<()> {
+pub unsafe fn wait_for_single_object(object: HANDLE, timeout: Option<Duration>) -> io::Result<()> {
     let timeout = match timeout {
         Some(timeout) => u32::try_from(timeout.as_millis()).map_err(|_error| {
             io::Error::new(io::ErrorKind::InvalidInput, "the duration is too long")
@@ -931,16 +924,13 @@ pub unsafe fn wait_for_single_object(
 /// # Safety
 ///
 /// * `objects` must be a slice of valid objects that can be signaled, such as event objects.
-pub unsafe fn wait_for_multiple_objects(
-    objects: &[RawHandle],
-    wait_all: bool,
-) -> io::Result<RawHandle> {
+pub unsafe fn wait_for_multiple_objects(objects: &[HANDLE], wait_all: bool) -> io::Result<HANDLE> {
     let objects_len = u32::try_from(objects.len())
         .map_err(|_error| io::Error::new(io::ErrorKind::InvalidInput, "too many objects"))?;
     let result = WaitForMultipleObjects(
         objects_len,
         objects.as_ptr(),
-        if wait_all { TRUE } else { FALSE },
+        if wait_all { 1 } else { 0 },
         INFINITE,
     );
     let signaled_index = if result >= WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + objects_len {

@@ -24,19 +24,17 @@ use std::{
 };
 use talpid_types::{BoxedError, ErrorExt};
 use widestring::{U16CStr, U16CString};
-use winapi::{
-    shared::{
-        guiddef::GUID,
-        ifdef::NET_LUID,
-        in6addr::IN6_ADDR,
-        inaddr::IN_ADDR,
-        minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
-        winerror::ERROR_MORE_DATA,
-        ws2def::{ADDRESS_FAMILY, AF_INET, AF_INET6},
-        ws2ipdef::SOCKADDR_INET,
-    },
-    um::libloaderapi::{
-        FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH,
+use windows_sys::{
+    core::GUID,
+    Win32::{
+        Foundation::{BOOL, ERROR_MORE_DATA, HINSTANCE},
+        NetworkManagement::IpHelper::NET_LUID_LH,
+        Networking::WinSock::{
+            ADDRESS_FAMILY, AF_INET, AF_INET6, IN6_ADDR, IN_ADDR, SOCKADDR_INET,
+        },
+        System::LibraryLoader::{
+            FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH,
+        },
     },
 };
 
@@ -47,10 +45,10 @@ lazy_static! {
 }
 
 const ADAPTER_GUID: GUID = GUID {
-    Data1: 0x514a3988,
-    Data2: 0x9716,
-    Data3: 0x43d5,
-    Data4: [0x8b, 0x05, 0x31, 0xda, 0x25, 0xa0, 0x44, 0xa9],
+    data1: 0x514a3988,
+    data2: 0x9716,
+    data3: 0x43d5,
+    data4: [0x8b, 0x05, 0x31, 0xda, 0x25, 0xa0, 0x44, 0xa9],
 };
 
 type WireGuardCreateAdapterFn = unsafe extern "stdcall" fn(
@@ -60,7 +58,7 @@ type WireGuardCreateAdapterFn = unsafe extern "stdcall" fn(
 ) -> RawHandle;
 type WireGuardCloseAdapterFn = unsafe extern "stdcall" fn(adapter: RawHandle);
 type WireGuardGetAdapterLuidFn =
-    unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID);
+    unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID_LH);
 type WireGuardSetConfigurationFn = unsafe extern "stdcall" fn(
     adapter: RawHandle,
     config: *const MaybeUninit<u8>,
@@ -147,7 +145,7 @@ pub enum Error {
 
     /// Unknown address family
     #[error(display = "Unknown address family: {}", _0)]
-    UnknownAddressFamily(i32),
+    UnknownAddressFamily(u32),
 
     /// Failure to set up logging
     #[error(display = "Failed to set up logging")]
@@ -213,7 +211,7 @@ impl From<Ipv4Addr> for WgIpAddr {
 #[repr(C, align(8))]
 struct WgAllowedIp {
     address: WgIpAddr,
-    address_family: ADDRESS_FAMILY,
+    address_family: u16,
     cidr: u8,
 }
 
@@ -222,19 +220,19 @@ impl WgAllowedIp {
         Self::validate(&address, address_family, cidr)?;
         Ok(Self {
             address,
-            address_family,
+            address_family: address_family as u16,
             cidr,
         })
     }
 
     fn validate(address: &WgIpAddr, address_family: ADDRESS_FAMILY, cidr: u8) -> Result<()> {
-        match address_family as i32 {
+        match address_family {
             AF_INET => {
                 if cidr > 32 {
                     return Err(Error::InvalidAllowedIpCidr);
                 }
                 let host_mask = u32::MAX.checked_shr(u32::from(cidr)).unwrap_or(0);
-                if host_mask & (unsafe { *(address.v4.S_un.S_addr()) }.to_be()) != 0 {
+                if host_mask & unsafe { address.v4.S_un.S_addr }.to_be() != 0 {
                     return Err(Error::InvalidAllowedIpBits);
                 }
             }
@@ -243,7 +241,7 @@ impl WgAllowedIp {
                     return Err(Error::InvalidAllowedIpCidr);
                 }
                 let mut host_mask = u128::MAX.checked_shr(u32::from(cidr)).unwrap_or(0);
-                let bytes = unsafe { address.v6.u.Byte() };
+                let bytes = unsafe { address.v6.u.Byte };
                 for byte in bytes.iter().rev() {
                     if byte & ((host_mask & 0xff) as u8) != 0 {
                         return Err(Error::InvalidAllowedIpBits);
@@ -262,7 +260,7 @@ impl PartialEq for WgAllowedIp {
         if self.cidr != other.cidr {
             return false;
         }
-        match self.address_family as i32 {
+        match self.address_family as u32 {
             AF_INET => {
                 windows::ipaddr_from_inaddr(unsafe { self.address.v4 })
                     == windows::ipaddr_from_inaddr(unsafe { other.address.v4 })
@@ -283,7 +281,7 @@ impl Eq for WgAllowedIp {}
 impl fmt::Debug for WgAllowedIp {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = f.debug_struct("WgAllowedIp");
-        match self.address_family as i32 {
+        match self.address_family as u32 {
             AF_INET => s.field(
                 "address",
                 &windows::ipaddr_from_inaddr(unsafe { self.address.v4 }),
@@ -470,9 +468,12 @@ async fn setup_ip_listener(
     has_ipv6: bool,
 ) -> Result<()> {
     let luid = { device.lock().unwrap().as_ref().unwrap().luid() };
+    let luid = NET_LUID_LH {
+        Value: unsafe { luid.Value },
+    };
 
     log::debug!("Waiting for tunnel IP interfaces to arrive");
-    windows::wait_for_interfaces(luid.clone(), true, has_ipv6)
+    windows::wait_for_interfaces(luid, true, has_ipv6)
         .await
         .map_err(Error::IpInterfacesError)?;
     log::debug!("Waiting for tunnel IP interfaces: Done");
@@ -573,7 +574,7 @@ impl WgNtAdapter {
         })
     }
 
-    fn luid(&self) -> NET_LUID {
+    fn luid(&self) -> NET_LUID_LH {
         unsafe { self.dll_handle.get_adapter_luid(self.handle) }
     }
 
@@ -632,22 +633,20 @@ impl WgNtDll {
         let wg_nt_dll =
             U16CString::from_os_str_truncate(resource_dir.join("mullvad-wireguard.dll"));
 
-        let handle = unsafe {
-            LoadLibraryExW(
-                wg_nt_dll.as_ptr(),
-                ptr::null_mut(),
-                LOAD_WITH_ALTERED_SEARCH_PATH,
-            )
-        };
-        if handle == ptr::null_mut() {
+        let handle =
+            unsafe { LoadLibraryExW(wg_nt_dll.as_ptr(), 0, LOAD_WITH_ALTERED_SEARCH_PATH) };
+        if handle == 0 {
             return Err(io::Error::last_os_error());
         }
         Self::new_inner(handle, Self::get_proc_address)
     }
 
     fn new_inner(
-        handle: HMODULE,
-        get_proc_fn: unsafe fn(HMODULE, &CStr) -> io::Result<FARPROC>,
+        handle: HINSTANCE,
+        get_proc_fn: unsafe fn(
+            HINSTANCE,
+            &CStr,
+        ) -> io::Result<unsafe extern "system" fn() -> isize>,
     ) -> io::Result<Self> {
         Ok(WgNtDll {
             handle,
@@ -702,12 +701,12 @@ impl WgNtDll {
         })
     }
 
-    unsafe fn get_proc_address(handle: HMODULE, name: &CStr) -> io::Result<FARPROC> {
-        let handle = GetProcAddress(handle, name.as_ptr());
-        if handle == ptr::null_mut() {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(handle)
+    unsafe fn get_proc_address(
+        handle: HINSTANCE,
+        name: &CStr,
+    ) -> io::Result<unsafe extern "system" fn() -> isize> {
+        let handle = GetProcAddress(handle, name.as_ptr() as *const u8);
+        handle.ok_or(io::Error::last_os_error())
     }
 
     pub fn create_adapter(
@@ -731,8 +730,8 @@ impl WgNtDll {
         (self.func_close)(adapter);
     }
 
-    pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID {
-        let mut luid = mem::MaybeUninit::<NET_LUID>::zeroed();
+    pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID_LH {
+        let mut luid = mem::MaybeUninit::<NET_LUID_LH>::zeroed();
         (self.func_get_adapter_luid)(adapter, luid.as_mut_ptr());
         luid.assume_init()
     }
@@ -854,8 +853,8 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
 
         for allowed_ip in &peer.allowed_ips {
             let address_family = match allowed_ip {
-                IpNetwork::V4(_) => AF_INET as u16,
-                IpNetwork::V6(_) => AF_INET6 as u16,
+                IpNetwork::V4(_) => AF_INET,
+                IpNetwork::V6(_) => AF_INET6,
             };
             let address = match allowed_ip {
                 IpNetwork::V4(v4_network) => WgIpAddr::from(v4_network.ip()),
@@ -908,7 +907,7 @@ unsafe fn deserialize_config(
             let allowed_ip: WgAllowedIp = *(allowed_ip_data.as_ptr() as *const WgAllowedIp);
             if let Err(error) = WgAllowedIp::validate(
                 &allowed_ip.address,
-                allowed_ip.address_family,
+                u32::from(allowed_ip.address_family),
                 allowed_ip.cidr,
             ) {
                 log::error!(
@@ -1053,13 +1052,16 @@ mod tests {
         };
     }
 
-    fn get_proc_fn(_handle: HMODULE, _symbol: &CStr) -> io::Result<FARPROC> {
-        Ok(std::ptr::null_mut())
+    fn get_proc_fn(
+        _handle: HINSTANCE,
+        _symbol: &CStr,
+    ) -> io::Result<unsafe extern "system" fn() -> isize> {
+        Ok(null_fn)
     }
 
     #[test]
     fn test_dll_imports() {
-        WgNtDll::new_inner(ptr::null_mut(), get_proc_fn).unwrap();
+        WgNtDll::new_inner(0, get_proc_fn).unwrap();
     }
 
     #[test]
@@ -1085,7 +1087,7 @@ mod tests {
     #[test]
     fn test_wg_allowed_ip_v4() {
         // Valid: /32 prefix
-        let address_family = AF_INET as u16;
+        let address_family = AF_INET;
         let address = WgIpAddr::from("127.0.0.1".parse::<Ipv4Addr>().unwrap());
         let cidr = 32;
         WgAllowedIp::new(address, address_family, cidr).unwrap();
@@ -1113,7 +1115,7 @@ mod tests {
     #[test]
     fn test_wg_allowed_ip_v6() {
         // Valid: /128 prefix
-        let address_family = AF_INET6 as u16;
+        let address_family = AF_INET6;
         let address = WgIpAddr::from("::1".parse::<Ipv6Addr>().unwrap());
         let cidr = 128;
         WgAllowedIp::new(address, address_family, cidr).unwrap();
@@ -1138,5 +1140,9 @@ mod tests {
         // Invalid CIDR
         let cidr = 129;
         assert!(WgAllowedIp::new(address, address_family, cidr).is_err());
+    }
+
+    unsafe extern "system" fn null_fn() -> isize {
+        unreachable!("unexpected call of function")
     }
 }

@@ -1,7 +1,7 @@
 use crate::windows::{guid_from_luid, luid_from_alias, string_from_guid};
 use std::{io, net::IpAddr};
 use talpid_types::ErrorExt;
-use winapi::shared::guiddef::GUID;
+use windows_sys::core::GUID;
 use winreg::{
     enums::{HKEY_LOCAL_MACHINE, KEY_SET_VALUE},
     transaction::Transaction,

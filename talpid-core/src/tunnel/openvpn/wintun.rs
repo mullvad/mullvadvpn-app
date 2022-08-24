@@ -10,19 +10,17 @@ use std::{
 };
 use talpid_types::ErrorExt;
 use widestring::{U16CStr, U16CString};
-use winapi::{
-    shared::{
-        guiddef::GUID,
-        ifdef::NET_LUID,
-        minwindef::{FARPROC, HINSTANCE, HMODULE},
-        netioapi::ConvertInterfaceLuidToGuid,
-        winerror::NO_ERROR,
-    },
-    um::{
-        libloaderapi::{
-            FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH,
+use windows_sys::{
+    core::GUID,
+    Win32::{
+        Foundation::{HINSTANCE, NO_ERROR},
+        NetworkManagement::IpHelper::{ConvertInterfaceLuidToGuid, NET_LUID_LH},
+        System::{
+            LibraryLoader::{
+                FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH,
+            },
+            Registry::REG_SAM_FLAGS,
         },
-        winreg::REGSAM,
     },
 };
 use winreg::{
@@ -43,7 +41,8 @@ type WintunCreateAdapterFn = unsafe extern "stdcall" fn(
 
 type WintunCloseAdapterFn = unsafe extern "stdcall" fn(adapter: RawHandle);
 
-type WintunGetAdapterLuidFn = unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID);
+type WintunGetAdapterLuidFn =
+    unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID_LH);
 
 type WintunLoggerCbFn = extern "stdcall" fn(WintunLoggerLevel, u64, *const u16);
 
@@ -116,14 +115,14 @@ impl WintunAdapter {
         self.name.to_owned()
     }
 
-    pub fn luid(&self) -> NET_LUID {
+    pub fn luid(&self) -> NET_LUID_LH {
         unsafe { self.dll_handle.get_adapter_luid(self.handle) }
     }
 
     pub fn guid(&self) -> io::Result<GUID> {
         let mut guid = mem::MaybeUninit::zeroed();
         let result = unsafe { ConvertInterfaceLuidToGuid(&self.luid(), guid.as_mut_ptr()) };
-        if result != NO_ERROR {
+        if result != NO_ERROR as i32 {
             return Err(io::Error::from_raw_os_error(result as i32));
         }
         Ok(unsafe { guid.assume_init() })
@@ -196,22 +195,20 @@ impl WintunDll {
     fn new(resource_dir: &Path) -> io::Result<Self> {
         let wintun_dll = U16CString::from_os_str_truncate(resource_dir.join("wintun.dll"));
 
-        let handle = unsafe {
-            LoadLibraryExW(
-                wintun_dll.as_ptr(),
-                ptr::null_mut(),
-                LOAD_WITH_ALTERED_SEARCH_PATH,
-            )
-        };
-        if handle == ptr::null_mut() {
+        let handle =
+            unsafe { LoadLibraryExW(wintun_dll.as_ptr(), 0, LOAD_WITH_ALTERED_SEARCH_PATH) };
+        if handle == 0 {
             return Err(io::Error::last_os_error());
         }
         Self::new_inner(handle, Self::get_proc_address)
     }
 
     fn new_inner(
-        handle: HMODULE,
-        get_proc_fn: unsafe fn(HMODULE, &CStr) -> io::Result<FARPROC>,
+        handle: HINSTANCE,
+        get_proc_fn: unsafe fn(
+            HINSTANCE,
+            &CStr,
+        ) -> io::Result<unsafe extern "system" fn() -> isize>,
     ) -> io::Result<Self> {
         Ok(WintunDll {
             handle,
@@ -242,12 +239,12 @@ impl WintunDll {
         })
     }
 
-    unsafe fn get_proc_address(handle: HMODULE, name: &CStr) -> io::Result<FARPROC> {
-        let handle = GetProcAddress(handle, name.as_ptr());
-        if handle == ptr::null_mut() {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(handle)
+    unsafe fn get_proc_address(
+        handle: HINSTANCE,
+        name: &CStr,
+    ) -> io::Result<unsafe extern "system" fn() -> isize> {
+        let handle = GetProcAddress(handle, name.as_ptr() as *const u8);
+        handle.ok_or(io::Error::last_os_error())
     }
 
     pub fn create_adapter(
@@ -271,8 +268,8 @@ impl WintunDll {
         (self.func_close)(adapter);
     }
 
-    pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID {
-        let mut luid = mem::MaybeUninit::<NET_LUID>::zeroed();
+    pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID_LH {
+        let mut luid = mem::MaybeUninit::<NET_LUID_LH>::zeroed();
         (self.func_get_adapter_luid)(adapter, luid.as_mut_ptr());
         luid.assume_init()
     }
@@ -331,7 +328,7 @@ impl Drop for WintunLoggerHandle {
 }
 
 /// Returns the registry key for a network device identified by its GUID.
-fn find_adapter_registry_key(find_guid: &str, permissions: REGSAM) -> io::Result<RegKey> {
+fn find_adapter_registry_key(find_guid: &str, permissions: REG_SAM_FLAGS) -> io::Result<RegKey> {
     let net_devs = RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey_with_flags(
         r"SYSTEM\CurrentControlSet\Control\Class\{4d36e972-e325-11ce-bfc1-08002be10318}",
         permissions,
@@ -362,13 +359,16 @@ fn find_adapter_registry_key(find_guid: &str, permissions: REGSAM) -> io::Result
 mod tests {
     use super::*;
 
-    fn get_proc_fn(_handle: HMODULE, _symbol: &CStr) -> io::Result<FARPROC> {
-        Ok(std::ptr::null_mut())
+    fn get_proc_fn(
+        _handle: HINSTANCE,
+        _symbol: &CStr,
+    ) -> io::Result<unsafe extern "system" fn() -> isize> {
+        Ok(null_fn)
     }
 
     #[test]
     fn test_wintun_imports() {
-        WintunDll::new_inner(ptr::null_mut(), get_proc_fn).unwrap();
+        WintunDll::new_inner(0, get_proc_fn).unwrap();
     }
 
     #[test]
@@ -377,19 +377,19 @@ mod tests {
             (
                 "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}",
                 GUID {
-                    Data1: 0xAFE43773,
-                    Data2: 0xE1F8,
-                    Data3: 0x4EBB,
-                    Data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
+                    data1: 0xAFE43773,
+                    data2: 0xE1F8,
+                    data3: 0x4EBB,
+                    data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
                 },
             ),
             (
                 "{00000000-0000-0000-0000-000000000000}",
                 GUID {
-                    Data1: 0,
-                    Data2: 0,
-                    Data3: 0,
-                    Data4: [0; 8],
+                    data1: 0,
+                    data2: 0,
+                    data3: 0,
+                    data4: [0; 8],
                 },
             ),
         ];
@@ -400,5 +400,9 @@ mod tests {
                 expected_str.to_lowercase()
             );
         }
+    }
+
+    unsafe extern "system" fn null_fn() -> isize {
+        unreachable!("unexpected call of function")
     }
 }

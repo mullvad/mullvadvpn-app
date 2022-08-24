@@ -2,26 +2,19 @@
 
 use std::{os::windows::io::AsRawHandle, ptr, sync::Arc, thread};
 use tokio::sync::broadcast;
-use winapi::{
-    shared::{
-        basetsd::LONG_PTR,
-        minwindef::{LPARAM, LRESULT, UINT, WPARAM},
-        windef::HWND,
-    },
-    um::{
-        libloaderapi::GetModuleHandleW,
-        processthreadsapi::GetThreadId,
-        winuser::{
-            CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GetMessageW,
-            GetWindowLongPtrW, PostQuitMessage, PostThreadMessageW, SetWindowLongPtrW,
-            TranslateMessage, GWLP_USERDATA, GWLP_WNDPROC, PBT_APMRESUMEAUTOMATIC,
-            PBT_APMRESUMESUSPEND, PBT_APMSUSPEND, WM_DESTROY, WM_POWERBROADCAST, WM_USER,
-        },
+use windows_sys::Win32::{
+    Foundation::{HANDLE, HWND, LPARAM, LRESULT, WPARAM},
+    System::{LibraryLoader::GetModuleHandleW, Threading::GetThreadId},
+    UI::WindowsAndMessaging::{
+        CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GetMessageW,
+        GetWindowLongPtrW, PostQuitMessage, PostThreadMessageW, SetWindowLongPtrW,
+        TranslateMessage, GWLP_USERDATA, GWLP_WNDPROC, PBT_APMRESUMEAUTOMATIC,
+        PBT_APMRESUMESUSPEND, PBT_APMSUSPEND, WM_DESTROY, WM_POWERBROADCAST, WM_USER,
     },
 };
 
 const CLASS_NAME: &[u8] = b"S\0T\0A\0T\0I\0C\0\0\0";
-const REQUEST_THREAD_SHUTDOWN: UINT = WM_USER + 1;
+const REQUEST_THREAD_SHUTDOWN: u32 = WM_USER + 1;
 
 /// Handle for closing an associated window.
 /// The window is not destroyed when this is dropped.
@@ -33,7 +26,7 @@ impl WindowCloseHandle {
     /// Close the window and wait for the thread.
     pub fn close(&mut self) {
         if let Some(thread) = self.thread.take() {
-            let thread_id = unsafe { GetThreadId(thread.as_raw_handle()) };
+            let thread_id = unsafe { GetThreadId(thread.as_raw_handle() as HANDLE) };
             unsafe { PostThreadMessageW(thread_id, REQUEST_THREAD_SHUTDOWN, 0, 0) };
             let _ = thread.join();
         }
@@ -41,7 +34,7 @@ impl WindowCloseHandle {
 }
 
 /// Creates a dummy window whose messages are handled by `wnd_proc`.
-pub fn create_hidden_window<F: (Fn(HWND, UINT, WPARAM, LPARAM) -> LRESULT) + Send + 'static>(
+pub fn create_hidden_window<F: (Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT) + Send + 'static>(
     wnd_proc: F,
 ) -> WindowCloseHandle {
     let join_handle = thread::spawn(move || {
@@ -55,8 +48,8 @@ pub fn create_hidden_window<F: (Fn(HWND, UINT, WPARAM, LPARAM) -> LRESULT) + Sen
                 0,
                 0,
                 0,
-                ptr::null_mut(),
-                ptr::null_mut(),
+                0,
+                0,
                 GetModuleHandleW(ptr::null_mut()),
                 ptr::null_mut(),
             )
@@ -67,18 +60,14 @@ pub fn create_hidden_window<F: (Fn(HWND, UINT, WPARAM, LPARAM) -> LRESULT) + Sen
         let raw_callback = Box::into_raw(Box::new(wnd_proc));
 
         unsafe {
-            SetWindowLongPtrW(dummy_window, GWLP_USERDATA, raw_callback as LONG_PTR);
-            SetWindowLongPtrW(
-                dummy_window,
-                GWLP_WNDPROC,
-                window_procedure::<F> as LONG_PTR,
-            );
+            SetWindowLongPtrW(dummy_window, GWLP_USERDATA, raw_callback as isize);
+            SetWindowLongPtrW(dummy_window, GWLP_WNDPROC, window_procedure::<F> as isize);
         }
 
         let mut msg = unsafe { std::mem::zeroed() };
 
         loop {
-            let status = unsafe { GetMessageW(&mut msg, ptr::null_mut(), 0, 0) };
+            let status = unsafe { GetMessageW(&mut msg, 0, 0, 0) };
 
             if status < 0 {
                 continue;
@@ -87,7 +76,7 @@ pub fn create_hidden_window<F: (Fn(HWND, UINT, WPARAM, LPARAM) -> LRESULT) + Sen
                 break;
             }
 
-            if msg.hwnd.is_null() {
+            if msg.hwnd == 0 {
                 if msg.message == REQUEST_THREAD_SHUTDOWN {
                     unsafe { DestroyWindow(dummy_window) };
                 }
@@ -110,12 +99,12 @@ pub fn create_hidden_window<F: (Fn(HWND, UINT, WPARAM, LPARAM) -> LRESULT) + Sen
 
 unsafe extern "system" fn window_procedure<F>(
     window: HWND,
-    message: UINT,
+    message: u32,
     wparam: WPARAM,
     lparam: LPARAM,
 ) -> LRESULT
 where
-    F: Fn(HWND, UINT, WPARAM, LPARAM) -> LRESULT,
+    F: Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT,
 {
     if message == WM_DESTROY {
         PostQuitMessage(0);
@@ -146,7 +135,7 @@ pub enum PowerManagementEvent {
 impl PowerManagementEvent {
     fn try_from_winevent(wparam: usize) -> Option<Self> {
         use PowerManagementEvent::*;
-        match wparam {
+        match wparam as u32 {
             PBT_APMRESUMEAUTOMATIC => Some(ResumeAutomatic),
             PBT_APMRESUMESUSPEND => Some(ResumeSuspend),
             PBT_APMSUSPEND => Some(Suspend),

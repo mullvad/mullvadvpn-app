@@ -13,34 +13,25 @@ use std::{
     sync::{mpsc as sync_mpsc, Arc},
     time::{Duration, Instant},
 };
-use winapi::{
-    self,
-    shared::{
-        minwindef::TRUE,
-        winerror::{
-            ERROR_NOT_FOUND, ERROR_OPERATION_ABORTED, ERROR_PATH_NOT_FOUND,
-            ERROR_UNRECOGNIZED_VOLUME,
-        },
+use windows_sys::Win32::{
+    Foundation::{
+        CloseHandle, ERROR_NOT_FOUND, ERROR_OPERATION_ABORTED, ERROR_PATH_NOT_FOUND,
+        ERROR_UNRECOGNIZED_VOLUME, HANDLE, INVALID_HANDLE_VALUE,
     },
-    um::{
-        fileapi::{GetFileAttributesW, GetFullPathNameW},
-        handleapi::{CloseHandle, INVALID_HANDLE_VALUE},
-        ioapiset::{
+    Globalization::CompareStringOrdinal,
+    Storage::FileSystem::{
+        GetFileAttributesW, GetFullPathNameW, ReadDirectoryChangesW, FILE_ATTRIBUTE_REPARSE_POINT,
+        FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_REPARSE_POINT, FILE_FLAG_OVERLAPPED,
+        FILE_NOTIFY_CHANGE_ATTRIBUTES, FILE_NOTIFY_CHANGE_DIR_NAME, FILE_NOTIFY_CHANGE_FILE_NAME,
+        FILE_NOTIFY_INFORMATION,
+    },
+    System::{
+        Ioctl::FSCTL_GET_REPARSE_POINT,
+        SystemServices::{IO_REPARSE_TAG_MOUNT_POINT, IO_REPARSE_TAG_SYMLINK},
+        WindowsProgramming::INFINITE,
+        IO::{
             CancelIoEx, CreateIoCompletionPort, DeviceIoControl, GetQueuedCompletionStatus,
-            PostQueuedCompletionStatus,
-        },
-        minwinbase::OVERLAPPED,
-        stringapiset::CompareStringOrdinal,
-        winbase::{
-            ReadDirectoryChangesW, FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_REPARSE_POINT,
-            FILE_FLAG_OVERLAPPED, INFINITE,
-        },
-        winioctl::FSCTL_GET_REPARSE_POINT,
-        winnt::{
-            FILE_ATTRIBUTE_REPARSE_POINT, FILE_NOTIFY_CHANGE_ATTRIBUTES,
-            FILE_NOTIFY_CHANGE_DIR_NAME, FILE_NOTIFY_CHANGE_FILE_NAME, FILE_NOTIFY_INFORMATION,
-            HANDLE, IO_REPARSE_TAG_MOUNT_POINT, IO_REPARSE_TAG_SYMLINK,
-            MAXIMUM_REPARSE_DATA_BUFFER_SIZE,
+            PostQueuedCompletionStatus, OVERLAPPED,
         },
     },
 };
@@ -52,6 +43,7 @@ const PATH_MONITOR_COMPLETION_KEY_IGNORE: usize = usize::MAX;
 const CSTR_EQUAL: i32 = 2;
 
 const ANYSIZE_ARRAY: usize = 1;
+const MAXIMUM_REPARSE_DATA_BUFFER_SIZE: u32 = 16384;
 const SYMLINK_FLAG_RELATIVE: u32 = 0x00000001;
 
 // See https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/c3a420cb-8a72-4adf-87e8-eee95379d78f.
@@ -155,7 +147,7 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
 
     if unsafe {
         DeviceIoControl(
-            file.as_raw_handle() as *mut _,
+            file.as_raw_handle() as HANDLE,
             FSCTL_GET_REPARSE_POINT,
             ptr::null_mut(),
             0u32,
@@ -265,15 +257,15 @@ impl DirContext {
 
         let handle = unsafe {
             CreateIoCompletionPort(
-                dir_handle.as_raw_handle() as *mut _,
-                io_completion_port.as_raw_handle() as *mut _,
+                dir_handle.as_raw_handle() as HANDLE,
+                io_completion_port.as_raw_handle() as HANDLE,
                 completion_key,
                 // num of threads is ignored here
                 0,
             )
         };
 
-        if handle == ptr::null_mut() {
+        if handle == 0 {
             return Err(io::Error::last_os_error());
         }
 
@@ -290,10 +282,10 @@ impl DirContext {
         let mut _bytes_returned = 0;
         if unsafe {
             ReadDirectoryChangesW(
-                self.dir_handle.as_raw_handle() as *mut _,
+                self.dir_handle.as_raw_handle() as HANDLE,
                 self.buffer.as_mut_ptr() as *mut _,
                 self.buffer.len() as u32,
-                TRUE,
+                1,
                 FILE_NOTIFY_CHANGE_FILE_NAME
                     | FILE_NOTIFY_CHANGE_DIR_NAME
                     | FILE_NOTIFY_CHANGE_ATTRIBUTES,
@@ -314,7 +306,7 @@ impl DirContext {
 
     /// Try to cancel a request. On success, return whether a request was cancelled.
     fn cancel_io(&mut self) -> io::Result<bool> {
-        if unsafe { CancelIoEx(self.dir_handle.as_raw_handle(), ptr::null_mut()) } == 0 {
+        if unsafe { CancelIoEx(self.dir_handle.as_raw_handle() as HANDLE, ptr::null_mut()) } == 0 {
             match io::Error::last_os_error() {
                 _error if _error.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => Ok(false),
                 error => Err(error),
@@ -349,10 +341,9 @@ struct CompletionPort {
 impl CompletionPort {
     // `concurrent_threads`: 0 ==> number of processors
     fn create(concurrent_threads: u32) -> io::Result<Self> {
-        let handle = unsafe {
-            CreateIoCompletionPort(INVALID_HANDLE_VALUE, ptr::null_mut(), 0, concurrent_threads)
-        };
-        if handle == ptr::null_mut() {
+        let handle =
+            unsafe { CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, concurrent_threads) };
+        if handle == 0 {
             return Err(io::Error::last_os_error());
         }
         Ok(CompletionPort { handle })
@@ -731,7 +722,7 @@ impl PathMonitor {
                         file_name.len() as i32,
                         file_name.as_ptr(),
                         file_name.len() as i32,
-                        TRUE,
+                        1,
                     )
                 };
                 match cmp_status {
