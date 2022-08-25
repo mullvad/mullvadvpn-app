@@ -16,6 +16,7 @@ FILE_SUFFIX=""
 CARGO_ARGS="--release"
 EXTRA_WGGO_ARGS=""
 BUILD_BUNDLE="no"
+CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 
 while [ ! -z "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
@@ -121,7 +122,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
 
     STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/${LLVM_TRIPLE}-strip"
     STRIPPED_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
-    UNSTRIPPED_LIB_PATH="$SCRIPT_DIR/target/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
+    UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
 
 
     if [[ "$BUILD_TYPE" != "debug" ]]; then
