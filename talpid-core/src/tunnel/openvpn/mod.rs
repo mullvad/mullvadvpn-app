@@ -35,7 +35,7 @@ use which;
 #[cfg(windows)]
 use widestring::U16CString;
 #[cfg(windows)]
-use winapi::shared::{guiddef::GUID, ifdef::NET_LUID};
+use windows_sys::{core::GUID, Win32::NetworkManagement::IpHelper::NET_LUID_LH};
 
 #[cfg(windows)]
 mod wintun;
@@ -48,10 +48,10 @@ lazy_static! {
 
 #[cfg(windows)]
 const ADAPTER_GUID: GUID = GUID {
-    Data1: 0xAFE43773,
-    Data2: 0xE1F8,
-    Data3: 0x4EBB,
-    Data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
+    data1: 0xAFE43773,
+    data2: 0xE1F8,
+    data3: 0x4EBB,
+    data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
 };
 
 /// Results from fallible operations on the OpenVPN tunnel.
@@ -189,7 +189,7 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
 #[cfg(windows)]
 #[async_trait::async_trait]
 trait WintunContext: Send + Sync {
-    fn luid(&self) -> NET_LUID;
+    fn luid(&self) -> NET_LUID_LH;
     fn ipv6(&self) -> bool;
     async fn wait_for_interfaces(&self) -> io::Result<()>;
     fn prepare_interface(&self) {}
@@ -201,7 +201,7 @@ impl std::fmt::Debug for dyn WintunContext {
         write!(
             f,
             "WintunContext {{ luid: {}, ipv6: {} }}",
-            self.luid().Value,
+            unsafe { self.luid().Value },
             self.ipv6()
         )
     }
@@ -218,7 +218,7 @@ struct WintunContextImpl {
 #[cfg(windows)]
 #[async_trait::async_trait]
 impl WintunContext for WintunContextImpl {
-    fn luid(&self) -> NET_LUID {
+    fn luid(&self) -> NET_LUID_LH {
         self.adapter.luid()
     }
 
@@ -1132,8 +1132,8 @@ mod tests {
     #[cfg(windows)]
     #[async_trait::async_trait]
     impl WintunContext for TestWintunContext {
-        fn luid(&self) -> NET_LUID {
-            NET_LUID { Value: 0u64 }
+        fn luid(&self) -> NET_LUID_LH {
+            NET_LUID_LH { Value: 0u64 }
         }
         fn ipv6(&self) -> bool {
             false

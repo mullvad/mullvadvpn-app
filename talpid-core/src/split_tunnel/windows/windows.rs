@@ -6,38 +6,36 @@ use std::{
     fs, io, iter, mem,
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
-        io::{AsRawHandle, RawHandle},
+        prelude::AsRawHandle,
     },
     path::{Component, Path},
     ptr,
 };
-use winapi::{
-    shared::{
-        minwindef::{BOOL, DWORD, FALSE, FILETIME, TRUE},
-        ntdef::ULARGE_INTEGER,
-        winerror::{ERROR_INSUFFICIENT_BUFFER, ERROR_NO_MORE_FILES},
+use windows_sys::Win32::{
+    Foundation::{
+        CloseHandle, BOOL, ERROR_INSUFFICIENT_BUFFER, ERROR_NO_MORE_FILES, FILETIME, HANDLE,
+        INVALID_HANDLE_VALUE,
     },
-    um::{
-        fileapi::{GetFinalPathNameByHandleW, QueryDosDeviceW},
-        handleapi::{CloseHandle, INVALID_HANDLE_VALUE},
-        minwinbase::OVERLAPPED,
-        processthreadsapi::{GetProcessTimes, OpenProcess},
-        psapi::K32GetProcessImageFileNameW,
-        synchapi::{CreateEventW, SetEvent},
-        tlhelp32::{CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W},
-        winnt::{HANDLE, PROCESS_QUERY_LIMITED_INFORMATION},
+    Storage::FileSystem::{GetFinalPathNameByHandleW, QueryDosDeviceW},
+    System::{
+        Diagnostics::ToolHelp::{
+            CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W,
+        },
+        ProcessStatus::K32GetProcessImageFileNameW,
+        Threading::{
+            CreateEventW, GetProcessTimes, OpenProcess, SetEvent, PROCESS_QUERY_LIMITED_INFORMATION,
+        },
+        WindowsProgramming::VOLUME_NAME_NT,
+        IO::OVERLAPPED,
     },
 };
-
-/// Return path with the volume device path.
-const VOLUME_NAME_NT: u32 = 0x02;
 
 pub struct ProcessSnapshot {
     handle: HANDLE,
 }
 
 impl ProcessSnapshot {
-    pub fn new(flags: DWORD, process_id: DWORD) -> io::Result<ProcessSnapshot> {
+    pub fn new(flags: u32, process_id: u32) -> io::Result<ProcessSnapshot> {
         let snap = unsafe { CreateToolhelp32Snapshot(flags, process_id) };
 
         if snap == INVALID_HANDLE_VALUE {
@@ -87,7 +85,7 @@ impl Iterator for ProcessSnapshotEntries<'_> {
 
     fn next(&mut self) -> Option<io::Result<ProcessEntry>> {
         if self.iter_started {
-            if unsafe { Process32NextW(self.snapshot.handle(), &mut self.temp_entry) } == FALSE {
+            if unsafe { Process32NextW(self.snapshot.handle(), &mut self.temp_entry) } == 0 {
                 let last_error = io::Error::last_os_error();
 
                 return if last_error.raw_os_error().unwrap() as u32 == ERROR_NO_MORE_FILES {
@@ -97,7 +95,7 @@ impl Iterator for ProcessSnapshotEntries<'_> {
                 };
             }
         } else {
-            if unsafe { Process32FirstW(self.snapshot.handle(), &mut self.temp_entry) } == FALSE {
+            if unsafe { Process32FirstW(self.snapshot.handle(), &mut self.temp_entry) } == 0 {
                 return Some(Err(io::Error::last_os_error()));
             }
             self.iter_started = true;
@@ -115,7 +113,7 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
     // Preferentially, use GetFinalPathNameByHandleW. If the file does not exist
     // or cannot be opened, infer the path from the label only.
     if let Ok(file) = fs::OpenOptions::new().read(true).open(path.as_ref()) {
-        return get_final_path_name_by_handle(file.as_raw_handle());
+        return unsafe { get_final_path_name_by_handle(file.as_raw_handle() as HANDLE) };
     }
 
     let mut components = path.as_ref().components();
@@ -142,21 +140,18 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
     Ok(new_path)
 }
 
-pub fn get_final_path_name_by_handle(raw_handle: RawHandle) -> Result<OsString, io::Error> {
-    let buffer_size = unsafe {
-        GetFinalPathNameByHandleW(raw_handle as *mut _, ptr::null_mut(), 0u32, VOLUME_NAME_NT)
-    } as usize;
+pub unsafe fn get_final_path_name_by_handle(raw_handle: HANDLE) -> Result<OsString, io::Error> {
+    let buffer_size =
+        GetFinalPathNameByHandleW(raw_handle, ptr::null_mut(), 0u32, VOLUME_NAME_NT) as usize;
     let mut buffer = Vec::new();
     buffer.resize(buffer_size, 0);
 
-    let status = unsafe {
-        GetFinalPathNameByHandleW(
-            raw_handle as *mut _,
-            buffer.as_mut_ptr(),
-            buffer_size as u32,
-            VOLUME_NAME_NT,
-        )
-    } as usize;
+    let status = GetFinalPathNameByHandleW(
+        raw_handle,
+        buffer.as_mut_ptr(),
+        buffer_size as u32,
+        VOLUME_NAME_NT,
+    ) as usize;
 
     if status == 0 {
         return Err(io::Error::last_os_error());
@@ -206,10 +201,10 @@ fn query_dos_device<T: AsRef<OsStr>>(device_name: T) -> io::Result<OsString> {
 }
 
 /// Object that frees its handle when dropped.
-pub struct WinHandle(RawHandle);
+pub struct WinHandle(HANDLE);
 
 impl WinHandle {
-    pub fn get_raw(&self) -> RawHandle {
+    pub fn get_raw(&self) -> HANDLE {
         self.0
     }
 }
@@ -232,22 +227,16 @@ pub fn open_process(
     inherit_handle: bool,
     pid: u32,
 ) -> Result<WinHandle, io::Error> {
-    let handle = unsafe {
-        OpenProcess(
-            access as u32,
-            if inherit_handle { TRUE } else { FALSE },
-            pid,
-        )
-    };
+    let handle = unsafe { OpenProcess(access as u32, if inherit_handle { 1 } else { 0 }, pid) };
 
-    if handle == ptr::null_mut() {
+    if handle == 0 {
         return Err(io::Error::last_os_error());
     }
     Ok(WinHandle(handle))
 }
 
 /// Returns the age of a running process.
-pub fn get_process_creation_time(handle: RawHandle) -> Result<u64, io::Error> {
+pub fn get_process_creation_time(handle: HANDLE) -> Result<u64, io::Error> {
     // TODO: FileTimeToSystemTime -> chrono::NaiveDateTime
     let mut creation_time: FILETIME = unsafe { mem::zeroed() };
     let mut dummy: FILETIME = unsafe { mem::zeroed() };
@@ -264,17 +253,13 @@ pub fn get_process_creation_time(handle: RawHandle) -> Result<u64, io::Error> {
         return Err(io::Error::last_os_error());
     }
 
-    let mut uli_time: ULARGE_INTEGER = unsafe { mem::zeroed() };
-    unsafe {
-        uli_time.s_mut().LowPart = creation_time.dwLowDateTime;
-        uli_time.s_mut().HighPart = creation_time.dwHighDateTime;
-    }
-
-    Ok(*unsafe { uli_time.QuadPart() })
+    let time =
+        ((creation_time.dwHighDateTime as u64) << u32::BITS) | (creation_time.dwLowDateTime as u64);
+    Ok(time)
 }
 
 /// Returns the device path for a running process.
-pub fn get_process_device_path(handle: RawHandle) -> Result<OsString, io::Error> {
+pub fn get_process_device_path(handle: HANDLE) -> Result<OsString, io::Error> {
     let mut initial_capacity = 512;
     loop {
         let result = get_process_device_path_inner(handle, initial_capacity);
@@ -293,7 +278,7 @@ pub fn get_process_device_path(handle: RawHandle) -> Result<OsString, io::Error>
 }
 
 fn get_process_device_path_inner(
-    handle: RawHandle,
+    handle: HANDLE,
     buffer_capacity: usize,
 ) -> Result<OsString, io::Error> {
     let mut buffer = Vec::<u16>::new();
@@ -350,12 +335,11 @@ impl Overlapped {
     fn set_event(&mut self, event: Option<Event>) {
         match event {
             Some(event) => {
-                let raw_event = event.0;
-                self.overlapped.hEvent = raw_event;
+                self.overlapped.hEvent = event.0;
                 self.event = Some(event);
             }
             None => {
-                self.overlapped.hEvent = ptr::null_mut();
+                self.overlapped.hEvent = 0;
                 self.event = None;
             }
         }
@@ -363,7 +347,7 @@ impl Overlapped {
 }
 
 /// Abstraction over a Windows event object.
-pub struct Event(RawHandle);
+pub struct Event(HANDLE);
 
 unsafe impl Send for Event {}
 unsafe impl Sync for Event {}
@@ -378,22 +362,20 @@ impl Event {
                 ptr::null(),
             )
         };
-        if event == ptr::null_mut() {
+        if event == 0 {
             return Err(io::Error::last_os_error());
         }
         Ok(Self(event))
     }
 
     pub fn set(&self) -> io::Result<()> {
-        if unsafe { SetEvent(self.0) } == FALSE {
+        if unsafe { SetEvent(self.0) } == 0 {
             return Err(io::Error::last_os_error());
         }
         Ok(())
     }
-}
 
-impl AsRawHandle for Event {
-    fn as_raw_handle(&self) -> RawHandle {
+    pub fn as_handle(&self) -> HANDLE {
         self.0
     }
 }
@@ -406,7 +388,7 @@ impl Drop for Event {
 
 const fn bool_to_winbool(val: bool) -> BOOL {
     match val {
-        true => TRUE,
-        false => FALSE,
+        true => 1,
+        false => 0,
     }
 }

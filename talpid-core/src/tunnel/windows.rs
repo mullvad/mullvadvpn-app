@@ -1,12 +1,13 @@
 use crate::windows::{get_ip_interface_entry, set_ip_interface_entry, AddressFamily};
 use std::io;
-use winapi::shared::{
-    ifdef::NET_LUID, nldef::RouterDiscoveryDisabled, ntdef::FALSE, winerror::ERROR_NOT_FOUND,
+use windows_sys::Win32::{
+    Foundation::ERROR_NOT_FOUND, NetworkManagement::IpHelper::NET_LUID_LH,
+    Networking::WinSock::RouterDiscoveryDisabled,
 };
 
 /// Sets MTU, metric, and disables unnecessary features for the IP interfaces
 /// on the specified network interface (identified by `luid`).
-pub fn initialize_interfaces(luid: NET_LUID, mtu: Option<u32>) -> io::Result<()> {
+pub fn initialize_interfaces(luid: NET_LUID_LH, mtu: Option<u32>) -> io::Result<()> {
     for family in &[AddressFamily::Ipv4, AddressFamily::Ipv6] {
         let mut row = match get_ip_interface_entry(*family, &luid) {
             Ok(row) => row,
@@ -22,12 +23,12 @@ pub fn initialize_interfaces(luid: NET_LUID, mtu: Option<u32>) -> io::Result<()>
         row.SitePrefixLength = 0;
         row.RouterDiscoveryBehavior = RouterDiscoveryDisabled;
         row.DadTransmits = 0;
-        row.ManagedAddressConfigurationSupported = FALSE;
-        row.OtherStatefulConfigurationSupported = FALSE;
+        row.ManagedAddressConfigurationSupported = 0;
+        row.OtherStatefulConfigurationSupported = 0;
 
         // Ensure lowest interface metric
         row.Metric = 1;
-        row.UseAutomaticMetric = FALSE;
+        row.UseAutomaticMetric = 0;
 
         set_ip_interface_entry(&mut row)?;
     }
