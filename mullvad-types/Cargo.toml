@@ -8,7 +8,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-chrono = { version = "0.4.19", features = ["serde"] }
+chrono = { version = "0.4.21", features = ["serde"] }
 err-derive = "0.3.1"
 ipnetwork = "0.16"
 lazy_static = "1.1.0"
