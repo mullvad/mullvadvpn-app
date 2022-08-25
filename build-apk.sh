@@ -123,7 +123,12 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     STRIPPED_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
     UNSTRIPPED_LIB_PATH="$SCRIPT_DIR/target/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
 
-    $STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
+
+    if [[ "$BUILD_TYPE" != "debug" ]]; then
+        $STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
+    else
+        cp "$UNSTRIPPED_LIB_PATH" "$STRIPPED_LIB_PATH"
+    fi
 done
 
 echo "Updating relays.json..."
