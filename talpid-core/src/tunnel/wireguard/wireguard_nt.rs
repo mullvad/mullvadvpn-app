@@ -1046,7 +1046,7 @@ mod tests {
             },
             p0_allowed_ip_0: WgAllowedIp {
                 address: WgIpAddr::from("1.3.3.0".parse::<Ipv4Addr>().unwrap()),
-                address_family: AF_INET,
+                address_family: AF_INET as u16,
                 cidr: 24,
             },
         };
