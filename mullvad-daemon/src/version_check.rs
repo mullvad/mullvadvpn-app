@@ -478,7 +478,10 @@ fn dev_version_cache() -> AppVersionInfo {
         latest_stable: PRODUCT_VERSION.to_owned(),
         latest_beta: PRODUCT_VERSION.to_owned(),
         suggested_upgrade: None,
-        wg_migration_threshold: 1.0,
+        // Use WireGuard on 75% of dev builds. So we can manually modify
+        // wg_migration_rand_num in the settings and verify that the migration
+        // works as expected.
+        wg_migration_threshold: 0.75,
     }
 }
 
