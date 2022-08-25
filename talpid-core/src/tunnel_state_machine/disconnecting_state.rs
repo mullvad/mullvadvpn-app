@@ -78,7 +78,7 @@ impl DisconnectingState {
                 }
                 Some(TunnelCommand::IsOffline(is_offline)) => {
                     shared_values.is_offline = is_offline;
-                    if !is_offline && reason == ErrorStateCause::IsOffline {
+                    if !is_offline && matches!(reason, ErrorStateCause::IsOffline) {
                         AfterDisconnect::Reconnect(0)
                     } else {
                         AfterDisconnect::Block(reason)

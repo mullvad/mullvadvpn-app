@@ -8,7 +8,7 @@ use std::net::IpAddr;
 
 /// Event emitted from the states in `talpid_core::tunnel_state_machine` when the tunnel state
 /// machine enters a new state.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub enum TunnelStateTransition {
     /// No connection is established and network is unsecured.
     Disconnected,
@@ -23,7 +23,7 @@ pub enum TunnelStateTransition {
 }
 
 /// Action that will be taken after disconnection is complete.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
@@ -34,7 +34,7 @@ pub enum ActionAfterDisconnect {
 }
 
 /// Represents the tunnel state machine entering an error state during a [`TunnelStateTransition`].
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
@@ -75,7 +75,7 @@ impl ErrorState {
 }
 
 /// Reason for the tunnel state machine entering an [`ErrorState`].
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "reason", content = "details")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
@@ -117,7 +117,7 @@ impl ErrorStateCause {
 }
 
 /// Errors that can occur when generating tunnel parameters.
-#[derive(err_derive::Error, Debug, Serialize, Clone, PartialEq, Eq, Deserialize)]
+#[derive(err_derive::Error, Debug, Serialize, Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
@@ -138,14 +138,14 @@ pub enum ParameterGenerationError {
 
 /// Application that prevents setting the firewall policy.
 #[cfg(windows)]
-#[derive(Debug, Serialize, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct BlockingApplication {
     pub name: String,
     pub pid: u32,
 }
 
 /// Errors that can occur when setting the firewall policy.
-#[derive(err_derive::Error, Debug, Serialize, Clone, PartialEq, Eq, Deserialize)]
+#[derive(err_derive::Error, Debug, Serialize, Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "reason", content = "details")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]

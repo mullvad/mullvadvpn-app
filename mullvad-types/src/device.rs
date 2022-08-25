@@ -13,7 +13,7 @@ pub type DeviceId = String;
 pub type DeviceName = String;
 
 /// Contains data for a device returned by the API.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct Device {
@@ -27,8 +27,6 @@ pub struct Device {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub created: DateTime<Utc>,
 }
-
-impl Eq for Device {}
 
 impl Device {
     /// Return name with each word capitalized: "Happy Seagull" instead of "happy seagull"
@@ -67,7 +65,7 @@ impl fmt::Display for DevicePort {
 }
 
 /// Contains a device state.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
@@ -87,7 +85,7 @@ impl DeviceState {
 }
 
 /// A [Device] and its associated account token.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct AccountAndDevice {
