@@ -33,6 +33,7 @@
     "nseventmonitor": "^1.0.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.25.1",
     "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.0",
     "@types/chai-spies": "^1.0.0",
@@ -65,6 +66,7 @@
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^11.0.2",
     "electron-notarize": "^0.1.1",
+    "electron-playwright-helpers": "^1.2.0",
     "eslint": "^7.27.0",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.23.2",
@@ -75,6 +77,8 @@
     "gulp-inject-string": "^1.1.2",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^5.0.1",
+    "playwright": "^1.25.1",
+    "playwright-core": "^1.25.1",
     "prettier": "^2.2.1",
     "semver": "^7.3.2",
     "sinon": "^7.1.1",
@@ -90,6 +94,8 @@
     "build-proto": "gulp build-proto",
     "lint": "eslint --ext tsx,ts .",
     "format": "prettier \"**/*.{js,css,ts,tsx}\" --write",
+    "tsc": "tsc -p . --noEmit",
+    "e2e": "playwright test --workers=1",
     "develop": "gulp develop",
     "test": "cross-env NODE_ENV=test electron-mocha --renderer --reporter spec --require ts-node/register --require \"test/setup/renderer.ts\" \"test/**/*.{ts,tsx}\"",
     "update-translations": "node scripts/extract-translations",
