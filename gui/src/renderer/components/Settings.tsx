@@ -63,7 +63,7 @@ export default function Support() {
                 )}
 
                 <StyledSettingsContent>
-                  {showSubSettings && (
+                  {showSubSettings ? (
                     <>
                       <Cell.Group>
                         <AccountButton />
@@ -77,6 +77,10 @@ export default function Support() {
                         </Cell.Group>
                       )}
                     </>
+                  ) : (
+                    <Cell.Group>
+                      <InterfaceSettingsButton />
+                    </Cell.Group>
                   )}
 
                   <Cell.Group>

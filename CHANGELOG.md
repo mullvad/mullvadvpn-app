@@ -56,6 +56,7 @@ Line wrap the file at 100 chars.                                              Th
 - Quit app gracefully if renderer process is killed or crashes.
 - Enable reconnect in blocked state in desktop app.
 - Fix error handling during device removal in the desktop app.
+- Enable interface settings when app is logged out
 
 #### Windows
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
