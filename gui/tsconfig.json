@@ -29,6 +29,8 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
+    "playwright.config.ts",
+    "e2e/**/*.ts",
     "scripts/**/*.ts",
     "test/**/*.ts",
     "assets/geo/*.json"
