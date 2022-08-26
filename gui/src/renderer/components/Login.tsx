@@ -79,8 +79,7 @@ export default class Login extends React.Component<IProps, IState> {
   public componentDidUpdate(prevProps: IProps, _prevState: IState) {
     if (
       this.props.loginState.type !== prevProps.loginState.type &&
-      this.props.loginState.type === 'failed' &&
-      !this.shouldResetLoginError
+      this.props.loginState.type === 'failed'
     ) {
       this.shouldResetLoginError = true;
 
