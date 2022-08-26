@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -eu
 
-pkill -x "mullvad-gui" || true
+# SIGTERM for some reason causes the app to crash sometimes and SIGINT works as expected.
+pkill -2 -x "mullvad-gui" || true
+sleep 0.5
+pkill -9 -x "mullvad-gui" || true
 
 is_number_re='^[0-9]+$'
 # Check if we're running during an upgrade step on Fedora

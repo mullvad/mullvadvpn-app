@@ -59,12 +59,6 @@ enum CommandLineOptions {
   disableResetNavigation = '--disable-reset-navigation', // development only
 }
 
-export enum AppQuitStage {
-  unready,
-  initiated,
-  ready,
-}
-
 const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 
 const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
@@ -94,7 +88,7 @@ class ApplicationMain
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;
   private isPerformingPostUpgrade = false;
-  private quitStage = AppQuitStage.unready;
+  private quitInitiated = false;
 
   private tunnelStateExpectation?: Expectation;
 
@@ -171,9 +165,16 @@ class ApplicationMain
 
     app.on('activate', this.onActivate);
     app.on('ready', this.onReady);
-    app.on('window-all-closed', () => app.quit());
+
     app.on('before-quit', this.onBeforeQuit);
-    app.on('quit', this.onQuit);
+    app.on('will-quit', () => {
+      log.info('will-quit received');
+      this.onQuit();
+    });
+    app.on('quit', () => {
+      log.info('quit received');
+      this.onQuit();
+    });
   }
 
   public async performPostUpgradeCheck(): Promise<void> {
@@ -293,59 +294,35 @@ class ApplicationMain
   // This is a last try to disconnect and quit gracefully if the app quits without having received
   // the before-quit event.
   private onQuit = () => {
-    if (this.quitStage !== AppQuitStage.ready) {
+    if (!this.quitInitiated) {
       this.prepareToQuit();
     }
   };
 
   private onBeforeQuit = (event: Electron.Event) => {
-    switch (this.quitStage) {
-      case AppQuitStage.unready:
-        // postpone the app shutdown
-        event.preventDefault();
-
-        this.quitStage = AppQuitStage.initiated;
-
-        log.info('Quit initiated');
-
-        this.prepareToQuit();
-
-        // terminate the app
-        this.quitStage = AppQuitStage.ready;
-        app.quit();
-        break;
-
-      case AppQuitStage.initiated:
-        // prevent immediate exit, the app will quit after running the shutdown routine
-        event.preventDefault();
-        return;
-
-      case AppQuitStage.ready:
-        // let the app quit freely at this point
-        break;
+    log.info('before-quit received');
+    if (this.quitInitiated) {
+      event.preventDefault();
+    } else {
+      this.prepareToQuit();
     }
   };
 
   private prepareToQuit() {
+    this.quitInitiated = true;
+    log.info('Quit initiated');
+
+    this.userInterface?.dispose();
+
     // Unsubscribe the event handler
     try {
       if (this.daemonEventListener) {
         this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
-
         log.info('Unsubscribed from the daemon events');
       }
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to unsubscribe from daemon events: ${error.message}`);
-    }
-
-    // The window is not closable on macOS to be able to hide the titlebar and workaround
-    // a shadow bug rendered above the invisible title bar. This also prevents the window from
-    // closing normally, even programmatically. Therefore re-enable the close button just before
-    // quitting the app.
-    // Github issue: https://github.com/electron/electron/issues/15008
-    if (process.platform === 'darwin') {
-      this.userInterface?.setWindowClosable(true);
     }
 
     if (this.daemonRpc.isConnected) {
@@ -354,14 +331,15 @@ class ApplicationMain
 
     for (const logger of [log, this.rendererLog]) {
       try {
-        logger?.dispose();
+        logger?.disposeDisposableOutputs();
       } catch (e) {
         const error = e as Error;
-        console.error('Failed to dispose logger:', error);
+        log.error('Failed to dispose logger:', error);
       }
     }
 
-    this.userInterface?.dispose();
+    log.info('Disposable logging outputs disposed');
+    log.info('Quit preperations finished');
   }
 
   private detectLocale(): string {
@@ -947,7 +925,6 @@ class ApplicationMain
   public resetTunnelStateAnnouncements = () =>
     this.notificationController.resetTunnelStateAnnouncements();
   public isUnpinnedWindow = () => this.settings.gui.unpinnedWindow;
-  public getAppQuitStage = () => this.quitStage;
   public updateAccountData = () => this.account.updateAccountData();
   public getAccountData = () => this.account.accountData;
 
