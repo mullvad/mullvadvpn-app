@@ -1,5 +1,6 @@
 mod driver;
 mod path_monitor;
+mod service;
 mod volume_monitor;
 mod windows;
 
@@ -39,9 +40,17 @@ const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
+    /// Failed to install or start driver service
+    #[error(display = "Failed to start driver service")]
+    ServiceError(#[error(source)] service::Error),
+
     /// Failed to initialize the driver
     #[error(display = "Failed to initialize driver")]
     InitializationError(#[error(source)] driver::DeviceHandleError),
+
+    /// Failed to reset the driver
+    #[error(display = "Failed to reset driver")]
+    ResetError(#[error(source)] io::Error),
 
     /// Failed to set paths to excluded applications
     #[error(display = "Failed to set list of excluded applications")]
@@ -117,6 +126,7 @@ enum Request {
     SetPaths(Vec<OsString>),
     RegisterIps(InterfaceAddresses),
     Restart,
+    Stop,
 }
 type RequestResponseTx = sync_mpsc::Sender<Result<(), Error>>;
 type RequestTx = sync_mpsc::Sender<(Request, RequestResponseTx)>;
@@ -173,6 +183,7 @@ impl SplitTunnel {
     /// Initialize the split tunnel device.
     pub fn new(
         runtime: tokio::runtime::Handle,
+        resource_dir: PathBuf,
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
         power_mgmt_rx: PowerManagementListener,
@@ -180,7 +191,7 @@ impl SplitTunnel {
         let excluded_processes = Arc::new(RwLock::new(HashMap::new()));
 
         let (request_tx, handle) =
-            Self::spawn_request_thread(volume_update_rx, excluded_processes.clone())?;
+            Self::spawn_request_thread(resource_dir, volume_update_rx, excluded_processes.clone())?;
 
         let (event_thread, quit_event) =
             Self::spawn_event_listener(handle, excluded_processes.clone())?;
@@ -400,6 +411,7 @@ impl SplitTunnel {
     }
 
     fn spawn_request_thread(
+        resource_dir: PathBuf,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
         excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
     ) -> Result<(RequestTx, Arc<driver::DeviceHandle>), Error> {
@@ -421,10 +433,14 @@ impl SplitTunnel {
         );
 
         std::thread::spawn(move || {
-            let result = driver::DeviceHandle::new()
-                .map(Arc::new)
-                .map_err(Error::InitializationError);
-            let handle = match result {
+            let init_fn = || {
+                service::install_driver_if_required(&resource_dir).map_err(Error::ServiceError)?;
+                driver::DeviceHandle::new()
+                    .map(Arc::new)
+                    .map_err(Error::InitializationError)
+            };
+
+            let handle = match init_fn() {
                 Ok(handle) => {
                     let _ = init_tx.send(Ok(handle.clone()));
                     handle
@@ -518,6 +534,20 @@ impl SplitTunnel {
                             Ok(())
                         })()
                     }
+                    Request::Stop => {
+                        if let Err(error) = handle.reset().map_err(Error::ResetError) {
+                            let _ = response_tx.send(Err(error));
+                            continue;
+                        }
+
+                        monitored_paths.lock().unwrap().clear();
+                        excluded_processes.write().unwrap().clear();
+
+                        let _ = response_tx.send(Ok(()));
+
+                        // Stop listening to commands
+                        break;
+                    }
                 };
                 if response_tx.send(response).is_err() {
                     log::error!("A response could not be sent for a completed request");
@@ -529,6 +559,16 @@ impl SplitTunnel {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to shut down path monitor")
+                );
+            }
+
+            drop(handle);
+
+            log::debug!("Stopping ST service");
+            if let Err(error) = service::stop_driver_service() {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to stop ST service")
                 );
             }
         });
@@ -718,9 +758,11 @@ impl Drop for SplitTunnel {
             // Not joining `event_thread`: It may be unresponsive.
         }
 
-        let paths: [&OsStr; 0] = [];
-        if let Err(error) = self.set_paths_sync(&paths) {
-            log::error!("{}", error.display_chain());
+        if let Err(error) = self.send_request(Request::Stop) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to stop ST driver service")
+            );
         }
     }
 }

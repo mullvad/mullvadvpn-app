@@ -43,29 +43,46 @@ private:
 	TTime m_maxWaitTime;
 };
 
+SERVICE_STATUS_PROCESS GetServiceProcessStatus(SC_HANDLE service)
+{
+	SERVICE_STATUS_PROCESS ssp;
+
+	DWORD bytesNeeded;
+
+	auto status = QueryServiceStatusEx
+	(
+		service,
+		SC_STATUS_PROCESS_INFO,
+		reinterpret_cast<BYTE*>(&ssp),
+		sizeof(ssp),
+		&bytesNeeded
+	);
+
+	if (status != 0)
+	{
+		return ssp;
+	}
+
+	THROW_WINDOWS_ERROR(GetLastError(), "QueryServiceStatusEx");
+}
+
 void WaitUntilServiceStopped(SC_HANDLE service, DWORD maxWaitMs)
 {
 	TimeBox timer(maxWaitMs);
 
 	for (;;)
 	{
-		SERVICE_STATUS_PROCESS ssp;
-
-		DWORD bytesNeeded;
-
-		auto status = QueryServiceStatusEx
-		(
-			service,
-			SC_STATUS_PROCESS_INFO,
-			reinterpret_cast<BYTE*>(&ssp),
-			sizeof(ssp),
-			&bytesNeeded
-		);
-
-		if (status != 0
-			&& ssp.dwCurrentState == SERVICE_STOPPED)
+		try
 		{
-			return;
+			const auto status = GetServiceProcessStatus(service);
+
+			if (status.dwCurrentState == SERVICE_STOPPED)
+			{
+				return;
+			}
+		}
+		catch (...)
+		{
 		}
 
 		if (timer.expired())
@@ -75,6 +92,44 @@ void WaitUntilServiceStopped(SC_HANDLE service, DWORD maxWaitMs)
 
 		Sleep(100);
 	}
+}
+
+bool ServiceIsRunning(const std::wstring &serviceName)
+{
+	const auto serviceManager = OpenSCManagerW(nullptr, SERVICES_ACTIVE_DATABASE, SC_MANAGER_ALL_ACCESS);
+
+	if (serviceManager == NULL)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "OpenSCManagerW");
+	}
+
+	common::memory::ScopeDestructor dtor;
+
+	dtor += [serviceManager]()
+	{
+		CloseServiceHandle(serviceManager);
+	};
+
+	const auto service = OpenServiceW(serviceManager, serviceName.c_str(), SERVICE_ALL_ACCESS);
+
+	if (service == NULL)
+	{
+		const auto error = GetLastError();
+
+		if (error != ERROR_SERVICE_DOES_NOT_EXIST)
+		{
+			THROW_WINDOWS_ERROR(error, "OpenServiceW");
+		}
+
+		return false;
+	}
+
+	dtor += [service]()
+	{
+		CloseServiceHandle(service);
+	};
+
+	return GetServiceProcessStatus(service).dwCurrentState == SERVICE_RUNNING;
 }
 
 void PokeService(const std::wstring &serviceName, bool stopService, bool deleteService)
@@ -97,7 +152,16 @@ void PokeService(const std::wstring &serviceName, bool stopService, bool deleteS
 
 	if (service == NULL)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "OpenServiceW");
+		const auto error = GetLastError();
+
+		if (error != ERROR_SERVICE_DOES_NOT_EXIST)
+		{
+			THROW_WINDOWS_ERROR(error, "OpenServiceW");
+		}
+
+		// If the service does not exist, we're done.
+
+		return;
 	}
 
 	dtor += [service]()
