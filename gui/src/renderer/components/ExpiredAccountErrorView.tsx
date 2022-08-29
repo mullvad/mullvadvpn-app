@@ -206,7 +206,7 @@ export default class ExpiredAccountErrorView extends React.Component<
         <ModalMessage>
           {messages.pgettext(
             'connect-view',
-            'You need to disable "Always require VPN" in order to access the Internet to add time.',
+            'You need to disable "Lockdown mode" in order to access the Internet to add time.',
           )}
         </ModalMessage>
         <ModalMessage>
@@ -216,7 +216,7 @@ export default class ExpiredAccountErrorView extends React.Component<
           )}
         </ModalMessage>
         <StyledModalCellContainer>
-          <Cell.Label>{messages.pgettext('connect-view', 'Always require VPN')}</Cell.Label>
+          <Cell.Label>{messages.pgettext('vpn-settings-view', 'Lockdown mode')}</Cell.Label>
           <Cell.Switch
             isOn={this.props.blockWhenDisconnected}
             onChange={this.props.setBlockWhenDisconnected}

@@ -441,19 +441,19 @@ function BlockMessage() {
     }
   }, [blockWhenDisconnected, tunnelState, setBlockWhenDisconnected, disconnectTunnel]);
 
-  const alwaysRequireVpnSettingsName = messages.pgettext('vpn-settings-view', 'Lockdown mode');
+  const lockdownModeSettingName = messages.pgettext('vpn-settings-view', 'Lockdown mode');
   const message = formatMarkdown(
     blockWhenDisconnected
       ? sprintf(
           // TRANSLATORS: This is a warning message shown when the app is blocking the users
           // TRANSLATORS: internet connection while logged out.
           // TRANSLATORS: Available placeholder:
-          // TRANSLATORS: %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
+          // TRANSLATORS: %(lockdownModeSettingName)s - The translation of "Lockdown mode"
           messages.pgettext(
             'login-view',
-            '**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection.',
+            '**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection.',
           ),
-          { alwaysRequireVpnSettingsName },
+          { lockdownModeSettingName },
         )
       : // This makes the translator comment appear on it's own line.
         // TRANSLATORS: This is a warning message shown when the app is blocking the users

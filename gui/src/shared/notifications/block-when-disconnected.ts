@@ -23,7 +23,11 @@ export class BlockWhenDisconnectedNotificationProvider implements InAppNotificat
   }
 
   public getInAppNotification(): InAppNotification {
-    let subtitle = messages.pgettext('in-app-notifications', '"Always require VPN" is enabled.');
+    const lockdownModeSettingName = messages.pgettext('vpn-settings-view', 'Lockdown mode');
+    let subtitle = sprintf(
+      messages.pgettext('in-app-notifications', '"%(lockdownModeSettingName)s" is enabled.'),
+      { lockdownModeSettingName },
+    );
     if (this.context.hasExcludedApps) {
       subtitle = `${subtitle} ${sprintf(
         messages.pgettext(
