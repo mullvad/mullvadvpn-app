@@ -191,7 +191,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
             )
             replace(R.id.main_fragment, deviceFragment)
             addToBackStack(null)
-            commit()
+            commitAllowingStateLoss()
         }
     }
 

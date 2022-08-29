@@ -247,7 +247,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
             )
             replace(R.id.main_fragment, SelectLocationFragment())
             addToBackStack(null)
-            commit()
+            commitAllowingStateLoss()
         }
     }
 
@@ -255,7 +255,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
         jobTracker.newUiJob("openOutOfTimeScreen") {
             parentFragmentManager.beginTransaction().apply {
                 replace(R.id.main_fragment, OutOfTimeFragment())
-                commit()
+                commitAllowingStateLoss()
             }
         }
     }

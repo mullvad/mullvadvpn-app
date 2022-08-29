@@ -144,7 +144,7 @@ open class MainActivity : FragmentActivity() {
             )
             replace(R.id.main_fragment, SettingsFragment())
             addToBackStack(null)
-            commit()
+            commitAllowingStateLoss()
         }
     }
 
@@ -188,7 +188,7 @@ open class MainActivity : FragmentActivity() {
     private fun openLaunchView() {
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, LaunchFragment())
-            commit()
+            commitAllowingStateLoss()
         }
     }
 
@@ -214,7 +214,7 @@ open class MainActivity : FragmentActivity() {
 
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, fragment)
-            commit()
+            commitAllowingStateLoss()
         }
     }
 
@@ -231,7 +231,7 @@ open class MainActivity : FragmentActivity() {
         clearBackStack()
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, LoginFragment())
-            commit()
+            commitAllowingStateLoss()
         }
     }
 
@@ -244,7 +244,7 @@ open class MainActivity : FragmentActivity() {
                 R.anim.fragment_exit_to_right
             )
             replace(R.id.main_fragment, DeviceRevokedFragment())
-            commit()
+            commitAllowingStateLoss()
         }
     }
 

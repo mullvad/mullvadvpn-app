@@ -153,7 +153,7 @@ class ProblemReportFragment : BaseFragment() {
             )
             replace(R.id.main_fragment, ViewLogsFragment())
             addToBackStack(null)
-            commit()
+            commitAllowingStateLoss()
         }
     }
 
