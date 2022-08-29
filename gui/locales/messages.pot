@@ -324,10 +324,6 @@ msgid "%(city)s (%(hostname)s)"
 msgstr ""
 
 msgctxt "connect-view"
-msgid "Always require VPN"
-msgstr ""
-
-msgctxt "connect-view"
 msgid "Congrats!"
 msgstr ""
 
@@ -396,7 +392,7 @@ msgid "You have no more VPN time left on this account."
 msgstr ""
 
 msgctxt "connect-view"
-msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
+msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
 msgstr ""
 
 msgctxt "connect-view"
@@ -545,7 +541,7 @@ msgid "Rented only"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "\"Always require VPN\" is enabled."
+msgid "\"%(lockdownModeSettingName)s\" is enabled."
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -646,9 +642,9 @@ msgstr ""
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
 #. Available placeholder:
-#. %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
+#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection."
+msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
 msgstr ""
 
 msgctxt "login-view"
