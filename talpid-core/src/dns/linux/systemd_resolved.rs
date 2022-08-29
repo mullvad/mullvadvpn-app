@@ -3,7 +3,10 @@ use crate::{
     routing::RouteManagerHandle,
 };
 use std::net::IpAddr;
-use talpid_dbus::systemd_resolved::{AsyncHandle, SystemdResolved as DbusInterface};
+use talpid_dbus::{
+    systemd,
+    systemd_resolved::{AsyncHandle, SystemdResolved as DbusInterface},
+};
 use talpid_types::ErrorExt;
 
 pub(crate) use talpid_dbus::systemd_resolved::Error as SystemdDbusError;
@@ -13,10 +16,16 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "systemd-resolved operation failed")]
-    SystemdResolvedError(#[error(source)] SystemdDbusError),
+    SystemdResolved(#[error(source)] SystemdDbusError),
 
     #[error(display = "Failed to resolve interface index with error {}", _0)]
-    InterfaceNameError(#[error(source)] IfaceIndexLookupError),
+    InterfaceName(#[error(source)] IfaceIndexLookupError),
+
+    #[error(display = "Systemd DBus error")]
+    Systemd(#[error(source)] systemd::Error),
+
+    #[error(display = "systemd-resolved is disabled")]
+    SystemdResolvedDisabled,
 }
 
 pub struct SystemdResolved {
@@ -27,6 +36,15 @@ pub struct SystemdResolved {
 impl SystemdResolved {
     pub fn new() -> Result<Self> {
         let dbus_interface = DbusInterface::new()?.async_handle();
+        let sd = systemd::Systemd::new()?;
+        if sd.systemd_resolved_will_run()? {
+            if !sd.wait_for_systemd_resolved_to_be_active()? {
+                log::error!("systemd-resolved failed to start after waiting for it");
+                return Err(Error::SystemdResolvedDisabled);
+            }
+        } else {
+            return Err(Error::SystemdResolvedDisabled);
+        }
 
         let systemd_resolved = SystemdResolved {
             dbus_interface,
