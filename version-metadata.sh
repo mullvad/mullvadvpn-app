@@ -62,7 +62,7 @@ function inject_version {
 
     echo "Setting Rust crate versions to $semver_version"
     # Rust crates
-    sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$semver_version\"/g" \
+    sed -i.bak -Ee "0,/^version = \"[^\"]+\"\$/s/^version = \"[^\"]+\"\$/version = \"$semver_version\"/g" \
         "${MANIFESTS[@]}"
 
     if [[ "$DESKTOP" == "true" ]]; then
