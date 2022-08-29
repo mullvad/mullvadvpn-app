@@ -199,19 +199,18 @@ mod windows {
     use std::{ffi::OsStr, io, os::windows::ffi::OsStrExt, path::Path, ptr};
     use talpid_types::ErrorExt;
     use tokio::fs;
-    use winapi::{
-        shared::{minwindef::TRUE, winerror::ERROR_SUCCESS},
-        um::{
-            accctrl::{SE_FILE_OBJECT, SE_OBJECT_TYPE},
-            aclapi::GetNamedSecurityInfoW,
-            securitybaseapi::IsWellKnownSid,
-            winbase::LocalFree,
-            winnt::{
-                WinBuiltinAdministratorsSid, WinLocalSystemSid, OWNER_SECURITY_INFORMATION, PSID,
-                SECURITY_DESCRIPTOR, SECURITY_INFORMATION, SID, WELL_KNOWN_SID_TYPE,
-            },
+    use windows_sys::Win32::{
+        Foundation::{ERROR_SUCCESS, HANDLE, PSID},
+        Security::{
+            Authorization::{GetNamedSecurityInfoW, SE_FILE_OBJECT, SE_OBJECT_TYPE},
+            IsWellKnownSid, WinBuiltinAdministratorsSid, WinLocalSystemSid,
+            OWNER_SECURITY_INFORMATION, SECURITY_DESCRIPTOR, SID, WELL_KNOWN_SID_TYPE,
         },
+        System::Memory::LocalFree,
     };
+
+    #[allow(non_camel_case_types)]
+    type SECURITY_INFORMATION = u32;
 
     const MIGRATION_DIRNAME: &str = "windows.old";
     const MIGRATE_FILES: [(&str, bool); 3] = [
@@ -382,11 +381,11 @@ mod windows {
 
     impl Drop for SecurityInformation {
         fn drop(&mut self) {
-            unsafe { LocalFree(self.security_descriptor as *mut _) };
+            unsafe { LocalFree(self.security_descriptor as HANDLE) };
         }
     }
 
     fn is_well_known_sid(sid: &SID, well_known_sid_type: WELL_KNOWN_SID_TYPE) -> bool {
-        unsafe { IsWellKnownSid(sid as *const SID as *mut _, well_known_sid_type) == TRUE }
+        unsafe { IsWellKnownSid(sid as *const SID as *mut _, well_known_sid_type) == 1 }
     }
 }

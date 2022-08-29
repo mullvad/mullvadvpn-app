@@ -12,5 +12,11 @@ publish = false
 rs-release = "0.1.7"
 talpid-dbus = { path = "../talpid-dbus" }
 
-[target.'cfg(target_os = "windows")'.dependencies]
-winapi = { version = "0.3.6", features = ["winbase"] }
+[target.'cfg(target_os = "windows")'.dependencies.windows-sys]
+version = "0.36.1"
+features = [
+    "Win32_Foundation",
+    "Win32_System_LibraryLoader",
+    "Win32_System_SystemInformation",
+    "Win32_System_SystemServices",
+]

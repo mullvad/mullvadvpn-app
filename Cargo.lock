@@ -1564,7 +1564,7 @@ dependencies = [
  "serde",
  "talpid-types",
  "tokio",
- "winapi",
+ "windows-sys",
  "winres",
 ]
 
@@ -1609,6 +1609,7 @@ dependencies = [
  "uuid",
  "winapi",
  "windows-service",
+ "windows-sys",
  "winres",
 ]
 
@@ -1693,7 +1694,7 @@ dependencies = [
  "talpid-types",
  "tokio",
  "uuid",
- "winapi",
+ "windows-sys",
  "winres",
 ]
 
@@ -1736,8 +1737,7 @@ dependencies = [
  "talpid-types",
  "tokio",
  "widestring 0.5.1",
- "winapi",
- "winres",
+ "windows-sys",
 ]
 
 [[package]]
@@ -3153,7 +3153,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
- "winapi",
+ "windows-sys",
  "winres",
 ]
 
@@ -3163,7 +3163,7 @@ version = "0.1.0"
 dependencies = [
  "rs-release",
  "talpid-dbus",
- "winapi",
+ "windows-sys",
 ]
 
 [[package]]

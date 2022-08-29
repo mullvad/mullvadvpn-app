@@ -3,12 +3,14 @@ use std::{
     io, iter,
     mem::{self, MaybeUninit},
     os::windows::ffi::OsStrExt,
-    ptr,
 };
-use winapi::um::{
-    libloaderapi::{GetModuleHandleW, GetProcAddress},
-    winnt::RTL_OSVERSIONINFOW,
+use windows_sys::Win32::System::{
+    LibraryLoader::{GetModuleHandleW, GetProcAddress},
+    SystemInformation::OSVERSIONINFOW,
 };
+
+#[allow(non_camel_case_types)]
+type RTL_OSVERSIONINFOW = OSVERSIONINFOW;
 
 pub fn version() -> String {
     let (major, build) = WindowsVersion::new()
@@ -47,15 +49,12 @@ impl WindowsVersion {
             .collect();
 
         let ntdll = unsafe { GetModuleHandleW(module_name.as_ptr()) };
-        if ntdll == ptr::null_mut() {
+        if ntdll == 0 {
             return Err(io::Error::last_os_error());
         }
 
-        let function_address =
-            unsafe { GetProcAddress(ntdll, b"RtlGetVersion\0" as *const _ as *const i8) };
-        if function_address == ptr::null_mut() {
-            return Err(io::Error::last_os_error());
-        }
+        let function_address = unsafe { GetProcAddress(ntdll, b"RtlGetVersion\0" as *const u8) }
+            .ok_or_else(|| io::Error::last_os_error())?;
 
         let rtl_get_version: extern "stdcall" fn(*mut RTL_OSVERSIONINFOW) =
             unsafe { *(&function_address as *const _ as *const _) };

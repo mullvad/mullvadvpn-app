@@ -29,16 +29,15 @@ talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3.6", features = ["securitybaseapi", "impl-default", "impl-debug", "handleapi", "psapi"]}
 widestring = "0.5"
 
-[target.'cfg(windows)'.build-dependencies]
-winres = "0.1"
-winapi = "0.3"
-
-[package.metadata.winres]
-ProductName = "Mullvad VPN"
-CompanyName = "Mullvad VPN AB"
-LegalCopyright = "(c) 2022 Mullvad VPN AB"
-InternalName = "mullvad-setup"
-OriginalFilename = "mullvad-setup.exe"
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.36.1"
+features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_Com",
+    "Win32_System_ProcessStatus",
+    "Win32_System_Threading",
+    "Win32_UI_Shell",
+]

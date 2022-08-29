@@ -34,7 +34,12 @@ clap_complete = { version = "3.0" }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
-winapi = "0.3"
+
+[target.'cfg(windows)'.build-dependencies.windows-sys]
+version = "0.36.1"
+features = [
+    "Win32_System_SystemServices",
+]
 
 [package.metadata.winres]
 ProductName = "Mullvad VPN"
