@@ -32,7 +32,7 @@ class AccountRepository(
                 state.container.accountDataSource.accountCreationResult
             }
             .onEach {
-                _cachedCreatedAccount.value = (it as AccountCreationResult.Success).accountToken
+                _cachedCreatedAccount.value = (it as? AccountCreationResult.Success)?.accountToken
             }
             .shareIn(
                 CoroutineScope(dispatcher),
