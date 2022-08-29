@@ -246,7 +246,7 @@ final class TunnelManager {
 
     func refreshTunnelStatus() {
         #if DEBUG
-            logger.debug("Refresh tunnel status due to application becoming active.")
+        logger.debug("Refresh tunnel status due to application becoming active.")
         #endif
         _refreshTunnelStatus()
     }

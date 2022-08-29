@@ -50,7 +50,7 @@ func initLoggingSystem(bundleIdentifier: String, metadata: Logger.Metadata? = ni
         var logHandlers: [LogHandler] = []
 
         #if DEBUG
-            logHandlers.append(OSLogHandler(subsystem: bundleIdentifier, category: label))
+        logHandlers.append(OSLogHandler(subsystem: bundleIdentifier, category: label))
         #endif
 
         if !streams.isEmpty {

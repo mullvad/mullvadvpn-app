@@ -22,13 +22,13 @@ extension Bundle {
             "???"
 
         #if DEBUG
-            return "\(version)-dev\(buildNumber)"
+        return "\(version)-dev\(buildNumber)"
         #else
-            if appStoreReceiptURL?.lastPathComponent == "sandboxReceipt" {
-                return "\(version)-beta\(buildNumber)"
-            } else {
-                return version
-            }
+        if appStoreReceiptURL?.lastPathComponent == "sandboxReceipt" {
+            return "\(version)-beta\(buildNumber)"
+        } else {
+            return version
+        }
         #endif
     }
 }

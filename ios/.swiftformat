@@ -11,4 +11,5 @@
 --wrapcollections before-first
 --wrapternary before-operators
 --redundanttype inferred
+--ifdef no-indent
 --disable initCoderUnavailable, redundantReturn, unusedArguments, redundantRawValues, preferKeyPath
