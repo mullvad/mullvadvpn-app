@@ -2,10 +2,7 @@
 
 [Unit]
 Description=Mullvad VPN daemon
-Wants=network.target
-After=network-online.target
-After=NetworkManager.service
-After=systemd-resolved.service
+Before=network.target multi-user.target NetworkManager.service systemd-networkd.service connman.service
 StartLimitBurst=5
 StartLimitIntervalSec=20
 
@@ -15,4 +12,4 @@ RestartSec=1
 ExecStart=/opt/Mullvad\x20VPN/resources/mullvad-daemon -v --disable-stdout-timestamps
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target NetworkManager.service systemd-networkd.service connman.service
