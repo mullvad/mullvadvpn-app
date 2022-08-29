@@ -15,7 +15,7 @@ pub const DEFAULT_ROTATION_INTERVAL: Duration = if cfg!(target_os = "android") {
 };
 
 /// Contains account specific wireguard data
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct WireguardData {
     pub private_key: wireguard::PrivateKey,
     pub addresses: AssociatedAddresses,
@@ -114,7 +114,7 @@ impl Default for RotationInterval {
     }
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(
@@ -142,7 +142,7 @@ pub struct PublicKey {
 
 /// Contains a pair of local link addresses that are paired with a specific wireguard
 /// public/private keypair.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 pub struct AssociatedAddresses {
     pub ipv4_address: ipnetwork::Ipv4Network,
     pub ipv6_address: ipnetwork::Ipv6Network,
