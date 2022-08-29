@@ -85,7 +85,7 @@ class DeviceListFragment : Fragment() {
         }
         parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, loginFragment)
-            commit()
+            commitAllowingStateLoss()
         }
     }
 

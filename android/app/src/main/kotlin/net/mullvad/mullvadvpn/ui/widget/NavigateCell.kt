@@ -46,7 +46,7 @@ open class NavigateCell : Cell {
                 )
                 replace(R.id.main_fragment, fragment)
                 addToBackStack(null)
-                commit()
+                commitAllowingStateLoss()
             }
         }
     }
