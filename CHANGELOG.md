@@ -53,6 +53,11 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade Wintun to 0.14.1.
 
 
+#### Linux
+- The daemon binary and systemd unit file will now be placed in `/usr/bin/` and
+  `/usr/lib/systemd/system` respectively, to aid with starting the system service on systems where
+  `/opt` isn't mounted during early boot.
+
 ### Fixed
 - Connect to TCP endpoints over IPv6 if IPv6 is enabled for WireGuard.
 - Fix udp2tcp not working when quantum-resistant tunnels are enabled.
@@ -84,6 +89,11 @@ Line wrap the file at 100 chars.                                              Th
 - Fix disabled login button on login failure. Instead, the login button will now still be enabled
   on login failures to let the user re-attempt the login.
 
+### Security
+#### Linux
+- Added traffic blocking during early boot, before the daemon starts, to prevent leaks in the case
+  that the system service starts after a networking daemon has already configured a network
+  interface.
 
 ## [2022.4] - 2022-08-19
 ### Added
