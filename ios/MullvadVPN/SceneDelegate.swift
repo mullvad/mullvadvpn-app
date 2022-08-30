@@ -459,9 +459,8 @@ extension SceneDelegate {
     }
 
     private func handleExpiredAccount() {
-        // TODO: Temp
-        guard case let .loggedIn(accountData, _) = TunnelManager.shared.deviceState else { return }
-        //              accountData.expiry <= Date() else { return }
+        guard case let .loggedIn(accountData, _) = TunnelManager.shared.deviceState,
+              accountData.expiry <= Date() else { return }
 
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:
@@ -523,9 +522,7 @@ extension SceneDelegate {
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:
             var viewControllers = rootContainer.viewControllers
-            guard let outOfTimeControllerIndex = viewControllers
-                .firstIndex(where: { $0 is OutOfTimeViewController }) else { return }
-            viewControllers.remove(at: outOfTimeControllerIndex)
+            viewControllers.removeFirst(where: { $0 is OutOfTimeViewController })
             rootContainer.setViewControllers(viewControllers, animated: true)
         case .pad:
             modalRootContainer.dismiss(animated: true)

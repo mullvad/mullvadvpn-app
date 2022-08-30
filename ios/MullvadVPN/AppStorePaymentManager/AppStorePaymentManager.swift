@@ -163,7 +163,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
     }
 
-    func restorePurchases(
+    @discardableResult func restorePurchases(
         for accountToken: String,
         completionHandler: @escaping (OperationCompletion<
             REST.CreateApplePaymentResponse,

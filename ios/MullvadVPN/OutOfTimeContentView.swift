@@ -10,19 +10,8 @@ import Foundation
 import UIKit
 
 class OutOfTimeContentView: UIView {
-    private let topSpacerView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.setContentHuggingPriority(.defaultLow, for: .vertical)
-        return view
-    }()
-
-    private let bottomSpacerView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.setContentHuggingPriority(.defaultLow, for: .vertical)
-        return view
-    }()
+    private let topSpacerView = SpacerView()
+    private let bottomSpacerView = SpacerView()
 
     let statusActivityView: StatusActivityView = {
         let statusActivityView = StatusActivityView(state: .failure)
@@ -30,7 +19,7 @@ class OutOfTimeContentView: UIView {
         return statusActivityView
     }()
 
-    private lazy var titleLabel: UILabel = {
+    let titleLabel: UILabel = {
         let label = UILabel()
         label.text = NSLocalizedString(
             "OUT_OF_TIME_TITLE",
@@ -43,7 +32,7 @@ class OutOfTimeContentView: UIView {
         return label
     }()
 
-    lazy var bodyLabel: UILabel = {
+    let bodyLabel: UILabel = {
         let label = UILabel()
         label.text = NSLocalizedString(
             "OUT_OF_TIME_BODY",
@@ -57,7 +46,7 @@ class OutOfTimeContentView: UIView {
         return label
     }()
 
-    lazy var disconnectButton: AppButton = {
+    let disconnectButton: AppButton = {
         let button = AppButton(style: .danger)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.alpha = 0
@@ -71,7 +60,7 @@ class OutOfTimeContentView: UIView {
         return button
     }()
 
-    lazy var restoreButton: AppButton = {
+    let restoreButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
@@ -83,7 +72,7 @@ class OutOfTimeContentView: UIView {
         return button
     }()
 
-    lazy var purchaseButton: InAppPurchaseButton = {
+    let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         let localizedString = NSLocalizedString(
@@ -96,7 +85,7 @@ class OutOfTimeContentView: UIView {
         return button
     }()
 
-    lazy var redeemButton: AppButton = {
+    let redeemButton: AppButton = {
         let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
@@ -112,7 +101,7 @@ class OutOfTimeContentView: UIView {
         let stackView = UIStackView(arrangedSubviews: [statusActivityView, titleLabel, bodyLabel])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.sectionSpacing
+        stackView.spacing = UIMetrics.StackSpacing.regular.rawValue
         return stackView
     }()
 
@@ -122,7 +111,7 @@ class OutOfTimeContentView: UIView {
         )
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.sectionSpacing
+        stackView.spacing = UIMetrics.StackSpacing.regular.rawValue
         return stackView
     }()
 
@@ -166,7 +155,8 @@ private extension OutOfTimeContentView {
             bottomSpacerView.topAnchor.constraint(equalTo: topStackView.bottomAnchor),
             bottomSpacerView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             bottomSpacerView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            bottomSpacerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
+            bottomSpacerView.heightAnchor
+                .constraint(greaterThanOrEqualToConstant: UIMetrics.sectionSpacing),
 
             bottomStackView.topAnchor.constraint(equalTo: bottomSpacerView.bottomAnchor),
             bottomStackView.leadingAnchor.constraint(

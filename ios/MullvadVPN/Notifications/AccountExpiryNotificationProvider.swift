@@ -122,6 +122,7 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         formatter.unitsStyle = .full
         formatter.allowedUnits = [.minute, .hour, .day]
         formatter.maximumUnitCount = 1
+        formatter.calendar?.locale = .usEnglish
 
         guard let duration = formatter.string(from: now, to: accountExpiry) else { return nil }
 

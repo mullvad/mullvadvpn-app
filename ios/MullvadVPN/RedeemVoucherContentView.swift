@@ -10,19 +10,6 @@ import Foundation
 import UIKit
 
 class RedeemVoucherContentView: UIView {
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = NSLocalizedString(
-            "REDEEM_VOUCHER_TITLE",
-            tableName: "RedeemVoucher",
-            value: "Redeem Voucher",
-            comment: ""
-        )
-        label.font = UIFont.systemFont(ofSize: 32)
-        label.textColor = .white
-        return label
-    }()
-
     let instructionLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17)
@@ -32,7 +19,7 @@ class RedeemVoucherContentView: UIView {
             value: "Enter voucher code",
             comment: ""
         )
-        label.textColor = UIColor.white.withAlphaComponent(0.6)
+        label.textColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         return label
@@ -102,29 +89,48 @@ class RedeemVoucherContentView: UIView {
         return stackView
     }()
 
-    private lazy var topStackView: UIStackView = {
-        let stackView =
-            UIStackView(arrangedSubviews: [
-                titleLabel,
-                instructionLabel,
-                inputTextField,
-                statusStack,
-            ])
+    lazy var topStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [
+            instructionLabel,
+            inputTextField,
+            statusStack,
+        ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = 8
+        stackView.spacing = UIMetrics.StackSpacing.close.rawValue
         return stackView
     }()
 
-    private lazy var bottomStackView: UIStackView = {
-        let stackView = UIStackView(
-            arrangedSubviews: [redeemButton, cancelButton]
-        )
+    lazy var bottomStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [redeemButton, cancelButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.sectionSpacing
+        stackView.spacing = UIMetrics.StackSpacing.regular.rawValue
         return stackView
     }()
+
+    let successImage: UIImageView = {
+        let imageView = UIImageView(image: UIImage(named: "IconSuccess"))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        imageView.alpha = 0
+        return imageView
+    }()
+
+    lazy var topStackTopConstraint: NSLayoutConstraint = topStackView.topAnchor.constraint(
+        equalTo: successImage.bottomAnchor,
+        constant: 0
+    )
+
+    lazy var successImageHeightConstraint = NSLayoutConstraint(
+        item: successImage,
+        attribute: .height,
+        relatedBy: .equal,
+        toItem: nil,
+        attribute: .notAnAttribute,
+        multiplier: 1,
+        constant: 0
+    )
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -133,9 +139,9 @@ class RedeemVoucherContentView: UIView {
 
         backgroundColor = .secondaryColor
 
-        setUpSubviews()
-
         layoutMargins = UIMetrics.contentLayoutMargins
+
+        setUpSubviews()
     }
 
     required init?(coder: NSCoder) {
@@ -145,6 +151,7 @@ class RedeemVoucherContentView: UIView {
 
 private extension RedeemVoucherContentView {
     func setUpSubviews() {
+        addSubview(successImage)
         addSubview(topStackView)
         addSubview(bottomStackView)
         configureConstraints()
@@ -152,10 +159,19 @@ private extension RedeemVoucherContentView {
 
     func configureConstraints() {
         NSLayoutConstraint.activate([
-            topStackView.centerYAnchor.constraint(
-                equalTo: centerYAnchor,
-                constant: UIMetrics.verticalCenterOffset
+            successImage.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
+
+            successImage.leadingAnchor.constraint(
+                equalTo: layoutMarginsGuide.leadingAnchor
             ),
+
+            successImage.trailingAnchor.constraint(
+                equalTo: layoutMarginsGuide.trailingAnchor
+            ),
+
+            successImageHeightConstraint,
+
+            topStackTopConstraint,
 
             topStackView.leadingAnchor.constraint(
                 equalTo: layoutMarginsGuide.leadingAnchor

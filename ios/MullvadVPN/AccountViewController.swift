@@ -27,6 +27,24 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
     private var productState: ProductState = .none
     private var paymentState: PaymentState = .none
 
+    private let formsheetTransitioningDelegate = FormsheetTransitioningDelegate()
+
+    private lazy var modalNavigationController: UINavigationController = {
+        let navigationController = UINavigationController(
+            rootViewController: RedeemVoucherViewController()
+        )
+        navigationController.isNavigationBarHidden = true
+        navigationController.transitioningDelegate = formsheetTransitioningDelegate
+        navigationController.modalPresentationStyle = .custom
+        navigationController.preferredContentSize = CGSize(
+            width: view.frame.width - UIMetrics.contentLayoutMargins.left,
+            height: 300
+        )
+        navigationController.view.layer.cornerRadius = 16
+
+        return navigationController
+    }()
+
     weak var delegate: AccountViewControllerDelegate?
 
     // MARK: - View lifecycle
@@ -69,6 +87,12 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         contentView.accountTokenRowView.copyAccountNumber = { [weak self] in
             self?.copyAccountToken()
         }
+
+        contentView.redeemButton.addTarget(
+            self,
+            action: #selector(didTapRedeemVoucher),
+            for: .touchUpInside
+        )
 
         contentView.restorePurchasesButton.addTarget(
             self,
@@ -396,6 +420,10 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         AppStorePaymentManager.shared.addPayment(payment, for: accountData.number)
 
         setPaymentState(.makingPayment(payment), animated: true)
+    }
+
+    @objc private func didTapRedeemVoucher() {
+        present(modalNavigationController, animated: true)
     }
 
     @objc private func restorePurchases() {

@@ -31,6 +31,7 @@ extension CustomDateComponentsFormatting {
         formatter.unitsStyle = unitsStyle
         formatter.allowedUnits = [.minute, .hour, .day, .month, .year]
         formatter.maximumUnitCount = 1
+        formatter.calendar?.locale = .usEnglish
 
         let dateComponents = calendar
             .dateComponents([.day, .hour, .minute, .second], from: start, to: end)
