@@ -202,7 +202,7 @@ final class TunnelMonitor: PingerDelegate {
 
     /// Ping statistics.
     private struct PingStats {
-        /// Dictionary holding sequence and the corresponding date when ech request took place.
+        /// Dictionary holding sequence and corresponding date when echo request took place.
         var requests = [UInt16: Date]()
 
         /// Timestamp when last echo request was sent.
