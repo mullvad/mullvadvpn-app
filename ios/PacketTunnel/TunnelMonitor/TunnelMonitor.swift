@@ -116,7 +116,7 @@ final class TunnelMonitor: PingerDelegate {
                 let timeSinceLastPing = now.timeIntervalSince(lastRequestDate)
                 if let lastReplyDate = pingStats.lastReplyDate,
                    lastRequestDate.timeIntervalSince(lastReplyDate) >= heartbeatReplyTimeout,
-                   timeSinceLastPing >= pingDelay
+                   timeSinceLastPing >= pingDelay, !isHeartbeatSuspended
                 {
                     return .retryHeartbeatPing
                 }
