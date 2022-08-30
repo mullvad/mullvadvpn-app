@@ -344,11 +344,12 @@ dependencies = [
 
 [[package]]
 name = "classic-mceliece-rust"
-version = "1.0.1"
-source = "git+https://github.com/mullvad/classic-mceliece-rust?rev=5130d9e3bfbf54735177e15636a643366c250b78#5130d9e3bfbf54735177e15636a643366c250b78"
+version = "2.0.0"
+source = "git+https://github.com/mullvad/classic-mceliece-rust?rev=7e4bf5a41b4273feae1ea2efdf72fda798b82013#7e4bf5a41b4273feae1ea2efdf72fda798b82013"
 dependencies = [
  "rand 0.8.5",
  "sha3",
+ "zeroize",
 ]
 
 [[package]]
