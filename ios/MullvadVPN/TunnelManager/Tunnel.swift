@@ -11,9 +11,9 @@ import NetworkExtension
 
 // Switch to stabs on simulator
 #if targetEnvironment(simulator)
-    typealias TunnelProviderManagerType = SimulatorTunnelProviderManager
+typealias TunnelProviderManagerType = SimulatorTunnelProviderManager
 #else
-    typealias TunnelProviderManagerType = NETunnelProviderManager
+typealias TunnelProviderManagerType = NETunnelProviderManager
 #endif
 
 protocol TunnelStatusObserver {

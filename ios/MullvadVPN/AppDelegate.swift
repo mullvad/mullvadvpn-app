@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var logger: Logger!
 
     #if targetEnvironment(simulator)
-        private let simulatorTunnelProvider = SimulatorTunnelProviderHost()
+    private let simulatorTunnelProvider = SimulatorTunnelProviderHost()
     #endif
 
     private let operationQueue: AsyncOperationQueue = {
@@ -41,8 +41,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         logger = Logger(label: "AppDelegate")
 
         #if targetEnvironment(simulator)
-            // Configure mock tunnel provider on simulator
-            SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
+        // Configure mock tunnel provider on simulator
+        SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
         #endif
 
         if #available(iOS 13.0, *) {
@@ -379,7 +379,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func setupNotificationHandler() {
         NotificationManager.shared.notificationProviders = [
             AccountExpiryNotificationProvider(),
-            TunnelErrorNotificationProvider(),
+            TunnelStatusNotificationProvider(),
         ]
         UNUserNotificationCenter.current().delegate = self
     }

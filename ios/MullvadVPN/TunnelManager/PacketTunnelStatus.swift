@@ -10,11 +10,11 @@ import Foundation
 
 /// Struct describing packet tunnel process status.
 struct PacketTunnelStatus: Codable, Equatable {
+    /// Last tunnel error.
+    var lastError: String? = nil
+
     /// Flag indicating whether network is reachable.
     var isNetworkReachable = true
-
-    /// When the packet tunnel started connecting.
-    var connectingDate: Date?
 
     /// Current relay.
     var tunnelRelay: PacketTunnelRelay?

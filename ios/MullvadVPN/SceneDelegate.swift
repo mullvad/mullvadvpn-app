@@ -271,7 +271,7 @@ extension SceneDelegate: RootContainerViewControllerDelegate {
         guard TunnelManager.shared.deviceState.isLoggedIn else { return false }
 
         switch TunnelManager.shared.tunnelStatus.state {
-        case .connected, .connecting, .reconnecting:
+        case .connected, .connecting, .reconnecting, .waitingForConnectivity:
             TunnelManager.shared.reconnectTunnel(selectNewRelay: true)
         case .disconnecting, .disconnected:
             TunnelManager.shared.startTunnel()
@@ -932,7 +932,7 @@ extension SceneDelegate: TunnelObserver {
         configureScene()
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
         // no-op
     }
 
