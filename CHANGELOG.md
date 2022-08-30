@@ -36,6 +36,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - GUI: Add electron flags to run Wayland native if in a compositor/desktop known to work well
 - Add support for Linux ARM64.
+- Change the daemon's systemd unit configuration so it is started before the network is up.
+- Added early boot traffic blocking
 
 ### Changed
 - Reject invalid WireGuard ports in the CLI.
@@ -56,6 +58,11 @@ Line wrap the file at 100 chars.                                              Th
 - Refresh device data when opening the account view to ensure the local data is up-to-date and that
   the device hasn't been revoked.
 - Disable settings button during login.
+
+#### Linux
+- The daemon binary and systemd unit file will now be placed in `/usr/bin/` and
+  `/usr/lib/systemd/system` respectively, to aid with starting the system service on systems where
+  `/opt` isn't mounted during early boot.
 
 ### Fixed
 - Connect to TCP endpoints over IPv6 if IPv6 is enabled for WireGuard.
