@@ -13,8 +13,6 @@ mod proto {
 pub enum Error {
     GrpcConnectError(tonic::transport::Error),
     GrpcError(tonic::Status),
-    KeyGenerationFailed,
-    DecapsulationError,
     InvalidCiphertext,
 }
 
@@ -24,8 +22,6 @@ impl std::fmt::Display for Error {
         match self {
             GrpcConnectError(_) => "Failed to connect to config service".fmt(f),
             GrpcError(status) => write!(f, "RPC failed: {}", status),
-            KeyGenerationFailed => "Failed to generate KEM key pair".fmt(f),
-            DecapsulationError => "Failed to decapsulate secret".fmt(f),
             InvalidCiphertext => "The service returned an invalid ciphertext".fmt(f),
         }
     }
@@ -56,7 +52,7 @@ pub async fn push_pq_key(
     wg_pubkey: PublicKey,
 ) -> Result<(PrivateKey, PresharedKey), Error> {
     let wg_psk_privkey = PrivateKey::new_from_random();
-    let (kem_pubkey, kem_secret) = kem::generate_keys().await?;
+    let (kem_pubkey, kem_secret) = kem::generate_keys().await;
 
     let mut client = new_client(service_address).await?;
     let response = client
@@ -65,19 +61,19 @@ pub async fn push_pq_key(
             wg_psk_pubkey: wg_psk_privkey.public_key().as_bytes().to_vec(),
             kem_pubkey: Some(proto::KemPubkeyExperimentalV0 {
                 algorithm_name: ALGORITHM_NAME.to_string(),
-                key_data: kem_pubkey.into_vec(),
+                key_data: kem_pubkey.as_array().to_vec(),
             }),
         })
         .await
         .map_err(Error::GrpcError)?;
 
-    let ciphertext: [u8; kem::CRYPTO_CIPHERTEXTBYTES] = response
+    let ciphertext_array: [u8; kem::CRYPTO_CIPHERTEXTBYTES] = response
         .into_inner()
         .ciphertext
         .try_into()
         .map_err(|_| Error::InvalidCiphertext)?;
-
-    Ok((wg_psk_privkey, kem::decapsulate(&kem_secret, &ciphertext)?))
+    let ciphertext = kem::Ciphertext::from(ciphertext_array);
+    Ok((wg_psk_privkey, kem::decapsulate(&kem_secret, &ciphertext)))
 }
 
 async fn new_client(addr: IpAddr) -> Result<RelayConfigService, Error> {
