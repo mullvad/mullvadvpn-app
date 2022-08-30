@@ -11,13 +11,38 @@ import Operations
 import StoreKit
 import UIKit
 
-class OutOfTimeViewController: UIViewController {
+class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate {
     weak var delegate: SettingsButtonInteractionDelegate?
 
+    private let alertPresenter = AlertPresenter()
+    private let formsheetTransitioningDelegate = FormsheetTransitioningDelegate()
+
+    private lazy var modalNavigationController: UINavigationController = {
+        let navigationController = UINavigationController(
+            rootViewController: RedeemVoucherViewController(
+                didDismissOnSuccess: { [weak self] in
+                    self?.didDismissOnSuccess()
+                },
+                didAddTime: { [weak self] in
+                    self?.didAddTime()
+                }
+            )
+        )
+        navigationController.isNavigationBarHidden = true
+        navigationController.transitioningDelegate = formsheetTransitioningDelegate
+        navigationController.modalPresentationStyle = .custom
+        navigationController.preferredContentSize = CGSize(
+            width: view.frame.width - UIMetrics.contentLayoutMargins.left,
+            height: 300
+        )
+        navigationController.view.layer.cornerRadius = 16
+
+        return navigationController
+    }()
+
+    private var tunnelState: TunnelState = .disconnected
     private var productState: ProductState = .none
     private var paymentState: PaymentState = .none
-
-    private let alertPresenter = AlertPresenter()
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -32,11 +57,7 @@ class OutOfTimeViewController: UIViewController {
         return contentView
     }()
 
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
-    }
-
-    private var tunnelState: TunnelState = .disconnected
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -112,7 +133,28 @@ private extension OutOfTimeViewController {
     }
 
     @objc func didTapRedeemVoucher() {
-        rootContainerController?.pushViewController(RedeemVoucherViewController(), animated: true)
+        present(modalNavigationController, animated: true)
+    }
+
+    func didDismissOnSuccess() {
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + AnimationDuration.medium.rawValue
+        ) { [weak self] in
+            self?.transitionToNextView()
+        }
+    }
+
+    func didAddTime() {
+        contentView.statusActivityView.alpha = 0
+        contentView.titleLabel.alpha = 0
+        contentView.bodyLabel.alpha = 0
+    }
+
+    func transitionToNextView() {
+        var viewControllers = rootContainerController?.viewControllers ?? []
+        viewControllers.removeFirst(where: { $0 is OutOfTimeViewController })
+
+        rootContainerController?.setViewControllers(viewControllers, animated: true)
     }
 
     func addObservers() {
@@ -189,12 +231,13 @@ private extension OutOfTimeViewController {
             purchaseButton.setTitle(self.productState.purchaseButtonTitle, for: .normal)
             self.contentView.purchaseButton.isLoading = self.productState.isFetching
 
-            purchaseButton.isEnabled = self.productState.isReceived && isInteractionEnabled && !self
-                .tunnelState.isSecured
-            self.contentView.redeemButton.isEnabled = isInteractionEnabled && !self
-                .tunnelState.isSecured
-            self.contentView.restoreButton.isEnabled = isInteractionEnabled && !self.tunnelState
-                .isSecured
+            purchaseButton.isEnabled = self.productState.isReceived
+                && isInteractionEnabled
+                && !self.tunnelState.isSecured
+            self.contentView.redeemButton.isEnabled = isInteractionEnabled
+                && !self.tunnelState.isSecured
+            self.contentView.restoreButton.isEnabled = isInteractionEnabled
+                && !self.tunnelState.isSecured
             self.contentView.disconnectButton.isEnabled = self.tunnelState.isSecured
             self.contentView.disconnectButton.alpha = self.tunnelState.isSecured ? 1 : 0
             self.contentView.bodyLabel.text = self.bodyText(for: self.tunnelState)
@@ -212,10 +255,8 @@ private extension OutOfTimeViewController {
         }
         if animated {
             UIView.animate(
-                withDuration: 0.25,
-                animations: { [weak self] in
-                    guard let self = self else { return }
-
+                withDuration: AnimationDuration.medium.rawValue,
+                animations: {
                     actions()
                     self.view.layoutIfNeeded()
                 }
@@ -250,7 +291,7 @@ private extension OutOfTimeViewController {
 
         setPaymentState(.restoringPurchases, animated: true)
 
-        _ = AppStorePaymentManager.shared.restorePurchases(for: accountData.number) { completion in
+        AppStorePaymentManager.shared.restorePurchases(for: accountData.number) { completion in
             switch completion {
             case let .success(response):
                 self.showAlertIfNoTimeAdded(with: response, context: .restoration)
@@ -381,11 +422,11 @@ extension OutOfTimeViewController: AppStorePaymentObserver {
 // MARK: - TunnelObserver
 
 extension OutOfTimeViewController: TunnelObserver {
-    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {}
-
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
         setTunnelState(tunnelState, animated: true)
     }
+
+    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {}
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {}
 

@@ -9,8 +9,6 @@
 import Logging
 import UIKit
 
-private let accountInputGroupViewAnimationDuration: TimeInterval = 0.25
-
 protocol AccountInputGroupViewDelegate: AnyObject {
     func accountInputGroupViewShouldRemoveLastUsedAccount(_ view: AccountInputGroupView) -> Bool
     func accountInputGroupViewShouldAttemptLogin(_ view: AccountInputGroupView)
@@ -487,7 +485,7 @@ class AccountInputGroupView: UIView {
 
         if animated {
             actions()
-            UIView.animate(withDuration: accountInputGroupViewAnimationDuration) {
+            UIView.animate(withDuration: AnimationDuration.medium.rawValue) {
                 self.layoutIfNeeded()
             }
         } else {
@@ -532,7 +530,7 @@ class AccountInputGroupView: UIView {
         }
 
         if animated {
-            UIView.animate(withDuration: accountInputGroupViewAnimationDuration) {
+            UIView.animate(withDuration: AnimationDuration.medium.rawValue) {
                 actions()
             }
         } else {
@@ -584,7 +582,7 @@ private class AccountInputBorderLayer: CAShapeLayer {
     override class func defaultAction(forKey event: String) -> CAAction? {
         if event == "path" {
             let action = CABasicAnimation(keyPath: event)
-            action.duration = accountInputGroupViewAnimationDuration
+            action.duration = AnimationDuration.medium.rawValue
             action.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
 
             return action

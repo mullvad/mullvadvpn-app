@@ -9,8 +9,8 @@
 import Foundation
 
 extension Array where Element: NSObjectProtocol {
-    mutating func removeFirstInstance(of type: AnyClass) {
-        if let index = firstIndex(where: { $0.isKind(of: type.self) }) {
+    mutating func removeFirst(where predicate: (Element) -> Bool) {
+        if let index = firstIndex(where: predicate) {
             remove(at: index)
         }
     }

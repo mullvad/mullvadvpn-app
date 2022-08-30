@@ -174,7 +174,7 @@ class LoginContentView: UIView {
             ),
             formContainer.centerYAnchor.constraint(
                 equalTo: contentContainer.centerYAnchor,
-                constant: UIMetrics.verticalCenterOffset
+                constant: -20
             ),
             formContainer.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor),
             formContainer.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor),

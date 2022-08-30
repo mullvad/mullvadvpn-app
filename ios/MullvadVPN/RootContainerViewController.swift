@@ -527,7 +527,10 @@ class RootContainerViewController: UIViewController {
         }
 
         if animated {
-            UIView.animate(withDuration: 0.25, animations: action)
+            UIView.animate(
+                withDuration: AnimationDuration.medium.rawValue,
+                animations: action
+            )
         } else {
             action()
         }
@@ -541,7 +544,10 @@ class RootContainerViewController: UIViewController {
         }
 
         if animated {
-            UIView.animate(withDuration: 0.25, animations: action)
+            UIView.animate(
+                withDuration: AnimationDuration.medium.rawValue,
+                animations: action
+            )
         } else {
             action()
         }

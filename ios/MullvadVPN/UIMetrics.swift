@@ -40,13 +40,13 @@ extension UIMetrics {
         right: 24
     )
 
-    /// Spacing used in stack views of buttons
-    static let interButtonSpacing: CGFloat = 16
+    enum StackSpacing: CGFloat {
+        case close = 8
+        case regular = 16
+    }
 
     /// Spacing used between distinct sections of views
     static let sectionSpacing: CGFloat = 24
-
-    static let verticalCenterOffset: CGFloat = -20
 
     /// Text field margins
     static let textFieldMargins = UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14)
