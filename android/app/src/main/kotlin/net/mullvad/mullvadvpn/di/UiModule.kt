@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
+import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
@@ -49,9 +50,12 @@ val uiModule = module {
 
     single { AccountRepository(get()) }
     single { DeviceRepository(get()) }
-    viewModel { LoginViewModel(get(), get()) }
+
+    // View models
+    viewModel { ConnectViewModel() }
     viewModel { DeviceRevokedViewModel(get(), get()) }
     viewModel { DeviceListViewModel(get(), get()) }
+    viewModel { LoginViewModel(get(), get()) }
 }
 
 const val APPS_SCOPE = "APPS_SCOPE"
