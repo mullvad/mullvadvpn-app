@@ -263,6 +263,19 @@ final class TunnelMonitor: PingerDelegate {
         }
     }
 
+    func onWake() {
+        internalQueue.async {
+            self.onWakeNoQueue()
+        }
+    }
+
+    func onSleep(completion: @escaping () -> Void) {
+        internalQueue.async {
+            self.onSleepNoQueue()
+            completion()
+        }
+    }
+
     // MARK: - PingerDelegate
 
     func pinger(
@@ -529,6 +542,30 @@ final class TunnelMonitor: PingerDelegate {
     private func stopConnectivityCheckTimer() {
         timer?.cancel()
         timer = nil
+    }
+
+    private func onWakeNoQueue() {
+        logger.debug("Wake up.")
+
+        switch state.connectionState {
+        case .connecting, .connected:
+            startConnectivityCheckTimer()
+
+        case .stopped, .waitingConnectivity:
+            break
+        }
+    }
+
+    private func onSleepNoQueue() {
+        logger.debug("Prepare to sleep.")
+
+        switch state.connectionState {
+        case .connecting, .connected:
+            stopConnectivityCheckTimer()
+
+        case .stopped, .waitingConnectivity:
+            break
+        }
     }
 
     private func sendDelegateConnectionEstablished() {
