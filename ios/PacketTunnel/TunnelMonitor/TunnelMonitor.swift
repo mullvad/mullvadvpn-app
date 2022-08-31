@@ -339,6 +339,7 @@ final class TunnelMonitor: PingerDelegate {
             newStats.bytesSent < state.netStats.bytesSent
 
         guard !isStatsReset else {
+            logger.debug("Stats was being reset.")
             state.netStats = newStats
             return
         }
