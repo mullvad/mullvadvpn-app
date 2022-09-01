@@ -13,52 +13,66 @@ import RelayStatusIndicator from './RelayStatusIndicator';
 
 interface IButtonColorProps {
   selected: boolean;
-  disabled: boolean;
-  location: RelayLocation;
+  disabled?: boolean;
+  location?: RelayLocation;
 }
 
 const buttonColor = (props: IButtonColorProps) => {
-  const background =
-    'hostname' in props.location
-      ? colors.blue20
-      : 'city' in props.location
-      ? colors.blue40
-      : colors.blue;
-  const backgroundHover = 'country' in props.location ? colors.blue80 : colors.blue80;
+  let background = colors.blue;
+  if (props.selected) {
+    background = colors.green;
+  } else if (props.location) {
+    if ('hostname' in props.location) {
+      background = colors.blue20;
+    } else if ('city' in props.location) {
+      background = colors.blue40;
+    }
+  }
+
+  let backgroundHover = colors.blue80;
+  if (props.selected || props.disabled) {
+    backgroundHover = background;
+  } else if (props.location) {
+    backgroundHover = colors.blue80;
+  }
 
   return {
-    backgroundColor: props.selected ? colors.green : background,
+    backgroundColor: background,
     ':not(:disabled):hover': {
-      backgroundColor: props.selected
-        ? colors.green
-        : props.disabled
-        ? background
-        : backgroundHover,
+      backgroundColor: backgroundHover,
     },
   };
 };
 
-const Container = styled(Cell.Container)({
+export const StyledLocationRowContainer = styled(Cell.Container)({
   display: 'flex',
   padding: 0,
   background: 'none',
 });
 
-const Button = styled.button(buttonColor, (props: { location: RelayLocation }) => {
-  const paddingLeft = 'hostname' in props.location ? 50 : 'city' in props.location ? 34 : 18;
+export const StyledLocationRowButton = styled.button(
+  buttonColor,
+  (props: { location?: RelayLocation }) => {
+    const paddingLeft =
+      props.location && 'hostname' in props.location
+        ? 50
+        : props.location && 'city' in props.location
+        ? 34
+        : 18;
 
-  return {
-    display: 'flex',
-    alignItems: 'center',
-    minHeight: '44px',
-    flex: 1,
-    border: 'none',
-    padding: `0 10px 0 ${paddingLeft}px`,
-    margin: 0,
-  };
-});
+    return {
+      display: 'flex',
+      alignItems: 'center',
+      minHeight: '44px',
+      flex: 1,
+      border: 'none',
+      padding: `0 10px 0 ${paddingLeft}px`,
+      margin: 0,
+    };
+  },
+);
 
-const StyledChevronButton = styled(ChevronButton)(buttonColor, {
+export const StyledLocationRowIcon = styled.button(buttonColor, {
   position: 'relative',
   alignSelf: 'stretch',
   paddingLeft: '22px',
@@ -77,7 +91,7 @@ const StyledChevronButton = styled(ChevronButton)(buttonColor, {
   },
 });
 
-const Label = styled(Cell.Label)(normalText, {
+export const StyledLocationRowLabel = styled(Cell.Label)(normalText, {
   fontWeight: 400,
 });
 
@@ -120,18 +134,19 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
 
   return (
     <>
-      <Container ref={ref} disabled={props.disabled}>
-        <Button
+      <StyledLocationRowContainer ref={ref} disabled={props.disabled}>
+        <StyledLocationRowButton
           ref={buttonRef}
           onClick={handleClick}
           selected={props.selected}
           location={props.location}
           disabled={props.disabled}>
           <RelayStatusIndicator active={props.active} selected={props.selected} />
-          <Label>{props.name}</Label>
-        </Button>
+          <StyledLocationRowLabel>{props.name}</StyledLocationRowLabel>
+        </StyledLocationRowButton>
         {hasChildren ? (
-          <StyledChevronButton
+          <StyledLocationRowIcon
+            as={ChevronButton}
             onClick={toggleCollapse}
             up={props.expanded ?? false}
             selected={props.selected}
@@ -145,7 +160,7 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
             )}
           />
         ) : null}
-      </Container>
+      </StyledLocationRowContainer>
 
       {hasChildren && (
         <Accordion
