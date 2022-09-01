@@ -234,6 +234,10 @@ msgctxt "accessibility"
 msgid "Hide account number"
 msgstr ""
 
+msgctxt "accessibility"
+msgid "info"
+msgstr ""
+
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
 msgid "Login"
