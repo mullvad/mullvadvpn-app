@@ -52,6 +52,9 @@ Line wrap the file at 100 chars.                                              Th
 - Remove dependency on `ipconfig.exe`. Call `DnsFlushResolverCache` to flush the DNS cache.
 - Upgrade Wintun to 0.14.1.
 
+#### Android
+- Refresh device when app is resumed to detect potentially revoked devices early.
+
 ### Fixed
 - Connect to TCP endpoints over IPv6 if IPv6 is enabled for WireGuard.
 - Fix udp2tcp not working when quantum-resistant tunnels are enabled.
