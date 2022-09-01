@@ -1,5 +1,10 @@
 use std::{env, fs, path::PathBuf, process::Command};
 
+#[cfg(windows)]
+fn make_lang_id(p: u16, s: u16) -> u16 {
+    (s << 10) | p
+}
+
 fn main() {
     let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
@@ -12,9 +17,9 @@ fn main() {
         let mut res = winres::WindowsResource::new();
         res.set("ProductVersion", &product_version);
         res.set_icon("../dist-assets/icon.ico");
-        res.set_language(winapi::um::winnt::MAKELANGID(
-            winapi::um::winnt::LANG_ENGLISH,
-            winapi::um::winnt::SUBLANG_ENGLISH_US,
+        res.set_language(make_lang_id(
+            windows_sys::Win32::System::SystemServices::LANG_ENGLISH as u16,
+            windows_sys::Win32::System::SystemServices::SUBLANG_ENGLISH_US as u16,
         ));
         println!("cargo:rerun-if-env-changed=MULLVAD_ADD_MANIFEST");
         if env::var("MULLVAD_ADD_MANIFEST")

@@ -1,4 +1,5 @@
 use crate::cli;
+use libc::c_void;
 use mullvad_daemon::{runtime::new_runtime_builder, DaemonShutdownHandle};
 use std::{
     env,
@@ -12,14 +13,6 @@ use std::{
     time::{Duration, Instant},
 };
 use talpid_types::ErrorExt;
-use winapi::{
-    ctypes::c_void,
-    shared::{minwindef::ULONG, ntdef::LUID, ntstatus::STATUS_SUCCESS},
-    um::ntlsa::{
-        LsaEnumerateLogonSessions, LsaFreeReturnBuffer, LsaGetLogonSessionData,
-        SECURITY_LOGON_SESSION_DATA,
-    },
-};
 use windows_service::{
     service::{
         PowerEventParam, Service, ServiceAccess, ServiceAction, ServiceActionType, ServiceControl,
@@ -30,6 +23,13 @@ use windows_service::{
     service_control_handler::{self, ServiceControlHandlerResult, ServiceStatusHandle},
     service_dispatcher,
     service_manager::{ServiceManager, ServiceManagerAccess},
+};
+use windows_sys::Win32::{
+    Foundation::{LUID, STATUS_SUCCESS},
+    Security::Authentication::Identity::{
+        LsaEnumerateLogonSessions, LsaFreeReturnBuffer, LsaGetLogonSessionData,
+        SECURITY_LOGON_SESSION_DATA,
+    },
 };
 
 static SERVICE_NAME: &'static str = "MullvadVPN";
@@ -457,7 +457,7 @@ impl HibernationDetector {
     }
 
     fn is_interactive_session(session_id: u32) -> bool {
-        let mut logon_session_count: ULONG = 0;
+        let mut logon_session_count = 0u32;
         let mut logon_session_list: *mut LUID = ptr::null_mut();
         let status =
             unsafe { LsaEnumerateLogonSessions(&mut logon_session_count, &mut logon_session_list) };
@@ -472,8 +472,7 @@ impl HibernationDetector {
         for logon in logons {
             let mut session_data: *mut SECURITY_LOGON_SESSION_DATA = ptr::null_mut();
             // SAFETY: `LsaGetLogonSessionData` does not mutate `logon`
-            let status =
-                unsafe { LsaGetLogonSessionData(logon as *const _ as *mut _, &mut session_data) };
+            let status = unsafe { LsaGetLogonSessionData(logon, &mut session_data) };
             if status != STATUS_SUCCESS {
                 log::warn!("LsaGetLogonSessionData() failed, error code: {}", status);
                 continue;

@@ -1,3 +1,4 @@
+use libc::c_void;
 use mullvad_paths::log_dir;
 use std::{
     borrow::Cow,
@@ -10,24 +11,21 @@ use std::{
 };
 use talpid_types::ErrorExt;
 use winapi::{
-    ctypes::c_void,
-    shared::{
-        minwindef::{BOOL, BYTE, DWORD, FALSE},
-        winerror::ERROR_NO_MORE_FILES,
-    },
-    um::{
-        errhandlingapi::SetUnhandledExceptionFilter,
-        handleapi::{CloseHandle, INVALID_HANDLE_VALUE},
-        processthreadsapi::{GetCurrentProcess, GetCurrentProcessId, GetCurrentThreadId},
-        tlhelp32::{
-            CreateToolhelp32Snapshot, Module32First, Module32Next, MODULEENTRY32, TH32CS_SNAPMODULE,
-        },
-        winnt::{
-            CONTEXT, CONTEXT_CONTROL, CONTEXT_INTEGER, CONTEXT_SEGMENTS, EXCEPTION_POINTERS,
-            EXCEPTION_RECORD, HANDLE, LONG,
-        },
-    },
+    um::winnt::{CONTEXT_CONTROL, CONTEXT_INTEGER, CONTEXT_SEGMENTS},
     vc::excpt::EXCEPTION_EXECUTE_HANDLER,
+};
+use windows_sys::Win32::{
+    Foundation::{CloseHandle, BOOL, ERROR_NO_MORE_FILES, HANDLE, INVALID_HANDLE_VALUE},
+    System::{
+        Diagnostics::{
+            Debug::{SetUnhandledExceptionFilter, CONTEXT, EXCEPTION_POINTERS, EXCEPTION_RECORD},
+            ToolHelp::{
+                CreateToolhelp32Snapshot, Module32First, Module32Next, MODULEENTRY32,
+                TH32CS_SNAPMODULE,
+            },
+        },
+        Threading::{GetCurrentProcess, GetCurrentProcessId, GetCurrentThreadId},
+    },
 };
 
 /// Minidump file name
@@ -44,7 +42,7 @@ enum MINIDUMP_TYPE {
 #[derive(Clone, Copy, Debug)]
 #[allow(non_snake_case)]
 struct MINIDUMP_EXCEPTION_INFORMATION {
-    ThreadId: DWORD,
+    ThreadId: u32,
     ExceptionPointers: *const EXCEPTION_POINTERS,
     ClientPointers: BOOL,
 }
@@ -54,7 +52,7 @@ extern "system" {
     /// Store exception information, stack trace, etc. in a file.
     fn MiniDumpWriteDump(
         hProcess: HANDLE,
-        ProcessId: DWORD,
+        ProcessId: u32,
         hFile: HANDLE,
         DumpType: MINIDUMP_TYPE,
         ExceptionParam: *const MINIDUMP_EXCEPTION_INFORMATION,
@@ -95,20 +93,20 @@ fn generate_minidump(
     let exception_parameters = MINIDUMP_EXCEPTION_INFORMATION {
         ThreadId: thread_id,
         ExceptionPointers: exception_pointers,
-        ClientPointers: FALSE,
+        ClientPointers: 0,
     };
 
     if unsafe {
         MiniDumpWriteDump(
             process,
             process_id,
-            handle,
+            handle as HANDLE,
             MINIDUMP_TYPE::MiniDumpNormal,
             &exception_parameters,
             ptr::null(),
             ptr::null(),
         )
-    } == FALSE
+    } == 0
     {
         return Err(MinidumpError::GenerateError(io::Error::last_os_error()));
     }
@@ -122,7 +120,7 @@ pub fn enable() {
 }
 
 fn exception_code_to_string(value: &EXCEPTION_RECORD) -> Option<Cow<'_, str>> {
-    use winapi::um::minwinbase::*;
+    use windows_sys::Win32::Foundation::*;
     let name = match value.ExceptionCode {
         EXCEPTION_ACCESS_VIOLATION => "EXCEPTION_ACCESS_VIOLATION",
         EXCEPTION_IN_PAGE_ERROR => "EXCEPTION_IN_PAGE_ERROR",
@@ -163,10 +161,10 @@ fn exception_code_to_string(value: &EXCEPTION_RECORD) -> Option<Cow<'_, str>> {
     }
 }
 
-extern "system" fn logging_exception_filter(info: *mut EXCEPTION_POINTERS) -> LONG {
+unsafe extern "system" fn logging_exception_filter(info: *const EXCEPTION_POINTERS) -> i32 {
     // SAFETY: Windows gives us valid pointers
-    let info: &EXCEPTION_POINTERS = unsafe { &*info };
-    let record: &EXCEPTION_RECORD = unsafe { &*info.ExceptionRecord };
+    let info: &EXCEPTION_POINTERS = &*info;
+    let record: &EXCEPTION_RECORD = &*info.ExceptionRecord;
 
     // Generate minidump
     let dump_path = match log_dir() {
@@ -190,7 +188,7 @@ extern "system" fn logging_exception_filter(info: *mut EXCEPTION_POINTERS) -> LO
     }
 
     // Log exception information
-    let context_info = get_context_info(unsafe { &*info.ContextRecord });
+    let context_info = get_context_info(&*info.ContextRecord);
 
     let error_str = match exception_code_to_string(record) {
         Some(errstr) => errstr,
@@ -300,8 +298,8 @@ fn find_address_module(address: *mut c_void) -> io::Result<Option<ModuleInfo>> {
     for module in snap.modules() {
         let module = module?;
         let module_end_address = unsafe { module.base_address.offset(module.size as isize) };
-        if (address as *const BYTE) >= module.base_address
-            && (address as *const BYTE) < module_end_address
+        if (address as *const u8) >= module.base_address
+            && (address as *const u8) < module_end_address
         {
             return Ok(Some(module));
         }
@@ -312,7 +310,7 @@ fn find_address_module(address: *mut c_void) -> io::Result<Option<ModuleInfo>> {
 
 struct ModuleInfo {
     name: String,
-    base_address: *const BYTE,
+    base_address: *const u8,
     size: usize,
 }
 
@@ -321,7 +319,7 @@ struct ProcessSnapshot {
 }
 
 impl ProcessSnapshot {
-    fn new(flags: DWORD, process_id: DWORD) -> io::Result<ProcessSnapshot> {
+    fn new(flags: u32, process_id: u32) -> io::Result<ProcessSnapshot> {
         let snap = unsafe { CreateToolhelp32Snapshot(flags, process_id) };
 
         if snap == INVALID_HANDLE_VALUE {
@@ -366,7 +364,7 @@ impl Iterator for ProcessSnapshotModules<'_> {
 
     fn next(&mut self) -> Option<io::Result<ModuleInfo>> {
         if self.iter_started {
-            if unsafe { Module32Next(self.snapshot.handle(), &mut self.temp_entry) } == FALSE {
+            if unsafe { Module32Next(self.snapshot.handle(), &mut self.temp_entry) } == 0 {
                 let last_error = io::Error::last_os_error();
 
                 return if last_error.raw_os_error().unwrap() as u32 == ERROR_NO_MORE_FILES {
@@ -376,13 +374,14 @@ impl Iterator for ProcessSnapshotModules<'_> {
                 };
             }
         } else {
-            if unsafe { Module32First(self.snapshot.handle(), &mut self.temp_entry) } == FALSE {
+            if unsafe { Module32First(self.snapshot.handle(), &mut self.temp_entry) } == 0 {
                 return Some(Err(io::Error::last_os_error()));
             }
             self.iter_started = true;
         }
 
-        let cstr = unsafe { CStr::from_ptr(&self.temp_entry.szModule[0] as *const c_char) };
+        let cstr_ref = &self.temp_entry.szModule[0];
+        let cstr = unsafe { CStr::from_ptr(cstr_ref as *const u8 as *const c_char) };
         Some(Ok(ModuleInfo {
             name: cstr.to_string_lossy().into_owned(),
             base_address: self.temp_entry.modBaseAddr,

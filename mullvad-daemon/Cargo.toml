@@ -52,12 +52,30 @@ simple-signal = "1.1"
 ctrlc = "3.0"
 duct = "0.13"
 windows-service = "0.5.0"
-winapi = { version = "0.3", features = ["errhandlingapi", "handleapi", "libloaderapi", "ntlsa", "synchapi", "tlhelp32", "winbase", "winerror", "winuser"] }
+winapi = { version = "0.3", features = ["winnt", "excpt"] }
 dirs-next = "2.0"
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.36.1"
+features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Security_Authorization",
+    "Win32_Security_Authentication_Identity",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_Kernel",
+    "Win32_System_Memory",
+    "Win32_System_Threading",
+]
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
-winapi = "0.3"
+
+[target.'cfg(windows)'.build-dependencies.windows-sys]
+version = "0.36.1"
+features = [
+    "Win32_System_SystemServices",
+]
 
 [package.metadata.winres]
 ProductName = "Mullvad VPN"

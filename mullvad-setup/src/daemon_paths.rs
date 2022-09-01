@@ -6,50 +6,50 @@ use std::{
     ptr,
 };
 use widestring::{WideCStr, WideCString};
-use winapi::{
-    shared::{
-        minwindef::{DWORD, FALSE},
-        ntdef::LUID,
-        winerror::{ERROR_NO_TOKEN, ERROR_SUCCESS, S_OK},
-    },
-    um::{
-        combaseapi::CoTaskMemFree,
-        handleapi::CloseHandle,
-        knownfolders::{FOLDERID_LocalAppData, FOLDERID_System},
-        processthreadsapi::{GetCurrentThread, OpenProcess, OpenProcessToken, OpenThreadToken},
-        psapi::K32EnumProcesses,
-        securitybaseapi::{AdjustTokenPrivileges, ImpersonateSelf, RevertToSelf},
-        shlobj::{SHGetKnownFolderPath, KF_FLAG_DEFAULT},
-        shtypes::KNOWNFOLDERID,
-        winbase::{LookupPrivilegeValueW, QueryFullProcessImageNameW},
-        winnt::{
-            SecurityImpersonation, HANDLE, LUID_AND_ATTRIBUTES, PROCESS_QUERY_INFORMATION, PWSTR,
-            SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE, TOKEN_IMPERSONATE,
-            TOKEN_PRIVILEGES, TOKEN_QUERY, TOKEN_READ,
+use windows_sys::{
+    core::{GUID, PWSTR},
+    Win32::{
+        Foundation::{CloseHandle, ERROR_NO_TOKEN, ERROR_SUCCESS, HANDLE, LUID, S_OK},
+        Security::{
+            AdjustTokenPrivileges, ImpersonateSelf, LookupPrivilegeValueW, RevertToSelf,
+            SecurityImpersonation, LUID_AND_ATTRIBUTES, SE_PRIVILEGE_ENABLED,
+            TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE, TOKEN_IMPERSONATE, TOKEN_PRIVILEGES,
+            TOKEN_QUERY,
+        },
+        System::{
+            Com::CoTaskMemFree,
+            ProcessStatus::K32EnumProcesses,
+            SystemServices::GENERIC_READ,
+            Threading::{
+                GetCurrentThread, OpenProcess, OpenProcessToken, OpenThreadToken,
+                QueryFullProcessImageNameW, PROCESS_QUERY_INFORMATION,
+            },
+        },
+        UI::Shell::{
+            FOLDERID_LocalAppData, FOLDERID_System, SHGetKnownFolderPath, KF_FLAG_DEFAULT,
         },
     },
 };
 
 pub fn get_mullvad_daemon_settings_path() -> io::Result<PathBuf> {
-    get_system_service_known_folder(FOLDERID_LocalAppData)
+    get_system_service_known_folder(&FOLDERID_LocalAppData)
         .map(|settings| settings.join(mullvad_paths::PRODUCT_NAME))
 }
 
 /// Get local AppData path for the system service user. Requires elevated privileges to work.
 /// Useful for deducing the config path for the daemon on Windows when running as a user that
 /// isn't the system service.
-fn get_system_service_known_folder(known_folder_id: KNOWNFOLDERID) -> std::io::Result<PathBuf> {
+fn get_system_service_known_folder(known_folder_id: *const GUID) -> std::io::Result<PathBuf> {
     let system_debug_priv = WideCString::from_str("SeDebugPrivilege").unwrap();
 
     adjust_current_thread_token_privilege(&system_debug_priv, true)?;
     let known_folder: io::Result<PathBuf> = (|| {
-        let mut lsass_path =
-            get_known_folder_path(FOLDERID_System, KF_FLAG_DEFAULT, ptr::null_mut())?;
+        let mut lsass_path = get_known_folder_path(&FOLDERID_System, KF_FLAG_DEFAULT as u32, 0)?;
         lsass_path.push("lsass.exe");
 
         let lsass_pid = get_running_process_id_from_name(&lsass_path)?;
-        let lsass_handle = unsafe { OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, lsass_pid) };
-        if lsass_handle.is_null() {
+        let lsass_handle = unsafe { OpenProcess(PROCESS_QUERY_INFORMATION, 0, lsass_pid) };
+        if lsass_handle == 0 {
             return Err(io::Error::new(
                 io::ErrorKind::NotFound,
                 format!(
@@ -59,23 +59,24 @@ fn get_system_service_known_folder(known_folder_id: KNOWNFOLDERID) -> std::io::R
             ));
         }
 
-        let mut lsass_token = ptr::null_mut();
+        let mut lsass_token: HANDLE = 0;
         let status = unsafe {
             OpenProcessToken(
                 lsass_handle,
-                TOKEN_READ | TOKEN_IMPERSONATE | TOKEN_DUPLICATE,
+                GENERIC_READ | TOKEN_IMPERSONATE | TOKEN_DUPLICATE,
                 &mut lsass_token,
             )
         };
         unsafe { CloseHandle(lsass_handle) };
-        if status == FALSE {
+        if status == 0 {
             return Err(io::Error::new(
                 io::ErrorKind::PermissionDenied,
                 format!("Failed to open process token, failure code {}", status),
             ));
         }
 
-        let known_folder = get_known_folder_path(known_folder_id, KF_FLAG_DEFAULT, lsass_token);
+        let known_folder =
+            get_known_folder_path(known_folder_id, KF_FLAG_DEFAULT as u32, lsass_token);
         unsafe { CloseHandle(lsass_token) };
 
         known_folder
@@ -84,7 +85,7 @@ fn get_system_service_known_folder(known_folder_id: KNOWNFOLDERID) -> std::io::R
     if let Err(err) = adjust_current_thread_token_privilege(&system_debug_priv, false) {
         eprintln!("Failed to drop system privileges: {}", err);
     }
-    if unsafe { RevertToSelf() } == FALSE {
+    if unsafe { RevertToSelf() } == 0 {
         return Err(io::Error::last_os_error());
     }
 
@@ -95,19 +96,19 @@ fn adjust_current_thread_token_privilege(
     privilege: &WideCString,
     enable: bool,
 ) -> std::io::Result<()> {
-    let mut token_handle: HANDLE = ptr::null_mut();
+    let mut token_handle: HANDLE = 0;
     if unsafe {
         OpenThreadToken(
             GetCurrentThread(),
             TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
-            FALSE,
+            0,
             &mut token_handle,
         )
-    } == FALSE
+    } == 0
     {
         let thread_token_error = std::io::Error::last_os_error();
         if thread_token_error.raw_os_error() == Some(ERROR_NO_TOKEN as i32) {
-            if unsafe { ImpersonateSelf(SecurityImpersonation) } == FALSE {
+            if unsafe { ImpersonateSelf(SecurityImpersonation) } == 0 {
                 return Err(std::io::Error::last_os_error());
             }
 
@@ -115,10 +116,10 @@ fn adjust_current_thread_token_privilege(
                 OpenThreadToken(
                     GetCurrentThread(),
                     TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
-                    FALSE,
+                    0,
                     &mut token_handle,
                 )
-            } == FALSE
+            } == 0
             {
                 return Err(std::io::Error::last_os_error());
             }
@@ -137,11 +138,9 @@ fn adjust_token_privilege(
     privilege: &WideCString,
     enable: bool,
 ) -> std::io::Result<()> {
-    let mut privilege_luid: LUID = Default::default();
+    let mut privilege_luid: LUID = unsafe { mem::zeroed() };
 
-    if unsafe { LookupPrivilegeValueW(ptr::null(), privilege.as_ptr(), &mut privilege_luid) }
-        == FALSE
-    {
+    if unsafe { LookupPrivilegeValueW(ptr::null(), privilege.as_ptr(), &mut privilege_luid) } == 0 {
         return Err(std::io::Error::last_os_error());
     }
 
@@ -155,7 +154,7 @@ fn adjust_token_privilege(
     let result = unsafe {
         AdjustTokenPrivileges(
             token_handle,
-            FALSE,
+            0,
             &mut privileges,
             0,
             ptr::null_mut(),
@@ -165,7 +164,7 @@ fn adjust_token_privilege(
     // Terrible interface.
     //  Odd 2018
     let last_error = std::io::Error::last_os_error();
-    if result == FALSE || last_error.raw_os_error() != Some(ERROR_SUCCESS as i32) {
+    if result == 0 || last_error.raw_os_error() != Some(ERROR_SUCCESS as i32) {
         return Err(last_error);
     }
 
@@ -173,12 +172,12 @@ fn adjust_token_privilege(
 }
 
 fn get_known_folder_path(
-    folder_id: KNOWNFOLDERID,
-    flags: DWORD,
+    folder_id: *const GUID,
+    flags: u32,
     user_token: HANDLE,
 ) -> std::io::Result<PathBuf> {
     let mut folder_path: PWSTR = ptr::null_mut();
-    let status = unsafe { SHGetKnownFolderPath(&folder_id, flags, user_token, &mut folder_path) };
+    let status = unsafe { SHGetKnownFolderPath(folder_id, flags, user_token, &mut folder_path) };
     let result = if status == S_OK {
         let path = unsafe { WideCStr::from_ptr_str(folder_path) };
         Ok(path.to_ustring().to_os_string().into())
@@ -196,7 +195,7 @@ fn get_known_folder_path(
 /// Find the PID of a process with the given image path. In case of multiple processes matching
 /// the path, the first one found to match the path will be returned - the ordering of PIDs is
 /// determined by `K32EnumProcesses`.
-fn get_running_process_id_from_name(target_name: &Path) -> io::Result<DWORD> {
+fn get_running_process_id_from_name(target_name: &Path) -> io::Result<u32> {
     let mut num_procs: u32 = 2048;
     let mut pid_buffer = vec![];
     let canonical_target = target_name
@@ -204,20 +203,20 @@ fn get_running_process_id_from_name(target_name: &Path) -> io::Result<DWORD> {
         .unwrap_or(target_name.to_path_buf());
 
     pid_buffer.resize(num_procs as usize, 0);
-    let bytes_available = num_procs * (mem::size_of::<DWORD>() as u32);
+    let bytes_available = num_procs * (mem::size_of::<u32>() as u32);
     let mut bytes_written = 0;
     if unsafe { K32EnumProcesses(pid_buffer.as_mut_ptr(), bytes_available, &mut bytes_written) }
-        == FALSE
+        == 0
     {
         return Err(io::Error::last_os_error());
     }
 
-    num_procs = bytes_written / (mem::size_of::<DWORD>() as u32);
+    num_procs = bytes_written / (mem::size_of::<u32>() as u32);
     pid_buffer.resize(num_procs as usize, 0);
 
     for process in pid_buffer {
-        let process_handle = unsafe { OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, process) };
-        if process_handle.is_null() {
+        let process_handle = unsafe { OpenProcess(PROCESS_QUERY_INFORMATION, 0, process) };
+        if process_handle == 0 {
             eprintln!(
                 "Failed to open process {}: {}",
                 process,
