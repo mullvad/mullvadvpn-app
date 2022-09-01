@@ -9,7 +9,11 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.net.Endpoint
 import net.mullvad.talpid.net.TransportProtocol
 
-class LocationInfo(val parentView: View, val context: Context) {
+class LocationInfo(
+    parentView: View,
+    private val context: Context,
+    private val onToggleTunnelInfo: () -> Unit
+) {
     private val hostnameColorCollapsed = context.getColor(R.color.white40)
     private val hostnameColorExpanded = context.getColor(R.color.white)
 
@@ -24,7 +28,12 @@ class LocationInfo(val parentView: View, val context: Context) {
 
     private var endpoint: Endpoint? = null
     private var isTunnelInfoVisible = false
+
     var isTunnelInfoExpanded = false
+        set(value) {
+            field = value
+            updateTunnelInfo()
+        }
 
     var location: GeoIpLocation? = null
         set(value) {
@@ -60,12 +69,7 @@ class LocationInfo(val parentView: View, val context: Context) {
         }
 
     init {
-        tunnelInfo.setOnClickListener { toggleTunnelInfo() }
-    }
-
-    private fun toggleTunnelInfo() {
-        isTunnelInfoExpanded = !isTunnelInfoExpanded
-        updateTunnelInfo()
+        tunnelInfo.setOnClickListener { onToggleTunnelInfo() }
     }
 
     private fun updateTunnelInfo() {
