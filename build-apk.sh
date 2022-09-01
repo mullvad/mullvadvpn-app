@@ -16,6 +16,7 @@ FILE_SUFFIX=""
 CARGO_ARGS="--release"
 EXTRA_WGGO_ARGS=""
 BUILD_BUNDLE="no"
+CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 
 while [ ! -z "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
@@ -120,10 +121,15 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     cargo build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
 
     STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/${LLVM_TRIPLE}-strip"
-    STRIPPED_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
-    UNSTRIPPED_LIB_PATH="$SCRIPT_DIR/target/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
+    TARGET_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
+    UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
 
-    $STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
+
+    if [[ "$BUILD_TYPE" != "debug" ]]; then
+        $STRIP_TOOL --strip-debug --strip-unneeded -o "$TARGET_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
+    else
+        cp "$UNSTRIPPED_LIB_PATH" "$TARGET_LIB_PATH"
+    fi
 done
 
 echo "Updating relays.json..."
