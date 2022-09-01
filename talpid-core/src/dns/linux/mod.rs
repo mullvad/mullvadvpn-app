@@ -114,7 +114,7 @@ impl DnsMonitorHolder {
             .map(DnsMonitorHolder::SystemdResolved)
             .or_else(|err| {
                 match err {
-                    systemd_resolved::Error::SystemdResolvedError(
+                    systemd_resolved::Error::SystemdResolved(
                         systemd_resolved::SystemdDbusError::NoSystemdResolved(_),
                     ) => (),
                     other_error => {
