@@ -20,9 +20,6 @@ export interface WindowControllerDelegate {
   isUnpinnedWindow(): boolean;
 }
 
-// Tray applications are positioned aproximately 10px from the tray in Windows 11.
-const MARGIN = isWindows11OrNewer() ? 10 : 0;
-
 class StandaloneWindowPositioning implements IWindowPositioning {
   public getPosition(window: BrowserWindow): IPosition {
     const windowBounds = window.getBounds();
@@ -59,27 +56,29 @@ class AttachedToTrayWindowPositioning implements IWindowPositioning {
     const maxX = workArea.x + workArea.width - windowBounds.width;
     const maxY = workArea.y + workArea.height - windowBounds.height;
 
+    const margin = this.getWindowMargin();
+
     let x = 0;
     let y = 0;
 
     switch (placement) {
       case 'top':
         x = trayBounds.x + (trayBounds.width - windowBounds.width) * 0.5;
-        y = workArea.y + MARGIN;
+        y = workArea.y + margin;
         break;
 
       case 'bottom':
         x = trayBounds.x + (trayBounds.width - windowBounds.width) * 0.5;
-        y = workArea.y + workArea.height - windowBounds.height - MARGIN;
+        y = workArea.y + workArea.height - windowBounds.height - margin;
         break;
 
       case 'left':
-        x = workArea.x + MARGIN;
+        x = workArea.x + margin;
         y = trayBounds.y + (trayBounds.height - windowBounds.height) * 0.5;
         break;
 
       case 'right':
-        x = workArea.width - windowBounds.width - MARGIN;
+        x = workArea.width - windowBounds.width - margin;
         y = trayBounds.y + (trayBounds.height - windowBounds.height) * 0.5;
         break;
 
@@ -130,6 +129,17 @@ class AttachedToTrayWindowPositioning implements IWindowPositioning {
 
       default:
         return 'none';
+    }
+  }
+
+  private getWindowMargin() {
+    if (isWindows11OrNewer()) {
+      // Tray applications are positioned aproximately 10px from the tray in Windows 11.
+      return 10;
+    } else if (process.platform === 'darwin') {
+      return 5;
+    } else {
+      return 0;
     }
   }
 }
@@ -304,12 +314,6 @@ export default class WindowController {
     const contentHeight = 568;
 
     switch (process.platform) {
-      case 'darwin': {
-        // The size of transparent area around arrow on macOS.
-        const headerBarArrowHeight = 12;
-
-        return unpinnedWindow ? contentHeight : contentHeight + headerBarArrowHeight;
-      }
       case 'win32':
         // On Windows the app height ends up slightly lower than we set it to if running in unpinned
         // mode and the app becomes a tiny bit taller when pinned to task bar.

@@ -180,10 +180,9 @@ interface INavigationBarProps {
 
 export const NavigationBar = function NavigationBarT(props: INavigationBarProps) {
   const { showsBarSeparator, showsBarTitle } = useContext(NavigationScrollContext);
-  const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
 
   return (
-    <StyledNavigationBar unpinnedWindow={unpinnedWindow}>
+    <StyledNavigationBar>
       <TitleBarItemContext.Provider
         value={{ visible: props.alwaysDisplayBarTitle || showsBarTitle }}>
         {props.children}
