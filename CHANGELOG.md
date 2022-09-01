@@ -51,6 +51,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Fix crash sometimes occurring during account creation.
+- Fix tunnel info expansion state not remembered during pause and resume.
 
 
 ## [android/2022.2-beta1] - 2022-08-11
