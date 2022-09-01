@@ -10,6 +10,8 @@ pub struct Config {
     pub run_as_service: bool,
     pub register_service: bool,
     pub restart_service: bool,
+    #[cfg(target_os = "linux")]
+    pub initialize_firewall_and_exit: bool,
 }
 
 pub fn get_config() -> &'static Config {
@@ -31,11 +33,16 @@ pub fn create_config() -> Config {
     let log_to_file = !matches.is_present("disable_log_to_file");
     let log_stdout_timestamps = !matches.is_present("disable_stdout_timestamps");
 
+    #[cfg(target_os = "linux")]
+    let initialize_firewall_and_exit =
+        cfg!(target_os = "linux") && matches.is_present("initialize-early-boot-firewall");
     let run_as_service = cfg!(windows) && matches.is_present("run_as_service");
     let register_service = cfg!(windows) && matches.is_present("register_service");
     let restart_service = cfg!(windows) && matches.is_present("restart_service");
 
     Config {
+        #[cfg(target_os = "linux")]
+        initialize_firewall_and_exit,
         log_level,
         log_to_file,
         log_stdout_timestamps,
@@ -104,6 +111,14 @@ fn create_app() -> App<'static> {
             Arg::new("restart_service")
                 .long("restart-service")
                 .help("Restarts the existing system service"),
+        )
+    }
+
+    if cfg!(target_os = "linux") {
+        app = app.arg(
+            Arg::new("initialize-early-boot-firewall")
+                .long("initialize-early-boot-firewall")
+                .help("Initialize firewall to be used during early boot and exit"),
         )
     }
     app
