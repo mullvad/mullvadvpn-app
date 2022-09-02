@@ -42,11 +42,14 @@ interface IProps {
 }
 
 interface IState {
-  logoutDialogState: 'hidden' | 'checking-ports' | 'confirm';
+  logoutDialogVisible: boolean;
+  logoutDialogStage?: 'checking-ports' | 'confirm';
 }
 
 export default class Account extends React.Component<IProps, IState> {
-  public state: IState = { logoutDialogState: 'hidden' };
+  public state: IState = {
+    logoutDialogVisible: false,
+  };
 
   public componentDidMount() {
     this.props.updateAccountData();
@@ -140,10 +143,10 @@ export default class Account extends React.Component<IProps, IState> {
 
   private renderLogoutDialog() {
     const modalType =
-      this.state.logoutDialogState === 'checking-ports' ? undefined : ModalAlertType.warning;
+      this.state.logoutDialogStage === 'checking-ports' ? undefined : ModalAlertType.warning;
 
     const message =
-      this.state.logoutDialogState === 'checking-ports' ? (
+      this.state.logoutDialogStage === 'checking-ports' ? (
         <StyledSpinnerContainer>
           <ImageView source="icon-spinner" width={60} height={60} />
         </StyledSpinnerContainer>
@@ -160,7 +163,7 @@ export default class Account extends React.Component<IProps, IState> {
       );
 
     const buttons =
-      this.state.logoutDialogState === 'checking-ports'
+      this.state.logoutDialogStage === 'checking-ports'
         ? []
         : [
             <AppButton.RedButton key="logout" onClick={this.props.onLogout}>
@@ -175,17 +178,14 @@ export default class Account extends React.Component<IProps, IState> {
           ];
 
     return (
-      <ModalAlert
-        isOpen={this.state.logoutDialogState !== 'hidden'}
-        type={modalType}
-        buttons={buttons}>
+      <ModalAlert isOpen={this.state.logoutDialogVisible} type={modalType} buttons={buttons}>
         {message}
       </ModalAlert>
     );
   }
 
   private onTryLogout = async () => {
-    this.setState({ logoutDialogState: 'checking-ports' });
+    this.setState({ logoutDialogVisible: true, logoutDialogStage: 'checking-ports' });
     this.props.prepareLogout();
 
     const deviceState = await this.props.getDeviceState();
@@ -194,7 +194,7 @@ export default class Account extends React.Component<IProps, IState> {
       deviceState.accountAndDevice.device?.ports !== undefined &&
       deviceState.accountAndDevice.device.ports.length > 0
     ) {
-      this.setState({ logoutDialogState: 'confirm' });
+      this.setState({ logoutDialogStage: 'confirm' });
     } else {
       this.props.onLogout();
       this.onHideLogoutConfirmationDialog();
@@ -207,7 +207,7 @@ export default class Account extends React.Component<IProps, IState> {
   };
 
   private onHideLogoutConfirmationDialog = () => {
-    this.setState({ logoutDialogState: 'hidden' });
+    this.setState({ logoutDialogVisible: false });
   };
 }
 
