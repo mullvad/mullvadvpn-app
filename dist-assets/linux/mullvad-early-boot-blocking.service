@@ -1,0 +1,16 @@
+# Systemd service unit file to block all traffic during early boot.
+# This is required since almost no distributions use a `network-pre.target`,
+# which implies it's difficult to ensure that the daemon will start and block
+# traffic before any network configuration will be applied.
+#
+[Unit]
+Description=Mullvad early boot network blocker
+DefaultDependencies=no
+Before=basic.target mullvad-daemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/mullvad-daemon --initialize-early-boot-firewall
+
+[Install]
+WantedBy=mullvad-daemon.service

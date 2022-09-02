@@ -1,15 +1,19 @@
 # Systemd service unit file for the Mullvad VPN daemon
+# testing if new changes are added
 
 [Unit]
 Description=Mullvad VPN daemon
 Before=network.target multi-user.target NetworkManager.service systemd-networkd.service connman.service
+After=mullvad-early-boot-blocking.service
 StartLimitBurst=5
 StartLimitIntervalSec=20
+RequiresMountsFor=/opt/Mullvad\x20VPN/resources/
 
 [Service]
 Restart=always
 RestartSec=1
 ExecStart=/usr/bin/mullvad-daemon -v --disable-stdout-timestamps
+Environment="MULLVAD_RESOURCE_DIR=/opt/Mullvad VPN/resources/"
 
 [Install]
 WantedBy=multi-user.target NetworkManager.service systemd-networkd.service connman.service

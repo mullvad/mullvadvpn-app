@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
+echo "Running before-remove.sh"
 # SIGTERM for some reason causes the app to crash sometimes and SIGINT works as expected.
 pkill -2 -x "mullvad-gui" || true
 sleep 0.5
