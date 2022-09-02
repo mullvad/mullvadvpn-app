@@ -284,6 +284,8 @@ pub enum DaemonCommand {
     /// Saves the target tunnel state and enters a blocking state. The state is restored
     /// upon restart.
     PrepareRestart,
+    /// Causes a socket to bypass the tunnel. This has no effect when connected. It is only used
+    /// to bypass the tunnel in blocking states.
     #[cfg(target_os = "android")]
     BypassSocket(RawFd, oneshot::Sender<()>),
 }
@@ -2164,7 +2166,10 @@ where
     fn on_bypass_socket(&mut self, fd: RawFd, tx: oneshot::Sender<()>) {
         match self.tunnel_state {
             // When connected, the API connection shouldn't be bypassed.
-            TunnelState::Connected { .. } => (),
+            TunnelState::Connected { .. } => {
+                log::trace!("Not bypassing connection because the tunnel is up");
+                let _ = tx.send(());
+            }
             _ => {
                 self.send_tunnel_command(TunnelCommand::BypassSocket(fd, tx));
             }
