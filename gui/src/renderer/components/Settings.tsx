@@ -35,7 +35,6 @@ export default function Support() {
   const loginState = useSelector((state) => state.account.status);
   const connectedToDaemon = useSelector((state) => state.userInterface.connectedToDaemon);
 
-  const showLargeTitle = loginState.type !== 'ok';
   const showSubSettings = loginState.type === 'ok' && connectedToDaemon;
 
   return (
@@ -43,7 +42,7 @@ export default function Support() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar alwaysDisplayBarTitle={!showLargeTitle}>
+            <NavigationBar>
               <NavigationItems>
                 <TitleBarItem>
                   {
@@ -56,11 +55,9 @@ export default function Support() {
 
             <StyledNavigationScrollbars fillContainer>
               <StyledContent>
-                {showLargeTitle && (
-                  <SettingsHeader>
-                    <HeaderTitle>{messages.pgettext('navigation-bar', 'Settings')}</HeaderTitle>
-                  </SettingsHeader>
-                )}
+                <SettingsHeader>
+                  <HeaderTitle>{messages.pgettext('navigation-bar', 'Settings')}</HeaderTitle>
+                </SettingsHeader>
 
                 <StyledSettingsContent>
                   {showSubSettings ? (
