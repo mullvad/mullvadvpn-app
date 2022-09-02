@@ -9,6 +9,7 @@ use mullvad_management_interface::types::{
     TunnelType,
 };
 use mullvad_types::auth_failed::AuthFailed;
+use std::borrow::Cow;
 
 pub fn print_state(state: &TunnelState, verbose: bool) {
     match state.state.as_ref().unwrap() {
@@ -39,12 +40,12 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
     let mut obfuscator_overlaps = false;
 
     let exit_endpoint = {
-        let mut address = endpoint.address.as_str();
+        let mut address = Cow::Borrowed(endpoint.address.as_str());
         let mut protocol = endpoint.protocol;
         if let Some(obfuscator) = endpoint.obfuscation.as_ref() {
             if location.hostname == location.obfuscator_hostname {
                 obfuscator_overlaps = true;
-                address = &obfuscator.address;
+                address = Cow::Owned(format!("{}:{}", obfuscator.address, obfuscator.port));
                 protocol = obfuscator.protocol;
             }
         };
@@ -52,7 +53,7 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
         let exit = format_endpoint(
             &location.hostname,
             protocol,
-            Some(address).filter(|_| verbose),
+            Some(address).filter(|_| verbose).as_deref(),
         );
         format!("{exit} in {}, {}", &location.city, &location.country)
     };
