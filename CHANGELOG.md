@@ -67,6 +67,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix crash sometimes occurring during account creation.
 - Fix tunnel info expansion state not remembered during pause and resume.
+- Fix crash caused by view transitions due to a timit issue.
 
 
 ## [2022.4] - 2022-08-19

@@ -194,7 +194,7 @@ class WelcomeFragment : BaseFragment() {
     private fun advanceToConnectScreen() {
         parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, ConnectFragment())
-            commit()
+            commitAllowingStateLoss()
         }
     }
 
