@@ -59,6 +59,7 @@ Line wrap the file at 100 chars.                                              Th
 - Enable reconnect in blocked state in desktop app.
 - Fix error handling during device removal in the desktop app.
 - Enable interface settings when app is logged out
+- Fix 'mullvad status -v' to include the port of the endpoint when connecting over TCP.
 
 #### Windows
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
