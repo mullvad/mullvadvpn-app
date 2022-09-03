@@ -13,10 +13,9 @@ private let kRelayIndicatorSize: CGFloat = 16
 
 class SelectLocationCell: UITableViewCell {
     typealias CollapseHandler = (SelectLocationCell) -> Void
-    typealias PinHandler = (SelectLocationCell) -> Void
 
-    let locationLabel = UILabel()
-    let statusIndicator: UIView = {
+    private let locationLabel = UILabel()
+    private let statusIndicator: UIView = {
         let view = UIView()
         view.layer.cornerRadius = kRelayIndicatorSize * 0.5
         if #available(iOS 13.0, *) {
@@ -25,14 +24,12 @@ class SelectLocationCell: UITableViewCell {
         return view
     }()
 
-    let tickImageView = UIImageView(image: UIImage(named: "IconTick"))
-    let collapseButton = UIButton(type: .custom)
-    let pinButton = UIButton(type: .custom)
+    private let tickImageView = UIImageView(image: UIImage(named: "IconTick"))
+    private let collapseButton = UIButton(type: .custom)
+    private let pinImageView = UIImageView(image: UIImage(named: "IconPinned"))
 
     private let chevronDown = UIImage(named: "IconChevronDown")
     private let chevronUp = UIImage(named: "IconChevronUp")
-    private let pinned = UIImage(named: "IconPinned")
-    private let unpinned = UIImage(named: "IconUnpinned")
 
     func setLocationText(_ text: String, highlightedText: String) {
         let highlightColor = UIColor.Cell.titleTextColor
@@ -73,10 +70,11 @@ class SelectLocationCell: UITableViewCell {
 
     var isPinned = false {
         didSet {
-            pinButton.setImage(isPinned ? pinned : unpinned, for: .normal)
-            pinButton.alpha = isPinned ? 1 : 0.3
+            pinImageView.isHidden = !isPinned
         }
     }
+
+    var isTableViewSwiped = false
 
     var isExpanded = false {
         didSet {
@@ -93,7 +91,6 @@ class SelectLocationCell: UITableViewCell {
     }
 
     var didCollapseHandler: CollapseHandler?
-    var didTapPinHandler: PinHandler?
 
     override var indentationLevel: Int {
         didSet {
@@ -128,6 +125,7 @@ class SelectLocationCell: UITableViewCell {
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
+        guard !isTableViewSwiped else { return }
         super.setSelected(selected, animated: animated)
 
         updateTickImage()
@@ -155,10 +153,8 @@ class SelectLocationCell: UITableViewCell {
 
         tickImageView.tintColor = .white
 
-        pinButton.accessibilityIdentifier = "PinButton"
-        pinButton.isAccessibilityElement = false
-        pinButton.tintColor = .white
-        pinButton.addTarget(self, action: #selector(handlePinButton(_:)), for: .touchUpInside)
+        pinImageView.tintColor = .white
+        pinImageView.contentMode = .scaleAspectFit
 
         collapseButton.accessibilityIdentifier = "CollapseButton"
         collapseButton.isAccessibilityElement = false
@@ -169,7 +165,7 @@ class SelectLocationCell: UITableViewCell {
             for: .touchUpInside
         )
 
-        [locationLabel, tickImageView, statusIndicator, pinButton, collapseButton]
+        [locationLabel, tickImageView, statusIndicator, pinImageView, collapseButton]
             .forEach { subview in
                 subview.translatesAutoresizingMaskIntoConstraints = false
                 contentView.addSubview(subview)
@@ -182,6 +178,11 @@ class SelectLocationCell: UITableViewCell {
         setLayoutMargins()
 
         NSLayoutConstraint.activate([
+            pinImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            pinImageView.widthAnchor.constraint(equalToConstant: kRelayIndicatorSize),
+            pinImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            pinImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+
             tickImageView.leadingAnchor
                 .constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
             tickImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
@@ -195,15 +196,13 @@ class SelectLocationCell: UITableViewCell {
                 equalTo: statusIndicator.trailingAnchor,
                 constant: 12
             ),
-            locationLabel.trailingAnchor.constraint(lessThanOrEqualTo: pinButton.leadingAnchor),
+            locationLabel.trailingAnchor.constraint(
+                lessThanOrEqualTo: collapseButton.leadingAnchor
+            ),
             locationLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            locationLabel.bottomAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
-
-            pinButton.widthAnchor.constraint(equalToConstant: kCollapseButtonWidth),
-            pinButton.topAnchor.constraint(equalTo: contentView.topAnchor),
-            pinButton.trailingAnchor.constraint(equalTo: collapseButton.leadingAnchor),
-            pinButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            locationLabel.bottomAnchor.constraint(
+                equalTo: contentView.layoutMarginsGuide.bottomAnchor
+            ),
 
             collapseButton.widthAnchor
                 .constraint(
@@ -268,10 +267,6 @@ class SelectLocationCell: UITableViewCell {
         } else {
             return UIColor.RelayStatusIndicator.activeColor
         }
-    }
-
-    @objc private func handlePinButton(_ sender: UIControl) {
-        didTapPinHandler?(self)
     }
 
     @objc private func handleCollapseButton(_ sender: UIControl) {

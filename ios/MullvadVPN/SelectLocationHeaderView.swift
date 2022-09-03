@@ -24,13 +24,6 @@ class SelectLocationHeaderView: UIView {
         return textLabel
     }()
 
-    var topLayoutMarginAdjustmentForNavigationBarTitle: CGFloat = 0 {
-        didSet {
-            let value = UIMetrics.sectionSpacing - topLayoutMarginAdjustmentForNavigationBarTitle
-            layoutMargins.top = max(value, 0)
-        }
-    }
-
     init() {
         super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
 

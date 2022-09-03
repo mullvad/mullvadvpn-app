@@ -6,6 +6,7 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
+import Logging
 import UIKit
 
 protocol LocationDataSourceItemProtocol {
@@ -29,6 +30,7 @@ class LocationDataSource: NSObject, UITableViewDataSource {
     private var nodeByLocation = [RelayLocation: Node]()
     private var locationList = [RelayLocation]()
     private var rootNode = makeRootNode()
+    private let logger = Logger(label: "LocationDataSource")
 
     private let tableView: UITableView
     private let cellProvider: CellProviderBlock
@@ -112,8 +114,10 @@ class LocationDataSource: NSObject, UITableViewDataSource {
             pinnedLocationNames = try SettingsManager.getPinnedLocationNames()
         } catch {
             pinnedLocationNames = []
-            // Unhandled read pinned locations error
-            print(error)
+            logger.error(
+                chainedError: AnyChainedError(error),
+                message: "Failed to read pinned locations."
+            )
         }
 
         for relay in response.wireguard.relays {
@@ -396,12 +400,25 @@ class LocationDataSource: NSObject, UITableViewDataSource {
                 return (fromIndexPath, toIndexPath)
             }
 
+        let reloadCell = { [weak self] (indexPath: IndexPath) in
+            if let cell = self?.tableView.cellForRow(at: indexPath),
+               let item = self?.item(for: indexPath)
+            {
+                self?.cellConfigurator(cell, indexPath, item)
+            }
+        }
+
         // Update re-sorted list and table view
         locationList = newLocationList
         tableView.performBatchUpdates {
-            changes.forEach(tableView.moveRow)
-        } completion: { [weak self] finished in
-            self?.tableView.reloadData()
+            changes.forEach { indexPath, newIndexPath in
+                tableView.moveRow(at: indexPath, to: newIndexPath)
+            }
+        } completion: { finished in
+            changes.forEach { indexPath, newIndexPath in
+                reloadCell(indexPath)
+                reloadCell(newIndexPath)
+            }
         }
 
         // Save pinned locations
@@ -414,8 +431,10 @@ class LocationDataSource: NSObject, UITableViewDataSource {
                 }
             try SettingsManager.setPinnedLocationNames(pinnedLocationNames)
         } catch {
-            // Unhandled write pinned locations error
-            print(error)
+            logger.error(
+                chainedError: AnyChainedError(error),
+                message: "Failed to write pinned locations."
+            )
         }
     }
 

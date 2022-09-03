@@ -34,6 +34,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     private var showHeaderViewAtTheBottom = false {
         didSet {
             setTableHeaderFooterConstraints()
+            setTableHeaderFooterLayoutMargins()
         }
     }
 
@@ -125,12 +126,9 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
                 cell.showsCollapseControl = item.isCollapsible
                 cell.isExpanded = item.showsChildren
                 cell.isPinned = item.isPinned
-                cell.pinButton.isHidden = !item.isPinnable
-                cell.didCollapseHandler = { [weak self] cell in
+                cell.isTableViewSwiped = false
+                cell.didCollapseHandler = { cell in
                     self?.collapseCell(cell)
-                }
-                cell.didTapPinHandler = { [weak self] cell in
-                    self?.dataSource?.togglePin(item.location)
                 }
             }
         )
@@ -152,8 +150,8 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         NSLayoutConstraint.activate([
             tableHeaderFooterView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableHeaderFooterView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -218,7 +216,6 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        updateTableHeaderTopLayoutMargin()
         adjustTableViewScrollIndicatorInsets()
     }
 
@@ -255,6 +252,40 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         )
 
         delegate?.selectLocationViewController(self, didSelectRelayLocation: item.location)
+    }
+
+    func tableView(_ tableView: UITableView, willBeginEditingRowAt indexPath: IndexPath) {
+        setTableViewSwiped(true, animated: false)
+    }
+
+    func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
+        setTableViewSwiped(false, animated: false)
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        guard let item = dataSource?.item(for: indexPath), item.isPinnable else {
+            return nil
+        }
+
+        let action = UIContextualAction(
+            style: .normal,
+            title: nil,
+            handler: { [weak self] action, view, completion in
+                self?.dataSource?.togglePin(item.location)
+                completion(true)
+            }
+        )
+        action.image = item.isPinned
+            ? UIImage(named: "IconUnpinned")
+            : UIImage(named: "IconPinned")
+        action.backgroundColor = UIColor.systemYellow
+
+        let config = UISwipeActionsConfiguration(actions: [action])
+        config.performsFirstActionWithFullSwipe = false
+        return config
     }
 
     // MARK: - Public
@@ -301,16 +332,13 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
     // MARK: - Private
 
-    private func updateTableHeaderTopLayoutMargin() {
-        // When contained within the navigation controller, we want the distance between the navigation title
-        // and the table header label to be exactly 24pt.
-        if let navigationBar = navigationController?.navigationBar as? CustomNavigationBar,
-           !showHeaderViewAtTheBottom
-        {
-            tableHeaderFooterView.topLayoutMarginAdjustmentForNavigationBarTitle = navigationBar
-                .titleLabelBottomInset
-        } else {
-            tableHeaderFooterView.topLayoutMarginAdjustmentForNavigationBarTitle = 0
+    private func setTableViewSwiped(_ swiped: Bool, animated: Bool) {
+        tableView?.visibleCells.forEach { cell in
+            let cell = cell as? SelectLocationCell
+            cell?.isTableViewSwiped = swiped
+        }
+        if let indexPath = dataSource?.indexPathForSelectedRelay() {
+            tableView?.selectRow(at: indexPath, animated: animated, scrollPosition: .none)
         }
     }
 
@@ -325,6 +353,16 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
                 tableHeaderFooterViewBottomConstraints
             )
             NSLayoutConstraint.activate(tableHeaderFooterViewTopConstraints)
+        }
+        view.layoutIfNeeded()
+    }
+
+    private func setTableHeaderFooterLayoutMargins() {
+        if showHeaderViewAtTheBottom {
+            tableHeaderFooterView.layoutMargins = UIMetrics.contentLayoutMargins
+        } else {
+            tableHeaderFooterView.layoutMargins.top = 0
+            tableHeaderFooterView.layoutMargins.bottom = 12
         }
         view.layoutIfNeeded()
     }
