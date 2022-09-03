@@ -41,6 +41,7 @@ object Versions {
     }
 
     object Plugin {
+        const val aapt = "4.2.2-7147631"
         const val android = "4.2.2"
         const val playPublisher = "2.7.5"
         const val kotlin = "1.5.32"

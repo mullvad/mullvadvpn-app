@@ -81,6 +81,9 @@ object Dependencies {
     }
 
     object Plugin {
+        const val aaptLinux = "com.android.tools.build:aapt2:${Versions.Plugin.aapt}:linux"
+        const val aaptOsx = "com.android.tools.build:aapt2:${Versions.Plugin.aapt}:osx"
+        const val aaptWindows = "com.android.tools.build:aapt2:${Versions.Plugin.aapt}:windows"
         const val android = "com.android.tools.build:gradle:${Versions.Plugin.android}"
         const val androidApplicationId = "com.android.application"
         const val androidTestId = "com.android.test"
