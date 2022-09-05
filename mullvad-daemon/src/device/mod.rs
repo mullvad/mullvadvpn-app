@@ -980,7 +980,7 @@ impl TunnelStateChangeHandler {
                 if endpoint.tunnel_type != TunnelType::Wireguard {
                     return;
                 }
-                self.wg_retry_attempt += 1;
+                self.wg_retry_attempt = self.wg_retry_attempt.wrapping_add(1);
                 if self.wg_retry_attempt % WG_DEVICE_CHECK_THRESHOLD == 0 {
                     let handle = self.manager.clone();
                     let check_validity = self.check_validity.clone();
