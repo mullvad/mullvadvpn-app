@@ -234,8 +234,14 @@ pub(crate) enum PrivateDeviceEvent {
     RotatedKey(PrivateAccountAndDevice),
 }
 
-impl From<PrivateDeviceEvent> for DeviceEvent {
-    fn from(event: PrivateDeviceEvent) -> DeviceEvent {
+#[derive(err_derive::Error, Debug)]
+#[error(display = "Device event type has no public equivalent")]
+pub(crate) struct PrivateOnlyEvent;
+
+impl TryFrom<PrivateDeviceEvent> for DeviceEvent {
+    type Error = PrivateOnlyEvent;
+
+    fn try_from(event: PrivateDeviceEvent) -> Result<DeviceEvent, PrivateOnlyEvent> {
         let cause = match event {
             PrivateDeviceEvent::Login(_) => DeviceEventCause::LoggedIn,
             PrivateDeviceEvent::Logout => DeviceEventCause::LoggedOut,
@@ -243,21 +249,19 @@ impl From<PrivateDeviceEvent> for DeviceEvent {
             PrivateDeviceEvent::Updated(_) => DeviceEventCause::Updated,
             PrivateDeviceEvent::RotatedKey(_) => DeviceEventCause::RotatedKey,
         };
-        DeviceEvent {
-            cause,
-            new_state: DeviceState::from(event.state()),
-        }
+        let new_state = DeviceState::from(event.state().ok_or(PrivateOnlyEvent)?);
+        Ok(DeviceEvent { cause, new_state })
     }
 }
 
 impl PrivateDeviceEvent {
-    pub fn state(self) -> PrivateDeviceState {
+    pub fn state(self) -> Option<PrivateDeviceState> {
         match self {
-            PrivateDeviceEvent::Login(config) => PrivateDeviceState::LoggedIn(config),
-            PrivateDeviceEvent::Updated(config) => PrivateDeviceState::LoggedIn(config),
-            PrivateDeviceEvent::RotatedKey(config) => PrivateDeviceState::LoggedIn(config),
-            PrivateDeviceEvent::Logout => PrivateDeviceState::LoggedOut,
-            PrivateDeviceEvent::Revoked => PrivateDeviceState::Revoked,
+            PrivateDeviceEvent::Login(config) => Some(PrivateDeviceState::LoggedIn(config)),
+            PrivateDeviceEvent::Updated(config) => Some(PrivateDeviceState::LoggedIn(config)),
+            PrivateDeviceEvent::RotatedKey(config) => Some(PrivateDeviceState::LoggedIn(config)),
+            PrivateDeviceEvent::Logout => Some(PrivateDeviceState::LoggedOut),
+            PrivateDeviceEvent::Revoked => Some(PrivateDeviceState::Revoked),
         }
     }
 }
@@ -760,7 +764,7 @@ impl AccountManager {
     }
 
     async fn set(&mut self, event: PrivateDeviceEvent) -> Result<(), Error> {
-        let device_state = event.clone().state();
+        let device_state = event.clone().state().expect("event type must imply state");
         if device_state == self.data {
             return Ok(());
         }
