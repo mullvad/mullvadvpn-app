@@ -1071,8 +1071,9 @@ where
             }
             _ => (),
         }
-        self.event_listener
-            .notify_device_event(DeviceEvent::from(event));
+        if let Ok(event) = DeviceEvent::try_from(event) {
+            self.event_listener.notify_device_event(event);
+        }
     }
 
     async fn handle_device_migration_event(
