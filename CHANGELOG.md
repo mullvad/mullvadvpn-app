@@ -52,10 +52,6 @@ Line wrap the file at 100 chars.                                              Th
 - Remove dependency on `ipconfig.exe`. Call `DnsFlushResolverCache` to flush the DNS cache.
 - Upgrade Wintun to 0.14.1.
 
-#### Android
-- Refresh device data when opening the account view to ensure the local data is up-to-date and that
-  the device hasn't been revoked.
-- Disable settings button during login.
 
 ### Fixed
 - Connect to TCP endpoints over IPv6 if IPv6 is enabled for WireGuard.
@@ -72,10 +68,19 @@ Line wrap the file at 100 chars.                                              Th
   it was successful.
 - Don't fail install if the device tree contains nameless callout driver devices.
 
+
+## [android/2022.2-beta2] - 2022-09-09
+### Changed
+#### Android
+- Refresh device data when opening the account view to ensure the local data is up-to-date and that
+  the device hasn't been revoked.
+- Disable settings button during login.
+
+### Fixed
 #### Android
 - Fix crash sometimes occurring during account creation.
 - Fix tunnel info expansion state not remembered during pause and resume.
-- Fix crash caused by view transitions due to a timit issue.
+- Fix crash during some view transitions.
 - Fix disabled login button on login failure. Instead, the login button will now still be enabled
   on login failures to let the user re-attempt the login.
 
