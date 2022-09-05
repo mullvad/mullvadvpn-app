@@ -12,7 +12,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
@@ -127,7 +129,13 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
     }
 
     private fun CoroutineScope.launchUpdateUiOnViewModelStateChanges() = launch {
-        loginViewModel.uiState.collect { uiState -> updateUi(uiState) }
+        loginViewModel.uiState
+            .onEach {
+                if (it.isLoading().not()) {
+                    delay(200L)
+                }
+            }
+            .collect { uiState -> updateUi(uiState) }
     }
 
     private fun updateUi(uiState: LoginViewModel.LoginUiState) {
