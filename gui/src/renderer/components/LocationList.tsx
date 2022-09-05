@@ -16,7 +16,13 @@ import {
   IRelayLocationRelayRedux,
 } from '../redux/settings/reducers';
 import * as Cell from './cell';
-import LocationRow from './LocationRow';
+import InfoButton from './InfoButton';
+import LocationRow, {
+  StyledLocationRowButton,
+  StyledLocationRowContainer,
+  StyledLocationRowIcon,
+  StyledLocationRowLabel,
+} from './LocationRow';
 
 export enum LocationSelectionType {
   relay = 'relay',
@@ -216,18 +222,19 @@ export function SpecialLocations<T>(props: ISpecialLocationsProps<T>) {
   );
 }
 
-const StyledSpecialLocationCellButton = styled(Cell.CellButton)({
-  paddingLeft: '18px',
-});
-
-const StyledSpecialLocationCellLabel = styled(Cell.Label)({
-  fontFamily: 'Open Sans',
-  fontWeight: 400,
-  fontSize: '16px',
+const StyledLocationRowContainerWithMargin = styled(StyledLocationRowContainer)({
+  marginBottom: 1,
 });
 
 const StyledSpecialLocationIcon = styled(Cell.Icon)({
+  flex: 0,
+  marginLeft: '2px',
   marginRight: '8px',
+});
+
+const StyledSpecialLocationInfoButton = styled(InfoButton)({
+  margin: 0,
+  padding: '0 25px',
 });
 
 interface ISpecialLocationProps<T> {
@@ -235,24 +242,30 @@ interface ISpecialLocationProps<T> {
   value: T;
   isSelected?: boolean;
   onSelect?: (value: T) => void;
+  info?: string;
   forwardedRef?: React.Ref<HTMLButtonElement>;
 }
 
 export class SpecialLocation<T> extends React.Component<ISpecialLocationProps<T>> {
   public render() {
     return (
-      <StyledSpecialLocationCellButton
-        ref={this.props.forwardedRef}
-        selected={this.props.isSelected}
-        onClick={this.onSelect}>
-        <StyledSpecialLocationIcon
-          source={this.props.isSelected ? 'icon-tick' : this.props.icon}
-          tintColor={colors.white}
-          height={24}
-          width={24}
+      <StyledLocationRowContainerWithMargin>
+        <StyledLocationRowButton onClick={this.onSelect} selected={this.props.isSelected ?? false}>
+          <StyledSpecialLocationIcon
+            source={this.props.isSelected ? 'icon-tick' : this.props.icon}
+            tintColor={colors.white}
+            height={22}
+            width={22}
+          />
+          <StyledLocationRowLabel>{this.props.children}</StyledLocationRowLabel>
+        </StyledLocationRowButton>
+        <StyledLocationRowIcon
+          as={StyledSpecialLocationInfoButton}
+          message={this.props.info}
+          selected={this.props.isSelected ?? false}
+          aria-label={messages.pgettext('accessibility', 'info')}
         />
-        <StyledSpecialLocationCellLabel>{this.props.children}</StyledSpecialLocationCellLabel>
-      </StyledSpecialLocationCellButton>
+      </StyledLocationRowContainerWithMargin>
     );
   }
 
