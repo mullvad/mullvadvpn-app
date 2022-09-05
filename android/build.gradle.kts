@@ -17,6 +17,12 @@ buildscript {
         classpath(Dependencies.Plugin.playPublisher)
         classpath(Dependencies.Plugin.kotlin)
         classpath(Dependencies.Plugin.dependencyCheck)
+
+        // Required for Gradle metadata verification to work properly, see:
+        // https://github.com/gradle/gradle/issues/19228
+        classpath(Dependencies.Plugin.aaptLinux)
+        classpath(Dependencies.Plugin.aaptOsx)
+        classpath(Dependencies.Plugin.aaptWindows)
     }
 }
 
