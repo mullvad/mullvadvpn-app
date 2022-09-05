@@ -49,6 +49,10 @@ Line wrap the file at 100 chars.                                              Th
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
   it was successful.
 
+#### Android
+- Fix crash sometimes occurring during account creation.
+
+
 ## [android/2022.2-beta1] - 2022-08-11
 ### Added
 #### Android
