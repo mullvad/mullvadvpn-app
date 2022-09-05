@@ -64,6 +64,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
   it was successful.
+- Don't fail install if the device tree contains nameless callout driver devices.
 
 #### Android
 - Fix crash sometimes occurring during account creation.

@@ -91,9 +91,28 @@ std::unique_ptr<DeviceEnumerator> CreateSplitTunnelDeviceEnumerator()
 {
 	return DeviceEnumerator::Create(WFP_CALLOUTS_CLASS_ID, [](HDEVINFO deviceInfoSet, const SP_DEVINFO_DATA &deviceInfo)
 	{
-		auto candidateDeviceName = GetDeviceStringProperty(deviceInfoSet, deviceInfo, &DEVPKEY_NAME);
+		try
+		{
+			auto candidateDeviceName = GetDeviceStringProperty(deviceInfoSet, deviceInfo, &DEVPKEY_NAME);
 
-		return 0 == candidateDeviceName.compare(SPLIT_TUNNEL_DEVICE_NAME);
+			return 0 == candidateDeviceName.compare(SPLIT_TUNNEL_DEVICE_NAME);
+		}
+		catch (const common::error::WindowsException &e)
+		{
+			if (ERROR_NOT_FOUND == e.errorCode())
+			{
+				// DEVPKEY_NAME is not guaranteed to be set.
+				// If it isn't, just assume it's not a matching device.
+
+				return false;
+			}
+
+			throw;
+		}
+		catch (...)
+		{
+			throw;
+		}
 	});
 }
 
