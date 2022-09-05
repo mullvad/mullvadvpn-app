@@ -43,16 +43,17 @@ import net.mullvad.mullvadvpn.ui.widget.SwitchLocationButton
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
+import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.joda.time.DateTime
 import org.koin.android.ext.android.inject
-
-val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
     // Injected dependencies
     private val accountRepository: AccountRepository by inject()
     private val accountExpiryNotification: AccountExpiryNotification by inject()
+    private val connectViewModel: ConnectViewModel by viewModel()
     private val serviceConnectionManager: ServiceConnectionManager by inject()
     private val tunnelStateNotification: TunnelStateNotification by inject()
     private val versionInfoNotification: VersionInfoNotification by inject()
@@ -64,17 +65,11 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     private lateinit var status: ConnectionStatus
     private lateinit var locationInfo: LocationInfo
 
-    private var isTunnelInfoExpanded = false
-
     @Deprecated("Refactor code to instead rely on Lifecycle.")
     private val jobTracker = JobTracker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        isTunnelInfoExpanded =
-            savedInstanceState?.getBoolean(KEY_IS_TUNNEL_INFO_EXPANDED, false) ?: false
-
         lifecycleScope.launchUiSubscriptionsOnResume()
     }
 
@@ -108,8 +103,9 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
         status = ConnectionStatus(view, requireMainActivity())
 
-        locationInfo = LocationInfo(view, requireContext())
-        locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
+        locationInfo = LocationInfo(view, requireContext()) {
+            connectViewModel.toggleTunnelInfoExpansion()
+        }
 
         actionButton = ConnectActionButton(view)
 
@@ -129,7 +125,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
     override fun onStart() {
         super.onStart()
-        locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
         notificationBanner.onResume()
     }
 
@@ -156,6 +151,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
             launchTunnelStateSubscription()
             launchVersionInfoSubscription()
             launchAccountExpirySubscription()
+            launchTunnelInfoExpansionSubscription()
         }
     }
 
@@ -222,6 +218,13 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
         accountRepository.accountExpiryState
             .collect {
                 accountExpiryNotification.updateAccountExpiry(it.date())
+            }
+    }
+
+    private fun CoroutineScope.launchTunnelInfoExpansionSubscription() = launch {
+        connectViewModel.isTunnelInfoExpanded
+            .collect { isExpanded ->
+                locationInfo.isTunnelInfoExpanded = isExpanded
             }
     }
 
