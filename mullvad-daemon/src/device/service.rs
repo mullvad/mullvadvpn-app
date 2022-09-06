@@ -315,10 +315,10 @@ impl AccountService {
     }
 
     pub async fn submit_voucher(
-        &mut self,
+        &self,
         account_token: AccountToken,
         voucher: String,
-    ) -> Result<VoucherSubmission, rest::Error> {
+    ) -> Result<VoucherSubmission, Error> {
         let mut proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         let result = retry_future_n(
@@ -332,7 +332,7 @@ impl AccountService {
             self.initial_check_abort_handle.abort();
             self.api_availability.resume_background();
         }
-        result
+        result.map_err(map_rest_error)
     }
 }
 

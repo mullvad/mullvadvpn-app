@@ -2,7 +2,7 @@ use std::pin::Pin;
 
 use chrono::{DateTime, Utc};
 use futures::{future::FusedFuture, Future};
-use mullvad_types::{device::Device, wireguard::WireguardData};
+use mullvad_types::{account::VoucherSubmission, device::Device, wireguard::WireguardData};
 
 use super::{Error, PrivateAccountAndDevice, ResponseTx};
 
@@ -37,6 +37,14 @@ impl CurrentApiCall {
 
     pub fn set_expiry_check(&mut self, expiry_call: ApiCall<DateTime<Utc>>) {
         self.current_call = Some(Call::ExpiryCheck(expiry_call));
+    }
+
+    pub fn set_voucher_submission(
+        &mut self,
+        voucher_call: ApiCall<VoucherSubmission>,
+        tx: ResponseTx<VoucherSubmission>,
+    ) {
+        self.current_call = Some(Call::VoucherSubmission(voucher_call, Some(tx)));
     }
 
     pub fn is_validating(&self) -> bool {
@@ -97,6 +105,10 @@ enum Call {
     TimerKeyRotation(ApiCall<WireguardData>),
     OneshotKeyRotation(ApiCall<WireguardData>),
     Validation(ApiCall<Device>),
+    VoucherSubmission(
+        ApiCall<VoucherSubmission>,
+        Option<ResponseTx<VoucherSubmission>>,
+    ),
     ExpiryCheck(ApiCall<DateTime<Utc>>),
 }
 
@@ -120,6 +132,16 @@ impl futures::Future for Call {
                 Pin::new(call).poll(cx).map(ApiResult::Rotation)
             }
             Validation(call) => Pin::new(call).poll(cx).map(ApiResult::Validation),
+            VoucherSubmission(call, tx) => {
+                if let std::task::Poll::Ready(response) = Pin::new(call).poll(cx) {
+                    std::task::Poll::Ready(ApiResult::VoucherSubmission(
+                        response,
+                        tx.take().unwrap(),
+                    ))
+                } else {
+                    std::task::Poll::Pending
+                }
+            }
             ExpiryCheck(call) => Pin::new(call).poll(cx).map(ApiResult::ExpiryCheck),
         }
     }
@@ -129,5 +151,9 @@ pub(crate) enum ApiResult {
     Login(Result<PrivateAccountAndDevice, Error>, ResponseTx<()>),
     Rotation(Result<WireguardData, Error>),
     Validation(Result<Device, Error>),
+    VoucherSubmission(
+        Result<VoucherSubmission, Error>,
+        ResponseTx<VoucherSubmission>,
+    ),
     ExpiryCheck(Result<DateTime<Utc>, Error>),
 }

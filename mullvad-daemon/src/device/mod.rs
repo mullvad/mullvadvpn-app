@@ -6,7 +6,7 @@ use futures::{
 
 use mullvad_api::rest;
 use mullvad_types::{
-    account::AccountToken,
+    account::{AccountToken, VoucherSubmission},
     device::{
         AccountAndDevice, Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceName, DevicePort,
         DeviceState,
@@ -307,6 +307,7 @@ enum AccountManagerCommand {
     RotateKey(ResponseTx<()>),
     SetRotationInterval(RotationInterval, ResponseTx<()>),
     ValidateDevice(ResponseTx<()>),
+    SubmitVoucher(String, ResponseTx<VoucherSubmission>),
     CheckExpiry(ResponseTx<DateTime<Utc>>),
     Shutdown(oneshot::Sender<()>),
 }
@@ -353,6 +354,11 @@ impl AccountManagerHandle {
 
     pub async fn validate_device(&self) -> Result<(), Error> {
         self.send_command(AccountManagerCommand::ValidateDevice)
+            .await
+    }
+
+    pub async fn submit_voucher(&self, voucher: String) -> Result<VoucherSubmission, Error> {
+        self.send_command(move |tx| AccountManagerCommand::SubmitVoucher(voucher, tx))
             .await
     }
 
@@ -502,6 +508,9 @@ impl AccountManager {
                         Some(AccountManagerCommand::ValidateDevice(tx)) => {
                             self.handle_validation_request(tx, &mut current_api_call);
                         },
+                        Some(AccountManagerCommand::SubmitVoucher(voucher, tx)) => {
+                            self.handle_voucher_submission(tx, voucher, &mut current_api_call);
+                        },
                         Some(AccountManagerCommand::CheckExpiry(tx)) => {
                             self.handle_expiry_request(tx, &mut current_api_call);
                         },
@@ -555,6 +564,34 @@ impl AccountManager {
         }
     }
 
+    fn handle_voucher_submission(
+        &mut self,
+        tx: ResponseTx<VoucherSubmission>,
+        voucher: String,
+        current_api_call: &mut api::CurrentApiCall,
+    ) {
+        if current_api_call.is_logging_in() {
+            let _ = tx.send(Err(Error::AccountChange));
+            return;
+        }
+
+        let create_submission = move || {
+            let old_config = self.data.device().ok_or(Error::NoDevice)?;
+            let account_token = old_config.account_token.clone();
+            let account_service = self.account_service.clone();
+            Ok(async move { account_service.submit_voucher(account_token, voucher).await })
+        };
+
+        match create_submission() {
+            Ok(call) => {
+                current_api_call.set_voucher_submission(Box::pin(call), tx);
+            }
+            Err(err) => {
+                let _ = tx.send(Err(err));
+            }
+        }
+    }
+
     fn handle_expiry_request(
         &mut self,
         tx: ResponseTx<DateTime<Utc>>,
@@ -590,6 +627,9 @@ impl AccountManager {
             Login(data, tx) => self.consume_login(data, tx).await,
             Rotation(rotation_response) => self.consume_rotation_result(rotation_response).await,
             Validation(data_response) => self.consume_validation(data_response, api_call).await,
+            VoucherSubmission(data_response, tx) => {
+                self.consume_voucher_result(data_response, tx).await
+            }
             ExpiryCheck(data_response) => self.consume_expiry_result(data_response).await,
         }
     }
@@ -605,6 +645,29 @@ impl AccountManager {
         Self::drain_requests(&mut self.data_requests, || Ok(data.clone()));
     }
 
+    async fn consume_voucher_result(
+        &mut self,
+        response: Result<VoucherSubmission, Error>,
+        tx: ResponseTx<VoucherSubmission>,
+    ) {
+        match &response {
+            Ok(submission) => {
+                // Send expiry update event
+                let event = PrivateDeviceEvent::AccountExpiry(submission.new_expiry);
+                self.listeners
+                    .retain(|listener| listener.send(event.clone()).is_ok());
+            }
+            Err(Error::InvalidAccount) => {
+                self.revoke_device(|| Error::InvalidAccount).await;
+            }
+            Err(Error::InvalidDevice) => {
+                self.revoke_device(|| Error::InvalidDevice).await;
+            }
+            Err(err) => log::error!("Failed to submit voucher: {}", err),
+        }
+        let _ = tx.send(response);
+    }
+
     async fn consume_expiry_result(&mut self, response: Result<DateTime<Utc>, Error>) {
         match response {
             Ok(expiry) => {
@@ -612,6 +675,7 @@ impl AccountManager {
                 let event = PrivateDeviceEvent::AccountExpiry(expiry);
                 self.listeners
                     .retain(|listener| listener.send(event.clone()).is_ok());
+
                 Self::drain_requests(&mut self.expiry_requests, || Ok(expiry));
             }
             Err(Error::InvalidAccount) => {
