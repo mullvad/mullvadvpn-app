@@ -212,6 +212,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
 
     private fun showLoading(overrideSpinnerWithErrorIcon: Boolean = false) {
         accountLogin.state = LoginState.InProgress
+        headerBar.setSettingsButtonEnabled(false)
 
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.logging_in_description)
@@ -244,6 +245,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
         loggedInStatus.visibility = View.VISIBLE
 
         accountLogin.state = LoginState.Success
+        headerBar.setSettingsButtonEnabled(false)
 
         scrollToShow(loggedInStatus)
     }
@@ -257,6 +259,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
         loggedInStatus.visibility = View.GONE
 
         accountLogin.state = LoginState.InProgress
+        headerBar.setSettingsButtonEnabled(true)
 
         scrollToShow(loggingInStatus)
     }
@@ -270,6 +273,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
         loggedInStatus.visibility = View.GONE
 
         accountLogin.state = LoginState.Failure
+        headerBar.setSettingsButtonEnabled(true)
 
         scrollToShow(accountLogin)
     }

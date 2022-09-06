@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Refresh device data when opening the account view to ensure the local data is up-to-date and that
   the device hasn't been revoked.
+- Disable settings button during login.
 
 ### Fixed
 - Connect to TCP endpoints over IPv6 if IPv6 is enabled for WireGuard.
