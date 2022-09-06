@@ -1,9 +1,10 @@
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
-import { ISettings, ObfuscationType, Ownership } from '../shared/daemon-rpc-types';
+import { ISettings } from '../shared/daemon-rpc-types';
 import { ICurrentAppVersionInfo } from '../shared/ipc-types';
 import log from '../shared/logging';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
 import { DaemonRpc } from './daemon-rpc';
+import { getDefaultSettings } from './default-settings';
 import GuiSettings from './gui-settings';
 import { IpcMainEventChannel } from './ipc-event-channel';
 
@@ -15,72 +16,7 @@ export interface SettingsDelegate {
 export default class Settings implements Readonly<ISettings> {
   private guiSettings = new GuiSettings();
 
-  private settingsValue: ISettings = {
-    allowLan: false,
-    autoConnect: false,
-    blockWhenDisconnected: false,
-    showBetaReleases: false,
-    splitTunnel: {
-      enableExclusions: false,
-      appsList: [],
-    },
-    relaySettings: {
-      normal: {
-        location: 'any',
-        tunnelProtocol: 'any',
-        providers: [],
-        ownership: Ownership.any,
-        openvpnConstraints: {
-          port: 'any',
-          protocol: 'any',
-        },
-        wireguardConstraints: {
-          port: 'any',
-          ipVersion: 'any',
-          useMultihop: false,
-          entryLocation: 'any',
-        },
-      },
-    },
-    bridgeSettings: {
-      normal: {
-        location: 'any',
-        providers: [],
-        ownership: Ownership.any,
-      },
-    },
-    bridgeState: 'auto',
-    tunnelOptions: {
-      generic: {
-        enableIpv6: false,
-      },
-      openvpn: {
-        mssfix: undefined,
-      },
-      wireguard: {
-        mtu: undefined,
-      },
-      dns: {
-        state: 'default',
-        defaultOptions: {
-          blockAds: false,
-          blockTrackers: false,
-          blockMalware: false,
-          blockAdultContent: false,
-          blockGambling: false,
-        },
-        customOptions: {
-          addresses: [],
-        },
-      },
-    },
-    obfuscationSettings: {
-      selectedObfuscation: ObfuscationType.auto,
-      udp2tcpSettings: {
-        port: 'any',
-      },
-    },
-  };
+  private settingsValue = getDefaultSettings();
 
   public constructor(
     private delegate: SettingsDelegate,
