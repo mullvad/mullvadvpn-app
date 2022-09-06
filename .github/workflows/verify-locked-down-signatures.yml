@@ -12,6 +12,12 @@ on:
             - android/gradle/verification-metadata.xml
             - android/gradle/wrapper/gradle-wrapper.properties
     workflow_dispatch:
+      inputs:
+        commitDepth:
+          description: 'The commit depth to fetch, should be enough to get origin/master.'
+          required: true
+          default: '50' 
+          type: string
 jobs:
     verify-signatures:
         runs-on: ubuntu-latest
@@ -21,10 +27,14 @@ jobs:
                 ref: ${{ github.event.pull_request.head.sha }}
             - name: Verify signatures
               run: |
-                commits=${{ github.event.pull_request.commits }}
-                if [[ -n "$commits" ]]; then
+                # Get the commit depth in both the case of a pull request and an event dispatch
+                pull_request_commit_depth=${{ github.event.pull_request.commits }}
+                event_dispatch_commit_depth=${{ github.event.inputs.commitDepth }}
+
+                commit_depth=${pull_request_commit_depth:-$event_dispatch_commit_depth}
+                if [[ -n "$commit_depth" ]]; then
                     # Prepare enough depth for diffs with master, currently hard-coded but should probably be 
                     # whatever branch is merged into
-                    git fetch --depth="$(( commits + 1 ))" origin ${{ github.head_ref }} master
+                    git fetch --depth="$(( commit_depth + 1 ))" origin ${{ github.head_ref }} master
                 fi
                 ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
