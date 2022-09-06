@@ -232,6 +232,8 @@ pub(crate) enum PrivateDeviceEvent {
     Updated(PrivateAccountAndDevice),
     /// The key was rotated.
     RotatedKey(PrivateAccountAndDevice),
+    /// Emitted when the account expiry is fetched.
+    AccountExpiry(DateTime<Utc>),
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -248,6 +250,7 @@ impl TryFrom<PrivateDeviceEvent> for DeviceEvent {
             PrivateDeviceEvent::Revoked => DeviceEventCause::Revoked,
             PrivateDeviceEvent::Updated(_) => DeviceEventCause::Updated,
             PrivateDeviceEvent::RotatedKey(_) => DeviceEventCause::RotatedKey,
+            PrivateDeviceEvent::AccountExpiry(_) => return Err(PrivateOnlyEvent),
         };
         let new_state = DeviceState::from(event.state().ok_or(PrivateOnlyEvent)?);
         Ok(DeviceEvent { cause, new_state })
@@ -262,6 +265,7 @@ impl PrivateDeviceEvent {
             PrivateDeviceEvent::RotatedKey(config) => Some(PrivateDeviceState::LoggedIn(config)),
             PrivateDeviceEvent::Logout => Some(PrivateDeviceState::LoggedOut),
             PrivateDeviceEvent::Revoked => Some(PrivateDeviceState::Revoked),
+            PrivateDeviceEvent::AccountExpiry(_) => None,
         }
     }
 }
@@ -604,6 +608,10 @@ impl AccountManager {
     async fn consume_expiry_result(&mut self, response: Result<DateTime<Utc>, Error>) {
         match response {
             Ok(expiry) => {
+                // Send expiry update event
+                let event = PrivateDeviceEvent::AccountExpiry(expiry);
+                self.listeners
+                    .retain(|listener| listener.send(event.clone()).is_ok());
                 Self::drain_requests(&mut self.expiry_requests, || Ok(expiry));
             }
             Err(Error::InvalidAccount) => {
