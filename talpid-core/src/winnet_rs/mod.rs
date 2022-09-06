@@ -1,4 +1,4 @@
-use windows::Win32::NetworkManagment::IpHelper::{self, GetIpForwardTable2, MIB_IPFORWARD_TABLE2, MIB_IPFORWARD_ROW2, MIB_IF_ROW2};
+use windows::Win32::NetworkManagment::IpHelper::{self, GetIpForwardTable2, MIB_IPFORWARD_TABLE2, MIB_IPFORWARD_ROW2, MIB_IF_ROW2, FreeMibTable, GetIpInterfaceEntry};
 
 // Interface description substrings found for virtual adapters.
 const TUNNEL_INTERFACE_DESCS: Vec<&[u8]> = [
@@ -10,9 +10,9 @@ const TUNNEL_INTERFACE_DESCS: Vec<&[u8]> = [
 // FIXME: We should have a better error
 type Result<T> = std::result::Result<T, ()>;
 
-pub struct WinNetIp {
-    pub addr_family: WinNetAddrFamily,
-    pub ip_bytes: [u8; 16],
+pub enum WinNetIp {
+    IPV4([u8; 4]),
+    IPV6([u8; 16])
 }
 
 pub struct WinNetDefaultRoute {
@@ -25,87 +25,120 @@ pub enum WinNetAddrFamily {
     IPV6,
 }
 
-pub fn get_best_default_route(family: WinNetAddrFamily) -> Result<WinNetDefaultRoute> {
-    Ok(WinNetDefaultRoute)
+
+fn ip_from_native(from: &SOCKADDR_INET) -> Result<WinNetIp> {
+    if from.si_family == AF_INET.0 {
+        Ok(WinNetIp::IPV4(from.Ipv4.sin_addr.S_un.S_addr))
+    } else if from.si_family == AF_INET6.0 {
+        Ok(WinNetIp::IPV6(from.Ipv6.sin6_addr.u.Byte.clone()))
+    } else {
+        // FIXME: Should this be a panic instead?
+        //panic!("Invalid network address family");
+        Err(())
+    }
 }
 
+pub fn get_best_default_route(family: WinNetAddrFamily) -> Result<WinNetDefaultRoute> {
+    let mut default_route = WinNetDefaultRoute::default();
+    let iface_and_gateway = get_best_default_internal(family)?.ok_or_else(|| ())?;
+    default_route.interface_luid = iface_and_gateway.iface.Value;
+    default_route.gateway = ip_from_native(iface_and_gateway.gateway)?;
+    Ok(default_route)
+}
 
-fn GetBestDefaultRoute(family: WinNetAddrFamily) -> Result<Option<InterfaceAndGateway>> {
+struct MibIpforwardTable2(MIB_IPFORWARD_TABLE2);
 
-	let mut table: PMIB_IPFORWARD_TABLE2 = PMIB_IPFORWARD_TABLE2::default();
+impl MibIpforwardTable2 {
+    fn new() -> Result<Self> {
+        let table: MIB_IPFORWARD_TABLE2 = MIB_IPFORWARD_TABLE2::default();
+        // TODO: Proper error handling
+        unsafe { GetIpForwardTable2(family, &mut table as *mut *mut MIB_IPFORWARD_TABLE2).map_err(|_| ())? };
+        Ok(Self(table))
+    }
 
-    // TODO: Proper error handling
-	unsafe { GetIpForwardTable2(family, &mut table as *mut *mut PMIB_IPFORWARD_TABLE2).map_err(|_| ())? };
+    fn get_table_entry(&self, i: usize) -> &MIB_IPFORWARD_ROW2 {
+        assert!(i < self.0.NumEntries);
+        assert!(i * size_of::<MIB_IPFORWARD_ROW2>() < isize::MAX);
+        let ptr = self.0.Table[0].as_ptr();
+        let row: &MIB_IPFORWARD_ROW2 = unsafe { ptr.offset(i).as_ref() }.unwrap();
+        row
+    }
+}
 
-    let mut candidates = Vec::with_capacity(table.NumEntries);
+impl Deref<MIB_IPFORWARD_TABLE2> for MibIpforwardTable2 {
+    fn deref(&self) -> &MIB_IPFORWARD_TABLE2 {
+        &self.0
+    }
+}
+
+impl Drop for MibIpforwardTable2 {
+    fn drop(&mut self) {
+        unsafe { FreeMibTable(&self.0 as *const _) }
+    }
+}
+
+struct InterfaceAndGateway {
+    iface: NET_LUID_LH,
+    gateway: SOCKADDR_INET,
+}
+
+fn get_best_default_internal(family: WinNetAddrFamily) -> Result<Option<InterfaceAndGateway>> {
+    let table = MibIpforwardTable2::new()?;
+    let mut candidates = Vec::with_capacity(*table.NumEntries);
 
 	//
 	// Enumerate routes looking for: route 0/0
 	// The WireGuard interface route has no gateway.
 	//
 
-	for (ULONG i = 0; i < table->NumEntries; ++i)
-	{
-		const MIB_IPFORWARD_ROW2 &candidate = table->Table[i];
+    for i in 0..*table.NumEntries {
+		let candidate = table.get_table_entry(i);
 
 		if (0 == candidate.DestinationPrefix.PrefixLength
-			&& RouteHasGateway(candidate)
-			&& IsRouteOnPhysicalInterface(candidate))
+			&& route_has_gateway(candidate)
+			&& is_route_on_physical_interface(candidate))
 		{
-			candidates.emplace_back(&candidate);
+			candidates.push(candidate);
 		}
 	}
 
-	auto annotated = AnnotateRoutes(candidates);
+	let mut annotated = annotated_routes(&candidates);
 
-	if (annotated.empty())
-	{
-		return std::nullopt;
+	if annotated.empty() {
+		return Ok(None);
 	}
 
 	//
 	// Sort on (active, effectiveMetric) ascending by metric.
 	//
 
-	std::sort(annotated.begin(), annotated.end(), [](const AnnotatedRoute &lhs, const AnnotatedRoute &rhs)
-	{
-		if (lhs.active == rhs.active)
-		{
-			return lhs.effectiveMetric < rhs.effectiveMetric;
-		}
-
-		return lhs.active && false == rhs.active;
-	});
+    annotated.sort_by(|lhs, rhs| {
+        if lhs.active == rhs.active {
+            return lhs.effective_metric < rhs.effective_metric;
+        }
+        return lhs.active && false == rhs.active;
+    });
 
 	//
 	// Ensure the top rated route is active.
 	//
 
-	if (false == annotated[0].active)
-	{
-		return std::nullopt;
+	if (false == annotated[0].active) {
+		return Ok(None);
 	}
 
-	return std::make_optional(InterfaceAndGateway { annotated[0].route->InterfaceLuid, annotated[0].route->NextHop });
+	Ok(Some(InterfaceAndGateway { iface: annotated[0].route.InterfaceLuid, gateway: annotated[0].route.NextHop }))
 }
 
 
 fn route_has_gateway(route: &MIB_IPFORWARD_ROW2) -> bool {
-	match route.NextHop.si_family {
-		IpHelper::AF_INET => {
-			return 0 != route.NextHop.Ipv4.sin_addr.s_addr;
-		}
-		IpHelper::AF_INET6 => {
-			let sum = &route.NextHop.Ipv6.sin6_addr.u.Byte.iter().sum();
-			//const uint8_t *begin = &route.NextHop.Ipv6.sin6_addr.u.Byte[0];
-			//const uint8_t *end = begin + 16;
-
-			return 0 != sum;
-		}
-        _ => {
-			return false;
-		}
-	};
+	if route.NextHop.si_family == IpHelper::AF_INET.0 {
+        return 0 != route.NextHop.Ipv4.sin_addr.s_addr;
+    } else if route.NextHop.si_family == IpHelper::AF_INET.0 {
+        return 0 != &route.NextHop.Ipv6.sin6_addr.u.Byte.iter().sum();
+    } else {
+        return false;
+    }
 }
 
 
@@ -134,4 +167,34 @@ fn is_route_on_physical_interface(route: &MIB_IPFORWARD_ROW2) -> Result<bool> {
     }
     
     return Ok(true);
+}
+
+
+struct AnnotatedRoute<'a> {
+	route: &'a MIB_IPFORWARD_ROW2,
+	active: bool,
+	effective_metric: u32
+}
+
+fn annotated_routes<'a>(routes: &'_ Vec<&'a MIB_IPFORWARD_ROW2>) -> Vec<AnnotatedRoute<'a>> {
+    routes.iter().filter_map(|route| {
+        // GetAdapterInterface
+        let mut iface = MIB_IPINTERFACE_ROW::default();
+
+        iface.Family = route.DestinationPrefix.Prefix.si_family;
+        iface.InterfaceLuid = route.InterfaceLuid;
+
+        match unsafe { GetIpInterfaceEntry(&mut iface as *mut MIB_IPINTERFACE_ROW) } {
+            Ok(()) => {
+                Some(AnnotatedRoute {
+                    route,
+                    active: iface.Connected.0 != 0,
+                    effective_metric: route.Metric + iface.Metric,
+                })
+            },
+            Err(e) => {
+                None
+            }
+        }
+    }).collect()
 }
