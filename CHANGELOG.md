@@ -53,6 +53,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix crash sometimes occurring during account creation.
 - Fix tunnel info expansion state not remembered during pause and resume.
 - Fix crash caused by view transitions due to a timit issue.
+- Fix disabled login button on login failure. Instead, the login button will now still be enabled
+  on login failures to let the user re-attempt the login.
 
 
 ## [android/2022.2-beta1] - 2022-08-11
