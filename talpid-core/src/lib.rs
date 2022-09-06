@@ -13,6 +13,11 @@ mod ffi;
 #[cfg(windows)]
 mod winnet;
 
+//FIXME: This should be windows only
+//#[cfg(windows)]
+/// Misc networking functions for Windows.
+mod winnet_rs;
+
 /// Windows API wrappers and utilities
 #[cfg(target_os = "windows")]
 pub mod windows;
