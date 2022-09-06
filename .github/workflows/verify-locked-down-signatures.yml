@@ -9,6 +9,8 @@ on:
             - ci/keys/
             - ci/verify-locked-down-signatures.sh
             - ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+            - android/gradle/verification-metadata.xml
+            - android/gradle/wrapper/gradle-wrapper.properties
     workflow_dispatch:
 jobs:
     verify-signatures:
