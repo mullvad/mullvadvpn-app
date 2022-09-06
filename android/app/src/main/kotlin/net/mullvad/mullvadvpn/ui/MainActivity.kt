@@ -236,6 +236,7 @@ open class MainActivity : FragmentActivity() {
     }
 
     private fun openRevokedView() {
+        clearBackStack()
         supportFragmentManager.beginTransaction().apply {
             setCustomAnimations(
                 R.anim.fragment_enter_from_right,
