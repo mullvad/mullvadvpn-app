@@ -56,6 +56,10 @@ pub enum Error {
     InvalidDevice,
     #[error(display = "Invalid account")]
     InvalidAccount,
+    #[error(display = "Invalid voucher code")]
+    InvalidVoucher,
+    #[error(display = "The voucher has already been used")]
+    UsedVoucher,
     #[error(display = "Failed to read or write device cache")]
     DeviceIoError(#[error(source)] io::Error),
     #[error(display = "Failed parse device cache")]
