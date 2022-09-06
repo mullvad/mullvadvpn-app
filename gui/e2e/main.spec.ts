@@ -92,7 +92,4 @@ test('Validate status and header', async () => {
   });
   expect(headerColor).toBe('rgb(68, 173, 77)');
   await appWindow.screenshot({ path: 'e2e/screenshots/secure.png' });
-
-  await appWindow.locator('text=Disconnect').click();
-  await expect(statusSpan).toContainText('UNSECURED CONNECTION');
 });
