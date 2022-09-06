@@ -126,6 +126,9 @@ pub enum Error {
     #[error(display = "Failed to update device")]
     UpdateDeviceError(#[error(source)] device::Error),
 
+    #[error(display = "Failed to submit voucher")]
+    VoucherSubmission(#[error(source)] device::Error),
+
     #[cfg(target_os = "linux")]
     #[error(display = "Unable to initialize split tunneling")]
     InitSplitTunneling(#[error(source)] split_tunnel::Error),
@@ -1315,21 +1318,17 @@ where
         tx: ResponseTx<VoucherSubmission, Error>,
         voucher: String,
     ) {
-        if let Ok(Some(device)) = self.account_manager.data().await.map(|s| s.into_device()) {
-            let mut account = self.account_manager.account_service.clone();
-            tokio::spawn(async move {
-                Self::oneshot_send(
-                    tx,
-                    account
-                        .submit_voucher(device.account_token, voucher)
-                        .await
-                        .map_err(Error::RestError),
-                    "submit_voucher response",
-                );
-            });
-        } else {
-            Self::oneshot_send(tx, Err(Error::NoAccountToken), "submit_voucher response");
-        }
+        let manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            Self::oneshot_send(
+                tx,
+                manager
+                    .submit_voucher(voucher)
+                    .await
+                    .map_err(Error::VoucherSubmission),
+                "submit_voucher response",
+            );
+        });
     }
 
     fn on_get_relay_locations(&mut self, tx: oneshot::Sender<RelayList>) {
