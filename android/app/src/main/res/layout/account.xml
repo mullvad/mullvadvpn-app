@@ -48,7 +48,7 @@
                                                                   android:paddingHorizontal="@dimen/side_margin"
                                                                   android:paddingVertical="@dimen/half_vertical_space"
                                                                   mullvad:description="@string/device_name"
-                                                                  mullvad:whenMissing="hide" />
+                                                                  mullvad:whenMissing="showSpinner" />
                 <net.mullvad.mullvadvpn.ui.widget.CopyableInformationView android:id="@+id/account_number"
                                                                           android:layout_width="match_parent"
                                                                           android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
                                                                           mullvad:clipboardLabel="@string/mullvad_account_number"
                                                                           mullvad:copiedToast="@string/copied_mullvad_account_number"
                                                                           mullvad:description="@string/account_number"
-                                                                          mullvad:whenMissing="hide"
+                                                                          mullvad:whenMissing="showSpinner"
                                                                           android:descendantFocusability="afterDescendants" />
                 <net.mullvad.mullvadvpn.ui.widget.InformationView android:id="@+id/account_expiry"
                                                                   android:layout_width="match_parent"
@@ -66,7 +66,7 @@
                                                                   android:paddingHorizontal="@dimen/side_margin"
                                                                   android:paddingVertical="@dimen/half_vertical_space"
                                                                   mullvad:description="@string/paid_until"
-                                                                  mullvad:whenMissing="hide" />
+                                                                  mullvad:whenMissing="showSpinner" />
                 <Space android:layout_width="match_parent"
                        android:layout_height="0dp"
                        android:layout_weight="1" />
