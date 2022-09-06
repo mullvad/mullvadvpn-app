@@ -39,6 +39,10 @@ class LoginViewModel(
         data class TooManyDevicesError(val accountToken: String) : LoginUiState()
         object TooManyDevicesMissingListError : LoginUiState()
         data class OtherError(val errorMessage: String) : LoginUiState()
+
+        fun isLoading(): Boolean {
+            return this is Loading
+        }
     }
 
     fun clearAccountHistory() = accountRepository.clearAccountHistory()

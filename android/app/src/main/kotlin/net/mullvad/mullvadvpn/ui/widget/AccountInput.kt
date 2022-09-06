@@ -144,7 +144,7 @@ class AccountInput : LinearLayout {
 
     private fun failureState() {
         button.visibility = View.VISIBLE
-        setButtonEnabled(false)
+        setButtonEnabled(true)
 
         input.apply {
             setTextColor(errorTextColor)
