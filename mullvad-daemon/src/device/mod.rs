@@ -1000,7 +1000,9 @@ impl TunnelStateChangeHandler {
                     });
                 }
             }
-            TunnelStateTransition::Connected(_) | TunnelStateTransition::Disconnected => {
+            TunnelStateTransition::Error(_)
+            | TunnelStateTransition::Connected(_)
+            | TunnelStateTransition::Disconnected => {
                 self.check_validity.store(true, Ordering::SeqCst);
                 self.wg_retry_attempt = 0;
             }
