@@ -1,5 +1,6 @@
 use std::pin::Pin;
 
+use chrono::{DateTime, Utc};
 use futures::{future::FusedFuture, Future};
 use mullvad_types::{device::Device, wireguard::WireguardData};
 
@@ -34,11 +35,19 @@ impl CurrentApiCall {
         self.current_call = Some(Call::Validation(validation));
     }
 
+    pub fn set_expiry_check(&mut self, expiry_call: ApiCall<DateTime<Utc>>) {
+        self.current_call = Some(Call::ExpiryCheck(expiry_call));
+    }
+
     pub fn is_validating(&self) -> bool {
         matches!(
             &self.current_call,
             Some(Call::Validation(_)) | Some(Call::OneshotKeyRotation(_))
         )
+    }
+
+    pub fn is_checking_expiry(&self) -> bool {
+        matches!(&self.current_call, Some(Call::ExpiryCheck(_)))
     }
 
     pub fn is_running_timed_totation(&self) -> bool {
@@ -88,6 +97,7 @@ enum Call {
     TimerKeyRotation(ApiCall<WireguardData>),
     OneshotKeyRotation(ApiCall<WireguardData>),
     Validation(ApiCall<Device>),
+    ExpiryCheck(ApiCall<DateTime<Utc>>),
 }
 
 impl futures::Future for Call {
@@ -110,6 +120,7 @@ impl futures::Future for Call {
                 Pin::new(call).poll(cx).map(ApiResult::Rotation)
             }
             Validation(call) => Pin::new(call).poll(cx).map(ApiResult::Validation),
+            ExpiryCheck(call) => Pin::new(call).poll(cx).map(ApiResult::ExpiryCheck),
         }
     }
 }
@@ -118,4 +129,5 @@ pub(crate) enum ApiResult {
     Login(Result<PrivateAccountAndDevice, Error>, ResponseTx<()>),
     Rotation(Result<WireguardData, Error>),
     Validation(Result<Device, Error>),
+    ExpiryCheck(Result<DateTime<Utc>, Error>),
 }
