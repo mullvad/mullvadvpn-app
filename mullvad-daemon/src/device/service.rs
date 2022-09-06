@@ -310,6 +310,10 @@ impl AccountService {
         result
     }
 
+    pub async fn check_expiry_2(&self, token: AccountToken) -> Result<DateTime<Utc>, Error> {
+        self.check_expiry(token).await.map_err(map_rest_error)
+    }
+
     pub async fn submit_voucher(
         &mut self,
         account_token: AccountToken,
