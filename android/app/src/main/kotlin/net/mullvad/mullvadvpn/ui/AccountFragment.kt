@@ -171,6 +171,7 @@ class AccountFragment : BaseFragment() {
             launchUpdateTextOnDeviceChanges()
             launchUpdateTextOnExpiryChanges()
             launchTunnelStateSubscription()
+            launchRefreshDeviceStateAfterAnimation()
         }
     }
 
@@ -218,6 +219,12 @@ class AccountFragment : BaseFragment() {
                     isOffline = uiState is TunnelState.Error &&
                         uiState.errorState.cause is ErrorStateCause.IsOffline
                 }
+        }
+    }
+
+    private fun CoroutineScope.launchRefreshDeviceStateAfterAnimation() = launch {
+        transitionFinishedFlow.collect {
+            deviceRepository.refreshDeviceState()
         }
     }
 
