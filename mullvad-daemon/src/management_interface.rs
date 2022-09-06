@@ -493,10 +493,7 @@ impl ManagementService for ManagementServiceImpl {
                     }),
                 })
             })
-            .map_err(|error| match error {
-                crate::Error::RestError(error) => map_rest_voucher_error(error),
-                error => map_daemon_error(error),
-            })
+            .map_err(map_daemon_error)
     }
 
     // Device management
@@ -982,22 +979,6 @@ fn map_split_tunnel_error(error: talpid_core::split_tunnel::Error) -> Status {
     }
 }
 
-/// Converts a REST API voucher error into a tonic status.
-fn map_rest_voucher_error(error: RestError) -> Status {
-    match error {
-        RestError::ApiError(StatusCode::BAD_REQUEST, message) => match &message.as_str() {
-            &mullvad_api::INVALID_VOUCHER => Status::new(Code::NotFound, INVALID_VOUCHER_MESSAGE),
-
-            &mullvad_api::VOUCHER_USED => {
-                Status::new(Code::ResourceExhausted, USED_VOUCHER_MESSAGE)
-            }
-
-            error => Status::unknown(format!("Voucher error: {}", error)),
-        },
-        error => map_rest_error(&error),
-    }
-}
-
 /// Converts a REST API error into a tonic status.
 fn map_rest_error(error: &RestError) -> Status {
     match error {
@@ -1035,6 +1016,8 @@ fn map_device_error(error: &device::Error) -> Status {
         device::Error::InvalidDevice | device::Error::NoDevice => {
             Status::new(Code::NotFound, error.to_string())
         }
+        device::Error::InvalidVoucher => Status::new(Code::NotFound, INVALID_VOUCHER_MESSAGE),
+        device::Error::UsedVoucher => Status::new(Code::ResourceExhausted, USED_VOUCHER_MESSAGE),
         device::Error::DeviceIoError(ref _error) => {
             Status::new(Code::Unavailable, error.to_string())
         }
