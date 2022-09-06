@@ -1069,6 +1069,23 @@ where
                     self.schedule_reconnect(WG_RECONNECT_DELAY);
                 }
             }
+            PrivateDeviceEvent::AccountExpiry(expiry)
+                if *self.target_state == TargetState::Secured =>
+            {
+                if expiry >= &chrono::Utc::now() {
+                    if let TunnelState::Error(ref state) = self.tunnel_state {
+                        if matches!(state.cause(), ErrorStateCause::AuthFailed(_)) {
+                            log::debug!("Reconnecting since the account has time on it");
+                            self.connect_tunnel();
+                        }
+                    }
+                } else if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
+                    log::debug!("Entering blocking state since the account is out of time");
+                    self.send_tunnel_command(TunnelCommand::Block(ErrorStateCause::AuthFailed(
+                        None,
+                    )))
+                }
+            }
             _ => (),
         }
         if let Ok(event) = DeviceEvent::try_from(event) {
