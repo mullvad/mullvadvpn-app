@@ -21,6 +21,7 @@ class HeaderBar @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : LinearLayout(context, attributes, defStyleAttr, defStyleRes), StatusBarPainter {
     private val container = LayoutInflater.from(context).inflate(R.layout.header_bar, this)
+    private val settingsButton = findViewById<View>(R.id.settings)
 
     private val disabledColor = ContextCompat.getColor(context, android.R.color.transparent)
     private val securedColor = ContextCompat.getColor(context, R.color.green)
@@ -43,10 +44,17 @@ class HeaderBar @JvmOverloads constructor(
         gravity = Gravity.CENTER_VERTICAL
         orientation = HORIZONTAL
 
-        findViewById<View>(R.id.settings).setOnClickListener {
-            (context as? MainActivity)?.openSettings()
+        settingsButton.apply {
+            isEnabled = true
+            setOnClickListener {
+                (context as? MainActivity)?.openSettings()
+            }
         }
 
         tunnelState = null
+    }
+
+    fun setSettingsButtonEnabled(isEnabled: Boolean) {
+        settingsButton.isEnabled = isEnabled
     }
 }
