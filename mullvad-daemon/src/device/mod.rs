@@ -608,10 +608,10 @@ impl AccountManager {
                 Self::drain_requests(&mut self.expiry_requests, || Ok(expiry));
             }
             Err(Error::InvalidAccount) => {
-                self.invalidate_current_data(|| Error::InvalidAccount).await;
+                self.revoke_device(|| Error::InvalidAccount).await;
             }
             Err(Error::InvalidDevice) => {
-                self.invalidate_current_data(|| Error::InvalidDevice).await;
+                self.revoke_device(|| Error::InvalidDevice).await;
             }
             Err(err) => {
                 log::error!("Failed to check account expiry: {}", err);
@@ -666,10 +666,10 @@ impl AccountManager {
                 }
             }
             Err(Error::InvalidAccount) => {
-                self.invalidate_current_data(|| Error::InvalidAccount).await;
+                self.revoke_device(|| Error::InvalidAccount).await;
             }
             Err(Error::InvalidDevice) => {
-                self.invalidate_current_data(|| Error::InvalidDevice).await;
+                self.revoke_device(|| Error::InvalidDevice).await;
             }
             Err(err) => {
                 log::error!("Failed to validate device: {}", err);
@@ -714,10 +714,10 @@ impl AccountManager {
                 }
             }
             Err(Error::InvalidAccount) => {
-                self.invalidate_current_data(|| Error::InvalidAccount).await;
+                self.revoke_device(|| Error::InvalidAccount).await;
             }
             Err(Error::InvalidDevice) => {
-                self.invalidate_current_data(|| Error::InvalidDevice).await;
+                self.revoke_device(|| Error::InvalidDevice).await;
             }
             Err(err) => {
                 self.drain_device_requests_with_err(err);
@@ -759,7 +759,7 @@ impl AccountManager {
         })
     }
 
-    async fn invalidate_current_data(&mut self, err_constructor: impl Fn() -> Error) {
+    async fn revoke_device(&mut self, err_constructor: impl Fn() -> Error) {
         log::debug!("Invalidating the current device");
 
         if let Err(err) = self.cacher.write(&PrivateDeviceState::Revoked).await {
