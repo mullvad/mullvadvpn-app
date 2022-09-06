@@ -40,7 +40,6 @@ import ErrorBoundary from './components/ErrorBoundary';
 import KeyboardNavigation from './components/KeyboardNavigation';
 import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import { ModalContainer } from './components/Modal';
-import PlatformWindowContainer from './containers/PlatformWindowContainer';
 import { AppContext } from './context';
 import History, { ITransitionSpecification, transitions } from './lib/history';
 import { loadTranslations } from './lib/load-translations';
@@ -102,7 +101,6 @@ export default class AppRenderer {
   private tunnelState!: TunnelState;
   private settings!: ISettings;
   private deviceState?: DeviceState;
-  private guiSettings!: IGuiSettingsState;
   private loginState: LoginState = 'none';
   private previousLoginState: LoginState = 'none';
   private loginScheduler = new Scheduler();
@@ -271,17 +269,15 @@ export default class AppRenderer {
       <AppContext.Provider value={{ app: this }}>
         <Provider store={this.reduxStore}>
           <Router history={this.history.asHistory}>
-            <PlatformWindowContainer>
-              <ErrorBoundary>
-                <ModalContainer>
-                  <KeyboardNavigation>
-                    <AppRouter />
-                    <Changelog />
-                  </KeyboardNavigation>
-                  {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
-                </ModalContainer>
-              </ErrorBoundary>
-            </PlatformWindowContainer>
+            <ErrorBoundary>
+              <ModalContainer>
+                <KeyboardNavigation>
+                  <AppRouter />
+                  <Changelog />
+                </KeyboardNavigation>
+                {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
+              </ModalContainer>
+            </ErrorBoundary>
           </Router>
         </Provider>
       </AppContext.Provider>
@@ -535,13 +531,7 @@ export default class AppRenderer {
   // the one we have set.
   // https://github.com/electron/electron/issues/28777
   private checkContentHeight(resize: boolean): void {
-    let expectedContentHeight = 568;
-
-    // The app content is 12px taller on macOS to fit the top arrow.
-    if (window.env.platform === 'darwin' && !this.guiSettings.unpinnedWindow) {
-      expectedContentHeight += 12;
-    }
-
+    const expectedContentHeight = 568;
     const contentHeight = window.innerHeight;
     if (contentHeight !== expectedContentHeight) {
       log.verbose(
@@ -874,7 +864,6 @@ export default class AppRenderer {
   }
 
   private setGuiSettings(guiSettings: IGuiSettingsState) {
-    this.guiSettings = guiSettings;
     this.reduxActions.settings.updateGuiSettings(guiSettings);
   }
 

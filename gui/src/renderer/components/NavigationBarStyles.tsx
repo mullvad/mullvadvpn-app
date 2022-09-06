@@ -20,11 +20,10 @@ export const StyledNavigationItems = styled.div({
   alignItems: 'center',
 });
 
-export const StyledNavigationBar = styled.nav((props: { unpinnedWindow: boolean }) => ({
+export const StyledNavigationBar = styled.nav({
   flex: 0,
   padding: '12px',
-  paddingTop: window.env.platform === 'darwin' && !props.unpinnedWindow ? '24px' : '12px',
-}));
+});
 
 export const StyledTitleBarItemLabel = styled.h1(normalText, (props: { visible?: boolean }) => ({
   fontWeight: 400,
