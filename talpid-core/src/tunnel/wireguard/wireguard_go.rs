@@ -39,9 +39,6 @@ use {
 
 type Result<T> = std::result::Result<T, TunnelError>;
 
-#[cfg(target_os = "windows")]
-use crate::winnet;
-
 #[cfg(not(target_os = "windows"))]
 use std::sync::{Arc, Mutex};
 
@@ -66,7 +63,7 @@ pub struct WgGoTunnel {
     // context that maps to fs::File instance, used with logging callback
     _logging_context: LoggingContext,
     #[cfg(target_os = "windows")]
-    _route_callback_handle: Option<crate::winnet::WinNetCallbackHandle>,
+    _route_callback_handle: Option<crate::routing::CallbackHandle>,
     #[cfg(target_os = "windows")]
     setup_handle: tokio::task::JoinHandle<()>,
 }
@@ -117,15 +114,19 @@ impl WgGoTunnel {
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
+        route_manager_handle: crate::tunnel::RouteManagerHandle,
         mut done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
+        runtime: &tokio::runtime::Handle,
     ) -> Result<Self> {
         use talpid_types::ErrorExt;
 
-        let route_callback_handle = winnet::add_default_route_change_callback(
-            Some(WgGoTunnel::default_route_changed_callback),
-            (),
-        )
-        .ok();
+        let route_callback_handle = runtime
+            .block_on(
+                route_manager_handle.add_default_route_change_callback(Box::new(
+                    WgGoTunnel::default_route_changed_callback,
+                )),
+            )
+            .ok();
         if route_callback_handle.is_none() {
             log::warn!("Failed to register default route callback");
         }
@@ -208,25 +209,21 @@ impl WgGoTunnel {
 
     // Callback to be used to rebind the tunnel sockets when the default route changes
     #[cfg(target_os = "windows")]
-    pub unsafe extern "system" fn default_route_changed_callback(
-        event_type: winnet::WinNetDefaultRouteChangeEventType,
-        address_family: winnet::WinNetAddrFamily,
-        default_route: winnet::WinNetDefaultRoute,
-        _ctx: *mut libc::c_void,
+    pub fn default_route_changed_callback<'a>(
+        event_type: crate::routing::EventType<'a>,
+        address_family: crate::windows::AddressFamily,
     ) {
-        use windows_sys::Win32::NetworkManagement::{
-            IpHelper::ConvertInterfaceLuidToIndex, Ndis::NET_LUID_LH,
-        };
-        use winnet::WinNetDefaultRouteChangeEventType::*;
+        use crate::routing::EventType::*;
+        use windows_sys::Win32::NetworkManagement::IpHelper::ConvertInterfaceLuidToIndex;
 
         let iface_idx: u32 = match event_type {
-            DefaultRouteChanged => {
+            Updated(default_route) => {
                 let mut iface_idx = 0u32;
-                let iface_luid = NET_LUID_LH {
-                    Value: default_route.interface_luid,
+                // TODO: Make sure unwrap is fine
+                let iface_luid = default_route.iface;
+                let status = unsafe {
+                    ConvertInterfaceLuidToIndex(&iface_luid as *const _, &mut iface_idx as *mut _)
                 };
-                let status =
-                    ConvertInterfaceLuidToIndex(&iface_luid as *const _, &mut iface_idx as *mut _);
                 if status != 0 {
                     log::error!(
                         "Failed to convert interface LUID to interface index: {}: {}",
@@ -238,12 +235,12 @@ impl WgGoTunnel {
                 iface_idx
             }
             // if there is no new default route, specify 0 as the interface index
-            DefaultRouteRemoved => 0,
+            Removed => 0,
             // ignore interface updates that don't affect the interface to use
-            DefaultRouteUpdatedDetails => return,
+            UpdatedDetails(_) => return,
         };
 
-        wgRebindTunnelSocket(address_family.to_windows_proto_enum(), iface_idx);
+        unsafe { wgRebindTunnelSocket(address_family.to_af_family(), iface_idx) };
     }
 
     #[cfg(not(target_os = "windows"))]

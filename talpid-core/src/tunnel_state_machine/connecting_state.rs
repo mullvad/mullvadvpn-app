@@ -29,7 +29,7 @@ use talpid_types::{
 };
 
 #[cfg(windows)]
-use crate::{routing, winnet};
+use crate::routing;
 
 #[cfg(target_os = "android")]
 use crate::tunnel::tun_provider;
@@ -524,12 +524,7 @@ fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
 #[cfg(windows)]
 fn is_recoverable_routing_error(error: &crate::routing::Error) -> bool {
     match error {
-        routing::Error::AddRoutesFailed(route_error) => match route_error {
-            winnet::Error::GetDefaultRoute
-            | winnet::Error::GetDeviceByName
-            | winnet::Error::GetDeviceByGateway => true,
-            _ => false,
-        },
+        routing::Error::AddRoutesFailed(_) => true,
         _ => false,
     }
 }
