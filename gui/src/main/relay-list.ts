@@ -1,10 +1,6 @@
 import { BridgeState, IRelayList, liftConstraint, RelaySettings } from '../shared/daemon-rpc-types';
+import { IRelayListPair } from '../shared/ipc-schema';
 import { IpcMainEventChannel } from './ipc-event-channel';
-
-interface RelayLists {
-  relays: IRelayList;
-  bridges: IRelayList;
-}
 
 export default class RelayList {
   private relays: IRelayList = { countries: [] };
@@ -32,7 +28,7 @@ export default class RelayList {
     relayList: IRelayList,
     relaySettings: RelaySettings,
     bridgeState: BridgeState,
-  ): RelayLists {
+  ): IRelayListPair {
     const filteredRelays = this.processRelaysForPresentation(relayList, relaySettings);
     const filteredBridges = this.processBridgesForPresentation(relayList, bridgeState);
 
