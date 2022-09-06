@@ -1066,10 +1066,12 @@ impl TunnelStateChangeHandler {
                         if !check_validity.swap(false, Ordering::SeqCst) {
                             return;
                         }
-                        if let Err(error) = handle.validate_device().await {
+                        if let Err(error) = Self::check_validity(handle).await {
                             log::error!(
                                 "{}",
-                                error.display_chain_with_msg("Failed to check device validity")
+                                error.display_chain_with_msg(
+                                    "Failed to check device or account validity"
+                                )
                             );
                             if error.is_network_error() || error.is_aborted() {
                                 check_validity.store(true, Ordering::SeqCst);
@@ -1086,5 +1088,10 @@ impl TunnelStateChangeHandler {
             }
             _ => (),
         }
+    }
+
+    pub async fn check_validity(handle: AccountManagerHandle) -> Result<(), Error> {
+        handle.validate_device().await?;
+        handle.check_expiry().await.map(|_expiry| ())
     }
 }
