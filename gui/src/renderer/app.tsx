@@ -369,6 +369,7 @@ export default class AppRenderer {
 
   public async logout() {
     try {
+      this.history.reset(RoutePath.login, transitions.dismiss);
       await IpcRendererEventChannel.account.logout();
     } catch (e) {
       const error = e as Error;
@@ -647,7 +648,7 @@ export default class AppRenderer {
             [RoutePath.launch]: transitions.push,
             [RoutePath.main]: transitions.pop,
             [RoutePath.deviceRevoked]: transitions.pop,
-            '*': transitions.none,
+            '*': transitions.dismiss,
           },
           [RoutePath.main]: {
             [RoutePath.launch]: transitions.push,

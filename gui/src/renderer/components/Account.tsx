@@ -157,7 +157,7 @@ export default class Account extends React.Component<IProps, IState> {
       this.state.logoutDialogStage === 'checking-ports'
         ? []
         : [
-            <AppButton.RedButton key="logout" onClick={this.props.onLogout}>
+            <AppButton.RedButton key="logout" onClick={this.confirmLogout}>
               {
                 // TRANSLATORS: Confirmation button when logging out
                 messages.pgettext('device-management', 'Log out anyway')
@@ -187,9 +187,13 @@ export default class Account extends React.Component<IProps, IState> {
     ) {
       this.setState({ logoutDialogStage: 'confirm' });
     } else {
-      this.props.onLogout();
-      this.onHideLogoutConfirmationDialog();
+      this.confirmLogout();
     }
+  };
+
+  private confirmLogout = () => {
+    this.onHideLogoutConfirmationDialog();
+    this.props.onLogout();
   };
 
   private cancelLogout = () => {
