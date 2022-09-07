@@ -21,6 +21,7 @@ jobs:
                 ref: ${{ github.event.pull_request.head.sha }}
             - name: Verify signatures
               run: |
-                # Unnecessary comment
-                #git fetch --shallow-exclude=master
+                echo "the amount of commits we have in repo: "
+                git rev-list --all --count
+                git fetch --shallow-exclude=master
                 ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
