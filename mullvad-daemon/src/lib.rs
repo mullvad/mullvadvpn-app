@@ -895,6 +895,8 @@ where
                 }
 
                 if let ErrorStateCause::AuthFailed(_) = error_state.cause() {
+                    // If time is added outside of the app, no notifications
+                    // are received. So we must continually try to reconnect.
                     self.schedule_reconnect(Duration::from_secs(60))
                 }
             }
