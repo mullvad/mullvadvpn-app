@@ -137,7 +137,7 @@ pub enum FirewallPolicy {
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
         /// Host that should be reachable while in the blocked state.
-        allowed_endpoint: AllowedEndpoint,
+        allowed_endpoint: Option<AllowedEndpoint>,
         /// Desination port for DNS traffic redirection. Traffic destined to `127.0.0.1:53` will be
         /// redirected to `127.0.0.1:$dns_redirect_port`.
         #[cfg(target_os = "macos")]
@@ -210,9 +210,12 @@ impl fmt::Display for FirewallPolicy {
                 ..
             } => write!(
                 f,
-                "Blocked. {} LAN. Allowing endpoint {}",
+                "Blocked. {} LAN. Allowing endpoint: {}",
                 if *allow_lan { "Allowing" } else { "Blocking" },
-                allowed_endpoint,
+                allowed_endpoint
+                    .as_ref()
+                    .map(|endpoint| -> &dyn std::fmt::Display { endpoint })
+                    .unwrap_or(&"none"),
             ),
         }
     }

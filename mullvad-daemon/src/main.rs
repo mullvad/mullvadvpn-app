@@ -50,12 +50,12 @@ fn main() {
 fn init_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
     let log_dir = get_log_dir(config)?;
 
-    let log_file_name = if cfg!(target_os = "linux") {
-        if config.initialize_firewall_and_exit {
-            EARLY_BOOT_LOG_FILENAME
-        } else {
-            DAEMON_LOG_FILENAME
-        }
+    #[cfg(not(target_os = "linux"))]
+    let log_file_name = DAEMON_LOG_FILENAME;
+
+    #[cfg(target_os = "linux")]
+    let log_file_name = if config.initialize_firewall_and_exit {
+        EARLY_BOOT_LOG_FILENAME
     } else {
         DAEMON_LOG_FILENAME
     };
