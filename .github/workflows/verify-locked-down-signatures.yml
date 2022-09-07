@@ -12,12 +12,6 @@ on:
             - android/gradle/verification-metadata.xml
             - android/gradle/wrapper/gradle-wrapper.properties
     workflow_dispatch:
-      inputs:
-        commitDepth:
-          description: "Commit depth which must include origin/master"
-          required: true
-          default: '50' 
-          type: string
 jobs:
     verify-signatures:
         runs-on: ubuntu-latest
@@ -28,6 +22,9 @@ jobs:
             - name: Verify signatures
               run: |
                 git fetch --shallow-exclude=master
+                # We must fetch twice in order for this to work with workflow-dispatch
+                # It is not clear why this is, but the github actions environment is a shallow repo
+                # clone which will only have the rev-list history after the second fetch.
                 git fetch --shallow-exclude=master
 
                 ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
