@@ -21,10 +21,23 @@ jobs:
                 ref: ${{ github.event.pull_request.head.sha }}
             - name: Verify signatures
               run: |
+                echo "git rev-list --all --count"
+                git rev-list --all --count
+                echo "Deepen loop"
+                while [ -z $( git merge-base ${{github.base_ref}} HEAD ) ]; do     
+                    git fetch --deepen=10 origin ${{github.base_ref}} HEAD;
+                done
+                echo "git rev-list --all --count"
+                git rev-list --all --count
+                echo "git fetch --shallow-exclude=master"
                 git fetch --shallow-exclude=master
                 # We must fetch twice in order for this to work with workflow-dispatch
                 # It is not clear why this is, but the github actions environment is a shallow repo
                 # clone which will only have the rev-list history after the second fetch.
+                echo "git rev-list --all --count"
+                git rev-list --all --count
+
+                echo "git fetch --shallow-exclude=master"
                 git fetch --shallow-exclude=master
 
                 ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
