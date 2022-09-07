@@ -24,12 +24,7 @@ pub async fn initialize_firewall() -> Result<(), Error> {
     });
     let policy = FirewallPolicy::Blocked {
         allow_lan,
-        allowed_endpoint: talpid_types::net::AllowedEndpoint {
-            endpoint: talpid_types::net::Endpoint {
-                address: (std::net::Ipv4Addr::LOCALHOST, 0).into(),
-                protocol: talpid_types::net::TransportProtocol::Tcp,
-            },
-        },
+        allowed_endpoint: None,
     };
     log::info!("Applying firewall policy {policy}");
     firewall.apply_policy(policy)?;
