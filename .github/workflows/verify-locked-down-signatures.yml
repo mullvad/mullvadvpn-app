@@ -27,6 +27,9 @@ jobs:
                 ref: ${{ github.event.pull_request.head.sha }}
             - name: Verify signatures
               run: |
+                echo "git status"
+                git status
+
                 echo "git rev-list --all --count before: "
                 git rev-list --all --count
 
