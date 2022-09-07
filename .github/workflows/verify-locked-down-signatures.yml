@@ -33,18 +33,19 @@ jobs:
                 echo "git rev-list --all --count before: "
                 git rev-list --all --count
 
-                #git fetch --shallow-exclude=master
+                git fetch --shallow-exclude=master
+                git fetch --shallow-exclude=master
 
-                commit_depth_pr=${{ github.event.pull_request.commits }}
-                echo "Input: ${{ github.event.inputs.commitDepth }}"
-                commit_depth=${commit_depth_pr:-${{ github.event.inputs.commitDepth }}}
-                echo "Commit depth: $commit_depth"
-                if [[ -n "$commit_depth" ]]; then
-                    # Prepare enough depth for diffs with master, currently hard-coded but should probably be
-                    # whatever branch is merged into
-                    echo "Fetching with a depth of $commit_depth + 1"
-                    git fetch --depth="$(( commit_depth + 1 ))" origin ${{ github.head_ref }} master
-                fi
+                #commit_depth_pr=${{ github.event.pull_request.commits }}
+                #echo "Input: ${{ github.event.inputs.commitDepth }}"
+                #commit_depth=${commit_depth_pr:-${{ github.event.inputs.commitDepth }}}
+                #echo "Commit depth: $commit_depth"
+                #if [[ -n "$commit_depth" ]]; then
+                #    # Prepare enough depth for diffs with master, currently hard-coded but should probably be
+                #    # whatever branch is merged into
+                #    echo "Fetching with a depth of $commit_depth + 1"
+                #    git fetch --depth="$(( commit_depth + 1 ))" origin ${{ github.head_ref }} master
+                #fi
 
                 echo "git rev-list --all --count after: "
                 git rev-list --all --count
