@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { useSelector as useReduxSelector } from 'react-redux';
 import { combineReducers, compose, createStore, Dispatch } from 'redux';
 
-import { usePause } from '../lib/pause-rendering';
+import { useWillExit } from '../lib/will-exit';
 import accountActions, { AccountAction } from './account/actions';
 import accountReducer, { IAccountReduxState } from './account/reducers';
 import connectionActions, { ConnectionAction } from './connection/actions';
@@ -66,16 +66,16 @@ function composeEnhancers(): typeof compose {
     : compose();
 }
 
-// This hook adds typing to state to make use simpler. It also prevents the state from update if the
-// ReduxPause context has been told to pause updates caused by new values in the redux state.
+// This hook adds type to state to make use simpler. It also prevents the state from update if the
+// WillExit context value is true.
 export function useSelector<R>(fn: (state: IReduxState) => R): R {
-  const [paused] = usePause();
   const value = useReduxSelector(fn);
-  const valueBeforePause = useRef(value);
+  const valueBeforeExit = useRef(value);
+  const willExit = useWillExit();
 
-  if (!paused) {
-    valueBeforePause.current = value;
+  if (!willExit) {
+    valueBeforeExit.current = value;
   }
 
-  return paused ? valueBeforePause.current : value;
+  return valueBeforeExit.current;
 }

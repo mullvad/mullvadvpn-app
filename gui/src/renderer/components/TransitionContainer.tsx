@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { ITransitionSpecification } from '../lib/history';
-import { PauseRendering } from '../lib/pause-rendering';
+import { WillExit } from '../lib/will-exit';
 
 interface ITransitioningViewProps {
   viewId: string;
@@ -155,33 +155,30 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   }
 
   public render() {
-    const disableUserInteraction =
-      this.state.itemQueue.length > 0 || this.state.nextItem !== undefined;
+    const willExit = this.state.itemQueue.length > 0 || this.state.nextItem !== undefined;
 
     return (
-      <StyledTransitionContainer disableUserInteraction={disableUserInteraction}>
+      <StyledTransitionContainer disableUserInteraction={willExit}>
         {this.state.currentItem && (
-          <PauseRendering
-            key={this.state.currentItem.view.props.viewId}
-            pause={disableUserInteraction}>
+          <WillExit key={this.state.currentItem.view.props.viewId} value={willExit}>
             <StyledTransitionContent
               ref={this.currentContentRef}
               transition={this.state.currentItemStyle}
               onTransitionEnd={this.onTransitionEnd}>
               {this.state.currentItem.view}
             </StyledTransitionContent>
-          </PauseRendering>
+          </WillExit>
         )}
 
         {this.state.nextItem && (
-          <PauseRendering key={this.state.nextItem.view.props.viewId}>
+          <WillExit key={this.state.nextItem.view.props.viewId} value={false}>
             <StyledTransitionContent
               ref={this.nextContentRef}
               transition={this.state.nextItemStyle}
               onTransitionEnd={this.onTransitionEnd}>
               {this.state.nextItem.view}
             </StyledTransitionContent>
-          </PauseRendering>
+          </WillExit>
         )}
       </StyledTransitionContainer>
     );

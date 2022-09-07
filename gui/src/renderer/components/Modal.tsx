@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
-import { usePause } from '../lib/pause-rendering';
+import { useWillExit } from '../lib/will-exit';
 import { tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import ImageView from './ImageView';
@@ -163,18 +163,23 @@ export function ModalAlert(props: IModalAlertProps & { isOpen: boolean }) {
   const [closing, setClosing] = useState(false);
   const prevIsOpen = useRef(isOpen);
 
-  const [paused, runIfNotPaused] = usePause();
+  const willExit = useWillExit();
+
+  // Modal shouldn't prepare for being opened again while view is disappearing.
+  const onTransitionEnd = useCallback(() => {
+    if (!willExit) {
+      setClosing(false);
+    }
+  }, [willExit]);
 
   useEffect(() => {
     setClosing((closing) => closing || (prevIsOpen.current && !isOpen));
 
     // Unmounting the Modal during view transitions result in a visual glitch.
-    runIfNotPaused(() => {
+    if (!willExit) {
       prevIsOpen.current = isOpen;
-    });
+    }
   }, [isOpen]);
-
-  const onTransitionEnd = useCallback(() => runIfNotPaused(() => setClosing(false)), [paused]);
 
   if (!prevIsOpen.current && !isOpen && !closing) {
     return null;
