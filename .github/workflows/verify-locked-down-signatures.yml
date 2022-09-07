@@ -21,16 +21,10 @@ jobs:
                 ref: ${{ github.event.pull_request.head.sha }}
             - name: Verify signatures
               run: |
-                echo "First fetch"
                 git fetch --shallow-exclude=master
-                echo "git rev-list origin/master..HEAD --oneline"
-                git rev-list origin/master..HEAD --oneline
                 # We must fetch twice in order for this to work with workflow-dispatch
                 # It is not clear why this is, but the github actions environment is a shallow repo
                 # clone which will only have the rev-list history after the second fetch.
-                echo "Second fetch"
                 git fetch --shallow-exclude=master
-                echo "git rev-list origin/master..HEAD --oneline"
-                git rev-list origin/master..HEAD --oneline
 
                 ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
