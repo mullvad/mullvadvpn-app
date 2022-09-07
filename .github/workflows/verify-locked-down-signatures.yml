@@ -22,5 +22,5 @@ jobs:
             - name: Verify signatures
               run: |
                 # Unnecessary comment
-                git fetch --shallow-exclude=master
+                #git fetch --shallow-exclude=master
                 ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
