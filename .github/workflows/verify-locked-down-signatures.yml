@@ -34,7 +34,7 @@ jobs:
                 git rev-list --all --count
 
                 git fetch --shallow-exclude=master
-                git fetch --shallow-exclude=master
+                #git fetch --shallow-exclude=master
 
                 #commit_depth_pr=${{ github.event.pull_request.commits }}
                 #echo "Input: ${{ github.event.inputs.commitDepth }}"
