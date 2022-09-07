@@ -128,7 +128,9 @@ impl Firewall {
                 let cfg = &WinFwSettings::new(allow_lan);
                 self.set_blocked_state(
                     &cfg,
-                    &WinFwAllowedEndpointContainer::from(allowed_endpoint).as_endpoint(),
+                    allowed_endpoint.map(|endpoint| {
+                        &WinFwAllowedEndpointContainer::from(endpoint).as_endpoint()
+                    }),
                 )
             }
         }
@@ -255,11 +257,11 @@ impl Firewall {
     fn set_blocked_state(
         &mut self,
         winfw_settings: &WinFwSettings,
-        allowed_endpoint: &WinFwAllowedEndpoint<'_>,
+        allowed_endpoint: Option<&WinFwAllowedEndpoint<'_>>,
     ) -> Result<(), Error> {
         log::trace!("Applying 'blocked' firewall policy");
         unsafe {
-            WinFw_ApplyPolicyBlocked(winfw_settings, allowed_endpoint)
+            WinFw_ApplyPolicyBlocked(winfw_settings, allowed_endpoint.unwrap_or(ptr::null()))
                 .into_result()
                 .map_err(Error::ApplyingBlockedPolicy)
         }
