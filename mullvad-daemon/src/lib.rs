@@ -28,7 +28,7 @@ pub mod version;
 mod version_check;
 
 use crate::target_state::PersistentTargetState;
-use device::{PrivateAccountAndDevice, PrivateDeviceEvent};
+use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Future, LocalBoxFuture},
@@ -304,7 +304,7 @@ pub(crate) enum InternalDaemonEvent {
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
-    DeviceEvent(PrivateDeviceEvent),
+    DeviceEvent(AccountEvent),
     /// Handles updates from versions without devices.
     DeviceMigrationEvent(Result<PrivateAccountAndDevice, device::Error>),
     /// The split tunnel paths or state were updated.
@@ -336,8 +336,8 @@ impl From<AppVersionInfo> for InternalDaemonEvent {
     }
 }
 
-impl From<PrivateDeviceEvent> for InternalDaemonEvent {
-    fn from(event: PrivateDeviceEvent) -> Self {
+impl From<AccountEvent> for InternalDaemonEvent {
+    fn from(event: AccountEvent) -> Self {
         InternalDaemonEvent::DeviceEvent(event)
     }
 }
@@ -1044,9 +1044,9 @@ where
         self.event_listener.notify_app_version(app_version_info);
     }
 
-    async fn handle_device_event(&mut self, event: PrivateDeviceEvent) {
+    async fn handle_device_event(&mut self, event: AccountEvent) {
         match &event {
-            PrivateDeviceEvent::Login(device) => {
+            AccountEvent::Device(PrivateDeviceEvent::Login(device)) => {
                 if let Err(error) = self.account_history.set(device.account_token.clone()).await {
                     log::error!(
                         "{}",
@@ -1058,25 +1058,23 @@ where
                     self.reconnect_tunnel();
                 }
             }
-            PrivateDeviceEvent::Logout => {
+            AccountEvent::Device(PrivateDeviceEvent::Logout) => {
                 log::info!("Disconnecting because account token was cleared");
                 self.set_target_state(TargetState::Unsecured).await;
             }
-            PrivateDeviceEvent::Revoked => {
+            AccountEvent::Device(PrivateDeviceEvent::Revoked) => {
                 // If we're currently in a secured state, reconnect to make sure we immediately
                 // enter the error state.
                 if *self.target_state == TargetState::Secured {
                     self.connect_tunnel();
                 }
             }
-            PrivateDeviceEvent::RotatedKey(_) => {
+            AccountEvent::Device(PrivateDeviceEvent::RotatedKey(_)) => {
                 if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
                     self.schedule_reconnect(WG_RECONNECT_DELAY);
                 }
             }
-            PrivateDeviceEvent::AccountExpiry(expiry)
-                if *self.target_state == TargetState::Secured =>
-            {
+            AccountEvent::Expiry(expiry) if *self.target_state == TargetState::Secured => {
                 if expiry >= &chrono::Utc::now() {
                     if let TunnelState::Error(ref state) = self.tunnel_state {
                         if matches!(state.cause(), ErrorStateCause::AuthFailed(_)) {
@@ -1093,8 +1091,9 @@ where
             }
             _ => (),
         }
-        if let Ok(event) = DeviceEvent::try_from(event) {
-            self.event_listener.notify_device_event(event);
+        if let AccountEvent::Device(event) = event {
+            self.event_listener
+                .notify_device_event(DeviceEvent::from(event));
         }
     }
 

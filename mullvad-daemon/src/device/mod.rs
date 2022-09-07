@@ -225,6 +225,14 @@ impl From<PrivateDevice> for Device {
 }
 
 #[derive(Clone)]
+pub(crate) enum AccountEvent {
+    /// Emitted when the device state changes.
+    Device(PrivateDeviceEvent),
+    /// Emitted when the account expiry is fetched.
+    Expiry(DateTime<Utc>),
+}
+
+#[derive(Clone)]
 pub(crate) enum PrivateDeviceEvent {
     /// Logged in on a new device.
     Login(PrivateAccountAndDevice),
@@ -236,40 +244,30 @@ pub(crate) enum PrivateDeviceEvent {
     Updated(PrivateAccountAndDevice),
     /// The key was rotated.
     RotatedKey(PrivateAccountAndDevice),
-    /// Emitted when the account expiry is fetched.
-    AccountExpiry(DateTime<Utc>),
 }
 
-#[derive(err_derive::Error, Debug)]
-#[error(display = "Device event type has no public equivalent")]
-pub(crate) struct PrivateOnlyEvent;
-
-impl TryFrom<PrivateDeviceEvent> for DeviceEvent {
-    type Error = PrivateOnlyEvent;
-
-    fn try_from(event: PrivateDeviceEvent) -> Result<DeviceEvent, PrivateOnlyEvent> {
+impl From<PrivateDeviceEvent> for DeviceEvent {
+    fn from(event: PrivateDeviceEvent) -> DeviceEvent {
         let cause = match event {
             PrivateDeviceEvent::Login(_) => DeviceEventCause::LoggedIn,
             PrivateDeviceEvent::Logout => DeviceEventCause::LoggedOut,
             PrivateDeviceEvent::Revoked => DeviceEventCause::Revoked,
             PrivateDeviceEvent::Updated(_) => DeviceEventCause::Updated,
             PrivateDeviceEvent::RotatedKey(_) => DeviceEventCause::RotatedKey,
-            PrivateDeviceEvent::AccountExpiry(_) => return Err(PrivateOnlyEvent),
         };
-        let new_state = DeviceState::from(event.state().ok_or(PrivateOnlyEvent)?);
-        Ok(DeviceEvent { cause, new_state })
+        let new_state = DeviceState::from(event.state());
+        DeviceEvent { cause, new_state }
     }
 }
 
 impl PrivateDeviceEvent {
-    pub fn state(self) -> Option<PrivateDeviceState> {
+    pub fn state(self) -> PrivateDeviceState {
         match self {
-            PrivateDeviceEvent::Login(config) => Some(PrivateDeviceState::LoggedIn(config)),
-            PrivateDeviceEvent::Updated(config) => Some(PrivateDeviceState::LoggedIn(config)),
-            PrivateDeviceEvent::RotatedKey(config) => Some(PrivateDeviceState::LoggedIn(config)),
-            PrivateDeviceEvent::Logout => Some(PrivateDeviceState::LoggedOut),
-            PrivateDeviceEvent::Revoked => Some(PrivateDeviceState::Revoked),
-            PrivateDeviceEvent::AccountExpiry(_) => None,
+            PrivateDeviceEvent::Login(config) => PrivateDeviceState::LoggedIn(config),
+            PrivateDeviceEvent::Updated(config) => PrivateDeviceState::LoggedIn(config),
+            PrivateDeviceEvent::RotatedKey(config) => PrivateDeviceState::LoggedIn(config),
+            PrivateDeviceEvent::Logout => PrivateDeviceState::LoggedOut,
+            PrivateDeviceEvent::Revoked => PrivateDeviceState::Revoked,
         }
     }
 }
@@ -396,7 +394,7 @@ pub(crate) struct AccountManager {
     device_service: DeviceService,
     data: PrivateDeviceState,
     rotation_interval: RotationInterval,
-    listeners: Vec<Box<dyn Sender<PrivateDeviceEvent> + Send>>,
+    listeners: Vec<Box<dyn Sender<AccountEvent> + Send>>,
     last_validation: Option<SystemTime>,
     validation_requests: Vec<ResponseTx<()>>,
     expiry_requests: Vec<ResponseTx<DateTime<Utc>>>,
@@ -411,7 +409,7 @@ impl AccountManager {
         rest_handle: rest::MullvadRestHandle,
         settings_dir: &Path,
         initial_rotation_interval: RotationInterval,
-        listener_tx: impl Sender<PrivateDeviceEvent> + Send + 'static,
+        listener_tx: impl Sender<AccountEvent> + Send + 'static,
     ) -> Result<(AccountManagerHandle, PrivateDeviceState), Error> {
         let (cacher, data) = DeviceCacher::new(settings_dir).await?;
         let token = data.device().map(|state| state.account_token.clone());
@@ -657,7 +655,7 @@ impl AccountManager {
         match &response {
             Ok(submission) => {
                 // Send expiry update event
-                let event = PrivateDeviceEvent::AccountExpiry(submission.new_expiry);
+                let event = AccountEvent::Expiry(submission.new_expiry);
                 self.listeners
                     .retain(|listener| listener.send(event.clone()).is_ok());
             }
@@ -682,7 +680,7 @@ impl AccountManager {
                 }
 
                 // Send expiry update event
-                let event = PrivateDeviceEvent::AccountExpiry(expiry);
+                let event = AccountEvent::Expiry(expiry);
                 self.listeners
                     .retain(|listener| listener.send(event.clone()).is_ok());
 
@@ -855,8 +853,11 @@ impl AccountManager {
         Self::drain_requests(&mut self.rotation_requests, || Err(err_constructor()));
         Self::drain_requests(&mut self.expiry_requests, || Err(err_constructor()));
 
-        self.listeners
-            .retain(|listener| listener.send(PrivateDeviceEvent::Revoked).is_ok());
+        self.listeners.retain(|listener| {
+            listener
+                .send(AccountEvent::Device(PrivateDeviceEvent::Revoked))
+                .is_ok()
+        });
     }
 
     async fn logout(&mut self, tx: ResponseTx<()>) {
@@ -872,8 +873,11 @@ impl AccountManager {
 
         let old_config = self.data.logout();
 
-        self.listeners
-            .retain(|listener| listener.send(PrivateDeviceEvent::Logout).is_ok());
+        self.listeners.retain(|listener| {
+            listener
+                .send(AccountEvent::Device(PrivateDeviceEvent::Logout))
+                .is_ok()
+        });
 
         if let Some(old_config) = old_config {
             let logout_call = tokio::spawn(Box::pin(self.logout_api_call(old_config)));
@@ -905,7 +909,7 @@ impl AccountManager {
     }
 
     async fn set(&mut self, event: PrivateDeviceEvent) -> Result<(), Error> {
-        let device_state = event.clone().state().expect("event type must imply state");
+        let device_state = event.clone().state();
         if device_state == self.data {
             return Ok(());
         }
@@ -921,6 +925,7 @@ impl AccountManager {
 
         self.data = device_state;
 
+        let event = AccountEvent::Device(event);
         self.listeners
             .retain(|listener| listener.send(event.clone()).is_ok());
 
