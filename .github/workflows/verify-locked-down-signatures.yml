@@ -27,6 +27,6 @@ jobs:
                 echo "git rev-list --all --count after: "
                 git rev-list --all --count
 
-                echo "git rev-list --count after: "
-                git rev-list --count
+                echo "git rev-list origin/master --count after: "
+                git rev-list origin/master --count
                 ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
