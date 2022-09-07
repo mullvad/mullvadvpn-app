@@ -19,6 +19,7 @@ mod shutdown;
 mod system_service;
 
 const DAEMON_LOG_FILENAME: &str = "daemon.log";
+#[cfg(target_os = "linux")]
 const EARLY_BOOT_LOG_FILENAME: &str = "early-boot-fw.log";
 
 fn main() {
