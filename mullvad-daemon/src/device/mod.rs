@@ -675,6 +675,12 @@ impl AccountManager {
     async fn consume_expiry_result(&mut self, response: Result<DateTime<Utc>, Error>) {
         match response {
             Ok(expiry) => {
+                if expiry > chrono::Utc::now() {
+                    log::debug!("Account has time left");
+                } else {
+                    log::debug!("Account has no time left");
+                }
+
                 // Send expiry update event
                 let event = PrivateDeviceEvent::AccountExpiry(expiry);
                 self.listeners
