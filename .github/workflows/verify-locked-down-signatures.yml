@@ -21,7 +21,9 @@ jobs:
                 ref: ${{ github.event.pull_request.head.sha }}
             - name: Verify signatures
               run: |
-                echo "the amount of commits we have in repo: "
+                echo "the amount of commits we have in repo before: "
                 git rev-list --all --count
                 git fetch --shallow-exclude=master
+                echo "the amount of commits we have in repo after: "
+                git rev-list --all --count
                 ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
