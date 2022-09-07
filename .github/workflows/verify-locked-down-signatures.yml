@@ -14,10 +14,10 @@ on:
     workflow_dispatch:
       inputs:
         commitDepth:
-          description: 'Commit depth which must include origin/master'
-        required: true
-        default: '50' 
-        type: string
+          description: "Commit depth which must include origin/master"
+          required: true
+          default: '50' 
+          type: string
 jobs:
     verify-signatures:
         runs-on: ubuntu-latest
