@@ -39,7 +39,9 @@ jobs:
                 git rev-list origin/master --count
 
                 commit_depth_pr=${{ github.event.pull_request.commits }}
+                echo "Input: ${{ github.event.inputs.commitDepth }}"
                 commit_depth=${commit_depth_pr:-${{ github.event.inputs.commitDepth }}}
+                echo "Commit depth: $commit_depth"
                 if [[ -n "$commit_depth" ]]; then
                     # Prepare enough depth for diffs with master, currently hard-coded but should probably be
                     # whatever branch is merged into
