@@ -4,7 +4,8 @@
 [Unit]
 Description=Mullvad VPN daemon
 Before=network-online.target
-After=mullvad-early-boot-blocking.service
+After=mullvad-early-boot-blocking.service NetworkManager.service systemd-resolved.service
+
 StartLimitBurst=5
 StartLimitIntervalSec=20
 RequiresMountsFor=/opt/Mullvad\x20VPN/resources/
