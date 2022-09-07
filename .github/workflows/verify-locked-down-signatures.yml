@@ -39,9 +39,9 @@ jobs:
                 git rev-list origin/master --count
 
                 commit_depth=${{ github.event.pull_request.commits }}
-                if [[ -n "$commit_depth" ]]; then
+                #if [[ -n "$commit_depth" ]]; then
                     # Prepare enough depth for diffs with master, currently hard-coded but should probably be
                     # whatever branch is merged into
                     #git fetch --depth="$(( commit_depth + 1 ))" origin ${{ github.head_ref }} master
-                fi
+                #fi
                 ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
