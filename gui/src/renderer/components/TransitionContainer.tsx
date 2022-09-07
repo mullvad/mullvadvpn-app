@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { ITransitionSpecification } from '../lib/history';
+import { PauseRendering } from '../lib/pause-rendering';
 
 interface ITransitioningViewProps {
   viewId: string;
@@ -155,28 +156,32 @@ export default class TransitionContainer extends React.Component<IProps, IState>
 
   public render() {
     const disableUserInteraction =
-      this.state.itemQueue.length > 0 || this.state.nextItem ? true : false;
+      this.state.itemQueue.length > 0 || this.state.nextItem !== undefined;
 
     return (
       <StyledTransitionContainer disableUserInteraction={disableUserInteraction}>
         {this.state.currentItem && (
-          <StyledTransitionContent
+          <PauseRendering
             key={this.state.currentItem.view.props.viewId}
-            ref={this.currentContentRef}
-            transition={this.state.currentItemStyle}
-            onTransitionEnd={this.onTransitionEnd}>
-            {this.state.currentItem.view}
-          </StyledTransitionContent>
+            pause={disableUserInteraction}>
+            <StyledTransitionContent
+              ref={this.currentContentRef}
+              transition={this.state.currentItemStyle}
+              onTransitionEnd={this.onTransitionEnd}>
+              {this.state.currentItem.view}
+            </StyledTransitionContent>
+          </PauseRendering>
         )}
 
         {this.state.nextItem && (
-          <StyledTransitionContent
-            key={this.state.nextItem.view.props.viewId}
-            ref={this.nextContentRef}
-            transition={this.state.nextItemStyle}
-            onTransitionEnd={this.onTransitionEnd}>
-            {this.state.nextItem.view}
-          </StyledTransitionContent>
+          <PauseRendering key={this.state.nextItem.view.props.viewId}>
+            <StyledTransitionContent
+              ref={this.nextContentRef}
+              transition={this.state.nextItemStyle}
+              onTransitionEnd={this.onTransitionEnd}>
+              {this.state.nextItem.view}
+            </StyledTransitionContent>
+          </PauseRendering>
         )}
       </StyledTransitionContainer>
     );
