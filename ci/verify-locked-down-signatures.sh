@@ -57,19 +57,12 @@ locked_down_paths=$(\
     | awk '{print $2}')
 
 unsigned_commits_exist=0
-echo "git rev-list --oneline "$whitelisted_commit"..HEAD"
-git rev-list --oneline "$whitelisted_commit"..HEAD
 
 for locked_path in $locked_down_paths; do
-    echo "git rev-list --oneline "$whitelisted_commit"..HEAD "$SCRIPT_DIR/../$locked_path" results:"
-    git rev-list --oneline "$whitelisted_commit"..HEAD "$SCRIPT_DIR/../$locked_path"
-
     locked_path_commit_hashes=$(git rev-list --oneline "$whitelisted_commit"..HEAD \
         "$SCRIPT_DIR/../$locked_path" | awk '{print $1}')
 
     for commit in $locked_path_commit_hashes; do
-        echo "Verifying $commit..."
-
         if ! git verify-commit "$commit" 2> /dev/null; then
             echo "Commit $commit which changed $locked_path is not signed."
             unsigned_commits_exist=1
