@@ -32,12 +32,6 @@ jobs:
 
                 #git fetch --shallow-exclude=master
 
-                echo "git rev-list --all --count after: "
-                git rev-list --all --count
-
-                echo "git rev-list origin/master --count after: "
-                git rev-list origin/master --count
-
                 commit_depth_pr=${{ github.event.pull_request.commits }}
                 echo "Input: ${{ github.event.inputs.commitDepth }}"
                 commit_depth=${commit_depth_pr:-${{ github.event.inputs.commitDepth }}}
@@ -47,4 +41,11 @@ jobs:
                     # whatever branch is merged into
                     git fetch --depth="$(( commit_depth + 1 ))" origin ${{ github.head_ref }} master
                 fi
+
+                echo "git rev-list --all --count after: "
+                git rev-list --all --count
+
+                echo "git rev-list origin/master --count after: "
+                git rev-list origin/master --count
+
                 ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
