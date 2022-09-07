@@ -62,6 +62,7 @@ for locked_path in $locked_down_paths; do
         "$SCRIPT_DIR/../$locked_path" | awk '{print $1}')
 
     for commit in $locked_path_commit_hashes; do
+        echo "Verifying $commit..."
         if ! git verify-commit "$commit" 2> /dev/null; then
             echo "Commit $commit which changed $locked_path is not signed."
             unsigned_commits_exist=1
