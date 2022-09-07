@@ -605,7 +605,9 @@ impl<'a> PolicyBatch<'a> {
                 allow_lan,
                 allowed_endpoint,
             } => {
-                self.add_allow_endpoint_rules(&allowed_endpoint.endpoint);
+                if let Some(endpoint) = allowed_endpoint {
+                    self.add_allow_endpoint_rules(&endpoint.endpoint);
+                }
 
                 // Important to drop DNS before allowing LAN (to stop DNS leaking to the LAN)
                 self.add_drop_dns_rule();
