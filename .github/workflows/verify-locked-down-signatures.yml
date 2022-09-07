@@ -30,7 +30,7 @@ jobs:
                 echo "git rev-list --all --count before: "
                 git rev-list --all --count
 
-                git fetch --shallow-exclude=master
+                #git fetch --shallow-exclude=master
 
                 echo "git rev-list --all --count after: "
                 git rev-list --all --count
