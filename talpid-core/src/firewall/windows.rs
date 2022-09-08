@@ -258,12 +258,16 @@ impl Firewall {
         allowed_endpoint: Option<WinFwAllowedEndpointContainer>,
     ) -> Result<(), Error> {
         log::trace!("Applying 'blocked' firewall policy");
+        let endpoint = allowed_endpoint
+            .as_ref()
+            .map(WinFwAllowedEndpointContainer::as_endpoint);
+
         unsafe {
             WinFw_ApplyPolicyBlocked(
                 winfw_settings,
-                allowed_endpoint
+                endpoint
                     .as_ref()
-                    .map(|container| &container.as_endpoint() as *const _)
+                    .map(|container| &container as *const _)
                     .unwrap_or(ptr::null()),
             )
             .into_result()
