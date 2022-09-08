@@ -23,7 +23,7 @@ const provincesStatesLinesTree = rbush<IProvinceAndStateLineLeaf>().fromJSON(
 
 type BBox = [number, number, number, number];
 
-const MOVE_SPEED = 2000;
+const MOVE_SPEED = window.env.e2e ? 0 : 2000;
 
 const mapStyle = {
   width: '100%',
