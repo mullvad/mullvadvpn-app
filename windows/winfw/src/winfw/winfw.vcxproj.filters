@@ -31,9 +31,6 @@
     <ClCompile Include="rules\baseline\permitndp.cpp">
       <Filter>rules\baseline</Filter>
     </ClCompile>
-    <ClCompile Include="rules\baseline\permitping.cpp">
-      <Filter>rules\baseline</Filter>
-    </ClCompile>
     <ClCompile Include="rules\baseline\permitvpntunnel.cpp">
       <Filter>rules\baseline</Filter>
     </ClCompile>
@@ -100,9 +97,6 @@
       <Filter>rules\baseline</Filter>
     </ClInclude>
     <ClInclude Include="rules\baseline\permitndp.h">
-      <Filter>rules\baseline</Filter>
-    </ClInclude>
-    <ClInclude Include="rules\baseline\permitping.h">
       <Filter>rules\baseline</Filter>
     </ClInclude>
     <ClInclude Include="rules\baseline\permitvpntunnel.h">
