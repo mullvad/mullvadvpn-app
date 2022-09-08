@@ -11,10 +11,6 @@ import net.mullvad.mullvadvpn.R
 
 class CopyableInformationView : InformationView {
     var clipboardLabel: String? = null
-        set(value) {
-            field = value
-            shouldEnable = value != null
-        }
 
     var copiedToast: String? = null
 
@@ -43,6 +39,7 @@ class CopyableInformationView : InformationView {
             visibility = View.VISIBLE
             setOnClickListener { copyToClipboard() }
         }
+        shouldEnable = false
     }
 
     private fun loadAttributes(attributes: AttributeSet) {
