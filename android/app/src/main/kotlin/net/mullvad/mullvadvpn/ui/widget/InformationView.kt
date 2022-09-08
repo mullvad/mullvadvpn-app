@@ -92,7 +92,7 @@ open class InformationView : LinearLayout {
 
             is Masking.None -> {
                 informationDisplay.transformationMethod = null
-                toggleMaskingButton.visibility = GONE
+                toggleMaskingButton.visibility = INVISIBLE
             }
         }
 
