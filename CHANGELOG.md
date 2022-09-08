@@ -36,7 +36,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - GUI: Add electron flags to run Wayland native if in a compositor/desktop known to work well
 - Add support for Linux ARM64.
-- Added traffic blocking during early boot, before the daemon starts.
 
 ### Changed
 - Reject invalid WireGuard ports in the CLI.
@@ -84,6 +83,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix disabled login button on login failure. Instead, the login button will now still be enabled
   on login failures to let the user re-attempt the login.
 
+### Security
+- Added traffic blocking during early boot, before the daemon starts, to prevent leaks in the case
+  that the system service starts after a networking daemon has already configured a network
+  interface.
 
 ## [2022.4] - 2022-08-19
 ### Added
