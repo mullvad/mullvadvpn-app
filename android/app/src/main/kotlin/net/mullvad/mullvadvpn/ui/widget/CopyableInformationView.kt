@@ -39,8 +39,6 @@ class CopyableInformationView : InformationView {
     }
 
     init {
-        onClick = { copyToClipboard() }
-
         findViewById<ImageButton>(R.id.copy_button).apply {
             visibility = View.VISIBLE
             setOnClickListener { copyToClipboard() }
