@@ -25,7 +25,6 @@ const mockLocation: ILocation = {
 
 const getLabel = () => appWindow.locator('span[role="status"]');
 const getHeader = () => appWindow.locator('header');
-const getScreenShotPath = (test: string) => `e2e/screenshots/tunnel-state/${test}.png`;
 
 let appWindow: Page;
 
@@ -65,7 +64,8 @@ test('App should show disconnected tunnel state', async () => {
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe(SECURE_COLOR);
 
-  await appWindow.screenshot({ path: getScreenShotPath('disconnected') });
+  await appWindow.waitForTimeout(2000);
+  expect(await appWindow.screenshot()).toMatchSnapshot();
 });
 
 /**
@@ -95,7 +95,8 @@ test('App should show connecting tunnel state', async () => {
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe('rgba(227, 64, 57, 0.6)');
 
-  await appWindow.screenshot({ path: getScreenShotPath('connecting') });
+  await appWindow.waitForTimeout(2000);
+  expect(await appWindow.screenshot()).toMatchSnapshot();
 });
 
 /**
@@ -132,7 +133,8 @@ test('App should show connected tunnel state', async () => {
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe('rgba(255, 255, 255, 0.2)');
 
-  await appWindow.screenshot({ path: getScreenShotPath('connected') });
+  await appWindow.waitForTimeout(2000);
+  expect(await appWindow.screenshot()).toMatchSnapshot();
 });
 
 /**
@@ -162,7 +164,8 @@ test('App should show disconnecting tunnel state', async () => {
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe(SECURE_COLOR);
 
-  await appWindow.screenshot({ path: getScreenShotPath('disconnecting') });
+  await appWindow.waitForTimeout(2000);
+  expect(await appWindow.screenshot()).toMatchSnapshot();
 });
 
 /**
@@ -188,5 +191,5 @@ test('App should show error tunnel state', async () => {
   const headerColor = await getBackgroundColor(header);
   expect(headerColor).toBe(SECURE_COLOR);
 
-  await appWindow.screenshot({ path: getScreenShotPath('error') });
+  expect(await appWindow.screenshot()).toMatchSnapshot();
 });
