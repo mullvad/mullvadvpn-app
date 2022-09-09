@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
@@ -138,7 +138,7 @@ export function NotificationBanner(props: INotificationBannerProps) {
     prevChildren.current = props.children ?? prevChildren.current;
   }, [props.children]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const newHeight =
       props.children !== undefined ? contentRef.current?.getBoundingClientRect().height ?? 0 : 0;
     if (newHeight !== contentHeight) {
