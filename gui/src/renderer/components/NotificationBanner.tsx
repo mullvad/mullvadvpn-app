@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
@@ -98,20 +98,10 @@ export const NotificationIndicator = styled.div((props: INotificationIndicatorPr
 
 interface ICollapsibleProps {
   alignBottom: boolean;
-  contentHeight?: number;
-  collapsibleHeight?: number;
+  height?: number;
 }
 
-const TRANSITION_DURATION = 350;
-// 52px is the height of the banner when the notification contains a title and subtitle which are
-// one line each.
-const TRANSITION_BASE_DISTANCE = 52;
-
 const Collapsible = styled.div({}, (props: ICollapsibleProps) => {
-  // Calculate the transition duration based on travel distance.
-  const distance = Math.abs((props.collapsibleHeight ?? 0) - (props.contentHeight ?? 0));
-  const duration = Math.ceil(TRANSITION_DURATION * (distance / TRANSITION_BASE_DISTANCE));
-
   return {
     display: 'flex',
     flexDirection: 'column',
@@ -119,8 +109,8 @@ const Collapsible = styled.div({}, (props: ICollapsibleProps) => {
     backgroundColor: 'rgba(25, 38, 56, 0.95)',
     overflow: 'hidden',
     // Using auto as the initial value prevents transition if a notification is visible on mount.
-    height: props.contentHeight === undefined ? 'auto' : `${props.contentHeight}px`,
-    transition: `height ${duration}ms ease-in-out`,
+    height: props.height === undefined ? 'auto' : `${props.height}px`,
+    transition: 'height 250ms ease-in-out',
   };
 });
 
@@ -134,7 +124,6 @@ const Content = styled.section({
 interface INotificationBannerProps {
   children?: React.ReactNode; // Array<NotificationContent | NotificationActions>,
   className?: string;
-  visible: boolean;
 }
 
 export function NotificationBanner(props: INotificationBannerProps) {
@@ -142,7 +131,6 @@ export function NotificationBanner(props: INotificationBannerProps) {
   const [alignBottom, setAlignBottom] = useState(false);
 
   const contentRef = useRef() as React.RefObject<HTMLDivElement>;
-  const collapsibleRef = useRef() as React.RefObject<HTMLDivElement>;
 
   // Save last non-undefined children to be able to show them during the hide-transition.
   const prevChildren = useRef<React.ReactNode>();
@@ -150,10 +138,9 @@ export function NotificationBanner(props: INotificationBannerProps) {
     prevChildren.current = props.children ?? prevChildren.current;
   }, [props.children]);
 
-  const onTransitionEnd = useCallback(() => setAlignBottom(false), []);
-
   useLayoutEffect(() => {
-    const newHeight = props.visible ? contentRef.current?.getBoundingClientRect().height ?? 0 : 0;
+    const newHeight =
+      props.children !== undefined ? contentRef.current?.getBoundingClientRect().height ?? 0 : 0;
     if (newHeight !== contentHeight) {
       setContentHeight(newHeight);
       setAlignBottom((alignBottom) => alignBottom || contentHeight === 0 || newHeight === 0);
@@ -161,14 +148,8 @@ export function NotificationBanner(props: INotificationBannerProps) {
   });
 
   return (
-    <Collapsible
-      ref={collapsibleRef}
-      alignBottom={alignBottom}
-      contentHeight={contentHeight}
-      collapsibleHeight={collapsibleRef.current?.getBoundingClientRect().height ?? 0}
-      className={props.className}
-      onTransitionEnd={onTransitionEnd}>
-      <Content ref={contentRef}>{props.visible ? props.children : prevChildren.current}</Content>
+    <Collapsible height={contentHeight} className={props.className} alignBottom={alignBottom}>
+      <Content ref={contentRef}>{props.children ?? prevChildren.current}</Content>
     </Collapsible>
   );
 }
