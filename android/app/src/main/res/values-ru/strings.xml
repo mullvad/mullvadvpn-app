@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Не удалось заблокировать весь сетевой трафик. Устраните неисправность или сообщите нам о проблеме.</string>
     <string name="failed_to_create_account">Не удалось создать учетную запись</string>
     <string name="failed_to_send">Ошибка отправки</string>
-    <string name="failed_to_send_details">Возможно, потребуется вернуться на основной экран приложения и нажать кнопку «Отключить», прежде чем повторять попытку. Не волнуйтесь: введенные в форму данные сохранятся.</string>
+    <string name="failed_to_send_details">Если вы выйдете из формы и повторите попытку позже, информация, которую вы уже ввели, сохранится.</string>
     <string name="faqs_and_guides">Ответы на вопросы и руководства</string>
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>
     <string name="foreground_notification_channel_name">Состояние туннеля VPN</string>

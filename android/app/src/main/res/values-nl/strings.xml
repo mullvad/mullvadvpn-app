@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Kon alle netwerkverkeer niet blokkeren. Los problemen op of meld het aan ons.</string>
     <string name="failed_to_create_account">Account aanmaken mislukt</string>
     <string name="failed_to_send">Verzenden mislukt</string>
-    <string name="failed_to_send_details">Voordat u het opnieuw probeert, moet u mogelijk terugkeren naar het hoofdscherm van de app en klikken op Verbinding verbreken. De in het formulier ingevoerde gegevens blijven bewaard.</string>
+    <string name="failed_to_send_details">Als u het formulier verlaat en het later opnieuw probeert, is de reeds ingevoerde informatie er nog.</string>
     <string name="faqs_and_guides">Veelgestelde vragen en gidsen</string>
     <string name="foreground_notification_channel_description">Toont huidige status van VPN-tunnel</string>
     <string name="foreground_notification_channel_name">Status VPN-tunnel</string>

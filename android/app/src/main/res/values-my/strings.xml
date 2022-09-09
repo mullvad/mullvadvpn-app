@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့ရန် မအောင်မြင်ပါ။ ပြစ်ချက်ရှာဖွေ ဖယ်ရှားပေးပါ သို့မဟုတ် ပြဿနာကို ကျွန်ုပ်တို့ထံ ရီပို့တ်လုပ်ပေးပါ။</string>
     <string name="failed_to_create_account">အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_send">ပို့ရန် မအောင်မြင်ခဲ့ပါ</string>
-    <string name="failed_to_send_details">သင်သည် အက်ပ်၏ ပင်မ စာမျက်နှာသို့ ပြန်သွားရန် လိုပြီး ထပ်မကြိုးစားမီ ချိတ်ဆက်မှုဖြုတ်ရန်ကို နှိပ်ပါ။ စိတ်မပူပါနှင့်၊ သင်ဖြည့်သွင်းထားသည့် အချက်အလက်များသည် ဖောင်တွင် ကျန်ရှိနေပါမည်။</string>
+    <string name="failed_to_send_details">ဖောင်မှ ထွက်ပြီး နောက်မှ ထပ်ကြိုးစားကြည့်ပါ၊ သင်ဖြည့်ထားသည့် အချက်အလက်များသည် ဤတွင် ဆက်ရှိနေပါမည်။</string>
     <string name="faqs_and_guides">မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ</string>
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
     <string name="foreground_notification_channel_name">VPN Tunnel အခြေအနေ</string>

@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Não foi possível bloquear todo o tráfego de rede. Experimente a resolução de problemas ou comunique-nos o problema.</string>
     <string name="failed_to_create_account">Não foi possível criar a conta</string>
     <string name="failed_to_send">Erro no envio</string>
-    <string name="failed_to_send_details">Pode ter de voltar ao ecrã principal da app e clicar em Desligar antes de tentar novamente. Não se preocupe, a informação que introduziu permanecerá no formulário.</string>
+    <string name="failed_to_send_details">Se sair do formulário e tentar novamente mais tarde, a informação que já tiver introduzido continuará aqui.</string>
     <string name="faqs_and_guides">Perguntas frequentes e guias</string>
     <string name="foreground_notification_channel_description">Indica o estado atual do túnel VPN</string>
     <string name="foreground_notification_channel_name">Estado do túnel VPN</string>

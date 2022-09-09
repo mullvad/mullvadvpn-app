@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 보고해 주세요.</string>
     <string name="failed_to_create_account">계정을 만들지 못함</string>
     <string name="failed_to_send">전송하지 못함</string>
-    <string name="failed_to_send_details">다시 시도하기 전에 앱의 기본 화면으로 돌아가 연결 해제를 클릭해야 할 수 있습니다. 걱정하지 마세요. 입력한 정보는 양식에 남아 있습니다.</string>
+    <string name="failed_to_send_details">양식을 종료한 후 나중에 다시 시도해도 이미 입력한 정보는 그대로 유지됩니다.</string>
     <string name="faqs_and_guides">FAQ 및 가이드</string>
     <string name="foreground_notification_channel_description">현재 VPN 터널 상태 표시</string>
     <string name="foreground_notification_channel_name">VPN 터널 상태</string>

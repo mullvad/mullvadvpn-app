@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vianetsintää tai raportoi meille ongelmasta.</string>
     <string name="failed_to_create_account">Tilin luonti epäonnistui</string>
     <string name="failed_to_send">Lähetys epäonnistui</string>
-    <string name="failed_to_send_details">Ennen kuin yrität uudelleen, sinun on ehkä palattava sovelluksen päänäytölle ja napsautettava yhteyden katkaisua. Älä huoli – syöttämäsi tiedot säilyvät lomakkeella.</string>
+    <string name="failed_to_send_details">Jos poistut lomakkeelta ja yrität myöhemmin uudelleen, jo syöttämäsi tiedot säilyvät lomakkeella.</string>
     <string name="faqs_and_guides">UKK:t ja oppaat</string>
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
     <string name="foreground_notification_channel_name">VPN-tunnelin tila</string>

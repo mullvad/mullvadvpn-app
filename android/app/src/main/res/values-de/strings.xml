@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Sperren des gesamten Netzwerk-Traffics fehlgeschlagen. Bitte beheben Sie den Fehler oder melden Sie uns das Problem.</string>
     <string name="failed_to_create_account">Konto konnte nicht erstellt werden</string>
     <string name="failed_to_send">Fehler beim Senden</string>
-    <string name="failed_to_send_details">Möglicherweise müssen Sie zum Hauptbildschirm der App zurückgehen und auf Trennen klicken, bevor Sie es erneut versuchen. Keine Sorge, die eingegebenen Informationen bleiben im Formular gespeichert.</string>
+    <string name="failed_to_send_details">Die Informationen, die Sie bereits eingegeben haben, werden immer noch da sein, wenn Sie das Formular schließen und es später erneut versuchen.</string>
     <string name="faqs_and_guides">Häufig gestellte Fragen &amp; Anleitungen</string>
     <string name="foreground_notification_channel_description">Zeigt den aktuellen Status des VPN Tunnels an</string>
     <string name="foreground_notification_channel_name">Status des VPN-Tunnels</string>
