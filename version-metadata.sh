@@ -64,8 +64,7 @@ function inject_version {
     # Rust crates
     for toml in "${MANIFESTS[@]}"; do
         cp "$toml" "$toml.bak"
-        awk "/^version = \"[^\"]+\"$/ \
-             { print \"version = \\\"$semver_version\\\"\"; next; } { print }" "$toml.bak" > "$toml"
+        cargo set-version "$semver_version" --manifest-path "$toml"
     done
 
     if [[ "$DESKTOP" == "true" ]]; then

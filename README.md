@@ -298,6 +298,8 @@ storePassword = keystore-password
 
 1. Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
+1. Install `cargo edit`: `cargo install cargo-edit`
+
 1. *This can be skipped for Android builds*.
 
    Any Node.js version above 16 and the latest npm version should work. The exact Node.js and NPM
