@@ -89,9 +89,8 @@
     <string name="sent_thanks">Thanks!</string>
     <string name="we_will_look_into_this">We will look into this.</string>
     <string name="sent_contact">If needed we will contact you at %1$s</string>
-    <string name="failed_to_send_details">You may need to go back to the app\'s main screen and
-    click Disconnect before trying again. Don\'t worry, the information you entered will remain in
-    the form.</string>
+    <string name="failed_to_send_details">If you exit the form and try again later, the information
+    you already entered will still be here.</string>
     <string name="edit_message">Edit message</string>
     <string name="try_again">Try again</string>
     <string name="unsecured_connection">UNSECURED CONNECTION</string>
