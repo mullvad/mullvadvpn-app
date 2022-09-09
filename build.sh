@@ -135,7 +135,7 @@ if [[ "$IS_RELEASE" == "true" ]]; then
     # Will not allow an outdated lockfile in releases
     CARGO_ARGS+=(--locked)
 else
-    PRODUCT_VERSION="$PRODUCT_VERSION-dev-${current_head_commit_hash:0:6}"
+    PRODUCT_VERSION="$PRODUCT_VERSION-${current_head_commit_hash:0:6}"
 
     # Allow dev builds to override which API server to use at runtime.
     CARGO_ARGS+=(--features api-override)
