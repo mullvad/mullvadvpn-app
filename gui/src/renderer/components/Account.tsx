@@ -1,8 +1,9 @@
 import * as React from 'react';
 
 import { formatDate, hasExpired } from '../../shared/account-expiry';
-import { AccountToken, DeviceState } from '../../shared/daemon-rpc-types';
+import { DeviceState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { useSelector } from '../redux/store';
 import {
   AccountContainer,
   AccountFooter,
@@ -27,10 +28,6 @@ import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 interface IProps {
-  deviceName?: string;
-  accountToken?: AccountToken;
-  accountExpiry?: string;
-  expiryLocale: string;
   isOffline: boolean;
   prepareLogout: () => void;
   cancelLogout: () => void;
@@ -81,27 +78,21 @@ export default class Account extends React.Component<IProps, IState> {
                   <AccountRowLabel>
                     {messages.pgettext('device-management', 'Device name')}
                   </AccountRowLabel>
-                  <DeviceRowValue>{this.props.deviceName}</DeviceRowValue>
+                  <DeviceNameRow />
                 </AccountRow>
 
                 <AccountRow>
                   <AccountRowLabel>
                     {messages.pgettext('account-view', 'Account number')}
                   </AccountRowLabel>
-                  <AccountRowValue
-                    as={AccountTokenLabel}
-                    accountToken={this.props.accountToken || ''}
-                  />
+                  <AccountNumberRow />
                 </AccountRow>
 
                 <AccountRow>
                   <AccountRowLabel>
                     {messages.pgettext('account-view', 'Paid until')}
                   </AccountRowLabel>
-                  <FormattedAccountExpiry
-                    expiry={this.props.accountExpiry}
-                    locale={this.props.expiryLocale}
-                  />
+                  <AccountExpiryRow />
                 </AccountRow>
               </AccountRows>
 
@@ -166,7 +157,7 @@ export default class Account extends React.Component<IProps, IState> {
       this.state.logoutDialogStage === 'checking-ports'
         ? []
         : [
-            <AppButton.RedButton key="logout" onClick={this.props.onLogout}>
+            <AppButton.RedButton key="logout" onClick={this.confirmLogout}>
               {
                 // TRANSLATORS: Confirmation button when logging out
                 messages.pgettext('device-management', 'Log out anyway')
@@ -196,9 +187,13 @@ export default class Account extends React.Component<IProps, IState> {
     ) {
       this.setState({ logoutDialogStage: 'confirm' });
     } else {
-      this.props.onLogout();
-      this.onHideLogoutConfirmationDialog();
+      this.confirmLogout();
     }
+  };
+
+  private confirmLogout = () => {
+    this.onHideLogoutConfirmationDialog();
+    this.props.onLogout();
   };
 
   private cancelLogout = () => {
@@ -209,6 +204,22 @@ export default class Account extends React.Component<IProps, IState> {
   private onHideLogoutConfirmationDialog = () => {
     this.setState({ logoutDialogVisible: false });
   };
+}
+
+function AccountNumberRow() {
+  const accountToken = useSelector((state) => state.account.accountToken);
+  return <AccountRowValue as={AccountTokenLabel} accountToken={accountToken || ''} />;
+}
+
+function AccountExpiryRow() {
+  const accountExpiry = useSelector((state) => state.account.expiry);
+  const expiryLocale = useSelector((state) => state.userInterface.locale);
+  return <FormattedAccountExpiry expiry={accountExpiry} locale={expiryLocale} />;
+}
+
+function DeviceNameRow() {
+  const deviceName = useSelector((state) => state.account.deviceName);
+  return <DeviceRowValue>{deviceName}</DeviceRowValue>;
 }
 
 function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {

@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { ITransitionSpecification } from '../lib/history';
+import { WillExit } from '../lib/will-exit';
 
 interface ITransitioningViewProps {
   viewId: string;
@@ -154,29 +155,30 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   }
 
   public render() {
-    const disableUserInteraction =
-      this.state.itemQueue.length > 0 || this.state.nextItem ? true : false;
+    const willExit = this.state.itemQueue.length > 0 || this.state.nextItem !== undefined;
 
     return (
-      <StyledTransitionContainer disableUserInteraction={disableUserInteraction}>
+      <StyledTransitionContainer disableUserInteraction={willExit}>
         {this.state.currentItem && (
-          <StyledTransitionContent
-            key={this.state.currentItem.view.props.viewId}
-            ref={this.currentContentRef}
-            transition={this.state.currentItemStyle}
-            onTransitionEnd={this.onTransitionEnd}>
-            {this.state.currentItem.view}
-          </StyledTransitionContent>
+          <WillExit key={this.state.currentItem.view.props.viewId} value={willExit}>
+            <StyledTransitionContent
+              ref={this.currentContentRef}
+              transition={this.state.currentItemStyle}
+              onTransitionEnd={this.onTransitionEnd}>
+              {this.state.currentItem.view}
+            </StyledTransitionContent>
+          </WillExit>
         )}
 
         {this.state.nextItem && (
-          <StyledTransitionContent
-            key={this.state.nextItem.view.props.viewId}
-            ref={this.nextContentRef}
-            transition={this.state.nextItemStyle}
-            onTransitionEnd={this.onTransitionEnd}>
-            {this.state.nextItem.view}
-          </StyledTransitionContent>
+          <WillExit key={this.state.nextItem.view.props.viewId} value={false}>
+            <StyledTransitionContent
+              ref={this.nextContentRef}
+              transition={this.state.nextItemStyle}
+              onTransitionEnd={this.onTransitionEnd}>
+              {this.state.nextItem.view}
+            </StyledTransitionContent>
+          </WillExit>
         )}
       </StyledTransitionContainer>
     );

@@ -9,10 +9,6 @@ import accountActions from '../redux/account/actions';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => ({
-  deviceName: state.account.deviceName,
-  accountToken: state.account.accountToken,
-  accountExpiry: state.account.expiry,
-  expiryLocale: state.userInterface.locale,
   isOffline: state.connection.isBlocked,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
