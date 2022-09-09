@@ -189,7 +189,7 @@
     <string name="max_devices_resolved_description">You can now continue logging in on this
     device.</string>
     <string name="max_devices_confirm_removal_description">
-<![CDATA[Are you sure you want to log out of <b>%s</b>?]]>
+<![CDATA[Are you sure you want to log <b>%s</b> out?]]>
     </string>
     <string name="confirm_removal">Yes, log out device</string>
     <string name="continue_login">Continue with login</string>
