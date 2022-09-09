@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Tüm ağ trafiği engellenemedi. Lütfen sorunu çözmeyi deneyin veya bize bildirin.</string>
     <string name="failed_to_create_account">Hesap oluşturulamadı</string>
     <string name="failed_to_send">Gönderme başarısız</string>
-    <string name="failed_to_send_details">Yeniden denemeden önce uygulamanın ana ekranına dönüp Bağlantıyı Kes\'e tıklamanız gerekebilir. Endişelenmeyin, girdiğiniz bilgiler formda kalacaktır.</string>
+    <string name="failed_to_send_details">Formdan çıkıp daha sonra tekrar denerseniz, girmiş olduğunuz bilgiler hala burada olacaktır.</string>
     <string name="faqs_and_guides">SSS ve Kılavuzlar</string>
     <string name="foreground_notification_channel_description">Mevcut VPN tünelinin durumunu gösterir</string>
     <string name="foreground_notification_channel_name">VPN tüneli durumu</string>

@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub zgłoś go nam.</string>
     <string name="failed_to_create_account">Nie można utworzyć konta</string>
     <string name="failed_to_send">Błąd wysyłania</string>
-    <string name="failed_to_send_details">Być może przed ponowną próbą trzeba będzie wrócić do ekranu głównego aplikacji i kliknąć przycisk Rozłącz. Nie martw się, wprowadzone informacje pozostaną w formularzu.</string>
+    <string name="failed_to_send_details">Jeśli wyjdziesz z formularza i spróbujesz ponownie później, zastaniesz już wprowadzone dane.</string>
     <string name="faqs_and_guides">Często zadawane pytania i poradniki</string>
     <string name="foreground_notification_channel_description">Pokazuje bieżący status tunelu VPN</string>
     <string name="foreground_notification_channel_name">Status tunelu VPN</string>

@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Impossibile bloccare tutto il traffico di rete. Risolvi i problemi o segnalaceli.</string>
     <string name="failed_to_create_account">Impossibile creare l\'account</string>
     <string name="failed_to_send">Impossibile inviare</string>
-    <string name="failed_to_send_details">Prima di riprovare, potresti dover tornare alla schermata principale dell\'app e fare clic su Disconnetti. Non preoccuparti: le informazioni inserite rimarranno nel modulo.</string>
+    <string name="failed_to_send_details">Se esci dal modulo e riprovi più tardi, le informazioni già inserite saranno ancora qui.</string>
     <string name="faqs_and_guides">FAQ e guide</string>
     <string name="foreground_notification_channel_description">Mostra lo stato attuale del tunnel VPN</string>
     <string name="foreground_notification_channel_name">Stato del tunnel VPN</string>

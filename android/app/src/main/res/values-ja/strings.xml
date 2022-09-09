@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">すべてのネットワーク通信をブロックできませんでした。問題に対処するか、当社に問題を報告してください。</string>
     <string name="failed_to_create_account">アカウントを作成できませんでした</string>
     <string name="failed_to_send">送信に失敗しました</string>
-    <string name="failed_to_send_details">再試行する前に、アプリのメイン画面に戻って [接続解除] をクリックする必要があるかもしれません。すでにフォームに入力された情報が失われることはありませんので、ご安心ください。</string>
+    <string name="failed_to_send_details">フォームを終了して後で再試行しても、入力済みの情報は引き続きここに表示されます。</string>
     <string name="faqs_and_guides">よくある質問とガイド</string>
     <string name="foreground_notification_channel_description">現在のVPNトンネルのステータスを表示します</string>
     <string name="foreground_notification_channel_name">VPNトンネルのステータス</string>

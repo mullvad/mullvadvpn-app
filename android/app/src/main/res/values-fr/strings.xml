@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Impossible de bloquer tout le trafic du réseau. Veuillez dépanner ou nous signaler le problème.</string>
     <string name="failed_to_create_account">Échec de la création du compte</string>
     <string name="failed_to_send">Échec de l\'envoi</string>
-    <string name="failed_to_send_details">Vous allez peut-être devoir retourner à l\'écran principal de l\'application pour cliquer sur Déconnexion avant de réessayer. Ne vous inquiétez pas, les informations saisies resteront dans le formulaire.</string>
+    <string name="failed_to_send_details">Si vous quittez le formulaire et réessayez plus tard, les informations que vous avez déjà saisies seront toujours là.</string>
     <string name="faqs_and_guides">FAQ et guides</string>
     <string name="foreground_notification_channel_description">Affiche l\'état actuel du tunnel VPN</string>
     <string name="foreground_notification_channel_name">État du tunnel VPN</string>

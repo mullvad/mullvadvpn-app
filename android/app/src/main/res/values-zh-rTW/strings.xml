@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">無法封鎖所有網路流量。請排除故障或向我們回報問題。</string>
     <string name="failed_to_create_account">無法建立帳戶</string>
     <string name="failed_to_send">無法傳送</string>
-    <string name="failed_to_send_details">在重試之前，您可能需要返回應用程式的主畫面，然後按一下「中斷連線」。請不用擔心，您輸入的資訊將保留在表單中。</string>
+    <string name="failed_to_send_details">如果您關閉表格後再重新嘗試，所輸入的資訊仍會出現在這裡。</string>
     <string name="faqs_and_guides">常見問題集與指南</string>
     <string name="foreground_notification_channel_description">顯示目前的 VPN 通道狀態</string>
     <string name="foreground_notification_channel_name">VPN 通道狀態</string>
