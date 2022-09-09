@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Kunne ikke blokere al netværkstrafik. Løs problemet selv, eller rapporter problemet til os.</string>
     <string name="failed_to_create_account">Kunne ikke oprette konto</string>
     <string name="failed_to_send">Kunne ikke sende</string>
-    <string name="failed_to_send_details">Du skal muligvis vende tilbage til appens hovedskærm og klikke på Afbryd forbindelse, før du prøver igen. Bare rolig, de angivne oplysninger bliver ikke slettet fra formularen.</string>
+    <string name="failed_to_send_details">Hvis du lukker formularen og prøver igen senere, vil de oplysninger, du allerede har indtastet, stadig være her.</string>
     <string name="faqs_and_guides">Ofte stillede spørgsmål og vejledninger</string>
     <string name="foreground_notification_channel_description">Viser den aktuelle VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>

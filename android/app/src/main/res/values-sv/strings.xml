@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Det gick inte att blockera all nätverkstrafik. Felsök eller anmäl problemet till oss.</string>
     <string name="failed_to_create_account">Det gick inte att skapa konto</string>
     <string name="failed_to_send">Det gick inte att skicka</string>
-    <string name="failed_to_send_details">Du kan behöva gå tillbaka till appens huvudskärm och klicka på Koppla från innan du försöker igen. Oroa dig inte, den information du angett i formuläret kommer att bli kvar där.</string>
+    <string name="failed_to_send_details">Om du lämnar formuläret och försöker igen senare kommer informationen du anger att finnas kvar.</string>
     <string name="faqs_and_guides">Vanliga frågor och guider</string>
     <string name="foreground_notification_channel_description">Visar nuvarande status för VPN-tunnel</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>

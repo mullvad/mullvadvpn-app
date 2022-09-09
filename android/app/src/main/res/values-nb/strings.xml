@@ -59,7 +59,7 @@
     <string name="failed_to_block_internet">Kunne ikke blokkere all nettverkstrafikk. Kjør feilsøking eller rapporter inn problemet til oss.</string>
     <string name="failed_to_create_account">Kunne ikke opprette konto</string>
     <string name="failed_to_send">Kunne ikke sende</string>
-    <string name="failed_to_send_details">Du må gå tilbake til hovedskjermen til appen og trykke på \"Koble fra\" før du kan prøve på nytt. Men det er ingen grunn til bekymring, informasjonen du har skrevet i skjemaet blir ikke borte.</string>
+    <string name="failed_to_send_details">Hvis du avslutter skjemaet og prøver igjen senere, vil informasjonen du allerede har lagt inn fortsatt være der.</string>
     <string name="faqs_and_guides">Ofte stilte spørsmål og veiledninger</string>
     <string name="foreground_notification_channel_description">Viser gjeldende VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
