@@ -109,7 +109,7 @@
     <string name="send_anyway">Yine de gönder</string>
     <string name="sending">Gönderiliyor...</string>
     <string name="sent">Gönderildi</string>
-    <string name="sent_contact">Gerektiğinde sizinle %1$s üzerinden iletişime geçeceğiz</string>
+    <string name="sent_contact">Gerektiğinde sizinle %1$s adresinden iletişime geçeceğiz</string>
     <string name="sent_thanks">Teşekkürler!</string>
     <string name="set_dns_error">Sistem DNS sunucusu ayarlanamıyor</string>
     <string name="set_firewall_policy_error">Güvenlik duvarı kuralları uygulanamıyor. Cihaz şu an korumasız olabilir</string>

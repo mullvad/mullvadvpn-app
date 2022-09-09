@@ -109,7 +109,7 @@
     <string name="send_anyway">ส่งต่อไป</string>
     <string name="sending">กำลังส่ง...</string>
     <string name="sent">ส่ง</string>
-    <string name="sent_contact">เราจะติดต่อคุณทาง %1$s หากจำเป็น</string>
+    <string name="sent_contact">เราจะติดต่อคุณไปทาง %1$s ในกรณีจำเป็น</string>
     <string name="sent_thanks">ขอบคุณ!</string>
     <string name="set_dns_error">ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้</string>
     <string name="set_firewall_policy_error">ไม่สามารถปรับใช้งานกฎของไฟร์วอลล์ได้ อุปกรณ์อาจไม่มีความปลอดภัยในขณะนี้</string>

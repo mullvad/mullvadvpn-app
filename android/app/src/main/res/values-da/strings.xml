@@ -109,7 +109,7 @@
     <string name="send_anyway">Send alligevel</string>
     <string name="sending">Sender...</string>
     <string name="sent">Sendt</string>
-    <string name="sent_contact">Hvis det er nødvendigt, kontakter vi dig via %1$s</string>
+    <string name="sent_contact">Hvis det er nødvendigt, kontakter vi dig på %1$s</string>
     <string name="sent_thanks">Tak!</string>
     <string name="set_dns_error">Kunne ikke indstille systemets DNS-server</string>
     <string name="set_firewall_policy_error">Kunne ikke anvende firewall-regler. Enheden er muligvis ikke sikret</string>

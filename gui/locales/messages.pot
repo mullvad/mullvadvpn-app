@@ -1602,9 +1602,6 @@ msgstr ""
 msgid "Going to login will unblock the internet on this device."
 msgstr ""
 
-msgid "If needed we will contact you on %s"
-msgstr ""
-
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr ""
 
