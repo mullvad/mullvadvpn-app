@@ -109,7 +109,7 @@
     <string name="send_anyway">とにかく送信する</string>
     <string name="sending">送信中...</string>
     <string name="sent">送信済み</string>
-    <string name="sent_contact">必要に応じて %1$s 宛にご連絡します</string>
+    <string name="sent_contact">必要に応じて %1$s 宛にご連絡します　</string>
     <string name="sent_thanks">ありがとうございます！</string>
     <string name="set_dns_error">システムのDNSサーバーを設定できませんでした</string>
     <string name="set_firewall_policy_error">ファイヤウォール規則の適用に失敗しました。現在、デバイスがセキュリティ保護されていない可能性があります。</string>

@@ -109,7 +109,7 @@
     <string name="send_anyway">Toch verzenden</string>
     <string name="sending">Verzenden...</string>
     <string name="sent">Verzonden</string>
-    <string name="sent_contact">Indien nodig nemen we contact met u op via %1$s</string>
+    <string name="sent_contact">Indien nodig nemen we u contact op via %1$s</string>
     <string name="sent_thanks">Bedankt!</string>
     <string name="set_dns_error">Instellen DNS-server systeem mislukt</string>
     <string name="set_firewall_policy_error">Toepassen van firewallregels mislukt. Het apparaat is mogelijk niet beveiligd</string>

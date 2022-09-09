@@ -109,7 +109,7 @@
     <string name="send_anyway">Envoyer quand même</string>
     <string name="sending">Envoi...</string>
     <string name="sent">Envoyé</string>
-    <string name="sent_contact">Si nécessaire, nous vous contacterons sur %1$s</string>
+    <string name="sent_contact">Si nécessaire, nous vous contacterons à l\'adresse %1$s</string>
     <string name="sent_thanks">Merci !</string>
     <string name="set_dns_error">Échec de la configuration du serveur DNS système</string>
     <string name="set_firewall_policy_error">Échec de l\'application des règles du pare-feu. L\'appareil est potentiellement non sécurisé à l\'heure actuelle</string>
