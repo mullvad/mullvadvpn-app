@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29324.140
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cleanup", "src\cleanup\cleanup.vcxproj", "{47B5C1C1-67D7-4544-9037-8E7F44C1E5BD}"
 	ProjectSection(ProjectDependencies) = postProject

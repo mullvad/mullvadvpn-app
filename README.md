@@ -112,15 +112,15 @@ on your platform please submit an issue or a pull request.
 
 The host has to have the following installed:
 
-- Microsoft's _Build Tools for Visual Studio 2019_ (a regular installation of Visual Studio 2019
-  Community edition works as well).
+- Microsoft's _Build Tools for Visual Studio 2022_ (a regular installation of Visual Studio 2022
+  Community or Pro edition works as well).
 
 - Windows 10 SDK.
 
 - `msbuild.exe` available in `%PATH%`. If you installed Visual Studio Community edition, the
   binary can be found under:
   ```
-  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\amd64
+  C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64
   ```
 
 - `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
