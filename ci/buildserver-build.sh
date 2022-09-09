@@ -121,6 +121,9 @@ build_ref() {
         -iname "*.pdb" | tar -cJf $PDB_DIR/pdb-$current_hash.tar.xz -T -
       ;;
     Linux*)
+      echo "Building ARM64 installers"
+      TARGETS=aarch64-unknown-linux-gnu ./build.sh "${BUILD_ARGS[@]}" || return 0
+
       echo "Building Android APK"
       ./build-apk.sh --app-bundle || return 0
       ;;
@@ -134,8 +137,8 @@ build_ref() {
       # Will only match paths that include *-dev-* which means release builds will not be included
       # Pipes all matching names and their new name to mv
       pushd dist
-      for original_file in MullvadVPN-*-dev-*{_amd64.deb,_x86_64.rpm,.exe,.pkg,.apk,.aab}; do
-          new_file=$(echo $original_file | sed -nE "s/^(MullvadVPN-.*-dev-.*)(_amd64\.deb|_x86_64\.rpm|\.exe|\.pkg|\.apk|\.aab)$/\1$version_suffix\2/p")
+      for original_file in MullvadVPN-*-dev-*{.deb,.rpm,.exe,.pkg,.apk,.aab}; do
+          new_file=$(echo $original_file | sed -nE "s/^(MullvadVPN-.*-dev-.*)(_amd64\.deb|_x86_64\.rpm|_arm64\.deb|_aarch64\.rpm|\.exe|\.pkg|\.apk|\.aab)$/\1$version_suffix\2/p")
           mv $original_file $new_file
       done
       popd
