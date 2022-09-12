@@ -12,10 +12,7 @@ mod ffi;
 /// Misc networking functions for Windows.
 #[cfg(windows)]
 mod winnet;
-
-//FIXME: This should be windows only
-//#[cfg(windows)]
-/// Misc networking functions for Windows.
+#[cfg(windows)]
 mod winnet_rs;
 
 /// Windows API wrappers and utilities

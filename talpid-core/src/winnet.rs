@@ -68,14 +68,14 @@ impl WinNetAddrFamily {
 }
 
 #[repr(C)]
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct WinNetIp {
     pub addr_family: WinNetAddrFamily,
     pub ip_bytes: [u8; 16],
 }
 
 #[repr(C)]
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct WinNetDefaultRoute {
     pub interface_luid: u64,
     pub gateway: WinNetIp,
@@ -332,19 +332,66 @@ pub fn deactivate_routing_manager() {
 pub fn get_best_default_route(
     family: WinNetAddrFamily,
 ) -> Result<Option<WinNetDefaultRoute>, Error> {
-    let mut default_route = WinNetDefaultRoute::default();
-    match unsafe {
-        WinNet_GetBestDefaultRoute(
-            family,
-            &mut default_route as *mut _,
-            Some(log_sink),
-            logging_context(),
-        )
-    } {
-        WinNetStatus::Success => Ok(Some(default_route)),
-        WinNetStatus::NotFound => Ok(None),
-        WinNetStatus::Failure => Err(Error::GetDefaultRoute),
+    dbg!("================== Calling get_best_default_route lel");
+    dbg!(&family);
+    let family = match family {
+        WinNetAddrFamily::IPV4 => crate::winnet_rs::WinNetAddrFamily::IPV4,
+        WinNetAddrFamily::IPV6 => crate::winnet_rs::WinNetAddrFamily::IPV6,
+    };
+    match crate::winnet_rs::get_best_default_route(family) {
+        Ok(Some(default_route)) => {
+            let gateway = match default_route.gateway {
+                crate::winnet_rs::WinNetIp::IPV4(addr) => {
+                    let mut ip_bytes = [0; 16];
+                    ip_bytes[0] = addr[0];
+                    ip_bytes[1] = addr[1];
+                    ip_bytes[2] = addr[2];
+                    ip_bytes[3] = addr[3];
+                    dbg!(&ip_bytes);
+                    WinNetIp {
+                        addr_family: WinNetAddrFamily::IPV4,
+                        ip_bytes,
+                    }
+                }
+                crate::winnet_rs::WinNetIp::IPV6(ip_bytes) => {
+                    dbg!(&ip_bytes);
+                    WinNetIp {
+                        addr_family: WinNetAddrFamily::IPV6,
+                        ip_bytes,
+                    }
+                }
+            };
+            dbg!(&default_route.interface_luid);
+            let r = Ok(Some(WinNetDefaultRoute {
+                interface_luid: default_route.interface_luid,
+                gateway,
+            }));
+            dbg!(&r);
+            r
+        }
+        Ok(None) => {
+            dbg!("Found Ok(None)");
+            Ok(None)
+        },
+        Err(e) => {
+            dbg!(e);
+            dbg!("Error in GetDefaultRoute");
+            Err(Error::GetDefaultRoute)
+        },
     }
+    //let mut default_route = WinNetDefaultRoute::default();
+    //match unsafe {
+    //    WinNet_GetBestDefaultRoute(
+    //        family,
+    //        &mut default_route as *mut _,
+    //        Some(log_sink),
+    //        logging_context(),
+    //    )
+    //} {
+    //    WinNetStatus::Success => Ok(Some(default_route)),
+    //    WinNetStatus::NotFound => Ok(None),
+    //    WinNetStatus::Failure => Err(Error::GetDefaultRoute),
+    //}
 }
 
 #[allow(non_snake_case)]
@@ -395,13 +442,13 @@ mod api {
         #[link_name = "WinNet_DeactivateRouteManager"]
         pub fn WinNet_DeactivateRouteManager();
 
-        #[link_name = "WinNet_GetBestDefaultRoute"]
-        pub fn WinNet_GetBestDefaultRoute(
-            family: super::WinNetAddrFamily,
-            default_route: *mut super::WinNetDefaultRoute,
-            sink: Option<LogSink>,
-            sink_context: *const u8,
-        ) -> WinNetStatus;
+        //#[link_name = "WinNet_GetBestDefaultRoute"]
+        //pub fn WinNet_GetBestDefaultRoute(
+        //    family: super::WinNetAddrFamily,
+        //    default_route: *mut super::WinNetDefaultRoute,
+        //    sink: Option<LogSink>,
+        //    sink_context: *const u8,
+        //) -> WinNetStatus;
 
         #[link_name = "WinNet_RegisterDefaultRouteChangedCallback"]
         pub fn WinNet_RegisterDefaultRouteChangedCallback(
