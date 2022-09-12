@@ -24,7 +24,7 @@ pub struct Device {
     pub ports: Vec<DevicePort>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub hijack_dns: bool,
-    #[cfg_attr(target_os = "android", jnix(skip))]
+    #[cfg_attr(target_os = "android", jnix(map = "|expiry| expiry.to_string()"))]
     pub created: DateTime<Utc>,
 }
 
