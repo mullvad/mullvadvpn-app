@@ -14,14 +14,11 @@ import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.util.JobTracker
+import net.mullvad.mullvadvpn.util.parseAsDateTime
 import net.mullvad.talpid.util.EventNotifier
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 
 class AccountCache(private val endpoint: ServiceEndpoint) {
     companion object {
-        private val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
-
         private sealed class Command {
             object CreateAccount : Command()
             data class Login(val account: String) : Command()
@@ -170,7 +167,9 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     private suspend fun fetchAccountExpiry(accountToken: String): AccountExpiry {
         return fetchAccountData(accountToken).let { result ->
             if (result is GetAccountDataResult.Ok) {
-                AccountExpiry.Available(result.parseExpiryDate())
+                result.accountData.expiry.parseAsDateTime()?.let { parsedDateTime ->
+                    AccountExpiry.Available(parsedDateTime)
+                } ?: AccountExpiry.Missing
             } else {
                 AccountExpiry.Missing
             }
@@ -179,9 +178,5 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
     private suspend fun fetchAccountData(accountToken: String): GetAccountDataResult {
         return daemon.await().getAccountData(accountToken)
-    }
-
-    private fun GetAccountDataResult.Ok.parseExpiryDate(): DateTime {
-        return DateTime.parse(this.accountData.expiry, EXPIRY_FORMAT)
     }
 }
