@@ -7,6 +7,7 @@
 /gui/scripts/out/
 /gui/src/main/management_interface/
 /gui/e2e/screenshots/
+/gui/e2e/test-results/
 /build/
 /dist
 .idea/
