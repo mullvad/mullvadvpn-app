@@ -53,3 +53,6 @@ jobs:
                   working-directory: gui
                   run: npm test
 
+            - name: Run Playwright tests
+              working-directory: gui
+              run: npm run e2e:no-build

@@ -86,7 +86,8 @@
     "tsc-watch": "^4.2.9",
     "typescript": "^4.5.4",
     "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0"
+    "vinyl-source-stream": "^2.0.0",
+    "xvfb-maybe": "^0.2.1"
   },
   "scripts": {
     "postinstall": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true electron-builder install-app-deps",
@@ -95,8 +96,8 @@
     "lint": "eslint --ext tsx,ts .",
     "format": "prettier \"**/*.{js,css,ts,tsx}\" --write",
     "tsc": "tsc -p . --noEmit",
-    "e2e": "npm run build && playwright test",
-    "e2e:no-build": "playwright test",
+    "e2e": "npm run build && npm run e2e:no-build",
+    "e2e:no-build": "xvfb-maybe -- playwright test",
     "develop": "gulp develop",
     "test": "cross-env NODE_ENV=test electron-mocha --renderer --reporter spec --require ts-node/register --require \"test/setup/renderer.ts\" \"test/**/*.{ts,tsx}\"",
     "update-translations": "node scripts/extract-translations",
