@@ -2,6 +2,7 @@ import { PlaywrightTestConfig } from '@playwright/test';
 const config: PlaywrightTestConfig = {
   testDir: './e2e',
   maxFailures: 2,
+  timeout: 60000,
   expect: {
     toMatchSnapshot: {
       threshold: 0.1,
