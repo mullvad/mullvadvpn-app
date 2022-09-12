@@ -102,7 +102,7 @@ interface ICollapsibleProps {
   collapsibleHeight?: number;
 }
 
-const TRANSITION_DURATION = 350;
+const TRANSITION_DURATION = window.env.e2e ? 1 : 350;
 // 52px is the height of the banner when the notification contains a title and subtitle which are
 // one line each.
 const TRANSITION_BASE_DISTANCE = 52;
