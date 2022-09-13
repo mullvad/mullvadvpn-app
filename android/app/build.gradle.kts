@@ -167,6 +167,8 @@ play {
 }
 
 dependencies {
+    implementation(project(Dependencies.Mullvad.talpid))
+
     implementation(Dependencies.androidMaterial)
     implementation(Dependencies.commonsValidator)
     implementation(Dependencies.AndroidX.appcompat)

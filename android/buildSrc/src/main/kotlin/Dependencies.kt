@@ -86,6 +86,7 @@ object Dependencies {
         const val aaptWindows = "com.android.tools.build:aapt2:${Versions.Plugin.aapt}:windows"
         const val android = "com.android.tools.build:gradle:${Versions.Plugin.android}"
         const val androidApplicationId = "com.android.application"
+        const val androidLibraryId = "com.android.library"
         const val androidTestId = "com.android.test"
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"
@@ -97,5 +98,9 @@ object Dependencies {
             "org.owasp:dependency-check-gradle:${Versions.Plugin.dependencyCheck}"
         const val dependencyCheckId = "org.owasp.dependencycheck"
         const val gradleVersionsId = "com.github.ben-manes.versions"
+    }
+
+    object Mullvad {
+        const val talpid = ":talpid"
     }
 }
