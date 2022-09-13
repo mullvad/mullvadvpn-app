@@ -67,6 +67,7 @@ Line wrap the file at 100 chars.                                              Th
 - Enable interface settings when app is logged out
 - Fix 'mullvad status -v' to include the port of the endpoint when connecting over TCP.
 - Check whether the device is valid when reconnecting from the error state.
+- Stop reconnecting when the account has run out of time.
 
 #### Windows
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying

@@ -6,7 +6,7 @@ use futures::{
 
 use mullvad_api::rest;
 use mullvad_types::{
-    account::AccountToken,
+    account::{AccountToken, VoucherSubmission},
     device::{
         AccountAndDevice, Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceName, DevicePort,
         DeviceState,
@@ -56,6 +56,10 @@ pub enum Error {
     InvalidDevice,
     #[error(display = "Invalid account")]
     InvalidAccount,
+    #[error(display = "Invalid voucher code")]
+    InvalidVoucher,
+    #[error(display = "The voucher has already been used")]
+    UsedVoucher,
     #[error(display = "Failed to read or write device cache")]
     DeviceIoError(#[error(source)] io::Error),
     #[error(display = "Failed parse device cache")]
@@ -221,6 +225,14 @@ impl From<PrivateDevice> for Device {
 }
 
 #[derive(Clone)]
+pub(crate) enum AccountEvent {
+    /// Emitted when the device state changes.
+    Device(PrivateDeviceEvent),
+    /// Emitted when the account expiry is fetched.
+    Expiry(DateTime<Utc>),
+}
+
+#[derive(Clone)]
 pub(crate) enum PrivateDeviceEvent {
     /// Logged in on a new device.
     Login(PrivateAccountAndDevice),
@@ -243,10 +255,8 @@ impl From<PrivateDeviceEvent> for DeviceEvent {
             PrivateDeviceEvent::Updated(_) => DeviceEventCause::Updated,
             PrivateDeviceEvent::RotatedKey(_) => DeviceEventCause::RotatedKey,
         };
-        DeviceEvent {
-            cause,
-            new_state: DeviceState::from(event.state()),
-        }
+        let new_state = DeviceState::from(event.state());
+        DeviceEvent { cause, new_state }
     }
 }
 
@@ -299,6 +309,8 @@ enum AccountManagerCommand {
     RotateKey(ResponseTx<()>),
     SetRotationInterval(RotationInterval, ResponseTx<()>),
     ValidateDevice(ResponseTx<()>),
+    SubmitVoucher(String, ResponseTx<VoucherSubmission>),
+    CheckExpiry(ResponseTx<DateTime<Utc>>),
     Shutdown(oneshot::Sender<()>),
 }
 
@@ -347,6 +359,15 @@ impl AccountManagerHandle {
             .await
     }
 
+    pub async fn submit_voucher(&self, voucher: String) -> Result<VoucherSubmission, Error> {
+        self.send_command(move |tx| AccountManagerCommand::SubmitVoucher(voucher, tx))
+            .await
+    }
+
+    pub async fn check_expiry(&self) -> Result<DateTime<Utc>, Error> {
+        self.send_command(AccountManagerCommand::CheckExpiry).await
+    }
+
     pub async fn shutdown(self) {
         let (tx, rx) = oneshot::channel();
         let _ = self
@@ -369,12 +390,14 @@ impl AccountManagerHandle {
 
 pub(crate) struct AccountManager {
     cacher: DeviceCacher,
+    account_service: AccountService,
     device_service: DeviceService,
     data: PrivateDeviceState,
     rotation_interval: RotationInterval,
-    listeners: Vec<Box<dyn Sender<PrivateDeviceEvent> + Send>>,
+    listeners: Vec<Box<dyn Sender<AccountEvent> + Send>>,
     last_validation: Option<SystemTime>,
     validation_requests: Vec<ResponseTx<()>>,
+    expiry_requests: Vec<ResponseTx<DateTime<Utc>>>,
     rotation_requests: Vec<ResponseTx<()>>,
     data_requests: Vec<ResponseTx<PrivateDeviceState>>,
 }
@@ -386,7 +409,7 @@ impl AccountManager {
         rest_handle: rest::MullvadRestHandle,
         settings_dir: &Path,
         initial_rotation_interval: RotationInterval,
-        listener_tx: impl Sender<PrivateDeviceEvent> + Send + 'static,
+        listener_tx: impl Sender<AccountEvent> + Send + 'static,
     ) -> Result<(AccountManagerHandle, PrivateDeviceState), Error> {
         let (cacher, data) = DeviceCacher::new(settings_dir).await?;
         let token = data.device().map(|state| state.account_token.clone());
@@ -399,12 +422,14 @@ impl AccountManager {
         let device_service = DeviceService::new(rest_handle, api_availability);
         let manager = AccountManager {
             cacher,
+            account_service: account_service.clone(),
             device_service: device_service.clone(),
             data: data.clone(),
             rotation_interval: initial_rotation_interval,
             listeners: vec![Box::new(listener_tx)],
             last_validation: None,
             validation_requests: vec![],
+            expiry_requests: vec![],
             rotation_requests: vec![],
             data_requests: vec![],
         };
@@ -485,6 +510,12 @@ impl AccountManager {
                         Some(AccountManagerCommand::ValidateDevice(tx)) => {
                             self.handle_validation_request(tx, &mut current_api_call);
                         },
+                        Some(AccountManagerCommand::SubmitVoucher(voucher, tx)) => {
+                            self.handle_voucher_submission(tx, voucher, &mut current_api_call);
+                        },
+                        Some(AccountManagerCommand::CheckExpiry(tx)) => {
+                            self.handle_expiry_request(tx, &mut current_api_call);
+                        },
 
                         None => {
                             break;
@@ -535,6 +566,59 @@ impl AccountManager {
         }
     }
 
+    fn handle_voucher_submission(
+        &mut self,
+        tx: ResponseTx<VoucherSubmission>,
+        voucher: String,
+        current_api_call: &mut api::CurrentApiCall,
+    ) {
+        if current_api_call.is_logging_in() {
+            let _ = tx.send(Err(Error::AccountChange));
+            return;
+        }
+
+        let create_submission = move || {
+            let old_config = self.data.device().ok_or(Error::NoDevice)?;
+            let account_token = old_config.account_token.clone();
+            let account_service = self.account_service.clone();
+            Ok(async move { account_service.submit_voucher(account_token, voucher).await })
+        };
+
+        match create_submission() {
+            Ok(call) => {
+                current_api_call.set_voucher_submission(Box::pin(call), tx);
+            }
+            Err(err) => {
+                let _ = tx.send(Err(err));
+            }
+        }
+    }
+
+    fn handle_expiry_request(
+        &mut self,
+        tx: ResponseTx<DateTime<Utc>>,
+        current_api_call: &mut api::CurrentApiCall,
+    ) {
+        if current_api_call.is_logging_in() {
+            let _ = tx.send(Err(Error::AccountChange));
+            return;
+        }
+        if current_api_call.is_checking_expiry() {
+            self.expiry_requests.push(tx);
+            return;
+        }
+
+        match self.expiry_call() {
+            Ok(call) => {
+                current_api_call.set_expiry_check(Box::pin(call));
+                self.expiry_requests.push(tx);
+            }
+            Err(err) => {
+                let _ = tx.send(Err(err));
+            }
+        }
+    }
+
     async fn consume_api_result(
         &mut self,
         result: api::ApiResult,
@@ -545,6 +629,10 @@ impl AccountManager {
             Login(data, tx) => self.consume_login(data, tx).await,
             Rotation(rotation_response) => self.consume_rotation_result(rotation_response).await,
             Validation(data_response) => self.consume_validation(data_response, api_call).await,
+            VoucherSubmission(data_response, tx) => {
+                self.consume_voucher_result(data_response, tx).await
+            }
+            ExpiryCheck(data_response) => self.consume_expiry_result(data_response).await,
         }
     }
 
@@ -557,6 +645,61 @@ impl AccountManager {
             tx.send(async { self.set(PrivateDeviceEvent::Login(device_response?)).await }.await);
         let data = self.data.clone();
         Self::drain_requests(&mut self.data_requests, || Ok(data.clone()));
+    }
+
+    async fn consume_voucher_result(
+        &mut self,
+        response: Result<VoucherSubmission, Error>,
+        tx: ResponseTx<VoucherSubmission>,
+    ) {
+        match &response {
+            Ok(submission) => {
+                // Send expiry update event
+                let event = AccountEvent::Expiry(submission.new_expiry);
+                self.listeners
+                    .retain(|listener| listener.send(event.clone()).is_ok());
+            }
+            Err(Error::InvalidAccount) => {
+                self.revoke_device(|| Error::InvalidAccount).await;
+            }
+            Err(Error::InvalidDevice) => {
+                self.revoke_device(|| Error::InvalidDevice).await;
+            }
+            Err(err) => log::error!("Failed to submit voucher: {}", err),
+        }
+        let _ = tx.send(response);
+    }
+
+    async fn consume_expiry_result(&mut self, response: Result<DateTime<Utc>, Error>) {
+        match response {
+            Ok(expiry) => {
+                if expiry > chrono::Utc::now() {
+                    log::debug!("Account has time left");
+                } else {
+                    log::debug!("Account has no time left");
+                }
+
+                // Send expiry update event
+                let event = AccountEvent::Expiry(expiry);
+                self.listeners
+                    .retain(|listener| listener.send(event.clone()).is_ok());
+
+                Self::drain_requests(&mut self.expiry_requests, || Ok(expiry));
+            }
+            Err(Error::InvalidAccount) => {
+                self.revoke_device(|| Error::InvalidAccount).await;
+            }
+            Err(Error::InvalidDevice) => {
+                self.revoke_device(|| Error::InvalidDevice).await;
+            }
+            Err(err) => {
+                log::error!("Failed to check account expiry: {}", err);
+                let cloneable_err = Arc::new(err);
+                Self::drain_requests(&mut self.expiry_requests, || {
+                    Err(Error::ResponseFailure(cloneable_err.clone()))
+                });
+            }
+        }
     }
 
     async fn consume_validation(
@@ -602,10 +745,10 @@ impl AccountManager {
                 }
             }
             Err(Error::InvalidAccount) => {
-                self.invalidate_current_data(|| Error::InvalidAccount).await;
+                self.revoke_device(|| Error::InvalidAccount).await;
             }
             Err(Error::InvalidDevice) => {
-                self.invalidate_current_data(|| Error::InvalidDevice).await;
+                self.revoke_device(|| Error::InvalidDevice).await;
             }
             Err(err) => {
                 log::error!("Failed to validate device: {}", err);
@@ -642,27 +785,26 @@ impl AccountManager {
                 match self.set(PrivateDeviceEvent::RotatedKey(config)).await {
                     Ok(_) => {
                         Self::drain_requests(&mut self.rotation_requests, || Ok(()));
-
                         Self::drain_requests(&mut self.validation_requests, || Ok(()));
                     }
                     Err(err) => {
-                        self.drain_requests_with_err(err);
+                        self.drain_device_requests_with_err(err);
                     }
                 }
             }
             Err(Error::InvalidAccount) => {
-                self.invalidate_current_data(|| Error::InvalidAccount).await;
+                self.revoke_device(|| Error::InvalidAccount).await;
             }
             Err(Error::InvalidDevice) => {
-                self.invalidate_current_data(|| Error::InvalidDevice).await;
+                self.revoke_device(|| Error::InvalidDevice).await;
             }
             Err(err) => {
-                self.drain_requests_with_err(err);
+                self.drain_device_requests_with_err(err);
             }
         }
     }
 
-    fn drain_requests_with_err(&mut self, err: Error) {
+    fn drain_device_requests_with_err(&mut self, err: Error) {
         let cloneable_err = Arc::new(err);
         Self::drain_requests(&mut self.rotation_requests, || {
             Err(Error::ResponseFailure(cloneable_err.clone()))
@@ -696,7 +838,7 @@ impl AccountManager {
         })
     }
 
-    async fn invalidate_current_data(&mut self, err_constructor: impl Fn() -> Error) {
+    async fn revoke_device(&mut self, err_constructor: impl Fn() -> Error) {
         log::debug!("Invalidating the current device");
 
         if let Err(err) = self.cacher.write(&PrivateDeviceState::Revoked).await {
@@ -709,9 +851,13 @@ impl AccountManager {
 
         Self::drain_requests(&mut self.validation_requests, || Err(err_constructor()));
         Self::drain_requests(&mut self.rotation_requests, || Err(err_constructor()));
+        Self::drain_requests(&mut self.expiry_requests, || Err(err_constructor()));
 
-        self.listeners
-            .retain(|listener| listener.send(PrivateDeviceEvent::Revoked).is_ok());
+        self.listeners.retain(|listener| {
+            listener
+                .send(AccountEvent::Device(PrivateDeviceEvent::Revoked))
+                .is_ok()
+        });
     }
 
     async fn logout(&mut self, tx: ResponseTx<()>) {
@@ -727,8 +873,11 @@ impl AccountManager {
 
         let old_config = self.data.logout();
 
-        self.listeners
-            .retain(|listener| listener.send(PrivateDeviceEvent::Logout).is_ok());
+        self.listeners.retain(|listener| {
+            listener
+                .send(AccountEvent::Device(PrivateDeviceEvent::Logout))
+                .is_ok()
+        });
 
         if let Some(old_config) = old_config {
             let logout_call = tokio::spawn(Box::pin(self.logout_api_call(old_config)));
@@ -776,6 +925,7 @@ impl AccountManager {
 
         self.data = device_state;
 
+        let event = AccountEvent::Device(event);
         self.listeners
             .retain(|listener| listener.send(event.clone()).is_ok());
 
@@ -834,6 +984,13 @@ impl AccountManager {
     fn validation_call(&self) -> Result<impl Future<Output = Result<Device, Error>>, Error> {
         let old_config = self.data.device().ok_or(Error::NoDevice)?;
         Ok(self.fetch_device_config(old_config))
+    }
+
+    fn expiry_call(&self) -> Result<impl Future<Output = Result<DateTime<Utc>, Error>>, Error> {
+        let old_config = self.data.device().ok_or(Error::NoDevice)?;
+        let account_token = old_config.account_token.clone();
+        let account_service = self.account_service.clone();
+        Ok(async move { account_service.check_expiry_2(account_token).await })
     }
 
     fn needs_validation(&mut self) -> bool {
@@ -988,10 +1145,12 @@ impl TunnelStateChangeHandler {
                         if !check_validity.swap(false, Ordering::SeqCst) {
                             return;
                         }
-                        if let Err(error) = handle.validate_device().await {
+                        if let Err(error) = Self::check_validity(handle).await {
                             log::error!(
                                 "{}",
-                                error.display_chain_with_msg("Failed to check device validity")
+                                error.display_chain_with_msg(
+                                    "Failed to check device or account validity"
+                                )
                             );
                             if error.is_network_error() || error.is_aborted() {
                                 check_validity.store(true, Ordering::SeqCst);
@@ -1008,5 +1167,10 @@ impl TunnelStateChangeHandler {
             }
             _ => (),
         }
+    }
+
+    pub async fn check_validity(handle: AccountManagerHandle) -> Result<(), Error> {
+        handle.validate_device().await?;
+        handle.check_expiry().await.map(|_expiry| ())
     }
 }

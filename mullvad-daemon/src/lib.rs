@@ -28,7 +28,7 @@ pub mod version;
 mod version_check;
 
 use crate::target_state::PersistentTargetState;
-use device::{PrivateAccountAndDevice, PrivateDeviceEvent};
+use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Future, LocalBoxFuture},
@@ -125,6 +125,9 @@ pub enum Error {
 
     #[error(display = "Failed to update device")]
     UpdateDeviceError(#[error(source)] device::Error),
+
+    #[error(display = "Failed to submit voucher")]
+    VoucherSubmission(#[error(source)] device::Error),
 
     #[cfg(target_os = "linux")]
     #[error(display = "Unable to initialize split tunneling")]
@@ -301,7 +304,7 @@ pub(crate) enum InternalDaemonEvent {
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
-    DeviceEvent(PrivateDeviceEvent),
+    DeviceEvent(AccountEvent),
     /// Handles updates from versions without devices.
     DeviceMigrationEvent(Result<PrivateAccountAndDevice, device::Error>),
     /// The split tunnel paths or state were updated.
@@ -333,8 +336,8 @@ impl From<AppVersionInfo> for InternalDaemonEvent {
     }
 }
 
-impl From<PrivateDeviceEvent> for InternalDaemonEvent {
-    fn from(event: PrivateDeviceEvent) -> Self {
+impl From<AccountEvent> for InternalDaemonEvent {
+    fn from(event: AccountEvent) -> Self {
         InternalDaemonEvent::DeviceEvent(event)
     }
 }
@@ -892,6 +895,8 @@ where
                 }
 
                 if let ErrorStateCause::AuthFailed(_) = error_state.cause() {
+                    // If time is added outside of the app, no notifications
+                    // are received. So we must continually try to reconnect.
                     self.schedule_reconnect(Duration::from_secs(60))
                 }
             }
@@ -1039,9 +1044,9 @@ where
         self.event_listener.notify_app_version(app_version_info);
     }
 
-    async fn handle_device_event(&mut self, event: PrivateDeviceEvent) {
+    async fn handle_device_event(&mut self, event: AccountEvent) {
         match &event {
-            PrivateDeviceEvent::Login(device) => {
+            AccountEvent::Device(PrivateDeviceEvent::Login(device)) => {
                 if let Err(error) = self.account_history.set(device.account_token.clone()).await {
                     log::error!(
                         "{}",
@@ -1053,26 +1058,43 @@ where
                     self.reconnect_tunnel();
                 }
             }
-            PrivateDeviceEvent::Logout => {
+            AccountEvent::Device(PrivateDeviceEvent::Logout) => {
                 log::info!("Disconnecting because account token was cleared");
                 self.set_target_state(TargetState::Unsecured).await;
             }
-            PrivateDeviceEvent::Revoked => {
+            AccountEvent::Device(PrivateDeviceEvent::Revoked) => {
                 // If we're currently in a secured state, reconnect to make sure we immediately
                 // enter the error state.
                 if *self.target_state == TargetState::Secured {
                     self.connect_tunnel();
                 }
             }
-            PrivateDeviceEvent::RotatedKey(_) => {
+            AccountEvent::Device(PrivateDeviceEvent::RotatedKey(_)) => {
                 if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
                     self.schedule_reconnect(WG_RECONNECT_DELAY);
                 }
             }
+            AccountEvent::Expiry(expiry) if *self.target_state == TargetState::Secured => {
+                if expiry >= &chrono::Utc::now() {
+                    if let TunnelState::Error(ref state) = self.tunnel_state {
+                        if matches!(state.cause(), ErrorStateCause::AuthFailed(_)) {
+                            log::debug!("Reconnecting since the account has time on it");
+                            self.connect_tunnel();
+                        }
+                    }
+                } else if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
+                    log::debug!("Entering blocking state since the account is out of time");
+                    self.send_tunnel_command(TunnelCommand::Block(ErrorStateCause::AuthFailed(
+                        None,
+                    )))
+                }
+            }
             _ => (),
         }
-        self.event_listener
-            .notify_device_event(DeviceEvent::from(event));
+        if let AccountEvent::Device(event) = event {
+            self.event_listener
+                .notify_device_event(DeviceEvent::from(event));
+        }
     }
 
     async fn handle_device_migration_event(
@@ -1297,21 +1319,17 @@ where
         tx: ResponseTx<VoucherSubmission, Error>,
         voucher: String,
     ) {
-        if let Ok(Some(device)) = self.account_manager.data().await.map(|s| s.into_device()) {
-            let mut account = self.account_manager.account_service.clone();
-            tokio::spawn(async move {
-                Self::oneshot_send(
-                    tx,
-                    account
-                        .submit_voucher(device.account_token, voucher)
-                        .await
-                        .map_err(Error::RestError),
-                    "submit_voucher response",
-                );
-            });
-        } else {
-            Self::oneshot_send(tx, Err(Error::NoAccountToken), "submit_voucher response");
-        }
+        let manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            Self::oneshot_send(
+                tx,
+                manager
+                    .submit_voucher(voucher)
+                    .await
+                    .map_err(Error::VoucherSubmission),
+                "submit_voucher response",
+            );
+        });
     }
 
     fn on_get_relay_locations(&mut self, tx: oneshot::Sender<RelayList>) {

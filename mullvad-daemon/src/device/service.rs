@@ -310,11 +310,15 @@ impl AccountService {
         result
     }
 
+    pub async fn check_expiry_2(&self, token: AccountToken) -> Result<DateTime<Utc>, Error> {
+        self.check_expiry(token).await.map_err(map_rest_error)
+    }
+
     pub async fn submit_voucher(
-        &mut self,
+        &self,
         account_token: AccountToken,
         voucher: String,
-    ) -> Result<VoucherSubmission, rest::Error> {
+    ) -> Result<VoucherSubmission, Error> {
         let mut proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         let result = retry_future_n(
@@ -328,7 +332,7 @@ impl AccountService {
             self.initial_check_abort_handle.abort();
             self.api_availability.resume_background();
         }
-        result
+        result.map_err(map_rest_error)
     }
 }
 
@@ -422,6 +426,8 @@ fn map_rest_error(error: rest::Error) -> Error {
             mullvad_api::DEVICE_NOT_FOUND => Error::InvalidDevice,
             mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,
             mullvad_api::MAX_DEVICES_REACHED => Error::MaxDevicesReached,
+            mullvad_api::INVALID_VOUCHER => Error::InvalidVoucher,
+            mullvad_api::VOUCHER_USED => Error::UsedVoucher,
             _ => Error::OtherRestError(error),
         },
         error => Error::OtherRestError(error),
