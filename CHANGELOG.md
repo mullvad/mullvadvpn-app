@@ -53,6 +53,11 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade Wintun to 0.14.1.
 
 
+#### Linux
+- The daemon binary and systemd unit file will now be placed in `/usr/bin/` and
+  `/usr/lib/systemd/system` respectively, to aid with starting the system service on systems where
+  `/opt` isn't mounted during early boot.
+
 ### Fixed
 - Connect to TCP endpoints over IPv6 if IPv6 is enabled for WireGuard.
 - Fix udp2tcp not working when quantum-resistant tunnels are enabled.
@@ -67,6 +72,12 @@ Line wrap the file at 100 chars.                                              Th
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
   it was successful.
 - Don't fail install if the device tree contains nameless callout driver devices.
+
+### Security
+#### Linux
+- Added traffic blocking during early boot, before the daemon starts, to prevent leaks in the case
+  that the system service starts after a networking daemon has already configured a network
+  interface.
 
 
 ## [android/2022.2-beta2] - 2022-09-09

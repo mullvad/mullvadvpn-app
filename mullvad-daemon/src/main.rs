@@ -11,12 +11,16 @@ use std::{path::PathBuf, thread, time::Duration};
 use talpid_types::ErrorExt;
 
 mod cli;
+#[cfg(target_os = "linux")]
+mod early_boot_firewall;
 mod exception_logging;
 mod shutdown;
 #[cfg(windows)]
 mod system_service;
 
 const DAEMON_LOG_FILENAME: &str = "daemon.log";
+#[cfg(target_os = "linux")]
+const EARLY_BOOT_LOG_FILENAME: &str = "early-boot-fw.log";
 
 fn main() {
     let config = cli::get_config();
@@ -45,7 +49,18 @@ fn main() {
 
 fn init_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
     let log_dir = get_log_dir(config)?;
-    let log_file = log_dir.as_ref().map(|dir| dir.join(DAEMON_LOG_FILENAME));
+
+    #[cfg(not(target_os = "linux"))]
+    let log_file_name = DAEMON_LOG_FILENAME;
+
+    #[cfg(target_os = "linux")]
+    let log_file_name = if config.initialize_firewall_and_exit {
+        EARLY_BOOT_LOG_FILENAME
+    } else {
+        DAEMON_LOG_FILENAME
+    };
+
+    let log_file = log_dir.as_ref().map(|dir| dir.join(log_file_name));
 
     logging::init_logger(
         config.log_level,
@@ -95,7 +110,17 @@ async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<
     }
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "linux")]
+async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
+    if config.initialize_firewall_and_exit {
+        return crate::early_boot_firewall::initialize_firewall()
+            .await
+            .map_err(|err| format!("{}", err));
+    }
+    run_standalone(log_dir).await
+}
+
+#[cfg(not(any(windows, target_os = "linux")))]
 async fn run_platform(_config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
     run_standalone(log_dir).await
 }

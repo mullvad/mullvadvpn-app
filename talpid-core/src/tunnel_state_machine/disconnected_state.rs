@@ -23,7 +23,7 @@ impl DisconnectedState {
         let result = if shared_values.block_when_disconnected {
             let policy = FirewallPolicy::Blocked {
                 allow_lan: shared_values.allow_lan,
-                allowed_endpoint: shared_values.allowed_endpoint.clone(),
+                allowed_endpoint: Some(shared_values.allowed_endpoint.clone()),
                 #[cfg(target_os = "macos")]
                 dns_redirect_port: shared_values.filtering_resolver.listening_port(),
             };

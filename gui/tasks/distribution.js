@@ -171,11 +171,9 @@ const config = {
     extraFiles: [{ from: distAssets('linux/mullvad-gui-launcher.sh'), to: '.' }],
     extraResources: [
       { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-problem-report')), to: '.' },
-      { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')), to: '.' },
       { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-setup')), to: '.' },
       { from: distAssets(path.join(getLinuxTargetSubdir(), 'libtalpid_openvpn_plugin.so')), to: '.' },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
-      { from: distAssets('linux/mullvad-daemon.service'), to: '.' },
     ],
   },
 
@@ -188,9 +186,10 @@ const config = {
       distAssets('linux/before-install.sh'),
       '--before-remove',
       distAssets('linux/before-remove.sh'),
-      '--config-files',
-      '/opt/Mullvad VPN/resources/mullvad-daemon.service',
+      distAssets('linux/mullvad-daemon.service') +'=/usr/lib/systemd/system/mullvad-daemon.service',
+      distAssets('linux/mullvad-early-boot-blocking.service') +'=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
+      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
       distAssets('shell-completions/mullvad.bash') +
@@ -211,9 +210,10 @@ const config = {
       distAssets('linux/before-remove.sh'),
       '--rpm-posttrans',
       distAssets('linux/post-transaction.sh'),
-      '--config-files',
-      '/opt/Mullvad VPN/resources/mullvad-daemon.service',
+      distAssets('linux/mullvad-daemon.service') +'=/usr/lib/systemd/system/mullvad-daemon.service',
+      distAssets('linux/mullvad-early-boot-blocking.service') +'=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
+      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
       distAssets('shell-completions/mullvad.bash') +

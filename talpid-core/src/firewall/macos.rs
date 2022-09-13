@@ -178,7 +178,9 @@ impl Firewall {
                 ..
             } => {
                 let mut rules = Vec::new();
-                rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.endpoint)?);
+                if let Some(allowed_endpoint) = allowed_endpoint {
+                    rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.endpoint)?);
+                }
 
                 if *allow_lan {
                     // Important to block DNS before allow LAN (so DNS does not leak to the LAN)
