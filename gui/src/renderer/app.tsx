@@ -367,9 +367,9 @@ export default class AppRenderer {
     this.loginState = 'none';
   };
 
-  public async logout() {
+  public async logout(transition = transitions.dismiss) {
     try {
-      this.history.reset(RoutePath.login, transitions.dismiss);
+      this.history.reset(RoutePath.login, transition);
       await IpcRendererEventChannel.account.logout();
     } catch (e) {
       const error = e as Error;
@@ -378,8 +378,7 @@ export default class AppRenderer {
   }
 
   public leaveRevokedDevice = async () => {
-    await this.logout();
-    this.resetNavigation();
+    await this.logout(transitions.pop);
     await this.disconnectTunnel();
   };
 
