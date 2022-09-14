@@ -21,6 +21,7 @@ const ModalContent = styled.div({
   left: 0,
   right: 0,
   bottom: 0,
+  overflow: 'hidden',
 });
 
 const ModalBackground = styled.div({}, (props: { visible: boolean }) => ({
