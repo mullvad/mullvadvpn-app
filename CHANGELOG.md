@@ -27,9 +27,6 @@ Line wrap the file at 100 chars.                                              Th
 - Add obfuscation settings under "WireGuard settings".
 
 #### Windows
-- Windows daemon now looks up the MTU on the default interface and uses this MTU instead of the
-  default 1500. The 1500 is still the fallback if this for some reason fails. This may stop
-  fragmentation.
 - The default VPN protocol is slowly being changed from OpenVPN to WireGuard.
   The app fetches the ratio between the protocols from the API.
 
@@ -47,6 +44,8 @@ Line wrap the file at 100 chars.                                              Th
 - Update Electron from 18.0.3 to 19.0.13.
 - Expand allowed range of multicast destinations to include all of `239.0.0.0/8` (administratively
   scoped addresses), when local network sharing is enabled.
+- Default to selecting Sweden as the entry location when using WireGuard multihop. Previously,
+  a random location was used.
 
 #### Windows
 - Remove dependency on `ipconfig.exe`. Call `DnsFlushResolverCache` to flush the DNS cache.
