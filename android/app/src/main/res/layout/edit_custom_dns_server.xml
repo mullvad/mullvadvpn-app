@@ -26,5 +26,5 @@
                  android:paddingHorizontal="16dp"
                  android:paddingVertical="14dp"
                  android:background="?android:attr/selectableItemBackground"
-                 android:src="@drawable/icon_tick_green" />
+                 android:src="@drawable/icon_check" />
 </LinearLayout>
