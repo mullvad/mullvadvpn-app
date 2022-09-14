@@ -40,6 +40,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
     private lateinit var scrollArea: ScrollView
     private lateinit var background: View
     private lateinit var headerBar: HeaderBar
+    private lateinit var createAccountButton: net.mullvad.mullvadvpn.ui.widget.Button
 
     @Deprecated("Refactor code to instead rely on Lifecycle.")
     private val jobTracker = JobTracker()
@@ -68,8 +69,8 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
             onClearHistory = loginViewModel::clearAccountHistory
         }
 
-        view.findViewById<net.mullvad.mullvadvpn.ui.widget.Button>(R.id.create_account)
-            .setOnClickAction("createAccount", jobTracker, loginViewModel::createAccount)
+        createAccountButton = view.findViewById<net.mullvad.mullvadvpn.ui.widget.Button>(R.id.create_account)
+        createAccountButton.setOnClickAction("createAccount", jobTracker, loginViewModel::createAccount)
 
         scrollArea = view.findViewById(R.id.scroll_area)
 
@@ -81,6 +82,14 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
 
         loginViewModel.clearState()
         triggerAutoLoginIfAccountTokenPresent()
+
+        // add listener to input
+        accountLogin.onInputChanged.subscribe(this){
+                //change create account button state
+            createAccountButton.isEnabled = it.trim().isEmpty()
+            createAccountButton.alpha = if(it.trim().isEmpty()) 1f else 0.5f
+            }
+
 
         return view
     }
@@ -105,6 +114,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
     override fun onStop() {
         jobTracker.cancelAllJobs()
         requireMainActivity().backButtonHandler = null
+        accountLogin.onInputChanged.unsubscribe(this)
         super.onStop()
     }
 

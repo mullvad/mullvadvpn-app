@@ -16,11 +16,15 @@ import net.mullvad.mullvadvpn.ui.ListItemDividerDecoration
 import net.mullvad.mullvadvpn.ui.LoginState
 import net.mullvad.mullvadvpn.ui.widget.AccountLoginBorder.BorderState
 import net.mullvad.mullvadvpn.util.Debouncer
+import net.mullvad.talpid.util.EventNotifier
 
 class AccountLogin : RelativeLayout {
     companion object {
         private val MAX_ACCOUNT_HISTORY_ENTRIES = 3
     }
+
+    //this observable added to inform parent view about inserted user id
+    val onInputChanged = EventNotifier("")
 
     fun setAccountToken(accountToken: String) { input.input.setText(accountToken) }
 
@@ -146,6 +150,7 @@ class AccountLogin : RelativeLayout {
                 if (state == LoginState.Failure) {
                     state = LoginState.Initial
                 }
+                onInputChanged.notify( input.text.toString())
             }
 
             addOnLayoutChangeListener(
