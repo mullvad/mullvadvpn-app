@@ -2,7 +2,7 @@ use crate::{
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
         ObfuscationSettings, RelayConstraints, RelaySettings, RelaySettingsUpdate,
-        SelectedObfuscation,
+        SelectedObfuscation, WireguardConstraints,
     },
     wireguard,
 };
@@ -120,6 +120,10 @@ impl Default for Settings {
         Settings {
             relay_settings: RelaySettings::Normal(RelayConstraints {
                 location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
+                wireguard_constraints: WireguardConstraints {
+                    entry_location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
+                    ..Default::default()
+                },
                 ..Default::default()
             }),
             bridge_settings: BridgeSettings::Normal(BridgeConstraints::default()),
