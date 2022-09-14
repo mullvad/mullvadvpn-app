@@ -2,21 +2,14 @@
 #
 # Can inject correctly formatted version strings/numbers in all the various
 # project metadata files. Can also back them up and restore them.
+#
+# Package manifests are exampted from the above. Instead, TALPID_PRODUCT_VERSION is
+# used to override CARGO_PKG_VERSION in the build scripts.
 
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
-
-INCLUDED_CRATES=(
-    "mullvad-daemon"
-    "mullvad-cli"
-    "mullvad-problem-report"
-    "mullvad-setup"
-    "mullvad-exclude"
-    "talpid-openvpn-plugin"
-)
-MANIFESTS=( "${INCLUDED_CRATES[@]/%//Cargo.toml}" )
 
 # Parse arguments
 COMMAND="$1"
@@ -60,10 +53,7 @@ function inject_version {
     local semver_minor=${BASH_REMATCH[2]}
     local semver_patch="0"
 
-    echo "Setting Rust crate versions to $semver_version"
-    # Rust crates
-    sed -i.bak -Ee "0,/^version = \"[^\"]+\"\$/s/^version = \"[^\"]+\"\$/version = \"$semver_version\"/g" \
-        "${MANIFESTS[@]}"
+    export TALPID_PRODUCT_VERSION="$PRODUCT_VERSION"
 
     if [[ "$DESKTOP" == "true" ]]; then
         echo "Setting desktop version to $semver_version"
@@ -106,11 +96,6 @@ EOF
 
 function restore_backup {
     set +e
-
-    # Rust crates
-    for toml in "${MANIFESTS[@]}"; do
-        mv "${toml}.bak" "${toml}"
-    done
 
     if [[ "$DESKTOP" == "true" ]]; then
         # Electron GUI

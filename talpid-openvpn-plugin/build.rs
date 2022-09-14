@@ -10,7 +10,9 @@ fn main() {
 
     #[cfg(windows)]
     {
-        let product_version = env!("CARGO_PKG_VERSION").replacen(".0", "", 1);
+        let product_version = option_env!("TALPID_PRODUCT_VERSION")
+            .map(str::to_owned)
+            .unwrap_or_else(|| env!("CARGO_PKG_VERSION").replacen(".0", "", 1));
         let mut res = winres::WindowsResource::new();
         res.set("ProductVersion", &product_version);
         res.set_icon("../dist-assets/icon.ico");

@@ -161,7 +161,7 @@ log_header "Building Mullvad VPN $PRODUCT_VERSION"
 function restore_metadata_backups {
     pushd "$SCRIPT_DIR" > /dev/null
     log_info "Restoring version metadata files..."
-    ./version-metadata.sh restore-backup --desktop
+    . version-metadata.sh restore-backup --desktop
     mv Cargo.lock.bak Cargo.lock || true
     popd > /dev/null
 }
@@ -169,7 +169,7 @@ trap 'restore_metadata_backups' EXIT
 
 log_info "Updating version in metadata files..."
 cp Cargo.lock Cargo.lock.bak
-./version-metadata.sh inject "$PRODUCT_VERSION" --desktop
+. version-metadata.sh inject "$PRODUCT_VERSION" --desktop
 
 
 # Sign all binaries passed as arguments to this function

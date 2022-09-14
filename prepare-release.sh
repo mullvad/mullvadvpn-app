@@ -58,7 +58,7 @@ if [[ $(grep "^## \\[$PRODUCT_VERSION\\] - " CHANGELOG.md) == "" ]]; then
 fi
 
 echo "Updating version in metadata files..."
-./version-metadata.sh inject $PRODUCT_VERSION $VERSION_METADATA_ARGS
+. version-metadata.sh inject $PRODUCT_VERSION $VERSION_METADATA_ARGS
 
 echo "Syncing Cargo.lock with new version numbers"
 source env.sh ""
@@ -97,7 +97,7 @@ if [[ "$DESKTOP" == "true" ]]; then
     NEW_TAGS+=" $PRODUCT_VERSION"
 fi
 
-./version-metadata.sh delete-backup
+. version-metadata.sh delete-backup
 
 echo "================================================="
 echo "| DONE preparing for a release!                 |"
