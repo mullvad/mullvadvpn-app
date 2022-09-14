@@ -441,24 +441,13 @@ impl fmt::Display for OpenVpnConstraints {
 }
 
 /// [`Constraint`]s applicable to WireGuard relays.
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(default)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
     pub use_multihop: bool,
     pub entry_location: Constraint<LocationConstraint>,
-}
-
-impl Default for WireguardConstraints {
-    fn default() -> Self {
-        WireguardConstraints {
-            port: Constraint::Any,
-            ip_version: Constraint::Any,
-            use_multihop: false,
-            entry_location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
-        }
-    }
 }
 
 impl fmt::Display for WireguardConstraints {
