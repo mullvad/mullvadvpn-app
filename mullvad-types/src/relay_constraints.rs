@@ -419,7 +419,7 @@ pub struct TransportPort {
     pub port: Constraint<u16>,
 }
 
-/// [`Constraint`]s applicable to OpenVPN relay servers.
+/// [`Constraint`]s applicable to OpenVPN relays.
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct OpenVpnConstraints {
     pub port: Constraint<TransportPort>,
@@ -440,14 +440,25 @@ impl fmt::Display for OpenVpnConstraints {
     }
 }
 
-/// [`Constraint`]s applicable to WireGuard relay servers.
-#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
+/// [`Constraint`]s applicable to WireGuard relays.
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(default)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
     pub use_multihop: bool,
     pub entry_location: Constraint<LocationConstraint>,
+}
+
+impl Default for WireguardConstraints {
+    fn default() -> Self {
+        WireguardConstraints {
+            port: Constraint::Any,
+            ip_version: Constraint::Any,
+            use_multihop: false,
+            entry_location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
+        }
+    }
 }
 
 impl fmt::Display for WireguardConstraints {
