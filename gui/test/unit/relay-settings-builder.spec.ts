@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { it, describe } from 'mocha';
-import RelaySettingsBuilder from '../src/shared/relay-settings-builder';
+import RelaySettingsBuilder from '../../src/shared/relay-settings-builder';
 
 describe('Relay settings builder', () => {
   it('should set location to any', () => {

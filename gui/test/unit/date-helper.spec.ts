@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { it, describe } from 'mocha';
-import * as date from '../src/shared/date-helper';
+import * as date from '../../src/shared/date-helper';
 
 describe('Date helper', () => {
   it('should modify minutes', () => {

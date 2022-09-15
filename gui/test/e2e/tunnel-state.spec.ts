@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { colors } from '../src/config.json';
-import { ILocation, ITunnelEndpoint, TunnelState } from '../src/shared/daemon-rpc-types';
+import { colors } from '../../src/config.json';
+import { ILocation, ITunnelEndpoint, TunnelState } from '../../src/shared/daemon-rpc-types';
 import {
   getBackgroundColor,
   getColor,

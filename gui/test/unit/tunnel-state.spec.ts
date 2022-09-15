@@ -1,8 +1,8 @@
 import { expect, spy } from 'chai';
 import { it, describe } from 'mocha';
 import sinon from 'sinon';
-import TunnelStateHandler from '../src/main/tunnel-state';
-import { TunnelState } from '../src/shared/daemon-rpc-types';
+import TunnelStateHandler from '../../src/main/tunnel-state';
+import { TunnelState } from '../../src/shared/daemon-rpc-types';
 
 const connected: TunnelState = { state: 'connected' } as TunnelState;
 const connecting: TunnelState = { state: 'connecting' } as TunnelState;

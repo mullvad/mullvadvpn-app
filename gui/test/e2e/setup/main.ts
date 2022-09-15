@@ -1,20 +1,20 @@
 import { app, BrowserWindow } from 'electron';
 import * as path from 'path';
 
-import { getDefaultSettings } from '../../src/main/default-settings';
-import { changeIpcWebContents, IpcMainEventChannel } from '../../src/main/ipc-event-channel';
-import { loadTranslations } from '../../src/main/load-translations';
+import { getDefaultSettings } from '../../../src/main/default-settings';
+import { changeIpcWebContents, IpcMainEventChannel } from '../../../src/main/ipc-event-channel';
+import { loadTranslations } from '../../../src/main/load-translations';
 import {
   DeviceState,
   IAccountData,
   IAppVersionInfo,
   ILocation,
   IRelayList,
-} from '../../src/shared/daemon-rpc-types';
-import { messages, relayLocations } from '../../src/shared/gettext';
-import { IGuiSettingsState } from '../../src/shared/gui-settings-state';
-import { ITranslations, MacOsScrollbarVisibility } from '../../src/shared/ipc-schema';
-import { ICurrentAppVersionInfo } from '../../src/shared/ipc-types';
+} from '../../../src/shared/daemon-rpc-types';
+import { messages, relayLocations } from '../../../src/shared/gettext';
+import { IGuiSettingsState } from '../../../src/shared/gui-settings-state';
+import { ITranslations, MacOsScrollbarVisibility } from '../../../src/shared/ipc-schema';
+import { ICurrentAppVersionInfo } from '../../../src/shared/ipc-types';
 
 const DEBUG = false;
 
@@ -119,7 +119,7 @@ class ApplicationMain {
       show: DEBUG,
       frame: true,
       webPreferences: {
-        preload: path.join(__dirname, '../../src/renderer/preloadBundle.js'),
+        preload: path.join(__dirname, '../../../src/renderer/preloadBundle.js'),
         nodeIntegration: false,
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,
@@ -135,7 +135,7 @@ class ApplicationMain {
     this.registerIpcListeners();
 
     // @ts-ignore
-    const filePath = path.resolve(path.join(__dirname, '../../src/renderer/index.html'));
+    const filePath = path.resolve(path.join(__dirname, '../../../src/renderer/index.html'));
     await window.loadFile(filePath);
 
     if (DEBUG) {

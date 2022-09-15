@@ -12,7 +12,7 @@ const startApp = async (): Promise<StartAppResponse> => {
   process.env.CI = 'e2e';
 
   electronApp = await electron.launch({
-    args: ['build/e2e/setup/main.js'],
+    args: ['build/test/e2e/setup/main.js'],
   });
 
   const appWindow = await electronApp.firstWindow();
