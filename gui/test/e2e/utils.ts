@@ -8,7 +8,7 @@ interface StartAppResponse {
 
 let electronApp: ElectronApplication;
 
-const startApp = async (): Promise<StartAppResponse> => {
+export const startApp = async (): Promise<StartAppResponse> => {
   process.env.CI = 'e2e';
 
   electronApp = await electron.launch({
@@ -33,7 +33,7 @@ type MockIpcHandleProps<T> = {
   response: T;
 };
 
-const mockIpcHandle = async <T>({ channel, response }: MockIpcHandleProps<T>) => {
+export const mockIpcHandle = async <T>({ channel, response }: MockIpcHandleProps<T>) => {
   await electronApp.evaluate(
     ({ ipcMain }, { channel, response }) => {
       ipcMain.removeHandler(channel);
@@ -53,7 +53,7 @@ type SendMockIpcResponseProps<T> = {
   response: T;
 };
 
-const sendMockIpcResponse = async <T>({ channel, response }: SendMockIpcResponseProps<T>) => {
+export const sendMockIpcResponse = async <T>({ channel, response }: SendMockIpcResponseProps<T>) => {
   await electronApp.evaluate(
     ({ webContents }, { channel, response }) => {
       webContents.getAllWebContents()[0].send(channel, response);
@@ -71,12 +71,10 @@ const getStyleProperty = async (locator: Locator, property: string) => {
   );
 };
 
-const getColor = async (locator: Locator) => {
+export const getColor = async (locator: Locator) => {
   return getStyleProperty(locator, 'color');
 };
 
-const getBackgroundColor = async (locator: Locator) => {
+export const getBackgroundColor = async (locator: Locator) => {
   return getStyleProperty(locator, 'background-color');
 };
-
-export { startApp, mockIpcHandle, sendMockIpcResponse, getColor, getBackgroundColor };
