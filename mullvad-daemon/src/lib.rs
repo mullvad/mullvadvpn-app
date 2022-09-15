@@ -2162,7 +2162,15 @@ where
         // If auto-connect is enabled, block all traffic before shutting down to ensure
         // that no traffic can leak during boot.
         #[cfg(windows)]
-        if self.settings.auto_connect {
+        if self.settings.auto_connect || *self.target_state == TargetState::Secured {
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
+        }
+
+        #[cfg(target_os = "linux")]
+        if talpid_dbus::systemd::host_shutting_down().unwrap_or(true)
+            && *self.target_state == TargetState::Secured
+        {
+            log::debug!("Blocking firewall during shutdown since system is going down");
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
         }
 
