@@ -6,8 +6,8 @@
 /gui/scripts/ne_50m_admin_1_states_provinces_lines/
 /gui/scripts/out/
 /gui/src/main/management_interface/
-/gui/e2e/screenshots/
-/gui/e2e/test-results/
+/gui/test/e2e/screenshots/
+/gui/test-results/
 /build/
 /dist
 .idea/

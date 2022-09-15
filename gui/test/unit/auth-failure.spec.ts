@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { it, describe } from 'mocha';
-import { parseAuthFailure, AuthFailureKind } from '../src/shared/auth-failure';
+import { parseAuthFailure, AuthFailureKind } from '../../src/shared/auth-failure';
 
 describe('auth_failed parsing', () => {
   it('invalid line parsing works', () => {

@@ -100,7 +100,7 @@
     "e2e:no-build": "xvfb-maybe -- playwright test",
     "e2e:update-snapshots": "npm run e2e:no-build -- --update-snapshots",
     "develop": "gulp develop",
-    "test": "cross-env NODE_ENV=test electron-mocha --renderer --reporter spec --require ts-node/register --require \"test/setup/renderer.ts\" \"test/**/*.{ts,tsx}\"",
+    "test": "cross-env NODE_ENV=test electron-mocha --renderer --reporter spec --require ts-node/register --require \"test/unit/setup/renderer.ts\" \"test/unit/**/*.{ts,tsx}\"",
     "update-translations": "node scripts/extract-translations",
     "pack:mac": "gulp pack-mac",
     "pack:win": "gulp pack-win",
