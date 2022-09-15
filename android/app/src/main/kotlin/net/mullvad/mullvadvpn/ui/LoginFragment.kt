@@ -69,8 +69,12 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
             onClearHistory = loginViewModel::clearAccountHistory
         }
 
-        createAccountButton = view.findViewById<net.mullvad.mullvadvpn.ui.widget.Button>(R.id.create_account)
-        createAccountButton.setOnClickAction("createAccount", jobTracker, loginViewModel::createAccount)
+        createAccountButton = view.findViewById(R.id.create_account)
+        createAccountButton.setOnClickAction(
+            "createAccount",
+            jobTracker,
+            loginViewModel::createAccount
+        )
 
         scrollArea = view.findViewById(R.id.scroll_area)
 
@@ -84,13 +88,10 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
         triggerAutoLoginIfAccountTokenPresent()
 
         // add listener to input
-        accountLogin.onInputChanged.subscribe(this){
-                //change create account button state
+        accountLogin.onInputChanged.subscribe(this) {
             createAccountButton.isEnabled = it.trim().isEmpty()
-            createAccountButton.alpha = if(it.trim().isEmpty()) 1f else 0.5f
-            }
-
-
+            createAccountButton.alpha = if (it.trim().isEmpty()) 1f else 0.5f
+        }
         return view
     }
 
@@ -196,7 +197,6 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
     }
 
     private fun openDeviceListFragment(accountToken: String) {
-
         val deviceFragment = DeviceListFragment().apply {
             arguments = Bundle().apply { putString(ACCOUNT_TOKEN_ARGUMENT_KEY, accountToken) }
         }

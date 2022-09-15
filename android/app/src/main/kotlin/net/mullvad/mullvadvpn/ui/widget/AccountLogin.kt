@@ -23,10 +23,12 @@ class AccountLogin : RelativeLayout {
         private val MAX_ACCOUNT_HISTORY_ENTRIES = 3
     }
 
-    //this observable added to inform parent view about inserted user id
+    // this observable added to inform parent view about inserted user id
     val onInputChanged = EventNotifier("")
 
-    fun setAccountToken(accountToken: String) { input.input.setText(accountToken) }
+    fun setAccountToken(accountToken: String) {
+        input.input.setText(accountToken)
+    }
 
     private val focusDebouncer = Debouncer(false).apply {
         listener = { hasFocus -> focused = hasFocus }
@@ -135,8 +137,11 @@ class AccountLogin : RelativeLayout {
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) : super(
+        context,
+        attributes,
+        defaultStyleAttribute
+    )
 
     init {
         border.elevation = elevation + 0.1f
@@ -150,7 +155,7 @@ class AccountLogin : RelativeLayout {
                 if (state == LoginState.Failure) {
                     state = LoginState.Initial
                 }
-                onInputChanged.notify( input.text.toString())
+                onInputChanged.notify(input.text.toString())
             }
 
             addOnLayoutChangeListener(
