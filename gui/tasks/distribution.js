@@ -50,7 +50,7 @@ const config = {
     'build/src/renderer/bundle.js',
     'build/src/renderer/preloadBundle.js',
     '!**/*.tsbuildinfo',
-    '!e2e/',
+    '!test/e2e/',
     '!playwright.config.ts',
     'node_modules/',
     '!node_modules/grpc-tools',

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { it, describe } from 'mocha';
-import KeyframeAnimation from '../src/main/keyframe-animation';
+import KeyframeAnimation from '../../src/main/keyframe-animation';
 
 describe('lib/keyframe-animation', function () {
   this.timeout(1000);

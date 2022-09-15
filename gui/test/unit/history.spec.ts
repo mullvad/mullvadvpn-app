@@ -1,7 +1,7 @@
 import { expect, spy } from 'chai';
 import { it, describe, beforeEach } from 'mocha';
-import History from '../src/renderer/lib/history';
-import { RoutePath } from '../src/renderer/lib/routes';
+import History from '../../src/renderer/lib/history';
+import { RoutePath } from '../../src/renderer/lib/routes';
 
 const BASE_PATH = RoutePath.launch;
 const FIRST_PATH = RoutePath.main;
