@@ -1,6 +1,7 @@
 import { batch, Provider } from 'react-redux';
 import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
+import { createGlobalStyle } from 'styled-components';
 
 import { ILinuxSplitTunnelingApplication, IWindowsApplication } from '../shared/application-types';
 import {
@@ -265,8 +266,20 @@ export default class AppRenderer {
   }
 
   public renderView() {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    let GlobalStyle = createGlobalStyle({});
+
+    if (window.env.e2e) {
+      GlobalStyle = createGlobalStyle({
+        '*': {
+          transitionDuration: '1ms !important',
+        },
+      });
+    }
+
     return (
       <AppContext.Provider value={{ app: this }}>
+        <GlobalStyle />
         <Provider store={this.reduxStore}>
           <Router history={this.history.asHistory}>
             <ErrorBoundary>
