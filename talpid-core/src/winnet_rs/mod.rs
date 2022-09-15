@@ -2,9 +2,11 @@ use std::convert::TryInto;
 use windows::Win32::
 {
     NetworkManagement::IpHelper::{GetIpForwardTable2, MIB_IPFORWARD_TABLE2, MIB_IPFORWARD_ROW2, MIB_IF_ROW2, FreeMibTable, GetIpInterfaceEntry, NET_LUID_LH, IF_TYPE_SOFTWARE_LOOPBACK, IF_TYPE_TUNNEL, MIB_IPINTERFACE_ROW, GetIfEntry2},
-    Networking::WinSock::{AF_INET, AF_INET6, SOCKADDR_INET}
+    Networking::WinSock::{AF_INET, AF_INET6, SOCKADDR_INET, ADDRESS_FAMILY}
 };
 use widestring::U16CString;
+
+mod route_manager;
 
 // Interface description substrings found for virtual adapters.
 const TUNNEL_INTERFACE_DESCS: [&str; 3] = [
@@ -28,22 +30,32 @@ pub enum Error {
 
 type Result<T> = std::result::Result<T, Error>;
 
+#[derive(PartialEq, Eq)]
 pub enum WinNetIp {
     IPV4([u8; 4]),
     IPV6([u8; 16])
 }
 
+#[derive(PartialEq, Eq)]
 pub struct WinNetDefaultRoute {
     pub interface_luid: u64,
     pub gateway: WinNetIp,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum WinNetAddrFamily {
     IPV4,
     IPV6,
 }
 
+impl WinNetAddrFamily {
+    fn to_windows_family(&self) -> ADDRESS_FAMILY {
+        match self {
+            Self::IPV4 => AF_INET,
+            Self::IPV6 => AF_INET6,
+        }
+    }
+}
 
 fn ip_from_native(from: &SOCKADDR_INET) -> Result<WinNetIp> {
     dbg!(& unsafe {from.si_family});
@@ -83,10 +95,7 @@ struct MibIpforwardTable2(*mut MIB_IPFORWARD_TABLE2);
 
 impl MibIpforwardTable2 {
     fn new(family: WinNetAddrFamily) -> Result<Self> {
-        let family = match family {
-            WinNetAddrFamily::IPV4 => AF_INET,
-            WinNetAddrFamily::IPV6 => AF_INET6,
-        };
+        let family = family.to_windows_family();
         let mut table_ptr = std::ptr::null_mut();
         // SAFETY: GetIpForwardTable2 does not have clear safety specifications however what it does is
         // heap allocate a IpForwardTable2 and then change table_ptr to point to that allocation.
