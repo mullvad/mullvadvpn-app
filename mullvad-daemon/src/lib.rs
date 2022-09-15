@@ -22,6 +22,7 @@ mod migrations;
 pub mod rpc_uniqueness_check;
 pub mod runtime;
 pub mod settings;
+pub mod shutdown;
 mod target_state;
 mod tunnel;
 pub mod version;
@@ -2163,6 +2164,12 @@ where
         // that no traffic can leak during boot.
         #[cfg(windows)]
         if self.settings.auto_connect {
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
+        }
+
+        #[cfg(target_os = "linux")]
+        if crate::shutdown::is_host_shutting_down() && *self.target_state == TargetState::Secured {
+            log::debug!("Blocking firewall during shutdown since system is going down");
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
         }
 

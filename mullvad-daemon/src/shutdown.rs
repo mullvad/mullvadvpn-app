@@ -27,4 +27,21 @@ mod platform {
     }
 }
 
+#[cfg(target_os = "linux")]
+pub fn is_host_shutting_down() -> bool {
+    match talpid_dbus::systemd::is_host_shutting_down() {
+        Ok(is_shutting_down) => is_shutting_down,
+        Err(err) => {
+            log::error!(
+                "{}",
+                talpid_types::ErrorExt::display_chain_with_msg(
+                    &err,
+                    "Failed to determine if host is shutting down, assuming it is shutting down"
+                )
+            );
+            true
+        }
+    }
+}
+
 pub use self::platform::*;
