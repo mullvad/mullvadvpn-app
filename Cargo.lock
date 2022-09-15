@@ -1593,6 +1593,7 @@ dependencies = [
  "serde_json",
  "simple-signal",
  "talpid-core",
+ "talpid-dbus",
  "talpid-platform-metadata",
  "talpid-time",
  "talpid-types",
