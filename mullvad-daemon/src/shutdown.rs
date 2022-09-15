@@ -27,4 +27,24 @@ mod platform {
     }
 }
 
+/// Returns true if systemd successfully reported that the machine is not shutting down or entering
+/// maintenance. If obtaining this information fails, the return value will be `false` and it will
+/// be assumed that the machine is shutting down.
+#[cfg(target_os = "linux")]
+pub fn is_host_running() -> bool {
+    match talpid_dbus::systemd::is_host_running() {
+        Ok(is_host_running) => is_host_running,
+        Err(err) => {
+            log::error!(
+                "{}",
+                talpid_types::ErrorExt::display_chain_with_msg(
+                    &err,
+                    "Failed to determine if host is shutting down, assuming it is shutting down"
+                )
+            );
+            false
+        }
+    }
+}
+
 pub use self::platform::*;
