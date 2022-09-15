@@ -7,6 +7,7 @@
 /gui/scripts/out/
 /gui/src/main/management_interface/
 /gui/test/e2e/screenshots/
+/gui/test/e2e/playwright-report/
 /gui/test-results/
 /build/
 /dist

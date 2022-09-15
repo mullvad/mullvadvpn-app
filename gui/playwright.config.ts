@@ -13,6 +13,7 @@ const config: PlaywrightTestConfig = {
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
+  reporter: [['html', { open: 'never', outputFolder: 'test/e2e/playwright-report' }]],
 };
 
 export default config;
