@@ -156,8 +156,6 @@ test('App should show disconnecting tunnel state', async () => {
 
   const statusLabel = getLabel();
   await expect(statusLabel).toBeEmpty();
-  const labelColor = await getColor(statusLabel);
-  expect(labelColor).toBe(WHITE_COLOR);
 
   const header = getHeader();
   const headerColor = await getBackgroundColor(header);
