@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useSelector as useReduxSelector } from 'react-redux';
-import { combineReducers, compose, createStore, Dispatch } from 'redux';
+import { combineReducers, compose, createStore, Dispatch, StoreEnhancer } from 'redux';
 
 import { useWillExit } from '../lib/will-exit';
 import accountActions, { AccountAction } from './account/actions';
@@ -50,7 +50,7 @@ export default function configureStore() {
   return createStore(rootReducer, composeEnhancers());
 }
 
-function composeEnhancers(): typeof compose {
+function composeEnhancers(): StoreEnhancer {
   const actionCreators = {
     ...accountActions,
     ...connectionActions,
@@ -60,10 +60,15 @@ function composeEnhancers(): typeof compose {
     ...userInterfaceActions,
   };
 
-  return window.env.development
-    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__?.({ actionCreators })() ?? compose()
-    : compose();
+  if (window.env.development) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const devtoolsCompose = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__?.({
+      actionCreators,
+    });
+    return devtoolsCompose ? devtoolsCompose() : compose();
+  }
+
+  return compose();
 }
 
 // This hook adds type to state to make use simpler. It also prevents the state from update if the
