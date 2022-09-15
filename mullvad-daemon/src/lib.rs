@@ -22,6 +22,7 @@ mod migrations;
 pub mod rpc_uniqueness_check;
 pub mod runtime;
 pub mod settings;
+pub mod shutdown;
 mod target_state;
 mod tunnel;
 pub mod version;
@@ -2159,11 +2160,9 @@ where
         }
     }
 
-    #[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
     fn trigger_shutdown_event(&mut self, user_init_shutdown: bool) {
         // Block all traffic before shutting down to ensure that no traffic can leak on boot or
         // shutdown.
-        #[cfg(windows)]
         if !user_init_shutdown
             && (*self.target_state == TargetState::Secured || self.settings.auto_connect)
         {
