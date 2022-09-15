@@ -73,7 +73,7 @@ export default function NotificationArea(props: IProps) {
 
     if (notification) {
       return (
-        <NotificationBanner className={props.className} visible>
+        <NotificationBanner className={props.className}>
           <NotificationIndicator type={notification.indicator} />
           <NotificationContent role="status" aria-live="polite">
             <NotificationTitle>{notification.title}</NotificationTitle>
@@ -89,7 +89,7 @@ export default function NotificationArea(props: IProps) {
     }
   }
 
-  return <NotificationBanner className={props.className} visible={false} aria-hidden={true} />;
+  return <NotificationBanner className={props.className} aria-hidden={true} />;
 }
 
 interface INotificationActionWrapperProps {
