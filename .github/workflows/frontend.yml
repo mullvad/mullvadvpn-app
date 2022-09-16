@@ -56,11 +56,3 @@ jobs:
             - name: Run Playwright tests
               working-directory: gui
               run: npm run e2e:no-build
-
-            - name: Upload failed screenshots
-              uses: actions/upload-artifact@v3
-              if: failure()
-              with:
-                name: playwright-report
-                path: gui/test/e2e/playwright-report/
-                retention-days: 5
