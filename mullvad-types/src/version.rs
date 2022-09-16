@@ -10,7 +10,7 @@ use std::{
 lazy_static::lazy_static! {
     static ref STABLE_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)$").unwrap();
     static ref BETA_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)-beta(\d+)$").unwrap();
-    static ref DEV_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)(\.\d+)?(-beta(\d+))?-dev-(\w+)$").unwrap();
+    static ref DEV_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)(\.\d+)?(-beta(\d+))?-dev(-(\w+))?$").unwrap();
 }
 
 /// AppVersionInfo represents the current stable and the current latest release versions of the
@@ -49,7 +49,7 @@ pub type AppVersion = String;
 pub enum ParsedAppVersion {
     Stable(u32, u32),
     Beta(u32, u32, u32),
-    Dev(u32, u32, Option<u32>, String),
+    Dev(u32, u32, Option<u32>, Option<String>),
 }
 
 impl FromStr for ParsedAppVersion {
@@ -70,7 +70,7 @@ impl FromStr for ParsedAppVersion {
             let year = get_int(&caps, 1).ok_or(())?;
             let version = get_int(&caps, 2).ok_or(())?;
             let beta_version = caps.get(4).map(|_| get_int(&caps, 5).unwrap());
-            let dev_hash = caps.get(6).ok_or(())?.as_str().to_string();
+            let dev_hash = caps.get(7).map(|hash| hash.as_str().to_string());
             Ok(Self::Dev(year, version, beta_version, dev_hash))
         } else {
             Err(())
@@ -148,13 +148,20 @@ impl ToString for ParsedAppVersion {
             Self::Beta(year, version, beta_version) => {
                 format!("{}.{}-beta{}", year, version, beta_version)
             }
-            Self::Dev(year, version, beta_version, hash) => {
-                if let Some(beta_version) = beta_version {
+            Self::Dev(year, version, beta_version, hash) => match (beta_version, hash) {
+                (Some(beta_version), Some(hash)) => {
                     format!("{}.{}-beta{}-dev-{}", year, version, beta_version, hash)
-                } else {
+                }
+                (Some(beta_version), None) => {
+                    format!("{}.{}-beta{}-dev", year, version, beta_version)
+                }
+                (None, Some(hash)) => {
                     format!("{}.{}-dev-{}", year, version, hash)
                 }
-            }
+                (None, None) => {
+                    format!("{}.{}-dev", year, version)
+                }
+            },
         }
     }
 }
@@ -173,8 +180,10 @@ mod test {
         assert!(!BETA_REGEX.is_match("2020.5-beta1-dev-f16be4"));
         assert!(!BETA_REGEX.is_match("2020.5-dev-f16be4"));
         assert!(!BETA_REGEX.is_match("2020.4"));
+        assert!(DEV_REGEX.is_match("2020.5-dev"));
         assert!(DEV_REGEX.is_match("2020.5-dev-f16be4"));
         assert!(DEV_REGEX.is_match("2020.5-beta1-dev-f16be4"));
+        assert!(DEV_REGEX.is_match("2020.5-beta1-dev"));
         assert!(!DEV_REGEX.is_match("2020.5"));
         assert!(!DEV_REGEX.is_match("2020.5-beta1"));
     }
@@ -190,12 +199,17 @@ mod test {
                     2020,
                     15,
                     Some(1),
-                    "f16be4".to_string(),
+                    Some("f16be4".to_string()),
                 )),
             ),
             (
                 "2020.15-dev-f16be4",
-                Some(ParsedAppVersion::Dev(2020, 15, None, "f16be4".to_string())),
+                Some(ParsedAppVersion::Dev(
+                    2020,
+                    15,
+                    None,
+                    Some("f16be4".to_string()),
+                )),
             ),
             ("2020.15-9000", None),
             ("", None),
