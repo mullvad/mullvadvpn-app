@@ -1535,7 +1535,6 @@ dependencies = [
  "tokio-rustls",
  "tokio-stream",
  "uuid",
- "webpki 0.21.4",
 ]
 
 [[package]]
@@ -1651,8 +1650,8 @@ dependencies = [
  "mullvad-types",
  "nix 0.23.1",
  "parity-tokio-ipc",
- "prost 0.8.0",
- "prost-types 0.8.0",
+ "prost",
+ "prost-types",
  "talpid-types",
  "tokio",
  "tonic",
@@ -2295,17 +2294,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de5e2533f59d08fcf364fd374ebda0692a70bd6d7e66ef97f306f45c6c5d8020"
 dependencies = [
  "bytes",
- "prost-derive 0.8.0",
-]
-
-[[package]]
-name = "prost"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "444879275cb4fd84958b1a1d5420d15e6fcf7c235fe47f053c9c2a80aceb6001"
-dependencies = [
- "bytes",
- "prost-derive 0.9.0",
+ "prost-derive",
 ]
 
 [[package]]
@@ -2320,8 +2309,8 @@ dependencies = [
  "log",
  "multimap",
  "petgraph",
- "prost 0.8.0",
- "prost-types 0.8.0",
+ "prost",
+ "prost-types",
  "tempfile",
  "which",
 ]
@@ -2340,36 +2329,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "prost-derive"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9cc1a3263e07e0bf68e96268f37665207b49560d98739662cdfaae215c720fe"
-dependencies = [
- "anyhow",
- "itertools",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "prost-types"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "603bbd6394701d13f3f25aada59c7de9d35a6a5887cfc156181234a44002771b"
 dependencies = [
  "bytes",
- "prost 0.8.0",
-]
-
-[[package]]
-name = "prost-types"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "534b7a0e836e3c482d2693070f982e39e7611da9695d4d1f5a4b186b51faef0a"
-dependencies = [
- "bytes",
- "prost 0.9.0",
+ "prost",
 ]
 
 [[package]]
@@ -2622,7 +2588,7 @@ dependencies = [
  "log",
  "ring",
  "sct",
- "webpki 0.22.0",
+ "webpki",
 ]
 
 [[package]]
@@ -3083,7 +3049,7 @@ dependencies = [
  "parity-tokio-ipc",
  "parking_lot 0.11.2",
  "pfctl",
- "prost 0.8.0",
+ "prost",
  "quickcheck",
  "quickcheck_macros",
  "rand 0.8.5",
@@ -3140,7 +3106,7 @@ dependencies = [
  "log",
  "openvpn-plugin",
  "parity-tokio-ipc",
- "prost 0.8.0",
+ "prost",
  "talpid-types",
  "tokio",
  "tonic",
@@ -3173,8 +3139,7 @@ version = "0.1.0"
 dependencies = [
  "classic-mceliece-rust",
  "log",
- "prost 0.8.0",
- "prost-types 0.9.0",
+ "prost",
  "rand 0.8.5",
  "talpid-types",
  "tokio",
@@ -3328,7 +3293,7 @@ checksum = "c43ee83903113e03984cb9e5cebe6c04a5116269e900e3ddba8f068a62adda59"
 dependencies = [
  "rustls",
  "tokio",
- "webpki 0.22.0",
+ "webpki",
 ]
 
 [[package]]
@@ -3401,8 +3366,8 @@ dependencies = [
  "hyper-timeout",
  "percent-encoding",
  "pin-project",
- "prost 0.8.0",
- "prost-derive 0.8.0",
+ "prost",
+ "prost-derive",
  "tokio",
  "tokio-stream",
  "tokio-util",
@@ -3834,16 +3799,6 @@ checksum = "38eb105f1c59d9eaa6b5cdc92b859d85b926e82cb2e0945cd0c9259faa6fe9fb"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "webpki"
-version = "0.21.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8e38c0608262c46d4a56202ebabdeb094cef7e560ca7a226c6bf055188aa4ea"
-dependencies = [
- "ring",
- "untrusted",
 ]
 
 [[package]]
