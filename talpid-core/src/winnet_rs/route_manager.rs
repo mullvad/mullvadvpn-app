@@ -7,22 +7,32 @@ use std::sync::mpsc::{Sender, channel, RecvTimeoutError};
 use std::time::{Instant, Duration};
 
 pub struct RouteManager {
-
+    route_monitor_v4: DefaultRouteMonitor,
+    route_monitor_v6: DefaultRouteMonitor,
 }
 
 impl RouteManager {
-    fn new() -> Self {
-        Self {
+    fn new() -> Result<Self> {
+        Ok(Self {
+            route_monitor_v4: DefaultRouteMonitor::new(WinNetAddrFamily::IPV4, |event_type, route| {
 
-        }
+            })?,
+            route_monitor_v6: DefaultRouteMonitor::new(WinNetAddrFamily::IPV6, |event_type, route| {
+
+            })?,
+        })
+    }
+
+    fn default_route_changed(family: WinNetAddrFamily, event_type: EventType, route: &Option<WinNetDefaultRoute>) {
+
     }
 }
 
 const BURST_DURATION: Duration = Duration::from_millis(200);
 const BURST_INTERVAL: Duration = Duration::from_secs(2);
 
+// TODO: Improve name
 struct DefaultRouteMonitorContext {
-    burst_guard: Option<BurstGuard>,
     callback: Box<dyn Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>,
     refresh_current_route: bool,
     family: WinNetAddrFamily,
@@ -30,22 +40,13 @@ struct DefaultRouteMonitorContext {
 }
 
 impl DefaultRouteMonitorContext {
-    fn new(callback: Box<dyn Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>, family: WinNetAddrFamily) -> Result<Arc<Mutex<Self>>> {
-        let ctx = Arc::new(Mutex::new(Self {
-            burst_guard: None,
+    fn new(callback: Box<dyn Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>, family: WinNetAddrFamily) -> Result<Self> {
+        let ctx = Self {
             callback,
             best_route: get_best_default_route(family)?,
             refresh_current_route: false,
             family,
-        }));
-
-        let moved_context = Arc::downgrade(&ctx);
-        let burst_guard = BurstGuard::new(move || {
-            moved_context.upgrade().unwrap().lock().unwrap().evaluate_routes();
-        }, BURST_DURATION, BURST_INTERVAL);
-
-        ctx.lock().unwrap().burst_guard = Some(burst_guard);
-
+        };
         Ok(ctx)
     }
 
@@ -103,17 +104,30 @@ impl DefaultRouteMonitorContext {
     }
 }
 
+// SAFETY: The value wrapped in ReadOnly is not allowed to be mutated until dropped.
+struct ReadOnly(Box<OuterContext>);
+
+impl std::ops::Deref for ReadOnly {
+    type Target = Box<OuterContext>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 struct DefaultRouteMonitor {
-    context: Arc<Mutex<DefaultRouteMonitorContext>>,
     notify_route_change_handle: Handle,
     notify_interface_change_handle: Handle,
     notify_address_change_handle: Handle,
+    // SAFETY: Context must be dropped after all of the notifier handles have been dropped in order to guarantee none of them use its pointer.
+    // context is also wrapped in a ReadOnly struct in order to guarantee no mutation happens to it after pointers have been given to the notifier functions.
+    context: ReadOnly,
 }
 
 // TODO: We could potentially save the raw pointer to the weak pointer that we provided to the notification function,
 // that way we would be able to use Weak::from_raw(ptr) in drop and free the memory.
 // However it is not clear exactly how the notification function handles that memory and using it after us dropping it
 // would be very bad.
+// Use already existing struct
 struct Handle(HANDLE);
 
 impl std::ops::Drop for Handle {
@@ -134,18 +148,32 @@ enum EventType {
     Removed,
 }
 
+// TODO: Improve name
+struct OuterContext {
+    context: Arc<Mutex<DefaultRouteMonitorContext>>,
+    burst_guard: Mutex<BurstGuard>,
+}
+
 impl DefaultRouteMonitor {
     fn new<F: Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>(family: WinNetAddrFamily, callback: F) -> Result<Self> {
         let callback = Box::new(callback);
         // FIXME: We reordered this from the c++ code so it calls get_best_default_route in the beginning before the
         // notification calls, this might cause some weird behavior even if it at first glance looks fine.
-        let context = DefaultRouteMonitorContext::new(callback, family)?;
-        //let context = Arc::new(Mutex::new(DefaultRouteMonitorContext {
-        //    callback,
-        //    best_route: get_best_default_route(family)?,
-        //    refresh_current_route: false,
-        //    family,
-        //}));
+        let context = Arc::new(Mutex::new(DefaultRouteMonitorContext::new(callback, family)?));
+
+        let moved_context = Arc::clone(&context);
+        let burst_guard = Mutex::new(BurstGuard::new(move || {
+            moved_context.lock().unwrap().evaluate_routes();
+        }, BURST_DURATION, BURST_INTERVAL));
+
+        // SAFETY: We need to send the OuterContext to the windows notification functions. In order to do that we will cast the Box as a *const OuterContext
+        // and then cast that as a c_void pointer. This imposes the requirement that the Box is not mutated or dropped until after those notifications are no guaranteed to not run.
+        // This happens when the DefaultRouteMonitor is dropped and not before then. It also imposes the requirement that OuterContext is `Sync` since we will send
+        // references to it to other threads. This requirement is fullfilled since all fields of `OuterContext` are wrapped in either a Arc<Mutex> or Mutex.
+        let outer_context = ReadOnly(Box::new(OuterContext {
+            context,
+            burst_guard,
+        }));
 
         let family = family.to_windows_family();
 
@@ -154,7 +182,7 @@ impl DefaultRouteMonitor {
         // We provide a Mutex for the state turned into a Weak pointer turned into a raw pointer in order to not have to manually deallocate
         // the memory after we cancel the callbacks. This will leak the weak pointer but the context state itself will be correctly dropped
         // when DefaultRouteManager is dropped.
-        let context_ptr = Weak::into_raw(Arc::downgrade(&context));
+        let context_ptr = &**outer_context as *const OuterContext;
         let handle_ptr = std::ptr::null_mut();
         unsafe {
             NotifyRouteChange2(u16::try_from(family.0).map_err(|_| Error::Conversion)?, Some(route_change_callback), context_ptr as *const _, WIN_FALSE, handle_ptr)
@@ -163,7 +191,7 @@ impl DefaultRouteMonitor {
         let notify_route_change_handle = Handle(unsafe { *handle_ptr });
 
         // NotifyIpInterfaceChange
-        let context_ptr = Weak::into_raw(Arc::downgrade(&context));
+        let context_ptr = &**outer_context as *const OuterContext;
         let handle_ptr = std::ptr::null_mut();
         unsafe {
             NotifyIpInterfaceChange(u16::try_from(family.0).map_err(|_| Error::Conversion)?, Some(interface_change_callback), context_ptr as *const _, WIN_FALSE, handle_ptr)
@@ -172,7 +200,7 @@ impl DefaultRouteMonitor {
         let notify_interface_change_handle = Handle(unsafe { *handle_ptr });
 
         // NotifyUnicastIpAddressChange
-        let context_ptr = Weak::into_raw(Arc::downgrade(&context));
+        let context_ptr = &**outer_context as *const OuterContext;
         let handle_ptr = std::ptr::null_mut();
         unsafe {
             NotifyUnicastIpAddressChange(u16::try_from(family.0).map_err(|_| Error::Conversion)?, Some(ip_address_change_callback), context_ptr as *const _, WIN_FALSE, handle_ptr)
@@ -181,7 +209,7 @@ impl DefaultRouteMonitor {
         let notify_address_change_handle = Handle(unsafe { *handle_ptr });
 
         Ok(Self {
-            context,
+            context: outer_context,
             notify_route_change_handle,
             notify_interface_change_handle,
             notify_address_change_handle,
@@ -190,9 +218,9 @@ impl DefaultRouteMonitor {
 
 }
 
-// `context` is a Weak<Mutex<DefaultRouteManagerContext>>::into_raw() pointer and should be used with Weak::from_raw()
-// SAFETY: After converting `context` into a `Weak` it must also be stopped from being dropped by calling Weak::into_raw().
-// If this is not done the reference will be dropped and calling `Weak::from_raw()` the next time is undefined behavior.
+// SAFETY: `context` is a Arc::<OuterContext>::as_ptr() pointer which is fine to dereference as long as there exists a strong count to the Arc.
+// This is guaranteed to be the case as we store an `Arc` in the DefaultRouteMonitor struct. When this struct is dropped it will
+// cancel this callback and guarantee that it is not called after that point, only after then is the final `Arc` dropped.
 unsafe extern "system" fn route_change_callback(context: *const c_void, row: *const MIB_IPFORWARD_ROW2, notification_type: MIB_NOTIFICATION_TYPE) {
     let row = unsafe { &*row };
 
@@ -200,34 +228,24 @@ unsafe extern "system" fn route_change_callback(context: *const c_void, row: *co
         return;
     }
 
-    let context_weak: Weak<Mutex<DefaultRouteMonitorContext>> = unsafe { Weak::from_raw(context as *const _) };
-    // Unwrap should always succeed since this callback is only called when context has not been dropped.
-    let context = context_weak.upgrade().unwrap();
-    let mut context = context.lock().unwrap();
+    let outer_context: &OuterContext = unsafe { &*(context as *const OuterContext) };
+    let mut context = outer_context.context.lock().unwrap();
 
     context.update_refresh_flag(&row.InterfaceLuid, row.InterfaceIndex);
-    context.burst_guard.as_ref().unwrap().trigger();
-
-    // SAFETY: In order for successive calls we are not allowed to drop the weak pointer here as that would decrement the weak counter.
-    std::mem::forget(context_weak);
+    outer_context.burst_guard.lock().unwrap().trigger();
 }
 
-// `context` is a Weak<Mutex<DefaultRouteManagerContext>>::into_raw() pointer and should be used with Weak::from_raw()
-// SAFETY: After converting `context` into a `Weak` it must also be stopped from being dropped by calling Weak::into_raw().
-// If this is not done the reference will be dropped and calling `Weak::from_raw()` the next time is undefined behavior.
+// SAFETY: `context` is a Arc::<OuterContext>::as_ptr() pointer which is fine to dereference as long as there exists a strong count to the Arc.
+// This is guaranteed to be the case as we store an `Arc` in the DefaultRouteMonitor struct. When this struct is dropped it will
+// cancel this callback and guarantee that it is not called after that point, only after then is the final `Arc` dropped.
 unsafe extern "system" fn interface_change_callback(context: *const c_void, row: *const MIB_IPINTERFACE_ROW, notification_type: MIB_NOTIFICATION_TYPE) {
     let row = unsafe { &*row };
 
-    let context_weak: Weak<Mutex<DefaultRouteMonitorContext>> = unsafe { Weak::from_raw(context as *const _) };
-    // Unwrap should always succeed since this callback is only called when context has not been dropped.
-    let context = context_weak.upgrade().unwrap();
-    let mut context = context.lock().unwrap();
+    let outer_context: &OuterContext = unsafe { &*(context as *const OuterContext) };
+    let mut context = outer_context.context.lock().unwrap();
 
     context.update_refresh_flag(&row.InterfaceLuid, row.InterfaceIndex);
-    context.burst_guard.as_ref().unwrap().trigger();
-
-    // SAFETY: In order for successive calls we are not allowed to drop the weak pointer here as that would decrement the weak counter.
-    std::mem::forget(context_weak);
+    outer_context.burst_guard.lock().unwrap().trigger();
 }
 
 // `context` is a Weak<Mutex<DefaultRouteManagerContext>>::into_raw() pointer and should be used with Weak::from_raw()
@@ -236,16 +254,11 @@ unsafe extern "system" fn interface_change_callback(context: *const c_void, row:
 unsafe extern "system" fn ip_address_change_callback(context: *const c_void, row: *const MIB_UNICASTIPADDRESS_ROW, notification_type: MIB_NOTIFICATION_TYPE) {
     let row = unsafe { &*row };
 
-    let context_weak: Weak<Mutex<DefaultRouteMonitorContext>> = unsafe { Weak::from_raw(context as *const _) };
-    // Unwrap should always succeed since this callback is only called when context has not been dropped.
-    let context = context_weak.upgrade().unwrap();
-    let mut context = context.lock().unwrap();
+    let outer_context: &OuterContext = unsafe { &*(context as *const OuterContext) };
+    let mut context = outer_context.context.lock().unwrap();
 
     context.update_refresh_flag(&row.InterfaceLuid, row.InterfaceIndex);
-    context.burst_guard.as_ref().unwrap().trigger();
-
-    // SAFETY: In order for successive calls we are not allowed to drop the weak pointer here as that would decrement the weak counter.
-    std::mem::forget(context_weak);
+    outer_context.burst_guard.lock().unwrap().trigger();
 }
 
 /// BurstGuard is a wrapper for a function that protects that function from being called too many times in a short amount of time.
