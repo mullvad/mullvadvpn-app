@@ -272,7 +272,7 @@ export default class AppRenderer {
     if (window.env.e2e) {
       GlobalStyle = createGlobalStyle({
         '*': {
-          transitionDuration: '1ms !important',
+          transitionDuration: '0ms !important',
         },
       });
     }
