@@ -2166,6 +2166,11 @@ where
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
         }
 
+        #[cfg(target_os = "macos")]
+        if *self.target_state == TargetState::Secured {
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
+        }
+
         self.state.shutdown(&self.tunnel_state);
         self.disconnect_tunnel();
     }
