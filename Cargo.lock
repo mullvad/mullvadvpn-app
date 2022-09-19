@@ -3161,7 +3161,7 @@ dependencies = [
  "tunnel-obfuscation",
  "uuid",
  "which",
- "widestring 0.5.1",
+ "widestring 1.0.2",
  "winapi",
  "windows",
  "windows-service",

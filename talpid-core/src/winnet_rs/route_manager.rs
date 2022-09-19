@@ -1,6 +1,6 @@
 use super::*;
-use windows::Win32::NetworkManagement::IpHelper::{NotifyRouteChange2, NotifyIpInterfaceChange, NotifyUnicastIpAddressChange, CancelMibChangeNotify2, ConvertInterfaceLuidToIndex, MIB_NOTIFICATION_TYPE, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW};
-use windows::Win32::Foundation::{BOOLEAN, HANDLE};
+use windows_sys::Win32::NetworkManagement::IpHelper::{NotifyRouteChange2, NotifyIpInterfaceChange, NotifyUnicastIpAddressChange, CancelMibChangeNotify2, ConvertInterfaceLuidToIndex, MIB_NOTIFICATION_TYPE, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW};
+use windows_sys::Win32::Foundation::{BOOLEAN, HANDLE, NO_ERROR};
 use std::ffi::c_void;
 use std::sync::{Arc, Weak, Mutex};
 use std::sync::mpsc::{Sender, channel, RecvTimeoutError};
@@ -14,33 +14,30 @@ pub struct RouteManager {
 impl RouteManager {
     fn new() -> Result<Self> {
         Ok(Self {
-            route_monitor_v4: DefaultRouteMonitor::new(WinNetAddrFamily::IPV4, |event_type, route| {
+            route_monitor_v4: DefaultRouteMonitor::new(AddressFamily::Ipv4, |event_type, route| {
 
             })?,
-            route_monitor_v6: DefaultRouteMonitor::new(WinNetAddrFamily::IPV6, |event_type, route| {
+            route_monitor_v6: DefaultRouteMonitor::new(AddressFamily::Ipv6, |event_type, route| {
 
             })?,
         })
     }
 
-    fn default_route_changed(family: WinNetAddrFamily, event_type: EventType, route: &Option<WinNetDefaultRoute>) {
+    fn default_route_changed(family: AddressFamily, event_type: EventType, route: &Option<WinNetDefaultRoute>) {
 
     }
 }
-
-const BURST_DURATION: Duration = Duration::from_millis(200);
-const BURST_INTERVAL: Duration = Duration::from_secs(2);
 
 // TODO: Improve name
 struct DefaultRouteMonitorContext {
     callback: Box<dyn Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>,
     refresh_current_route: bool,
-    family: WinNetAddrFamily,
+    family: AddressFamily,
     best_route: Option<WinNetDefaultRoute>,
 }
 
 impl DefaultRouteMonitorContext {
-    fn new(callback: Box<dyn Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>, family: WinNetAddrFamily) -> Result<Self> {
+    fn new(callback: Box<dyn Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>, family: AddressFamily) -> Result<Self> {
         let ctx = Self {
             callback,
             best_route: get_best_default_route(family)?,
@@ -51,25 +48,23 @@ impl DefaultRouteMonitorContext {
     }
 
     fn update_refresh_flag(&mut self, luid: &NET_LUID_LH, index: u32) {
-        match &self.best_route {
-            None => return,
-            Some(best_route) => {
-                // SAFETY: luid is a union but both fields are finally represented by u64, as such any access is valid
-                if unsafe { luid.Value } == best_route.interface_luid {
-                    self.refresh_current_route = true;
-                }
-                // SAFETY: luid is a union but both fields are finally represented by u64, as such any access is valid
-                if unsafe { luid.Value } != 0 {
-                    return;
-                }
+        if let Some(best_route) = &self.best_route {
+            if unsafe { luid.Value } == unsafe { best_route.interface_luid.Value } {
+                self.refresh_current_route = true;
+                return;
+            }
+            // SAFETY: luid is a union but both fields are finally represented by u64, as such any access is valid
+            if unsafe { luid.Value } != 0 {
+                return;
+            }
 
-                let mut default_interface_index = 0;
-                let route_luid = NET_LUID_LH { Value: best_route.interface_luid };
-                // TODO: Different from c++ impl, check to make sure it makes sense
-                match unsafe { ConvertInterfaceLuidToIndex(&route_luid, &mut default_interface_index) } {
-                    Ok(()) => self.refresh_current_route = index == default_interface_index,
-                    Err(_) => self.refresh_current_route = true,
-                }
+            let mut default_interface_index = 0;
+            let route_luid = best_route.interface_luid;
+            // TODO: Different from c++ impl, check to make sure it makes sense
+            if NO_ERROR as i32 == unsafe { ConvertInterfaceLuidToIndex(&route_luid, &mut default_interface_index) } {
+                self.refresh_current_route = index == default_interface_index;
+            } else {
+                self.refresh_current_route = true;
             }
         }
     }
@@ -135,12 +130,14 @@ impl std::ops::Drop for Handle {
         // SAFETY: There is no clear safety specification on this function. However self.0 should point to a handle that has
         // been allocated by windows and should be non-null. Even if it is non-null this function tolerates that but would error.
         unsafe {
-            CancelMibChangeNotify2(self.0).unwrap();
+            if NO_ERROR as i32 != CancelMibChangeNotify2(self.0) {
+                panic!("Could not cancel change notification callback")
+            }
         }
     }
 }
 
-const WIN_FALSE: BOOLEAN = BOOLEAN(0);
+const WIN_FALSE: BOOLEAN = 0;
 
 enum EventType {
     Updated,
@@ -155,16 +152,16 @@ struct OuterContext {
 }
 
 impl DefaultRouteMonitor {
-    fn new<F: Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>(family: WinNetAddrFamily, callback: F) -> Result<Self> {
+    fn new<F: Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>(family: AddressFamily, callback: F) -> Result<Self> {
         let callback = Box::new(callback);
         // FIXME: We reordered this from the c++ code so it calls get_best_default_route in the beginning before the
         // notification calls, this might cause some weird behavior even if it at first glance looks fine.
         let context = Arc::new(Mutex::new(DefaultRouteMonitorContext::new(callback, family)?));
 
-        let moved_context = Arc::clone(&context);
+        let moved_context = context.clone();
         let burst_guard = Mutex::new(BurstGuard::new(move || {
             moved_context.lock().unwrap().evaluate_routes();
-        }, BURST_DURATION, BURST_INTERVAL));
+        }));
 
         // SAFETY: We need to send the OuterContext to the windows notification functions. In order to do that we will cast the Box as a *const OuterContext
         // and then cast that as a c_void pointer. This imposes the requirement that the Box is not mutated or dropped until after those notifications are no guaranteed to not run.
@@ -175,7 +172,7 @@ impl DefaultRouteMonitor {
             burst_guard,
         }));
 
-        let family = family.to_windows_family();
+        let family = family.to_af_family();
 
         // NotifyRouteChange2
         // We must provide a raw pointer that points to the context that will be used in the callbacks.
@@ -184,27 +181,31 @@ impl DefaultRouteMonitor {
         // when DefaultRouteManager is dropped.
         let context_ptr = &**outer_context as *const OuterContext;
         let handle_ptr = std::ptr::null_mut();
-        unsafe {
-            NotifyRouteChange2(u16::try_from(family.0).map_err(|_| Error::Conversion)?, Some(route_change_callback), context_ptr as *const _, WIN_FALSE, handle_ptr)
-        }.map_err(|_| Error::WindowsApi)?;
+        if NO_ERROR as i32 != unsafe {
+            NotifyRouteChange2(u16::try_from(family).map_err(|_| Error::Conversion)?, Some(route_change_callback), context_ptr as *const _, WIN_FALSE, handle_ptr)
+        } {
+            return Err(Error::WindowsApi);
+        }
         // SAFETY: NotifyRouteChange2 is guaranteed not to be an error here so handle_ptr is guaranteed to be non-null so dereferencing is safe
         let notify_route_change_handle = Handle(unsafe { *handle_ptr });
 
         // NotifyIpInterfaceChange
-        let context_ptr = &**outer_context as *const OuterContext;
         let handle_ptr = std::ptr::null_mut();
-        unsafe {
-            NotifyIpInterfaceChange(u16::try_from(family.0).map_err(|_| Error::Conversion)?, Some(interface_change_callback), context_ptr as *const _, WIN_FALSE, handle_ptr)
-        }.map_err(|_| Error::WindowsApi)?;
+        if NO_ERROR as i32 != unsafe {
+            NotifyIpInterfaceChange(u16::try_from(family).map_err(|_| Error::Conversion)?, Some(interface_change_callback), context_ptr as *const _, WIN_FALSE, handle_ptr)
+        } {
+            return Err(Error::WindowsApi);
+        }
         // SAFETY: NotifyIpInterfaceChange is guaranteed not to be an error here so handle_ptr is guaranteed to be non-null so dereferencing is safe
         let notify_interface_change_handle = Handle(unsafe { *handle_ptr });
 
         // NotifyUnicastIpAddressChange
-        let context_ptr = &**outer_context as *const OuterContext;
         let handle_ptr = std::ptr::null_mut();
-        unsafe {
-            NotifyUnicastIpAddressChange(u16::try_from(family.0).map_err(|_| Error::Conversion)?, Some(ip_address_change_callback), context_ptr as *const _, WIN_FALSE, handle_ptr)
-        }.map_err(|_| Error::WindowsApi)?;
+        if NO_ERROR as i32 != unsafe {
+            NotifyUnicastIpAddressChange(u16::try_from(family).map_err(|_| Error::Conversion)?, Some(ip_address_change_callback), context_ptr as *const _, WIN_FALSE, handle_ptr)
+        } {
+            return Err(Error::WindowsApi);
+        }
         // SAFETY: NotifyUnicastIpAddressChange is guaranteed not to be an error here so handle_ptr is guaranteed to be non-null so dereferencing is safe
         let notify_address_change_handle = Handle(unsafe { *handle_ptr });
 
@@ -262,36 +263,31 @@ unsafe extern "system" fn ip_address_change_callback(context: *const c_void, row
 }
 
 /// BurstGuard is a wrapper for a function that protects that function from being called too many times in a short amount of time.
-/// To call the function use `burst_guard.trigger()`, at that point `BurstGuard` will wait for `burst_duration` and if no more calls to
+/// To call the function use `burst_guard.trigger()`, at that point `BurstGuard` will wait for `buffer_period` and if no more calls to
 /// `trigger` are made then it will call the wrapped function. If another call to `trigger` is made during this wait then it will wait
-/// another `burst_duration`, this happens over and over until either `burst_interval` time has elapsed or until no call to `trigger`
-/// has been made in `burst_duration`. At which point the wrapped function will be called.
+/// another `buffer_period`, this happens over and over until either `longest_buffer_period` time has elapsed or until no call to `trigger`
+/// has been made in `buffer_period`. At which point the wrapped function will be called.
 struct BurstGuard {
     sender: Sender<()>,
 }
 
 impl BurstGuard {
-    fn new<F: Fn() + Send + 'static>(callback: F, burst_duration: Duration, burst_interval: Duration) -> Self {
+    fn new<F: Fn() + Send + 'static>(callback: F) -> Self {
+        /// This is the period of time the `BurstGuard` will wait for a new trigger to be sent before it calls the callback.
+        const BURST_BUFFER_PERIOD: Duration = Duration::from_millis(200);
+        /// This is the longest period that the `BurstGuard` will wait from the first trigger till it calls the callback.
+        const BURST_LONGEST_BUFFER_PERIOD: Duration = Duration::from_secs(2);
+
         let (sender, listener) = channel();
         std::thread::spawn(move || {
             while let Ok(()) = listener.recv() {
                 let start = Instant::now();
-                let mut timeout = burst_duration;
                 loop {
-                    match listener.recv_timeout(timeout) {
+                    match listener.recv_timeout(BURST_BUFFER_PERIOD) {
                         Ok(()) => {
-                            match burst_interval.checked_sub(start.elapsed()) {
-                                Some(diff) => {
-                                    if diff < burst_duration {
-                                        timeout = diff;
-                                    } else {
-                                        timeout = burst_duration;
-                                    }
-                                }
-                                None => {
-                                    callback();
-                                    break;
-                                }
+                            if start.elapsed() >= BURST_LONGEST_BUFFER_PERIOD {
+                                callback();
+                                break;
                             }
                         }
                         Err(RecvTimeoutError::Timeout) => {

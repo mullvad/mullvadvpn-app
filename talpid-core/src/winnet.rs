@@ -4,7 +4,7 @@ use ipnetwork::IpNetwork;
 use libc::c_void;
 use std::{
     convert::TryFrom,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    net::{SocketAddr, IpAddr, Ipv4Addr, Ipv6Addr},
     ptr,
 };
 use widestring::WideCString;
@@ -14,7 +14,7 @@ use widestring::WideCString;
 pub enum Error {
     /// Supplied interface alias is invalid.
     #[error(display = "Supplied interface alias is invalid")]
-    InvalidInterfaceAlias(#[error(source)] widestring::NulError<u16>),
+    InvalidInterfaceAlias(#[error(source)] widestring::error::NulError<u16>),
 
     /// Failed to enable IPv6 on the network interface.
     #[error(display = "Failed to enable IPv6 on the network interface")]
@@ -332,38 +332,37 @@ pub fn deactivate_routing_manager() {
 pub fn get_best_default_route(
     family: WinNetAddrFamily,
 ) -> Result<Option<WinNetDefaultRoute>, Error> {
-    dbg!("================== Calling get_best_default_route lel");
+    dbg!("================== Calling get_best_default_route");
     dbg!(&family);
     let family = match family {
-        WinNetAddrFamily::IPV4 => crate::winnet_rs::WinNetAddrFamily::IPV4,
-        WinNetAddrFamily::IPV6 => crate::winnet_rs::WinNetAddrFamily::IPV6,
+        WinNetAddrFamily::IPV4 => crate::windows::AddressFamily::Ipv4,
+        WinNetAddrFamily::IPV6 => crate::windows::AddressFamily::Ipv6,
     };
     match crate::winnet_rs::get_best_default_route(family) {
         Ok(Some(default_route)) => {
             let gateway = match default_route.gateway {
-                crate::winnet_rs::WinNetIp::IPV4(addr) => {
+                SocketAddr::V4(addr) => {
+                    let octets = addr.ip().octets();
                     let mut ip_bytes = [0; 16];
-                    ip_bytes[0] = addr[0];
-                    ip_bytes[1] = addr[1];
-                    ip_bytes[2] = addr[2];
-                    ip_bytes[3] = addr[3];
-                    dbg!(&ip_bytes);
+                    ip_bytes[0] = octets[0];
+                    ip_bytes[1] = octets[1];
+                    ip_bytes[2] = octets[2];
+                    ip_bytes[3] = octets[3];
                     WinNetIp {
                         addr_family: WinNetAddrFamily::IPV4,
                         ip_bytes,
                     }
                 }
-                crate::winnet_rs::WinNetIp::IPV6(ip_bytes) => {
-                    dbg!(&ip_bytes);
+                SocketAddr::V6(addr) => {
                     WinNetIp {
                         addr_family: WinNetAddrFamily::IPV6,
-                        ip_bytes,
+                        ip_bytes: addr.ip().octets(),
                     }
                 }
             };
-            dbg!(&default_route.interface_luid);
             let r = Ok(Some(WinNetDefaultRoute {
-                interface_luid: default_route.interface_luid,
+                // SAFETY: The fields in this union are always valid
+                interface_luid: unsafe { default_route.interface_luid.Value },
                 gateway,
             }));
             dbg!(&r);

@@ -79,7 +79,7 @@ subslice = "0.2"
 
 
 [target.'cfg(windows)'.dependencies]
-widestring = "0.5"
+widestring = "1.0"
 winreg = { version = "0.7", features = ["transactions"] }
 winapi = { version = "0.3.6", features = ["ws2def"] }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
