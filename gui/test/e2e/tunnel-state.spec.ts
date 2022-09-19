@@ -63,10 +63,6 @@ test('App should show disconnected tunnel state', async () => {
   const button = await appWindow.locator('button', { hasText: /secure my connection/i });
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe(SECURE_COLOR);
-
-  if (!process.env.GITHUB_ACTIONS) {
-    expect(await appWindow.screenshot()).toMatchSnapshot();
-  }
 });
 
 /**
@@ -95,10 +91,6 @@ test('App should show connecting tunnel state', async () => {
   const button = await appWindow.locator('button', { hasText: /cancel/i });
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe('rgba(227, 64, 57, 0.6)');
-
-  if (!process.env.GITHUB_ACTIONS) {
-    expect(await appWindow.screenshot()).toMatchSnapshot();
-  }
 });
 
 /**
@@ -134,10 +126,6 @@ test('App should show connected tunnel state', async () => {
   const button = await appWindow.locator('button', { hasText: /switch location/i });
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe('rgba(255, 255, 255, 0.2)');
-
-  if (!process.env.GITHUB_ACTIONS) {
-    expect(await appWindow.screenshot()).toMatchSnapshot();
-  }
 });
 
 /**
@@ -164,10 +152,6 @@ test('App should show disconnecting tunnel state', async () => {
   const button = await appWindow.locator('button', { hasText: /secure my connection/i });
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe(SECURE_COLOR);
-
-  if (!process.env.GITHUB_ACTIONS) {
-    expect(await appWindow.screenshot()).toMatchSnapshot();
-  }
 });
 
 /**
@@ -192,8 +176,4 @@ test('App should show error tunnel state', async () => {
   const header = getHeader();
   const headerColor = await getBackgroundColor(header);
   expect(headerColor).toBe(SECURE_COLOR);
-
-  if (!process.env.GITHUB_ACTIONS) {
-    expect(await appWindow.screenshot()).toMatchSnapshot();
-  }
 });
