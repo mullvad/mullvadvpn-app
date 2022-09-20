@@ -111,12 +111,6 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    async fn shutdown(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("shutdown");
-        self.send_command_to_daemon(DaemonCommand::Shutdown)?;
-        Ok(Response::new(()))
-    }
-
     async fn factory_reset(&self, _: Request<()>) -> ServiceResult<()> {
         #[cfg(not(target_os = "android"))]
         {

@@ -18,7 +18,6 @@ service ManagementService {
 	// Control the daemon and receive events
 	rpc EventsListen(google.protobuf.Empty) returns (stream DaemonEvent) {}
 	rpc PrepareRestart(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc Shutdown(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
 	rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}

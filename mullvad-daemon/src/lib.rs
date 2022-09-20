@@ -283,6 +283,7 @@ pub enum DaemonCommand {
     /// Register settings for WireGuard obfuscator
     SetObfuscationSettings(ResponseTx<(), settings::Error>, ObfuscationSettings),
     /// Makes the daemon exit the main loop and quit.
+    #[cfg(target_os = "android")]
     Shutdown,
     /// Saves the target tunnel state and enters a blocking state. The state is restored
     /// upon restart.
@@ -1030,6 +1031,7 @@ where
             SetObfuscationSettings(tx, settings) => {
                 self.on_set_obfuscation_settings(tx, settings).await
             }
+            #[cfg(target_os = "android")]
             Shutdown => self.trigger_shutdown_event(),
             PrepareRestart => self.on_prepare_restart(),
             #[cfg(target_os = "android")]
