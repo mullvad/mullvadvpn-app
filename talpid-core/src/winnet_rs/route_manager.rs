@@ -282,7 +282,7 @@ impl DefaultRouteMonitor {
     }
 }
 
-// SAFETY: `context` is a Arc::<ContextAndBurstGuard>::as_ptr() pointer which is fine to dereference as long as there exists a strong count to the Arc.
+// `context` is a Box<ContextAndBurstGuard>::into_raw() pointer.
 // This is guaranteed to be the case as we store an `Arc` in the DefaultRouteMonitor struct. When this struct is dropped it will
 // cancel this callback and guarantee that it is not called after that point, only after then is the final `Arc` dropped.
 unsafe extern "system" fn route_change_callback(
@@ -306,7 +306,7 @@ unsafe extern "system" fn route_change_callback(
     context_and_burst.burst_guard.lock().unwrap().trigger();
 }
 
-// SAFETY: `context` is a Arc::<ContextAndBurstGuard>::as_ptr() pointer which is fine to dereference as long as there exists a strong count to the Arc.
+// `context` is a Box<ContextAndBurstGuard>::into_raw() pointer.
 // This is guaranteed to be the case as we store an `Arc` in the DefaultRouteMonitor struct. When this struct is dropped it will
 // cancel this callback and guarantee that it is not called after that point, only after then is the final `Arc` dropped.
 unsafe extern "system" fn interface_change_callback(
@@ -326,7 +326,7 @@ unsafe extern "system" fn interface_change_callback(
     context_and_burst.burst_guard.lock().unwrap().trigger();
 }
 
-// `context` is a Weak<Mutex<DefaultRouteManagerContext>>::into_raw() pointer and should be used with Weak::from_raw()
+// `context` is a Box<ContextAndBurstGuard>::into_raw() pointer.
 // SAFETY: After converting `context` into a `Weak` it must also be stopped from being dropped by calling Weak::into_raw().
 // If this is not done the reference will be dropped and calling `Weak::from_raw()` the next time is undefined behavior.
 unsafe extern "system" fn ip_address_change_callback(
