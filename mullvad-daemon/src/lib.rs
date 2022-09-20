@@ -22,6 +22,7 @@ mod migrations;
 pub mod rpc_uniqueness_check;
 pub mod runtime;
 pub mod settings;
+pub mod shutdown;
 mod target_state;
 mod tunnel;
 pub mod version;
@@ -2159,10 +2160,11 @@ where
     }
 
     fn trigger_shutdown_event(&mut self) {
-        // If auto-connect is enabled, block all traffic before shutting down to ensure
-        // that no traffic can leak during boot.
+        // Block all traffic before shutting down to ensure that no traffic can leak on boot or
+        // shutdown.
         #[cfg(windows)]
-        if self.settings.auto_connect {
+        if crate::shutdown::is_host_shutting_down() && *self.target_state == TargetState::Secured {
+            log::debug!("Blocking firewall during shutdown since system is going down");
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
         }
 
