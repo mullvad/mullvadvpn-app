@@ -2269,6 +2269,7 @@ where
     }
 }
 
+#[derive(Clone)]
 pub struct DaemonShutdownHandle {
     tx: DaemonEventSender,
 }
