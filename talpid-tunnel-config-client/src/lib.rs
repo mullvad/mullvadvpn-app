@@ -13,7 +13,8 @@ mod proto {
 pub enum Error {
     GrpcConnectError(tonic::transport::Error),
     GrpcError(tonic::Status),
-    InvalidCiphertext,
+    InvalidCiphertextLength(usize),
+    InvalidCiphertextCount(usize),
 }
 
 impl std::fmt::Display for Error {
@@ -22,7 +23,14 @@ impl std::fmt::Display for Error {
         match self {
             GrpcConnectError(_) => "Failed to connect to config service".fmt(f),
             GrpcError(status) => write!(f, "RPC failed: {}", status),
-            InvalidCiphertext => "The service returned an invalid ciphertext".fmt(f),
+            InvalidCiphertextLength(len) => write!(
+                f,
+                "Expected a ciphertext of length {}, got {len} bytes",
+                kem::CRYPTO_CIPHERTEXTBYTES
+            ),
+            InvalidCiphertextCount(len) => {
+                write!(f, "Expected 1 ciphertext in the response, got {len}")
+            }
         }
     }
 }
@@ -41,7 +49,9 @@ type RelayConfigService = proto::post_quantum_secure_client::PostQuantumSecureCl
 /// Port used by the tunnel config service.
 pub const CONFIG_SERVICE_PORT: u16 = 1337;
 
-const ALGORITHM_NAME: &str = "Classic-McEliece-8192128f";
+/// Use the smallest CME variant with NIST security level 3. This variant has significantly smaller
+/// keys than the larger variants, and is considered safe.
+const ALGORITHM_NAME: &str = "Classic-McEliece-460896f";
 
 /// Generates a new WireGuard key pair and negotiates a PSK with the relay in a PQ-safe
 /// manner. This creates a peer on the relay with the new WireGuard pubkey and PSK,
@@ -56,22 +66,24 @@ pub async fn push_pq_key(
 
     let mut client = new_client(service_address).await?;
     let response = client
-        .psk_exchange_experimental_v0(proto::PskRequestExperimentalV0 {
+        .psk_exchange_experimental_v1(proto::PskRequestExperimentalV1 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),
             wg_psk_pubkey: wg_psk_privkey.public_key().as_bytes().to_vec(),
-            kem_pubkey: Some(proto::KemPubkeyExperimentalV0 {
+            kem_pubkeys: vec![proto::KemPubkeyExperimentalV1 {
                 algorithm_name: ALGORITHM_NAME.to_string(),
                 key_data: kem_pubkey.as_array().to_vec(),
-            }),
+            }],
         })
         .await
         .map_err(Error::GrpcError)?;
 
-    let ciphertext_array: [u8; kem::CRYPTO_CIPHERTEXTBYTES] = response
-        .into_inner()
-        .ciphertext
-        .try_into()
-        .map_err(|_| Error::InvalidCiphertext)?;
+    let ciphertexts = response.into_inner().ciphertexts;
+    if ciphertexts.len() != 1 {
+        return Err(Error::InvalidCiphertextCount(ciphertexts.len()));
+    }
+    let cme_ciphertext = ciphertexts[0].as_slice();
+    let ciphertext_array = <[u8; kem::CRYPTO_CIPHERTEXTBYTES]>::try_from(cme_ciphertext)
+        .map_err(|_| Error::InvalidCiphertextLength(cme_ciphertext.len()))?;
     let ciphertext = kem::Ciphertext::from(ciphertext_array);
     Ok((wg_psk_privkey, kem::decapsulate(&kem_secret, &ciphertext)))
 }
