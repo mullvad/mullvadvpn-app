@@ -20,6 +20,22 @@ service PostQuantumSecure {
   // PskExchangeExperimentalV0 uses the common API defined by LibOQS.  See:
   // https://github.com/open-quantum-safe/liboqs
   rpc PskExchangeExperimentalV0(PskRequestExperimentalV0) returns (PskResponseExperimentalV0) {}
+
+  // Perform a key exchange with the VPN server. If more than one KEM algorithm is used
+  // the resulting PSK should be computed by XORing together all the 32 byte shared secrets
+  // produced by the KEMs.
+  //
+  // Since the PSK provided to WireGuard is directly fed into a HKDF, it is not important that
+  // the entropy in the PSK is uniformly distributed. The actual keys used for encrypting the
+  // data channel will have uniformly distributed entropy anyway, thanks to the HKDF.
+  // But even if that was not true, since both CME and Kyber run SHAKE256 as the last step
+  // of their internal key derivation, the output they produce are uniformly distributed.
+  //
+  // Both CME and Kyber produce 32 byte output. This is the same amount of data we want for
+  // the PSK, so just XORing them produce the right amount of data.
+  // If we later want to support another type of KEM that produce longer or shorter output,
+  // we can hash that secret into a 32 byte hash before proceeding to the XOR step.
+  rpc PskExchangeExperimentalV1(PskRequestExperimentalV1) returns (PskResponseExperimentalV1) {}
 }
 
 message PskRequestExperimentalV0 {
@@ -35,4 +51,19 @@ message KemPubkeyExperimentalV0 {
 
 message PskResponseExperimentalV0 {
   bytes ciphertext = 1;
+}
+
+message PskRequestExperimentalV1 {
+  bytes wg_pubkey = 1;
+  bytes wg_psk_pubkey = 2;
+  repeated KemPubkeyExperimentalV1 kem_pubkeys = 3;
+}
+
+message KemPubkeyExperimentalV1 {
+  string algorithm_name = 1;
+  bytes key_data = 2;
+}
+
+message PskResponseExperimentalV1 {
+  repeated bytes ciphertexts = 1;
 }
