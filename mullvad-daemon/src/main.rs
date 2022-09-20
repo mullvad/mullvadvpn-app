@@ -138,7 +138,7 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     let daemon = create_daemon(log_dir).await?;
 
     let shutdown_handle = daemon.shutdown_handle();
-    shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown(false))
+    shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown(true))
         .map_err(|e| e.display_chain())?;
 
     daemon.run().await.map_err(|e| e.display_chain())?;

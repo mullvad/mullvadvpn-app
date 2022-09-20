@@ -825,7 +825,7 @@ where
                 self.handle_tunnel_state_transition(transition).await
             }
             Command(command) => self.handle_command(command).await,
-            TriggerShutdown(keep_fw_rules) => self.trigger_shutdown_event(keep_fw_rules),
+            TriggerShutdown(user_init_shutdown) => self.trigger_shutdown_event(user_init_shutdown),
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info);
             }
@@ -2158,11 +2158,13 @@ where
         }
     }
 
-    fn trigger_shutdown_event(&mut self, keep_fw_rules: bool) {
+    fn trigger_shutdown_event(&mut self, user_init_shutdown: bool) {
         // Block all traffic before shutting down to ensure that no traffic can leak on boot or
         // shutdown.
         #[cfg(windows)]
-        if keep_fw_rules && *self.target_state == TargetState::Secured {
+        if !user_init_shutdown
+            && (*self.target_state == TargetState::Secured || self.settings.auto_connect)
+        {
             log::debug!("Blocking firewall during shutdown since system is going down");
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
         }
@@ -2275,10 +2277,10 @@ pub struct DaemonShutdownHandle {
 }
 
 impl DaemonShutdownHandle {
-    pub fn shutdown(&self, keep_fw_rules: bool) {
+    pub fn shutdown(&self, user_init_shutdown: bool) {
         let _ = self
             .tx
-            .send(InternalDaemonEvent::TriggerShutdown(keep_fw_rules));
+            .send(InternalDaemonEvent::TriggerShutdown(user_init_shutdown));
     }
 }
 

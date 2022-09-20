@@ -201,14 +201,14 @@ struct ServiceShutdownHandle {
 }
 
 impl ServiceShutdownHandle {
-    fn shutdown(&mut self, restart_service: bool, is_shutting_down: bool) {
+    fn shutdown(&mut self, restart_service: bool, is_system_shutdown: bool) {
         self.persistent_service_status
             .set_pending_stop(Duration::from_secs(10))
             .unwrap();
 
         self.clean_shutdown
             .store(restart_service, Ordering::Release);
-        self.shutdown_handle.shutdown(is_shutting_down);
+        self.shutdown_handle.shutdown(!is_system_shutdown);
     }
 }
 
