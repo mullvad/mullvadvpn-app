@@ -47,6 +47,9 @@ jobs:
             - name: Checkout binaries submodule
               run: git submodule update --init --depth=1 dist-assets/binaries
 
+            - name: Install Protoc
+              uses: arduino/setup-protoc@v1
+
             - name: Install Rust
               uses: actions-rs/toolchain@v1.0.6
               with:
