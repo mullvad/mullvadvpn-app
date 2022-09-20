@@ -14,13 +14,9 @@ mod platform {
 
 #[cfg(windows)]
 mod platform {
-    use std::sync::atomic::{AtomicBool, Ordering};
-
     #[derive(err_derive::Error, Debug)]
     #[error(display = "Unable to attach ctrl-c handler")]
     pub struct Error(#[error(source)] ctrlc::Error);
-
-    static mut SHUTTING_DOWN: AtomicBool = AtomicBool::new(false);
 
     pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), Error> {
         ctrlc::set_handler(move || {
@@ -28,15 +24,6 @@ mod platform {
             f();
         })
         .map_err(Error)
-    }
-
-    #[allow(dead_code)]
-    pub fn is_host_shutting_down() -> bool {
-        unsafe { SHUTTING_DOWN.load(Ordering::Acquire) }
-    }
-
-    pub fn set_shutdown_status(is_shutting_down: bool) {
-        unsafe { SHUTTING_DOWN.store(is_shutting_down, Ordering::Release) };
     }
 }
 

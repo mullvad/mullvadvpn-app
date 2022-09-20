@@ -22,7 +22,6 @@ mod migrations;
 pub mod rpc_uniqueness_check;
 pub mod runtime;
 pub mod settings;
-pub mod shutdown;
 mod target_state;
 mod tunnel;
 pub mod version;
@@ -301,7 +300,7 @@ pub(crate) enum InternalDaemonEvent {
     /// A command sent to the daemon.
     Command(DaemonCommand),
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
-    TriggerShutdown,
+    TriggerShutdown(bool),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
@@ -826,7 +825,7 @@ where
                 self.handle_tunnel_state_transition(transition).await
             }
             Command(command) => self.handle_command(command).await,
-            TriggerShutdown => self.trigger_shutdown_event(),
+            TriggerShutdown(keep_fw_rules) => self.trigger_shutdown_event(keep_fw_rules),
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info);
             }
@@ -1031,7 +1030,7 @@ where
             SetObfuscationSettings(tx, settings) => {
                 self.on_set_obfuscation_settings(tx, settings).await
             }
-            Shutdown => self.trigger_shutdown_event(),
+            Shutdown => self.trigger_shutdown_event(false),
             PrepareRestart => self.on_prepare_restart(),
             #[cfg(target_os = "android")]
             BypassSocket(fd, tx) => self.on_bypass_socket(fd, tx),
@@ -1519,7 +1518,7 @@ where
         }
 
         // Shut the daemon down.
-        self.trigger_shutdown_event();
+        self.trigger_shutdown_event(false);
 
         self.shutdown_tasks.push(Box::pin(async move {
             if let Err(e) = cleanup::clear_directories().await {
@@ -2159,11 +2158,11 @@ where
         }
     }
 
-    fn trigger_shutdown_event(&mut self) {
+    fn trigger_shutdown_event(&mut self, keep_fw_rules: bool) {
         // Block all traffic before shutting down to ensure that no traffic can leak on boot or
         // shutdown.
         #[cfg(windows)]
-        if crate::shutdown::is_host_shutting_down() && *self.target_state == TargetState::Secured {
+        if keep_fw_rules && *self.target_state == TargetState::Secured {
             log::debug!("Blocking firewall during shutdown since system is going down");
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
         }
@@ -2275,8 +2274,10 @@ pub struct DaemonShutdownHandle {
 }
 
 impl DaemonShutdownHandle {
-    pub fn shutdown(&self) {
-        let _ = self.tx.send(InternalDaemonEvent::TriggerShutdown);
+    pub fn shutdown(&self, keep_fw_rules: bool) {
+        let _ = self
+            .tx
+            .send(InternalDaemonEvent::TriggerShutdown(keep_fw_rules));
     }
 }
 

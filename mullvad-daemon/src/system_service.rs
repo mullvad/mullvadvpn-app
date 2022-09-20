@@ -61,8 +61,6 @@ windows_service::define_windows_service!(service_main, handle_service_main);
 pub fn handle_service_main(_arguments: Vec<OsString>) {
     log::info!("Service started.");
 
-    crate::shutdown::set_shutdown_status(false);
-
     let (event_tx, event_rx) = mpsc::channel();
 
     // Register service event handler
@@ -172,12 +170,14 @@ fn start_event_monitor(
                         .set_pending_stop(Duration::from_secs(10))
                         .unwrap();
 
-                    if event == ServiceControl::Preshutdown {
-                        crate::shutdown::set_shutdown_status(true);
-                    }
-
                     clean_shutdown.store(true, Ordering::Release);
-                    shutdown_handle.shutdown();
+                    if event == ServiceControl::Preshutdown {
+                        // If the daemon is closing due to the system shutting down,
+                        // keep blocking traffic after the daemon exits.
+                        shutdown_handle.shutdown(true);
+                    } else {
+                        shutdown_handle.shutdown(false);
+                    }
                 }
                 ServiceControl::PowerEvent(details) => match details {
                     PowerEventParam::Suspend => {
