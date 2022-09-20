@@ -4,7 +4,7 @@ use ipnetwork::IpNetwork;
 use libc::c_void;
 use std::{
     convert::TryFrom,
-    net::{SocketAddr, IpAddr, Ipv4Addr, Ipv6Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     ptr,
 };
 use widestring::WideCString;
@@ -342,7 +342,6 @@ pub fn get_best_default_route(
         Ok(Some(default_route)) => {
             let gateway = match default_route.gateway {
                 SocketAddr::V4(addr) => {
-                    let octets = addr.ip().octets();
                     let mut ip_bytes = [0; 16];
                     ip_bytes.copy_from_slice(&addr.ip().octets());
                     WinNetIp {
@@ -350,12 +349,10 @@ pub fn get_best_default_route(
                         ip_bytes,
                     }
                 }
-                SocketAddr::V6(addr) => {
-                    WinNetIp {
-                        addr_family: WinNetAddrFamily::IPV6,
-                        ip_bytes: addr.ip().octets(),
-                    }
-                }
+                SocketAddr::V6(addr) => WinNetIp {
+                    addr_family: WinNetAddrFamily::IPV6,
+                    ip_bytes: addr.ip().octets(),
+                },
             };
             let r = Ok(Some(WinNetDefaultRoute {
                 // SAFETY: The fields in this union are always valid
@@ -368,12 +365,12 @@ pub fn get_best_default_route(
         Ok(None) => {
             dbg!("Found Ok(None)");
             Ok(None)
-        },
+        }
         Err(e) => {
             dbg!(e);
             dbg!("Error in GetDefaultRoute");
             Err(Error::GetDefaultRoute)
-        },
+        }
     }
     //let mut default_route = WinNetDefaultRoute::default();
     //match unsafe {
