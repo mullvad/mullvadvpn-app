@@ -2,7 +2,7 @@ use std::{fmt, net::IpAddr};
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
 use tonic::transport::Channel;
 
-mod kem;
+mod classic_mceliece;
 
 #[allow(clippy::derive_partial_eq_without_eq)]
 mod proto {
@@ -13,7 +13,8 @@ mod proto {
 pub enum Error {
     GrpcConnectError(tonic::transport::Error),
     GrpcError(tonic::Status),
-    InvalidCiphertext,
+    InvalidCiphertextLength { actual: usize, expected: usize },
+    InvalidCiphertextCount { actual: usize },
 }
 
 impl std::fmt::Display for Error {
@@ -22,7 +23,13 @@ impl std::fmt::Display for Error {
         match self {
             GrpcConnectError(_) => "Failed to connect to config service".fmt(f),
             GrpcError(status) => write!(f, "RPC failed: {}", status),
-            InvalidCiphertext => "The service returned an invalid ciphertext".fmt(f),
+            InvalidCiphertextLength { actual, expected } => write!(
+                f,
+                "Expected a ciphertext of length {expected}, got {actual} bytes"
+            ),
+            InvalidCiphertextCount { actual } => {
+                write!(f, "Expected 1 ciphertext in the response, got {actual}")
+            }
         }
     }
 }
@@ -41,7 +48,9 @@ type RelayConfigService = proto::post_quantum_secure_client::PostQuantumSecureCl
 /// Port used by the tunnel config service.
 pub const CONFIG_SERVICE_PORT: u16 = 1337;
 
-const ALGORITHM_NAME: &str = "Classic-McEliece-8192128f";
+/// Use the smallest CME variant with NIST security level 3. This variant has significantly smaller
+/// keys than the larger variants, and is considered safe.
+const CLASSIC_MCELIECE_VARIANT: &str = "Classic-McEliece-460896f";
 
 /// Generates a new WireGuard key pair and negotiates a PSK with the relay in a PQ-safe
 /// manner. This creates a peer on the relay with the new WireGuard pubkey and PSK,
@@ -52,28 +61,51 @@ pub async fn push_pq_key(
     wg_pubkey: PublicKey,
 ) -> Result<(PrivateKey, PresharedKey), Error> {
     let wg_psk_privkey = PrivateKey::new_from_random();
-    let (kem_pubkey, kem_secret) = kem::generate_keys().await;
+    let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
 
     let mut client = new_client(service_address).await?;
     let response = client
-        .psk_exchange_experimental_v0(proto::PskRequestExperimentalV0 {
+        .psk_exchange_experimental_v1(proto::PskRequestExperimentalV1 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),
             wg_psk_pubkey: wg_psk_privkey.public_key().as_bytes().to_vec(),
-            kem_pubkey: Some(proto::KemPubkeyExperimentalV0 {
-                algorithm_name: ALGORITHM_NAME.to_string(),
-                key_data: kem_pubkey.as_array().to_vec(),
-            }),
+            kem_pubkeys: vec![proto::KemPubkeyExperimentalV1 {
+                algorithm_name: CLASSIC_MCELIECE_VARIANT.to_owned(),
+                key_data: cme_kem_pubkey.as_array().to_vec(),
+            }],
         })
         .await
         .map_err(Error::GrpcError)?;
 
-    let ciphertext_array: [u8; kem::CRYPTO_CIPHERTEXTBYTES] = response
-        .into_inner()
-        .ciphertext
-        .try_into()
-        .map_err(|_| Error::InvalidCiphertext)?;
-    let ciphertext = kem::Ciphertext::from(ciphertext_array);
-    Ok((wg_psk_privkey, kem::decapsulate(&kem_secret, &ciphertext)))
+    let ciphertexts = response.into_inner().ciphertexts;
+    // Unpack the ciphertexts into one per KEM without needing to access them by index.
+    let [cme_ciphertext] = <&[Vec<u8>; 1]>::try_from(ciphertexts.as_slice()).map_err(|_| {
+        Error::InvalidCiphertextCount {
+            actual: ciphertexts.len(),
+        }
+    })?;
+
+    let mut psk_data = [0u8; 32];
+    // Decapsulate Classic McEliece and mix into PSK
+    {
+        let ciphertext_array =
+            <[u8; classic_mceliece::CRYPTO_CIPHERTEXTBYTES]>::try_from(cme_ciphertext.as_slice())
+                .map_err(|_| Error::InvalidCiphertextLength {
+                actual: cme_ciphertext.len(),
+                expected: classic_mceliece::CRYPTO_CIPHERTEXTBYTES,
+            })?;
+        let ciphertext = classic_mceliece::Ciphertext::from(ciphertext_array);
+        let shared_secret = classic_mceliece::decapsulate(&cme_kem_secret, &ciphertext);
+        xor_assign(&mut psk_data, shared_secret.as_array());
+    }
+
+    Ok((wg_psk_privkey, PresharedKey::from(psk_data)))
+}
+
+/// Performs `dst = dst ^ src`.
+fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
+    for (dst_byte, src_byte) in dst.iter_mut().zip(src.iter()) {
+        *dst_byte ^= src_byte;
+    }
 }
 
 async fn new_client(addr: IpAddr) -> Result<RelayConfigService, Error> {
