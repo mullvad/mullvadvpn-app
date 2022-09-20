@@ -62,8 +62,11 @@ function inject_version {
 
     echo "Setting Rust crate versions to $semver_version"
     # Rust crates
-    sed -i.bak -Ee "0,/^version = \"[^\"]+\"\$/s/^version = \"[^\"]+\"\$/version = \"$semver_version\"/g" \
-        "${MANIFESTS[@]}"
+    for toml in "${MANIFESTS[@]}"; do
+        cp "$toml" "$toml.bak"
+        awk "BEGIN { matches=0; } matches==0 && /^version = \"[^\"]+\"$/ \
+             { print \"version = \\\"$semver_version\\\"\"; matches++; next; } { print }" "$toml.bak" > "$toml"
+    done
 
     if [[ "$DESKTOP" == "true" ]]; then
         echo "Setting desktop version to $semver_version"
