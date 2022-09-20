@@ -94,7 +94,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
         .set_pending_start(Duration::from_secs(1))
         .unwrap();
 
-    let clean_shutdown = Arc::new(AtomicBool::new(false));
+    let should_restart = Arc::new(AtomicBool::new(true));
 
     let log_dir = crate::get_log_dir(cli::get_config()).expect("Log dir should be available here");
 
@@ -119,7 +119,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
             persistent_service_status.clone(),
             shutdown_handle,
             event_rx,
-            clean_shutdown.clone(),
+            should_restart.clone(),
         );
 
         persistent_service_status.set_running().unwrap();
@@ -135,7 +135,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
         Ok(()) => {
             log::info!("Stopping service");
             // check if shutdown signal was sent from the system
-            if clean_shutdown.load(Ordering::Acquire) {
+            if !should_restart.load(Ordering::Acquire) {
                 ServiceExitCode::default()
             } else {
                 // otherwise return a non-zero code so that the daemon gets restarted
@@ -157,13 +157,13 @@ fn start_event_monitor(
     persistent_service_status: PersistentServiceStatus,
     shutdown_handle: DaemonShutdownHandle,
     event_rx: mpsc::Receiver<ServiceControl>,
-    clean_shutdown: Arc<AtomicBool>,
+    should_restart: Arc<AtomicBool>,
 ) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         let mut shutdown_handle = ServiceShutdownHandle {
             persistent_service_status,
             shutdown_handle,
-            clean_shutdown,
+            should_restart,
         };
         let mut hibernation_detector = HibernationDetector::new(shutdown_handle.clone());
         for event in event_rx {
@@ -171,7 +171,7 @@ fn start_event_monitor(
                 ServiceControl::Stop | ServiceControl::Preshutdown => {
                     // If the daemon is closing due to the system shutting down,
                     // keep blocking traffic after the daemon exits.
-                    shutdown_handle.shutdown(true, event == ServiceControl::Preshutdown);
+                    shutdown_handle.shutdown(false, event == ServiceControl::Preshutdown);
                 }
                 ServiceControl::PowerEvent(details) => match details {
                     PowerEventParam::Suspend => {
@@ -197,17 +197,16 @@ fn start_event_monitor(
 struct ServiceShutdownHandle {
     persistent_service_status: PersistentServiceStatus,
     shutdown_handle: DaemonShutdownHandle,
-    clean_shutdown: Arc<AtomicBool>,
+    should_restart: Arc<AtomicBool>,
 }
 
 impl ServiceShutdownHandle {
-    fn shutdown(&mut self, restart_service: bool, is_system_shutdown: bool) {
+    fn shutdown(&mut self, should_restart: bool, is_system_shutdown: bool) {
         self.persistent_service_status
             .set_pending_stop(Duration::from_secs(10))
             .unwrap();
 
-        self.clean_shutdown
-            .store(restart_service, Ordering::Release);
+        self.should_restart.store(should_restart, Ordering::Release);
         self.shutdown_handle.shutdown(!is_system_shutdown);
     }
 }
@@ -485,7 +484,7 @@ impl HibernationDetector {
             log::info!("System is being restored from hibernation. Restarting daemon service");
 
             // Perform a non-clean shutdown. This will cause the daemon to restart itself.
-            self.shutdown_handle.shutdown(false, true);
+            self.shutdown_handle.shutdown(true, true);
         }
     }
 }
