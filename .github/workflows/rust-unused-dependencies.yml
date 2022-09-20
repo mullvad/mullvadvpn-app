@@ -43,6 +43,11 @@ jobs:
             - name: Install cargo-udeps
               run: cargo install cargo-udeps
 
+            - name: Install Protoc
+              uses: arduino/setup-protoc@v1
+              with:
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+
             - name: Check for unused dependencies
               run: |
                 source env.sh

@@ -14,6 +14,11 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
+            - name: Install Protoc
+              uses: arduino/setup-protoc@v1
+              with:
+                repo-token: ${{ secrets.GITHUB_TOKEN }}
+
             - name: Install cargo-audit
               uses: actions-rs/install@v0.1.2
               with:
