@@ -37,14 +37,13 @@ struct DefaultRouteMonitorContext {
 }
 
 impl DefaultRouteMonitorContext {
-    fn new(callback: Box<dyn Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>, family: AddressFamily) -> Result<Self> {
-        let ctx = Self {
+    fn new(callback: Box<dyn Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>, family: AddressFamily) -> Self {
+        Self {
             callback,
-            best_route: get_best_default_route(family)?,
+            best_route: None,
             refresh_current_route: false,
             family,
-        };
-        Ok(ctx)
+        }
     }
 
     fn update_refresh_flag(&mut self, luid: &NET_LUID_LH, index: u32) {
@@ -110,12 +109,21 @@ impl std::ops::Deref for ReadOnly {
 }
 
 struct DefaultRouteMonitor {
-    notify_route_change_handle: Handle,
-    notify_interface_change_handle: Handle,
-    notify_address_change_handle: Handle,
+    // SAFETY: These handles must be dropped before the context. This will happen automatically if it is handled by DefaultRouteMonitors drop implementation
+    notify_change_handles: Option<(Handle, Handle, Handle)>,
     // SAFETY: Context must be dropped after all of the notifier handles have been dropped in order to guarantee none of them use its pointer.
-    // context is also wrapped in a ReadOnly struct in order to guarantee no mutation happens to it after pointers have been given to the notifier functions.
-    context: ReadOnly,
+    // This will be dropped by DefaultRouteMonitors drop implementation.
+    // SAFETY: The content of this pointer is not allowed to be mutated at any point except for in the drop implementation
+    context: *mut OuterContext,
+}
+
+impl std::ops::Drop for DefaultRouteMonitor {
+    fn drop(&mut self) {
+        drop(self.notify_change_handles.take());
+        // SAFETY: This pointer was created by Box::into_raw and is not modified since then.
+        // This function is also only called once
+        drop(unsafe { Box::from_raw(self.context) });
+    }
 }
 
 // TODO: We could potentially save the raw pointer to the weak pointer that we provided to the notification function,
@@ -123,14 +131,14 @@ struct DefaultRouteMonitor {
 // However it is not clear exactly how the notification function handles that memory and using it after us dropping it
 // would be very bad.
 // Use already existing struct
-struct Handle(HANDLE);
+struct Handle(*mut HANDLE);
 
 impl std::ops::Drop for Handle {
     fn drop(&mut self) {
         // SAFETY: There is no clear safety specification on this function. However self.0 should point to a handle that has
         // been allocated by windows and should be non-null. Even if it is non-null this function tolerates that but would error.
         unsafe {
-            if NO_ERROR as i32 != CancelMibChangeNotify2(self.0) {
+            if NO_ERROR as i32 != CancelMibChangeNotify2(*self.0) {
                 panic!("Could not cancel change notification callback")
             }
         }
@@ -154,9 +162,7 @@ struct OuterContext {
 impl DefaultRouteMonitor {
     fn new<F: Fn(EventType, &Option<WinNetDefaultRoute>) + Send + 'static>(family: AddressFamily, callback: F) -> Result<Self> {
         let callback = Box::new(callback);
-        // FIXME: We reordered this from the c++ code so it calls get_best_default_route in the beginning before the
-        // notification calls, this might cause some weird behavior even if it at first glance looks fine.
-        let context = Arc::new(Mutex::new(DefaultRouteMonitorContext::new(callback, family)?));
+        let context = Arc::new(Mutex::new(DefaultRouteMonitorContext::new(callback, family)));
 
         let moved_context = context.clone();
         let burst_guard = Mutex::new(BurstGuard::new(move || {
@@ -167,11 +173,36 @@ impl DefaultRouteMonitor {
         // and then cast that as a c_void pointer. This imposes the requirement that the Box is not mutated or dropped until after those notifications are no guaranteed to not run.
         // This happens when the DefaultRouteMonitor is dropped and not before then. It also imposes the requirement that OuterContext is `Sync` since we will send
         // references to it to other threads. This requirement is fullfilled since all fields of `OuterContext` are wrapped in either a Arc<Mutex> or Mutex.
-        let outer_context = ReadOnly(Box::new(OuterContext {
+        let outer_context = Box::into_raw(Box::new(OuterContext {
             context,
             burst_guard,
         }));
+        
+        let handles = match Self::register_callbacks(family, outer_context) {
+            Ok(handles) => handles,
+            Err(e) => {
+                // Clean up the memory leak in case of error
+                unsafe { Box::from_raw(outer_context) };
+                return Err(e);
+            }
+        };
 
+        let monitor = Self {
+            context: outer_context,
+            notify_change_handles: Some(handles)
+        };
+
+        // We must set the best default route after we have registered listeners in order to avoid race conditions.
+        {
+            let context = &unsafe { &*(monitor.context) }.context;
+            let mut context = context.lock().unwrap();
+            context.best_route = get_best_default_route(context.family)?;
+        }
+
+        Ok(monitor)
+    }
+
+    fn register_callbacks(family: AddressFamily, outer_context: *mut OuterContext) -> Result<(Handle, Handle, Handle)> {
         let family = family.to_af_family();
 
         // NotifyRouteChange2
@@ -179,15 +210,14 @@ impl DefaultRouteMonitor {
         // We provide a Mutex for the state turned into a Weak pointer turned into a raw pointer in order to not have to manually deallocate
         // the memory after we cancel the callbacks. This will leak the weak pointer but the context state itself will be correctly dropped
         // when DefaultRouteManager is dropped.
-        let context_ptr = &**outer_context as *const OuterContext;
+        let context_ptr = outer_context as *const OuterContext;
         let handle_ptr = std::ptr::null_mut();
         if NO_ERROR as i32 != unsafe {
             NotifyRouteChange2(u16::try_from(family).map_err(|_| Error::Conversion)?, Some(route_change_callback), context_ptr as *const _, WIN_FALSE, handle_ptr)
         } {
             return Err(Error::WindowsApi);
         }
-        // SAFETY: NotifyRouteChange2 is guaranteed not to be an error here so handle_ptr is guaranteed to be non-null so dereferencing is safe
-        let notify_route_change_handle = Handle(unsafe { *handle_ptr });
+        let notify_route_change_handle = Handle(handle_ptr);
 
         // NotifyIpInterfaceChange
         let handle_ptr = std::ptr::null_mut();
@@ -196,8 +226,7 @@ impl DefaultRouteMonitor {
         } {
             return Err(Error::WindowsApi);
         }
-        // SAFETY: NotifyIpInterfaceChange is guaranteed not to be an error here so handle_ptr is guaranteed to be non-null so dereferencing is safe
-        let notify_interface_change_handle = Handle(unsafe { *handle_ptr });
+        let notify_interface_change_handle = Handle(handle_ptr);
 
         // NotifyUnicastIpAddressChange
         let handle_ptr = std::ptr::null_mut();
@@ -206,17 +235,9 @@ impl DefaultRouteMonitor {
         } {
             return Err(Error::WindowsApi);
         }
-        // SAFETY: NotifyUnicastIpAddressChange is guaranteed not to be an error here so handle_ptr is guaranteed to be non-null so dereferencing is safe
-        let notify_address_change_handle = Handle(unsafe { *handle_ptr });
-
-        Ok(Self {
-            context: outer_context,
-            notify_route_change_handle,
-            notify_interface_change_handle,
-            notify_address_change_handle,
-        })
+        let notify_address_change_handle = Handle(handle_ptr);
+        Ok((notify_route_change_handle, notify_interface_change_handle, notify_address_change_handle))
     }
-
 }
 
 // SAFETY: `context` is a Arc::<OuterContext>::as_ptr() pointer which is fine to dereference as long as there exists a strong count to the Arc.

@@ -344,10 +344,7 @@ pub fn get_best_default_route(
                 SocketAddr::V4(addr) => {
                     let octets = addr.ip().octets();
                     let mut ip_bytes = [0; 16];
-                    ip_bytes[0] = octets[0];
-                    ip_bytes[1] = octets[1];
-                    ip_bytes[2] = octets[2];
-                    ip_bytes[3] = octets[3];
+                    ip_bytes.copy_from_slice(&addr.ip().octets());
                     WinNetIp {
                         addr_family: WinNetAddrFamily::IPV4,
                         ip_bytes,

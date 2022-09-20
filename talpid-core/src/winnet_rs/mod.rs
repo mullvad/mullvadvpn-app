@@ -6,7 +6,7 @@ use windows_sys::Win32::
     Foundation::{BOOLEAN, HANDLE, NO_ERROR},
 };
 use widestring::{u16cstr, U16CStr};
-use crate::windows::AddressFamily;
+use crate::windows::{AddressFamily, get_ip_interface_entry};
 
 mod route_manager;
 
@@ -85,53 +85,89 @@ pub fn get_best_default_route(family: AddressFamily) -> Result<Option<WinNetDefa
     }
 }
 
-struct MibIpforwardTable2(*mut MIB_IPFORWARD_TABLE2);
-
-impl MibIpforwardTable2 {
-    fn new(family: AddressFamily) -> Result<Self> {
-        let family = family.to_af_family();
-        let mut table_ptr = std::ptr::null_mut();
-        // SAFETY: GetIpForwardTable2 does not have clear safety specifications however what it does is
-        // heap allocate a IpForwardTable2 and then change table_ptr to point to that allocation.
-        if NO_ERROR as i32 != unsafe { GetIpForwardTable2(family, &mut table_ptr) } {
-            return Err(Error::WindowsApi);
-        }
-        Ok(Self(table_ptr))
+fn get_ipforward_rows(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> {
+    let family = family.to_af_family();
+    let mut table_ptr = std::ptr::null_mut();
+    // SAFETY: GetIpForwardTable2 does not have clear safety specifications however what it does is
+    // heap allocate a IpForwardTable2 and then change table_ptr to point to that allocation.
+    if NO_ERROR as i32 != unsafe { GetIpForwardTable2(family, &mut table_ptr) } {
+        return Err(Error::WindowsApi);
     }
 
-    fn get_table_entry(&self, i: u32) -> Option<&MIB_IPFORWARD_ROW2> {
-        if i < self.num_entries() || usize::try_from(i).unwrap() * std::mem::size_of::<MIB_IPFORWARD_ROW2>() < usize::try_from(isize::MAX).unwrap() {
-            return None;
+    // SAFETY: self.0 is always valid since the MIB_IPFORWARD_TABLE2 is allocated by `Self::new()` and is deallocated on drop.
+    // self.0 is guaranteed to not be mutably accessed somewhere else since `&self` is taken.
+    let num_entries = unsafe { *table_ptr }.NumEntries;
+    let mut vec = Vec::with_capacity(num_entries.try_into().unwrap_or_default());
+    for i in 0..num_entries {
+        if usize::try_from(i).unwrap() * std::mem::size_of::<MIB_IPFORWARD_ROW2>() >= usize::try_from(isize::MAX).unwrap() {
+            panic!("Number of entries returned by windows too large");
         }
-
         // SAFETY: The slice will live as long as self is not dropped. As such this pointer
         // is guaranteed not to point to garbage. It is also ensured that the slice is not modified
         // as we are tying this to a &'a of self.
-        let ptr: *const MIB_IPFORWARD_ROW2 = unsafe { (*self.0).Table.as_ptr() };
+        let ptr: *const MIB_IPFORWARD_ROW2 = unsafe { (*table_ptr).Table.as_ptr() };
         // SAFETY: The first assert guarantees that i does not refer to an out-of-bounds.
         // The second assert guarantees that i is not larger than isize::MAX.
         // Win32 guarantees that the resulting pointer is aligned, non-null, init.
         // The underlying pointer will not be freed until self is dropped, which guarantees that the reference lives
         // long enough.
         let row: &MIB_IPFORWARD_ROW2 = unsafe { ptr.offset(i.try_into().unwrap()).as_ref() }.unwrap();
-        Some(row)
+        vec.push(row.clone());
     }
-
-    fn num_entries(&self) -> u32 {
-        // SAFETY: self.0 is always valid since the MIB_IPFORWARD_TABLE2 is allocated by `Self::new()` and is deallocated on drop.
-        // self.0 is guaranteed to not be mutably accessed somewhere else since `&self` is taken.
-        unsafe { *self.0 }.NumEntries
-    }
+    // SAFETY: FreeMibTable does not have clear safety rules but it deallocates the MIB_IPFORWARD_TABLE2
+    // This pointer will not be accessed after this since this is drop.
+    // This pointer is ONLY deallocated here so it is guaranteed to not have been already deallocated.
+    unsafe { FreeMibTable(table_ptr as *const _) }
+    Ok(vec)
 }
 
-impl Drop for MibIpforwardTable2 {
-    fn drop(&mut self) {
-        // SAFETY: FreeMibTable does not have clear safety rules but it deallocates the MIB_IPFORWARD_TABLE2
-        // This pointer will not be accessed after this since this is drop.
-        // This pointer is ONLY deallocated here so it is guaranteed to not have been already deallocated.
-        unsafe { FreeMibTable(self.0 as *const _) }
-    }
-}
+//struct MibIpforwardTable2(*mut MIB_IPFORWARD_TABLE2, u32);
+//
+//impl MibIpforwardTable2 {
+//    fn new(family: AddressFamily) -> Result<Self> {
+//        let family = family.to_af_family();
+//        let mut table_ptr = std::ptr::null_mut();
+//        // SAFETY: GetIpForwardTable2 does not have clear safety specifications however what it does is
+//        // heap allocate a IpForwardTable2 and then change table_ptr to point to that allocation.
+//        if NO_ERROR as i32 != unsafe { GetIpForwardTable2(family, &mut table_ptr) } {
+//            return Err(Error::WindowsApi);
+//        }
+//        Ok(Self(table_ptr, 0))
+//    }
+//
+//    fn get_table_entry(&self, i: u32) -> Option<&MIB_IPFORWARD_ROW2> {
+//        if i < self.num_entries() || usize::try_from(i).unwrap() * std::mem::size_of::<MIB_IPFORWARD_ROW2>() < usize::try_from(isize::MAX).unwrap() {
+//            return None;
+//        }
+//
+//        // SAFETY: The slice will live as long as self is not dropped. As such this pointer
+//        // is guaranteed not to point to garbage. It is also ensured that the slice is not modified
+//        // as we are tying this to a &'a of self.
+//        let ptr: *const MIB_IPFORWARD_ROW2 = unsafe { (*self.0).Table.as_ptr() };
+//        // SAFETY: The first assert guarantees that i does not refer to an out-of-bounds.
+//        // The second assert guarantees that i is not larger than isize::MAX.
+//        // Win32 guarantees that the resulting pointer is aligned, non-null, init.
+//        // The underlying pointer will not be freed until self is dropped, which guarantees that the reference lives
+//        // long enough.
+//        let row: &MIB_IPFORWARD_ROW2 = unsafe { ptr.offset(i.try_into().unwrap()).as_ref() }.unwrap();
+//        Some(row)
+//    }
+//
+//    fn num_entries(&self) -> u32 {
+//        // SAFETY: self.0 is always valid since the MIB_IPFORWARD_TABLE2 is allocated by `Self::new()` and is deallocated on drop.
+//        // self.0 is guaranteed to not be mutably accessed somewhere else since `&self` is taken.
+//        unsafe { *self.0 }.NumEntries
+//    }
+//}
+//
+//impl Drop for MibIpforwardTable2 {
+//    fn drop(&mut self) {
+//        // SAFETY: FreeMibTable does not have clear safety rules but it deallocates the MIB_IPFORWARD_TABLE2
+//        // This pointer will not be accessed after this since this is drop.
+//        // This pointer is ONLY deallocated here so it is guaranteed to not have been already deallocated.
+//        unsafe { FreeMibTable(self.0 as *const _) }
+//    }
+//}
 
 struct InterfaceAndGateway {
     iface: NET_LUID_LH,
@@ -139,27 +175,29 @@ struct InterfaceAndGateway {
 }
 
 fn get_best_default_internal(family: AddressFamily) -> Result<Option<InterfaceAndGateway>> {
-    dbg!(&family);
-    let table = MibIpforwardTable2::new(family)?;
-    let mut candidates = Vec::with_capacity(usize::try_from(table.num_entries()).map_err(|_| Error::Conversion)?);
+    let table = get_ipforward_rows(family)?;
+    // TODO: Remove comments
+    //let mut candidates = Vec::with_capacity(usize::try_from(table.num_entries()).map_err(|_| Error::Conversion)?);
 
 	//
 	// Enumerate routes looking for: route 0/0
 	// The WireGuard interface route has no gateway.
 	//
 
-    for i in 0..table.num_entries() {
-		let candidate = table.get_table_entry(i).unwrap();
+ //   for i in 0..table.num_entries() {
+	//	let candidate = table.get_table_entry(i).unwrap();
 
-		if 0 == candidate.DestinationPrefix.PrefixLength
-			&& route_has_gateway(candidate)
-			&& is_route_on_physical_interface(candidate)?
-		{
-			candidates.push(candidate);
-		}
-	}
-
-	let mut annotated = annotated_routes(&candidates);
+	//	if 0 == candidate.DestinationPrefix.PrefixLength
+	//		&& route_has_gateway(candidate)
+	//		&& is_route_on_physical_interface(candidate)?
+	//	{
+	//		candidates.push(candidate);
+	//	}
+	//}
+    let mut annotated: Vec<AnnotatedRoute<'_>> = table.iter().filter(|candidate| 0 == candidate.DestinationPrefix.PrefixLength
+        && route_has_gateway(candidate)
+        && is_route_on_physical_interface(candidate).unwrap_or(false))
+    .filter_map(|candidate| annotate_route(candidate)).collect();
 
 	if annotated.is_empty() {
 		return Ok(None);
@@ -219,9 +257,7 @@ fn is_route_on_physical_interface(route: &MIB_IPFORWARD_ROW2) -> Result<bool> {
         U16CStr::from_slice_truncate(&row.Description)
             .expect("Windows provided incorrectly formatted utf16 string");
     for tunnel_interface_desc in TUNNEL_INTERFACE_DESCS {
-        // There is no slice equivalent of `String::contains` so we will have to make due with `windows()`
-        if row_description.as_slice().windows(tunnel_interface_desc.as_slice().len())
-        .any(|sub_slice| sub_slice == tunnel_interface_desc.as_slice()) {
+        if contains_subslice(row_description.as_slice(), tunnel_interface_desc.as_slice()) {
             return Ok(false);
         }
     }
@@ -229,37 +265,31 @@ fn is_route_on_physical_interface(route: &MIB_IPFORWARD_ROW2) -> Result<bool> {
     return Ok(true);
 }
 
+// TODO: Move this function
+fn contains_subslice<T: PartialEq>(slice: &[T], subslice: &[T]) -> bool {
+    slice.windows(subslice.len()).any(|window| window == subslice)
+}
 
 struct AnnotatedRoute<'a> {
 	route: &'a MIB_IPFORWARD_ROW2,
 	effective_metric: u32
 }
 
-fn annotated_routes<'a>(routes: &'_ Vec<&'a MIB_IPFORWARD_ROW2>) -> Vec<AnnotatedRoute<'a>> {
-    routes.iter().filter_map(|route| {
-        // GetAdapterInterface
-        let mut iface: MIB_IPINTERFACE_ROW = unsafe { std::mem::zeroed() };
+fn annotate_route<'a>(route: &'a MIB_IPFORWARD_ROW2) -> Option<AnnotatedRoute<'a>> {
+    // SAFETY: `si_family` is valid in both `Ipv4` and `Ipv6` so we can safely access `si_family`.
+    let iface = get_ip_interface_entry(AddressFamily::try_from_af_family(unsafe { route.DestinationPrefix.Prefix.si_family }).ok()?,
+    &route.InterfaceLuid).ok()?;
 
-        // SAFETY: `si_family` is valid in both `Ipv4` and `Ipv6` so we can safely access `si_family`.
-        iface.Family = unsafe { route.DestinationPrefix.Prefix.si_family };
-        iface.InterfaceLuid = route.InterfaceLuid;
-
-        // TODO: Make sure this is semantically equivalent with the c++
-        // SAFETY: GetIpInterfaceEntry does not have clear safety rules however GetIpInterfaceEntry will read the iface.InterfaceLuid
-        // or iface.InterfaceIndex and use that information to populate the struct. We guarantee here that this struct and these
-        // fields are valid since they are initliazed through default.
-        let res = unsafe { GetIpInterfaceEntry(&mut iface as *mut MIB_IPINTERFACE_ROW) };
-        if NO_ERROR as i32 == res {
-            if iface.Connected == 0 {
-                None
-            } else {
-                Some(AnnotatedRoute {
-                    route,
-                    effective_metric: route.Metric + iface.Metric,
-                })
-            }
-        } else {
-            None
-        }
-    }).collect()
+    // TODO: Make sure this is semantically equivalent with the c++
+    // SAFETY: GetIpInterfaceEntry does not have clear safety rules however GetIpInterfaceEntry will read the iface.InterfaceLuid
+    // or iface.InterfaceIndex and use that information to populate the struct. We guarantee here that this struct and these
+    // fields are valid since they are initliazed through default.
+    if iface.Connected == 0 {
+        None
+    } else {
+        Some(AnnotatedRoute {
+            route,
+            effective_metric: route.Metric + iface.Metric,
+        })
+    }
 }
