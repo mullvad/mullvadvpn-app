@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { AriaInputGroup } from './AriaGroup';
-import Selector, { ISelectorItem } from './cell/Selector';
+import Selector, { SelectorItem } from './cell/Selector';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
@@ -24,7 +24,7 @@ interface IProps {
 }
 
 interface IState {
-  source: Array<ISelectorItem<string>>;
+  source: Array<SelectorItem<string>>;
 }
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
@@ -79,7 +79,7 @@ export default class SelectLanguage extends React.Component<IProps, IState> {
                 <AriaInputGroup>
                   <StyledSelector
                     title=""
-                    values={this.state.source}
+                    items={this.state.source}
                     value={this.props.preferredLocale}
                     onSelect={this.props.setPreferredLocale}
                     selectedCellRef={this.selectedCellRef}
