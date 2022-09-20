@@ -3,7 +3,7 @@ use libc::c_void;
 use mullvad_daemon::{runtime::new_runtime_builder, DaemonShutdownHandle};
 use std::{
     env,
-    ffi::{OsStr, OsString},
+    ffi::OsString,
     mem, ptr, slice,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
@@ -38,8 +38,6 @@ static SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
 const SERVICE_RECOVERY_LAST_RESTART_DELAY: Duration = Duration::from_secs(60 * 10);
 const SERVICE_FAILURE_RESET_PERIOD: Duration = Duration::from_secs(60 * 15);
-
-const SERVICE_RESTART_TIMEOUT: Duration = Duration::from_secs(60 * 2);
 
 lazy_static::lazy_static! {
     static ref SERVICE_ACCESS: ServiceAccess = ServiceAccess::QUERY_CONFIG
@@ -96,7 +94,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
         .set_pending_start(Duration::from_secs(1))
         .unwrap();
 
-    let clean_shutdown = Arc::new(AtomicBool::new(false));
+    let should_restart = Arc::new(AtomicBool::new(true));
 
     let log_dir = crate::get_log_dir(cli::get_config()).expect("Log dir should be available here");
 
@@ -121,7 +119,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
             persistent_service_status.clone(),
             shutdown_handle,
             event_rx,
-            clean_shutdown.clone(),
+            should_restart.clone(),
         );
 
         persistent_service_status.set_running().unwrap();
@@ -137,7 +135,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
         Ok(()) => {
             log::info!("Stopping service");
             // check if shutdown signal was sent from the system
-            if clean_shutdown.load(Ordering::Acquire) {
+            if !should_restart.load(Ordering::Acquire) {
                 ServiceExitCode::default()
             } else {
                 // otherwise return a non-zero code so that the daemon gets restarted
@@ -156,22 +154,24 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
 /// Start event monitor thread that polls for `ServiceControl` and translates them into calls to
 /// Daemon.
 fn start_event_monitor(
-    mut persistent_service_status: PersistentServiceStatus,
+    persistent_service_status: PersistentServiceStatus,
     shutdown_handle: DaemonShutdownHandle,
     event_rx: mpsc::Receiver<ServiceControl>,
-    clean_shutdown: Arc<AtomicBool>,
+    should_restart: Arc<AtomicBool>,
 ) -> thread::JoinHandle<()> {
     thread::spawn(move || {
-        let mut hibernation_detector = HibernationDetector::default();
+        let mut shutdown_handle = ServiceShutdownHandle {
+            persistent_service_status,
+            shutdown_handle,
+            should_restart,
+        };
+        let mut hibernation_detector = HibernationDetector::new(shutdown_handle.clone());
         for event in event_rx {
             match event {
                 ServiceControl::Stop | ServiceControl::Preshutdown => {
-                    persistent_service_status
-                        .set_pending_stop(Duration::from_secs(10))
-                        .unwrap();
-
-                    clean_shutdown.store(true, Ordering::Release);
-                    shutdown_handle.shutdown();
+                    // If the daemon is closing due to the system shutting down,
+                    // keep blocking traffic after the daemon exits.
+                    shutdown_handle.shutdown(false, event == ServiceControl::Preshutdown);
                 }
                 ServiceControl::PowerEvent(details) => match details {
                     PowerEventParam::Suspend => {
@@ -191,6 +191,26 @@ fn start_event_monitor(
             }
         }
     })
+}
+
+#[derive(Clone)]
+struct ServiceShutdownHandle {
+    persistent_service_status: PersistentServiceStatus,
+    shutdown_handle: DaemonShutdownHandle,
+    /// If true, the service will be restarted by the SCM when
+    /// the daemon has exited.
+    should_restart: Arc<AtomicBool>,
+}
+
+impl ServiceShutdownHandle {
+    fn shutdown(&mut self, should_restart: bool, is_system_shutdown: bool) {
+        self.persistent_service_status
+            .set_pending_stop(Duration::from_secs(10))
+            .unwrap();
+
+        self.should_restart.store(should_restart, Ordering::Release);
+        self.shutdown_handle.shutdown(!is_system_shutdown);
+    }
 }
 
 /// Service status helper with persistent checkpoint counter.
@@ -385,69 +405,26 @@ fn get_service_info() -> ServiceInfo {
     }
 }
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
-pub enum RestartError {
-    #[error(display = "Unable to connect to service manager")]
-    ConnectServiceManager(#[error(source)] windows_service::Error),
-
-    #[error(display = "Unable to open service")]
-    OpenService(#[error(source)] windows_service::Error),
-
-    #[error(display = "Failed to query service status")]
-    QueryStatus(#[error(source)] windows_service::Error),
-
-    #[error(display = "Failed to stop service")]
-    StopService(#[error(source)] windows_service::Error),
-
-    #[error(display = "Failed to start service")]
-    StartService(#[error(source)] windows_service::Error),
-
-    #[error(display = "Timed out while stopping service")]
-    Timeout,
-}
-
-pub fn restart_service() -> Result<(), RestartError> {
-    let manager_access = ServiceManagerAccess::CONNECT;
-    let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
-        .map_err(RestartError::ConnectServiceManager)?;
-
-    let service_access = ServiceAccess::QUERY_STATUS | ServiceAccess::START | ServiceAccess::STOP;
-    let service = service_manager
-        .open_service(SERVICE_NAME, service_access)
-        .map_err(RestartError::OpenService)?;
-
-    service.stop().map_err(RestartError::StopService)?;
-
-    let start_time = Instant::now();
-
-    loop {
-        let status = service.query_status().map_err(RestartError::QueryStatus)?;
-        if status.current_state == ServiceState::Stopped {
-            let args: [&OsStr; 0] = [];
-            break service.start(&args).map_err(RestartError::StartService);
-        }
-
-        if start_time.elapsed() > SERVICE_RESTART_TIMEOUT {
-            break Err(RestartError::Timeout);
-        }
-
-        std::thread::sleep(Duration::from_secs(1));
-    }
-}
-
 /// Used to track events that taken together would mean the machine is heading towards being
 /// hibernated. Typically, the user's session if first terminated. Moments later we should receive a
 /// suspension event corresponding to the hibernation of session 0 (kernel and services).
-#[derive(Default)]
 struct HibernationDetector {
     logoff_time: Option<Instant>,
     should_restart: bool,
+    shutdown_handle: ServiceShutdownHandle,
 }
 
 const SECURITY_LOGON_TYPE_INTERACTIVE: u32 = 2;
 
 impl HibernationDetector {
+    fn new(shutdown_handle: ServiceShutdownHandle) -> Self {
+        Self {
+            logoff_time: None,
+            should_restart: false,
+            shutdown_handle,
+        }
+    }
+
     /// Register a session logoff.
     /// The logoff event is discarded unless the session was/is interactive.
     fn register_logoff(&mut self, session_id: u32) {
@@ -507,31 +484,9 @@ impl HibernationDetector {
         if self.should_restart {
             self.should_restart = false;
             log::info!("System is being restored from hibernation. Restarting daemon service");
-            if let Err(err) = Self::restart_daemon() {
-                log::error!("{}", err);
-            }
-        }
-    }
 
-    /// Performs a clean shutdown and restart of the daemon.
-    fn restart_daemon() -> Result<(), String> {
-        let daemon_path = env::current_exe()
-            .map_err(|e| e.display_chain_with_msg("Failed to obtain daemon path"))?;
-        let working_dir = daemon_path
-            .parent()
-            .ok_or("Failed to obtain resource directory".to_string())?
-            .to_path_buf();
-        let args = vec![
-            "--restart-service".to_string(),
-            "--disable-log-to-file".to_string(),
-        ];
-        duct::cmd(daemon_path, args)
-            .dir(working_dir)
-            .stdin_null()
-            .stdout_null()
-            .stderr_null()
-            .start()
-            .map(|_| ())
-            .map_err(|e| e.display_chain_with_msg("Failed to start helper process"))
+            // Perform a non-clean shutdown. This will cause the daemon to restart itself.
+            self.shutdown_handle.shutdown(true, true);
+        }
     }
 }

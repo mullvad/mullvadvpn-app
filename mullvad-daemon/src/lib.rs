@@ -300,7 +300,8 @@ pub(crate) enum InternalDaemonEvent {
     /// A command sent to the daemon.
     Command(DaemonCommand),
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
-    TriggerShutdown,
+    /// The boolean should indicate whether the shutdown was user-initiated.
+    TriggerShutdown(bool),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
@@ -825,7 +826,7 @@ where
                 self.handle_tunnel_state_transition(transition).await
             }
             Command(command) => self.handle_command(command).await,
-            TriggerShutdown => self.trigger_shutdown_event(),
+            TriggerShutdown(user_init_shutdown) => self.trigger_shutdown_event(user_init_shutdown),
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info);
             }
@@ -1030,7 +1031,7 @@ where
             SetObfuscationSettings(tx, settings) => {
                 self.on_set_obfuscation_settings(tx, settings).await
             }
-            Shutdown => self.trigger_shutdown_event(),
+            Shutdown => self.trigger_shutdown_event(false),
             PrepareRestart => self.on_prepare_restart(),
             #[cfg(target_os = "android")]
             BypassSocket(fd, tx) => self.on_bypass_socket(fd, tx),
@@ -1518,7 +1519,7 @@ where
         }
 
         // Shut the daemon down.
-        self.trigger_shutdown_event();
+        self.trigger_shutdown_event(false);
 
         self.shutdown_tasks.push(Box::pin(async move {
             if let Err(e) = cleanup::clear_directories().await {
@@ -2158,11 +2159,15 @@ where
         }
     }
 
-    fn trigger_shutdown_event(&mut self) {
-        // If auto-connect is enabled, block all traffic before shutting down to ensure
-        // that no traffic can leak during boot.
+    #[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
+    fn trigger_shutdown_event(&mut self, user_init_shutdown: bool) {
+        // Block all traffic before shutting down to ensure that no traffic can leak on boot or
+        // shutdown.
         #[cfg(windows)]
-        if self.settings.auto_connect {
+        if !user_init_shutdown
+            && (*self.target_state == TargetState::Secured || self.settings.auto_connect)
+        {
+            log::debug!("Blocking firewall during shutdown since system is going down");
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
         }
 
@@ -2268,13 +2273,16 @@ where
     }
 }
 
+#[derive(Clone)]
 pub struct DaemonShutdownHandle {
     tx: DaemonEventSender,
 }
 
 impl DaemonShutdownHandle {
-    pub fn shutdown(&self) {
-        let _ = self.tx.send(InternalDaemonEvent::TriggerShutdown);
+    pub fn shutdown(&self, user_init_shutdown: bool) {
+        let _ = self
+            .tx
+            .send(InternalDaemonEvent::TriggerShutdown(user_init_shutdown));
     }
 }
 
