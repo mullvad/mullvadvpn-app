@@ -1,5 +1,4 @@
-use classic_mceliece_rust::keypair_boxed;
-use talpid_types::net::wireguard::PresharedKey;
+use classic_mceliece_rust::{keypair_boxed, SharedSecret};
 
 const STACK_SIZE: usize = 2 * 1024 * 1024;
 
@@ -19,7 +18,6 @@ pub async fn generate_keys() -> (PublicKey<'static>, SecretKey<'static>) {
     rx.await.unwrap()
 }
 
-pub fn decapsulate(secret: &SecretKey, ciphertext: &Ciphertext) -> PresharedKey {
-    let shared_secret = classic_mceliece_rust::decapsulate_boxed(ciphertext, secret);
-    PresharedKey::from(*shared_secret.as_array())
+pub fn decapsulate(secret: &SecretKey, ciphertext: &Ciphertext) -> SharedSecret<'static> {
+    classic_mceliece_rust::decapsulate_boxed(ciphertext, secret)
 }
