@@ -1,7 +1,8 @@
-import * as React from 'react';
+import { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
+import { messages } from '../../../shared/gettext';
 import { useBoolean } from '../../lib/utilityHooks';
 import Accordion from '../Accordion';
 import { AriaDetails, AriaInput, AriaLabel } from '../AriaGroup';
@@ -24,43 +25,63 @@ const StyledChevronButton = styled(ChevronButton)({
   marginRight: '16px',
 });
 
-export interface ISelectorItem<T> {
+export interface SelectorItem<T> {
   label: string;
   value: T;
   disabled?: boolean;
 }
 
-interface ISelectorProps<T> {
+interface SelectorProps<T, U> {
   title?: string;
-  values: Array<ISelectorItem<T>>;
-  value: T;
-  onSelect: (value: T) => void;
-  selectedCellRef?: React.Ref<HTMLButtonElement>;
+  items: Array<SelectorItem<T>>;
+  value: T | U;
+  onSelect: (value: T | U) => void;
+  selectedCellRef?: React.Ref<HTMLElement>;
   className?: string;
   details?: React.ReactElement;
   expandable?: boolean;
   disabled?: boolean;
   thinTitle?: boolean;
+  automaticLabel?: string;
+  automaticValue?: U;
 }
 
-export default function Selector<T>(props: ISelectorProps<T>) {
+export default function Selector<T, U>(props: SelectorProps<T, U>) {
   const [expanded, , , toggleExpanded] = useBoolean(!props.expandable);
 
-  const items = props.values.map((item, i) => {
-    const selected = item.value === props.value;
+  const items = props.items.map((item) => {
+    const selected = props.value === item.value;
+    const ref = selected ? (props.selectedCellRef as React.Ref<HTMLButtonElement>) : undefined;
 
     return (
       <SelectorCell
-        key={i}
+        key={`value-${item.value}`}
         value={item.value}
-        selected={selected}
+        isSelected={selected}
         disabled={props.disabled || item.disabled}
-        forwardedRef={selected ? props.selectedCellRef : undefined}
+        forwardedRef={ref}
         onSelect={props.onSelect}>
         {item.label}
       </SelectorCell>
     );
   });
+
+  if (props.automaticValue !== undefined) {
+    const selected = props.value === props.automaticValue;
+    const ref = selected ? (props.selectedCellRef as React.Ref<HTMLButtonElement>) : undefined;
+
+    items.unshift(
+      <SelectorCell
+        key={'automatic'}
+        value={props.automaticValue}
+        isSelected={selected}
+        disabled={props.disabled}
+        forwardedRef={ref}
+        onSelect={props.onSelect}>
+        {props.automaticLabel ?? messages.gettext('Automatic')}
+      </SelectorCell>,
+    );
+  }
 
   const title = props.title && (
     <StyledTitle>
@@ -97,40 +118,38 @@ const StyledLabel = styled(Cell.Label)(normalText, {
   fontWeight: 400,
 });
 
-interface ISelectorCellProps<T> {
+interface SelectorCellProps<T> {
   value: T;
-  selected: boolean;
+  isSelected: boolean;
   disabled?: boolean;
   onSelect: (value: T) => void;
-  children?: React.ReactText;
+  children: React.ReactNode | Array<React.ReactNode>;
   forwardedRef?: React.Ref<HTMLButtonElement>;
 }
 
-class SelectorCell<T> extends React.Component<ISelectorCellProps<T>> {
-  public render() {
-    return (
-      <Cell.CellButton
-        ref={this.props.forwardedRef}
-        onClick={this.onClick}
-        selected={this.props.selected}
-        disabled={this.props.disabled}
-        role="option"
-        aria-selected={this.props.selected}
-        aria-disabled={this.props.disabled}>
-        <StyledCellIcon
-          visible={this.props.selected}
-          source="icon-tick"
-          width={18}
-          tintColor={colors.white}
-        />
-        <StyledLabel>{this.props.children}</StyledLabel>
-      </Cell.CellButton>
-    );
-  }
-
-  private onClick = () => {
-    if (!this.props.selected) {
-      this.props.onSelect(this.props.value);
+function SelectorCell<T>(props: SelectorCellProps<T>) {
+  const handleClick = useCallback(() => {
+    if (!props.isSelected) {
+      props.onSelect(props.value);
     }
-  };
+  }, [props.isSelected, props.onSelect, props.value]);
+
+  return (
+    <Cell.CellButton
+      ref={props.forwardedRef}
+      onClick={handleClick}
+      selected={props.isSelected}
+      disabled={props.disabled}
+      role="option"
+      aria-selected={props.isSelected}
+      aria-disabled={props.disabled}>
+      <StyledCellIcon
+        visible={props.isSelected}
+        source="icon-tick"
+        width={18}
+        tintColor={colors.white}
+      />
+      <StyledLabel>{props.children}</StyledLabel>
+    </Cell.CellButton>
+  );
 }
