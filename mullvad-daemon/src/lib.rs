@@ -300,6 +300,7 @@ pub(crate) enum InternalDaemonEvent {
     /// A command sent to the daemon.
     Command(DaemonCommand),
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
+    /// The boolean should indicate whether the shutdown was user-initiated.
     TriggerShutdown(bool),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
