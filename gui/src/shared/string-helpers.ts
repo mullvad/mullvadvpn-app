@@ -5,3 +5,7 @@ export function capitalize(inputString: string): string {
 export function capitalizeEveryWord(inputString: string): string {
   return inputString.split(' ').map(capitalize).join(' ');
 }
+
+export function removeNonNumericCharacters(value: string) {
+  return value.replace(/[^0-9]/g, '');
+}

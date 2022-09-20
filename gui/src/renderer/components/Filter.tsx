@@ -191,10 +191,6 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
     () =>
       [
         {
-          label: messages.gettext('Any'),
-          value: Ownership.any,
-        },
-        {
           label: messages.pgettext('filter-view', 'Mullvad owned only'),
           value: Ownership.mullvadOwned,
         },
@@ -220,7 +216,13 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
       </Cell.CellButton>
 
       <Accordion expanded={expanded}>
-        <StyledSelector values={values} value={props.ownership} onSelect={props.setOwnership} />
+        <StyledSelector
+          items={values}
+          value={props.ownership}
+          onSelect={props.setOwnership}
+          automaticLabel={messages.gettext('Any')}
+          automaticValue={Ownership.any}
+        />
       </Accordion>
     </AriaInputGroup>
   );
