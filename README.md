@@ -320,6 +320,11 @@ storePassword = keystore-password
    npm install -g npm
    ```
 
+1. Install a protobuf compiler (version 3.15.6 and up), it can be installed on most major Linux distros via
+   the package name `protobuf-compiler`, `protobuf` on macOS via Homebrew, and on Windows binaries
+   are available on their GitHub [page](https://github.com/protocolbuffers/protobuf/releases) and
+   they have to be put in `%PATH`.
+
 1. Install Go (ideally version `1.18`) by following the [official
    instructions](https://golang.org/doc/install).  Newer versions may work
    too. Since `cgo` is being used, make sure to have a C compiler in your path. [*On
@@ -378,11 +383,6 @@ After that copy the files from `gui/src/main/management_interface/` and
 `gui/build/src/main/management_interface/` directories into a single directory, and set the value
 of `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` to that directory while running the main build.
 
-Install `protobuf`. On macOS, this can be done using Homebrew:
-
-```bash
-brew install protobuf
-```
 
 When all is done run the main build. Assuming that you copied the proto files into `/tmp/management_interface_proto`
 directory, the build command will look as follows:
