@@ -2158,6 +2158,7 @@ where
         }
     }
 
+    #[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
     fn trigger_shutdown_event(&mut self, user_init_shutdown: bool) {
         // Block all traffic before shutting down to ensure that no traffic can leak on boot or
         // shutdown.
