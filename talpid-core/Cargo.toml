@@ -43,8 +43,8 @@ internet-checksum = "0.2"
 socket2 = { version = "0.4.2", features = ["all"] }
 parity-tokio-ipc = "0.9"
 triggered = "0.1.1"
-tonic = "0.5"
-prost = "0.8"
+tonic = "0.8"
+prost = "0.11"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.23"
@@ -111,7 +111,7 @@ features = [
 ]
 
 [build-dependencies]
-tonic-build = { version = "0.5", default-features = false, features = ["transport", "prost"] }
+tonic-build = { version = "0.8", default-features = false, features = ["transport", "prost"] }
 
 
 [dev-dependencies]

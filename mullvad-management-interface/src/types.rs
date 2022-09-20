@@ -678,10 +678,10 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
             }),
             wireguard: Some(tunnel_options::WireguardOptions {
                 mtu: u32::from(options.wireguard.options.mtu.unwrap_or_default()),
-                rotation_interval: options
-                    .wireguard
-                    .rotation_interval
-                    .map(|ivl| Duration::from(std::time::Duration::from(ivl))),
+                rotation_interval: options.wireguard.rotation_interval.map(|ivl| {
+                    prost_types::Duration::try_from(std::time::Duration::from(ivl))
+                        .expect("Failed to convert std::time::Duration to prost_types::Duration for tunnel_options.wireguard.rotation_interval")
+                }),
                 #[cfg(windows)]
                 use_wireguard_nt: options.wireguard.options.use_wireguard_nt,
                 #[cfg(not(windows))]
