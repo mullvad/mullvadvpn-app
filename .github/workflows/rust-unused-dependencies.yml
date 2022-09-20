@@ -43,6 +43,9 @@ jobs:
             - name: Install cargo-udeps
               run: cargo install cargo-udeps
 
+            - name: Install Protoc
+              uses: arduino/setup-protoc@v1
+
             - name: Check for unused dependencies
               run: |
                 source env.sh
