@@ -1,5 +1,5 @@
-import AccountDataCache from '../src/main/account-data-cache';
-import { IAccountData } from '../src/shared/daemon-rpc-types';
+import AccountDataCache from '../../src/main/account-data-cache';
+import { IAccountData } from '../../src/shared/daemon-rpc-types';
 import sinon from 'sinon';
 import { expect, spy } from 'chai';
 

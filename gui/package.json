@@ -33,6 +33,7 @@
     "nseventmonitor": "^1.0.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.25.1",
     "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.0",
     "@types/chai-spies": "^1.0.0",
@@ -75,6 +76,7 @@
     "gulp-inject-string": "^1.1.2",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^5.0.1",
+    "playwright": "^1.25.1",
     "prettier": "^2.2.1",
     "semver": "^7.3.2",
     "sinon": "^7.1.1",
@@ -82,7 +84,8 @@
     "tsc-watch": "^4.2.9",
     "typescript": "^4.5.4",
     "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0"
+    "vinyl-source-stream": "^2.0.0",
+    "xvfb-maybe": "^0.2.1"
   },
   "scripts": {
     "postinstall": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true electron-builder install-app-deps",
@@ -90,8 +93,12 @@
     "build-proto": "gulp build-proto",
     "lint": "eslint --ext tsx,ts .",
     "format": "prettier \"**/*.{js,css,ts,tsx}\" --write",
+    "tsc": "tsc -p . --noEmit",
+    "e2e": "npm run build && npm run e2e:no-build",
+    "e2e:no-build": "xvfb-maybe -- playwright test",
+    "e2e:update-snapshots": "npm run e2e:no-build -- --update-snapshots",
     "develop": "gulp develop",
-    "test": "cross-env NODE_ENV=test electron-mocha --renderer --reporter spec --require ts-node/register --require \"test/setup/renderer.ts\" \"test/**/*.{ts,tsx}\"",
+    "test": "cross-env NODE_ENV=test electron-mocha --renderer --reporter spec --require ts-node/register --require \"test/unit/setup/renderer.ts\" \"test/unit/**/*.{ts,tsx}\"",
     "update-translations": "node scripts/extract-translations",
     "pack:mac": "gulp pack-mac",
     "pack:win": "gulp pack-win",

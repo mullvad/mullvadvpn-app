@@ -50,6 +50,8 @@ const config = {
     'build/src/renderer/bundle.js',
     'build/src/renderer/preloadBundle.js',
     '!**/*.tsbuildinfo',
+    '!test/',
+    '!playwright.config.ts',
     'node_modules/',
     '!node_modules/grpc-tools',
     '!node_modules/@types',

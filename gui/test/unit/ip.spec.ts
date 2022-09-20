@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { it, describe } from 'mocha';
-import * as ip from '../src/renderer/lib/ip';
+import * as ip from '../../src/renderer/lib/ip';
 
 const validIpv4Addresses = [
   '127.0.0.1',
