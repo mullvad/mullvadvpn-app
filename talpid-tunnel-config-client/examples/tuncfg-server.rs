@@ -6,8 +6,8 @@ mod proto {
     tonic::include_proto!("tunnel_config");
 }
 use classic_mceliece_rust::{PublicKey, CRYPTO_PUBLICKEYBYTES};
-use proto::post_quantum_secure_server::{PostQuantumSecure, PostQuantumSecureServer};
 use proto::{
+    post_quantum_secure_server::{PostQuantumSecure, PostQuantumSecureServer},
     PskRequestExperimentalV0, PskRequestExperimentalV1, PskResponseExperimentalV0,
     PskResponseExperimentalV1,
 };
