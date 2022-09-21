@@ -518,7 +518,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         // Replace the default map tiles
         tileOverlay.canReplaceMapContent = true
 
-        contentView.mapView.addOverlay(tileOverlay)
+        contentView.mapView.addOverlay(tileOverlay, level: .aboveLabels)
     }
 
     private func loadGeoJSONData() {
@@ -534,7 +534,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             let data = try Data(contentsOf: fileURL)
             let overlays = try GeoJSON.decodeGeoJSON(data)
 
-            contentView.mapView.addOverlays(overlays)
+            contentView.mapView.addOverlays(overlays, level: .aboveLabels)
         } catch {
             logger.error(chainedError: AnyChainedError(error), message: "Failed to load geojson.")
         }
