@@ -1,6 +1,5 @@
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::fmt;
 use talpid_types::tunnel::ErrorStateCause;
 
 /// Used to parse [`talpid_types::tunnel::ErrorStateCause::AuthFailed`], which may be returned
@@ -13,12 +12,6 @@ pub enum AuthFailed {
     TooManyConnections,
     Unknown,
 }
-
-// These strings should match up with gui/packages/desktop/src/renderer/lib/auth-failure.js
-const INVALID_ACCOUNT_MSG: &str = "You've logged in with an account number that is not valid. Please log out and try another one.";
-const EXPIRED_ACCOUNT_MSG: &str = "You have no more VPN time left on this account. Please log in on our website to buy more credit.";
-const TOO_MANY_CONNECTIONS_MSG: &str = "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.";
-const UNKNOWN_MSG: &str = "Unknown error.";
 
 impl<'a> From<&'a str> for AuthFailed {
     fn from(reason: &'a str) -> AuthFailed {
@@ -53,18 +46,6 @@ impl TryFrom<&ErrorStateCause> for AuthFailed {
             ErrorStateCause::AuthFailed(Some(reason)) => Ok(AuthFailed::from(reason.as_str())),
             ErrorStateCause::AuthFailed(None) => Ok(AuthFailed::Unknown),
             _ => Err(UnexpectedErrorStateCause(())),
-        }
-    }
-}
-
-impl fmt::Display for AuthFailed {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use AuthFailed::*;
-        match self {
-            InvalidAccount => f.write_str(INVALID_ACCOUNT_MSG),
-            ExpiredAccount => f.write_str(EXPIRED_ACCOUNT_MSG),
-            TooManyConnections => f.write_str(TOO_MANY_CONNECTIONS_MSG),
-            Unknown => f.write_str(UNKNOWN_MSG),
         }
     }
 }
