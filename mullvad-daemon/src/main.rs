@@ -143,6 +143,10 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     })
     .map_err(|e| e.display_chain())?;
 
+    #[cfg(any(windows, target_os = "android"))]
+    shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown(true))
+        .map_err(|e| e.display_chain())?;
+
     daemon.run().await.map_err(|e| e.display_chain())?;
 
     log::info!("Mullvad daemon is quitting");

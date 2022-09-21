@@ -2164,7 +2164,6 @@ where
     fn trigger_shutdown_event(&mut self, user_init_shutdown: bool) {
         // Block all traffic before shutting down to ensure that no traffic can leak on boot or
         // shutdown.
-        #[cfg(windows)]
         if !user_init_shutdown
             && (*self.target_state == TargetState::Secured || self.settings.auto_connect)
         {
