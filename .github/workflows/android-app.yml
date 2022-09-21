@@ -32,6 +32,8 @@ jobs:
 
             - name: Install Protoc
               uses: arduino/setup-protoc@v1
+              with:
+                repo-token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Calculate native lib cache hash
               id: native-lib-cache-hash
