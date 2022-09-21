@@ -47,6 +47,8 @@ pub fn is_shutdown_user_initiated() -> bool {
     }
 }
 
+/// Currently returns false all of the time to ensure that no leaks occur during shutdown.
+// TODO: implement shutdown detection
 #[cfg(target_os = "macos")]
 pub fn is_shutdown_user_initiated() -> bool {
     false
