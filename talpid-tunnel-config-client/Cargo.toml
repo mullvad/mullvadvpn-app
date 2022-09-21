@@ -16,6 +16,7 @@ prost = "0.8"
 tower = "0.4"
 tokio = "1"
 classic-mceliece-rust = { version = "2.0.0", features = ["mceliece460896f"] }
+pqc_kyber = "0.2.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread"] }
