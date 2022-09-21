@@ -1,4 +1,4 @@
-use mullvad_types::{location::GeoIpLocation, states::TunnelState};
+use mullvad_types::{auth_failed::AuthFailed, location::GeoIpLocation, states::TunnelState};
 use talpid_types::{
     net::{Endpoint, TunnelEndpoint},
     tunnel::ErrorState,
@@ -166,6 +166,26 @@ fn print_error_state(error_state: &ErrorState) {
             println!("Blocked: {}", cause);
             println!("Your kernel might be terribly out of date or missing nftables");
         }
+        talpid_types::tunnel::ErrorStateCause::AuthFailed(Some(auth_failed)) => {
+            println!(
+                "Blocked: Authentication with remote server failed: {}",
+                get_auth_failed_message(AuthFailed::from(auth_failed.as_str()))
+            );
+        }
         cause => println!("Blocked: {}", cause),
+    }
+}
+
+const fn get_auth_failed_message(auth_failed: AuthFailed) -> &'static str {
+    const INVALID_ACCOUNT_MSG: &str = "You've logged in with an account number that is not valid. Please log out and try another one.";
+    const EXPIRED_ACCOUNT_MSG: &str = "You have no more VPN time left on this account. Please log in on our website to buy more credit.";
+    const TOO_MANY_CONNECTIONS_MSG: &str = "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.";
+    const UNKNOWN_MSG: &str = "Unknown error.";
+
+    match auth_failed {
+        AuthFailed::InvalidAccount => INVALID_ACCOUNT_MSG,
+        AuthFailed::ExpiredAccount => EXPIRED_ACCOUNT_MSG,
+        AuthFailed::TooManyConnections => TOO_MANY_CONNECTIONS_MSG,
+        AuthFailed::Unknown => UNKNOWN_MSG,
     }
 }
