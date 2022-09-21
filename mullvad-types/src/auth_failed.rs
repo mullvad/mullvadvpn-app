@@ -35,6 +35,18 @@ impl<'a> From<&'a str> for AuthFailed {
     }
 }
 
+impl AuthFailed {
+    pub fn as_str(&self) -> &'static str {
+        use AuthFailed::*;
+        match self {
+            InvalidAccount => "[INVALID_ACCOUNT]",
+            ExpiredAccount => "[EXPIRED_ACCOUNT]",
+            TooManyConnections => "[TOO_MANY_CONNECTIONS]",
+            Unknown => "[Unknown]",
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct UnexpectedErrorStateCause(());
 
