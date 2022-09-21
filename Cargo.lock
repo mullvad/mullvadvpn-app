@@ -2244,6 +2244,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac74c624d6b2d21f425f752262f42188365d7b8ff1aff74c82e45136510a4857"
 
 [[package]]
+name = "pqc_kyber"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5910bec0b6c38459bf5a562c1b3b35e52741a12f0cdf7be43ccbf7fb7eb6dfb8"
+dependencies = [
+ "cc",
+ "rand_core 0.6.3",
+]
+
+[[package]]
 name = "proc-macro-error"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3140,6 +3150,7 @@ version = "0.1.0"
 dependencies = [
  "classic-mceliece-rust",
  "log",
+ "pqc_kyber",
  "prost",
  "rand 0.8.5",
  "talpid-types",
