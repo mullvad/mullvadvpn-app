@@ -1,15 +1,3 @@
-//
-// If you need to (re)generate the gRPC code, see prerequisites
-//
-// 	https://grpc.io/docs/languages/go/quickstart/
-//
-// and then run
-//
-// 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative tunnel_config.proto
-//
-// from this directory.
-//
-
 syntax = "proto3";
 
 option go_package = "github.com/mullvad/wg-manager/server/tuncfg";
@@ -19,11 +7,54 @@ package tunnel_config;
 service PostQuantumSecure {
   // PskExchangeExperimentalV0 uses the common API defined by LibOQS.  See:
   // https://github.com/open-quantum-safe/liboqs
+  // This endpoint is deprecated in favor for `PskExchangeExperimentalV1`. Please use that instead.
   rpc PskExchangeExperimentalV0(PskRequestExperimentalV0) returns (PskResponseExperimentalV0) {}
 
-  // Perform a key exchange with the VPN server. If more than one KEM algorithm is used
-  // the resulting PSK should be computed by XORing together all the 32 byte shared secrets
-  // produced by the KEMs.
+  // Allows deriving a preshared key (PSK) using one or multiple PQ-secure key-encapsulation
+  // mechanisms (KEM). The preshared key is added to WireGuard's preshared-key field in a new
+  // ephemeral peer (PQ-peer).
+  //
+  // The VPN server associates the PQ-peer with the peer who performed the exchange. Any
+  // already existing PQ-peer for the normal peer is replaced. Each normal peer can have
+  // at most one PQ-peer.
+  //
+  // The PQ-peer is mutually exclusive to the normal peer. A handshake from the normal peer
+  // throws out the corresponding PQ-peer from WireGuard and vice versa.
+  //
+  // A new peer is negotiated for PQ to avoid a premature break of the tunnel used for negotiation.
+  // A tunnel would break prematurely if the preshared key is applied before the normal peer
+  // received the server's contribution to the KEM exchange. This cannot occur now because
+  // the client decides when to switch to the PQ-secure tunnel. This design also allows
+  // the client to switch back to using a non-PQ-secure tunnel at any point.
+  //
+  // The negotiated PQ-peer is ephemeral. The server gives no guarantees how long it will be
+  // valid and working. The client should negotiate a new PQ-peer every time it establishes a new
+  // tunnel to the server.
+  //
+  // The full exchange requires just a single request-response round trip between the VPN client
+  // and the VPN server.
+  //
+  // # Request-response format
+  //
+  // The request from the VPN client contains:
+  //   * `wg_pubkey` - The public key used by the current tunnel (that the request travels inside).
+  //   * `wg_psk_pubkey` - A newly generated ephemeral WireGuard public key for the PQ-peer.
+  //     The server will associate the derived PSK with this public key.
+  //   * `kem_pubkeys` - A list describing the KEM algorithms. Each list item contains:
+  //     * `algorithm_name` - The name of the KEM, including which variant. Should be the same
+  //       name/format that `liboqs` uses.
+  //     * `key_data` - The client's public key. Will be used by the server to encapsulate
+  //       the shared secret for this KEM.
+  //
+  // The response from the VPN server contains:
+  //   * `ciphertexts` - A list of the ciphertexts (the encapsulated shared secrets) for all
+  //     public keys in `kem_pubkeys` in the request, in the same order as in the request.
+  //
+  // # Deriving the WireGuard PSK
+  //
+  // The PSK to be used in WireGuard's preshared-key field is computed by XORing the output of
+  // all the KEM algorithms. All currently supported and planned to be supported algorithms
+  // output 32 bytes, so this is trivial.
   //
   // Since the PSK provided to WireGuard is directly fed into a HKDF, it is not important that
   // the entropy in the PSK is uniformly distributed. The actual keys used for encrypting the
@@ -31,10 +62,12 @@ service PostQuantumSecure {
   // But even if that was not true, since both CME and Kyber run SHAKE256 as the last step
   // of their internal key derivation, the output they produce are uniformly distributed.
   //
-  // Both CME and Kyber produce 32 byte output. This is the same amount of data we want for
-  // the PSK, so just XORing them produce the right amount of data.
   // If we later want to support another type of KEM that produce longer or shorter output,
   // we can hash that secret into a 32 byte hash before proceeding to the XOR step.
+  //
+  // Mixing with XOR (A = B ^ C) is fine since nothing about A is revealed even if ofe of B or C
+  // is known. Both B *and* C must be known to compute any bit in A. This means all involved
+  // KEM algorithms must be broken before the PSK can be computed by an attacker.
   rpc PskExchangeExperimentalV1(PskRequestExperimentalV1) returns (PskResponseExperimentalV1) {}
 }
 
