@@ -13,7 +13,7 @@ import StoreKit
 import UIKit
 import class WireGuardKitTypes.PublicKey
 
-/// Interval used for periodic pollingg of tunnel relay status when tunnel is establishing
+/// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.
 private let establishingTunnelStatusPollInterval: TimeInterval = 3
 

@@ -242,12 +242,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     override func sleep(completionHandler: @escaping () -> Void) {
-        // Add code here to get ready to sleep.
-        completionHandler()
+        tunnelMonitor.onSleep {
+            completionHandler()
+        }
     }
 
     override func wake() {
-        // Add code here to wake up.
+        tunnelMonitor.onWake()
     }
 
     // MARK: - TunnelMonitorDelegate

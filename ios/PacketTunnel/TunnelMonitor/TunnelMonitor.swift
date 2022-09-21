@@ -116,7 +116,7 @@ final class TunnelMonitor: PingerDelegate {
                 let timeSinceLastPing = now.timeIntervalSince(lastRequestDate)
                 if let lastReplyDate = pingStats.lastReplyDate,
                    lastRequestDate.timeIntervalSince(lastReplyDate) >= heartbeatReplyTimeout,
-                   timeSinceLastPing >= pingDelay
+                   timeSinceLastPing >= pingDelay, !isHeartbeatSuspended
                 {
                     return .retryHeartbeatPing
                 }
@@ -202,7 +202,7 @@ final class TunnelMonitor: PingerDelegate {
 
     /// Ping statistics.
     private struct PingStats {
-        /// Dictionary holding sequence and the corresponding date when ech request took place.
+        /// Dictionary holding sequence and corresponding date when echo request took place.
         var requests = [UInt16: Date]()
 
         /// Timestamp when last echo request was sent.
@@ -260,6 +260,19 @@ final class TunnelMonitor: PingerDelegate {
     func stop() {
         internalQueue.async {
             self.stopNoQueue()
+        }
+    }
+
+    func onWake() {
+        internalQueue.async {
+            self.onWakeNoQueue()
+        }
+    }
+
+    func onSleep(completion: @escaping () -> Void) {
+        internalQueue.async {
+            self.onSleepNoQueue()
+            completion()
         }
     }
 
@@ -339,6 +352,7 @@ final class TunnelMonitor: PingerDelegate {
             newStats.bytesSent < state.netStats.bytesSent
 
         guard !isStatsReset else {
+            logger.debug("Stats was being reset.")
             state.netStats = newStats
             return
         }
@@ -528,6 +542,30 @@ final class TunnelMonitor: PingerDelegate {
     private func stopConnectivityCheckTimer() {
         timer?.cancel()
         timer = nil
+    }
+
+    private func onWakeNoQueue() {
+        logger.debug("Wake up.")
+
+        switch state.connectionState {
+        case .connecting, .connected:
+            startConnectivityCheckTimer()
+
+        case .stopped, .waitingConnectivity:
+            break
+        }
+    }
+
+    private func onSleepNoQueue() {
+        logger.debug("Prepare to sleep.")
+
+        switch state.connectionState {
+        case .connecting, .connected:
+            stopConnectivityCheckTimer()
+
+        case .stopped, .waitingConnectivity:
+            break
+        }
     }
 
     private func sendDelegateConnectionEstablished() {
