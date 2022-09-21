@@ -320,11 +320,9 @@ storePassword = keystore-password
    npm install -g npm
    ```
 
-1. *This can be skipped for Android builds*.
-
-  A recent version of the protobuf compiler (3.15.6 works), it can be installed on most major Linux
-  distros via the package name `protobuf-compiler`, `protobuf` on macOS, and on Windows installers
-  are available on their GitHub [page](https://github.com/protocolbuffers/protobuf/releases).
+1. A protobuf compiler (version 3.15.6 and up), it can be installed on most major Linux distros via
+   the package name `protobuf-compiler`, `protobuf` on macOS via Homebrew, and on Windows installers
+   are available on their GitHub [page](https://github.com/protocolbuffers/protobuf/releases).
 
 1. Install Go (ideally version `1.18`) by following the [official
    instructions](https://golang.org/doc/install).  Newer versions may work
