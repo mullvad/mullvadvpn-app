@@ -14,7 +14,6 @@ mod cli;
 #[cfg(target_os = "linux")]
 mod early_boot_firewall;
 mod exception_logging;
-mod shutdown;
 #[cfg(windows)]
 mod system_service;
 
@@ -138,7 +137,14 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     let daemon = create_daemon(log_dir).await?;
 
     let shutdown_handle = daemon.shutdown_handle();
-    shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown(true))
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    mullvad_daemon::shutdown::set_shutdown_signal_handler(move || {
+        shutdown_handle.shutdown(!mullvad_daemon::shutdown::is_shutdown_user_initiated())
+    })
+    .map_err(|e| e.display_chain())?;
+
+    #[cfg(any(windows, target_os = "android"))]
+    mullvad_daemon::shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown(true))
         .map_err(|e| e.display_chain())?;
 
     daemon.run().await.map_err(|e| e.display_chain())?;
