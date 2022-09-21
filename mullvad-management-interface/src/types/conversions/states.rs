@@ -101,14 +101,14 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             }
                         },
                         blocking_error: error_state.block_failure().map(map_firewall_error),
-                        auth_fail_reason: if let talpid_tunnel::ErrorStateCause::AuthFailed(
-                            reason,
-                        ) = error_state.cause()
-                        {
-                            reason.clone().unwrap_or_default()
-                        } else {
-                            "".to_string()
-                        },
+                        auth_failed_error: mullvad_types::auth_failed::AuthFailed::try_from(
+                            error_state.cause(),
+                        )
+                        .ok()
+                        .map(|auth_failed| {
+                            i32::from(error_state::AuthFailedError::from(auth_failed))
+                        })
+                        .unwrap_or(0i32),
                         parameter_error:
                             if let talpid_tunnel::ErrorStateCause::TunnelParameterError(reason) =
                                 error_state.cause()
@@ -144,6 +144,20 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
         };
 
         proto::TunnelState { state: Some(state) }
+    }
+}
+
+impl From<mullvad_types::auth_failed::AuthFailed> for error_state::AuthFailedError {
+    fn from(auth_failed: mullvad_types::auth_failed::AuthFailed) -> Self {
+        use mullvad_types::auth_failed::AuthFailed as MullvadAuthFailed;
+        match auth_failed {
+            MullvadAuthFailed::InvalidAccount => error_state::AuthFailedError::InvalidAccount,
+            MullvadAuthFailed::ExpiredAccount => error_state::AuthFailedError::ExpiredAccount,
+            MullvadAuthFailed::TooManyConnections => {
+                error_state::AuthFailedError::TooManyConnections
+            }
+            MullvadAuthFailed::Unknown => error_state::AuthFailedError::Unknown,
+        }
     }
 }
 
