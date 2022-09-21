@@ -85,26 +85,30 @@ pub async fn push_pq_key(
         .map_err(Error::GrpcError)?;
 
     let ciphertexts = response.into_inner().ciphertexts;
-    if ciphertexts.len() != 2 {
-        return Err(Error::InvalidCiphertextCount(ciphertexts.len()));
-    }
+    let [cme_ciphertext, kyber_ciphertext] = <&[Vec<u8>; 2]>::try_from(ciphertexts.as_slice())
+        .map_err(|_| Error::InvalidCiphertextCount(ciphertexts.len()))?;
+
     let mut psk_data = [0u8; 32];
     // Decapsulate Classic McEliece and mix into PSK
     {
-        let cme_ciphertext = ciphertexts[0].as_slice();
-        let ciphertext_array = <[u8; cme::CRYPTO_CIPHERTEXTBYTES]>::try_from(cme_ciphertext)
-            .map_err(|_| {
-                Error::InvalidCiphertextLength(cme_ciphertext.len(), cme::CRYPTO_CIPHERTEXTBYTES)
-            })?;
+        let ciphertext_array = <[u8; cme::CRYPTO_CIPHERTEXTBYTES]>::try_from(
+            cme_ciphertext.as_slice(),
+        )
+        .map_err(|_| {
+            Error::InvalidCiphertextLength(cme_ciphertext.len(), cme::CRYPTO_CIPHERTEXTBYTES)
+        })?;
         let ciphertext = cme::Ciphertext::from(ciphertext_array);
         let shared_secret = cme::decapsulate(&cme_kem_secret, &ciphertext);
         xor_assign(&mut psk_data, shared_secret.as_array());
     }
     // Decapsulate Kyber and mix into PSK
     {
-        let kyber_ciphertext = ciphertexts[1].as_slice();
-        let ciphertext_array = <[u8; 1088]>::try_from(kyber_ciphertext)
-            .map_err(|_| Error::InvalidCiphertextLength(kyber_ciphertext.len(), 1088))?;
+        let ciphertext_array = <[u8; kyber::CRYPTO_CIPHERTEXTBYTES]>::try_from(
+            kyber_ciphertext.as_slice(),
+        )
+        .map_err(|_| {
+            Error::InvalidCiphertextLength(kyber_ciphertext.len(), kyber::CRYPTO_CIPHERTEXTBYTES)
+        })?;
         let shared_secret = kyber::decapsulate(kyber_keypair.secret, ciphertext_array);
         xor_assign(&mut psk_data, &shared_secret);
     }
