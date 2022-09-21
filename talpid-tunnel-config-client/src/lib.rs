@@ -2,7 +2,8 @@ use std::{fmt, net::IpAddr};
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
 use tonic::transport::Channel;
 
-mod kem;
+mod cme;
+mod kyber;
 
 #[allow(clippy::derive_partial_eq_without_eq)]
 mod proto {
@@ -13,7 +14,7 @@ mod proto {
 pub enum Error {
     GrpcConnectError(tonic::transport::Error),
     GrpcError(tonic::Status),
-    InvalidCiphertextLength(usize),
+    InvalidCiphertextLength(usize, usize),
     InvalidCiphertextCount(usize),
 }
 
@@ -23,13 +24,12 @@ impl std::fmt::Display for Error {
         match self {
             GrpcConnectError(_) => "Failed to connect to config service".fmt(f),
             GrpcError(status) => write!(f, "RPC failed: {}", status),
-            InvalidCiphertextLength(len) => write!(
+            InvalidCiphertextLength(actual, expected) => write!(
                 f,
-                "Expected a ciphertext of length {}, got {len} bytes",
-                kem::CRYPTO_CIPHERTEXTBYTES
+                "Expected a ciphertext of length {expected}, got {actual} bytes"
             ),
-            InvalidCiphertextCount(len) => {
-                write!(f, "Expected 1 ciphertext in the response, got {len}")
+            InvalidCiphertextCount(actual) => {
+                write!(f, "Expected 2 ciphertexts in the response, got {actual}")
             }
         }
     }
@@ -62,30 +62,60 @@ pub async fn push_pq_key(
     wg_pubkey: PublicKey,
 ) -> Result<(PrivateKey, PresharedKey), Error> {
     let wg_psk_privkey = PrivateKey::new_from_random();
-    let (kem_pubkey, kem_secret) = kem::generate_keys().await;
+    let (cme_kem_pubkey, cme_kem_secret) = cme::generate_keys().await;
+    let kyber_keypair = pqc_kyber::keypair(&mut rand::thread_rng());
 
     let mut client = new_client(service_address).await?;
     let response = client
         .psk_exchange_experimental_v1(proto::PskRequestExperimentalV1 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),
             wg_psk_pubkey: wg_psk_privkey.public_key().as_bytes().to_vec(),
-            kem_pubkeys: vec![proto::KemPubkeyExperimentalV1 {
-                algorithm_name: ALGORITHM_NAME.to_string(),
-                key_data: kem_pubkey.as_array().to_vec(),
-            }],
+            kem_pubkeys: vec![
+                proto::KemPubkeyExperimentalV1 {
+                    algorithm_name: ALGORITHM_NAME.to_owned(),
+                    key_data: cme_kem_pubkey.as_array().to_vec(),
+                },
+                proto::KemPubkeyExperimentalV1 {
+                    algorithm_name: "Kyber1024".to_owned(),
+                    key_data: kyber_keypair.public.to_vec(),
+                },
+            ],
         })
         .await
         .map_err(Error::GrpcError)?;
 
     let ciphertexts = response.into_inner().ciphertexts;
-    if ciphertexts.len() != 1 {
+    if ciphertexts.len() != 2 {
         return Err(Error::InvalidCiphertextCount(ciphertexts.len()));
     }
-    let cme_ciphertext = ciphertexts[0].as_slice();
-    let ciphertext_array = <[u8; kem::CRYPTO_CIPHERTEXTBYTES]>::try_from(cme_ciphertext)
-        .map_err(|_| Error::InvalidCiphertextLength(cme_ciphertext.len()))?;
-    let ciphertext = kem::Ciphertext::from(ciphertext_array);
-    Ok((wg_psk_privkey, kem::decapsulate(&kem_secret, &ciphertext)))
+    let mut psk_data = [0u8; 32];
+    // Decapsulate Classic McEliece and mix into PSK
+    {
+        let cme_ciphertext = ciphertexts[0].as_slice();
+        let ciphertext_array = <[u8; cme::CRYPTO_CIPHERTEXTBYTES]>::try_from(cme_ciphertext)
+            .map_err(|_| {
+                Error::InvalidCiphertextLength(cme_ciphertext.len(), cme::CRYPTO_CIPHERTEXTBYTES)
+            })?;
+        let ciphertext = cme::Ciphertext::from(ciphertext_array);
+        let shared_secret = cme::decapsulate(&cme_kem_secret, &ciphertext);
+        xor_assign(&mut psk_data, shared_secret.as_array());
+    }
+    // Decapsulate Kyber and mix into PSK
+    {
+        let kyber_ciphertext = ciphertexts[1].as_slice();
+        let ciphertext_array = <[u8; 1088]>::try_from(kyber_ciphertext)
+            .map_err(|_| Error::InvalidCiphertextLength(kyber_ciphertext.len(), 1088))?;
+        let shared_secret = kyber::decapsulate(kyber_keypair.secret, ciphertext_array);
+        xor_assign(&mut psk_data, &shared_secret);
+    }
+
+    Ok((wg_psk_privkey, PresharedKey::from(psk_data)))
+}
+
+fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
+    for (dst_byte, src_byte) in dst.iter_mut().zip(src.iter()) {
+        *dst_byte ^= src_byte;
+    }
 }
 
 async fn new_client(addr: IpAddr) -> Result<RelayConfigService, Error> {
