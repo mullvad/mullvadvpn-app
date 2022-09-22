@@ -1,12 +1,26 @@
-import { BridgeState, IRelayList, liftConstraint, RelaySettings } from '../shared/daemon-rpc-types';
+import {
+  BridgeState,
+  IRelayList,
+  IRelayListWithEndpointData,
+  liftConstraint,
+  RelaySettings,
+} from '../shared/daemon-rpc-types';
 import { IRelayListPair } from '../shared/ipc-schema';
 import { IpcMainEventChannel } from './ipc-event-channel';
 
 export default class RelayList {
-  private relays: IRelayList = { countries: [] };
+  private relays: IRelayListWithEndpointData = {
+    relayList: {
+      countries: [],
+    },
+    wireguardEndpointData: {
+      portRanges: [],
+      udp2tcpPorts: [],
+    },
+  };
 
   public setRelays(
-    newRelayList: IRelayList,
+    newRelayList: IRelayListWithEndpointData,
     relaySettings: RelaySettings,
     bridgeState: BridgeState,
   ) {
@@ -25,14 +39,18 @@ export default class RelayList {
   }
 
   private processRelays(
-    relayList: IRelayList,
+    relayList: IRelayListWithEndpointData,
     relaySettings: RelaySettings,
     bridgeState: BridgeState,
   ): IRelayListPair {
-    const filteredRelays = this.processRelaysForPresentation(relayList, relaySettings);
-    const filteredBridges = this.processBridgesForPresentation(relayList, bridgeState);
+    const filteredRelays = this.processRelaysForPresentation(relayList.relayList, relaySettings);
+    const filteredBridges = this.processBridgesForPresentation(relayList.relayList, bridgeState);
 
-    return { relays: filteredRelays, bridges: filteredBridges };
+    return {
+      relays: filteredRelays,
+      bridges: filteredBridges,
+      wireguardEndpointData: relayList.wireguardEndpointData,
+    };
   }
 
   private processRelaysForPresentation(
@@ -75,9 +93,7 @@ export default class RelayList {
       }))
       .filter((country) => country.cities.length > 0);
 
-    return {
-      countries: filteredCountries,
-    };
+    return { countries: filteredCountries };
   }
 
   private processBridgesForPresentation(

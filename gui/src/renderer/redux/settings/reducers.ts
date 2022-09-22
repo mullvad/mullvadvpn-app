@@ -3,6 +3,7 @@ import {
   BridgeState,
   IDnsOptions,
   IpVersion,
+  IWireguardEndpointData,
   LiftedConstraint,
   ObfuscationSettings,
   ObfuscationType,
@@ -82,6 +83,7 @@ export interface ISettingsReduxState {
   relaySettings: RelaySettingsRedux;
   relayLocations: IRelayLocationRedux[];
   bridgeLocations: IRelayLocationRedux[];
+  wireguardEndpointData: IWireguardEndpointData;
   allowLan: boolean;
   enableIpv6: boolean;
   bridgeSettings: BridgeSettingsRedux;
@@ -127,6 +129,7 @@ const initialState: ISettingsReduxState = {
   },
   relayLocations: [],
   bridgeLocations: [],
+  wireguardEndpointData: { portRanges: [], udp2tcpPorts: [] },
   allowLan: false,
   enableIpv6: true,
   bridgeSettings: {
@@ -189,6 +192,12 @@ export default function (
       return {
         ...state,
         bridgeLocations: action.bridgeLocations,
+      };
+
+    case 'UPDATE_WIREGUARD_ENDPOINT_DATA':
+      return {
+        ...state,
+        wireguardEndpointData: action.wireguardEndpointData,
       };
 
     case 'UPDATE_ALLOW_LAN':
