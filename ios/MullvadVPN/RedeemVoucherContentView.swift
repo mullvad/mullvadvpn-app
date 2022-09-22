@@ -10,7 +10,27 @@ import Foundation
 import UIKit
 
 class RedeemVoucherContentView: UIView {
-    let instructionLabel: UILabel = {
+    typealias Action = (() -> Void)
+
+    // MARK: - Constants
+
+    private let instructionLabelSuccessString = NSLocalizedString(
+        "REDEEM_VOUCHER_INSTRUCTION_SUCCESS",
+        tableName: "RedeemVoucher",
+        value: "Voucher was successfully redeemed.",
+        comment: ""
+    )
+
+    private let gotItButtonTitle = NSLocalizedString(
+        "REDEEM_VOUCHER_GOT_IT_BUTTON",
+        tableName: "RedeemVoucher",
+        value: "Got it!",
+        comment: ""
+    )
+
+    // MARK: - Views
+
+    private let instructionLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17)
         label.text = NSLocalizedString(
@@ -40,14 +60,14 @@ class RedeemVoucherContentView: UIView {
         return textField
     }()
 
-    let activityIndicator: SpinnerActivityIndicatorView = {
+    private let activityIndicator: SpinnerActivityIndicatorView = {
         let activityIndicator = SpinnerActivityIndicatorView(style: .medium)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.tintColor = .white
         return activityIndicator
     }()
 
-    let statusLabel: UILabel = {
+    private let statusLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17)
         label.textColor = UIColor.white.withAlphaComponent(0.6)
@@ -57,7 +77,7 @@ class RedeemVoucherContentView: UIView {
         return label
     }()
 
-    let redeemButton: AppButton = {
+    private let redeemButton: AppButton = {
         let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
@@ -69,7 +89,7 @@ class RedeemVoucherContentView: UIView {
         return button
     }()
 
-    let cancelButton: AppButton = {
+    private let cancelButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
@@ -89,7 +109,7 @@ class RedeemVoucherContentView: UIView {
         return stackView
     }()
 
-    lazy var topStackView: UIStackView = {
+    private lazy var topStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [
             instructionLabel,
             inputTextField,
@@ -101,7 +121,7 @@ class RedeemVoucherContentView: UIView {
         return stackView
     }()
 
-    lazy var bottomStackView: UIStackView = {
+    private lazy var bottomStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [redeemButton, cancelButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -109,7 +129,7 @@ class RedeemVoucherContentView: UIView {
         return stackView
     }()
 
-    let successImage: UIImageView = {
+    private let successImage: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "IconSuccess"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
@@ -117,12 +137,12 @@ class RedeemVoucherContentView: UIView {
         return imageView
     }()
 
-    lazy var topStackTopConstraint: NSLayoutConstraint = topStackView.topAnchor.constraint(
+    private lazy var topStackTopConstraint: NSLayoutConstraint = topStackView.topAnchor.constraint(
         equalTo: successImage.bottomAnchor,
         constant: 0
     )
 
-    lazy var successImageHeightConstraint = NSLayoutConstraint(
+    private lazy var successImageHeightConstraint = NSLayoutConstraint(
         item: successImage,
         attribute: .height,
         relatedBy: .equal,
@@ -132,66 +152,163 @@ class RedeemVoucherContentView: UIView {
         constant: 0
     )
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    // MARK: - Variables
+
+    private var cancelButtonAction: Action?
+    private let redeemAction: Action
+    private let cancelAction: Action
+
+    // MARK: - Lifecycles
+
+    init(redeemAction: @escaping Action, cancelAction: @escaping Action) {
+        self.redeemAction = redeemAction
+        self.cancelAction = cancelAction
+
+        super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
-
         backgroundColor = .secondaryColor
-
         layoutMargins = UIMetrics.contentLayoutMargins
 
         setUpSubviews()
+        configureConstraints()
+        subscribeClicks()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-}
 
-private extension RedeemVoucherContentView {
-    func setUpSubviews() {
+    // MARK: - View setup
+
+    fileprivate func setUpSubviews() {
         addSubview(successImage)
         addSubview(topStackView)
         addSubview(bottomStackView)
-        configureConstraints()
     }
 
-    func configureConstraints() {
+    fileprivate func configureConstraints() {
         NSLayoutConstraint.activate([
             successImage.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
-
-            successImage.leadingAnchor.constraint(
-                equalTo: layoutMarginsGuide.leadingAnchor
-            ),
-
-            successImage.trailingAnchor.constraint(
-                equalTo: layoutMarginsGuide.trailingAnchor
-            ),
-
+            successImage.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
+            successImage.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
             successImageHeightConstraint,
 
             topStackTopConstraint,
+            topStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
+            topStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
 
-            topStackView.leadingAnchor.constraint(
-                equalTo: layoutMarginsGuide.leadingAnchor
-            ),
-
-            topStackView.trailingAnchor.constraint(
-                equalTo: layoutMarginsGuide.trailingAnchor
-            ),
-
-            bottomStackView.leadingAnchor.constraint(
-                equalTo: layoutMarginsGuide.leadingAnchor
-            ),
-
-            bottomStackView.trailingAnchor.constraint(
-                equalTo: layoutMarginsGuide.trailingAnchor
-            ),
-
-            bottomStackView.bottomAnchor.constraint(
-                equalTo: layoutMarginsGuide.bottomAnchor
-            ),
+            bottomStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
+            bottomStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
+            bottomStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
         ])
+    }
+
+    fileprivate func subscribeClicks() {
+        cancelButton.addTarget(self,
+                               action: #selector(cancelButtonTapped),
+                               for: .touchUpInside)
+
+        redeemButton.addTarget(self,
+                               action: #selector(RedeemButtonTapped),
+                               for: .touchUpInside)
+    }
+
+    // MARK: - Capabilities
+
+    @objc private func cancelButtonTapped(_ sender: AppButton) {
+        if let cancelButtonAction = cancelButtonAction {
+            cancelButtonAction()
+        } else {
+            cancelAction()
+        }
+    }
+
+    @objc private func RedeemButtonTapped(_ sender: AppButton) {
+        redeemAction()
+    }
+
+    /// Update views based on RedeemVoucherState that we get from online end point.
+    /// - Parameters:
+    ///   - state: RedeemVoucherViewController.RedeemVoucherState.
+    ///   - isVoucherLengthSatisfied: true if Textfield length is equal to predict.
+    ///   - statusLabelText: Updates status label text, alongside with textColor and visibility based on state.
+    func updateViews(state: RedeemVoucherViewController.RedeemVoucherState,
+               isVoucherLengthSatisfied: Bool,
+               statusLabelText: String) {
+        if state.isWaiting {
+            showLoading()
+        } else {
+            hideLoading()
+        }
+
+        setRedeemButtonAvailability(
+            !state.isWaiting && isVoucherLengthSatisfied
+        )
+
+        updateStatusLabel(alpha: state == .initial ? 0 : 1,
+                                      text: statusLabelText,
+                                      textColor: state == .failure ? .dangerColor: .white)
+
+        if case .success = state {
+            redeemedVoucherSuccessfully(instructionLabelSuccessString: instructionLabelSuccessString,
+                                        gotItButtonTitle: gotItButtonTitle)
+        }
+    }
+
+    func redeemedVoucherAnimationDidFinishedWithSuccessfulState(with cancelButtonAction: @escaping Action) {
+        self.cancelButtonAction = cancelButtonAction
+    }
+}
+
+// MARK: - Private functions
+//// Used for mainly updating views
+
+private extension RedeemVoucherContentView {
+    private func redeemedVoucherSuccessfully(instructionLabelSuccessString: String, gotItButtonTitle: String) {
+        inputTextField.constraints.height?.constant = 0
+        inputTextField.alpha = 0
+
+        redeemButton.constraints.height?.constant = 0
+        redeemButton.alpha = 0
+
+        instructionLabel.alpha = 1
+        instructionLabel.text = instructionLabelSuccessString
+        instructionLabel.font = UIFont.boldSystemFont(ofSize: 20)
+
+        topStackView.spacing = UIMetrics.StackSpacing.close.rawValue / 2
+        topStackTopConstraint.constant = UIMetrics.sectionSpacing
+
+        successImageHeightConstraint.constant
+            = SpinnerActivityIndicatorView.Style.large.intrinsicSize.height
+        successImage.alpha = 1
+
+        statusLabel.alpha = 0.6
+        
+        cancelButton.setTitle(gotItButtonTitle, for: .normal)
+
+        topStackView.spacing = UIMetrics.StackSpacing.close.rawValue
+        inputTextField.removeFromSuperview()
+        redeemButton.removeFromSuperview()
+    }
+
+    private func showLoading() {
+        activityIndicator.alpha = 1
+        activityIndicator.startAnimating()
+    }
+
+    private func hideLoading() {
+        activityIndicator.stopAnimating()
+        activityIndicator.alpha = 0
+    }
+
+    private func setRedeemButtonAvailability(_ isAvailable: Bool) {
+        redeemButton.isEnabled = isAvailable
+    }
+
+    private func updateStatusLabel(alpha: CGFloat, text: String, textColor: UIColor) {
+        statusLabel.alpha = alpha
+        statusLabel.text = text
+        statusLabel.textColor = textColor
     }
 }

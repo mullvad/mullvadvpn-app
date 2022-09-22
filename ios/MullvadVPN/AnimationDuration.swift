@@ -10,4 +10,5 @@ import Foundation
 
 enum AnimationDuration: TimeInterval {
     case medium = 0.25
+    case heavy = 0.8
 }
