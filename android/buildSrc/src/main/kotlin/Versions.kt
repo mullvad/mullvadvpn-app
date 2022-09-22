@@ -12,10 +12,10 @@ object Versions {
     const val turbine = "0.7.0"
 
     object Android {
-        const val compileSdkVersion = 31
+        const val compileSdkVersion = 33
         const val material = "1.4.0"
         const val minSdkVersion = 26
-        const val targetSdkVersion = 30
+        const val targetSdkVersion = 33
         const val volley = "1.2.1"
     }
 
@@ -26,7 +26,7 @@ object Versions {
         const val coordinatorlayout = "1.1.0"
         const val espresso = "3.3.0"
         const val lifecycle = "2.4.1"
-        const val fragment = "1.3.2"
+        const val fragment = "1.4.1"
         const val recyclerview = "1.2.1"
         const val junit = "1.1.4"
         const val test = "1.4.0"
