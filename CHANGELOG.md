@@ -80,8 +80,8 @@ Line wrap the file at 100 chars.                                              Th
   occur during system shutdown.
 
 #### Windows
-- Fix incomplete validation of input buffers in `win-split-tunnel` driver that could result
-  in out-of-bounds reads. Fixes 2022 Mullvad app audit issue item `MUL22-01`.
+- Upgrade win-split-tunnel driver to version 1.2.2.0. Fixes incomplete validation of input buffers
+  that could result in out-of-bounds reads. Fixes 2022 Mullvad app audit issue item `MUL22-01`.
 
 #### Linux
 - Added traffic blocking during early boot, before the daemon starts, to prevent leaks in the case
