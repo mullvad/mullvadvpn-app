@@ -293,7 +293,7 @@ impl DaemonInterface {
     }
 
     pub fn shutdown(&self) -> Result<()> {
-        self.send_command(DaemonCommand::Shutdown)
+        self.command_sender.shutdown().map_err(Error::NoDaemon)
     }
 
     pub fn submit_voucher(&self, voucher: String) -> Result<VoucherSubmission> {
