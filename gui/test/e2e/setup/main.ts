@@ -10,6 +10,7 @@ import {
   IAppVersionInfo,
   ILocation,
   IRelayList,
+  IWireguardEndpointData,
 } from '../../../src/shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../src/shared/gettext';
 import { IGuiSettingsState } from '../../../src/shared/gui-settings-state';
@@ -101,6 +102,11 @@ class ApplicationMain {
     ],
   };
 
+  private wireguardEndpointData: IWireguardEndpointData = {
+    portRanges: [],
+    udp2tcpPorts: [],
+  };
+
   public constructor() {
     app.enableSandbox();
     app.on('ready', this.onReady);
@@ -153,7 +159,11 @@ class ApplicationMain {
       settings: this.settings,
       isPerformingPostUpgrade: false,
       deviceState: this.deviceState,
-      relayListPair: { relays: this.relayList, bridges: this.relayList },
+      relayListPair: {
+        relays: this.relayList,
+        bridges: this.relayList,
+        wireguardEndpointData: this.wireguardEndpointData,
+      },
       currentVersion: this.currentVersion,
       upgradeVersion: this.upgradeVersion,
       guiSettings: this.guiSettings,

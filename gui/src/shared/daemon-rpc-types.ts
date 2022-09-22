@@ -119,7 +119,7 @@ export interface IProxyEndpoint {
 export type DaemonEvent =
   | { tunnelState: TunnelState }
   | { settings: ISettings }
-  | { relayList: IRelayList }
+  | { relayList: IRelayListWithEndpointData }
   | { appVersionInfo: IAppVersionInfo }
   | { device: DeviceEvent }
   | { deviceRemoval: Array<IDevice> };
@@ -224,8 +224,18 @@ export type RelaySettingsUpdate =
       customTunnelEndpoint: IRelaySettingsCustom;
     };
 
+export interface IRelayListWithEndpointData {
+  relayList: IRelayList;
+  wireguardEndpointData: IWireguardEndpointData;
+}
+
 export interface IRelayList {
   countries: IRelayListCountry[];
+}
+
+export interface IWireguardEndpointData {
+  portRanges: [number, number][];
+  udp2tcpPorts: number[];
 }
 
 export interface IRelayListCountry {
