@@ -235,7 +235,7 @@ extension SendTunnelProviderMessageOperation where Output == Void {
     }
 }
 
-enum SendTunnelProviderMessageError: ChainedError {
+enum SendTunnelProviderMessageError: LocalizedError, WrappingError {
     /// Tunnel process is either down or about to go down.
     case tunnelDown(NEVPNStatus)
 
@@ -251,8 +251,17 @@ enum SendTunnelProviderMessageError: ChainedError {
             return "Tunnel is either down or about to go down (status: \(status))."
         case .timeout:
             return "Send timeout."
-        case .system:
-            return "System error."
+        case let .system(error):
+            return "System error: \(error.localizedDescription)"
+        }
+    }
+
+    var underlyingError: Error? {
+        switch self {
+        case let .system(error):
+            return error
+        case .timeout, .tunnelDown:
+            return nil
         }
     }
 }

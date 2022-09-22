@@ -317,7 +317,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             try BGTaskScheduler.shared.submit(request)
         } catch {
             logger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Could not schedule app refresh task."
             )
         }
@@ -341,7 +341,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             try BGTaskScheduler.shared.submit(request)
         } catch {
             logger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Could not schedule private key rotation task."
             )
         }
@@ -363,7 +363,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             try BGTaskScheduler.shared.submit(request)
         } catch {
             logger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Could not schedule address cache update task."
             )
         }

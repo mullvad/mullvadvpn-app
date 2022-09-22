@@ -121,7 +121,7 @@ extension AddressCache {
                         try writeToDisk()
                     } catch {
                         logger.error(
-                            chainedError: AnyChainedError(error),
+                            error: error,
                             message: "Failed to persist address cache after reading it from bundle."
                         )
                     }
@@ -170,7 +170,7 @@ extension AddressCache {
                 try writeToDisk()
             } catch {
                 logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to write address cache after selecting next endpoint."
                 )
             }
@@ -209,7 +209,7 @@ extension AddressCache {
                 try writeToDisk()
             } catch {
                 logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to write address cache after setting new endpoints."
                 )
             }
@@ -238,7 +238,7 @@ extension AddressCache {
                 return readResult
             } catch {
                 logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to read address cache from disk. Fallback to pre-bundled cache."
                 )
 
@@ -253,7 +253,7 @@ extension AddressCache {
                     return readResult
                 } catch {
                     logger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Failed to read address cache from bundle."
                     )
 

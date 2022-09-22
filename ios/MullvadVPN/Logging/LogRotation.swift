@@ -9,7 +9,7 @@
 import Foundation
 
 enum LogRotation {
-    enum Error: ChainedError {
+    enum Error: LocalizedError, WrappingError {
         case noSourceLogFile
         case moveSourceLogFile(Swift.Error)
 
@@ -19,6 +19,15 @@ enum LogRotation {
                 return "Source log file does not exist."
             case .moveSourceLogFile:
                 return "Failure to move the source log file to backup."
+            }
+        }
+
+        var underlyingError: Swift.Error? {
+            switch self {
+            case .noSourceLogFile:
+                return nil
+            case let .moveSourceLogFile(error):
+                return error
             }
         }
     }
