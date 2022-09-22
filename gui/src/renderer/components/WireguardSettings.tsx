@@ -20,7 +20,7 @@ import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
-import Selector, { SelectorItem } from './cell/Selector';
+import Selector, { SelectorItem, SelectorWithCustomItem } from './cell/Selector';
 import { InfoIcon } from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
@@ -129,6 +129,7 @@ export default function WireguardSettings() {
 function PortSelector() {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const { updateRelaySettings } = useAppContext();
+  const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
 
   const wireguardPortItems = useMemo<Array<SelectorItem<number>>>(
     () => WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem),
@@ -161,16 +162,37 @@ function PortSelector() {
     [relaySettings],
   );
 
+  const setCustomPort = useCallback(
+    async (port: string) => {
+      await setWireguardPort(parseInt(port));
+    },
+    [setWireguardPort],
+  );
+
+  const validateValue = useCallback(
+    (value) => allowedPortRanges.some(([start, end]) => value >= start && value <= end),
+    [allowedPortRanges],
+  );
+
+  const portRangesText = allowedPortRanges
+    .map(([start, end]) => (start === end ? start : `${start}-${end}`))
+    .join(', ');
+
   return (
     <AriaInputGroup>
       <StyledSelectorContainer>
-        <Selector
+        <SelectorWithCustomItem
           // TRANSLATORS: The title for the WireGuard port selector.
           title={messages.pgettext('wireguard-settings-view', 'Port')}
           items={wireguardPortItems}
           value={port}
           onSelect={setWireguardPort}
+          onSelectCustom={setCustomPort}
+          inputPlaceholder={messages.pgettext('wireguard-settings-view', 'Port')}
           automaticValue={null}
+          modifyValue={removeNonNumericCharacters}
+          validateValue={validateValue}
+          maxLength={5}
           details={
             <>
               <ModalMessage>
@@ -180,9 +202,12 @@ function PortSelector() {
                 )}
               </ModalMessage>
               <ModalMessage>
-                {messages.pgettext(
-                  'wireguard-settings-view',
-                  'The custom port can be any value inside the valid ranges: 53, 4000-33433, 33565-51820, 52000-60000.',
+                {sprintf(
+                  messages.pgettext(
+                    'wireguard-settings-view',
+                    'The custom port can be any value inside the valid ranges: %(portRanges)s.',
+                  ),
+                  { portRanges: portRangesText },
                 )}
               </ModalMessage>
             </>
