@@ -93,8 +93,8 @@ class AccountContentView: UIView {
             ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.StackSpacing.regular.rawValue
-        stackView.setCustomSpacing(UIMetrics.StackSpacing.regular.rawValue, after: restorePurchasesButton)
+        stackView.spacing = UIMetrics.StackSpacing.regular
+        stackView.setCustomSpacing(UIMetrics.StackSpacing.regular, after: restorePurchasesButton)
         return stackView
     }()
 

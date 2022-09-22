@@ -117,7 +117,7 @@ class RedeemVoucherContentView: UIView {
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.StackSpacing.close.rawValue
+        stackView.spacing = UIMetrics.StackSpacing.close
         return stackView
     }()
 
@@ -125,7 +125,7 @@ class RedeemVoucherContentView: UIView {
         let stackView = UIStackView(arrangedSubviews: [redeemButton, cancelButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.StackSpacing.regular.rawValue
+        stackView.spacing = UIMetrics.StackSpacing.regular
         return stackView
     }()
 
@@ -269,14 +269,21 @@ private extension RedeemVoucherContentView {
         inputTextField.constraints.height?.constant = 0
         inputTextField.alpha = 0
 
+        inputTextField.isHidden = true
+
         redeemButton.constraints.height?.constant = 0
         redeemButton.alpha = 0
+
+        inputTextField.isHidden = true
+
+        topStackView.layoutIfNeeded()
+        bottomStackView.layoutIfNeeded()
 
         instructionLabel.alpha = 1
         instructionLabel.text = instructionLabelSuccessString
         instructionLabel.font = UIFont.boldSystemFont(ofSize: 20)
 
-        topStackView.spacing = UIMetrics.StackSpacing.close.rawValue / 2
+        topStackView.spacing = UIMetrics.StackSpacing.close / 2
         topStackTopConstraint.constant = UIMetrics.sectionSpacing
 
         successImageHeightConstraint.constant
@@ -287,7 +294,7 @@ private extension RedeemVoucherContentView {
         
         cancelButton.setTitle(gotItButtonTitle, for: .normal)
 
-        topStackView.spacing = UIMetrics.StackSpacing.close.rawValue
+        topStackView.spacing = UIMetrics.StackSpacing.close
         inputTextField.removeFromSuperview()
         redeemButton.removeFromSuperview()
     }

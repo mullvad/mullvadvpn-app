@@ -79,7 +79,7 @@ class DeviceManagementContentView: UIView {
         let stackView = UIStackView(arrangedSubviews: [continueButton, backButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.StackSpacing.regular.rawValue
+        stackView.spacing = UIMetrics.StackSpacing.regular
         return stackView
     }()
 

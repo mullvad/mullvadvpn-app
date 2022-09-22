@@ -40,9 +40,9 @@ extension UIMetrics {
         right: 24
     )
 
-    enum StackSpacing: CGFloat {
-        case close = 8
-        case regular = 16
+    enum StackSpacing {
+        static let close = 8.0
+        static let regular = 16.0
     }
 
     /// Spacing used between distinct sections of views
