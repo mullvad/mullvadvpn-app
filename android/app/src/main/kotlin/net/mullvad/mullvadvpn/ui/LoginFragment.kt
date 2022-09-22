@@ -21,7 +21,9 @@ import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.ui.fragments.ACCOUNT_TOKEN_ARGUMENT_KEY
 import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
 import net.mullvad.mullvadvpn.ui.fragments.DeviceListFragment
+import net.mullvad.mullvadvpn.ui.widget.AccountInput
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
+import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
@@ -40,6 +42,8 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
     private lateinit var scrollArea: ScrollView
     private lateinit var background: View
     private lateinit var headerBar: HeaderBar
+    private lateinit var input: AccountInput
+    private lateinit var createAccountButton: Button
 
     @Deprecated("Refactor code to instead rely on Lifecycle.")
     private val jobTracker = JobTracker()
@@ -68,8 +72,12 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
             onClearHistory = loginViewModel::clearAccountHistory
         }
 
-        view.findViewById<net.mullvad.mullvadvpn.ui.widget.Button>(R.id.create_account)
-            .setOnClickAction("createAccount", jobTracker, loginViewModel::createAccount)
+        createAccountButton = view.findViewById(R.id.create_account)
+        createAccountButton.setOnClickAction(
+            "createAccount",
+            jobTracker,
+            loginViewModel::createAccount
+        )
 
         scrollArea = view.findViewById(R.id.scroll_area)
 
@@ -81,7 +89,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
 
         loginViewModel.clearState()
         triggerAutoLoginIfAccountTokenPresent()
-
+        input = accountLogin.findViewById(R.id.input)
         return view
     }
 
@@ -95,6 +103,9 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
                 false
             }
         }
+        input.onTextChanged.subscribe(this) {
+            createAccountButton.isEnabled = it.isEmpty()
+        }
     }
 
     override fun onResume() {
@@ -105,6 +116,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
     override fun onStop() {
         jobTracker.cancelAllJobs()
         requireMainActivity().backButtonHandler = null
+        input.onTextChanged.unsubscribe(this)
         super.onStop()
     }
 

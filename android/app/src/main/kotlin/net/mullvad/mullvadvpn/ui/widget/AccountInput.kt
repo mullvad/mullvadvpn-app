@@ -41,7 +41,7 @@ class AccountInput : LinearLayout {
         override fun afterTextChanged(text: Editable) {
             removeFormattingSpans(text)
             setButtonEnabled(text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
-            onTextChanged.notify(Unit)
+            onTextChanged.notify(text.toString())
         }
     }
 
@@ -71,7 +71,7 @@ class AccountInput : LinearLayout {
     val onFocusChanged = EventNotifier(false)
     private var hasFocus by onFocusChanged.notifiable()
 
-    val onTextChanged = EventNotifier(Unit)
+    val onTextChanged = EventNotifier("")
 
     var loginState by observable(LoginState.Initial) { _, _, state ->
         when (state) {
