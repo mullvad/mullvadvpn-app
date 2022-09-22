@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
@@ -31,11 +31,11 @@ export interface SelectorItem<T> {
   disabled?: boolean;
 }
 
-interface SelectorProps<T, U> {
+// T represents the available values and U represent the value of "Automatic"/"Any" if there is one.
+interface CommonSelectorProps<T, U> {
   title?: string;
   items: Array<SelectorItem<T>>;
   value: T | U;
-  onSelect: (value: T | U) => void;
   selectedCellRef?: React.Ref<HTMLElement>;
   className?: string;
   details?: React.ReactElement;
@@ -44,6 +44,11 @@ interface SelectorProps<T, U> {
   thinTitle?: boolean;
   automaticLabel?: string;
   automaticValue?: U;
+  children?: React.ReactNode | Array<React.ReactNode>;
+}
+
+interface SelectorProps<T, U> extends CommonSelectorProps<T, U> {
+  onSelect: (value: T | U) => void;
 }
 
 export default function Selector<T, U>(props: SelectorProps<T, U>) {
@@ -99,11 +104,19 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
     </StyledTitle>
   );
 
+  // Add potential additional items to the list. Used for custom entry.
+  const children = (
+    <>
+      {items}
+      {props.children}
+    </>
+  );
+
   return (
     <AriaInput>
       <Cell.Section role="listbox" className={props.className}>
         {title}
-        {props.expandable ? <Accordion expanded={expanded}>{items}</Accordion> : items}
+        {props.expandable ? <Accordion expanded={expanded}>{children}</Accordion> : children}
       </Cell.Section>
     </AriaInput>
   );
@@ -151,5 +164,122 @@ function SelectorCell<T>(props: SelectorCellProps<T>) {
       />
       <StyledLabel>{props.children}</StyledLabel>
     </Cell.CellButton>
+  );
+}
+
+interface StyledCustomContainerProps {
+  selected: boolean;
+}
+
+const StyledCustomContainer = styled(Cell.Container)((props: StyledCustomContainerProps) => ({
+  minHeight: '44px',
+  backgroundColor: props.selected ? colors.green : colors.blue40,
+  ':hover': {
+    backgroundColor: props.selected ? colors.green : colors.blue,
+  },
+}));
+
+// Adding undefined as possible value of the selector to be able to select nothing.
+interface SelectorWithCustomItemProps<T, U> extends CommonSelectorProps<T | undefined, U> {
+  inputPlaceholder: string;
+  onSelect: (value: T | U) => void;
+  onSelectCustom: (value: string) => void;
+  maxLength?: number;
+  selectedCellRef?: React.Ref<HTMLDivElement>;
+  validateValue?: (value: string) => boolean;
+  modifyValue?: (value: string) => string;
+}
+
+export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<T, U>) {
+  const {
+    value,
+    inputPlaceholder,
+    onSelect,
+    onSelectCustom,
+    maxLength,
+    selectedCellRef,
+    validateValue,
+    modifyValue,
+    ...otherProps
+  } = props;
+
+  // The component needs to keep track of when the custom item should look selected before it has a
+  // value.
+  const [customIsSelectedWithoutValue, setCustomIsSelectedWithoutValue] = useState(false);
+  const inputRef = useRef() as React.RefObject<HTMLInputElement>;
+
+  const itemIsSelected =
+    props.items.some((item) => item.value === value) || props.automaticValue === value;
+  const customIsSelected = !itemIsSelected || customIsSelectedWithoutValue;
+
+  const handleClick = useCallback(() => {
+    if (!customIsSelected) {
+      setCustomIsSelectedWithoutValue(true);
+      inputRef.current?.focus();
+    }
+  }, [customIsSelected, inputRef.current]);
+
+  // Wrap onSelect to be able to catch when a new value is selected during the
+  // customIsSelectedWithoutValue phase.
+  const handleSelectValue = useCallback(
+    (newValue: T | U | undefined) => {
+      if (customIsSelectedWithoutValue && newValue === value) {
+        setCustomIsSelectedWithoutValue(false);
+      } else if (newValue !== undefined) {
+        onSelect(newValue);
+      }
+    },
+    [customIsSelected, value, onSelect],
+  );
+
+  const handleSubmit = useCallback((value: string) => {
+    if (validateValue?.(value) !== false) {
+      onSelectCustom(value);
+    }
+  }, []);
+
+  // If props.value changes while customIsSelectedWithoutValue then we want to switch to that value
+  // instead.
+  useEffect(() => {
+    if (customIsSelected) {
+      setCustomIsSelectedWithoutValue(false);
+    }
+  }, [value]);
+
+  return (
+    <Selector<T | undefined, U>
+      {...otherProps}
+      onSelect={handleSelectValue}
+      value={customIsSelected ? undefined : value}>
+      <StyledCustomContainer
+        ref={customIsSelected ? props.selectedCellRef : undefined}
+        onClick={handleClick}
+        selected={customIsSelected}
+        disabled={props.disabled}
+        role="option"
+        aria-selected={customIsSelected}
+        aria-disabled={props.disabled}>
+        <StyledCellIcon
+          visible={customIsSelected}
+          source="icon-tick"
+          width={18}
+          tintColor={colors.white}
+        />
+        <StyledLabel>{messages.gettext('Custom')}</StyledLabel>
+        <AriaInput>
+          <Cell.AutoSizingTextInput
+            ref={inputRef}
+            value={itemIsSelected || customIsSelectedWithoutValue ? '' : `${props.value}`}
+            placeholder={inputPlaceholder}
+            inputMode={'numeric'}
+            maxLength={maxLength ?? 4}
+            onSubmitValue={handleSubmit}
+            submitOnBlur={true}
+            validateValue={validateValue}
+            modifyValue={modifyValue}
+          />
+        </AriaInput>
+      </StyledCustomContainer>
+    </Selector>
   );
 }
