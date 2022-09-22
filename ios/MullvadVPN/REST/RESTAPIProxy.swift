@@ -294,7 +294,6 @@ extension REST {
             let formatter = DateComponentsFormatter()
             formatter.allowedUnits = [.day, .hour]
             formatter.unitsStyle = .full
-            formatter.calendar?.locale = .usEnglish
 
             return formatter.string(from: self.timeAdded)
         }
