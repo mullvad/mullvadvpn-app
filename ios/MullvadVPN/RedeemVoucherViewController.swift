@@ -213,7 +213,6 @@ private extension RedeemVoucherViewController {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.day]
         formatter.unitsStyle = .full
-        formatter.calendar?.locale = .usEnglish
 
         return formatter.string(from: Double(timeAdded)) ?? ""
     }

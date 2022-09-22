@@ -308,7 +308,6 @@
 		E1328435289CF24C00C3BD27 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1328434289CF24C00C3BD27 /* RedeemVoucherViewController.swift */; };
 		E132843B289D52A900C3BD27 /* VoucherTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843A289D52A900C3BD27 /* VoucherTextField.swift */; };
 		E132843D289D5B3700C3BD27 /* InputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843C289D5B3700C3BD27 /* InputFormatter.swift */; };
-		E140C47128BF962300BF3C6B /* Locale+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E140C47028BF962300BF3C6B /* Locale+.swift */; };
 		E140C47528C1F29E00BF3C6B /* Array+Constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = E140C47428C1F29E00BF3C6B /* Array+Constraints.swift */; };
 		E140C47728C1F38D00BF3C6B /* AnimationDuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = E140C47628C1F38D00BF3C6B /* AnimationDuration.swift */; };
 		E140C47C28C2079800BF3C6B /* SpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E140C47B28C2079800BF3C6B /* SpacerView.swift */; };
@@ -654,7 +653,6 @@
 		E1328434289CF24C00C3BD27 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
 		E132843A289D52A900C3BD27 /* VoucherTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoucherTextField.swift; sourceTree = "<group>"; };
 		E132843C289D5B3700C3BD27 /* InputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFormatter.swift; sourceTree = "<group>"; };
-		E140C47028BF962300BF3C6B /* Locale+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Locale+.swift"; sourceTree = "<group>"; };
 		E140C47428C1F29E00BF3C6B /* Array+Constraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Constraints.swift"; sourceTree = "<group>"; };
 		E140C47628C1F38D00BF3C6B /* AnimationDuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationDuration.swift; sourceTree = "<group>"; };
 		E140C47B28C2079800BF3C6B /* SpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacerView.swift; sourceTree = "<group>"; };
@@ -991,7 +989,6 @@
 				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
 				58727282265D173C00F315B2 /* LaunchScreen.storyboard */,
 				58E20770274672CA00DE5D77 /* LaunchViewController.swift */,
-				E140C47028BF962300BF3C6B /* Locale+.swift */,
 				58A1AA8623F43901009F7EA6 /* Location.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
 				5815039F24D6ECF200C9C50E /* Logging */,
@@ -1670,7 +1667,6 @@
 				585DA88A26B027A300B8C587 /* RESTCoding.swift in Sources */,
 				E148F5AF28BDFA7B00DA6119 /* FormsheetTransitionDelegate.swift in Sources */,
 				580F8B8328197881002E0998 /* TunnelSettingsV2.swift in Sources */,
-				E140C47128BF962300BF3C6B /* Locale+.swift in Sources */,
 				587B753D2666468F00DEF7E9 /* NotificationController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
