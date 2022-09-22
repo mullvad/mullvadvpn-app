@@ -283,9 +283,6 @@ pub enum DaemonCommand {
     CheckVolumes(ResponseTx<(), Error>),
     /// Register settings for WireGuard obfuscator
     SetObfuscationSettings(ResponseTx<(), settings::Error>, ObfuscationSettings),
-    /// Makes the daemon exit the main loop and quit.
-    #[cfg(target_os = "android")]
-    Shutdown,
     /// Saves the target tunnel state and enters a blocking state. The state is restored
     /// upon restart.
     PrepareRestart,
@@ -430,6 +427,16 @@ impl DaemonCommandSender {
     pub fn send(&self, command: DaemonCommand) -> Result<(), Error> {
         self.0
             .unbounded_send(InternalDaemonEvent::Command(command))
+            .map_err(|_| Error::DaemonUnavailable)
+    }
+
+    /// Shuts down the daemon. This triggers the shutdown as though the user would shut it down
+    /// because blocking traffic on Android relies on the daemon process being alive and keeping a
+    /// tunnel device open.
+    #[cfg(target_os = "android")]
+    pub fn shutdown(&self) -> Result<(), Error> {
+        self.0
+            .unbounded_send(InternalDaemonEvent::TriggerShutdown(true))
             .map_err(|_| Error::DaemonUnavailable)
     }
 }
@@ -1033,8 +1040,6 @@ where
             SetObfuscationSettings(tx, settings) => {
                 self.on_set_obfuscation_settings(tx, settings).await
             }
-            #[cfg(target_os = "android")]
-            Shutdown => self.trigger_shutdown_event(false),
             PrepareRestart => self.on_prepare_restart(),
             #[cfg(target_os = "android")]
             BypassSocket(fd, tx) => self.on_bypass_socket(fd, tx),
