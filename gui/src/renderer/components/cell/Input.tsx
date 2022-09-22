@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
-import { useBoolean } from '../../lib/utilityHooks';
+import { useBoolean, useCombinedRefs } from '../../lib/utilityHooks';
 import { normalText } from '../common-styles';
 import ImageView from '../ImageView';
 import { BackAction } from '../KeyboardNavigation';
@@ -45,111 +45,95 @@ interface IInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onChangeValue?: (value: string) => void;
 }
 
-interface IInputState {
-  value?: string;
-  focused: boolean;
+function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputElement>) {
+  const {
+    validateValue,
+    modifyValue,
+    submitOnBlur,
+    onSubmitValue,
+    onChangeValue,
+    ...otherProps
+  } = props;
+
+  const [value, setValue] = useState(props.value ?? '');
+  const [isFocused, setFocused, setBlurred] = useBoolean(false);
+
+  const inputRef = useRef() as React.RefObject<HTMLInputElement>;
+  const combinedRef = useCombinedRefs(inputRef, forwardedRef);
+
+  const onFocus = useCallback(
+    (event: React.FocusEvent<HTMLInputElement>) => {
+      setFocused();
+      props.onFocus?.(event);
+    },
+    [props.onFocus],
+  );
+
+  const onBlur = useCallback(
+    (event: React.FocusEvent<HTMLInputElement>) => {
+      setBlurred();
+      props.onBlur?.(event);
+
+      if (validateValue?.(value) !== false && submitOnBlur) {
+        onSubmitValue?.(value);
+      }
+    },
+    [value, props.onBlur, validateValue, onSubmitValue, submitOnBlur],
+  );
+
+  const onChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = modifyValue?.(event.target.value) ?? event.target.value;
+      setValue(value);
+      props.onChange?.(event);
+      onChangeValue?.(value);
+    },
+    [value, modifyValue, props.onSubmit, onSubmitValue],
+  );
+
+  const onKeyPress = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        onSubmitValue?.(value);
+        inputRef.current?.blur();
+      }
+      props.onKeyPress?.(event);
+    },
+    [value, onSubmitValue, inputRef, props.onKeyPress],
+  );
+
+  useEffect(() => {
+    if (!isFocused && props.value !== undefined && value !== props.value) {
+      setValue(props.value);
+      onChangeValue?.(props.value);
+    }
+  }, [props.value]);
+
+  const valid = validateValue?.(value);
+
+  return (
+    <CellDisabledContext.Consumer>
+      {(disabled) => (
+        <StyledInput
+          {...otherProps}
+          ref={combinedRef}
+          type="text"
+          valid={valid}
+          focused={isFocused}
+          aria-invalid={!valid}
+          onChange={onChange}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          onKeyPress={onKeyPress}
+          value={value}
+          disabled={disabled}
+        />
+      )}
+    </CellDisabledContext.Consumer>
+  );
 }
 
-export class Input extends React.Component<IInputProps, IInputState> {
-  public state = {
-    value: this.props.value ?? '',
-    focused: false,
-  };
-
-  public inputRef = React.createRef<HTMLInputElement>();
-
-  public componentDidUpdate(prevProps: IInputProps, _prevState: IInputState) {
-    if (
-      !this.state.focused &&
-      prevProps.value !== this.props.value &&
-      this.props.value !== this.state.value
-    ) {
-      this.setState(
-        (_state, props) => ({
-          value: props.value,
-        }),
-        () => {
-          this.props.onChangeValue?.(this.state.value);
-        },
-      );
-    }
-  }
-
-  public render() {
-    const {
-      type: _type,
-      onChange: _onChange,
-      onFocus: _onFocus,
-      onBlur: _onBlur,
-      onKeyPress: _onKeyPress,
-      value: _value,
-      modifyValue: _modifyValue,
-      submitOnBlur: _submitOnBlur,
-      onChangeValue: _onChangeValue,
-      onSubmitValue: _onSubmitValue,
-      validateValue,
-      ...otherProps
-    } = this.props;
-
-    const valid = validateValue?.(this.state.value);
-
-    return (
-      <CellDisabledContext.Consumer>
-        {(disabled) => (
-          <StyledInput
-            ref={this.inputRef}
-            type="text"
-            valid={valid}
-            focused={this.state.focused}
-            aria-invalid={!valid}
-            onChange={this.onChange}
-            onFocus={this.onFocus}
-            onBlur={this.onBlur}
-            onKeyPress={this.onKeyPress}
-            value={this.state.value}
-            disabled={disabled}
-            {...otherProps}
-          />
-        )}
-      </CellDisabledContext.Consumer>
-    );
-  }
-
-  public blur = () => {
-    this.inputRef.current?.blur();
-  };
-
-  private onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = this.props.modifyValue?.(event.target.value) ?? event.target.value;
-    this.setState({ value });
-    this.props.onChange?.(event);
-    this.props.onChangeValue?.(value);
-  };
-
-  private onFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-    this.setState({ focused: true });
-    this.props.onFocus?.(event);
-  };
-
-  private onBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    this.setState({ focused: false });
-
-    this.props.onBlur?.(event);
-    if (this.props.validateValue?.(this.state.value) !== false && this.props.submitOnBlur) {
-      this.props.onSubmitValue?.(this.state.value);
-    } else {
-      this.setState({ value: this.props.value });
-    }
-  };
-
-  private onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      this.props.onSubmitValue?.(this.state.value);
-      this.inputRef.current?.blur();
-    }
-    this.props.onKeyPress?.(event);
-  };
-}
+export const Input = React.memo(React.forwardRef(InputWithRef));
 
 const InputFrame = styled.div((props: { focused: boolean }) => ({
   display: 'flex',
@@ -177,12 +161,13 @@ const StyledAutoSizingTextInputWrapper = styled.div({
   height: '100%',
 });
 
-export function AutoSizingTextInput(props: IInputProps) {
+function AutoSizingTextInputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputElement>) {
   const { onChangeValue, onFocus, onBlur, ...otherProps } = props;
 
   const [value, setValue] = useState(otherProps.value ?? '');
   const [focused, setFocused, setBlurred] = useBoolean(false);
-  const inputRef = useRef() as React.RefObject<Input>;
+  const inputRef = useRef() as React.RefObject<HTMLInputElement>;
+  const combinedRef = useCombinedRefs(inputRef, forwardedRef);
 
   const onChangeValueWrapper = useCallback(
     (value: string) => {
@@ -216,7 +201,7 @@ export function AutoSizingTextInput(props: IInputProps) {
         <StyledAutoSizingTextInputContainer>
           <StyledAutoSizingTextInputWrapper>
             <Input
-              ref={inputRef}
+              ref={combinedRef}
               onChangeValue={onChangeValueWrapper}
               onBlur={onBlurWrapper}
               onFocus={onFocusWrapper}
@@ -231,6 +216,8 @@ export function AutoSizingTextInput(props: IInputProps) {
     </BackAction>
   );
 }
+
+export const AutoSizingTextInput = React.memo(React.forwardRef(AutoSizingTextInputWithRef));
 
 const StyledCellInputRowContainer = styled(Container)({
   backgroundColor: 'white',
