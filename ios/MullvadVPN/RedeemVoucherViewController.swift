@@ -10,26 +10,20 @@ import Foundation
 import UIKit
 
 class RedeemVoucherViewController: UIViewController {
-    enum RedeemVoucherState {
-        case initial, waiting, success, failure
+
+    // MARK: - Constants
+
+    private let apiProxy: REST.APIProxy
+
+    // MARK: - Views
+    
+    private lazy var contentView = RedeemVoucherContentView { [weak self] in
+        self?.submitVoucher()
+    } cancelAction: { [weak self] in
+        self?.dismiss(animated: true)
     }
 
-    private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
-    private let contentView = RedeemVoucherContentView()
-
-    private let instructionLabelSuccessString = NSLocalizedString(
-        "REDEEM_VOUCHER_INSTRUCTION_SUCCESS",
-        tableName: "RedeemVoucher",
-        value: "Voucher was successfully redeemed.",
-        comment: ""
-    )
-
-    private let gotItButtonTitle = NSLocalizedString(
-        "REDEEM_VOUCHER_GOT_IT_BUTTON",
-        tableName: "RedeemVoucher",
-        value: "Got it!",
-        comment: ""
-    )
+    // MARK: - Variables
 
     private var redeemVoucherState = RedeemVoucherState.initial
     private var didDismissOnSuccess: (() -> Void)?
@@ -44,17 +38,21 @@ class RedeemVoucherViewController: UIViewController {
     private var isVoucherLengthSatisfied = false {
         didSet {
             if isVoucherLengthSatisfied != oldValue {
-                updateViewState(animated: true)
+                updateViews(with: self.redeemVoucherState, animated: true)
             }
         }
     }
 
+    // MARK: - Lifecycles
+
     override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
 
     init(
+        apiProxy: REST.APIProxy = REST.ProxyFactory.shared.createAPIProxy(),
         didDismissOnSuccess: (() -> Void)? = nil,
         didAddTime: (() -> Void)? = nil
     ) {
+        self.apiProxy = apiProxy
         self.didDismissOnSuccess = didDismissOnSuccess
         self.didAddTime = didAddTime
         super.init(nibName: nil, bundle: nil)
@@ -64,23 +62,17 @@ class RedeemVoucherViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
+
         setUpContentView()
-        setUpButtonTargets()
         addObservers()
-        updateViewState(animated: false)
+        updateViews(with: .initial, animated: false)
     }
-}
 
-// MARK: - Private Functions
+    // MARK: - View setup
 
-private extension RedeemVoucherViewController {
-    func setUpContentView() {
+    private func setUpContentView() {
         view.addSubview(contentView)
 
         NSLayoutConstraint.activate([
@@ -90,30 +82,12 @@ private extension RedeemVoucherViewController {
             contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
+}
 
-    func setUpButtonTargets() {
-        contentView.redeemButton.addTarget(
-            self,
-            action: #selector(didTapRedeemButton),
-            for: .touchUpInside
-        )
+// MARK: - Private Functions
 
-        contentView.cancelButton.addTarget(
-            self,
-            action: #selector(didTapCancelButton),
-            for: .touchUpInside
-        )
-    }
-
-    @objc func didTapRedeemButton() {
-        submitVoucher()
-    }
-
-    @objc func didTapCancelButton() {
-        dismiss(animated: true)
-    }
-
-    func addObservers() {
+private extension RedeemVoucherViewController {
+    private func addObservers() {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(textDidChange),
@@ -136,158 +110,64 @@ private extension RedeemVoucherViewController {
         )
     }
 
-    @objc func textDidChange() {
+    @objc private func textDidChange() {
         updateIsVoucherLengthSatisfied()
         if isVoucherLengthSatisfied {
             dismissKeyboard()
         }
     }
 
-    func updateIsVoucherLengthSatisfied() {
+    private func updateIsVoucherLengthSatisfied() {
         isVoucherLengthSatisfied =
             contentView.inputTextField.text?.count == contentView.inputTextField.placeholder?.count
     }
 
-    func dismissKeyboard() {
+    private func dismissKeyboard() {
         contentView.inputTextField.resignFirstResponder()
     }
 
-    func setRedeemVoucherState(_ state: RedeemVoucherState, animated: Bool) {
+    private func setRedeemVoucherState(_ state: RedeemVoucherState, animated: Bool) {
         redeemVoucherState = state
-        updateViewState(animated: true)
+        updateViews(with: state, animated: true)
     }
 
-    func updateViewState(animated: Bool) {
-        UIView.performWithoutAnimation {
-            self.animationSetup(for: self.redeemVoucherState)()
-            self.view.layoutIfNeeded()
-        }
-
-        let actions = { [weak self] in
-            guard let self = self else { return }
-
-            self.setActivityInditatorIsAnimating(self.redeemVoucherState == .waiting)
-            self.contentView.activityIndicator.alpha = self.redeemVoucherState == .waiting ? 1 : 0
-            self.contentView.redeemButton.isEnabled = self.redeemVoucherState != .waiting
-                && self.isVoucherLengthSatisfied
-            self.contentView.statusLabel.alpha = self.redeemVoucherState == .initial ? 0 : 1
-            self.contentView.statusLabel.text = self.statusLabelText(for: self.redeemVoucherState)
-            self.contentView.statusLabel.textColor = self.redeemVoucherState == .failure
-                ? .dangerColor
-                : .white
-
-            if self.redeemVoucherState == .success {
-                self.contentView.inputTextField.constraints.height?.constant = 0
-                self.contentView.inputTextField.alpha = 0
-
-                self.contentView.redeemButton.constraints.height?.constant = 0
-                self.contentView.redeemButton.alpha = 0
-
-                self.contentView.instructionLabel.alpha = 1
-                self.contentView.instructionLabel.text = self.instructionLabelSuccessString
-                self.contentView.instructionLabel.font = UIFont.boldSystemFont(ofSize: 20)
-
-                self.contentView.topStackView.spacing = UIMetrics.StackSpacing.close.rawValue / 2
-                self.contentView.topStackTopConstraint.constant = UIMetrics.sectionSpacing
-
-                self.contentView.successImageHeightConstraint.constant
-                    = SpinnerActivityIndicatorView.Style.large.intrinsicSize.height
-                self.contentView.successImage.alpha = 1
-
-                self.contentView.statusLabel.alpha = 0.6
-
-                self.contentView.cancelButton.setTitle(self.gotItButtonTitle, for: .normal)
-            }
-        }
-
+    private func updateViews(with state: RedeemVoucherState, animated: Bool) {
         if animated {
-            UIView.animate(
-                withDuration: AnimationDuration.medium.rawValue,
-                delay: 0,
-                options: .curveEaseInOut
-            ) {
-                actions()
+            UIView.animate(withDuration: 0.8,
+                           delay: 0,
+                           usingSpringWithDamping: 0.5,
+                           initialSpringVelocity: 6.9,
+                           options: .curveEaseInOut,
+                           animations: {
+                self.updateViewsAccordingToState(with: state)
+            }) { _ in
+                self.updateViewsAnimationCompletion(with: state)
                 self.view.layoutIfNeeded()
-            } completion: { _ in
-                self.onSuccessCompletion()
             }
         } else {
-            actions()
+            updateViewsAccordingToState(with: state)
+        }
+    }
+    
+    private func updateViewsAccordingToState(with state: RedeemVoucherState) {
+        contentView
+            .updateViews(state: state,
+                         isVoucherLengthSatisfied: isVoucherLengthSatisfied,
+                         statusLabelText: state.getStatusLabelText(timeAdded: timeAdded))
+    }
+
+    private func updateViewsAnimationCompletion(with state: RedeemVoucherState) {
+        if case .success = state {
+            contentView
+                .redeemedVoucherAnimationDidFinishedWithSuccessfulState { [unowned self] in
+                    self.didTapGotIt()
+                }
         }
     }
 
-    func animationSetup(for redeemVoucherState: RedeemVoucherState) -> (() -> Void) {
-        switch redeemVoucherState {
-        case .waiting:
-            return {
-                self.contentView.activityIndicator.alpha = 0
-                self.contentView.activityIndicator.startAnimating()
-            }
-        case .failure:
-            return {
-                self.contentView.activityIndicator.stopAnimating()
-                self.contentView.statusLabel.alpha = 0
-            }
-        case .success:
-            return {
-                self.contentView.instructionLabel.alpha = 0
-            }
-        default:
-            return {}
-        }
-    }
-
-    func onSuccessCompletion() {
-        if redeemVoucherState == .success {
-            contentView.cancelButton.addTarget(
-                self,
-                action: #selector(didTapGotIt),
-                for: .touchUpInside
-            )
-
-            contentView.topStackView.spacing = UIMetrics.StackSpacing.close.rawValue
-            contentView.inputTextField.removeFromSuperview()
-            contentView.redeemButton.removeFromSuperview()
-        }
-    }
-
-    @objc func didTapGotIt() {
+    @objc private func didTapGotIt() {
         (didDismissOnSuccess ?? {})()
         dismiss(animated: true)
-    }
-
-    func statusLabelText(for state: RedeemVoucherState) -> String {
-        switch state {
-        case .success:
-            return NSLocalizedString(
-                "REDEEM_VOUCHER_STATUS_SUCCESS",
-                tableName: "RedeemVoucher",
-                value: "\(timeAdded) were added to your account.",
-                comment: ""
-            )
-        case .failure:
-            return NSLocalizedString(
-                "REDEEM_VOUCHER_STATUS_FAILURE",
-                tableName: "RedeemVoucher",
-                value: "Voucher code is invalid.",
-                comment: ""
-            )
-        default:
-            return NSLocalizedString(
-                "REDEEM_VOUCHER_STATUS_WAITING",
-                tableName: "RedeemVoucher",
-                value: "Verifying voucher...",
-                comment: ""
-            )
-        }
-    }
-
-    func setActivityInditatorIsAnimating(_ isAnimating: Bool) {
-        if isAnimating {
-            contentView.activityIndicator.startAnimating()
-        } else {
-            contentView.activityIndicator.stopAnimating()
-        }
     }
 
     private func submitVoucher() {
@@ -317,8 +197,9 @@ private extension RedeemVoucherViewController {
 
                 switch completion {
                 case let .success(submitVoucherResponse):
-                    self.timeAdded = self.formattedTimeAdded(from: submitVoucherResponse.timeAdded)
-                    self.setRedeemVoucherState(.success, animated: true)
+                    self.setRedeemVoucherState(.success(
+                        self.formattedTimeAdded(from: submitVoucherResponse.timeAdded)
+                    ), animated: true)
                 case .failure:
                     self.setRedeemVoucherState(.failure, animated: true)
                 default:
@@ -328,7 +209,7 @@ private extension RedeemVoucherViewController {
         }
     }
 
-    func formattedTimeAdded(from timeAdded: Int) -> String {
+    private func formattedTimeAdded(from timeAdded: Int) -> String {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.day]
         formatter.unitsStyle = .full
@@ -338,18 +219,18 @@ private extension RedeemVoucherViewController {
     }
 }
 
-// MARK: - Keyboard
+// MARK: - Keyboard delegates
 
 private extension RedeemVoucherViewController {
-    @objc func keyboardWillShow(notification: NSNotification) {
+    @objc private func keyboardWillShow(notification: NSNotification) {
         handleKeyboardOverlapShow(notification: notification)
     }
 
-    @objc func keyboardWillHide() {
+    @objc private func keyboardWillHide() {
         handleKeyboardOverlapHide()
     }
 
-    func handleKeyboardOverlapShow(notification: NSNotification) {
+    private func handleKeyboardOverlapShow(notification: NSNotification) {
         guard !isViewMoved else { return }
 
         isViewMoved = true
@@ -376,12 +257,51 @@ private extension RedeemVoucherViewController {
         }
     }
 
-    func handleKeyboardOverlapHide() {
+    private func handleKeyboardOverlapHide() {
         guard let navigationControllerOriginY = navigationControllerOriginY,
               let navigationController = navigationController,
               isViewMoved else { return }
 
         isViewMoved = false
         navigationController.view.frame.origin.y = navigationControllerOriginY
+    }
+}
+
+// MARK: - Redeem Voucher State
+
+extension RedeemVoucherViewController {
+    enum RedeemVoucherState: Equatable {
+        case success(String)
+        case initial, waiting, failure
+
+        var isWaiting: Bool {
+            self == .waiting
+        }
+
+        func getStatusLabelText(timeAdded: String) -> String {
+            switch self {
+            case .success:
+                return NSLocalizedString(
+                    "REDEEM_VOUCHER_STATUS_SUCCESS",
+                    tableName: "RedeemVoucher",
+                    value: "\(timeAdded) were added to your account.",
+                    comment: ""
+                )
+            case .failure:
+                return NSLocalizedString(
+                    "REDEEM_VOUCHER_STATUS_FAILURE",
+                    tableName: "RedeemVoucher",
+                    value: "Voucher code is invalid.",
+                    comment: ""
+                )
+            default:
+                return NSLocalizedString(
+                    "REDEEM_VOUCHER_STATUS_WAITING",
+                    tableName: "RedeemVoucher",
+                    value: "Verifying voucher...",
+                    comment: ""
+                )
+            }
+        }
     }
 }
