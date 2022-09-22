@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.service
 
 import android.content.Intent
 import android.graphics.drawable.Icon
-import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.util.Log
@@ -21,6 +20,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ipc.ServiceConnection
 import net.mullvad.mullvadvpn.model.ServiceResult
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.util.SdkUtils.setSubtitleIfSupported
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class MullvadTileService : TileService() {
@@ -130,17 +130,11 @@ class MullvadTileService : TileService() {
             if (newState == Tile.STATE_ACTIVE) {
                 state = Tile.STATE_ACTIVE
                 icon = securedIcon
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    subtitle = resources.getText(R.string.secured)
-                }
+                setSubtitleIfSupported(resources.getText(R.string.secured))
             } else {
                 state = Tile.STATE_INACTIVE
                 icon = unsecuredIcon
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    subtitle = resources.getText(R.string.unsecured)
-                }
+                setSubtitleIfSupported(resources.getText(R.string.unsecured))
             }
             updateTile()
         }
