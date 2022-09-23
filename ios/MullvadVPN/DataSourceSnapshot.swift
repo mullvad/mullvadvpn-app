@@ -394,7 +394,7 @@ extension DataSourceSnapshot {
 }
 
 struct StackViewApplyDataSnapshotConfiguration {
-    var animationDuration: TimeInterval = AnimationDuration.medium.rawValue
+    var animationDuration: TimeInterval = 0.25
     var animationOptions: UIView.AnimationOptions = [.curveEaseInOut]
     var makeView: (IndexPath) -> UIView
 }

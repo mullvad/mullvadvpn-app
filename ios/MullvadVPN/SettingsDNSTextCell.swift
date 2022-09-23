@@ -94,7 +94,7 @@ class SettingsDNSTextCell: SettingsCell, UITextFieldDelegate {
 
     private func updateCellAppearance(animated: Bool) {
         if animated {
-            UIView.animate(withDuration: AnimationDuration.medium.rawValue) {
+            UIView.animate(withDuration: 0.25) {
                 self.updateCellAppearance()
             }
         } else {

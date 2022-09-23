@@ -502,7 +502,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         completion: @escaping (Bool) -> Void
     ) {
         UIView.animate(
-            withDuration: AnimationDuration.medium.rawValue,
+            withDuration: 0.25,
             animations: animations
         ) { completed in
             completion(completed)
@@ -576,7 +576,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         UIView.transition(
             from: scrollView,
             to: submissionOverlayView,
-            duration: AnimationDuration.medium.rawValue,
+            duration: 0.25,
             options: [.showHideTransitionViews, .transitionCrossDissolve]
         ) { success in
             // success
@@ -591,7 +591,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         UIView.transition(
             from: submissionOverlayView,
             to: scrollView,
-            duration: AnimationDuration.medium.rawValue,
+            duration: 0.25,
             options: [.showHideTransitionViews, .transitionCrossDissolve]
         ) { success in
             // success

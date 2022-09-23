@@ -116,7 +116,7 @@ class NotificationController: UIViewController {
 
         if animated {
             let animator = UIViewPropertyAnimator(
-                duration: AnimationDuration.medium.rawValue,
+                duration: 0.25,
                 timingParameters: UICubicTimingParameters(animationCurve: .easeOut)
             )
             animator.addAnimations {
