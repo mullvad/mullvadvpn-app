@@ -317,7 +317,6 @@
 		E148F5B128BDFA9E00DA6119 /* FormsheetPresentationAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E148F5B028BDFA9E00DA6119 /* FormsheetPresentationAnimator.swift */; };
 		E158B360285381C60002F069 /* StringFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* StringFormatter.swift */; };
 		E1862A0028B6433600687FE6 /* SubmitVoucherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18629FF28B6433600687FE6 /* SubmitVoucherResponse.swift */; };
-		E1F72EE028B8AE5600A23A8F /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F72EDF28B8AE5600A23A8F /* Array+.swift */; };
 		E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */; };
 /* End PBXBuildFile section */
 
@@ -663,7 +662,6 @@
 		E148F5B028BDFA9E00DA6119 /* FormsheetPresentationAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationAnimator.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* StringFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatter.swift; sourceTree = "<group>"; };
 		E18629FF28B6433600687FE6 /* SubmitVoucherResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmitVoucherResponse.swift; sourceTree = "<group>"; };
-		E1F72EDF28B8AE5600A23A8F /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
 		E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusActivityView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -944,7 +942,6 @@
 				58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */,
 				5846226F26E229CD0035F7C2 /* AppStorePaymentManager */,
 				58FD5BE624192A2B00112C88 /* AppStoreReceipt.swift */,
-				E1F72EDF28B8AE5600A23A8F /* Array+.swift */,
 				E140C47428C1F29E00BF3C6B /* Array+Constraints.swift */,
 				58CE5E6A224146210008646E /* Assets.xcassets */,
 				58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */,
@@ -1603,7 +1600,6 @@
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
-				E1F72EE028B8AE5600A23A8F /* Array+.swift in Sources */,
 				58FD5BE724192A2C00112C88 /* AppStoreReceipt.swift in Sources */,
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
 				580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */,
