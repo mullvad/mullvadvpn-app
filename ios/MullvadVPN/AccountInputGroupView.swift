@@ -485,7 +485,7 @@ class AccountInputGroupView: UIView {
 
         if animated {
             actions()
-            UIView.animate(withDuration: AnimationDuration.medium.rawValue) {
+            UIView.animate(withDuration: 0.25) {
                 self.layoutIfNeeded()
             }
         } else {
@@ -530,7 +530,7 @@ class AccountInputGroupView: UIView {
         }
 
         if animated {
-            UIView.animate(withDuration: AnimationDuration.medium.rawValue) {
+            UIView.animate(withDuration: 0.25) {
                 actions()
             }
         } else {
@@ -582,7 +582,7 @@ private class AccountInputBorderLayer: CAShapeLayer {
     override class func defaultAction(forKey event: String) -> CAAction? {
         if event == "path" {
             let action = CABasicAnimation(keyPath: event)
-            action.duration = AnimationDuration.medium.rawValue
+            action.duration = 0.25
             action.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
 
             return action

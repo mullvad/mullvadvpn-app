@@ -234,7 +234,7 @@ private extension OutOfTimeViewController {
         }
         if animated {
             UIView.animate(
-                withDuration: AnimationDuration.medium.rawValue,
+                withDuration: 0.25,
                 animations: {
                     actions()
                     self.view.layoutIfNeeded()

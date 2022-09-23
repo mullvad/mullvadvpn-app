@@ -54,7 +54,7 @@ class CustomSwitch: UISwitch {
 
         if animated {
             UIView.animate(
-                withDuration: AnimationDuration.medium.rawValue,
+                withDuration: 0.25,
                 animations: actions
             )
         } else {
