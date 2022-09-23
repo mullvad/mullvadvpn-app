@@ -33,27 +33,15 @@ enum LogRotation {
     }
 
     static func rotateLog(logsDirectory: URL, logFileName: String) throws {
-        let fileManager = FileManager.default
         let source = logsDirectory.appendingPathComponent(logFileName)
         let backup = source.deletingPathExtension().appendingPathExtension("old.log")
 
         do {
-            _ = try fileManager.replaceItemAt(backup, withItemAt: source)
+            _ = try FileManager.default.replaceItemAt(backup, withItemAt: source)
         } catch {
             // FileManager returns a very obscure error chain so we need to traverse it to find
             // the root cause of the error.
-            var errorCursor: Swift.Error? = error
-            let cocoaErrorIterator = AnyIterator { () -> CocoaError? in
-                if let cocoaError = errorCursor as? CocoaError {
-                    errorCursor = cocoaError.underlying
-                    return cocoaError
-                } else {
-                    errorCursor = nil
-                    return nil
-                }
-            }
-
-            while let fileError = cocoaErrorIterator.next() {
+            for case let fileError as CocoaError in error.underlyingErrorChain {
                 // .fileNoSuchFile is returned when both backup and source log files do not exist
                 // .fileReadNoSuchFile is returned when backup exists but source log file does not
                 if fileError.code == .fileNoSuchFile || fileError.code == .fileReadNoSuchFile,
