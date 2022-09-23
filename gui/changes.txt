@@ -1,5 +1,6 @@
-CHANGE THIS BEFORE A RELEASE
-Each line is treated as a separate change item shown in the GUI the first time it runs after install.
-Start each line with a capital letter and end each line with a period.
-[macOS, Windows, linux] To make an entry platform specific, start the line with an angle bracket enclosed comma separated list of platforms to show the entry on.
-Only point out the major changes.
+[linux] Stop potential leaks during computer start and shutdown. Applies strict firewall rules on early boot, and leaves blocking rules in place during shutdown.
+[macos, windows] Stop potential leaks during computer shutdown. Leaves blocking firewall rules in place when exiting shutdown.
+The VPN is no longer disconnected when the app's frontend is being terminated by a user logout or similar.
+Enable running WireGuard over TCP. Intended to enable tunnels to work where UDP is blocked.
+Allow more multicast network addresses when "Local network sharing" is enabled. Should allow some local discovery protocols to find other devices.
+Reorganize app navigation.
