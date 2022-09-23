@@ -18,16 +18,9 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate 
     private let formsheetTransitioningDelegate = FormsheetTransitioningDelegate()
 
     private lazy var modalNavigationController: UINavigationController = {
-        let navigationController = UINavigationController(
-            rootViewController: RedeemVoucherViewController(
-                didDismissOnSuccess: { [weak self] in
-                    self?.didDismissOnSuccess()
-                },
-                didAddTime: { [weak self] in
-                    self?.didAddTime()
-                }
-            )
-        )
+        let voucherViewController = RedeemVoucherViewController()
+        voucherViewController.delegate = self
+        let navigationController = UINavigationController(rootViewController: voucherViewController)
         navigationController.isNavigationBarHidden = true
         navigationController.transitioningDelegate = formsheetTransitioningDelegate
         navigationController.modalPresentationStyle = .custom
@@ -134,20 +127,6 @@ private extension OutOfTimeViewController {
 
     @objc func didTapRedeemVoucher() {
         present(modalNavigationController, animated: true)
-    }
-
-    func didDismissOnSuccess() {
-        DispatchQueue.main.asyncAfter(
-            deadline: .now() + AnimationDuration.medium.rawValue
-        ) { [weak self] in
-            self?.transitionToNextView()
-        }
-    }
-
-    func didAddTime() {
-        contentView.statusActivityView.alpha = 0
-        contentView.titleLabel.alpha = 0
-        contentView.bodyLabel.alpha = 0
     }
 
     func transitionToNextView() {
@@ -528,6 +507,20 @@ private extension OutOfTimeViewController {
                     comment: ""
                 )
             }
+        }
+    }
+}
+
+// MARK: - Redeem Voucher Response
+
+extension OutOfTimeViewController: RedeemVoucherResponseProtocol {
+    func redeemedVoucherSuccessfully() {
+        contentView.statusActivityView.alpha = 0
+        contentView.titleLabel.alpha = 0
+        contentView.bodyLabel.alpha = 0
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.transitionToNextView()
         }
     }
 }

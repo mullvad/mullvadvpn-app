@@ -9,8 +9,16 @@
 import Foundation
 import UIKit
 
-class RedeemVoucherViewController: UIViewController {
+protocol RedeemVoucherResponseProtocol: AnyObject {
+    func redeemedVoucherSuccessfully()
+    func redeemedVoucherWithError(error: String)
+}
 
+extension RedeemVoucherResponseProtocol {
+    func redeemedVoucherWithError(error: String) {}
+}
+
+class RedeemVoucherViewController: UIViewController {
     // MARK: - Constants
 
     private let apiProxy: REST.APIProxy
@@ -25,15 +33,11 @@ class RedeemVoucherViewController: UIViewController {
 
     // MARK: - Variables
 
+    public weak var delegate: RedeemVoucherResponseProtocol?
+
     private var redeemVoucherState = RedeemVoucherState.initial
-    private var didDismissOnSuccess: (() -> Void)?
-    private var didAddTime: (() -> Void)?
     private var navigationControllerOriginY: CGFloat?
     private var isViewMoved = false
-
-    private var timeAdded = "" {
-        didSet { (didAddTime ?? {})() }
-    }
 
     private var isVoucherLengthSatisfied = false {
         didSet {
@@ -47,14 +51,9 @@ class RedeemVoucherViewController: UIViewController {
 
     override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
 
-    init(
-        apiProxy: REST.APIProxy = REST.ProxyFactory.shared.createAPIProxy(),
-        didDismissOnSuccess: (() -> Void)? = nil,
-        didAddTime: (() -> Void)? = nil
-    ) {
+    init(apiProxy: REST.APIProxy = REST.ProxyFactory.shared.createAPIProxy()) {
         self.apiProxy = apiProxy
-        self.didDismissOnSuccess = didDismissOnSuccess
-        self.didAddTime = didAddTime
+
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -68,6 +67,8 @@ class RedeemVoucherViewController: UIViewController {
         setUpContentView()
         addObservers()
         updateViews(with: .initial, animated: false)
+
+        self.navigationController?.delegate = self
     }
 
     // MARK: - View setup
@@ -132,42 +133,34 @@ private extension RedeemVoucherViewController {
     }
 
     private func updateViews(with state: RedeemVoucherState, animated: Bool) {
-        if animated {
-            UIView.animate(withDuration: 0.8,
-                           delay: 0,
-                           usingSpringWithDamping: 0.5,
-                           initialSpringVelocity: 6.9,
-                           options: .curveEaseInOut,
-                           animations: {
-                self.updateViewsAccordingToState(with: state)
-            }) { _ in
-                self.updateViewsAnimationCompletion(with: state)
-                self.view.layoutIfNeeded()
+        switch state {
+        case .success(let timeAdded):
+            delegate?
+                .redeemedVoucherSuccessfully()
+
+            navigationController?
+                .pushViewController(RedeemVoucherSucceededViewController(timeAdded: timeAdded),
+                                                          animated: true)
+        default:
+            if animated {
+                UIView.animate(withDuration: 0.8,
+                               delay: 0,
+                               usingSpringWithDamping: 0.5,
+                               initialSpringVelocity: 6.9,
+                               options: .curveEaseInOut,
+                               animations: {
+                    self.updateViewsAccordingToState(with: state)
+                })
+            } else {
+                updateViewsAccordingToState(with: state)
             }
-        } else {
-            updateViewsAccordingToState(with: state)
         }
     }
     
     private func updateViewsAccordingToState(with state: RedeemVoucherState) {
         contentView
             .updateViews(state: state,
-                         isVoucherLengthSatisfied: isVoucherLengthSatisfied,
-                         statusLabelText: state.getStatusLabelText(timeAdded: timeAdded))
-    }
-
-    private func updateViewsAnimationCompletion(with state: RedeemVoucherState) {
-        if case .success = state {
-            contentView
-                .redeemedVoucherAnimationDidFinishedWithSuccessfulState { [unowned self] in
-                    self.didTapGotIt()
-                }
-        }
-    }
-
-    @objc private func didTapGotIt() {
-        (didDismissOnSuccess ?? {})()
-        dismiss(animated: true)
+                         isVoucherLengthSatisfied: isVoucherLengthSatisfied)
     }
 
     private func submitVoucher() {
@@ -179,22 +172,14 @@ private extension RedeemVoucherViewController {
 
         let request = REST.SubmitVoucherRequest(voucherCode: voucherCode)
 
-        let group = DispatchGroup()
-        group.enter()
-        DispatchQueue.main.asyncAfter(
-            deadline: .now() + AnimationDuration.medium.rawValue * 2
-        ) {
-            group.leave()
-        }
-
-        apiProxy.submitVoucher(
-            request,
-            accountNumber: accountNumber,
-            retryStrategy: .default
-        ) { completion in
-            group.notify(queue: .main) { [weak self] in
-                guard let self = self else { return }
-
+        // AIM: - Keeping animations run smoothly
+        // Adding delay based on speed of api response
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.apiProxy.submitVoucher(
+                request,
+                accountNumber: accountNumber,
+                retryStrategy: .default
+            ) { completion in
                 switch completion {
                 case let .success(submitVoucherResponse):
                     self.setRedeemVoucherState(.success(
@@ -277,7 +262,7 @@ extension RedeemVoucherViewController {
             self == .waiting
         }
 
-        func getStatusLabelText(timeAdded: String) -> String {
+        func getStatusLabelText(timeAdded: String = "") -> String {
             switch self {
             case .success:
                 return NSLocalizedString(
@@ -302,5 +287,41 @@ extension RedeemVoucherViewController {
                 )
             }
         }
+    }
+}
+
+extension RedeemVoucherViewController: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController,
+                              animationControllerFor operation: UINavigationController.Operation,
+                              from fromVC: UIViewController,
+                              to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+
+        //INFO: use UINavigationControllerOperation.push or UINavigationControllerOperation.pop to detect the 'direction' of the navigation
+
+        class FadeAnimation: NSObject, UIViewControllerAnimatedTransitioning {
+            func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+                return 0.3
+            }
+
+            func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+                let toViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to)
+                if let vc = toViewController {
+                    transitionContext.finalFrame(for: vc)
+                    transitionContext.containerView.addSubview(vc.view)
+                    vc.view.alpha = 0.0
+                    UIView.animate(withDuration: self.transitionDuration(using: transitionContext),
+                    animations: {
+                        vc.view.alpha = 1.0
+                    },
+                    completion: { finished in
+                        transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+                    })
+                } else {
+                    preconditionFailure("Oops! Something went wrong! 'ToView' controller is nil")
+                }
+            }
+        }
+
+        return FadeAnimation()
     }
 }
