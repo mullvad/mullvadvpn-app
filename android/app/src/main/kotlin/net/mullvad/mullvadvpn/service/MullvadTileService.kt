@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.service
 
 import android.content.Intent
 import android.graphics.drawable.Icon
-import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.util.Log

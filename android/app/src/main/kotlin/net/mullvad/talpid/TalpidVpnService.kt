@@ -1,7 +1,6 @@
 package net.mullvad.talpid
 
 import android.net.VpnService
-import android.os.Build
 import android.os.ParcelFileDescriptor
 import java.net.Inet4Address
 import java.net.Inet6Address
