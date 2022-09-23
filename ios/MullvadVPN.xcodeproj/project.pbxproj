@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		06F0167328DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06F0167228DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift */; };
 		5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
 		5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 5807483A27DB8A980020ECBF /* WireGuardKitTypes */; };
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
@@ -396,6 +397,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		06F0167228DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherSucceededViewController.swift; sourceTree = "<group>"; };
 		58059DDB28465E8F002B1049 /* TransformOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransformOperation.swift; sourceTree = "<group>"; };
 		58059DDD28468158002B1049 /* OutputOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputOperation.swift; sourceTree = "<group>"; };
 		58059DDF2846823E002B1049 /* ResultOperation+Output.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResultOperation+Output.swift"; sourceTree = "<group>"; };
@@ -1018,6 +1020,7 @@
 				58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */,
 				E1328432289CF23D00C3BD27 /* RedeemVoucherContentView.swift */,
 				E1328434289CF24C00C3BD27 /* RedeemVoucherViewController.swift */,
+				06F0167228DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift */,
 				585DA87526B0249A00B8C587 /* RelayCache */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
 				58781CD422AFBA39009B9D8E /* RelaySelector.swift */,
@@ -1641,6 +1644,7 @@
 				58B5A895280AACC4009FDE99 /* RESTRequestFactory.swift in Sources */,
 				584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
+				06F0167328DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift in Sources */,
 				58FB865E26EA284E00F188BC /* LogFormatting.swift in Sources */,
 				585DA88726B0277200B8C587 /* RESTError.swift in Sources */,
 				58293FB725138B88005D0BB5 /* CustomNavigationController.swift in Sources */,

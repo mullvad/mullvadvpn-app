@@ -154,7 +154,6 @@ class RedeemVoucherContentView: UIView {
 
     // MARK: - Variables
 
-    private var cancelButtonAction: Action?
     private let redeemAction: Action
     private let cancelAction: Action
 
@@ -181,13 +180,13 @@ class RedeemVoucherContentView: UIView {
 
     // MARK: - View setup
 
-    fileprivate func setUpSubviews() {
+    private func setUpSubviews() {
         addSubview(successImage)
         addSubview(topStackView)
         addSubview(bottomStackView)
     }
 
-    fileprivate func configureConstraints() {
+    private func configureConstraints() {
         NSLayoutConstraint.activate([
             successImage.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
             successImage.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
@@ -217,11 +216,7 @@ class RedeemVoucherContentView: UIView {
     // MARK: - Capabilities
 
     @objc private func cancelButtonTapped(_ sender: AppButton) {
-        if let cancelButtonAction = cancelButtonAction {
-            cancelButtonAction()
-        } else {
-            cancelAction()
-        }
+        cancelAction()
     }
 
     @objc private func RedeemButtonTapped(_ sender: AppButton) {
@@ -232,10 +227,8 @@ class RedeemVoucherContentView: UIView {
     /// - Parameters:
     ///   - state: RedeemVoucherViewController.RedeemVoucherState.
     ///   - isVoucherLengthSatisfied: true if Textfield length is equal to predict.
-    ///   - statusLabelText: Updates status label text, alongside with textColor and visibility based on state.
     func updateViews(state: RedeemVoucherViewController.RedeemVoucherState,
-               isVoucherLengthSatisfied: Bool,
-               statusLabelText: String) {
+                     isVoucherLengthSatisfied: Bool) {
         if state.isWaiting {
             showLoading()
         } else {
@@ -247,17 +240,13 @@ class RedeemVoucherContentView: UIView {
         )
 
         updateStatusLabel(alpha: state == .initial ? 0 : 1,
-                                      text: statusLabelText,
-                                      textColor: state == .failure ? .dangerColor: .white)
+                          text: state.getStatusLabelText(),
+                          textColor: state == .failure ? .dangerColor: .white)
 
         if case .success = state {
             redeemedVoucherSuccessfully(instructionLabelSuccessString: instructionLabelSuccessString,
                                         gotItButtonTitle: gotItButtonTitle)
         }
-    }
-
-    func redeemedVoucherAnimationDidFinishedWithSuccessfulState(with cancelButtonAction: @escaping Action) {
-        self.cancelButtonAction = cancelButtonAction
     }
 }
 
@@ -266,17 +255,10 @@ class RedeemVoucherContentView: UIView {
 
 private extension RedeemVoucherContentView {
     private func redeemedVoucherSuccessfully(instructionLabelSuccessString: String, gotItButtonTitle: String) {
-        inputTextField.constraints.height?.constant = 0
-        inputTextField.alpha = 0
-
         inputTextField.isHidden = true
-
-        redeemButton.constraints.height?.constant = 0
-        redeemButton.alpha = 0
-
-        inputTextField.isHidden = true
-
         topStackView.layoutIfNeeded()
+
+        redeemButton.isHidden = true
         bottomStackView.layoutIfNeeded()
 
         instructionLabel.alpha = 1
@@ -291,7 +273,7 @@ private extension RedeemVoucherContentView {
         successImage.alpha = 1
 
         statusLabel.alpha = 0.6
-        
+
         cancelButton.setTitle(gotItButtonTitle, for: .normal)
 
         topStackView.spacing = UIMetrics.StackSpacing.close
