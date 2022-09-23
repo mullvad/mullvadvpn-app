@@ -28,11 +28,15 @@ sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup remove-devi
 echo "Removing zsh shell completion symlink ..."
 sudo rm -f /usr/local/share/zsh/site-functions/_mullvad
 
-FISH_COMPLETIONS_PATH="/usr/local/share/fish/vendor_completions.d/mullvad.fish"
-if [ -h "$FISH_COMPLETIONS_PATH" ]; then
-    echo "Removing fish shell completion symlink ..."
+echo "Removing fish shell completion symlink ..."
+
+BREW_PREFIX=$(brew --prefix)
+if [[ "$?" -eq 0 ]]; then
+    FISH_COMPLETIONS_PATH="${BREW_PREFIX}/share/fish/vendor_completions.d/mullvad.fish"
     sudo rm -f "$FISH_COMPLETIONS_PATH"
 fi
+FISH_COMPLETIONS_PATH="/usr/local/share/fish/vendor_completions.d/mullvad.fish"
+sudo rm -f "$FISH_COMPLETIONS_PATH"
 
 echo "Removing CLI symlinks from /usr/local/bin/ ..."
 sudo rm -f /usr/local/bin/mullvad /usr/local/bin/mullvad-problem-report
