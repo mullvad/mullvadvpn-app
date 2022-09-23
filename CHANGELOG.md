@@ -76,6 +76,9 @@ Line wrap the file at 100 chars.                                              Th
   it was successful.
 - Don't fail install if the device tree contains nameless callout driver devices.
 
+#### macOS
+- Fix fish shell completions when installed via Homebrew on Apple Silicon Macs.
+
 ### Security
 - When the system process is being shut down and the target state is _secured_, maintain the
   blocking firewall rules unless it's possible to deduce that the system isn't shutting down and the
