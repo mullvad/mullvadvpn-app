@@ -522,7 +522,7 @@ extension SceneDelegate {
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:
             var viewControllers = rootContainer.viewControllers
-            viewControllers.removeFirst(where: { $0 is OutOfTimeViewController })
+            viewControllers.removeAll(where: { $0 is OutOfTimeViewController })
             rootContainer.setViewControllers(viewControllers, animated: true)
         case .pad:
             modalRootContainer.dismiss(animated: true)

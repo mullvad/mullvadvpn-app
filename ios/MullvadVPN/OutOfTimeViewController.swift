@@ -131,7 +131,7 @@ private extension OutOfTimeViewController {
 
     func transitionToNextView() {
         var viewControllers = rootContainerController?.viewControllers ?? []
-        viewControllers.removeFirst(where: { $0 is OutOfTimeViewController })
+        viewControllers.removeAll(where: { $0 is OutOfTimeViewController })
 
         rootContainerController?.setViewControllers(viewControllers, animated: true)
     }
