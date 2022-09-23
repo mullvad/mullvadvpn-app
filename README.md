@@ -100,367 +100,19 @@ of the binaries submodule.
 See the [binaries submodule's](https://github.com/mullvad/mullvadvpn-app-binaries) README for more
 details about that repository.
 
-## Install toolchains and dependencies
+## Building the app
 
-Follow the instructions for your platform, and then the [All platforms](#all-platforms)
-instructions.
+See the [build instructions](BuildInstructions.md) for help building the app on desktop platforms.
 
-These instructions are probably not complete. If you find something more that needs installing
-on your platform please submit an issue or a pull request.
+For building the Android app, see the [instructions](./android/BuildInstructions.md) for Android.
 
-### Windows
+For building the iOS app, see the [instructions](./ios/BuildInstructions.md) for iOS.
 
-The host has to have the following installed:
+## Releasing the app
 
-- Microsoft's _Build Tools for Visual Studio 2022_ (a regular installation of Visual Studio 2022
-  Community or Pro edition works as well).
+See [this](Release.md) for instructions on how to make a new release.
 
-- Windows 10 SDK.
-
-- `msbuild.exe` available in `%PATH%`. If you installed Visual Studio Community edition, the
-  binary can be found under:
-  ```
-  C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64
-  ```
-
-- `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
-  The environment coming with [Git for Windows] works fine.
-- `gcc` for CGo.
-
-[Git for Windows]: https://git-scm.com/download/win
-
-### Linux
-
-#### Debian/Ubuntu
-```bash
-# For building the daemon
-sudo apt install gcc libdbus-1-dev
-# For building the installer
-sudo apt install rpm
-```
-
-#### Fedora/RHEL
-```bash
-# For building the daemon
-sudo dnf install dbus-devel
-# For building the installer
-sudo dnf install rpm-build
-```
-
-### Cross-compiling for Linux ARM64
-
-By default, the app will build for the host platform. It is also possible to cross-compile the app
-for ARM64 on x64.
-
-#### Debian
-
-```bash
-# As root
-dpkg --add-architecture arm64 && \
-    apt update && \
-    apt install libdbus-1-dev:arm64 gcc-aarch64-linux-gnu
-```
-
-```bash
-rustup target add aarch64-unknown-linux-gnu
-```
-
-To make sure the right linker and libraries are used, add the following to `~/.cargo/config.toml`:
-
-```
-[target.aarch64-unknown-linux-gnu]
-linker = "aarch64-linux-gnu-gcc"
-
-[target.aarch64-unknown-linux-gnu.dbus]
-rustc-link-search = ["/usr/aarch64-linux-gnu/lib"]
-rustc-link-lib = ["dbus-1"]
-```
-
-### Android
-
-These instructions are for building the app for Android **under Linux**.
-
-#### Download and install the JDK
-```bash
-sudo apt install zip default-jdk
-```
-
-#### Download and install the SDK
-
-The SDK should be placed in a separate directory, like for example `~/android` or `/opt/android`.
-This directory should be exported as the `$ANDROID_HOME` environment variable.
-
-```bash
-cd /opt/android     # Or some other directory to place the Android SDK
-export ANDROID_HOME=$PWD
-
-wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip
-unzip commandlinetools-linux-6609375_latest.zip
-./tools/bin/sdkmanager "platforms;android-29" "build-tools;29.0.3" "platform-tools"
-```
-
-If `sdkmanager` fails to find the SDK root path, pass the option `--sdk_root=$ANDROID_HOME`
-to the command above.
-
-#### Download and install the NDK
-
-The NDK should be placed in a separate directory, which can be inside the `$ANDROID_HOME` or in a
-completely separate path. The extracted directory must be exported as the `$ANDROID_NDK_HOME`
-environment variable.
-
-```bash
-cd "$ANDROID_HOME"  # Or some other directory to place the Android NDK
-wget https://dl.google.com/android/repository/android-ndk-r20b-linux-x86_64.zip
-unzip android-ndk-r20b-linux-x86_64.zip
-
-cd android-ndk-r20b
-export ANDROID_NDK_HOME="$PWD"
-```
-
-#### Docker
-
-Docker is required to build `wireguard-go` for Android. Follow the [installation
-instructions](https://docs.docker.com/engine/install/debian/) for your distribution.
-
-#### Configuring Rust
-
-These steps has to be done **after** you have installed Rust in the section below:
-
-##### Install the Rust Android target
-
-Some environment variables must be exported so that some Rust dependencies can be
-cross-compiled correctly:
-```
-export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
-export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android-ar"
-export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/arm-linux-androideabi-ar"
-export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-ar"
-export AR_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android-ar"
-export CC_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android21-clang"
-export CC_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi21-clang"
-export CC_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android21-clang"
-export CC_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android21-clang"
-```
-
-```bash
-rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
-```
-
-##### Set up cargo to use the correct linker and archiver
-
-This block assumes you installed everything under `/opt/android`, but you can install it wherever
-you want as long as the `ANDROID_HOME` variable is set accordingly.
-
-Add to `~/.cargo/config.toml`:
-```
-[target.aarch64-linux-android]
-ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
-
-[target.armv7-linux-androideabi]
-ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
-linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang"
-
-[target.x86_64-linux-android]
-ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
-linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
-
-[target.i686-linux-android]
-ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar"
-linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
-```
-
-#### Signing key for release APKs (optional)
-
-In order to build release APKs, they need to be signed. First, a signing key must be generated and
-stored in a keystore file. In the example below, the keystore file will be
-`/home/user/app-keys.jks` and will contain a key called `release`.
-
-```
-keytool -genkey -v -keystore /home/user/app-keys.jks -alias release -keyalg RSA -keysize 4096 -validity 10000
-```
-
-Fill in the requested information to generate the key and the keystore file. Suppose the file was
-protected by a password `keystore-password` and the key with a password `key-password`. This
-information should then be added to the `android/keystore.properties` file:
-
-```
-keyAlias = release
-keyPassword = key-password
-storeFile = /home/user/app-keys.jks
-storePassword = keystore-password
-```
-
-### All platforms
-
-1. Make sure to use a recent version of `bash`. The default version in macOS (3.2.57) isn't
-   supported.
-
-1. Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
-
-1. *This can be skipped for Android builds*.
-
-   Any Node.js version above 16 and the latest npm version should work. The exact Node.js and NPM
-   versions that we target are specified in `package.json` in the `volta` section. Those versions
-   will be used automatically if volta is installed and setup.
-
-   To install Volta on Linux and macOS, run:
-   ```
-   cargo install --git https://github.com/volta-cli/volta
-   volta setup
-   ```
-   or follow the their instructions: https://github.com/volta-cli/volta.
-
-   #### Windows
-   Install the `msi` hosted here: https://github.com/volta-cli/volta.
-
-
-   If installing Node.js manually then the latest version of npm can be installed by running:
-   ```
-   npm install -g npm
-   ```
-
-1. Install a protobuf compiler (version 3 and up), it can be installed on most major Linux distros
-   via the package name `protobuf-compiler` (Fedora also requires `protobuf-devel`), `protobuf` on
-   macOS via Homebrew, and on Windows binaries are available on their GitHub
-   [page](https://github.com/protocolbuffers/protobuf/releases) and they have to be put in `%PATH`.
-
-1. Install Go (ideally version `1.18`) by following the [official
-   instructions](https://golang.org/doc/install).  Newer versions may work
-   too. Since `cgo` is being used, make sure to have a C compiler in your path. [*On
-   Windows*](https://github.com/golang/go/wiki/cgo#windows) `mingw`'s `gcc` compiler should work.
-   `gcc` on most Linux distributions should work, and `clang` for MacOS.
-
-
-## Building and packaging the app
-
-### Desktop
-
-The simplest way to build the entire app and generate an installer is to just run the build script.
-`--optimize` can be added to enable compiler optimizations. This will take longer to build but will
-produce a smaller installer and installed binaries:
-```bash
-./build.sh [--optimize]
-```
-This should produce an installer exe, pkg or rpm+deb file in the `dist/` directory.
-
-Building this requires at least 1GB of memory.
-
-#### macOS
-
-By default, `build.sh` produces a pkg for your current architecture only. To build a universal
-app that works on both Intel and Apple Silicon macs, build with `--universal`.
-
-#### Linux ARM64
-
-To cross-compile for ARM64 rather than the current architecture, set the `TARGETS` environment
-variable to `aarch64-unknown-linux-gnu`:
-
-```bash
-TARGETS="aarch64-unknown-linux-gnu" ./build.sh
-```
-
-##### ARM64
-
-Due to inability to build the management interface proto files on ARM64 (see
-[this](https://github.com/grpc/grpc-node/issues/1497) issue), building on ARM64 must be done in
-2 stages:
-
-1. Build management interface proto files on a non-ARM64 platform
-2. Use the built proto files during the main build by setting the
-   `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` environment variable to the path the proto files
-
-To build the management interface proto files there is a script (execute it on a non-ARM64
-platform):
-
-```bash
-cd gui/scripts
-npm ci
-./build-proto.sh
-```
-
-After that copy the files from `gui/src/main/management_interface/` and
-`gui/build/src/main/management_interface/` directories into a single directory, and set the value
-of `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` to that directory while running the main build.
-
-
-When all is done run the main build. Assuming that you copied the proto files into `/tmp/management_interface_proto`
-directory, the build command will look as follows:
-
-```bash
-MANAGEMENT_INTERFACE_PROTO_BUILD_DIR=/tmp/management_interface_proto ./build.sh --dev-build
-```
-
-On Linux, you may also have to specify `USE_SYSTEM_FPM=true` to generate the deb/rpm packages.
-
-If you want to build each component individually, or run in development mode, read the following
-sections.
-
-### Android
-
-Running the `build-apk.sh` script will build the necessary Rust daemon for all supported ABIs and
-build the final APK:
-```bash
-./build-apk.sh
-```
-
-You may pass a `--dev-build` to build the Rust daemon and the UI in debug mode and sign the APK with
-automatically generated debug keys:
-```bash
-./build-apk.sh --dev-build
-```
-
-If the above fails with an error related to compression, try allowing more memory to the JVM:
-```bash
-echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
-./android/gradlew --stop
-```
-
-## Building and running mullvad-daemon on desktop
-
-1. Firstly, on MacOS and Linux, one should source `env.sh` to set the default environment variables.
-   ```bash
-   source env.sh
-   ```
-
-1. On Windows, make sure to start bash first (e.g., Git BASH). Then build the C++ libraries:
-   ```bash
-    ./build-windows-modules.sh
-   ```
-
-1. Build the system daemon plus the other Rust tools and programs:
-    ```bash
-    cargo build
-    ```
-
-1. Copy the OpenVPN binaries, and our plugin for it, to the directory we will
-   use as resource directory. If you want to use any other directory, you would need to copy
-   even more files.
-   ```bash
-   cp dist-assets/binaries/<platform>/openvpn[.exe] dist-assets/
-   cp target/debug/*talpid_openvpn_plugin* dist-assets/
-   ```
-
-1. On Windows, also copy `wintun.dll` to the build directory:
-   ```bash
-   cp dist-assets/binaries/x86_64-pc-windows-msvc/wintun.dll target/debug/
-   ```
-
-1. On Windows, the daemon must be run as the SYSTEM user. You can use
-   [PsExec](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) to launch an elevated
-   bash instance before starting the daemon in it:
-   ```
-   psexec64 -i -s bash.exe
-   ```
-
-1. Run the daemon with verbose logging (from the root directory of the project):
-    ```bash
-    sudo MULLVAD_RESOURCE_DIR="./dist-assets" ./target/debug/mullvad-daemon -vv
-    ```
-    Leave out `sudo` on Windows. The daemon must run as root since it modifies the firewall and sets
-    up virtual network interfaces etc.
-
-### Environment variables controlling the execution
+## Environment variables used by the service
 
 * `TALPID_FIREWALL_DEBUG` - Helps debugging the firewall. Does different things depending on
   platform:
@@ -496,127 +148,65 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
   interface UDS socket to users in the specified group. This means that only users in that group can
   use the CLI and GUI. By default, everyone has access to the socket.
 
-#### Dev builds only
+### Development builds only
 
 * `MULLVAD_API_HOST` - Set the hostname to use in API requests. E.g. `api.mullvad.net`.
 
 * `MULLVAD_API_ADDR` - Set the IP address and port to use in API requests. E.g. `10.10.1.2:443`.
 
-#### Setting environment variable
-- On Windows, one can use `setx` from an elevated shell, like so
-  ```bat
-  setx TALPID_DISABLE_OFFLINE 1 /m
-  ```
-  For the change to take effect, one must restart the daemon
-  ```bat
-  sc.exe stop mullvadvpn
-  sc.exe start mullvadvpn
-  ```
+### Setting environment variables
 
-- On Linux, one should edit the systemd unit file via `systemctl edit mullvad-daemon.service` and edit
-  it like so
-  ```systemd
-  [Service]
-  Environment="TALPID_DISABLE_OFFLINE_MONITOR=1"
-  ```
-  For the change to take effect, one must restart the daemon
-  ```bash
-  sudo systemctl restart mullvad-daemon
-  ```
+#### Windows
 
-- On macOS, one can use `launchctl` like so
-  ```bash
-  sudo launchctl setenv TALPID_DISABLE_OFFLINE_MONITOR 1
-  ```
-  For the change to take effect, one must restart the daemon
-  ```bash
-  launchctl unload -w /Library/LaunchDaemons/net.mullvad.daemon.plist
-  launchctl load -w /Library/LaunchDaemons/net.mullvad.daemon.plist
-  ```
+Use `setx` from an elevated shell:
 
-## Building and running the desktop Electron GUI app
+```bat
+setx TALPID_DISABLE_OFFLINE 1 /m
+```
 
-1. Go to the `gui` directory
-   ```bash
-   cd gui
-   ```
+For the change to take effect, restart the daemon:
 
-1. Install all the JavaScript dependencies by running:
-    ```bash
-    npm install
-    ```
+```bat
+sc.exe stop mullvadvpn
+sc.exe start mullvadvpn
+```
 
-1. Start the GUI in development mode by running:
-    ```bash
-    npm run develop
-    ```
+#### Linux
 
-If you change any javascript file while the development mode is running it will automatically
-transpile and reload the file so that the changes are visible almost immediately.
+Edit the systemd unit file via `systemctl edit mullvad-daemon.service`:
 
-Please note that the GUI needs a running daemon to connect to in order to work. See
-[Building and running mullvad-daemon](#building-and-running-mullvad-daemon) for instruction on how
-to do that before starting the GUI.
+```systemd
+[Service]
+Environment="TALPID_DISABLE_OFFLINE_MONITOR=1"
+```
 
-### Supported environment variables
+For the change to take effect, restart the daemon:
 
-1. `MULLVAD_PATH` - Allows changing the path to the folder with the `mullvad-problem-report` tool
-    when running in development mode. Defaults to: `<repo>/target/debug/`.
-2. `MULLVAD_DISABLE_UPDATE_NOTIFICATION` - If set to `1`, GUI notification will be disabled when
-    an update is available.
+```bash
+sudo systemctl restart mullvad-daemon
+```
 
+#### macOS
 
-## Making a release
+Use `launchctl`:
 
-When making a real release there are a couple of steps to follow. `<VERSION>` here will denote
-the version of the app you are going to release. For example `2018.3-beta1` or `2018.4`.
+```bash
+sudo launchctl setenv TALPID_DISABLE_OFFLINE_MONITOR 1
+```
 
-1. Follow the [Install toolchains and dependencies](#install-toolchains-and-dependencies) steps
-   if you have not already completed them.
+For the change to take effect, restart the daemon:
 
-1. Make sure the `CHANGELOG.md` is up to date and has all the changes present in this release.
-   Also change the `[Unreleased]` header into `[<VERSION>] - <DATE>` and add a new `[Unreleased]`
-   header at the top. Push this, get it reviewed and merged.
+```bash
+launchctl unload -w /Library/LaunchDaemons/net.mullvad.daemon.plist
+launchctl load -w /Library/LaunchDaemons/net.mullvad.daemon.plist
+```
 
-1. Run `./prepare_release.sh <VERSION>`. This will do the following for you:
-    1. Check if your repository is in a sane state and the given version has the correct format
-    1. Update `package.json` with the new version and commit that
-    1. Add a signed tag to the current commit with the release version in it
+## Environment variables used by the GUI frontend
 
-    Please verify that the script did the right thing before you push the commit and tag it created.
-
-1. When building for Windows or macOS, the following environment variables must be set:
-   * `CSC_LINK` - The path to the certificate used for code signing.
-      * Windows: A `.pfx` certificate.
-      * macOS: A `.p12` certificate file with the Apple application signing keys.
-        This file must contain both the "Developer ID Application" and the "Developer ID Installer"
-        certificates + private keys.
-   * `CSC_KEY_PASSWORD` - The password to the file given in `CSC_LINK`. If this is not set then
-      `build.sh` will prompt you for it. If you set it yourself, make sure to define it in such a
-      way that it's not stored in your bash history:
-      ```bash
-      export HISTCONTROL=ignorespace
-      export CSC_KEY_PASSWORD='my secret'
-      ```
-
-   * *macOS only*:
-      * `NOTARIZE_APPLE_ID` - The AppleId to use when notarizing the app. Only needed on release builds
-      * `NOTARIZE_APPLE_ID_PASSWORD` - The AppleId password for the account in `NOTARIZE_APPLE_ID`.
-         Don't use the real AppleId password! Instead create an app specific password and add that to
-         your keyring. See this documentation: https://github.com/electron/electron-notarize#safety-when-using-appleidpassword
-
-         Summary:
-         1. Generate app specific password on Apple's AppleId management portal.
-         2. Run `security add-generic-password -a "<apple_id>" -w <app_specific_password> -s "something_something"`
-         3. Set `NOTARIZE_APPLE_ID_PASSWORD="@keychain:something_something"`.
-
-1. Run `./build.sh` on each computer/platform where you want to create a release artifact. This will
-    do the following for you:
-    1. Update `relays.json` with the latest relays
-    1. Compile and package the app into a distributable artifact for your platform.
-
-    Please pay attention to the output at the end of the script and make sure the version it says
-    it built matches what you want to release.
+* `MULLVAD_PATH` - Allows changing the path to the folder with the `mullvad-problem-report` tool
+   when running in development mode. Defaults to: `<repo>/target/debug/`.
+* `MULLVAD_DISABLE_UPDATE_NOTIFICATION` - If set to `1`, GUI notification will be disabled when
+   an update is available.
 
 
 ## Command line tools for Electron GUI app development
