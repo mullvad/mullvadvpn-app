@@ -8,14 +8,17 @@
 
 import Foundation
 
-class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Failure> {
-    typealias ExecutionBlock = (ResultBlockOperation<Success, Failure>) -> Void
-    typealias ThrowingExecutionBlock = () throws -> Success
+public final class ResultBlockOperation<Success, Failure: Error>: ResultOperation<
+    Success,
+    Failure
+> {
+    public typealias ExecutionBlock = (ResultBlockOperation<Success, Failure>) -> Void
+    public typealias ThrowingExecutionBlock = () throws -> Success
 
     private var executionBlock: ExecutionBlock?
     private var cancellationBlocks: [() -> Void] = []
 
-    convenience init(
+    public convenience init(
         dispatchQueue: DispatchQueue? = nil,
         executionBlock: ExecutionBlock? = nil
     ) {
@@ -27,7 +30,7 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
         )
     }
 
-    convenience init(
+    public convenience init(
         dispatchQueue: DispatchQueue? = nil,
         executionBlock: @escaping ThrowingExecutionBlock
     ) {
@@ -39,7 +42,7 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
         )
     }
 
-    init(
+    public init(
         dispatchQueue: DispatchQueue?,
         executionBlock: ExecutionBlock?,
         completionQueue: DispatchQueue?,
@@ -54,14 +57,14 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
         )
     }
 
-    override func main() {
+    override public func main() {
         let block = executionBlock
         executionBlock = nil
 
         block?(self)
     }
 
-    override func operationDidCancel() {
+    override public func operationDidCancel() {
         let blocks = cancellationBlocks
         cancellationBlocks.removeAll()
 
@@ -70,23 +73,26 @@ class ResultBlockOperation<Success, Failure: Error>: ResultOperation<Success, Fa
         }
     }
 
-    override func operationDidFinish() {
+    override public func operationDidFinish() {
         cancellationBlocks.removeAll()
         executionBlock = nil
     }
 
-    func setExecutionBlock(_ block: @escaping (ResultBlockOperation<Success, Failure>) -> Void) {
+    public func setExecutionBlock(
+        _ block: @escaping (ResultBlockOperation<Success, Failure>)
+            -> Void
+    ) {
         dispatchQueue.async {
             assert(!self.isExecuting && !self.isFinished)
             self.executionBlock = block
         }
     }
 
-    func setExecutionBlock(_ block: @escaping ThrowingExecutionBlock) {
+    public func setExecutionBlock(_ block: @escaping ThrowingExecutionBlock) {
         setExecutionBlock(Self.wrapThrowingBlock(block))
     }
 
-    func addCancellationBlock(_ block: @escaping () -> Void) {
+    public func addCancellationBlock(_ block: @escaping () -> Void) {
         dispatchQueue.async {
             if self.isCancelled {
                 block()

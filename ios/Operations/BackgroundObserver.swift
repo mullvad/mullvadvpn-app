@@ -3,20 +3,21 @@
 //  MullvadVPN
 //
 //  Created by pronebird on 31/05/2022.
+//  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
 #if canImport(UIKit)
 
 import UIKit
 
-class BackgroundObserver: OperationObserver {
-    let name: String
-    let application: UIApplication
-    let cancelUponExpiration: Bool
+public final class BackgroundObserver: OperationObserver {
+    public let name: String
+    public let application: UIApplication
+    public let cancelUponExpiration: Bool
 
     private var taskIdentifier: UIBackgroundTaskIdentifier?
 
-    init(
+    public init(
         application: UIApplication = .shared,
         name: String,
         cancelUponExpiration: Bool
@@ -26,7 +27,7 @@ class BackgroundObserver: OperationObserver {
         self.cancelUponExpiration = cancelUponExpiration
     }
 
-    func didAttach(to operation: Operation) {
+    public func didAttach(to operation: Operation) {
         let expirationHandler = cancelUponExpiration ? { operation.cancel() } : nil
 
         taskIdentifier = application.beginBackgroundTask(
@@ -35,15 +36,15 @@ class BackgroundObserver: OperationObserver {
         )
     }
 
-    func operationDidStart(_ operation: Operation) {
+    public func operationDidStart(_ operation: Operation) {
         // no-op
     }
 
-    func operationDidCancel(_ operation: Operation) {
+    public func operationDidCancel(_ operation: Operation) {
         // no-op
     }
 
-    func operationDidFinish(_ operation: Operation, error: Error?) {
+    public func operationDidFinish(_ operation: Operation, error: Error?) {
         if let taskIdentifier = taskIdentifier {
             application.endBackgroundTask(taskIdentifier)
         }

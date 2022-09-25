@@ -8,6 +8,7 @@
 
 import Foundation
 import NetworkExtension
+import Operations
 
 private enum MessagingConfiguration {
     /// Delay for sending tunnel provider messages to the tunnel when in connecting state.

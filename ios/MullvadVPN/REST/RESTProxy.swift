@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Operations
 
 extension REST {
     class Proxy<ConfigurationType: ProxyConfiguration> {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Operations
 
 class DeviceManagementInteractor {
     private let devicesProxy = REST.ProxyFactory.shared.createDevicesProxy()

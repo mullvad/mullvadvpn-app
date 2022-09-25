@@ -8,8 +8,8 @@
 
 import Foundation
 
-class AsyncOperationQueue: OperationQueue {
-    override func addOperation(_ operation: Operation) {
+public class AsyncOperationQueue: OperationQueue {
+    override public func addOperation(_ operation: Operation) {
         if let operation = operation as? AsyncOperation {
             let categories = operation.conditions
                 .filter { condition in
@@ -31,7 +31,7 @@ class AsyncOperationQueue: OperationQueue {
         }
     }
 
-    override func addOperations(_ operations: [Operation], waitUntilFinished wait: Bool) {
+    override public func addOperations(_ operations: [Operation], waitUntilFinished wait: Bool) {
         for operation in operations {
             addOperation(operation)
         }

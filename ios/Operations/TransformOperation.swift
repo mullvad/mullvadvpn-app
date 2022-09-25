@@ -7,62 +7,65 @@
 
 import Foundation
 
-final class TransformOperation<Input, Output, Failure: Error>:
+public final class TransformOperation<Input, Output, Failure: Error>:
     ResultOperation<Output, Failure>,
     InputOperation
 {
-    typealias ExecutionBlock = (Input, TransformOperation<Input, Output, Failure>) -> Void
-    typealias ThrowingExecutionBlock = (Input) throws -> Output
-
-    typealias InputBlock = () -> Input?
+    public typealias ExecutionBlock = (Input, TransformOperation<Input, Output, Failure>) -> Void
+    public typealias ThrowingExecutionBlock = (Input) throws -> Output
+    public typealias InputBlock = () -> Input?
 
     private let nslock = NSLock()
 
-    private(set) var input: Input? {
+    public var input: Input? {
+        return _input
+    }
+
+    private var __input: Input?
+    private var _input: Input? {
         get {
             nslock.lock()
             defer { nslock.unlock() }
-            return _input
+            return __input
         }
         set {
             nslock.lock()
-            _input = newValue
+            __input = newValue
             nslock.unlock()
         }
     }
 
-    private var _input: Input?
     private var inputBlock: InputBlock?
 
     private var executionBlock: ExecutionBlock?
     private var cancellationBlocks: [() -> Void] = []
 
-    init(
+    public init(
         dispatchQueue: DispatchQueue? = nil,
         input: Input? = nil,
         block: ExecutionBlock? = nil
     ) {
-        _input = input
+        __input = input
         executionBlock = block
 
         super.init(dispatchQueue: dispatchQueue)
     }
 
-    init(
+    public init(
         dispatchQueue: DispatchQueue? = nil,
         input: Input? = nil,
         throwingBlock: @escaping ThrowingExecutionBlock
     ) {
-        _input = input
+        __input = input
         executionBlock = Self.wrapThrowingBlock(throwingBlock)
 
         super.init(dispatchQueue: dispatchQueue)
     }
 
-    override func main() {
+    override public func main() {
         let inputValue = inputBlock?()
 
-        input = inputValue
+        _input = inputValue
 
         guard let inputValue = inputValue, let executionBlock = executionBlock else {
             finish(completion: .cancelled)
@@ -72,7 +75,7 @@ final class TransformOperation<Input, Output, Failure: Error>:
         executionBlock(inputValue, self)
     }
 
-    override func operationDidCancel() {
+    override public func operationDidCancel() {
         let blocks = cancellationBlocks
         cancellationBlocks.removeAll()
 
@@ -81,25 +84,25 @@ final class TransformOperation<Input, Output, Failure: Error>:
         }
     }
 
-    override func operationDidFinish() {
+    override public func operationDidFinish() {
         cancellationBlocks.removeAll()
         executionBlock = nil
     }
 
     // MARK: - Block handlers
 
-    func setExecutionBlock(_ block: @escaping ExecutionBlock) {
+    public func setExecutionBlock(_ block: @escaping ExecutionBlock) {
         dispatchQueue.async {
             assert(!self.isExecuting && !self.isFinished)
             self.executionBlock = block
         }
     }
 
-    func setExecutionBlock(_ block: @escaping ThrowingExecutionBlock) {
+    public func setExecutionBlock(_ block: @escaping ThrowingExecutionBlock) {
         setExecutionBlock(Self.wrapThrowingBlock(block))
     }
 
-    func addCancellationBlock(_ block: @escaping () -> Void) {
+    public func addCancellationBlock(_ block: @escaping () -> Void) {
         dispatchQueue.async {
             if self.isCancelled {
                 block()
@@ -111,7 +114,7 @@ final class TransformOperation<Input, Output, Failure: Error>:
 
     // MARK: - Input injection
 
-    func setInputBlock(_ block: @escaping () -> Input?) {
+    public func setInputBlock(_ block: @escaping () -> Input?) {
         dispatchQueue.async {
             self.inputBlock = block
         }

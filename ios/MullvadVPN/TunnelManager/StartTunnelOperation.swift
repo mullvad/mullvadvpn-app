@@ -9,6 +9,7 @@
 import Foundation
 import Logging
 import NetworkExtension
+import Operations
 
 class StartTunnelOperation: ResultOperation<Void, Error> {
     typealias EncodeErrorHandler = (Error) -> Void

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Operations
 
 /// Shared operation queue used for IPC requests.
 private let operationQueue = AsyncOperationQueue()

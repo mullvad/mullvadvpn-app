@@ -8,25 +8,27 @@
 
 import Foundation
 
-protocol OperationInputContext {
+public protocol OperationInputContext {
     associatedtype Input
 
     func reduce() -> Input?
 }
 
-class InputInjectionBuilder<OperationType, Context> where OperationType: InputOperation {
-    typealias InputBlock = (inout Context) -> Void
+public final class InputInjectionBuilder<OperationType, Context>
+    where OperationType: InputOperation
+{
+    public typealias InputBlock = (inout Context) -> Void
 
     private let operation: OperationType
     private var context: Context
     private var inputBlocks: [InputBlock] = []
 
-    init(operation: OperationType, context: Context) {
+    public init(operation: OperationType, context: Context) {
         self.operation = operation
         self.context = context
     }
 
-    func inject<T>(
+    public func inject<T>(
         from dependency: T,
         assignOutputTo keyPath: WritableKeyPath<Context, T.Output?>
     ) -> Self
@@ -37,7 +39,7 @@ class InputInjectionBuilder<OperationType, Context> where OperationType: InputOp
         }
     }
 
-    func inject<T>(
+    public func inject<T>(
         from dependency: T,
         via block: @escaping (inout Context, T.Output) -> Void
     ) -> Self
@@ -54,7 +56,7 @@ class InputInjectionBuilder<OperationType, Context> where OperationType: InputOp
         return self
     }
 
-    func injectCompletion<T, Success, Failure>(
+    public func injectCompletion<T, Success, Failure>(
         from dependency: T,
         via block: @escaping (inout Context, T.Completion) -> Void
     ) -> Self
@@ -71,7 +73,7 @@ class InputInjectionBuilder<OperationType, Context> where OperationType: InputOp
         return self
     }
 
-    func reduce(_ reduceBlock: @escaping (Context) -> OperationType.Input?) {
+    public func reduce(_ reduceBlock: @escaping (Context) -> OperationType.Input?) {
         operation.setInputBlock {
             for inputBlock in self.inputBlocks {
                 inputBlock(&self.context)
@@ -82,7 +84,7 @@ class InputInjectionBuilder<OperationType, Context> where OperationType: InputOp
     }
 }
 
-extension InputInjectionBuilder
+public extension InputInjectionBuilder
     where Context: OperationInputContext,
     Context.Input == OperationType.Input
 {

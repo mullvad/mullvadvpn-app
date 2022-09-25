@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol InputOperation: Operation {
+public protocol InputOperation: Operation {
     associatedtype Input
 
     var input: Input? { get }
@@ -22,7 +22,7 @@ protocol InputOperation: Operation {
         where T: OutputOperation
 }
 
-extension InputOperation {
+public extension InputOperation {
     func inject<T>(from dependency: T) where T: OutputOperation, T.Output == Input {
         inject(from: dependency, via: { $0 })
     }

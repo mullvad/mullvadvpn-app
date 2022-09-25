@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Operations
 
 class ReconnectTunnelOperation: ResultOperation<Void, Error> {
     private let interactor: TunnelInteractor

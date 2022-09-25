@@ -8,6 +8,7 @@
 
 import Foundation
 import Logging
+import Operations
 
 class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {
     private let logger = Logger(label: "LoadTunnelConfigurationOperation")

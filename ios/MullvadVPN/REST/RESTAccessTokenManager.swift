@@ -8,6 +8,7 @@
 
 import Foundation
 import Logging
+import Operations
 
 extension REST {
     final class AccessTokenManager {

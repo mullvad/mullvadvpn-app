@@ -8,6 +8,7 @@
 
 import Foundation
 import Logging
+import Operations
 import StoreKit
 
 class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {

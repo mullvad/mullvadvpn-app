@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol OperationObserver {
+public protocol OperationObserver {
     func didAttach(to operation: Operation)
     func operationDidStart(_ operation: Operation)
     func operationDidCancel(_ operation: Operation)
@@ -16,16 +16,16 @@ protocol OperationObserver {
 }
 
 /// Block based operation observer.
-class OperationBlockObserver<OperationType: Operation>: OperationObserver {
-    typealias VoidBlock = (OperationType) -> Void
-    typealias FinishBlock = (OperationType, Error?) -> Void
+public class OperationBlockObserver<OperationType: Operation>: OperationObserver {
+    public typealias VoidBlock = (OperationType) -> Void
+    public typealias FinishBlock = (OperationType, Error?) -> Void
 
     private let _didAttach: VoidBlock?
     private let _didStart: VoidBlock?
     private let _didCancel: VoidBlock?
     private let _didFinish: FinishBlock?
 
-    init(
+    public init(
         didAttach: VoidBlock? = nil,
         didStart: VoidBlock? = nil,
         didCancel: VoidBlock? = nil,
@@ -37,25 +37,25 @@ class OperationBlockObserver<OperationType: Operation>: OperationObserver {
         _didFinish = didFinish
     }
 
-    func didAttach(to operation: Operation) {
+    public func didAttach(to operation: Operation) {
         if let operation = operation as? OperationType {
             _didAttach?(operation)
         }
     }
 
-    func operationDidStart(_ operation: Operation) {
+    public func operationDidStart(_ operation: Operation) {
         if let operation = operation as? OperationType {
             _didStart?(operation)
         }
     }
 
-    func operationDidCancel(_ operation: Operation) {
+    public func operationDidCancel(_ operation: Operation) {
         if let operation = operation as? OperationType {
             _didCancel?(operation)
         }
     }
 
-    func operationDidFinish(_ operation: Operation, error: Error?) {
+    public func operationDidFinish(_ operation: Operation, error: Error?) {
         if let operation = operation as? OperationType {
             _didFinish?(operation, error)
         }

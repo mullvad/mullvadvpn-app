@@ -8,6 +8,7 @@
 
 import Foundation
 import Logging
+import Operations
 
 class SendAppStoreReceiptOperation: ResultOperation<
     REST.CreateApplePaymentResponse,

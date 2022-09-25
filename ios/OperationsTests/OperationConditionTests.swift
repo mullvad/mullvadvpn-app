@@ -6,6 +6,7 @@
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
+import Operations
 import XCTest
 
 class OperationConditionTests: XCTestCase {
