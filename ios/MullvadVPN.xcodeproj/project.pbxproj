@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		06D76D2128E1E94F0044346D /* InputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843C289D5B3700C3BD27 /* InputFormatter.swift */; };
+		06D76D2928E1FF5A0044346D /* RedeemVoucherContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1328432289CF23D00C3BD27 /* RedeemVoucherContentView.swift */; };
 		06F0167328DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06F0167228DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift */; };
 		5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
 		5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 5807483A27DB8A980020ECBF /* WireGuardKitTypes */; };
@@ -306,7 +306,6 @@
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E1187ABF289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABE289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift */; };
-		E1328433289CF23D00C3BD27 /* RedeemVoucherContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1328432289CF23D00C3BD27 /* RedeemVoucherContentView.swift */; };
 		E1328435289CF24C00C3BD27 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1328434289CF24C00C3BD27 /* RedeemVoucherViewController.swift */; };
 		E132843B289D52A900C3BD27 /* VoucherTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843A289D52A900C3BD27 /* VoucherTextField.swift */; };
 		E132843D289D5B3700C3BD27 /* InputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843C289D5B3700C3BD27 /* InputFormatter.swift */; };
@@ -1482,7 +1481,6 @@
 				5846227126E229F20035F7C2 /* AppStoreSubscription.swift in Sources */,
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,
 				5820675B26E6576800655B05 /* RelayCache.swift in Sources */,
-				5846226526E0D9630035F7C2 /* ProductsRequestOperation.swift in Sources */,
 				E140C47C28C2079800BF3C6B /* SpacerView.swift in Sources */,
 				58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */,
 				587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */,
@@ -1609,7 +1607,6 @@
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
 				5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */,
-				5840BE35279EDB16002836BA /* OperationCompletion.swift in Sources */,
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */,
@@ -1619,6 +1616,7 @@
 				580F8B8628197958002E0998 /* DNSSettings.swift in Sources */,
 				58FB865526E8BF3100F188BC /* AppStorePaymentManagerError.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
+				06D76D2928E1FF5A0044346D /* RedeemVoucherContentView.swift in Sources */,
 				587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */,
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
 				58B9EB152489139B00095626 /* DisplayChainedError.swift in Sources */,
