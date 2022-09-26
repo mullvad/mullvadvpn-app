@@ -29,22 +29,6 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     private let formsheetTransitioningDelegate = FormsheetTransitioningDelegate()
 
-    private lazy var modalNavigationController: UINavigationController = {
-        let navigationController = UINavigationController(
-            rootViewController: RedeemVoucherViewController()
-        )
-        navigationController.isNavigationBarHidden = true
-        navigationController.transitioningDelegate = formsheetTransitioningDelegate
-        navigationController.modalPresentationStyle = .custom
-        navigationController.preferredContentSize = CGSize(
-            width: view.frame.width - UIMetrics.contentLayoutMargins.left,
-            height: 300
-        )
-        navigationController.view.layer.cornerRadius = 16
-
-        return navigationController
-    }()
-
     weak var delegate: AccountViewControllerDelegate?
 
     // MARK: - View lifecycle
@@ -120,6 +104,25 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
     }
 
     // MARK: - Private methods
+
+    /// Used to create RedeemVoucherViewController to present it for user.
+    /// - Warning: It generates a new NavigationController every time.
+    /// - Returns: UINavigationController that has RedeemVoucherViewController as it root view controller.
+    private func getRedeemVoucherWithNavigationController() -> UINavigationController {
+        let navigationController = UINavigationController(
+            rootViewController: RedeemVoucherViewController()
+        )
+        navigationController.isNavigationBarHidden = true
+        navigationController.transitioningDelegate = formsheetTransitioningDelegate
+        navigationController.modalPresentationStyle = .custom
+        navigationController.preferredContentSize = CGSize(
+            width: view.frame.width - UIMetrics.contentLayoutMargins.left,
+            height: 300
+        )
+        navigationController.view.layer.cornerRadius = 16
+
+        return navigationController
+    }
 
     private func requestStoreProducts() {
         let productKind = AppStoreSubscription.thirtyDays
@@ -423,7 +426,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
     }
 
     @objc private func didTapRedeemVoucher() {
-        present(modalNavigationController, animated: true)
+        present(getRedeemVoucherWithNavigationController(), animated: true)
     }
 
     @objc private func restorePurchases() {
