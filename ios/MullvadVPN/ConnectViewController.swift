@@ -501,10 +501,8 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             forAnnotationViewWithReuseIdentifier: Self.locationMarkerReuseIdentifier
         )
 
-        if #available(iOS 13.0, *) {
-            // Use dark style for the map to dim the map grid
-            contentView.mapView.overrideUserInterfaceStyle = .dark
-        }
+        // Use dark style for the map to dim the map grid
+        contentView.mapView.overrideUserInterfaceStyle = .dark
 
         addTileOverlay()
         loadGeoJSONData()

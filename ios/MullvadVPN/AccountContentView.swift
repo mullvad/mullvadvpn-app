@@ -197,7 +197,7 @@ class AccountNumberRow: UIView {
     private let accountNumberLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.font = UIFont.backport_monospacedSystemFont(ofSize: 17, weight: .regular)
+        textLabel.font = UIFont.monospacedSystemFont(ofSize: 17, weight: .regular)
         textLabel.textColor = .white
         return textLabel
     }()
@@ -323,12 +323,10 @@ class AccountNumberRow: UIView {
                 )
             )
         } else {
-            var attributes: [NSAttributedString.Key: Any]?
-            if #available(iOS 13.0, *) {
-                attributes = [.accessibilitySpeechSpellOut: true]
-            }
-
-            return NSAttributedString(string: accountNumber, attributes: attributes)
+            return NSAttributedString(
+                string: accountNumber,
+                attributes: [.accessibilitySpeechSpellOut: true]
+            )
         }
     }
 

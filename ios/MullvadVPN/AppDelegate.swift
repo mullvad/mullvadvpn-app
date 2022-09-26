@@ -27,9 +27,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return operationQueue
     }()
 
-    // An instance of scene delegate used on iOS 12 or earlier.
-    private var sceneDelegate: SceneDelegate?
-
     // MARK: - Application lifecycle
 
     func application(
@@ -45,14 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
         #endif
 
-        if #available(iOS 13.0, *) {
-            registerBackgroundTasks()
-        } else {
-            application.setMinimumBackgroundFetchInterval(
-                ApplicationConfiguration.minimumBackgroundFetchInterval
-            )
-        }
-
+        registerBackgroundTasks()
         setupPaymentHandler()
         setupNotificationHandler()
 
@@ -74,13 +64,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         operationQueue.addOperation(setupTunnelManagerOperation)
 
-        if #available(iOS 13, *) {
-            // no-op
-        } else {
-            sceneDelegate = SceneDelegate()
-            sceneDelegate?.setupScene(windowFactory: ClassicWindowFactory())
-        }
-
         return true
     }
 
@@ -97,97 +80,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    func application(
-        _ application: UIApplication,
-        performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult)
-            -> Void
-    ) {
-        logger.debug("Start background refresh.")
-
-        let updateAddressCacheOperation = ResultBlockOperation<Bool, Error> { operation in
-            let handle = AddressCache.Tracker.shared.updateEndpoints { completion in
-                operation.finish(completion: completion)
-            }
-
-            operation.addCancellationBlock {
-                handle.cancel()
-            }
-        }
-
-        let updateRelaysOperation = ResultBlockOperation<RelayCache.FetchResult, Error>
-        { operation in
-            let handle = RelayCache.Tracker.shared.updateRelays { completion in
-                operation.finish(completion: completion)
-            }
-
-            operation.addCancellationBlock {
-                handle.cancel()
-            }
-        }
-
-        let rotatePrivateKeyOperation = ResultBlockOperation<Bool, Error> { operation in
-            let handle = TunnelManager.shared.rotatePrivateKey(forceRotate: false) { completion in
-                operation.finish(completion: completion)
-            }
-
-            operation.addCancellationBlock {
-                handle.cancel()
-            }
-        }
-        rotatePrivateKeyOperation.addDependencies([
-            updateRelaysOperation,
-            updateAddressCacheOperation,
-        ])
-
-        let operations = [
-            updateAddressCacheOperation,
-            updateRelaysOperation,
-            rotatePrivateKeyOperation,
-        ]
-
-        let completeOperation = TransformOperation<UIBackgroundFetchResult, Void, Never>(
-            dispatchQueue: .main
-        )
-
-        completeOperation.setExecutionBlock { backgroundFetchResult in
-            self.logger.debug("Finish background refresh. Status: \(backgroundFetchResult).")
-
-            completionHandler(backgroundFetchResult)
-        }
-
-        completeOperation.injectMany(context: [UIBackgroundFetchResult]())
-            .injectCompletion(from: updateAddressCacheOperation, via: { results, completion in
-                results.append(completion.backgroundFetchResult { $0 })
-            })
-            .injectCompletion(from: updateRelaysOperation, via: { results, completion in
-                results.append(completion.backgroundFetchResult { $0 == .newContent })
-            })
-            .injectCompletion(from: rotatePrivateKeyOperation, via: { results, completion in
-                results.append(completion.backgroundFetchResult { $0 })
-            })
-            .reduce { operationResults in
-                let initialResult = operationResults.first ?? .failed
-                let backgroundFetchResult = operationResults
-                    .reduce(initialResult) { partialResult, other in
-                        return partialResult.combine(with: other)
-                    }
-
-                return backgroundFetchResult
-            }
-
-        let groupOperation = GroupOperation(operations: operations)
-        groupOperation.addObserver(
-            BackgroundObserver(name: "Background refresh", cancelUponExpiration: true)
-        )
-
-        let operationQueue = AsyncOperationQueue()
-        operationQueue.addOperation(groupOperation)
-        operationQueue.addOperation(completeOperation)
-    }
-
     // MARK: - UISceneSession lifecycle
 
-    @available(iOS 13.0, *)
     func application(
         _ application: UIApplication,
         configurationForConnecting connectingSceneSession: UISceneSession,
@@ -204,7 +98,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return sceneConfiguration
     }
 
-    @available(iOS 13.0, *)
     func application(
         _ application: UIApplication,
         didDiscardSceneSessions sceneSessions: Set<UISceneSession>
@@ -216,14 +109,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Background tasks
 
-    @available(iOS 13, *)
     private func registerBackgroundTasks() {
         registerAppRefreshTask()
         registerAddressCacheUpdateTask()
         registerKeyRotationTask()
     }
 
-    @available(iOS 13.0, *)
     private func registerAppRefreshTask() {
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ApplicationConfiguration.appRefreshTaskIdentifier,
@@ -247,7 +138,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    @available(iOS 13.0, *)
     private func registerKeyRotationTask() {
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ApplicationConfiguration.privateKeyRotationTaskIdentifier,
@@ -271,7 +161,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    @available(iOS 13.0, *)
     private func registerAddressCacheUpdateTask() {
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier,
@@ -295,14 +184,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    @available(iOS 13.0, *)
     func scheduleBackgroundTasks() {
         scheduleAppRefreshTask()
         scheduleKeyRotationTask()
         scheduleAddressCacheUpdateTask()
     }
 
-    @available(iOS 13.0, *)
     private func scheduleAppRefreshTask() {
         do {
             let date = RelayCache.Tracker.shared.getNextUpdateDate()
@@ -323,7 +210,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    @available(iOS 13.0, *)
     private func scheduleKeyRotationTask() {
         do {
             guard let date = TunnelManager.shared.getNextKeyRotationDate() else {
@@ -347,7 +233,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    @available(iOS 13.0, *)
     private func scheduleAddressCacheUpdateTask() {
         do {
             let date = AddressCache.Tracker.shared.nextScheduleDate()
@@ -411,14 +296,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             if response.notification.request.identifier == accountExpiryNotificationIdentifier,
                response.actionIdentifier == UNNotificationDefaultActionIdentifier
             {
-                if #available(iOS 13.0, *) {
-                    let sceneDelegate = UIApplication.shared.connectedScenes
-                        .first?.delegate as? SceneDelegate
+                let sceneDelegate = UIApplication.shared.connectedScenes
+                    .first?.delegate as? SceneDelegate
 
-                    sceneDelegate?.showUserAccount()
-                } else {
-                    self.sceneDelegate?.showUserAccount()
-                }
+                sceneDelegate?.showUserAccount()
             }
 
             completionHandler()

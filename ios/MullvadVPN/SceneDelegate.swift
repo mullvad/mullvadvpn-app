@@ -30,12 +30,6 @@ class SceneDelegate: UIResponder {
     private var accountDataThrottling = AccountDataThrottling()
     private var outOfTimeTimer: Timer?
 
-    override init() {
-        super.init()
-
-        addSceneEvents()
-    }
-
     deinit {
         clearOutOfTimeTimer()
     }
@@ -106,33 +100,6 @@ class SceneDelegate: UIResponder {
         }
     }
 
-    private func addSceneEvents() {
-        if #available(iOS 13, *) {
-            // no-op
-        } else {
-            let notificationCenter = NotificationCenter.default
-
-            notificationCenter.addObserver(
-                self,
-                selector: #selector(sceneDidBecomeActive),
-                name: UIApplication.didBecomeActiveNotification,
-                object: nil
-            )
-            notificationCenter.addObserver(
-                self,
-                selector: #selector(sceneDidEnterBackground),
-                name: UIApplication.didEnterBackgroundNotification,
-                object: nil
-            )
-            notificationCenter.addObserver(
-                self,
-                selector: #selector(sceneWillResignActive),
-                name: UIApplication.willResignActiveNotification,
-                object: nil
-            )
-        }
-    }
-
     @objc private func sceneDidBecomeActive() {
         TunnelManager.shared.refreshTunnelStatus()
 
@@ -161,17 +128,14 @@ class SceneDelegate: UIResponder {
     }
 
     @objc private func sceneDidEnterBackground() {
-        if #available(iOS 13, *) {
-            let appDelegate = UIApplication.shared.delegate as? AppDelegate
+        let appDelegate = UIApplication.shared.delegate as? AppDelegate
 
-            appDelegate?.scheduleBackgroundTasks()
-        }
+        appDelegate?.scheduleBackgroundTasks()
     }
 }
 
 // MARK: - UIWindowSceneDelegate
 
-@available(iOS 13.0, *)
 extension SceneDelegate: UIWindowSceneDelegate {
     func scene(
         _ scene: UIScene,
@@ -366,10 +330,7 @@ extension SceneDelegate {
         modalRootContainer.preferredContentSize = CGSize(width: 480, height: 600)
         modalRootContainer.modalPresentationStyle = .formSheet
         modalRootContainer.presentationController?.delegate = self
-
-        if #available(iOS 13.0, *) {
-            modalRootContainer.isModalInPresentation = true
-        }
+        modalRootContainer.isModalInPresentation = true
 
         if modalRootContainer.presentingViewController == nil {
             rootContainer.present(modalRootContainer, animated: animated)
@@ -473,9 +434,7 @@ extension SceneDelegate {
 
         if UIDevice.current.userInterfaceIdiom == .pad {
             controller.modalPresentationStyle = .formSheet
-            if #available(iOS 13.0, *) {
-                controller.isModalInPresentation = true
-            }
+            controller.isModalInPresentation = true
         }
 
         controller.completionHandler = { controller in
@@ -1019,7 +978,6 @@ struct ClassicWindowFactory: WindowFactory {
     }
 }
 
-@available(iOS 13.0, *)
 struct SceneWindowFactory: WindowFactory {
     let windowScene: UIWindowScene
 
