@@ -323,8 +323,10 @@ class AccountNumberRow: UIView {
                 )
             )
         } else {
-            return NSAttributedString(string: accountNumber,
-                                      attributes: [.accessibilitySpeechSpellOut: true])
+            return NSAttributedString(
+                string: accountNumber,
+                attributes: [.accessibilitySpeechSpellOut: true]
+            )
         }
     }
 

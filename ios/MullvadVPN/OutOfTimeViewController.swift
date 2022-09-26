@@ -186,7 +186,7 @@ private extension OutOfTimeViewController {
 
         view.isUserInteractionEnabled = isInteractionEnabled
         isModalInPresentation = !isInteractionEnabled
-        
+
         navigationItem.setHidesBackButton(!isInteractionEnabled, animated: animated)
     }
 
