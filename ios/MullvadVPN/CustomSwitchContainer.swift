@@ -15,9 +15,7 @@ class CustomSwitchContainer: UIView {
         let shapeLayer = CAShapeLayer()
         shapeLayer.borderColor = UIColor.Switch.borderColor.cgColor
         shapeLayer.borderWidth = 2
-        if #available(iOS 13.0, *) {
-            shapeLayer.cornerCurve = .continuous
-        }
+        shapeLayer.cornerCurve = .continuous
         return shapeLayer
     }()
 
