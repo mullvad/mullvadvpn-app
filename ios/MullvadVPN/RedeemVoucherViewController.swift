@@ -95,20 +95,6 @@ private extension RedeemVoucherViewController {
             name: UITextField.textDidChangeNotification,
             object: contentView.inputTextField
         )
-
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
     }
 
     @objc private func textDidChange() {
@@ -200,54 +186,6 @@ private extension RedeemVoucherViewController {
         formatter.unitsStyle = .full
 
         return formatter.string(from: Double(timeAdded)) ?? ""
-    }
-}
-
-// MARK: - Keyboard delegates
-
-private extension RedeemVoucherViewController {
-    @objc private func keyboardWillShow(notification: NSNotification) {
-        handleKeyboardOverlapShow(notification: notification)
-    }
-
-    @objc private func keyboardWillHide() {
-        handleKeyboardOverlapHide()
-    }
-
-    private func handleKeyboardOverlapShow(notification: NSNotification) {
-        guard !isViewMoved else { return }
-
-        isViewMoved = true
-
-        navigationControllerOriginY = navigationController?.view.frame.origin.y
-
-        guard let keyboardFrame = (
-            notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue
-        )?.cgRectValue,
-            let navigationControllerOriginY = navigationControllerOriginY,
-            let navigationController = navigationController else { return }
-
-        let topSafeAreaInset = UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0
-        let overlap = navigationControllerOriginY
-            + navigationController.view.frame.size.height
-            - keyboardFrame.origin.y
-        if overlap > 0 {
-            let idealNewOrigin = navigationControllerOriginY
-                - overlap
-                - navigationController.view.frame.origin.x
-            navigationController.view.frame.origin.y = idealNewOrigin > topSafeAreaInset
-                ? idealNewOrigin
-                : topSafeAreaInset
-        }
-    }
-
-    private func handleKeyboardOverlapHide() {
-        guard let navigationControllerOriginY = navigationControllerOriginY,
-              let navigationController = navigationController,
-              isViewMoved else { return }
-
-        isViewMoved = false
-        navigationController.view.frame.origin.y = navigationControllerOriginY
     }
 }
 
