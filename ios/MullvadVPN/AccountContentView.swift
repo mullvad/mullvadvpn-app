@@ -323,12 +323,8 @@ class AccountNumberRow: UIView {
                 )
             )
         } else {
-            var attributes: [NSAttributedString.Key: Any]?
-            if #available(iOS 13.0, *) {
-                attributes = [.accessibilitySpeechSpellOut: true]
-            }
-
-            return NSAttributedString(string: accountNumber, attributes: attributes)
+            return NSAttributedString(string: accountNumber,
+                                      attributes: [.accessibilitySpeechSpellOut: true])
         }
     }
 
