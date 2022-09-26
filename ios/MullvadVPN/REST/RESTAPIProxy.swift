@@ -81,8 +81,7 @@ extension REST {
                                 ServerRelaysResponse.self,
                                 from: data
                             )
-                            let newEtag = response
-                                .value(forHTTPHeaderField: HTTPHeader.etag)
+                            let newEtag = response.value(forHTTPHeaderField: HTTPHeader.etag)
 
                             return .newContent(newEtag, serverRelays)
                         }
