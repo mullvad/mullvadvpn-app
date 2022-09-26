@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { hasExpired } from '../../shared/account-expiry';
+import { AuthFailedError, ErrorStateCause } from '../../shared/daemon-rpc-types';
 import ConnectPage from '../containers/ConnectPage';
 import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
 import { useHistory } from '../lib/history';
@@ -16,6 +17,7 @@ export default function MainView() {
   const isNewAccount = useSelector(
     (state) => state.account.status.type === 'ok' && state.account.status.method === 'new_account',
   );
+  const tunnelState = useSelector((state) => state.connection.status);
 
   const [showAccountExpired, setShowAccountExpired] = useState<ExpiryData>(() =>
     isNewAccount || accountHasExpired ? { show: true, expiry: accountExpiry } : { show: false },
@@ -23,8 +25,11 @@ export default function MainView() {
 
   useEffect(() => {
     if (
-      accountHasExpired &&
-      (!showAccountExpired.show || showAccountExpired.expiry !== accountExpiry)
+      (accountHasExpired &&
+        (!showAccountExpired.show || showAccountExpired.expiry !== accountExpiry)) ||
+      (tunnelState.state === 'error' &&
+        tunnelState.details.cause === ErrorStateCause.authFailed &&
+        tunnelState.details.authFailedError === AuthFailedError.expiredAccount)
     ) {
       setShowAccountExpired({ show: true, expiry: accountExpiry });
     } else if (

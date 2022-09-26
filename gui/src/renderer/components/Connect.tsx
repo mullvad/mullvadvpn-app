@@ -1,8 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { hasExpired } from '../../shared/account-expiry';
-import { AuthFailedError, ErrorStateCause } from '../../shared/daemon-rpc-types';
 import NotificationArea from '../components/NotificationArea';
 import { LoginState } from '../redux/account/reducers';
 import { IConnectionReduxState } from '../redux/connection/reducers';
@@ -66,21 +64,9 @@ const StyledMain = styled.main({
   flex: 1,
 });
 
-interface IState {
-  isAccountExpired: boolean;
-}
-
-export default class Connect extends React.Component<IProps, IState> {
+export default class Connect extends React.Component<IProps> {
   constructor(props: IProps) {
     super(props);
-
-    this.state = {
-      isAccountExpired: this.checkAccountExpired(false),
-    };
-  }
-
-  public componentDidUpdate() {
-    this.updateAccountExpired();
   }
 
   public render() {
@@ -90,38 +76,6 @@ export default class Connect extends React.Component<IProps, IState> {
         <StyledContainer>{this.renderMap()}</StyledContainer>
       </Layout>
     );
-  }
-
-  private updateAccountExpired() {
-    const nextAccountExpired = this.checkAccountExpired(this.state.isAccountExpired);
-
-    if (nextAccountExpired !== this.state.isAccountExpired) {
-      this.setState({
-        isAccountExpired: nextAccountExpired,
-      });
-    }
-  }
-
-  private checkAccountExpired(prevAccountExpired: boolean): boolean {
-    const tunnelState = this.props.connection.status;
-
-    // Blocked with auth failure / expired account
-    if (
-      tunnelState.state === 'error' &&
-      tunnelState.details.cause === ErrorStateCause.authFailed &&
-      tunnelState.details.authFailedError === AuthFailedError.expiredAccount
-    ) {
-      return true;
-    }
-
-    // Use the account expiry to deduce the account state
-    if (this.props.accountExpiry) {
-      return hasExpired(this.props.accountExpiry);
-    }
-
-    // Do not assume that the account hasn't expired if the expiry is not available at the moment
-    // instead return the last known state.
-    return prevAccountExpired;
   }
 
   private renderMap() {
