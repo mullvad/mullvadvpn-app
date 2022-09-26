@@ -218,9 +218,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         scrollViewKeyboardResponder = AutomaticKeyboardResponder(targetView: scrollView)
 
         // Make sure that the user can't easily dismiss the controller on iOS 13 and above
-        if #available(iOS 13.0, *) {
-            isModalInPresentation = true
-        }
+        isModalInPresentation = true
 
         // Set hugging & compression priorities so that description text view wants to grow
         emailTextField.setContentHuggingPriority(.defaultHigh, for: .vertical)
