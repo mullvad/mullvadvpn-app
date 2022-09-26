@@ -95,8 +95,6 @@
 		584E96BD240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584E96BE240FD4DB00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */; };
-		5850366825A47AC700A43E93 /* IPAddressRange+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */; };
-		5850367F25A481D800A43E93 /* IPAddressRange+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */; };
 		58554F73280AFA5A00013055 /* RESTAuthenticationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */; };
 		58554F77280AFD5C00013055 /* RESTTaskIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */; };
 		58554F79280B037400013055 /* RESTAccessTokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F78280B037400013055 /* RESTAccessTokenManager.swift */; };
@@ -163,7 +161,6 @@
 		5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 587B7543266922BF00DEF7E9 /* Localizable.strings */; };
 		588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */; };
 		588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */; };
-		58871D2325D535D2002297FA /* IPAddressRange+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */; };
 		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
 		5888AD87227B17950051EB06 /* SelectLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationViewController.swift */; };
 		588BCF24280FE43D009ADCEC /* RESTDevicesProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588BCF23280FE43D009ADCEC /* RESTDevicesProxy.swift */; };
@@ -467,7 +464,6 @@
 		584D26C3270C855A004EA533 /* PreferencesDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesDataSource.swift; sourceTree = "<group>"; };
 		584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDNSTextCell.swift; sourceTree = "<group>"; };
 		584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Markdown.swift"; sourceTree = "<group>"; };
-		5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPAddressRange+Codable.swift"; sourceTree = "<group>"; };
 		58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAuthenticationProxy.swift; sourceTree = "<group>"; };
 		58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTaskIdentifier.swift; sourceTree = "<group>"; };
 		58554F78280B037400013055 /* RESTAccessTokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAccessTokenManager.swift; sourceTree = "<group>"; };
@@ -962,7 +958,6 @@
 				5872631C283F755900E14ADF /* IntentHandlers.swift */,
 				5872631A283F6EAB00E14ADF /* Intents.intentdefinition */,
 				5840250022B1124600E4CFEC /* IPAddress+Codable.swift */,
-				5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */,
 				58561C98239A5D1500BD6B5E /* IPEndpoint.swift */,
 				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
 				58727282265D173C00F315B2 /* LaunchScreen.storyboard */,
@@ -1440,7 +1435,6 @@
 				5820676226E75D8500655B05 /* REST.swift in Sources */,
 				58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */,
 				58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */,
-				58871D2325D535D2002297FA /* IPAddressRange+Codable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1502,7 +1496,6 @@
 				5820EDA9288FE064006BF4E4 /* DeviceManagementInteractor.swift in Sources */,
 				58FB865A26EA214400F188BC /* RelayCacheObserver.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
-				5850367F25A481D800A43E93 /* IPAddressRange+Codable.swift in Sources */,
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
@@ -1641,7 +1634,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5850366825A47AC700A43E93 /* IPAddressRange+Codable.swift in Sources */,
 				58FB865F26EA2E6D00F188BC /* LogFormatting.swift in Sources */,
 				587C575426D2615F005EF767 /* PacketTunnelOptions.swift in Sources */,
 				58BFA5CD22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
@@ -2243,7 +2235,7 @@
 			repositoryURL = "https://github.com/mullvad/wireguard-apple.git";
 			requirement = {
 				kind = revision;
-				revision = 43d44f8b7238f165c7386e4d73025e4a4c14ef37;
+				revision = 309bb8d58a3ed25ff11c4630b88bbe883e53e835;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
