@@ -11,89 +11,100 @@ import XCTest
 private let kSampleToken = "12345678"
 
 class AccountTokenInputTests: XCTestCase {
-    func testInitialValue() {
-        let input = AccountTokenInput(string: kSampleToken)
 
-        XCTAssertEqual(input.formattedString, "1234 5678")
-        XCTAssertEqual(input.caretPosition, 9)
+    var sut: InputFormatter!
+
+    override func setUp() {
+        sut = InputFormatter(allowedInput: .numerical,
+                             groupSeparator: .space)
+    }
+
+    override func tearDown() {
+        sut = nil
+    }
+
+    func testInitialValue() {
+        sut.replace(with: kSampleToken)
+
+        XCTAssertEqual(sut.formattedString, "1234 5678")
+        XCTAssertEqual(sut.caretPosition, 9)
     }
 
     func testReplacingValue() {
-        let input = AccountTokenInput()
-        input.replace(with: "00000000")
+        sut.replace(with: "00000000")
 
-        XCTAssertEqual(input.formattedString, "0000 0000")
-        XCTAssertEqual(input.caretPosition, 9)
+        XCTAssertEqual(sut.formattedString, "0000 0000")
+        XCTAssertEqual(sut.caretPosition, 9)
     }
 
     func testRemovingSeparator() {
-        let input = AccountTokenInput(string: kSampleToken)
+        sut.replace(with: kSampleToken)
 
-        input.replaceCharacters(
-            in: input.formattedString.range(withOffset: 4, length: 1),
+        sut.replaceCharacters(
+            in: sut.formattedString.range(withOffset: 4, length: 1),
             replacementString: "",
             emptySelection: true
         )
 
-        XCTAssertEqual(input.formattedString, "1235 678")
-        XCTAssertEqual(input.caretPosition, 3)
+        XCTAssertEqual(sut.formattedString, "1235 678")
+        XCTAssertEqual(sut.caretPosition, 3)
     }
 
     func testRemovingSeparatorRange() {
-        let input = AccountTokenInput(string: kSampleToken)
+        sut.replace(with: kSampleToken)
 
-        input.replaceCharacters(
-            in: input.formattedString.range(withOffset: 4, length: 1),
+        sut.replaceCharacters(
+            in: sut.formattedString.range(withOffset: 4, length: 1),
             replacementString: "",
             emptySelection: false
         )
 
-        XCTAssertEqual(input.formattedString, "1234 5678")
-        XCTAssertEqual(input.caretPosition, 4)
+        XCTAssertEqual(sut.formattedString, "1234 5678")
+        XCTAssertEqual(sut.caretPosition, 4)
     }
 
     func testRemovingRange() {
-        let input = AccountTokenInput(string: kSampleToken)
+        sut.replace(with: kSampleToken)
 
-        input.replaceCharacters(
-            in: input.formattedString.range(withOffset: 7, length: 2),
+        sut.replaceCharacters(
+            in: sut.formattedString.range(withOffset: 7, length: 2),
             replacementString: "",
             emptySelection: false
         )
 
-        XCTAssertEqual(input.formattedString, "1234 56")
-        XCTAssertEqual(input.caretPosition, 7)
+        XCTAssertEqual(sut.formattedString, "1234 56")
+        XCTAssertEqual(sut.caretPosition, 7)
     }
 
     func testInserting() {
-        let input = AccountTokenInput(string: kSampleToken)
+        sut.replace(with: kSampleToken)
 
-        input.replaceCharacters(
-            in: input.formattedString.range(withOffset: 5, length: 0),
+        sut.replaceCharacters(
+            in: sut.formattedString.range(withOffset: 5, length: 0),
             replacementString: "0000",
             emptySelection: true
         )
 
-        XCTAssertEqual(input.formattedString, "1234 0000 5678")
-        XCTAssertEqual(input.caretPosition, 9)
+        XCTAssertEqual(sut.formattedString, "1234 0000 5678")
+        XCTAssertEqual(sut.caretPosition, 9)
     }
 
     func testReplacingRange() {
-        let input = AccountTokenInput(string: kSampleToken)
+        sut.replace(with: kSampleToken)
 
-        input.replaceCharacters(
-            in: input.formattedString.range(withOffset: 5, length: 4),
+        sut.replaceCharacters(
+            in: sut.formattedString.range(withOffset: 5, length: 4),
             replacementString: "0000",
             emptySelection: false
         )
 
-        XCTAssertEqual(input.formattedString, "1234 0000")
-        XCTAssertEqual(input.caretPosition, 9)
+        XCTAssertEqual(sut.formattedString, "1234 0000")
+        XCTAssertEqual(sut.caretPosition, 9)
     }
 }
 
 private extension String {
-    func range(withOffset offset: String.IndexDistance, length: Int) -> Range<String.Index> {
+    func range(withOffset offset: Int, length: Int) -> Range<String.Index> {
         let start = index(startIndex, offsetBy: offset)
         let end = index(start, offsetBy: length)
 
