@@ -287,21 +287,6 @@ class CustomButton: UIButton {
         }
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        if #available(iOS 13, *) {
-            // no-op
-        } else {
-            // Fix: on iOS 12 the image view frame is not always set, even though the `UIButton`
-            // calls `imageRect` to compute the image layout frame.
-            let imageRect = imageRect(forContentRect: contentRect(forBounds: bounds))
-            if imageView?.frame != imageRect {
-                imageView?.frame = imageRect
-            }
-        }
-    }
-
     private func computeLayout(forContentRect contentRect: CGRect) -> (CGRect, CGRect) {
         var imageRect = super.imageRect(forContentRect: contentRect)
         var titleRect = super.titleRect(forContentRect: contentRect)
