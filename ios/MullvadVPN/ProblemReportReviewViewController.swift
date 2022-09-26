@@ -43,7 +43,7 @@ class ProblemReportReviewViewController: UIViewController {
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.text = reportString
         textView.isEditable = false
-        textView.font = UIFont.backport_monospacedSystemFont(
+        textView.font = UIFont.monospacedSystemFont(
             ofSize: UIFont.systemFontSize,
             weight: .regular
         )

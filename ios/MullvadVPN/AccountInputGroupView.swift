@@ -406,7 +406,7 @@ class AccountInputGroupView: UIView {
     // MARK: - Private
 
     private static func accountNumberFont() -> UIFont {
-        return UIFont.backport_monospacedSystemFont(ofSize: 20, weight: .regular)
+        return UIFont.monospacedSystemFont(ofSize: 20, weight: .regular)
     }
 
     private func addTextFieldNotificationObservers() {
