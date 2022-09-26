@@ -48,9 +48,3 @@ enum HTTPHeader {
     static let etag = "ETag"
     static let ifNoneMatch = "If-None-Match"
 }
-
-extension HTTPURLResponse {
-    func value(forCaseInsensitiveHTTPHeaderField headerField: String) -> String? {
-        value(forHTTPHeaderField: headerField)
-    }
-}
