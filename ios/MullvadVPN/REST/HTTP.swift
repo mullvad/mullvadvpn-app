@@ -51,15 +51,6 @@ enum HTTPHeader {
 
 extension HTTPURLResponse {
     func value(forCaseInsensitiveHTTPHeaderField headerField: String) -> String? {
-        if #available(iOS 13.0, *) {
-            return self.value(forHTTPHeaderField: headerField)
-        } else {
-            for case let key as String in allHeaderFields.keys {
-                if case .orderedSame = key.caseInsensitiveCompare(headerField) {
-                    return self.allHeaderFields[key] as? String
-                }
-            }
-            return nil
-        }
+        value(forHTTPHeaderField: headerField)
     }
 }
