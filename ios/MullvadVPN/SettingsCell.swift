@@ -37,7 +37,7 @@ class SettingsCell: UITableViewCell {
         didSet {
             accessoryType = .none
 
-            let image = disclosureType.image?.backport_withTintColor(
+            let image = disclosureType.image?.withTintColor(
                 UIColor.Cell.disclosureIndicatorColor,
                 renderingMode: .alwaysOriginal
             )

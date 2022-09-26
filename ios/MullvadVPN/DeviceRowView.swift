@@ -28,7 +28,7 @@ class DeviceRowView: UIView {
 
     let removeButton: UIButton = {
         let image = UIImage(named: "IconClose")?
-            .backport_withTintColor(
+            .withTintColor(
                 .white.withAlphaComponent(0.4),
                 renderingMode: .alwaysOriginal
             )
