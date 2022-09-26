@@ -128,17 +128,14 @@ class SceneDelegate: UIResponder {
     }
 
     @objc private func sceneDidEnterBackground() {
-        if #available(iOS 13, *) {
-            let appDelegate = UIApplication.shared.delegate as? AppDelegate
-
-            appDelegate?.scheduleBackgroundTasks()
-        }
+        let appDelegate = UIApplication.shared.delegate as? AppDelegate
+        
+        appDelegate?.scheduleBackgroundTasks()
     }
 }
 
 // MARK: - UIWindowSceneDelegate
 
-@available(iOS 13.0, *)
 extension SceneDelegate: UIWindowSceneDelegate {
     func scene(
         _ scene: UIScene,
@@ -333,10 +330,7 @@ extension SceneDelegate {
         modalRootContainer.preferredContentSize = CGSize(width: 480, height: 600)
         modalRootContainer.modalPresentationStyle = .formSheet
         modalRootContainer.presentationController?.delegate = self
-
-        if #available(iOS 13.0, *) {
-            modalRootContainer.isModalInPresentation = true
-        }
+        modalRootContainer.isModalInPresentation = true
 
         if modalRootContainer.presentingViewController == nil {
             rootContainer.present(modalRootContainer, animated: animated)
@@ -440,9 +434,7 @@ extension SceneDelegate {
 
         if UIDevice.current.userInterfaceIdiom == .pad {
             controller.modalPresentationStyle = .formSheet
-            if #available(iOS 13.0, *) {
-                controller.isModalInPresentation = true
-            }
+            controller.isModalInPresentation = true
         }
 
         controller.completionHandler = { controller in
@@ -986,7 +978,6 @@ struct ClassicWindowFactory: WindowFactory {
     }
 }
 
-@available(iOS 13.0, *)
 struct SceneWindowFactory: WindowFactory {
     let windowScene: UIWindowScene
 
