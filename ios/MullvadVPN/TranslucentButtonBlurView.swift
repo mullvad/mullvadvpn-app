@@ -57,11 +57,7 @@ private extension AppButton.Style {
     var blurEffectStyle: UIBlurEffect.Style {
         switch self {
         case .translucentDangerSplitLeft, .translucentDangerSplitRight, .translucentDanger:
-            if #available(iOS 13.0, *) {
-                return .systemUltraThinMaterialDark
-            } else {
-                return .dark
-            }
+            return .systemUltraThinMaterialDark
         default:
             return .light
         }
