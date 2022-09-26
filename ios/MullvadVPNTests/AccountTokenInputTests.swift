@@ -11,12 +11,13 @@ import XCTest
 private let kSampleToken = "12345678"
 
 class AccountTokenInputTests: XCTestCase {
-
     var sut: InputFormatter!
 
     override func setUp() {
-        sut = InputFormatter(allowedInput: .numerical,
-                             groupSeparator: .space)
+        sut = InputFormatter(
+            allowedInput: .numerical,
+            groupSeparator: .space
+        )
     }
 
     override func tearDown() {
