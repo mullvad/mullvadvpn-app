@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2022.5-beta1] - 2022-09-26
 ### Added
 - Add obfuscation settings under "WireGuard settings".
 
@@ -32,7 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - GUI: Add electron flags to run Wayland native if in a compositor/desktop known to work well
-- Add support for Linux ARM64.
+- Add support for Linux ARM64. No installers are produced yet. But the source code can now
+  be built for ARM64.
 
 ### Changed
 - Reject invalid WireGuard ports in the CLI.
@@ -50,7 +54,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Remove dependency on `ipconfig.exe`. Call `DnsFlushResolverCache` to flush the DNS cache.
 - Upgrade Wintun to 0.14.1.
-
 
 #### Linux
 - The daemon binary and systemd unit file will now be placed in `/usr/bin/` and
