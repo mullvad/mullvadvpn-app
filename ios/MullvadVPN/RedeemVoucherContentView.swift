@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 class RedeemVoucherContentView: UIView {
-    typealias Action = (() -> Void)
+    typealias Action = () -> Void
 
     // MARK: - Constants
 
@@ -204,13 +204,17 @@ class RedeemVoucherContentView: UIView {
     }
 
     fileprivate func subscribeClicks() {
-        cancelButton.addTarget(self,
-                               action: #selector(cancelButtonTapped),
-                               for: .touchUpInside)
+        cancelButton.addTarget(
+            self,
+            action: #selector(cancelButtonTapped),
+            for: .touchUpInside
+        )
 
-        redeemButton.addTarget(self,
-                               action: #selector(RedeemButtonTapped),
-                               for: .touchUpInside)
+        redeemButton.addTarget(
+            self,
+            action: #selector(RedeemButtonTapped),
+            for: .touchUpInside
+        )
     }
 
     // MARK: - Capabilities
@@ -227,8 +231,10 @@ class RedeemVoucherContentView: UIView {
     /// - Parameters:
     ///   - state: RedeemVoucherViewController.RedeemVoucherState.
     ///   - isVoucherLengthSatisfied: true if Textfield length is equal to predict.
-    func updateViews(state: RedeemVoucherViewController.RedeemVoucherState,
-                     isVoucherLengthSatisfied: Bool) {
+    func updateViews(
+        state: RedeemVoucherViewController.RedeemVoucherState,
+        isVoucherLengthSatisfied: Bool
+    ) {
         if state.isWaiting {
             showLoading()
         } else {
@@ -239,22 +245,30 @@ class RedeemVoucherContentView: UIView {
             !state.isWaiting && isVoucherLengthSatisfied
         )
 
-        updateStatusLabel(alpha: state == .initial ? 0 : 1,
-                          text: state.getStatusLabelText(),
-                          textColor: state == .failure ? .dangerColor: .white)
+        updateStatusLabel(
+            alpha: state == .initial ? 0 : 1,
+            text: state.getStatusLabelText(),
+            textColor: state == .failure ? .dangerColor : .white
+        )
 
         if case .success = state {
-            redeemedVoucherSuccessfully(instructionLabelSuccessString: instructionLabelSuccessString,
-                                        gotItButtonTitle: gotItButtonTitle)
+            redeemedVoucherSuccessfully(
+                instructionLabelSuccessString: instructionLabelSuccessString,
+                gotItButtonTitle: gotItButtonTitle
+            )
         }
     }
 }
 
 // MARK: - Private functions
+
 //// Used for mainly updating views
 
 private extension RedeemVoucherContentView {
-    private func redeemedVoucherSuccessfully(instructionLabelSuccessString: String, gotItButtonTitle: String) {
+    private func redeemedVoucherSuccessfully(
+        instructionLabelSuccessString: String,
+        gotItButtonTitle: String
+    ) {
         inputTextField.isHidden = true
         topStackView.layoutIfNeeded()
 

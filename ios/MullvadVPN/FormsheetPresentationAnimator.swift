@@ -13,7 +13,7 @@ class FormsheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?)
         -> TimeInterval
     {
-        return (transitionContext?.isAnimated ?? true) ? 0.25: 0
+        return (transitionContext?.isAnimated ?? true) ? 0.25 : 0
     }
 
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {

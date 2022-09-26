@@ -23,16 +23,22 @@ class FormsheetPresentationController: UIPresentationController {
         return false
     }
 
-    override init(presentedViewController: UIViewController,
-                  presenting presentingViewController: UIViewController?) {
-        super.init(presentedViewController: presentedViewController,
-                   presenting: presentingViewController)
+    override init(
+        presentedViewController: UIViewController,
+        presenting presentingViewController: UIViewController?
+    ) {
+        super.init(
+            presentedViewController: presentedViewController,
+            presenting: presentingViewController
+        )
 
         addKeyboardObservers()
     }
 
-    override func viewWillTransition(to size: CGSize,
-                                     with coordinator: UIViewControllerTransitionCoordinator) {
+    override func viewWillTransition(
+        to size: CGSize,
+        with coordinator: UIViewControllerTransitionCoordinator
+    ) {
         super.viewWillTransition(to: size, with: coordinator)
 
         coordinator.animate { [weak self] context in
@@ -41,9 +47,13 @@ class FormsheetPresentationController: UIPresentationController {
                   self.isPresented else { return }
 
             let targetFrame = FormsheetPresentationAnimator
-                .targetFrame(in: containerView,
-                             preferredContentSize: CGSize(width: self.presentingViewController.view.frame.width - UIMetrics.contentLayoutMargins.left,
-                                                          height: 300)
+                .targetFrame(
+                    in: containerView,
+                    preferredContentSize: CGSize(
+                        width: self.presentingViewController.view.frame.width - UIMetrics
+                            .contentLayoutMargins.left,
+                        height: 300
+                    )
                 )
 
             self.presentedViewController.view.frame = targetFrame
@@ -64,7 +74,7 @@ class FormsheetPresentationController: UIPresentationController {
                 self.dimmingView.alpha = self.dimmingViewOpacityWhenPresented
             }
         } else {
-            dimmingView.alpha = self.dimmingViewOpacityWhenPresented
+            dimmingView.alpha = dimmingViewOpacityWhenPresented
         }
     }
 
@@ -95,6 +105,7 @@ class FormsheetPresentationController: UIPresentationController {
 }
 
 // MARK: - Keyboard delegates
+
 // Putting most top view on the center of remaining height when keyboard opens.
 private extension FormsheetPresentationController {
     /// Adding keyboard will show and will hide notification observers.
@@ -105,7 +116,7 @@ private extension FormsheetPresentationController {
             name: UIResponder.keyboardWillShowNotification,
             object: nil
         )
-        
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(keyboardWillHide),
@@ -116,21 +127,28 @@ private extension FormsheetPresentationController {
 
     /// Removing keyboard related observers.
     private func removingKeyboardObservers() {
-        NotificationCenter.default.removeObserver(self,
-                                                  name: UIResponder.keyboardWillChangeFrameNotification,
-                                                  object: nil)
-        NotificationCenter.default.removeObserver(self,
-                                                  name: UIResponder.keyboardWillHideNotification,
-                                                  object: nil)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIResponder
+                .keyboardWillChangeFrameNotification,
+            object: nil
+        )
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
     }
 
     /// Keyboard will show handling function, Puts presented view on the middle of remaining height.
     /// - Warning: Pins view to top if remaining height was not enough to fit the view.
     /// - Parameter notification: NSNotification that holds keyboard related info.
     @objc private func keyboardWillShow(_ notification: NSNotification) {
-        guard let keyboardFrame = (notification
-            .userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
-              let presentedView = presentedView
+        guard let keyboardFrame = (
+            notification
+                .userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue
+        )?.cgRectValue,
+            let presentedView = presentedView
         else { return }
 
         let remainingHeight = keyboardFrame.origin.y / 2
