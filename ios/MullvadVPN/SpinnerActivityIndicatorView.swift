@@ -104,15 +104,8 @@ class SpinnerActivityIndicatorView: UIView {
     }
 
     private func registerSceneActivationObserver() {
-        let name: NSNotification.Name
-        var object: Any?
-
-        if #available(iOS 13, *) {
-            name = UIScene.willEnterForegroundNotification
-            object = window?.windowScene
-        } else {
-            name = UIApplication.willEnterForegroundNotification
-        }
+        let name: NSNotification.Name = UIScene.willEnterForegroundNotification
+        var object: Any? = window?.windowScene
 
         unregisterSceneActivationObserver()
 
