@@ -24,7 +24,7 @@ class RedeemVoucherViewController: UIViewController {
     private let apiProxy: REST.APIProxy
 
     // MARK: - Views
-    
+
     private lazy var contentView = RedeemVoucherContentView { [weak self] in
         self?.submitVoucher()
     } cancelAction: { [weak self] in
@@ -68,7 +68,7 @@ class RedeemVoucherViewController: UIViewController {
         addObservers()
         updateViews(with: .initial, animated: false)
 
-        self.navigationController?.delegate = self
+        navigationController?.delegate = self
     }
 
     // MARK: - View setup
@@ -120,33 +120,39 @@ private extension RedeemVoucherViewController {
 
     private func updateViews(with state: RedeemVoucherState, animated: Bool) {
         switch state {
-        case .success(let timeAdded):
+        case let .success(timeAdded):
             delegate?
                 .redeemedVoucherSuccessfully()
 
             navigationController?
-                .pushViewController(RedeemVoucherSucceededViewController(timeAdded: timeAdded),
-                                                          animated: true)
+                .pushViewController(
+                    RedeemVoucherSucceededViewController(timeAdded: timeAdded),
+                    animated: true
+                )
         default:
             if animated {
-                UIView.animate(withDuration: 0.8,
-                               delay: 0,
-                               usingSpringWithDamping: 0.5,
-                               initialSpringVelocity: 6.9,
-                               options: .curveEaseInOut,
-                               animations: {
-                    self.updateViewsAccordingToState(with: state)
-                })
+                UIView.animate(
+                    withDuration: 0.8,
+                    delay: 0,
+                    usingSpringWithDamping: 0.5,
+                    initialSpringVelocity: 6.9,
+                    options: .curveEaseInOut,
+                    animations: {
+                        self.updateViewsAccordingToState(with: state)
+                    }
+                )
             } else {
                 updateViewsAccordingToState(with: state)
             }
         }
     }
-    
+
     private func updateViewsAccordingToState(with state: RedeemVoucherState) {
         contentView
-            .updateViews(state: state,
-                         isVoucherLengthSatisfied: isVoucherLengthSatisfied)
+            .updateViews(
+                state: state,
+                isVoucherLengthSatisfied: isVoucherLengthSatisfied
+            )
     }
 
     private func submitVoucher() {
@@ -229,31 +235,38 @@ extension RedeemVoucherViewController {
 }
 
 extension RedeemVoucherViewController: UINavigationControllerDelegate {
-    func navigationController(_ navigationController: UINavigationController,
-                              animationControllerFor operation: UINavigationController.Operation,
-                              from fromVC: UIViewController,
-                              to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-
-        //INFO: use UINavigationControllerOperation.push or UINavigationControllerOperation.pop to detect the 'direction' of the navigation
+    func navigationController(
+        _ navigationController: UINavigationController,
+        animationControllerFor operation: UINavigationController.Operation,
+        from fromVC: UIViewController,
+        to toVC: UIViewController
+    ) -> UIViewControllerAnimatedTransitioning? {
+        // INFO: use UINavigationControllerOperation.push or UINavigationControllerOperation.pop to detect the 'direction' of the navigation
 
         class FadeAnimation: NSObject, UIViewControllerAnimatedTransitioning {
-            func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+            func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?)
+                -> TimeInterval
+            {
                 return 0.3
             }
 
             func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-                let toViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to)
+                let toViewController = transitionContext
+                    .viewController(forKey: UITransitionContextViewControllerKey.to)
                 if let vc = toViewController {
                     transitionContext.finalFrame(for: vc)
                     transitionContext.containerView.addSubview(vc.view)
                     vc.view.alpha = 0.0
-                    UIView.animate(withDuration: self.transitionDuration(using: transitionContext),
-                    animations: {
-                        vc.view.alpha = 1.0
-                    },
-                    completion: { finished in
-                        transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
-                    })
+                    UIView.animate(
+                        withDuration: transitionDuration(using: transitionContext),
+                        animations: {
+                            vc.view.alpha = 1.0
+                        },
+                        completion: { finished in
+                            transitionContext
+                                .completeTransition(!transitionContext.transitionWasCancelled)
+                        }
+                    )
                 } else {
                     preconditionFailure("Oops! Something went wrong! 'ToView' controller is nil")
                 }

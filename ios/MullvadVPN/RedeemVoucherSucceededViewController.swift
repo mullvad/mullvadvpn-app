@@ -62,7 +62,6 @@ class RedeemVoucherSucceededViewController: UIViewController {
         self.timeAdded = timeAdded
         super.init(nibName: nil, bundle: nil)
 
-
         view.backgroundColor = .secondaryColor
         view.layoutMargins = UIMetrics.contentLayoutMargins
 
@@ -95,17 +94,22 @@ class RedeemVoucherSucceededViewController: UIViewController {
             successImage.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
             successImage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             successImage.widthAnchor.constraint(equalToConstant: 60),
-            successImage.heightAnchor.constraint(equalToConstant: 60)
+            successImage.heightAnchor.constraint(equalToConstant: 60),
         ])
 
         NSLayoutConstraint.activate([
             instructionLabel.topAnchor.constraint(equalTo: successImage.bottomAnchor, constant: 24),
-            instructionLabel.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
-            instructionLabel.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+            instructionLabel.leadingAnchor
+                .constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            instructionLabel.trailingAnchor
+                .constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
         ])
 
         NSLayoutConstraint.activate([
-            statusLabel.topAnchor.constraint(equalTo: instructionLabel.layoutMarginsGuide.bottomAnchor, constant: 12),
+            statusLabel.topAnchor.constraint(
+                equalTo: instructionLabel.layoutMarginsGuide.bottomAnchor,
+                constant: 12
+            ),
             statusLabel.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             statusLabel.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
         ])
@@ -114,17 +118,19 @@ class RedeemVoucherSucceededViewController: UIViewController {
             gotItButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor),
             gotItButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             gotItButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-            gotItButton.heightAnchor.constraint(equalToConstant: 42)
+            gotItButton.heightAnchor.constraint(equalToConstant: 42),
         ])
     }
 
     private func subscribeClicks() {
-        gotItButton.addTarget(self,
-                              action: #selector(gotItButtonClicked),
-                              for: .touchUpInside)
+        gotItButton.addTarget(
+            self,
+            action: #selector(gotItButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     @objc private func gotItButtonClicked(_ sender: AppButton) {
-        self.dismiss(animated: true)
+        dismiss(animated: true)
     }
 }
