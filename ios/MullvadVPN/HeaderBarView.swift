@@ -11,7 +11,7 @@ import UIKit
 
 class HeaderBarView: UIView {
     private let brandNameImage = UIImage(named: "LogoText")?
-        .backport_withTintColor(UIColor.HeaderBar.brandNameColor, renderingMode: .alwaysOriginal)
+        .withTintColor(UIColor.HeaderBar.brandNameColor, renderingMode: .alwaysOriginal)
 
     let logoImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "LogoIcon"))
@@ -30,9 +30,9 @@ class HeaderBarView: UIView {
 
     class func makeSettingsButton() -> HeaderBarButton {
         let settingsImage = UIImage(named: "IconSettings")?
-            .backport_withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
+            .withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
         let disabledSettingsImage = UIImage(named: "IconSettings")?
-            .backport_withTintColor(
+            .withTintColor(
                 UIColor.HeaderBar.disabledButtonColor,
                 renderingMode: .alwaysOriginal
             )

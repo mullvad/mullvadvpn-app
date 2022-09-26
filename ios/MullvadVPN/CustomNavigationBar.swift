@@ -19,10 +19,8 @@ class CustomNavigationBar: UINavigationBar {
     ]
 
     private let customBackIndicatorImage = UIImage(named: "IconBack")?
-        .backport_withTintColor(
-            UIColor.NavigationBar.backButtonIndicatorColor,
-            renderingMode: .alwaysOriginal
-        )
+        .withTintColor(UIColor.NavigationBar.backButtonIndicatorColor, renderingMode: .alwaysOriginal)
+
     private let customBackIndicatorTransitionMask = UIImage(named: "IconBackTransitionMask")
 
     // Returns the distance from the title label to the bottom of navigation bar
