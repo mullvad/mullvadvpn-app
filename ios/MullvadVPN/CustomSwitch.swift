@@ -60,13 +60,6 @@ class CustomSwitch: UISwitch {
     }
 
     @objc private func valueChanged(_ sender: Any) {
-        if #available(iOS 13, *) {
-            updateThumbColor(isOn: isOn, animated: true)
-        } else {
-            // Wait for animations to finish before changing the thumb color to prevent the jumpy behaviour.
-            CATransaction.setCompletionBlock {
-                self.updateThumbColor(isOn: self.isOn, animated: false)
-            }
-        }
+        updateThumbColor(isOn: isOn, animated: true)
     }
 }
