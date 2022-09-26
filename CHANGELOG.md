@@ -77,10 +77,10 @@ Line wrap the file at 100 chars.                                              Th
 - Don't fail install if the device tree contains nameless callout driver devices.
 
 ### Security
-- When the system process is being shut down and the target state is _secured_, maintain the
-  blocking firewall rules unless it's possible to deduce that the system isn't shutting down and the
+- When the system service is being shut down and the target state is _secured_, maintain the
+  blocking firewall rules. Unless it's possible to deduce that the system isn't shutting down and the
   system service is being stopped by the user intentionally. This is to prevent leaks that might
-  occur during system shutdown.
+  occur during system shutdown. Fixes 2022 Mullvad app audit issue item `MUL22-02`.
 
 #### Windows
 - Upgrade win-split-tunnel driver to version 1.2.2.0. Fixes incomplete validation of input buffers
