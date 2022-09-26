@@ -56,9 +56,7 @@ class SettingsDNSTextCell: SettingsCell, UITextFieldDelegate {
         backgroundView?.backgroundColor = UIColor.TextField.backgroundColor
         contentView.addSubview(textField)
 
-        if #available(iOS 13.0, *) {
-            overrideUserInterfaceStyle = .light
-        }
+        overrideUserInterfaceStyle = .light
 
         NSLayoutConstraint.activate([
             textField.topAnchor.constraint(equalTo: contentView.topAnchor),
