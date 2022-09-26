@@ -4,7 +4,7 @@ This directory contains the files specific to the Android app.
 
 ## Building the app
 
-See [this](BuildInstructions.md) for instructions on how to build the app.
+See the [build instructions](BuildInstructions.md) for help building the app.
 
 ## Translations / Localization
 

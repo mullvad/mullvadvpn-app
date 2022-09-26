@@ -102,10 +102,11 @@ details about that repository.
 
 ## Building the app
 
-See [this](BuildInstructions.md) for instructions on how to build the app on desktop
-platforms.
+See the [build instructions](BuildInstructions.md) for help building the app on desktop platforms.
 
-For instructions specific to the Android app, see [here](./android/README.md).
+For building the Android app, see the [instructions](./android/BuildInstructions.md) for Android.
+
+For building the iOS app, see the [instructions](./ios/BuildInstructions.md) for iOS.
 
 ## Releasing the app
 
