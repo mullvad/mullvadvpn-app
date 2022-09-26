@@ -8,12 +8,12 @@
 
 import Foundation
 
-enum OperationCompletion<Success, Failure: Error> {
+public enum OperationCompletion<Success, Failure: Error> {
     case cancelled
     case success(Success)
     case failure(Failure)
 
-    var isSuccess: Bool {
+    public var isSuccess: Bool {
         if case .success = self {
             return true
         } else {
@@ -21,7 +21,7 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    var value: Success? {
+    public var value: Success? {
         if case let .success(value) = self {
             return value
         } else {
@@ -29,7 +29,7 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    var error: Failure? {
+    public var error: Failure? {
         if case let .failure(error) = self {
             return error
         } else {
@@ -37,7 +37,7 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    var result: Result<Success, Failure>? {
+    public var result: Result<Success, Failure>? {
         switch self {
         case let .success(value):
             return .success(value)
@@ -48,7 +48,7 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    init(result: Result<Success, Failure>) {
+    public init(result: Result<Success, Failure>) {
         switch result {
         case let .success(value):
             self = .success(value)
@@ -57,7 +57,7 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    init(error: Failure?) where Success == Void {
+    public init(error: Failure?) where Success == Void {
         if let error = error {
             self = .failure(error)
         } else {
@@ -65,7 +65,7 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    func map<NewSuccess>(_ block: (Success) -> NewSuccess)
+    public func map<NewSuccess>(_ block: (Success) -> NewSuccess)
         -> OperationCompletion<NewSuccess, Failure>
     {
         switch self {
@@ -78,7 +78,7 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    func mapError<NewFailure: Error>(_ block: (Failure) -> NewFailure)
+    public func mapError<NewFailure: Error>(_ block: (Failure) -> NewFailure)
         -> OperationCompletion<Success, NewFailure>
     {
         switch self {
@@ -91,7 +91,7 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    func flatMap<NewSuccess>(_ block: (Success) -> OperationCompletion<NewSuccess, Failure>)
+    public func flatMap<NewSuccess>(_ block: (Success) -> OperationCompletion<NewSuccess, Failure>)
         -> OperationCompletion<NewSuccess, Failure>
     {
         switch self {
@@ -104,7 +104,7 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    func flatMapError<NewFailure: Error>(
+    public func flatMapError<NewFailure: Error>(
         _ block: (Failure)
             -> OperationCompletion<Success, NewFailure>
     ) -> OperationCompletion<Success, NewFailure> {
@@ -118,7 +118,7 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    func tryMap<NewSuccess>(_ block: (Success) throws -> NewSuccess)
+    public func tryMap<NewSuccess>(_ block: (Success) throws -> NewSuccess)
         -> OperationCompletion<NewSuccess, Error>
     {
         switch self {
@@ -135,11 +135,11 @@ enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
-    func ignoreOutput() -> OperationCompletion<Void, Failure> {
+    public func ignoreOutput() -> OperationCompletion<Void, Failure> {
         return map { _ in () }
     }
 
-    func eraseFailureType() -> OperationCompletion<Success, Error> {
+    public func eraseFailureType() -> OperationCompletion<Success, Error> {
         return mapError { $0 }
     }
 }

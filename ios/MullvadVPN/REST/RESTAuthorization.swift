@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Operations
 
 protocol RESTAuthorizationProvider {
     typealias Completion = OperationCompletion<REST.Authorization, REST.Error>

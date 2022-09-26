@@ -9,7 +9,7 @@
 import Foundation
 
 extension ResultOperation: OutputOperation {
-    var output: Success? {
+    public var output: Success? {
         return completion?.value
     }
 }

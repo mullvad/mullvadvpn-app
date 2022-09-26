@@ -7,6 +7,7 @@
 //
 
 import Logging
+import Operations
 import UIKit
 
 extension AddressCache {

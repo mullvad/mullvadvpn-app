@@ -6,10 +6,11 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+#if canImport(UIKit)
+
 import UIKit
 
-class AlertPresenter {
+public final class AlertPresenter {
     static let alertControllerDidDismissNotification = Notification
         .Name("UIAlertControllerDidDismiss")
 
@@ -31,11 +32,11 @@ class AlertPresenter {
         )
     }()
 
-    init() {
+    public init() {
         _ = Self.initClass
     }
 
-    func enqueue(
+    public func enqueue(
         _ alertController: UIAlertController,
         presentingController: UIViewController,
         presentCompletion: (() -> Void)? = nil
@@ -49,7 +50,7 @@ class AlertPresenter {
         operationQueue.addOperation(operation)
     }
 
-    func cancelAll() {
+    public func cancelAll() {
         operationQueue.cancelAllOperations()
     }
 }
@@ -67,3 +68,5 @@ private extension UIAlertController {
         }
     }
 }
+
+#endif

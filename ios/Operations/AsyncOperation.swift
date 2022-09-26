@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc enum State: Int, Comparable, CustomStringConvertible {
+@objc private enum State: Int, Comparable, CustomStringConvertible {
     case initialized
     case pending
     case evaluatingConditions
@@ -39,7 +39,7 @@ import Foundation
 }
 
 /// A base implementation of an asynchronous operation
-class AsyncOperation: Operation {
+open class AsyncOperation: Operation {
     /// Mutex lock used for guarding critical sections of operation lifecycle.
     private let operationLock = NSRecursiveLock()
 
@@ -64,7 +64,7 @@ class AsyncOperation: Operation {
 
     /// Backing variable for `error`.
     /// Access must be guarded with `stateLock`.
-    private var _error: Error?
+    private var __error: Error?
 
     /// Operation state.
     @objc private var state: State {
@@ -100,20 +100,24 @@ class AsyncOperation: Operation {
         }
     }
 
-    private(set) var error: Error? {
+    private var _error: Error? {
         get {
             stateLock.lock()
             defer { stateLock.unlock() }
-            return _error
+            return __error
         }
         set {
             stateLock.lock()
             defer { stateLock.unlock() }
-            _error = newValue
+            __error = newValue
         }
     }
 
-    override final var isReady: Bool {
+    public var error: Error? {
+        return _error
+    }
+
+    override public final var isReady: Bool {
         stateLock.lock()
         defer { stateLock.unlock() }
 
@@ -136,19 +140,19 @@ class AsyncOperation: Operation {
         }
     }
 
-    override final var isExecuting: Bool {
+    override public final var isExecuting: Bool {
         return state == .executing
     }
 
-    override final var isFinished: Bool {
+    override public final var isFinished: Bool {
         return state == .finished
     }
 
-    override final var isCancelled: Bool {
+    override public final var isCancelled: Bool {
         return _isCancelled
     }
 
-    override final var isAsynchronous: Bool {
+    override public final var isAsynchronous: Bool {
         return true
     }
 
@@ -156,14 +160,14 @@ class AsyncOperation: Operation {
 
     private var _observers: [OperationObserver] = []
 
-    final var observers: [OperationObserver] {
+    public final var observers: [OperationObserver] {
         operationLock.lock()
         defer { operationLock.unlock() }
 
         return _observers
     }
 
-    final func addObserver(_ observer: OperationObserver) {
+    public final func addObserver(_ observer: OperationObserver) {
         operationLock.lock()
         assert(state < .executing)
         _observers.append(observer)
@@ -175,14 +179,14 @@ class AsyncOperation: Operation {
 
     private var _conditions: [OperationCondition] = []
 
-    final var conditions: [OperationCondition] {
+    public final var conditions: [OperationCondition] {
         operationLock.lock()
         defer { operationLock.unlock() }
 
         return _conditions
     }
 
-    func addCondition(_ condition: OperationCondition) {
+    public func addCondition(_ condition: OperationCondition) {
         operationLock.lock()
         assert(state < .evaluatingConditions)
         _conditions.append(condition)
@@ -231,9 +235,9 @@ class AsyncOperation: Operation {
 
     // MARK: -
 
-    let dispatchQueue: DispatchQueue
+    public let dispatchQueue: DispatchQueue
 
-    init(dispatchQueue: DispatchQueue? = nil) {
+    public init(dispatchQueue: DispatchQueue? = nil) {
         self.dispatchQueue = dispatchQueue ?? DispatchQueue(label: "AsyncOperation.dispatchQueue")
         super.init()
 
@@ -253,7 +257,7 @@ class AsyncOperation: Operation {
 
     private static var observerContext = 0
 
-    override func observeValue(
+    override public func observeValue(
         forKeyPath keyPath: String?,
         of object: Any?,
         change: [NSKeyValueChangeKey: Any]?,
@@ -286,7 +290,7 @@ class AsyncOperation: Operation {
 
     // MARK: - Lifecycle
 
-    override final func start() {
+    override public final func start() {
         let currentQueue = OperationQueue.current
         let underlyingQueue = currentQueue?.underlyingQueue
 
@@ -316,11 +320,11 @@ class AsyncOperation: Operation {
         }
     }
 
-    override func main() {
+    override open func main() {
         // Override in subclasses
     }
 
-    override final func cancel() {
+    override public final func cancel() {
         var notifyDidCancel = false
 
         operationLock.lock()
@@ -343,11 +347,11 @@ class AsyncOperation: Operation {
         }
     }
 
-    func finish() {
+    public func finish() {
         finish(error: nil)
     }
 
-    func finish(error: Error?) {
+    public func finish(error: Error?) {
         guard tryFinish(error: error) else { return }
 
         dispatchQueue.async {
@@ -362,7 +366,7 @@ class AsyncOperation: Operation {
 
     // MARK: - Private
 
-    func didEnqueue() {
+    internal func didEnqueue() {
         operationLock.lock()
         defer { operationLock.unlock() }
 
@@ -388,7 +392,7 @@ class AsyncOperation: Operation {
 
         guard state < .finished else { return false }
 
-        self.error = error
+        _error = error
         state = .finished
 
         return true
@@ -396,16 +400,16 @@ class AsyncOperation: Operation {
 
     // MARK: - Subclass overrides
 
-    func operationDidCancel() {
+    open func operationDidCancel() {
         // Override in subclasses.
     }
 
-    func operationDidFinish() {
+    open func operationDidFinish() {
         // Override in subclasses.
     }
 }
 
-extension Operation {
+public extension Operation {
     func addDependencies(_ dependencies: [Operation]) {
         for dependency in dependencies {
             addDependency(dependency)
@@ -413,16 +417,16 @@ extension Operation {
     }
 }
 
-extension Operation {
+public extension Operation {
     var operationName: String {
         return name ?? "\(self)"
     }
 }
 
-protocol OperationBlockObserverSupport {}
+public protocol OperationBlockObserverSupport {}
 extension AsyncOperation: OperationBlockObserverSupport {}
 
-extension OperationBlockObserverSupport where Self: AsyncOperation {
+public extension OperationBlockObserverSupport where Self: AsyncOperation {
     func addBlockObserver(_ observer: OperationBlockObserver<Self>) {
         addObserver(observer)
     }

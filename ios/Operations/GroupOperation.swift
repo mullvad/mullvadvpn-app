@@ -8,17 +8,17 @@
 
 import Foundation
 
-class GroupOperation: AsyncOperation {
+public final class GroupOperation: AsyncOperation {
     private let operationQueue = AsyncOperationQueue()
     private let children: [Operation]
 
-    init(operations: [Operation]) {
+    public init(operations: [Operation]) {
         children = operations
 
         super.init(dispatchQueue: nil)
     }
 
-    override func main() {
+    override public func main() {
         let finishingOperation = BlockOperation()
         finishingOperation.completionBlock = { [weak self] in
             self?.finish()
@@ -29,7 +29,7 @@ class GroupOperation: AsyncOperation {
         operationQueue.addOperation(finishingOperation)
     }
 
-    override func operationDidCancel() {
+    override public func operationDidCancel() {
         operationQueue.cancelAllOperations()
     }
 }

@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol OutputOperation: Operation {
+public protocol OutputOperation: Operation {
     associatedtype Output
 
     var output: Output? { get }

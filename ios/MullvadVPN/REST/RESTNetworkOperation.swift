@@ -8,6 +8,7 @@
 
 import Foundation
 import Logging
+import Operations
 
 extension REST {
     class NetworkOperation<Success>: ResultOperation<Success, REST.Error> {

@@ -9,6 +9,7 @@
 import Foundation
 import Logging
 import NetworkExtension
+import Operations
 
 class MapConnectionStatusOperation: AsyncOperation {
     private let interactor: TunnelInteractor

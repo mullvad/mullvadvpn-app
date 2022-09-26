@@ -6,14 +6,16 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
+#if canImport(UIKit)
+
 import UIKit
 
-class PresentAlertOperation: AsyncOperation {
+public final class PresentAlertOperation: AsyncOperation {
     private let alertController: UIAlertController
     private let presentingController: UIViewController
     private let presentCompletion: (() -> Void)?
 
-    init(
+    public init(
         alertController: UIAlertController,
         presentingController: UIViewController,
         presentCompletion: (() -> Void)? = nil
@@ -25,7 +27,7 @@ class PresentAlertOperation: AsyncOperation {
         super.init(dispatchQueue: .main)
     }
 
-    override func operationDidCancel() {
+    override public func operationDidCancel() {
         // Guard against trying to dismiss the alert when operation hasn't started yet.
         guard isExecuting else { return }
 
@@ -35,7 +37,7 @@ class PresentAlertOperation: AsyncOperation {
         }
     }
 
-    override func main() {
+    override public func main() {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(alertControllerDidDismiss(_:)),
@@ -69,3 +71,5 @@ class PresentAlertOperation: AsyncOperation {
         finish()
     }
 }
+
+#endif

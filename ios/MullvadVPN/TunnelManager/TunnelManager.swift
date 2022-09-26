@@ -9,6 +9,7 @@
 import Foundation
 import Logging
 import NetworkExtension
+import Operations
 import StoreKit
 import UIKit
 import class WireGuardKitTypes.PublicKey

@@ -8,6 +8,7 @@
 
 import Foundation
 import Logging
+import Operations
 import class WireGuardKitTypes.PublicKey
 
 class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {

@@ -8,6 +8,7 @@
 
 import Foundation
 import Logging
+import Operations
 import class WireGuardKitTypes.PrivateKey
 
 class MigrateSettingsOperation: AsyncOperation {

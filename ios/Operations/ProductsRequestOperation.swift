@@ -6,10 +6,11 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+#if canImport(StoreKit)
+
 import StoreKit
 
-class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>,
+public final class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>,
     SKProductsRequestDelegate
 {
     private let productIdentifiers: Set<String>
@@ -21,7 +22,7 @@ class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>,
     private var retryTimer: DispatchSourceTimer?
     private var request: SKProductsRequest?
 
-    init(productIdentifiers: Set<String>, completionHandler: @escaping CompletionHandler) {
+    public init(productIdentifiers: Set<String>, completionHandler: @escaping CompletionHandler) {
         self.productIdentifiers = productIdentifiers
 
         super.init(
@@ -31,22 +32,22 @@ class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>,
         )
     }
 
-    override func main() {
+    override public func main() {
         startRequest()
     }
 
-    override func operationDidCancel() {
+    override public func operationDidCancel() {
         request?.cancel()
         retryTimer?.cancel()
     }
 
     // - MARK: SKProductsRequestDelegate
 
-    func requestDidFinish(_ request: SKRequest) {
+    public func requestDidFinish(_ request: SKRequest) {
         // no-op
     }
 
-    func request(_ request: SKRequest, didFailWithError error: Error) {
+    public func request(_ request: SKRequest, didFailWithError error: Error) {
         dispatchQueue.async {
             if self.retryCount < self.maxRetryCount, !self.isCancelled {
                 self.retryCount += 1
@@ -57,7 +58,10 @@ class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>,
         }
     }
 
-    func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
+    public func productsRequest(
+        _ request: SKProductsRequest,
+        didReceive response: SKProductsResponse
+    ) {
         finish(completion: .success(response))
     }
 
@@ -84,3 +88,5 @@ class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>,
         retryTimer?.activate()
     }
 }
+
+#endif

@@ -66,6 +66,16 @@
                ReferencedContainer = "container:MullvadVPN.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "589A455128E094B300565204"
+               BuildableName = "OperationsTests.xctest"
+               BlueprintName = "OperationsTests"
+               ReferencedContainer = "container:MullvadVPN.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
