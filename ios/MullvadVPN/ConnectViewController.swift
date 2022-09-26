@@ -500,6 +500,8 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             MKAnnotationView.self,
             forAnnotationViewWithReuseIdentifier: Self.locationMarkerReuseIdentifier
         )
+
+        // Use dark style for the map to dim the map grid
         contentView.mapView.overrideUserInterfaceStyle = .dark
 
         addTileOverlay()
