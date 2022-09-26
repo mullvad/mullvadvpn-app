@@ -90,15 +90,17 @@ git commit -S -m "Updating version in package files" \
     android/app/build.gradle.kts \
     dist-assets/windows/version.h
 
-echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
-
 NEW_TAGS=""
 
 if [[ "$ANDROID" == "true" ]]; then
+    echo "Tagging current git commit with release tag android/$PRODUCT_VERSION..."
+
     git tag -s "android/$PRODUCT_VERSION" -m "android/$PRODUCT_VERSION"
     NEW_TAGS+=" android/$PRODUCT_VERSION"
 fi
 if [[ "$DESKTOP" == "true" ]]; then
+    echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
+
     git tag -s $PRODUCT_VERSION -m $PRODUCT_VERSION
     NEW_TAGS+=" $PRODUCT_VERSION"
 fi
