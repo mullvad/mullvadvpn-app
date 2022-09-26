@@ -36,7 +36,7 @@ fn main() {
 
 fn commit_date() -> String {
     let output = Command::new("git")
-        .args(&["log", "-1", "--date=short", "--pretty=format:%cd"])
+        .args(["log", "-1", "--date=short", "--pretty=format:%cd"])
         .output()
         .expect("Unable to get git commit date");
     std::str::from_utf8(&output.stdout)

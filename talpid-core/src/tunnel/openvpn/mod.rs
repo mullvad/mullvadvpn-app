@@ -1287,8 +1287,10 @@ mod tests {
 
     #[test]
     fn exit_successfully() {
-        let mut builder = TestOpenVpnBuilder::default();
-        builder.process_handle = Some(TestProcessHandle(0));
+        let builder = TestOpenVpnBuilder {
+            process_handle: Some(TestProcessHandle(0)),
+            ..Default::default()
+        };
         let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args();
         let testee = runtime
@@ -1305,8 +1307,10 @@ mod tests {
 
     #[test]
     fn exit_error() {
-        let mut builder = TestOpenVpnBuilder::default();
-        builder.process_handle = Some(TestProcessHandle(1));
+        let builder = TestOpenVpnBuilder {
+            process_handle: Some(TestProcessHandle(1)),
+            ..Default::default()
+        };
         let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args();
         let testee = runtime
@@ -1323,8 +1327,10 @@ mod tests {
 
     #[test]
     fn wait_closed() {
-        let mut builder = TestOpenVpnBuilder::default();
-        builder.process_handle = Some(TestProcessHandle(1));
+        let builder = TestOpenVpnBuilder {
+            process_handle: Some(TestProcessHandle(1)),
+            ..Default::default()
+        };
         let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args();
         let testee = runtime

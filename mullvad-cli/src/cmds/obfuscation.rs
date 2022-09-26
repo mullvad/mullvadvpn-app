@@ -116,7 +116,7 @@ fn create_obfuscation_set_subcommand() -> clap::App<'static> {
                     )
                     .required(true)
                     .index(1)
-                    .possible_values(&["auto", "off", "udp2tcp"]),
+                    .possible_values(["auto", "off", "udp2tcp"]),
             ),
         )
         .subcommand(

@@ -17,7 +17,7 @@ pub fn get_config() -> &'static Config {
     lazy_static::lazy_static! {
         static ref CONFIG: Config = create_config();
     }
-    &*CONFIG
+    &CONFIG
 }
 
 pub fn create_config() -> Config {

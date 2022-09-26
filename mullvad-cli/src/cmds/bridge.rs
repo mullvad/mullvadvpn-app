@@ -68,7 +68,7 @@ fn create_bridge_set_subcommand() -> clap::App<'static> {
                 .arg(
                     clap::Arg::new("ownership")
                         .help("Ownership preference, or 'any' for no preference.")
-                        .possible_values(&["any", "owned", "rented"])
+                        .possible_values(["any", "owned", "rented"])
                         .required(true),
                 ),
         )
@@ -186,7 +186,7 @@ fn create_set_state_subcommand() -> clap::App<'static> {
             .help("Specifies whether a bridge should be used")
             .required(true)
             .index(1)
-            .possible_values(&["auto", "on", "off"]),
+            .possible_values(["auto", "on", "off"]),
     )
 }
 

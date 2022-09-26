@@ -16,7 +16,7 @@ impl Command for Lan {
                 clap::App::new("set").about("Change allow LAN setting").arg(
                     clap::Arg::new("policy")
                         .required(true)
-                        .possible_values(&["allow", "block"]),
+                        .possible_values(["allow", "block"]),
                 ),
             )
             .subcommand(

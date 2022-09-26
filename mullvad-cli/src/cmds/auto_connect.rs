@@ -18,7 +18,7 @@ impl Command for AutoConnect {
                     .arg(
                         clap::Arg::new("policy")
                             .required(true)
-                            .possible_values(&["on", "off"]),
+                            .possible_values(["on", "off"]),
                     ),
             )
             .subcommand(clap::App::new("get").about("Display the current auto-connect setting"))

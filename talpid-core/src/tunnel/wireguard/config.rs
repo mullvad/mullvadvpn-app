@@ -101,11 +101,9 @@ impl Config {
         if tunnel.addresses.is_empty() {
             return Err(Error::InvalidTunnelIpError);
         }
-        tunnel.addresses = tunnel
+        tunnel
             .addresses
-            .into_iter()
-            .filter(|ip| ip.is_ipv4() || generic_options.enable_ipv6)
-            .collect();
+            .retain(|ip| ip.is_ipv4() || generic_options.enable_ipv6);
 
         let ipv6_gateway = if generic_options.enable_ipv6 {
             connection_config.ipv6_gateway

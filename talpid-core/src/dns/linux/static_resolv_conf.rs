@@ -125,7 +125,7 @@ impl DnsWatcher {
         mask.insert(WatchMask::MOVE_SELF);
 
         watcher
-            .add_watch(&RESOLV_CONF_PATH, mask)
+            .add_watch(RESOLV_CONF_PATH, mask)
             .map_err(Error::WatchResolvConf)?;
 
         let (cancel_trigger, cancel_listener) = trigger();

@@ -18,7 +18,7 @@ impl Command for BlockWhenDisconnected {
                     .arg(
                         clap::Arg::new("policy")
                             .required(true)
-                            .possible_values(&["on", "off"]),
+                            .possible_values(["on", "off"]),
                     ),
             )
             .subcommand(

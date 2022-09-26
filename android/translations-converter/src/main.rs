@@ -76,7 +76,7 @@ fn main() {
         .collect();
 
     let locale_dir = Path::new("../../gui/locales");
-    let locale_files = fs::read_dir(&locale_dir)
+    let locale_files = fs::read_dir(locale_dir)
         .expect("Failed to open root locale directory")
         .filter_map(|dir_entry_result| dir_entry_result.ok().map(|dir_entry| dir_entry.path()))
         .filter(|dir_entry_path| dir_entry_path.is_dir())
