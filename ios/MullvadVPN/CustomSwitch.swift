@@ -29,10 +29,7 @@ class CustomSwitch: UISwitch {
 
         tintColor = .clear
         onTintColor = .clear
-
-        if #available(iOS 13.0, *) {
-            overrideUserInterfaceStyle = .light
-        }
+        overrideUserInterfaceStyle = .light
 
         updateThumbColor(isOn: isOn, animated: false)
 
