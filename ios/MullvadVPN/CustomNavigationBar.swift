@@ -19,7 +19,10 @@ class CustomNavigationBar: UINavigationBar {
     ]
 
     private let customBackIndicatorImage = UIImage(named: "IconBack")?
-        .withTintColor(UIColor.NavigationBar.backButtonIndicatorColor, renderingMode: .alwaysOriginal)
+        .withTintColor(
+            UIColor.NavigationBar.backButtonIndicatorColor,
+            renderingMode: .alwaysOriginal
+        )
 
     private let customBackIndicatorTransitionMask = UIImage(named: "IconBackTransitionMask")
 
