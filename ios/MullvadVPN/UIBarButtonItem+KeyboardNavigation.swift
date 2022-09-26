@@ -31,7 +31,6 @@ extension UIBarButtonItem {
             }
         }
 
-        @available(iOS 13, *)
         fileprivate var systemImage: UIImage? {
             switch self {
             case .previous:
@@ -47,21 +46,13 @@ extension UIBarButtonItem {
         target: Any?,
         action: Selector?
     ) {
-        if #available(iOS 13, *) {
-            self.init(
-                image: keyboardNavigationItemType.systemImage,
-                style: .plain,
-                target: target,
-                action: action
-            )
-        } else {
-            self.init(
-                title: keyboardNavigationItemType.localizedTitle,
-                style: .plain,
-                target: target,
-                action: action
-            )
-        }
+        self.init(
+            image: keyboardNavigationItemType.systemImage,
+            style: .plain,
+            target: target,
+            action: action
+        )
+
         accessibilityLabel = keyboardNavigationItemType.localizedTitle
     }
 
@@ -82,13 +73,9 @@ extension UIBarButtonItem {
 
         configurationBlock(prevButton, nextButton)
 
-        if #available(iOS 13, *) {
-            let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
-            spacer.width = 8
+        let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        spacer.width = 8
 
-            return [prevButton, spacer, nextButton]
-        } else {
-            return [prevButton, nextButton]
-        }
+        return [prevButton, spacer, nextButton]
     }
 }
