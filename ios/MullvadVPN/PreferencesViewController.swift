@@ -54,12 +54,8 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
         navigationItem.setHidesBackButton(editing, animated: animated)
 
-        if #available(iOS 13.0, *) {
-            // Disable swipe to dismiss when editing
-            isModalInPresentation = editing
-        } else {
-            // no-op
-        }
+        // Disable swipe to dismiss when editing
+        isModalInPresentation = editing
 
         super.setEditing(editing, animated: animated)
     }
