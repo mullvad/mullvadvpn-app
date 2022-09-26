@@ -27,9 +27,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return operationQueue
     }()
 
-    // An instance of scene delegate used on iOS 12 or earlier.
-    private var sceneDelegate: SceneDelegate?
-
     // MARK: - Application lifecycle
 
     func application(
@@ -45,14 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
         #endif
 
-        if #available(iOS 13.0, *) {
-            registerBackgroundTasks()
-        } else {
-            application.setMinimumBackgroundFetchInterval(
-                ApplicationConfiguration.minimumBackgroundFetchInterval
-            )
-        }
-
+        registerBackgroundTasks()
         setupPaymentHandler()
         setupNotificationHandler()
 
@@ -73,13 +63,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         operationQueue.addOperation(setupTunnelManagerOperation)
-
-        if #available(iOS 13, *) {
-            // no-op
-        } else {
-            sceneDelegate = SceneDelegate()
-            sceneDelegate?.setupScene(windowFactory: ClassicWindowFactory())
-        }
 
         return true
     }
@@ -187,7 +170,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - UISceneSession lifecycle
 
-    @available(iOS 13.0, *)
     func application(
         _ application: UIApplication,
         configurationForConnecting connectingSceneSession: UISceneSession,
@@ -204,7 +186,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return sceneConfiguration
     }
 
-    @available(iOS 13.0, *)
     func application(
         _ application: UIApplication,
         didDiscardSceneSessions sceneSessions: Set<UISceneSession>
@@ -216,14 +197,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Background tasks
 
-    @available(iOS 13, *)
     private func registerBackgroundTasks() {
         registerAppRefreshTask()
         registerAddressCacheUpdateTask()
         registerKeyRotationTask()
     }
 
-    @available(iOS 13.0, *)
     private func registerAppRefreshTask() {
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ApplicationConfiguration.appRefreshTaskIdentifier,
@@ -247,7 +226,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    @available(iOS 13.0, *)
     private func registerKeyRotationTask() {
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ApplicationConfiguration.privateKeyRotationTaskIdentifier,
@@ -271,7 +249,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    @available(iOS 13.0, *)
     private func registerAddressCacheUpdateTask() {
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier,
@@ -295,14 +272,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    @available(iOS 13.0, *)
     func scheduleBackgroundTasks() {
         scheduleAppRefreshTask()
         scheduleKeyRotationTask()
         scheduleAddressCacheUpdateTask()
     }
 
-    @available(iOS 13.0, *)
     private func scheduleAppRefreshTask() {
         do {
             let date = RelayCache.Tracker.shared.getNextUpdateDate()
@@ -323,7 +298,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    @available(iOS 13.0, *)
     private func scheduleKeyRotationTask() {
         do {
             guard let date = TunnelManager.shared.getNextKeyRotationDate() else {
@@ -347,7 +321,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    @available(iOS 13.0, *)
     private func scheduleAddressCacheUpdateTask() {
         do {
             let date = AddressCache.Tracker.shared.nextScheduleDate()
@@ -411,14 +384,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             if response.notification.request.identifier == accountExpiryNotificationIdentifier,
                response.actionIdentifier == UNNotificationDefaultActionIdentifier
             {
-                if #available(iOS 13.0, *) {
-                    let sceneDelegate = UIApplication.shared.connectedScenes
-                        .first?.delegate as? SceneDelegate
+                let sceneDelegate = UIApplication.shared.connectedScenes
+                    .first?.delegate as? SceneDelegate
 
-                    sceneDelegate?.showUserAccount()
-                } else {
-                    self.sceneDelegate?.showUserAccount()
-                }
+                sceneDelegate?.showUserAccount()
             }
 
             completionHandler()
