@@ -78,7 +78,7 @@ set -e
 
 echo "Commiting metadata changes to git..."
 
-git commit -S -m "Updating crate versions to $PRODUCT_VERSION" \
+git commit -S -m "Update crate versions to $PRODUCT_VERSION" \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml \
@@ -88,14 +88,14 @@ git commit -S -m "Updating crate versions to $PRODUCT_VERSION" \
     Cargo.lock
 
 if [[ "$DESKTOP" == "true" ]]; then
-    git commit -S -m "Updating version to $PRODUCT_VERSION for desktop" \
+    git commit -S -m "Update desktop app versions to $PRODUCT_VERSION" \
         gui/package.json \
         gui/package-lock.json \
         dist-assets/windows/version.h
 fi
 
 if [[ "$ANDROID" == "true" ]]; then
-    git commit -S -m "Updating version to $PRODUCT_VERSION for Android" \
+    git commit -S -m "Update Android app version to $PRODUCT_VERSION" \
         android/app/build.gradle.kts
 fi
 
