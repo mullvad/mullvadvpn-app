@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		06D76D2128E1E94F0044346D /* InputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843C289D5B3700C3BD27 /* InputFormatter.swift */; };
 		06F0167328DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06F0167228DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift */; };
 		5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
 		5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 5807483A27DB8A980020ECBF /* WireGuardKitTypes */; };
@@ -2173,6 +2174,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
+				PATH = "${PATH}:/opt/homebrew/opt/go@1.19/bin";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -2184,6 +2186,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
+				PATH = "${PATH}:/opt/homebrew/opt/go@1.19/bin";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
