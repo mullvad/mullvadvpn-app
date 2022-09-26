@@ -224,7 +224,7 @@ extension SettingsManager {
                     )
                 } catch {
                     logger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Failed to decode legacy settings."
                     )
                     return nil
@@ -248,7 +248,7 @@ extension SettingsManager {
 
             if error != .itemNotFound {
                 logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to list legacy settings."
                 )
             }
@@ -280,7 +280,7 @@ extension SettingsManager {
                     let error = KeychainError(code: status)
 
                     logger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Failed to remove legacy settings entry \(index)."
                     )
                 }

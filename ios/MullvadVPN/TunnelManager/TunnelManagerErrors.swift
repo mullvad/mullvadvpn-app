@@ -31,7 +31,9 @@ struct InvalidDeviceStateError: LocalizedError {
     }
 }
 
-struct StartTunnelError: LocalizedError {
+struct StartTunnelError: LocalizedError, WrappingError {
+    private let _underlyingError: Error
+
     var errorDescription: String? {
         return NSLocalizedString(
             "START_TUNNEL_ERROR",
@@ -41,13 +43,18 @@ struct StartTunnelError: LocalizedError {
         )
     }
 
-    let underlyingError: Error
+    var underlyingError: Error? {
+        return _underlyingError
+    }
+
     init(underlyingError: Error) {
-        self.underlyingError = underlyingError
+        _underlyingError = underlyingError
     }
 }
 
-struct StopTunnelError: LocalizedError {
+struct StopTunnelError: LocalizedError, WrappingError {
+    private let _underlyingError: Error
+
     var errorDescription: String? {
         return NSLocalizedString(
             "STOP_TUNNEL_ERROR",
@@ -57,8 +64,11 @@ struct StopTunnelError: LocalizedError {
         )
     }
 
-    let underlyingError: Error
+    var underlyingError: Error? {
+        return _underlyingError
+    }
+
     init(underlyingError: Error) {
-        self.underlyingError = underlyingError
+        _underlyingError = underlyingError
     }
 }

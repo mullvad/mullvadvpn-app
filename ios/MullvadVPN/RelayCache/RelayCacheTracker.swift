@@ -104,7 +104,7 @@ extension RelayCache {
                 )
             } catch {
                 logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to read the relay cache during initialization."
                 )
 
@@ -241,7 +241,7 @@ extension RelayCache {
 
             if let error = mappedCompletion.error {
                 logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to update relays."
                 )
             }

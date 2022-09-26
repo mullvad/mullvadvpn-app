@@ -97,7 +97,7 @@ class StartTunnelOperation: ResultOperation<Void, Error> {
             try tunnelOptions.setSelectorResult(selectorResult)
         } catch {
             logger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Failed to encode the selector result."
             )
         }

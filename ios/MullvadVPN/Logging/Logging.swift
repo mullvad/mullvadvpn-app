@@ -70,7 +70,7 @@ func initLoggingSystem(bundleIdentifier: String, metadata: Logger.Metadata? = ni
 
     if let logRotationError = logRotationError {
         Logger(label: "LogRotation").error(
-            chainedError: AnyChainedError(logRotationError),
+            error: logRotationError,
             message: "Failed to rotate log"
         )
     }

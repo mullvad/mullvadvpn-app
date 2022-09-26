@@ -10,7 +10,7 @@ import Foundation
 
 extension REST {
     /// An error type returned by REST API classes.
-    enum Error: ChainedError {
+    enum Error: LocalizedError, WrappingError {
         /// A failure to create URL request.
         case createURLRequest(Swift.Error)
 
@@ -25,10 +25,10 @@ extension REST {
 
         var errorDescription: String? {
             switch self {
-            case .createURLRequest:
-                return "Failure to create URL request."
-            case .network:
-                return "Network error."
+            case let .createURLRequest(error):
+                return "Failure to create URL request: \(error.localizedDescription)."
+            case let .network(error):
+                return "Network error: \(error.localizedDescription)."
             case let .unhandledResponse(statusCode, serverResponse):
                 var str = "Failure to handle server response: HTTP/\(statusCode)."
 
@@ -41,8 +41,21 @@ extension REST {
                 }
 
                 return str
-            case .decodeResponse:
-                return "Failure to decode URL response data."
+            case let .decodeResponse(error):
+                return "Failure to decode URL response data: \(error.localizedDescription)."
+            }
+        }
+
+        var underlyingError: Swift.Error? {
+            switch self {
+            case let .network(error):
+                return error
+            case let .createURLRequest(error):
+                return error
+            case let .decodeResponse(error):
+                return error
+            case .unhandledResponse:
+                return nil
             }
         }
 

@@ -125,7 +125,7 @@ extension REST {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             logger.error(
-                chainedError: error,
+                error: error,
                 message: "Failed to request authorization."
             )
 
@@ -165,7 +165,7 @@ extension REST {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             logger.error(
-                chainedError: error,
+                error: error,
                 message: "Failed to create URLRequest."
             )
 
@@ -188,7 +188,7 @@ extension REST {
             }
 
             logger.error(
-                chainedError: AnyChainedError(urlError),
+                error: urlError,
                 message: "Failed to perform request to \(endpoint)."
             )
 

@@ -38,7 +38,7 @@ final class ShortcutsManager {
             guard let self = self else { return }
             if let error = error {
                 self.logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to fetch voice shortcuts."
                 )
                 return

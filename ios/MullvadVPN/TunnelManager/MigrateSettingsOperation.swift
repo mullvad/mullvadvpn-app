@@ -55,7 +55,7 @@ class MigrateSettingsOperation: AsyncOperation {
             try SettingsManager.setLastUsedAccount(storedAccountNumber)
         } catch {
             logger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Failed to store last used account."
             )
         }
@@ -73,7 +73,7 @@ class MigrateSettingsOperation: AsyncOperation {
             return
         } catch {
             logger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Failed to read legacy settings from keychain."
             )
             finishMigration()
@@ -147,7 +147,7 @@ class MigrateSettingsOperation: AsyncOperation {
             self.accountData = accountData
 
         case let .failure(error):
-            logger.error(chainedError: error, message: "Failed to fetch accound data.")
+            logger.error(error: error, message: "Failed to fetch accound data.")
 
         case .cancelled:
             logger.debug("Account data request was cancelled.")
@@ -163,7 +163,7 @@ class MigrateSettingsOperation: AsyncOperation {
             self.devices = devices
 
         case let .failure(error):
-            logger.error(chainedError: error, message: "Failed to fetch devices.")
+            logger.error(error: error, message: "Failed to fetch devices.")
 
         case .cancelled:
             logger.debug("Device request was cancelled.")
@@ -235,7 +235,7 @@ class MigrateSettingsOperation: AsyncOperation {
             try SettingsManager.writeDeviceState(newDeviceState)
         } catch {
             logger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Failed to write migrated settings."
             )
         }
