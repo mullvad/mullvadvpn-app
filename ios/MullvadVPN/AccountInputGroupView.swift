@@ -330,14 +330,9 @@ class AccountInputGroupView: UIView {
         if let accountNumber = accountNumber {
             let formattedNumber = StringFormatter.formattedAccountNumber(from: accountNumber)
 
-            var attributes: [NSAttributedString.Key: Any]?
-            if #available(iOS 13.0, *) {
-                attributes = [.accessibilitySpeechSpellOut: true]
-            }
-
             lastUsedAccountButton.accessibilityAttributedValue = NSAttributedString(
                 string: accountNumber,
-                attributes: attributes
+                attributes: [.accessibilitySpeechSpellOut: true]
             )
 
             UIView.performWithoutAnimation {
