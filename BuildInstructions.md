@@ -1,5 +1,5 @@
-These are instructions on how to build the app on desktop platforms. For instructions on how to
-build the Android app, see [here](./android/README.md).
+These are instructions on how to build the app on desktop platforms. See the
+[readme](./README.md#building-the-app) for help build building on other platforms.
 
 # Install toolchains and dependencies
 
