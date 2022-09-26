@@ -66,9 +66,7 @@ class NotificationBannerView: UIView {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .dangerColor
         view.layer.cornerRadius = NotificationBannerView.indicatorViewSize.width * 0.5
-        if #available(iOS 13.0, *) {
-            view.layer.cornerCurve = .circular
-        }
+        view.layer.cornerCurve = .circular
         return view
     }()
 
