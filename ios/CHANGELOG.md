@@ -46,7 +46,7 @@ with the option to buy more time.
 - Fix animation glitch when expanding partially visible cell in location picker.
 
 ## Removed
-- Removed iOS 12 support.
+- Remove iOS 12 support.
 
 
 ## [2022.2] - 2022-04-28
