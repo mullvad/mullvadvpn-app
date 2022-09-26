@@ -49,7 +49,16 @@ EOM
 )
 
 ZSH_COMPLETIONS_DIR="/usr/local/share/zsh/site-functions/"
-FISH_COMPLETIONS_DIR="/usr/local/share/fish/vendor_completions.d/"
+
+BREW_PREFIX=$(brew --prefix)
+if [[ "$?" -eq 0 ]]; then
+    FISH_COMPLETIONS_DIR="${BREW_PREFIX}/share/fish/vendor_completions.d/"
+    if [[ ! -d "$FISH_COMPLETIONS_DIR" ]]; then
+        FISH_COMPLETIONS_DIR="/usr/local/share/fish/vendor_completions.d/"
+    fi
+else
+    FISH_COMPLETIONS_DIR="/usr/local/share/fish/vendor_completions.d/"
+fi
 
 launchctl unload -w $DAEMON_PLIST_PATH
 cp "$LOG_DIR/daemon.log" "$LOG_DIR/old-install-daemon.log" \
@@ -66,9 +75,9 @@ mkdir -p /usr/local/bin
 ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad" /usr/local/bin/mullvad
 ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-problem-report" /usr/local/bin/mullvad-problem-report
 
-if [ -d "$FISH_COMPLETIONS_DIR" ]; then
-    ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad.fish" $FISH_COMPLETIONS_DIR
-fi
-
 mkdir -p "$ZSH_COMPLETIONS_DIR"
 ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/_mullvad" "$ZSH_COMPLETIONS_DIR/_mullvad"
+
+if [[ -d "$FISH_COMPLETIONS_DIR" ]]; then
+    ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad.fish" "$FISH_COMPLETIONS_DIR/mullvad.fish"
+fi
