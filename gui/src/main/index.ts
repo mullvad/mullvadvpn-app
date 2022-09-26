@@ -938,7 +938,6 @@ class ApplicationMain
       this.settings.splitTunnel.enableExclusions && this.settings.splitTunnel.appsList.length > 0,
       this.userInterface?.isWindowVisible() ?? false,
       this.settings.gui.enableSystemNotifications,
-      this.account.accountData?.expiry,
     );
 
     IpcMainEventChannel.tunnel.notify?.(tunnelState);
