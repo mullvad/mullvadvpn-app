@@ -47,7 +47,7 @@ class RedeemVoucherContentView: UIView {
 
     let inputTextField: VoucherTextField = {
         let textField = VoucherTextField()
-        textField.font = UIFont.backport_monospacedSystemFont(ofSize: 20, weight: .regular)
+        textField.font = UIFont.monospacedSystemFont(ofSize: 20, weight: .regular)
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "XXXX-XXXX-XXXX-XXXX"
         textField.placeholderTextColor = .lightGray
