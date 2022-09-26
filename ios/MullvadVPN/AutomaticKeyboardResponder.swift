@@ -171,7 +171,9 @@ extension AutomaticKeyboardResponder {
         self.init(targetView: targetView) { scrollView, offset in
             if scrollView.canBecomeFirstResponder {
                 scrollView.contentInset.bottom = targetView.isFirstResponder ? offset : 0
-                scrollView.verticalScrollIndicatorInsets.bottom = targetView.isFirstResponder ? offset : 0
+                scrollView.verticalScrollIndicatorInsets.bottom = targetView.isFirstResponder
+                    ? offset
+                    : 0
             } else {
                 scrollView.contentInset.bottom = offset
                 scrollView.verticalScrollIndicatorInsets.bottom = offset
