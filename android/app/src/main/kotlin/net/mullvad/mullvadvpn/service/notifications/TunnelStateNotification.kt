@@ -10,6 +10,7 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.util.SdkUtils
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class TunnelStateNotification(val context: Context) {
@@ -85,10 +86,12 @@ class TunnelStateNotification(val context: Context) {
         val intent = Intent(context, MainActivity::class.java)
             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             .setAction(Intent.ACTION_MAIN)
-
-        val pendingIntent =
-            PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            1,
+            intent,
+            SdkUtils.getSupportedPendingIntentFlags()
+        )
         val actions = if (showAction) {
             listOf(buildAction())
         } else {
@@ -101,11 +104,13 @@ class TunnelStateNotification(val context: Context) {
     private fun buildAction(): NotificationCompat.Action {
         val action = TunnelStateNotificationAction.from(tunnelState)
         val label = context.getString(action.text)
-
         val intent = Intent(action.key).setPackage("net.mullvad.mullvadvpn")
-        val flags = PendingIntent.FLAG_UPDATE_CURRENT
-
-        val pendingIntent = PendingIntent.getForegroundService(context, 1, intent, flags)
+        val pendingIntent = PendingIntent.getForegroundService(
+            context,
+            1,
+            intent,
+            SdkUtils.getSupportedPendingIntentFlags()
+        )
 
         return NotificationCompat.Action(action.icon, label, pendingIntent)
     }

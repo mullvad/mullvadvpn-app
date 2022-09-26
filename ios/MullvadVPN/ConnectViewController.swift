@@ -534,7 +534,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
             contentView.mapView.addOverlays(overlays, level: .aboveLabels)
         } catch {
-            logger.error(chainedError: AnyChainedError(error), message: "Failed to load geojson.")
+            logger.error(error: error, message: "Failed to load geojson.")
         }
     }
 }

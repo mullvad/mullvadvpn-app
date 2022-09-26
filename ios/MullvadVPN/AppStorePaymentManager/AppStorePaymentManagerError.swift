@@ -10,7 +10,7 @@ import Foundation
 
 extension AppStorePaymentManager {
     /// An error type emitted by `AppStorePaymentManager`.
-    enum Error: ChainedError {
+    enum Error: LocalizedError, WrappingError {
         /// Failure to find the account token associated with the transaction.
         case noAccountSet
 
@@ -29,15 +29,30 @@ extension AppStorePaymentManager {
         var errorDescription: String? {
             switch self {
             case .noAccountSet:
-                return "Account is not set"
+                return "Account is not set."
             case .validateAccount:
-                return "Account validation error"
+                return "Account validation error."
             case .storePayment:
-                return "Store payment error"
+                return "Store payment error."
             case .readReceipt:
-                return "Read recept error"
+                return "Read recept error."
             case .sendReceipt:
-                return "Send receipt error"
+                return "Send receipt error."
+            }
+        }
+
+        var underlyingError: Swift.Error? {
+            switch self {
+            case .noAccountSet:
+                return nil
+            case let .sendReceipt(error):
+                return error
+            case let .validateAccount(error):
+                return error
+            case let .readReceipt(error):
+                return error
+            case let .storePayment(error):
+                return error
             }
         }
     }

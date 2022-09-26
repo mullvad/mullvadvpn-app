@@ -248,7 +248,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
             case let .failure(error):
                 self.logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to delete device."
                 )
                 completionHandler(error)

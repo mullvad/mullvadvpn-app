@@ -124,7 +124,7 @@ class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationP
                     value: "Failed to start the tunnel: %@.",
                     comment: ""
                 ),
-                startError.underlyingError.localizedDescription
+                startError.underlyingError?.localizedDescription ?? ""
             )
         } else if let stopError = error as? StopTunnelError {
             body = String(
@@ -133,7 +133,7 @@ class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationP
                     value: "Failed to stop the tunnel: %@.",
                     comment: ""
                 ),
-                stopError.underlyingError.localizedDescription
+                stopError.underlyingError?.localizedDescription ?? ""
             )
         } else {
             body = error.localizedDescription

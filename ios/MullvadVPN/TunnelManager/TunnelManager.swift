@@ -212,7 +212,7 @@ final class TunnelManager {
 
             if case let .failure(error) = completion {
                 self.logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to load configuration."
                 )
             }
@@ -261,7 +261,7 @@ final class TunnelManager {
                 DispatchQueue.main.async {
                     if let error = completion.error {
                         self.logger.error(
-                            chainedError: AnyChainedError(error),
+                            error: error,
                             message: "Failed to start the tunnel."
                         )
 
@@ -293,7 +293,7 @@ final class TunnelManager {
             DispatchQueue.main.async {
                 if let error = completion.error {
                     self.logger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Failed to stop the tunnel."
                     )
 
@@ -651,7 +651,7 @@ final class TunnelManager {
                 try SettingsManager.writeSettings(settings)
             } catch {
                 logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to write settings."
                 )
             }
@@ -679,7 +679,7 @@ final class TunnelManager {
                 try SettingsManager.writeDeviceState(deviceState)
             } catch {
                 logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to write device state."
                 )
             }
@@ -730,7 +730,7 @@ final class TunnelManager {
 
         if let error = completion.error {
             logger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Failed to reconnect the tunnel."
             )
         }

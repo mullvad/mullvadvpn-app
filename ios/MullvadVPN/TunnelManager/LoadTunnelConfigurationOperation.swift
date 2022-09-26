@@ -51,7 +51,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {
             tunnel.removeFromPreferences { error in
                 if let error = error {
                     self.logger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Failed to remove VPN configuration."
                     )
                 }
@@ -78,14 +78,14 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {
                     return .success(nil)
                 } else if let error = error as? DecodingError {
                     logger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Cannot decode settings. Will attempt to delete them from keychain."
                     )
 
                     return Result { try SettingsManager.deleteSettings() }
                         .mapError { error in
                             logger.error(
-                                chainedError: AnyChainedError(error),
+                                error: error,
                                 message: "Failed to delete settings from keychain."
                             )
 
@@ -109,14 +109,14 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {
                     return .success(nil)
                 } else if let error = error as? DecodingError {
                     logger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Cannot decode device state. Will attempt to delete it from keychain."
                     )
 
                     return Result { try SettingsManager.deleteDeviceState() }
                         .mapError { error in
                             logger.error(
-                                chainedError: AnyChainedError(error),
+                                error: error,
                                 message: "Failed to delete device state from keychain."
                             )
 

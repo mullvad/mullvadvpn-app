@@ -112,7 +112,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         } catch {
             providerLogger.debug("Start the tunnel via app.")
             providerLogger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: """
                 Failed to decode relay selector result passed from the app. \
                 Will continue by picking new relay.
@@ -128,7 +128,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             tunnelConfiguration = try makeConfiguration(initialRelay)
         } catch {
             providerLogger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Failed to start the tunnel."
             )
 
@@ -148,7 +148,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             self.dispatchQueue.async {
                 if let error = error {
                     self.providerLogger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Failed to start the tunnel."
                     )
 
@@ -186,7 +186,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             self.dispatchQueue.async {
                 if let error = error {
                     self.providerLogger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Failed to stop the tunnel gracefully."
                     )
                 } else {
@@ -204,7 +204,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 message = try TunnelProviderMessage(messageData: messageData)
             } catch {
                 self.providerLogger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to decode the app message."
                 )
 
@@ -231,7 +231,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                     response = try TunnelProviderReply(self.packetTunnelStatus).encode()
                 } catch {
                     self.providerLogger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Failed to encode tunnel status reply."
                     )
                 }
@@ -335,7 +335,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             tunnelConfiguration = try makeConfiguration(nextRelay)
         } catch {
             providerLogger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Failed produce new configuration."
             )
             completionHandler?()
@@ -358,7 +358,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
                 if let error = error {
                     self.providerLogger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Failed to update WireGuard configuration."
                     )
 

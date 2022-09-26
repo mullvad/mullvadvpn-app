@@ -143,7 +143,7 @@ extension AddressCache {
 
             case let .failure(error):
                 logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to update address cache."
                 )
 

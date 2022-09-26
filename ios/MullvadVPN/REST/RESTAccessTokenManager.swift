@@ -49,7 +49,7 @@ extension REST {
 
                         case let .failure(error):
                             self.logger.error(
-                                chainedError: error,
+                                error: error,
                                 message: "Failed to fetch access token."
                             )
 

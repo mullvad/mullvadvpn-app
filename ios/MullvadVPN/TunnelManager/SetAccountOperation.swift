@@ -204,7 +204,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
             let task = self.accountsProxy.createAccount(retryStrategy: .default) { completion in
                 let mappedCompletion = completion.mapError { error -> Error in
                     self.logger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Failed to create new account."
                     )
                     return error
@@ -243,7 +243,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
             ) { completion in
                 let mappedCompletion = completion.mapError { error -> Error in
                     self.logger.error(
-                        chainedError: AnyChainedError(error),
+                        error: error,
                         message: "Failed to receive account data."
                     )
                     return error
@@ -286,7 +286,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
                 let mappedCompletion = completion
                     .mapError { error -> Error in
                         self.logger.error(
-                            chainedError: AnyChainedError(error),
+                            error: error,
                             message: "Failed to delete device."
                         )
                         return error
@@ -333,7 +333,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
                     // Ignore error but log it.
                     if let error = error {
                         self.logger.error(
-                            chainedError: AnyChainedError(error),
+                            error: error,
                             message: "Failed to remove VPN configuration."
                         )
                     }
@@ -362,7 +362,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
                 try SettingsManager.setLastUsedAccount(storedAccountData.number)
             } catch {
                 self.logger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to store last used account number."
                 )
             }
@@ -386,7 +386,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
                         return (privateKey, device)
                     }
                     .mapError { error -> Error in
-                        self.logger.error(chainedError: error, message: "Failed to create device.")
+                        self.logger.error(error: error, message: "Failed to create device.")
                         return error
                     }
 

@@ -107,7 +107,7 @@ class RotateKeyOperation: ResultOperation<Bool, Error> {
 
         case let .failure(error):
             logger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Failed to rotate device key."
             )
             finish(completion: .failure(error))

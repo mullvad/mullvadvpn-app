@@ -1,12 +1,12 @@
 package net.mullvad.talpid
 
 import android.net.VpnService
-import android.os.Build
 import android.os.ParcelFileDescriptor
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
+import net.mullvad.mullvadvpn.util.SdkUtils.setMeteredIfSupported
 import net.mullvad.talpid.tun_provider.TunConfig
 
 open class TalpidVpnService : VpnService() {
@@ -115,13 +115,9 @@ open class TalpidVpnService : VpnService() {
                     addDisallowedApplication(app)
                 }
             }
-
-            if (Build.VERSION.SDK_INT >= 29) {
-                setMetered(false)
-            }
-
             setMtu(config.mtu)
             setBlocking(false)
+            setMeteredIfSupported(false)
         }
 
         val vpnInterface = builder.establish()

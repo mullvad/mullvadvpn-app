@@ -288,7 +288,7 @@ final class TunnelMonitor: PingerDelegate {
 
     func pinger(_ pinger: Pinger, didFailWithError error: Error) {
         logger.error(
-            chainedError: AnyChainedError(error),
+            error: error,
             message: "Failed to parse ICMP response."
         )
     }
@@ -436,7 +436,7 @@ final class TunnelMonitor: PingerDelegate {
 
             logger.debug("Send ping icmp_seq=\(sendResult.sequenceNumber).")
         } catch {
-            logger.error(chainedError: AnyChainedError(error), message: "Failed to send ping.")
+            logger.error(error: error, message: "Failed to send ping.")
         }
     }
 
@@ -500,7 +500,7 @@ final class TunnelMonitor: PingerDelegate {
 
             try pinger.openSocket(bindTo: interfaceName)
         } catch {
-            logger.error(chainedError: AnyChainedError(error), message: "Failed to open socket.")
+            logger.error(error: error, message: "Failed to open socket.")
             return
         }
 

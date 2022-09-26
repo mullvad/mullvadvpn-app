@@ -236,7 +236,7 @@ class LoginViewController: UIViewController, RootContainment {
             contentView.accountInputGroup.setLastUsedAccount(accountNumber, animated: false)
         } catch {
             logger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Failed to update last used account."
             )
         }
@@ -423,7 +423,7 @@ extension LoginViewController: AccountInputGroupViewDelegate {
             return true
         } catch {
             logger.error(
-                chainedError: AnyChainedError(error),
+                error: error,
                 message: "Failed to remove last used account."
             )
             return false

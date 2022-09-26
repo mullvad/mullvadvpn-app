@@ -145,7 +145,7 @@ class NotificationManager: NotificationProviderDelegate {
                 notificationCenter.add(newRequest) { error in
                     if let error = error {
                         self.logger.error(
-                            chainedError: AnyChainedError(error),
+                            error: error,
                             message: "Failed to add notification request with identifier \(newRequest.identifier)."
                         )
                     }
@@ -174,7 +174,7 @@ class NotificationManager: NotificationProviderDelegate {
                     .requestAuthorization(options: authorizationOptions) { granted, error in
                         if let error = error {
                             self.logger.error(
-                                chainedError: AnyChainedError(error),
+                                error: error,
                                 message: "Failed to obtain user notifications authorization"
                             )
                         }

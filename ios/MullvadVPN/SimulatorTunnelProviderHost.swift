@@ -31,7 +31,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                 selectorResult = try tunnelOptions.getSelectorResult()
             } catch {
                 self.providerLogger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: """
                     Failed to decode relay selector result passed from the app. \
                     Will continue by picking new relay.
@@ -45,7 +45,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                 completionHandler(nil)
             } catch {
                 self.providerLogger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to pick relay."
                 )
                 completionHandler(error)
@@ -72,7 +72,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                 completionHandler?(response)
             } catch {
                 self.providerLogger.error(
-                    chainedError: AnyChainedError(error),
+                    error: error,
                     message: "Failed to handle app message."
                 )
 

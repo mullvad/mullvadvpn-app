@@ -52,7 +52,7 @@ class UpdateAccountDataOperation: ResultOperation<Void, Error> {
     ) {
         let mappedCompletion = completion.mapError { error -> Error in
             self.logger.error(
-                chainedError: error,
+                error: error,
                 message: "Failed to fetch account expiry."
             )
             return error

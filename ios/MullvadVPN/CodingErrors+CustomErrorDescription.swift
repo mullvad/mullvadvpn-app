@@ -1,5 +1,5 @@
 //
-//  CodingErrors+ChainedError.swift
+//  CodingErrors+CustomErrorDescription.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 17/02/2022.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension DecodingError: CustomChainedErrorDescriptionProtocol {
+extension DecodingError: CustomErrorDescriptionProtocol {
     var customErrorDescription: String? {
         switch self {
         case let .typeMismatch(type, context):
@@ -29,7 +29,7 @@ extension DecodingError: CustomChainedErrorDescriptionProtocol {
     }
 }
 
-extension EncodingError: CustomChainedErrorDescriptionProtocol {
+extension EncodingError: CustomErrorDescriptionProtocol {
     var customErrorDescription: String? {
         switch self {
         case let .invalidValue(_, context):
