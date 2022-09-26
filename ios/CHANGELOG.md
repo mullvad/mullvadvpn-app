@@ -45,6 +45,9 @@ with the option to buy more time.
 - Fix invalid map camera position during the app launch and keep it up to date when multitasking.
 - Fix animation glitch when expanding partially visible cell in location picker.
 
+## Removed
+- Removed iOS 12 support.
+
 
 ## [2022.2] - 2022-04-28
 ### Added
