@@ -56,12 +56,6 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
         pushViewController(makeViewController(for: .root), animated: false)
     }
 
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        // This initializer exists to prevent crash on iOS 12.
-        // See: https://stackoverflow.com/a/38335090/351305
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
