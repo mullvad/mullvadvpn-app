@@ -270,11 +270,12 @@ via unix domain sockets (UDS) on Linux and macOS and via named pipes on Windows.
 This management interface can be reached by any process running on the device.
 Locally running malicious programs are outside of the app's threat model.
 
-The service transitions to the [disconnected] state before exiting (i.e., normally when the OS is
-being shut down). In general, the last firewall policy is maintained when the service exits, and
-lost upon a reboot (except on Windows, see below). In other words, if the "Always require VPN"
-option is enabled, the blocking policy will be left intact when the daemon service stops.
-Otherwise, the system firewall will be reset to its original state.
+To limit leaks during shutdown, the service will transition to the
+[disconnected] state before exiting, but it will maintain the blocking policy if
+the currently applied policy is blocking or if the daemon should auto-connect on
+startup, unless it can detect that the shutdown was initiated by the user. If
+the user has enabled "Always require VPN", the daemon will always maintain the
+blocking policy when the service exits.
 
 ### Windows
 
@@ -284,6 +285,12 @@ the service has started back up again during boot, including before the BFE serv
 
 As with "Always require VPN", enabling "Auto-connect" in the service will cause it to
 enforce the blocking policy before being stopped.
+
+### Linux
+Due to the dependence on various other services, the system service is not
+started early enough to prevent leaks. To aid this, another system unit is
+started during early boot that applies a blocking policy that persists until the
+system service is started.
 
 ## Desktop Electron GUI
 
