@@ -18,23 +18,6 @@ class CustomNavigationBar: UINavigationBar {
         .foregroundColor: UIColor.NavigationBar.backButtonTitleColor,
     ]
 
-    private static let setupAppearanceForIOS12Once: Void = {
-        if #available(iOS 13, *) {
-            // no-op
-        } else {
-            let buttonAppearance = UIBarButtonItem
-                .appearance(whenContainedInInstancesOf: [CustomNavigationBar.self])
-            buttonAppearance.setBackButtonTitlePositionAdjustment(
-                CustomNavigationBar.backButtonTitlePositionOffset,
-                for: .default
-            )
-            buttonAppearance.setTitleTextAttributes(
-                CustomNavigationBar.titleTextAttributes,
-                for: .normal
-            )
-        }
-    }()
-
     private let customBackIndicatorImage = UIImage(named: "IconBack")?
         .backport_withTintColor(
             UIColor.NavigationBar.backButtonIndicatorColor,
@@ -62,8 +45,6 @@ class CustomNavigationBar: UINavigationBar {
     }
 
     override init(frame: CGRect) {
-        Self.setupAppearanceForIOS12Once
-
         super.init(frame: frame)
 
         var margins = layoutMargins
@@ -83,21 +64,10 @@ class CustomNavigationBar: UINavigationBar {
         backgroundColor = UIColor.NavigationBar.backgroundColor
         isTranslucent = false
 
-        if #available(iOS 13, *) {
-            standardAppearance = makeNavigationBarAppearance()
-            scrollEdgeAppearance = makeNavigationBarAppearance()
-        } else {
-            backIndicatorImage = customBackIndicatorImage
-            backIndicatorTransitionMaskImage = customBackIndicatorTransitionMask
-            barTintColor = UIColor.NavigationBar.backgroundColor
-
-            titleTextAttributes = Self.titleTextAttributes
-            largeTitleTextAttributes = Self.titleTextAttributes
-            shadowImage = UIImage()
-        }
+        standardAppearance = makeNavigationBarAppearance()
+        scrollEdgeAppearance = makeNavigationBarAppearance()
     }
 
-    @available(iOS 13, *)
     private func makeNavigationBarAppearance() -> UINavigationBarAppearance {
         let navigationBarAppearance = UINavigationBarAppearance()
         navigationBarAppearance.configureWithTransparentBackground()
