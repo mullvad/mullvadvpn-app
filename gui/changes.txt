@@ -1,5 +1,5 @@
-[linux] Stop potential leaks during computer start and shutdown. Applies strict firewall rules on early boot, and leaves blocking rules in place during shutdown.
-[macos, windows] Stop potential leaks during computer shutdown. Leaves blocking firewall rules in place when exiting shutdown.
+[linux] Stop potential leaks during computer start and shutdown.
+[macos, windows] Stop potential leaks during computer shutdown.
 The VPN is no longer disconnected when the app's frontend is being terminated by a user logout or similar.
 Enable running WireGuard over TCP. Intended to enable tunnels to work where UDP is blocked.
 Allow more multicast network addresses when "Local network sharing" is enabled. Should allow some local discovery protocols to find other devices.
