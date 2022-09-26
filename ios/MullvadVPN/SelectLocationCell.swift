@@ -18,9 +18,7 @@ class SelectLocationCell: UITableViewCell {
     let statusIndicator: UIView = {
         let view = UIView()
         view.layer.cornerRadius = kRelayIndicatorSize * 0.5
-        if #available(iOS 13.0, *) {
-            view.layer.cornerCurve = .circular
-        }
+        view.layer.cornerCurve = .circular
         return view
     }()
 
