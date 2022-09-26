@@ -17,22 +17,6 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate 
     private let alertPresenter = AlertPresenter()
     private let formsheetTransitioningDelegate = FormsheetTransitioningDelegate()
 
-    private lazy var modalNavigationController: UINavigationController = {
-        let voucherViewController = RedeemVoucherViewController()
-        voucherViewController.delegate = self
-        let navigationController = UINavigationController(rootViewController: voucherViewController)
-        navigationController.isNavigationBarHidden = true
-        navigationController.transitioningDelegate = formsheetTransitioningDelegate
-        navigationController.modalPresentationStyle = .custom
-        navigationController.preferredContentSize = CGSize(
-            width: view.frame.width - UIMetrics.contentLayoutMargins.left,
-            height: 300
-        )
-        navigationController.view.layer.cornerRadius = 16
-
-        return navigationController
-    }()
-
     private var tunnelState: TunnelState = .disconnected
     private var productState: ProductState = .none
     private var paymentState: PaymentState = .none
@@ -61,6 +45,25 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate 
         setUpInAppPurchases()
         addObservers()
         setTunnelState(TunnelManager.shared.tunnelStatus.state, animated: false)
+    }
+
+    /// Used to create RedeemVoucherViewController to present it for user.
+    /// - Warning: It generates a new NavigationController every time.
+    /// - Returns: UINavigationController that has RedeemVoucherViewController as it root view controller.
+    private func getRedeemVoucherWithNavigationController() -> UINavigationController {
+        let voucherViewController = RedeemVoucherViewController()
+        voucherViewController.delegate = self
+        let navigationController = UINavigationController(rootViewController: voucherViewController)
+        navigationController.isNavigationBarHidden = true
+        navigationController.transitioningDelegate = formsheetTransitioningDelegate
+        navigationController.modalPresentationStyle = .custom
+        navigationController.preferredContentSize = CGSize(
+            width: view.frame.width - UIMetrics.contentLayoutMargins.left,
+            height: 300
+        )
+        navigationController.view.layer.cornerRadius = 16
+
+        return navigationController
     }
 }
 
@@ -126,7 +129,7 @@ private extension OutOfTimeViewController {
     }
 
     @objc func didTapRedeemVoucher() {
-        present(modalNavigationController, animated: true)
+        present(getRedeemVoucherWithNavigationController(), animated: true)
     }
 
     func transitionToNextView() {
