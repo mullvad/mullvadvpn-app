@@ -129,7 +129,7 @@ class SceneDelegate: UIResponder {
 
     @objc private func sceneDidEnterBackground() {
         let appDelegate = UIApplication.shared.delegate as? AppDelegate
-        
+
         appDelegate?.scheduleBackgroundTasks()
     }
 }
