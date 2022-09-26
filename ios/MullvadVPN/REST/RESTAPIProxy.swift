@@ -82,7 +82,7 @@ extension REST {
                                 from: data
                             )
                             let newEtag = response
-                                .value(forCaseInsensitiveHTTPHeaderField: HTTPHeader.etag)
+                                .value(forHTTPHeaderField: HTTPHeader.etag)
 
                             return .newContent(newEtag, serverRelays)
                         }
