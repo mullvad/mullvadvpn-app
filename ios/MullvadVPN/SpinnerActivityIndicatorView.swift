@@ -104,14 +104,11 @@ class SpinnerActivityIndicatorView: UIView {
     }
 
     private func registerSceneActivationObserver() {
-        let name: NSNotification.Name = UIScene.willEnterForegroundNotification
-        var object: Any? = window?.windowScene
-
         unregisterSceneActivationObserver()
 
         sceneActivationObserver = NotificationCenter.default.addObserver(
-            forName: name,
-            object: object,
+            forName: UIScene.willEnterForegroundNotification,
+            object: window?.windowScene,
             queue: .main, using: { [weak self] _ in
                 self?.restartAnimationIfNeeded()
             }
