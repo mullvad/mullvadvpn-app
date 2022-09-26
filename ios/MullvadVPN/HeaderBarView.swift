@@ -77,9 +77,7 @@ class HeaderBarView: UIView {
             right: UIMetrics.contentLayoutMargins.right
         )
 
-        if #available(iOS 13.0, *) {
-            accessibilityContainerType = .semanticGroup
-        }
+        accessibilityContainerType = .semanticGroup
 
         let imageSize = brandNameImage?.size ?? .zero
         let brandNameAspectRatio = imageSize.width / max(imageSize.height, 1)
