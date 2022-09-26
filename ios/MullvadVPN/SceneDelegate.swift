@@ -30,12 +30,6 @@ class SceneDelegate: UIResponder {
     private var accountDataThrottling = AccountDataThrottling()
     private var outOfTimeTimer: Timer?
 
-    override init() {
-        super.init()
-
-        addSceneEvents()
-    }
-
     deinit {
         clearOutOfTimeTimer()
     }
@@ -103,33 +97,6 @@ class SceneDelegate: UIResponder {
         } else {
             privacyOverlayWindow?.isHidden = true
             window?.makeKeyAndVisible()
-        }
-    }
-
-    private func addSceneEvents() {
-        if #available(iOS 13, *) {
-            // no-op
-        } else {
-            let notificationCenter = NotificationCenter.default
-
-            notificationCenter.addObserver(
-                self,
-                selector: #selector(sceneDidBecomeActive),
-                name: UIApplication.didBecomeActiveNotification,
-                object: nil
-            )
-            notificationCenter.addObserver(
-                self,
-                selector: #selector(sceneDidEnterBackground),
-                name: UIApplication.didEnterBackgroundNotification,
-                object: nil
-            )
-            notificationCenter.addObserver(
-                self,
-                selector: #selector(sceneWillResignActive),
-                name: UIApplication.willResignActiveNotification,
-                object: nil
-            )
         }
     }
 
