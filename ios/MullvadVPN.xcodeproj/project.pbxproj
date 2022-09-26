@@ -118,7 +118,6 @@
 		58554F7D280D6FE000013055 /* RESTURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F7C280D6FE000013055 /* RESTURLSession.swift */; };
 		58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
-		5856D13727450A8A00DFD627 /* UIImage+TintColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5856D13627450A8A00DFD627 /* UIImage+TintColor.swift */; };
 		5857F23424C8443700CF6F47 /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E973DD24850EB600096F90 /* AsyncOperation.swift */; };
 		5857F23824C8446700CF6F47 /* AsyncBlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */; };
 		5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */; };
@@ -1810,7 +1809,6 @@
 				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MullvadVPN/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1835,7 +1833,6 @@
 				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MullvadVPN/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
