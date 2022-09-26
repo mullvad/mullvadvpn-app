@@ -1,9 +1,13 @@
 import { sprintf } from 'sprintf-js';
 
 import { strings } from '../../config.json';
-import { hasExpired } from '../account-expiry';
-import { AuthFailureKind, parseAuthFailure } from '../auth-failure';
-import { IErrorState, TunnelParameterError, TunnelState } from '../daemon-rpc-types';
+import {
+  AuthFailedError,
+  ErrorState,
+  ErrorStateCause,
+  TunnelParameterError,
+  TunnelState,
+} from '../daemon-rpc-types';
 import { messages } from '../gettext';
 import {
   InAppNotification,
@@ -13,7 +17,6 @@ import {
 
 interface ErrorNotificationContext {
   tunnelState: TunnelState;
-  accountExpiry?: string;
   hasExcludedApps: boolean;
 }
 
@@ -25,8 +28,8 @@ export class ErrorNotificationProvider
 
   public getSystemNotification() {
     if (this.context.tunnelState.state === 'error') {
-      let message = getMessage(this.context.tunnelState.details, this.context.accountExpiry);
-      if (!this.context.tunnelState.details.blockFailure && this.context.hasExcludedApps) {
+      let message = getMessage(this.context.tunnelState.details);
+      if (!this.context.tunnelState.details.blockingError && this.context.hasExcludedApps) {
         message = `${message} ${sprintf(
           messages.pgettext(
             'notifications',
@@ -38,7 +41,7 @@ export class ErrorNotificationProvider
 
       return {
         message,
-        critical: !!this.context.tunnelState.details.blockFailure,
+        critical: !!this.context.tunnelState.details.blockingError,
       };
     } else {
       return undefined;
@@ -47,8 +50,8 @@ export class ErrorNotificationProvider
 
   public getInAppNotification(): InAppNotification | undefined {
     if (this.context.tunnelState.state === 'error') {
-      let subtitle = getMessage(this.context.tunnelState.details, this.context.accountExpiry);
-      if (!this.context.tunnelState.details.blockFailure && this.context.hasExcludedApps) {
+      let subtitle = getMessage(this.context.tunnelState.details);
+      if (!this.context.tunnelState.details.blockingError && this.context.hasExcludedApps) {
         subtitle = `${subtitle} ${sprintf(
           messages.pgettext(
             'notifications',
@@ -60,10 +63,12 @@ export class ErrorNotificationProvider
 
       return {
         indicator:
-          this.context.tunnelState.details.cause.reason === 'is_offline' ? 'warning' : 'error',
-        title: !this.context.tunnelState.details.blockFailure
-          ? messages.pgettext('in-app-notifications', 'BLOCKING INTERNET')
-          : messages.pgettext('in-app-notifications', 'NETWORK TRAFFIC MIGHT BE LEAKING'),
+          this.context.tunnelState.details.cause === ErrorStateCause.isOffline
+            ? 'warning'
+            : 'error',
+        title: this.context.tunnelState.details.blockingError
+          ? messages.pgettext('in-app-notifications', 'NETWORK TRAFFIC MIGHT BE LEAKING')
+          : messages.pgettext('in-app-notifications', 'BLOCKING INTERNET'),
         subtitle,
       };
     } else {
@@ -72,9 +77,9 @@ export class ErrorNotificationProvider
   }
 }
 
-function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
-  if (errorDetails.blockFailure) {
-    if (errorDetails.cause.reason === 'set_firewall_policy_error') {
+function getMessage(errorState: ErrorState): string {
+  if (errorState.blockingError) {
+    if (errorState.cause === ErrorStateCause.setFirewallPolicyError) {
       switch (process.platform ?? window.env.platform) {
         case 'win32':
           return messages.pgettext(
@@ -94,28 +99,37 @@ function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
       'Unable to block all network traffic. Please troubleshoot or contact support.',
     );
   } else {
-    switch (errorDetails.cause.reason) {
-      case 'auth_failed': {
-        const authFailure = parseAuthFailure(errorDetails.cause.details);
-        if (
-          authFailure.kind === AuthFailureKind.unknown &&
-          accountExpiry &&
-          hasExpired(accountExpiry)
-        ) {
-          return messages.pgettext(
-            'auth-failure',
-            'You are logged in with an invalid account number. Please log out and try another one.',
-          );
-        } else {
-          return authFailure.message;
+    switch (errorState.cause) {
+      case ErrorStateCause.authFailed:
+        switch (errorState.authFailedError) {
+          case AuthFailedError.invalidAccount:
+            return messages.pgettext(
+              'auth-failure',
+              'You are logged in with an invalid account number. Please log out and try another one.',
+            );
+
+          case AuthFailedError.expiredAccount:
+            return messages.pgettext('auth-failure', 'Blocking internet: account is out of time');
+
+          case AuthFailedError.tooManyConnections:
+            return messages.pgettext(
+              'auth-failure',
+              'Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly.',
+            );
+
+          case AuthFailedError.unknown:
+          default:
+            return messages.pgettext(
+              'auth-failure',
+              'Unable to authenticate account. Please contact support.',
+            );
         }
-      }
-      case 'ipv6_unavailable':
+      case ErrorStateCause.ipv6Unavailable:
         return messages.pgettext(
           'notifications',
           'Could not configure IPv6. Disable it in the app or enable it on your device.',
         );
-      case 'set_firewall_policy_error':
+      case ErrorStateCause.setFirewallPolicyError:
         switch (process.platform ?? window.env.platform) {
           case 'win32':
             return messages.pgettext(
@@ -130,24 +144,24 @@ function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
           default:
             return messages.pgettext('notifications', 'Unable to apply firewall rules.');
         }
-      case 'set_dns_error':
+      case ErrorStateCause.setDnsError:
         return messages.pgettext(
           'notifications',
           'Unable to set system DNS server. Please contact support.',
         );
-      case 'start_tunnel_error':
+      case ErrorStateCause.startTunnelError:
         return messages.pgettext(
           'notifications',
           'Unable to start tunnel connection. Please contact support.',
         );
-      case 'tunnel_parameter_error':
-        return getTunnelParameterMessage(errorDetails.cause.details);
-      case 'is_offline':
+      case ErrorStateCause.tunnelParameterError:
+        return getTunnelParameterMessage(errorState.parameterError);
+      case ErrorStateCause.isOffline:
         return messages.pgettext(
           'notifications',
           'Your device is offline. The tunnel will automatically connect once your device is back online.',
         );
-      case 'split_tunnel_error':
+      case ErrorStateCause.splitTunnelError:
         return messages.pgettext(
           'notifications',
           'Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support.',
@@ -156,16 +170,16 @@ function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
   }
 }
 
-function getTunnelParameterMessage(err: TunnelParameterError): string {
-  switch (err) {
+function getTunnelParameterMessage(error: TunnelParameterError): string {
+  switch (error) {
     /// TODO: once bridge constraints can be set, add a more descriptive error message
-    case 'no_matching_bridge_relay':
-    case 'no_matching_relay':
+    case TunnelParameterError.noMatchingBridgeRelay:
+    case TunnelParameterError.noMatchingRelay:
       return messages.pgettext(
         'notifications',
         'No servers in your selected location match your settings.',
       );
-    case 'no_wireguard_key':
+    case TunnelParameterError.noWireguardKey:
       return sprintf(
         // TRANSLATORS: Available placeholders:
         // TRANSLATORS: %(wireguard)s - will be replaced with "WireGuard"
@@ -175,7 +189,7 @@ function getTunnelParameterMessage(err: TunnelParameterError): string {
         ),
         { wireguard: strings.wireguard },
       );
-    case 'custom_tunnel_host_resultion_error':
+    case TunnelParameterError.customTunnelHostResolutionError:
       return messages.pgettext(
         'notifications',
         'Unable to resolve host of custom tunnel. Try changing your settings.',

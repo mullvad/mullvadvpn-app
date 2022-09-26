@@ -97,7 +97,7 @@ export default function Connect() {
       case 'connected':
         return MarkerStyle.secure;
       case 'error':
-        return !connection.status.details.blockFailure ? MarkerStyle.secure : MarkerStyle.unsecure;
+        return !connection.status.details.blockingError ? MarkerStyle.secure : MarkerStyle.unsecure;
       case 'disconnected':
         return MarkerStyle.unsecure;
       case 'disconnecting':
