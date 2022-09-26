@@ -452,7 +452,6 @@
 		58554F7A280B125F00013055 /* RESTAccountsProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAccountsProxy.swift; sourceTree = "<group>"; };
 		58554F7C280D6FE000013055 /* RESTURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTURLSession.swift; sourceTree = "<group>"; };
 		58561C98239A5D1500BD6B5E /* IPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPEndpoint.swift; sourceTree = "<group>"; };
-		5856D13627450A8A00DFD627 /* UIImage+TintColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+TintColor.swift"; sourceTree = "<group>"; };
 		5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationHeaderView.swift; sourceTree = "<group>"; };
 		5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationNavigationController.swift; sourceTree = "<group>"; };
 		585CA70E25F8C44600B47C62 /* UIMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIMetrics.swift; sourceTree = "<group>"; };
@@ -1006,7 +1005,6 @@
 				587CBFE222807F530028DED3 /* UIColor+Helpers.swift */,
 				58CCA0152242560B004F3011 /* UIColor+Palette.swift */,
 				58289081286B590900478596 /* UIFont+Monospaced.swift */,
-				5856D13627450A8A00DFD627 /* UIImage+TintColor.swift */,
 				585CA70E25F8C44600B47C62 /* UIMetrics.swift */,
 				58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
@@ -1416,7 +1414,6 @@
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
 				E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */,
 				58DF5B762852108E00E92647 /* InputInjectionBuilder.swift in Sources */,
-				5856D13727450A8A00DFD627 /* UIImage+TintColor.swift in Sources */,
 				58CB0EE024B86751001EF0D8 /* RESTAPIProxy.swift in Sources */,
 				58095C532760EEC700890776 /* RESTNetworkOperation.swift in Sources */,
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
