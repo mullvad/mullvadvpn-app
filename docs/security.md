@@ -270,11 +270,19 @@ via unix domain sockets (UDS) on Linux and macOS and via named pipes on Windows.
 This management interface can be reached by any process running on the device.
 Locally running malicious programs are outside of the app's threat model.
 
-The service transitions to the [disconnected] state before exiting (i.e., normally when the OS is
-being shut down). In general, the last firewall policy is maintained when the service exits, and
-lost upon a reboot (except on Windows, see below). In other words, if the "Always require VPN"
-option is enabled, the blocking policy will be left intact when the daemon service stops.
-Otherwise, the system firewall will be reset to its original state.
+The `mullvad-daemon` transition to the [disconnected] state before exiting. To
+limit leaks during computer shutdown, it will maintain the blocking firewall
+rules upon exit in the following scenarios:
+- _Always require VPN_ is enabled
+- A user didn't explicitly request for the `mullvad-daemon` to be shut down and
+  either or both of the following are true
+    - The daemon is currently in one of the blocking states ([connected],
+      [connecting], or [error])
+    - _auto-connect_ is enabled
+
+In other cases, when the daemon process stops normally, firewall rules will be
+removed.
+
 
 ### Windows
 
@@ -284,6 +292,13 @@ the service has started back up again during boot, including before the BFE serv
 
 As with "Always require VPN", enabling "Auto-connect" in the service will cause it to
 enforce the blocking policy before being stopped.
+
+### Linux
+
+Due to the dependence on various other services, the `mullvad-daemon` is not
+started early enough to prevent leaks. To prevent this, another system unit is
+started during early boot that applies a blocking policy that persists until the
+`mullvad-daemon` is started.
 
 ## Desktop Electron GUI
 
