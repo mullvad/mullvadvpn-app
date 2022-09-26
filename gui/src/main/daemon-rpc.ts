@@ -10,6 +10,7 @@ import { promisify } from 'util';
 import {
   AccountToken,
   AfterDisconnect,
+  AuthFailedError,
   BridgeSettings,
   BridgeState,
   ConnectionConfig,
@@ -18,15 +19,16 @@ import {
   DeviceEvent,
   DeviceState,
   EndpointObfuscationType,
+  ErrorState,
   ErrorStateCause,
   FirewallPolicyError,
+  FirewallPolicyErrorType,
   IAccountData,
   IAppVersionInfo,
   IBridgeConstraints,
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
-  IErrorState,
   ILocation,
   IObfuscationEndpoint,
   IOpenVpnConstraints,
@@ -875,68 +877,101 @@ function convertFromTunnelState(tunnelState: grpcTypes.TunnelState): TunnelState
   }
 }
 
-function convertFromTunnelStateError(state: grpcTypes.ErrorState.AsObject): IErrorState {
-  return {
-    ...state,
-    cause: convertFromTunnelStateErrorCause(state.cause, state),
-    blockFailure: state.blockingError
-      ? convertFromFirewallPolicyError(state.blockingError)
-      : undefined,
+function convertFromTunnelStateError(state: grpcTypes.ErrorState.AsObject): ErrorState {
+  const baseError = {
+    blockingError: state.blockingError && convertFromBlockingError(state.blockingError),
   };
-}
 
-function convertFromTunnelStateErrorCause(
-  cause: grpcTypes.ErrorState.Cause,
-  state: grpcTypes.ErrorState.AsObject,
-): ErrorStateCause {
-  switch (cause) {
-    case grpcTypes.ErrorState.Cause.IS_OFFLINE:
-      return { reason: 'is_offline' };
-    case grpcTypes.ErrorState.Cause.SET_DNS_ERROR:
-      return { reason: 'set_dns_error' };
-    case grpcTypes.ErrorState.Cause.IPV6_UNAVAILABLE:
-      return { reason: 'ipv6_unavailable' };
-    case grpcTypes.ErrorState.Cause.START_TUNNEL_ERROR:
-      return { reason: 'start_tunnel_error' };
+  switch (state.cause) {
+    case grpcTypes.ErrorState.Cause.AUTH_FAILED:
+      return {
+        ...baseError,
+        cause: ErrorStateCause.authFailed,
+        authFailedError: convertFromAuthFailedError(state.authFailedError),
+      };
+    case grpcTypes.ErrorState.Cause.TUNNEL_PARAMETER_ERROR:
+      return {
+        ...baseError,
+        cause: ErrorStateCause.tunnelParameterError,
+        parameterError: convertFromParameterError(state.parameterError),
+      };
     case grpcTypes.ErrorState.Cause.SET_FIREWALL_POLICY_ERROR:
       return {
-        reason: 'set_firewall_policy_error',
-        details: convertFromFirewallPolicyError(state.policyError!),
+        ...baseError,
+        cause: ErrorStateCause.setFirewallPolicyError,
+        policyError: convertFromBlockingError(state.policyError!),
       };
-    case grpcTypes.ErrorState.Cause.AUTH_FAILED:
-      return { reason: 'auth_failed', details: state.authFailReason };
-    case grpcTypes.ErrorState.Cause.TUNNEL_PARAMETER_ERROR: {
-      const parameterErrorMap: Record<
-        grpcTypes.ErrorState.GenerationError,
-        TunnelParameterError
-      > = {
-        [grpcTypes.ErrorState.GenerationError.NO_MATCHING_RELAY]: 'no_matching_relay',
-        [grpcTypes.ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY]: 'no_matching_bridge_relay',
-        [grpcTypes.ErrorState.GenerationError.NO_WIREGUARD_KEY]: 'no_wireguard_key',
-        [grpcTypes.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR]:
-          'custom_tunnel_host_resultion_error',
+
+    case grpcTypes.ErrorState.Cause.IS_OFFLINE:
+      return {
+        ...baseError,
+        cause: ErrorStateCause.isOffline,
       };
-      return { reason: 'tunnel_parameter_error', details: parameterErrorMap[state.parameterError] };
-    }
+    case grpcTypes.ErrorState.Cause.SET_DNS_ERROR:
+      return {
+        ...baseError,
+        cause: ErrorStateCause.setDnsError,
+      };
+    case grpcTypes.ErrorState.Cause.IPV6_UNAVAILABLE:
+      return {
+        ...baseError,
+        cause: ErrorStateCause.ipv6Unavailable,
+      };
+    case grpcTypes.ErrorState.Cause.START_TUNNEL_ERROR:
+      return {
+        ...baseError,
+        cause: ErrorStateCause.startTunnelError,
+      };
     case grpcTypes.ErrorState.Cause.SPLIT_TUNNEL_ERROR:
-      return { reason: 'split_tunnel_error' };
+      return {
+        ...baseError,
+        cause: ErrorStateCause.splitTunnelError,
+      };
     case grpcTypes.ErrorState.Cause.VPN_PERMISSION_DENIED:
       // VPN_PERMISSION_DENIED is only ever created on Android
       throw invalidErrorStateCause;
   }
 }
 
-function convertFromFirewallPolicyError(
+function convertFromBlockingError(
   error: grpcTypes.ErrorState.FirewallPolicyError.AsObject,
 ): FirewallPolicyError {
   switch (error.type) {
     case grpcTypes.ErrorState.FirewallPolicyError.ErrorType.GENERIC:
-      return { reason: 'generic' };
+      return { type: FirewallPolicyErrorType.generic };
     case grpcTypes.ErrorState.FirewallPolicyError.ErrorType.LOCKED: {
       const pid = error.lockPid;
       const name = error.lockName;
-      return { reason: 'locked', details: pid && name ? { pid, name } : undefined };
+      return { type: FirewallPolicyErrorType.locked, pid, name };
     }
+  }
+}
+
+function convertFromAuthFailedError(error: grpcTypes.ErrorState.AuthFailedError): AuthFailedError {
+  switch (error) {
+    case grpcTypes.ErrorState.AuthFailedError.UNKNOWN:
+      return AuthFailedError.unknown;
+    case grpcTypes.ErrorState.AuthFailedError.INVALID_ACCOUNT:
+      return AuthFailedError.invalidAccount;
+    case grpcTypes.ErrorState.AuthFailedError.EXPIRED_ACCOUNT:
+      return AuthFailedError.expiredAccount;
+    case grpcTypes.ErrorState.AuthFailedError.TOO_MANY_CONNECTIONS:
+      return AuthFailedError.tooManyConnections;
+  }
+}
+
+function convertFromParameterError(
+  error: grpcTypes.ErrorState.GenerationError,
+): TunnelParameterError {
+  switch (error) {
+    case grpcTypes.ErrorState.GenerationError.NO_MATCHING_RELAY:
+      return TunnelParameterError.noMatchingRelay;
+    case grpcTypes.ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY:
+      return TunnelParameterError.noMatchingBridgeRelay;
+    case grpcTypes.ErrorState.GenerationError.NO_WIREGUARD_KEY:
+      return TunnelParameterError.noWireguardKey;
+    case grpcTypes.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR:
+      return TunnelParameterError.customTunnelHostResolutionError;
   }
 }
 

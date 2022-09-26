@@ -17,34 +17,69 @@ export interface ILocation {
   provider?: string;
 }
 
+export enum FirewallPolicyErrorType {
+  generic,
+  locked,
+}
+
 export type FirewallPolicyError =
-  | { reason: 'generic' }
+  | { type: FirewallPolicyErrorType.generic }
   | {
-      reason: 'locked';
-      details?: {
-        name: string;
-        pid: number;
-      };
+      type: FirewallPolicyErrorType.locked;
+      name: string;
+      pid: number;
     };
 
-export type TunnelParameterError =
-  | 'no_matching_relay'
-  | 'no_matching_bridge_relay'
-  | 'no_wireguard_key'
-  | 'custom_tunnel_host_resultion_error';
+export enum ErrorStateCause {
+  authFailed,
+  ipv6Unavailable,
+  setFirewallPolicyError,
+  setDnsError,
+  startTunnelError,
+  tunnelParameterError,
+  isOffline,
+  splitTunnelError,
+}
 
-export type ErrorStateCause =
+export enum AuthFailedError {
+  unknown,
+  invalidAccount,
+  expiredAccount,
+  tooManyConnections,
+}
+
+export enum TunnelParameterError {
+  noMatchingRelay,
+  noMatchingBridgeRelay,
+  noWireguardKey,
+  customTunnelHostResolutionError,
+}
+
+export type ErrorState =
   | {
-      reason:
-        | 'ipv6_unavailable'
-        | 'set_dns_error'
-        | 'start_tunnel_error'
-        | 'is_offline'
-        | 'split_tunnel_error';
+      cause:
+        | ErrorStateCause.ipv6Unavailable
+        | ErrorStateCause.setDnsError
+        | ErrorStateCause.startTunnelError
+        | ErrorStateCause.isOffline
+        | ErrorStateCause.splitTunnelError;
+      blockingError?: FirewallPolicyError;
     }
-  | { reason: 'set_firewall_policy_error'; details: FirewallPolicyError }
-  | { reason: 'tunnel_parameter_error'; details: TunnelParameterError }
-  | { reason: 'auth_failed'; details?: string };
+  | {
+      cause: ErrorStateCause.authFailed;
+      blockingError?: FirewallPolicyError;
+      authFailedError: AuthFailedError;
+    }
+  | {
+      cause: ErrorStateCause.tunnelParameterError;
+      blockingError?: FirewallPolicyError;
+      parameterError: TunnelParameterError;
+    }
+  | {
+      cause: ErrorStateCause.setFirewallPolicyError;
+      blockingError?: FirewallPolicyError;
+      policyError: FirewallPolicyError;
+    };
 
 export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
@@ -134,12 +169,7 @@ export type TunnelState =
   | { state: 'connecting'; details?: ITunnelStateRelayInfo }
   | { state: 'connected'; details: ITunnelStateRelayInfo }
   | { state: 'disconnecting'; details: AfterDisconnect }
-  | { state: 'error'; details: IErrorState };
-
-export interface IErrorState {
-  blockFailure?: FirewallPolicyError;
-  cause: ErrorStateCause;
-}
+  | { state: 'error'; details: ErrorState };
 
 export type RelayLocation =
   | { hostname: [string, string, string] }
