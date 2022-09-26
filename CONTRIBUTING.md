@@ -29,10 +29,10 @@ The app is translated and proofread via a third party company. We can't take in 
 to the translations directly, since we can't verify their correctness. All translations have to
 go via the translation company. As a result, if you want to improve an existing
 translation, please don't edit the PO files and submit to us. Instead fill in your suggested
-improvement in [this spreadsheet], and the translation company will pick it up and process the
+improvement in [this form], and the translation company will pick it up and process the
 suggestion after a while.
 
-[this spreadsheet]: https://docs.google.com/spreadsheets/d/1JeWs5Fzen2oWrMCmZKvue_iAM4VUlhwTWnodBQYz0c0/edit#gid=1649013858
+[this form]: https://docs.google.com/forms/d/e/1FAIpQLSeEFRe0ojdl6QdHPp7Z9qIvdGTc1uSgbswQT6d-VRQ98GBO2w/viewform
 
 ### Copyright and ownership of contributed code and changes
 
