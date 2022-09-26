@@ -115,57 +115,11 @@ class SettingsCell: UITableViewCell {
         setLayoutMargins()
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        if #available(iOS 13, *) {
-            // no-op
-        } else {
-            layoutSubviews_iOS12()
-        }
-    }
-
     private func setLayoutMargins() {
         // Set layout margins for standard acceessories added into the cell (reorder control, etc..)
         layoutMargins = UIMetrics.settingsCellLayoutMargins
 
         // Set layout margins for cell content
         contentView.layoutMargins = UIMetrics.settingsCellLayoutMargins
-    }
-
-    /// On iOS 12, standard edit and reorder controls do not respect layout margins.
-    /// This method does layout adjustments to fix that.
-    private func layoutSubviews_iOS12() {
-        guard isEditing || showsReorderControl else { return }
-
-        var leftOffset: CGFloat = 0
-        var rightOffset: CGFloat = 0
-
-        for subview in subviews {
-            // Detect the edit control and move it, so that the nested image view is aligned along the left edge of the
-            // layout margins.
-            if subview.description.starts(with: "<UITableViewCellEditControl"),
-               let imageView = subview.subviews.first
-            {
-                let imageOffset = imageView.frame.minX
-                var pos = subview.frame.origin
-                pos.x = layoutMargins.left - imageOffset
-                subview.frame.origin = pos
-                leftOffset = pos.x
-            }
-
-            // Detect the reorder control and move it, so that its right edge is aligned along the right edge of the
-            // layout margins.
-            if subview.description.starts(with: "<UITableViewCellReorderControl") {
-                var pos = subview.frame.origin
-                pos.x -= layoutMargins.right
-                subview.frame.origin = pos
-                rightOffset = layoutMargins.right
-            }
-        }
-
-        // Adjust the content view to account for the adjustments to the edit and reorder controls.
-        let contentInset = UIEdgeInsets(top: 0, left: leftOffset, bottom: 0, right: rightOffset)
-        contentView.frame = contentView.frame.inset(by: contentInset)
     }
 }
