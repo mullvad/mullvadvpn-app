@@ -77,18 +77,27 @@ fi
 set -e
 
 echo "Commiting metadata changes to git..."
-git commit -S -m "Updating version in package files" \
-    gui/package.json \
-    gui/package-lock.json \
+
+git commit -S -m "Updating crate versions to $PRODUCT_VERSION" \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml \
     mullvad-setup/Cargo.toml \
     mullvad-exclude/Cargo.toml \
     talpid-openvpn-plugin/Cargo.toml \
-    Cargo.lock \
-    android/app/build.gradle.kts \
-    dist-assets/windows/version.h
+    Cargo.lock
+
+if [[ "$DESKTOP" == "true" ]]; then
+    git commit -S -m "Updating version to $PRODUCT_VERSION for desktop" \
+        gui/package.json \
+        gui/package-lock.json \
+        dist-assets/windows/version.h
+fi
+
+if [[ "$ANDROID" == "true" ]]; then
+    git commit -S -m "Updating version to $PRODUCT_VERSION for Android" \
+        android/app/build.gradle.kts
+fi
 
 NEW_TAGS=""
 
