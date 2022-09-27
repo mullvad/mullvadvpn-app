@@ -123,8 +123,8 @@ final class FormsheetPresentationController: UIPresentationController {
 
         let animator = UIViewPropertyAnimator(
             duration: animationDuration,
-            curve: animationCurve, animations:
-            animations
+            curve: animationCurve,
+            animations: animations
         )
 
         animator.startAnimation()
