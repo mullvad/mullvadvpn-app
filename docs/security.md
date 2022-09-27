@@ -33,8 +33,8 @@ An app with permission to act as a VPN service can request to open a VPN tunnel 
 provide a set of IP networks it would like to have routed via itself. Doing so and specifying
 the routes `0/0` and `::0/0` forces all traffic to go via the app. That is what this app does both
 when it has a VPN tunnel up, but also when in a state where it would like to block all network
-traffic. Such as the [connecting], [disconnecting] and [error] states. In these states, all
-packets are simply dropped.
+traffic. Such as the [connecting], [disconnecting] and [error] states. In these states, all outgoing
+packets are simply dropped, but incoming traffic is still allowed due to the limitations of Android.
 
 ### iOS
 
