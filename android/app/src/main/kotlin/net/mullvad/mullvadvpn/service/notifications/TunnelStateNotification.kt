@@ -55,6 +55,15 @@ class TunnelStateNotification(val context: Context) {
             }
         }
 
+    private val shouldDisplayOngoingNotification: Boolean
+        get() = when (tunnelState) {
+            is TunnelState.Connected -> true
+            is TunnelState.Disconnected,
+            is TunnelState.Connecting,
+            is TunnelState.Disconnecting,
+            is TunnelState.Error -> false
+        }
+
     private var reconnecting = false
     private var showingReconnecting = false
 
@@ -98,7 +107,12 @@ class TunnelStateNotification(val context: Context) {
             emptyList()
         }
 
-        return channel.buildNotification(pendingIntent, notificationText, actions)
+        return channel.buildNotification(
+            pendingIntent,
+            notificationText,
+            actions,
+            isOngoing = shouldDisplayOngoingNotification
+        )
     }
 
     private fun buildAction(): NotificationCompat.Action {

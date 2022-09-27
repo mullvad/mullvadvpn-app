@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.di
 
 import android.content.pm.PackageManager
 import android.os.Messenger
+import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.Dispatchers
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
@@ -50,6 +51,8 @@ val uiModule = module {
 
     single { AccountRepository(get()) }
     single { DeviceRepository(get()) }
+
+    single { NotificationManagerCompat.from(androidContext()) }
 
     // View models
     viewModel { ConnectViewModel() }
