@@ -1042,7 +1042,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အကြောင်းအရာ ပိတ်ဆို့မှု (%(preferencesPageName)s အောက်ရှိ) ကို ပိတ်ပါ။"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "စနစ် အသိပေးချက်များကို ဖွင့်ပါ သို့မဟုတ် ပိတ်ပါ။ အလွန်အရေးပါသည့် အသိပေးချက်များကို အမြဲပြသပါလိမ့်မည်။"
 
@@ -1050,7 +1050,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "အက်ပ်၏ စမ်းသပ်ဗားရှင်း အသစ်ကို ဖြန့်ချိသည့်အခါ အသိပေးစေရန် ဖွင့်ထားပါ။"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "အက်ပ်အား လွတ်လပ်သည့် သီးသန့် ဝင်းဒိုးအဖြစ် ရွှေ့နိုင်စေပါသည်။"
 
@@ -1066,11 +1066,11 @@ msgctxt "vpn-settings-view"
 msgid "Local network sharing"
 msgstr "လိုကယ် ကွန်ရက် ဝေမျှမှု"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "တစ်ရောင်တည်းပြ မီနျူးဘား အိုင်ကွန်"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "အသိပေးချက်များ"
 
@@ -1078,11 +1078,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "လိုလားမှုများ"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "အက်ပ် စတင်ချိန်တွင် မီနျူးဘား အိုင်ကွန်ကိုသာ ပြသပါ။"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "စတင်မှု အကျဉ်းချုံ့ထားမှု"
 
@@ -1094,11 +1094,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "စမ်းသပ်ဗားရှင်းကို သုံးနေစဉ် ဤရွေးချယ်မှုကို မရရှိနိုင်ပါ။"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "အက်ပ်ကို လုပ်ဆောင်ချက်ဘားတွင် ပင်တွဲထားသည်မှ ဖြုတ်ရန်"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "ရောင်စုံအစား တစ်ရောင်တည်းပြ မီနျူးဘား အိုင်ကွန်ကို သုံးပါသည်။"
 
@@ -1242,7 +1242,7 @@ msgid "FAQs & Guides"
 msgstr "မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Language"
 msgstr "ဘာသာစကား"
 

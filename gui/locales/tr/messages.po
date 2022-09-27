@@ -1053,7 +1053,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "Bu ayarı etkinleştirmek için tüm içerik engelleyicileri (%(preferencesPageName)s altında) devre dışı bırakın."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Sistem bildirimlerini açın veya kapatın. Önemli bildirimler her zaman gösterilir."
 
@@ -1061,7 +1061,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Uygulamanın yeni beta sürümleri yayınlandığında bildirim almayı etkinleştirin."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Uygulamayı bağımsız bir pencere olarak taşımak için etkinleştirin."
 
@@ -1077,11 +1077,11 @@ msgctxt "vpn-settings-view"
 msgid "Local network sharing"
 msgstr "Yerel ağ paylaşımı"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Monokrom sistem çubuğu simgesi"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "Bildirimler"
 
@@ -1089,11 +1089,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "Tercihler"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "Uygulama başladığında sadece sistem çubuğu simgesini göster."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "Küçültülmüş olarak başlat"
 
@@ -1105,11 +1105,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Beta sürümde bu seçenek kullanılamaz."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "Uygulamayı görev çubuğundan kaldır"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Renkli yerine monokrom bir sistem çubuğu simgesi kullan."
 
@@ -1253,7 +1253,7 @@ msgid "FAQs & Guides"
 msgstr "SSS ve Kılavuzlar"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Language"
 msgstr "Dil"
 

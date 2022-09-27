@@ -1053,7 +1053,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "Alle contentblokkeringen uitschakelen (bij %(preferencesPageName)s) om deze instelling te activeren."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Schakel systeemnotificaties in of uit. Kritieke notificaties worden altijd weergegeven."
 
@@ -1061,7 +1061,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Schakel dit in om meldingen te ontvangen wanneer er nieuwe bètaversies van de app worden uitgebracht."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Schakel de optie in om de app rond te bewegen als een vrijstaand scherm."
 
@@ -1077,11 +1077,11 @@ msgctxt "vpn-settings-view"
 msgid "Local network sharing"
 msgstr "Delen op lokaal netwerk"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Monochroom taakbalkpictogram"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "Notificaties"
 
@@ -1089,11 +1089,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "Voorkeuren"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "Toon het pictogram op de taakbalk alleen wanneer de app opstart."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "Geminimaliseerd opstarten"
 
@@ -1105,11 +1105,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Deze optie is niet beschikbaar in een bètaversie."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "App losmaken van taakbalk"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Gebruik een monochroom pictogram op de taakbalk in plaats van een gekleurd."
 
@@ -1253,7 +1253,7 @@ msgid "FAQs & Guides"
 msgstr "Veelgestelde vragen en gidsen"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Language"
 msgstr "Taal"
 
