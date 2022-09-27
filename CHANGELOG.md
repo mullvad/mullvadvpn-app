@@ -51,7 +51,6 @@ Line wrap the file at 100 chars.                                              Th
 - Remove dependency on `ipconfig.exe`. Call `DnsFlushResolverCache` to flush the DNS cache.
 - Upgrade Wintun to 0.14.1.
 
-
 #### Linux
 - The daemon binary and systemd unit file will now be placed in `/usr/bin/` and
   `/usr/lib/systemd/system` respectively, to aid with starting the system service on systems where
@@ -67,6 +66,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix 'mullvad status -v' to include the port of the endpoint when connecting over TCP.
 - Check whether the device is valid when reconnecting from the error state.
 - Stop reconnecting when the account has run out of time.
+- Show out of time view after failing to connect due to being out of time.
 
 #### Windows
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
