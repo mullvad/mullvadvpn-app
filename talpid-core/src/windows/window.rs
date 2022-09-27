@@ -2,18 +2,21 @@
 
 use std::{os::windows::io::AsRawHandle, ptr, sync::Arc, thread};
 use tokio::sync::broadcast;
-use windows_sys::Win32::{
-    Foundation::{HANDLE, HWND, LPARAM, LRESULT, WPARAM},
-    System::{LibraryLoader::GetModuleHandleW, Threading::GetThreadId},
-    UI::WindowsAndMessaging::{
-        CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GetMessageW,
-        GetWindowLongPtrW, PostQuitMessage, PostThreadMessageW, SetWindowLongPtrW,
-        TranslateMessage, GWLP_USERDATA, GWLP_WNDPROC, PBT_APMRESUMEAUTOMATIC,
-        PBT_APMRESUMESUSPEND, PBT_APMSUSPEND, WM_DESTROY, WM_POWERBROADCAST, WM_USER,
+use windows_sys::{
+    w,
+    Win32::{
+        Foundation::{HANDLE, HWND, LPARAM, LRESULT, WPARAM},
+        System::{LibraryLoader::GetModuleHandleW, Threading::GetThreadId},
+        UI::WindowsAndMessaging::{
+            CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GetMessageW,
+            GetWindowLongPtrW, PostQuitMessage, PostThreadMessageW, SetWindowLongPtrW,
+            TranslateMessage, GWLP_USERDATA, GWLP_WNDPROC, PBT_APMRESUMEAUTOMATIC,
+            PBT_APMRESUMESUSPEND, PBT_APMSUSPEND, WM_DESTROY, WM_POWERBROADCAST, WM_USER,
+        },
     },
 };
 
-const CLASS_NAME: &[u8] = b"S\0T\0A\0T\0I\0C\0\0\0";
+const CLASS_NAME: *const u16 = w!("STATIC");
 const REQUEST_THREAD_SHUTDOWN: u32 = WM_USER + 1;
 
 /// Handle for closing an associated window.
@@ -41,7 +44,7 @@ pub fn create_hidden_window<F: (Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT) + Send
         let dummy_window = unsafe {
             CreateWindowExW(
                 0,
-                CLASS_NAME.as_ptr() as *const u16,
+                CLASS_NAME,
                 ptr::null_mut(),
                 0,
                 0,
