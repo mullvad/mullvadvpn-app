@@ -849,6 +849,9 @@ export default class AppRenderer {
 
     this.reduxActions.settings.updateRelayLocations(relays);
     this.reduxActions.settings.updateBridgeLocations(bridges);
+    this.reduxActions.settings.updateWireguardEndpointData(
+      this.relayListPair.wireguardEndpointData,
+    );
   }
 
   private setCurrentVersion(versionInfo: ICurrentAppVersionInfo) {

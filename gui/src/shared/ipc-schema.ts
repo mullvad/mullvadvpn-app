@@ -15,6 +15,7 @@ import {
   ILocation,
   IRelayList,
   ISettings,
+  IWireguardEndpointData,
   ObfuscationSettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -45,6 +46,7 @@ export interface ITranslations {
 export interface IRelayListPair {
   relays: IRelayList;
   bridges: IRelayList;
+  wireguardEndpointData: IWireguardEndpointData;
 }
 
 export type LaunchApplicationResult = { success: true } | { error: string };
