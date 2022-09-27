@@ -50,9 +50,8 @@ EOM
 
 ZSH_COMPLETIONS_DIR="/usr/local/share/zsh/site-functions/"
 
-BREW_PREFIX=$(brew --prefix)
-if [[ "$?" -eq 0 ]]; then
-    FISH_COMPLETIONS_DIR="${BREW_PREFIX}/share/fish/vendor_completions.d/"
+if command -v brew > /dev/null; then
+    FISH_COMPLETIONS_DIR="$(brew --prefix)/share/fish/vendor_completions.d/"
     if [[ ! -d "$FISH_COMPLETIONS_DIR" ]]; then
         FISH_COMPLETIONS_DIR="/usr/local/share/fish/vendor_completions.d/"
     fi
