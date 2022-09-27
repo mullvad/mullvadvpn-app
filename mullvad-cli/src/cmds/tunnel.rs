@@ -332,9 +332,10 @@ impl Tunnel {
     async fn process_wireguard_rotation_interval_set(matches: &clap::ArgMatches) -> Result<()> {
         let rotate_interval = matches.value_of_t_or_exit::<u64>("interval");
         let mut rpc = new_rpc_client().await?;
-        rpc.set_wireguard_rotation_interval(types::Duration::from(Duration::from_secs(
-            60 * 60 * rotate_interval,
-        )))
+        rpc.set_wireguard_rotation_interval(
+            types::Duration::try_from(Duration::from_secs(60 * 60 * rotate_interval))
+                .expect("Failed to convert rotation interval to prost_types::Duration"),
+        )
         .await?;
         println!("Set key rotation interval: {} hour(s)", rotate_interval);
         Ok(())

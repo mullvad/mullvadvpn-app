@@ -47,6 +47,11 @@ jobs:
             - name: Checkout binaries submodule
               run: git submodule update --init --depth=1 dist-assets/binaries
 
+            - name: Install Protoc
+              uses: arduino/setup-protoc@v1
+              with:
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+
             - name: Install Rust
               uses: actions-rs/toolchain@v1.0.6
               with:
@@ -72,6 +77,11 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
+            - name: Install Protoc
+              uses: arduino/setup-protoc@v1
+              with:
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+
             - name: Install Rust
               uses: actions-rs/toolchain@v1.0.6
               with:
@@ -94,6 +104,11 @@ jobs:
 
             - name: Checkout submodules
               run: git submodule update --init --depth=1
+
+            - name: Install Protoc
+              uses: arduino/setup-protoc@v1
+              with:
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Calculate Windows libraries cache hash
               id: windows-modules-hash
