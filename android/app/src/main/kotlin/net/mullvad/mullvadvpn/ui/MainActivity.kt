@@ -1,14 +1,19 @@
 package net.mullvad.mullvadvpn.ui
 
+import android.Manifest
 import android.app.Activity
 import android.app.UiModeManager
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.VpnService
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -40,6 +45,7 @@ import org.koin.core.context.loadKoinModules
 
 open class MainActivity : FragmentActivity() {
     val problemReport = MullvadProblemReport()
+    private lateinit var mPermReceiver: ActivityResultLauncher<String>
 
     private var visibleSecureScreens = HashSet<Fragment>()
 
@@ -57,7 +63,6 @@ open class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(uiModule)
-
         getKoin().apply {
             accountRepository = get()
             deviceRepository = get()
@@ -80,6 +85,8 @@ open class MainActivity : FragmentActivity() {
         setContentView(R.layout.main)
 
         launchDeviceStateHandler()
+
+        registerPermissionReceiver() // Notification permission check
     }
 
     override fun onStart() {
@@ -255,6 +262,25 @@ open class MainActivity : FragmentActivity() {
                 val firstEntry = getBackStackEntryAt(0)
                 popBackStack(firstEntry.id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             }
+        }
+    }
+
+    private fun registerPermissionReceiver() {
+        mPermReceiver = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) {
+            checkForNotificationPermission()
+        }
+    }
+
+    private fun checkForNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permissionGranted = checkSelfPermission(
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!permissionGranted) mPermReceiver.launch(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
         }
     }
 
