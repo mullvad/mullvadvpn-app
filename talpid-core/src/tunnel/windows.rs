@@ -1,7 +1,7 @@
 use crate::windows::{get_ip_interface_entry, set_ip_interface_entry, AddressFamily};
 use std::io;
 use windows_sys::Win32::{
-    Foundation::ERROR_NOT_FOUND, NetworkManagement::IpHelper::NET_LUID_LH,
+    Foundation::ERROR_NOT_FOUND, NetworkManagement::Ndis::NET_LUID_LH,
     Networking::WinSock::RouterDiscoveryDisabled,
 };
 

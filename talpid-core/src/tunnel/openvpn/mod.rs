@@ -35,7 +35,7 @@ use which;
 #[cfg(windows)]
 use widestring::U16CString;
 #[cfg(windows)]
-use windows_sys::{core::GUID, Win32::NetworkManagement::IpHelper::NET_LUID_LH};
+use windows_sys::{core::GUID, Win32::NetworkManagement::Ndis::NET_LUID_LH};
 
 #[cfg(windows)]
 mod wintun;

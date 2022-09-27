@@ -24,9 +24,9 @@ use windows_sys::{
                 GetIpInterfaceEntry, GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
                 InitializeUnicastIpAddressEntry, MibAddInstance, NotifyIpInterfaceChange,
                 SetIpInterfaceEntry, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW,
-                MIB_UNICASTIPADDRESS_TABLE, NET_LUID_LH,
+                MIB_UNICASTIPADDRESS_TABLE,
             },
-            Ndis::NDIS_IF_MAX_STRING_SIZE,
+            Ndis::{IF_MAX_STRING_SIZE, NET_LUID_LH},
         },
         Networking::WinSock::{
             IpDadStateDeprecated, IpDadStateDuplicate, IpDadStateInvalid, IpDadStatePreferred,
@@ -431,7 +431,7 @@ pub fn luid_from_alias<T: AsRef<OsStr>>(alias: T) -> io::Result<NET_LUID_LH> {
 
 /// Returns the alias of an interface given its LUID.
 pub fn alias_from_luid(luid: &NET_LUID_LH) -> io::Result<OsString> {
-    let mut buffer = [0u16; NDIS_IF_MAX_STRING_SIZE as usize + 1];
+    let mut buffer = [0u16; IF_MAX_STRING_SIZE as usize + 1];
     let status =
         unsafe { ConvertInterfaceLuidToAlias(luid, &mut buffer[0] as *mut _, buffer.len()) };
     if status != NO_ERROR as i32 {

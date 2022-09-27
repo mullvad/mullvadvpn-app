@@ -28,7 +28,7 @@ use windows_sys::{
     core::GUID,
     Win32::{
         Foundation::{BOOL, ERROR_MORE_DATA, HINSTANCE},
-        NetworkManagement::IpHelper::NET_LUID_LH,
+        NetworkManagement::Ndis::NET_LUID_LH,
         Networking::WinSock::{
             ADDRESS_FAMILY, AF_INET, AF_INET6, IN6_ADDR, IN_ADDR, SOCKADDR_INET,
         },

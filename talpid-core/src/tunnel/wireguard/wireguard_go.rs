@@ -168,7 +168,7 @@ impl WgGoTunnel {
 
         let has_ipv6 = config.tunnel.addresses.iter().any(|addr| addr.is_ipv6());
         let setup_handle = tokio::spawn(async move {
-            use windows_sys::Win32::NetworkManagement::IpHelper::NET_LUID_LH;
+            use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
             let luid = NET_LUID_LH {
                 Value: interface_luid,
             };
@@ -214,8 +214,8 @@ impl WgGoTunnel {
         default_route: winnet::WinNetDefaultRoute,
         _ctx: *mut libc::c_void,
     ) {
-        use windows_sys::Win32::NetworkManagement::IpHelper::{
-            ConvertInterfaceLuidToIndex, NET_LUID_LH,
+        use windows_sys::Win32::NetworkManagement::{
+            IpHelper::ConvertInterfaceLuidToIndex, Ndis::NET_LUID_LH,
         };
         use winnet::WinNetDefaultRouteChangeEventType::*;
 

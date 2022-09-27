@@ -44,7 +44,7 @@ fn get_system_service_known_folder(known_folder_id: *const GUID) -> std::io::Res
 
     adjust_current_thread_token_privilege(&system_debug_priv, true)?;
     let known_folder: io::Result<PathBuf> = (|| {
-        let mut lsass_path = get_known_folder_path(&FOLDERID_System, KF_FLAG_DEFAULT as u32, 0)?;
+        let mut lsass_path = get_known_folder_path(&FOLDERID_System, KF_FLAG_DEFAULT, 0)?;
         lsass_path.push("lsass.exe");
 
         let lsass_pid = get_running_process_id_from_name(&lsass_path)?;
@@ -75,8 +75,7 @@ fn get_system_service_known_folder(known_folder_id: *const GUID) -> std::io::Res
             ));
         }
 
-        let known_folder =
-            get_known_folder_path(known_folder_id, KF_FLAG_DEFAULT as u32, lsass_token);
+        let known_folder = get_known_folder_path(known_folder_id, KF_FLAG_DEFAULT, lsass_token);
         unsafe { CloseHandle(lsass_token) };
 
         known_folder
@@ -173,7 +172,7 @@ fn adjust_token_privilege(
 
 fn get_known_folder_path(
     folder_id: *const GUID,
-    flags: u32,
+    flags: i32,
     user_token: HANDLE,
 ) -> std::io::Result<PathBuf> {
     let mut folder_path: PWSTR = ptr::null_mut();
