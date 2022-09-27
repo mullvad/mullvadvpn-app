@@ -105,10 +105,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     // MARK: - Private methods
 
-    /// Used to create RedeemVoucherViewController to present it for user.
-    /// - Warning: It generates a new NavigationController every time.
-    /// - Returns: UINavigationController that has RedeemVoucherViewController as it root view controller.
-    private func getRedeemVoucherWithNavigationController() -> UINavigationController {
+    private func makeRedeemVoucherController() -> UINavigationController {
         let navigationController = UINavigationController(
             rootViewController: RedeemVoucherViewController()
         )
@@ -422,7 +419,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
     }
 
     @objc private func didTapRedeemVoucher() {
-        present(getRedeemVoucherWithNavigationController(), animated: true)
+        present(makeRedeemVoucherController(), animated: true)
     }
 
     @objc private func restorePurchases() {

@@ -34,7 +34,9 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate 
         return contentView
     }()
 
-    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,21 +49,14 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate 
         setTunnelState(TunnelManager.shared.tunnelStatus.state, animated: false)
     }
 
-    /// Used to create RedeemVoucherViewController to present it for user.
-    /// - Warning: It generates a new NavigationController every time.
-    /// - Returns: UINavigationController that has RedeemVoucherViewController as it root view controller.
-    private func getRedeemVoucherWithNavigationController() -> UINavigationController {
-        let voucherViewController = RedeemVoucherViewController()
-        voucherViewController.delegate = self
-        let navigationController = UINavigationController(rootViewController: voucherViewController)
+    private func makeRedeemVoucherController() -> UINavigationController {
+        let navigationController = UINavigationController(
+            rootViewController: RedeemVoucherViewController()
+        )
         navigationController.isNavigationBarHidden = true
         navigationController.transitioningDelegate = formsheetTransitioningDelegate
         navigationController.modalPresentationStyle = .custom
-        navigationController.preferredContentSize = CGSize(
-            width: view.frame.width - UIMetrics.contentLayoutMargins.left,
-            height: 300
-        )
-        navigationController.view.layer.cornerRadius = 16
+        navigationController.preferredContentSize = CGSize(width: 450, height: 300)
 
         return navigationController
     }
@@ -129,7 +124,7 @@ private extension OutOfTimeViewController {
     }
 
     @objc func didTapRedeemVoucher() {
-        present(getRedeemVoucherWithNavigationController(), animated: true)
+        present(makeRedeemVoucherController(), animated: true)
     }
 
     func transitionToNextView() {
