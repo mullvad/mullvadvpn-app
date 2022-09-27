@@ -136,6 +136,7 @@ Identical to android/2022.2-beta2 except for updated translations.
 - Fix 'mullvad status -v' to include the port of the endpoint when connecting over TCP.
 - Check whether the device is valid when reconnecting from the error state.
 - Stop reconnecting when the account has run out of time.
+- Show out of time view after failing to connect due to being out of time.
 
 #### Windows
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
