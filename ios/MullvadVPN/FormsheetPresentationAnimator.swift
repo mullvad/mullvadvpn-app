@@ -26,23 +26,40 @@ class FormsheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
         }
     }
 
-    static func initialFrame(in containerView: UIView, preferredContentSize: CGSize) -> CGRect {
+    static func initialFrame(in containerBounds: CGRect, preferredContentSize: CGSize) -> CGRect {
+        let presentedViewSize = presentedViewSize(
+            containerSize: containerBounds.size,
+            preferredContentSize: preferredContentSize
+        )
+
         return CGRect(
             origin: CGPoint(
-                x: containerView.bounds.midX - preferredContentSize.width * 0.5,
-                y: containerView.bounds.maxY
+                x: containerBounds.midX - presentedViewSize.width * 0.5,
+                y: containerBounds.maxY
             ),
-            size: preferredContentSize
+            size: presentedViewSize
         )
     }
 
-    static func targetFrame(in containerView: UIView, preferredContentSize: CGSize) -> CGRect {
+    static func targetFrame(in containerBounds: CGRect, preferredContentSize: CGSize) -> CGRect {
+        let presentedViewSize = presentedViewSize(
+            containerSize: containerBounds.size,
+            preferredContentSize: preferredContentSize
+        )
+
         return CGRect(
             origin: CGPoint(
-                x: containerView.bounds.midX - preferredContentSize.width * 0.5,
-                y: containerView.bounds.midY - preferredContentSize.height * 0.5
+                x: containerBounds.midX - presentedViewSize.width * 0.5,
+                y: containerBounds.midY - presentedViewSize.height * 0.5
             ),
-            size: preferredContentSize
+            size: presentedViewSize
+        )
+    }
+
+    static func presentedViewSize(containerSize: CGSize, preferredContentSize: CGSize) -> CGSize {
+        return CGSize(
+            width: min(containerSize.width, preferredContentSize.width),
+            height: min(containerSize.height, preferredContentSize.height)
         )
     }
 
@@ -56,7 +73,7 @@ class FormsheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
 
         containerView.addSubview(destinationView)
         destinationView.frame = Self.initialFrame(
-            in: containerView,
+            in: containerView.bounds,
             preferredContentSize: preferredContentSize
         )
 
@@ -66,7 +83,7 @@ class FormsheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
             options: .curveEaseOut,
             animations: {
                 destinationView.frame = Self.targetFrame(
-                    in: containerView,
+                    in: containerView.bounds,
                     preferredContentSize: preferredContentSize
                 )
             },
@@ -89,7 +106,7 @@ class FormsheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
             options: .curveEaseIn,
             animations: {
                 sourceView.frame = Self.initialFrame(
-                    in: containerView,
+                    in: containerView.bounds,
                     preferredContentSize: preferredContentSize
                 )
             },

@@ -115,11 +115,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         navigationController.isNavigationBarHidden = true
         navigationController.transitioningDelegate = formsheetTransitioningDelegate
         navigationController.modalPresentationStyle = .custom
-        navigationController.preferredContentSize = CGSize(
-            width: view.frame.width - UIMetrics.contentLayoutMargins.left,
-            height: 300
-        )
-        navigationController.view.layer.cornerRadius = 16
+        navigationController.preferredContentSize = CGSize(width: 450, height: 300)
 
         return navigationController
     }

@@ -9,9 +9,10 @@
 import Foundation
 import UIKit
 
-class FormsheetPresentationController: UIPresentationController {
+final class FormsheetPresentationController: UIPresentationController {
     private let dimmingViewOpacityWhenPresented = 0.5
     private var isPresented = false
+    private var keyboardFrame: CGRect = .zero
 
     private let dimmingView: UIView = {
         let dimmingView = UIView()
@@ -32,45 +33,25 @@ class FormsheetPresentationController: UIPresentationController {
             presenting: presentingViewController
         )
 
-        addKeyboardObservers()
-    }
-
-    override func viewWillTransition(
-        to size: CGSize,
-        with coordinator: UIViewControllerTransitionCoordinator
-    ) {
-        super.viewWillTransition(to: size, with: coordinator)
-
-        coordinator.animate { [weak self] context in
-            guard let self = self,
-                  let containerView = self.containerView,
-                  self.isPresented else { return }
-
-            let targetFrame = FormsheetPresentationAnimator
-                .targetFrame(
-                    in: containerView,
-                    preferredContentSize: CGSize(
-                        width: self.presentingViewController.view.frame.width - UIMetrics
-                            .contentLayoutMargins.left,
-                        height: 300
-                    )
-                )
-
-            self.presentedViewController.view.frame = targetFrame
-        }
+        addKeyboardObserver()
     }
 
     override func containerViewWillLayoutSubviews() {
+        super.containerViewWillLayoutSubviews()
+
         dimmingView.frame = containerView?.bounds ?? .zero
+        updatePresentedViewLayout()
     }
 
     override func presentationTransitionWillBegin() {
         dimmingView.alpha = 0
+        presentedView?.layer.cornerRadius = 16
         containerView?.addSubview(dimmingView)
 
         if let transitionCoordinator = presentingViewController.transitionCoordinator {
             transitionCoordinator.animate { [weak self] context in
                 guard let self = self else { return }
+
                 self.dimmingView.alpha = self.dimmingViewOpacityWhenPresented
             }
         } else {
@@ -99,76 +80,99 @@ class FormsheetPresentationController: UIPresentationController {
         }
     }
 
-    deinit {
-        removingKeyboardObservers()
-    }
-}
-
-// MARK: - Keyboard delegates
-
-// Putting most top view on the center of remaining height when keyboard opens.
-private extension FormsheetPresentationController {
-    /// Adding keyboard will show and will hide notification observers.
-    private func addKeyboardObservers() {
+    private func addKeyboardObserver() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
+            selector: #selector(keyboardWillChangeFrame),
+            name: UIResponder.keyboardWillChangeFrameNotification,
             object: nil
         )
     }
 
-    /// Removing keyboard related observers.
-    private func removingKeyboardObservers() {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: UIResponder
-                .keyboardWillChangeFrameNotification,
-            object: nil
-        )
-        NotificationCenter.default.removeObserver(
-            self,
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
+    @objc private func keyboardWillChangeFrame(_ notification: Notification) {
+        guard let keyboardFrameValue = notification
+            .userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
 
-    /// Keyboard will show handling function, Puts presented view on the middle of remaining height.
-    /// - Warning: Pins view to top if remaining height was not enough to fit the view.
-    /// - Parameter notification: NSNotification that holds keyboard related info.
-    @objc private func keyboardWillShow(_ notification: NSNotification) {
-        guard let keyboardFrame = (
-            notification
-                .userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue
-        )?.cgRectValue,
-            let presentedView = presentedView
-        else { return }
+        let keyboardEndFrame = keyboardFrameValue.cgRectValue
 
-        let remainingHeight = keyboardFrame.origin.y / 2
+        keyboardFrame = isKeyboardDocked(keyboardEndFrame) && isKeyboardVisible(keyboardEndFrame)
+            ? keyboardEndFrame
+            : .zero
 
-        if remainingHeight > 0 {
-            let center = CGPoint(x: presentedView.center.x, y: remainingHeight)
-            presentedView.center = center
-        } else {
-            let topSafeAreaInset = presentingViewController.view.safeAreaInsets.top
-            presentedView.frame.origin.y = topSafeAreaInset
+        animateAlongsideKeyboard(notification: notification) {
+            self.updatePresentedViewLayout()
         }
     }
 
-    /// Keyboard will hide handling function, Puts presented view on middle of container view.
-    ///  (Puts view on the place it was before opening keyboard)
-    @objc private func keyboardWillHide() {
-        guard let containerView = containerView,
-              let presentedView = presentedView
-        else { return }
+    private func animateAlongsideKeyboard(
+        notification: Notification,
+        animations: @escaping () -> Void
+    ) {
+        let animationCurveValue = notification
+            .userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber
+        let animationDurationValue = notification
+            .userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber
 
-        presentedView.center = containerView.center
+        guard let animationCurveValue = animationCurveValue,
+              let animationDuration = animationDurationValue?.doubleValue,
+              let animationCurve = UIView.AnimationCurve(rawValue: animationCurveValue.intValue)
+        else {
+            animations()
+            return
+        }
+
+        let animator = UIViewPropertyAnimator(
+            duration: animationDuration,
+            curve: animationCurve, animations:
+            animations
+        )
+
+        animator.startAnimation()
+    }
+
+    private func isKeyboardVisible(_ keyboardFrame: CGRect) -> Bool {
+        guard let screenBounds = containerView?.window?.screen.bounds else { return false }
+
+        return keyboardFrame.intersects(screenBounds)
+    }
+
+    private func isKeyboardDocked(_ keyboardFrame: CGRect) -> Bool {
+        guard let screenBounds = containerView?.window?.screen.bounds else { return false }
+
+        return keyboardFrame.minX == screenBounds.minX &&
+            keyboardFrame.maxX == screenBounds.maxX &&
+            keyboardFrame.maxY == screenBounds.maxY
+    }
+
+    private func updatePresentedViewLayout() {
+        guard isPresented else { return }
+
+        let targetFrame = FormsheetPresentationAnimator.targetFrame(
+            in: availableContainerBounds,
+            preferredContentSize: presentedViewController.preferredContentSize
+        )
+
+        presentedView?.frame = targetFrame
+    }
+
+    private var availableContainerBounds: CGRect {
+        guard let containerView = containerView else { return .zero }
+
+        let safeAreaBounds = containerView.safeAreaLayoutGuide.layoutFrame
+
+        guard keyboardFrame != .zero else { return safeAreaBounds }
+
+        let containerFrame = containerView.convert(safeAreaBounds, to: nil)
+        let intersectionRect = containerFrame.intersection(keyboardFrame)
+
+        guard !CGRectIsInfinite(intersectionRect) else { return safeAreaBounds }
+
+        return CGRect(
+            origin: safeAreaBounds.origin,
+            size: CGSize(
+                width: containerFrame.width,
+                height: containerFrame.height - intersectionRect.height
+            )
+        )
     }
 }
