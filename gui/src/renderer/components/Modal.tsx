@@ -35,7 +35,7 @@ const ModalBackground = styled.div({}, (props: { visible: boolean }) => ({
   left: 0,
   right: 0,
   bottom: 0,
-  transition: 'all 150ms ease-out',
+  transition: 'background-color 150ms ease-out',
   pointerEvents: props.visible ? 'auto' : 'none',
   zIndex: 2,
 }));
