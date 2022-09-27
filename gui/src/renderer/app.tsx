@@ -74,7 +74,7 @@ const SUPPORTED_LOCALE_LIST = [
   { name: 'မြန်မာဘာသာ', code: 'my' },
   { name: 'Nederlands', code: 'nl' },
   { name: 'Norsk', code: 'nb' },
-  { name: 'Język polski', code: 'pl' },
+  { name: 'Polski', code: 'pl' },
   { name: 'Português', code: 'pt' },
   { name: 'Русский', code: 'ru' },
   { name: 'Svenska', code: 'sv' },
