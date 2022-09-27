@@ -574,6 +574,7 @@ mod test {
             }
         }
 
+        #[allow(clippy::type_complexity)]
         fn into_locked(
             self,
         ) -> (
@@ -711,7 +712,7 @@ mod test {
         });
 
         std::thread::sleep(Duration::from_secs(1));
-        assert_eq!(true, result_rx.try_recv().unwrap().unwrap());
+        assert!(result_rx.try_recv().unwrap().unwrap());
         stop_tx.send(()).unwrap();
         std::thread::sleep(Duration::from_secs(1));
         assert!(result_rx.try_recv().unwrap().is_ok());

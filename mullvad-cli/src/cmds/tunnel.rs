@@ -125,7 +125,7 @@ fn create_ipv6_subcommand() -> clap::App<'static> {
                 clap::Arg::new("policy")
                     .required(true)
                     .takes_value(true)
-                    .possible_values(&["on", "off"]),
+                    .possible_values(["on", "off"]),
             ),
         )
 }

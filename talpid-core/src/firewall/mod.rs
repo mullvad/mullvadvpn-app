@@ -85,7 +85,7 @@ const ROOT_UID: u32 = 0;
 /// Returns whether an address belongs to a private subnet.
 pub fn is_local_address(address: &IpAddr) -> bool {
     let address = *address;
-    (&*ALLOWED_LAN_NETS)
+    (*ALLOWED_LAN_NETS)
         .iter()
         .chain(&*LOOPBACK_NETS)
         .any(|net| net.contains(address))

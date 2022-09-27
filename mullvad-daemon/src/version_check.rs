@@ -275,7 +275,7 @@ impl VersionUpdater {
         response: mullvad_api::AppVersionResponse,
     ) -> AppVersionInfo {
         let suggested_upgrade = Self::suggested_upgrade(
-            &*APP_VERSION,
+            &APP_VERSION,
             &response.latest_stable,
             &response.latest_beta,
             self.show_beta_releases || is_beta_version(),
@@ -373,7 +373,7 @@ impl VersionUpdater {
                                 .clone()
                             {
                                 let suggested_upgrade = Self::suggested_upgrade(
-                                    &*APP_VERSION,
+                                    &APP_VERSION,
                                     &Some(last_app_version_info.latest_stable.clone()),
                                     &last_app_version_info.latest_beta,
                                     self.show_beta_releases || is_beta_version(),

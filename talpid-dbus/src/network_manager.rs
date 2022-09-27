@@ -144,7 +144,7 @@ impl NetworkManager {
 
     pub fn get_interface_name(&self, tunnel: &WireguardTunnel) -> Result<String> {
         tunnel
-            .device_proxy(&*self.connection)
+            .device_proxy(&self.connection)
             .get(NM_DEVICE, "Interface")
             .map_err(Error::Dbus)
     }
@@ -334,7 +334,7 @@ impl NetworkManager {
             .map_err(Error::Dbus);
 
         let config_result: Result<()> = tunnel
-            .config_proxy(&*self.connection)
+            .config_proxy(&self.connection)
             .method_call(NM_SETTINGS_CONNECTION_INTERFACE, "Delete", ())
             .map_err(Error::Dbus);
         deactivation_result?;
@@ -430,11 +430,11 @@ impl NetworkManager {
         Ok(())
     }
 
-    fn as_manager<'a>(&'a self) -> Proxy<'a, &SyncConnection> {
+    fn as_manager(&'_ self) -> Proxy<'_, &SyncConnection> {
         Proxy::new(NM_BUS, NM_MANAGER_PATH, RPC_TIMEOUT, &*self.connection)
     }
 
-    fn as_dns_manager<'a>(&'a self) -> Proxy<'a, &SyncConnection> {
+    fn as_dns_manager(&'_ self) -> Proxy<'_, &SyncConnection> {
         Proxy::new(NM_BUS, NM_DNS_MANAGER_PATH, RPC_TIMEOUT, &*self.connection)
     }
 

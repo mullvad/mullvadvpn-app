@@ -118,7 +118,7 @@ impl PrivateKey {
     }
 
     pub fn new_from_random() -> Self {
-        PrivateKey(x25519_dalek::StaticSecret::new(&mut OsRng))
+        PrivateKey(x25519_dalek::StaticSecret::new(OsRng))
     }
 
     /// Generate public key from private key
@@ -153,7 +153,7 @@ impl fmt::Debug for PrivateKey {
 
 impl fmt::Display for PrivateKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &base64::encode(&(self.0).to_bytes()))
+        write!(f, "{}", &base64::encode((self.0).to_bytes()))
     }
 }
 
@@ -298,7 +298,7 @@ fn serialize_key<S>(key: &[u8; 32], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    serializer.serialize_str(&base64::encode(&key))
+    serializer.serialize_str(&base64::encode(key))
 }
 
 fn deserialize_key<'de, D, K>(deserializer: D) -> Result<K, D::Error>

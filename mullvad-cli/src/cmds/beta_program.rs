@@ -18,7 +18,7 @@ impl Command for BetaProgram {
                     .arg(
                         clap::Arg::new("policy")
                             .required(true)
-                            .possible_values(&["on", "off"]),
+                            .possible_values(["on", "off"]),
                     ),
             )
             .subcommand(clap::App::new("get").about("Get beta notifications setting"))

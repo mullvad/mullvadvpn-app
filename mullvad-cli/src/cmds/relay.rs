@@ -93,7 +93,7 @@ impl Command for Relay {
                                         .help("Transport protocol")
                                         .long("protocol")
                                         .default_value("udp")
-                                        .possible_values(&["udp", "tcp"]),
+                                        .possible_values(["udp", "tcp"]),
                                 )
                             )
                     )
@@ -130,7 +130,7 @@ impl Command for Relay {
                             .arg(
                                 clap::Arg::new("ownership")
                                 .help("Ownership preference, or 'any' for no preference.")
-                                .possible_values(&["any", "owned", "rented"])
+                                .possible_values(["any", "owned", "rented"])
                                 .required(true)
                             )
                     )
@@ -152,7 +152,7 @@ impl Command for Relay {
                                         clap::Arg::new("transport protocol")
                                             .help("Transport protocol")
                                             .long("protocol")
-                                            .possible_values(&["any", "udp", "tcp"])
+                                            .possible_values(["any", "udp", "tcp"])
                                             .takes_value(true),
                                     )
                             )
@@ -169,7 +169,7 @@ impl Command for Relay {
                                     .arg(
                                         clap::Arg::new("ip version")
                                             .long("ipv")
-                                            .possible_values(&["any", "4", "6"])
+                                            .possible_values(["any", "4", "6"])
                                             .takes_value(true),
                                     )
                                     .arg(
@@ -189,7 +189,7 @@ impl Command for Relay {
                                     clap::Arg::new("tunnel protocol")
                                     .required(true)
                                     .index(1)
-                                    .possible_values(&["any", "wireguard", "openvpn", ]),
+                                    .possible_values(["any", "wireguard", "openvpn", ]),
                                     )
                                 ),
             )
