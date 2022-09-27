@@ -30,7 +30,7 @@ use std::{
 };
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
 use windows_sys::Win32::{
-    Foundation::ERROR_OPERATION_ABORTED, NetworkManagement::IpHelper::NET_LUID_LH,
+    Foundation::ERROR_OPERATION_ABORTED, NetworkManagement::Ndis::NET_LUID_LH,
 };
 
 const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;

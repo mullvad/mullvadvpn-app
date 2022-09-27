@@ -14,7 +14,7 @@ use windows_sys::{
     core::GUID,
     Win32::{
         Foundation::{HINSTANCE, NO_ERROR},
-        NetworkManagement::IpHelper::{ConvertInterfaceLuidToGuid, NET_LUID_LH},
+        NetworkManagement::{IpHelper::ConvertInterfaceLuidToGuid, Ndis::NET_LUID_LH},
         System::{
             LibraryLoader::{
                 FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH,
