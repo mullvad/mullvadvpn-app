@@ -114,6 +114,9 @@ msgstr ""
 msgid "CREATING SECURE CONNECTION"
 msgstr ""
 
+msgid "Custom"
+msgstr ""
+
 msgid "Default"
 msgstr ""
 
@@ -1510,6 +1513,14 @@ msgstr ""
 #. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
 msgstr ""
 
 #. The hint displayed below the WireGuard IP version selector.

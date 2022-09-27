@@ -11,6 +11,7 @@ import {
 } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
+import { removeNonNumericCharacters } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { createWireguardRelayUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
@@ -19,7 +20,7 @@ import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
-import Selector, { ISelectorItem } from './cell/Selector';
+import Selector, { SelectorItem, SelectorWithCustomItem } from './cell/Selector';
 import { InfoIcon } from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
@@ -38,10 +39,7 @@ const MAX_WIREGUARD_MTU_VALUE = 1420;
 const WIREUGARD_UDP_PORTS = [51820, 53];
 const UDP2TCP_PORTS = [80, 443, 5001];
 
-type OptionalPort = number | undefined;
-type OptionalIpVersion = IpVersion | undefined;
-
-function mapPortToSelectorItem(value: number): ISelectorItem<number> {
+function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
 }
 
@@ -131,26 +129,23 @@ export default function WireguardSettings() {
 function PortSelector() {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const { updateRelaySettings } = useAppContext();
+  const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
 
-  const wireguardPortItems = useMemo(() => {
-    const automaticPort: ISelectorItem<OptionalPort> = {
-      label: messages.gettext('Automatic'),
-      value: undefined,
-    };
-
-    return [automaticPort].concat(WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem));
-  }, []);
+  const wireguardPortItems = useMemo<Array<SelectorItem<number>>>(
+    () => WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem),
+    [],
+  );
 
   const port = useMemo(() => {
-    const port = 'normal' in relaySettings ? relaySettings.normal.wireguard.port : undefined;
-    return port === 'any' ? undefined : port;
+    const port = 'normal' in relaySettings ? relaySettings.normal.wireguard.port : 'any';
+    return port === 'any' ? null : port;
   }, [relaySettings]);
 
   const setWireguardPort = useCallback(
-    async (port?: number) => {
+    async (port: number | null) => {
       const relayUpdate = createWireguardRelayUpdater(relaySettings)
         .tunnel.wireguard((wireguard) => {
-          if (port) {
+          if (port !== null) {
             wireguard.port.exact(port);
           } else {
             wireguard.port.any();
@@ -167,15 +162,56 @@ function PortSelector() {
     [relaySettings],
   );
 
+  const setCustomPort = useCallback(
+    async (port: string) => {
+      await setWireguardPort(parseInt(port));
+    },
+    [setWireguardPort],
+  );
+
+  const validateValue = useCallback(
+    (value) => allowedPortRanges.some(([start, end]) => value >= start && value <= end),
+    [allowedPortRanges],
+  );
+
+  const portRangesText = allowedPortRanges
+    .map(([start, end]) => (start === end ? start : `${start}-${end}`))
+    .join(', ');
+
   return (
     <AriaInputGroup>
       <StyledSelectorContainer>
-        <Selector
+        <SelectorWithCustomItem
           // TRANSLATORS: The title for the WireGuard port selector.
           title={messages.pgettext('wireguard-settings-view', 'Port')}
-          values={wireguardPortItems}
+          items={wireguardPortItems}
           value={port}
           onSelect={setWireguardPort}
+          onSelectCustom={setCustomPort}
+          inputPlaceholder={messages.pgettext('wireguard-settings-view', 'Port')}
+          automaticValue={null}
+          modifyValue={removeNonNumericCharacters}
+          validateValue={validateValue}
+          maxLength={5}
+          details={
+            <>
+              <ModalMessage>
+                {messages.pgettext(
+                  'wireguard-settings-view',
+                  'The automatic setting will randomly choose from the valid port ranges shown below.',
+                )}
+              </ModalMessage>
+              <ModalMessage>
+                {sprintf(
+                  messages.pgettext(
+                    'wireguard-settings-view',
+                    'The custom port can be any value inside the valid ranges: %(portRanges)s.',
+                  ),
+                  { portRanges: portRangesText },
+                )}
+              </ModalMessage>
+            </>
+          }
         />
       </StyledSelectorContainer>
       <Cell.Footer>
@@ -200,12 +236,8 @@ function ObfuscationSettings() {
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
 
   const obfuscationType = obfuscationSettings.selectedObfuscation;
-  const obfuscationTypeItems: ISelectorItem<ObfuscationType>[] = useMemo(
+  const obfuscationTypeItems: SelectorItem<ObfuscationType>[] = useMemo(
     () => [
-      {
-        label: messages.gettext('Automatic'),
-        value: ObfuscationType.auto,
-      },
       {
         label: messages.pgettext('wireguard-settings-view', 'On (UDP-over-TCP)'),
         value: ObfuscationType.udp2tcp,
@@ -242,9 +274,10 @@ function ObfuscationSettings() {
               )}
             </ModalMessage>
           }
-          values={obfuscationTypeItems}
+          items={obfuscationTypeItems}
           value={obfuscationType}
           onSelect={selectObfuscationType}
+          automaticValue={ObfuscationType.auto}
         />
       </StyledSelectorContainer>
     </AriaInputGroup>
@@ -256,14 +289,10 @@ function Udp2tcpPortSetting() {
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
 
   const port = liftConstraint(obfuscationSettings.udp2tcpSettings.port);
-  const portItems: ISelectorItem<LiftedConstraint<number>>[] = useMemo(() => {
-    const automaticItem: ISelectorItem<LiftedConstraint<number>> = {
-      label: messages.gettext('Automatic'),
-      value: 'any',
-    };
-
-    return [automaticItem].concat(UDP2TCP_PORTS.map(mapPortToSelectorItem));
-  }, []);
+  const portItems: SelectorItem<number>[] = useMemo(
+    () => UDP2TCP_PORTS.map(mapPortToSelectorItem),
+    [],
+  );
 
   const selectPort = useCallback(
     async (port: LiftedConstraint<number>) => {
@@ -292,12 +321,13 @@ function Udp2tcpPortSetting() {
               )}
             </ModalMessage>
           }
-          values={portItems}
+          items={portItems}
           value={port}
           onSelect={selectPort}
           disabled={obfuscationSettings.selectedObfuscation === ObfuscationType.off}
           expandable
           thinTitle
+          automaticValue={'any' as const}
         />
       </StyledSelectorContainer>
     </AriaInputGroup>
@@ -401,17 +431,12 @@ function IpVersionSetting() {
   const { updateRelaySettings } = useAppContext();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const ipVersion = useMemo(() => {
-    const ipVersion =
-      'normal' in relaySettings ? relaySettings.normal.wireguard.ipVersion : undefined;
-    return ipVersion === 'any' ? undefined : ipVersion;
+    const ipVersion = 'normal' in relaySettings ? relaySettings.normal.wireguard.ipVersion : 'any';
+    return ipVersion === 'any' ? null : ipVersion;
   }, [relaySettings]);
 
-  const ipVersionItems: ISelectorItem<OptionalIpVersion>[] = useMemo(
+  const ipVersionItems: SelectorItem<IpVersion>[] = useMemo(
     () => [
-      {
-        label: messages.gettext('Automatic'),
-        value: undefined,
-      },
       {
         label: messages.gettext('IPv4'),
         value: 'ipv4',
@@ -425,10 +450,10 @@ function IpVersionSetting() {
   );
 
   const setIpVersion = useCallback(
-    async (ipVersion?: IpVersion) => {
+    async (ipVersion: IpVersion | null) => {
       const relayUpdate = createWireguardRelayUpdater(relaySettings)
         .tunnel.wireguard((wireguard) => {
-          if (ipVersion) {
+          if (ipVersion !== null) {
             wireguard.ipVersion.exact(ipVersion);
           } else {
             wireguard.ipVersion.any();
@@ -451,9 +476,10 @@ function IpVersionSetting() {
         <Selector
           // TRANSLATORS: The title for the WireGuard IP version selector.
           title={messages.pgettext('wireguard-settings-view', 'IP version')}
-          values={ipVersionItems}
+          items={ipVersionItems}
           value={ipVersion}
           onSelect={setIpVersion}
+          automaticValue={null}
         />
       </StyledSelectorContainer>
       <Cell.Footer>
@@ -474,10 +500,6 @@ function IpVersionSetting() {
       </Cell.Footer>
     </AriaInputGroup>
   );
-}
-
-function removeNonNumericCharacters(value: string) {
-  return value.replace(/[^0-9]/g, '');
 }
 
 function mtuIsValid(mtu: string): boolean {

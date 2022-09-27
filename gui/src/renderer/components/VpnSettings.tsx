@@ -17,7 +17,7 @@ import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaDetails, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
-import Selector, { ISelectorItem } from './cell/Selector';
+import Selector, { SelectorItem } from './cell/Selector';
 import CustomDnsSettings from './CustomDnsSettings';
 import InfoButton, { InfoIcon } from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
@@ -612,10 +612,10 @@ function TunnelProtocolSetting() {
   );
   const { updateRelaySettings } = useAppContext();
 
-  const setTunnelProtocol = useCallback(async (tunnelProtocol: TunnelProtocol | undefined) => {
+  const setTunnelProtocol = useCallback(async (tunnelProtocol: TunnelProtocol | null) => {
     const relayUpdate = RelaySettingsBuilder.normal()
       .tunnel.tunnelProtocol((config) => {
-        if (tunnelProtocol) {
+        if (tunnelProtocol !== null) {
           config.tunnelProtocol.exact(tunnelProtocol);
         } else {
           config.tunnelProtocol.any();
@@ -630,12 +630,8 @@ function TunnelProtocolSetting() {
     }
   }, []);
 
-  const tunnelProtocolItems: Array<ISelectorItem<TunnelProtocol | undefined>> = useMemo(
+  const tunnelProtocolItems: Array<SelectorItem<TunnelProtocol>> = useMemo(
     () => [
-      {
-        label: messages.gettext('Automatic'),
-        value: undefined,
-      },
       {
         label: strings.wireguard,
         value: 'wireguard',
@@ -653,9 +649,10 @@ function TunnelProtocolSetting() {
       <StyledSelectorContainer>
         <Selector
           title={messages.pgettext('vpn-settings-view', 'Tunnel protocol')}
-          values={tunnelProtocolItems}
-          value={tunnelProtocol}
+          items={tunnelProtocolItems}
+          value={tunnelProtocol ?? null}
           onSelect={setTunnelProtocol}
+          automaticValue={null}
         />
       </StyledSelectorContainer>
     </AriaInputGroup>

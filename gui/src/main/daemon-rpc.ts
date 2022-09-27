@@ -31,14 +31,15 @@ import {
   IObfuscationEndpoint,
   IOpenVpnConstraints,
   IProxyEndpoint,
-  IRelayList,
   IRelayListCity,
   IRelayListCountry,
   IRelayListHostname,
+  IRelayListWithEndpointData,
   ISettings,
   ITunnelOptions,
   ITunnelStateRelayInfo,
   IWireguardConstraints,
+  IWireguardEndpointData,
   LoggedInDeviceState,
   LoggedOutDeviceState,
   ObfuscationSettings,
@@ -258,7 +259,7 @@ export class DaemonRpc {
     }
   }
 
-  public async getRelayLocations(): Promise<IRelayList> {
+  public async getRelayLocations(): Promise<IRelayListWithEndpointData> {
     if (this.isConnected) {
       const response = await this.callEmpty<grpcTypes.RelayList>(this.client.getRelayLocations);
       return convertFromRelayList(response);
@@ -757,13 +758,25 @@ function liftConstraint<T>(constraint: Constraint<T> | undefined): T | undefined
   return undefined;
 }
 
-function convertFromRelayList(relayList: grpcTypes.RelayList): IRelayList {
+function convertFromRelayList(relayList: grpcTypes.RelayList): IRelayListWithEndpointData {
   return {
-    countries: relayList
-      .getCountriesList()
-      .map((country: grpcTypes.RelayListCountry) =>
-        convertFromRelayListCountry(country.toObject()),
-      ),
+    relayList: {
+      countries: relayList
+        .getCountriesList()
+        .map((country: grpcTypes.RelayListCountry) =>
+          convertFromRelayListCountry(country.toObject()),
+        ),
+    },
+    wireguardEndpointData: convertWireguardEndpointData(relayList.getWireguard()!),
+  };
+}
+
+function convertWireguardEndpointData(
+  data: grpcTypes.WireguardEndpointData,
+): IWireguardEndpointData {
+  return {
+    portRanges: data.getPortRangesList().map((range) => [range.getFirst(), range.getLast()]),
+    udp2tcpPorts: data.getUdp2tcpPortsList(),
   };
 }
 

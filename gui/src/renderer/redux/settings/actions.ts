@@ -1,5 +1,10 @@
 import { IWindowsApplication } from '../../../shared/application-types';
-import { BridgeState, IDnsOptions, ObfuscationSettings } from '../../../shared/daemon-rpc-types';
+import {
+  BridgeState,
+  IDnsOptions,
+  IWireguardEndpointData,
+  ObfuscationSettings,
+} from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { BridgeSettingsRedux, IRelayLocationRedux, RelaySettingsRedux } from './reducers';
 
@@ -21,6 +26,11 @@ export interface IUpdateRelayLocationsAction {
 export interface IUpdateBridgeLocationsAction {
   type: 'UPDATE_BRIDGE_LOCATIONS';
   bridgeLocations: IRelayLocationRedux[];
+}
+
+export interface IUpdateWireguardEndpointData {
+  type: 'UPDATE_WIREGUARD_ENDPOINT_DATA';
+  wireguardEndpointData: IWireguardEndpointData;
 }
 
 export interface IUpdateAllowLanAction {
@@ -93,6 +103,7 @@ export type SettingsAction =
   | IUpdateRelayAction
   | IUpdateRelayLocationsAction
   | IUpdateBridgeLocationsAction
+  | IUpdateWireguardEndpointData
   | IUpdateAllowLanAction
   | IUpdateEnableIpv6Action
   | IUpdateBlockWhenDisconnectedAction
@@ -134,6 +145,15 @@ function updateBridgeLocations(
   return {
     type: 'UPDATE_BRIDGE_LOCATIONS',
     bridgeLocations,
+  };
+}
+
+function updateWireguardEndpointData(
+  wireguardEndpointData: IWireguardEndpointData,
+): IUpdateWireguardEndpointData {
+  return {
+    type: 'UPDATE_WIREGUARD_ENDPOINT_DATA',
+    wireguardEndpointData,
   };
 }
 
@@ -239,6 +259,7 @@ export default {
   updateRelay,
   updateRelayLocations,
   updateBridgeLocations,
+  updateWireguardEndpointData,
   updateAllowLan,
   updateEnableIpv6,
   updateBlockWhenDisconnected,

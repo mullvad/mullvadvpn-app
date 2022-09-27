@@ -7,6 +7,7 @@ import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
+import { removeNonNumericCharacters } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utilityHooks';
@@ -15,7 +16,7 @@ import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
-import Selector, { ISelectorItem } from './cell/Selector';
+import Selector, { SelectorItem } from './cell/Selector';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
@@ -33,17 +34,13 @@ const MAX_MSSFIX_VALUE = 1450;
 const UDP_PORTS = [1194, 1195, 1196, 1197, 1300, 1301, 1302];
 const TCP_PORTS = [80, 443];
 
-type OptionalPort = number | undefined;
-
-type OptionalRelayProtocol = RelayProtocol | undefined;
-
 export enum BridgeModeAvailability {
   available,
   blockedDueToTunnelProtocol,
   blockedDueToTransportProtocol,
 }
 
-function mapPortToSelectorItem(value: number): ISelectorItem<number> {
+function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
 }
 
@@ -127,18 +124,14 @@ function TransportProtocolSelector() {
   const bridgeState = useSelector((state) => state.settings.bridgeState);
 
   const protocol = useMemo(() => {
-    const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : undefined;
-    return protocol === 'any' ? undefined : protocol;
+    const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : 'any';
+    return protocol === 'any' ? null : protocol;
   }, [relaySettings]);
 
   const protocolAndPortUpdater = useProtocolAndPortUpdater();
 
-  const items: ISelectorItem<OptionalRelayProtocol>[] = useMemo(
+  const items: SelectorItem<RelayProtocol>[] = useMemo(
     () => [
-      {
-        label: messages.gettext('Automatic'),
-        value: undefined,
-      },
       {
         label: messages.gettext('TCP'),
         value: 'tcp',
@@ -157,9 +150,10 @@ function TransportProtocolSelector() {
       <AriaInputGroup>
         <Selector
           title={messages.pgettext('openvpn-settings-view', 'Transport protocol')}
-          values={items}
+          items={items}
           value={protocol}
           onSelect={protocolAndPortUpdater}
+          automaticValue={null}
         />
         {bridgeState === 'on' && (
           <Cell.Footer>
@@ -186,7 +180,7 @@ function useProtocolAndPortUpdater() {
   const { updateRelaySettings } = useAppContext();
 
   const updater = useCallback(
-    async (protocol?: RelayProtocol, port?: number) => {
+    async (protocol: RelayProtocol | null, port?: number | null) => {
       const relayUpdate = RelaySettingsBuilder.normal()
         .tunnel.openvpn((openvpn) => {
           if (protocol) {
@@ -220,35 +214,30 @@ function PortSelector() {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
 
   const protocol = useMemo(() => {
-    const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : undefined;
-    return protocol === 'any' ? undefined : protocol;
+    const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : 'any';
+    return protocol === 'any' ? null : protocol;
   }, [relaySettings]);
 
   const port = useMemo(() => {
-    const port = 'normal' in relaySettings ? relaySettings.normal.openvpn.port : undefined;
-    return port === 'any' ? undefined : port;
+    const port = 'normal' in relaySettings ? relaySettings.normal.openvpn.port : 'any';
+    return port === 'any' ? null : port;
   }, [relaySettings]);
 
   const protocolAndPortUpdater = useProtocolAndPortUpdater();
 
   const onSelect = useCallback(
-    async (port?: number) => {
+    async (port: number | null) => {
       await protocolAndPortUpdater(protocol, port);
     },
     [protocolAndPortUpdater, protocol],
   );
 
-  const automaticPort: ISelectorItem<OptionalPort> = {
-    label: messages.gettext('Automatic'),
-    value: undefined,
-  };
-
   const portItems = {
-    udp: [automaticPort].concat(UDP_PORTS.map(mapPortToSelectorItem)),
-    tcp: [automaticPort].concat(TCP_PORTS.map(mapPortToSelectorItem)),
+    udp: UDP_PORTS.map(mapPortToSelectorItem),
+    tcp: TCP_PORTS.map(mapPortToSelectorItem),
   };
 
-  if (protocol === undefined) {
+  if (protocol === null) {
     return null;
   }
 
@@ -265,9 +254,10 @@ function PortSelector() {
               portType: protocol.toUpperCase(),
             },
           )}
-          values={portItems[protocol]}
+          items={portItems[protocol]}
           value={port}
           onSelect={onSelect}
+          automaticValue={null}
         />
       </AriaInputGroup>
     </StyledSelectorContainer>
@@ -281,21 +271,17 @@ function BridgeModeSelector() {
   const bridgeState = useSelector((state) => state.settings.bridgeState);
 
   const tunnelProtocol = useMemo(() => {
-    const protocol = 'normal' in relaySettings ? relaySettings.normal.tunnelProtocol : undefined;
-    return protocol === 'any' ? undefined : protocol;
+    const protocol = 'normal' in relaySettings ? relaySettings.normal.tunnelProtocol : 'any';
+    return protocol === 'any' ? null : protocol;
   }, [relaySettings]);
 
   const transportProtocol = useMemo(() => {
-    const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : undefined;
-    return protocol === 'any' ? undefined : protocol;
+    const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : 'any';
+    return protocol === 'any' ? null : protocol;
   }, [relaySettings]);
 
-  const options: ISelectorItem<BridgeState>[] = useMemo(
+  const options: SelectorItem<BridgeState>[] = useMemo(
     () => [
-      {
-        label: messages.gettext('Automatic'),
-        value: 'auto',
-      },
       {
         label: messages.gettext('On'),
         value: 'on',
@@ -348,9 +334,10 @@ function BridgeModeSelector() {
               // TRANSLATORS: The title for the shadowsocks bridge selector section.
               messages.pgettext('openvpn-settings-view', 'Bridge mode')
             }
-            values={options}
+            items={options}
             value={bridgeState}
             onSelect={onSelectBridgeState}
+            automaticValue={'auto' as const}
           />
         </StyledSelectorContainer>
         <Cell.Footer>
@@ -379,7 +366,10 @@ function BridgeModeSelector() {
   );
 }
 
-function bridgeModeFooterText(tunnelProtocol?: TunnelProtocol, transportProtocol?: RelayProtocol) {
+function bridgeModeFooterText(
+  tunnelProtocol: TunnelProtocol | null,
+  transportProtocol: RelayProtocol | null,
+) {
   if (tunnelProtocol !== 'openvpn') {
     return formatMarkdown(
       sprintf(
@@ -431,10 +421,6 @@ function bridgeModeFooterText(tunnelProtocol?: TunnelProtocol, transportProtocol
       { openvpn: strings.openvpn },
     );
   }
-}
-
-function removeNonNumericCharacters(value: string) {
-  return value.replace(/[^0-9]/g, '');
 }
 
 function mssfixIsValid(mssfix: string): boolean {

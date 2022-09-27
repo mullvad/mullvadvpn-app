@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add custom option to WireGuard port selector.
+
 ### Changed
 - Experimental: Upgrade the support for quantum-resistant WireGuard tunnels to a newer protocol.
 
