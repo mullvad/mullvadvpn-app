@@ -19,9 +19,11 @@ class FormsheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         let destination = transitionContext.viewController(forKey: .to)
 
-        return destination?.isBeingPresented ?? false
-            ? animatePresentation(transitionContext)
-            : animateDismissal(transitionContext)
+        if destination?.isBeingPresented ?? false {
+            animatePresentation(transitionContext)
+        } else {
+            animateDismissal(transitionContext)
+        }
     }
 
     static func initialFrame(in containerView: UIView, preferredContentSize: CGSize) -> CGRect {
@@ -43,12 +45,8 @@ class FormsheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
             size: preferredContentSize
         )
     }
-}
 
-// MARK: - Private Functions
-
-private extension FormsheetPresentationAnimator {
-    func animatePresentation(_ transitionContext: UIViewControllerContextTransitioning) {
+    private func animatePresentation(_ transitionContext: UIViewControllerContextTransitioning) {
         let duration = transitionDuration(using: transitionContext)
         let containerView = transitionContext.containerView
         let destinationView = transitionContext.view(forKey: .to) ?? UIView()
@@ -78,7 +76,7 @@ private extension FormsheetPresentationAnimator {
         )
     }
 
-    func animateDismissal(_ transitionContext: UIViewControllerContextTransitioning) {
+    private func animateDismissal(_ transitionContext: UIViewControllerContextTransitioning) {
         let duration = transitionDuration(using: transitionContext)
         let containerView = transitionContext.containerView
         let sourceView = transitionContext.view(forKey: .from) ?? UIView()
