@@ -12,12 +12,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.di.vpnServiceModule
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
 import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
+import org.koin.core.context.loadKoinModules
 
 class MullvadVpnService : TalpidVpnService() {
     companion object {
@@ -66,6 +68,7 @@ class MullvadVpnService : TalpidVpnService() {
         super.onCreate()
         Log.d(TAG, "Initializing service")
 
+        loadKoinModules(vpnServiceModule)
         daemonInstance = DaemonInstance(this)
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 

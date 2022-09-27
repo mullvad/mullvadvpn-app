@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.util
 
+import android.Manifest
 import android.app.PendingIntent
+import android.content.Context
+import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.Build
 import android.service.quicksettings.Tile
@@ -12,6 +15,12 @@ object SdkUtils {
         } else {
             PendingIntent.FLAG_UPDATE_CURRENT
         }
+    }
+
+    fun Context.isNotificationPermissionGranted(): Boolean {
+        return (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) ||
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
     }
 
     fun VpnService.Builder.setMeteredIfSupported(isMetered: Boolean) {

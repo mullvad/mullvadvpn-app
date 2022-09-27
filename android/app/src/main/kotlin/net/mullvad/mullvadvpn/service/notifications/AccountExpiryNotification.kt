@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
@@ -16,14 +17,19 @@ import net.mullvad.mullvadvpn.service.endpoint.AccountCache
 import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.SdkUtils
+import net.mullvad.mullvadvpn.util.SdkUtils.isNotificationPermissionGranted
 import org.joda.time.DateTime
 import org.joda.time.Duration
+import org.koin.core.component.KoinApiExtension
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
+@OptIn(KoinApiExtension::class)
 class AccountExpiryNotification(
     val context: Context,
     val daemon: Intermittent<MullvadDaemon>,
     val accountCache: AccountCache
-) {
+) : KoinComponent {
     companion object {
         val NOTIFICATION_ID: Int = 2
         val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
@@ -34,6 +40,8 @@ class AccountExpiryNotification(
     private val resources = context.resources
 
     private val buyMoreTimeUrl = resources.getString(R.string.account_url)
+
+    private val notificationManagerCompat: NotificationManagerCompat by inject()
 
     private val channel = NotificationChannel(
         context,
@@ -69,8 +77,10 @@ class AccountExpiryNotification(
         val durationUntilExpiry = expiryDate?.remainingTime()
 
         if (accountCache.isNewAccount.not() && durationUntilExpiry?.isCloseToExpiry() == true) {
-            val notification = build(expiryDate, durationUntilExpiry)
-            channel.notificationManager.notify(NOTIFICATION_ID, notification)
+            if (context.isNotificationPermissionGranted()) {
+                val notification = build(expiryDate, durationUntilExpiry)
+                channel.notificationManager.notify(NOTIFICATION_ID, notification)
+            }
             jobTracker.newUiJob("scheduleUpdate") { scheduleUpdate() }
         } else {
             channel.notificationManager.cancel(NOTIFICATION_ID)
