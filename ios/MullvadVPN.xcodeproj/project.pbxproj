@@ -315,7 +315,6 @@
 		E148F5AF28BDFA7B00DA6119 /* FormsheetTransitionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E148F5AE28BDFA7B00DA6119 /* FormsheetTransitionDelegate.swift */; };
 		E148F5B128BDFA9E00DA6119 /* FormsheetPresentationAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E148F5B028BDFA9E00DA6119 /* FormsheetPresentationAnimator.swift */; };
 		E158B360285381C60002F069 /* StringFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* StringFormatter.swift */; };
-		E1862A0028B6433600687FE6 /* SubmitVoucherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18629FF28B6433600687FE6 /* SubmitVoucherResponse.swift */; };
 		E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */; };
 /* End PBXBuildFile section */
 
@@ -658,7 +657,6 @@
 		E148F5AE28BDFA7B00DA6119 /* FormsheetTransitionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetTransitionDelegate.swift; sourceTree = "<group>"; };
 		E148F5B028BDFA9E00DA6119 /* FormsheetPresentationAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationAnimator.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* StringFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatter.swift; sourceTree = "<group>"; };
-		E18629FF28B6433600687FE6 /* SubmitVoucherResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmitVoucherResponse.swift; sourceTree = "<group>"; };
 		E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusActivityView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -846,7 +844,6 @@
 				58554F7C280D6FE000013055 /* RESTURLSession.swift */,
 				585DA88326B0270700B8C587 /* ServerRelaysResponse.swift */,
 				584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */,
-				E18629FF28B6433600687FE6 /* SubmitVoucherResponse.swift */,
 			);
 			path = REST;
 			sourceTree = "<group>";
@@ -1548,7 +1545,6 @@
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
 				58A99ED3240014A0006599E9 /* TermsOfServiceViewController.swift in Sources */,
 				58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */,
-				E1862A0028B6433600687FE6 /* SubmitVoucherResponse.swift in Sources */,
 				58095C4F2760BA9100890776 /* AddressCacheStore.swift in Sources */,
 				587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */,
 				588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */,

@@ -314,4 +314,9 @@ extension REST {
     struct SubmitVoucherRequest: Encodable {
         let voucherCode: String
     }
+    
+    struct SubmitVoucherResponse: Codable {
+        let timeAdded: Int
+        let newExpiry: String
+    }
 }
