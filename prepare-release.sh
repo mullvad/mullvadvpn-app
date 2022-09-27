@@ -51,7 +51,13 @@ if [[ $DESKTOP == "true" && $(grep "CHANGE THIS BEFORE A RELEASE" gui/changes.tx
     exit 1
 fi
 
-if [[ $(grep "^## \\[$PRODUCT_VERSION\\] - " CHANGELOG.md) == "" ]]; then
+if [[ "$DESKTOP" == "true" && $(grep "^## \\[$PRODUCT_VERSION\\] - " CHANGELOG.md) == "" ]]; then
+    echo "It looks like you did not add $PRODUCT_VERSION to the changelog?"
+    echo "Please make sure the changelog is up to date and correct before you proceed."
+    exit 1
+fi
+
+if [[ "$ANDROID" == "true" && $(grep "^## \\[android/$PRODUCT_VERSION\\] - " CHANGELOG.md) == "" ]]; then
     echo "It looks like you did not add $PRODUCT_VERSION to the changelog?"
     echo "Please make sure the changelog is up to date and correct before you proceed."
     exit 1
@@ -71,28 +77,39 @@ fi
 set -e
 
 echo "Commiting metadata changes to git..."
-git commit -S -m "Updating version in package files" \
-    gui/package.json \
-    gui/package-lock.json \
+
+git commit -S -m "Update crate versions to $PRODUCT_VERSION" \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml \
     mullvad-setup/Cargo.toml \
     mullvad-exclude/Cargo.toml \
     talpid-openvpn-plugin/Cargo.toml \
-    Cargo.lock \
-    android/app/build.gradle.kts \
-    dist-assets/windows/version.h
+    Cargo.lock
 
-echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
+if [[ "$DESKTOP" == "true" ]]; then
+    git commit -S -m "Update desktop app versions to $PRODUCT_VERSION" \
+        gui/package.json \
+        gui/package-lock.json \
+        dist-assets/windows/version.h
+fi
+
+if [[ "$ANDROID" == "true" ]]; then
+    git commit -S -m "Update Android app version to $PRODUCT_VERSION" \
+        android/app/build.gradle.kts
+fi
 
 NEW_TAGS=""
 
 if [[ "$ANDROID" == "true" ]]; then
+    echo "Tagging current git commit with release tag android/$PRODUCT_VERSION..."
+
     git tag -s "android/$PRODUCT_VERSION" -m "android/$PRODUCT_VERSION"
     NEW_TAGS+=" android/$PRODUCT_VERSION"
 fi
 if [[ "$DESKTOP" == "true" ]]; then
+    echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
+
     git tag -s $PRODUCT_VERSION -m $PRODUCT_VERSION
     NEW_TAGS+=" $PRODUCT_VERSION"
 fi
