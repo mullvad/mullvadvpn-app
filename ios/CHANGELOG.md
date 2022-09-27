@@ -47,6 +47,7 @@ with the option to buy more time.
 
 ## Removed
 - Remove iOS 12 support.
+- Remove multiple application windows on iPad.
 
 
 ## [2022.2] - 2022-04-28
