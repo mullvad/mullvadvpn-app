@@ -40,6 +40,10 @@ final class FormsheetPresentationController: UIPresentationController {
         super.containerViewWillLayoutSubviews()
 
         dimmingView.frame = containerView?.bounds ?? .zero
+
+        // TODO: handle keyboard during rotation.
+        // Keyboard notifications arrive after layout pass during interface rotation, which makes it
+        // impossible to handle rotation properly as we don't know the keyboard frame until later.
         updatePresentedViewLayout()
     }
 
