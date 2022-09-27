@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.ui
 
+import android.Manifest
 import android.app.Activity
 import android.app.UiModeManager
 import android.content.Intent
@@ -9,6 +10,8 @@ import android.net.VpnService
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -33,6 +36,7 @@ import net.mullvad.mullvadvpn.ui.fragments.DeviceRevokedFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.util.SdkUtils
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
 import org.koin.android.ext.android.getKoin
@@ -40,6 +44,8 @@ import org.koin.core.context.loadKoinModules
 
 open class MainActivity : FragmentActivity() {
     val problemReport = MullvadProblemReport()
+    private var requestNotificationPermissionLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
     private var visibleSecureScreens = HashSet<Fragment>()
 
@@ -80,6 +86,8 @@ open class MainActivity : FragmentActivity() {
         setContentView(R.layout.main)
 
         launchDeviceStateHandler()
+
+        checkForNotificationPermission()
     }
 
     override fun onStart() {
@@ -255,6 +263,12 @@ open class MainActivity : FragmentActivity() {
                 val firstEntry = getBackStackEntryAt(0)
                 popBackStack(firstEntry.id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             }
+        }
+    }
+
+    private fun checkForNotificationPermission() {
+        if (SdkUtils.checkNotificationPermissionIfRequiredAndNotGranted(this)) {
+            requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 

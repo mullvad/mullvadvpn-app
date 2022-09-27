@@ -1,15 +1,20 @@
 package net.mullvad.mullvadvpn.service.notifications
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.di.featuresModule
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.endpoint.AccountCache
@@ -18,6 +23,8 @@ import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.SdkUtils
 import org.joda.time.DateTime
 import org.joda.time.Duration
+import org.koin.core.context.loadKoinModules
+import org.koin.java.KoinJavaComponent.getKoin
 
 class AccountExpiryNotification(
     val context: Context,
@@ -34,6 +41,8 @@ class AccountExpiryNotification(
     private val resources = context.resources
 
     private val buyMoreTimeUrl = resources.getString(R.string.account_url)
+
+    private lateinit var notificationManagerCompat: NotificationManagerCompat
 
     private val channel = NotificationChannel(
         context,
@@ -55,6 +64,11 @@ class AccountExpiryNotification(
     }
 
     init {
+        loadKoinModules(featuresModule)
+        getKoin().apply {
+            notificationManagerCompat = get()
+        }
+
         accountCache.onAccountExpiryChange.subscribe(this) { expiry ->
             accountExpiry = expiry
         }
@@ -69,8 +83,10 @@ class AccountExpiryNotification(
         val durationUntilExpiry = expiryDate?.remainingTime()
 
         if (accountCache.isNewAccount.not() && durationUntilExpiry?.isCloseToExpiry() == true) {
-            val notification = build(expiryDate, durationUntilExpiry)
-            channel.notificationManager.notify(NOTIFICATION_ID, notification)
+            if (isNotificationAllowed()) {
+                val notification = build(expiryDate, durationUntilExpiry)
+                channel.notificationManager.notify(NOTIFICATION_ID, notification)
+            }
             jobTracker.newUiJob("scheduleUpdate") { scheduleUpdate() }
         } else {
             channel.notificationManager.cancel(NOTIFICATION_ID)
@@ -84,6 +100,14 @@ class AccountExpiryNotification(
 
     private fun Duration.isCloseToExpiry(): Boolean {
         return isShorterThan(REMAINING_TIME_FOR_REMINDERS)
+    }
+
+    private fun isNotificationAllowed(): Boolean {
+        var hasNotificationPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
+        return hasNotificationPermission &&
+            notificationManagerCompat.areNotificationsEnabled()
     }
 
     private suspend fun scheduleUpdate() {
