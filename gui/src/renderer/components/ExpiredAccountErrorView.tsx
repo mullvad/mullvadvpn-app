@@ -15,7 +15,6 @@ import {
   StyledBody,
   StyledContainer,
   StyledCustomScrollbars,
-  StyledFooter,
   StyledHeader,
   StyledMessage,
   StyledModalCellContainer,
@@ -24,7 +23,7 @@ import {
 } from './ExpiredAccountErrorViewStyles';
 import { calculateHeaderBarStyle, HeaderBarStyle } from './HeaderBar';
 import ImageView from './ImageView';
-import { Layout } from './Layout';
+import { Footer, Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 
 export enum RecoveryAction {
@@ -70,7 +69,7 @@ export default class ExpiredAccountErrorView extends React.Component<
           <StyledContainer>
             <StyledBody>{this.renderContent()}</StyledBody>
 
-            <StyledFooter>
+            <Footer>
               <AppButton.ButtonGroup>
                 {this.getRecoveryAction() === RecoveryAction.disconnect && (
                   <AppButton.BlockingButton onClick={this.props.onDisconnect}>
@@ -86,7 +85,7 @@ export default class ExpiredAccountErrorView extends React.Component<
                   {messages.pgettext('connect-view', 'Redeem voucher')}
                 </AppButton.GreenButton>
               </AppButton.ButtonGroup>
-            </StyledFooter>
+            </Footer>
 
             {this.renderBlockWhenDisconnectedAlert()}
           </StyledContainer>

@@ -52,13 +52,6 @@ export const StyledMessageInput = styled.textarea(smallText, input, {
   fontWeight: 400,
 });
 
-export const StyledFooter = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 0,
-  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
-});
-
 export const StyledStatusIcon = styled.div({
   display: 'flex',
   justifyContent: 'center',

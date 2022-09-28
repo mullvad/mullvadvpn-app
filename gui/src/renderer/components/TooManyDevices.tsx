@@ -19,7 +19,7 @@ import { bigText, measurements } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { Brand, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
-import { Header, Layout, SettingsContainer } from './Layout';
+import { Footer, Header, Layout, SettingsContainer } from './Layout';
 import List from './List';
 import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
 
@@ -37,13 +37,6 @@ const StyledBody = styled.div({
   flexDirection: 'column',
   flex: 1,
   paddingBottom: 'auto',
-});
-
-const StyledFooter = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 0,
-  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
 });
 
 const StyledStatusIcon = styled.div({
@@ -136,7 +129,7 @@ export default function TooManyDevices() {
             </StyledBody>
 
             {devices !== undefined && (
-              <StyledFooter>
+              <Footer>
                 <AppButton.ButtonGroup>
                   <AppButton.GreenButton onClick={continueLogin} disabled={continueButtonDisabled}>
                     {
@@ -148,7 +141,7 @@ export default function TooManyDevices() {
                     {messages.gettext('Back')}
                   </AppButton.BlueButton>
                 </AppButton.ButtonGroup>
-              </StyledFooter>
+              </Footer>
             )}
           </StyledContainer>
         </StyledCustomScrollbars>

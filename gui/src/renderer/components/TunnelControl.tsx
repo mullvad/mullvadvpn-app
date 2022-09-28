@@ -8,6 +8,7 @@ import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
 import { hugeText, measurements, normalText } from './common-styles';
 import ImageView from './ImageView';
+import { Footer } from './Layout';
 import Marquee from './Marquee';
 import { MultiButton } from './MultiButton';
 import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
@@ -27,15 +28,6 @@ interface ITunnelControlProps {
 const Secured = styled(SecuredLabel)(normalText, {
   fontWeight: 700,
   lineHeight: '22px',
-});
-
-const Footer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 0,
-  paddingBottom: measurements.viewMargin,
-  paddingLeft: measurements.viewMargin,
-  paddingRight: measurements.viewMargin,
 });
 
 const Body = styled.div({

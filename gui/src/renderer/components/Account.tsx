@@ -6,7 +6,6 @@ import { messages } from '../../shared/gettext';
 import { useSelector } from '../redux/store';
 import {
   AccountContainer,
-  AccountFooter,
   AccountOutOfTime,
   AccountRow,
   AccountRowLabel,
@@ -20,7 +19,7 @@ import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import { RedeemVoucherButton } from './RedeemVoucher';
@@ -95,7 +94,7 @@ export default class Account extends React.Component<IProps, IState> {
                 </AccountRow>
               </AccountRows>
 
-              <AccountFooter>
+              <Footer>
                 <AppButton.ButtonGroup>
                   <AppButton.BlockingButton
                     disabled={this.props.isOffline}
@@ -123,7 +122,7 @@ export default class Account extends React.Component<IProps, IState> {
                     {messages.pgettext('account-view', 'Log out')}
                   </AppButton.RedButton>
                 </AppButton.ButtonGroup>
-              </AccountFooter>
+              </Footer>
             </AccountContainer>
           </SettingsContainer>
 
