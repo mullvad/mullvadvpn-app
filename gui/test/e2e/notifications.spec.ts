@@ -24,13 +24,13 @@ test('App should notify user about account expiring soon', async () => {
     response: { expiry: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString() },
   });
 
-  const title = await getByTestId('notificationTitle');
+  const title = getByTestId('notificationTitle');
   await expect(title).toContainText(/account credit expires soon/i);
 
-  let subTitle = await getByTestId('notificationSubTitle');
+  let subTitle = getByTestId('notificationSubTitle');
   await expect(subTitle).toContainText(/1 day left\. buy more credit\./i);
 
-  const indicator = await getByTestId('notificationIndicator');
+  const indicator = getByTestId('notificationIndicator');
   const indicatorColor = await getBackgroundColor(indicator);
   expect(indicatorColor).toBe(colors.yellow);
 
@@ -38,13 +38,13 @@ test('App should notify user about account expiring soon', async () => {
     channel: 'account-',
     response: { expiry: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() },
   });
-  subTitle = await getByTestId('notificationSubTitle');
+  subTitle = getByTestId('notificationSubTitle');
   await expect(subTitle).toContainText(/2 days left\. buy more credit\./i);
 
   await sendMockIpcResponse<IAccountData>({
     channel: 'account-',
     response: { expiry: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString() },
   });
-  subTitle = await getByTestId('notificationSubTitle');
+  subTitle = getByTestId('notificationSubTitle');
   await expect(subTitle).toContainText(/less than a day left\. buy more credit\./i);
 });
