@@ -60,7 +60,7 @@ export const StyledTransitionContent = styled.div({}, (props: { transition?: IIt
     top: 0,
     bottom: 0,
     zIndex: props.transition?.inFront ? 1 : 0,
-    transform: `translate(${x}, ${y})`,
+    transform: `translate3d(${x}, ${y}, 0)`,
     transition: `transform ${duration}ms ease-in-out`,
   };
 });
