@@ -62,7 +62,7 @@ export const sendMockIpcResponse = async <T>({ channel, response }: SendMockIpcR
   );
 };
 
-const getStyleProperty = async (locator: Locator, property: string) => {
+const getStyleProperty = (locator: Locator, property: string) => {
   return locator.evaluate(
     (el, { property }) => {
       return window.getComputedStyle(el).getPropertyValue(property);
@@ -71,10 +71,10 @@ const getStyleProperty = async (locator: Locator, property: string) => {
   );
 };
 
-export const getColor = async (locator: Locator) => {
+export const getColor = (locator: Locator) => {
   return getStyleProperty(locator, 'color');
 };
 
-export const getBackgroundColor = async (locator: Locator) => {
+export const getBackgroundColor = (locator: Locator) => {
   return getStyleProperty(locator, 'background-color');
 };
