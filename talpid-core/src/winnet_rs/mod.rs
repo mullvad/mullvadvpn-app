@@ -14,6 +14,7 @@ use windows_sys::Win32::{
     Networking::WinSock::{ADDRESS_FAMILY, AF_INET, AF_INET6, SOCKADDR_INET},
 };
 
+mod default_route_monitor;
 mod route_manager;
 
 // Interface description substrings found for virtual adapters.
@@ -34,6 +35,15 @@ pub enum Error {
     /// A windows API failed
     #[error(display = "Windows API call failed")]
     WindowsApi,
+    /// Route manager error
+    #[error(display = "Router manager error")]
+    RouteManagerError,
+    /// No default route error
+    #[error(display = "No default route")]
+    NoDefaultRoute,
+    /// Device name was not found
+    #[error(display = "Device name was not found")]
+    DeviceNameNotFound,
 }
 
 type Result<T> = std::result::Result<T, Error>;
@@ -86,12 +96,19 @@ fn get_ipforward_rows(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> 
     Ok(vec)
 }
 
-struct InterfaceAndGateway {
+pub struct InterfaceAndGateway {
     iface: NET_LUID_LH,
     gateway: SOCKADDR_INET,
 }
 
-pub fn get_best_default_route(family: AddressFamily) -> Result<Option<WinNetDefaultRoute>> {
+impl PartialEq for InterfaceAndGateway {
+    fn eq(&self, other: &InterfaceAndGateway) -> bool {
+        // TODO: Is this OK? We are not comparing the socket address but only comparing the LUID
+        unsafe { self.iface.Value == other.iface.Value } 
+    }
+}
+
+fn get_best_default_route_internal(family: AddressFamily) -> Result<Option<InterfaceAndGateway>> {
     let table = get_ipforward_rows(family)?;
 
     // Remove all candidates without a gateway and which are not on a physical interface.
@@ -112,11 +129,25 @@ pub fn get_best_default_route(family: AddressFamily) -> Result<Option<WinNetDefa
 
     // We previously filtered out all inactive routes so we only need to sort by acending effective_metric
     annotated.sort_by(|lhs, rhs| lhs.effective_metric.cmp(&rhs.effective_metric));
-    Ok(Some(WinNetDefaultRoute {
-        interface_luid: annotated[0].route.InterfaceLuid,
-        gateway: try_socketaddr_from_inet_sockaddr(annotated[0].route.NextHop)
-            .map_err(|_| Error::InvalidSiFamily)?,
+
+    Ok(Some(InterfaceAndGateway {
+        iface: annotated[0].route.InterfaceLuid,
+        gateway: annotated[0].route.NextHop,
     }))
+
+}
+
+pub fn get_best_default_route(family: AddressFamily) -> Result<Option<WinNetDefaultRoute>> {
+    match get_best_default_route_internal(family)? {
+        Some(interface_and_gateway) => {
+            Ok(Some(WinNetDefaultRoute {
+                interface_luid: interface_and_gateway.iface,
+                gateway: try_socketaddr_from_inet_sockaddr(interface_and_gateway.gateway)
+                .map_err(|_| Error::InvalidSiFamily)?,
+            }))
+        }
+        None => Ok(None),
+    }
 }
 
 fn route_has_gateway(route: &MIB_IPFORWARD_ROW2) -> bool {
