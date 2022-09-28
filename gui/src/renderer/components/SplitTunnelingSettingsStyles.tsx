@@ -89,7 +89,7 @@ export const StyledCellContainer = styled(Cell.Container)({
 
 export const StyledSearchContainer = styled.div({
   position: 'relative',
-  marginBottom: '18px',
+  marginBottom: measurements.buttonVerticalMargin,
 });
 
 export const StyledSearchInput = styled.input.attrs({ type: 'text' })({

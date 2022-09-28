@@ -13,10 +13,8 @@ import {
   StyledAccountTokenLabel,
   StyledAccountTokenMessage,
   StyledBody,
-  StyledBuyCreditButton,
   StyledContainer,
   StyledCustomScrollbars,
-  StyledDisconnectButton,
   StyledFooter,
   StyledHeader,
   StyledMessage,
@@ -73,19 +71,21 @@ export default class ExpiredAccountErrorView extends React.Component<
             <StyledBody>{this.renderContent()}</StyledBody>
 
             <StyledFooter>
-              {this.getRecoveryAction() === RecoveryAction.disconnect && (
-                <AppButton.BlockingButton onClick={this.props.onDisconnect}>
-                  <StyledDisconnectButton>
-                    {messages.pgettext('connect-view', 'Disconnect')}
-                  </StyledDisconnectButton>
-                </AppButton.BlockingButton>
-              )}
+              <AppButton.ButtonGroup>
+                {this.getRecoveryAction() === RecoveryAction.disconnect && (
+                  <AppButton.BlockingButton onClick={this.props.onDisconnect}>
+                    <AppButton.RedButton>
+                      {messages.pgettext('connect-view', 'Disconnect')}
+                    </AppButton.RedButton>
+                  </AppButton.BlockingButton>
+                )}
 
-              {this.renderExternalPaymentButton()}
+                {this.renderExternalPaymentButton()}
 
-              <AppButton.GreenButton onClick={this.props.navigateToRedeemVoucher}>
-                {messages.pgettext('connect-view', 'Redeem voucher')}
-              </AppButton.GreenButton>
+                <AppButton.GreenButton onClick={this.props.navigateToRedeemVoucher}>
+                  {messages.pgettext('connect-view', 'Redeem voucher')}
+                </AppButton.GreenButton>
+              </AppButton.ButtonGroup>
             </StyledFooter>
 
             {this.renderBlockWhenDisconnectedAlert()}
@@ -173,7 +173,7 @@ export default class ExpiredAccountErrorView extends React.Component<
         onClick={this.onOpenExternalPayment}>
         <AriaDescriptionGroup>
           <AriaDescribed>
-            <StyledBuyCreditButton>
+            <AppButton.GreenButton>
               <AppButton.Label>{buttonText}</AppButton.Label>
               <AriaDescription>
                 <AppButton.Icon
@@ -183,7 +183,7 @@ export default class ExpiredAccountErrorView extends React.Component<
                   aria-label={messages.pgettext('accessibility', 'Opens externally')}
                 />
               </AriaDescription>
-            </StyledBuyCreditButton>
+            </AppButton.GreenButton>
           </AriaDescribed>
         </AriaDescriptionGroup>
       </AppButton.BlockingButton>
