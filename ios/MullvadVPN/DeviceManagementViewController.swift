@@ -38,6 +38,13 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         return contentView
     }()
 
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.contentInsetAdjustmentBehavior = .always
+        return scrollView
+    }()
+
     private let logger = Logger(label: "DeviceManagementViewController")
     private let interactor: DeviceManagementInteractor
 
@@ -55,11 +62,8 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         super.viewDidLoad()
 
         view.backgroundColor = .secondaryColor
-
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        
         scrollView.addSubview(contentView)
-        scrollView.contentInsetAdjustmentBehavior = .always
         view.addSubview(scrollView)
 
         contentView.backButton.addTarget(
