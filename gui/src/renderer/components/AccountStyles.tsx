@@ -2,14 +2,14 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
-import { normalText, tinyText } from './common-styles';
+import { measurements, normalText, tinyText } from './common-styles';
 import { RedeemVoucherButton } from './RedeemVoucher';
 
 export const AccountContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  paddingBottom: '22px',
+  paddingBottom: measurements.viewMargin,
 });
 
 export const AccountRows = styled.div({
@@ -19,7 +19,7 @@ export const AccountRows = styled.div({
 });
 
 export const AccountRow = styled.div({
-  padding: '0 22px',
+  padding: `0 ${measurements.viewMargin}`,
   marginBottom: '20px',
 });
 
@@ -57,7 +57,7 @@ export const StyledSpinnerContainer = styled.div({
 export const AccountFooter = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  padding: '0 22px',
+  padding: `0 ${measurements.viewMargin}`,
 });
 
 const buttonStyle = {

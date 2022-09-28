@@ -60,4 +60,5 @@ export const hugeText = {
 
 export const measurements = {
   rowMinHeight: '44px',
+  viewMargin: '22px',
 };

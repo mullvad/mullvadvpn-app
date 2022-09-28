@@ -8,7 +8,7 @@ import { messages } from '../../shared/gettext';
 import Accordion from './Accordion';
 import * as Cell from './cell';
 import ChevronButton from './ChevronButton';
-import { normalText } from './common-styles';
+import { measurements, normalText } from './common-styles';
 import RelayStatusIndicator from './RelayStatusIndicator';
 
 interface IButtonColorProps {
@@ -73,7 +73,7 @@ export const StyledLocationRowIcon = styled.button(buttonColor, {
   position: 'relative',
   alignSelf: 'stretch',
   paddingLeft: '22px',
-  paddingRight: '22px',
+  paddingRight: measurements.viewMargin,
 
   '&::before': {
     content: '""',

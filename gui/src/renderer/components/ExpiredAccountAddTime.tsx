@@ -15,7 +15,7 @@ import account from '../redux/account/actions';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
-import { hugeText, tinyText } from './common-styles';
+import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { calculateHeaderBarStyle, DefaultHeaderBar, HeaderBarStyle } from './HeaderBar';
 import ImageView from './ImageView';
@@ -45,7 +45,7 @@ export const StyledBody = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  padding: '0 22px',
+  padding: `0 ${measurements.viewMargin}`,
   paddingBottom: 'auto',
 });
 
@@ -53,7 +53,7 @@ export const StyledFooter = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 0,
-  padding: '18px 22px 22px',
+  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
 });
 
 export const StyledTitle = styled.span(hugeText, {

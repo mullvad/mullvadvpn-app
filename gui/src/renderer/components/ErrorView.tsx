@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
+import { measurements } from './common-styles';
 import { HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
@@ -26,7 +27,7 @@ const Subtitle = styled.span({
   fontFamily: 'Open Sans',
   fontSize: '14px',
   lineHeight: '20px',
-  marginHorizontal: '22px',
+  margin: `0 ${measurements.viewMargin}`,
   color: colors.white40,
   textAlign: 'center',
 });

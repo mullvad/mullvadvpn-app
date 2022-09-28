@@ -8,7 +8,7 @@ export const Row = styled.div({
   alignItems: 'center',
   backgroundColor: colors.blue,
   minHeight: measurements.rowMinHeight,
-  paddingLeft: '22px',
-  paddingRight: '22px',
+  paddingLeft: measurements.viewMargin,
+  paddingRight: measurements.viewMargin,
   marginBottom: '1px',
 });
