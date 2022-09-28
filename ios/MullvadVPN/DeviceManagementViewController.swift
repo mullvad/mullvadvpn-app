@@ -62,7 +62,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         super.viewDidLoad()
 
         view.backgroundColor = .secondaryColor
-        
+
         scrollView.addSubview(contentView)
         view.addSubview(scrollView)
 
