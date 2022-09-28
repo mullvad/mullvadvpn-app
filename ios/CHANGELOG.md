@@ -44,7 +44,6 @@ with the option to buy more time.
 - Improve random port distribution. Should be less biased towards port 53.
 - Fix invalid map camera position during the app launch and keep it up to date when multitasking.
 - Fix animation glitch when expanding partially visible cell in location picker.
-- Fix device manage's view on iPhone mini.
 
 ## Removed
 - Remove iOS 12 support.
