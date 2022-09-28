@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 final class FormsheetPresentationController: UIPresentationController {
-    private let dimmingViewOpacityWhenPresented = 0.5
+    private static let dimmingViewOpacityWhenPresented = 0.5
     private var isPresented = false
     private var keyboardFrame: CGRect = .zero
 
@@ -53,13 +53,11 @@ final class FormsheetPresentationController: UIPresentationController {
         containerView?.addSubview(dimmingView)
 
         if let transitionCoordinator = presentingViewController.transitionCoordinator {
-            transitionCoordinator.animate { [weak self] context in
-                guard let self = self else { return }
-
-                self.dimmingView.alpha = self.dimmingViewOpacityWhenPresented
+            transitionCoordinator.animate { context in
+                self.dimmingView.alpha = Self.dimmingViewOpacityWhenPresented
             }
         } else {
-            dimmingView.alpha = dimmingViewOpacityWhenPresented
+            dimmingView.alpha = Self.dimmingViewOpacityWhenPresented
         }
     }
 
