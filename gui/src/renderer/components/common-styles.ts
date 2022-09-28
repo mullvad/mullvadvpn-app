@@ -57,3 +57,7 @@ export const hugeText = {
   lineHeight: '34px',
   color: colors.white,
 };
+
+export const measurements = {
+  rowMinHeight: '44px',
+};

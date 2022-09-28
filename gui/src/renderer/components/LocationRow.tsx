@@ -50,7 +50,7 @@ export const StyledLocationRowContainer = styled(Cell.Container)({
   background: 'none',
 });
 
-export const StyledLocationRowButton = styled.button(
+export const StyledLocationRowButton = styled(Cell.Row)(
   buttonColor,
   (props: { location?: RelayLocation }) => {
     const paddingLeft =
@@ -61,9 +61,6 @@ export const StyledLocationRowButton = styled.button(
         : 18;
 
     return {
-      display: 'flex',
-      alignItems: 'center',
-      minHeight: '44px',
       flex: 1,
       border: 'none',
       padding: `0 10px 0 ${paddingLeft}px`,
@@ -136,6 +133,7 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
     <>
       <StyledLocationRowContainer ref={ref} disabled={props.disabled}>
         <StyledLocationRowButton
+          as="button"
           ref={buttonRef}
           onClick={handleClick}
           selected={props.selected}

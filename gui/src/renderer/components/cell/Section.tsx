@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { buttonText, openSans, sourceSansPro } from '../common-styles';
+import { Row } from './Row';
 
 const StyledSection = styled.div({
   display: 'flex',
@@ -14,12 +15,8 @@ interface SectionTitleProps {
   thin?: boolean;
 }
 
-export const SectionTitle = styled.span(buttonText, (props: SectionTitleProps) => ({
-  display: 'flex',
-  minHeight: '44px',
-  alignItems: 'center',
-  backgroundColor: colors.blue,
-  padding: '0 16px 0 22px',
+export const SectionTitle = styled(Row)(buttonText, (props: SectionTitleProps) => ({
+  paddingRight: '16px',
   color: props.disabled ? colors.white20 : colors.white,
   fontWeight: props.thin ? 400 : 600,
   fontSize: props.thin ? '15px' : '18px',
