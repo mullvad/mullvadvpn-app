@@ -5,6 +5,7 @@ import * as Cell from './cell';
 import { hugeText, largeText, measurements, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
 import ImageView from './ImageView';
+import { Footer } from './Layout';
 
 export const StyledAccountDropdownContainer = styled.ul({
   display: 'flex',
@@ -74,15 +75,11 @@ export const StyledTopInfo = styled.div({
   flex: 1,
 });
 
-export const StyledFooter = styled.div({}, (props: { show: boolean }) => ({
+export const StyledFooter = styled(Footer)({}, (props: { show: boolean }) => ({
   position: 'relative',
   width: '100%',
   bottom: 0,
   transform: `translateY(${props.show ? 0 : 100}%)`,
-  display: 'flex',
-  flex: '0',
-  flexDirection: 'column',
-  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
   backgroundColor: colors.darkBlue,
   transition: 'transform 250ms ease-in-out',
 }));

@@ -143,7 +143,7 @@ const ModalAlertIcon = styled.div({
   marginTop: '8px',
 });
 
-const ModalAlertButtonGroup = styled(AppButton.ButtonGroup)({
+const ModalAlertButtonGroupContainer = styled.div({
   marginTop: measurements.buttonVerticalMargin,
 });
 
@@ -269,11 +269,13 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
                 {this.props.children}
               </StyledCustomScrollbars>
 
-              <ModalAlertButtonGroup>
-                {this.props.buttons.map((button, index) => (
-                  <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
-                ))}
-              </ModalAlertButtonGroup>
+              <ModalAlertButtonGroupContainer>
+                <AppButton.ButtonGroup>
+                  {this.props.buttons.map((button, index) => (
+                    <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
+                  ))}
+                </AppButton.ButtonGroup>
+              </ModalAlertButtonGroupContainer>
             </StyledModalAlert>
           </ModalAlertContainer>
         </ModalBackground>

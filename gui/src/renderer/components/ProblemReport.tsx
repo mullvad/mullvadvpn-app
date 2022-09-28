@@ -8,7 +8,7 @@ import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import {
@@ -16,7 +16,6 @@ import {
   StyledContentContainer,
   StyledEmail,
   StyledEmailInput,
-  StyledFooter,
   StyledForm,
   StyledFormEmailRow,
   StyledFormMessageRow,
@@ -342,7 +341,7 @@ export default class ProblemReport extends React.Component<
             />
           </StyledFormMessageRow>
         </StyledForm>
-        <StyledFooter>
+        <Footer>
           <AriaDescriptionGroup>
             <AriaDescribed>
               <AppButton.ButtonGroup>
@@ -367,7 +366,7 @@ export default class ProblemReport extends React.Component<
             onClick={this.onSend}>
             {messages.pgettext('support-view', 'Send')}
           </AppButton.GreenButton>
-        </StyledFooter>
+        </Footer>
       </StyledContent>
     );
   }
@@ -430,7 +429,7 @@ export default class ProblemReport extends React.Component<
             )}
           </StyledSentMessage>
         </StyledForm>
-        <StyledFooter>
+        <Footer>
           <AppButton.ButtonGroup>
             <AppButton.BlueButton onClick={this.handleEditMessage}>
               {messages.pgettext('support-view', 'Edit message')}
@@ -439,7 +438,7 @@ export default class ProblemReport extends React.Component<
               {messages.pgettext('support-view', 'Try again')}
             </AppButton.GreenButton>
           </AppButton.ButtonGroup>
-        </StyledFooter>
+        </Footer>
       </StyledContent>
     );
   }

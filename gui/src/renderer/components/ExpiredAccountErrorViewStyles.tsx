@@ -43,13 +43,6 @@ export const StyledBody = styled.div({
   padding: `0 ${measurements.viewMargin}`,
 });
 
-export const StyledFooter = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 0,
-  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
-});
-
 export const StyledTitle = styled.span(hugeText, {
   lineHeight: '38px',
   marginBottom: '8px',
