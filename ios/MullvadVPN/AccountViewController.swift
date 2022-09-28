@@ -15,7 +15,9 @@ protocol AccountViewControllerDelegate: AnyObject {
     func accountViewControllerDidLogout(_ controller: AccountViewController)
 }
 
-class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelObserver {
+class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelObserver,
+    RedeemVoucherViewControllerDelegate
+{
     private let alertPresenter = AlertPresenter()
 
     private let contentView: AccountContentView = {
@@ -105,16 +107,13 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     // MARK: - Private methods
 
-    private func makeRedeemVoucherController() -> UINavigationController {
-        let navigationController = UINavigationController(
-            rootViewController: RedeemVoucherViewController()
-        )
-        navigationController.isNavigationBarHidden = true
-        navigationController.transitioningDelegate = formsheetTransitioningDelegate
-        navigationController.modalPresentationStyle = .custom
-        navigationController.preferredContentSize = CGSize(width: 450, height: 300)
+    private func makeRedeemVoucherController() -> RedeemVoucherViewController {
+        let controller = RedeemVoucherViewController()
+        controller.transitioningDelegate = formsheetTransitioningDelegate
+        controller.modalPresentationStyle = .custom
+        controller.redeemVoucherDelegate = self
 
-        return navigationController
+        return controller
     }
 
     private func requestStoreProducts() {
@@ -329,6 +328,16 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
                 }
             }
         }
+    }
+
+    // MARK: - RedeemVoucherViewControllerDelegate
+
+    func redeemVoucherViewControllerDidCancel(_ controller: RedeemVoucherViewController) {
+        controller.dismiss(animated: true)
+    }
+
+    func redeemVoucherViewControllerDidFinish(_ controller: RedeemVoucherViewController) {
+        controller.dismiss(animated: true)
     }
 
     // MARK: - TunnelObserver

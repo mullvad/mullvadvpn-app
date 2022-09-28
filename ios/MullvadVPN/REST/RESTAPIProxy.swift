@@ -207,8 +207,8 @@ extension REST {
             )
         }
 
-        @discardableResult func submitVoucher(
-            _ submitVoucherRequest: SubmitVoucherRequest,
+        func submitVoucher(
+            voucherCode: String,
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<SubmitVoucherResponse>
@@ -222,7 +222,8 @@ extension REST {
 
                 requestBuilder.setAuthorization(.accountNumber(accountNumber))
 
-                try requestBuilder.setHTTPBody(value: submitVoucherRequest)
+                try requestBuilder
+                    .setHTTPBody(value: SubmitVoucherRequest(voucherCode: voucherCode))
 
                 return requestBuilder.getRequest()
             }
@@ -311,12 +312,16 @@ extension REST {
         let metadata: [String: String]
     }
 
-    struct SubmitVoucherRequest: Encodable {
+    fileprivate struct SubmitVoucherRequest: Encodable {
         let voucherCode: String
     }
-    
+
     struct SubmitVoucherResponse: Codable {
         let timeAdded: Int
-        let newExpiry: String
+        let newExpiry: Date
+
+        var dateComponents: DateComponents {
+            return DateComponents(second: timeAdded)
+        }
     }
 }

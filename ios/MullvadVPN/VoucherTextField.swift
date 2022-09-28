@@ -10,7 +10,15 @@ import Foundation
 import UIKit
 
 class VoucherTextField: CustomTextField {
-    var inputFormatter: InputFormatter = .init(
+    let minimumVoucherLength = 19
+
+    var satisfiesMinimumVoucherLengthRequirement: Bool {
+        let textLength = text?.count ?? 0
+
+        return textLength > minimumVoucherLength
+    }
+
+    private let inputFormatter = MaskedInputFormatter(
         allowedInput: .alphanumerical,
         groupSeparator: .dash
     )

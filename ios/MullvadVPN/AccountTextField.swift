@@ -9,7 +9,7 @@
 import UIKit
 
 class AccountTextField: CustomTextField, UITextFieldDelegate {
-    private let inputFormatter = InputFormatter(
+    private let inputFormatter = MaskedInputFormatter(
         allowedInput: .numerical,
         groupSeparator: .space
     )

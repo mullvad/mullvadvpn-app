@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		06D76D2928E1FF5A0044346D /* RedeemVoucherContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1328432289CF23D00C3BD27 /* RedeemVoucherContentView.swift */; };
-		06D76D2A28E2010B0044346D /* InputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843C289D5B3700C3BD27 /* InputFormatter.swift */; };
+		06D76D2928E1FF5A0044346D /* RedeemVoucherInputContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1328432289CF23D00C3BD27 /* RedeemVoucherInputContentView.swift */; };
+		06D76D2A28E2010B0044346D /* MaskedInputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843C289D5B3700C3BD27 /* MaskedInputFormatter.swift */; };
 		06F0167328DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06F0167228DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift */; };
 		5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
 		5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 5807483A27DB8A980020ECBF /* WireGuardKitTypes */; };
@@ -96,6 +96,8 @@
 		584E96BD240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584E96BE240FD4DB00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */; };
+		584F4CFC28E44B5E001F8E48 /* NavigationControllerFadeAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584F4CFB28E44B5E001F8E48 /* NavigationControllerFadeAnimator.swift */; };
+		584F4CFE28E44FA8001F8E48 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584F4CFD28E44FA8001F8E48 /* RedeemVoucherViewController.swift */; };
 		58554F73280AFA5A00013055 /* RESTAuthenticationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */; };
 		58554F77280AFD5C00013055 /* RESTTaskIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */; };
 		58554F79280B037400013055 /* RESTAccessTokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F78280B037400013055 /* RESTAccessTokenManager.swift */; };
@@ -307,9 +309,9 @@
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E1187ABF289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABE289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift */; };
-		E1328435289CF24C00C3BD27 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1328434289CF24C00C3BD27 /* RedeemVoucherViewController.swift */; };
+		E1328435289CF24C00C3BD27 /* RedeemVoucherInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1328434289CF24C00C3BD27 /* RedeemVoucherInputViewController.swift */; };
 		E132843B289D52A900C3BD27 /* VoucherTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843A289D52A900C3BD27 /* VoucherTextField.swift */; };
-		E132843D289D5B3700C3BD27 /* InputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843C289D5B3700C3BD27 /* InputFormatter.swift */; };
+		E132843D289D5B3700C3BD27 /* MaskedInputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843C289D5B3700C3BD27 /* MaskedInputFormatter.swift */; };
 		E140C47C28C2079800BF3C6B /* SpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E140C47B28C2079800BF3C6B /* SpacerView.swift */; };
 		E148F5AD28BDFA4700DA6119 /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E148F5AC28BDFA4700DA6119 /* FormsheetPresentationController.swift */; };
 		E148F5AF28BDFA7B00DA6119 /* FormsheetTransitionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E148F5AE28BDFA7B00DA6119 /* FormsheetTransitionDelegate.swift */; };
@@ -472,6 +474,8 @@
 		584D26C3270C855A004EA533 /* PreferencesDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesDataSource.swift; sourceTree = "<group>"; };
 		584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDNSTextCell.swift; sourceTree = "<group>"; };
 		584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Markdown.swift"; sourceTree = "<group>"; };
+		584F4CFB28E44B5E001F8E48 /* NavigationControllerFadeAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationControllerFadeAnimator.swift; sourceTree = "<group>"; };
+		584F4CFD28E44FA8001F8E48 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
 		58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAuthenticationProxy.swift; sourceTree = "<group>"; };
 		58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTaskIdentifier.swift; sourceTree = "<group>"; };
 		58554F78280B037400013055 /* RESTAccessTokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAccessTokenManager.swift; sourceTree = "<group>"; };
@@ -648,10 +652,10 @@
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E1187ABE289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RESTCreateApplePaymentResponse+Localization.swift"; sourceTree = "<group>"; };
-		E1328432289CF23D00C3BD27 /* RedeemVoucherContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherContentView.swift; sourceTree = "<group>"; };
-		E1328434289CF24C00C3BD27 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
+		E1328432289CF23D00C3BD27 /* RedeemVoucherInputContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherInputContentView.swift; sourceTree = "<group>"; };
+		E1328434289CF24C00C3BD27 /* RedeemVoucherInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherInputViewController.swift; sourceTree = "<group>"; };
 		E132843A289D52A900C3BD27 /* VoucherTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoucherTextField.swift; sourceTree = "<group>"; };
-		E132843C289D5B3700C3BD27 /* InputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFormatter.swift; sourceTree = "<group>"; };
+		E132843C289D5B3700C3BD27 /* MaskedInputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskedInputFormatter.swift; sourceTree = "<group>"; };
 		E140C47B28C2079800BF3C6B /* SpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacerView.swift; sourceTree = "<group>"; };
 		E148F5AC28BDFA4700DA6119 /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
 		E148F5AE28BDFA7B00DA6119 /* FormsheetTransitionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetTransitionDelegate.swift; sourceTree = "<group>"; };
@@ -805,6 +809,17 @@
 				585E820227F3285E00939F0E /* SendAppStoreReceiptOperation.swift */,
 			);
 			path = AppStorePaymentManager;
+			sourceTree = "<group>";
+		};
+		584F4CFF28E47DDD001F8E48 /* RedeemVoucherViewController */ = {
+			isa = PBXGroup;
+			children = (
+				E1328434289CF24C00C3BD27 /* RedeemVoucherInputViewController.swift */,
+				E1328432289CF23D00C3BD27 /* RedeemVoucherInputContentView.swift */,
+				06F0167228DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift */,
+				584F4CFD28E44FA8001F8E48 /* RedeemVoucherViewController.swift */,
+			);
+			path = RedeemVoucherViewController;
 			sourceTree = "<group>";
 		};
 		585DA87526B0249A00B8C587 /* RelayCache */ = {
@@ -973,7 +988,6 @@
 				58F3C0A3249CB069003E76BE /* HeaderBarView.swift */,
 				58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */,
 				58CE5E6F224146210008646E /* Info.plist */,
-				E132843C289D5B3700C3BD27 /* InputFormatter.swift */,
 				5872631C283F755900E14ADF /* IntentHandlers.swift */,
 				5872631A283F6EAB00E14ADF /* Intents.intentdefinition */,
 				5840250022B1124600E4CFEC /* IPAddress+Codable.swift */,
@@ -986,8 +1000,10 @@
 				5815039F24D6ECF200C9C50E /* Logging */,
 				58B993B02608A34500BA7811 /* LoginContentView.swift */,
 				58CE5E65224146200008646E /* LoginViewController.swift */,
+				E132843C289D5B3700C3BD27 /* MaskedInputFormatter.swift */,
 				5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */,
 				5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */,
+				584F4CFB28E44B5E001F8E48 /* NavigationControllerFadeAnimator.swift */,
 				58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */,
 				5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */,
 				587B753A2666467500DEF7E9 /* NotificationBannerView.swift */,
@@ -1008,9 +1024,7 @@
 				58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */,
 				58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */,
 				58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */,
-				E1328432289CF23D00C3BD27 /* RedeemVoucherContentView.swift */,
-				E1328434289CF24C00C3BD27 /* RedeemVoucherViewController.swift */,
-				06F0167228DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift */,
+				584F4CFF28E47DDD001F8E48 /* RedeemVoucherViewController */,
 				585DA87526B0249A00B8C587 /* RelayCache */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
 				58781CD422AFBA39009B9D8E /* RelaySelector.swift */,
@@ -1056,9 +1070,9 @@
 				587CBFE222807F530028DED3 /* UIColor+Helpers.swift */,
 				58CCA0152242560B004F3011 /* UIColor+Palette.swift */,
 				585CA70E25F8C44600B47C62 /* UIMetrics.swift */,
+				E132843A289D52A900C3BD27 /* VoucherTextField.swift */,
 				58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
-				E132843A289D52A900C3BD27 /* VoucherTextField.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -1438,7 +1452,7 @@
 				58CAF4EF26025954007C5886 /* SimulatorTunnelProvider.swift in Sources */,
 				58B0A2AA238EE6A900BC001D /* RelaySelector.swift in Sources */,
 				5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */,
-				06D76D2A28E2010B0044346D /* InputFormatter.swift in Sources */,
+				06D76D2A28E2010B0044346D /* MaskedInputFormatter.swift in Sources */,
 				5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */,
 				58B0A2A8238EE68200BC001D /* RelaySelectorTests.swift in Sources */,
 				5819C2152726CC9400D6EC38 /* DataSourceSnapshot.swift in Sources */,
@@ -1509,7 +1523,7 @@
 				582BB1B1229569620055B6EF /* CustomNavigationBar.swift in Sources */,
 				58B3F30F2742708B00A2DD38 /* HeaderBarButton.swift in Sources */,
 				58E511E428DDDE8900B0BCDE /* CustomErrorDescriptionProtocol.swift in Sources */,
-				E132843D289D5B3700C3BD27 /* InputFormatter.swift in Sources */,
+				E132843D289D5B3700C3BD27 /* MaskedInputFormatter.swift in Sources */,
 				584789E026529D72000E45FB /* SSLPinningURLSessionDelegate.swift in Sources */,
 				58161C9C28352F850028ECFD /* MigrateSettingsOperation.swift in Sources */,
 				E1187ABF289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
@@ -1572,6 +1586,7 @@
 				585B4B8726D9098900555C4C /* TunnelStatusNotificationProvider.swift in Sources */,
 				58E511E128DDB7F100B0BCDE /* WrappingError.swift in Sources */,
 				58FEAFB92750DA2F003C1625 /* AddressCache.swift in Sources */,
+				584F4CFC28E44B5E001F8E48 /* NavigationControllerFadeAnimator.swift in Sources */,
 				58B67B482602079E008EF58E /* RelaySelector.swift in Sources */,
 				58DF28A52417CB4B00E836B0 /* AppStorePaymentManager.swift in Sources */,
 				583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */,
@@ -1589,6 +1604,7 @@
 				5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */,
 				588BCF26280FE79A009ADCEC /* RESTProxy.swift in Sources */,
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
+				584F4CFE28E44FA8001F8E48 /* RedeemVoucherViewController.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
 				58FD5BE724192A2C00112C88 /* AppStoreReceipt.swift in Sources */,
@@ -1614,7 +1630,7 @@
 				580F8B8628197958002E0998 /* DNSSettings.swift in Sources */,
 				58FB865526E8BF3100F188BC /* AppStorePaymentManagerError.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
-				06D76D2928E1FF5A0044346D /* RedeemVoucherContentView.swift in Sources */,
+				06D76D2928E1FF5A0044346D /* RedeemVoucherInputContentView.swift in Sources */,
 				587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */,
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
 				58B9EB152489139B00095626 /* DisplayChainedError.swift in Sources */,
@@ -1641,7 +1657,7 @@
 				587AD7C623421D7000E93A53 /* TunnelSettingsV1.swift in Sources */,
 				581503A324D6F1EC00C9C50E /* Logger+Errors.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
-				E1328435289CF24C00C3BD27 /* RedeemVoucherViewController.swift in Sources */,
+				E1328435289CF24C00C3BD27 /* RedeemVoucherInputViewController.swift in Sources */,
 				584D26C4270C855B004EA533 /* PreferencesDataSource.swift in Sources */,
 				58B5A899280AB0D7009FDE99 /* RESTAuthorization.swift in Sources */,
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,

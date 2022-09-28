@@ -1,5 +1,5 @@
 //
-//  InputFormatter.swift
+//  MaskedInputFormatter.swift
 //  MullvadVPN
 //
 //  Created by Andreas Lif on 2022-08-05.
@@ -9,9 +9,9 @@
 import Foundation
 import UIKit
 
-/// A class describing the account token input and caret management.
+/// A class implementing masked input and caret management.
 /// Suitable to be used with `UITextField`.
-class InputFormatter: NSObject {
+class MaskedInputFormatter: NSObject {
     enum AllowedInput {
         case numerical, alphanumerical
     }
@@ -176,7 +176,7 @@ class InputFormatter: NSObject {
     }
 }
 
-extension InputFormatter: UITextFieldDelegate, UITextPasteDelegate {
+extension MaskedInputFormatter: UITextFieldDelegate, UITextPasteDelegate {
     /// Update the text and caret position in the given text field
     func updateTextField(_ textField: UITextField) {
         updateTextField(textField, notifyDelegate: false)
