@@ -281,14 +281,6 @@ interface IStyledRowTitleProps {
   bold?: boolean;
 }
 
-const StyledRow = styled.div({
-  display: 'flex',
-  height: '44px',
-  alignItems: 'center',
-  padding: '0 22px',
-  backgroundColor: colors.blue,
-});
-
 const StyledCheckbox = styled.div({
   width: '24px',
   height: '24px',
@@ -297,6 +289,13 @@ const StyledCheckbox = styled.div({
   justifyContent: 'center',
   backgroundColor: colors.white,
   borderRadius: '4px',
+});
+
+const StyledRow = styled(Cell.Row)({
+  backgroundColor: colors.blue40,
+  ':hover': {
+    backgroundColor: colors.blue80,
+  },
 });
 
 const StyledRowTitle = styled.label(normalText, (props: IStyledRowTitleProps) => ({
