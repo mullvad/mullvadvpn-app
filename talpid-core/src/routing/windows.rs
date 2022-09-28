@@ -8,7 +8,7 @@ use futures::{
     StreamExt,
 };
 use std::{collections::HashSet, net::IpAddr};
-use windows_sys::Win32::NetworkManagement::IpHelper::NET_LUID_LH;
+use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
 use winnet::WinNetAddrFamily;
 
 /// Windows routing errors.

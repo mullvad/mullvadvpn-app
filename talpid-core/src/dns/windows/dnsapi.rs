@@ -7,10 +7,13 @@ use std::{
     },
     time::{Duration, Instant},
 };
-use windows_sys::Win32::{
-    Foundation::BOOL,
-    System::LibraryLoader::{
-        FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_LIBRARY_SEARCH_SYSTEM32,
+use windows_sys::{
+    w,
+    Win32::{
+        Foundation::BOOL,
+        System::LibraryLoader::{
+            FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_LIBRARY_SEARCH_SYSTEM32,
+        },
     },
 };
 
@@ -62,13 +65,7 @@ unsafe impl Sync for DnsApi {}
 
 impl DnsApi {
     fn new() -> Result<Self, Error> {
-        let handle = unsafe {
-            LoadLibraryExW(
-                b"d\0n\0s\0a\0p\0i\0.\0d\0l\0l\0\0\0" as *const u8 as *const u16,
-                0,
-                LOAD_LIBRARY_SEARCH_SYSTEM32,
-            )
-        };
+        let handle = unsafe { LoadLibraryExW(w!("dnsapi.dll"), 0, LOAD_LIBRARY_SEARCH_SYSTEM32) };
         if handle == 0 {
             return Err(Error::LoadDll(io::Error::last_os_error()));
         }
