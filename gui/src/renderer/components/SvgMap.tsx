@@ -39,7 +39,7 @@ const zoomableGroupStyle: React.CSSProperties = {
 function getMarkerImageStyle(zoom: number) {
   return {
     width: '60px',
-    transform: `translate(${-30 / zoom}px, ${-30 / zoom}px) scale(${1 / zoom})`,
+    transform: `translate3d(${-30 / zoom}px, ${-30 / zoom}px, 0) scale(${1 / zoom})`,
     transition: `transform ${MOVE_SPEED}ms ease-out`,
   };
 }
