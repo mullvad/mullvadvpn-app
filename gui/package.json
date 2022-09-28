@@ -23,7 +23,7 @@
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.2",
     "react-router": "^5.1.2",
-    "react-simple-maps": "^2.1.2",
+    "react-simple-maps": "^3.0.0",
     "redux": "^4.0.5",
     "sprintf-js": "^1.1.2",
     "styled-components": "^5.1.1"
@@ -49,7 +49,7 @@
     "@types/react-dom": "^16.9.9",
     "@types/react-redux": "^7.1.7",
     "@types/react-router": "^5.1.5",
-    "@types/react-simple-maps": "^1.0.3",
+    "@types/react-simple-maps": "^1.0.8",
     "@types/sinon": "^7.0.5",
     "@types/sprintf-js": "^1.1.2",
     "@types/styled-components": "^5.1.4",
