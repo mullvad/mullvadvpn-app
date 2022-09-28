@@ -1,13 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
+import { Row } from './Row';
 
-const StyledContainer = styled.div({
-  display: 'flex',
-  backgroundColor: colors.blue,
-  alignItems: 'center',
-  paddingLeft: '22px',
+const StyledContainer = styled(Row)({
   paddingRight: '16px',
 });
 

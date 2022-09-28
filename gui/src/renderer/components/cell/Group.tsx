@@ -16,7 +16,6 @@ const StyledCellWrapper = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  marginBottom: '1px',
 });
 
 interface IGroupProps extends IStyledGroupProps {
