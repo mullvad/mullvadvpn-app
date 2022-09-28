@@ -103,7 +103,10 @@ class RedeemVoucherSucceededViewController: UIViewController {
             statusImageView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
             statusImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
-            titleLabel.topAnchor.constraint(equalTo: statusImageView.bottomAnchor, constant: 24),
+            titleLabel.topAnchor.constraint(
+                equalTo: statusImageView.bottomAnchor,
+                constant: UIMetrics.sectionSpacing
+            ),
             titleLabel.leadingAnchor
                 .constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             titleLabel.trailingAnchor
@@ -111,7 +114,7 @@ class RedeemVoucherSucceededViewController: UIViewController {
 
             messageLabel.topAnchor.constraint(
                 equalTo: titleLabel.layoutMarginsGuide.bottomAnchor,
-                constant: 12
+                constant: UIMetrics.StackSpacing.regular
             ),
             messageLabel.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             messageLabel.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
@@ -120,7 +123,6 @@ class RedeemVoucherSucceededViewController: UIViewController {
             dismissButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             dismissButton.trailingAnchor
                 .constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-            dismissButton.heightAnchor.constraint(equalToConstant: 42),
         ])
     }
 

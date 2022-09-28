@@ -1,5 +1,5 @@
 //
-//  RedeemVoucherViewController.swift
+//  RedeemVoucherController.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 28/09/2022.
@@ -8,22 +8,22 @@
 
 import UIKit
 
-protocol RedeemVoucherViewControllerDelegate: AnyObject {
-    func redeemVoucherViewControllerDidFinish(_ controller: RedeemVoucherViewController)
-    func redeemVoucherViewControllerDidCancel(_ controller: RedeemVoucherViewController)
+protocol RedeemVoucherControllerDelegate: AnyObject {
+    func redeemVoucherControllerDidFinish(_ controller: RedeemVoucherController)
+    func redeemVoucherControllerDidCancel(_ controller: RedeemVoucherController)
 }
 
-class RedeemVoucherViewController: UINavigationController, UINavigationControllerDelegate,
+class RedeemVoucherController: UINavigationController, UINavigationControllerDelegate,
     RedeemVoucherInputViewControllerDelegate, RedeemVoucherSucceededViewControllerDelegate
 {
-    weak var redeemVoucherDelegate: RedeemVoucherViewControllerDelegate?
+    weak var redeemVoucherDelegate: RedeemVoucherControllerDelegate?
 
     init() {
         super.init(nibName: nil, bundle: nil)
 
         delegate = self
         isNavigationBarHidden = true
-        preferredContentSize = CGSize(width: 450, height: 316)
+        preferredContentSize = CGSize(width: 450, height: 300)
 
         let inputController = RedeemVoucherInputViewController()
         inputController.delegate = self
@@ -42,8 +42,7 @@ class RedeemVoucherViewController: UINavigationController, UINavigationControlle
         didRedeemVoucherWithResponse response: REST.SubmitVoucherResponse
     ) {
         let controller = RedeemVoucherSucceededViewController(
-            timeAddedComponents: response
-                .dateComponents
+            timeAddedComponents: response.dateComponents
         )
         controller.delegate = self
 
@@ -51,7 +50,7 @@ class RedeemVoucherViewController: UINavigationController, UINavigationControlle
     }
 
     func redeemVoucherInputViewControllerDidCancel(_ controller: RedeemVoucherInputViewController) {
-        redeemVoucherDelegate?.redeemVoucherViewControllerDidFinish(self)
+        redeemVoucherDelegate?.redeemVoucherControllerDidCancel(self)
     }
 
     // MARK: - RedeemVoucherSucceededViewControllerDelegate
@@ -59,6 +58,6 @@ class RedeemVoucherViewController: UINavigationController, UINavigationControlle
     func redeemVoucherSucceededViewControllerDidFinish(
         _ controller: RedeemVoucherSucceededViewController
     ) {
-        redeemVoucherDelegate?.redeemVoucherViewControllerDidCancel(self)
+        redeemVoucherDelegate?.redeemVoucherControllerDidFinish(self)
     }
 }

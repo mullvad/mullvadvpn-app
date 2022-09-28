@@ -12,7 +12,7 @@ import StoreKit
 import UIKit
 
 class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
-    RedeemVoucherViewControllerDelegate, RootContainment, TunnelObserver, AppStorePaymentObserver
+    RedeemVoucherControllerDelegate, RootContainment, TunnelObserver, AppStorePaymentObserver
 {
     weak var delegate: SettingsButtonInteractionDelegate?
 
@@ -62,8 +62,8 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
         setTunnelState(TunnelManager.shared.tunnelStatus.state, animated: false)
     }
 
-    private func makeRedeemVoucherController() -> RedeemVoucherViewController {
-        let controller = RedeemVoucherViewController()
+    private func makeRedeemVoucherController() -> RedeemVoucherController {
+        let controller = RedeemVoucherController()
         controller.transitioningDelegate = formsheetTransitioningDelegate
         controller.modalPresentationStyle = .custom
         controller.redeemVoucherDelegate = self
@@ -131,13 +131,6 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
 
     @objc private func didTapRedeemVoucher() {
         present(makeRedeemVoucherController(), animated: true)
-    }
-
-    private func transitionToNextView() {
-        var viewControllers = rootContainerController?.viewControllers ?? []
-        viewControllers.removeAll(where: { $0 is OutOfTimeViewController })
-
-        rootContainerController?.setViewControllers(viewControllers, animated: true)
     }
 
     private func addObservers() {
@@ -487,19 +480,19 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
         }
     }
 
-    // MARK: - RedeemVoucherViewControllerDelegate
+    // MARK: - RedeemVoucherControllerDelegate
 
-    func redeemVoucherViewControllerDidFinish(_ controller: RedeemVoucherViewController) {
-        contentView.statusActivityView.alpha = 0
-        contentView.titleLabel.alpha = 0
-        contentView.bodyLabel.alpha = 0
+    func redeemVoucherControllerDidFinish(_ controller: RedeemVoucherController) {
+        controller.dismiss(animated: true)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.transitionToNextView()
-        }
+        // TODO: scene delegate should handle that.
+        // Make sure to update account expiry after redeeming voucher.
+        var viewControllers = rootContainerController?.viewControllers ?? []
+        viewControllers.removeAll(where: { $0 is OutOfTimeViewController })
+        rootContainerController?.setViewControllers(viewControllers, animated: true)
     }
 
-    func redeemVoucherViewControllerDidCancel(_ controller: RedeemVoucherViewController) {
+    func redeemVoucherControllerDidCancel(_ controller: RedeemVoucherController) {
         controller.dismiss(animated: true)
     }
 }

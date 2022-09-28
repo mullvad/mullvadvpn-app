@@ -17,44 +17,9 @@ protocol RedeemVoucherInputViewControllerDelegate: AnyObject {
 }
 
 class RedeemVoucherInputViewController: UIViewController, UINavigationControllerDelegate {
-    private enum State: Equatable {
-        case initial, success, waiting, failure
-
-        var statusText: String? {
-            switch self {
-            case .initial:
-                return nil
-
-            case .success:
-                return NSLocalizedString(
-                    "REDEEM_VOUCHER_STATUS_SUCCESS",
-                    tableName: "RedeemVoucher",
-                    value: "Voucher is redeemed.",
-                    comment: ""
-                )
-
-            case .failure:
-                return NSLocalizedString(
-                    "REDEEM_VOUCHER_STATUS_FAILURE",
-                    tableName: "RedeemVoucher",
-                    value: "Voucher code is invalid.",
-                    comment: ""
-                )
-
-            case .waiting:
-                return NSLocalizedString(
-                    "REDEEM_VOUCHER_STATUS_WAITING",
-                    tableName: "RedeemVoucher",
-                    value: "Verifying voucher...",
-                    comment: ""
-                )
-            }
-        }
-    }
-
     private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
     private let contentView = RedeemVoucherInputContentView()
-    private var state: State = .initial
+    private var isViewDidAppearOnce = false
 
     weak var delegate: RedeemVoucherInputViewControllerDelegate?
 
@@ -73,14 +38,8 @@ class RedeemVoucherInputViewController: UIViewController, UINavigationController
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupContentView()
-        addObservers()
-        updateViews(animated: false)
-
         navigationController?.delegate = self
-    }
 
-    private func setupContentView() {
         contentView.redeemAction = { [weak self] in
             self?.submitVoucher()
         }
@@ -101,63 +60,40 @@ class RedeemVoucherInputViewController: UIViewController, UINavigationController
         ])
     }
 
-    private func addObservers() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(textDidChange),
-            name: UITextField.textDidChangeNotification,
-            object: contentView.inputTextField
-        )
-    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
 
-    @objc private func textDidChange() {
-        updateViews(animated: true)
-    }
+        if !isViewDidAppearOnce {
+            isViewDidAppearOnce = true
 
-    private func dismissKeyboard() {
-        contentView.inputTextField.resignFirstResponder()
-    }
-
-    private func setState(_ newState: State, animated: Bool) {
-        state = newState
-        updateViews(animated: animated)
-    }
-
-    private func updateViews(animated: Bool) {
-        if state == .waiting {
-            contentView.showLoading()
-        } else {
-            contentView.hideLoading()
+            contentView.textField.becomeFirstResponder()
         }
-
-        contentView.redeemButton.isEnabled = (state == .initial || state == .failure)
-        contentView.statusLabel.alpha = state == .initial ? 0 : 1
-        contentView.statusLabel.text = state.statusText
-        contentView.statusLabel.textColor = state == .failure ? .dangerColor : .white
     }
 
     private func submitVoucher() {
-        guard let voucherCode = contentView.inputTextField.text,
+        guard let voucherCode = contentView.textField.text,
               let accountNumber = TunnelManager.shared.deviceState.accountData?.number
         else { return }
 
-        setState(.waiting, animated: true)
+        contentView.state = .verifying
 
         _ = apiProxy.submitVoucher(
             voucherCode: voucherCode,
             accountNumber: accountNumber,
             retryStrategy: .default
-        ) { completion in
+        ) { [weak self] completion in
+            guard let self = self else { return }
+
             switch completion {
             case let .success(response):
-                self.setState(.success, animated: true)
+                self.contentView.state = .success
                 self.notifyDelegateDidRedeemVoucher(response)
 
-            case .failure:
-                self.setState(.failure, animated: true)
+            case let .failure(error):
+                self.contentView.state = .failure(error)
 
             case .cancelled:
-                self.setState(.initial, animated: true)
+                self.contentView.state = .initial
             }
         }
     }

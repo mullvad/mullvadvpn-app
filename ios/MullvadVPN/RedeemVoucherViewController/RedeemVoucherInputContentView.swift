@@ -6,10 +6,67 @@
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
+enum RedeemVoucherState {
+    case initial
+    case success
+    case verifying
+    case failure(REST.Error)
+
+    fileprivate var statusText: String? {
+        switch self {
+        case .initial, .success:
+            return nil
+
+        case let .failure(error):
+            if error.compareErrorCode(.invalidVoucher) {
+                return NSLocalizedString(
+                    "REDEEM_VOUCHER_STATUS_FAILURE",
+                    tableName: "RedeemVoucher",
+                    value: "Voucher code is invalid.",
+                    comment: ""
+                )
+            } else {
+                return error.errorChainDescription
+            }
+
+        case .verifying:
+            return NSLocalizedString(
+                "REDEEM_VOUCHER_STATUS_WAITING",
+                tableName: "RedeemVoucher",
+                value: "Verifying voucher...",
+                comment: ""
+            )
+        }
+    }
+
+    fileprivate var shouldEnableRedeemButton: Bool {
+        switch self {
+        case .initial, .failure:
+            return true
+        case .success, .verifying:
+            return false
+        }
+    }
+
+    fileprivate var statusTextColor: UIColor {
+        switch self {
+        case .failure:
+            return .dangerColor
+        default:
+            return .white
+        }
+    }
+}
+
 class RedeemVoucherInputContentView: UIView {
+    var state: RedeemVoucherState = .initial {
+        didSet {
+            updateSubviews()
+        }
+    }
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17)
@@ -25,7 +82,7 @@ class RedeemVoucherInputContentView: UIView {
         return label
     }()
 
-    let inputTextField: VoucherTextField = {
+    let textField: VoucherTextField = {
         let textField = VoucherTextField()
         textField.font = UIFont.monospacedSystemFont(ofSize: 20, weight: .regular)
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -49,11 +106,10 @@ class RedeemVoucherInputContentView: UIView {
 
     let statusLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 17)
-        label.textColor = UIColor.white.withAlphaComponent(0.6)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 17)
+        label.textColor = .white
         label.numberOfLines = 0
-        label.alpha = 0
         return label
     }()
 
@@ -85,14 +141,14 @@ class RedeemVoucherInputContentView: UIView {
         let stackView = UIStackView(arrangedSubviews: [activityIndicator, statusLabel])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
-        stackView.spacing = 8
+        stackView.spacing = UIMetrics.StackSpacing.close
         return stackView
     }()
 
     private lazy var topStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [
             titleLabel,
-            inputTextField,
+            textField,
             statusStack,
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -124,20 +180,13 @@ class RedeemVoucherInputContentView: UIView {
 
         addConstraints()
         addButtonHandlers()
+        addTextFieldObserver()
+
+        updateSubviews()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    func showLoading() {
-        activityIndicator.alpha = 1
-        activityIndicator.startAnimating()
-    }
-
-    func hideLoading() {
-        activityIndicator.stopAnimating()
-        activityIndicator.alpha = 0
     }
 
     private func addConstraints() {
@@ -156,6 +205,15 @@ class RedeemVoucherInputContentView: UIView {
         ])
     }
 
+    private func addTextFieldObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(textDidChange),
+            name: UITextField.textDidChangeNotification,
+            object: textField
+        )
+    }
+
     private func addButtonHandlers() {
         cancelButton.addTarget(
             self,
@@ -170,11 +228,28 @@ class RedeemVoucherInputContentView: UIView {
         )
     }
 
+    private func updateSubviews() {
+        if case .verifying = state {
+            activityIndicator.startAnimating()
+        } else {
+            activityIndicator.stopAnimating()
+        }
+
+        redeemButton.isEnabled = state.shouldEnableRedeemButton && textField
+            .satisfiesVoucherLengthRequirement
+        statusLabel.text = state.statusText
+        statusLabel.textColor = state.statusTextColor
+    }
+
     @objc private func cancelButtonTapped(_ sender: AppButton) {
         cancelAction?()
     }
 
     @objc private func redeemButtonTapped(_ sender: AppButton) {
         redeemAction?()
+    }
+
+    @objc private func textDidChange() {
+        updateSubviews()
     }
 }

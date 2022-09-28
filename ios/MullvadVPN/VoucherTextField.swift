@@ -10,18 +10,18 @@ import Foundation
 import UIKit
 
 class VoucherTextField: CustomTextField {
-    let minimumVoucherLength = 19
-
-    var satisfiesMinimumVoucherLengthRequirement: Bool {
-        let textLength = text?.count ?? 0
-
-        return textLength > minimumVoucherLength
-    }
+    static let voucherLength = 19
 
     private let inputFormatter = MaskedInputFormatter(
         allowedInput: .alphanumerical,
         groupSeparator: .dash
     )
+
+    var satisfiesVoucherLengthRequirement: Bool {
+        let textLength = text?.count ?? 0
+
+        return textLength >= Self.voucherLength
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)

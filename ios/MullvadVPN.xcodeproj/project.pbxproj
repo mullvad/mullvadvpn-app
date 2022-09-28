@@ -97,7 +97,7 @@
 		584E96BE240FD4DB00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */; };
 		584F4CFC28E44B5E001F8E48 /* NavigationControllerFadeAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584F4CFB28E44B5E001F8E48 /* NavigationControllerFadeAnimator.swift */; };
-		584F4CFE28E44FA8001F8E48 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584F4CFD28E44FA8001F8E48 /* RedeemVoucherViewController.swift */; };
+		584F4CFE28E44FA8001F8E48 /* RedeemVoucherController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584F4CFD28E44FA8001F8E48 /* RedeemVoucherController.swift */; };
 		58554F73280AFA5A00013055 /* RESTAuthenticationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */; };
 		58554F77280AFD5C00013055 /* RESTTaskIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */; };
 		58554F79280B037400013055 /* RESTAccessTokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F78280B037400013055 /* RESTAccessTokenManager.swift */; };
@@ -475,7 +475,7 @@
 		584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDNSTextCell.swift; sourceTree = "<group>"; };
 		584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Markdown.swift"; sourceTree = "<group>"; };
 		584F4CFB28E44B5E001F8E48 /* NavigationControllerFadeAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationControllerFadeAnimator.swift; sourceTree = "<group>"; };
-		584F4CFD28E44FA8001F8E48 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
+		584F4CFD28E44FA8001F8E48 /* RedeemVoucherController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherController.swift; sourceTree = "<group>"; };
 		58554F72280AFA5A00013055 /* RESTAuthenticationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAuthenticationProxy.swift; sourceTree = "<group>"; };
 		58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTaskIdentifier.swift; sourceTree = "<group>"; };
 		58554F78280B037400013055 /* RESTAccessTokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTAccessTokenManager.swift; sourceTree = "<group>"; };
@@ -817,7 +817,7 @@
 				E1328434289CF24C00C3BD27 /* RedeemVoucherInputViewController.swift */,
 				E1328432289CF23D00C3BD27 /* RedeemVoucherInputContentView.swift */,
 				06F0167228DDA4680011AE96 /* RedeemVoucherSucceededViewController.swift */,
-				584F4CFD28E44FA8001F8E48 /* RedeemVoucherViewController.swift */,
+				584F4CFD28E44FA8001F8E48 /* RedeemVoucherController.swift */,
 			);
 			path = RedeemVoucherViewController;
 			sourceTree = "<group>";
@@ -1604,7 +1604,7 @@
 				5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */,
 				588BCF26280FE79A009ADCEC /* RESTProxy.swift in Sources */,
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
-				584F4CFE28E44FA8001F8E48 /* RedeemVoucherViewController.swift in Sources */,
+				584F4CFE28E44FA8001F8E48 /* RedeemVoucherController.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
 				58FD5BE724192A2C00112C88 /* AppStoreReceipt.swift in Sources */,

@@ -16,7 +16,7 @@ protocol AccountViewControllerDelegate: AnyObject {
 }
 
 class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelObserver,
-    RedeemVoucherViewControllerDelegate
+    RedeemVoucherControllerDelegate
 {
     private let alertPresenter = AlertPresenter()
 
@@ -107,8 +107,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     // MARK: - Private methods
 
-    private func makeRedeemVoucherController() -> RedeemVoucherViewController {
-        let controller = RedeemVoucherViewController()
+    private func makeRedeemVoucherController() -> RedeemVoucherController {
+        let controller = RedeemVoucherController()
         controller.transitioningDelegate = formsheetTransitioningDelegate
         controller.modalPresentationStyle = .custom
         controller.redeemVoucherDelegate = self
@@ -330,13 +330,13 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         }
     }
 
-    // MARK: - RedeemVoucherViewControllerDelegate
+    // MARK: - RedeemVoucherControllerDelegate
 
-    func redeemVoucherViewControllerDidCancel(_ controller: RedeemVoucherViewController) {
+    func redeemVoucherControllerDidCancel(_ controller: RedeemVoucherController) {
         controller.dismiss(animated: true)
     }
 
-    func redeemVoucherViewControllerDidFinish(_ controller: RedeemVoucherViewController) {
+    func redeemVoucherControllerDidFinish(_ controller: RedeemVoucherController) {
         controller.dismiss(animated: true)
     }
 
