@@ -1,9 +1,7 @@
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
-import * as AppButton from './AppButton';
 import { measurements, normalText, tinyText } from './common-styles';
-import { RedeemVoucherButton } from './RedeemVoucher';
 
 export const AccountContainer = styled.div({
   display: 'flex',
@@ -59,10 +57,3 @@ export const AccountFooter = styled.div({
   flexDirection: 'column',
   padding: `0 ${measurements.viewMargin}`,
 });
-
-const buttonStyle = {
-  marginBottom: '18px',
-};
-
-export const StyledRedeemVoucherButton = styled(RedeemVoucherButton)(buttonStyle);
-export const StyledBuyCreditButton = styled(AppButton.GreenButton)(buttonStyle);
