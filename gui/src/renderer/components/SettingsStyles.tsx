@@ -31,5 +31,6 @@ export const StyledSettingsContent = styled.div({
 });
 
 export const StyledQuitButton = styled(AppButton.RedButton)({
-  margin: `20px ${measurements.viewMargin} ${measurements.viewMargin}`,
+  margin: measurements.viewMargin,
+  marginTop: measurements.rowVerticalMargin,
 });

@@ -69,14 +69,14 @@ export const StyledSpinnerRow = styled(Cell.CellButton)({
   alignItems: 'center',
   justifyContent: 'center',
   padding: '8px 0',
-  marginBottom: '20px',
+  marginBottom: measurements.rowVerticalMargin,
   background: colors.blue40,
 });
 
 export const StyledListContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  marginBottom: '20px',
+  marginBottom: measurements.rowVerticalMargin,
 });
 
 export const StyledBrowseButton = styled(AppButton.BlueButton)({
@@ -84,7 +84,7 @@ export const StyledBrowseButton = styled(AppButton.BlueButton)({
 });
 
 export const StyledCellContainer = styled(Cell.Container)({
-  marginBottom: '20px',
+  marginBottom: measurements.rowVerticalMargin,
 });
 
 export const StyledSearchContainer = styled.div({

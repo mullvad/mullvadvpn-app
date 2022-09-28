@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { measurements } from '../common-styles';
+import { Group } from './Group';
 
 export const Row = styled.div({
   display: 'flex',
@@ -11,4 +12,7 @@ export const Row = styled.div({
   paddingLeft: measurements.viewMargin,
   paddingRight: measurements.viewMargin,
   marginBottom: '1px',
+  [`${Group} > &:last-child`]: {
+    marginBottom: '0px',
+  },
 });
