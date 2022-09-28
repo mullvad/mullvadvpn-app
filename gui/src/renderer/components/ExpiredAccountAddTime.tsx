@@ -19,7 +19,7 @@ import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { calculateHeaderBarStyle, DefaultHeaderBar, HeaderBarStyle } from './HeaderBar';
 import ImageView from './ImageView';
-import { Container, Layout } from './Layout';
+import { Container, Footer, Layout } from './Layout';
 import {
   RedeemVoucherContainer,
   RedeemVoucherInput,
@@ -47,13 +47,6 @@ export const StyledBody = styled.div({
   flex: 1,
   padding: `0 ${measurements.viewMargin}`,
   paddingBottom: 'auto',
-});
-
-export const StyledFooter = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 0,
-  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
 });
 
 export const StyledTitle = styled.span(hugeText, {
@@ -106,14 +99,14 @@ export function VoucherInput() {
               <RedeemVoucherResponse />
             </StyledBody>
 
-            <StyledFooter>
+            <Footer>
               <AppButton.ButtonGroup>
                 <RedeemVoucherSubmitButton />
                 <AppButton.BlueButton onClick={navigateBack}>
                   {messages.gettext('Cancel')}
                 </AppButton.BlueButton>
               </AppButton.ButtonGroup>
-            </StyledFooter>
+            </Footer>
           </RedeemVoucherContainer>
         </StyledContainer>
       </StyledCustomScrollbars>
@@ -193,11 +186,11 @@ export function TimeAdded(props: ITimeAddedProps) {
             </StyledLabel>
           </StyledBody>
 
-          <StyledFooter>
+          <Footer>
             <AppButton.BlueButton onClick={navigateToSetupFinished}>
               {messages.gettext('Next')}
             </AppButton.BlueButton>
-          </StyledFooter>
+          </Footer>
         </StyledContainer>
       </StyledCustomScrollbars>
     </Layout>
@@ -231,7 +224,7 @@ export function SetupFinished() {
             </StyledLabel>
           </StyledBody>
 
-          <StyledFooter>
+          <Footer>
             <AppButton.ButtonGroup>
               <AriaDescriptionGroup>
                 <AriaDescribed>
@@ -254,7 +247,7 @@ export function SetupFinished() {
                 {messages.pgettext('connect-view', 'Start using the app')}
               </AppButton.GreenButton>
             </AppButton.ButtonGroup>
-          </StyledFooter>
+          </Footer>
         </StyledContainer>
       </StyledCustomScrollbars>
     </Layout>

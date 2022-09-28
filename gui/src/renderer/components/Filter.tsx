@@ -15,10 +15,10 @@ import * as AppButton from './AppButton';
 import { AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector from './cell/Selector';
-import { measurements, normalText } from './common-styles';
+import { normalText } from './common-styles';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import { Footer, Layout, SettingsContainer } from './Layout';
 import {
   NavigationBar,
   NavigationContainer,
@@ -30,12 +30,6 @@ import {
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   backgroundColor: colors.darkBlue,
   flex: 1,
-});
-
-const StyledFooter = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
 });
 
 export default function Filter() {
@@ -101,13 +95,13 @@ export default function Filter() {
                 setProviders={setProviders}
               />
             </StyledNavigationScrollbars>
-            <StyledFooter>
+            <Footer>
               <AppButton.GreenButton
                 disabled={Object.values(providers).every((provider) => !provider)}
                 onClick={onApply}>
                 {messages.gettext('Apply')}
               </AppButton.GreenButton>
-            </StyledFooter>
+            </Footer>
           </NavigationContainer>
         </SettingsContainer>
       </Layout>

@@ -9,7 +9,7 @@ import { bigText, measurements, smallText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';
 import ImageView from './ImageView';
-import { Container } from './Layout';
+import { Container, Footer } from './Layout';
 import { Layout } from './Layout';
 
 export const StyledHeader = styled(DefaultHeaderBar)({
@@ -31,13 +31,6 @@ export const StyledBody = styled.div({
   flexDirection: 'column',
   flex: 1,
   padding: `0 ${measurements.viewMargin}`,
-});
-
-export const StyledFooter = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 0,
-  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
 });
 
 export const StyledStatusIcon = styled.div({
@@ -91,11 +84,11 @@ export function DeviceRevokedView() {
             </StyledMessage>
           </StyledBody>
 
-          <StyledFooter>
+          <Footer>
             <Button onClick={leaveRevokedDevice}>
               {messages.pgettext('device-management', 'Go to login')}
             </Button>
-          </StyledFooter>
+          </Footer>
         </StyledContainer>
       </StyledCustomScrollbars>
     </Layout>

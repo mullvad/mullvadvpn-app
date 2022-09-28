@@ -7,7 +7,6 @@ export const AccountContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  paddingBottom: measurements.viewMargin,
 });
 
 export const AccountRows = styled.div({
@@ -50,10 +49,4 @@ export const StyledSpinnerContainer = styled.div({
   alignItems: 'center',
   justifyContent: 'center',
   padding: '8px 0',
-});
-
-export const AccountFooter = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  padding: `0 ${measurements.viewMargin}`,
 });
