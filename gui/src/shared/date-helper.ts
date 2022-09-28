@@ -120,3 +120,27 @@ export function formatRelativeDate(
     }
   }
 }
+
+/**
+ * If a user has more than 2 years (730 days) left of time it should be displayed in whole years rounded down
+ * If a user has less than 2 years left (e.g. 729 days) then this should be displayed in days.
+ *
+ * @param fromDate
+ * @param toDate
+ */
+export const formatTimeLeft = (fromDate: DateType, toDate: DateType): string => {
+  const diff = new DateDiff(fromDate, toDate);
+  const years = Math.abs(diff.years);
+  const days = Math.abs(diff.days);
+
+  let suffix = 'left';
+  if (diff.milliseconds < 0) {
+    suffix = 'ago';
+  }
+
+  if (days < 730) {
+    return sprintf(messages.ngettext(`1 day ${suffix}`, `%d days ${suffix}`, days), days);
+  }
+
+  return sprintf(messages.ngettext(`1 year ${suffix}`, `%d years ${suffix}`, years), years);
+};
