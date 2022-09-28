@@ -54,7 +54,7 @@ export const StyledTitle = styled.span(bigText, {
 });
 
 export const StyledMessage = styled.span(smallText, {
-  marginBottom: '20px',
+  marginBottom: measurements.rowVerticalMargin,
   color: colors.white,
 });
 

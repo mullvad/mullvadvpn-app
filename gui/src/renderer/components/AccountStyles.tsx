@@ -20,7 +20,7 @@ export const AccountRows = styled.div({
 
 export const AccountRow = styled.div({
   padding: `0 ${measurements.viewMargin}`,
-  marginBottom: '20px',
+  marginBottom: measurements.rowVerticalMargin,
 });
 
 const AccountRowText = styled.span({
