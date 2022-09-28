@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { normalText } from './common-styles';
+import { measurements, normalText } from './common-styles';
 import ImageView from './ImageView';
 import { NavigationScrollbars } from './NavigationBar';
 import { HeaderTitle } from './SettingsHeader';
@@ -80,7 +80,7 @@ export const StyledListContainer = styled.div({
 });
 
 export const StyledBrowseButton = styled(AppButton.BlueButton)({
-  margin: '0 22px 22px',
+  margin: `0 ${measurements.viewMargin} ${measurements.viewMargin}`,
 });
 
 export const StyledCellContainer = styled(Cell.Container)({
@@ -94,11 +94,11 @@ export const StyledSearchContainer = styled.div({
 
 export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
   ...normalText,
-  width: 'calc(100% - 22px * 2)',
+  width: `calc(100% - ${measurements.viewMargin} * 2)`,
   border: 'none',
   borderRadius: '4px',
   padding: '9px 38px',
-  margin: '0 22px',
+  margin: `0 ${measurements.viewMargin}`,
   color: colors.white60,
   backgroundColor: colors.white10,
   '::placeholder': {

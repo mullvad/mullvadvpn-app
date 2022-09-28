@@ -15,7 +15,7 @@ import * as AppButton from './AppButton';
 import { AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector from './cell/Selector';
-import { normalText } from './common-styles';
+import { measurements, normalText } from './common-styles';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
@@ -35,7 +35,7 @@ const StyledNavigationScrollbars = styled(NavigationScrollbars)({
 const StyledFooter = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  padding: '18px 22px 22px',
+  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
 });
 
 export default function Filter() {

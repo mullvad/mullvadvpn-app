@@ -4,7 +4,7 @@ import { colors } from '../../config.json';
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { hugeText, tinyText } from './common-styles';
+import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { DefaultHeaderBar } from './HeaderBar';
 import { Container } from './Layout';
@@ -48,14 +48,14 @@ export const StyledBody = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  padding: '0 22px',
+  padding: `0 ${measurements.viewMargin}`,
 });
 
 export const StyledFooter = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 0,
-  padding: '18px 22px 22px',
+  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
 });
 
 export const StyledTitle = styled.span(hugeText, {
