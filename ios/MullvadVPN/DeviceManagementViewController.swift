@@ -59,6 +59,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(contentView)
+        scrollView.contentInsetAdjustmentBehavior = .always
         view.addSubview(scrollView)
 
         contentView.backButton.addTarget(
