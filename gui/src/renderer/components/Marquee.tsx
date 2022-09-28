@@ -12,8 +12,8 @@ const Text = styled.span({}, (props: { overflow: number; alignRight: boolean }) 
   // Prevents Container from adding 2px below the text.
   verticalAlign: 'middle',
   whiteSpace: 'nowrap',
-  willChange: 'transform',
-  transform: props.alignRight ? `translate(${-props.overflow}px)` : 'translate(0)',
+  willChange: props.overflow > 0 ? 'transform' : 'auto',
+  transform: props.alignRight ? `translate3d(${-props.overflow}px, 0, 0)` : 'translate3d(0, 0, 0)',
   transition: `transform linear ${props.overflow * 80}ms`,
 }));
 
