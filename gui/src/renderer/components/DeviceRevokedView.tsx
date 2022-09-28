@@ -5,7 +5,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
-import { bigText, smallText } from './common-styles';
+import { bigText, measurements, smallText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';
 import ImageView from './ImageView';
@@ -30,14 +30,14 @@ export const StyledBody = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  padding: '0 22px',
+  padding: `0 ${measurements.viewMargin}`,
 });
 
 export const StyledFooter = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 0,
-  padding: '18px 22px 22px',
+  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
 });
 
 export const StyledStatusIcon = styled.div({

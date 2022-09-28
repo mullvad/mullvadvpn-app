@@ -2,11 +2,11 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
-import { hugeText, tinyText } from './common-styles';
+import { hugeText, measurements, tinyText } from './common-styles';
 
 export const Container = styled.div({
   flex: 0,
-  padding: '2px 22px 20px',
+  padding: `2px ${measurements.viewMargin} 20px`,
 });
 
 export const ContentWrapper = styled.div({

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import * as Cell from './cell';
-import { hugeText, largeText, smallText, tinyText } from './common-styles';
+import { hugeText, largeText, measurements, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
 import ImageView from './ImageView';
 
@@ -82,7 +82,7 @@ export const StyledFooter = styled.div({}, (props: { show: boolean }) => ({
   display: 'flex',
   flex: '0',
   flexDirection: 'column',
-  padding: '18px 22px 22px',
+  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
   backgroundColor: colors.darkBlue,
   transition: 'transform 250ms ease-in-out',
 }));
@@ -102,7 +102,7 @@ export const StyledLoginForm = styled.div({
   flex: '0 1 225px',
   flexDirection: 'column',
   overflow: 'visible',
-  padding: '0 22px',
+  padding: `0 ${measurements.viewMargin}`,
 });
 
 interface IStyledAccountInputGroupProps {

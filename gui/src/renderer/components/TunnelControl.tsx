@@ -6,7 +6,7 @@ import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../shared/gettext';
 import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
-import { hugeText, normalText } from './common-styles';
+import { hugeText, measurements, normalText } from './common-styles';
 import ImageView from './ImageView';
 import Marquee from './Marquee';
 import { MultiButton } from './MultiButton';
@@ -37,15 +37,15 @@ const Footer = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 0,
-  paddingBottom: '22px',
-  paddingLeft: '22px',
-  paddingRight: '22px',
+  paddingBottom: measurements.viewMargin,
+  paddingLeft: measurements.viewMargin,
+  paddingRight: measurements.viewMargin,
 });
 
 const Body = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  padding: '0 22px',
+  padding: `0 ${measurements.viewMargin}`,
   marginTop: '176px',
   flex: 1,
 });

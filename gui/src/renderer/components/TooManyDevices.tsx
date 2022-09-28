@@ -15,7 +15,7 @@ import { formatMarkdown } from '../markdown-formatter';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { bigText } from './common-styles';
+import { bigText, measurements } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { Brand, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
@@ -43,7 +43,7 @@ const StyledFooter = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 0,
-  padding: '18px 22px 22px',
+  padding: `18px ${measurements.viewMargin} ${measurements.viewMargin}`,
 });
 
 const StyledStatusIcon = styled.div({
@@ -55,7 +55,7 @@ const StyledStatusIcon = styled.div({
 
 const StyledTitle = styled.span(bigText, {
   lineHeight: '38px',
-  margin: '0 22px 8px',
+  margin: `0 ${measurements.viewMargin} 8px`,
   color: colors.white,
 });
 
@@ -65,7 +65,7 @@ const StyledLabel = styled.span({
   fontWeight: 600,
   lineHeight: '20px',
   color: colors.white,
-  margin: '0 22px 18px',
+  margin: `0 ${measurements.viewMargin} 18px`,
 });
 
 const StyledSpacer = styled.div({
