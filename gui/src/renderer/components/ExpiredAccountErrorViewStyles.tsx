@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import AccountTokenLabel from './AccountTokenLabel';
-import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
@@ -26,13 +25,6 @@ export const StyledModalCellContainer = styled(Cell.Container)({
   paddingLeft: '12px',
   paddingRight: '12px',
 });
-
-const buttonStyle = {
-  marginBottom: '18px',
-};
-
-export const StyledBuyCreditButton = styled(AppButton.GreenButton)(buttonStyle);
-export const StyledDisconnectButton = styled(AppButton.RedButton)(buttonStyle);
 
 export const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,

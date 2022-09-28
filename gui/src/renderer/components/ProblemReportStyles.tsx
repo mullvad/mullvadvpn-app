@@ -1,12 +1,7 @@
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
-import * as AppButton from './AppButton';
 import { hugeText, measurements, smallText } from './common-styles';
-
-export const StyledBlueButton = styled(AppButton.BlueButton)({
-  marginBottom: '18px',
-});
 
 export const StyledContentContainer = styled.div({
   display: 'flex',

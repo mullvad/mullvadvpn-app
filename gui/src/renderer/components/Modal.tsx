@@ -5,7 +5,8 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
 import { useWillExit } from '../lib/will-exit';
-import { tinyText } from './common-styles';
+import * as AppButton from './AppButton';
+import { measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
@@ -142,10 +143,13 @@ const ModalAlertIcon = styled.div({
   marginTop: '8px',
 });
 
+const ModalAlertButtonGroup = styled(AppButton.ButtonGroup)({
+  marginTop: measurements.buttonVerticalMargin,
+});
+
 const ModalAlertButtonContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  marginTop: '18px',
   marginRight: '16px',
 });
 
@@ -265,9 +269,11 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
                 {this.props.children}
               </StyledCustomScrollbars>
 
-              {this.props.buttons.map((button, index) => (
-                <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
-              ))}
+              <ModalAlertButtonGroup>
+                {this.props.buttons.map((button, index) => (
+                  <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
+                ))}
+              </ModalAlertButtonGroup>
             </StyledModalAlert>
           </ModalAlertContainer>
         </ModalBackground>

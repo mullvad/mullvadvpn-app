@@ -62,4 +62,5 @@ export const measurements = {
   rowMinHeight: '44px',
   viewMargin: '22px',
   rowVerticalMargin: '20px',
+  buttonVerticalMargin: '18px',
 };
