@@ -326,8 +326,7 @@ extension DataSourceSnapshot {
                 }
 
             // Discard the change if the index path, produced after replaying other changes,
-            // matches the target index
-            // path.
+            // matches the target index path.
             if inferredIndexPath != targetIndexPath {
                 newChanges.append(contentsOf: sourceChange.breakMoveOntoInsertionDeletion())
             }
