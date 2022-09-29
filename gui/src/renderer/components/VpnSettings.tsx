@@ -167,16 +167,16 @@ function AutoConnect() {
           <Cell.Switch isOn={autoConnect} onChange={setAutoConnect} />
         </AriaInput>
       </Cell.Container>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {messages.pgettext(
               'vpn-settings-view',
               'Automatically connect to a server when the app launches.',
             )}
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }
@@ -197,16 +197,16 @@ function AllowLan() {
           <Cell.Switch isOn={allowLan} onChange={setAllowLan} />
         </AriaInput>
       </Cell.Container>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {messages.pgettext(
               'vpn-settings-view',
               'Allows access to other devices on the same network for sharing, printing etc.',
             )}
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }
@@ -417,13 +417,13 @@ function CustomDnsEnabledFooter() {
   );
 
   return (
-    <Cell.Footer>
+    <Cell.CellFooter>
       <AriaDescription>
-        <Cell.FooterText>
+        <Cell.CellFooterText>
           {formatMarkdown(sprintf(blockingDisabledText, { customDnsFeatureName }))}
-        </Cell.FooterText>
+        </Cell.CellFooterText>
       </AriaDescription>
-    </Cell.Footer>
+    </Cell.CellFooter>
   );
 }
 
@@ -453,16 +453,16 @@ function EnableIpv6() {
           <Cell.Switch isOn={enableIpv6} onChange={setEnableIpv6} />
         </AriaInput>
       </Cell.Container>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {messages.pgettext(
               'vpn-settings-view',
               'Enable IPv6 communication through the tunnel.',
             )}
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }
