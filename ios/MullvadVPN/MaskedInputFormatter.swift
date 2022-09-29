@@ -1,19 +1,29 @@
 //
-//  AccountTokenInput.swift
+//  MaskedInputFormatter.swift
 //  MullvadVPN
 //
-//  Created by pronebird on 08/04/2020.
-//  Copyright © 2020 Mullvad VPN AB. All rights reserved.
+//  Created by Andreas Lif on 2022-08-05.
+//  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
 import UIKit
 
-/// A class describing the account token input and caret management.
+/// A class implementing masked input and caret management.
 /// Suitable to be used with `UITextField`.
-class AccountTokenInput: NSObject {
-    /// The group separator character
-    static let groupSeparator: Character = " "
+class MaskedInputFormatter: NSObject {
+    enum AllowedInput {
+        case numerical, alphanumerical
+    }
+
+    enum GroupSeparator: String {
+        case space = " "
+        case dash = "-"
+    }
+
+    var allowedInput: AllowedInput = .numerical
+    var groupSeparator: GroupSeparator = .space
+    var shouldUseAllCaps = true
 
     /// The character size of each group of digits
     static let groupSize = 4
@@ -27,10 +37,13 @@ class AccountTokenInput: NSObject {
     // Computed caret position
     private(set) var caretPosition = 0
 
-    init(string: String = "") {
+    init(
+        allowedInput: AllowedInput = .numerical,
+        groupSeparator: GroupSeparator = .space
+    ) {
         super.init()
-
-        replace(with: string)
+        self.allowedInput = allowedInput
+        self.groupSeparator = groupSeparator
     }
 
     /// Replace the currently held value with the given string
@@ -64,7 +77,7 @@ class AccountTokenInput: NSObject {
         if replacementString.isEmpty, emptySelection, !formattedString.isEmpty {
             let precedingDigitIndex = formattedString
                 .prefix(through: stringRange.lowerBound)
-                .lastIndex { Self.isDigit($0) } ?? formattedString.startIndex
+                .lastIndex { isAllowed($0) } ?? formattedString.startIndex
 
             stringRange = precedingDigitIndex ..< stringRange.upperBound
         }
@@ -96,7 +109,7 @@ class AccountTokenInput: NSObject {
 
         for (index, element) in newString.enumerated() {
             // Skip disallowed characters
-            if !Self.isDigit(element) {
+            if !isAllowed(element) {
                 // Adjust the caret position for characters removed before the insertion location
                 if originalCaretPosition > index {
                     newCaretPosition -= 1
@@ -106,7 +119,7 @@ class AccountTokenInput: NSObject {
 
             // Add separator between the groups of digits
             if numDigits > 0, numDigits % Self.groupSize == 0 {
-                reformattedString.append(Self.groupSeparator)
+                reformattedString.append(groupSeparator.rawValue)
 
                 if originalCaretPosition > index {
                     // Adjust the caret position to account for separators added before the
@@ -120,12 +133,40 @@ class AccountTokenInput: NSObject {
             numDigits += 1
         }
 
+        if allowedInput == .alphanumerical, shouldUseAllCaps {
+            reformattedString = reformattedString.uppercased()
+        }
+
         caretPosition = newCaretPosition
         formattedString = reformattedString
         parsedString = reparsedString
     }
 
-    private class func isDigit(_ character: Character) -> Bool {
+    private func isAllowed(_ character: Character) -> Bool {
+        switch allowedInput {
+        case .numerical:
+            return isNumber(character)
+        case .alphanumerical:
+            return isAlphanumerical(character)
+        }
+    }
+
+    private func isAlphanumerical(_ character: Character) -> Bool {
+        return isNumber(character) || isLetter(character)
+    }
+
+    private func isLetter(_ character: Character) -> Bool {
+        switch character {
+        case "a" ... "z":
+            return true
+        case "A" ... "Z":
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func isNumber(_ character: Character) -> Bool {
         switch character {
         case "0" ... "9":
             return true
@@ -135,7 +176,7 @@ class AccountTokenInput: NSObject {
     }
 }
 
-extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
+extension MaskedInputFormatter: UITextFieldDelegate, UITextPasteDelegate {
     /// Update the text and caret position in the given text field
     func updateTextField(_ textField: UITextField) {
         updateTextField(textField, notifyDelegate: false)
