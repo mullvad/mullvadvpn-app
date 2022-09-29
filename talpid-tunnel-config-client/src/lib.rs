@@ -84,7 +84,9 @@ pub async fn push_pq_key(
         }
     })?;
 
-    let mut psk_data = [0u8; 32];
+    // Store the PSK data on the heap. So it can be passed around and then zeroized on drop without
+    // being stored in a bunch of places on the stack.
+    let mut psk_data = Box::new([0u8; 32]);
     // Decapsulate Classic McEliece and mix into PSK
     {
         let ciphertext_array =
