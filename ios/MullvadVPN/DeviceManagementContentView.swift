@@ -95,7 +95,7 @@ class DeviceManagementContentView: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.distribution = .fillEqually
-        stackView.spacing = UIMetrics.interButtonSpacing
+        stackView.spacing = UIMetrics.StackSpacing.regular
         return stackView
     }()
 

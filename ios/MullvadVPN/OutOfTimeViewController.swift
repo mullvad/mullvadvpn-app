@@ -11,51 +11,97 @@ import Operations
 import StoreKit
 import UIKit
 
-class OutOfTimeViewController: UIViewController {
+class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
+    RedeemVoucherControllerDelegate, RootContainment, TunnelObserver, AppStorePaymentObserver
+{
     weak var delegate: SettingsButtonInteractionDelegate?
 
+    private let alertPresenter = AlertPresenter()
+    private let formsheetTransitioningDelegate = FormsheetTransitioningDelegate()
+
+    private var tunnelState: TunnelState = .disconnected
     private var productState: ProductState = .none
     private var paymentState: PaymentState = .none
 
-    private let alertPresenter = AlertPresenter()
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.indicatorStyle = .white
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
 
-    private lazy var contentView = OutOfTimeContentView()
+    private let contentView: OutOfTimeContentView = {
+        let contentView = OutOfTimeContentView()
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        return contentView
+    }()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
 
-    private var tunnelState: TunnelState = .disconnected {
-        didSet {
-            setNeedsHeaderBarStyleAppearanceUpdate()
-            applyViewState(animated: true)
-        }
+    var preferredHeaderBarPresentation: HeaderBarPresentation {
+        return HeaderBarPresentation(
+            style: tunnelState.isSecured ? .secured : .unsecured,
+            showsDivider: false
+        )
+    }
+
+    var prefersHeaderBarHidden: Bool {
+        return false
     }
 
     override func viewDidLoad() {
-        setUpContentView()
+        super.viewDidLoad()
+
+        view.backgroundColor = .secondaryColor
+        addSubviews()
         setUpButtonTargets()
         setUpInAppPurchases()
         addObservers()
-        tunnelState = TunnelManager.shared.tunnelStatus.state
+        setTunnelState(TunnelManager.shared.tunnelStatus.state, animated: false)
     }
-}
 
-// MARK: - Private Functions
+    private func makeRedeemVoucherController() -> RedeemVoucherController {
+        let controller = RedeemVoucherController()
+        controller.transitioningDelegate = formsheetTransitioningDelegate
+        controller.modalPresentationStyle = .custom
+        controller.redeemVoucherDelegate = self
 
-private extension OutOfTimeViewController {
-    func setUpContentView() {
-        view.addSubview(contentView)
+        return controller
+    }
 
+    private func addSubviews() {
+        scrollView.addSubview(contentView)
+        view.addSubview(scrollView)
+
+        addConstraints()
+    }
+
+    private func addConstraints() {
         NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: view.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.heightAnchor
+                .constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.heightAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
         ])
     }
 
-    func setUpButtonTargets() {
+    private func setTunnelState(_ newState: TunnelState, animated: Bool) {
+        tunnelState = newState
+        setNeedsHeaderBarStyleAppearanceUpdate()
+        applyViewState(animated: animated)
+    }
+
+    private func setUpButtonTargets() {
         contentView.disconnectButton.addTarget(
             self,
             action: #selector(handleDisconnect(_:)),
@@ -72,27 +118,27 @@ private extension OutOfTimeViewController {
             action: #selector(restorePurchases),
             for: .touchUpInside
         )
+        contentView.redeemButton.addTarget(
+            self,
+            action: #selector(didTapRedeemVoucher),
+            for: .touchUpInside
+        )
     }
 
-    @objc func handleDisconnect(_ sender: Any) {
+    @objc private func handleDisconnect(_ sender: Any) {
         TunnelManager.shared.stopTunnel()
     }
 
-    func addObservers() {
+    @objc private func didTapRedeemVoucher() {
+        present(makeRedeemVoucherController(), animated: true)
+    }
+
+    private func addObservers() {
         AppStorePaymentManager.shared.addPaymentObserver(self)
         TunnelManager.shared.addObserver(self)
     }
 
-    func setEnableUserInteraction(_ enableUserInteraction: Bool) {
-        [contentView.purchaseButton, contentView.restoreButton]
-            .forEach { button in
-                button?.isEnabled = enableUserInteraction
-            }
-
-        view.isUserInteractionEnabled = enableUserInteraction
-    }
-
-    func bodyText(for tunnelState: TunnelState) -> String {
+    private func bodyText(for tunnelState: TunnelState) -> String {
         if tunnelState.isSecured {
             return NSLocalizedString(
                 "OUT_OF_TIME_BODY_CONNECTED",
@@ -109,12 +155,8 @@ private extension OutOfTimeViewController {
             )
         }
     }
-}
 
-// MARK: - In App Purchases
-
-private extension OutOfTimeViewController {
-    func setUpInAppPurchases() {
+    private func setUpInAppPurchases() {
         if AppStorePaymentManager.canMakePayments {
             requestStoreProducts()
         } else {
@@ -122,7 +164,7 @@ private extension OutOfTimeViewController {
         }
     }
 
-    func requestStoreProducts() {
+    private func requestStoreProducts() {
         let productKind = AppStoreSubscription.thirtyDays
 
         setProductState(.fetching(productKind), animated: true)
@@ -136,19 +178,19 @@ private extension OutOfTimeViewController {
             }
     }
 
-    func setPaymentState(_ newState: PaymentState, animated: Bool) {
+    private func setPaymentState(_ newState: PaymentState, animated: Bool) {
         paymentState = newState
 
         applyViewState(animated: animated)
     }
 
-    func setProductState(_ newState: ProductState, animated: Bool) {
+    private func setProductState(_ newState: ProductState, animated: Bool) {
         productState = newState
 
-        applyViewState(animated: animated)
+        applyViewState(animated: false)
     }
 
-    func applyViewState(animated: Bool) {
+    private func applyViewState(animated: Bool) {
         let isInteractionEnabled = paymentState.allowsViewInteraction
         let purchaseButton = contentView.purchaseButton
 
@@ -161,9 +203,12 @@ private extension OutOfTimeViewController {
             purchaseButton.setTitle(self.productState.purchaseButtonTitle, for: .normal)
             self.contentView.purchaseButton.isLoading = self.productState.isFetching
 
-            purchaseButton.isEnabled = self.productState.isReceived && isInteractionEnabled && !self
-                .tunnelState.isSecured
+            purchaseButton.isEnabled = self.productState.isReceived
+                && isInteractionEnabled
+                && !self.tunnelState.isSecured
+            self.contentView.redeemButton.isEnabled = isInteractionEnabled
             self.contentView.restoreButton.isEnabled = isInteractionEnabled
+                && !self.tunnelState.isSecured
             self.contentView.disconnectButton.isEnabled = self.tunnelState.isSecured
             self.contentView.disconnectButton.alpha = self.tunnelState.isSecured ? 1 : 0
             self.contentView.bodyLabel.text = self.bodyText(for: self.tunnelState)
@@ -178,6 +223,8 @@ private extension OutOfTimeViewController {
                 self,
                 didRequestSettingsButtonEnabled: isInteractionEnabled
             )
+
+            self.view.layoutIfNeeded()
         }
         if animated {
             UIView.animate(withDuration: 0.25, animations: actions)
@@ -204,26 +251,29 @@ private extension OutOfTimeViewController {
         setPaymentState(.makingPayment(payment), animated: true)
     }
 
-    @objc func restorePurchases() {
+    @objc private func restorePurchases() {
         guard let accountData = TunnelManager.shared.deviceState.accountData else {
             return
         }
 
         setPaymentState(.restoringPurchases, animated: true)
 
-        _ = AppStorePaymentManager.shared.restorePurchases(for: accountData.number) { completion in
-            switch completion {
-            case let .success(response):
-                self.showAlertIfNoTimeAdded(with: response, context: .restoration)
-            case let .failure(error):
-                self.showRestorePurchasesErrorAlert(error: error)
+        _ = AppStorePaymentManager.shared
+            .restorePurchases(for: accountData.number) { [weak self] completion in
+                guard let self = self else { return }
 
-            case .cancelled:
-                break
+                switch completion {
+                case let .success(response):
+                    self.showAlertIfNoTimeAdded(with: response, context: .restoration)
+                case let .failure(error):
+                    self.showRestorePurchasesErrorAlert(error: error)
+
+                case .cancelled:
+                    break
+                }
+
+                self.setPaymentState(.none, animated: true)
             }
-
-            self.setPaymentState(.none, animated: true)
-        }
     }
 
     private func showAlertIfNoTimeAdded(
@@ -252,7 +302,7 @@ private extension OutOfTimeViewController {
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
-    func showRestorePurchasesErrorAlert(error: AppStorePaymentManager.Error) {
+    private func showRestorePurchasesErrorAlert(error: AppStorePaymentManager.Error) {
         let alertController = UIAlertController(
             title: NSLocalizedString(
                 "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
@@ -274,7 +324,7 @@ private extension OutOfTimeViewController {
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
-    func showPaymentErrorAlert(error: AppStorePaymentManager.Error) {
+    private func showPaymentErrorAlert(error: AppStorePaymentManager.Error) {
         let alertController = UIAlertController(
             title: NSLocalizedString(
                 "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
@@ -300,17 +350,8 @@ private extension OutOfTimeViewController {
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
-    func didProcessPayment(_ payment: SKPayment) {
-        guard case let .makingPayment(pendingPayment) = paymentState,
-              pendingPayment == payment else { return }
+    // MARK: - AppStorePaymentObserver
 
-        setPaymentState(.none, animated: true)
-    }
-}
-
-// MARK: - AppStorePaymentObserver
-
-extension OutOfTimeViewController: AppStorePaymentObserver {
     func appStorePaymentManager(
         _ manager: AppStorePaymentManager,
         transaction: SKPaymentTransaction?,
@@ -318,6 +359,9 @@ extension OutOfTimeViewController: AppStorePaymentObserver {
         accountToken: String?,
         didFailWithError error: AppStorePaymentManager.Error
     ) {
+        guard case let .makingPayment(pendingPayment) = paymentState,
+              pendingPayment == payment else { return }
+
         switch error {
         case .storePayment(SKError.paymentCancelled):
             break
@@ -326,7 +370,7 @@ extension OutOfTimeViewController: AppStorePaymentObserver {
             showPaymentErrorAlert(error: error)
         }
 
-        didProcessPayment(payment)
+        setPaymentState(.none, animated: true)
     }
 
     func appStorePaymentManager(
@@ -335,47 +379,37 @@ extension OutOfTimeViewController: AppStorePaymentObserver {
         accountToken: String,
         didFinishWithResponse response: REST.CreateApplePaymentResponse
     ) {
-        didProcessPayment(transaction.payment)
+        guard case let .makingPayment(pendingPayment) = paymentState,
+              pendingPayment == transaction.payment else { return }
+
+        setPaymentState(.none, animated: true)
     }
-}
 
-// MARK: - TunnelObserver
-
-extension OutOfTimeViewController: TunnelObserver {
-    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {}
+    // MARK: - TunnelObserver
 
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
-        tunnelState = tunnelStatus.state
+        setTunnelState(tunnelState, animated: true)
     }
 
-    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {}
+    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
+        // no-op
+    }
+
+    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
+        // no-op
+    }
 
     func tunnelManager(
         _ manager: TunnelManager,
         didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
-    ) {}
-
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {}
-}
-
-// MARK: - Header Bar
-
-extension OutOfTimeViewController: RootContainment {
-    var preferredHeaderBarPresentation: HeaderBarPresentation {
-        return HeaderBarPresentation(
-            style: tunnelState.isSecured ? .secured : .unsecured,
-            showsDivider: false
-        )
+    ) {
+        // no-op
     }
 
-    var prefersHeaderBarHidden: Bool {
-        false
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
+        // no-op
     }
-}
 
-// MARK: - UI Restrictions
-
-private extension OutOfTimeViewController {
     enum PaymentState: Equatable {
         case none
         case makingPayment(SKPayment)
@@ -449,5 +483,15 @@ private extension OutOfTimeViewController {
                 )
             }
         }
+    }
+
+    // MARK: - RedeemVoucherControllerDelegate
+
+    func redeemVoucherControllerDidFinish(_ controller: RedeemVoucherController) {
+        controller.dismiss(animated: true)
+    }
+
+    func redeemVoucherControllerDidCancel(_ controller: RedeemVoucherController) {
+        controller.dismiss(animated: true)
     }
 }
