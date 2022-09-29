@@ -141,8 +141,8 @@ class AutomaticKeyboardResponder {
         // Determine presentation style within the context
         let presentationStyle: UIModalPresentationStyle
 
-        // Use the presentation style of a presented controller when parent controller is being presented as a child of
-        // other modal controller.
+        // Use the presentation style of a presented controller,
+        // when parent controller is being presented as a child of other modal controller.
         if let presented = parent.presentingViewController?.presentedViewController {
             presentationStyle = presented.modalPresentationStyle
         } else {
