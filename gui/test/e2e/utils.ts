@@ -1,8 +1,11 @@
 import { Locator, Page, _electron as electron, ElectronApplication } from 'playwright';
 
+export type GetByTestId = (id: string) => Locator;
+
 export interface StartAppResponse {
   app: ElectronApplication;
   page: Page;
+  getByTestId: GetByTestId;
 }
 
 export const startApp = async (mainPath: string): Promise<StartAppResponse> => {
@@ -22,7 +25,9 @@ export const startApp = async (mainPath: string): Promise<StartAppResponse> => {
     console.log(msg.text());
   });
 
-  return { app, page };
+  const getByTestId = (id: string) => page.locator(`data-test-id=${id}`);
+
+  return { app, page, getByTestId };
 };
 
 const getStyleProperty = (locator: Locator, property: string) => {
