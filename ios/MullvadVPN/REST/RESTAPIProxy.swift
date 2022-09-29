@@ -206,6 +206,57 @@ extension REST {
                 completionHandler: completionHandler
             )
         }
+
+        func submitVoucher(
+            voucherCode: String,
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping CompletionHandler<SubmitVoucherResponse>
+        ) -> Cancellable {
+            let requestHandler = AnyRequestHandler { endpoint in
+                var requestBuilder = try self.requestFactory.createRequestBuilder(
+                    endpoint: endpoint,
+                    method: .post,
+                    pathTemplate: "submit-voucher"
+                )
+
+                requestBuilder.setAuthorization(.accountNumber(accountNumber))
+
+                try requestBuilder
+                    .setHTTPBody(value: SubmitVoucherRequest(voucherCode: voucherCode))
+
+                return requestBuilder.getRequest()
+            }
+
+            let responseHandler =
+                AnyResponseHandler { response, data -> ResponseHandlerResult<SubmitVoucherResponse> in
+                    if HTTPStatus.isSuccess(response.statusCode) {
+                        if let voucherResponse = try? self.responseDecoder.decode(
+                            SubmitVoucherResponse.self,
+                            from: data
+                        ) {
+                            return .success(voucherResponse)
+                        } else {
+                            return .unhandledResponse(nil)
+                        }
+                    } else {
+                        return .unhandledResponse(
+                            try? self.responseDecoder.decode(
+                                ServerErrorResponse.self,
+                                from: data
+                            )
+                        )
+                    }
+                }
+
+            return addOperation(
+                name: "send-submit-voucher",
+                retryStrategy: retryStrategy,
+                requestHandler: requestHandler,
+                responseHandler: responseHandler,
+                completionHandler: completionHandler
+            )
+        }
     }
 
     // MARK: - Response types
@@ -259,5 +310,18 @@ extension REST {
         let message: String
         let log: String
         let metadata: [String: String]
+    }
+
+    fileprivate struct SubmitVoucherRequest: Encodable {
+        let voucherCode: String
+    }
+
+    struct SubmitVoucherResponse: Decodable {
+        let timeAdded: Int
+        let newExpiry: Date
+
+        var dateComponents: DateComponents {
+            return DateComponents(second: timeAdded)
+        }
     }
 }

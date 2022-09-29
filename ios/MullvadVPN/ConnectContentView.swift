@@ -58,7 +58,7 @@ class ConnectContentView: UIView {
 
     lazy var buttonsStackView: UIStackView = {
         let stackView = UIStackView()
-        stackView.spacing = UIMetrics.interButtonSpacing
+        stackView.spacing = UIMetrics.StackSpacing.regular
         stackView.axis = .vertical
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView

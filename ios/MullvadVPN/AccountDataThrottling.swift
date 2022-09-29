@@ -67,7 +67,7 @@ struct AccountDataThrottling {
         switch comparisonResult {
         case .orderedAscending, .orderedSame:
             lastUpdate = Date()
-            tunnelManager.updateAccountData()
+            _ = tunnelManager.updateAccountData()
 
         case .orderedDescending:
             break

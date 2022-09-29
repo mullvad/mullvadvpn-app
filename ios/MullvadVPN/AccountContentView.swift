@@ -15,6 +15,18 @@ class AccountContentView: UIView {
         return button
     }()
 
+    let redeemButton: AppButton = {
+        let button = AppButton(style: .success)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(NSLocalizedString(
+            "REDEEM_VOUCHER_BUTTON_TITLE",
+            tableName: "Account",
+            value: "Redeem voucher",
+            comment: ""
+        ), for: .normal)
+        return button
+    }()
+
     let restorePurchasesButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -73,11 +85,16 @@ class AccountContentView: UIView {
 
     lazy var buttonStackView: UIStackView = {
         let stackView =
-            UIStackView(arrangedSubviews: [purchaseButton, restorePurchasesButton, logoutButton])
+            UIStackView(arrangedSubviews: [
+                purchaseButton,
+                redeemButton,
+                restorePurchasesButton,
+                logoutButton,
+            ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.interButtonSpacing
-        stackView.setCustomSpacing(UIMetrics.interButtonSpacing, after: restorePurchasesButton)
+        stackView.spacing = UIMetrics.StackSpacing.regular
+        stackView.setCustomSpacing(UIMetrics.StackSpacing.regular, after: restorePurchasesButton)
         return stackView
     }()
 

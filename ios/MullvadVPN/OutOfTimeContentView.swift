@@ -10,13 +10,24 @@ import Foundation
 import UIKit
 
 class OutOfTimeContentView: UIView {
+    private static func makeSpacerView() -> UIView {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        view.setContentHuggingPriority(.defaultLow, for: .vertical)
+        return view
+    }
+
+    private let topSpacerView = makeSpacerView()
+    private let bottomSpacerView = makeSpacerView()
+
     let statusActivityView: StatusActivityView = {
         let statusActivityView = StatusActivityView(state: .failure)
         statusActivityView.translatesAutoresizingMaskIntoConstraints = false
         return statusActivityView
     }()
 
-    private lazy var titleLabel: UILabel = {
+    let titleLabel: UILabel = {
         let label = UILabel()
         label.text = NSLocalizedString(
             "OUT_OF_TIME_TITLE",
@@ -29,7 +40,7 @@ class OutOfTimeContentView: UIView {
         return label
     }()
 
-    lazy var bodyLabel: UILabel = {
+    let bodyLabel: UILabel = {
         let label = UILabel()
         label.text = NSLocalizedString(
             "OUT_OF_TIME_BODY",
@@ -43,7 +54,7 @@ class OutOfTimeContentView: UIView {
         return label
     }()
 
-    lazy var disconnectButton: AppButton = {
+    let disconnectButton: AppButton = {
         let button = AppButton(style: .danger)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.alpha = 0
@@ -57,7 +68,19 @@ class OutOfTimeContentView: UIView {
         return button
     }()
 
-    lazy var purchaseButton: InAppPurchaseButton = {
+    let restoreButton: AppButton = {
+        let button = AppButton(style: .default)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(NSLocalizedString(
+            "RESTORE_PURCHASES_BUTTON_TITLE",
+            tableName: "OutOfTime",
+            value: "Restore purchases",
+            comment: ""
+        ), for: .normal)
+        return button
+    }()
+
+    let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         let localizedString = NSLocalizedString(
@@ -70,13 +93,13 @@ class OutOfTimeContentView: UIView {
         return button
     }()
 
-    lazy var restoreButton: AppButton = {
-        let button = AppButton(style: .default)
+    let redeemButton: AppButton = {
+        let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
-            "RESTORE_PURCHASES_BUTTON_TITLE",
+            "REDEEM_VOUCHER_BUTTON_TITLE",
             tableName: "OutOfTime",
-            value: "Restore purchases",
+            value: "Redeem voucher",
             comment: ""
         ), for: .normal)
         return button
@@ -86,46 +109,47 @@ class OutOfTimeContentView: UIView {
         let stackView = UIStackView(arrangedSubviews: [statusActivityView, titleLabel, bodyLabel])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.sectionSpacing
+        stackView.spacing = UIMetrics.StackSpacing.regular
         return stackView
     }()
 
     private lazy var bottomStackView: UIStackView = {
         let stackView = UIStackView(
-            arrangedSubviews: [disconnectButton, purchaseButton, restoreButton]
+            arrangedSubviews: [disconnectButton, purchaseButton, redeemButton, restoreButton]
         )
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.sectionSpacing
+        stackView.spacing = UIMetrics.StackSpacing.regular
         return stackView
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = .secondaryColor
+
         layoutMargins = UIMetrics.contentLayoutMargins
-        setUpSubviews()
+
+        addSubviews()
+        addConstraints()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-}
 
-// MARK: - Private Functions
-
-private extension OutOfTimeContentView {
-    func setUpSubviews() {
-        addSubview(topStackView)
-        addSubview(bottomStackView)
-        configureConstraints()
+    private func addSubviews() {
+        for subview in [topSpacerView, topStackView, bottomSpacerView, bottomStackView] {
+            addSubview(subview)
+        }
     }
 
-    func configureConstraints() {
+    private func addConstraints() {
         NSLayoutConstraint.activate([
-            topStackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -20),
+            topSpacerView.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
+            topSpacerView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
+            topSpacerView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
+            topSpacerView.heightAnchor.constraint(equalTo: bottomSpacerView.heightAnchor),
 
+            topStackView.topAnchor.constraint(equalTo: topSpacerView.bottomAnchor),
             topStackView.leadingAnchor.constraint(
                 equalTo: layoutMarginsGuide.leadingAnchor
             ),
@@ -133,6 +157,13 @@ private extension OutOfTimeContentView {
                 equalTo: layoutMarginsGuide.trailingAnchor
             ),
 
+            bottomSpacerView.topAnchor.constraint(equalTo: topStackView.bottomAnchor),
+            bottomSpacerView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
+            bottomSpacerView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
+            bottomSpacerView.heightAnchor
+                .constraint(greaterThanOrEqualToConstant: UIMetrics.sectionSpacing),
+
+            bottomStackView.topAnchor.constraint(equalTo: bottomSpacerView.bottomAnchor),
             bottomStackView.leadingAnchor.constraint(
                 equalTo: layoutMarginsGuide.leadingAnchor
             ),

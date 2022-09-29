@@ -33,8 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add intents: start VPN, stop VPN, reconnect VPN (acts as start VPN when the tunnel is down,
   otherwise picks new relay).
 - Add menu item to control shortcuts.
-- Add continuous monitoring of tunnel connection. Verify ping replies to detect whether traffic is 
+- Add continuous monitoring of tunnel connection. Verify ping replies to detect whether traffic is
   really flowing.
+- Add ability to redeem vouchers.
 
 ### Changed
 - When logged into an account with no time left, a new view is shown instead of account settings,
