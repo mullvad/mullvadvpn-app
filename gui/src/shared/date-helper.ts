@@ -133,14 +133,9 @@ export const formatTimeLeft = (fromDate: DateType, toDate: DateType): string => 
   const years = Math.abs(diff.years);
   const days = Math.abs(diff.days);
 
-  let suffix = 'left';
-  if (diff.milliseconds < 0) {
-    suffix = 'ago';
-  }
-
   if (days < 730) {
-    return sprintf(messages.ngettext(`1 day ${suffix}`, `%d days ${suffix}`, days), days);
+    return sprintf(messages.ngettext('1 day left', '%d days left', days), days);
   }
 
-  return sprintf(messages.ngettext(`1 year ${suffix}`, `%d years ${suffix}`, years), years);
+  return sprintf(messages.ngettext('1 year left', '%d years left', years), years);
 };
