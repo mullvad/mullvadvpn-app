@@ -43,12 +43,14 @@ final class TunnelManager {
     }
 
     static let shared = TunnelManager(
+        apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
         accountsProxy: REST.ProxyFactory.shared.createAccountsProxy(),
         devicesProxy: REST.ProxyFactory.shared.createDevicesProxy()
     )
 
     // MARK: - Internal variables
 
+    private let apiProxy: REST.APIProxy
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
 
@@ -80,7 +82,12 @@ final class TunnelManager {
 
     // MARK: - Initialization
 
-    private init(accountsProxy: REST.AccountsProxy, devicesProxy: REST.DevicesProxy) {
+    private init(
+        apiProxy: REST.APIProxy,
+        accountsProxy: REST.AccountsProxy,
+        devicesProxy: REST.DevicesProxy
+    ) {
+        self.apiProxy = apiProxy
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
         self.operationQueue.name = "TunnelManager.operationQueue"
@@ -382,7 +389,7 @@ final class TunnelManager {
         }
     }
 
-    func updateAccountData(_ completionHandler: ((Error?) -> Void)? = nil) {
+    func updateAccountData(_ completionHandler: ((Error?) -> Void)? = nil) -> Cancellable {
         let operation = UpdateAccountDataOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
@@ -403,6 +410,8 @@ final class TunnelManager {
         )
 
         operationQueue.addOperation(operation)
+
+        return operation
     }
 
     func updateDeviceData(_ completionHandler: @escaping (OperationCompletion<
@@ -479,6 +488,33 @@ final class TunnelManager {
 
         operation.addObserver(
             BackgroundObserver(name: "Rotate private key", cancelUponExpiration: true)
+        )
+
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
+        )
+
+        operationQueue.addOperation(operation)
+
+        return operation
+    }
+
+    func redeemVoucher(
+        voucherCode: String,
+        completionHandler: ((OperationCompletion<REST.SubmitVoucherResponse, Error>) -> Void)? = nil
+    ) -> Cancellable {
+        let operation = RedeemVoucherOperation(
+            dispatchQueue: internalQueue,
+            interactor: TunnelInteractorProxy(self),
+            apiProxy: apiProxy,
+            voucherCode: voucherCode
+        )
+
+        operation.completionQueue = .main
+        operation.completionHandler = completionHandler
+
+        operation.addObserver(
+            BackgroundObserver(name: "Redeem voucher", cancelUponExpiration: true)
         )
 
         operation.addCondition(
