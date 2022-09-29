@@ -300,9 +300,8 @@ extension DataSourceSnapshot {
                 continue
             }
 
-            // Replay all changes to compute the item's index path, ignoring the changes associated with
-            // the current
-            // change.
+            // Replay all changes to compute the item's index path, ignoring the changes
+            // associated with the current change.
             let inferredIndexPath = sortedChangesWithoutMoves
                 .reduce(into: sourceIndexPath) { inferredIndexPath, otherChange in
                     switch otherChange {
