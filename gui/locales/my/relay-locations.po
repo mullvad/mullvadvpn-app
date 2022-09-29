@@ -60,6 +60,10 @@ msgstr "ဘဲလ်ဂရိတ်"
 msgid "Boston, MA"
 msgstr "ဘော်စတွန်၊ မက်ဆာချူးဆက်"
 
+#. SK BTS
+msgid "Bratislava"
+msgstr ""
+
 #. BR
 msgid "Brazil"
 msgstr "ဘရာဇီး"
@@ -183,6 +187,10 @@ msgstr "ဟောင်ကောင်"
 #. US HNL
 msgid "Honolulu, HI"
 msgstr "ဟိုနိုလူလူ၊ ဟာဝိုင်ယီ"
+
+#. US HOU
+msgid "Houston, TX"
+msgstr ""
 
 #. HU
 msgid "Hungary"
@@ -420,6 +428,10 @@ msgstr "ဆူးဖော၊ တောင်ဒါကိုတာ"
 msgid "Skopje"
 msgstr "စကော့ပ်ရာ"
 
+#. SK
+msgid "Slovakia"
+msgstr ""
+
 #. BG SOF
 msgid "Sofia"
 msgstr "ဆိုဖီယာ"
@@ -439,6 +451,10 @@ msgstr "စိန့်လူးဝစ်၊ မစ်ဆူရီ"
 #. US XLX
 msgid "Stamford, CT"
 msgstr "စတမ်းဖို့၊ ကော်နက်တီကပ်"
+
+#. NO SVG
+msgid "Stavanger"
+msgstr ""
 
 #. SE STO
 msgid "Stockholm"
@@ -515,4 +531,3 @@ msgstr "ဗင်း"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ဇူးရစ်ချ်"
-

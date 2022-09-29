@@ -60,6 +60,10 @@ msgstr "貝爾格勒"
 msgid "Boston, MA"
 msgstr "麻州，波士頓"
 
+#. SK BTS
+msgid "Bratislava"
+msgstr ""
+
 #. BR
 msgid "Brazil"
 msgstr "巴西"
@@ -183,6 +187,10 @@ msgstr "香港"
 #. US HNL
 msgid "Honolulu, HI"
 msgstr "夏威夷州，檀香山"
+
+#. US HOU
+msgid "Houston, TX"
+msgstr ""
 
 #. HU
 msgid "Hungary"
@@ -420,6 +428,10 @@ msgstr "南達科他州，蘇瀑"
 msgid "Skopje"
 msgstr "斯高彼亞"
 
+#. SK
+msgid "Slovakia"
+msgstr ""
+
 #. BG SOF
 msgid "Sofia"
 msgstr "索菲亞"
@@ -439,6 +451,10 @@ msgstr "密蘇里州，聖路易"
 #. US XLX
 msgid "Stamford, CT"
 msgstr "康乃狄克州，斯坦福"
+
+#. NO SVG
+msgid "Stavanger"
+msgstr ""
 
 #. SE STO
 msgid "Stockholm"
@@ -515,4 +531,3 @@ msgstr "維也納"
 #. CH ZRH
 msgid "Zurich"
 msgstr "蘇黎世"
-
