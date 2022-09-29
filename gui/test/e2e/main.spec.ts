@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { startApp } from './utils';
+import { startAppWithMocking } from './utils';
 
 let appWindow: Page;
 
 test.beforeAll(async () => {
-  const startAppResponse = await startApp();
+  const startAppResponse = await startAppWithMocking();
   appWindow = startAppResponse.appWindow;
 });
 

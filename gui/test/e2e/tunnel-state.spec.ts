@@ -8,7 +8,7 @@ import {
   getColor,
   mockIpcHandle,
   sendMockIpcResponse,
-  startApp,
+  startAppWithMocking,
 } from './utils';
 
 const UNSECURED_COLOR = colors.red;
@@ -29,7 +29,7 @@ const getHeader = () => appWindow.locator('header');
 let appWindow: Page;
 
 test.beforeAll(async () => {
-  const startAppResponse = await startApp();
+  const startAppResponse = await startAppWithMocking();
   appWindow = startAppResponse.appWindow;
 });
 
