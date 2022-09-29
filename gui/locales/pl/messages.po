@@ -1075,7 +1075,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "Aby to ustawić, wyłącz wszystkie funkcje blokowania treści (w sekcji %(preferencesPageName)s)."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Włącz lub wyłącz powiadomienia systemowe. Krytyczne powiadomienia będą zawsze wyświetlane."
 
@@ -1083,7 +1083,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Włącz, aby otrzymywać powiadomienia o wydaniu nowych wersji beta aplikacji."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Włącz, aby przenosić aplikację jako swobodne okno."
 
@@ -1099,11 +1099,11 @@ msgctxt "vpn-settings-view"
 msgid "Local network sharing"
 msgstr "Udostępnianie sieci lokalnej"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Monochromatyczna ikona na pasku"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "Powiadomienia"
 
@@ -1111,11 +1111,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "Preferencje"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "Ikonę na pasku pokazuj tylko przy uruchamianiu aplikacji."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "Uruchom zminimalizowaną"
 
@@ -1127,11 +1127,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "W wersji beta ta opcja jest niedostępna."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "Odepnij aplikację od paska zadań"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Użyj monochromatycznej ikony na pasku, zamiast kolorowej."
 
@@ -1275,7 +1275,7 @@ msgid "FAQs & Guides"
 msgstr "Często zadawane pytania i poradniki"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Language"
 msgstr "Język"
 

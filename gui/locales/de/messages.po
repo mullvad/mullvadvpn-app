@@ -1053,7 +1053,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "Deaktivieren Sie alle Inhaltssperren (unter %(preferencesPageName)s), um diese Einstellung zu aktivieren."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Aktivieren oder deaktivieren Sie Systembenachrichtigungen. Kritische Benachrichtigungen werden immer angezeigt."
 
@@ -1061,7 +1061,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Aktivieren, um benachrichtigt zu werden, wenn neue Beta-Versionen der App veröffentlicht werden."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Aktivieren, um die App als freistehendes Fenster herumzubewegen."
 
@@ -1077,11 +1077,11 @@ msgctxt "vpn-settings-view"
 msgid "Local network sharing"
 msgstr "Teilen im lokalen Netzwerk"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Monochromatisches Leistensymbol"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "Benachrichtigungen"
 
@@ -1089,11 +1089,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "Präferenzen"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "Beim Start der App nur das Leistensymbol anzeigen."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "Minimiert starten"
 
@@ -1105,11 +1105,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Diese Option ist in Beta-Versionen nicht verfügbar."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "App von der Taskleiste lösen"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Monochromatisches Leistensymbol statt Farbsymbol nutzen."
 
@@ -1253,7 +1253,7 @@ msgid "FAQs & Guides"
 msgstr "Häufig gestellte Fragen & Anleitungen"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Language"
 msgstr "Sprache"
 

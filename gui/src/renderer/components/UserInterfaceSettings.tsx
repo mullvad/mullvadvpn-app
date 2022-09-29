@@ -30,7 +30,7 @@ const StyledCellIcon = styled(Cell.UntintedIcon)({
   marginRight: '8px',
 });
 
-export default function InterfaceSettings() {
+export default function UserInterfaceSettings() {
   const { pop } = useHistory();
   const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
 
@@ -44,7 +44,7 @@ export default function InterfaceSettings() {
                 <TitleBarItem>
                   {
                     // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('interface-settings-view', 'Interface settings')
+                    messages.pgettext('user-interface-settings-view', 'User interface settings')
                   }
                 </TitleBarItem>
               </NavigationItems>
@@ -53,7 +53,7 @@ export default function InterfaceSettings() {
             <NavigationScrollbars>
               <SettingsHeader>
                 <HeaderTitle>
-                  {messages.pgettext('interface-settings-view', 'Interface settings')}
+                  {messages.pgettext('user-interface-settings-view', 'User interface settings')}
                 </HeaderTitle>
               </SettingsHeader>
 
@@ -101,7 +101,7 @@ function NotificationsSetting() {
       <Cell.Container>
         <AriaLabel>
           <Cell.InputLabel>
-            {messages.pgettext('interface-settings-view', 'Notifications')}
+            {messages.pgettext('user-interface-settings-view', 'Notifications')}
           </Cell.InputLabel>
         </AriaLabel>
         <AriaInput>
@@ -112,7 +112,7 @@ function NotificationsSetting() {
         <AriaDescription>
           <Cell.FooterText>
             {messages.pgettext(
-              'interface-settings-view',
+              'user-interface-settings-view',
               'Enable or disable system notifications. The critical notifications will always be displayed.',
             )}
           </Cell.FooterText>
@@ -131,7 +131,7 @@ function MonochromaticTrayIconSetting() {
       <Cell.Container>
         <AriaLabel>
           <Cell.InputLabel>
-            {messages.pgettext('interface-settings-view', 'Monochromatic tray icon')}
+            {messages.pgettext('user-interface-settings-view', 'Monochromatic tray icon')}
           </Cell.InputLabel>
         </AriaLabel>
         <AriaInput>
@@ -142,7 +142,7 @@ function MonochromaticTrayIconSetting() {
         <AriaDescription>
           <Cell.FooterText>
             {messages.pgettext(
-              'interface-settings-view',
+              'user-interface-settings-view',
               'Use a monochromatic tray icon instead of a colored one.',
             )}
           </Cell.FooterText>
@@ -161,7 +161,7 @@ function UnpinnedWindowSetting() {
       <Cell.Container>
         <AriaLabel>
           <Cell.InputLabel>
-            {messages.pgettext('interface-settings-view', 'Unpin app from taskbar')}
+            {messages.pgettext('user-interface-settings-view', 'Unpin app from taskbar')}
           </Cell.InputLabel>
         </AriaLabel>
         <AriaInput>
@@ -172,7 +172,7 @@ function UnpinnedWindowSetting() {
         <AriaDescription>
           <Cell.FooterText>
             {messages.pgettext(
-              'interface-settings-view',
+              'user-interface-settings-view',
               'Enable to move the app around as a free-standing window.',
             )}
           </Cell.FooterText>
@@ -191,7 +191,7 @@ function StartMinimizedSetting() {
       <Cell.Container>
         <AriaLabel>
           <Cell.InputLabel>
-            {messages.pgettext('interface-settings-view', 'Start minimized')}
+            {messages.pgettext('user-interface-settings-view', 'Start minimized')}
           </Cell.InputLabel>
         </AriaLabel>
         <AriaInput>
@@ -202,7 +202,7 @@ function StartMinimizedSetting() {
         <AriaDescription>
           <Cell.FooterText>
             {messages.pgettext(
-              'interface-settings-view',
+              'user-interface-settings-view',
               'Show only the tray icon when the app starts.',
             )}
           </Cell.FooterText>
@@ -226,7 +226,7 @@ function LanguageButton() {
       <Cell.Label>
         {
           // TRANSLATORS: Navigation button to the 'Language' settings view
-          messages.pgettext('interface-settings-view', 'Language')
+          messages.pgettext('user-interface-settings-view', 'Language')
         }
       </Cell.Label>
       <Cell.SubText>{localeDisplayName}</Cell.SubText>

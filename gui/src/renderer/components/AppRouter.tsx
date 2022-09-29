@@ -19,7 +19,6 @@ import {
 } from './ExpiredAccountAddTime';
 import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
-import InterfaceSettings from './InterfaceSettings';
 import Launch from './Launch';
 import MainView from './MainView';
 import OpenVpnSettings from './OpenVpnSettings';
@@ -28,6 +27,7 @@ import SplitTunnelingSettings from './SplitTunnelingSettings';
 import Support from './Support';
 import TooManyDevices from './TooManyDevices';
 import TransitionContainer, { TransitionView } from './TransitionContainer';
+import UserInterfaceSettings from './UserInterfaceSettings';
 import VpnSettings from './VpnSettings';
 import WireguardSettings from './WireguardSettings';
 
@@ -90,7 +90,11 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
               <Route exact path={RoutePath.settings} component={Settings} />
               <Route exact path={RoutePath.selectLanguage} component={SelectLanguagePage} />
               <Route exact path={RoutePath.accountSettings} component={AccountPage} />
-              <Route exact path={RoutePath.interfaceSettings} component={InterfaceSettings} />
+              <Route
+                exact
+                path={RoutePath.userInterfaceSettings}
+                component={UserInterfaceSettings}
+              />
               <Route exact path={RoutePath.vpnSettings} component={VpnSettings} />
               <Route exact path={RoutePath.wireguardSettings} component={WireguardSettings} />
               <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettings} />

@@ -22,7 +22,7 @@ export type LocalizationContexts =
   | 'account-view'
   | 'redeem-voucher-view'
   | 'redeem-voucher-alert'
-  | 'interface-settings-view'
+  | 'user-interface-settings-view'
   | 'vpn-settings-view'
   | 'wireguard-settings-view'
   | 'wireguard-settings-nav'
