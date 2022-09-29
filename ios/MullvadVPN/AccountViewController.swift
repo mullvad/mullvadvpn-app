@@ -15,7 +15,9 @@ protocol AccountViewControllerDelegate: AnyObject {
     func accountViewControllerDidLogout(_ controller: AccountViewController)
 }
 
-class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelObserver {
+class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelObserver,
+    RedeemVoucherControllerDelegate
+{
     private let alertPresenter = AlertPresenter()
 
     private let contentView: AccountContentView = {
@@ -26,6 +28,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
 
     private var productState: ProductState = .none
     private var paymentState: PaymentState = .none
+
+    private let formsheetTransitioningDelegate = FormsheetTransitioningDelegate()
 
     weak var delegate: AccountViewControllerDelegate?
 
@@ -70,6 +74,12 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             self?.copyAccountToken()
         }
 
+        contentView.redeemButton.addTarget(
+            self,
+            action: #selector(didTapRedeemVoucher),
+            for: .touchUpInside
+        )
+
         contentView.restorePurchasesButton.addTarget(
             self,
             action: #selector(restorePurchases),
@@ -96,6 +106,15 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
     }
 
     // MARK: - Private methods
+
+    private func makeRedeemVoucherController() -> RedeemVoucherController {
+        let controller = RedeemVoucherController()
+        controller.transitioningDelegate = formsheetTransitioningDelegate
+        controller.modalPresentationStyle = .custom
+        controller.redeemVoucherDelegate = self
+
+        return controller
+    }
 
     private func requestStoreProducts() {
         let productKind = AppStoreSubscription.thirtyDays
@@ -311,6 +330,16 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         }
     }
 
+    // MARK: - RedeemVoucherControllerDelegate
+
+    func redeemVoucherControllerDidCancel(_ controller: RedeemVoucherController) {
+        controller.dismiss(animated: true)
+    }
+
+    func redeemVoucherControllerDidFinish(_ controller: RedeemVoucherController) {
+        controller.dismiss(animated: true)
+    }
+
     // MARK: - TunnelObserver
 
     func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
@@ -396,6 +425,10 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
         AppStorePaymentManager.shared.addPayment(payment, for: accountData.number)
 
         setPaymentState(.makingPayment(payment), animated: true)
+    }
+
+    @objc private func didTapRedeemVoucher() {
+        present(makeRedeemVoucherController(), animated: true)
     }
 
     @objc private func restorePurchases() {
