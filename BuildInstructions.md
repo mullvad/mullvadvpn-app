@@ -10,10 +10,18 @@ on your platform please submit an issue or a pull request.
 
 - Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
-- Any Node.js version above 16 and the latest npm version should work. The exact Node.js and NPM
-  versions that we target are specified in `package.json` in the `volta` section. Those versions
-  will be used automatically if volta is installed and setup. See the instructions specific to
-  your platform for details.
+- You need Node.js and npm. You can find the exact versions in the `volta` section of
+  `gui/package.json`. The toolchain is managed by volta.
+
+  - Linux & macOS
+
+    ```bash
+    cargo install --git https://github.com/volta-cli/volta && volta setup
+    ````
+
+  - Windows
+
+    Install the `msi` hosted here: https://github.com/volta-cli/volta
 
 - Install Go (ideally version `1.18`) by following the [official
   instructions](https://golang.org/doc/install).  Newer versions may work
@@ -25,15 +33,6 @@ on your platform please submit an issue or a pull request.
   [page](https://github.com/protocolbuffers/protobuf/releases) and they have to be put in `%PATH`.
 
 ## Linux
-
-Install Node either manually or by using Volta. To install Volta, run:
-
-```bash
-cargo install --git https://github.com/volta-cli/volta
-volta setup
-```
-
-or follow the their instructions: https://github.com/volta-cli/volta.
 
 ### Debian/Ubuntu
 
@@ -84,10 +83,7 @@ rustc-link-lib = ["dbus-1"]
 
 ## Windows
 
-Install Node either manually or by using Volta. To use Volta, install the
-`msi` hosted here: https://github.com/volta-cli/volta.
-
-The host also has to have the following installed:
+The host has to have the following installed:
 
 - Microsoft's _Build Tools for Visual Studio 2022_ (a regular installation of Visual Studio 2022
   Community or Pro edition works as well).
@@ -109,16 +105,7 @@ The host also has to have the following installed:
 
 ## macOS
 
-Install Node either manually or by using Volta. To install Volta, run:
-
-```bash
-cargo install --git https://github.com/volta-cli/volta
-volta setup
-```
-
-or follow the their instructions: https://github.com/volta-cli/volta.
-
-The host also has to have the following installed:
+The host has to have the following installed:
 
 - A recent version of `bash`. The default version in macOS (3.2.57) isn't supported.
 
