@@ -11,12 +11,13 @@ import Foundation
 struct PacketTunnelOptions {
     /// Keys for options dictionary
     private enum Keys: String {
-        /// Option key that holds the `NSData` value with `RelaySelectorResult` encoded using `JSONEncoder`.
-        /// Used for passing the pre-selected relay in the GUI proocess to the Packet tunnel process.
+        /// Option key that holds the `NSData` value with `RelaySelectorResult`
+        /// encoded using `JSONEncoder`.
+        /// Used for passing the pre-selected relay in the GUI process to the Packet tunnel process.
         case relaySelectorResult = "relay-selector-result"
 
-        /// Option key that holds the `NSNumber` value, which is when set to `1` indicates that the tunnel was started by
-        /// the system.
+        /// Option key that holds the `NSNumber` value, which is when set to `1` indicates that
+        /// the tunnel was started by the system.
         /// System automatically provides that flag to the tunnel.
         case isOnDemand = "is-on-demand"
     }

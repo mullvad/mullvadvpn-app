@@ -155,7 +155,8 @@ class DeviceManagementContentView: UIView {
             scrollContentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             scrollContentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
-            statusImageView.topAnchor.constraint(equalTo: scrollContentView.layoutMarginsGuide.topAnchor),
+            statusImageView.topAnchor
+                .constraint(equalTo: scrollContentView.layoutMarginsGuide.topAnchor),
             statusImageView.centerXAnchor.constraint(equalTo: scrollContentView.centerXAnchor),
 
             titleLabel.topAnchor.constraint(equalTo: statusImageView.bottomAnchor, constant: 22),

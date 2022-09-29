@@ -272,8 +272,8 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     // MARK: - Private
 
     private func updateTableHeaderTopLayoutMargin() {
-        // When contained within the navigation controller, we want the distance between the navigation title
-        // and the table header label to be exactly 24pt.
+        // When contained within the navigation controller, we want the distance between
+        // the navigation title and the table header label to be exactly 24pt.
         if let navigationBar = navigationController?.navigationBar as? CustomNavigationBar,
            !showHeaderViewAtTheBottom
         {

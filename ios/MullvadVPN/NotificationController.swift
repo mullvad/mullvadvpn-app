@@ -65,8 +65,8 @@ class NotificationController: UIViewController {
         showsBanner = show
 
         if show {
-            // Make sure to lay out the banner before animating its appearance to avoid undesired horizontal expansion
-            // animation.
+            // Make sure to lay out the banner before animating its appearance to
+            // avoid undesired horizontal expansion animation.
             view.layoutIfNeeded()
 
             bannerView.isHidden = false
@@ -125,7 +125,8 @@ class NotificationController: UIViewController {
             animator.startAnimation()
         }
 
-        // Do not emit the .layoutChanged unless the banner is focused to avoid capturing the voice over focus.
+        // Do not emit the .layoutChanged unless the banner is focused to avoid capturing
+        // the voice over focus.
         if bannerView.accessibilityElementIsFocused() {
             UIAccessibility.post(notification: .layoutChanged, argument: bannerView)
         }
