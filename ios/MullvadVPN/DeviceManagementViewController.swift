@@ -41,8 +41,47 @@ class DeviceManagementViewController: UIViewController, RootContainment {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.contentInsetAdjustmentBehavior = .always
         return scrollView
+    }()
+
+    private let continueButton: AppButton = {
+        let button = AppButton(style: .success)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(
+            NSLocalizedString(
+                "CONTINUE_BUTTON",
+                tableName: "DeviceManagement",
+                value: "Continue with login",
+                comment: ""
+            ),
+            for: .normal
+        )
+        button.isEnabled = false
+        return button
+    }()
+
+    private let backButton: AppButton = {
+        let button = AppButton(style: .default)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(
+            NSLocalizedString(
+                "BACK_BUTTON",
+                tableName: "DeviceManagement",
+                value: "Back",
+                comment: ""
+            ),
+            for: .normal
+        )
+        return button
+    }()
+
+    private lazy var buttonStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [continueButton, backButton])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.distribution = .fillEqually
+        stackView.spacing = UIMetrics.interButtonSpacing
+        return stackView
     }()
 
     private let logger = Logger(label: "DeviceManagementViewController")
@@ -65,14 +104,15 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
         scrollView.addSubview(contentView)
         view.addSubview(scrollView)
+        view.addSubview(buttonStackView)
 
-        contentView.backButton.addTarget(
+        backButton.addTarget(
             self,
             action: #selector(didTapBackButton(_:)),
             for: .touchUpInside
         )
 
-        contentView.continueButton.addTarget(
+        continueButton.addTarget(
             self,
             action: #selector(didTapContinueButton(_:)),
             for: .touchUpInside
@@ -83,20 +123,25 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         }
 
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.bottomAnchor
-                .constraint(
-                    greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide
-                        .bottomAnchor
-                ),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            contentView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+                .withPriority(.fittingSizeLevel),
+
+            buttonStackView.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: 24),
+            buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            buttonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            buttonStackView.bottomAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                constant: -24
+            ),
         ])
     }
 
@@ -125,7 +170,9 @@ class DeviceManagementViewController: UIViewController, RootContainment {
             )
         }
 
-        contentView.canContinue = viewModels.count < ApplicationConfiguration.maxAllowedDevices
+        let canContinue = viewModels.count < ApplicationConfiguration.maxAllowedDevices
+        continueButton.isEnabled = canContinue
+        contentView.canContinue = canContinue
         contentView.setDeviceViewModels(viewModels, animated: animated)
     }
 

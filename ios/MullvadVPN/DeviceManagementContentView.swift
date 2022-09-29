@@ -36,50 +36,13 @@ class DeviceManagementContentView: UIView {
         return textLabel
     }()
 
-    let continueButton: AppButton = {
-        let button = AppButton(style: .success)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(
-            NSLocalizedString(
-                "CONTINUE_BUTTON",
-                tableName: "DeviceManagement",
-                value: "Continue with login",
-                comment: ""
-            ),
-            for: .normal
-        )
-        return button
-    }()
-
-    let backButton: AppButton = {
-        let button = AppButton(style: .default)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(
-            NSLocalizedString(
-                "BACK_BUTTON",
-                tableName: "DeviceManagement",
-                value: "Back",
-                comment: ""
-            ),
-            for: .normal
-        )
-        return button
-    }()
-
     let deviceStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = 1
         stackView.clipsToBounds = true
-        return stackView
-    }()
-
-    lazy var buttonStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [continueButton, backButton])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = UIMetrics.interButtonSpacing
+        stackView.distribution = .fillEqually
         return stackView
     }()
 
@@ -133,7 +96,7 @@ class DeviceManagementContentView: UIView {
         spacer.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
         let subviewsToAdd = [
-            statusImageView, titleLabel, messageLabel, deviceStackView, spacer, buttonStackView,
+            statusImageView, titleLabel, messageLabel, deviceStackView,
         ]
         for subview in subviewsToAdd {
             addSubview(subview)
@@ -159,16 +122,7 @@ class DeviceManagementContentView: UIView {
             ),
             deviceStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
             deviceStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-
-            spacer.topAnchor.constraint(equalTo: deviceStackView.bottomAnchor),
-            spacer.leadingAnchor.constraint(equalTo: deviceStackView.leadingAnchor),
-            spacer.trailingAnchor.constraint(equalTo: deviceStackView.trailingAnchor),
-            spacer.heightAnchor.constraint(greaterThanOrEqualToConstant: UIMetrics.sectionSpacing),
-
-            buttonStackView.topAnchor.constraint(equalTo: spacer.bottomAnchor),
-            buttonStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            buttonStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            buttonStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
+            deviceStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
         ])
     }
 
@@ -180,7 +134,6 @@ class DeviceManagementContentView: UIView {
         titleLabel.text = titleText
         messageLabel.text = messageText
         statusImageView.style = canContinue ? .success : .failure
-        continueButton.isEnabled = canContinue
     }
 
     private var titleText: String {
