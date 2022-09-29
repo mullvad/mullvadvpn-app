@@ -132,12 +132,21 @@ class DeviceManagementContentView: UIView {
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
-            buttonStackView.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: 24),
-            buttonStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
-            buttonStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -24),
+            buttonStackView.topAnchor.constraint(
+                equalTo: scrollView.bottomAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            ),
+            buttonStackView.leadingAnchor.constraint(
+                equalTo: leadingAnchor,
+                constant: UIMetrics.contentLayoutMargins.left
+            ),
+            buttonStackView.trailingAnchor.constraint(
+                equalTo: trailingAnchor,
+                constant: -UIMetrics.contentLayoutMargins.right
+            ),
             buttonStackView.bottomAnchor.constraint(
                 equalTo: safeAreaLayoutGuide.bottomAnchor,
-                constant: -24
+                constant: -UIMetrics.contentLayoutMargins.bottom
             ),
 
             scrollContentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
