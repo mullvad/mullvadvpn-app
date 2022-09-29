@@ -198,9 +198,9 @@ function AppVersionButton() {
 
     icon = <StyledCellIcon source="icon-alert" width={18} tintColor={colors.red} />;
     footer = (
-      <Cell.Footer>
-        <Cell.FooterText>{message}</Cell.FooterText>
-      </Cell.Footer>
+      <Cell.CellFooter>
+        <Cell.CellFooterText>{message}</Cell.CellFooterText>
+      </Cell.CellFooter>
     );
   }
 
