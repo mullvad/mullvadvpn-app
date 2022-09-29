@@ -64,7 +64,7 @@ export default function Support() {
                     <>
                       <Cell.Group>
                         <AccountButton />
-                        <InterfaceSettingsButton />
+                        <UserInterfaceSettingsButton />
                         <VpnSettingsButton />
                       </Cell.Group>
 
@@ -76,7 +76,7 @@ export default function Support() {
                     </>
                   ) : (
                     <Cell.Group>
-                      <InterfaceSettingsButton />
+                      <UserInterfaceSettingsButton />
                     </Cell.Group>
                   )}
 
@@ -120,16 +120,16 @@ function AccountButton() {
   );
 }
 
-function InterfaceSettingsButton() {
+function UserInterfaceSettingsButton() {
   const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.interfaceSettings), [history]);
+  const navigate = useCallback(() => history.push(RoutePath.userInterfaceSettings), [history]);
 
   return (
     <Cell.CellNavigationButton onClick={navigate}>
       <Cell.Label>
         {
-          // TRANSLATORS: Navigation button to the 'Interface settings' view
-          messages.pgettext('settings-view', 'Interface settings')
+          // TRANSLATORS: Navigation button to the 'User interface settings' view
+          messages.pgettext('settings-view', 'User interface settings')
         }
       </Cell.Label>
     </Cell.CellNavigationButton>

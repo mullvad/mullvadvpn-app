@@ -1053,7 +1053,7 @@ msgctxt "preferences-view"
 msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
 msgstr "Deaktiver alle indholdsblokkere (under %(preferencesPageName)s) for at aktivere denne indstilling."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Aktivér eller deaktiver systemmeddelelser. De kritiske meddelelser vises altid."
 
@@ -1061,7 +1061,7 @@ msgctxt "support-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Aktivér for at blive underrettet, når nye betaversioner af appen frigives."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
 msgstr "Aktiver for at flytte appen rundt som et fritstående vindue."
 
@@ -1077,11 +1077,11 @@ msgctxt "vpn-settings-view"
 msgid "Local network sharing"
 msgstr "Lokal netværksdeling"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Monokromatisk bakkeikon"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "Meddelelser"
 
@@ -1089,11 +1089,11 @@ msgctxt "preferences-view"
 msgid "Preferences"
 msgstr "Indstillinger"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
 msgstr "Vis kun bakkeikonet, når appen starter."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "Start minimeret"
 
@@ -1105,11 +1105,11 @@ msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Denne indstilling er ikke tilgængelig, når du bruger en betaversion."
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "Fjern app fra proceslinjen"
 
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Brug et monokromatisk bakkeikon i stedet for et farvet."
 
@@ -1253,7 +1253,7 @@ msgid "FAQs & Guides"
 msgstr "Ofte stillede spørgsmål og vejledninger"
 
 #. Navigation button to the 'Language' settings view
-msgctxt "interface-settings-view"
+msgctxt "user-interface-settings-view"
 msgid "Language"
 msgstr "Sprog"
 
