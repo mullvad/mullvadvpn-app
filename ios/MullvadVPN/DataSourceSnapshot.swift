@@ -282,8 +282,7 @@ extension DataSourceSnapshot {
     }
 
     /// Infer and discard unnecessary moves that occur due to items shifting back or forth based on
-    // insertions and
-    /// deletions of other items.
+    /// insertions and deletions of other items.
     private static func inferMoves(changes: [Change]) -> [Change] {
         var newChanges = [Change]()
 
