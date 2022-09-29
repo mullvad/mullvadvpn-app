@@ -40,8 +40,10 @@ extension UIMetrics {
         right: 24
     )
 
-    /// Spacing used in stack views of buttons
-    static let interButtonSpacing: CGFloat = 16
+    enum StackSpacing {
+        static let close: CGFloat = 8.0
+        static let regular: CGFloat = 16.0
+    }
 
     /// Spacing used between distinct sections of views
     static let sectionSpacing: CGFloat = 24
