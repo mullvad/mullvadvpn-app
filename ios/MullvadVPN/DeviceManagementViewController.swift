@@ -38,52 +38,6 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         return contentView
     }()
 
-    private let scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        return scrollView
-    }()
-
-    private let continueButton: AppButton = {
-        let button = AppButton(style: .success)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(
-            NSLocalizedString(
-                "CONTINUE_BUTTON",
-                tableName: "DeviceManagement",
-                value: "Continue with login",
-                comment: ""
-            ),
-            for: .normal
-        )
-        button.isEnabled = false
-        return button
-    }()
-
-    private let backButton: AppButton = {
-        let button = AppButton(style: .default)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(
-            NSLocalizedString(
-                "BACK_BUTTON",
-                tableName: "DeviceManagement",
-                value: "Back",
-                comment: ""
-            ),
-            for: .normal
-        )
-        return button
-    }()
-
-    private lazy var buttonStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [continueButton, backButton])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.distribution = .fillEqually
-        stackView.spacing = UIMetrics.interButtonSpacing
-        return stackView
-    }()
-
     private let logger = Logger(label: "DeviceManagementViewController")
     private let interactor: DeviceManagementInteractor
 
@@ -102,17 +56,15 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
         view.backgroundColor = .secondaryColor
 
-        scrollView.addSubview(contentView)
-        view.addSubview(scrollView)
-        view.addSubview(buttonStackView)
+        view.addSubview(contentView)
 
-        backButton.addTarget(
+        contentView.backButton.addTarget(
             self,
             action: #selector(didTapBackButton(_:)),
             for: .touchUpInside
         )
 
-        continueButton.addTarget(
+        contentView.continueButton.addTarget(
             self,
             action: #selector(didTapContinueButton(_:)),
             for: .touchUpInside
@@ -123,25 +75,10 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         }
 
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            contentView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
-                .withPriority(.fittingSizeLevel),
-
-            buttonStackView.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: 24),
-            buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            buttonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-            buttonStackView.bottomAnchor.constraint(
-                equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-                constant: -24
-            ),
+            contentView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
 
@@ -171,9 +108,8 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         }
 
         let canContinue = viewModels.count < ApplicationConfiguration.maxAllowedDevices
-        continueButton.isEnabled = canContinue
-        contentView.canContinue = canContinue
-        contentView.setDeviceViewModels(viewModels, animated: animated)
+
+        contentView.setDeviceViewModels(viewModels, canContinue: canContinue)
     }
 
     private func handleDeviceDeletion(

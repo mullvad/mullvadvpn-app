@@ -9,6 +9,19 @@
 import UIKit
 
 class DeviceManagementContentView: UIView {
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+
+    let contentView: UIView = {
+        let view = UIView()
+        view.layoutMargins = UIMetrics.contentLayoutMargins
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
     let statusImageView: StatusImageView = {
         let imageView = StatusImageView(style: .failure)
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -46,17 +59,134 @@ class DeviceManagementContentView: UIView {
         return stackView
     }()
 
-    var canContinue = false {
-        didSet {
-            updateView()
-        }
-    }
+    let continueButton: AppButton = {
+        let button = AppButton(style: .success)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(
+            NSLocalizedString(
+                "CONTINUE_BUTTON",
+                tableName: "DeviceManagement",
+                value: "Continue with login",
+                comment: ""
+            ),
+            for: .normal
+        )
+        button.isEnabled = false
+        return button
+    }()
+
+    let backButton: AppButton = {
+        let button = AppButton(style: .default)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(
+            NSLocalizedString(
+                "BACK_BUTTON",
+                tableName: "DeviceManagement",
+                value: "Back",
+                comment: ""
+            ),
+            for: .normal
+        )
+        return button
+    }()
+
+    private lazy var buttonStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [continueButton, backButton])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.distribution = .fillEqually
+        stackView.spacing = UIMetrics.interButtonSpacing
+        return stackView
+    }()
 
     var handleDeviceDeletion: ((DeviceViewModel, @escaping () -> Void) -> Void)?
 
     private var currentSnapshot = DataSourceSnapshot<String, String>()
 
-    func setDeviceViewModels(_ newModels: [DeviceViewModel], animated: Bool) {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        let spacer = UIView()
+        spacer.translatesAutoresizingMaskIntoConstraints = false
+        spacer.setContentHuggingPriority(.defaultLow - 1, for: .vertical)
+        spacer.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+
+        addViews()
+        constraintViews()
+        updateView(canContinue: false)
+    }
+
+    private func addViews() {
+        addSubviews(
+            scrollView,
+            buttonStackView
+        )
+
+        scrollView.addSubview(contentView)
+
+        contentView.addSubviews(
+            statusImageView, titleLabel, messageLabel, deviceStackView
+        )
+    }
+
+    private func constraintViews() {
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+
+            buttonStackView.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: 24),
+            buttonStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
+            buttonStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -24),
+            buttonStackView.bottomAnchor.constraint(
+                equalTo: safeAreaLayoutGuide.bottomAnchor,
+                constant: -24
+            ),
+        ])
+
+        NSLayoutConstraint.activate([
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            contentView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+                .withPriority(.fittingSizeLevel),
+        ])
+
+        NSLayoutConstraint.activate([
+            statusImageView.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
+            statusImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+
+            titleLabel.topAnchor.constraint(equalTo: statusImageView.bottomAnchor, constant: 22),
+            titleLabel.leadingAnchor
+                .constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
+            titleLabel.trailingAnchor
+                .constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
+
+            messageLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            messageLabel.leadingAnchor
+                .constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
+            messageLabel.trailingAnchor
+                .constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
+
+            deviceStackView.topAnchor.constraint(
+                equalTo: messageLabel.bottomAnchor,
+                constant: UIMetrics.sectionSpacing
+            ),
+            deviceStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            deviceStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            deviceStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+        ])
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func setDeviceViewModels(_ newModels: [DeviceViewModel], canContinue: Bool) {
+        updateView(canContinue: canContinue)
+
         var newSnapshot = DataSourceSnapshot<String, String>()
         newSnapshot.appendSections([""])
         newSnapshot.appendItems(newModels.map { $0.id }, in: "")
@@ -85,58 +215,14 @@ class DeviceManagementContentView: UIView {
         )
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
-        layoutMargins = UIMetrics.contentLayoutMargins
-
-        let spacer = UIView()
-        spacer.translatesAutoresizingMaskIntoConstraints = false
-        spacer.setContentHuggingPriority(.defaultLow - 1, for: .vertical)
-        spacer.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-
-        let subviewsToAdd = [
-            statusImageView, titleLabel, messageLabel, deviceStackView,
-        ]
-        for subview in subviewsToAdd {
-            addSubview(subview)
-        }
-
-        updateView()
-
-        NSLayoutConstraint.activate([
-            statusImageView.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
-            statusImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-
-            titleLabel.topAnchor.constraint(equalTo: statusImageView.bottomAnchor, constant: 22),
-            titleLabel.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-
-            messageLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            messageLabel.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            messageLabel.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-
-            deviceStackView.topAnchor.constraint(
-                equalTo: messageLabel.bottomAnchor,
-                constant: UIMetrics.sectionSpacing
-            ),
-            deviceStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            deviceStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            deviceStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
-        ])
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    private func updateView() {
-        titleLabel.text = titleText
-        messageLabel.text = messageText
+    private func updateView(canContinue: Bool) {
+        titleLabel.text = getTitleText(canContinue: canContinue)
+        messageLabel.text = getMessageText(canContinue: canContinue)
+        continueButton.isEnabled = canContinue
         statusImageView.style = canContinue ? .success : .failure
     }
 
-    private var titleText: String {
+    private func getTitleText(canContinue: Bool) -> String {
         if canContinue {
             return NSLocalizedString(
                 "CONTINUE_LOGIN_TITLE",
@@ -154,7 +240,7 @@ class DeviceManagementContentView: UIView {
         }
     }
 
-    private var messageText: String {
+    private func getMessageText(canContinue: Bool) -> String {
         if canContinue {
             return NSLocalizedString(
                 "CONTINUE_LOGIN_MESSAGE",
@@ -173,5 +259,11 @@ class DeviceManagementContentView: UIView {
                 comment: ""
             )
         }
+    }
+}
+
+private extension UIView {
+    func addSubviews(_ views: UIView...) {
+        views.forEach(addSubview)
     }
 }
