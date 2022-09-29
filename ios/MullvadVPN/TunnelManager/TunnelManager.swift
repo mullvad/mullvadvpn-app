@@ -43,12 +43,14 @@ final class TunnelManager {
     }
 
     static let shared = TunnelManager(
+        apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
         accountsProxy: REST.ProxyFactory.shared.createAccountsProxy(),
         devicesProxy: REST.ProxyFactory.shared.createDevicesProxy()
     )
 
     // MARK: - Internal variables
 
+    private let apiProxy: REST.APIProxy
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
 
@@ -80,7 +82,8 @@ final class TunnelManager {
 
     // MARK: - Initialization
 
-    private init(accountsProxy: REST.AccountsProxy, devicesProxy: REST.DevicesProxy) {
+    private init(apiProxy: REST.APIProxy, accountsProxy: REST.AccountsProxy, devicesProxy: REST.DevicesProxy) {
+        self.apiProxy = apiProxy
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
         self.operationQueue.name = "TunnelManager.operationQueue"
@@ -511,6 +514,12 @@ final class TunnelManager {
             },
             completionHandler: completionHandler
         )
+    }
+
+    // MARK: - Vouchers
+
+    func redeemVoucher(_ voucherCode: String, completionHandler: (() -> Void)? = nil) {
+        
     }
 
     // MARK: - Tunnel observeration
