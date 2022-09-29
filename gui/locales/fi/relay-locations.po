@@ -60,6 +60,10 @@ msgstr "Belgrad"
 msgid "Boston, MA"
 msgstr "Boston, MA"
 
+#. SK BTS
+msgid "Bratislava"
+msgstr ""
+
 #. BR
 msgid "Brazil"
 msgstr "Brasilia"
@@ -183,6 +187,10 @@ msgstr "Hongkong"
 #. US HNL
 msgid "Honolulu, HI"
 msgstr "Honolulu, HI"
+
+#. US HOU
+msgid "Houston, TX"
+msgstr ""
 
 #. HU
 msgid "Hungary"
@@ -420,6 +428,10 @@ msgstr "Sioux Falls, SD"
 msgid "Skopje"
 msgstr "Skopje"
 
+#. SK
+msgid "Slovakia"
+msgstr ""
+
 #. BG SOF
 msgid "Sofia"
 msgstr "Sofia"
@@ -439,6 +451,10 @@ msgstr "St. Louis, MO"
 #. US XLX
 msgid "Stamford, CT"
 msgstr "Stamford, CT"
+
+#. NO SVG
+msgid "Stavanger"
+msgstr ""
 
 #. SE STO
 msgid "Stockholm"
@@ -515,4 +531,3 @@ msgstr "Wien"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürich"
-
