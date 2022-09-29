@@ -135,9 +135,9 @@ function BetaProgramSetting() {
           <Cell.Switch isOn={showBetaReleases} onChange={setShowBetaReleases} />
         </AriaInput>
       </Cell.Container>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {isBeta
               ? messages.pgettext(
                   'support-view',
@@ -147,9 +147,9 @@ function BetaProgramSetting() {
                   'support-view',
                   'Enable to get notified when new beta versions of the app are released.',
                 )}
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }

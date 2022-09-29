@@ -156,9 +156,9 @@ function TransportProtocolSelector() {
           automaticValue={null}
         />
         {bridgeState === 'on' && (
-          <Cell.Footer>
+          <Cell.CellFooter>
             <AriaDescription>
-              <Cell.FooterText>
+              <Cell.CellFooterText>
                 {formatMarkdown(
                   // TRANSLATORS: This is used to instruct users how to make UDP mode
                   // TRANSLATORS: available.
@@ -167,9 +167,9 @@ function TransportProtocolSelector() {
                     'To activate UDP, change **Bridge mode** to **Automatic** or **Off**.',
                   ),
                 )}
-              </Cell.FooterText>
+              </Cell.CellFooterText>
             </AriaDescription>
-          </Cell.Footer>
+          </Cell.CellFooter>
         )}
       </AriaInputGroup>
     </StyledSelectorContainer>
@@ -340,13 +340,13 @@ function BridgeModeSelector() {
             automaticValue={'auto' as const}
           />
         </StyledSelectorContainer>
-        <Cell.Footer>
+        <Cell.CellFooter>
           <AriaDescription>
-            <Cell.FooterText>
+            <Cell.CellFooterText>
               {bridgeModeFooterText(tunnelProtocol, transportProtocol)}
-            </Cell.FooterText>
+            </Cell.CellFooterText>
           </AriaDescription>
-        </Cell.Footer>
+        </Cell.CellFooter>
       </AriaInputGroup>
       <ModalAlert
         isOpen={confirmationDialogVisible}
@@ -476,9 +476,9 @@ function MssFixSetting() {
           />
         </AriaInput>
       </Cell.Container>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {sprintf(
               // TRANSLATORS: The hint displayed below the Mssfix input field.
               // TRANSLATORS: Available placeholders:
@@ -495,9 +495,9 @@ function MssFixSetting() {
                 max: MAX_MSSFIX_VALUE,
               },
             )}
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }

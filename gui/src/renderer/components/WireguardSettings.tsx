@@ -214,9 +214,9 @@ function PortSelector() {
           }
         />
       </StyledSelectorContainer>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {
               // TRANSLATORS: The hint displayed below the WireGuard port selector.
               messages.pgettext(
@@ -224,9 +224,9 @@ function PortSelector() {
                 'The automatic setting will randomly choose from a wide range of ports.',
               )
             }
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }
@@ -389,9 +389,9 @@ function MultihopSetting() {
             <Cell.Switch isOn={multihop} onChange={setMultihop} />
           </AriaInput>
         </Cell.Container>
-        <Cell.Footer>
+        <Cell.CellFooter>
           <AriaDescription>
-            <Cell.FooterText>
+            <Cell.CellFooterText>
               {sprintf(
                 // TRANSLATORS: Description for multihop settings toggle.
                 // TRANSLATORS: Available placeholders:
@@ -402,9 +402,9 @@ function MultihopSetting() {
                 ),
                 { wireguard: strings.wireguard },
               )}
-            </Cell.FooterText>
+            </Cell.CellFooterText>
           </AriaDescription>
-        </Cell.Footer>
+        </Cell.CellFooter>
       </AriaInputGroup>
       <ModalAlert
         isOpen={confirmationDialogVisible}
@@ -482,9 +482,9 @@ function IpVersionSetting() {
           automaticValue={null}
         />
       </StyledSelectorContainer>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {sprintf(
               // TRANSLATORS: The hint displayed below the WireGuard IP version selector.
               // TRANSLATORS: Available placeholders:
@@ -495,9 +495,9 @@ function IpVersionSetting() {
               ),
               { wireguard: strings.wireguard },
             )}
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }
@@ -555,9 +555,9 @@ function MtuSetting() {
           />
         </AriaInput>
       </Cell.Container>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {sprintf(
               // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
               // TRANSLATORS: Available placeholders:
@@ -574,9 +574,9 @@ function MtuSetting() {
                 max: MAX_WIREGUARD_MTU_VALUE,
               },
             )}
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }

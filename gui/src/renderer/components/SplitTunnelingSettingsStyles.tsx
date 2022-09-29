@@ -145,14 +145,14 @@ export const StyledClearIcon = styled(ImageView)({
   },
 });
 
-export const StyledNoResult = styled(Cell.Footer)({
+export const StyledNoResult = styled(Cell.CellFooter)({
   display: 'flex',
   flexDirection: 'column',
   paddingTop: 0,
   marginTop: 0,
 });
 
-export const StyledNoResultText = styled(Cell.FooterText)({
+export const StyledNoResultText = styled(Cell.CellFooterText)({
   textAlign: 'center',
 });
 
