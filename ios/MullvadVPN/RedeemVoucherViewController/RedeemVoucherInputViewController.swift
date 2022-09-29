@@ -17,9 +17,9 @@ protocol RedeemVoucherInputViewControllerDelegate: AnyObject {
 }
 
 class RedeemVoucherInputViewController: UIViewController, UINavigationControllerDelegate {
-    private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
     private let contentView = RedeemVoucherInputContentView()
     private var isViewDidAppearOnce = false
+    private var voucherTask: Cancellable?
 
     weak var delegate: RedeemVoucherInputViewControllerDelegate?
 
@@ -45,9 +45,7 @@ class RedeemVoucherInputViewController: UIViewController, UINavigationController
         }
 
         contentView.cancelAction = { [weak self] in
-            guard let self = self else { return }
-
-            self.delegate?.redeemVoucherInputViewControllerDidCancel(self)
+            self?.cancel()
         }
 
         view.addSubview(contentView)
@@ -71,17 +69,11 @@ class RedeemVoucherInputViewController: UIViewController, UINavigationController
     }
 
     private func submitVoucher() {
-        guard let voucherCode = contentView.textField.text,
-              let accountNumber = TunnelManager.shared.deviceState.accountData?.number
-        else { return }
+        guard let voucherCode = contentView.textField.text else { return }
 
         contentView.state = .verifying
 
-        _ = apiProxy.submitVoucher(
-            voucherCode: voucherCode,
-            accountNumber: accountNumber,
-            retryStrategy: .default
-        ) { [weak self] completion in
+        voucherTask = TunnelManager.shared.redeemVoucher(voucherCode: voucherCode) { [weak self] completion in
             guard let self = self else { return }
 
             switch completion {
@@ -100,6 +92,12 @@ class RedeemVoucherInputViewController: UIViewController, UINavigationController
 
     private func notifyDelegateDidRedeemVoucher(_ response: REST.SubmitVoucherResponse) {
         delegate?.redeemVoucherInputViewController(self, didRedeemVoucherWithResponse: response)
+    }
+
+    private func cancel() {
+        voucherTask?.cancel()
+
+        delegate?.redeemVoucherInputViewControllerDidCancel(self)
     }
 
     // MARK: - UINavigationControllerDelegate

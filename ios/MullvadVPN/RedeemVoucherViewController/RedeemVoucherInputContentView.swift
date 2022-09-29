@@ -12,7 +12,7 @@ enum RedeemVoucherState {
     case initial
     case success
     case verifying
-    case failure(REST.Error)
+    case failure(Error)
 
     fileprivate var statusText: String? {
         switch self {
@@ -20,7 +20,11 @@ enum RedeemVoucherState {
             return nil
 
         case let .failure(error):
-            if error.compareErrorCode(.invalidVoucher) {
+            guard let restError = error as? REST.Error else {
+                return error.localizedDescription
+            }
+
+            if restError.compareErrorCode(.invalidVoucher) {
                 return NSLocalizedString(
                     "REDEEM_VOUCHER_STATUS_FAILURE",
                     tableName: "RedeemVoucher",
@@ -28,7 +32,7 @@ enum RedeemVoucherState {
                     comment: ""
                 )
             } else {
-                return error.errorChainDescription
+                return restError.errorChainDescription
             }
 
         case .verifying:
