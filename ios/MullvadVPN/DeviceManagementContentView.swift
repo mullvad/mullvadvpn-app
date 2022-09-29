@@ -15,7 +15,7 @@ class DeviceManagementContentView: UIView {
         return scrollView
     }()
 
-    let contentView: UIView = {
+    let scrollContentView: UIView = {
         let view = UIView()
         view.layoutMargins = UIMetrics.contentLayoutMargins
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -103,30 +103,27 @@ class DeviceManagementContentView: UIView {
 
     private var currentSnapshot = DataSourceSnapshot<String, String>()
 
+    var canContinue = false {
+        didSet {
+            updateView()
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        let spacer = UIView()
-        spacer.translatesAutoresizingMaskIntoConstraints = false
-        spacer.setContentHuggingPriority(.defaultLow - 1, for: .vertical)
-        spacer.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-
         addViews()
         constraintViews()
-        updateView(canContinue: false)
+        updateView()
     }
 
     private func addViews() {
-        addSubviews(
-            scrollView,
-            buttonStackView
-        )
+        [scrollView, buttonStackView].forEach(addSubview)
 
-        scrollView.addSubview(contentView)
+        scrollView.addSubview(scrollContentView)
 
-        contentView.addSubviews(
-            statusImageView, titleLabel, messageLabel, deviceStackView
-        )
+        [statusImageView, titleLabel, messageLabel, deviceStackView]
+            .forEach(scrollContentView.addSubview)
     }
 
     private func constraintViews() {
@@ -142,41 +139,35 @@ class DeviceManagementContentView: UIView {
                 equalTo: safeAreaLayoutGuide.bottomAnchor,
                 constant: -24
             ),
-        ])
 
-        NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            contentView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
-                .withPriority(.fittingSizeLevel),
-        ])
+            scrollContentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            scrollContentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            scrollContentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            scrollContentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            scrollContentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
-        NSLayoutConstraint.activate([
-            statusImageView.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            statusImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            statusImageView.topAnchor.constraint(equalTo: scrollContentView.layoutMarginsGuide.topAnchor),
+            statusImageView.centerXAnchor.constraint(equalTo: scrollContentView.centerXAnchor),
 
             titleLabel.topAnchor.constraint(equalTo: statusImageView.bottomAnchor, constant: 22),
             titleLabel.leadingAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
+                .constraint(equalTo: scrollContentView.layoutMarginsGuide.leadingAnchor),
             titleLabel.trailingAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
+                .constraint(equalTo: scrollContentView.layoutMarginsGuide.trailingAnchor),
 
             messageLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             messageLabel.leadingAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
+                .constraint(equalTo: scrollContentView.layoutMarginsGuide.leadingAnchor),
             messageLabel.trailingAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
+                .constraint(equalTo: scrollContentView.layoutMarginsGuide.trailingAnchor),
 
             deviceStackView.topAnchor.constraint(
                 equalTo: messageLabel.bottomAnchor,
                 constant: UIMetrics.sectionSpacing
             ),
-            deviceStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            deviceStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            deviceStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            deviceStackView.leadingAnchor.constraint(equalTo: scrollContentView.leadingAnchor),
+            deviceStackView.trailingAnchor.constraint(equalTo: scrollContentView.trailingAnchor),
+            deviceStackView.bottomAnchor.constraint(equalTo: scrollContentView.bottomAnchor),
         ])
     }
 
@@ -184,9 +175,7 @@ class DeviceManagementContentView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func setDeviceViewModels(_ newModels: [DeviceViewModel], canContinue: Bool) {
-        updateView(canContinue: canContinue)
-
+    func setDeviceViewModels(_ newModels: [DeviceViewModel], animated: Bool) {
         var newSnapshot = DataSourceSnapshot<String, String>()
         newSnapshot.appendSections([""])
         newSnapshot.appendItems(newModels.map { $0.id }, in: "")
@@ -211,18 +200,18 @@ class DeviceManagementContentView: UIView {
         diff.apply(
             to: deviceStackView,
             configuration: applyConfiguration,
-            animateDifferences: true
+            animateDifferences: animated
         )
     }
 
-    private func updateView(canContinue: Bool) {
-        titleLabel.text = getTitleText(canContinue: canContinue)
-        messageLabel.text = getMessageText(canContinue: canContinue)
+    private func updateView() {
+        titleLabel.text = titleText
+        messageLabel.text = messageText
         continueButton.isEnabled = canContinue
         statusImageView.style = canContinue ? .success : .failure
     }
 
-    private func getTitleText(canContinue: Bool) -> String {
+    private var titleText: String {
         if canContinue {
             return NSLocalizedString(
                 "CONTINUE_LOGIN_TITLE",
@@ -240,7 +229,7 @@ class DeviceManagementContentView: UIView {
         }
     }
 
-    private func getMessageText(canContinue: Bool) -> String {
+    private var messageText: String {
         if canContinue {
             return NSLocalizedString(
                 "CONTINUE_LOGIN_MESSAGE",
@@ -259,11 +248,5 @@ class DeviceManagementContentView: UIView {
                 comment: ""
             )
         }
-    }
-}
-
-private extension UIView {
-    func addSubviews(_ views: UIView...) {
-        views.forEach(addSubview)
     }
 }

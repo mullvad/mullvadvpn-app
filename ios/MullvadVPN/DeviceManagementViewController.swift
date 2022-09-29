@@ -107,9 +107,8 @@ class DeviceManagementViewController: UIViewController, RootContainment {
             )
         }
 
-        let canContinue = viewModels.count < ApplicationConfiguration.maxAllowedDevices
-
-        contentView.setDeviceViewModels(viewModels, canContinue: canContinue)
+        contentView.canContinue = viewModels.count < ApplicationConfiguration.maxAllowedDevices
+        contentView.setDeviceViewModels(viewModels, animated: animated)
     }
 
     private func handleDeviceDeletion(
