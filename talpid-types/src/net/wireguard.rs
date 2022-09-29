@@ -9,6 +9,7 @@ use std::{
     hash::{Hash, Hasher},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
+use zeroize::{Zeroize, ZeroizeOnDrop};
 
 /// Tunnel parameters required to start a `WireguardMonitor`.
 /// See [`crate::net::TunnelParameters`].
@@ -55,7 +56,10 @@ pub struct PeerConfig {
     pub allowed_ips: Vec<IpNetwork>,
     /// IP address of the WireGuard server.
     pub endpoint: SocketAddr,
-    /// Preshared key.
+    /// Preshared key (PSK). The PSK should never be persisted, so it does not serialize
+    /// or deserialize. A PSK is only used with quantum-resistant tunnels and are then
+    /// ephemeral and living in memory only.
+    #[serde(skip)]
     pub psk: Option<PresharedKey>,
 }
 
@@ -260,37 +264,22 @@ impl fmt::Display for PublicKey {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct PresharedKey([u8; 32]);
+/// A WireGuard preshared key (PSK). Used to make the tunnel quantum-resistant.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Zeroize, ZeroizeOnDrop)]
+pub struct PresharedKey(Box<[u8; 32]>);
 
 impl PresharedKey {
-    /// Get the PSK as bytes
+    /// Get the PSK as bytes. Try to move or dereference this data as little as possible,
+    /// since copying it to more memory locations potentially leaves the secret in more memory
+    /// locations.
     pub fn as_bytes(&self) -> &[u8; 32] {
         &self.0
     }
 }
 
-impl From<[u8; 32]> for PresharedKey {
-    fn from(key: [u8; 32]) -> PresharedKey {
+impl From<Box<[u8; 32]>> for PresharedKey {
+    fn from(key: Box<[u8; 32]>) -> PresharedKey {
         PresharedKey(key)
-    }
-}
-
-impl Serialize for PresharedKey {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serialize_key(&self.0, serializer)
-    }
-}
-
-impl<'de> Deserialize<'de> for PresharedKey {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserialize_key(deserializer)
     }
 }
 
