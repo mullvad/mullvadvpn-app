@@ -53,6 +53,12 @@ impl PostQuantumSecure for PostQuantumSecureImpl {
                         classic_mceliece_rust::encapsulate_boxed(&public_key, &mut rng);
                     (ciphertext.as_array().to_vec(), *shared_secret.as_array())
                 }
+                "Kyber1024" => {
+                    let public_key = kem_pubkey.key_data.as_slice();
+                    let (ciphertext, shared_secret) =
+                        pqc_kyber::encapsulate(public_key, &mut rng).unwrap();
+                    (ciphertext.to_vec(), shared_secret)
+                }
                 name => panic!("Unsupported KEM algorithm: {name}"),
             };
 

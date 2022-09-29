@@ -3,6 +3,7 @@ use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
 use tonic::transport::Channel;
 
 mod classic_mceliece;
+mod kyber;
 
 #[allow(clippy::derive_partial_eq_without_eq)]
 mod proto {
@@ -15,6 +16,7 @@ pub enum Error {
     GrpcError(tonic::Status),
     InvalidCiphertextLength { actual: usize, expected: usize },
     InvalidCiphertextCount { actual: usize },
+    FailedDecapsulateKyber(kyber::KyberError),
 }
 
 impl std::fmt::Display for Error {
@@ -28,8 +30,9 @@ impl std::fmt::Display for Error {
                 "Expected a ciphertext of length {expected}, got {actual} bytes"
             ),
             InvalidCiphertextCount { actual } => {
-                write!(f, "Expected 1 ciphertext in the response, got {actual}")
+                write!(f, "Expected 2 ciphertext in the response, got {actual}")
             }
+            FailedDecapsulateKyber(_) => "Failed to decapsulate Kyber1024 ciphertext".fmt(f),
         }
     }
 }
@@ -38,6 +41,7 @@ impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::GrpcConnectError(error) => Some(error),
+            Self::FailedDecapsulateKyber(error) => Some(error),
             _ => None,
         }
     }
@@ -62,31 +66,39 @@ pub async fn push_pq_key(
 ) -> Result<(PrivateKey, PresharedKey), Error> {
     let wg_psk_privkey = PrivateKey::new_from_random();
     let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
+    let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
 
     let mut client = new_client(service_address).await?;
     let response = client
         .psk_exchange_experimental_v1(proto::PskRequestExperimentalV1 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),
             wg_psk_pubkey: wg_psk_privkey.public_key().as_bytes().to_vec(),
-            kem_pubkeys: vec![proto::KemPubkeyExperimentalV1 {
-                algorithm_name: CLASSIC_MCELIECE_VARIANT.to_owned(),
-                key_data: cme_kem_pubkey.as_array().to_vec(),
-            }],
+            kem_pubkeys: vec![
+                proto::KemPubkeyExperimentalV1 {
+                    algorithm_name: CLASSIC_MCELIECE_VARIANT.to_owned(),
+                    key_data: cme_kem_pubkey.as_array().to_vec(),
+                },
+                proto::KemPubkeyExperimentalV1 {
+                    algorithm_name: "Kyber1024".to_owned(),
+                    key_data: kyber_keypair.public.to_vec(),
+                },
+            ],
         })
         .await
         .map_err(Error::GrpcError)?;
 
     let ciphertexts = response.into_inner().ciphertexts;
+
     // Unpack the ciphertexts into one per KEM without needing to access them by index.
-    let [cme_ciphertext] = <&[Vec<u8>; 1]>::try_from(ciphertexts.as_slice()).map_err(|_| {
-        Error::InvalidCiphertextCount {
+    let [cme_ciphertext, kyber_ciphertext] = <&[Vec<u8>; 2]>::try_from(ciphertexts.as_slice())
+        .map_err(|_| Error::InvalidCiphertextCount {
             actual: ciphertexts.len(),
-        }
-    })?;
+        })?;
 
     // Store the PSK data on the heap. So it can be passed around and then zeroized on drop without
     // being stored in a bunch of places on the stack.
     let mut psk_data = Box::new([0u8; 32]);
+
     // Decapsulate Classic McEliece and mix into PSK
     {
         let ciphertext_array =
@@ -98,6 +110,19 @@ pub async fn push_pq_key(
         let ciphertext = classic_mceliece::Ciphertext::from(ciphertext_array);
         let shared_secret = classic_mceliece::decapsulate(&cme_kem_secret, &ciphertext);
         xor_assign(&mut psk_data, shared_secret.as_array());
+    }
+    // Decapsulate Kyber and mix into PSK
+    {
+        let ciphertext_array = <[u8; kyber::KYBER_CIPHERTEXTBYTES]>::try_from(
+            kyber_ciphertext.as_slice(),
+        )
+        .map_err(|_| Error::InvalidCiphertextLength {
+            actual: kyber_ciphertext.len(),
+            expected: kyber::KYBER_CIPHERTEXTBYTES,
+        })?;
+        let shared_secret = kyber::decapsulate(kyber_keypair.secret, ciphertext_array)
+            .map_err(Error::FailedDecapsulateKyber)?;
+        xor_assign(&mut psk_data, &shared_secret);
     }
 
     Ok((wg_psk_privkey, PresharedKey::from(psk_data)))
