@@ -281,7 +281,8 @@ extension DataSourceSnapshot {
         return Self.changeSetToDifference(changes)
     }
 
-    /// Infer and discard unnecessary moves that occur due to items shifting back or forth based on insertions and
+    /// Infer and discard unnecessary moves that occur due to items shifting back or forth based on
+    // insertions and
     /// deletions of other items.
     private static func inferMoves(changes: [Change]) -> [Change] {
         var newChanges = [Change]()
@@ -299,7 +300,8 @@ extension DataSourceSnapshot {
                 continue
             }
 
-            // Replay all changes to compute the item's index path, ignoring the changes associated with the current
+            // Replay all changes to compute the item's index path, ignoring the changes associated with
+            // the current
             // change.
             let inferredIndexPath = sortedChangesWithoutMoves
                 .reduce(into: sourceIndexPath) { inferredIndexPath, otherChange in
@@ -323,7 +325,8 @@ extension DataSourceSnapshot {
                     }
                 }
 
-            // Discard the change if the index path, produced after replaying other changes, matches the target index
+            // Discard the change if the index path, produced after replaying other changes,
+            // matches the target index
             // path.
             if inferredIndexPath != targetIndexPath {
                 newChanges.append(contentsOf: sourceChange.breakMoveOntoInsertionDeletion())
