@@ -312,7 +312,6 @@
 		E1328435289CF24C00C3BD27 /* RedeemVoucherInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1328434289CF24C00C3BD27 /* RedeemVoucherInputViewController.swift */; };
 		E132843B289D52A900C3BD27 /* VoucherTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843A289D52A900C3BD27 /* VoucherTextField.swift */; };
 		E132843D289D5B3700C3BD27 /* MaskedInputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E132843C289D5B3700C3BD27 /* MaskedInputFormatter.swift */; };
-		E140C47C28C2079800BF3C6B /* SpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E140C47B28C2079800BF3C6B /* SpacerView.swift */; };
 		E148F5AD28BDFA4700DA6119 /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E148F5AC28BDFA4700DA6119 /* FormsheetPresentationController.swift */; };
 		E148F5AF28BDFA7B00DA6119 /* FormsheetTransitionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E148F5AE28BDFA7B00DA6119 /* FormsheetTransitionDelegate.swift */; };
 		E148F5B128BDFA9E00DA6119 /* FormsheetPresentationAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E148F5B028BDFA9E00DA6119 /* FormsheetPresentationAnimator.swift */; };
@@ -656,7 +655,6 @@
 		E1328434289CF24C00C3BD27 /* RedeemVoucherInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherInputViewController.swift; sourceTree = "<group>"; };
 		E132843A289D52A900C3BD27 /* VoucherTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoucherTextField.swift; sourceTree = "<group>"; };
 		E132843C289D5B3700C3BD27 /* MaskedInputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskedInputFormatter.swift; sourceTree = "<group>"; };
-		E140C47B28C2079800BF3C6B /* SpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacerView.swift; sourceTree = "<group>"; };
 		E148F5AC28BDFA4700DA6119 /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
 		E148F5AE28BDFA7B00DA6119 /* FormsheetTransitionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetTransitionDelegate.swift; sourceTree = "<group>"; };
 		E148F5B028BDFA9E00DA6119 /* FormsheetPresentationAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationAnimator.swift; sourceTree = "<group>"; };
@@ -1055,7 +1053,6 @@
 				58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */,
 				587A01FB23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift */,
 				58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */,
-				E140C47B28C2079800BF3C6B /* SpacerView.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */,
 				58EF581025D69DB400AEBA94 /* StatusImageView.swift */,
@@ -1494,7 +1491,6 @@
 				5846227126E229F20035F7C2 /* AppStoreSubscription.swift in Sources */,
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,
 				5820675B26E6576800655B05 /* RelayCache.swift in Sources */,
-				E140C47C28C2079800BF3C6B /* SpacerView.swift in Sources */,
 				58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */,
 				587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */,
 				58095C512760BBB500890776 /* AddressCacheTracker.swift in Sources */,

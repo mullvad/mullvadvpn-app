@@ -10,8 +10,16 @@ import Foundation
 import UIKit
 
 class OutOfTimeContentView: UIView {
-    private let topSpacerView = SpacerView()
-    private let bottomSpacerView = SpacerView()
+    private static func makeSpacerView() -> UIView {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        view.setContentHuggingPriority(.defaultLow, for: .vertical)
+        return view
+    }
+
+    private let topSpacerView = makeSpacerView()
+    private let bottomSpacerView = makeSpacerView()
 
     let statusActivityView: StatusActivityView = {
         let statusActivityView = StatusActivityView(state: .failure)
@@ -117,27 +125,24 @@ class OutOfTimeContentView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+
         layoutMargins = UIMetrics.contentLayoutMargins
-        setUpSubviews()
+
+        addSubviews()
+        addConstraints()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-}
 
-// MARK: - Private Functions
-
-private extension OutOfTimeContentView {
-    func setUpSubviews() {
-        addSubview(topSpacerView)
-        addSubview(topStackView)
-        addSubview(bottomSpacerView)
-        addSubview(bottomStackView)
-        configureConstraints()
+    private func addSubviews() {
+        for subview in [topSpacerView, topStackView, bottomSpacerView, bottomStackView] {
+            addSubview(subview)
+        }
     }
 
-    func configureConstraints() {
+    private func addConstraints() {
         NSLayoutConstraint.activate([
             topSpacerView.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
             topSpacerView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
