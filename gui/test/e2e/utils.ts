@@ -8,11 +8,19 @@ interface StartAppResponse {
 
 let electronApp: ElectronApplication;
 
-export const startApp = async (): Promise<StartAppResponse> => {
+export const startAppWithMocking = async (): Promise<StartAppResponse> => {
+  return startAppImpl('build/test/e2e/setup/main.js');
+};
+
+export const startAppWithDaemon = async (): Promise<StartAppResponse> => {
+  return startAppImpl('.');
+};
+
+const startAppImpl = async (mainPath: string): Promise<StartAppResponse> => {
   process.env.CI = 'e2e';
 
   electronApp = await electron.launch({
-    args: ['build/test/e2e/setup/main.js'],
+    args: [mainPath],
   });
 
   const appWindow = await electronApp.firstWindow();
