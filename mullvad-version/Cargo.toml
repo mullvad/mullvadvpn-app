@@ -1,0 +1,11 @@
+[package]
+name = "mullvad-version"
+version = "0.0.0"
+authors = ["Mullvad VPN"]
+description = "Computes the Mullvad VPN app product version"
+license = "GPL-3.0"
+edition = "2021"
+publish = false
+
+[build-dependencies]
+regex = "1.6.0"
