@@ -219,10 +219,12 @@ export async function getImageDataUrl(imagePath: string): Promise<string> {
 }
 
 // Returns the path of the icon with the specified name. If none is found it returns undefined.
-export async function findIconPath(name: string): Promise<string | undefined> {
+export async function findIconPath(
+  name: string,
+  allowedExtensions = ['svg', 'png'],
+): Promise<string | undefined> {
   // Chromium doesn't support .xpm files
-  const extensions = ['svg', 'png'];
-  return findIcon(name, extensions, [
+  return findIcon(name, allowedExtensions, [
     getIconDirectories(),
     await getGtkThemeDirectories(),
     // Begin with preferred sized but if nothing matches other sizes should be considered as well.

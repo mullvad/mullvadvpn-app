@@ -28,6 +28,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 
+#### Linux
+- Fix app crashing immediately when using some icon themes.
+
 #### macOS
 - Fix fish shell completions when installed via Homebrew on Apple Silicon Macs.
 
