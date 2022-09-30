@@ -1,23 +1,24 @@
 These instructions are for building the app for Android **under Linux**.
 
-# Install toolchains and dependencies
+# Set up build environment
 
 These instructions are probably not complete. If you find something more that needs installing
 on your platform please submit an issue or a pull request.
 
-- Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
+## Docker
 
-- Install Go (ideally version `1.18`) by following the [official
-    instructions](https://golang.org/doc/install).  Newer versions may work
-    too. Since `cgo` is being used, make sure to have a C compiler in your path.
+- Docker is required to build `wireguard-go`. Follow the
+  [instructions](https://docs.docker.com/engine/install/debian/) for your distribution.
 
-- Download and install the JDK
+## Android toolchain
+
+- Install the JDK
 
     ```bash
     sudo apt install zip default-jdk
     ```
 
-- Download and install the SDK
+- Install the SDK
 
     The SDK should be placed in a separate directory, like for example `~/android` or `/opt/android`.
     This directory should be exported as the `$ANDROID_HOME` environment variable.
@@ -34,7 +35,7 @@ on your platform please submit an issue or a pull request.
     If `sdkmanager` fails to find the SDK root path, pass the option `--sdk_root=$ANDROID_HOME`
     to the command above.
 
-- Download and install the NDK
+- Install the NDK
 
     The NDK should be placed in a separate directory, which can be inside the `$ANDROID_HOME` or in a
     completely separate path. The extracted directory must be exported as the `$ANDROID_NDK_HOME`
@@ -49,12 +50,11 @@ on your platform please submit an issue or a pull request.
     export ANDROID_NDK_HOME="$PWD"
     ```
 
-- Docker is required to build `wireguard-go` for Android. Follow the
-    [installation instructions](https://docs.docker.com/engine/install/debian/) for your distribution.
-
 ## Configuring Rust
 
-### Install the Rust Android target
+- Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
+
+### Install Rust Android targets
 
 Some environment variables must be exported so that some Rust dependencies can be
 cross-compiled correctly:
@@ -98,7 +98,23 @@ ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i6
 linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
 ```
 
-# Signing key for release APKs (optional)
+# Building a debug build
+
+Run `build-apk.sh` with `--dev-build` to build the Rust daemon and the UI in debug mode and sign the
+APK with automatically generated debug keys:
+```bash
+../build-apk.sh --dev-build
+```
+
+If the above fails with an error related to compression, try allowing more memory to the JVM:
+```bash
+echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
+./gradlew --stop
+```
+
+# Building a release build
+
+## Configure signing key
 
 In order to build release APKs, they need to be signed. First, a signing key must be generated and
 stored in a keystore file. In the example below, the keystore file will be
@@ -119,21 +135,31 @@ storeFile = /home/user/app-keys.jks
 storePassword = keystore-password
 ```
 
-# Building and packaging the app
+## Building and packaging the app
 
 Running the `build-apk.sh` script will build the necessary Rust daemon for all supported ABIs and
 build the final APK:
 ```bash
-./build-apk.sh
+../build-apk.sh
 ```
 
-You may pass a `--dev-build` to build the Rust daemon and the UI in debug mode and sign the APK with
-automatically generated debug keys:
-```bash
-./build-apk.sh --dev-build
-```
+# Additional information
 
-If the above fails with an error related to compression, try allowing more memory to the JVM:
+## Build without Docker
+
+It is possible to build the app without Docker, but normally a container is used.
+The image is needed as it includes a patch to the go runtime for using a clock that
+ticks while the device is asleep (`CLOCK_BOOTTIME`). See
+[building a debug build](#building-a-debug-build) for the normal build procedure.
+
+### Additional dependencies
+
+- Install Go (ideally version `1.18`) by following the [official
+  instructions](https://golang.org/doc/install).  Newer versions may work
+  too.
+
+### Building a debug build without Docker
+
 ```bash
-echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
-./android/gradlew --stop
+../build-apk.sh --dev-build --no-docker
+```
