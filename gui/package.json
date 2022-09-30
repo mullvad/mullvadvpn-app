@@ -66,7 +66,7 @@
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^11.0.2",
     "electron-notarize": "^0.1.1",
-    "eslint": "^7.27.0",
+    "eslint": "^8.24.0",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-simple-import-sort": "^7.0.0",
