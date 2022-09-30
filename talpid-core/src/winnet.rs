@@ -251,9 +251,9 @@ impl Drop for WinNetRoute {
     }
 }
 
-pub fn activate_routing_manager() -> bool {
-    unsafe { WinNet_ActivateRouteManager(Some(log_sink), logging_context()) }
-}
+//pub fn activate_routing_manager() -> bool {
+//    unsafe { WinNet_ActivateRouteManager(Some(log_sink), logging_context()) }
+//}
 
 pub struct WinNetCallbackHandle {
     handle: *mut libc::c_void,
@@ -309,21 +309,21 @@ pub fn add_default_route_change_callback<T: 'static>(
     }
 }
 
-pub fn routing_manager_add_routes(routes: &[WinNetRoute]) -> Result<(), Error> {
-    let ptr = routes.as_ptr();
-    let length: u32 = routes.len() as u32;
-    match unsafe { WinNet_AddRoutes(ptr, length) } {
-        WinNetAddRouteStatus::Success => Ok(()),
-        WinNetAddRouteStatus::GeneralError => Err(Error::GeneralAddRoutesError),
-        WinNetAddRouteStatus::NoDefaultRoute => Err(Error::GetDefaultRoute),
-        WinNetAddRouteStatus::NameNotFound => Err(Error::GetDeviceByName),
-        WinNetAddRouteStatus::GatewayNotFound => Err(Error::GetDeviceByGateway),
-    }
-}
+//pub fn routing_manager_add_routes(routes: &[WinNetRoute]) -> Result<(), Error> {
+//    let ptr = routes.as_ptr();
+//    let length: u32 = routes.len() as u32;
+//    match unsafe { WinNet_AddRoutes(ptr, length) } {
+//        WinNetAddRouteStatus::Success => Ok(()),
+//        WinNetAddRouteStatus::GeneralError => Err(Error::GeneralAddRoutesError),
+//        WinNetAddRouteStatus::NoDefaultRoute => Err(Error::GetDefaultRoute),
+//        WinNetAddRouteStatus::NameNotFound => Err(Error::GetDeviceByName),
+//        WinNetAddRouteStatus::GatewayNotFound => Err(Error::GetDeviceByGateway),
+//    }
+//}
 
-pub fn routing_manager_delete_applied_routes() -> bool {
-    unsafe { WinNet_DeleteAppliedRoutes() }
-}
+//pub fn routing_manager_delete_applied_routes() -> bool {
+//    unsafe { WinNet_DeleteAppliedRoutes() }
+//}
 
 pub fn deactivate_routing_manager() {
     unsafe { WinNet_DeactivateRouteManager() }

@@ -13,6 +13,8 @@ use crate::{
         AddressFamily,
     },
     winnet::{self, get_best_default_route, WinNetAddrFamily, WinNetCallbackHandle},
+    routing::RouteManager,
+    winnet_rs::{EventType, InterfaceAndGateway, CallbackHandle}
 };
 use futures::channel::{mpsc, oneshot};
 use std::{
@@ -116,7 +118,7 @@ pub struct SplitTunnel {
     event_thread: Option<std::thread::JoinHandle<()>>,
     quit_event: Arc<windows::Event>,
     excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
-    _route_change_callback: Option<WinNetCallbackHandle>,
+    _route_change_callback: Option<CallbackHandle>,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     async_path_update_in_progress: Arc<AtomicBool>,
     power_mgmt_handle: tokio::task::JoinHandle<()>,
@@ -691,7 +693,7 @@ impl SplitTunnel {
 
     /// Instructs the driver to redirect traffic from sockets bound to 0.0.0.0, ::, or the
     /// tunnel addresses (if any) to the default route.
-    pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>) -> Result<(), Error> {
+    pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>, route_manager: &RouteManager) -> Result<(), Error> {
         let mut tunnel_ipv4 = None;
         let mut tunnel_ipv6 = None;
 
@@ -715,11 +717,13 @@ impl SplitTunnel {
         ));
 
         self._route_change_callback = None;
+        let moved_context_mutex = context_mutex.clone();
         let mut context = context_mutex.lock().unwrap();
-        let callback = winnet::add_default_route_change_callback(
-            Some(split_tunnel_default_route_change_handler),
-            context_mutex.clone(),
-        )
+        let callback = route_manager.add_default_route_change_callback(Box::new(
+            move |event, addr_family, default_route| {
+                split_tunnel_default_route_change_handler(event, addr_family, default_route, &moved_context_mutex)
+            }
+        ))
         .map(Some)
         .map_err(|_| Error::RegisterRouteChangeCallback)?;
 
@@ -851,16 +855,15 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
     }
 }
 
-unsafe extern "system" fn split_tunnel_default_route_change_handler(
-    event_type: winnet::WinNetDefaultRouteChangeEventType,
-    address_family: WinNetAddrFamily,
-    default_route: winnet::WinNetDefaultRoute,
-    ctx: *mut libc::c_void,
+fn split_tunnel_default_route_change_handler(
+    event_type: EventType,
+    address_family: AddressFamily,
+    default_route: &Option<InterfaceAndGateway>,
+    ctx_mutex: &Arc<Mutex<SplitTunnelDefaultRouteChangeHandlerContext>>,
 ) {
-    use winnet::WinNetDefaultRouteChangeEventType::*;
+    use crate::winnet_rs::EventType::*;
 
     // Update the "internet interface" IP when best default route changes
-    let ctx_mutex = &mut *(ctx as *mut Arc<Mutex<SplitTunnelDefaultRouteChangeHandlerContext>>);
     let mut ctx = ctx_mutex.lock().expect("ST route handler mutex poisoned");
 
     let daemon_tx = ctx.daemon_tx.upgrade();
@@ -870,15 +873,11 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
         }
     };
 
-    let translated_family = winnet_to_talpid_family(address_family);
-
     let result = match event_type {
-        DefaultRouteChanged | DefaultRouteUpdatedDetails => {
+        Updated | UpdatedDetails => {
             match get_ip_address_for_interface(
-                translated_family,
-                NET_LUID_LH {
-                    Value: default_route.interface_luid,
-                },
+                address_family,
+                default_route.as_ref().unwrap().iface
             ) {
                 Ok(Some(ip)) => match IpAddr::from(ip) {
                     IpAddr::V4(addr) => ctx.addresses.internet_ipv4 = Some(addr),
@@ -887,10 +886,10 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
                 Ok(None) => {
                     log::warn!("Failed to obtain default route interface address");
                     match address_family {
-                        WinNetAddrFamily::IPV4 => {
+                        AddressFamily::Ipv4 => {
                             ctx.addresses.internet_ipv4 = None;
                         }
-                        WinNetAddrFamily::IPV6 => {
+                        AddressFamily::Ipv6 => {
                             ctx.addresses.internet_ipv6 = None;
                         }
                     }
@@ -910,12 +909,12 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
             ctx.register_ips()
         }
         // no default route
-        DefaultRouteRemoved => {
+        Removed => {
             match address_family {
-                WinNetAddrFamily::IPV4 => {
+                AddressFamily::Ipv4 => {
                     ctx.addresses.internet_ipv4 = None;
                 }
-                WinNetAddrFamily::IPV6 => {
+                AddressFamily::Ipv6 => {
                     ctx.addresses.internet_ipv6 = None;
                 }
             }
@@ -929,12 +928,5 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
             error.display_chain_with_msg("Failed to register new addresses in split tunnel driver")
         );
         maybe_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
-    }
-}
-
-fn winnet_to_talpid_family(address_family: WinNetAddrFamily) -> AddressFamily {
-    match address_family {
-        WinNetAddrFamily::IPV4 => AddressFamily::Ipv4,
-        WinNetAddrFamily::IPV6 => AddressFamily::Ipv6,
     }
 }

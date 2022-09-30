@@ -16,6 +16,8 @@ use windows_sys::Win32::{
 
 mod default_route_monitor;
 mod route_manager;
+pub use route_manager::{RouteManagerInternal, Route, Callback, CallbackHandle};
+pub use default_route_monitor::{EventType};
 
 // Interface description substrings found for virtual adapters.
 const TUNNEL_INTERFACE_DESCS: [&U16CStr; 3] = [
@@ -44,6 +46,9 @@ pub enum Error {
     /// Device name was not found
     #[error(display = "Device name was not found")]
     DeviceNameNotFound,
+    /// Callback was not found
+    #[error(display = "Callback was not found")]
+    CallbackNotFound,
 }
 
 type Result<T> = std::result::Result<T, Error>;
@@ -97,14 +102,14 @@ fn get_ipforward_rows(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> 
 }
 
 pub struct InterfaceAndGateway {
-    iface: NET_LUID_LH,
-    gateway: SOCKADDR_INET,
+    pub iface: NET_LUID_LH,
+    pub gateway: SOCKADDR_INET,
 }
 
 impl PartialEq for InterfaceAndGateway {
     fn eq(&self, other: &InterfaceAndGateway) -> bool {
         // TODO: Is this OK? We are not comparing the socket address but only comparing the LUID
-        unsafe { self.iface.Value == other.iface.Value } 
+        unsafe { self.iface.Value == other.iface.Value }
     }
 }
 
@@ -134,18 +139,15 @@ fn get_best_default_route_internal(family: AddressFamily) -> Result<Option<Inter
         iface: annotated[0].route.InterfaceLuid,
         gateway: annotated[0].route.NextHop,
     }))
-
 }
 
 pub fn get_best_default_route(family: AddressFamily) -> Result<Option<WinNetDefaultRoute>> {
     match get_best_default_route_internal(family)? {
-        Some(interface_and_gateway) => {
-            Ok(Some(WinNetDefaultRoute {
-                interface_luid: interface_and_gateway.iface,
-                gateway: try_socketaddr_from_inet_sockaddr(interface_and_gateway.gateway)
+        Some(interface_and_gateway) => Ok(Some(WinNetDefaultRoute {
+            interface_luid: interface_and_gateway.iface,
+            gateway: try_socketaddr_from_inet_sockaddr(interface_and_gateway.gateway)
                 .map_err(|_| Error::InvalidSiFamily)?,
-            }))
-        }
+        })),
         None => Ok(None),
     }
 }

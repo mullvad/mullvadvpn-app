@@ -411,7 +411,7 @@ impl ConnectingState {
                 #[cfg(windows)]
                 if let Err(error) = shared_values
                     .split_tunnel
-                    .set_tunnel_addresses(Some(&metadata))
+                    .set_tunnel_addresses(Some(&metadata), &shared_values.route_manager)
                 {
                     log::error!(
                         "{}",
@@ -525,9 +525,10 @@ fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
 fn is_recoverable_routing_error(error: &crate::routing::Error) -> bool {
     match error {
         routing::Error::AddRoutesFailed(route_error) => match route_error {
-            winnet::Error::GetDefaultRoute
-            | winnet::Error::GetDeviceByName
-            | winnet::Error::GetDeviceByGateway => true,
+            // TODO: Fix this
+            //winnet::Error::GetDefaultRoute
+            //| winnet::Error::GetDeviceByName
+            //| winnet::Error::GetDeviceByGateway => true,
             _ => false,
         },
         _ => false,
@@ -554,7 +555,7 @@ impl TunnelState for ConnectingState {
             }
             Ok(tunnel_parameters) => {
                 #[cfg(windows)]
-                if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
+                if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None, &shared_values.route_manager) {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg(

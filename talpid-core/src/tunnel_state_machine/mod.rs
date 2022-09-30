@@ -315,6 +315,8 @@ impl TunnelStateMachine {
             #[cfg(target_os = "android")]
             android_context,
             #[cfg(target_os = "windows")]
+            route_manager.handle()?,
+            #[cfg(target_os = "windows")]
             power_mgmt_rx,
         )
         .await

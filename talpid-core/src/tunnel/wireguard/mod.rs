@@ -2,7 +2,7 @@ use self::config::Config;
 #[cfg(not(windows))]
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
-use crate::routing::{self, RequiredRoute};
+use crate::{tunnel::RouteManagerHandle, routing::{self, RequiredRoute}};
 use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Future};
 #[cfg(windows)]
 use futures::{channel::mpsc, StreamExt};
@@ -225,6 +225,8 @@ impl WireguardMonitor {
             log_path,
             args.resource_dir,
             args.tun_provider,
+            #[cfg(target_os = "windows")]
+            args.route_manager.clone(),
             #[cfg(target_os = "windows")]
             setup_done_tx,
         )?;
@@ -507,6 +509,7 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(windows)] route_manager_handle: RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Box<dyn Tunnel>> {
         #[cfg(target_os = "linux")]
@@ -575,6 +578,8 @@ impl WireguardMonitor {
                 tun_provider,
                 #[cfg(not(windows))]
                 Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes),
+                #[cfg(windows)]
+                route_manager_handle,
                 #[cfg(windows)]
                 setup_done_tx,
             )

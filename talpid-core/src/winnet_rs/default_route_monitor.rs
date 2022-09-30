@@ -89,19 +89,25 @@ pub struct DefaultRouteMonitor {
     // SAFETY: Context must be dropped after all of the notifier handles have been dropped in order to guarantee none of them use its pointer.
     // This will be dropped by DefaultRouteMonitors drop implementation.
     // SAFETY: The content of this pointer is not allowed to be mutated at any point except for in the drop implementation
-    context: *mut ContextAndBurstGuard,
+    context: *const ContextAndBurstGuard,
 }
+
+// TODO: Write doc
+unsafe impl std::marker::Send for DefaultRouteMonitor {}
 
 impl std::ops::Drop for DefaultRouteMonitor {
     fn drop(&mut self) {
         drop(self.notify_change_handles.take());
         // SAFETY: This pointer was created by Box::into_raw and is not modified since then.
         // This function is also only called once
-        drop(unsafe { Box::from_raw(self.context) });
+        drop(unsafe { Box::from_raw(self.context as *mut ContextAndBurstGuard) });
     }
 }
 
 struct Handle(*mut HANDLE);
+
+// TODO: Write doc
+unsafe impl std::marker::Send for Handle {}
 
 impl std::ops::Drop for Handle {
     fn drop(&mut self) {
@@ -153,7 +159,7 @@ impl DefaultRouteMonitor {
         let context_and_burst = Box::into_raw(Box::new(ContextAndBurstGuard {
             context,
             burst_guard,
-        }));
+        })) as *const _;
 
         let handles = match Self::register_callbacks(family, context_and_burst) {
             Ok(handles) => handles,
@@ -161,7 +167,7 @@ impl DefaultRouteMonitor {
                 // Clean up the memory leak in case of error
                 // SAFETY: We created context_and_burst from `Box::into_raw()` and it has not been modified since.
                 // All of the handles have been freed at this point so there will be no risk of UAF.
-                drop(unsafe { Box::from_raw(context_and_burst) });
+                drop(unsafe { Box::from_raw(context_and_burst as *mut ContextAndBurstGuard) });
                 return Err(e);
             }
         };
@@ -185,7 +191,7 @@ impl DefaultRouteMonitor {
 
     fn register_callbacks(
         family: AddressFamily,
-        context_and_burst: *mut ContextAndBurstGuard,
+        context_and_burst: *const ContextAndBurstGuard,
     ) -> Result<(Handle, Handle, Handle)> {
         let family = family.to_af_family();
 
@@ -194,7 +200,7 @@ impl DefaultRouteMonitor {
         // We provide a Mutex for the state turned into a Weak pointer turned into a raw pointer in order to not have to manually deallocate
         // the memory after we cancel the callbacks. This will leak the weak pointer but the context state itself will be correctly dropped
         // when DefaultRouteManager is dropped.
-        let context_ptr = context_and_burst as *const ContextAndBurstGuard;
+        let context_ptr = context_and_burst;
         let handle_ptr = std::ptr::null_mut();
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
         if NO_ERROR as i32
