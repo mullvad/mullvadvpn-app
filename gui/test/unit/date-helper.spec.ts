@@ -160,15 +160,5 @@ describe('Date helper', () => {
     expect(date.formatTimeLeft('2022-09-01', '2024-09-05')).to.equal('2 years left');
     expect(date.formatTimeLeft('2022-09-01', '2025-08-31')).to.equal('2 years left');
     expect(date.formatTimeLeft('2022-09-01', '2025-09-01')).to.equal('3 years left');
-
-    expect(date.formatTimeLeft('2022-09-02', '2022-09-01')).to.equal('1 day ago');
-    expect(date.formatTimeLeft('2022-09-05', '2022-09-01')).to.equal('4 days ago');
-    expect(date.formatTimeLeft('2022-09-30', '2022-09-01')).to.equal('29 days ago');
-    expect(date.formatTimeLeft('2023-09-01', '2022-09-01')).to.equal('365 days ago');
-    expect(date.formatTimeLeft('2024-08-30', '2022-09-01')).to.equal('729 days ago');
-    expect(date.formatTimeLeft('2024-08-31', '2022-09-01')).to.equal('2 years ago');
-    expect(date.formatTimeLeft('2024-09-05', '2022-09-01')).to.equal('2 years ago');
-    expect(date.formatTimeLeft('2025-08-31', '2022-09-01')).to.equal('2 years ago');
-    expect(date.formatTimeLeft('2025-09-01', '2022-09-01')).to.equal('3 years ago');
   });
 });
