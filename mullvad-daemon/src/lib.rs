@@ -1246,8 +1246,9 @@ where
 
     async fn get_geo_location(&mut self) -> impl Future<Output = Result<GeoIpLocation, ()>> {
         let rest_service = self.api_runtime.rest_handle().await;
-        async {
-            geoip::send_location_request(rest_service)
+        let use_ipv6 = self.settings.tunnel_options.generic.enable_ipv6;
+        async move {
+            geoip::send_location_request(rest_service, use_ipv6)
                 .await
                 .map_err(|e| {
                     log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
