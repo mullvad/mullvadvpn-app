@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+#### Linux
+- Fix app crashing immediately when using some icon themes.
 
 
 ## [2022.5-beta1] - 2022-09-26
