@@ -1,6 +1,6 @@
 [package]
 name = "tunnel-obfuscation"
-version = "0.1.0"
+version = "0.0.0"
 authors = ["Mullvad VPN"]
 description = "Provides different types of obfuscation layers for WireGuard"
 license = "GPL-3.0"
