@@ -33,6 +33,7 @@ mullvad-paths = { path = "../mullvad-paths" }
 mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-api = { path = "../mullvad-api" }
+mullvad-version = { path = "../mullvad-version" }
 talpid-core = { path = "../talpid-core" }
 talpid-dbus = { path = "../talpid-dbus" }
 talpid-types = { path = "../talpid-types" }
@@ -71,6 +72,7 @@ features = [
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
+mullvad-version = { path = "../mullvad-version" }
 
 [target.'cfg(windows)'.build-dependencies.windows-sys]
 version = "0.42.0"
