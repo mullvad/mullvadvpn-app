@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-management-interface"
-version = "0.1.0"
+version = "0.0.0"
 authors = ["Mullvad VPN"]
 description = "Mullvad VPN IPC. Contains types and functions for IPC clients and servers."
 license = "GPL-3.0"

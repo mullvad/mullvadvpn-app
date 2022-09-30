@@ -1567,7 +1567,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-api"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chrono",
  "err-derive",
@@ -1593,7 +1593,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-cli"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "base64",
  "chrono",
@@ -1616,7 +1616,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-daemon"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "android_logger",
  "cfg-if",
@@ -1662,7 +1662,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-exclude"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "err-derive",
  "nix 0.23.1",
@@ -1671,7 +1671,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-jni"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "err-derive",
  "futures",
@@ -1694,7 +1694,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-management-interface"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chrono",
  "err-derive",
@@ -1716,7 +1716,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-paths"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "dirs-next",
  "err-derive",
@@ -1725,7 +1725,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-problem-report"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "clap",
  "dirs-next",
@@ -1747,7 +1747,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-relay-selector"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chrono",
  "err-derive",
@@ -1769,7 +1769,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-setup"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "clap",
  "env_logger 0.8.4",
@@ -1789,7 +1789,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-types"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chrono",
  "err-derive",
@@ -3089,7 +3089,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-core"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "async-trait",
  "atty",
@@ -3160,7 +3160,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-dbus"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "dbus",
  "err-derive",
@@ -3172,7 +3172,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-openvpn-plugin"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "env_logger 0.8.4",
  "err-derive",
@@ -3191,7 +3191,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-platform-metadata"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "rs-release",
  "talpid-dbus",
@@ -3200,7 +3200,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-time"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "libc",
  "tokio",
@@ -3208,7 +3208,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-tunnel-config-client"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "classic-mceliece-rust",
  "log",
@@ -3223,7 +3223,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-types"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "base64",
  "err-derive",
@@ -3688,7 +3688,7 @@ dependencies = [
 
 [[package]]
 name = "tunnel-obfuscation"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "async-trait",
  "err-derive",
