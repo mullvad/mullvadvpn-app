@@ -20,6 +20,7 @@ tokio = { version = "1.8", features = ["rt"] }
 
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-api = { path = "../mullvad-api" }
+mullvad-version = { path = "../mullvad-version" }
 talpid-types = { path = "../talpid-types" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 
@@ -30,6 +31,7 @@ duct = "0.13"
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
+mullvad-version = { path = "../mullvad-version" }
 
 [target.'cfg(windows)'.build-dependencies.windows-sys]
 version = "0.42.0"
