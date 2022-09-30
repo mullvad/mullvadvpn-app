@@ -60,7 +60,7 @@ test('App should show disconnected tunnel state', async () => {
   const headerColor = await getBackgroundColor(header);
   expect(headerColor).toBe(UNSECURED_COLOR);
 
-  const button = await appWindow.locator('button', { hasText: /secure my connection/i });
+  const button = appWindow.locator('button', { hasText: /secure my connection/i });
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe(SECURE_COLOR);
 });
@@ -88,7 +88,7 @@ test('App should show connecting tunnel state', async () => {
   const headerColor = await getBackgroundColor(header);
   expect(headerColor).toBe(SECURE_COLOR);
 
-  const button = await appWindow.locator('button', { hasText: /cancel/i });
+  const button = appWindow.locator('button', { hasText: /cancel/i });
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe('rgba(227, 64, 57, 0.6)');
 });
@@ -123,7 +123,7 @@ test('App should show connected tunnel state', async () => {
   const headerColor = await getBackgroundColor(header);
   expect(headerColor).toBe(SECURE_COLOR);
 
-  const button = await appWindow.locator('button', { hasText: /switch location/i });
+  const button = appWindow.locator('button', { hasText: /switch location/i });
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe('rgba(255, 255, 255, 0.2)');
 });
@@ -149,7 +149,7 @@ test('App should show disconnecting tunnel state', async () => {
   const headerColor = await getBackgroundColor(header);
   expect(headerColor).toBe(UNSECURED_COLOR);
 
-  const button = await appWindow.locator('button', { hasText: /secure my connection/i });
+  const button = appWindow.locator('button', { hasText: /secure my connection/i });
   const buttonColor = await getBackgroundColor(button);
   expect(buttonColor).toBe(SECURE_COLOR);
 });

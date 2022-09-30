@@ -1,4 +1,4 @@
-import { dateByAddingComponent, DateComponent, DateType, formatRelativeDate } from './date-helper';
+import { dateByAddingComponent, DateComponent, DateType, formatTimeLeft } from './date-helper';
 import { capitalize } from './string-helpers';
 
 export function hasExpired(expiry: DateType): boolean {
@@ -22,6 +22,6 @@ export function formatRemainingTime(
   expiry: DateType,
   shouldCapitalizeFirstLetter?: boolean,
 ): string {
-  const remaining = formatRelativeDate(new Date(), expiry, true);
+  const remaining = formatTimeLeft(new Date(), expiry);
   return shouldCapitalizeFirstLetter ? capitalize(remaining) : remaining;
 }
