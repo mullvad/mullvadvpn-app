@@ -8,16 +8,6 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-INCLUDED_CRATES=(
-    "mullvad-daemon"
-    "mullvad-cli"
-    "mullvad-problem-report"
-    "mullvad-setup"
-    "mullvad-exclude"
-    "talpid-openvpn-plugin"
-)
-MANIFESTS=( "${INCLUDED_CRATES[@]/%//Cargo.toml}" )
-
 # Parse arguments
 COMMAND="$1"
 shift 1
@@ -59,14 +49,6 @@ function inject_version {
     local semver_major="20${BASH_REMATCH[1]}"
     local semver_minor=${BASH_REMATCH[2]}
     local semver_patch="0"
-
-    echo "Setting Rust crate versions to $semver_version"
-    # Rust crates
-    for toml in "${MANIFESTS[@]}"; do
-        cp "$toml" "$toml.bak"
-        awk "BEGIN { matches=0; } matches==0 && /^version = \"[^\"]+\"$/ \
-             { print \"version = \\\"$semver_version\\\"\"; matches++; next; } { print }" "$toml.bak" > "$toml"
-    done
 
     if [[ "$DESKTOP" == "true" ]]; then
         echo "Setting desktop version to $semver_version"
@@ -110,11 +92,6 @@ EOF
 function restore_backup {
     set +e
 
-    # Rust crates
-    for toml in "${MANIFESTS[@]}"; do
-        mv "${toml}.bak" "${toml}"
-    done
-
     if [[ "$DESKTOP" == "true" ]]; then
         # Electron GUI
         mv gui/package.json.bak gui/package.json
@@ -133,11 +110,6 @@ function restore_backup {
 
 function delete_backup {
     set +e
-
-    # Rust crates
-    for toml in "${MANIFESTS[@]}"; do
-        rm "${toml}.bak"
-    done
 
     if [[ "$DESKTOP" == "true" ]]; then
         # Electron GUI

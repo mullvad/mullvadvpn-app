@@ -30,6 +30,7 @@ tonic-build = { version = "0.8", default-features = false, features = ["transpor
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
+mullvad-version = { path = "../mullvad-version" }
 
 [target.'cfg(windows)'.build-dependencies.windows-sys]
 version = "0.42.0"
