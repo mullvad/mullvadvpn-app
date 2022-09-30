@@ -31,6 +31,10 @@ const namingConvention = [
     selector: 'typeLike',
     format: ['PascalCase'],
   },
+  {
+    selector: 'property',
+    format: null,
+  },
 ];
 
 const memberOrdering = {
@@ -99,5 +103,6 @@ module.exports = {
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
+    'react/prop-types': 'off'
   },
 };
