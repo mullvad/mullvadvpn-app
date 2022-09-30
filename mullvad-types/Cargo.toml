@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-types"
-version = "0.1.0"
+version = "0.0.0"
 authors = ["Mullvad VPN"]
 description = "Common base data structures for Mullvad VPN client"
 license = "GPL-3.0"
