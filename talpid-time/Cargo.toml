@@ -1,6 +1,6 @@
 [package]
 name = "talpid-time"
-version = "0.1.0"
+version = "0.0.0"
 authors = ["Mullvad VPN"]
 description = "Time functions"
 license = "GPL-3.0"
