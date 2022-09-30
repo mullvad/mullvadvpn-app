@@ -422,9 +422,14 @@ class ApplicationMain
     }
 
     if (process.platform === 'linux') {
-      const icon = await findIconPath('mullvad-vpn');
-      if (icon) {
-        this.userInterface.setWindowIcon(icon);
+      try {
+        const icon = await findIconPath('mullvad-vpn', ['png']);
+        if (icon) {
+          this.userInterface.setWindowIcon(icon);
+        }
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to set window icon:', error.message);
       }
     }
 
