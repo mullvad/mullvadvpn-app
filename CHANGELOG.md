@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Experimental: Upgrade the support for quantum-resistant WireGuard tunnels to a newer protocol.
+
 ### Fixed
 #### Linux
 - Fix app crashing immediately when using some icon themes.
