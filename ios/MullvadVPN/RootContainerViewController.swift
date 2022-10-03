@@ -217,15 +217,28 @@ class RootContainerViewController: UIViewController {
         )
     }
 
+    func popToViewController(
+        _ viewController: UIViewController,
+        animated: Bool,
+        completion: CompletionHandler? = nil
+    ) {
+        guard let index = viewControllers.firstIndex(of: viewController) else { return }
+
+        let newViewControllers = Array(viewControllers[..<index])
+        guard !newViewControllers.isEmpty else { return }
+
+        setViewControllersInternal(
+            newViewControllers,
+            isUnwinding: true,
+            animated: animated,
+            completion: completion
+        )
+    }
+
     func popToRootViewController(animated: Bool, completion: CompletionHandler? = nil) {
-        if let rootController = viewControllers.first, viewControllers.count > 1 {
-            setViewControllersInternal(
-                [rootController],
-                isUnwinding: true,
-                animated: animated,
-                completion: completion
-            )
-        }
+        guard let rootController = viewControllers.first else { return }
+
+        popToViewController(rootController, animated: animated)
     }
 
     /// Request the root container to query the top controller for the new header bar style
