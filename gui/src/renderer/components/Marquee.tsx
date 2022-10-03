@@ -22,7 +22,7 @@ interface IMarqueeProps {
   children?: React.ReactNode;
 }
 
-interface IMarqueeState {
+interface IMarqueeState extends React.HTMLAttributes<HTMLSpanElement> {
   alignRight: boolean;
   // uniqueKey is used to force the Text component to remount to achieve the initial position of the
   // text without using a transition.
@@ -60,16 +60,18 @@ export default class Marquee extends React.Component<IMarqueeProps, IMarqueeStat
   }
 
   public render() {
+    const { children, ...otherProps } = this.props;
+
     return (
       <Container>
         <Text
           key={this.state.uniqueKey}
           ref={this.textRef}
-          className={this.props.className}
           overflow={this.calculateOverflow()}
           alignRight={this.state.alignRight}
-          onTransitionEnd={this.scheduleToggleAlignRight}>
-          {this.props.children}
+          onTransitionEnd={this.scheduleToggleAlignRight}
+          {...otherProps}>
+          {children}
         </Text>
       </Container>
     );

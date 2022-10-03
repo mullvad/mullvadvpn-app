@@ -1,65 +1,33 @@
-import { Locator, Page } from 'playwright';
-import { _electron as electron, ElectronApplication } from 'playwright-core';
+import { Locator, Page, _electron as electron, ElectronApplication } from 'playwright';
 
-interface StartAppResponse {
-  electronApp: ElectronApplication;
-  appWindow: Page;
+export type GetByTestId = (id: string) => Locator;
+
+export interface StartAppResponse {
+  app: ElectronApplication;
+  page: Page;
+  getByTestId: GetByTestId;
 }
 
-let electronApp: ElectronApplication;
-
-export const startApp = async (): Promise<StartAppResponse> => {
+export const startApp = async (mainPath: string): Promise<StartAppResponse> => {
   process.env.CI = 'e2e';
 
-  electronApp = await electron.launch({
-    args: ['build/test/e2e/setup/main.js'],
+  const app = await electron.launch({
+    args: [mainPath],
   });
 
-  const appWindow = await electronApp.firstWindow();
+  const page = await app.firstWindow();
 
-  appWindow.on('pageerror', (error) => {
+  page.on('pageerror', (error) => {
     console.log(error);
   });
 
-  appWindow.on('console', (msg) => {
+  page.on('console', (msg) => {
     console.log(msg.text());
   });
 
-  return { electronApp, appWindow };
-};
+  const getByTestId = (id: string) => page.locator(`data-test-id=${id}`);
 
-type MockIpcHandleProps<T> = {
-  channel: string;
-  response: T;
-};
-
-export const mockIpcHandle = async <T>({ channel, response }: MockIpcHandleProps<T>) => {
-  await electronApp.evaluate(
-    ({ ipcMain }, { channel, response }) => {
-      ipcMain.removeHandler(channel);
-      ipcMain.handle(channel, () => {
-        return Promise.resolve({
-          type: 'success',
-          value: response,
-        });
-      });
-    },
-    { channel, response },
-  );
-};
-
-type SendMockIpcResponseProps<T> = {
-  channel: string;
-  response: T;
-};
-
-export const sendMockIpcResponse = async <T>({ channel, response }: SendMockIpcResponseProps<T>) => {
-  await electronApp.evaluate(
-    ({ webContents }, { channel, response }) => {
-      webContents.getAllWebContents()[0].send(channel, response);
-    },
-    { channel, response },
-  );
+  return { app, page, getByTestId };
 };
 
 const getStyleProperty = (locator: Locator, property: string) => {

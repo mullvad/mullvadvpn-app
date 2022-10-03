@@ -9,3 +9,7 @@ contextBridge.exposeInMainWorld('env', {
   development: process.env.NODE_ENV === 'development',
   platform: process.platform,
 });
+
+if (process.env.CI) {
+  contextBridge.exposeInMainWorld('__REACT_DEVTOOLS_GLOBAL_HOOK__', { isDisabled: true });
+}

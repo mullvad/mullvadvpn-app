@@ -1,31 +1,31 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { sendMockIpcResponse, startApp } from './utils';
-import { IAccountData } from '../../src/shared/daemon-rpc-types';
+import { SendMockIpcResponse, startAppWithMocking } from './mocked-utils';
+import { IAccountData } from '../../../src/shared/daemon-rpc-types';
 
-let appWindow: Page;
+let page: Page;
+let sendMockIpcResponse: SendMockIpcResponse;
 
 test.beforeAll(async () => {
-  const startAppResponse = await startApp();
-  appWindow = startAppResponse.appWindow;
-  await appWindow.click('button[aria-label="Settings"]');
+  ({ page, sendMockIpcResponse } = await startAppWithMocking());
+  await page.click('button[aria-label="Settings"]');
 });
 
 test.afterAll(async () => {
-  await appWindow.close();
+  await page.close();
 });
 
 test('Settings Page', async () => {
-  const title = appWindow.locator('h1');
+  const title = page.locator('h1');
   await expect(title).toContainText('Settings');
 
-  const closeButton = appWindow.locator('button[aria-label="Close"]');
+  const closeButton = page.locator('button[aria-label="Close"]');
   await expect(closeButton).toBeVisible();
 });
 
 test('Account button should be displayed correctly', async () => {
-  const accountButton = appWindow.locator('button:has-text("Account")');
+  const accountButton = page.locator('button:has-text("Account")');
   await expect(accountButton).toBeVisible();
 
   let expiryText = accountButton.locator('span');
