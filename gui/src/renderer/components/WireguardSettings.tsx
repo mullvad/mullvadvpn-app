@@ -162,12 +162,7 @@ function PortSelector() {
     [relaySettings],
   );
 
-  const setCustomPort = useCallback(
-    async (port: string) => {
-      await setWireguardPort(parseInt(port));
-    },
-    [setWireguardPort],
-  );
+  const parseValue = useCallback((port: string) => parseInt(port), []);
 
   const validateValue = useCallback(
     (value) => allowedPortRanges.some(([start, end]) => value >= start && value <= end),
@@ -187,9 +182,9 @@ function PortSelector() {
           items={wireguardPortItems}
           value={port}
           onSelect={setWireguardPort}
-          onSelectCustom={setCustomPort}
           inputPlaceholder={messages.pgettext('wireguard-settings-view', 'Port')}
           automaticValue={null}
+          parseValue={parseValue}
           modifyValue={removeNonNumericCharacters}
           validateValue={validateValue}
           maxLength={5}
