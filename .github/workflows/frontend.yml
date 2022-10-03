@@ -19,6 +19,9 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
+            - name: Checkout submodule
+              run: git submodule update --init ci/screenshots
+
             - name: Setup volta
               uses: volta-cli/action@v1
 
