@@ -268,9 +268,8 @@ impl DefaultRouteMonitor {
     }
 }
 
-// SAFETY: `context` is a Arc::<ContextAndBurstGuard>::as_ptr() pointer which is fine to dereference as long as there exists a strong count to the Arc.
-// This is guaranteed to be the case as we store an `Arc` in the DefaultRouteMonitor struct. When this struct is dropped it will
-// cancel this callback and guarantee that it is not called after that point, only after then is the final `Arc` dropped.
+// SAFETY: `context` is a Box::into_raw() pointer which may only be used as a non-mutable reference.
+// It is guaranteed by the DefaultRouteMonitor to not be dropped before this function is guaranteed to not be called again.
 unsafe extern "system" fn route_change_callback(
     context: *const c_void,
     row: *const MIB_IPFORWARD_ROW2,
@@ -292,9 +291,8 @@ unsafe extern "system" fn route_change_callback(
     context_and_burst.burst_guard.lock().unwrap().trigger();
 }
 
-// SAFETY: `context` is a Arc::<ContextAndBurstGuard>::as_ptr() pointer which is fine to dereference as long as there exists a strong count to the Arc.
-// This is guaranteed to be the case as we store an `Arc` in the DefaultRouteMonitor struct. When this struct is dropped it will
-// cancel this callback and guarantee that it is not called after that point, only after then is the final `Arc` dropped.
+// SAFETY: `context` is a Box::into_raw() pointer which may only be used as a non-mutable reference.
+// It is guaranteed by the DefaultRouteMonitor to not be dropped before this function is guaranteed to not be called again.
 unsafe extern "system" fn interface_change_callback(
     context: *const c_void,
     row: *const MIB_IPINTERFACE_ROW,
@@ -312,9 +310,8 @@ unsafe extern "system" fn interface_change_callback(
     context_and_burst.burst_guard.lock().unwrap().trigger();
 }
 
-// `context` is a Weak<Mutex<DefaultRouteManagerContext>>::into_raw() pointer and should be used with Weak::from_raw()
-// SAFETY: After converting `context` into a `Weak` it must also be stopped from being dropped by calling Weak::into_raw().
-// If this is not done the reference will be dropped and calling `Weak::from_raw()` the next time is undefined behavior.
+// SAFETY: `context` is a Box::into_raw() pointer which may only be used as a non-mutable reference.
+// It is guaranteed by the DefaultRouteMonitor to not be dropped before this function is guaranteed to not be called again.
 unsafe extern "system" fn ip_address_change_callback(
     context: *const c_void,
     row: *const MIB_UNICASTIPADDRESS_ROW,
