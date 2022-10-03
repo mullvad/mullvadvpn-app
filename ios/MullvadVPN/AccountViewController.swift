@@ -313,7 +313,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
             preferredStyle: .alert
         )
 
-        alertPresenter.enqueue(alertController, presentingController: self) {
+        alertPresenter.enqueue(alertController, presentingController: self, presentCompletion: {
             TunnelManager.shared.unsetAccount {
                 DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
                     alertController.dismiss(animated: true) {
@@ -321,7 +321,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, TunnelOb
                     }
                 }
             }
-        }
+        })
     }
 
     // MARK: - RedeemVoucherControllerDelegate
