@@ -5,6 +5,9 @@ use std::{env, fs, path::PathBuf, process::Command};
 /// in dev builds.
 const GIT_HASH_DEV_SUFFIX_LEN: usize = 6;
 
+const ANDROID_VERSION_FILE_PATH: &str = "../android/app/build.gradle.kts";
+const DESKTOP_VERSION_FILE_PATH: &str = "../gui/package.json";
+
 #[derive(Debug)]
 enum Target {
     Android,
@@ -13,6 +16,7 @@ enum Target {
 
 impl Target {
     pub fn get() -> Self {
+        println!("cargo:rerun-if-env-changed=CARGO_CFG_TARGET_OS");
         match env::var("CARGO_CFG_TARGET_OS")
             .expect("CARGO_CFG_TARGET_OS should be set")
             .as_str()
@@ -57,13 +61,17 @@ fn main() {
 /// depending on target platform.
 fn parse_current_version_from_file(target: &Target) -> String {
     match target {
-        Target::Android => get_single_capture_from_file(
-            "../android/app/build.gradle.kts",
-            Regex::new("versionName = \"([^\"]*)\"").unwrap(),
-        ),
+        Target::Android => {
+            println!("cargo:rerun-if-changed={ANDROID_VERSION_FILE_PATH}");
+            get_single_capture_from_file(
+                ANDROID_VERSION_FILE_PATH,
+                Regex::new("versionName = \"([^\"]*)\"").unwrap(),
+            )
+        }
         Target::Desktop => {
+            println!("cargo:rerun-if-changed={DESKTOP_VERSION_FILE_PATH}");
             let semver_version = get_single_capture_from_file(
-                "../gui/package.json",
+                DESKTOP_VERSION_FILE_PATH,
                 Regex::new("\"version\": \"([^\"]*)\"").unwrap(),
             );
             semver_version.replacen(".0", "", 1)
@@ -83,6 +91,9 @@ fn get_single_capture_from_file(path: &str, regex: Regex) -> String {
 
 /// Returns the commit hash for the commit that `git_ref` is pointing to
 fn git_rev_parse_commit_hash(git_ref: &str) -> Option<String> {
+    // This is a very blunt way of making sure we run again if a tag is added or removed.
+    println!("cargo:rerun-if-changed=.git");
+
     let output = Command::new("git")
         .arg("rev-parse")
         .arg(format!("{git_ref}^{{commit}}"))
