@@ -1,29 +1,49 @@
+// TODO:
+// Verify correctness:
+//  Go through the code and make sure that the semantics of everything is the same as C++ or that it is correct
+//  Do this once before doing all the other changes in the list and then once after
+// Restructure project:
+//  Go through all 3 modules and split the appropriate functions into their own modules
+//  Go through and rename things that should be renamed
+//  Go through the code and split things that we repeat >2 times into their own functions
+//  Go through code and remove unnecessary middle-layer types
+// Correct error handling:
+//  Decide what Error type to use and replace everything with that
+//  Remove unwraps    
+//  Log were it is appropriate
+// Document:
+//  Go through and document what should be documented, especially all unsafe code
+//  Remove the unnecessary comments
+// Test:
+//  Write down some tests that will be enough to convince you and others that the code is correct
+//  Run these tests or write a unit test for the easier ones
+
 use crate::windows::{get_ip_interface_entry, try_socketaddr_from_inet_sockaddr, AddressFamily};
 use std::{
     convert::TryInto,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    net::SocketAddr,
 };
-use widestring::{u16cstr, U16CStr};
+use widestring::{widecstr, WideCStr};
 use windows_sys::Win32::{
-    Foundation::{BOOLEAN, HANDLE, NO_ERROR},
+    Foundation::NO_ERROR,
     NetworkManagement::IpHelper::{
-        FreeMibTable, GetIfEntry2, GetIpForwardTable2, GetIpInterfaceEntry,
+        FreeMibTable, GetIfEntry2, GetIpForwardTable2,
         IF_TYPE_SOFTWARE_LOOPBACK, IF_TYPE_TUNNEL, MIB_IF_ROW2, MIB_IPFORWARD_ROW2,
-        MIB_IPFORWARD_TABLE2, MIB_IPINTERFACE_ROW, NET_LUID_LH,
+        NET_LUID_LH,
     },
-    Networking::WinSock::{ADDRESS_FAMILY, AF_INET, AF_INET6, SOCKADDR_INET},
+    Networking::WinSock::SOCKADDR_INET,
 };
 
 mod default_route_monitor;
 mod route_manager;
 pub use route_manager::{RouteManagerInternal, Route, Callback, CallbackHandle};
-pub use default_route_monitor::{EventType};
+pub use default_route_monitor::EventType;
 
 // Interface description substrings found for virtual adapters.
-const TUNNEL_INTERFACE_DESCS: [&U16CStr; 3] = [
-    u16cstr!("WireGuard"),
-    u16cstr!("Wintun"),
-    u16cstr!("Tunnel"),
+const TUNNEL_INTERFACE_DESCS: [&WideCStr; 3] = [
+    widecstr!("WireGuard"),
+    widecstr!("Wintun"),
+    widecstr!("Tunnel"),
 ];
 
 #[derive(err_derive::Error, Debug)]
@@ -96,14 +116,17 @@ fn get_ipforward_rows(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> 
     }
     // SAFETY: FreeMibTable does not have clear safety rules but it deallocates the MIB_IPFORWARD_TABLE2
     // This pointer is ONLY deallocated here so it is guaranteed to not have been already deallocated.
-    // We have cloned all MIB_IPFORWARD_ROW2s so those will not be dangling after this free.
+    // We have cloned all MIB_IPFORWARD_ROW2s and the rows do not contain pointers to the table so they
+    // will not be dangling after this free.
     unsafe { FreeMibTable(table_ptr as *const _) }
     Ok(vec)
 }
 
 pub struct InterfaceAndGateway {
+    //pub iface: NET_LUID_LH,
     pub iface: NET_LUID_LH,
-    pub gateway: SOCKADDR_INET,
+    //pub gateway: SOCKADDR_INET,
+    pub gateway: SocketAddr,
 }
 
 impl PartialEq for InterfaceAndGateway {
@@ -137,23 +160,25 @@ fn get_best_default_route_internal(family: AddressFamily) -> Result<Option<Inter
 
     Ok(Some(InterfaceAndGateway {
         iface: annotated[0].route.InterfaceLuid,
-        gateway: annotated[0].route.NextHop,
+        gateway: try_socketaddr_from_inet_sockaddr(annotated[0].route.NextHop).map_err(|_| Error::InvalidSiFamily)?,
     }))
 }
 
+// TODO: Should we remove the WinNetDefaultRoute type? We could replace it with InterfaceAndGateway.
+// Could we also remove the InterfaceAndGateway or rename it to something else and replace the windows type
+// representation inside of it.
 pub fn get_best_default_route(family: AddressFamily) -> Result<Option<WinNetDefaultRoute>> {
     match get_best_default_route_internal(family)? {
         Some(interface_and_gateway) => Ok(Some(WinNetDefaultRoute {
             interface_luid: interface_and_gateway.iface,
-            gateway: try_socketaddr_from_inet_sockaddr(interface_and_gateway.gateway)
-                .map_err(|_| Error::InvalidSiFamily)?,
+            gateway: interface_and_gateway.gateway
         })),
         None => Ok(None),
     }
 }
 
 fn route_has_gateway(route: &MIB_IPFORWARD_ROW2) -> bool {
-    match try_socketaddr_from_inet_sockaddr(route.NextHop).map_err(|_| Error::InvalidSiFamily) {
+    match try_socketaddr_from_inet_sockaddr(route.NextHop) {
         Ok(sock) => !sock.ip().is_unspecified(),
         Err(_) => false,
     }
@@ -182,12 +207,13 @@ fn is_route_on_physical_interface(route: &MIB_IPFORWARD_ROW2) -> Result<bool> {
 
     // SAFETY: GetIfEntry2 does not have clear safety rules however it will read the row.InterfaceLuid or row.InterfaceIndex and use
     // that information to populate the struct. We guarantee here that these fields are valid since they are set.
-    if NO_ERROR as i32 != unsafe { GetIfEntry2(&mut row as *mut MIB_IF_ROW2) } {
+    if NO_ERROR as i32 != unsafe { GetIfEntry2(&mut row) } {
         return Err(Error::WindowsApi);
     }
 
-    let row_description = U16CStr::from_slice_truncate(&row.Description)
+    let row_description = WideCStr::from_slice_truncate(&row.Description)
         .expect("Windows provided incorrectly formatted utf16 string");
+
     for tunnel_interface_desc in TUNNEL_INTERFACE_DESCS {
         if contains_subslice(row_description.as_slice(), tunnel_interface_desc.as_slice()) {
             return Ok(false);

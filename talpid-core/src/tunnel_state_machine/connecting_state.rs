@@ -29,7 +29,7 @@ use talpid_types::{
 };
 
 #[cfg(windows)]
-use crate::{routing, winnet};
+use crate::routing;
 
 #[cfg(target_os = "android")]
 use crate::tunnel::tun_provider;

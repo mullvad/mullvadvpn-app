@@ -39,9 +39,6 @@ use {
 
 type Result<T> = std::result::Result<T, TunnelError>;
 
-#[cfg(target_os = "windows")]
-use crate::winnet;
-
 #[cfg(not(target_os = "windows"))]
 use std::sync::{Arc, Mutex};
 
@@ -213,13 +210,11 @@ impl WgGoTunnel {
         address_family: crate::windows::AddressFamily,
         default_route: &Option<crate::winnet_rs::InterfaceAndGateway>,
     ) {
-        use windows_sys::Win32::NetworkManagement::{
-            IpHelper::ConvertInterfaceLuidToIndex, Ndis::NET_LUID_LH,
-        };
-        use winnet::WinNetDefaultRouteChangeEventType::*;
+        use windows_sys::Win32::NetworkManagement::IpHelper::ConvertInterfaceLuidToIndex;
+        use crate::winnet_rs::EventType::*;
 
         let iface_idx: u32 = match event_type {
-            crate::winnet_rs::EventType::Updated => {
+            Updated => {
                 let mut iface_idx = 0u32;
                 // TODO: Make sure unwrap is fine
                 let iface_luid = default_route.as_ref().unwrap().iface;
@@ -236,9 +231,9 @@ impl WgGoTunnel {
                 iface_idx
             }
             // if there is no new default route, specify 0 as the interface index
-            crate::winnet_rs::EventType::Removed => 0,
+            Removed => 0,
             // ignore interface updates that don't affect the interface to use
-            crate::winnet_rs::EventType::UpdatedDetails => return,
+            UpdatedDetails => return,
         };
 
         unsafe { wgRebindTunnelSocket(address_family.to_af_family(), iface_idx) };

@@ -1,7 +1,7 @@
 use super::*;
 use std::ffi::c_void;
 use std::sync::mpsc::{channel, RecvTimeoutError, Sender};
-use std::sync::{Arc, Mutex, Weak};
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use windows_sys::Win32::Foundation::{BOOLEAN, HANDLE, NO_ERROR};
 use windows_sys::Win32::NetworkManagement::IpHelper::{
@@ -99,8 +99,14 @@ impl std::ops::Drop for DefaultRouteMonitor {
     fn drop(&mut self) {
         drop(self.notify_change_handles.take());
         // SAFETY: This pointer was created by Box::into_raw and is not modified since then.
-        // This function is also only called once
-        drop(unsafe { Box::from_raw(self.context as *mut ContextAndBurstGuard) });
+        // This drop function is also only called once
+        let context = unsafe { Box::from_raw(self.context as *mut ContextAndBurstGuard) };
+        
+        // Stop the burst guard
+        context.burst_guard.lock().unwrap().stop();
+
+        // Drop the context now that we are guaranteed nothing might try to access the context
+        drop(context);
     }
 }
 
@@ -332,7 +338,12 @@ unsafe extern "system" fn ip_address_change_callback(
 /// another `buffer_period`, this happens over and over until either `longest_buffer_period` time has elapsed or until no call to `trigger`
 /// has been made in `buffer_period`. At which point the wrapped function will be called.
 struct BurstGuard {
-    sender: Sender<()>,
+    sender: Sender<BurstGuardEvent>,
+}
+
+enum BurstGuardEvent {
+    Trigger,
+    Shutdown(Sender<()>),
 }
 
 impl BurstGuard {
@@ -344,23 +355,37 @@ impl BurstGuard {
 
         let (sender, listener) = channel();
         std::thread::spawn(move || {
-            while let Ok(()) = listener.recv() {
-                let start = Instant::now();
-                loop {
-                    match listener.recv_timeout(BURST_BUFFER_PERIOD) {
-                        Ok(()) => {
-                            if start.elapsed() >= BURST_LONGEST_BUFFER_PERIOD {
-                                callback();
-                                break;
+            // The `stop` implementation assumes that this thread will not call `callback` again
+            // if the listener has been dropped.
+            while let Ok(message) = listener.recv() {
+                match message {
+                    BurstGuardEvent::Trigger => {
+                        let start = Instant::now();
+                        loop {
+                            match listener.recv_timeout(BURST_BUFFER_PERIOD) {
+                                Ok(BurstGuardEvent::Trigger) => {
+                                    if start.elapsed() >= BURST_LONGEST_BUFFER_PERIOD {
+                                        callback();
+                                        break;
+                                    }
+                                }
+                                Ok(BurstGuardEvent::Shutdown(tx)) => {
+                                    let _ = tx.send(());
+                                    return;
+                                }
+                                Err(RecvTimeoutError::Timeout) => {
+                                    callback();
+                                    break;
+                                }
+                                Err(RecvTimeoutError::Disconnected) => {
+                                    break;
+                                }
                             }
                         }
-                        Err(RecvTimeoutError::Timeout) => {
-                            callback();
-                            break;
-                        }
-                        Err(RecvTimeoutError::Disconnected) => {
-                            break;
-                        }
+                    }
+                    BurstGuardEvent::Shutdown(tx) => {
+                        let _ = tx.send(());
+                        return;
                     }
                 }
             }
@@ -368,8 +393,20 @@ impl BurstGuard {
         Self { sender }
     }
 
+    /// When `stop` returns an then the `BurstGuard` thread is guaranteed to not make any further calls
+    /// to `callback`.
+    fn stop(&self) {
+        let (sender, listener) = channel();
+        // If we could not send then it means the thread has already shut down and we can return
+        if self.sender.send(BurstGuardEvent::Shutdown(sender)).is_ok() {
+            // We do not care what the result is, if it is OK it means the thread shut down, if
+            // it is Err it also means it shut down.
+            let _ = listener.recv();
+        }
+    }
+
     /// Non-blocking
     fn trigger(&self) {
-        self.sender.send(()).unwrap();
+        self.sender.send(BurstGuardEvent::Trigger).unwrap();
     }
 }

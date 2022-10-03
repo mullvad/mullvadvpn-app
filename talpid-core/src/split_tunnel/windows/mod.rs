@@ -12,7 +12,7 @@ use crate::{
         window::{PowerManagementEvent, PowerManagementListener},
         AddressFamily,
     },
-    winnet::{self, get_best_default_route, WinNetAddrFamily, WinNetCallbackHandle},
+    winnet::{self, get_best_default_route, WinNetAddrFamily},
     routing::RouteManager,
     winnet_rs::{EventType, InterfaceAndGateway, CallbackHandle}
 };
