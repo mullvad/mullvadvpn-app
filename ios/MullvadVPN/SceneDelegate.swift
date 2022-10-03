@@ -124,74 +124,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         appDelegate?.scheduleBackgroundTasks()
     }
 
-    // MARK: - OutOfTimeViewControllerDelegate
-
-    func outOfTimeViewControllerDidBeginActivity(_ controller: OutOfTimeViewController) {
-        // TODO: implement
-    }
-
-    func outOfTimeViewControllerDidEndActivity(_ controller: OutOfTimeViewController) {
-        // TODO: implement
-    }
-
-    // MARK: - RootContainerViewControllerDelegate
-
-    func rootContainerViewControllerShouldShowSettings(
-        _ controller: RootContainerViewController,
-        navigateTo route: SettingsNavigationRoute?,
-        animated: Bool
-    ) {
-        // Check if settings controller is already presented.
-        if let settingsNavController = settingsNavController {
-            settingsNavController.navigate(to: route ?? .root, animated: animated)
-        } else {
-            let navController = makeSettingsNavigationController(route: route)
-
-            // Refresh account data each time user opens settings
-            accountDataThrottling.requestUpdate(condition: .always)
-
-            // On iPad the login controller can be presented modally above the root container.
-            // in that case we have to use the presented controller to present the next modal.
-            if let presentedController = controller.presentedViewController {
-                presentedController.present(navController, animated: true)
-            } else {
-                controller.present(navController, animated: true)
-            }
-
-            // Save the reference for later.
-            settingsNavController = navController
-        }
-    }
-
-    func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController)
-        -> UIInterfaceOrientationMask
-    {
-        switch UIDevice.current.userInterfaceIdiom {
-        case .pad:
-            return [.landscape, .portrait]
-        case .phone:
-            return [.portrait]
-        default:
-            return controller.supportedInterfaceOrientations
-        }
-    }
-
-    func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController)
-        -> Bool
-    {
-        guard TunnelManager.shared.deviceState.isLoggedIn else { return false }
-
-        switch TunnelManager.shared.tunnelStatus.state {
-        case .connected, .connecting, .reconnecting, .waitingForConnectivity:
-            TunnelManager.shared.reconnectTunnel(selectNewRelay: true)
-        case .disconnecting, .disconnected:
-            TunnelManager.shared.startTunnel()
-        case .pendingReconnect:
-            break
-        }
-        return true
-    }
-
     // MARK: - Private
 
     private func configureScene() {
@@ -559,6 +491,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         }
     }
 
+    private func setEnableSettingsButton(isEnabled: Bool, from viewController: UIViewController?) {
+        let containers = [viewController?.rootContainerController, rootContainer].compactMap { $0 }
+
+        for container in Set(containers) {
+            container.setEnableSettingsButton(isEnabled)
+        }
+    }
+
     // MARK: - LoginViewControllerDelegate
 
     func loginViewController(
@@ -629,54 +569,42 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         case .phone:
             let connectController = makeConnectViewController()
             self.connectController = connectController
+
             var viewControllers = rootContainer.viewControllers
             viewControllers.append(connectController)
+
             rootContainer.setViewControllers(viewControllers, animated: true)
             handleExpiredAccount()
+
         case .pad:
             showSplitViewMaster(true, animated: true)
 
             controller.dismiss(animated: true) {
                 self.handleExpiredAccount()
             }
+
         default:
             fatalError()
         }
     }
 
     private func setUpOutOfTimeTimer() {
-        outOfTimeTimer?.invalidate()
+        clearOutOfTimeTimer()
 
         guard case let .loggedIn(accountData, _) = TunnelManager.shared.deviceState,
               accountData.expiry > Date() else { return }
 
-        let timer = Timer(
-            fire: accountData.expiry,
-            interval: 0,
-            repeats: false
-        ) { [weak self] _ in
-            self?.outOfTimeTimerDidFire()
+        let timer = Timer(fire: accountData.expiry, interval: 0, repeats: false) { [weak self] _ in
+            self?.handleExpiredAccount()
         }
 
         outOfTimeTimer = timer
         RunLoop.main.add(timer, forMode: .common)
     }
 
-    @objc func outOfTimeTimerDidFire() {
-        handleExpiredAccount()
-    }
-
     private func clearOutOfTimeTimer() {
         outOfTimeTimer?.invalidate()
         outOfTimeTimer = nil
-    }
-
-    private func setEnableSettingsButton(isEnabled: Bool, from viewController: UIViewController?) {
-        let containers = [viewController?.rootContainerController, rootContainer].compactMap { $0 }
-
-        for container in Set(containers) {
-            container.setEnableSettingsButton(isEnabled)
-        }
     }
 
     // MARK: - DeviceManagementViewControllerDelegate
@@ -786,6 +714,74 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         TunnelManager.shared.unsetAccount { [weak self] in
             self?.showLoginViewAfterLogout(dismissController: nil)
         }
+    }
+
+    // MARK: - OutOfTimeViewControllerDelegate
+
+    func outOfTimeViewControllerDidBeginActivity(_ controller: OutOfTimeViewController) {
+        // TODO: implement
+    }
+
+    func outOfTimeViewControllerDidEndActivity(_ controller: OutOfTimeViewController) {
+        // TODO: implement
+    }
+
+    // MARK: - RootContainerViewControllerDelegate
+
+    func rootContainerViewControllerShouldShowSettings(
+        _ controller: RootContainerViewController,
+        navigateTo route: SettingsNavigationRoute?,
+        animated: Bool
+    ) {
+        // Check if settings controller is already presented.
+        if let settingsNavController = settingsNavController {
+            settingsNavController.navigate(to: route ?? .root, animated: animated)
+        } else {
+            let navController = makeSettingsNavigationController(route: route)
+
+            // Refresh account data each time user opens settings
+            accountDataThrottling.requestUpdate(condition: .always)
+
+            // On iPad the login controller can be presented modally above the root container.
+            // in that case we have to use the presented controller to present the next modal.
+            if let presentedController = controller.presentedViewController {
+                presentedController.present(navController, animated: true)
+            } else {
+                controller.present(navController, animated: true)
+            }
+
+            // Save the reference for later.
+            settingsNavController = navController
+        }
+    }
+
+    func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController)
+        -> UIInterfaceOrientationMask
+    {
+        switch UIDevice.current.userInterfaceIdiom {
+        case .pad:
+            return [.landscape, .portrait]
+        case .phone:
+            return [.portrait]
+        default:
+            return controller.supportedInterfaceOrientations
+        }
+    }
+
+    func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController)
+        -> Bool
+    {
+        guard TunnelManager.shared.deviceState.isLoggedIn else { return false }
+
+        switch TunnelManager.shared.tunnelStatus.state {
+        case .connected, .connecting, .reconnecting, .waitingForConnectivity:
+            TunnelManager.shared.reconnectTunnel(selectNewRelay: true)
+        case .disconnecting, .disconnected:
+            TunnelManager.shared.startTunnel()
+        case .pendingReconnect:
+            break
+        }
+        return true
     }
 
     // MARK: - UIAdaptivePresentationControllerDelegate
