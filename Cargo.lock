@@ -3160,6 +3160,7 @@ dependencies = [
  "rand 0.8.5",
  "serde",
  "x25519-dalek",
+ "zeroize",
 ]
 
 [[package]]

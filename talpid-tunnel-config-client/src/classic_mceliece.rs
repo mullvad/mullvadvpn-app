@@ -1,6 +1,9 @@
-use classic_mceliece_rust::keypair_boxed;
-use talpid_types::net::wireguard::PresharedKey;
+use classic_mceliece_rust::{keypair_boxed, SharedSecret};
 
+/// The `keypair_boxed` function needs just under 1 MiB of stack in debug
+/// builds. Even though it probably works to run it directly on the main
+/// thread on all OSes, we take this precaution and always generate the huge
+/// keys on a separate thread with a large enough stack.
 const STACK_SIZE: usize = 2 * 1024 * 1024;
 
 pub use classic_mceliece_rust::{Ciphertext, PublicKey, SecretKey, CRYPTO_CIPHERTEXTBYTES};
@@ -19,7 +22,6 @@ pub async fn generate_keys() -> (PublicKey<'static>, SecretKey<'static>) {
     rx.await.unwrap()
 }
 
-pub fn decapsulate(secret: &SecretKey, ciphertext: &Ciphertext) -> PresharedKey {
-    let shared_secret = classic_mceliece_rust::decapsulate_boxed(ciphertext, secret);
-    PresharedKey::from(*shared_secret.as_array())
+pub fn decapsulate(secret: &SecretKey, ciphertext: &Ciphertext) -> SharedSecret<'static> {
+    classic_mceliece_rust::decapsulate_boxed(ciphertext, secret)
 }
