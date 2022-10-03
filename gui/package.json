@@ -41,7 +41,7 @@
     "@types/gettext-parser": "^4.0.1",
     "@types/google-protobuf": "^3.15.6",
     "@types/history": "^4.7.11",
-    "@types/mocha": "^5.2.6",
+    "@types/mocha": "^10.0.0",
     "@types/node": "^16.11.26",
     "@types/node-gettext": "^3.0.3",
     "@types/rbush": "^2.0.2",
