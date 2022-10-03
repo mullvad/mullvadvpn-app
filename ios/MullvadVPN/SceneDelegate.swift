@@ -55,22 +55,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         }
     }
 
-    func setupScene(windowFactory: WindowFactory) {
-        window = windowFactory.create()
-        window?.rootViewController = LaunchViewController()
-
-        privacyOverlayWindow = windowFactory.create()
-        privacyOverlayWindow?.rootViewController = LaunchViewController()
-        privacyOverlayWindow?.windowLevel = .alert + 1
-
-        window?.makeKeyAndVisible()
-
-        TunnelManager.shared.addObserver(self)
-        if TunnelManager.shared.isConfigurationLoaded {
-            configureScene()
-        }
-    }
-
     func showUserAccount() {
         rootContainer.showSettings(navigateTo: .account, animated: true)
     }
@@ -84,7 +68,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
 
-        setupScene(windowFactory: SceneWindowFactory(windowScene: windowScene))
+        window = UIWindow(windowScene: windowScene)
+        window?.rootViewController = LaunchViewController()
+
+        privacyOverlayWindow = UIWindow(windowScene: windowScene)
+        privacyOverlayWindow?.rootViewController = LaunchViewController()
+        privacyOverlayWindow?.windowLevel = .alert + 1
+
+        window?.makeKeyAndVisible()
+
+        TunnelManager.shared.addObserver(self)
+        if TunnelManager.shared.isConfigurationLoaded {
+            configureScene()
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -924,25 +920,5 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
             selectLocationViewController?.dismiss(animated: false)
         }
         return nil
-    }
-}
-
-// MARK: - Window factory
-
-protocol WindowFactory {
-    func create() -> UIWindow
-}
-
-struct ClassicWindowFactory: WindowFactory {
-    func create() -> UIWindow {
-        return UIWindow(frame: UIScreen.main.bounds)
-    }
-}
-
-struct SceneWindowFactory: WindowFactory {
-    let windowScene: UIWindowScene
-
-    func create() -> UIWindow {
-        return UIWindow(windowScene: windowScene)
     }
 }
