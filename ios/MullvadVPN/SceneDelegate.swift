@@ -10,7 +10,14 @@ import MullvadLogging
 import Operations
 import UIKit
 
-class SceneDelegate: UIResponder {
+class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewControllerDelegate,
+    OutOfTimeViewControllerDelegate, LoginViewControllerDelegate,
+    DeviceManagementViewControllerDelegate, SettingsNavigationControllerDelegate,
+    ConnectViewControllerDelegate, NotificationManagerDelegate,
+    SelectLocationViewControllerDelegate,
+    RevokedDeviceViewControllerDelegate, UIAdaptivePresentationControllerDelegate, TunnelObserver,
+    RelayCacheObserver, UISplitViewControllerDelegate
+{
     private let logger = Logger(label: "SceneDelegate")
 
     var window: UIWindow?
@@ -68,40 +75,23 @@ class SceneDelegate: UIResponder {
         rootContainer.showSettings(navigateTo: .account, animated: true)
     }
 
-    private func configureScene() {
-        guard !isSceneConfigured else { return }
+    // MARK: - UIWindowSceneDelegate
 
-        isSceneConfigured = true
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
+        guard let windowScene = scene as? UIWindowScene else { return }
 
-        rootContainer.delegate = self
-        window?.rootViewController = rootContainer
-
-        switch UIDevice.current.userInterfaceIdiom {
-        case .pad:
-            setupPadUI()
-        case .phone:
-            setupPhoneUI()
-        default:
-            fatalError()
-        }
-
-        RelayCache.Tracker.shared.addObserver(self)
-        NotificationManager.shared.delegate = self
-
-        accountDataThrottling.requestUpdate(condition: .always)
+        setupScene(windowFactory: SceneWindowFactory(windowScene: windowScene))
     }
 
-    private func setShowsPrivacyOverlay(_ showOverlay: Bool) {
-        if showOverlay {
-            privacyOverlayWindow?.isHidden = false
-            privacyOverlayWindow?.makeKeyAndVisible()
-        } else {
-            privacyOverlayWindow?.isHidden = true
-            window?.makeKeyAndVisible()
-        }
+    func sceneDidDisconnect(_ scene: UIScene) {
+        // no-op
     }
 
-    @objc private func sceneDidBecomeActive() {
+    func sceneDidBecomeActive(_ scene: UIScene) {
         TunnelManager.shared.refreshTunnelStatus()
 
         if isSceneConfigured {
@@ -120,7 +110,7 @@ class SceneDelegate: UIResponder {
         setShowsPrivacyOverlay(false)
     }
 
-    @objc private func sceneWillResignActive() {
+    func sceneWillResignActive(_ scene: UIScene) {
         RelayCache.Tracker.shared.stopPeriodicUpdates()
         TunnelManager.shared.stopPeriodicPrivateKeyRotation()
         AddressCache.Tracker.shared.stopPeriodicUpdates()
@@ -128,68 +118,28 @@ class SceneDelegate: UIResponder {
         setShowsPrivacyOverlay(true)
     }
 
-    @objc private func sceneDidEnterBackground() {
-        let appDelegate = UIApplication.shared.delegate as? AppDelegate
-
-        appDelegate?.scheduleBackgroundTasks()
-    }
-}
-
-// MARK: - UIWindowSceneDelegate
-
-extension SceneDelegate: UIWindowSceneDelegate {
-    func scene(
-        _ scene: UIScene,
-        willConnectTo session: UISceneSession,
-        options connectionOptions: UIScene.ConnectionOptions
-    ) {
-        guard let windowScene = scene as? UIWindowScene else { return }
-
-        setupScene(windowFactory: SceneWindowFactory(windowScene: windowScene))
-    }
-
-    func sceneDidDisconnect(_ scene: UIScene) {
-        // no-op
-    }
-
-    func sceneDidBecomeActive(_ scene: UIScene) {
-        sceneDidBecomeActive()
-    }
-
-    func sceneWillResignActive(_ scene: UIScene) {
-        sceneWillResignActive()
-    }
-
     func sceneWillEnterForeground(_ scene: UIScene) {
         // no-op
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
-        sceneDidEnterBackground()
+        let appDelegate = UIApplication.shared.delegate as? AppDelegate
+
+        appDelegate?.scheduleBackgroundTasks()
     }
-}
 
-// MARK: - SettingsButtonInteractionDelegate
+    // MARK: - OutOfTimeViewControllerDelegate
 
-protocol SettingsButtonInteractionDelegate: AnyObject {
-    func viewController(
-        _ controller: UIViewController,
-        didRequestSettingsButtonEnabled isEnabled: Bool
-    )
-}
-
-extension SceneDelegate: SettingsButtonInteractionDelegate {
-    func viewController(
-        _ controller: UIViewController,
-        didRequestSettingsButtonEnabled isEnabled: Bool
-    ) {
-        setEnableSettingsButton(isEnabled: isEnabled, from: controller)
+    func outOfTimeViewControllerDidBeginActivity(_ controller: OutOfTimeViewController) {
+        // TODO: implement
     }
-}
 
-// MARK: - RootContainerViewControllerDelegate
+    func outOfTimeViewControllerDidEndActivity(_ controller: OutOfTimeViewController) {
+        // TODO: implement
+    }
 
-extension SceneDelegate: RootContainerViewControllerDelegate {
+    // MARK: - RootContainerViewControllerDelegate
+
     func rootContainerViewControllerShouldShowSettings(
         _ controller: RootContainerViewController,
         navigateTo route: SettingsNavigationRoute?,
@@ -245,9 +195,42 @@ extension SceneDelegate: RootContainerViewControllerDelegate {
         }
         return true
     }
-}
 
-extension SceneDelegate {
+    // MARK: - Private
+
+    private func configureScene() {
+        guard !isSceneConfigured else { return }
+
+        isSceneConfigured = true
+
+        rootContainer.delegate = self
+        window?.rootViewController = rootContainer
+
+        switch UIDevice.current.userInterfaceIdiom {
+        case .pad:
+            setupPadUI()
+        case .phone:
+            setupPhoneUI()
+        default:
+            fatalError()
+        }
+
+        RelayCache.Tracker.shared.addObserver(self)
+        NotificationManager.shared.delegate = self
+
+        accountDataThrottling.requestUpdate(condition: .always)
+    }
+
+    private func setShowsPrivacyOverlay(_ showOverlay: Bool) {
+        if showOverlay {
+            privacyOverlayWindow?.isHidden = false
+            privacyOverlayWindow?.makeKeyAndVisible()
+        } else {
+            privacyOverlayWindow?.isHidden = true
+            window?.makeKeyAndVisible()
+        }
+    }
+
     private func setupPadUI() {
         let tunnelManager = TunnelManager.shared
         let selectLocationController = makeSelectLocationController()
@@ -579,11 +562,9 @@ extension SceneDelegate {
             fatalError()
         }
     }
-}
 
-// MARK: - LoginViewControllerDelegate
+    // MARK: - LoginViewControllerDelegate
 
-extension SceneDelegate: LoginViewControllerDelegate {
     func loginViewController(
         _ controller: LoginViewController,
         shouldHandleLoginAction action: LoginAction,
@@ -701,11 +682,9 @@ extension SceneDelegate: LoginViewControllerDelegate {
             container.setEnableSettingsButton(isEnabled)
         }
     }
-}
 
-// MARK: - DeviceManagementViewControllerDelegate
+    // MARK: - DeviceManagementViewControllerDelegate
 
-extension SceneDelegate: DeviceManagementViewControllerDelegate {
     func deviceManagementViewControllerDidCancel(_ controller: DeviceManagementViewController) {
         controller.rootContainerController?.popViewController(animated: true)
     }
@@ -721,11 +700,9 @@ extension SceneDelegate: DeviceManagementViewControllerDelegate {
             }
         }
     }
-}
 
-// MARK: - SettingsNavigationControllerDelegate
+    // MARK: - SettingsNavigationControllerDelegate
 
-extension SceneDelegate: SettingsNavigationControllerDelegate {
     func settingsNavigationController(
         _ controller: SettingsNavigationController,
         willNavigateTo route: SettingsNavigationRoute
@@ -749,11 +726,9 @@ extension SceneDelegate: SettingsNavigationControllerDelegate {
             controller.dismiss(animated: true)
         }
     }
-}
 
-// MARK: - ConnectViewControllerDelegate
+    // MARK: - ConnectViewControllerDelegate
 
-extension SceneDelegate: ConnectViewControllerDelegate {
     func connectViewControllerShouldShowSelectLocationPicker(_ controller: ConnectViewController) {
         let contentController = makeSelectLocationController()
         contentController.navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -771,22 +746,18 @@ extension SceneDelegate: ConnectViewControllerDelegate {
     @objc private func handleDismissSelectLocationController(_ sender: Any) {
         selectLocationViewController?.dismiss(animated: true)
     }
-}
 
-// MARK: - NotificationManagerDelegate
+    // MARK: - NotificationManagerDelegate
 
-extension SceneDelegate: NotificationManagerDelegate {
     func notificationManagerDidUpdateInAppNotifications(
         _ manager: NotificationManager,
         notifications: [InAppNotificationDescriptor]
     ) {
         connectController?.notificationController.setNotifications(notifications, animated: true)
     }
-}
 
-// MARK: - SelectLocationViewControllerDelegate
+    // MARK: - SelectLocationViewControllerDelegate
 
-extension SceneDelegate: SelectLocationViewControllerDelegate {
     func selectLocationViewController(
         _ controller: SelectLocationViewController,
         didSelectRelayLocation relayLocation: RelayLocation
@@ -812,21 +783,17 @@ extension SceneDelegate: SelectLocationViewControllerDelegate {
             TunnelManager.shared.startTunnel()
         }
     }
-}
 
-// MARK: - RevokedDeviceViewControllerDelegate
+    // MARK: - RevokedDeviceViewControllerDelegate
 
-extension SceneDelegate: RevokedDeviceViewControllerDelegate {
     func revokedDeviceControllerDidRequestLogout(_ controller: RevokedDeviceViewController) {
         TunnelManager.shared.unsetAccount { [weak self] in
             self?.showLoginViewAfterLogout(dismissController: nil)
         }
     }
-}
 
-// MARK: - UIAdaptivePresentationControllerDelegate
+    // MARK: - UIAdaptivePresentationControllerDelegate
 
-extension SceneDelegate: UIAdaptivePresentationControllerDelegate {
     func adaptivePresentationStyle(
         for controller: UIPresentationController,
         traitCollection: UITraitCollection
@@ -882,11 +849,9 @@ extension SceneDelegate: UIAdaptivePresentationControllerDelegate {
             )
         }
     }
-}
 
-// MARK: - TunnelObserver
+    // MARK: - TunnelObserver
 
-extension SceneDelegate: TunnelObserver {
     func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
         configureScene()
     }
@@ -924,22 +889,18 @@ extension SceneDelegate: TunnelObserver {
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
         // no-op
     }
-}
 
-// MARK: - RelayCacheObserver
+    // MARK: - RelayCacheObserver
 
-extension SceneDelegate: RelayCacheObserver {
     func relayCache(
         _ relayCache: RelayCache.Tracker,
         didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays
     ) {
         selectLocationViewController?.setCachedRelays(cachedRelays)
     }
-}
 
-// MARK: - UISplitViewControllerDelegate
+    // MARK: - UISplitViewControllerDelegate
 
-extension SceneDelegate: UISplitViewControllerDelegate {
     func primaryViewController(forExpanding splitViewController: UISplitViewController)
         -> UIViewController?
     {
