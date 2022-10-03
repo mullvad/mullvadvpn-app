@@ -392,7 +392,8 @@ private extension LoginState {
             }
 
         case let .failure(error):
-            return error.localizedDescription
+            return (error as? DisplayChainedError)?.errorChainDescription
+                ?? error.localizedDescription
 
         case let .success(method):
             switch method {
