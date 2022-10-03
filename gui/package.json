@@ -24,7 +24,7 @@
     "react-redux": "^7.2.2",
     "react-router": "^5.1.2",
     "react-simple-maps": "^3.0.0",
-    "redux": "^4.0.5",
+    "redux": "^4.2.0",
     "sprintf-js": "^1.1.2",
     "styled-components": "^5.1.1"
   },
