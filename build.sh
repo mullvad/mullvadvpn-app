@@ -17,7 +17,7 @@ source scripts/utils/log
 RUSTC_VERSION=$(rustc --version)
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 
-PRODUCT_VERSION=$(cd gui/; node -p "require('./package.json').version" | sed -Ee 's/\.0//g')
+PRODUCT_VERSION=$(cargo run -q --bin mullvad-version)
 
 # If compiler optimization and artifact compression should be turned on or not
 OPTIMIZE="false"
@@ -51,10 +51,7 @@ done
 # Everything that is not a release build is called a "dev build" and has "-dev-{commit hash}"
 # appended to the version name.
 IS_RELEASE="false"
-product_version_commit_hash=$(git rev-parse "$PRODUCT_VERSION^{commit}" || echo "")
-current_head_commit_hash=$(git rev-parse "HEAD^{commit}")
-if [[ "$SIGN" == "true" && "$OPTIMIZE" == "true" && \
-      $product_version_commit_hash == "$current_head_commit_hash" ]]; then
+if [[ "$SIGN" == "true" && "$OPTIMIZE" == "true" && "$PRODUCT_VERSION" != *"-dev-"* ]]; then
     IS_RELEASE="true"
 fi
 
@@ -135,8 +132,6 @@ if [[ "$IS_RELEASE" == "true" ]]; then
     # Will not allow an outdated lockfile in releases
     CARGO_ARGS+=(--locked)
 else
-    PRODUCT_VERSION="$PRODUCT_VERSION-dev-${current_head_commit_hash:0:6}"
-
     # Allow dev builds to override which API server to use at runtime.
     CARGO_ARGS+=(--features api-override)
 
