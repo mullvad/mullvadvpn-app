@@ -40,13 +40,20 @@ public final class AlertPresenter {
     public func enqueue(
         _ alertController: UIAlertController,
         presentingController: UIViewController,
-        presentCompletion: (() -> Void)? = nil
+        presentCompletion: (() -> Void)? = nil,
+        dismissCompletion: (() -> Void)? = nil
     ) {
         let operation = PresentAlertOperation(
             alertController: alertController,
             presentingController: presentingController,
             presentCompletion: presentCompletion
         )
+
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                dismissCompletion?()
+            }
+        }
 
         operationQueue.addOperation(operation)
     }
