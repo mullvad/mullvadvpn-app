@@ -42,6 +42,7 @@ interface IInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   modifyValue?: (value: string) => string;
   submitOnBlur?: boolean;
   onSubmitValue?: (value: string) => void;
+  onInvalidValue?: (value: string) => void;
   onChangeValue?: (value: string) => void;
 }
 
@@ -51,6 +52,7 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
     modifyValue,
     submitOnBlur,
     onSubmitValue,
+    onInvalidValue,
     onChangeValue,
     ...otherProps
   } = props;
@@ -60,6 +62,17 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
 
   const inputRef = useRef() as React.RefObject<HTMLInputElement>;
   const combinedRef = useCombinedRefs(inputRef, forwardedRef);
+
+  const onSubmit = useCallback(
+    (value: string) => {
+      if (validateValue?.(value) !== false && submitOnBlur) {
+        onSubmitValue?.(value);
+      } else if (submitOnBlur) {
+        onInvalidValue?.(value);
+      }
+    },
+    [onSubmitValue, onInvalidValue],
+  );
 
   const onFocus = useCallback(
     (event: React.FocusEvent<HTMLInputElement>) => {
@@ -73,12 +86,9 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
     (event: React.FocusEvent<HTMLInputElement>) => {
       setBlurred();
       props.onBlur?.(event);
-
-      if (validateValue?.(value) !== false && submitOnBlur) {
-        onSubmitValue?.(value);
-      }
+      onSubmit(value);
     },
-    [value, props.onBlur, validateValue, onSubmitValue, submitOnBlur],
+    [value, props.onBlur, validateValue, onSubmit, submitOnBlur],
   );
 
   const onChange = useCallback(
@@ -88,18 +98,18 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
       props.onChange?.(event);
       onChangeValue?.(value);
     },
-    [value, modifyValue, props.onSubmit, onSubmitValue],
+    [value, modifyValue, props.onSubmit],
   );
 
   const onKeyPress = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Enter') {
-        onSubmitValue?.(value);
+        onSubmit(value);
         inputRef.current?.blur();
       }
       props.onKeyPress?.(event);
     },
-    [value, onSubmitValue, inputRef, props.onKeyPress],
+    [value, onSubmit, inputRef, props.onKeyPress],
   );
 
   useEffect(() => {
