@@ -47,7 +47,7 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
             inputFormatter.updateTextField(self)
         }
         get {
-            inputFormatter.formattedString
+            return inputFormatter.formattedString
         }
     }
 

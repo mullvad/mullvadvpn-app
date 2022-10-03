@@ -21,6 +21,8 @@ class AccountInputGroupView: UIView {
         case normal, error, authenticating
     }
 
+    static let minimumAccountTokenLength = 10
+
     weak var delegate: AccountInputGroupViewDelegate?
 
     let sendButton: UIButton = {
@@ -44,10 +46,8 @@ class AccountInputGroupView: UIView {
         return privateTextField.parsedToken
     }
 
-    let minimumAccountTokenLength = 10
-
     var satisfiesMinimumTokenLengthRequirement: Bool {
-        return privateTextField.parsedToken.count > minimumAccountTokenLength
+        return privateTextField.parsedToken.count > Self.minimumAccountTokenLength
     }
 
     private let privateTextField: AccountTextField = {
