@@ -214,19 +214,6 @@ function PortSelector() {
           }
         />
       </StyledSelectorContainer>
-      <Cell.CellFooter>
-        <AriaDescription>
-          <Cell.CellFooterText>
-            {
-              // TRANSLATORS: The hint displayed below the WireGuard port selector.
-              messages.pgettext(
-                'wireguard-settings-view',
-                'The automatic setting will randomly choose from a wide range of ports.',
-              )
-            }
-          </Cell.CellFooterText>
-        </AriaDescription>
-      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }
