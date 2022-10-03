@@ -1,16 +1,16 @@
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
-import { tinyText } from '../common-styles';
+import { measurements, tinyText } from '../common-styles';
 
-export const Footer = styled.div({
-  padding: '6px 22px 0px',
+export const CellFooter = styled.div({
+  padding: `6px ${measurements.viewMargin} 0px`,
 });
 
-export const FooterText = styled.span(tinyText, {
+export const CellFooterText = styled.span(tinyText, {
   color: colors.white60,
 });
 
-export const FooterBoldText = styled(FooterText)({
+export const CellFooterBoldText = styled(CellFooterText)({
   fontWeight: 900,
 });

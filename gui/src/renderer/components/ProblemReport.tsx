@@ -8,16 +8,14 @@ import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import {
-  StyledBlueButton,
   StyledContent,
   StyledContentContainer,
   StyledEmail,
   StyledEmailInput,
-  StyledFooter,
   StyledForm,
   StyledFormEmailRow,
   StyledFormMessageRow,
@@ -343,22 +341,24 @@ export default class ProblemReport extends React.Component<
             />
           </StyledFormMessageRow>
         </StyledForm>
-        <StyledFooter>
+        <Footer>
           <AriaDescriptionGroup>
             <AriaDescribed>
-              <StyledBlueButton onClick={this.onViewLog} disabled={this.state.disableActions}>
-                <AppButton.Label>
-                  {messages.pgettext('support-view', 'View app logs')}
-                </AppButton.Label>
-                <AriaDescription>
-                  <AppButton.Icon
-                    source="icon-extLink"
-                    height={16}
-                    width={16}
-                    aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                  />
-                </AriaDescription>
-              </StyledBlueButton>
+              <AppButton.ButtonGroup>
+                <AppButton.BlueButton onClick={this.onViewLog} disabled={this.state.disableActions}>
+                  <AppButton.Label>
+                    {messages.pgettext('support-view', 'View app logs')}
+                  </AppButton.Label>
+                  <AriaDescription>
+                    <AppButton.Icon
+                      source="icon-extLink"
+                      height={16}
+                      width={16}
+                      aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                    />
+                  </AriaDescription>
+                </AppButton.BlueButton>
+              </AppButton.ButtonGroup>
             </AriaDescribed>
           </AriaDescriptionGroup>
           <AppButton.GreenButton
@@ -366,7 +366,7 @@ export default class ProblemReport extends React.Component<
             onClick={this.onSend}>
             {messages.pgettext('support-view', 'Send')}
           </AppButton.GreenButton>
-        </StyledFooter>
+        </Footer>
       </StyledContent>
     );
   }
@@ -429,14 +429,16 @@ export default class ProblemReport extends React.Component<
             )}
           </StyledSentMessage>
         </StyledForm>
-        <StyledFooter>
-          <StyledBlueButton onClick={this.handleEditMessage}>
-            {messages.pgettext('support-view', 'Edit message')}
-          </StyledBlueButton>
-          <AppButton.GreenButton onClick={this.onSend}>
-            {messages.pgettext('support-view', 'Try again')}
-          </AppButton.GreenButton>
-        </StyledFooter>
+        <Footer>
+          <AppButton.ButtonGroup>
+            <AppButton.BlueButton onClick={this.handleEditMessage}>
+              {messages.pgettext('support-view', 'Edit message')}
+            </AppButton.BlueButton>
+            <AppButton.GreenButton onClick={this.onSend}>
+              {messages.pgettext('support-view', 'Try again')}
+            </AppButton.GreenButton>
+          </AppButton.ButtonGroup>
+        </Footer>
       </StyledContent>
     );
   }

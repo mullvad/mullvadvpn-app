@@ -106,10 +106,10 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
 
   // Add potential additional items to the list. Used for custom entry.
   const children = (
-    <>
+    <Cell.Group noMarginBottom>
       {items}
       {props.children}
-    </>
+    </Cell.Group>
   );
 
   return (
@@ -172,7 +172,6 @@ interface StyledCustomContainerProps {
 }
 
 const StyledCustomContainer = styled(Cell.Container)((props: StyledCustomContainerProps) => ({
-  minHeight: '44px',
   backgroundColor: props.selected ? colors.green : colors.blue40,
   ':hover': {
     backgroundColor: props.selected ? colors.green : colors.blue,

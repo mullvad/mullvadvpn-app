@@ -7,7 +7,6 @@ import Accordion from './Accordion';
 export const stringValueAsKey = (value: string): string => value;
 
 const StyledListItem = styled.div({
-  marginBottom: '1px',
   display: 'flex',
   flex: 1,
   flexDirection: 'column',

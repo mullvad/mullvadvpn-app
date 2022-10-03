@@ -1,12 +1,7 @@
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
-import * as AppButton from './AppButton';
-import { hugeText, smallText } from './common-styles';
-
-export const StyledBlueButton = styled(AppButton.BlueButton)({
-  marginBottom: '18px',
-});
+import { hugeText, measurements, smallText } from './common-styles';
 
 export const StyledContentContainer = styled.div({
   display: 'flex',
@@ -25,7 +20,7 @@ export const StyledForm = styled.div({
   display: 'flex',
   flex: 1,
   flexDirection: 'column',
-  margin: '0 22px',
+  margin: `0 ${measurements.viewMargin}`,
 });
 
 export const StyledFormEmailRow = styled.div({
@@ -55,13 +50,6 @@ export const StyledEmailInput = styled.input.attrs({ type: 'email' })(smallText,
 export const StyledMessageInput = styled.textarea(smallText, input, {
   resize: 'none',
   fontWeight: 400,
-});
-
-export const StyledFooter = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 0,
-  padding: '18px 22px 22px',
 });
 
 export const StyledStatusIcon = styled.div({

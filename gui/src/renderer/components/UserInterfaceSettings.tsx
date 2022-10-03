@@ -108,16 +108,16 @@ function NotificationsSetting() {
           <Cell.Switch isOn={enableSystemNotifications} onChange={setEnableSystemNotifications} />
         </AriaInput>
       </Cell.Container>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {messages.pgettext(
               'user-interface-settings-view',
               'Enable or disable system notifications. The critical notifications will always be displayed.',
             )}
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }
@@ -138,16 +138,16 @@ function MonochromaticTrayIconSetting() {
           <Cell.Switch isOn={monochromaticIcon} onChange={setMonochromaticIcon} />
         </AriaInput>
       </Cell.Container>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {messages.pgettext(
               'user-interface-settings-view',
               'Use a monochromatic tray icon instead of a colored one.',
             )}
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }
@@ -168,16 +168,16 @@ function UnpinnedWindowSetting() {
           <Cell.Switch isOn={unpinnedWindow} onChange={setUnpinnedWindow} />
         </AriaInput>
       </Cell.Container>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {messages.pgettext(
               'user-interface-settings-view',
               'Enable to move the app around as a free-standing window.',
             )}
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }
@@ -198,16 +198,16 @@ function StartMinimizedSetting() {
           <Cell.Switch isOn={startMinimized} onChange={setStartMinimized} />
         </AriaInput>
       </Cell.Container>
-      <Cell.Footer>
+      <Cell.CellFooter>
         <AriaDescription>
-          <Cell.FooterText>
+          <Cell.CellFooterText>
             {messages.pgettext(
               'user-interface-settings-view',
               'Show only the tray icon when the app starts.',
             )}
-          </Cell.FooterText>
+          </Cell.CellFooterText>
         </AriaDescription>
-      </Cell.Footer>
+      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }

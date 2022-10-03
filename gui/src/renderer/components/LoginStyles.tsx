@@ -2,9 +2,10 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import * as Cell from './cell';
-import { hugeText, largeText, smallText, tinyText } from './common-styles';
+import { hugeText, largeText, measurements, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
 import ImageView from './ImageView';
+import { Footer } from './Layout';
 
 export const StyledAccountDropdownContainer = styled.ul({
   display: 'flex',
@@ -74,15 +75,11 @@ export const StyledTopInfo = styled.div({
   flex: 1,
 });
 
-export const StyledFooter = styled.div({}, (props: { show: boolean }) => ({
+export const StyledFooter = styled(Footer)({}, (props: { show: boolean }) => ({
   position: 'relative',
   width: '100%',
   bottom: 0,
   transform: `translateY(${props.show ? 0 : 100}%)`,
-  display: 'flex',
-  flex: '0',
-  flexDirection: 'column',
-  padding: '18px 22px 22px',
   backgroundColor: colors.darkBlue,
   transition: 'transform 250ms ease-in-out',
 }));
@@ -102,7 +99,7 @@ export const StyledLoginForm = styled.div({
   flex: '0 1 225px',
   flexDirection: 'column',
   overflow: 'visible',
-  padding: '0 22px',
+  padding: `0 ${measurements.viewMargin}`,
 });
 
 interface IStyledAccountInputGroupProps {

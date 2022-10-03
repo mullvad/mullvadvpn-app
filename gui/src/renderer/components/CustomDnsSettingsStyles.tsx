@@ -4,7 +4,7 @@ import { colors } from '../../config.json';
 import * as Cell from './cell';
 import ImageView from './ImageView';
 
-export const StyledCustomDnsFooter = styled(Cell.Footer)({
+export const StyledCustomDnsFooter = styled(Cell.CellFooter)({
   marginBottom: '2px',
 });
 

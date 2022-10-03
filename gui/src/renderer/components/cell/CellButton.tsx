@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { colors } from '../../../config.json';
 import { CellDisabledContext } from './Container';
 import { Icon } from './Label';
+import { Row } from './Row';
 import { CellSectionContext } from './Section';
 
 interface IStyledCellButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
@@ -11,7 +12,7 @@ interface IStyledCellButtonProps extends React.HTMLAttributes<HTMLButtonElement>
   containedInSection: boolean;
 }
 
-const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps) => {
+const StyledCellButton = styled(Row)({}, (props: IStyledCellButtonProps) => {
   const backgroundColor = props.selected
     ? colors.green
     : props.containedInSection
@@ -20,11 +21,8 @@ const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps) => {
   const backgroundColorHover = props.selected ? colors.green : colors.blue80;
 
   return {
-    display: 'flex',
-    minHeight: '44px',
-    padding: '0 16px 0 22px',
+    paddingRight: '16px',
     flex: 1,
-    alignItems: 'center',
     alignContent: 'center',
     cursor: 'default',
     border: 'none',
@@ -44,7 +42,12 @@ export const CellButton = styled(
     const containedInSection = useContext(CellSectionContext);
     return (
       <CellDisabledContext.Provider value={props.disabled ?? false}>
-        <StyledCellButton ref={ref} containedInSection={containedInSection} {...props} />
+        <StyledCellButton
+          as="button"
+          ref={ref}
+          containedInSection={containedInSection}
+          {...props}
+        />
       </CellDisabledContext.Provider>
     );
   }),

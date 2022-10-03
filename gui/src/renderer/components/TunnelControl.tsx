@@ -6,8 +6,9 @@ import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../shared/gettext';
 import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
-import { hugeText, normalText } from './common-styles';
+import { hugeText, measurements, normalText } from './common-styles';
 import ImageView from './ImageView';
+import { Footer } from './Layout';
 import Marquee from './Marquee';
 import { MultiButton } from './MultiButton';
 import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
@@ -24,28 +25,15 @@ interface ITunnelControlProps {
   onSelectLocation: () => void;
 }
 
-const SwitchLocationButton = styled(AppButton.TransparentButton)({
-  marginBottom: '18px',
-});
-
 const Secured = styled(SecuredLabel)(normalText, {
   fontWeight: 700,
   lineHeight: '22px',
 });
 
-const Footer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 0,
-  paddingBottom: '22px',
-  paddingLeft: '22px',
-  paddingRight: '22px',
-});
-
 const Body = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  padding: '0 22px',
+  padding: `0 ${measurements.viewMargin}`,
   marginTop: '176px',
   flex: 1,
 });
@@ -117,8 +105,10 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
               <ConnectionPanelContainer />
             </Body>
             <Footer>
-              {this.switchLocationButton()}
-              <MultiButton mainButton={this.cancelButton} sideButton={this.reconnectButton} />
+              <AppButton.ButtonGroup>
+                {this.switchLocationButton()}
+                <MultiButton mainButton={this.cancelButton} sideButton={this.reconnectButton} />
+              </AppButton.ButtonGroup>
             </Footer>
           </Wrapper>
         );
@@ -137,8 +127,10 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
               <ConnectionPanelContainer />
             </Body>
             <Footer>
-              {this.switchLocationButton()}
-              <MultiButton mainButton={this.disconnectButton} sideButton={this.reconnectButton} />
+              <AppButton.ButtonGroup>
+                {this.switchLocationButton()}
+                <MultiButton mainButton={this.disconnectButton} sideButton={this.reconnectButton} />
+              </AppButton.ButtonGroup>
             </Footer>
           </Wrapper>
         );
@@ -155,8 +147,10 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
                 <Secured displayStyle={SecuredDisplayStyle.failedToSecure} />
               </Body>
               <Footer>
-                {this.switchLocationButton()}
-                <MultiButton mainButton={this.dismissButton} sideButton={this.reconnectButton} />
+                <AppButton.ButtonGroup>
+                  {this.switchLocationButton()}
+                  <MultiButton mainButton={this.dismissButton} sideButton={this.reconnectButton} />
+                </AppButton.ButtonGroup>
               </Footer>
             </Wrapper>
           );
@@ -167,8 +161,10 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
                 <Secured displayStyle={SecuredDisplayStyle.blocked} />
               </Body>
               <Footer>
-                {this.switchLocationButton()}
-                <MultiButton mainButton={this.cancelButton} sideButton={this.reconnectButton} />
+                <AppButton.ButtonGroup>
+                  {this.switchLocationButton()}
+                  <MultiButton mainButton={this.cancelButton} sideButton={this.reconnectButton} />
+                </AppButton.ButtonGroup>
               </Footer>
             </Wrapper>
           );
@@ -185,8 +181,10 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
               </Location>
             </Body>
             <Footer>
-              {this.selectLocationButton()}
-              {this.connectButton()}
+              <AppButton.ButtonGroup>
+                {this.selectLocationButton()}
+                {this.connectButton()}
+              </AppButton.ButtonGroup>
             </Footer>
           </Wrapper>
         );
@@ -205,8 +203,10 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
               </Location>
             </Body>
             <Footer>
-              {this.selectLocationButton()}
-              {this.connectButton()}
+              <AppButton.ButtonGroup>
+                {this.selectLocationButton()}
+                {this.connectButton()}
+              </AppButton.ButtonGroup>
             </Footer>
           </Wrapper>
         );
@@ -238,15 +238,15 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
 
   private switchLocationButton() {
     return (
-      <SwitchLocationButton onClick={this.props.onSelectLocation}>
+      <AppButton.TransparentButton onClick={this.props.onSelectLocation}>
         {messages.pgettext('tunnel-control', 'Switch location')}
-      </SwitchLocationButton>
+      </AppButton.TransparentButton>
     );
   }
 
   private selectLocationButton() {
     return (
-      <SwitchLocationButton
+      <AppButton.TransparentButton
         onClick={this.props.onSelectLocation}
         aria-label={sprintf(
           messages.pgettext('accessibility', 'Select location. Current location is %(location)s'),
@@ -254,7 +254,7 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
         )}>
         <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
         <SelectedLocationChevron height={12} width={7} source="icon-chevron" />
-      </SwitchLocationButton>
+      </AppButton.TransparentButton>
     );
   }
 

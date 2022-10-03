@@ -6,15 +6,12 @@ import { messages } from '../../shared/gettext';
 import { useSelector } from '../redux/store';
 import {
   AccountContainer,
-  AccountFooter,
   AccountOutOfTime,
   AccountRow,
   AccountRowLabel,
   AccountRows,
   AccountRowValue,
   DeviceRowValue,
-  StyledBuyCreditButton,
-  StyledRedeemVoucherButton,
   StyledSpinnerContainer,
 } from './AccountStyles';
 import AccountTokenLabel from './AccountTokenLabel';
@@ -22,9 +19,10 @@ import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
+import { RedeemVoucherButton } from './RedeemVoucher';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 interface IProps {
@@ -96,33 +94,35 @@ export default class Account extends React.Component<IProps, IState> {
                 </AccountRow>
               </AccountRows>
 
-              <AccountFooter>
-                <AppButton.BlockingButton
-                  disabled={this.props.isOffline}
-                  onClick={this.props.onBuyMore}>
-                  <AriaDescriptionGroup>
-                    <AriaDescribed>
-                      <StyledBuyCreditButton>
-                        <AppButton.Label>{messages.gettext('Buy more credit')}</AppButton.Label>
-                        <AriaDescription>
-                          <AppButton.Icon
-                            source="icon-extLink"
-                            height={16}
-                            width={16}
-                            aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                          />
-                        </AriaDescription>
-                      </StyledBuyCreditButton>
-                    </AriaDescribed>
-                  </AriaDescriptionGroup>
-                </AppButton.BlockingButton>
+              <Footer>
+                <AppButton.ButtonGroup>
+                  <AppButton.BlockingButton
+                    disabled={this.props.isOffline}
+                    onClick={this.props.onBuyMore}>
+                    <AriaDescriptionGroup>
+                      <AriaDescribed>
+                        <AppButton.GreenButton>
+                          <AppButton.Label>{messages.gettext('Buy more credit')}</AppButton.Label>
+                          <AriaDescription>
+                            <AppButton.Icon
+                              source="icon-extLink"
+                              height={16}
+                              width={16}
+                              aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                            />
+                          </AriaDescription>
+                        </AppButton.GreenButton>
+                      </AriaDescribed>
+                    </AriaDescriptionGroup>
+                  </AppButton.BlockingButton>
 
-                <StyledRedeemVoucherButton />
+                  <RedeemVoucherButton />
 
-                <AppButton.RedButton onClick={this.onTryLogout}>
-                  {messages.pgettext('account-view', 'Log out')}
-                </AppButton.RedButton>
-              </AccountFooter>
+                  <AppButton.RedButton onClick={this.onTryLogout}>
+                    {messages.pgettext('account-view', 'Log out')}
+                  </AppButton.RedButton>
+                </AppButton.ButtonGroup>
+              </Footer>
             </AccountContainer>
           </SettingsContainer>
 

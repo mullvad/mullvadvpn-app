@@ -1,15 +1,12 @@
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
-import * as AppButton from './AppButton';
-import { normalText, tinyText } from './common-styles';
-import { RedeemVoucherButton } from './RedeemVoucher';
+import { measurements, normalText, tinyText } from './common-styles';
 
 export const AccountContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  paddingBottom: '22px',
 });
 
 export const AccountRows = styled.div({
@@ -19,8 +16,8 @@ export const AccountRows = styled.div({
 });
 
 export const AccountRow = styled.div({
-  padding: '0 22px',
-  marginBottom: '20px',
+  padding: `0 ${measurements.viewMargin}`,
+  marginBottom: measurements.rowVerticalMargin,
 });
 
 const AccountRowText = styled.span({
@@ -53,16 +50,3 @@ export const StyledSpinnerContainer = styled.div({
   justifyContent: 'center',
   padding: '8px 0',
 });
-
-export const AccountFooter = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  padding: '0 22px',
-});
-
-const buttonStyle = {
-  marginBottom: '18px',
-};
-
-export const StyledRedeemVoucherButton = styled(RedeemVoucherButton)(buttonStyle);
-export const StyledBuyCreditButton = styled(AppButton.GreenButton)(buttonStyle);

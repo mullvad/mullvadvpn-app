@@ -283,7 +283,7 @@ export default function CustomDnsSettings() {
       </Accordion>
 
       <StyledCustomDnsFooter>
-        <Cell.FooterText>
+        <Cell.CellFooterText>
           {featureAvailable
             ? messages.pgettext('vpn-settings-view', 'Enable to add at least one DNS server.')
             : // This line makes sure that the next one isn't prefixed by the color.
@@ -296,7 +296,7 @@ export default function CustomDnsSettings() {
                 'vpn-settings-view',
                 'Disable all content blockers to activate this setting.',
               )}
-        </Cell.FooterText>
+        </Cell.CellFooterText>
       </StyledCustomDnsFooter>
 
       <ConfirmationDialog

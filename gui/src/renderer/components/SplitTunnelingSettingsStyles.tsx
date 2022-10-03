@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { normalText } from './common-styles';
+import { measurements, normalText } from './common-styles';
 import ImageView from './ImageView';
 import { NavigationScrollbars } from './NavigationBar';
 import { HeaderTitle } from './SettingsHeader';
@@ -69,36 +69,36 @@ export const StyledSpinnerRow = styled(Cell.CellButton)({
   alignItems: 'center',
   justifyContent: 'center',
   padding: '8px 0',
-  marginBottom: '20px',
+  marginBottom: measurements.rowVerticalMargin,
   background: colors.blue40,
 });
 
 export const StyledListContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  marginBottom: '20px',
+  marginBottom: measurements.rowVerticalMargin,
 });
 
 export const StyledBrowseButton = styled(AppButton.BlueButton)({
-  margin: '0 22px 22px',
+  margin: `0 ${measurements.viewMargin} ${measurements.viewMargin}`,
 });
 
 export const StyledCellContainer = styled(Cell.Container)({
-  marginBottom: '20px',
+  marginBottom: measurements.rowVerticalMargin,
 });
 
 export const StyledSearchContainer = styled.div({
   position: 'relative',
-  marginBottom: '18px',
+  marginBottom: measurements.buttonVerticalMargin,
 });
 
 export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
   ...normalText,
-  width: 'calc(100% - 22px * 2)',
+  width: `calc(100% - ${measurements.viewMargin} * 2)`,
   border: 'none',
   borderRadius: '4px',
   padding: '9px 38px',
-  margin: '0 22px',
+  margin: `0 ${measurements.viewMargin}`,
   color: colors.white60,
   backgroundColor: colors.white10,
   '::placeholder': {
@@ -145,14 +145,14 @@ export const StyledClearIcon = styled(ImageView)({
   },
 });
 
-export const StyledNoResult = styled(Cell.Footer)({
+export const StyledNoResult = styled(Cell.CellFooter)({
   display: 'flex',
   flexDirection: 'column',
   paddingTop: 0,
   marginTop: 0,
 });
 
-export const StyledNoResultText = styled(Cell.FooterText)({
+export const StyledNoResultText = styled(Cell.CellFooterText)({
   textAlign: 'center',
 });
 

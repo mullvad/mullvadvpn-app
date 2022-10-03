@@ -13,6 +13,7 @@ import {
   StyledVisibleSide,
   transparentButton,
 } from './AppButtonStyles';
+import { measurements } from './common-styles';
 import ImageView from './ImageView';
 
 interface ILabelProps {
@@ -190,12 +191,12 @@ const StyledButtonWrapper = styled.div({
   flexDirection: 'column',
   flex: 0,
   ':not(:last-child)': {
-    marginBottom: '18px',
+    marginBottom: measurements.buttonVerticalMargin,
   },
 });
 
 interface IButtonGroupProps {
-  children: React.ReactElement[];
+  children: React.ReactNode | React.ReactNode[];
 }
 
 export function ButtonGroup(props: IButtonGroupProps) {

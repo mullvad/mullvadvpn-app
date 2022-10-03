@@ -18,7 +18,7 @@ import Selector from './cell/Selector';
 import { normalText } from './common-styles';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import { Footer, Layout, SettingsContainer } from './Layout';
 import {
   NavigationBar,
   NavigationContainer,
@@ -30,12 +30,6 @@ import {
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   backgroundColor: colors.darkBlue,
   flex: 1,
-});
-
-const StyledFooter = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  padding: '18px 22px 22px',
 });
 
 export default function Filter() {
@@ -101,13 +95,13 @@ export default function Filter() {
                 setProviders={setProviders}
               />
             </StyledNavigationScrollbars>
-            <StyledFooter>
+            <Footer>
               <AppButton.GreenButton
                 disabled={Object.values(providers).every((provider) => !provider)}
                 onClick={onApply}>
                 {messages.gettext('Apply')}
               </AppButton.GreenButton>
-            </StyledFooter>
+            </Footer>
           </NavigationContainer>
         </SettingsContainer>
       </Layout>
@@ -281,14 +275,6 @@ interface IStyledRowTitleProps {
   bold?: boolean;
 }
 
-const StyledRow = styled.div({
-  display: 'flex',
-  height: '44px',
-  alignItems: 'center',
-  padding: '0 22px',
-  backgroundColor: colors.blue,
-});
-
 const StyledCheckbox = styled.div({
   width: '24px',
   height: '24px',
@@ -297,6 +283,13 @@ const StyledCheckbox = styled.div({
   justifyContent: 'center',
   backgroundColor: colors.white,
   borderRadius: '4px',
+});
+
+const StyledRow = styled(Cell.Row)({
+  backgroundColor: colors.blue40,
+  ':hover': {
+    backgroundColor: colors.blue80,
+  },
 });
 
 const StyledRowTitle = styled.label(normalText, (props: IStyledRowTitleProps) => ({

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
+import { measurements } from './common-styles';
 import { NavigationScrollbars } from './NavigationBar';
 
 export const StyledOutOfTimeSubText = styled(Cell.SubText)((props: { isOutOfTime: boolean }) => ({
@@ -30,5 +31,6 @@ export const StyledSettingsContent = styled.div({
 });
 
 export const StyledQuitButton = styled(AppButton.RedButton)({
-  margin: '20px 22px 22px',
+  margin: measurements.viewMargin,
+  marginTop: measurements.rowVerticalMargin,
 });
