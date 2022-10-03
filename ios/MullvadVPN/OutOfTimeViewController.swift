@@ -134,6 +134,8 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
     }
 
     @objc private func didTapRedeemVoucher() {
+        sendDelegateDidBeginActivity()
+
         present(makeRedeemVoucherController(), animated: true)
     }
 
@@ -244,6 +246,8 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
             return
         }
 
+        sendDelegateDidBeginActivity()
+
         let payment = SKPayment(product: product)
         AppStorePaymentManager.shared.addPayment(payment, for: accountData.number)
 
@@ -255,6 +259,8 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
             return
         }
 
+        sendDelegateDidBeginActivity()
+
         setPaymentState(.restoringPurchases, animated: true)
 
         _ = AppStorePaymentManager.shared
@@ -265,15 +271,18 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
                 case let .success(response):
                     self.showAlertIfNoTimeAdded(
                         with: response,
-                        context: .restoration,
-                        completionHandler: nil
-                    )
+                        context: .restoration
+                    ) {
+                        self.sendDelegateDidEndActivity()
+                    }
 
                 case let .failure(error):
-                    self.showRestorePurchasesErrorAlert(error: error, completionHandler: nil)
+                    self.showRestorePurchasesErrorAlert(error: error) {
+                        self.sendDelegateDidEndActivity()
+                    }
 
                 case .cancelled:
-                    break
+                    self.sendDelegateDidEndActivity()
                 }
 
                 self.setPaymentState(.none, animated: true)
@@ -376,6 +385,12 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
         )
     }
 
+    private func dismissVoucherController(_ controller: RedeemVoucherController) {
+        controller.dismiss(animated: true) {
+            self.sendDelegateDidEndActivity()
+        }
+    }
+
     private func sendDelegateDidBeginActivity() {
         delegate?.outOfTimeViewControllerDidBeginActivity(self)
     }
@@ -398,10 +413,12 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
 
         switch error {
         case .storePayment(SKError.paymentCancelled):
-            break
+            sendDelegateDidEndActivity()
 
         default:
-            showPaymentErrorAlert(error: error, completionHandler: nil)
+            showPaymentErrorAlert(error: error) {
+                self.sendDelegateDidEndActivity()
+            }
         }
 
         setPaymentState(.none, animated: true)
@@ -417,6 +434,7 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
               pendingPayment == transaction.payment else { return }
 
         setPaymentState(.none, animated: true)
+        sendDelegateDidEndActivity()
     }
 
     // MARK: - TunnelObserver
@@ -522,10 +540,10 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
     // MARK: - RedeemVoucherControllerDelegate
 
     func redeemVoucherControllerDidFinish(_ controller: RedeemVoucherController) {
-        controller.dismiss(animated: true)
+        dismissVoucherController(controller)
     }
 
     func redeemVoucherControllerDidCancel(_ controller: RedeemVoucherController) {
-        controller.dismiss(animated: true)
+        dismissVoucherController(controller)
     }
 }
