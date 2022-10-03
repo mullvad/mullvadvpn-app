@@ -224,7 +224,7 @@ class RootContainerViewController: UIViewController {
     ) {
         guard let index = viewControllers.firstIndex(of: viewController) else { return }
 
-        let newViewControllers = Array(viewControllers[..<index])
+        let newViewControllers = Array(viewControllers[...index])
         guard !newViewControllers.isEmpty else { return }
 
         setViewControllersInternal(
@@ -369,6 +369,11 @@ class RootContainerViewController: UIViewController {
         animated: Bool,
         completion: CompletionHandler? = nil
     ) {
+        guard viewControllers != newViewControllers else {
+            completion?()
+            return
+        }
+
         // Dot not handle appearance events when the container itself is not visible
         let shouldHandleAppearanceEvents = view.window != nil
 
