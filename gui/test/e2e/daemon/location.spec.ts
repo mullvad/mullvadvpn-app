@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { GetByTestId } from '../utils';
+import { expectPageToHaveMatchingScreenshot, GetByTestId } from '../utils';
 import { startAppWithDaemon } from './daemon-utils';
 
 let page: Page;
@@ -22,5 +22,7 @@ test('App should have a country', async () => {
   const cityLabel = getByTestId('city');
   const noCityLabel = await cityLabel.count() === 0;
   expect(noCityLabel).toBeTruthy();
+
+  await expectPageToHaveMatchingScreenshot(page);
 });
 

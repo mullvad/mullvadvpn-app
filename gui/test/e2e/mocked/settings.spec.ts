@@ -3,6 +3,7 @@ import { Page } from 'playwright';
 
 import { SendMockIpcResponse, startAppWithMocking } from './mocked-utils';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
+import { expectPageToHaveMatchingScreenshot } from '../utils';
 
 let page: Page;
 let sendMockIpcResponse: SendMockIpcResponse;
@@ -22,6 +23,8 @@ test('Settings Page', async () => {
 
   const closeButton = page.locator('button[aria-label="Close"]');
   await expect(closeButton).toBeVisible();
+
+  await expectPageToHaveMatchingScreenshot(page);
 });
 
 test('Account button should be displayed correctly', async () => {
