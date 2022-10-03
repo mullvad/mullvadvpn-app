@@ -6,15 +6,19 @@
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import Operations
 import StoreKit
 import UIKit
 
+protocol OutOfTimeViewControllerDelegate: AnyObject {
+    func outOfTimeViewControllerDidBeginActivity(_ controller: OutOfTimeViewController)
+    func outOfTimeViewControllerDidEndActivity(_ controller: OutOfTimeViewController)
+}
+
 class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
     RedeemVoucherControllerDelegate, RootContainment, TunnelObserver, AppStorePaymentObserver
 {
-    weak var delegate: SettingsButtonInteractionDelegate?
+    weak var delegate: OutOfTimeViewControllerDelegate?
 
     private let alertPresenter = AlertPresenter()
     private let formsheetTransitioningDelegate = FormsheetTransitioningDelegate()
@@ -219,11 +223,6 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
                 self.contentView.statusActivityView.state = isOutOfTime ? .failure : .success
             }
 
-            self.delegate?.viewController(
-                self,
-                didRequestSettingsButtonEnabled: isInteractionEnabled
-            )
-
             self.view.layoutIfNeeded()
         }
         if animated {
@@ -264,9 +263,14 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
 
                 switch completion {
                 case let .success(response):
-                    self.showAlertIfNoTimeAdded(with: response, context: .restoration)
+                    self.showAlertIfNoTimeAdded(
+                        with: response,
+                        context: .restoration,
+                        completionHandler: nil
+                    )
+
                 case let .failure(error):
-                    self.showRestorePurchasesErrorAlert(error: error)
+                    self.showRestorePurchasesErrorAlert(error: error, completionHandler: nil)
 
                 case .cancelled:
                     break
@@ -278,7 +282,8 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
 
     private func showAlertIfNoTimeAdded(
         with response: REST.CreateApplePaymentResponse,
-        context: REST.CreateApplePaymentResponse.Context
+        context: REST.CreateApplePaymentResponse.Context,
+        completionHandler: (() -> Void)?
     ) {
         guard case .noTimeAdded = response else { return }
 
@@ -287,6 +292,7 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
             message: response.alertMessage(context: context),
             preferredStyle: .alert
         )
+
         alertController.addAction(
             UIAlertAction(
                 title: NSLocalizedString(
@@ -299,10 +305,17 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
             )
         )
 
-        alertPresenter.enqueue(alertController, presentingController: self)
+        alertPresenter.enqueue(
+            alertController,
+            presentingController: self,
+            dismissCompletion: completionHandler
+        )
     }
 
-    private func showRestorePurchasesErrorAlert(error: AppStorePaymentManager.Error) {
+    private func showRestorePurchasesErrorAlert(
+        error: AppStorePaymentManager.Error,
+        completionHandler: (() -> Void)?
+    ) {
         let alertController = UIAlertController(
             title: NSLocalizedString(
                 "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
@@ -313,6 +326,7 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
             message: error.errorChainDescription,
             preferredStyle: .alert
         )
+
         alertController.addAction(
             UIAlertAction(title: NSLocalizedString(
                 "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
@@ -321,10 +335,18 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
                 comment: ""
             ), style: .cancel)
         )
-        alertPresenter.enqueue(alertController, presentingController: self)
+
+        alertPresenter.enqueue(
+            alertController,
+            presentingController: self,
+            dismissCompletion: completionHandler
+        )
     }
 
-    private func showPaymentErrorAlert(error: AppStorePaymentManager.Error) {
+    private func showPaymentErrorAlert(
+        error: AppStorePaymentManager.Error,
+        completionHandler: (() -> Void)?
+    ) {
         let alertController = UIAlertController(
             title: NSLocalizedString(
                 "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
@@ -347,7 +369,19 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
             )
         )
 
-        alertPresenter.enqueue(alertController, presentingController: self)
+        alertPresenter.enqueue(
+            alertController,
+            presentingController: self,
+            dismissCompletion: completionHandler
+        )
+    }
+
+    private func sendDelegateDidBeginActivity() {
+        delegate?.outOfTimeViewControllerDidBeginActivity(self)
+    }
+
+    private func sendDelegateDidEndActivity() {
+        delegate?.outOfTimeViewControllerDidEndActivity(self)
     }
 
     // MARK: - AppStorePaymentObserver
@@ -367,7 +401,7 @@ class OutOfTimeViewController: UIViewController, UINavigationControllerDelegate,
             break
 
         default:
-            showPaymentErrorAlert(error: error)
+            showPaymentErrorAlert(error: error, completionHandler: nil)
         }
 
         setPaymentState(.none, animated: true)
