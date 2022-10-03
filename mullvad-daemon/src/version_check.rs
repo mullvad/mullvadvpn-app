@@ -301,24 +301,20 @@ impl VersionUpdater {
         latest_beta: &str,
         show_beta: bool,
     ) -> Option<String> {
-        if !*IS_DEV_BUILD {
-            let stable_version = latest_stable
-                .as_ref()
-                .and_then(|stable| ParsedAppVersion::from_str(stable).ok());
+        let stable_version = latest_stable
+            .as_ref()
+            .and_then(|stable| ParsedAppVersion::from_str(stable).ok());
 
-            let beta_version = if show_beta {
-                ParsedAppVersion::from_str(latest_beta).ok()
-            } else {
-                None
-            };
+        let beta_version = if show_beta {
+            ParsedAppVersion::from_str(latest_beta).ok()
+        } else {
+            None
+        };
 
-            let latest_version = stable_version.iter().chain(beta_version.iter()).max()?;
+        let latest_version = stable_version.iter().chain(beta_version.iter()).max()?;
 
-            if current_version < latest_version {
-                Some(latest_version.to_string())
-            } else {
-                None
-            }
+        if current_version < latest_version {
+            Some(latest_version.to_string())
         } else {
             None
         }
