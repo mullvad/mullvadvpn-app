@@ -1,4 +1,5 @@
 import { Locator, Page, _electron as electron, ElectronApplication } from 'playwright';
+import { expect } from '@playwright/test';
 
 export type GetByTestId = (id: string) => Locator;
 
@@ -46,3 +47,5 @@ export const getColor = (locator: Locator) => {
 export const getBackgroundColor = (locator: Locator) => {
   return getStyleProperty(locator, 'background-color');
 };
+
+export const expectPageToHaveMatchingScreenshot = (page: Page) => expect(page).toHaveScreenshot();
