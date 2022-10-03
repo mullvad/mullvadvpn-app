@@ -35,6 +35,7 @@ const StyledTrack = styled.div({}, (props: { canScroll: boolean; show: boolean }
   bottom: 0,
   width: '16px',
   backgroundColor: props.show ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0)',
+  borderRadius: '8px',
   transition: 'width 0.1s ease-in-out, background-color 0.25s ease-in-out',
   zIndex: 99,
   pointerEvents: props.canScroll ? 'auto' : 'none',

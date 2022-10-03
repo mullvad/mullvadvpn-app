@@ -45,8 +45,6 @@ export class NavigationContainer extends React.Component<
     showsBarSeparator: false,
   };
 
-  private scrollEventListeners: Array<(event: IScrollEvent) => void> = [];
-
   public componentDidMount() {
     this.updateBarAppearance({ scrollLeft: 0, scrollTop: 0 });
   }
@@ -64,27 +62,8 @@ export class NavigationContainer extends React.Component<
   }
 
   public onScroll = (event: IScrollEvent) => {
-    this.notifyScrollEventListeners(event);
     this.updateBarAppearance(event);
   };
-
-  public addScrollEventListener(fn: (event: IScrollEvent) => void) {
-    const index = this.scrollEventListeners.indexOf(fn);
-    if (index === -1) {
-      this.scrollEventListeners.push(fn);
-    }
-  }
-
-  public removeScrollEventListener(fn: (event: IScrollEvent) => void) {
-    const index = this.scrollEventListeners.indexOf(fn);
-    if (index !== -1) {
-      this.scrollEventListeners.splice(index, 1);
-    }
-  }
-
-  private notifyScrollEventListeners(event: IScrollEvent) {
-    this.scrollEventListeners.forEach((listener) => listener(event));
-  }
 
   private updateBarAppearance(event: IScrollEvent) {
     // that's where SettingsHeader.HeaderTitle intersects the navigation bar
@@ -103,7 +82,6 @@ export class NavigationContainer extends React.Component<
 }
 
 interface INavigationScrollbarsProps {
-  onScroll?: (value: IScrollEvent) => void;
   className?: string;
   fillContainer?: boolean;
   children?: React.ReactNode;
@@ -155,7 +133,6 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
 
   const handleScroll = useCallback((event: IScrollEvent) => {
     onScroll(event);
-    props.onScroll?.(event);
   }, []);
 
   return (
