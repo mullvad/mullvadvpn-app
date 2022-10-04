@@ -7,5 +7,5 @@ license = "GPL-3.0"
 edition = "2021"
 publish = false
 
-[build-dependencies]
+[dependencies]
 regex = "1.6.0"

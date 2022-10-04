@@ -28,8 +28,8 @@ android {
         applicationId = "net.mullvad.mullvadvpn"
         minSdkVersion(Versions.Android.minSdkVersion)
         targetSdkVersion(Versions.Android.targetSdkVersion)
-        versionCode = 22020002
-        versionName = "2022.2-beta2"
+        versionCode = generateVersionCode()
+        versionName = generateVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -159,6 +159,13 @@ tasks.register("ensureJniDirectoryExist") {
         if (!file(extraJniDirectory).exists()) {
             throw GradleException("Missing JNI directory: $extraJniDirectory")
         }
+    }
+}
+
+tasks.create("printVersion") {
+    doLast {
+        println("versionCode=${project.android.defaultConfig.versionCode}")
+        println("versionName=${project.android.defaultConfig.versionName}")
     }
 }
 
