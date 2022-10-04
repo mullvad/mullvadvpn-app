@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2022.5-beta2] - 2022-10-05
 ### Added
 - Add custom option to WireGuard port selector.
 
