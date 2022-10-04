@@ -5,6 +5,7 @@ const { Arch } = require('electron-builder');
 const parseSemver = require('semver/functions/parse');
 const { notarize } = require('electron-notarize');
 const { version } = require('../package.json');
+const { execSync } = require('child_process');
 
 const noCompression = process.argv.includes('--no-compression');
 const noAppleNotarization = process.argv.includes('--no-apple-notarization');
@@ -38,6 +39,7 @@ const config = {
 
   extraMetadata: {
     name: 'mullvad-vpn',
+    version: execSync('cargo run --bin mullvad-version', { encoding: 'utf-8' }).trim()
   },
 
   files: [
