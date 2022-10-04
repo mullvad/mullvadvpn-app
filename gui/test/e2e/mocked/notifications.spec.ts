@@ -1,18 +1,21 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { colors } from '../../src/config.json';
-import { IAccountData } from '../../src/shared/daemon-rpc-types';
-import { getBackgroundColor, getByTestId, sendMockIpcResponse, startApp } from './utils';
+import { colors } from '../../../src/config.json';
+import { IAccountData } from '../../../src/shared/daemon-rpc-types';
+import { getBackgroundColor, GetByTestId } from '../utils';
+import { SendMockIpcResponse, startAppWithMocking } from './mocked-utils';
 
-let appWindow: Page;
+let page: Page;
+let sendMockIpcResponse: SendMockIpcResponse;
+let getByTestId: GetByTestId;
 
 test.beforeAll(async () => {
-  ({ appWindow } = await startApp());
+  ({ page, sendMockIpcResponse, getByTestId } = await startAppWithMocking());
 });
 
 test.afterAll(async () => {
-  await appWindow.close();
+  await page.close();
 });
 
 /**
