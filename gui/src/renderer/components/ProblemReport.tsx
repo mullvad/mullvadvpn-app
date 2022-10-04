@@ -141,7 +141,7 @@ export default class ProblemReport extends React.Component<
           <HeaderSubTitle>
             {messages.pgettext(
               'support-view',
-              "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.",
+              'To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.',
             )}
           </HeaderSubTitle>
         )}

@@ -59,7 +59,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         textLabel.text = NSLocalizedString(
             "SUBHEAD_LABEL",
             tableName: "ProblemReport",
-            value: "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.",
+            value: "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.",
             comment: ""
         )
         return textLabel

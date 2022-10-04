@@ -209,7 +209,7 @@ export function SetupFinished() {
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>
-            <StyledTitle>{messages.pgettext('connect-view', "You're all set!")}</StyledTitle>
+            <StyledTitle>{messages.pgettext('connect-view', 'You’re all set!')}</StyledTitle>
             <StyledLabel>
               {messages.pgettext(
                 'connect-view',
