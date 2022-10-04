@@ -526,7 +526,7 @@ function MtuSetting() {
         </AriaLabel>
         <AriaInput>
           <Cell.AutoSizingTextInput
-            value={mtu ? mtu.toString() : ''}
+            initialValue={mtu ? mtu.toString() : ''}
             inputMode={'numeric'}
             maxLength={4}
             placeholder={messages.gettext('Default')}

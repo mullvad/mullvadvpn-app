@@ -465,7 +465,7 @@ function MssFixSetting() {
         </AriaLabel>
         <AriaInput>
           <Cell.AutoSizingTextInput
-            value={mssfix ? mssfix.toString() : ''}
+            initialValue={mssfix ? mssfix.toString() : ''}
             inputMode={'numeric'}
             maxLength={4}
             placeholder={messages.gettext('Default')}
