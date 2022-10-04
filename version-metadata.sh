@@ -51,13 +51,6 @@ function inject_version {
     local semver_patch="0"
 
     if [[ "$DESKTOP" == "true" ]]; then
-        echo "Setting desktop version to $semver_version"
-
-        # Electron GUI
-        cp gui/package.json gui/package.json.bak
-        cp gui/package-lock.json gui/package-lock.json.bak
-        (cd gui/ && npm version "$semver_version" --no-git-tag-version --allow-same-version)
-
         # Windows C++
         cp dist-assets/windows/version.h dist-assets/windows/version.h.bak
         cat <<EOF > dist-assets/windows/version.h
@@ -93,9 +86,6 @@ function restore_backup {
     set +e
 
     if [[ "$DESKTOP" == "true" ]]; then
-        # Electron GUI
-        mv gui/package.json.bak gui/package.json
-        mv gui/package-lock.json.bak gui/package-lock.json
         # Windows C++
         mv dist-assets/windows/version.h.bak dist-assets/windows/version.h
 
@@ -112,9 +102,6 @@ function delete_backup {
     set +e
 
     if [[ "$DESKTOP" == "true" ]]; then
-        # Electron GUI
-        rm gui/package.json.bak
-        rm gui/package-lock.json.bak
         # Windows C++
         rm dist-assets/windows/version.h.bak
 
