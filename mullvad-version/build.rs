@@ -1,21 +1,20 @@
-use regex::Regex;
 use std::{env, fs, path::PathBuf, process::Command};
 
 /// How many characters of the git commit that should be added to the version name
 /// in dev builds.
 const GIT_HASH_DEV_SUFFIX_LEN: usize = 6;
 
-const ANDROID_VERSION_FILE_PATH: &str = "../android/app/build.gradle.kts";
+const ANDROID_VERSION_FILE_PATH: &str = "../dist-assets/android-product-version.txt";
 const DESKTOP_VERSION_FILE_PATH: &str = "../dist-assets/desktop-product-version.txt";
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 enum Target {
     Android,
     Desktop,
 }
 
 impl Target {
-    pub fn get() -> Self {
+    pub fn current_target() -> Self {
         println!("cargo:rerun-if-env-changed=CARGO_CFG_TARGET_OS");
         match env::var("CARGO_CFG_TARGET_OS")
             .expect("CARGO_CFG_TARGET_OS should be set")
@@ -29,13 +28,41 @@ impl Target {
 }
 
 fn main() {
-    let target = Target::get();
-    let mut product_version = parse_current_version_from_file(&target);
+    let product_version = get_product_version(Target::current_target());
+    let android_product_version = get_product_version(Target::Android);
 
+    let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+    fs::write(out_dir.join("product-version.txt"), &product_version).unwrap();
+    fs::write(
+        out_dir.join("android-product-version.txt"),
+        &android_product_version,
+    )
+    .unwrap();
+}
+
+/// Returns the Mullvad product version from the corresponding metadata files,
+/// depending on target platform.
+fn get_product_version(target: Target) -> String {
+    let version_file_path = match target {
+        Target::Android => ANDROID_VERSION_FILE_PATH,
+        Target::Desktop => DESKTOP_VERSION_FILE_PATH,
+    };
+    println!("cargo:rerun-if-changed={version_file_path}");
+    let version = fs::read_to_string(version_file_path)
+        .unwrap_or_else(|_| panic!("Failed to read {version_file_path}"))
+        .trim()
+        .to_owned();
+
+    let dev_suffix = get_dev_suffix(target, &version);
+
+    format!("{version}{dev_suffix}")
+}
+
+fn get_dev_suffix(target: Target, product_version: &str) -> String {
     // Compute the expected tag name for the release named `product_version`
-    let release_tag = match &target {
+    let release_tag = match target {
         Target::Android => format!("android/{product_version}"),
-        Target::Desktop => product_version.clone(),
+        Target::Desktop => product_version.to_owned(),
     };
 
     // Get the git commit hashes for the latest release and current HEAD
@@ -47,43 +74,10 @@ fn main() {
     // Adjust product version string accordingly.
     if product_version_commit_hash.as_ref() != Some(&current_head_commit_hash) {
         let hash_suffix = &current_head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN];
-        product_version = format!("{product_version}-dev-{hash_suffix}");
+        format!("-dev-{hash_suffix}")
+    } else {
+        "".to_owned()
     }
-
-    // TODO: Remove this and all other warnings
-    println!("cargo:warning=PRODUCT VERSION {product_version}");
-
-    let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
-    fs::write(out_dir.join("product-version.txt"), &product_version).unwrap();
-}
-
-/// Returns the Mullvad product version from the corresponding metadata files,
-/// depending on target platform.
-fn parse_current_version_from_file(target: &Target) -> String {
-    match target {
-        Target::Android => {
-            println!("cargo:rerun-if-changed={ANDROID_VERSION_FILE_PATH}");
-            get_single_capture_from_file(
-                ANDROID_VERSION_FILE_PATH,
-                Regex::new("versionName = \"([^\"]*)\"").unwrap(),
-            )
-        }
-        Target::Desktop => {
-            println!("cargo:rerun-if-changed={DESKTOP_VERSION_FILE_PATH}");
-            fs::read_to_string(DESKTOP_VERSION_FILE_PATH)
-                .unwrap_or_else(|_| panic!("Failed to read {DESKTOP_VERSION_FILE_PATH}"))
-        }
-    }
-}
-
-/// Returns the content of the first capture group in in the single match
-/// of the given `regex` over the content of the file at `path`
-fn get_single_capture_from_file(path: &str, regex: Regex) -> String {
-    let file_content = fs::read_to_string(path).unwrap_or_else(|_| panic!("Failed to read {path}"));
-    let mut capture = regex.captures_iter(&file_content);
-    let regex_match = capture.next().expect("failed to find version capture")[1].to_owned();
-    assert!(capture.next().is_none());
-    regex_match
 }
 
 /// Returns the commit hash for the commit that `git_ref` is pointing to

@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 
-PRODUCT_VERSION="$(sed -n -e 's/^ *versionName = "\([^"]*\)"$/\1/p' android/app/build.gradle.kts)"
+PRODUCT_VERSION=$(cargo run -q --bin mullvad-version versionName)
 BUILD_TYPE="release"
 GRADLE_BUILD_TYPE="release"
 GRADLE_TASK="assembleRelease"
@@ -50,12 +50,7 @@ if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     fi
 fi
 
-product_version_commit_hash=$(git rev-parse android/$PRODUCT_VERSION^{commit} || echo "")
-current_head_commit_hash=$(git rev-parse HEAD^{commit})
-if [[ "$BUILD_TYPE" == "debug" || $product_version_commit_hash != $current_head_commit_hash ]]; then
-    PRODUCT_VERSION="${PRODUCT_VERSION}-dev-${current_head_commit_hash:0:6}"
-    echo "Modifying product version to $PRODUCT_VERSION"
-else
+if [[ "$BUILD_TYPE" == "release" && "$PRODUCT_VERSION" != *"-dev-"* ]]; then
     echo "Removing old Rust build artifacts"
     cargo clean
     CARGO_ARGS+=" --locked"
@@ -79,17 +74,6 @@ fi
 $GRADLE_CMD --console plain clean
 mkdir -p "app/build/extraJni"
 popd
-
-function restore_metadata_backups() {
-    pushd "$SCRIPT_DIR"
-    ./version-metadata.sh restore-backup --android
-    mv Cargo.lock.bak Cargo.lock || true
-    popd
-}
-trap 'restore_metadata_backups' EXIT
-
-cp Cargo.lock Cargo.lock.bak
-./version-metadata.sh inject $PRODUCT_VERSION --android
 
 ./wireguard/build-wireguard-go.sh --android $EXTRA_WGGO_ARGS
 
