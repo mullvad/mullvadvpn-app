@@ -13,13 +13,9 @@ COMMAND="$1"
 shift 1
 
 PRODUCT_VERSION=""
-ANDROID="false"
 DESKTOP="false"
 for argument in "$@"; do
     case "$argument" in
-        "--android")
-            ANDROID="true"
-            ;;
         "--desktop")
             DESKTOP="true"
             ;;
@@ -60,26 +56,6 @@ function inject_version {
 #define PRODUCT_VERSION "$PRODUCT_VERSION"
 EOF
     fi
-
-    if [[ "$ANDROID" == "true" ]]; then
-        # Android
-        local version_year
-        version_year=$(printf "%02d" "${BASH_REMATCH[1]}")
-        local version_number
-        version_number=$(printf "%02d" "${BASH_REMATCH[2]}")
-        local version_patch="00" # Not used for now.
-        local version_beta
-        version_beta=$(printf "%02d" "${BASH_REMATCH[4]:-99}")
-        local android_version_code=${version_year}${version_number}${version_patch}${version_beta}
-
-        echo "Setting Android versionName to $PRODUCT_VERSION and versionCode to $android_version_code"
-
-        cp android/app/build.gradle.kts android/app/build.gradle.kts.bak
-        sed -i -Ee "s/versionCode = [0-9]+/versionCode = $android_version_code/g" \
-            android/app/build.gradle.kts
-        sed -i -Ee "s/versionName = \"[^\"]+\"/versionName = \"$PRODUCT_VERSION\"/g" \
-            android/app/build.gradle.kts
-    fi
 }
 
 function restore_backup {
@@ -89,11 +65,6 @@ function restore_backup {
         # Windows C++
         mv dist-assets/windows/version.h.bak dist-assets/windows/version.h
 
-    fi
-
-    if [[ "$ANDROID" == "true" ]]; then
-        # Android
-        mv android/app/build.gradle.kts.bak android/app/build.gradle.kts
     fi
     set -e
 }
@@ -105,11 +76,6 @@ function delete_backup {
         # Windows C++
         rm dist-assets/windows/version.h.bak
 
-    fi
-
-    if [[ "$ANDROID" == "true" ]]; then
-        # Android
-        rm android/app/build.gradle.kts.bak
     fi
     set -e
 }
