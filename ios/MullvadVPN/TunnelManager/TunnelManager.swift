@@ -513,6 +513,20 @@ final class TunnelManager {
         )
     }
 
+    func sendRequest(
+        message: EncodableModel,
+        completionHandler: @escaping (OperationCompletion<Data, Error>) -> Void
+    ) -> Cancellable? {
+        do {
+            return tunnel?.sendRequest(
+                try message.encode(),
+                completionHandler: completionHandler
+            )
+        } catch {
+            preconditionFailure()
+        }
+    }
+
     // MARK: - Tunnel observeration
 
     /// Add tunnel observer.

@@ -8,6 +8,7 @@
 
 import Foundation
 import Logging
+import NetworkExtension
 import Operations
 
 extension REST {
@@ -19,7 +20,7 @@ extension REST {
         private let urlSession: URLSession
         private let addressCacheStore: AddressCache.Store
 
-        private var networkTask: URLSessionTask?
+        private var networkTask: Cancellable?
         private var authorizationTask: Cancellable?
 
         private var requiresAuthorization = false
@@ -141,8 +142,8 @@ extension REST {
                     "Send request to \(restRequest.pathTemplate.templateString) via \(endpoint)."
                 )
 
-            networkTask = urlSession
-                .dataTask(with: restRequest.urlRequest) { [weak self] data, response, error in
+            networkTask = URLSessionTransport(urlSession: urlSession)
+                .sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
                     guard let self = self else { return }
 
                     self.dispatchQueue.async {
@@ -158,8 +159,6 @@ extension REST {
                         }
                     }
                 }
-
-            networkTask?.resume()
         }
 
         private func didFailToCreateURLRequest(_ error: REST.Error) {

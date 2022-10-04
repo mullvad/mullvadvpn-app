@@ -49,4 +49,20 @@ extension Tunnel {
 
         return operation
     }
+
+    func sendRequest(
+        _ requestData: Data,
+        completionHandler: @escaping (OperationCompletion<Data, Error>) -> Void
+    ) -> Cancellable {
+        let operation = SendTunnelProviderMessageOperation(
+            dispatchQueue: dispatchQueue,
+            tunnel: self,
+            message: .transportHTTPRequest(requestData),
+            completionHandler: completionHandler
+        )
+
+        operationQueue.addOperation(operation)
+
+        return operation
+    }
 }
