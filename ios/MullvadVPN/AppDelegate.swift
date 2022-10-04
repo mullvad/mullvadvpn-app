@@ -28,6 +28,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return operationQueue
     }()
 
+    private let transportMonitor = TransportMonitor()
+
     // MARK: - Application lifecycle
 
     func application(

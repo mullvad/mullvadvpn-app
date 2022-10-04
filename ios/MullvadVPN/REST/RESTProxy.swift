@@ -66,11 +66,11 @@ extension REST {
     }
 
     class ProxyConfiguration {
-        let session: URLSession
+        let transportRegistry: RESTTransportRegistry
         let addressCacheStore: AddressCache.Store
 
-        init(session: URLSession, addressCacheStore: AddressCache.Store) {
-            self.session = session
+        init(transportRegistry: RESTTransportRegistry, addressCacheStore: AddressCache.Store) {
+            self.transportRegistry = transportRegistry
             self.addressCacheStore = addressCacheStore
         }
     }
@@ -82,7 +82,7 @@ extension REST {
             self.accessTokenManager = accessTokenManager
 
             super.init(
-                session: proxyConfiguration.session,
+                transportRegistry: proxyConfiguration.transportRegistry,
                 addressCacheStore: proxyConfiguration.addressCacheStore
             )
         }

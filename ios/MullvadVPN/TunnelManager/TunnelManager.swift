@@ -513,6 +513,20 @@ final class TunnelManager {
         )
     }
 
+    /// Send URL request via packet tunnel process bypassing VPN.
+    /// This function is primarily used by `PacketTunnelTransport` to go outside of VPN when the
+    /// tunnel is broken.
+    func sendRequest(
+        _ proxyRequest: ProxyURLRequest,
+        completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
+    ) throws -> Cancellable {
+        if let tunnel {
+            return tunnel.sendRequest(proxyRequest, completionHandler: completionHandler)
+        } else {
+            throw UnsetTunnelError()
+        }
+    }
+
     // MARK: - Tunnel observeration
 
     /// Add tunnel observer.

@@ -17,12 +17,22 @@ enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Request the tunnel status.
     case getTunnelStatus
 
+    /// Send HTTP request outside of VPN tunnel.
+    case sendURLRequest(ProxyURLRequest)
+
+    /// Cancel HTTP request sent outside of VPN tunnel.
+    case cancelURLRequest(UUID)
+
     var description: String {
         switch self {
         case .reconnectTunnel:
             return "reconnect-tunnel"
         case .getTunnelStatus:
             return "get-tunnel-status"
+        case .sendURLRequest:
+            return "send-http-request"
+        case .cancelURLRequest:
+            return "cancel-http-request"
         }
     }
 
