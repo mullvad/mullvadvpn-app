@@ -522,7 +522,7 @@ msgid "You need to disable \"Always require VPN\" in order to access the Interne
 msgstr "Для выхода в Интернет и добавления времени необходимо отключить параметр «Всегда требовать VPN»."
 
 msgctxt "connect-view"
-msgid "You're all set!"
+msgid "You’re all set!"
 msgstr "Готово!"
 
 #. The hostname line displayed below the country on the main screen
@@ -744,7 +744,7 @@ msgid "Creating account..."
 msgstr "Создание учетной записи..."
 
 msgctxt "login-view"
-msgid "Don't have an account number?"
+msgid "Don’t have an account number?"
 msgstr "У вас нет номера учетной записи?"
 
 msgctxt "login-view"
@@ -1420,7 +1420,7 @@ msgid "Thanks!"
 msgstr "Спасибо!"
 
 msgctxt "support-view"
-msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу."
 
 msgctxt "support-view"

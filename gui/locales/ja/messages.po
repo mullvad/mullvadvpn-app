@@ -489,7 +489,7 @@ msgid "You need to disable \"Always require VPN\" in order to access the Interne
 msgstr "インターネットにアクセスして時間を追加するには、「常にVPNを要求する」を無効にする必要があります。"
 
 msgctxt "connect-view"
-msgid "You're all set!"
+msgid "You’re all set!"
 msgstr "準備完了！"
 
 #. The hostname line displayed below the country on the main screen
@@ -711,7 +711,7 @@ msgid "Creating account..."
 msgstr "アカウントを作成中..."
 
 msgctxt "login-view"
-msgid "Don't have an account number?"
+msgid "Don’t have an account number?"
 msgstr "アカウント番号を持っていませんか？"
 
 msgctxt "login-view"
@@ -1387,7 +1387,7 @@ msgid "Thanks!"
 msgstr "ありがとうございます！"
 
 msgctxt "support-view"
-msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "さらに効率よく問題解決を支援するため、お使いのアプリのログファイルをこのメッセージに添付します。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全性は維持され、公開されることはありません。"
 
 msgctxt "support-view"

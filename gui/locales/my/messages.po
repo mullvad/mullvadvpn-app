@@ -489,7 +489,7 @@ msgid "You need to disable \"Always require VPN\" in order to access the Interne
 msgstr "အချိန် ပေါင်းထည့်ရန် အင်တာနက် ရယူသုံးစွဲရန်အတွက် \"အမြဲတမ်း VPN လိုအပ်သည်\"ကို ပိတ်ရန် လိုအပ်ပါသည်။"
 
 msgctxt "connect-view"
-msgid "You're all set!"
+msgid "You’re all set!"
 msgstr "အားလုံး သတ်မှတ်ပြီးပါပြီ။"
 
 #. The hostname line displayed below the country on the main screen
@@ -711,7 +711,7 @@ msgid "Creating account..."
 msgstr "အကောင့် ဖန်တီးနေဆဲ..."
 
 msgctxt "login-view"
-msgid "Don't have an account number?"
+msgid "Don’t have an account number?"
 msgstr "အကောင့်နံပါတ် မရှိ ဖြစ်နေပါသလား။"
 
 msgctxt "login-view"
@@ -1387,7 +1387,7 @@ msgid "Thanks!"
 msgstr "ကျေးဇူးတင်ပါသည်။"
 
 msgctxt "support-view"
-msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။"
 
 msgctxt "support-view"
