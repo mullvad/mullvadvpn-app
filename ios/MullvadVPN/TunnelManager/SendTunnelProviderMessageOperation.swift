@@ -107,7 +107,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
         }
 
         switch status {
-        case .connected, .disconnected:
+        case .connected:
             sendMessage()
 
         case .connecting:
@@ -117,7 +117,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
 
         case .reasserting:
             sendMessage()
-        case .invalid, .disconnecting: // , .disconnected:
+        case .invalid, .disconnecting, .disconnected:
             finish(completion: .failure(SendTunnelProviderMessageError.tunnelDown(status)))
 
         @unknown default:
@@ -196,6 +196,30 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
 }
 
 extension SendTunnelProviderMessageOperation where Output: Codable {
+    convenience init(
+        dispatchQueue: DispatchQueue,
+        tunnel: Tunnel,
+        message: TunnelProviderMessage,
+        completionHandler: @escaping CompletionHandler
+    ) {
+        self.init(
+            dispatchQueue: dispatchQueue,
+            tunnel: tunnel,
+            message: message,
+            decoderHandler: { data in
+                if let data = data {
+                    return try TunnelProviderReply(messageData: data).value
+                } else {
+                    throw EmptyTunnelProviderResponseError()
+                }
+            },
+            completionHandler: completionHandler
+        )
+    }
+}
+
+/// Separating TransportMessageReply from Codable for future use. (Logs, separate strategies, etc)
+extension SendTunnelProviderMessageOperation where Output == TransportMessageReply {
     convenience init(
         dispatchQueue: DispatchQueue,
         tunnel: Tunnel,

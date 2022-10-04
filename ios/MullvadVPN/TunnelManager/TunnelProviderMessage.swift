@@ -17,6 +17,7 @@ enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Request the tunnel status.
     case getTunnelStatus
 
+    /// Request the tunnel to transport a http request.
     case transportHTTPRequest(Data)
 
     var description: String {
