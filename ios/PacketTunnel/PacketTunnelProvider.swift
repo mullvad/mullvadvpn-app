@@ -58,6 +58,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         )
     }
 
+    /// List of all transported http requests.
+    private var allRequests: [UUID: URLSessionDataTask] = [:]
+
     override init() {
         let pid = ProcessInfo.processInfo.processIdentifier
 
@@ -252,9 +255,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 urlRequest.httpBody = encodedModel.serializedParameters
                 urlRequest.allHTTPHeaderFields = encodedModel.allHTTPHeaderFields
 
-                URLSession.shared.dataTask(
-                    with: urlRequest
-                ) { data, response, error in
+                // Create unique request UUID and store it along the URLSessionTask in a dictionary.
+                let requestId = UUID()
+
+                let task = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+                    // Release URLSessionTask from dictionary
+                    self.allRequests.removeValue(forKey: requestId)
+
                     completionHandler?(
                         try? TunnelProviderReply(TransportMessageReply(
                             data: data,
@@ -262,7 +269,21 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                             error: .init(error)
                         )).encode()
                     )
-                }.resume()
+                }
+
+                self.allRequests[requestId] = task
+
+                completionHandler?(
+                    try? TunnelProviderReply(
+                        PacketTunnelRequestEvent
+                            .initiated(requestId)
+                    ).encode()
+                )
+
+                task.resume()
+            case let .cancelURLRequest(requestId):
+                self.allRequests[requestId]?.cancel()
+                self.allRequests[requestId] = nil
             }
         }
     }

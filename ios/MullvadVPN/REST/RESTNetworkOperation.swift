@@ -142,15 +142,17 @@ extension REST {
                     "Send request to \(restRequest.pathTemplate.templateString) via \(endpoint)."
                 )
 
-            networkTask = URLSessionTransport(urlSession: urlSession)
+            networkTask = PacketTunnelTransport()
                 .sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
                     guard let self = self else { return }
 
                     self.dispatchQueue.async {
                         if let error = error {
-                            let urlError = error as! URLError
-
-                            self.didReceiveURLError(urlError, endpoint: endpoint)
+                            if let urlError = error as? URLError {
+                                self.didReceiveURLError(urlError, endpoint: endpoint)
+                            } else {
+                                self.didFailToCreateURLRequest(REST.Error.createURLRequest(error))
+                            }
                         } else {
                             let httpResponse = response as! HTTPURLResponse
                             let data = data ?? Data()

@@ -517,7 +517,8 @@ final class TunnelManager {
     /// - Warning: This function is being used mainly for packet tunnel Transport.
     /// - Parameters:
     ///   - message: Request message to be recreated inside tunnel.
-    ///   - completionHandler: Reply of tunnel request, This reply will be created from URLSession completion block.
+    ///   - completionHandler: Reply of tunnel request, This reply will be created by
+    ///   URLSession inside the completion block.
     /// - Returns: Cancellable token.
     func sendRequest(
         message: TransportMessage,
