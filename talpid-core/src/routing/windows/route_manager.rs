@@ -1,6 +1,6 @@
 use super::default_route_monitor::{DefaultRouteMonitor, EventType as RouteMonitorEventType};
 use super::{
-    get_best_default_route_internal, Error, InterfaceAndGateway, Result,
+    get_best_default_route_internal, Error, Result, InterfaceAndGateway,
 };
 use ipnetwork::IpNetwork;
 use crate::{routing::NetNode, windows::{AddressFamily, try_socketaddr_from_inet_sockaddr, inet_sockaddr_from_socketaddr}};
@@ -25,24 +25,23 @@ use windows_sys::Win32::{
     },
 };
 
-// TODO: CHECK FOR POSSIBLE DEADLOCKS IN FUNCTIONS THAT TAKE BOTH LOCKS
 //type Network = IP_ADDRESS_PREFIX;
 type Network = IpNetwork;
 type NodeAddress = SOCKADDR_INET;
+
+/// Callback handle for the default route changed callback. Produced by the RouteManager.
 pub struct CallbackHandle {
 	nonce: i32,
 	callbacks: Arc<Mutex<(i32, HashMap<i32, Callback>)>>,
 }
 
-// FIXME: This is now only done on the drop of the CallbackHandle to avoid risk of dropping twice
-// TODO: WinNet_UnregisterDefaultRouteChangedCallback
 impl std::ops::Drop for CallbackHandle {
 	fn drop(&mut self) {
 		let (_, callbacks) = &mut *self.callbacks.lock().unwrap();
 		match callbacks.remove(&self.nonce) {
 			Some(_) => (),
 			None => {
-				// TODO: Log
+                log::warn!("Could not un-register route manager callback due to it already being de-registered");
 			}
 		}
 	}
@@ -109,6 +108,7 @@ impl Adapters {
         let code_size = u32::try_from(std::mem::size_of::<IP_ADAPTER_ADDRESSES_LH>()).unwrap();
 
         if system_size < code_size {
+            log::error!("Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes.");
             return Err(Error::WindowsApi);
             //std::stringstream ss;
 
@@ -168,6 +168,13 @@ struct RegisteredRoute {
     network: Network,
     luid: NET_LUID_LH,
     next_hop: SocketAddr,
+}
+
+impl std::fmt::Display for RegisteredRoute {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_fmt(format_args!("RegisteredRoute {{ luid: {} }}", unsafe { self.luid.Value }))
+    }
+
 }
 
 // FIXME: This might be an invalid implementation
@@ -272,11 +279,11 @@ impl RouteManagerInternal {
                 Ok(registered_route) => registered_route,
                 Err(e) => {
                     match e {
-                        Error::RouteManagerError => {
-                            // TODO: Look up why this is important to split these?
-                            Self::undo_events(&event_log, &mut route_manager_routes)?;
-                            return Err(e);
-                        }
+                        //Error::RouteManagerError => {
+                        //    // TODO: Look up why this is important to split these?
+                        //    Self::undo_events(&event_log, &mut route_manager_routes)?;
+                        //    return Err(e);
+                        //}
                         _ => {
                             // TODO: Look up why this is important to split these?
                             Self::undo_events(&event_log, &mut route_manager_routes)?;
@@ -320,7 +327,7 @@ impl RouteManagerInternal {
         unsafe { InitializeIpForwardEntry(&mut spec) };
 
         spec.InterfaceLuid = node.iface;
-        spec.DestinationPrefix = ipnetwork_to_windows_ip_address_prefix_no_port(route.network);
+        spec.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_no_port(route.network);
         spec.NextHop = inet_sockaddr_from_socketaddr(node.gateway);
         spec.Metric = 0;
         spec.Protocol = MIB_IPPROTO_NETMGMT;
@@ -418,15 +425,6 @@ impl RouteManagerInternal {
 										SocketAddr::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 0)
 									}
 								}
-								// TODO: Is this OK? The family will be set but the other information will not be, trying to
-								// access that information would cause UB
-								//NodeAddress {
-								//	si_family: family.to_af_family(),
-								//}
-								//NodeAddress onLink = { 0 };
-								//onLink.si_family = family;
-
-								//return onLink;
 							}
 						}
                     });
@@ -456,35 +454,65 @@ impl RouteManagerInternal {
         // Rewind state by processing events in the reverse order.
         //
 
+        let mut result = Ok(());
+
         for event in event_log.iter().rev() {
             match event.event_type {
                 EventType::AddRoute => {
                     match Self::find_route_record(records, &event.record.registered_route) {
                         None => {
+                            log::error!("Internal state inconsistency in route manager");
                             // Log error
                             //THROW_ERROR("Internal state inconsistency in route manager");
-							// TODO: Panic here
+							// TODO: Panic here, or not?
+                            if result.is_ok() {
+                                result = Err(Error::InternalInconsistentState);
+                            }
                         }
                         Some(record_idx) => {
                             // TODO: make sure this is right
 							// TODO: We should avoid unwrapping as much as possible here, this code should limp on even if something goes wrong
-                            let record = records.get(record_idx).unwrap();
-							// TODO: Should this return an error immediately or should it wait until the end of the for loop?
-                            Self::delete_from_routing_table(&record.registered_route);
+                            let record = match records.get(record_idx) {
+                                None => {
+                                    log::error!("Internal state inconsistency in route manager");
+                                    if result.is_ok() {
+                                        result = Err(Error::InternalInconsistentState);
+                                    }
+                                    continue;
+                                }
+                                Some(rec) => rec,
+                            };
+                            match Self::delete_from_routing_table(&record.registered_route) {
+                                Err(e) => {
+                                    log::error!("Could not delete from routing table");
+                                    if result.is_ok() {
+                                        result = Err(e);
+                                    }
+                                    continue;
+                                }
+                                Ok(()) => (),
+                            }
                             records.remove(record_idx);
                         }
                     }
                 }
                 EventType::DeleteRoute => {
-					// TODO: Should this return an error immediately or should it wait until the end of the for loop?
-                    Self::restore_into_routing_table(&event.record.registered_route);
-                    // FIXME: Clone?
+                    match Self::restore_into_routing_table(&event.record.registered_route) {
+                        Err(e) => {
+                            log::error!("Could not restore route into routing table");
+                            if result.is_ok() {
+                                result = Err(e);
+                            }
+                            continue;
+                        }
+                        Ok(()) => (),
+                    }
                     records.push(event.record.clone());
                 }
             }
         }
-		// TODO: We should log any and every error that happened in the loop
-        Ok(())
+
+        result
     }
 
     fn delete_from_routing_table(route: &RegisteredRoute) -> Result<()> {
@@ -493,24 +521,21 @@ impl RouteManagerInternal {
         let mut r: MIB_IPFORWARD_ROW2 = unsafe { std::mem::zeroed() };
 
         r.InterfaceLuid = route.luid;
-        r.DestinationPrefix = ipnetwork_to_windows_ip_address_prefix_no_port(route.network);
+        r.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_no_port(route.network);
         r.NextHop = inet_sockaddr_from_socketaddr(route.next_hop);
 
         let mut status = unsafe { DeleteIpForwardEntry2(&r) };
 
         if ERROR_NOT_FOUND as i32 == status {
             status = NO_ERROR as i32;
-
-            //let err = format!("Attempting to delete route which was not present in routing table, ignoring and proceeding. Route: {}", route);
-
-            // TODO: log
-            //m_logSink->warning(common::string::ToAnsi(err).c_str());
+            log::warn!("Attempting to delete route which was not present in routing table, ignoring and proceeding. Route: {}", route);
         }
 
         if NO_ERROR as i32 != status {
             //THROW_WINDOWS_ERROR(status, "Delete route in routing table");
             return Err(Error::WindowsApi);
         }
+
         Ok(())
     }
 
@@ -522,7 +547,7 @@ impl RouteManagerInternal {
         unsafe { InitializeIpForwardEntry(&mut spec) };
 
         spec.InterfaceLuid = route.luid;
-        spec.DestinationPrefix = ipnetwork_to_windows_ip_address_prefix_no_port(route.network);
+        spec.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_no_port(route.network);
         spec.NextHop = inet_sockaddr_from_socketaddr(route.next_hop);
         spec.Metric = 0;
         spec.Protocol = MIB_IPPROTO_NETMGMT;
@@ -554,23 +579,11 @@ impl RouteManagerInternal {
 
         let luid = NET_LUID_LH {
             Value: u64::from_str_radix(&encoded_luid.to_string().unwrap()[1..], 16)
-                .map_err(|_| Error::Conversion)?,
+                .map_err(|_| {
+                    log::error!("Failed to parse string encoded LUID: {:?}", encoded_luid);
+                    Error::Conversion
+                })?,
         };
-
-        //try
-        //{
-        //	std::wstringstream ss;
-
-        //	ss << std::hex << &encodedLuid[1];
-        //	ss >> luid.Value;
-        //}
-        //catch (...)
-        //{
-        //	const auto msg = std::string("Failed to parse string encoded LUID: ")
-        //		.append(common::string::ToAnsi(encodedLuid));
-
-        //	THROW_ERROR(msg.c_str());
-        //}
 
         return Ok(Some(luid));
     }
@@ -613,7 +626,7 @@ impl RouteManagerInternal {
             .collect();
 
         if matches.is_empty() {
-            return Err(Error::RouteManagerError);
+            return Err(Error::DeviceGatewayNotFound);
             //THROW_ERROR_TYPE(error::DeviceGatewayNotFound, "Unable to find network adapter with specified gateway");
         }
 
@@ -646,15 +659,8 @@ impl RouteManagerInternal {
         //
 
         for record in (*routes).iter() {
-            if let Err(e) = Self::delete_from_routing_table(&record.registered_route) {
-                // TODO: Log
-                //std::wstringstream ss;
-
-                //ss << L"Failed to delete route while clearing applied routes, Route: "
-                //	<< FormatRegisteredRoute(record.registeredRoute);
-
-                //m_logSink->error(common::string::ToAnsi(ss.str()).c_str());
-                //m_logSink->error(ex.what());
+            if let Err(_) = Self::delete_from_routing_table(&record.registered_route) {
+                log::error!("Failed to delete route while clearing applied routes, {}", record.registered_route);
             }
         }
 
@@ -682,33 +688,14 @@ impl RouteManagerInternal {
         // Forward event to all registered listeners.
         //
 
-        //m_defaultRouteCallbacksLock.lock();
-
         {
             let (_, callbacks) = &mut *callbacks.lock().unwrap();
             for (_, callback) in callbacks.iter() {
                 let family =
                     AddressFamily::try_from_af_family(u16::try_from(family).unwrap()).unwrap();
 				callback(event_type, family, route);
-                //match callback(eventType, family, route) {
-                //    Ok(()) => (),
-                //    Err(_) => {
-                //        // TODO: log
-                //        //catch (const std::exception &ex)
-                //        //{
-                //        //	const auto msg = std::string("Failure in default-route-changed callback: ").append(ex.what());
-                //        //	m_logSink->error(msg.c_str());
-                //        //}
-                //        //catch (...)
-                //        //{
-                //        //	m_logSink->error("Unspecified failure in default-route-changed callback");
-                //        //}
-                //    }
-                //}
             }
         }
-
-        //m_defaultRouteCallbacksLock.unlock();
 
         //
         // Examine event to determine if best default route has changed.
@@ -723,14 +710,8 @@ impl RouteManagerInternal {
         //
 
         let mut records = records.lock().unwrap();
-        //AutoLockType routesLock(m_routesLock);
-
-        //using RecordIterator = std::list<RouteRecord>::iterator;
-
-        //std::list<RecordIterator> affectedRoutes;
         let mut affected_routes: Vec<&mut RouteRecord> = vec![];
 
-        //for (RecordIterator it = m_routes.begin(); it != m_routes.end(); ++it)
         for record in (*records).iter_mut() {
             if matches!(record.route.node, NetNode::DefaultNode)
                 && family == u32::from(ipnetwork_to_address_family(record.route.network).to_af_family())
@@ -747,8 +728,7 @@ impl RouteManagerInternal {
         // Update all affected routes.
         //
 
-        //TODO: Log
-        //m_logSink->info("Best default route has changed. Refreshing dependent routes");
+        log::info!("Best default route has changed. Refreshing dependent routes");
 
         for affected_route in affected_routes {
             //
@@ -759,16 +739,7 @@ impl RouteManagerInternal {
             match Self::delete_from_routing_table(&affected_route.registered_route) {
                 Ok(()) => (),
                 Err(e) => {
-                    //catch (const std::exception &ex)
-                    //{
-                    //	const auto msg = std::string("Failed to delete route when refreshing " \
-                    //		"existing routes: ").append(ex.what());
-
-                    //	m_logSink->error(msg.c_str());
-
-                    //	continue;
-                    //}
-                    //TODO: log
+                    log::error!("Failed to delete route when refreshing existing routes: {}", e);
                     continue;
                 }
             }
@@ -779,16 +750,7 @@ impl RouteManagerInternal {
             match Self::restore_into_routing_table(&affected_route.registered_route) {
                 Ok(()) => (),
                 Err(e) => {
-                    //catch (const std::exception &ex)
-                    //{
-                    //	const auto msg = std::string("Failed to add route when refreshing " \
-                    //		"existing routes: ").append(ex.what());
-
-                    //	m_logSink->error(msg.c_str());
-
-                    //	continue;
-                    //}
-                    // TODO: Log
+                    log::error!("Failed to add route when refreshing existing routes: {}", e);
                     continue;
                 }
             }
@@ -802,7 +764,12 @@ impl std::ops::Drop for RouteManagerInternal {
 		drop(self.route_monitor_v4.take());
 		drop(self.route_monitor_v6.take());
 
-        self.delete_applied_routes();
+        match self.delete_applied_routes() {
+            Ok(()) => (),
+            Err(e) => {
+                log::error!("Failed to correctly drop RouteManagerInternal {}", e)
+            }
+        }
     }
 }
 
@@ -812,11 +779,9 @@ fn adapter_interface_enabled(
 ) -> Result<bool> {
     match family {
         AF_INET => {
-            //Ok(0 != adapter.Ipv4Enabled)
             Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV4_ENABLED)
         }
         AF_INET6 => {
-            //Ok(0 != adapter.Ipv6Enabled)
             Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV6_ENABLED)
         }
         _ => {
@@ -835,7 +800,6 @@ unsafe fn isolate_gateway_address(
     let mut matches = vec![];
 
     let mut gateway_ptr = head;
-    //for (auto gateway = head; nullptr != gateway; gateway = gateway->Next)
     loop {
         if gateway_ptr.is_null() {
             break;
@@ -892,7 +856,7 @@ unsafe fn equal_address(lhs: &SOCKADDR_INET, rhs: *const SOCKET_ADDRESS) -> Resu
     }
 }
 
-fn ipnetwork_to_windows_ip_address_prefix_no_port(from: IpNetwork) -> IP_ADDRESS_PREFIX {
+fn win_ip_address_prefix_from_ipnetwork_no_port(from: IpNetwork) -> IP_ADDRESS_PREFIX {
 	// Port should not matter so we set it to 0
 	let prefix = crate::windows::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from.ip(), 0));
 	IP_ADDRESS_PREFIX { Prefix: prefix, PrefixLength: from.prefix() }
@@ -910,637 +874,3 @@ fn ipnetwork_to_address_family(from: IpNetwork) -> AddressFamily {
 		AddressFamily::Ipv6
 	}
 }
-
-//RouteManager::~RouteManager()
-//{
-//	//
-//	// Stop callbacks that are triggered by events in Windows from coming in.
-//	//
-//
-//	m_routeMonitorV4.reset();
-//	m_routeMonitorV6.reset();
-//
-//	deleteAppliedRoutes();
-//}
-//void RouteManager::deleteAppliedRoutes()
-//{
-//	//
-//	// Delete all routes owned by us.
-//	//
-//
-//	for (const auto &record : m_routes)
-//	{
-//		try
-//		{
-//			deleteFromRoutingTable(record.registeredRoute);
-//		}
-//		catch (const std::exception & ex)
-//		{
-//			std::wstringstream ss;
-//
-//			ss << L"Failed to delete route while clearing applied routes, Route: "
-//				<< FormatRegisteredRoute(record.registeredRoute);
-//
-//			m_logSink->error(common::string::ToAnsi(ss.str()).c_str());
-//			m_logSink->error(ex.what());
-//		}
-//	}
-//
-//	m_routes.clear();
-//}
-
-//using AutoLockType = std::scoped_lock<std::mutex>;
-//using AutoRecursiveLockType = std::scoped_lock<std::recursive_mutex>;
-//using namespace std::placeholders;
-//
-//namespace winnet::routing
-//{
-//
-//namespace
-//{
-//
-//using Adapters = common::network::Adapters;
-//
-//NET_LUID InterfaceLuidFromGateway(const NodeAddress &gateway)
-//{
-//	const DWORD adapterFlags = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER
-//		| GAA_FLAG_SKIP_FRIENDLY_NAME | GAA_FLAG_INCLUDE_GATEWAYS;
-//
-//	Adapters adapters(gateway.si_family, adapterFlags);
-//
-//	//
-//	// Process adapters to find matching ones.
-//	//
-//
-//	std::vector<const IP_ADAPTER_ADDRESSES *> matches;
-//
-//	for (auto adapter = adapters.next(); nullptr != adapter; adapter = adapters.next())
-//	{
-//		if (false == AdapterInterfaceEnabled(adapter, gateway.si_family))
-//		{
-//			continue;
-//		}
-//
-//		auto gateways = IsolateGatewayAddresses(adapter->FirstGatewayAddress, gateway.si_family);
-//
-//		if (AddressPresent(gateways, &gateway))
-//		{
-//			matches.emplace_back(adapter);
-//		}
-//	}
-//
-//	if (matches.empty())
-//	{
-//		THROW_ERROR_TYPE(error::DeviceGatewayNotFound, "Unable to find network adapter with specified gateway");
-//	}
-//
-//	//
-//	// Sort matching interfaces ascending by metric.
-//	//
-//
-//	const bool targetV4 = (AF_INET == gateway.si_family);
-//
-//	std::sort(matches.begin(), matches.end(), [&targetV4](const IP_ADAPTER_ADDRESSES *lhs, const IP_ADAPTER_ADDRESSES *rhs)
-//	{
-//		if (targetV4)
-//		{
-//			return lhs->Ipv4Metric < rhs->Ipv4Metric;
-//		}
-//
-//		return lhs->Ipv6Metric < rhs->Ipv6Metric;
-//	});
-//
-//	//
-//	// Select the interface with the best (lowest) metric.
-//	//
-//
-//	return matches[0]->Luid;
-//}
-//
-//bool ParseStringEncodedLuid(const std::wstring &encodedLuid, NET_LUID &luid)
-//{
-//	//
-//	// The `#` is a valid character in adapter names so we use `?` instead.
-//	// The LUID is thus prefixed with `?` and hex encoded and left-padded with zeroes.
-//	// E.g. `?deadbeefcafebabe` or `?000dbeefcafebabe`.
-//	//
-//
-//	static const size_t StringEncodedLuidLength = 17;
-//
-//	if (encodedLuid.size() != StringEncodedLuidLength
-//		|| L'?' != encodedLuid[0])
-//	{
-//		return false;
-//	}
-//
-//	try
-//	{
-//		std::wstringstream ss;
-//
-//		ss << std::hex << &encodedLuid[1];
-//		ss >> luid.Value;
-//	}
-//	catch (...)
-//	{
-//		const auto msg = std::string("Failed to parse string encoded LUID: ")
-//			.append(common::string::ToAnsi(encodedLuid));
-//
-//		THROW_ERROR(msg.c_str());
-//	}
-//
-//	return true;
-//}
-//
-//InterfaceAndGateway ResolveNode(ADDRESS_FAMILY family, const std::optional<Node> &optionalNode)
-//{
-//	//
-//	// There are four cases:
-//	//
-//	// Unspecified node (use interface and gateway of default route).
-//	// Node is specified by name.
-//	// Node is specified by name and gateway.
-//	// Node is specified by gateway.
-//	//
-//
-//	if (false == optionalNode.has_value())
-//	{
-//		const auto default_route = GetBestDefaultRoute(family);
-//		if (!default_route.has_value())
-//		{
-//			THROW_ERROR_TYPE(error::NoDefaultRoute, "Unable to determine details of default route");
-//		}
-//		return default_route.value();
-//	}
-//
-//	const auto &node = optionalNode.value();
-//
-//	if (node.deviceName().has_value())
-//	{
-//		const auto &deviceName = node.deviceName().value();
-//		NET_LUID luid;
-//
-//		if (false == ParseStringEncodedLuid(deviceName, luid)
-//			&& 0 != ConvertInterfaceAliasToLuid(deviceName.c_str(), &luid))
-//		{
-//			const auto msg = std::string("Unable to derive interface LUID from interface alias: ")
-//				.append(common::string::ToAnsi(deviceName));
-//			THROW_ERROR_TYPE(error::DeviceNameNotFound, msg.c_str());
-//		}
-//
-//		auto onLinkProvider = [&family]()
-//		{
-//			NodeAddress onLink = { 0 };
-//			onLink.si_family = family;
-//
-//			return onLink;
-//		};
-//
-//		return InterfaceAndGateway{ luid, node.gateway().value_or(onLinkProvider()) };
-//	}
-//
-//	//
-//	// The node is specified only by gateway.
-//	//
-//
-//	return InterfaceAndGateway{ InterfaceLuidFromGateway(node.gateway().value()), node.gateway().value() };
-//}
-//
-//std::wstring FormatNetwork(const Network &network)
-//{
-//	using namespace common::string;
-//
-//	switch (network.Prefix.si_family)
-//	{
-//		case AF_INET:
-//		{
-//			return FormatIpv4<AddressOrder::NetworkByteOrder>(network.Prefix.Ipv4.sin_addr.s_addr, network.PrefixLength);
-//		}
-//		case AF_INET6:
-//		{
-//			return FormatIpv6(network.Prefix.Ipv6.sin6_addr.u.Byte, network.PrefixLength);
-//		}
-//		default:
-//		{
-//			return L"Failed to format network details";
-//		}
-//	}
-//}
-//
-//} // anonymous namespace
-//
-//RouteManager::~RouteManager()
-//{
-//	//
-//	// Stop callbacks that are triggered by events in Windows from coming in.
-//	//
-//
-//	m_routeMonitorV4.reset();
-//	m_routeMonitorV6.reset();
-//
-//	deleteAppliedRoutes();
-//}
-//
-//void RouteManager::addRoutes(const std::vector<Route> &routes)
-//{
-//	AutoLockType lock(m_routesLock);
-//
-//	std::vector<EventEntry> eventLog;
-//
-//	for (const auto &route : routes)
-//	{
-//		try
-//		{
-//			RouteRecord newRecord{ route, addIntoRoutingTable(route) };
-//
-//			eventLog.emplace_back(EventEntry{ EventType::ADD_ROUTE, newRecord });
-//
-//			auto existingRecord = findRouteRecord(newRecord.registeredRoute);
-//
-//			if (m_routes.end() == existingRecord)
-//			{
-//				m_routes.emplace_back(std::move(newRecord));
-//			}
-//			else
-//			{
-//				*existingRecord = std::move(newRecord);
-//			}
-//		}
-//		catch (const error::RouteManagerError&)
-//		{
-//			undoEvents(eventLog);
-//			throw;
-//		}
-//		catch (...)
-//		{
-//			undoEvents(eventLog);
-//			THROW_ERROR("Unexpected error during batch insertion of routes");
-//		}
-//	}
-//}
-//
-//void RouteManager::deleteRoutes(const std::vector<Route> &routes)
-//{
-//	AutoLockType lock(m_routesLock);
-//
-//	std::vector<EventEntry> eventLog;
-//
-//	for (const auto &route : routes)
-//	{
-//		try
-//		{
-//			const auto record = findRouteRecordFromSpec(route);
-//
-//			if (m_routes.end() == record)
-//			{
-//				const auto err = std::wstring(L"Request to delete unknown route: ")
-//					.append(FormatNetwork(route.network()));
-//
-//				m_logSink->warning(common::string::ToAnsi(err).c_str());
-//
-//				continue;
-//			}
-//
-//			deleteFromRoutingTable(record->registeredRoute);
-//
-//			eventLog.emplace_back(EventEntry{ EventType::DELETE_ROUTE, *record });
-//			m_routes.erase(record);
-//		}
-//		catch (...)
-//		{
-//			undoEvents(eventLog);
-//
-//			THROW_ERROR("Failed during batch removal of routes");
-//		}
-//	}
-//}
-//
-//
-//RouteManager::CallbackHandle RouteManager::registerDefaultRouteChangedCallback(DefaultRouteChangedCallback callback)
-//{
-//	AutoRecursiveLockType lock(m_defaultRouteCallbacksLock);
-//
-//	m_defaultRouteCallbacks.emplace_back(callback);
-//
-//	// Return raw address of record in list.
-//	return &m_defaultRouteCallbacks.back();
-//}
-//
-//void RouteManager::unregisterDefaultRouteChangedCallback(CallbackHandle handle)
-//{
-//	AutoRecursiveLockType lock(m_defaultRouteCallbacksLock);
-//
-//	for (auto it = m_defaultRouteCallbacks.begin(); it != m_defaultRouteCallbacks.end(); ++it)
-//	{
-//		// Match on raw address of record.
-//		if (&*it == handle)
-//		{
-//			m_defaultRouteCallbacks.erase(it);
-//			return;
-//		}
-//	}
-//}
-//
-//std::list<RouteManager::RouteRecord>::iterator RouteManager::findRouteRecord(const RegisteredRoute &route)
-//{
-//	return std::find_if(m_routes.begin(), m_routes.end(), [&route](const auto &record)
-//	{
-//		return route == record.registeredRoute;
-//	});
-//}
-//
-//std::list<RouteManager::RouteRecord>::iterator RouteManager::findRouteRecordFromSpec(const Route &route)
-//{
-//	return std::find_if(m_routes.begin(), m_routes.end(), [&route](const auto &record)
-//	{
-//		return route == record.route;
-//	});
-//}
-//
-//RouteManager::RegisteredRoute RouteManager::addIntoRoutingTable(const Route &route)
-//{
-//	const auto node = ResolveNode(route.network().Prefix.si_family, route.node());
-//
-//	MIB_IPFORWARD_ROW2 spec;
-//
-//	InitializeIpForwardEntry(&spec);
-//
-//	spec.InterfaceLuid = node.iface;
-//	spec.DestinationPrefix = route.network();
-//	spec.NextHop = node.gateway;
-//	spec.Metric = 0;
-//	spec.Protocol = MIB_IPPROTO_NETMGMT;
-//	spec.Origin = NlroManual;
-//
-//	auto status = CreateIpForwardEntry2(&spec);
-//
-//	//
-//	// The return code ERROR_OBJECT_ALREADY_EXISTS means there is already an existing route
-//	// on the same interface, with the same DestinationPrefix and NextHop.
-//	//
-//	// However, all the other properties of the route may be different. And the properties may
-//	// not have the exact same values as when the route was registered, because windows
-//	// will adjust route properties at time of route insertion as well as later.
-//	//
-//	// The simplest thing in this case is to just overwrite the route.
-//	//
-//
-//	if (status == ERROR_OBJECT_ALREADY_EXISTS)
-//	{
-//		status = SetIpForwardEntry2(&spec);
-//	}
-//
-//	if (NO_ERROR != status)
-//	{
-//		THROW_WINDOWS_ERROR(status, "Register route in routing table");
-//	}
-//
-//	return RegisteredRoute { route.network(), node.iface, node.gateway };
-//}
-//
-//void RouteManager::restoreIntoRoutingTable(const RegisteredRoute &route)
-//{
-//	MIB_IPFORWARD_ROW2 spec;
-//
-//	InitializeIpForwardEntry(&spec);
-//
-//	spec.InterfaceLuid = route.luid;
-//	spec.DestinationPrefix = route.network;
-//	spec.NextHop = route.nextHop;
-//	spec.Metric = 0;
-//	spec.Protocol = MIB_IPPROTO_NETMGMT;
-//	spec.Origin = NlroManual;
-//
-//	const auto status = CreateIpForwardEntry2(&spec);
-//
-//	if (NO_ERROR != status)
-//	{
-//		THROW_WINDOWS_ERROR(status, "Register route in routing table");
-//	}
-//}
-//
-//void RouteManager::deleteFromRoutingTable(const RegisteredRoute &route)
-//{
-//	MIB_IPFORWARD_ROW2 r = { 0};
-//
-//	r.InterfaceLuid = route.luid;
-//	r.DestinationPrefix = route.network;
-//	r.NextHop = route.nextHop;
-//
-//	auto status = DeleteIpForwardEntry2(&r);
-//
-//	if (ERROR_NOT_FOUND == status)
-//	{
-//		status = NO_ERROR;
-//
-//		const auto err = std::wstring(L"Attempting to delete route which was not present in routing table, " \
-//			"ignoring and proceeding. Route: ").append(FormatRegisteredRoute(route));
-//
-//		m_logSink->warning(common::string::ToAnsi(err).c_str());
-//	}
-//
-//	if (NO_ERROR != status)
-//	{
-//		THROW_WINDOWS_ERROR(status, "Delete route in routing table");
-//	}
-//}
-//
-//void RouteManager::undoEvents(const std::vector<EventEntry> &eventLog)
-//{
-//	//
-//	// Rewind state by processing events in the reverse order.
-//	//
-//
-//	for (auto it = eventLog.rbegin(); it != eventLog.rend(); ++it)
-//	{
-//		try
-//		{
-//			switch (it->type)
-//			{
-//				case EventType::ADD_ROUTE:
-//				{
-//					const auto record = findRouteRecord(it->record.registeredRoute);
-//
-//					if (m_routes.end() == record)
-//					{
-//						THROW_ERROR("Internal state inconsistency in route manager");
-//					}
-//
-//					deleteFromRoutingTable(record->registeredRoute);
-//					m_routes.erase(record);
-//
-//					break;
-//				}
-//				case EventType::DELETE_ROUTE:
-//				{
-//					restoreIntoRoutingTable(it->record.registeredRoute);
-//					m_routes.emplace_back(it->record);
-//
-//					break;
-//				}
-//				default:
-//				{
-//					THROW_ERROR("Missing case handler in switch clause");
-//				}
-//			}
-//		}
-//		catch (const std::exception &ex)
-//		{
-//			const auto err = std::string("Attempting to rollback state: ").append(ex.what());
-//			m_logSink->error(err.c_str());
-//		}
-//	}
-//}
-//
-//// static
-//std::wstring RouteManager::FormatRegisteredRoute(const RegisteredRoute &route)
-//{
-//	using namespace common::string;
-//
-//	std::wstringstream ss;
-//
-//	if (AF_INET == route.network.Prefix.si_family)
-//	{
-//		std::wstring gateway(L"\"On-link\"");
-//
-//		if (0 != route.nextHop.Ipv4.sin_addr.s_addr)
-//		{
-//			gateway = FormatIpv4<AddressOrder::NetworkByteOrder>(route.nextHop.Ipv4.sin_addr.s_addr);
-//		}
-//
-//		ss << FormatIpv4<AddressOrder::NetworkByteOrder>(route.network.Prefix.Ipv4.sin_addr.s_addr, route.network.PrefixLength)
-//			<< L" with gateway " << gateway
-//			<< L" on interface with LUID 0x" << std::hex << route.luid.Value;
-//	}
-//	else if (AF_INET6 == route.network.Prefix.si_family)
-//	{
-//		std::wstring gateway(L"\"On-link\"");
-//
-//		const uint8_t *begin = &route.nextHop.Ipv6.sin6_addr.u.Byte[0];
-//		const uint8_t *end = begin + 16;
-//
-//		if (0 != std::accumulate(begin, end, 0))
-//		{
-//			gateway = FormatIpv6(route.nextHop.Ipv6.sin6_addr.u.Byte);
-//		}
-//
-//		ss << FormatIpv6(route.network.Prefix.Ipv6.sin6_addr.u.Byte, route.network.PrefixLength)
-//			<< L" with gateway " << gateway
-//			<< L" on interface with LUID 0x" << std::hex << route.luid.Value;
-//	}
-//	else
-//	{
-//		ss << L"Failed to format route details";
-//	}
-//
-//	return ss.str();
-//}
-//
-//void RouteManager::defaultRouteChanged(ADDRESS_FAMILY family, DefaultRouteMonitor::EventType eventType,
-//	const std::optional<InterfaceAndGateway> &route)
-//{
-//	//
-//	// Forward event to all registered listeners.
-//	//
-//
-//	m_defaultRouteCallbacksLock.lock();
-//
-//	for (const auto &callback : m_defaultRouteCallbacks)
-//	{
-//		try
-//		{
-//			callback(eventType, family, route);
-//		}
-//		catch (const std::exception &ex)
-//		{
-//			const auto msg = std::string("Failure in default-route-changed callback: ").append(ex.what());
-//			m_logSink->error(msg.c_str());
-//		}
-//		catch (...)
-//		{
-//			m_logSink->error("Unspecified failure in default-route-changed callback");
-//		}
-//	}
-//
-//	m_defaultRouteCallbacksLock.unlock();
-//
-//	//
-//	// Examine event to determine if best default route has changed.
-//	//
-//
-//	if (DefaultRouteMonitor::EventType::Updated != eventType)
-//	{
-//		return;
-//	}
-//
-//	//
-//	// Examine our routes to see if any of them are policy bound to the best default route.
-//	//
-//
-//	AutoLockType routesLock(m_routesLock);
-//
-//	using RecordIterator = std::list<RouteRecord>::iterator;
-//
-//	std::list<RecordIterator> affectedRoutes;
-//
-//	for (RecordIterator it = m_routes.begin(); it != m_routes.end(); ++it)
-//	{
-//		if (false == it->route.node().has_value()
-//			&& family == it->route.network().Prefix.si_family)
-//		{
-//			affectedRoutes.emplace_back(it);
-//		}
-//	}
-//
-//	if (affectedRoutes.empty())
-//	{
-//		return;
-//	}
-//
-//	//
-//	// Update all affected routes.
-//	//
-//
-//	m_logSink->info("Best default route has changed. Refreshing dependent routes");
-//
-//	for (auto &it : affectedRoutes)
-//	{
-//		//
-//		// We can't update the existing route because defining characteristics are being changed.
-//		// So removing and adding again is the only option.
-//		//
-//
-//		try
-//		{
-//			deleteFromRoutingTable(it->registeredRoute);
-//		}
-//		catch (const std::exception &ex)
-//		{
-//			const auto msg = std::string("Failed to delete route when refreshing " \
-//				"existing routes: ").append(ex.what());
-//
-//			m_logSink->error(msg.c_str());
-//
-//			continue;
-//		}
-//
-//		it->registeredRoute.luid = route.value().iface;
-//		it->registeredRoute.nextHop = route.value().gateway;
-//
-//		try
-//		{
-//			restoreIntoRoutingTable(it->registeredRoute);
-//		}
-//		catch (const std::exception &ex)
-//		{
-//			const auto msg = std::string("Failed to add route when refreshing " \
-//				"existing routes: ").append(ex.what());
-//
-//			m_logSink->error(msg.c_str());
-//
-//			continue;
-//		}
-//	}
-//}
-//
-//}
-//

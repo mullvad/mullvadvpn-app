@@ -12,8 +12,6 @@ mod ffi;
 /// Misc networking functions for Windows.
 #[cfg(windows)]
 mod winnet;
-#[cfg(windows)]
-mod winnet_rs;
 
 /// Windows API wrappers and utilities
 #[cfg(target_os = "windows")]

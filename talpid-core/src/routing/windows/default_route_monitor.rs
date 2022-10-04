@@ -1,4 +1,7 @@
-use super::*;
+use super::{Error, Result, InterfaceAndGateway, AddressFamily, get_best_default_route_internal,
+    get_best_default_route::route_has_gateway,
+};
+
 use std::ffi::c_void;
 use std::sync::mpsc::{channel, RecvTimeoutError, Sender};
 use std::sync::{Arc, Mutex};
@@ -7,7 +10,7 @@ use windows_sys::Win32::Foundation::{BOOLEAN, HANDLE, NO_ERROR};
 use windows_sys::Win32::NetworkManagement::IpHelper::{
     CancelMibChangeNotify2, ConvertInterfaceLuidToIndex, NotifyIpInterfaceChange,
     NotifyRouteChange2, NotifyUnicastIpAddressChange, MIB_IPINTERFACE_ROW, MIB_NOTIFICATION_TYPE,
-    MIB_UNICASTIPADDRESS_ROW,
+    MIB_UNICASTIPADDRESS_ROW, NET_LUID_LH, MIB_IPFORWARD_ROW2,
 };
 
 struct DefaultRouteMonitorContext {
@@ -92,7 +95,8 @@ pub struct DefaultRouteMonitor {
     context: *const ContextAndBurstGuard,
 }
 
-// TODO: Write doc
+/// SAFETY: DefaultRouteMonitor is `Send` since `Handle` is `Send` and `ContextAndBurstGuard` is `Sync` as
+/// it holds Mutex<T> and Arc<Mutex<T>> fields.
 unsafe impl std::marker::Send for DefaultRouteMonitor {}
 
 impl std::ops::Drop for DefaultRouteMonitor {
@@ -112,7 +116,7 @@ impl std::ops::Drop for DefaultRouteMonitor {
 
 struct Handle(*mut HANDLE);
 
-// TODO: Write doc
+/// SAFETY: Handle is `Send` since it holds sole ownership of a pointer provided by C
 unsafe impl std::marker::Send for Handle {}
 
 impl std::ops::Drop for Handle {
@@ -121,6 +125,7 @@ impl std::ops::Drop for Handle {
         // been allocated by windows and should be non-null. Even if it would be null that would cause a panic rather than UB.
         unsafe {
             if NO_ERROR as i32 != CancelMibChangeNotify2(*self.0) {
+                // If this callback is called after we free the context that could result in UB, in order to avoid that we panic.
                 panic!("Could not cancel change notification callback")
             }
         }
@@ -129,10 +134,15 @@ impl std::ops::Drop for Handle {
 
 const WIN_FALSE: BOOLEAN = 0;
 
+// TODO: Rename and document and perhaps trim and perhaps remove the other EventType
 #[derive(PartialEq, Clone, Copy)]
+/// The type of route update passed to the callback
 pub enum EventType {
+    /// New route
     Updated,
+    /// Updated details of the same old route
     UpdatedDetails,
+    /// Route removed
     Removed,
 }
 
@@ -201,7 +211,6 @@ impl DefaultRouteMonitor {
     ) -> Result<(Handle, Handle, Handle)> {
         let family = family.to_af_family();
 
-        // NotifyRouteChange2
         // We must provide a raw pointer that points to the context that will be used in the callbacks.
         // We provide a Mutex for the state turned into a Weak pointer turned into a raw pointer in order to not have to manually deallocate
         // the memory after we cancel the callbacks. This will leak the weak pointer but the context state itself will be correctly dropped
@@ -224,7 +233,6 @@ impl DefaultRouteMonitor {
         }
         let notify_route_change_handle = Handle(handle_ptr);
 
-        // NotifyIpInterfaceChange
         let handle_ptr = std::ptr::null_mut();
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
         if NO_ERROR as i32
@@ -242,7 +250,6 @@ impl DefaultRouteMonitor {
         }
         let notify_interface_change_handle = Handle(handle_ptr);
 
-        // NotifyUnicastIpAddressChange
         let handle_ptr = std::ptr::null_mut();
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
         if NO_ERROR as i32
@@ -273,8 +280,9 @@ impl DefaultRouteMonitor {
 unsafe extern "system" fn route_change_callback(
     context: *const c_void,
     row: *const MIB_IPFORWARD_ROW2,
-    notification_type: MIB_NOTIFICATION_TYPE,
+    _notification_type: MIB_NOTIFICATION_TYPE,
 ) {
+
     // SAFETY: We assume Windows provides this pointer correctly
     let row = unsafe { &*row };
 
@@ -296,7 +304,7 @@ unsafe extern "system" fn route_change_callback(
 unsafe extern "system" fn interface_change_callback(
     context: *const c_void,
     row: *const MIB_IPINTERFACE_ROW,
-    notification_type: MIB_NOTIFICATION_TYPE,
+    _notification_type: MIB_NOTIFICATION_TYPE,
 ) {
     // SAFETY: We assume Windows provides this pointer correctly
     let row = unsafe { &*row };
@@ -315,7 +323,7 @@ unsafe extern "system" fn interface_change_callback(
 unsafe extern "system" fn ip_address_change_callback(
     context: *const c_void,
     row: *const MIB_UNICASTIPADDRESS_ROW,
-    notification_type: MIB_NOTIFICATION_TYPE,
+    _notification_type: MIB_NOTIFICATION_TYPE,
 ) {
     // SAFETY: We assume Windows provides this pointer correctly
     let row = unsafe { &*row };

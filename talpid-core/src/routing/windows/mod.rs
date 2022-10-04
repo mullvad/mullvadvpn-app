@@ -1,254 +1,302 @@
-// TODO:
-// Verify correctness:
-//  Go through the code and make sure that the semantics of everything is the same as C++ or that it is correct
-//  Do this once before doing all the other changes in the list and then once after
-// Restructure project:
-//  Go through all 3 modules and split the appropriate functions into their own modules
-//  Go through and rename things that should be renamed
-//  Go through the code and split things that we repeat >2 times into their own functions
-//  Go through code and remove unnecessary middle-layer types
-// Correct error handling:
-//  Decide what Error type to use and replace everything with that
-//  Remove unwraps    
-//  Log were it is appropriate
-// Document:
-//  Go through and document what should be documented, especially all unsafe code
-//  Remove the unnecessary comments
-// Test:
-//  Write down some tests that will be enough to convince you and others that the code is correct
-//  Run these tests or write a unit test for the easier ones
+use crate::{routing::RequiredRoute, windows::AddressFamily};
+use futures::channel::oneshot;
+use std::{collections::HashSet, net::IpAddr, sync::{Arc, Weak, Mutex}};
 
-use crate::windows::{get_ip_interface_entry, try_socketaddr_from_inet_sockaddr, AddressFamily};
-use std::{
-    convert::TryInto,
-    net::SocketAddr,
-};
-use widestring::{widecstr, WideCStr};
-use windows_sys::Win32::{
-    Foundation::NO_ERROR,
-    NetworkManagement::IpHelper::{
-        FreeMibTable, GetIfEntry2, GetIpForwardTable2,
-        IF_TYPE_SOFTWARE_LOOPBACK, IF_TYPE_TUNNEL, MIB_IF_ROW2, MIB_IPFORWARD_ROW2,
-        NET_LUID_LH,
-    },
-    Networking::WinSock::SOCKADDR_INET,
+pub use default_route_monitor::EventType;
+pub use route_manager::{Route, RouteManagerInternal, Callback, CallbackHandle};
+pub use get_best_default_route::{get_best_default_route,
+    get_best_default_route_internal, InterfaceAndGateway, route_has_gateway,
 };
 
+mod get_best_default_route;
 mod default_route_monitor;
 mod route_manager;
-pub use route_manager::{RouteManagerInternal, Route, Callback, CallbackHandle};
-pub use default_route_monitor::EventType;
 
-// Interface description substrings found for virtual adapters.
-const TUNNEL_INTERFACE_DESCS: [&WideCStr; 3] = [
-    widecstr!("WireGuard"),
-    widecstr!("Wintun"),
-    widecstr!("Tunnel"),
-];
-
+/// Windows routing errors.
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
-    /// The si family that windows should provide should be either Ipv4 or Ipv6. This is a serious bug and might become a panic.
-    #[error(display = "The si family provided by windows is incorrect")]
-    InvalidSiFamily,
-    /// Converion error between types that should not be possible. Indicates serious error and might become a panic.
-    #[error(display = "Conversion between types provided by windows failed")]
-    Conversion,
-    /// A windows API failed
-    #[error(display = "Windows API call failed")]
+    /// The sender was dropped unexpectedly -- possible panic
+    #[error(display = "The channel sender was dropped")]
+    ManagerChannelDown,
+    /// Failure to initialize route manager
+    #[error(display = "Failed to start route manager")]
+    FailedToStartManager,
+    /// Failure to add routes
+    #[error(display = "Failed to add routes")]
+    AddRoutesFailed,
+    /// Failure to clear routes
+    #[error(display = "Failed to clear applied routes")]
+    ClearRoutesFailed,
+    /// WinNet returned an error while adding default route callback
+    #[error(display = "Failed to set callback for default route")]
+    FailedToAddDefaultRouteCallback,
+    /// Attempt to use route manager that has been dropped
+    #[error(display = "Cannot send message to route manager since it is down")]
+    RouteManagerDown,
+    /// Something went wrong when getting the mtu of the interface
+    #[error(display = "Could not get the mtu of the interface")]
+    GetMtu,
+    /// A windows API has errored
+    #[error(display = "A windows API has errored")]
     WindowsApi,
-    /// Route manager error
-    #[error(display = "Router manager error")]
-    RouteManagerError,
-    /// No default route error
-    #[error(display = "No default route")]
-    NoDefaultRoute,
-    /// Device name was not found
-    #[error(display = "Device name was not found")]
+    /// The SI family was of an unexpected value
+    #[error(display = "The SI family was of an unexpected value")]
+    InvalidSiFamily,
+    /// Device name not found
+    #[error(display = "The device name was not found")]
     DeviceNameNotFound,
-    /// Callback was not found
-    #[error(display = "Callback was not found")]
-    CallbackNotFound,
+    /// No default route
+    #[error(display = "No default route found")]
+    NoDefaultRoute,
+    /// Conversion error between types
+    #[error(display = "Conversion error")]
+    Conversion,
+    /// Could not find device gateway
+    #[error(display = "Could not find device gateway")]
+    DeviceGatewayNotFound,
+    /// Could not get default route
+    #[error(display = "Could not get default route")]
+    GetDefaultRoute,
+    /// Could not find device by name
+    #[error(display = "Could not find device by name")]
+    GetDeviceByName,
+    /// Could not find device by gateway
+    #[error(display = "Could not find device by gateway")]
+    GetDeviceByGateway,
+    /// Internal inconsistent state in RouteManager
+    #[error(display = "Route manager inconsistent internal state")]
+    InternalInconsistentState,
 }
 
-type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
-pub struct WinNetDefaultRoute {
-    pub interface_luid: NET_LUID_LH,
-    pub gateway: SocketAddr,
+/// Manages routes by calling into WinNet
+pub struct RouteManager {
+    //manage_tx: Option<UnboundedSender<RouteManagerCommand>>,
+    internal: Arc<Mutex<RouteManagerInternal>>,
 }
 
-impl PartialEq for WinNetDefaultRoute {
-    fn eq(&self, other: &Self) -> bool {
-        self.gateway.eq(&other.gateway)
-            && unsafe { self.interface_luid.Value == other.interface_luid.Value }
+/// Handle to a route manager.
+#[derive(Clone)]
+pub struct RouteManagerHandle {
+    //tx: UnboundedSender<RouteManagerCommand>,
+    internal: Weak<Mutex<RouteManagerInternal>>,
+}
+
+impl RouteManagerHandle {
+    /// Add a callback which will be called if the default route changes.
+    pub fn add_default_route_change_callback(&self, callback: Callback) -> Result<CallbackHandle> {
+        // TODO: Fix errors
+        Ok(self.internal.upgrade().unwrap().lock().unwrap().register_default_route_changed_callback(callback).unwrap())
+    }
+
+    /// Applies the given routes while the route manager is running.
+    pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<()> {
+        let routes: Vec<_> = routes
+            .into_iter()
+            .map(|route| {
+                Route {
+                    network: route.prefix,
+                    node: route.node,
+                }
+            })
+            .collect();
+        // TODO: remove unwraps
+        Ok(self.internal.upgrade().unwrap().lock().unwrap().add_routes(routes).unwrap())
+        //let (response_tx, response_rx) = oneshot::channel();
+        //self.tx
+        //    .unbounded_send(RouteManagerCommand::AddRoutes(routes, response_tx))
+        //    .map_err(|_| Error::RouteManagerDown)?;
+        //response_rx.await.map_err(|_| Error::ManagerChannelDown)?
+    }
+
+    /// Applies the given routes while the route manager is running.
+    pub async fn get_mtu_for_route(&self, ip: IpAddr) -> Result<u16> {
+        let addr_family = if ip.is_ipv4() {
+            AddressFamily::Ipv4
+        } else {
+            AddressFamily::Ipv6
+        };
+        match get_mtu_for_route(addr_family) {
+            Ok(Some(mtu)) => Ok(mtu),
+            Ok(None) => Err(Error::GetMtu),
+            Err(e) => Err(e),
+        }
+
+        //let (response_tx, response_rx) = oneshot::channel();
+        //self.tx
+        //    .unbounded_send(RouteManagerCommand::GetMtuForRoute(ip, response_tx))
+        //    .map_err(|_| Error::RouteManagerDown)?;
+        //response_rx.await.map_err(|_| Error::ManagerChannelDown)?
     }
 }
 
-fn get_ipforward_rows(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> {
-    let family = family.to_af_family();
-    let mut table_ptr = std::ptr::null_mut();
-
-    // SAFETY: GetIpForwardTable2 does not have clear safety specifications however what it does is
-    // heap allocate a IpForwardTable2 and then change table_ptr to point to that allocation.
-    if NO_ERROR as i32 != unsafe { GetIpForwardTable2(family, &mut table_ptr) } {
-        return Err(Error::WindowsApi);
-    }
-
-    // SAFETY: table_ptr is valid since GetIpForwardTable2 did not return an error
-    let num_entries = unsafe { *table_ptr }.NumEntries;
-    let mut vec = Vec::with_capacity(num_entries.try_into().unwrap_or_default());
-
-    for i in 0..num_entries {
-        assert!(
-            usize::try_from(i).unwrap() * std::mem::size_of::<MIB_IPFORWARD_ROW2>()
-                < usize::try_from(isize::MAX).unwrap()
-        );
-
-        // SAFETY: table_ptr is valid since GetIpForwardTable2 did not return an error nor have we or will we modify the table
-        let ptr: *const MIB_IPFORWARD_ROW2 = unsafe { (*table_ptr).Table.as_ptr() };
-
-        // SAFETY: The assert guarantees that the amount of bytes we are jumping is not larger than isize::MAX.
-        // Win32 guarantees that the resulting pointer is aligned, non-null, init.
-        let row: &MIB_IPFORWARD_ROW2 =
-            unsafe { ptr.offset(i.try_into().unwrap()).as_ref() }.unwrap();
-        vec.push(row.clone());
-    }
-    // SAFETY: FreeMibTable does not have clear safety rules but it deallocates the MIB_IPFORWARD_TABLE2
-    // This pointer is ONLY deallocated here so it is guaranteed to not have been already deallocated.
-    // We have cloned all MIB_IPFORWARD_ROW2s and the rows do not contain pointers to the table so they
-    // will not be dangling after this free.
-    unsafe { FreeMibTable(table_ptr as *const _) }
-    Ok(vec)
+#[derive(Debug)]
+pub enum RouteManagerCommand {
+    AddRoutes(HashSet<RequiredRoute>, oneshot::Sender<Result<()>>),
+    GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16>>),
+    Shutdown,
 }
 
-pub struct InterfaceAndGateway {
-    //pub iface: NET_LUID_LH,
-    pub iface: NET_LUID_LH,
-    //pub gateway: SOCKADDR_INET,
-    pub gateway: SocketAddr,
-}
+impl RouteManager {
+    /// Creates a new route manager that will apply the provided routes and ensure they exist until
+    /// it's stopped.
+    pub async fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
+        //if !winnet::activate_routing_manager() {
+        //    return Err(Error::FailedToStartManager);
+        //}
+        let internal = match RouteManagerInternal::new() {
+            Ok(internal) => internal,
+            Err(_) => return Err(Error::FailedToStartManager),
+        };
+        //let (manage_tx, manage_rx) = mpsc::unbounded();
+        let manager = Self {
+            //manage_tx: Some(manage_tx),
+            internal: Arc::new(Mutex::new(internal))
+        };
+        //tokio::spawn(RouteManager::listen(manage_rx, internal));
+        manager.add_routes(required_routes).await?;
 
-impl PartialEq for InterfaceAndGateway {
-    fn eq(&self, other: &InterfaceAndGateway) -> bool {
-        // TODO: Is this OK? We are not comparing the socket address but only comparing the LUID
-        unsafe { self.iface.Value == other.iface.Value }
+        Ok(manager)
+    }
+
+    /// Add a callback which will be called if the default route changes.
+    pub fn add_default_route_change_callback(&self, callback: Callback) -> Result<CallbackHandle> {
+        // TODO: Fix errors
+        Ok(self.internal.lock().unwrap().register_default_route_changed_callback(callback).unwrap())
+    }
+
+    /// Retrieve a sender directly to the command channel.
+    pub fn handle(&self) -> Result<RouteManagerHandle> {
+        Ok(RouteManagerHandle { internal: Arc::downgrade(&self.internal) })
+        //if let Some(tx) = &self.manage_tx {
+        //    Ok(RouteManagerHandle { tx: tx.clone() })
+        //} else {
+        //    Err(Error::RouteManagerDown)
+        //}
+    }
+
+    //async fn listen(mut manage_rx: UnboundedReceiver<RouteManagerCommand>, internal: RouteManagerInternal) {
+    //    while let Some(command) = manage_rx.next().await {
+    //        match command {
+    //            RouteManagerCommand::AddRoutes(routes, tx) => {
+    //                let routes: Vec<_> = routes
+    //                    .into_iter()
+    //                    .map(|route| {
+    //                        Route {
+    //                            network: route.prefix,
+    //                            node: route.node,
+    //                        }
+    //                        //let destination = winnet::WinNetIpNetwork::from(route.prefix);
+    //                        //match &route.node {
+    //                        //    NetNode::DefaultNode => {
+    //                        //        winnet::WinNetRoute::through_default_node(destination)
+    //                        //    }
+    //                        //    NetNode::RealNode(node) => winnet::WinNetRoute::new(
+    //                        //        winnet::WinNetNode::from(node),
+    //                        //        destination,
+    //                        //    ),
+    //                        //}
+    //                    })
+    //                    .collect();
+
+    //                let _ = tx.send(
+    //                    internal.add_routes(routes).map_err(Error::AddRoutesFailed),
+    //                );
+    //            }
+    //            RouteManagerCommand::GetMtuForRoute(ip, tx) => {
+    //                let addr_family = if ip.is_ipv4() {
+    //                    winnet::WinNetAddrFamily::IPV4
+    //                } else {
+    //                    winnet::WinNetAddrFamily::IPV6
+    //                };
+    //                let res = match get_mtu_for_route(addr_family) {
+    //                    Ok(Some(mtu)) => Ok(mtu),
+    //                    Ok(None) => Err(Error::GetMtu),
+    //                    Err(e) => Err(e),
+    //                };
+    //                let _ = tx.send(res);
+    //            }
+    //            RouteManagerCommand::Shutdown => {
+    //                break;
+    //            }
+    //        }
+    //    }
+    //}
+
+    /// Stops the routing manager and invalidates the route manager - no new default route callbacks
+    /// can be added
+    pub fn stop(&mut self) {
+        //if let Some(tx) = self.manage_tx.take() {
+        //    if tx.unbounded_send(RouteManagerCommand::Shutdown).is_err() {
+        //        log::error!("RouteManager channel already down or thread panicked");
+        //    }
+
+        //    self.internal.lock().unwrap().winnet::deactivate_routing_manager();
+        //}
+    }
+
+    /// Applies the given routes until [`RouteManager::stop`] is called.
+    pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<()> {
+        let routes: Vec<_> = routes
+            .into_iter()
+            .map(|route| {
+                Route {
+                    network: route.prefix,
+                    node: route.node,
+                }
+            })
+            .collect();
+        //TODO: No unwrap
+        Ok(self.internal.lock().unwrap().add_routes(routes).unwrap())
+        //if let Some(tx) = &self.manage_tx {
+        //    let (result_tx, result_rx) = oneshot::channel();
+        //    if tx
+        //        .unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
+        //        .is_err()
+        //    {
+        //        return Err(Error::RouteManagerDown);
+        //    }
+        //    result_rx.await.map_err(|_| Error::ManagerChannelDown)?
+        //} else {
+        //    Err(Error::RouteManagerDown)
+        //}
+    }
+
+    /// Removes all routes previously applied in [`RouteManager::new`] or
+    /// [`RouteManager::add_routes`].
+    pub fn clear_routes(&self) -> Result<()> {
+        self.internal.lock().unwrap().delete_applied_routes().map_err(|_| Error::ClearRoutesFailed)
+        //if winnet::routing_manager_delete_applied_routes() {
+        //    Ok(())
+        //} else {
+        //    Err(Error::ClearRoutesFailed)
+        //}
     }
 }
 
-fn get_best_default_route_internal(family: AddressFamily) -> Result<Option<InterfaceAndGateway>> {
-    let table = get_ipforward_rows(family)?;
-
-    // Remove all candidates without a gateway and which are not on a physical interface.
-    // Then get the annotated routes which are active.
-    let mut annotated: Vec<AnnotatedRoute<'_>> = table
-        .iter()
-        .filter(|row| {
-            0 == row.DestinationPrefix.PrefixLength
-                && route_has_gateway(row)
-                && is_route_on_physical_interface(row).unwrap_or(false)
-        })
-        .filter_map(|row| annotate_route(row))
-        .collect();
-
-    if annotated.is_empty() {
-        return Ok(None);
-    }
-
-    // We previously filtered out all inactive routes so we only need to sort by acending effective_metric
-    annotated.sort_by(|lhs, rhs| lhs.effective_metric.cmp(&rhs.effective_metric));
-
-    Ok(Some(InterfaceAndGateway {
-        iface: annotated[0].route.InterfaceLuid,
-        gateway: try_socketaddr_from_inet_sockaddr(annotated[0].route.NextHop).map_err(|_| Error::InvalidSiFamily)?,
-    }))
-}
-
-// TODO: Should we remove the WinNetDefaultRoute type? We could replace it with InterfaceAndGateway.
-// Could we also remove the InterfaceAndGateway or rename it to something else and replace the windows type
-// representation inside of it.
-pub fn get_best_default_route(family: AddressFamily) -> Result<Option<WinNetDefaultRoute>> {
-    match get_best_default_route_internal(family)? {
-        Some(interface_and_gateway) => Ok(Some(WinNetDefaultRoute {
-            interface_luid: interface_and_gateway.iface,
-            gateway: interface_and_gateway.gateway
-        })),
-        None => Ok(None),
-    }
-}
-
-fn route_has_gateway(route: &MIB_IPFORWARD_ROW2) -> bool {
-    match try_socketaddr_from_inet_sockaddr(route.NextHop) {
-        Ok(sock) => !sock.ip().is_unspecified(),
-        Err(_) => false,
-    }
-}
-
-// TODO(Jon): It would be more correct to filter for devices that match the known LUID of the tunnel interface
-fn is_route_on_physical_interface(route: &MIB_IPFORWARD_ROW2) -> Result<bool> {
-    // The last 16 bits of _bitfield represent the interface type. For that reason we mask it with 0xFFFF.
-    // SAFETY: route.InterfaceLuid is a union. Both variants of this union are always valid since one is a u64
-    // and the other is a wrapped u64. Access to the _bitfield as such is safe since it does not reinterpret the
-    // u64 as anything it is not.
-    let if_type = u32::try_from(unsafe { route.InterfaceLuid.Info._bitfield } & 0xFFFF).unwrap();
-    if if_type == IF_TYPE_SOFTWARE_LOOPBACK || if_type == IF_TYPE_TUNNEL {
-        return Ok(false);
-    }
-
-    // OpenVPN uses interface type IF_TYPE_PROP_VIRTUAL,
-    // but tethering etc. may rely on virtual adapters too,
-    // so we have to filter out the TAP adapter specifically.
-
-    // SAFETY: We are allowed to initialize MIB_IF_ROW2 with zeroed because it is made up entirely of types for which the
-    // zero pattern (all zeros) is valid.
-    let mut row: MIB_IF_ROW2 = unsafe { std::mem::zeroed() };
-    row.InterfaceLuid = route.InterfaceLuid;
-    row.InterfaceIndex = route.InterfaceIndex;
-
-    // SAFETY: GetIfEntry2 does not have clear safety rules however it will read the row.InterfaceLuid or row.InterfaceIndex and use
-    // that information to populate the struct. We guarantee here that these fields are valid since they are set.
-    if NO_ERROR as i32 != unsafe { GetIfEntry2(&mut row) } {
-        return Err(Error::WindowsApi);
-    }
-
-    let row_description = WideCStr::from_slice_truncate(&row.Description)
-        .expect("Windows provided incorrectly formatted utf16 string");
-
-    for tunnel_interface_desc in TUNNEL_INTERFACE_DESCS {
-        if contains_subslice(row_description.as_slice(), tunnel_interface_desc.as_slice()) {
-            return Ok(false);
+fn get_mtu_for_route(addr_family: AddressFamily) -> Result<Option<u16>> {
+    match get_best_default_route(addr_family) {
+        Ok(Some(route)) => {
+            let interface_row = crate::windows::get_ip_interface_entry(addr_family, &route.interface_luid)
+                .map_err(|e| {
+                    log::error!("Could not get ip interface entry: {}", e);
+                    Error::GetMtu
+                })?;
+            let mtu = interface_row.NlMtu;
+            let mtu = u16::try_from(mtu).map_err(|_| Error::GetMtu)?;
+            Ok(Some(mtu))
+        }
+        Ok(None) => Ok(None),
+        Err(e) => {
+            log::error!("Could not get best default route: {}", e);
+            Err(Error::GetMtu)
         }
     }
-
-    return Ok(true);
 }
 
-fn contains_subslice<T: PartialEq>(slice: &[T], subslice: &[T]) -> bool {
-    slice
-        .windows(subslice.len())
-        .any(|window| window == subslice)
-}
-
-struct AnnotatedRoute<'a> {
-    route: &'a MIB_IPFORWARD_ROW2,
-    effective_metric: u32,
-}
-
-fn annotate_route<'a>(route: &'a MIB_IPFORWARD_ROW2) -> Option<AnnotatedRoute<'a>> {
-    // SAFETY: `si_family` is valid in both `Ipv4` and `Ipv6` so we can safely access `si_family`.
-    let iface = get_ip_interface_entry(
-        AddressFamily::try_from_af_family(unsafe { route.DestinationPrefix.Prefix.si_family })
-            .ok()?,
-        &route.InterfaceLuid,
-    )
-    .ok()?;
-
-    if iface.Connected == 0 {
-        None
-    } else {
-        Some(AnnotatedRoute {
-            route,
-            effective_metric: route.Metric + iface.Metric,
-        })
+impl Drop for RouteManager {
+    fn drop(&mut self) {
+        self.stop();
     }
 }

@@ -338,7 +338,7 @@ pub fn get_best_default_route(
         WinNetAddrFamily::IPV4 => crate::windows::AddressFamily::Ipv4,
         WinNetAddrFamily::IPV6 => crate::windows::AddressFamily::Ipv6,
     };
-    match crate::winnet_rs::get_best_default_route(family) {
+    match crate::routing::get_best_default_route(family) {
         Ok(Some(default_route)) => {
             let gateway = match default_route.gateway {
                 SocketAddr::V4(addr) => {

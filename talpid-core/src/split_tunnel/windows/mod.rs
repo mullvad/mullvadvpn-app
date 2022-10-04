@@ -13,8 +13,7 @@ use crate::{
         AddressFamily,
     },
     winnet::{self, get_best_default_route, WinNetAddrFamily},
-    routing::RouteManager,
-    winnet_rs::{EventType, InterfaceAndGateway, CallbackHandle}
+    routing::{RouteManager, EventType, InterfaceAndGateway, CallbackHandle},
 };
 use futures::channel::{mpsc, oneshot};
 use std::{
@@ -861,7 +860,7 @@ fn split_tunnel_default_route_change_handler(
     default_route: &Option<InterfaceAndGateway>,
     ctx_mutex: &Arc<Mutex<SplitTunnelDefaultRouteChangeHandlerContext>>,
 ) {
-    use crate::winnet_rs::EventType::*;
+    use crate::routing::EventType::*;
 
     // Update the "internet interface" IP when best default route changes
     let mut ctx = ctx_mutex.lock().expect("ST route handler mutex poisoned");

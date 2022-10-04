@@ -63,7 +63,7 @@ pub struct WgGoTunnel {
     // context that maps to fs::File instance, used with logging callback
     _logging_context: LoggingContext,
     #[cfg(target_os = "windows")]
-    _route_callback_handle: Option<crate::winnet_rs::CallbackHandle>,
+    _route_callback_handle: Option<crate::routing::CallbackHandle>,
     #[cfg(target_os = "windows")]
     setup_handle: tokio::task::JoinHandle<()>,
 }
@@ -206,12 +206,12 @@ impl WgGoTunnel {
     // Callback to be used to rebind the tunnel sockets when the default route changes
     #[cfg(target_os = "windows")]
     pub fn default_route_changed_callback(
-        event_type: crate::winnet_rs::EventType,
+        event_type: crate::routing::EventType,
         address_family: crate::windows::AddressFamily,
-        default_route: &Option<crate::winnet_rs::InterfaceAndGateway>,
+        default_route: &Option<crate::routing::InterfaceAndGateway>,
     ) {
         use windows_sys::Win32::NetworkManagement::IpHelper::ConvertInterfaceLuidToIndex;
-        use crate::winnet_rs::EventType::*;
+        use crate::routing::EventType::*;
 
         let iface_idx: u32 = match event_type {
             Updated => {

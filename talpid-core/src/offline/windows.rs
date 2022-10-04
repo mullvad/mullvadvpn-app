@@ -1,7 +1,6 @@
 use crate::{
     windows::{AddressFamily, window::{PowerManagementEvent, PowerManagementListener}},
-    routing::RouteManagerHandle,
-    winnet_rs::{CallbackHandle, InterfaceAndGateway, EventType},
+    routing::{RouteManagerHandle, CallbackHandle, InterfaceAndGateway, EventType},
     winnet,
 };
 use futures::channel::mpsc::UnboundedSender;
@@ -125,7 +124,7 @@ impl BroadcastListener {
         _default_route: &Option<InterfaceAndGateway>,
         state_lock: &Arc<Mutex<SystemState>>,
     ) {
-        use crate::winnet_rs::EventType::*;
+        use crate::routing::EventType::*;
 
         if event_type == UpdatedDetails {
             // ignore changes that don't affect the route
