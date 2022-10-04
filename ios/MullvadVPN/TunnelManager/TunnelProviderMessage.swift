@@ -20,6 +20,9 @@ enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Request the tunnel to transport a http request.
     case transportHTTPRequest(Data)
 
+    /// Request the tunnel to cancel transport for http request.
+    case cancelURLRequest(UUID)
+
     var description: String {
         switch self {
         case .reconnectTunnel:
@@ -28,6 +31,8 @@ enum TunnelProviderMessage: Codable, CustomStringConvertible {
             return "get-tunnel-status"
         case .transportHTTPRequest:
             return "transport-http-request"
+        case .cancelURLRequest:
+            return "cancel-transport-http-request"
         }
     }
 

@@ -9,7 +9,8 @@
 import Foundation
 
 /// Struct describing supported transport messages handled by packet tunnel provider.
-/// Its a wrapper to send urlRequest to tunnel via Data, and recreate the original request inside the tunnel.
+/// Its a wrapper to send urlRequest to tunnel via Data,
+/// and recreate the original request inside the tunnel.
 struct TransportMessage: Codable {
     let url: URL?
     let method: String?
@@ -92,10 +93,20 @@ struct TransportMessageReply: Codable {
 }
 
 private extension Dictionary {
-    init<S: Sequence> (_ sequence: S) where S.Iterator.Element == Element {
+    init<S: Sequence>(_ sequence: S) where S.Iterator.Element == Element {
         self.init()
-        for (key,value) in sequence {
+        for (key, value) in sequence {
             self[key] = value
         }
     }
+}
+
+enum PacketTunnelRequestError: Codable {
+    case urlError(_ urlErrorCode: Int)
+    case unknown(_ errorDescription: String)
+}
+
+enum PacketTunnelRequestEvent: Codable {
+    case initiated(UUID)
+    case complete(Data?, PacketTunnelRequestError?)
 }

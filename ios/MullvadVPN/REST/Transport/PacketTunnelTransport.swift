@@ -21,13 +21,17 @@ struct PacketTunnelTransport: RESTTransport {
             switch result {
             case .cancelled: break
             case let .success(reply):
-                completion(reply.data,
-                           reply.response?.originalResponse(),
-                           reply.error?.originalError())
+                completion(
+                    reply.data,
+                    reply.response?.originalResponse(),
+                    reply.error?.originalError()
+                )
             case let .failure(error):
-                completion(nil,
-                           nil,
-                           error)
+                completion(
+                    nil,
+                    nil,
+                    error
+                )
             }
         }
     }
@@ -41,13 +45,17 @@ struct PacketTunnelTransport: RESTTransport {
             switch result {
             case .cancelled: break
             case let .success(reply):
-                completion(reply.data,
-                           reply.response?.originalResponse(),
-                           reply.error?.originalError())
+                completion(
+                    reply.data,
+                    reply.response?.originalResponse(),
+                    reply.error?.originalError()
+                )
             case let .failure(error):
-                completion(nil,
-                           nil,
-                           error)
+                completion(
+                    nil,
+                    nil,
+                    error
+                )
             }
         }
     }
