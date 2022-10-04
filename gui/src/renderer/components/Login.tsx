@@ -379,7 +379,7 @@ function AccountDropdownItem(props: IAccountDropdownItemProps) {
   }, [props.onSelect, props.value]);
 
   const handleRemove = useCallback(
-    (event) => {
+    (event: React.MouseEvent<HTMLButtonElement>) => {
       // Prevent login form from submitting
       event.preventDefault();
       props.onRemove(props.value);
