@@ -4,3 +4,4 @@ The VPN is no longer disconnected when the app's frontend is being terminated by
 Enable running WireGuard over TCP. Intended to enable tunnels to work where UDP is blocked.
 Allow more multicast network addresses when "Local network sharing" is enabled. Should allow some local discovery protocols to find other devices.
 Reorganize app navigation.
+Experimental: Upgrade Quantum-resistant tunnel protocol (Command line interface only)
