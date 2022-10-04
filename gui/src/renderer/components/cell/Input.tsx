@@ -38,6 +38,7 @@ const StyledInput = styled.input({}, (props: { focused: boolean; valid?: boolean
 
 interface IInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value?: string;
+  initialValue?: string;
   validateValue?: (value: string) => boolean;
   modifyValue?: (value: string) => string;
   submitOnBlur?: boolean;
@@ -46,8 +47,12 @@ interface IInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onChangeValue?: (value: string) => void;
 }
 
+// If value is provided this component behaves like a controlled component.
+// If value isn't provided, then initialValue will be used for the initial value, but updates to
+// initialValue will also cause the internal value to update.
 function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputElement>) {
   const {
+    initialValue,
     validateValue,
     modifyValue,
     submitOnBlur,
@@ -57,17 +62,20 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
     ...otherProps
   } = props;
 
-  const [value, setValue] = useState(props.value ?? '');
   const [isFocused, setFocused, setBlurred] = useBoolean(false);
+
+  // internalValue will be used when the component is uncontrolled.
+  const [internalValue, setInternalValue] = useState(props.value ?? props.initialValue ?? '');
+  const value = props.value ?? internalValue;
 
   const inputRef = useRef() as React.RefObject<HTMLInputElement>;
   const combinedRef = useCombinedRefs(inputRef, forwardedRef);
 
   const onSubmit = useCallback(
     (value: string) => {
-      if (validateValue?.(value) !== false && submitOnBlur) {
+      if (validateValue?.(value) !== false) {
         onSubmitValue?.(value);
-      } else if (submitOnBlur) {
+      } else {
         onInvalidValue?.(value);
       }
     },
@@ -86,7 +94,9 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
     (event: React.FocusEvent<HTMLInputElement>) => {
       setBlurred();
       props.onBlur?.(event);
-      onSubmit(value);
+      if (submitOnBlur) {
+        onSubmit(value);
+      }
     },
     [value, props.onBlur, validateValue, onSubmit, submitOnBlur],
   );
@@ -94,11 +104,16 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
   const onChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = modifyValue?.(event.target.value) ?? event.target.value;
-      setValue(value);
+      if (props.value === undefined) {
+        // Only update the internal value when in uncontrolled mode to not cause unnecessary render
+        // cycles.
+        setInternalValue(value);
+      }
+
       props.onChange?.(event);
       onChangeValue?.(value);
     },
-    [value, modifyValue, props.onSubmit],
+    [modifyValue, props.onSubmit],
   );
 
   const onKeyPress = useCallback(
@@ -112,12 +127,19 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
     [value, onSubmit, inputRef, props.onKeyPress],
   );
 
+  // If the the initialValue changes in the uncontrolled mode when the user isn't currently writing,
+  // then we want to update the value.
   useEffect(() => {
-    if (!isFocused && props.value !== undefined && value !== props.value) {
-      setValue(props.value);
-      onChangeValue?.(props.value);
+    if (
+      !isFocused &&
+      props.value === undefined &&
+      props.initialValue !== undefined &&
+      internalValue !== props.initialValue
+    ) {
+      setInternalValue(props.initialValue);
+      onChangeValue?.(props.initialValue);
     }
-  }, [props.value]);
+  }, [props.initialValue]);
 
   const valid = validateValue?.(value);
 
@@ -172,20 +194,11 @@ const StyledAutoSizingTextInputWrapper = styled.div({
 });
 
 function AutoSizingTextInputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputElement>) {
-  const { onChangeValue, onFocus, onBlur, ...otherProps } = props;
+  const { onFocus, onBlur, ...otherProps } = props;
 
-  const [value, setValue] = useState(otherProps.value ?? '');
   const [focused, setFocused, setBlurred] = useBoolean(false);
   const inputRef = useRef() as React.RefObject<HTMLInputElement>;
   const combinedRef = useCombinedRefs(inputRef, forwardedRef);
-
-  const onChangeValueWrapper = useCallback(
-    (value: string) => {
-      setValue(value);
-      onChangeValue?.(value);
-    },
-    [onChangeValue],
-  );
 
   const onBlurWrapper = useCallback(
     (event: React.FocusEvent<HTMLInputElement>) => {
@@ -205,6 +218,8 @@ function AutoSizingTextInputWithRef(props: IInputProps, forwardedRef: React.Ref<
 
   const blur = useCallback(() => inputRef.current?.blur(), []);
 
+  const value = inputRef.current?.value;
+
   return (
     <BackAction disabled={!focused} action={blur}>
       <InputFrame focused={focused}>
@@ -212,7 +227,6 @@ function AutoSizingTextInputWithRef(props: IInputProps, forwardedRef: React.Ref<
           <StyledAutoSizingTextInputWrapper>
             <Input
               ref={combinedRef}
-              onChangeValue={onChangeValueWrapper}
               onBlur={onBlurWrapper}
               onFocus={onFocusWrapper}
               {...otherProps}
