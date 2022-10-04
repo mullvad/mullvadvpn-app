@@ -43,6 +43,7 @@ interface ILocationListProps<SpecialValueType> {
   selectedValue?: LocationSelection<SpecialValueType>;
   selectedElementRef?: React.Ref<React.ReactInstance>;
   onSelect?: (value: LocationSelection<SpecialValueType>) => void;
+  children?: React.ReactNode;
 }
 
 export default class LocationList<SpecialValueType> extends React.Component<
@@ -244,6 +245,7 @@ interface ISpecialLocationProps<T> {
   onSelect?: (value: T) => void;
   info?: string;
   forwardedRef?: React.Ref<HTMLButtonElement>;
+  children?: React.ReactNode;
 }
 
 export class SpecialLocation<T> extends React.Component<ISpecialLocationProps<T>> {

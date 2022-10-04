@@ -385,7 +385,7 @@ export default class ProblemReport extends React.Component<
   }
 
   private renderSent() {
-    const reachBackMessage: React.ReactNodeArray =
+    const reachBackMessage: React.ReactNode[] =
       // TRANSLATORS: The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
       // TRANSLATORS: Available placeholders:
       // TRANSLATORS: %(email)s
