@@ -237,6 +237,33 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 }
 
                 completionHandler?(response)
+            case let .transportHTTPRequest(data):
+                guard
+                    let encodedModel = try? JSONDecoder()
+                        .decode(TunnelProviderReply<EncodableModel>.self, from: data),
+                    let url = encodedModel.value.url
+                else {
+                    completionHandler?(nil)
+                    return
+                }
+
+                var urlRequest = URLRequest(url: url)
+                urlRequest.httpMethod = encodedModel.value.method
+                urlRequest.httpBody = encodedModel.value.serializedParameters
+
+                URLSession.shared.dataTask(
+                    with: urlRequest
+                ) { data, response, error in
+                    completionHandler?(
+                        try? JSONEncoder().encode(
+                            DecodableModel(
+                                data: data,
+                                response: response.debugDescription,
+                                error: error.debugDescription
+                            )
+                        )
+                    )
+                }.resume()
             }
         }
     }

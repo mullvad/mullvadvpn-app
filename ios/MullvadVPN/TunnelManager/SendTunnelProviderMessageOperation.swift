@@ -52,7 +52,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
     }
 
     override func main() {
-        setTimeoutTimer(connectingStateWaitDelay: 0)
+        setTimeoutTimer(connectingStateWaitDelay: 15)
 
         statusObserver = tunnel.addBlockObserver(queue: dispatchQueue) { [weak self] _, status in
             self?.handleVPNStatus(status)
@@ -107,7 +107,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
         }
 
         switch status {
-        case .connected:
+        case .connected, .disconnected:
             sendMessage()
 
         case .connecting:
@@ -117,8 +117,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
 
         case .reasserting:
             sendMessage()
-
-        case .invalid, .disconnecting, .disconnected:
+        case .invalid, .disconnecting://, .disconnected:
             finish(completion: .failure(SendTunnelProviderMessageError.tunnelDown(status)))
 
         @unknown default:

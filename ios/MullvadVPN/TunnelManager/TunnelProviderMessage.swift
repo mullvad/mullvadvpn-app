@@ -17,12 +17,16 @@ enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Request the tunnel status.
     case getTunnelStatus
 
+    case transportHTTPRequest(Data)
+
     var description: String {
         switch self {
         case .reconnectTunnel:
             return "reconnect-tunnel"
         case .getTunnelStatus:
             return "get-tunnel-status"
+        case .transportHTTPRequest:
+            return "transport-http-request"
         }
     }
 
