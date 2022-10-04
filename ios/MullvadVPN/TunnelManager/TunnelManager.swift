@@ -513,13 +513,19 @@ final class TunnelManager {
         )
     }
 
+    /// Sending request via tunnel directly
+    /// - Warning: This function is being used mainly for packet tunnel Transport.
+    /// - Parameters:
+    ///   - message: Request message to be recreated inside tunnel.
+    ///   - completionHandler: Reply of tunnel request, This reply will be created from URLSession completion block.
+    /// - Returns: Cancellable token.
     func sendRequest(
-        message: EncodableModel,
-        completionHandler: @escaping (OperationCompletion<Data, Error>) -> Void
+        message: TransportMessage,
+        completionHandler: @escaping (OperationCompletion<TransportMessageReply, Error>) -> Void
     ) -> Cancellable? {
         do {
             return tunnel?.sendRequest(
-                try TunnelProviderReply(message).encode(),
+                try message.encode(),
                 completionHandler: completionHandler
             )
         } catch {

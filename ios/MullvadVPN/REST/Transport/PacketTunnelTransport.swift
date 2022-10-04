@@ -13,37 +13,41 @@ struct PacketTunnelTransport: RESTTransport {
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable? {
-        let encodableModel = EncodableModel(
+        let encodableModel = TransportMessage(
             urlRequest: request
         )
 
         return TunnelManager.shared.sendRequest(message: encodableModel) { result in
             switch result {
             case .cancelled: break
-            case let .success(data):
-                let decodableModel = try? JSONDecoder().decode(DecodableModel.self, from: data)
-
-                completion(decodableModel?.data, URLResponse(), URLError.badURL as? Error)
+            case let .success(reply):
+                completion(reply.data,
+                           reply.response?.originalResponse(),
+                           reply.error?.originalError())
             case let .failure(error):
-                completion(nil, URLResponse(), error)
+                completion(nil,
+                           nil,
+                           error)
             }
         }
     }
 
     #if DEBUG
     func sendRequest(
-        _ httpBody: EncodableModel,
+        _ httpBody: TransportMessage,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable? {
         return TunnelManager.shared.sendRequest(message: httpBody) { result in
             switch result {
             case .cancelled: break
-            case let .success(data):
-                let decodableModel = try? JSONDecoder().decode(DecodableModel.self, from: data)
-
-                completion(decodableModel?.data, URLResponse(), URLError.badURL as? Error)
+            case let .success(reply):
+                completion(reply.data,
+                           reply.response?.originalResponse(),
+                           reply.error?.originalError())
             case let .failure(error):
-                completion(nil, URLResponse(), error)
+                completion(nil,
+                           nil,
+                           error)
             }
         }
     }

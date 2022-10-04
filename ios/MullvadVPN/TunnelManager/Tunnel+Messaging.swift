@@ -50,9 +50,14 @@ extension Tunnel {
         return operation
     }
 
+    /// Request packet tunnel to transport a http request.
+    /// - Parameters:
+    ///   - requestData: Serialized data to be regenerated for URLSession inside tunnel.
+    ///   - completionHandler: Packet tunnel reply with OperationCompletion.
+    /// - Returns: Cancellable.
     func sendRequest(
         _ requestData: Data,
-        completionHandler: @escaping (OperationCompletion<Data, Error>) -> Void
+        completionHandler: @escaping (OperationCompletion<TransportMessageReply, Error>) -> Void
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,

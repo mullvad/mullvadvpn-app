@@ -240,28 +240,27 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             case let .transportHTTPRequest(data):
                 guard
                     let encodedModel = try? JSONDecoder()
-                    .decode(TunnelProviderReply<EncodableModel>.self, from: data),
-                    let url = encodedModel.value.url
+                    .decode(TransportMessage.self, from: data),
+                    let url = encodedModel.url
                 else {
                     completionHandler?(nil)
                     return
                 }
 
                 var urlRequest = URLRequest(url: url)
-                urlRequest.httpMethod = encodedModel.value.method
-                urlRequest.httpBody = encodedModel.value.serializedParameters
+                urlRequest.httpMethod = encodedModel.method
+                urlRequest.httpBody = encodedModel.serializedParameters
+                urlRequest.allHTTPHeaderFields = encodedModel.allHTTPHeaderFields
 
                 URLSession.shared.dataTask(
                     with: urlRequest
                 ) { data, response, error in
                     completionHandler?(
-                        try? JSONEncoder().encode(
-                            DecodableModel(
-                                data: data,
-                                response: response.debugDescription,
-                                error: error.debugDescription
-                            )
-                        )
+                        try? TunnelProviderReply(TransportMessageReply(
+                            data: data,
+                            response: .init(response),
+                            error: .init(error)
+                        )).encode()
                     )
                 }.resume()
             }
