@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
@@ -183,10 +183,10 @@ const StyledCustomContainer = styled(Cell.Container)((props: StyledCustomContain
 interface SelectorWithCustomItemProps<T, U> extends CommonSelectorProps<T | undefined, U> {
   inputPlaceholder: string;
   onSelect: (value: T | U) => void;
-  onSelectCustom: (value: string) => void;
+  parseValue: (value: string) => T;
+  validateValue?: (value: T) => boolean;
   maxLength?: number;
   selectedCellRef?: React.Ref<HTMLDivElement>;
-  validateValue?: (value: string) => boolean;
   modifyValue?: (value: string) => string;
 }
 
@@ -195,65 +195,70 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
     value,
     inputPlaceholder,
     onSelect,
-    onSelectCustom,
     maxLength,
     selectedCellRef,
     validateValue,
+    parseValue,
     modifyValue,
     ...otherProps
   } = props;
 
-  // The component needs to keep track of when the custom item should look selected before it has a
-  // value.
-  const [customIsSelectedWithoutValue, setCustomIsSelectedWithoutValue] = useState(false);
+  const isNonCustomItem = (value: T | U | undefined) =>
+    props.items.some((item) => item.value === value) || props.automaticValue === value;
+
+  const itemIsSelected = isNonCustomItem(value);
+
+  // Value of custom input. The value is undefined when custom isn't picked.
+  const [customValue, setCustomValue] = useState(itemIsSelected ? undefined : `${value}`);
+  const customIsSelected = customValue !== undefined;
+
   const inputRef = useRef() as React.RefObject<HTMLInputElement>;
 
-  const itemIsSelected =
-    props.items.some((item) => item.value === value) || props.automaticValue === value;
-  const customIsSelected = !itemIsSelected || customIsSelectedWithoutValue;
+  const handleClickCustom = useCallback(() => {
+    inputRef.current?.focus();
+    setCustomValue((customValue) => customValue ?? '');
+  }, [customValue, inputRef.current]);
 
-  const handleClick = useCallback(() => {
-    if (!customIsSelected) {
-      setCustomIsSelectedWithoutValue(true);
-      inputRef.current?.focus();
-    }
-  }, [customIsSelected, inputRef.current]);
-
-  // Wrap onSelect to be able to catch when a new value is selected during the
-  // customIsSelectedWithoutValue phase.
-  const handleSelectValue = useCallback(
+  const handleSelectItem = useCallback(
     (newValue: T | U | undefined) => {
-      if (customIsSelectedWithoutValue && newValue === value) {
-        setCustomIsSelectedWithoutValue(false);
-      } else if (newValue !== undefined) {
+      setCustomValue(undefined);
+
+      onSelect(newValue!);
+    },
+    [value, onSelect],
+  );
+
+  const validateCustomValue = useCallback(
+    (value: string) => validateValue?.(parseValue(value)) ?? true,
+    [parseValue, validateValue],
+  );
+
+  const handleSubmitCustom = useCallback(
+    (newStringValue: string) => {
+      const newValue = parseValue(newStringValue);
+
+      if (isNonCustomItem(newValue)) {
+        handleSelectItem(newValue);
+      } else {
         onSelect(newValue);
       }
     },
-    [customIsSelected, value, onSelect],
+    [value, parseValue, onSelect],
   );
 
-  const handleSubmit = useCallback((value: string) => {
-    if (validateValue?.(value) !== false) {
-      onSelectCustom(value);
-    }
-  }, []);
-
-  // If props.value changes while customIsSelectedWithoutValue then we want to switch to that value
-  // instead.
-  useEffect(() => {
-    if (customIsSelected) {
-      setCustomIsSelectedWithoutValue(false);
-    }
-  }, [value]);
+  const handleInvalidCustom = useCallback(
+    () => setCustomValue(itemIsSelected ? undefined : `${value}`),
+    [itemIsSelected, value],
+  );
 
   return (
     <Selector<T | undefined, U>
       {...otherProps}
-      onSelect={handleSelectValue}
+      onSelect={handleSelectItem}
       value={customIsSelected ? undefined : value}>
       <StyledCustomContainer
         ref={customIsSelected ? props.selectedCellRef : undefined}
-        onClick={handleClick}
+        onClick={handleClickCustom}
         selected={customIsSelected}
         disabled={props.disabled}
         role="option"
@@ -269,13 +274,15 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
         <AriaInput>
           <Cell.AutoSizingTextInput
             ref={inputRef}
-            value={itemIsSelected || customIsSelectedWithoutValue ? '' : `${props.value}`}
+            value={customValue ?? ''}
             placeholder={inputPlaceholder}
             inputMode={'numeric'}
             maxLength={maxLength ?? 4}
-            onSubmitValue={handleSubmit}
+            onChangeValue={setCustomValue}
+            onSubmitValue={handleSubmitCustom}
+            onInvalidValue={handleInvalidCustom}
             submitOnBlur={true}
-            validateValue={validateValue}
+            validateValue={validateCustomValue}
             modifyValue={modifyValue}
           />
         </AriaInput>

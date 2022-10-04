@@ -162,15 +162,10 @@ function PortSelector() {
     [relaySettings],
   );
 
-  const setCustomPort = useCallback(
-    async (port: string) => {
-      await setWireguardPort(parseInt(port));
-    },
-    [setWireguardPort],
-  );
+  const parseValue = useCallback((port: string) => parseInt(port), []);
 
   const validateValue = useCallback(
-    (value) => allowedPortRanges.some(([start, end]) => value >= start && value <= end),
+    (value: number) => allowedPortRanges.some(([start, end]) => value >= start && value <= end),
     [allowedPortRanges],
   );
 
@@ -187,9 +182,9 @@ function PortSelector() {
           items={wireguardPortItems}
           value={port}
           onSelect={setWireguardPort}
-          onSelectCustom={setCustomPort}
           inputPlaceholder={messages.pgettext('wireguard-settings-view', 'Port')}
           automaticValue={null}
+          parseValue={parseValue}
           modifyValue={removeNonNumericCharacters}
           validateValue={validateValue}
           maxLength={5}
@@ -214,19 +209,6 @@ function PortSelector() {
           }
         />
       </StyledSelectorContainer>
-      <Cell.Footer>
-        <AriaDescription>
-          <Cell.FooterText>
-            {
-              // TRANSLATORS: The hint displayed below the WireGuard port selector.
-              messages.pgettext(
-                'wireguard-settings-view',
-                'The automatic setting will randomly choose from a wide range of ports.',
-              )
-            }
-          </Cell.FooterText>
-        </AriaDescription>
-      </Cell.Footer>
     </AriaInputGroup>
   );
 }
@@ -544,7 +526,7 @@ function MtuSetting() {
         </AriaLabel>
         <AriaInput>
           <Cell.AutoSizingTextInput
-            value={mtu ? mtu.toString() : ''}
+            initialValue={mtu ? mtu.toString() : ''}
             inputMode={'numeric'}
             maxLength={4}
             placeholder={messages.gettext('Default')}
