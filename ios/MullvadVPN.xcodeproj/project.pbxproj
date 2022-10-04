@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		063687B028EB083800BE7161 /* RequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* RequestModel.swift */; };
-		063687B228EB083F00BE7161 /* RequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* RequestModel.swift */; };
+		063687B028EB083800BE7161 /* TransportMessage+Reply.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* TransportMessage+Reply.swift */; };
+		063687B228EB083F00BE7161 /* TransportMessage+Reply.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* TransportMessage+Reply.swift */; };
 		063687B528EB22E000BE7161 /* RESTTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B428EB22E000BE7161 /* RESTTransport.swift */; };
 		063687B828EB231900BE7161 /* URLSessionTransport+URLSessionTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B728EB231900BE7161 /* URLSessionTransport+URLSessionTask.swift */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
@@ -391,7 +391,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		063687AF28EB083800BE7161 /* RequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestModel.swift; sourceTree = "<group>"; };
+		063687AF28EB083800BE7161 /* TransportMessage+Reply.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransportMessage+Reply.swift"; sourceTree = "<group>"; };
 		063687B428EB22E000BE7161 /* RESTTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransport.swift; sourceTree = "<group>"; };
 		063687B728EB231900BE7161 /* URLSessionTransport+URLSessionTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSessionTransport+URLSessionTask.swift"; sourceTree = "<group>"; };
 		063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelTransport.swift; sourceTree = "<group>"; };
@@ -865,7 +865,7 @@
 			isa = PBXGroup;
 			children = (
 				589A454B28DDF5E100565204 /* Swizzle.swift */,
-				063687AF28EB083800BE7161 /* RequestModel.swift */,
+				063687AF28EB083800BE7161 /* TransportMessage+Reply.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -1594,7 +1594,7 @@
 				58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */,
 				5815039724D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
 				5815039D24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
-				063687B028EB083800BE7161 /* RequestModel.swift in Sources */,
+				063687B028EB083800BE7161 /* TransportMessage+Reply.swift in Sources */,
 				753D6C0C28B4BF3E0052D9E1 /* ShortcutsManager.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				5872D6E8286304DE00DB5F4E /* TermsOfService.swift in Sources */,
@@ -1692,7 +1692,7 @@
 				585DA87826B024A900B8C587 /* CachedRelays.swift in Sources */,
 				58E072A128814B0E008902F8 /* MullvadEndpoint+WgEndpoint.swift in Sources */,
 				584E96BD240FD4DA00D3334F /* Location.swift in Sources */,
-				063687B228EB083F00BE7161 /* RequestModel.swift in Sources */,
+				063687B228EB083F00BE7161 /* TransportMessage+Reply.swift in Sources */,
 				58D67A0A26D7AE3300557C3C /* OSLogHandler.swift in Sources */,
 				5820675626E6528A00655B05 /* RESTError.swift in Sources */,
 				58900D0328BBDCC70094E4F0 /* FixedWidthInteger+Arithmetics.swift in Sources */,
