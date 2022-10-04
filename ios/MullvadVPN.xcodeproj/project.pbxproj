@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		063687B028EB083800BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
+		063687B228EB083F00BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
+		063687B528EB22E000BE7161 /* RESTTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B428EB22E000BE7161 /* RESTTransport.swift */; };
+		063687B828EB231900BE7161 /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B728EB231900BE7161 /* URLSessionTransport.swift */; };
+		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
+		063687BC28EEC00800BE7161 /* RESTTransportRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687BB28EEC00800BE7161 /* RESTTransportRegistry.swift */; };
+		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
 		5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
 		5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 5807483A27DB8A980020ECBF /* WireGuardKitTypes */; };
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
@@ -185,6 +192,9 @@
 		589A455D28E094BF00565204 /* OperationObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E1E292848DF67004838B3 /* OperationObserverTests.swift */; };
 		589A455E28E094BF00565204 /* OperationInputInjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF5B772852178600E92647 /* OperationInputInjectionTests.swift */; };
 		589A455F28E094BF00565204 /* OperationConditionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580CBFB72848D503007878F0 /* OperationConditionTests.swift */; };
+		589E63D728F7161F005FAB05 /* RESTURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F7C280D6FE000013055 /* RESTURLSession.swift */; };
+		589E63D828F71626005FAB05 /* SSLPinningURLSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */; };
+		589E63D928F71649005FAB05 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B7264D4A2A000E45FB /* le_root_cert.cer */; };
 		58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */; };
 		58A3BDB028A1821A00C8C2C6 /* WgStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A3BDAF28A1821A00C8C2C6 /* WgStats.swift */; };
 		58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
@@ -386,6 +396,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		063687AF28EB083800BE7161 /* ProxyURLRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyURLRequest.swift; sourceTree = "<group>"; };
+		063687B428EB22E000BE7161 /* RESTTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransport.swift; sourceTree = "<group>"; };
+		063687B728EB231900BE7161 /* URLSessionTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
+		063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelTransport.swift; sourceTree = "<group>"; };
+		063687BB28EEC00800BE7161 /* RESTTransportRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportRegistry.swift; sourceTree = "<group>"; };
+		0697D6E628F01513007A9E99 /* TransportMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportMonitor.swift; sourceTree = "<group>"; };
 		58059DDB28465E8F002B1049 /* TransformOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransformOperation.swift; sourceTree = "<group>"; };
 		58059DDD28468158002B1049 /* OutputOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputOperation.swift; sourceTree = "<group>"; };
 		58059DDF2846823E002B1049 /* ResultOperation+Output.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResultOperation+Output.swift"; sourceTree = "<group>"; };
@@ -762,6 +778,7 @@
 				5820676326E771DB00655B05 /* TunnelManagerErrors.swift */,
 				5823FA5326CE49F600283BF8 /* TunnelObserver.swift */,
 				585DA89226B0323E00B8C587 /* TunnelProviderMessage.swift */,
+				063687AF28EB083800BE7161 /* ProxyURLRequest.swift */,
 				58B93A1226C3F13600A55733 /* TunnelState.swift */,
 				5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */,
 				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
@@ -825,9 +842,12 @@
 				588BCF272816D664009ADCEC /* RESTResponseHandler.swift */,
 				58095C582762155700890776 /* RESTRetryStrategy.swift */,
 				58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */,
+				063687B428EB22E000BE7161 /* RESTTransport.swift */,
+				063687BB28EEC00800BE7161 /* RESTTransportRegistry.swift */,
 				58554F7C280D6FE000013055 /* RESTURLSession.swift */,
 				585DA88326B0270700B8C587 /* ServerRelaysResponse.swift */,
 				584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */,
+				063687B728EB231900BE7161 /* URLSessionTransport.swift */,
 			);
 			path = REST;
 			sourceTree = "<group>";
@@ -858,6 +878,15 @@
 				580CBFB72848D503007878F0 /* OperationConditionTests.swift */,
 			);
 			path = OperationsTests;
+			sourceTree = "<group>";
+		};
+		589E63DA28F7E9E7005FAB05 /* TransportMonitor */ = {
+			isa = PBXGroup;
+			children = (
+				063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */,
+				0697D6E628F01513007A9E99 /* TransportMonitor.swift */,
+			);
+			path = TransportMonitor;
 			sourceTree = "<group>";
 		};
 		58B0A2A1238EE67E00BC001D /* MullvadVPNTests */ = {
@@ -992,6 +1021,7 @@
 				585DA87526B0249A00B8C587 /* RelayCache */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
 				58781CD422AFBA39009B9D8E /* RelaySelector.swift */,
+				589E63DA28F7E9E7005FAB05 /* TransportMonitor */,
 				585DA87F26B0268500B8C587 /* REST */,
 				58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */,
 				580909D22876D09A0078138D /* RevokedDeviceViewController.swift */,
@@ -1383,6 +1413,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				58F3C0A724A50C02003E76BE /* relays.json in Resources */,
+				589E63D928F71649005FAB05 /* le_root_cert.cer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1472,6 +1503,7 @@
 				582BB1B3229574F40055B6EF /* SettingsAccountCell.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				58F1311527E0B2AB007AC5BC /* Result+Extensions.swift in Sources */,
+				063687BC28EEC00800BE7161 /* RESTTransportRegistry.swift in Sources */,
 				5872631B283F6EAB00E14ADF /* Intents.intentdefinition in Sources */,
 				585DA88426B0270700B8C587 /* ServerRelaysResponse.swift in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
@@ -1489,6 +1521,7 @@
 				E1187ABF289BE76F0024E748 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				58ACF6492655365700ACE4B7 /* PreferencesViewController.swift in Sources */,
 				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
+				0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */,
 				58968FAE28743E2000B799DC /* TunnelInteractor.swift in Sources */,
 				5820675026E6514100655B05 /* HTTP.swift in Sources */,
 				584D26C2270C8542004EA533 /* SettingsStaticTextFooterView.swift in Sources */,
@@ -1573,6 +1606,7 @@
 				58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */,
 				5815039724D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
 				5815039D24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
+				063687B028EB083800BE7161 /* ProxyURLRequest.swift in Sources */,
 				753D6C0C28B4BF3E0052D9E1 /* ShortcutsManager.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				5872D6E8286304DE00DB5F4E /* TermsOfService.swift in Sources */,
@@ -1592,6 +1626,7 @@
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
 				58B9EB152489139B00095626 /* DisplayChainedError.swift in Sources */,
 				587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */,
+				063687B528EB22E000BE7161 /* RESTTransport.swift in Sources */,
 				58554F79280B037400013055 /* RESTAccessTokenManager.swift in Sources */,
 				75FD0C2328B109860021E33E /* ShortcutsDataSourceDelegate.swift in Sources */,
 				58E511EB28DDE18400B0BCDE /* Error+Chain.swift in Sources */,
@@ -1604,8 +1639,10 @@
 				58B5A895280AACC4009FDE99 /* RESTRequestFactory.swift in Sources */,
 				584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
+				063687B828EB231900BE7161 /* URLSessionTransport.swift in Sources */,
 				58FB865E26EA284E00F188BC /* LogFormatting.swift in Sources */,
 				585DA88726B0277200B8C587 /* RESTError.swift in Sources */,
+				063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */,
 				58293FB725138B88005D0BB5 /* CustomNavigationController.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
 				585DA87726B024A600B8C587 /* CachedRelays.swift in Sources */,
@@ -1662,12 +1699,15 @@
 				5815039824D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
 				5840250522B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
+				589E63D728F7161F005FAB05 /* RESTURLSession.swift in Sources */,
 				580F8B872819795C002E0998 /* DNSSettings.swift in Sources */,
 				5815039E24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
 				585DA87826B024A900B8C587 /* CachedRelays.swift in Sources */,
 				58E072A128814B0E008902F8 /* MullvadEndpoint+WgEndpoint.swift in Sources */,
 				584E96BD240FD4DA00D3334F /* Location.swift in Sources */,
+				063687B228EB083F00BE7161 /* ProxyURLRequest.swift in Sources */,
 				58D67A0A26D7AE3300557C3C /* OSLogHandler.swift in Sources */,
+				589E63D828F71626005FAB05 /* SSLPinningURLSessionDelegate.swift in Sources */,
 				5820675626E6528A00655B05 /* RESTError.swift in Sources */,
 				58900D0328BBDCC70094E4F0 /* FixedWidthInteger+Arithmetics.swift in Sources */,
 				58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
@@ -1875,7 +1915,6 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1938,7 +1977,6 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Apple Distribution";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
