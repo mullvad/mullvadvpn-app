@@ -230,6 +230,30 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
     }
 }
 
+/// Separating TransportMessageReply from Codable for future use. (Logs, separate strategies, etc)
+extension SendTunnelProviderMessageOperation where Output == TransportMessageReply {
+    convenience init(
+        dispatchQueue: DispatchQueue,
+        tunnel: Tunnel,
+        message: TunnelProviderMessage,
+        completionHandler: @escaping CompletionHandler
+    ) {
+        self.init(
+            dispatchQueue: dispatchQueue,
+            tunnel: tunnel,
+            message: message,
+            decoderHandler: { data in
+                if let data = data {
+                    return try TunnelProviderReply(messageData: data).value
+                } else {
+                    throw EmptyTunnelProviderResponseError()
+                }
+            },
+            completionHandler: completionHandler
+        )
+    }
+}
+
 extension SendTunnelProviderMessageOperation where Output == Void {
     convenience init(
         dispatchQueue: DispatchQueue,
