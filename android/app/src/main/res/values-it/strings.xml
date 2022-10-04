@@ -48,7 +48,6 @@
     <string name="disconnect">Disconnetti</string>
     <string name="disconnecting">Disconnessione</string>
     <string name="dismiss">Ignora</string>
-    <string name="dont_have_an_account">Non hai un numero di account?</string>
     <string name="edit_message">Modifica messaggio</string>
     <string name="enable">Abilita</string>
     <string name="enable_custom_dns">Usa un server DNS personalizzato</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">Mostra lo stato attuale del tunnel VPN</string>
     <string name="foreground_notification_channel_name">Stato del tunnel VPN</string>
     <string name="go_to_login">Vai al login</string>
-    <string name="here_is_your_account_number">Ecco il tuo numero di account. Salvalo!</string>
     <string name="hide_account_number">Nascondi numero di account</string>
     <string name="hint_default">Predefinito</string>
     <string name="in_address">Ricezione</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">Pagato fino al</string>
     <string name="pay_to_start_using">Per iniziare a utilizzare l\'app, devi prima aggiungere tempo al tuo account.</string>
     <string name="port_removal_notice">Questa operazione eliminerà tutte le porte inoltrate. Le impostazioni locali verranno salvate.</string>
-    <string name="problem_report_description">Per aiutarti in modo più efficace, il file di registro della tua app sarà allegato a questo messaggio. I tuoi dati rimarranno protetti e privati, e saranno anonimizzati prima di essere inviati tramite un canale crittografato.</string>
     <string name="reconnecting">Riconnessione</string>
     <string name="redeem">Riscatta</string>
     <string name="redeem_voucher">Riscatta voucher</string>

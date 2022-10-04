@@ -48,7 +48,6 @@
     <string name="disconnect">接続解除</string>
     <string name="disconnecting">接続解除中</string>
     <string name="dismiss">閉じる</string>
-    <string name="dont_have_an_account">アカウント番号を持っていませんか？</string>
     <string name="edit_message">メッセージを編集する</string>
     <string name="enable">有効化する</string>
     <string name="enable_custom_dns">カスタムDNSサーバーを使う</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">現在のVPNトンネルのステータスを表示します</string>
     <string name="foreground_notification_channel_name">VPNトンネルのステータス</string>
     <string name="go_to_login">ログインに進む</string>
-    <string name="here_is_your_account_number">これがあなたのアカウント番号です。保存してください！</string>
     <string name="hide_account_number">アカウント番号の非表示</string>
     <string name="hint_default">デフォルト</string>
     <string name="in_address">内側</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">次の日時まで支払い済み</string>
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
     <string name="port_removal_notice">これにより、転送されたポートがすべて削除されます。ローカル設定は保存されます。</string>
-    <string name="problem_report_description">さらに効率よく問題解決を支援するため、お使いのアプリのログファイルをこのメッセージに添付します。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全性は維持され、公開されることはありません。</string>
     <string name="reconnecting">再接続中</string>
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>

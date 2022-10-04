@@ -48,7 +48,6 @@
     <string name="disconnect">Rozłącz</string>
     <string name="disconnecting">Rozłączanie</string>
     <string name="dismiss">Odrzuć</string>
-    <string name="dont_have_an_account">Nie masz numeru konta?</string>
     <string name="edit_message">Edytuj wiadomość</string>
     <string name="enable">Włącz</string>
     <string name="enable_custom_dns">Użyj niestandardowego serwera DNS</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">Pokazuje bieżący status tunelu VPN</string>
     <string name="foreground_notification_channel_name">Status tunelu VPN</string>
     <string name="go_to_login">Przejdź do logowania</string>
-    <string name="here_is_your_account_number">Oto Twój numer konta. Zachowaj go!</string>
     <string name="hide_account_number">Ukryj numer konta</string>
     <string name="hint_default">Domyślnie</string>
     <string name="in_address">Wejście</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">Płatne do</string>
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
     <string name="port_removal_notice">Spowoduje to usunięcie wszystkich przekierowanych portów. Ustawienia lokalne zostaną zapisane.</string>
-    <string name="problem_report_description">Aby pomóc Ci skuteczniej, do tej wiadomości dołączony zostanie plik dzienników aplikacji. Twoje dane pozostaną bezpieczne i prywatne, ponieważ przed wysłaniem zaszyfrowanym kanałem zostają one zanonimizowane.</string>
     <string name="reconnecting">Ponowne łączenie</string>
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>

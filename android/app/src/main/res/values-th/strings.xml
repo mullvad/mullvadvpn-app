@@ -48,7 +48,6 @@
     <string name="disconnect">ตัดการเชื่อมต่อ</string>
     <string name="disconnecting">กำลังตัดการเชื่อมต่อ</string>
     <string name="dismiss">ละทิ้ง</string>
-    <string name="dont_have_an_account">ยังไม่มีหมายเลขบัญชีใช่ไหม</string>
     <string name="edit_message">แก้ไขข้อความ</string>
     <string name="enable">เปิดใช้งาน</string>
     <string name="enable_custom_dns">ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">แสดงสถานะช่องทาง VPN ในปัจจุบัน</string>
     <string name="foreground_notification_channel_name">สถานะช่องทาง VPN</string>
     <string name="go_to_login">ไปเข้าสู่ระบบ</string>
-    <string name="here_is_your_account_number">นี่คือหมายเลขบัญชีของคุณ จดบันทึกไว้ด้วยนะ!</string>
     <string name="hide_account_number">ซ่อนหมายเลขบัญชี</string>
     <string name="hint_default">ค่าเริ่มต้น</string>
     <string name="in_address">เข้า</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">ชำระเงินแล้วจนถึง</string>
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
     <string name="port_removal_notice">นี่จะเป็นการลบพอร์ตที่ส่งต่อทั้งหมด และการตั้งค่าบนอุปกรณ์จะได้รับการบันทึกไว้</string>
-    <string name="problem_report_description">ไฟล์บันทึกในแอปของคุณจะแนบไปกับข้อความนี้ เพื่อที่เราจะสามารถช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เพราะจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส</string>
     <string name="reconnecting">กำลังเชื่อมต่อใหม่</string>
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>

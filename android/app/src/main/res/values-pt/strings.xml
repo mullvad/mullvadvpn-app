@@ -48,7 +48,6 @@
     <string name="disconnect">Desligar</string>
     <string name="disconnecting">A desligar</string>
     <string name="dismiss">Dispensar</string>
-    <string name="dont_have_an_account">Não tem um número de conta?</string>
     <string name="edit_message">Editar mensagem</string>
     <string name="enable">Ativar</string>
     <string name="enable_custom_dns">Usar servidor DNS personalizado</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">Indica o estado atual do túnel VPN</string>
     <string name="foreground_notification_channel_name">Estado do túnel VPN</string>
     <string name="go_to_login">Ir para a ligação</string>
-    <string name="here_is_your_account_number">Aqui tem o seu número de conta. Guarde-o!</string>
     <string name="hide_account_number">Ocultar número de conta</string>
     <string name="hint_default">Padrão</string>
     <string name="in_address">Entrada</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">Pago até</string>
     <string name="pay_to_start_using">Para começar a utilizar a aplicação, primeiro tem de adicionar tempo à sua conta.</string>
     <string name="port_removal_notice">Esta ação irá apagar todas as portas reencaminhadas. As definições locais serão guardadas.</string>
-    <string name="problem_report_description">Para o ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</string>
     <string name="reconnecting">A religar</string>
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>

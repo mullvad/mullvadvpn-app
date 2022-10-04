@@ -48,7 +48,6 @@
     <string name="disconnect">Déconnexion</string>
     <string name="disconnecting">Déconnexion en cours</string>
     <string name="dismiss">Ignorer</string>
-    <string name="dont_have_an_account">Vous n\'avez pas de numéro de compte ?</string>
     <string name="edit_message">Modifier le message</string>
     <string name="enable">Activer</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">Affiche l\'état actuel du tunnel VPN</string>
     <string name="foreground_notification_channel_name">État du tunnel VPN</string>
     <string name="go_to_login">Aller à la connexion</string>
-    <string name="here_is_your_account_number">Voici votre numéro de compte. Gardez-le !</string>
     <string name="hide_account_number">Masquer le numéro de compte</string>
     <string name="hint_default">Par défaut</string>
     <string name="in_address">Entrante</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">Payé jusqu\'au</string>
     <string name="pay_to_start_using">Pour commencer à utiliser l\'application, vous devez d\'abord ajouter du temps à votre compte.</string>
     <string name="port_removal_notice">Ceci supprimera tous les ports transférés. Les paramètres locaux seront enregistrés.</string>
-    <string name="problem_report_description">Pour mieux vous aider, le fichier journal de l\'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d\'être envoyées via un canal chiffré.</string>
     <string name="reconnecting">Reconnexion</string>
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>

@@ -48,7 +48,6 @@
     <string name="disconnect">Bağlantıyı Kes</string>
     <string name="disconnecting">Bağlantı kesiliyor</string>
     <string name="dismiss">Reddet</string>
-    <string name="dont_have_an_account">Hesap numaranız yok mu?</string>
     <string name="edit_message">Mesajı düzenle</string>
     <string name="enable">Etkinleştir</string>
     <string name="enable_custom_dns">Özel DNS sunucusu kullanın</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">Mevcut VPN tünelinin durumunu gösterir</string>
     <string name="foreground_notification_channel_name">VPN tüneli durumu</string>
     <string name="go_to_login">Giriş sayfasına git</string>
-    <string name="here_is_your_account_number">İşte hesap numaranız. Kaydedin!</string>
     <string name="hide_account_number">Hesap numarasını gizle</string>
     <string name="hint_default">Varsayılan</string>
     <string name="in_address">Giriş</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
     <string name="port_removal_notice">Bu işlem, yönlendirilen tüm portları silecek. Yerel ayarlar kaydedilecektir.</string>
-    <string name="problem_report_description">Size daha etkin bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır.</string>
     <string name="reconnecting">Yeniden Bağlanılıyor</string>
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>

@@ -48,7 +48,6 @@
     <string name="disconnect">연결 끊기</string>
     <string name="disconnecting">연결 해제 중</string>
     <string name="dismiss">해제</string>
-    <string name="dont_have_an_account">계정 번호가 없으신가요?</string>
     <string name="edit_message">메시지 편집</string>
     <string name="enable">사용</string>
     <string name="enable_custom_dns">사용자 지정 DNS 서버 사용</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">현재 VPN 터널 상태 표시</string>
     <string name="foreground_notification_channel_name">VPN 터널 상태</string>
     <string name="go_to_login">로그인하기</string>
-    <string name="here_is_your_account_number">계정 번호는 다음과 같습니다. 저장하세요!</string>
     <string name="hide_account_number">계정 번호 숨기기</string>
     <string name="hint_default">기본값</string>
     <string name="in_address">인</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">유효 기간</string>
     <string name="pay_to_start_using">앱 사용을 시작하려면, 먼저 계정에 시간을 추가해야 합니다.</string>
     <string name="port_removal_notice">전달된 모든 포트가 삭제됩니다. 로컬 설정이 저장됩니다.</string>
-    <string name="problem_report_description">효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다.</string>
     <string name="reconnecting">다시 연결 중</string>
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>

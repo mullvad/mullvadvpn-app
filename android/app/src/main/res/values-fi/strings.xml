@@ -48,7 +48,6 @@
     <string name="disconnect">Katkaise yhteys</string>
     <string name="disconnecting">Katkaistaan yhteyttä</string>
     <string name="dismiss">Jätä huomiotta</string>
-    <string name="dont_have_an_account">Eikö sinulla ole tilinumeroa?</string>
     <string name="edit_message">Muokkaa viestiä</string>
     <string name="enable">Ota käyttöön</string>
     <string name="enable_custom_dns">Käytä mukautettua DNS-palvelinta</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
     <string name="foreground_notification_channel_name">VPN-tunnelin tila</string>
     <string name="go_to_login">Siirry kirjautumiseen</string>
-    <string name="here_is_your_account_number">Tässä tulee tilisi numero. Laita se talteen!</string>
     <string name="hide_account_number">Piilota tilin numero</string>
     <string name="hint_default">Oletus</string>
     <string name="in_address">Saapuva</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">Maksu ennen</string>
     <string name="pay_to_start_using">Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi.</string>
     <string name="port_removal_notice">Toiminto poistaa kaikki välitetyt portit. Paikalliset asetukset tallennetaan.</string>
-    <string name="problem_report_description">Jotta voimme olla avuksi parhaamme mukaan, sovelluksesi lokitiedosto liitetään tähän viestiin. Tietosi pysyvät suojattuina ja yksityisinä, ja ne anonymisoidaan salatun kanavan kautta ennen lähetystä.</string>
     <string name="reconnecting">Yhdistetään uudelleen</string>
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>

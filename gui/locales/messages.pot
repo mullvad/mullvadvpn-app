@@ -1580,6 +1580,9 @@ msgstr ""
 msgid "Custom DNS server addresses %s are invalid"
 msgstr ""
 
+msgid "Don’t have an account number?"
+msgstr ""
+
 msgid "Enable"
 msgstr ""
 
@@ -1611,6 +1614,9 @@ msgid "Generate key"
 msgstr ""
 
 msgid "Going to login will unblock the internet on this device."
+msgstr ""
+
+msgid "Here’s your account number. Save it!"
 msgstr ""
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
@@ -1674,6 +1680,9 @@ msgid "The local DNS server will not work unless you enable \"Local Network Shar
 msgstr ""
 
 msgid "This device is offline, no tunnels can be established"
+msgstr ""
+
+msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr ""
 
 msgid "Toggle VPN"

@@ -48,7 +48,6 @@
     <string name="disconnect">Afbryd forbindelse</string>
     <string name="disconnecting">Afbryder</string>
     <string name="dismiss">Afvis</string>
-    <string name="dont_have_an_account">Har du ikke noget kontonummer?</string>
     <string name="edit_message">Rediger meddelelse</string>
     <string name="enable">Aktiver</string>
     <string name="enable_custom_dns">Brug brugerdefineret DNS-server</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">Viser den aktuelle VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til login</string>
-    <string name="here_is_your_account_number">Her er dit kontonummer. Gem det!</string>
     <string name="hide_account_number">Skjul kontonummer</string>
     <string name="hint_default">Standard</string>
     <string name="in_address">Ind</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">Betalt indtil</string>
     <string name="pay_to_start_using">For at begynde at bruge appen skal du først føje tid til din konto.</string>
     <string name="port_removal_notice">Dette vil slette alle videresendte porte. Lokale indstillinger vil blive gemt.</string>
-    <string name="problem_report_description">For at vi bedre kan hjælpe dig, bedes du vedhæfte din apps logfil til denne meddelelse. Dine data vil forblive sikre og private, da de anonymiseres, før de sendes via en krypteret kanal.</string>
     <string name="reconnecting">Genopretter forbindelse</string>
     <string name="redeem">Indløs</string>
     <string name="redeem_voucher">Indløs kupon</string>

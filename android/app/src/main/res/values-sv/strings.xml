@@ -48,7 +48,6 @@
     <string name="disconnect">Koppla från</string>
     <string name="disconnecting">Kopplar från</string>
     <string name="dismiss">Ignorera</string>
-    <string name="dont_have_an_account">Har du inget kontonummer?</string>
     <string name="edit_message">Redigera meddelande</string>
     <string name="enable">Aktivera</string>
     <string name="enable_custom_dns">Använd anpassad DNS-server</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">Visar nuvarande status för VPN-tunnel</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå till inloggning</string>
-    <string name="here_is_your_account_number">Här är ditt kontonummer. Spara det!</string>
     <string name="hide_account_number">Dölj kontonummer</string>
     <string name="hint_default">Standard</string>
     <string name="in_address">In</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">Betalat till</string>
     <string name="pay_to_start_using">Om du vill börja använda appen måste du först lägga till tid i ditt konto.</string>
     <string name="port_removal_notice">Detta tar bort alla vidarebefordrade portar. Lokala inställningar sparas.</string>
-    <string name="problem_report_description">För att hjälpa dig mer effektivt kommer appens loggfil att bifogas i detta meddelande. Dina uppgifter förblir säkra och privata, eftersom de anonymiseras innan de skickas över en krypterad kanal.</string>
     <string name="reconnecting">Återansluter</string>
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>

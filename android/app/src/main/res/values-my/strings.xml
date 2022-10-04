@@ -48,7 +48,6 @@
     <string name="disconnect">ချိတ်ဆက်မှုဖြုတ်ရန်</string>
     <string name="disconnecting">ချိတ်ဆက်မှုဖြုတ်နေပါသည်</string>
     <string name="dismiss">ဖယ်ပစ်ရန်</string>
-    <string name="dont_have_an_account">အကောင့်နံပါတ် မရှိ ဖြစ်နေပါသလား။</string>
     <string name="edit_message">မက်ဆေ့ချ် တည်းဖြတ်ရန်</string>
     <string name="enable">ဖွင့်ရန်</string>
     <string name="enable_custom_dns">စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
     <string name="foreground_notification_channel_name">VPN Tunnel အခြေအနေ</string>
     <string name="go_to_login">ဝင်ရောက်ရန် သွားပါ</string>
-    <string name="here_is_your_account_number">ဤသည်မှာ သင့်အကောင့်နံပါတ် ဖြစ်ပါသည်။ သိမ်းမှတ်ထားပါ။</string>
     <string name="hide_account_number">အကောင့်နံပါတ်ကို ဝှက်ရန်</string>
     <string name="hint_default">ပုံသေ</string>
     <string name="in_address">အဝင်</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">ဖော်ပြပါအထိ ပေးချေထားပြီး</string>
     <string name="pay_to_start_using">အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။</string>
     <string name="port_removal_notice">၎င်းသည် ပေးပို့ထားသော ports ကို ဖျက်ပါမည်။ စက်တွင်းဆက်တင်ကို သိမ်းထားပါမည်။</string>
-    <string name="problem_report_description">သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။</string>
     <string name="reconnecting">ပြန်ချိတ်ဆက်နေပါသည်</string>
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>

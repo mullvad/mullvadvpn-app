@@ -48,7 +48,6 @@
     <string name="disconnect">断开连接</string>
     <string name="disconnecting">正在断开连接</string>
     <string name="dismiss">关闭</string>
-    <string name="dont_have_an_account">没有帐号？</string>
     <string name="edit_message">编辑消息</string>
     <string name="enable">启用</string>
     <string name="enable_custom_dns">使用自定义 DNS 服务器</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">显示当前的 VPN 隧道状态</string>
     <string name="foreground_notification_channel_name">VPN 隧道状态</string>
     <string name="go_to_login">前往登录</string>
-    <string name="here_is_your_account_number">以下是您的帐号。请妥善保存！</string>
     <string name="hide_account_number">隐藏帐号</string>
     <string name="hint_default">默认</string>
     <string name="in_address">内部</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">到期时间</string>
     <string name="pay_to_start_using">要开始使用本应用，您首先需要向帐户中充入时间。</string>
     <string name="port_removal_notice">这将删除所有转发的端口。将保存本地设置。</string>
-    <string name="problem_report_description">为了更有效地帮助您，您应用的日志文件将附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。</string>
     <string name="reconnecting">正在重新连接</string>
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>

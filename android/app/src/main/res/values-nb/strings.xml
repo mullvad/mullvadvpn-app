@@ -48,7 +48,6 @@
     <string name="disconnect">Koble fra</string>
     <string name="disconnecting">Kobler fra</string>
     <string name="dismiss">Ignorer</string>
-    <string name="dont_have_an_account">Har du ikke et kontonummer?</string>
     <string name="edit_message">Rediger melding</string>
     <string name="enable">Aktiver</string>
     <string name="enable_custom_dns">Bruk egendefinert DNS-server</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">Viser gjeldende VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til pålogging</string>
-    <string name="here_is_your_account_number">Dette er kontonummeret ditt. Ta vare på det!</string>
     <string name="hide_account_number">Skjul kontonummer</string>
     <string name="hint_default">Standard</string>
     <string name="in_address">Inngående</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">Betalt fram til</string>
     <string name="pay_to_start_using">For å starte bruken av appen, må du først legge til tid til kontoen.</string>
     <string name="port_removal_notice">Dette vil slette alle formidlede porter. Lokale innstillinger blir lagret.</string>
-    <string name="problem_report_description">For å kunne gi deg god nok hjelp vil loggfilen til appen ligge som vedlegg til meldingen. All data forblir beskyttet og privat gjennom anonymisering før det sendes gjennom en kryptert kanal.</string>
     <string name="reconnecting">Kobler til på nytt</string>
     <string name="redeem">Løs inn</string>
     <string name="redeem_voucher">Løs inn kupong</string>

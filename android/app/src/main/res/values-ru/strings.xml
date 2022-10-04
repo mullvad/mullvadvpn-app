@@ -48,7 +48,6 @@
     <string name="disconnect">Отключить</string>
     <string name="disconnecting">Отключение</string>
     <string name="dismiss">Закрыть</string>
-    <string name="dont_have_an_account">У вас нет номера учетной записи?</string>
     <string name="edit_message">Изменить сообщение</string>
     <string name="enable">Включить</string>
     <string name="enable_custom_dns">Пользовательский DNS-сервер</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>
     <string name="foreground_notification_channel_name">Состояние туннеля VPN</string>
     <string name="go_to_login">Войти</string>
-    <string name="here_is_your_account_number">Вот номер вашей учетной записи. Сохраните его!</string>
     <string name="hide_account_number">Скрыть номер учетной записи</string>
     <string name="hint_default">По умолчанию</string>
     <string name="in_address">Вход</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">Оплачено до</string>
     <string name="pay_to_start_using">Чтобы пользоваться приложением, нужно добавить время на учетную запись.</string>
     <string name="port_removal_notice">Будут удалены все перенаправленные порты. Локальные настройки сохранятся.</string>
-    <string name="problem_report_description">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</string>
     <string name="reconnecting">Идет переподключение</string>
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>

@@ -48,7 +48,6 @@
     <string name="disconnect">Verbinding verbreken</string>
     <string name="disconnecting">Verbinding wordt verbroken</string>
     <string name="dismiss">Negeren</string>
-    <string name="dont_have_an_account">Hebt u geen accountnummer?</string>
     <string name="edit_message">Bericht bewerken</string>
     <string name="enable">Inschakelen</string>
     <string name="enable_custom_dns">Aangepaste DNS-server gebruiken</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">Toont huidige status van VPN-tunnel</string>
     <string name="foreground_notification_channel_name">Status VPN-tunnel</string>
     <string name="go_to_login">Ga naar aanmelden</string>
-    <string name="here_is_your_account_number">Hier is uw accountnummer. Sla het op!</string>
     <string name="hide_account_number">Accountnummer verbergen</string>
     <string name="hint_default">Standaard</string>
     <string name="in_address">In</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">Betaald tot</string>
     <string name="pay_to_start_using">Om de app te gebruiken, moet u eerst tijd toevoegen aan uw account.</string>
     <string name="port_removal_notice">Hiermee worden alle doorgestuurde poorten verwijderd. De lokale instellingen worden opgeslagen.</string>
-    <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
     <string name="reconnecting">Opnieuw verbinden</string>
     <string name="redeem">Inwisselen</string>
     <string name="redeem_voucher">Voucher inwisselen</string>

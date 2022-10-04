@@ -48,7 +48,6 @@
     <string name="disconnect">中斷連線</string>
     <string name="disconnecting">正在中斷連線</string>
     <string name="dismiss">取消</string>
-    <string name="dont_have_an_account">沒有帳號？</string>
     <string name="edit_message">編輯訊息</string>
     <string name="enable">啟用</string>
     <string name="enable_custom_dns">使用自訂 DNS 伺服器</string>
@@ -64,7 +63,6 @@
     <string name="foreground_notification_channel_description">顯示目前的 VPN 通道狀態</string>
     <string name="foreground_notification_channel_name">VPN 通道狀態</string>
     <string name="go_to_login">前往登入</string>
-    <string name="here_is_your_account_number">以下是您的帳號。請妥善保管！</string>
     <string name="hide_account_number">隱藏帳號</string>
     <string name="hint_default">預設</string>
     <string name="in_address">入境</string>
@@ -96,7 +94,6 @@
     <string name="paid_until">支付至</string>
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>
     <string name="port_removal_notice">這將刪除所有轉送的連接埠。將儲存本機設定。</string>
-    <string name="problem_report_description">為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。</string>
     <string name="reconnecting">正在重新連線</string>
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
