@@ -6,6 +6,7 @@ import { WillExit } from '../lib/will-exit';
 
 interface ITransitioningViewProps {
   viewId: string;
+  children?: React.ReactNode;
 }
 
 type TransitioningView = React.ReactElement<ITransitioningViewProps>;

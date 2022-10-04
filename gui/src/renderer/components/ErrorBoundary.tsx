@@ -33,7 +33,7 @@ export default class ErrorBoundary extends React.Component<IProps, IState> {
 
   public render() {
     if (this.state.hasError) {
-      const reachBackMessage: React.ReactNodeArray =
+      const reachBackMessage: React.ReactNode[] =
         // TRANSLATORS: The message displayed to the user in case of critical error in the GUI
         // TRANSLATORS: Available placeholders:
         // TRANSLATORS: %(email)s - support email
