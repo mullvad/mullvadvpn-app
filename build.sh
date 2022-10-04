@@ -355,20 +355,15 @@ case "$(uname -s)" in
     Darwin*)    npm run pack:mac -- "${NPM_PACK_ARGS[@]}";;
     MINGW*)     npm run pack:win -- "${NPM_PACK_ARGS[@]}";;
 esac
-
 popd
 
-SEMVER_VERSION=$(echo "$PRODUCT_VERSION" | sed -Ee 's/($|-.*)/.0\1/g')
-for semver_path in dist/*"$SEMVER_VERSION"*; do
-    product_path=$(echo "$semver_path" | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
-    log_info "Moving $semver_path -> $product_path"
-    mv "$semver_path" "$product_path"
-
-    if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* && "$product_path" == *.exe ]]; then
-        # sign installer
-        sign_win "$product_path"
-    fi
-done
+# sign installer on Windows
+if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
+    for installer_path in dist/*"$PRODUCT_VERSION"*.exe; do
+        log_info "Signing $installer_path"
+        sign_win "$installer_path"
+    done
+fi
 
 log_success "**********************************"
 log_success ""

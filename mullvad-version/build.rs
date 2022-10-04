@@ -6,7 +6,7 @@ use std::{env, fs, path::PathBuf, process::Command};
 const GIT_HASH_DEV_SUFFIX_LEN: usize = 6;
 
 const ANDROID_VERSION_FILE_PATH: &str = "../android/app/build.gradle.kts";
-const DESKTOP_VERSION_FILE_PATH: &str = "../gui/package.json";
+const DESKTOP_VERSION_FILE_PATH: &str = "../dist-assets/desktop-product-version.txt";
 
 #[derive(Debug)]
 enum Target {
@@ -70,11 +70,8 @@ fn parse_current_version_from_file(target: &Target) -> String {
         }
         Target::Desktop => {
             println!("cargo:rerun-if-changed={DESKTOP_VERSION_FILE_PATH}");
-            let semver_version = get_single_capture_from_file(
-                DESKTOP_VERSION_FILE_PATH,
-                Regex::new("\"version\": \"([^\"]*)\"").unwrap(),
-            );
-            semver_version.replacen(".0", "", 1)
+            fs::read_to_string(DESKTOP_VERSION_FILE_PATH)
+                .unwrap_or_else(|_| panic!("Failed to read {DESKTOP_VERSION_FILE_PATH}"))
         }
     }
 }
