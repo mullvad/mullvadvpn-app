@@ -332,7 +332,7 @@ export default class Login extends React.Component<IProps, IState> {
     return (
       <>
         <StyledLoginFooterPrompt>
-          {messages.pgettext('login-view', "Don't have an account number?")}
+          {messages.pgettext('login-view', 'Don’t have an account number?')}
         </StyledLoginFooterPrompt>
         <AppButton.BlueButton
           onClick={this.props.createNewAccount}

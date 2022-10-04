@@ -403,7 +403,7 @@ msgid "You need to disable \"Lockdown mode\" in order to access the Internet to 
 msgstr ""
 
 msgctxt "connect-view"
-msgid "You're all set!"
+msgid "You’re all set!"
 msgstr ""
 
 #. The hostname line displayed below the country on the main screen
@@ -629,7 +629,7 @@ msgid "Creating account..."
 msgstr ""
 
 msgctxt "login-view"
-msgid "Don't have an account number?"
+msgid "Don’t have an account number?"
 msgstr ""
 
 msgctxt "login-view"
@@ -1175,7 +1175,7 @@ msgid "This option is unavailable while using a beta version."
 msgstr ""
 
 msgctxt "support-view"
-msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr ""
 
 msgctxt "support-view"
@@ -1730,7 +1730,7 @@ msgstr ""
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr ""
 
-msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device's Account settings."
+msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device’s Account settings."
 msgstr ""
 
 msgid "Account credit expires in a day"
