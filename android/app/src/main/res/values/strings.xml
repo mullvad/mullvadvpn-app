@@ -21,13 +21,13 @@
     <string name="logged_in_description">Valid account number</string>
     <string name="login_fail_title">Login failed</string>
     <string name="login_fail_description">Invalid account number</string>
-    <string name="dont_have_an_account">Don\'t have an account number?</string>
+    <string name="dont_have_an_account">Don’t have an account number?</string>
     <string name="create_account">Create account</string>
     <string name="creating_new_account">Creating account...</string>
     <string name="failed_to_create_account">Failed to create account</string>
     <string name="account_created">Account created</string>
     <string name="congrats">Congrats!</string>
-    <string name="here_is_your_account_number">Here\'s your account number. Save it!</string>
+    <string name="here_is_your_account_number">Here’s your account number. Save it!</string>
     <string name="pay_to_start_using">To start using the app, you first need to add time to your
     account.</string>
     <string name="buy_credit">Buy credit</string>
@@ -71,7 +71,7 @@
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Set WireGuard MTU value. Valid range: %1$d - %2$d.</string>
     <string name="hint_default">Default</string>
-    <string name="problem_report_description">To help you more effectively, your app\'s log file
+    <string name="problem_report_description">To help you more effectively, your app’s log file
     will be attached to this message. Your data will remain secure and private, as it is anonymised
     before being sent over an encrypted channel.</string>
     <string name="user_email_hint">Your email (optional)</string>
@@ -184,7 +184,7 @@
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">You have too many active devices. Please log out
     of at least one by removing it from the list below. You can find the corresponding nickname
-    under the device\'s Account settings.</string>
+    under the device’s Account settings.</string>
     <string name="max_devices_resolved_description">You can now continue logging in on this
     device.</string>
     <string name="max_devices_confirm_removal_description">
