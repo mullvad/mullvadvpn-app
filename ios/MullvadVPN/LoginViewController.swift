@@ -42,8 +42,8 @@ protocol LoginViewControllerDelegate: AnyObject {
 }
 
 class LoginViewController: UIViewController, RootContainment {
-    private lazy var contentView: LoginContentView = {
-        let view = LoginContentView(frame: self.view.bounds)
+    private let contentView: LoginContentView = {
+        let view = LoginContentView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
