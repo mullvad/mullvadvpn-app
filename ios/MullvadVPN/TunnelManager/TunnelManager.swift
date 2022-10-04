@@ -519,7 +519,7 @@ final class TunnelManager {
     ) -> Cancellable? {
         do {
             return tunnel?.sendRequest(
-                try message.encode(),
+                try TunnelProviderReply(message).encode(),
                 completionHandler: completionHandler
             )
         } catch {

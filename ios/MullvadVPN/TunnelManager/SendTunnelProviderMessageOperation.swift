@@ -117,7 +117,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
 
         case .reasserting:
             sendMessage()
-        case .invalid, .disconnecting://, .disconnected:
+        case .invalid, .disconnecting: // , .disconnected:
             finish(completion: .failure(SendTunnelProviderMessageError.tunnelDown(status)))
 
         @unknown default:
