@@ -500,7 +500,7 @@ msgid "You need to disable \"Always require VPN\" in order to access the Interne
 msgstr "Süre eklemek amacıyla İnternet'e erişmek için “VPN her zaman açık” seçeneğini devre dışı bırakmanız gerekir."
 
 msgctxt "connect-view"
-msgid "You're all set!"
+msgid "You’re all set!"
 msgstr "Hazırsınız!"
 
 #. The hostname line displayed below the country on the main screen
@@ -722,7 +722,7 @@ msgid "Creating account..."
 msgstr "Hesap oluşturuluyor..."
 
 msgctxt "login-view"
-msgid "Don't have an account number?"
+msgid "Don’t have an account number?"
 msgstr "Hesap numaranız yok mu?"
 
 msgctxt "login-view"
@@ -1398,7 +1398,7 @@ msgid "Thanks!"
 msgstr "Teşekkürler!"
 
 msgctxt "support-view"
-msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "Size daha etkin bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır."
 
 msgctxt "support-view"
