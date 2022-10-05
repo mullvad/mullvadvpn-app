@@ -10,14 +10,19 @@ import Foundation
 import NetworkExtension
 import Operations
 
-private enum MessagingConfiguration {
+struct MessagingConfiguration {
     /// Delay for sending tunnel provider messages to the tunnel when in connecting state.
     /// Used to workaround a bug when talking to the tunnel too early during startup may cause it
     /// to freeze.
-    static let connectingStateWaitDelay: TimeInterval = 5
+    let connectingStateWaitDelay: TimeInterval
 
     /// Timeout interval in seconds.
-    static let timeout: TimeInterval = 5
+    let timeout: TimeInterval
+
+    internal init(connectingStateWaitDelay: TimeInterval = 5, timeout: TimeInterval = 5) {
+        self.connectingStateWaitDelay = connectingStateWaitDelay
+        self.timeout = timeout
+    }
 }
 
 final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, Error> {
@@ -25,6 +30,8 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
 
     private let tunnel: Tunnel
     private let message: TunnelProviderMessage
+    private let configuration: MessagingConfiguration
+
     private let decoderHandler: DecoderHandler
 
     private var statusObserver: TunnelStatusBlockObserver?
@@ -37,11 +44,14 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
         dispatchQueue: DispatchQueue,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
+        configuration: MessagingConfiguration = .init(),
         decoderHandler: @escaping DecoderHandler,
         completionHandler: @escaping CompletionHandler
     ) {
         self.tunnel = tunnel
         self.message = message
+        self.configuration = configuration
+
         self.decoderHandler = decoderHandler
 
         super.init(
@@ -96,7 +106,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
         timeoutWork = workItem
 
         // Schedule timeout work.
-        let deadline: DispatchWallTime = .now() + MessagingConfiguration.timeout + delay
+        let deadline: DispatchWallTime = .now() + configuration.timeout + delay
 
         dispatchQueue.asyncAfter(wallDeadline: deadline, execute: workItem)
     }
@@ -139,12 +149,12 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
         waitForConnectingStateWork = nil
 
         // Execute right away if enough time passed since the tunnel was launched.
-        guard timeElapsed < MessagingConfiguration.connectingStateWaitDelay else {
+        guard timeElapsed < configuration.connectingStateWaitDelay else {
             block()
             return
         }
 
-        let waitDelay = MessagingConfiguration.connectingStateWaitDelay - timeElapsed
+        let waitDelay = configuration.connectingStateWaitDelay - timeElapsed
         let workItem = DispatchWorkItem(block: block)
 
         // Assign new work.
@@ -230,6 +240,7 @@ extension SendTunnelProviderMessageOperation where Output == TransportMessageRep
             dispatchQueue: dispatchQueue,
             tunnel: tunnel,
             message: message,
+            configuration: .init(timeout: 12),
             decoderHandler: { data in
                 if let data = data {
                     return try TunnelProviderReply(messageData: data).value
