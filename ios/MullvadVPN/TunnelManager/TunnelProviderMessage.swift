@@ -18,7 +18,7 @@ enum TunnelProviderMessage: Codable, CustomStringConvertible {
     case getTunnelStatus
 
     /// Request the tunnel to transport a http request.
-    case transportHTTPRequest(Data)
+    case transportHTTPRequest(TransportMessage)
 
     /// Request the tunnel to cancel transport for http request.
     case cancelURLRequest(UUID)

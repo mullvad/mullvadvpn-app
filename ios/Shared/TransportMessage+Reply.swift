@@ -12,10 +12,11 @@ import Foundation
 /// Its a wrapper to send urlRequest to tunnel via Data,
 /// and recreate the original request inside the tunnel.
 struct TransportMessage: Codable {
+    let id: UUID
     let url: URL?
     let method: String?
-    let serializedParameters: Data?
-    let allHTTPHeaderFields: [String: String]?
+    let httpBody: Data?
+    let httpHeaders: [String: String]?
 
     func encode() throws -> Data {
         try JSONEncoder().encode(self)
@@ -23,11 +24,12 @@ struct TransportMessage: Codable {
 }
 
 extension TransportMessage {
-    init(urlRequest: URLRequest) {
+    init(id: UUID, urlRequest: URLRequest) {
+        self.id = id
         url = urlRequest.url
         method = urlRequest.httpMethod
-        serializedParameters = urlRequest.httpBody
-        allHTTPHeaderFields = urlRequest.allHTTPHeaderFields
+        httpBody = urlRequest.httpBody
+        httpHeaders = urlRequest.allHTTPHeaderFields
     }
 }
 
@@ -54,6 +56,7 @@ struct TransportMessageReply: Codable {
         init?(_ error: Error?) throws {
             debugDescription = error.debugDescription
 
+            guard let error = error else { return nil }
             if let error = error as? URLError { code = error.errorCode }
             else { code = -1 }
         }
@@ -75,7 +78,7 @@ struct TransportMessageReply: Codable {
             statusCode = response.statusCode
 
             headerFields = Dictionary(
-                response.allHeaderFields.map { ("\($0)", "\($1)") }
+                uniqueKeysWithValues: response.allHeaderFields.map { ("\($0)", "\($1)") }
             )
         }
 
@@ -90,23 +93,4 @@ struct TransportMessageReply: Codable {
             )
         }
     }
-}
-
-private extension Dictionary {
-    init<S: Sequence>(_ sequence: S) where S.Iterator.Element == Element {
-        self.init()
-        for (key, value) in sequence {
-            self[key] = value
-        }
-    }
-}
-
-enum PacketTunnelRequestError: Codable {
-    case urlError(_ urlErrorCode: Int)
-    case unknown(_ errorDescription: String)
-}
-
-enum PacketTunnelRequestEvent: Codable {
-    case initiated(UUID)
-    case complete(Data?, PacketTunnelRequestError?)
 }

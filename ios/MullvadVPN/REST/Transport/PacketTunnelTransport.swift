@@ -13,11 +13,12 @@ struct PacketTunnelTransport: RESTTransport {
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable? {
-        let encodableModel = TransportMessage(
+        let message = TransportMessage(
+            id: createIdForMessage(),
             urlRequest: request
         )
 
-        return TunnelManager.shared.sendRequest(message: encodableModel) { result in
+        return TunnelManager.shared.sendRequest(message: message) { result in
             switch result {
             case .cancelled: break
             case let .success(reply):
@@ -60,4 +61,9 @@ struct PacketTunnelTransport: RESTTransport {
         }
     }
     #endif
+
+    /// Create unique request UUID and store it along the URLSessionTask in a dictionary.
+    private func createIdForMessage() -> UUID {
+        UUID()
+    }
 }
