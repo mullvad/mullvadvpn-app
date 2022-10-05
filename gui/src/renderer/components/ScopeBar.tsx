@@ -16,7 +16,7 @@ interface IScopeBarProps {
   defaultSelectedIndex?: number;
   onChange?: (selectedIndex: number) => void;
   className?: string;
-  children: React.ReactNode;
+  children: React.ReactElement<IScopeBarItemProps>[];
 }
 
 export function ScopeBar(props: IScopeBarProps) {

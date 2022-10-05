@@ -1,14 +1,14 @@
 import { ipcMain, WebContents } from 'electron';
 
-import { createIpcMain, IpcMain, Schema } from '../shared/ipc-helpers';
+import { createIpcMain, IpcMain, Notifier, Schema } from '../shared/ipc-helpers';
 import { ipcSchema } from '../shared/ipc-schema';
 
 // Type where the notify functions have been replaced with either `undefined` if no `WebContents` is
 // available, or with the function curried with the `WebContents`.
 type IpcMainBootstrappedWithWebContents<S extends Schema> = {
   [GK in keyof IpcMain<S>]: {
-    [CK in keyof IpcMain<S>[GK]]: CK extends `notify${string}`
-      ? undefined | ((arg: Parameters<IpcMain<S>[GK][CK]>[1]) => ReturnType<IpcMain<S>[GK][CK]>)
+    [CK in keyof IpcMain<S>[GK]]: IpcMain<S>[GK][CK] extends Notifier<infer T>
+      ? undefined | ((arg: T) => ReturnType<IpcMain<S>[GK][CK]>)
       : IpcMain<S>[GK][CK];
   };
 };

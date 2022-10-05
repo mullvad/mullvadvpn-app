@@ -5,7 +5,9 @@ import { capitalize } from './string-helpers';
 
 type Handler<T, R> = (callback: (arg: T) => R) => void;
 type Sender<T, R> = (arg: T) => R;
-type Notifier<T> = (webContents: WebContents | undefined, arg: T) => void;
+// Remove export after upgrading to Electron 21+ and removal of code to curry notifiers with
+// webContents in ../main/ipc-event-channel.ts.
+export type Notifier<T> = (webContents: WebContents | undefined, arg: T) => void;
 type Listener<T> = (callback: (arg: T) => void) => void;
 
 interface MainToRenderer<T> {
