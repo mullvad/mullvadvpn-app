@@ -142,29 +142,32 @@ extension REST {
                     "Send request to \(restRequest.pathTemplate.templateString) via \(endpoint)."
                 )
 
-            networkTask = try? URLSessionTransport(urlSession: urlSession)
-                .sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
-                    guard let self = self else { return }
+            do {
+                networkTask = try URLSessionTransport(urlSession: urlSession)
+                    .sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
+                        guard let self = self else { return }
 
-                    self.dispatchQueue.async {
-                        if let error = error {
-                            self.didReceiveError(error, endpoint: endpoint)
-                        } else {
-                            guard let httpResponse = response as? HTTPURLResponse else {
-                                self.finish(completion: .failure(.responseTypeMissMatch))
-                                return
+                        self.dispatchQueue.async {
+                            if let error = error {
+                                self.didReceiveError(error, endpoint: endpoint)
+                            } else {
+                                let httpResponse = response as! HTTPURLResponse
+                                let data = data ?? Data()
+
+                                self.didReceiveURLResponse(
+                                    httpResponse,
+                                    data: data,
+                                    endpoint: endpoint
+                                )
                             }
-
-                            guard let data = data else {
-                                self.finish(completion: .failure(.emptyData))
-
-                                return
-                            }
-
-                            self.didReceiveURLResponse(httpResponse, data: data, endpoint: endpoint)
                         }
                     }
-                }
+            } catch {
+                logger
+                    .debug(
+                        "Failure to send request to \(restRequest.pathTemplate.templateString) via \(endpoint) inside the transport tunnel."
+                    )
+            }
         }
 
         private func didFailToCreateURLRequest(_ error: REST.Error) {
@@ -182,7 +185,7 @@ extension REST {
             if let urlError = error as? URLError {
                 didReceiveURLError(urlError, endpoint: endpoint)
             } else {
-                didReceiveUnknownError(.unknown(error), endpoint: endpoint)
+                didReceiveUnknownError(.transport(error), endpoint: endpoint)
             }
         }
 

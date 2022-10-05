@@ -74,7 +74,7 @@ extension Tunnel {
                     dispatchQueue: dispatchQueue,
                     tunnel: self,
                     message: .cancelURLRequest(requestData.id),
-                    completionHandler: completionHandler
+                    completionHandler: nil
                 )
 
                 operationQueue.addOperation(cancelOperation)
