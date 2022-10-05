@@ -34,7 +34,7 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
 
 fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> String {
     let endpoint = relay_info.tunnel_endpoint.as_ref().unwrap();
-    let location = &relay_info.location.as_ref().unwrap();
+    let location = &relay_info.location.as_ref();
 
     let prefix_separator = if verbose { "\n\t" } else { " " };
     let mut obfuscator_overlaps = false;
@@ -43,7 +43,10 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
         let mut address = Cow::Borrowed(endpoint.address.as_str());
         let mut protocol = endpoint.protocol;
         if let Some(obfuscator) = endpoint.obfuscation.as_ref() {
-            if location.hostname == location.obfuscator_hostname {
+            if location
+                .map(|l| l.hostname == l.obfuscator_hostname)
+                .unwrap_or(false)
+            {
                 obfuscator_overlaps = true;
                 address = Cow::Owned(format!("{}:{}", obfuscator.address, obfuscator.port));
                 protocol = obfuscator.protocol;
@@ -51,11 +54,17 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
         };
 
         let exit = format_endpoint(
-            &location.hostname,
+            &location
+                .map(|l| l.hostname.as_str())
+                .unwrap_or(endpoint.address.as_str()),
             protocol,
             Some(address).filter(|_| verbose).as_deref(),
         );
-        format!("{exit} in {}, {}", &location.city, &location.country)
+        if let Some(location) = location {
+            format!("{exit} in {}, {}", &location.city, &location.country)
+        } else {
+            format!("{exit}")
+        }
     };
 
     let first_hop = endpoint.entry_endpoint.as_ref().map(|entry| {
@@ -63,14 +72,19 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
         let mut protocol = entry.protocol;
         if let Some(obfuscator) = endpoint.obfuscation.as_ref() {
             obfuscator_overlaps = true;
-            if location.entry_hostname == location.obfuscator_hostname {
+            if location
+                .map(|l| l.hostname == l.obfuscator_hostname)
+                .unwrap_or(false)
+            {
                 address = &obfuscator.address;
                 protocol = obfuscator.protocol;
             }
         };
 
         let endpoint = format_endpoint(
-            &location.entry_hostname,
+            &location
+                .map(|l| l.entry_hostname.as_str())
+                .unwrap_or(&"unknown"),
             protocol,
             Some(address).filter(|_| verbose),
         );
@@ -80,7 +94,9 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
     let obfuscator = endpoint.obfuscation.as_ref().map(|obfuscator| {
         if !obfuscator_overlaps {
             let endpoint_str = format_endpoint(
-                &location.obfuscator_hostname,
+                location
+                    .map(|l| l.obfuscator_hostname.as_str())
+                    .unwrap_or("unknown"),
                 obfuscator.protocol,
                 Some(obfuscator.address.as_str()).filter(|_| verbose),
             );
@@ -92,7 +108,9 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
 
     let bridge = endpoint.proxy.as_ref().map(|proxy| {
         let proxy_endpoint = format_endpoint(
-            &location.bridge_hostname,
+            &location
+                .map(|l| l.bridge_hostname.as_str())
+                .unwrap_or("unknown"),
             proxy.protocol,
             Some(proxy.address.as_str()).filter(|_| verbose),
         );
@@ -148,7 +166,7 @@ fn convert_obfuscator_type(obfuscator: i32) -> &'static str {
     }
 }
 
-fn format_endpoint(hostname: &String, protocol_enum: i32, addr: Option<&str>) -> String {
+fn format_endpoint(hostname: &str, protocol_enum: i32, addr: Option<&str>) -> String {
     let protocol = format_protocol(
         TransportProtocol::from_i32(protocol_enum).expect("invalid transport protocol"),
     );
