@@ -251,7 +251,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                         guard let self = self else { return }
 
                         // Release URLSessionTask from dictionary
-                        self.allRequests.removeValue(forKey: message.id)
+                        self.dispatchQueue.async {
+                            self.allRequests.removeValue(forKey: message.id)
+                        }
 
                         var reply: Data?
                         do {
@@ -278,8 +280,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             case let .cancelURLRequest(messageId):
                 self.allRequests[messageId]?.cancel()
                 self.allRequests[messageId] = nil
-
-                completionHandler?(nil)
             }
         }
     }

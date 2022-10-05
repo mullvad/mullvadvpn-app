@@ -14,7 +14,8 @@ struct PacketTunnelTransport: RESTTransport {
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) throws -> Cancellable {
         let message = try TransportMessage(
-            id: createIdForMessage(),
+            /// Create unique request UUID and store it along the URLSessionTask in a dictionary.
+            id: UUID(),
             urlRequest: request
         )
 
@@ -61,9 +62,4 @@ struct PacketTunnelTransport: RESTTransport {
         }
     }
     #endif
-
-    /// Create unique request UUID and store it along the URLSessionTask in a dictionary.
-    private func createIdForMessage() -> UUID {
-        UUID()
-    }
 }

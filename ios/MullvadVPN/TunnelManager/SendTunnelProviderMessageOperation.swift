@@ -44,13 +44,13 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
         dispatchQueue: DispatchQueue,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
-        configuration: MessagingConfiguration = .init(),
+        timeOut: TimeInterval = 5,
         decoderHandler: @escaping DecoderHandler,
-        completionHandler: @escaping CompletionHandler
+        completionHandler: CompletionHandler?
     ) {
         self.tunnel = tunnel
         self.message = message
-        self.configuration = configuration
+        configuration = MessagingConfiguration(timeout: 5)
 
         self.decoderHandler = decoderHandler
 
@@ -62,7 +62,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
     }
 
     override func main() {
-        setTimeoutTimer(connectingStateWaitDelay: 15)
+        setTimeoutTimer(connectingStateWaitDelay: 0)
 
         statusObserver = tunnel.addBlockObserver(queue: dispatchQueue) { [weak self] _, status in
             self?.handleVPNStatus(status)
@@ -210,7 +210,7 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
         dispatchQueue: DispatchQueue,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
-        completionHandler: @escaping CompletionHandler
+        completionHandler: CompletionHandler?
     ) {
         self.init(
             dispatchQueue: dispatchQueue,
@@ -234,13 +234,13 @@ extension SendTunnelProviderMessageOperation where Output == TransportMessageRep
         dispatchQueue: DispatchQueue,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
-        completionHandler: @escaping CompletionHandler
+        completionHandler: CompletionHandler?
     ) {
         self.init(
             dispatchQueue: dispatchQueue,
             tunnel: tunnel,
             message: message,
-            configuration: .init(timeout: 12),
+            timeOut: 12,
             decoderHandler: { data in
                 if let data = data {
                     return try TunnelProviderReply(messageData: data).value
