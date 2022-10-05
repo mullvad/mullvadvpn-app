@@ -246,20 +246,31 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 urlRequest.httpBody = message.httpBody
                 urlRequest.allHTTPHeaderFields = message.httpHeaders
 
-                let task = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
-                    // Release URLSessionTask from dictionary
-                    self.allRequests.removeValue(forKey: message.id)
+                let task = URLSession.shared
+                    .dataTask(with: urlRequest) { [weak self] data, response, error in
+                        guard let self = self else { return }
 
-                    completionHandler?(
-                        try? TunnelProviderReply(
-                            TransportMessageReply(
-                                data: data,
-                                response: .init(response),
-                                error: .init(error)
+                        // Release URLSessionTask from dictionary
+                        self.allRequests.removeValue(forKey: message.id)
+
+                        var reply: Data?
+                        do {
+                            reply = try TunnelProviderReply(
+                                TransportMessageReply(
+                                    data: data,
+                                    response: .init(response),
+                                    error: .init(error)
+                                )
+                            ).encode()
+                        } catch {
+                            self.providerLogger.error(
+                                error: error,
+                                message: "Failed to encode tunnel status reply."
                             )
-                        ).encode()
-                    )
-                }
+                        }
+
+                        completionHandler?(reply)
+                    }
 
                 self.allRequests[message.id] = task
 
