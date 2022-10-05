@@ -191,7 +191,7 @@ interface SelectorWithCustomItemProps<T, U> extends CommonSelectorProps<T | unde
 
 export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<T, U>) {
   const {
-    value,
+    value: _value,
     inputPlaceholder,
     onSelect,
     maxLength,
@@ -202,11 +202,14 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
     ...otherProps
   } = props;
 
+  const [value, setValue] = useState(props.value);
+  // Disables submitting of custom input when another item has been pressed.
+  const allowSubmitCustom = useRef(false);
+
   const isNonCustomItem = (value: T | U | undefined) =>
     props.items.some((item) => item.value === value) || props.automaticValue === value;
 
   const itemIsSelected = isNonCustomItem(value);
-
   // Value of custom input. The value is undefined when custom isn't picked.
   const [customValue, setCustomValue] = useState(itemIsSelected ? undefined : `${value}`);
   const customIsSelected = customValue !== undefined;
@@ -215,16 +218,23 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
 
   const handleClickCustom = useCallback(() => {
     inputRef.current?.focus();
+    // After focusing the input it should be allowed to submit custom values.
+    allowSubmitCustom.current = true;
     setCustomValue((customValue) => customValue ?? '');
   }, [customValue, inputRef.current]);
 
   const handleSelectItem = useCallback(
     (newValue: T | U | undefined) => {
       setCustomValue(undefined);
+      setValue(newValue);
+      // When pressing an item the blur shouldn't be triggered since that would cause the input
+      // value to be propagated as the new value.
+      allowSubmitCustom.current = false;
+      inputRef.current?.blur();
 
       onSelect(newValue!);
     },
-    [value, onSelect],
+    [onSelect],
   );
 
   const validateCustomValue = useCallback(
@@ -234,15 +244,18 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
 
   const handleSubmitCustom = useCallback(
     (newStringValue: string) => {
-      const newValue = parseValue(newStringValue);
+      if (allowSubmitCustom.current) {
+        const newValue = parseValue(newStringValue);
 
-      if (isNonCustomItem(newValue)) {
-        handleSelectItem(newValue);
-      } else {
-        onSelect(newValue);
+        if (isNonCustomItem(newValue)) {
+          handleSelectItem(newValue);
+        } else {
+          setValue(newValue);
+          onSelect(newValue);
+        }
       }
     },
-    [value, parseValue, onSelect],
+    [parseValue, onSelect],
   );
 
   const handleInvalidCustom = useCallback(
@@ -250,42 +263,53 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
     [itemIsSelected, value],
   );
 
+  // Delay blur event until onMouseUp resulting in handleSelectItem being called before
+  // handleSubmitCustomValue and handleInvalidCustom. Clicking on the input should still move the
+  // cursor and therefore needs to be an exception to this.
+  const handleMouseDown = useCallback((event: React.MouseEvent) => {
+    if (event.target !== inputRef.current) {
+      event.preventDefault();
+    }
+  }, []);
+
   return (
-    <Selector<T | undefined, U>
-      {...otherProps}
-      onSelect={handleSelectItem}
-      value={customIsSelected ? undefined : value}>
-      <StyledCustomContainer
-        ref={customIsSelected ? props.selectedCellRef : undefined}
-        onClick={handleClickCustom}
-        selected={customIsSelected}
-        disabled={props.disabled}
-        role="option"
-        aria-selected={customIsSelected}
-        aria-disabled={props.disabled}>
-        <StyledCellIcon
-          visible={customIsSelected}
-          source="icon-tick"
-          width={18}
-          tintColor={colors.white}
-        />
-        <StyledLabel>{messages.gettext('Custom')}</StyledLabel>
-        <AriaInput>
-          <Cell.AutoSizingTextInput
-            ref={inputRef}
-            value={customValue ?? ''}
-            placeholder={inputPlaceholder}
-            inputMode={'numeric'}
-            maxLength={maxLength ?? 4}
-            onChangeValue={setCustomValue}
-            onSubmitValue={handleSubmitCustom}
-            onInvalidValue={handleInvalidCustom}
-            submitOnBlur={true}
-            validateValue={validateCustomValue}
-            modifyValue={modifyValue}
+    <div onMouseDown={handleMouseDown}>
+      <Selector<T | undefined, U>
+        {...otherProps}
+        onSelect={handleSelectItem}
+        value={customIsSelected ? undefined : value}>
+        <StyledCustomContainer
+          ref={customIsSelected ? props.selectedCellRef : undefined}
+          onClick={handleClickCustom}
+          selected={customIsSelected}
+          disabled={props.disabled}
+          role="option"
+          aria-selected={customIsSelected}
+          aria-disabled={props.disabled}>
+          <StyledCellIcon
+            visible={customIsSelected}
+            source="icon-tick"
+            width={18}
+            tintColor={colors.white}
           />
-        </AriaInput>
-      </StyledCustomContainer>
-    </Selector>
+          <StyledLabel>{messages.gettext('Custom')}</StyledLabel>
+          <AriaInput>
+            <Cell.AutoSizingTextInput
+              ref={inputRef}
+              value={customValue ?? ''}
+              placeholder={inputPlaceholder}
+              inputMode={'numeric'}
+              maxLength={maxLength ?? 4}
+              onChangeValue={setCustomValue}
+              onSubmitValue={handleSubmitCustom}
+              onInvalidValue={handleInvalidCustom}
+              submitOnBlur={true}
+              validateValue={validateCustomValue}
+              modifyValue={modifyValue}
+            />
+          </AriaInput>
+        </StyledCustomContainer>
+      </Selector>
+    </div>
   );
 }
