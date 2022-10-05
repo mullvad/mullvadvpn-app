@@ -204,7 +204,10 @@ class RootContainerViewController: UIViewController {
     }
 
     func popViewController(animated: Bool, completion: CompletionHandler? = nil) {
-        guard viewControllers.count > 1 else { return }
+        guard viewControllers.count > 1 else {
+            completion?()
+            return
+        }
 
         var newViewControllers = viewControllers
         newViewControllers.removeLast()
@@ -222,10 +225,16 @@ class RootContainerViewController: UIViewController {
         animated: Bool,
         completion: CompletionHandler? = nil
     ) {
-        guard let index = viewControllers.firstIndex(of: viewController) else { return }
+        guard let index = viewControllers.firstIndex(of: viewController) else {
+            completion?()
+            return
+        }
 
         let newViewControllers = Array(viewControllers[...index])
-        guard !newViewControllers.isEmpty else { return }
+        guard !newViewControllers.isEmpty else {
+            completion?()
+            return
+        }
 
         setViewControllersInternal(
             newViewControllers,
@@ -236,7 +245,10 @@ class RootContainerViewController: UIViewController {
     }
 
     func popToRootViewController(animated: Bool, completion: CompletionHandler? = nil) {
-        guard let rootController = viewControllers.first else { return }
+        guard let rootController = viewControllers.first else {
+            completion?()
+            return
+        }
 
         popToViewController(rootController, animated: animated)
     }
