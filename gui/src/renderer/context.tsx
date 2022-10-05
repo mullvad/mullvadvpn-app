@@ -15,24 +15,15 @@ const missingContextError = new Error(
   'The context value is empty. Make sure to wrap the component in AppContext.Provider.',
 );
 
-export default function withAppContext<Props>(BaseComponent: React.ComponentType<Props>) {
-  // Exclude the IAppContext from props since those are injected props
-  const wrappedComponent = (props: Omit<Props, keyof IAppContext>) => {
-    return (
-      <AppContext.Consumer>
-        {(context) => {
-          if (context) {
-            // Enforce type because Typescript does not recognize that
-            // (Props ~ IAppContext & IAppContext) is identical to Props.
-            const mergedProps = ({ ...props, ...context } as unknown) as Props;
+type PropsWithoutAppContext<Props> = Omit<Props, 'app'>;
 
-            return <BaseComponent {...mergedProps} />;
-          } else {
-            throw missingContextError;
-          }
-        }}
-      </AppContext.Consumer>
-    );
+export default function withAppContext<Props>(
+  BaseComponent: React.ComponentType<PropsWithoutAppContext<Props> & IAppContext>,
+) {
+  // Exclude the IAppContext from props since those are injected props
+  const wrappedComponent = (props: PropsWithoutAppContext<Props>) => {
+    const appContext = useAppContext();
+    return <BaseComponent app={appContext} {...props} />;
   };
 
   if (window.env.development) {
