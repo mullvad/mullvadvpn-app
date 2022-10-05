@@ -56,7 +56,8 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
         let exit = format_endpoint(
             location.map(|l| l.hostname.as_str()),
             protocol,
-            Some(address).filter(|_| verbose).as_deref(),
+            &*address,
+            verbose,
         );
         if let Some(location) = location {
             format!("{exit} in {}, {}", &location.city, &location.country)
@@ -82,7 +83,8 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
         let endpoint = format_endpoint(
             location.map(|l| l.entry_hostname.as_str()),
             protocol,
-            Some(address).filter(|_| verbose),
+            address,
+            verbose,
         );
         format!("{prefix_separator}via {endpoint}")
     });
@@ -92,7 +94,8 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
             let endpoint_str = format_endpoint(
                 location.map(|l| l.obfuscator_hostname.as_str()),
                 obfuscator.protocol,
-                Some(obfuscator.address.as_str()).filter(|_| verbose),
+                obfuscator.address.as_str(),
+                verbose,
             );
             format!("{prefix_separator}obfuscated via {endpoint_str}")
         } else {
@@ -104,7 +107,8 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
         let proxy_endpoint = format_endpoint(
             location.map(|l| l.bridge_hostname.as_str()),
             proxy.protocol,
-            Some(proxy.address.as_str()).filter(|_| verbose),
+            proxy.address.as_str(),
+            verbose,
         );
 
         format!("{prefix_separator}via {proxy_endpoint}")
@@ -158,15 +162,22 @@ fn convert_obfuscator_type(obfuscator: i32) -> &'static str {
     }
 }
 
-fn format_endpoint(hostname: Option<&str>, protocol_enum: i32, addr: Option<&str>) -> String {
+fn format_endpoint(
+    hostname: Option<&str>,
+    protocol_enum: i32,
+    addr: &str,
+    verbose: bool,
+) -> String {
     let protocol = format_protocol(
         TransportProtocol::from_i32(protocol_enum).expect("invalid transport protocol"),
     );
-    let sockaddr_suffix = addr
-        .map(|addr| format!(" ({addr}/{protocol})"))
-        .unwrap_or_else(String::new);
-    let hostname = hostname.or(addr).unwrap_or("unknown");
-    format!("{hostname}{sockaddr_suffix}")
+
+    match (hostname, verbose) {
+        (Some(hostname), true) => format!("{hostname} ({addr}/{protocol})"),
+        (None, true) => format!("{addr}/{protocol}"),
+        (Some(hostname), false) => hostname.to_string(),
+        (None, false) => addr.to_string(),
+    }
 }
 
 fn print_error_state(error_state: &ErrorState) {
