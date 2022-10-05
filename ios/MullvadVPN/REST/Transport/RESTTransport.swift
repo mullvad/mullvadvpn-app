@@ -12,5 +12,5 @@ protocol RESTTransport {
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
-    ) -> Cancellable?
+    ) throws -> Cancellable
 }

@@ -20,7 +20,7 @@ struct URLSessionTransport: RESTTransport {
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
-    ) -> Cancellable? {
+    ) throws -> Cancellable {
         let dataTask = urlSession.dataTask(
             with: request,
             completionHandler: completion

@@ -13,7 +13,7 @@ import Foundation
 /// and recreate the original request inside the tunnel.
 struct TransportMessage: Codable {
     let id: UUID
-    let url: URL?
+    let url: URL
     let method: String?
     let httpBody: Data?
     let httpHeaders: [String: String]?
@@ -24,12 +24,14 @@ struct TransportMessage: Codable {
 }
 
 extension TransportMessage {
-    init(id: UUID, urlRequest: URLRequest) {
+    init(id: UUID, urlRequest: URLRequest) throws {
+        guard let url = urlRequest.url else { throw URLError(.badURL) }
+
         self.id = id
-        url = urlRequest.url
-        method = urlRequest.httpMethod
-        httpBody = urlRequest.httpBody
-        httpHeaders = urlRequest.allHTTPHeaderFields
+        self.url = url
+        self.method = urlRequest.httpMethod
+        self.httpBody = urlRequest.httpBody
+        self.httpHeaders = urlRequest.allHTTPHeaderFields
     }
 }
 

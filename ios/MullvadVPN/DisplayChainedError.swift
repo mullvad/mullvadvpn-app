@@ -51,6 +51,27 @@ extension REST.Error: DisplayChainedError {
                 value: "Server response decoding error",
                 comment: ""
             )
+        case .emptyData:
+            return NSLocalizedString(
+                "INTERNAL_RESPONSE_ERROR",
+                tableName: "REST",
+                value: "Server response data is nil",
+                comment: ""
+            )
+        case .responseTypeMissMatch:
+            return NSLocalizedString(
+                "INTERNAL_CASTING_ERROR",
+                tableName: "REST",
+                value: "Casting server response was unsuccessful",
+                comment: ""
+            )
+        case .unknown(let error):
+            return NSLocalizedString(
+                "SERVER_RESPONSE_UNKNOWN_ERROR",
+                tableName: "REST",
+                value: "Unknown error, original error: \(error.localizedDescription)",
+                comment: ""
+            )
         }
     }
 }

@@ -523,11 +523,15 @@ final class TunnelManager {
     func sendRequest(
         message: TransportMessage,
         completionHandler: @escaping (OperationCompletion<TransportMessageReply, Error>) -> Void
-    ) -> Cancellable? {
-        tunnel?.sendRequest(
-            message,
-            completionHandler: completionHandler
-        )
+    ) throws -> Cancellable {
+        if let tunnel {
+            return tunnel.sendRequest(
+                message,
+                completionHandler: completionHandler
+            )
+        } else {
+            throw SendTunnelProviderMessageError.tunnelDown(.invalid)
+        }
     }
 
     // MARK: - Tunnel observeration

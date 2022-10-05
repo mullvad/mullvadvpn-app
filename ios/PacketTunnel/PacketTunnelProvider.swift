@@ -241,14 +241,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
                 completionHandler?(response)
             case let .transportHTTPRequest(message):
-                guard
-                    let url = message.url
-                else {
-                    completionHandler?(nil)
-                    return
-                }
-
-                var urlRequest = URLRequest(url: url)
+                var urlRequest = URLRequest(url: message.url)
                 urlRequest.httpMethod = message.method
                 urlRequest.httpBody = message.httpBody
                 urlRequest.allHTTPHeaderFields = message.httpHeaders
@@ -274,6 +267,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             case let .cancelURLRequest(messageId):
                 self.allRequests[messageId]?.cancel()
                 self.allRequests[messageId] = nil
+
+                completionHandler?(nil)
             }
         }
     }
