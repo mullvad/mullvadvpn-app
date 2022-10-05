@@ -99,6 +99,11 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             reasserting = false
 
             return nil
+
+        case .transportHTTPRequest:
+            return nil
+        case .cancelURLRequest:
+            return nil
         }
     }
 

@@ -142,6 +142,61 @@ extension REST {
                     "Send request to \(restRequest.pathTemplate.templateString) via \(endpoint)."
                 )
 
+            if shouldUsePacketTunnelTransport() {
+                packetTunnelTransport(restRequest, endpoint: endpoint)
+            } else {
+                urlSessionTransport(restRequest, endpoint: endpoint)
+            }
+        }
+
+        private func shouldUsePacketTunnelTransport() -> Bool {
+            switch TunnelManager.shared.tunnelStatus.state {
+            case .pendingReconnect: return false
+            case .connecting: break
+            case .connected: return false
+            case .disconnecting: return false
+            case .disconnected: return false
+            case .reconnecting: break
+            case .waitingForConnectivity: return false
+            }
+
+            if TunnelManager.shared.deviceState == .revoked {
+                return true
+            }
+
+            return retryCount == retryStrategy.maxRetryCount
+        }
+
+        private func packetTunnelTransport(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
+            do {
+                networkTask = try PacketTunnelTransport()
+                    .sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
+                        guard let self = self else { return }
+
+                        self.dispatchQueue.async {
+                            if let error = error {
+                                self.didReceiveError(error, endpoint: endpoint)
+                            } else {
+                                let httpResponse = response as! HTTPURLResponse
+                                let data = data ?? Data()
+
+                                self.didReceiveURLResponse(
+                                    httpResponse,
+                                    data: data,
+                                    endpoint: endpoint
+                                )
+                            }
+                        }
+                    }
+            } catch {
+                logger
+                    .debug(
+                        "Failure to send request to \(restRequest.pathTemplate.templateString) via \(endpoint) inside the packet transport tunnel."
+                    )
+            }
+        }
+
+        private func urlSessionTransport(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             do {
                 networkTask = try URLSessionTransport(urlSession: urlSession)
                     .sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
@@ -165,7 +220,7 @@ extension REST {
             } catch {
                 logger
                     .debug(
-                        "Failure to send request to \(restRequest.pathTemplate.templateString) via \(endpoint) inside the transport tunnel."
+                        "Failure to send request to \(restRequest.pathTemplate.templateString) via \(endpoint) inside the url session transport tunnel."
                     )
             }
         }
