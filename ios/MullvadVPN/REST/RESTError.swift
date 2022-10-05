@@ -23,6 +23,15 @@ extension REST {
         /// A failure to decode server response.
         case decodeResponse(Swift.Error)
 
+        /// A failure to get server response data (data is empty/nil).
+        case emptyData
+
+        /// A failure to cast server response.
+        case responseTypeMissMatch
+
+        /// A failure to get the url error from server response, treating error like any Error.
+        case unknown(Swift.Error)
+
         var errorDescription: String? {
             switch self {
             case let .createURLRequest(error):
@@ -43,6 +52,12 @@ extension REST {
                 return str
             case let .decodeResponse(error):
                 return "Failure to decode URL response data: \(error.localizedDescription)."
+            case .emptyData:
+                return "Failure to get data from response, data was nil."
+            case .responseTypeMissMatch:
+                return "Failure to cast response."
+            case .unknown:
+                return "Failure to handle, unknown error happened."
             }
         }
 
@@ -54,7 +69,9 @@ extension REST {
                 return error
             case let .decodeResponse(error):
                 return error
-            case .unhandledResponse:
+            case let .unknown(error):
+                return error
+            case .unhandledResponse, .emptyData, .responseTypeMissMatch:
                 return nil
             }
         }

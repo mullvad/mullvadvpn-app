@@ -12,13 +12,13 @@ struct PacketTunnelTransport: RESTTransport {
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
-    ) -> Cancellable? {
-        let message = TransportMessage(
+    ) throws -> Cancellable {
+        let message = try TransportMessage(
             id: createIdForMessage(),
             urlRequest: request
         )
 
-        return TunnelManager.shared.sendRequest(message: message) { result in
+        return try TunnelManager.shared.sendRequest(message: message) { result in
             switch result {
             case .cancelled: break
             case let .success(reply):
@@ -41,8 +41,8 @@ struct PacketTunnelTransport: RESTTransport {
     func sendRequest(
         _ httpBody: TransportMessage,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
-    ) -> Cancellable? {
-        return TunnelManager.shared.sendRequest(message: httpBody) { result in
+    ) throws -> Cancellable {
+        return try TunnelManager.shared.sendRequest(message: httpBody) { result in
             switch result {
             case .cancelled: break
             case let .success(reply):

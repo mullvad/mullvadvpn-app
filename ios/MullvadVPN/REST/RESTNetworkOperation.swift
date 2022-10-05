@@ -142,20 +142,24 @@ extension REST {
                     "Send request to \(restRequest.pathTemplate.templateString) via \(endpoint)."
                 )
 
-            networkTask = URLSessionTransport(urlSession: urlSession)
+            networkTask = try? URLSessionTransport(urlSession: urlSession)
                 .sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
                     guard let self = self else { return }
 
                     self.dispatchQueue.async {
                         if let error = error {
-                            if let urlError = error as? URLError {
-                                self.didReceiveURLError(urlError, endpoint: endpoint)
-                            } else {
-                                self.didFailToCreateURLRequest(REST.Error.createURLRequest(error))
-                            }
+                            self.didReceiveError(error, endpoint: endpoint)
                         } else {
-                            let httpResponse = response as! HTTPURLResponse
-                            let data = data ?? Data()
+                            guard let httpResponse = response as? HTTPURLResponse else {
+                                self.finish(completion: .failure(.responseTypeMissMatch))
+                                return
+                            }
+
+                            guard let data = data else {
+                                self.finish(completion: .failure(.emptyData))
+
+                                return
+                            }
 
                             self.didReceiveURLResponse(httpResponse, data: data, endpoint: endpoint)
                         }
@@ -172,6 +176,14 @@ extension REST {
             )
 
             finish(completion: .failure(error))
+        }
+
+        private func didReceiveError(_ error: Swift.Error, endpoint: AnyIPEndpoint) {
+            if let urlError = error as? URLError {
+                didReceiveURLError(urlError, endpoint: endpoint)
+            } else {
+                didReceiveUnknownError(.unknown(error), endpoint: endpoint)
+            }
         }
 
         private func didReceiveURLError(_ urlError: URLError, endpoint: AnyIPEndpoint) {
@@ -228,6 +240,15 @@ extension REST {
             timer.activate()
 
             retryTimer = timer
+        }
+
+        private func didReceiveUnknownError(_ error: REST.Error, endpoint: AnyIPEndpoint) {
+            logger.error(
+                error: error,
+                message: "Failed to perform request to \(endpoint)."
+            )
+
+            self.finish(completion: .failure(error))
         }
 
         private func didReceiveURLResponse(
