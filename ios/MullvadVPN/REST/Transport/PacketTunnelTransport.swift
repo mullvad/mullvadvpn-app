@@ -37,29 +37,4 @@ struct PacketTunnelTransport: RESTTransport {
             }
         }
     }
-
-    #if DEBUG
-    func sendRequest(
-        _ httpBody: TransportMessage,
-        completion: @escaping (Data?, URLResponse?, Error?) -> Void
-    ) throws -> Cancellable {
-        return try TunnelManager.shared.sendRequest(message: httpBody) { result in
-            switch result {
-            case .cancelled: break
-            case let .success(reply):
-                completion(
-                    reply.data,
-                    reply.response?.originalResponse(),
-                    reply.error?.originalError()
-                )
-            case let .failure(error):
-                completion(
-                    nil,
-                    nil,
-                    error
-                )
-            }
-        }
-    }
-    #endif
 }
