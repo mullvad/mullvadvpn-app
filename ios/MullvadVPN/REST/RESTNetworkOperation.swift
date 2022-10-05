@@ -248,7 +248,7 @@ extension REST {
                 message: "Failed to perform request to \(endpoint)."
             )
 
-            self.finish(completion: .failure(error))
+            finish(completion: .failure(error))
         }
 
         private func didReceiveURLResponse(

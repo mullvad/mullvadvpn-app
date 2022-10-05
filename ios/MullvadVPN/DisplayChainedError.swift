@@ -65,7 +65,7 @@ extension REST.Error: DisplayChainedError {
                 value: "Casting server response was unsuccessful",
                 comment: ""
             )
-        case .unknown(let error):
+        case let .unknown(error):
             return NSLocalizedString(
                 "SERVER_RESPONSE_UNKNOWN_ERROR",
                 tableName: "REST",
